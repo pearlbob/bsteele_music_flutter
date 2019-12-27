@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:math';
 
 class Util {
+  /// Always return a positive modulus
   static int mod(int n, int modulus) {
     n = n % modulus;
     if (n < 0) n += modulus;
@@ -10,25 +11,32 @@ class Util {
   }
 }
 
+/// A String with a marked location to be used in parsing.
+/// The current location is remembered.
+/// Characters can be consumed by asking for the next character.
+/// Locations in the string can be marked and returned to.
+/// Typically this happens on a failed lookahead parse effort.
 class MarkedString {
-  MarkedString(String s) {
-    _string = (s == null ? "" : s);
-  }
+  MarkedString(this._string) {}
 
+  /// mark the current location
   int mark() {
     _markIndex = _index;
     return _markIndex;
   }
 
+  /// set the mark to the given location
   void setToMark(int m) {
     _markIndex = m;
     resetToMark();
   }
 
+  /// Return the current mark
   int getMark() {
     return _markIndex;
   }
 
+  /// Return the current location to the mark
   void resetToMark() {
     _index = _markIndex;
   }
@@ -43,6 +51,18 @@ class MarkedString {
 
   String getNextChar() {
     return _string[_index++];
+  }
+
+  int codeUnitAt(int index) {
+    return _string[_index].codeUnitAt(0);
+  }
+
+  int firstUnit() {
+    return _string[_index].codeUnitAt(0);
+  }
+
+  String first() {
+    return _string[_index].substring(0, 1);
   }
 
   int indexOf(String s) {
@@ -76,5 +96,5 @@ class MarkedString {
 
   int _index = 0;
   int _markIndex = 0;
-  String _string;
+  final String _string;
 }

@@ -3,6 +3,7 @@
 import 'dart:collection';
 
 import '../util.dart';
+import 'MusicConstants.dart';
 
 enum ScaleNoteEnum {
   A,
@@ -162,59 +163,55 @@ class ScaleNote {
     return get(_flats[Util.mod(step, halfStepsPerOctave)]);
   }
 
-//  final static ScaleNote parse(String s)
-//  throws ParseException {
-//  return parse(new MarkedString(s));
-//}
-//
-//
-  ///**
-// * Return the ScaleNote represented by the given string.
-// * Is case sensitive.
-// * <p>Ultimately, the markup language will disappear.</p>
-// *
-// * @param markedString string buffer to be parsed
-// * @return ScaleNote represented by the string.  Can be null.
-// * @throws ParseException thrown if parsing fails
-// */
-//final static ScaleNote parse(MarkedString markedString)
-//throws ParseException {
-//if (markedString == null || markedString.isEmpty())
-//throw new ParseException("no data to parse", 0);
-//
-//char c = markedString.charAt(0);
-//if (c < 'A' || c > 'G') {
-//if (c == 'X') {
-//markedString.getNextChar();
-//return ScaleNote.X;
-//}
-//throw new ParseException("scale note must start with A to G", 0);
-//}
-//
-//StringBuilder scaleNoteString = new StringBuilder();
-//scaleNoteString.append(c);
-//markedString.getNextChar();
-//
-////  look for modifier
-//if (!markedString.isEmpty()) {
-//c = markedString.charAt(0);
-//switch (c) {
-//case 'b':
-//case MusicConstant.flatChar:
-//scaleNoteString.append('b');
-//markedString.getNextChar();
-//break;
-//
-//case '#':
-//case MusicConstant.sharpChar:
-//scaleNoteString.append('s');
-//markedString.getNextChar();
-//break;
-//}
-//}
-//
-//return ScaleNote.valueOf(scaleNoteString.toString());
-//}
+  static ScaleNote parseString(String s) {
+    return parse(new MarkedString(s));
+  }
+
+  /**
+   * Return the ScaleNote represented by the given string.
+   * Is case sensitive.
+   * <p>Ultimately, the markup language will disappear.</p>
+   *
+   * @param markedString string buffer to be parsed
+   * @return ScaleNote represented by the string.  Can be null.
+   * @throws ParseException thrown if parsing fails
+   */
+  static ScaleNote parse(MarkedString markedString) {
+    if (markedString == null || markedString.isEmpty())
+      throw new ArgumentError("no data to parse");
+
+    int c = markedString.firstUnit();
+    if (c < 'A'.codeUnitAt(0) || c > 'G'.codeUnitAt(0)) {
+      if (c == 'X') {
+        markedString.getNextChar();
+        return get(ScaleNoteEnum.X);
+      }
+      throw new ArgumentError("scale note must start with A to G");
+    }
+
+    StringBuffer scaleNoteString = new StringBuffer();
+    scaleNoteString.write(c);
+    markedString.getNextChar();
+
+//  look for modifier
+    if (!markedString.isEmpty()) {
+      switch (markedString.first()) {
+        case 'b':
+        case MusicConstants.flatChar:
+          scaleNoteString.write('b');
+          markedString.getNextChar();
+          break;
+
+        case '#':
+        case MusicConstants.sharpChar:
+          scaleNoteString.write('s');
+          markedString.getNextChar();
+          break;
+      }
+    }
+
+    return ScaleNote.valueOf(scaleNoteString.toString());
+  }
 
   /*
 ScaleNote transpose(Key key, int steps) {
@@ -286,6 +283,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
     ScaleNoteEnum.G,
     ScaleNoteEnum.Gs
   ];
+
   //  all flats
   static final _flats = [
     ScaleNoteEnum.A,
@@ -302,14 +300,13 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
     ScaleNoteEnum.Ab
   ];
 
-
   static ScaleNote get(ScaleNoteEnum e) {
     return _map()[e];
   }
 
   static HashMap<ScaleNoteEnum, ScaleNote> _map() {
     //  lazy eval
-    if (_hashmap==null) {
+    if (_hashmap == null) {
       _hashmap = HashMap();
 
       //  fill the map
@@ -336,6 +333,18 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
       }
     }
     return _hashmap;
+  }
+
+  static ScaleNote valueOf(String name) {
+    //  lazy eval
+    if (_parseMap == null) {
+      for (ScaleNoteEnum e in ScaleNoteEnum.values) {
+        ScaleNote sn = get(e);
+        _parseMap[sn._scaleNoteMarkup] = sn;
+        _parseMap[sn._scaleNoteString] = sn;
+      }
+    }
+    return _parseMap[name];
   }
 
   static final int halfStepsPerOctave = 12;

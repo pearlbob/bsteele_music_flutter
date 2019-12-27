@@ -8,21 +8,21 @@ void main() => runApp(MyApp());
 
 /*
 project structure
-____unit tests
 json
 packaging
 deployment
 websockets/server
-.gitignore
 resources
 ui tables
 MVC?
 file io (web, android)
 flutter on linux?
-debugPrint
-documentation
+what is debugPrint
+software documentation
 string parsing mechanics
 
+____.gitignore
+____unit tests
  */
 
 class MyApp extends StatelessWidget {

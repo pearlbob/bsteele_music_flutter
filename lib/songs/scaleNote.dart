@@ -135,7 +135,7 @@ class ScaleNote {
     base = base.substring(0, 1);
     _scaleNoteString = base + mod;
     _scaleNoteHtml = base + modHtml;
-    _scaleNoteMarkup = base+modMarkup;
+    _scaleNoteMarkup = base + modMarkup;
 
     //  alia's done at the static class level
   }
@@ -215,25 +215,21 @@ class ScaleNote {
 //
 //return ScaleNote.valueOf(scaleNoteString.toString());
 //}
-//
-//public final ScaleNote transpose(Key key, int steps) {
-//if (this == ScaleNote.X)
-//return ScaleNote.X;
-//return key.getScaleNoteByHalfStep(halfStep + steps);
-//}
-//
 
-  ///**
-// * Returns the name of this scale note in an HTML format.
-// *
-// * @return the scale note as HTML
-// */
+  /*
+ScaleNote transpose(Key key, int steps) {
+if (this == ScaleNote.X)
+return ScaleNote.X;
+return key.getScaleNoteByHalfStep(halfStep + steps);
+}
+*/
+
+  /// Returns the name of this scale note in an HTML format.
   String toHtml() {
     return _scaleNoteHtml;
   }
 
-  ///**
-  // * Return the scale note as markup.
+  /// Return the scale note as markup.
   String toMarkup() {
     return _scaleNoteMarkup;
   }
@@ -268,14 +264,14 @@ class ScaleNote {
 
   bool get isSilent => _isSilent;
 
-  ///
-  //  Returns the name of this scale note in a user friendly text format,
+  ///  Returns the name of this scale note in a user friendly text format,
   //  i.e. as UTF-8
   @override
   String toString() {
     return _scaleNoteMarkup;
   }
 
+  //  all sharps
   static final _sharps = [
     ScaleNoteEnum.A,
     ScaleNoteEnum.As,
@@ -290,6 +286,7 @@ class ScaleNote {
     ScaleNoteEnum.G,
     ScaleNoteEnum.Gs
   ];
+  //  all flats
   static final _flats = [
     ScaleNoteEnum.A,
     ScaleNoteEnum.Bb,
@@ -305,36 +302,32 @@ class ScaleNote {
     ScaleNoteEnum.Ab
   ];
 
-  static final int halfStepsPerOctave = 12;
-
-  static HashMap<ScaleNoteEnum, ScaleNote> _map = HashMap();
 
   static ScaleNote get(ScaleNoteEnum e) {
-    return _getMap()[e];
+    return _map()[e];
   }
 
-  static HashMap<ScaleNoteEnum, ScaleNote> _getMap() {
+  static HashMap<ScaleNoteEnum, ScaleNote> _map() {
     //  lazy eval
-    if (_map.isEmpty) {
+    if (_hashmap==null) {
+      _hashmap = HashMap();
 
       //  fill the map
       for (ScaleNoteEnum e in ScaleNoteEnum.values) {
-        _map[e] = ScaleNote(e);
+        _hashmap[e] = ScaleNote(e);
       }
 
       //  find and assign the alias, if it exists
       for (ScaleNoteEnum e1 in ScaleNoteEnum.values) {
-        if (e1 == ScaleNoteEnum.X)
-          continue;
+        if (e1 == ScaleNoteEnum.X) continue;
         ScaleNote scaleNote1 = get(e1);
-        if ( scaleNote1.isNatural || scaleNote1._alias != null )
-          continue;   //  don't duplicate the effort
+        if (scaleNote1.isNatural || scaleNote1._alias != null)
+          continue; //  don't duplicate the effort
         for (ScaleNoteEnum e2 in ScaleNoteEnum.values) {
-          if (e2 == ScaleNoteEnum.X)
-            continue;
+          if (e2 == ScaleNoteEnum.X) continue;
           ScaleNote scaleNote2 = get(e2);
-          if ( scaleNote2.isNatural || scaleNote2._alias != null )
-            continue;   //  don't duplicate the effort
+          if (scaleNote2.isNatural || scaleNote2._alias != null)
+            continue; //  don't duplicate the effort
           if (e1 != e2 && scaleNote1.halfStep == scaleNote2.halfStep) {
             scaleNote1._alias = scaleNote2;
             scaleNote2._alias = scaleNote1;
@@ -342,6 +335,11 @@ class ScaleNote {
         }
       }
     }
-    return _map;
+    return _hashmap;
   }
+
+  static final int halfStepsPerOctave = 12;
+
+  static HashMap<ScaleNoteEnum, ScaleNote> _hashmap;
+  static HashMap<String, ScaleNote> _parseMap;
 }

@@ -84,6 +84,7 @@ class ScaleNote {
 
     String mod = "";
     String modHtml = "";
+    String modMarkup = "";
 
     _isSharp = false;
     _isFlat = false;
@@ -114,6 +115,7 @@ class ScaleNote {
       case ScaleNoteEnum.Gs:
         mod += '\u266F';
         modHtml = "&#9839;";
+        modMarkup = "#";
         _isSharp = true;
         break;
       case ScaleNoteEnum.Ab:
@@ -125,6 +127,7 @@ class ScaleNote {
       case ScaleNoteEnum.Gb:
         mod += '\u266D';
         modHtml = "&#9837;";
+        modMarkup = "b";
         _isFlat = true;
         break;
     }
@@ -132,15 +135,9 @@ class ScaleNote {
     base = base.substring(0, 1);
     _scaleNoteString = base + mod;
     _scaleNoteHtml = base + modHtml;
-    _scaleNoteMarkup = base;
+    _scaleNoteMarkup = base+modMarkup;
 
-    //  find and assign the alias, if it exists
-    for (ScaleNoteEnum e in ScaleNoteEnum.values) {
-      ScaleNote other = get(e);
-      if (this != other && this.halfStep == other.halfStep) {
-        this._alias = other;
-      }
-    }
+    //  alia's done at the static class level
   }
 
   ScaleNoteEnum getEnum() {
@@ -225,7 +222,6 @@ class ScaleNote {
 //return key.getScaleNoteByHalfStep(halfStep + steps);
 //}
 //
-
 
   ///**
 // * Returns the name of this scale note in an HTML format.
@@ -314,12 +310,38 @@ class ScaleNote {
   static HashMap<ScaleNoteEnum, ScaleNote> _map = HashMap();
 
   static ScaleNote get(ScaleNoteEnum e) {
-    ScaleNote ret = _map[e];
-    if (ret == null) {
-      //  lazy eval of all values... eventually
-      ret = ScaleNote(e);
-      _map[e] = ret;
+    return _getMap()[e];
+  }
+
+  static HashMap<ScaleNoteEnum, ScaleNote> _getMap() {
+    //  lazy eval
+    if (_map.isEmpty) {
+
+      //  fill the map
+      for (ScaleNoteEnum e in ScaleNoteEnum.values) {
+        _map[e] = ScaleNote(e);
+      }
+
+      //  find and assign the alias, if it exists
+      for (ScaleNoteEnum e1 in ScaleNoteEnum.values) {
+        if (e1 == ScaleNoteEnum.X)
+          continue;
+        ScaleNote scaleNote1 = get(e1);
+        if ( scaleNote1.isNatural || scaleNote1._alias != null )
+          continue;   //  don't duplicate the effort
+        for (ScaleNoteEnum e2 in ScaleNoteEnum.values) {
+          if (e2 == ScaleNoteEnum.X)
+            continue;
+          ScaleNote scaleNote2 = get(e2);
+          if ( scaleNote2.isNatural || scaleNote2._alias != null )
+            continue;   //  don't duplicate the effort
+          if (e1 != e2 && scaleNote1.halfStep == scaleNote2.halfStep) {
+            scaleNote1._alias = scaleNote2;
+            scaleNote2._alias = scaleNote1;
+          }
+        }
+      }
     }
-    return ret;
+    return _map;
   }
 }

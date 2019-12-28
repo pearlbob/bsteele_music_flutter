@@ -20,6 +20,6 @@ class Player extends StatelessWidget {
         );
     }
 
-    var _app = AppData();
+    final _app = AppData();
 }
 

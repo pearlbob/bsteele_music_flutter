@@ -59,12 +59,8 @@ class MusicConstants {
   ];
 
 
-  /**
-   * Return the major diatonic chord descriptor for the given degree.
-   *
-   * @param degree the given degree
-   * @return the major diatonic chord descriptor
-   */
+///
+//    Return the major diatonic chord descriptor for the given degree.
   static ChordDescriptor getMajorDiatonicChordModifier(int degree) {
     return _majorDiatonicChordModifiers[Util.mod(
         degree, _majorDiatonicChordModifiers.length)];
@@ -82,12 +78,8 @@ class MusicConstants {
   ];
 
 
-  /**
-   * Return the major diatonic chord descriptor for the given degree.
-   *
-   * @param degree the given degree
-   * @return the major diatonic chord descriptor
-   */
+///
+//    Return the major diatonic chord descriptor for the given degree.
   static ChordDescriptor getMinorDiatonicChordModifier(int degree) {
     return _minorDiatonicChordModifiers[Util.mod(
         degree, _minorDiatonicChordModifiers.length)];

@@ -32,9 +32,9 @@ enum ScaleNoteEnum {
 
 ///
 class ScaleNote {
-  ScaleNote(_enum) {
-    this._enum = _enum;
-    switch (_enum) {
+  ScaleNote(ScaleNoteEnum scaleNoteE) {
+    this._enum = scaleNoteE;
+    switch (scaleNoteE) {
       case ScaleNoteEnum.A:
       case ScaleNoteEnum.X:
         _halfStep = 0;
@@ -92,7 +92,7 @@ class ScaleNote {
     _isNatural = false;
     _isSilent = false;
 
-    switch (_enum) {
+    switch (scaleNoteE) {
       case ScaleNoteEnum.A:
       case ScaleNoteEnum.B:
       case ScaleNoteEnum.C:
@@ -132,7 +132,7 @@ class ScaleNote {
         _isFlat = true;
         break;
     }
-    String base = _enum.toString().split('.').last;
+    String base = scaleNoteE.toString().split('.').last;
     base = base.substring(0, 1);
     _scaleNoteString = base + mod;
     _scaleNoteHtml = base + modHtml;
@@ -167,22 +167,15 @@ class ScaleNote {
     return parse(new MarkedString(s));
   }
 
-  /**
-   * Return the ScaleNote represented by the given string.
-   * Is case sensitive.
-   * <p>Ultimately, the markup language will disappear.</p>
-   *
-   * @param markedString string buffer to be parsed
-   * @return ScaleNote represented by the string.  Can be null.
-   * @throws ParseException thrown if parsing fails
-   */
+/// Return the ScaleNote represented by the given string.
+//  Is case sensitive.
   static ScaleNote parse(MarkedString markedString) {
     if (markedString == null || markedString.isEmpty())
       throw new ArgumentError("no data to parse");
 
     int c = markedString.firstUnit();
     if (c < 'A'.codeUnitAt(0) || c > 'G'.codeUnitAt(0)) {
-      if (c == 'X') {
+      if (c == 'X'.codeUnitAt(0)) {
         markedString.getNextChar();
         return get(ScaleNoteEnum.X);
       }

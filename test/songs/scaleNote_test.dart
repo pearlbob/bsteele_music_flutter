@@ -8,13 +8,13 @@ void main() {
     sn = ScaleNote.get(ScaleNoteEnum.X);
     expect(0, sn.halfStep);
 
-    RegExp ends_in_b = new RegExp(r"b$");
-    RegExp ends_in_s = new RegExp(r"s$");
+    final RegExp endsInB = new RegExp(r"b$");
+    final RegExp endsInS = new RegExp(r"s$");
     for (final e in ScaleNoteEnum.values) {
       sn = ScaleNote.get(e);
-//        print(  e.toString() + ": " + ends_in_b.hasMatch(e.toString()).toString());
-      expect(ends_in_b.hasMatch(e.toString()), sn.isFlat);
-      expect(ends_in_s.hasMatch(e.toString()), sn.isSharp);
+//        print(  e.toString() + ": " + endsInB.hasMatch(e.toString()).toString());
+      expect(endsInB.hasMatch(e.toString()), sn.isFlat);
+      expect(endsInS.hasMatch(e.toString()), sn.isSharp);
       if (e != ScaleNoteEnum.X) {
         expect(sn.isFlat, !(sn.isSharp || sn.isNatural));
         expect(false, sn.isSilent);

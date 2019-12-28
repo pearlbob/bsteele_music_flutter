@@ -1,9 +1,9 @@
 import '../util.dart';
 import 'MusicConstants.dart';
 
-/**
- * Components of a chord expressed in a structured single note form.
- */
+///
+// Components of a chord expressed in a structured single note form.
+//
 class ChordComponent {
   static final ChordComponent root = ChordComponent._("R", 1, 0);
   static final ChordComponent minorSecond = ChordComponent._("m2", 2, 1);
@@ -21,14 +21,14 @@ class ChordComponent {
   static final eleventh = ChordComponent._("11", 11, 12 + 7);
   static final thirteenth = ChordComponent._("13", 13, 12 + 11);
 
-  ChordComponent._(this._shortName, this._scaleNumber, this._halfSteps) {}
+  ChordComponent._(this._shortName, this._scaleNumber, this._halfSteps) ;
 
   static List<ChordComponent> parse(String chordComponentString) {
     List<ChordComponent> ret = new List();
-    for (String s in chordComponentString.split("[,. ]")) {
+    for (String s in chordComponentString.split(new RegExp(r"[,. ]"))) {
       if (s.length <= 0) continue;
 
-      ChordComponent cc = null;
+      ChordComponent cc;
       for (ChordComponent t in _chordComponentByHalfSteps)
         if (t.shortName == s) {
           cc = t;
@@ -45,6 +45,15 @@ class ChordComponent {
           case "m5":
             cc = flatFifth;
             break;
+          case "9":
+            cc = ninth;
+            break;
+          case "11":
+            cc = eleventh;
+            break;
+          case "13":
+            cc = thirteenth;
+            break;
           default:
             throw new ArgumentError("unknown component: <" + s + ">");
         }
@@ -56,6 +65,11 @@ class ChordComponent {
   static ChordComponent getByHalfStep(int halfStep) {
     return _chordComponentByHalfSteps[
         Util.mod(halfStep, MusicConstants.halfStepsPerOctave)];
+  }
+
+  @override
+  String toString() {
+    return _shortName;
   }
 
   String get shortName => _shortName;

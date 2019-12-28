@@ -17,7 +17,7 @@ class Util {
 /// Locations in the string can be marked and returned to.
 /// Typically this happens on a failed lookahead parse effort.
 class MarkedString {
-  MarkedString(this._string) {}
+  MarkedString(this._string);
 
   /// mark the current location
   int mark() {

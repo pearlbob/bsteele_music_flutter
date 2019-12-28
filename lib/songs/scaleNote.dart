@@ -32,7 +32,7 @@ enum ScaleNoteEnum {
 
 ///
 class ScaleNote {
-  ScaleNote(ScaleNoteEnum scaleNoteE) {
+  ScaleNote._(ScaleNoteEnum scaleNoteE) {
     this._enum = scaleNoteE;
     switch (scaleNoteE) {
       case ScaleNoteEnum.A:
@@ -100,7 +100,7 @@ class ScaleNote {
       case ScaleNoteEnum.E:
       case ScaleNoteEnum.F:
       case ScaleNoteEnum.G:
-        mod += '\u266E';
+        //mod += '\u266E';  //  fixme: natural sign on scale not is overkill?
         modHtml = "&#9838;";
         _isNatural = true;
         break;
@@ -230,6 +230,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
 
   int get halfStep => _halfStep;
 
+  String get scaleNoteString=>_scaleNoteString;
   String _scaleNoteString;
   String _scaleNoteHtml;
   String _scaleNoteMarkup;
@@ -304,7 +305,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
 
       //  fill the map
       for (ScaleNoteEnum e in ScaleNoteEnum.values) {
-        _hashmap[e] = ScaleNote(e);
+        _hashmap[e] = ScaleNote._(e);
       }
 
       //  find and assign the alias, if it exists
@@ -331,6 +332,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
   static ScaleNote valueOf(String name) {
     //  lazy eval
     if (_parseMap == null) {
+      _parseMap = Map();
       for (ScaleNoteEnum e in ScaleNoteEnum.values) {
         ScaleNote sn = get(e);
         _parseMap[sn._scaleNoteMarkup] = sn;
@@ -342,6 +344,6 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
 
   static final int halfStepsPerOctave = 12;
 
-  static HashMap<ScaleNoteEnum, ScaleNote> _hashmap;
-  static HashMap<String, ScaleNote> _parseMap;
+  static Map<ScaleNoteEnum, ScaleNote> _hashmap;
+  static Map<String, ScaleNote> _parseMap;
 }

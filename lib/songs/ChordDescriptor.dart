@@ -221,6 +221,7 @@ class ChordDescriptor {
   ///  Default chord descriptor.
   static ChordDescriptor get major => _major;
   static final ChordDescriptor _major = ChordDescriptor._("major", "", "R 3 5");
+  static ChordDescriptor defaultChordDescriptor(){ return _major;}
 
   ChordDescriptor._(this._name, this._shortName, String structure,
       {ChordDescriptor alias}) {

@@ -48,7 +48,7 @@ class MusicConstants {
 
 
   //  has to be ahead of it's use since it's static
-  static final List _majorDiatonicChordModifiers = <ChordDescriptor>[
+  static final List<ChordDescriptor> _majorDiatonicChordModifiers = [
     ChordDescriptor.major, //  0 + 1 = 1
     ChordDescriptor.minor, //  1 + 1 = 2
     ChordDescriptor.minor, //  2 + 1 = 3
@@ -67,7 +67,7 @@ class MusicConstants {
   }
 
 //  has to be ahead of it's use since it's static
-  static final List _minorDiatonicChordModifiers = <ChordDescriptor>[
+  static final List<ChordDescriptor> _minorDiatonicChordModifiers = [
     ChordDescriptor.minor, //  0 + 1 = 1
     ChordDescriptor.diminished, //  1 + 1 = 2
     ChordDescriptor.major, //  2 + 1 = 3

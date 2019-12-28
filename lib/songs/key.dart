@@ -21,7 +21,7 @@ class Key {
   }
 
   static Map<KeyEnum, Key> _keys;
-  static List _initialization = [
+  static List<dynamic> _initialization = [
     [KeyEnum.Gb, -6, 9],
     [KeyEnum.Db, -5, 4],
     [KeyEnum.Ab, -4, 11],
@@ -73,12 +73,12 @@ class Key {
     return _getKeys()[ke];
   }
 
-  static List<Key> get values => _getKeys().values;
+  static Iterable<Key> get values => _getKeys().values;
 
   static KeyEnum _getKeyEnum(String s) {
     //  lazy eval
     if (_keyEnums == null) {
-      _keyEnums = Map<String, KeyEnum>.identity();
+      _keyEnums = Map<String, KeyEnum>();
       for (KeyEnum ke in KeyEnum.values) {
         _keyEnums[_keyEnumToString(ke)] = ke;
       }
@@ -86,8 +86,10 @@ class Key {
     return _keyEnums[s];
   }
 
+  static RegExp _hashSignRegExp = new RegExp(r'[♯#]');
+
   static Key parseString(String s) {
-    s = s.replaceAll("♭", "b").replaceAll("[♯#]", "s");
+    s = s.replaceAll("♭", "b").replaceAll(_hashSignRegExp, "s");
     KeyEnum keyEnum = _getKeyEnum(s);
     return get(keyEnum);
   }
@@ -99,15 +101,18 @@ class Key {
    * @return the next key
    */
   Key nextKeyByHalfStep() {
-    return keysByHalfStep[Util.mod(_halfStep + 1, keysByHalfStep.length)];
+    return _getKeys()[
+        keysByHalfStep[Util.mod(_halfStep + 1, keysByHalfStep.length)]];
   }
 
   Key nextKeyByHalfSteps(int step) {
-    return keysByHalfStep[Util.mod(_halfStep + step, keysByHalfStep.length)];
+    return _getKeys()[
+        keysByHalfStep[Util.mod(_halfStep + step, keysByHalfStep.length)]];
   }
 
   Key nextKeyByFifth() {
-    return keysByHalfStep[Util.mod(_halfStep + 7, keysByHalfStep.length)];
+    return _getKeys()[
+        keysByHalfStep[Util.mod(_halfStep + 7, keysByHalfStep.length)]];
   }
 
   /**
@@ -117,11 +122,13 @@ class Key {
    * @return the next key down
    */
   Key previousKeyByHalfStep() {
-    return keysByHalfStep[Util.mod(_halfStep - 1, keysByHalfStep.length)];
+    return _getKeys()[
+        keysByHalfStep[Util.mod(_halfStep - 1, keysByHalfStep.length)]];
   }
 
   Key previousKeyByFifth() {
-    return keysByHalfStep[Util.mod(_halfStep - 7, keysByHalfStep.length)];
+    return _getKeys()[
+        keysByHalfStep[Util.mod(_halfStep - 7, keysByHalfStep.length)]];
   }
 
   /**
@@ -351,10 +358,10 @@ class Key {
 
   //                                   1  2  3  4  5  6  7
   //                                   0  1  2  3  4  5  6
-  static final List majorScale = <int>[0, 2, 4, 5, 7, 9, 11];
+  static final List<int> majorScale = [0, 2, 4, 5, 7, 9, 11];
 
 // static final int minorScale[] = {0, 2, 3, 5, 7, 8, 10};
-  static final List diatonic7ChordModifiers = <ChordDescriptor>[
+  static final List<ChordDescriptor> diatonic7ChordModifiers = [
     ChordDescriptor.major, //  0 + 1 = 1
     ChordDescriptor.minor, //  1 + 1 = 2
     ChordDescriptor.minor, //  2 + 1 = 3
@@ -363,7 +370,7 @@ class Key {
     ChordDescriptor.minor, //  5 + 1 = 6
     ChordDescriptor.minor7b5, //  6 + 1 = 7
   ];
-  static List keysByHalfStep = <KeyEnum>[
+  static List<KeyEnum> keysByHalfStep = <KeyEnum>[
     KeyEnum.A,
     KeyEnum.Bb,
     KeyEnum.B,
@@ -379,7 +386,7 @@ class Key {
   ];
 
   //                                     1  2  3  4  5  6  7
-  static final List guessWeights = <int>[9, 1, 1, 4, 4, 1, 3];
+  static final List<int> guessWeights = [9, 1, 1, 4, 4, 1, 3];
   static final int halfStepsToFifth = 7;
   static final int halfStepsFromCtoA = 3;
 

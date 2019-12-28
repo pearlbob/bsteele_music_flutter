@@ -301,7 +301,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
   static HashMap<ScaleNoteEnum, ScaleNote> _map() {
     //  lazy eval
     if (_hashmap == null) {
-      _hashmap = HashMap();
+      _hashmap = HashMap.identity();
 
       //  fill the map
       for (ScaleNoteEnum e in ScaleNoteEnum.values) {
@@ -337,6 +337,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
         ScaleNote sn = get(e);
         _parseMap[sn._scaleNoteMarkup] = sn;
         _parseMap[sn._scaleNoteString] = sn;
+        _parseMap[e.toString().split('.').last] = sn;
       }
     }
     return _parseMap[name];

@@ -1,7 +1,11 @@
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
+import 'package:logger/logger.dart';
 import "package:test/test.dart";
 
 void main() {
+  Logger.level = Level.warning;
+  Logger _logger = new Logger();
+
   test("Scale note sharps, flats and naturals", () {
     ScaleNote sn = ScaleNote.get(ScaleNoteEnum.A);
     expect(0, sn.halfStep);
@@ -12,34 +16,32 @@ void main() {
     final RegExp endsInS = new RegExp(r"s$");
     for (final e in ScaleNoteEnum.values) {
       sn = ScaleNote.get(e);
-//        print(  e.toString() + ": " + endsInB.hasMatch(e.toString()).toString());
-      expect(endsInB.hasMatch(e.toString()), sn.isFlat);
-      expect(endsInS.hasMatch(e.toString()), sn.isSharp);
+      _logger.d(e.toString() + ": "
+          + endsInB.hasMatch(e.toString()).toString());
+      expect(sn.isFlat, endsInB.hasMatch(e.toString()));
+      expect(sn.isSharp, endsInS.hasMatch(e.toString()));
       if (e != ScaleNoteEnum.X) {
         expect(sn.isFlat, !(sn.isSharp || sn.isNatural));
-        expect(false, sn.isSilent);
+        expect(sn.isSilent, false);
       } else {
-        expect(true, sn.isSilent);
-        expect(false, sn.isFlat);
-        expect(false, sn.isSharp);
-        expect(false, sn.isNatural);
+        expect(sn.isSilent, true);
+        expect(sn.isFlat, false);
+        expect(sn.isSharp, false);
+        expect(sn.isNatural, false);
       }
     }
   });
 
-  test ("get By HalfStep", ()
-    {
-      for (int i = 0; i < ScaleNote.halfStepsPerOctave * 3; i++) {
-        ScaleNote sn = ScaleNote.getSharpByHalfStep(i);
-        expect(false, sn.isFlat);
-        expect(false, sn.isSilent);
-      }
-      for (int i = -3; i < ScaleNote.halfStepsPerOctave * 2; i++) {
-        ScaleNote sn = ScaleNote.getFlatByHalfStep(i);
-        expect(false, sn.isSharp);
-        expect(false, sn.isSilent);
-      }
+  test("get By HalfStep", () {
+    for (int i = 0; i < ScaleNote.halfStepsPerOctave * 3; i++) {
+      ScaleNote sn = ScaleNote.getSharpByHalfStep(i);
+      expect(sn.isFlat, false);
+      expect(sn.isSilent, false);
     }
-  );
-
+    for (int i = -3; i < ScaleNote.halfStepsPerOctave * 2; i++) {
+      ScaleNote sn = ScaleNote.getFlatByHalfStep(i);
+      expect(sn.isSharp, false);
+      expect(sn.isSilent, false);
+    }
+  });
 }

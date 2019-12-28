@@ -306,7 +306,7 @@ class ChordDescriptor {
   String _shortName;
 
   /// the list of components from the scale that make up the given chord.
-  List get chordComponents => _chordComponents;
+  List<ChordComponent> get chordComponents => _chordComponents;
   List<ChordComponent> _chordComponents;
 
   /// an optional alias often used by musicians.
@@ -314,17 +314,17 @@ class ChordDescriptor {
   ChordDescriptor get alias => _alias;
   ChordDescriptor _alias;
 
-  static List get primaryChordDescriptorsOrdered =>
+  static List<ChordDescriptor> get primaryChordDescriptorsOrdered =>
       _primaryChordDescriptorsOrdered;
-  static final List _primaryChordDescriptorsOrdered = <ChordDescriptor>[
+  static final List<ChordDescriptor> _primaryChordDescriptorsOrdered = [
     //  most common
     _major,
     _minor,
     _dominant7,
   ];
 
-  static List get otherChordDescriptorsOrdered => _otherChordDescriptorsOrdered;
-  static final List _otherChordDescriptorsOrdered = <ChordDescriptor>[
+  static List<ChordDescriptor> get otherChordDescriptorsOrdered => _otherChordDescriptorsOrdered;
+  static final List<ChordDescriptor> _otherChordDescriptorsOrdered = [
     //  less pop by shortname
     _add9,
     _augmented,
@@ -370,7 +370,7 @@ class ChordDescriptor {
   ];
   static List<ChordDescriptor> _allChordDescriptorsOrdered;
 
-  static final List _parseOrderedChordDescriptorsOrdered = <ChordDescriptor>[
+  static final List<ChordDescriptor> _parseOrderedChordDescriptorsOrdered = [
     _sevenSus4,
     _sevenSus2,
     _sevenSus,

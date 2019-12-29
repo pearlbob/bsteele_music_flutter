@@ -86,7 +86,7 @@ class Key {
     return _keyEnums[s];
   }
 
-  static RegExp _hashSignRegExp = new RegExp(r'[♯#]');
+  static final RegExp _hashSignRegExp = new RegExp(r'[♯#]');
 
   static Key parseString(String s) {
     s = s.replaceAll("♭", "b").replaceAll(_hashSignRegExp, "s");
@@ -94,12 +94,7 @@ class Key {
     return get(keyEnum);
   }
 
-  /**
-   * Return the next key that is one half step higher.
-   * Of course the keys are cyclic in their relationship.
-   *
-   * @return the next key
-   */
+  /// Return the next key that is one half step higher.
   Key nextKeyByHalfStep() {
     return _getKeys()[
         keysByHalfStep[Util.mod(_halfStep + 1, keysByHalfStep.length)]];
@@ -115,12 +110,7 @@ class Key {
         keysByHalfStep[Util.mod(_halfStep + 7, keysByHalfStep.length)]];
   }
 
-  /**
-   * Return the next key that is one half step lower.
-   * Of course the keys are cyclic in their relationship.
-   *
-   * @return the next key down
-   */
+  /// Return the next key that is one half step lower.
   Key previousKeyByHalfStep() {
     return _getKeys()[
         keysByHalfStep[Util.mod(_halfStep - 1, keysByHalfStep.length)]];
@@ -131,31 +121,17 @@ class Key {
         keysByHalfStep[Util.mod(_halfStep - 7, keysByHalfStep.length)]];
   }
 
-  /**
-   * Transpose the given scale note by the requested offset.
-   *
-   * @param scaleNote the scale note to be transcribed
-   * @param offset    the offset for the transcription, typically between -6 and +6
-   * @return the scale note the key that matches the transposition requested
-   */
+  /// Transpose the given scale note by the requested offset.
   ScaleNote transpose(ScaleNote scaleNote, int offset) {
     return getScaleNoteByHalfStep(scaleNote.halfStep + offset);
   }
 
-  /**
-   * Return an integer value that represents the key.
-   *
-   * @return an integer value that represents the key
-   */
+  /// Return an integer value that represents the key.
   int getKeyValue() {
     return _keyValue;
   }
 
-  /**
-   * Return the scale note of the key, i.e. the musician's label for the key.
-   *
-   * @return the scale note of the key
-   */
+  /// Return the scale note of the key, i.e. the musician's label for the key.
   ScaleNote getKeyScaleNote() {
     return _keyScaleNote;
   }
@@ -164,22 +140,13 @@ class Key {
     return _keyMinorScaleNote;
   }
 
-  /**
-   * Return an integer value that represents the key's number of half steps from A.
-   *
-   * @return the count of half steps from A
-   */
-  int getHalfStep() {
+  /// Return an integer value that represents the key's number of half steps from A.
+   int getHalfStep() {
     return _keyScaleNote.halfStep;
   }
 
-  /**
-   * Return the key represented by the given integer value.
-   *
-   * @param keyValue the given integer value
-   * @return the key
-   */
-  static Key getKeyByValue(int keyValue) {
+  /// Return the key represented by the given integer value.
+   static Key getKeyByValue(int keyValue) {
     for (Key key in _getKeys().values)
       if (key._keyValue == keyValue) return key;
     return get(KeyEnum.C); //  not found, so use the default, expected to be C
@@ -197,21 +164,12 @@ class Key {
     return getKeyByHalfStep(getHalfStep() + majorScale[6 - 1]);
   }
 
-  /**
-   * Return a representation of the key in HTML.
-   *
-   * @return the HTML
-   */
-  String toHtml() {
+  /// Return a representation of the key in HTML.
+    String toHtml() {
     return _keyScaleNote.toHtml();
   }
 
-  /**
-   * Guess the key from the collection of scale notes in a given song.
-   *
-   * @param scaleChords the scale chords to guess from
-   * @return the roughly calculated key of the given scale notes.
-   */
+  /// Guess the key from the collection of scale notes in a given song.
   static Key guessKey(List<ScaleChord> scaleChords) {
     Key ret = getDefault(); //  default answer
 
@@ -267,13 +225,8 @@ class Key {
     return ret;
   }
 
-  /**
-   * Return the requested diatonic chord by degree.
-   * Counts from zero. For example, 0 represents the I chord, 3 represents the IV chord.
-   *
-   * @param note diatonic note/chord count
-   * @return the diatonic scale chord
-   */
+  /// Return the requested diatonic chord by degree.
+  /// Counts from zero. For example, 0 represents the I chord, 3 represents the IV chord.
   ScaleChord getMajorDiatonicByDegree(int note) {
     note = Util.mod(note, _majorDiatonics.length);
     return _majorDiatonics[note];
@@ -305,12 +258,7 @@ class Key {
     return getMajorScaleByNote(note + (6 - 1));
   }
 
-  /**
-   * Counts from zero.
-   *
-   * @param halfStep the half step offset count
-   * @return the scale note at the offset
-   */
+  /// Counts from zero.
   ScaleNote getKeyScaleNoteByHalfStep(int halfStep) {
     halfStep += _keyValue * halfStepsToFifth + halfStepsFromCtoA;
     return getScaleNoteByHalfStep(halfStep);
@@ -345,12 +293,8 @@ class Key {
     return _keyValue >= 0;
   }
 
-  /**
-   * Returns the name of this enum constant in a user friendly format,
-   * i.e. as UTF-8
-   *
-   * @return the name of this enum constant
-   */
+  /// Returns the name of this enum constant in a user friendly format,
+  /// i.e. as UTF-8
   @override
   String toString() {
     return _keyScaleNote.toString();

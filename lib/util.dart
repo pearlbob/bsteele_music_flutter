@@ -9,6 +9,9 @@ class Util {
     if (n < 0) n += modulus;
     return n;
   }
+
+  /// capitalize the first character
+  static String firstToUpper(String s) => s[0].toUpperCase() + s.substring(1);
 }
 
 /// A String with a marked location to be used in parsing.

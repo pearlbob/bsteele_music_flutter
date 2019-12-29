@@ -105,7 +105,6 @@ void main() {
         if (s.toString().length < 2) _logger.i(" ");
         _logger.i(" ");
       }
-      print;
     }
 
     expect(_Help.majorScale(KeyEnum.Gb), "Gb Ab Bb Cb Db Eb F");

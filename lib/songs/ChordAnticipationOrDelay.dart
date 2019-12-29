@@ -41,8 +41,6 @@ class ChordAnticipationOrDelay implements Comparable<ChordAnticipationOrDelay> {
     [ChordAnticipationOrDelayEnum.delay16th, ">"],
     [ChordAnticipationOrDelayEnum.delayTriplet, ">3"],
   ];
-  static Map<String, ChordAnticipationOrDelayEnum>
-      _chordAnticipationOrDelayEnums;
 
   ChordAnticipationOrDelay._(
       this._chordAnticipationOrDelayEnum, this._shortName);

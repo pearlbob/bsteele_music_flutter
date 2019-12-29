@@ -1,6 +1,5 @@
 import 'package:bsteele_music_flutter/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
-import 'package:logger/logger.dart';
 import '../util.dart';
 import 'ChordAnticipationOrDelay.dart';
 import 'key.dart';
@@ -14,29 +13,36 @@ class Chord implements Comparable<Chord> {
       ChordAnticipationOrDelay anticipationOrDelay,
       bool implicitBeats) {
     this._scaleChord = scaleChord;
-    this._beats = beats;
+    this.beats = beats;
     this._beatsPerBar = beatsPerBar;
     this.slashScaleNote = slashScaleNote;
     this._anticipationOrDelay = anticipationOrDelay;
-    this._implicitBeats = implicitBeats;
+    this.implicitBeats = implicitBeats;
   }
 
   Chord.copy(Chord chord) {
     _scaleChord = chord._scaleChord;
-    _beats = chord._beats;
+    beats = chord.beats;
     _beatsPerBar = chord._beatsPerBar;
     slashScaleNote = chord.slashScaleNote;
     _anticipationOrDelay = chord._anticipationOrDelay;
-    _implicitBeats = chord._implicitBeats;
+    implicitBeats = chord.implicitBeats;
   }
 
   Chord.byScaleChord(this._scaleChord) {
-    _beats = 4;
+    beats = 4;
     _beatsPerBar = 4;
     slashScaleNote = null;
     _anticipationOrDelay =
         ChordAnticipationOrDelay.get(ChordAnticipationOrDelayEnum.none);
-    _implicitBeats = true;
+    implicitBeats = true;
+  }
+
+  Chord.byScaleChordAndBeats(this._scaleChord, this.beats, this._beatsPerBar) {
+    slashScaleNote = null;
+    _anticipationOrDelay =
+        ChordAnticipationOrDelay.get(ChordAnticipationOrDelayEnum.none);
+    implicitBeats = true;
   }
 
   static Chord parseString(String s, int beatsPerBar) {
@@ -54,7 +60,7 @@ class Chord implements Comparable<Chord> {
     ChordAnticipationOrDelay anticipationOrDelay =
         ChordAnticipationOrDelay.parse(markedString);
 
-    ScaleNote slashScaleNote = null;
+    ScaleNote slashScaleNote;
 //  note: X chords can have a slash chord
     if (!markedString.isEmpty() && markedString.charAt(0) == '/') {
       markedString.consume(1);
@@ -93,27 +99,18 @@ class Chord implements Comparable<Chord> {
   Chord transpose(Key key, int halfSteps) {
     return new Chord(
         _scaleChord.transpose(key, halfSteps),
-        _beats,
+        beats,
         _beatsPerBar,
         slashScaleNote == null
             ? null
             : slashScaleNote.transpose(key, halfSteps),
         _anticipationOrDelay,
-        _implicitBeats);
+        implicitBeats);
   }
 
-  /**
-   * Compares this object with the specified object for order.  Returns a
-   * negative integer, zero, or a positive integer as this object is less
-   * than, equal to, or greater than the specified object.
-   *
-   * @param o the object to be compared.
-   * @return a negative integer, zero, or a positive integer as this object
-   * is less than, equal to, or greater than the specified object.
-   * @throws NullPointerException if the specified object is null
-   * @throws ClassCastException   if the specified object's type prevents it
-   *                              from being compared to this object.
-   */
+  /// Compares this object with the specified object for order.  Returns a
+  /// negative integer, zero, or a positive integer as this object is less
+  /// than, equal to, or greater than the specified object.
   @override
   int compareTo(Chord o) {
     int ret = _scaleChord.compareTo(o._scaleChord);
@@ -124,7 +121,7 @@ class Chord implements Comparable<Chord> {
       ret = slashScaleNote.compareTo(o.slashScaleNote);
       if (ret != 0) return ret;
     }
-    if (_beats != o._beats) return _beats < o._beats ? -1 : 1;
+    if (beats != o.beats) return beats < o.beats ? -1 : 1;
     ret = _anticipationOrDelay.compareTo(o._anticipationOrDelay);
     if (ret != 0) return ret;
     if (_beatsPerBar != o._beatsPerBar)
@@ -138,12 +135,12 @@ class Chord implements Comparable<Chord> {
     String ret = _scaleChord.toString() +
         (slashScaleNote == null ? "" : "/" + slashScaleNote.toString()) +
         _anticipationOrDelay.toString();
-    if (!_implicitBeats && _beats < _beatsPerBar) {
-      if (_beats == 1) {
+    if (!implicitBeats && beats < _beatsPerBar) {
+      if (beats == 1) {
         ret += ".1";
       } else {
         int b = 1;
-        while (b++ < _beats && b < 12) ret += ".";
+        while (b++ < beats && b < 12) ret += ".";
       }
     }
     return ret;
@@ -169,14 +166,12 @@ class Chord implements Comparable<Chord> {
   ScaleChord get scaleChord => _scaleChord;
   ScaleChord _scaleChord;
 
-  int get beats => _beats;
-  int _beats;
+  int beats;
 
   int get beatsPerBar => _beatsPerBar;
   int _beatsPerBar;
 
-  bool get implicitBeats => _implicitBeats;
-  bool _implicitBeats = true;
+  bool implicitBeats = true;
   ScaleNote slashScaleNote;
 
   ChordAnticipationOrDelay get anticipationOrDelay => _anticipationOrDelay;
@@ -184,5 +179,5 @@ class Chord implements Comparable<Chord> {
 
   static final RegExp _beatSizeRegexp = new RegExp(r"^\.\d");
 
-  static Logger _logger = new Logger();
+  //static Logger _logger = new Logger();
 }

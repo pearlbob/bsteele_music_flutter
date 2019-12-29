@@ -4,6 +4,7 @@ import 'dart:collection';
 
 import '../util.dart';
 import 'MusicConstants.dart';
+import 'key.dart';
 
 enum ScaleNoteEnum {
   A,
@@ -167,7 +168,7 @@ class ScaleNote {
     return parse(new MarkedString(s));
   }
 
-/// Return the ScaleNote represented by the given string.
+  /// Return the ScaleNote represented by the given string.
 //  Is case sensitive.
   static ScaleNote parse(MarkedString markedString) {
     if (markedString == null || markedString.isEmpty())
@@ -182,37 +183,33 @@ class ScaleNote {
       throw new ArgumentError("scale note must start with A to G");
     }
 
-    StringBuffer scaleNoteString = new StringBuffer();
-    scaleNoteString.write(c);
-    markedString.getNextChar();
+    StringBuffer stringBuffer = new StringBuffer();
+    stringBuffer.write(markedString.getNextChar());
 
 //  look for modifier
     if (!markedString.isEmpty()) {
       switch (markedString.first()) {
         case 'b':
         case MusicConstants.flatChar:
-          scaleNoteString.write('b');
+          stringBuffer.write('b');
           markedString.getNextChar();
           break;
 
         case '#':
         case MusicConstants.sharpChar:
-          scaleNoteString.write('s');
+          stringBuffer.write('s');
           markedString.getNextChar();
           break;
       }
     }
 
-    return ScaleNote.valueOf(scaleNoteString.toString());
+    return ScaleNote.valueOf(stringBuffer.toString());
   }
 
-  /*
-ScaleNote transpose(Key key, int steps) {
-if (this == ScaleNote.X)
-return ScaleNote.X;
-return key.getScaleNoteByHalfStep(halfStep + steps);
-}
-*/
+  ScaleNote transpose(Key key, int steps) {
+    if (getEnum() == ScaleNoteEnum.X) return get(ScaleNoteEnum.X);
+    return key.getScaleNoteByHalfStep(halfStep + steps);
+  }
 
   /// Returns the name of this scale note in an HTML format.
   String toHtml() {
@@ -230,7 +227,7 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
 
   int get halfStep => _halfStep;
 
-  String get scaleNoteString=>_scaleNoteString;
+  String get scaleNoteString => _scaleNoteString;
   String _scaleNoteString;
   String _scaleNoteHtml;
   String _scaleNoteMarkup;
@@ -298,6 +295,10 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
     return _map()[e];
   }
 
+  static Iterable<ScaleNote> get values {
+    return _map().values;
+  }
+
   static HashMap<ScaleNoteEnum, ScaleNote> _map() {
     //  lazy eval
     if (_hashmap == null) {
@@ -341,6 +342,10 @@ return key.getScaleNoteByHalfStep(halfStep + steps);
       }
     }
     return _parseMap[name];
+  }
+
+  int compareTo( ScaleNote other ){
+    return getEnum().index - other.getEnum().index;
   }
 
   static final int halfStepsPerOctave = 12;

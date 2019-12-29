@@ -1,7 +1,9 @@
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 
 import '../util.dart';
+import 'ChordComponent.dart';
 import 'ChordDescriptor.dart';
+import 'key.dart';
 
 ///  A chord with a scale note and an optional chord descriptor and tension.
 class ScaleChord //implements Comparable<ScaleChord>
@@ -9,18 +11,17 @@ class ScaleChord //implements Comparable<ScaleChord>
   ScaleChord(this._scaleNote, ChordDescriptor chordDescriptor)
       : _chordDescriptor = chordDescriptor.deAlias();
 
-  ScaleChord.fromScaleNote(ScaleNoteEnum scaleNoteEnum)
+  ScaleChord.fromScaleNoteEnum(ScaleNoteEnum scaleNoteEnum)
       : _scaleNote = ScaleNote.get(scaleNoteEnum),
         _chordDescriptor = ChordDescriptor.defaultChordDescriptor().deAlias();
 
-  ScaleChord.fromScaleNoteAndChordDescriptor(
+  ScaleChord.fromScaleNoteEnumAndChordDescriptor(
       ScaleNoteEnum scaleNoteEnum, ChordDescriptor chordDescriptor)
       : _scaleNote = ScaleNote.get(scaleNoteEnum),
         _chordDescriptor = chordDescriptor.deAlias();
 
-//  public ScaleChord(@NotNull ScaleNote scaleNote) {
-//    this(scaleNote, ChordDescriptor.major);
-//  }
+  ScaleChord.fromScaleNote(this._scaleNote)
+      : _chordDescriptor = ChordDescriptor.defaultChordDescriptor().deAlias();
 
   static ScaleChord parseString(String s) {
     return parse(new MarkedString(s));
@@ -40,66 +41,37 @@ class ScaleChord //implements Comparable<ScaleChord>
     return new ScaleChord(retScaleNote, retChordDescriptor);
   }
 
-//public final ScaleChord transpose(Key key, int halfSteps) {
+  ScaleChord transpose(Key key, int halfSteps) {
+    return new ScaleChord(scaleNote.transpose(key, halfSteps), chordDescriptor);
+  }
+
+//public final ScaleNote getScaleN//public final ScaleChord transpose(Key key, int halfSteps) {
 //return new ScaleChord(scaleNote.transpose(key, halfSteps), chordDescriptor);
 //}
-//
-//public final ScaleNote getScaleNote() {
-//return scaleNote;
-//}
-//
+
   ScaleChord getAlias() {
     ScaleNote alias = _scaleNote.alias;
     if (alias == null) return null;
     return new ScaleChord(alias, _chordDescriptor);
   }
 
-//public final ChordDescriptor getChordDescriptor() {
-//return chordDescriptor;
-//}
-//
-//public final TreeSet<ChordComponent> getChordComponents() {
-//return chordDescriptor.getChordComponents();
-//}
-//
-//public final boolean contains(ChordComponent chordComponent) {
-//return chordDescriptor.getChordComponents().contains(chordComponent);
-//}
-//
-//public final boolean isEasyGuitarChord() {
-//return easyGuitarChords.contains(this);
-//}
-//
-  ///**
-// * Indicates whether some other object is "equal to" this one.
-// */
-//@Override
-//public boolean equals(Object obj) {
-//  if (!(obj instanceof ScaleChord))
-//    return false;
-//  ScaleChord other = (ScaleChord) obj;
-//  return scaleNote.equals(other.scaleNote)
-//      && chordDescriptor.equals(other.chordDescriptor);
-//}
-//
-  ///**
-// * Returns a hash code value for the object. This method is
-// * supported for the benefit of hash tables such as those provided by
-// * {@link HashMap}.
-// */
-//@Override
-//public int hashCode() {
-//  int hash = 17;
-//  hash = (71 * hash + Objects.hashCode(this.scaleNote)) % (1 << 31);
-//  hash = (71 * hash + Objects.hashCode(this.chordDescriptor)) % (1 << 31);
-//  return hash;
-//}
+  Set<ChordComponent> getChordComponents() {
+    return chordDescriptor.chordComponents;
+  }
 
-@override
- String toString() {
-  return scaleNote.toString()
-      + (chordDescriptor != null ? chordDescriptor.shortName : "");
-}
+  bool contains(ChordComponent chordComponent) {
+    return chordDescriptor.chordComponents.contains(chordComponent);
+  }
+
+  bool isEasyGuitarChord() {
+    return _getEasyGuitarChords().contains(this);
+  }
+
+  @override
+  String toString() {
+    return scaleNote.toString() +
+        (chordDescriptor != null ? chordDescriptor.shortName : "");
+  }
 
   ///**
 // * Compares this object with the specified object for order.  Returns a
@@ -113,18 +85,32 @@ class ScaleChord //implements Comparable<ScaleChord>
 // * @throws ClassCastException   if the specified object's type prevents it
 // *                              from being compared to this object.
 // */
-//@Override
-//public int compareTo(ScaleChord o) {
-//  int ret = scaleNote.compareTo(o.scaleNote);
-//  if (ret != 0)
-//    return ret;
-//  ret = chordDescriptor.compareTo(o.chordDescriptor);
-//  if (ret != 0)
-//    return ret;
-//  return 0;
-//}
-//
-//private static final TreeSet<ScaleChord> easyGuitarChords = new TreeSet<ScaleChord>();
+  @override
+  int compareTo(ScaleChord o) {
+    int ret = scaleNote.compareTo(o.scaleNote);
+    if (ret != 0) return ret;
+    ret = chordDescriptor.compareTo(o.chordDescriptor);
+    if (ret != 0) return ret;
+    return 0;
+  }
+
+  Set<ScaleChord> _easyGuitarChords;
+
+  Set<ScaleChord> _getEasyGuitarChords() {
+    if (_easyGuitarChords == null) {
+      _easyGuitarChords = Set<ScaleChord>();
+      _easyGuitarChords.add(ScaleChord.parseString("C"));
+      _easyGuitarChords.add(ScaleChord.parseString("A"));
+      _easyGuitarChords.add(ScaleChord.parseString("G"));
+      _easyGuitarChords.add(ScaleChord.parseString("E"));
+      _easyGuitarChords.add(ScaleChord.parseString("D"));
+      _easyGuitarChords.add(ScaleChord.parseString("Am"));
+      _easyGuitarChords.add(ScaleChord.parseString("Em"));
+      _easyGuitarChords.add(ScaleChord.parseString("Dm"));
+    }
+    return _easyGuitarChords;
+  }
+
 //
 //
   ScaleNote get scaleNote => _scaleNote;
@@ -132,20 +118,4 @@ class ScaleChord //implements Comparable<ScaleChord>
 
   ChordDescriptor get chordDescriptor => _chordDescriptor;
   final ChordDescriptor _chordDescriptor;
-
-//static {
-//try {
-////C A G E D and Am Em Dm
-//easyGuitarChords.add(ScaleChord.parse("C"));
-//easyGuitarChords.add(ScaleChord.parse("A"));
-//easyGuitarChords.add(ScaleChord.parse("G"));
-//easyGuitarChords.add(ScaleChord.parse("E"));
-//easyGuitarChords.add(ScaleChord.parse("D"));
-//easyGuitarChords.add(ScaleChord.parse("Am"));
-//easyGuitarChords.add(ScaleChord.parse("Em"));
-//easyGuitarChords.add(ScaleChord.parse("Dm"));
-//} catch (ParseException pex) {
-//logger.info("parse exception should never happen: " + pex.getMessage());
-//}
-//}
 }

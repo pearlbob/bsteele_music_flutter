@@ -25,7 +25,7 @@ void main() {
     expect(ChordComponent.seventh, list[10]);
     list.clear();
 
-    List<ChordComponent> set = ChordComponent.parse("R 3 5 7");
+    Set<ChordComponent> set = ChordComponent.parse("R 3 5 7");
     expect(true, set.contains(ChordComponent.root));
     expect(true, set.contains(ChordComponent.third));
     expect(true, set.contains(ChordComponent.fifth));

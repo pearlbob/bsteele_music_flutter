@@ -23,8 +23,8 @@ class ChordComponent {
 
   ChordComponent._(this._shortName, this._scaleNumber, this._halfSteps) ;
 
-  static List<ChordComponent> parse(String chordComponentString) {
-    List<ChordComponent> ret = new List();
+  static Set<ChordComponent> parse(String chordComponentString) {
+    Set<ChordComponent> ret = Set();
     for (String s in chordComponentString.split(new RegExp(r"[,. ]"))) {
       if (s.length <= 0) continue;
 

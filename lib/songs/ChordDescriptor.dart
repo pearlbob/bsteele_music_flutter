@@ -221,7 +221,10 @@ class ChordDescriptor {
   ///  Default chord descriptor.
   static ChordDescriptor get major => _major;
   static final ChordDescriptor _major = ChordDescriptor._("major", "", "R 3 5");
-  static ChordDescriptor defaultChordDescriptor(){ return _major;}
+
+  static ChordDescriptor defaultChordDescriptor() {
+    return _major;
+  }
 
   ChordDescriptor._(this._name, this._shortName, String structure,
       {ChordDescriptor alias}) {
@@ -306,8 +309,8 @@ class ChordDescriptor {
   String _shortName;
 
   /// the list of components from the scale that make up the given chord.
-  List<ChordComponent> get chordComponents => _chordComponents;
-  List<ChordComponent> _chordComponents;
+  Set<ChordComponent> get chordComponents => _chordComponents;
+  Set<ChordComponent> _chordComponents;
 
   /// an optional alias often used by musicians.
   /// can be null.
@@ -323,7 +326,8 @@ class ChordDescriptor {
     _dominant7,
   ];
 
-  static List<ChordDescriptor> get otherChordDescriptorsOrdered => _otherChordDescriptorsOrdered;
+  static List<ChordDescriptor> get otherChordDescriptorsOrdered =>
+      _otherChordDescriptorsOrdered;
   static final List<ChordDescriptor> _otherChordDescriptorsOrdered = [
     //  less pop by shortname
     _add9,
@@ -442,8 +446,7 @@ class ChordDescriptor {
 
   int compareTo(ChordDescriptor other) {
     if (other == null) return -1;
-    return _allChordDescriptorsOrdered.indexOf(this) -
-        _allChordDescriptorsOrdered.indexOf(other);
+    return values.indexOf(this) - values.indexOf(other);
   }
 
 //  static String generateGrammar() {

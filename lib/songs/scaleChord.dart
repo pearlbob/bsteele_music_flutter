@@ -6,7 +6,7 @@ import 'ChordDescriptor.dart';
 import 'key.dart';
 
 ///  A chord with a scale note and an optional chord descriptor and tension.
-class ScaleChord //implements Comparable<ScaleChord>
+class ScaleChord implements Comparable<ScaleChord>
 {
   ScaleChord(this._scaleNote, ChordDescriptor chordDescriptor)
       : _chordDescriptor = chordDescriptor.deAlias();

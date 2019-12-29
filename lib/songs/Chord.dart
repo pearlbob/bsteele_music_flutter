@@ -30,13 +30,13 @@ class Chord implements Comparable<Chord> {
     _implicitBeats = chord._implicitBeats;
   }
 
-  Chord.byScaleChord(this._scaleChord)
-  {
-    _beats =4;
-    _beatsPerBar =4;
-    slashScaleNote =null;
-    _anticipationOrDelay=  ChordAnticipationOrDelay.get(ChordAnticipationOrDelayEnum.none);
-    _implicitBeats=true;
+  Chord.byScaleChord(this._scaleChord) {
+    _beats = 4;
+    _beatsPerBar = 4;
+    slashScaleNote = null;
+    _anticipationOrDelay =
+        ChordAnticipationOrDelay.get(ChordAnticipationOrDelayEnum.none);
+    _implicitBeats = true;
   }
 
   static Chord parseString(String s, int beatsPerBar) {
@@ -61,11 +61,17 @@ class Chord implements Comparable<Chord> {
       slashScaleNote = ScaleNote.parse(markedString);
     }
     if (!markedString.isEmpty() && markedString.charAt(0) == '.') {
-      beats = 1;
-      while (!markedString.isEmpty() && markedString.charAt(0) == '.') {
-        markedString.consume(1);
-        beats++;
-        if (beats >= 12) break;
+      String s = markedString.toString();
+      if (_beatSizeRegexp.hasMatch(s)) {
+        beats = int.parse(s.substring(1, 2));
+        markedString.consume(2);
+      } else {
+        beats = 1;
+        while (!markedString.isEmpty() && markedString.charAt(0) == '.') {
+          markedString.consume(1);
+          beats++;
+          if (beats >= 12) break;
+        }
       }
     }
 
@@ -95,7 +101,6 @@ class Chord implements Comparable<Chord> {
         _anticipationOrDelay,
         _implicitBeats);
   }
-
 
   /**
    * Compares this object with the specified object for order.  Returns a
@@ -161,18 +166,23 @@ class Chord implements Comparable<Chord> {
 //  ;
 //}
 
-
   ScaleChord get scaleChord => _scaleChord;
   ScaleChord _scaleChord;
+
   int get beats => _beats;
   int _beats;
+
   int get beatsPerBar => _beatsPerBar;
   int _beatsPerBar;
+
   bool get implicitBeats => _implicitBeats;
   bool _implicitBeats = true;
   ScaleNote slashScaleNote;
+
   ChordAnticipationOrDelay get anticipationOrDelay => _anticipationOrDelay;
   ChordAnticipationOrDelay _anticipationOrDelay;
+
+  static final RegExp _beatSizeRegexp = new RegExp(r"^\.\d");
 
   static Logger _logger = new Logger();
 }

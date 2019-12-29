@@ -9,7 +9,10 @@ import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
+import '../CustomMatchers.dart';
+
 void main() {
+  Logger.level = Level.warning;
   Logger _logger = new Logger();
 
   test("testSetScaleChord testing", () {
@@ -32,10 +35,10 @@ void main() {
 
               if (beats != beatsPerBar) {
                 //  the beats will default to beats per bar if unspecified
-                expect(pChord.scaleChord, chord.scaleChord);
+                expect(pChord.scaleChord, CompareTo(chord.scaleChord));
                 expect(pChord.slashScaleNote, chord.slashScaleNote);
               } else
-                expect( pChord, chord );
+                expect( pChord, CompareTo(chord) );
             }
           }
         }
@@ -54,28 +57,28 @@ void main() {
     _logger.i("compare: "+Chord.parseString("Ddim/G", beatsPerBar).compareTo(chord).toString());
     _logger.i("==: "+(Chord.parseString("Ddim/G", beatsPerBar)==chord?"true":"false"));
     Chord pChord =Chord.parseString("Ddim/G", beatsPerBar);
-    expect(pChord, chord);
+    expect(pChord, CompareTo(chord));
 
     chord = new Chord.byScaleChord(
         new ScaleChord.fromScaleNoteEnumAndChordDescriptor(
             ScaleNoteEnum.X, ChordDescriptor.major));
     chord.slashScaleNote = ScaleNote.get(ScaleNoteEnum.G);
-    expect(Chord.parseString("X/G", beatsPerBar), chord);
+    expect(Chord.parseString("X/G", beatsPerBar), CompareTo(chord));
 
     chord = new Chord.byScaleChord(
         new ScaleChord.fromScaleNoteEnumAndChordDescriptor(
             ScaleNoteEnum.A, ChordDescriptor.diminished));
     chord.slashScaleNote = ScaleNote.get(ScaleNoteEnum.G);
-    expect(Chord.parseString("Adim/G", beatsPerBar), chord);
+    expect(Chord.parseString("Adim/G", beatsPerBar), CompareTo(chord));
     chord = new Chord.byScaleChord(
         new ScaleChord.fromScaleNoteEnumAndChordDescriptor(
             ScaleNoteEnum.G, ChordDescriptor.suspendedSecond));
     chord.slashScaleNote = ScaleNote.get(ScaleNoteEnum.A);
-    expect(Chord.parseString("G2/A", beatsPerBar), chord);
+    expect(Chord.parseString("G2/A", beatsPerBar), CompareTo(chord));
     chord = new Chord.byScaleChord(
         new ScaleChord.fromScaleNoteEnumAndChordDescriptor(
             ScaleNoteEnum.G, ChordDescriptor.add9));
-    expect(Chord.parseString("Gadd9A", beatsPerBar), chord);
+    expect(Chord.parseString("Gadd9A", beatsPerBar), CompareTo(chord));
 
     chord = Chord.parseString("G.1", beatsPerBar);
     expect(chord.toString(), "G.1");
@@ -109,9 +112,9 @@ void main() {
                   Chord.parseString(
                       snHalfSteps.toString() + chordDescriptor.shortName,
                       beatsPerBar),
-                  Chord.parseString(sn.toString() + chordDescriptor.shortName,
+                  CompareTo(Chord.parseString(sn.toString() + chordDescriptor.shortName,
                           beatsPerBar)
-                      .transpose(key, halfSteps));
+                      .transpose(key, halfSteps)));
               count++;
             }
     _logger.d("transpose count: " + count.toString());
@@ -144,13 +147,13 @@ void main() {
                             "/" +
                             slashSnHalfSteps.toString(),
                         beatsPerBar),
-                    Chord.parseString(
+                    CompareTo(Chord.parseString(
                             sn.toString() +
                                 chordDescriptor.shortName +
                                 "/" +
                                 slashSn.toString(),
                             beatsPerBar)
-                        .transpose(key, halfSteps));
+                        .transpose(key, halfSteps)));
                 count++;
               }
     _logger.d("transpose slash count: " + count.toString());

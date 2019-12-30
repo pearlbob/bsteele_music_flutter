@@ -12,11 +12,8 @@ import 'key.dart';
 /// When added, chord beat durations exceeding the measure beat count will be ignored on playback.
 /// </p>
 class Measure extends MeasureNode implements Comparable<Measure> {
-
   /// A convenience constructor to build a typical measure.
-  Measure(int beatCount, List<Chord> chords) {
-    this.beatCount = beatCount;
-    this.chords = chords;
+  Measure(this.beatCount, this.chords) {
     allocateTheBeats();
   }
 
@@ -35,6 +32,11 @@ class Measure extends MeasureNode implements Comparable<Measure> {
     this.endOfRow = measure.endOfRow;
   }
 
+  /// for subclasses
+  Measure.zeroArgs()
+      : beatCount = 4,
+        chords = null;
+
   /// Convenience method for testing only
   static Measure parseString(String s, int beatsPerBar) {
     return parse(new MarkedString(s), beatsPerBar, null);
@@ -44,7 +46,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   static Measure parse(final MarkedString markedString, final int beatsPerBar,
       final Measure priorMeasure) {
     //  should not be white space, even leading, in a measure
-    if (markedString == null || markedString.isEmpty())
+    if (markedString == null || markedString.isEmpty)
       throw "no data to parse";
 
     List<Chord> chords = new List();
@@ -52,7 +54,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
 
     for (int i = 0; i < 32; i++) //  safety
     {
-      if (markedString.isEmpty()) break;
+      if (markedString.isEmpty) break;
 
       //  assure this is not a section
       if (Section.lookahead(markedString)) break;
@@ -140,10 +142,8 @@ class Measure extends MeasureNode implements Comparable<Measure> {
         int totalBeats = explicitBeats;
         if (chords.length > explicitChords) {
           Chord firstUnspecifiedChord;
-          int beatsPerUnspecifiedChord = max(
-              1,
-              (beatCount - explicitBeats) ~/
-                  (chords.length - explicitChords)) ;
+          int beatsPerUnspecifiedChord = max(1,
+              (beatCount - explicitBeats) ~/ (chords.length - explicitChords));
           for (Chord c in chords) {
             c.implicitBeats = false;
             if (c.beats == beatCount) {

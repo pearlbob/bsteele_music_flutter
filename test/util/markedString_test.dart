@@ -64,9 +64,9 @@ void main() {
     }
     {
       MarkedString eb = new MarkedString("s");
-      expect(false, eb.isEmpty());
+      expect(false, eb.isEmpty);
       eb.getNextChar();
-      expect(true, eb.isEmpty());
+      expect(true, eb.isEmpty);
     }
 
     {

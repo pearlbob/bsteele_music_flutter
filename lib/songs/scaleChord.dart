@@ -28,7 +28,7 @@ class ScaleChord implements Comparable<ScaleChord>
   }
 
   static ScaleChord parse(MarkedString markedString) {
-    if (markedString == null || markedString.isEmpty())
+    if (markedString == null || markedString.isEmpty)
       throw new ArgumentError("no data to parse");
 
     ScaleNote retScaleNote = ScaleNote.parse(markedString);

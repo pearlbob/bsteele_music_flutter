@@ -9,6 +9,13 @@ enum MeasureNodeType {
   decoration,
 }
 
+ enum MeasureEditType {
+  insert,
+  replace,
+  append,
+  delete,
+}
+
 /// Base class for all measure node trees, i.e. the song chords.
 /// Designed to simplify the walk of the song's sequence of measures and sequences of measures.
 

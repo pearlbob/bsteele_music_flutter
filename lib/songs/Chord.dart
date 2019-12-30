@@ -50,7 +50,7 @@ class Chord implements Comparable<Chord> {
   }
 
   static Chord parse(final MarkedString markedString, int beatsPerBar) {
-    if (markedString == null || markedString.isEmpty())
+    if (markedString == null || markedString.isEmpty)
       throw "no data to parse";
 
     int beats = beatsPerBar; //  default only
@@ -62,18 +62,18 @@ class Chord implements Comparable<Chord> {
 
     ScaleNote slashScaleNote;
 //  note: X chords can have a slash chord
-    if (!markedString.isEmpty() && markedString.charAt(0) == '/') {
+    if (!markedString.isEmpty && markedString.charAt(0) == '/') {
       markedString.consume(1);
       slashScaleNote = ScaleNote.parse(markedString);
     }
-    if (!markedString.isEmpty() && markedString.charAt(0) == '.') {
+    if (!markedString.isEmpty && markedString.charAt(0) == '.') {
       String s = markedString.toString();
       if (_beatSizeRegexp.hasMatch(s)) {
         beats = int.parse(s.substring(1, 2));
         markedString.consume(2);
       } else {
         beats = 1;
-        while (!markedString.isEmpty() && markedString.charAt(0) == '.') {
+        while (!markedString.isEmpty && markedString.charAt(0) == '.') {
           markedString.consume(1);
           beats++;
           if (beats >= 12) break;

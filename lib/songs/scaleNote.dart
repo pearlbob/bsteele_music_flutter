@@ -171,7 +171,7 @@ class ScaleNote {
   /// Return the ScaleNote represented by the given string.
 //  Is case sensitive.
   static ScaleNote parse(MarkedString markedString) {
-    if (markedString == null || markedString.isEmpty())
+    if (markedString == null || markedString.isEmpty)
       throw new ArgumentError("no data to parse");
 
     int c = markedString.firstUnit();
@@ -187,7 +187,7 @@ class ScaleNote {
     stringBuffer.write(markedString.getNextChar());
 
 //  look for modifier
-    if (!markedString.isEmpty()) {
+    if (!markedString.isEmpty) {
       switch (markedString.first()) {
         case 'b':
         case MusicConstants.flatChar:

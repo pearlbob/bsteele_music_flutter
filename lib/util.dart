@@ -29,7 +29,7 @@ class MarkedString {
   }
 
   /// set the mark to the given location
-  void setToMark(int m) {
+  void setMark(int m) {
     _markIndex = m;
     resetToMark();
   }
@@ -44,13 +44,12 @@ class MarkedString {
     _index = _markIndex;
   }
 
+  /// Return the current location to the given mark
   void resetTo(int i) {
     _index = i;
   }
 
-  bool isEmpty() {
-    return _string.length <= 0 || _index >= _string.length;
-  }
+  bool get isEmpty => _string.length <= 0 || _index >= _string.length;
 
   String getNextChar() {
     return _string[_index++];
@@ -90,6 +89,20 @@ class MarkedString {
   int available() {
     int ret = _string.length - _index;
     return (ret < 0 ? 0 : ret);
+  }
+
+  ///Strip leading space and tabs but newline is not considered a space!
+  void stripLeadingSpaces() {
+    while (!isEmpty) {
+      switch (charAt(0)) {
+        case ' ':
+        case '\t':
+        case '\r':
+          getNextChar();
+          continue;
+      }
+      break;
+    }
   }
 
   @override

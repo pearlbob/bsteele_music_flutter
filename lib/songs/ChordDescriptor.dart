@@ -239,7 +239,7 @@ class ChordDescriptor {
   ///
 //    Parse the start of the given string for a chord description.
   static ChordDescriptor parse(MarkedString markedString) {
-    if (markedString != null && !markedString.isEmpty()) {
+    if (markedString != null && !markedString.isEmpty) {
       //  arbitrary cutoff, larger than the max shortname
       const int maxLength = 10;
       String match = markedString.remainingStringLimited(maxLength);

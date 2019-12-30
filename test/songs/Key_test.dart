@@ -53,7 +53,7 @@ class _Help {
 }
 
 void main() {
-  Logger.level = Level.info;
+  Logger.level = Level.warning;
   Logger _logger = new Logger();
 
   test("testGetKeyByValue testing", () {
@@ -219,7 +219,7 @@ void main() {
   test("testScaleNoteByHalfStep testing", () {
     for (Key key in Key.values) {
       _logger.i("key " + key.toString());
-      if (key.isSharp())
+      if (key.isSharp)
         for (int i = -18; i < 18; i++) {
           ScaleNote scaleNote = key.getScaleNoteByHalfStep(i);
           _logger.i("\t" + i.toString() + ": " + scaleNote.toString());

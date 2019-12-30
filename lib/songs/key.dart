@@ -289,9 +289,8 @@ class Key {
     return "";
   }
 
-  bool isSharp() {
-    return _keyValue >= 0;
-  }
+  bool get isSharp =>  _keyValue >= 0;
+
 
   /// Returns the name of this enum constant in a user friendly format,
   /// i.e. as UTF-8

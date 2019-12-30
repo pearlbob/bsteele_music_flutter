@@ -128,8 +128,8 @@ class Measure extends MeasureNode implements Comparable<Measure> {
           explicitChords == 0 &&
           beatCount % chords.length == 0) {
         //  spread the implicit beats evenly
-        int implicitBeats = beatCount / chords.length
-            as int; //  fixme: why is the cast required?
+        int implicitBeats = beatCount ~/ chords.length;
+        //  fixme: why is the cast required?
         for (Chord c in chords) {
           c.beats = implicitBeats;
           c.implicitBeats = true;
@@ -142,8 +142,8 @@ class Measure extends MeasureNode implements Comparable<Measure> {
           Chord firstUnspecifiedChord;
           int beatsPerUnspecifiedChord = max(
               1,
-              (beatCount - explicitBeats) /
-                  (chords.length - explicitChords)) as int;
+              (beatCount - explicitBeats) ~/
+                  (chords.length - explicitChords)) ;
           for (Chord c in chords) {
             c.implicitBeats = false;
             if (c.beats == beatCount) {

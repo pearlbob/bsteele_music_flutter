@@ -47,7 +47,7 @@ class ChordAnticipationOrDelay implements Comparable<ChordAnticipationOrDelay> {
 
   static ChordAnticipationOrDelay parse(MarkedString markedString) {
     if (markedString == null) throw "no data to parse";
-    if (!markedString.isEmpty)
+    if (markedString.isNotEmpty)
       for (ChordAnticipationOrDelay a in _getSortedByShortName()) {
         if (markedString.available() >= a.shortName.length &&
             a.shortName ==

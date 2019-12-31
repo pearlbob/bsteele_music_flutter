@@ -50,6 +50,8 @@ class MarkedString {
   }
 
   bool get isEmpty => _string.length <= 0 || _index >= _string.length;
+  bool get isNotEmpty => _string.length > 0 && _index < _string.length;
+
 
   String getNextChar() {
     return _string[_index++];
@@ -98,6 +100,21 @@ class MarkedString {
         case ' ':
         case '\t':
         case '\r':
+          getNextChar();
+          continue;
+      }
+      break;
+    }
+  }
+
+  /// Strip leading space and tabs.  newline is white space!
+  void stripLeadingWhitespace() {
+    while (!isEmpty) {
+      switch (charAt(0)) {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
           getNextChar();
           continue;
       }

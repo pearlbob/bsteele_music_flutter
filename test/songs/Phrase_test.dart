@@ -20,26 +20,27 @@ void main() {
 
     s = "A B C D, G F E D x2";
     phrase = Phrase.parseString(s, phraseIndex, beatsPerBar, null);
-    expect(phrase.size(), 4); //  phrase should not include the repeat
+    expect(phrase.length, 4); //  phrase should not include the repeat
 
     s = "   A ";
     phrase = Phrase.parseString(s, phraseIndex, beatsPerBar, null);
-    expect(phrase.size(), 1);
+    expect(phrase.length, 1);
 
     s = "A B C D";
     phrase = Phrase.parseString(s, phraseIndex, beatsPerBar, null);
-    expect(phrase.size(), 4);
+    expect(phrase.length, 4);
 
     s = "A B C D A B C D A B C D";
     phrase = Phrase.parseString(s, phraseIndex, beatsPerBar, null);
-    expect(phrase.size(), 12);
+    expect(phrase.length, 12);
 
     s = "A B C, D A ,B C D ,A, B C D";
     phrase = Phrase.parseString(s, phraseIndex, beatsPerBar, null);
-    expect(phrase.size(), 12);
+    expect(phrase.length, 12);
 
     s = "A B C, D A ,B C D ,A, B C D, G G x2";
     phrase = Phrase.parseString(s, phraseIndex, beatsPerBar, null);
-    expect(phrase.size(), 12);
+    logger.d(s);
+    expect(phrase.length, 12);
   });
 }

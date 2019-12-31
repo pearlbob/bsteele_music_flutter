@@ -1,4 +1,5 @@
 import '../util.dart';
+import 'SectionVersion.dart';
 
 enum SectionEnum {
   /// A section that introduces the song.
@@ -46,7 +47,7 @@ enum SectionEnum {
 /// will aid in song structure readability.
 /// </p>
 
-class Section {
+class Section implements Comparable<Section> {
   Section._(this._sectionEnum, this._abbreviation, this._alternateAbbreviation,
       this._description)
       : _lowerCaseName = _sectionEnumToString(_sectionEnum).toLowerCase(),
@@ -155,11 +156,6 @@ class Section {
     return get(sectionEnum);
   }
 
-  /// a convenience method to create a section version for this section
-//  SectionVersion makeVersion(int v) {
-//    return new SectionVersion(this, v);
-//  }
-
   static bool lookahead(MarkedString markedString) {
     RegExpMatch m = sectionRegexp
         .firstMatch(markedString.remainingStringLimited(maxLength));
@@ -184,10 +180,15 @@ class Section {
     return null;
   }
 
-//  /// Utility to return the default section.
-//  static SectionVersion getDefaultVersion  () {
-//    return Section.verse.makeVersion(0);
-//  }
+  @override
+  int compareTo(Section other) {
+    return _sectionEnum.index - other._sectionEnum.index;
+  }
+
+  /// Utility to return the default section.
+  static SectionVersion getDefaultVersion  () { //  fixme: is this in the right place?
+    return SectionVersion.bySection(Section.get(SectionEnum.verse));
+  }
 
   SectionEnum get sectionEnum => _sectionEnum;
   final SectionEnum _sectionEnum;
@@ -209,6 +210,5 @@ class Section {
 
   static final int maxLength = 10; //  fixme: compute
 
-  static final RegExp sectionRegexp =
-      RegExp("^([a-zA-Z]+)([\\d]*):\\s*,*"); //  has to include the :
+  static final RegExp sectionRegexp = RegExp("^([a-zA-Z]+)([\\d]*):\\s*,*");
 }

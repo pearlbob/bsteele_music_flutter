@@ -213,20 +213,6 @@ class Phrase extends MeasureNode {
     return true;
   }
 
-  bool add(List<Measure> newMeasures) {
-    if (newMeasures == null || newMeasures.isEmpty) return false;
-    if (measures == null) measures = new List<Measure>();
-    measures.addAll(newMeasures);
-    return true;
-  }
-
-  bool addAt(int index, List<Measure> newMeasures) {
-    if (newMeasures == null || newMeasures.isEmpty) return false;
-    if (measures == null) measures = new List<Measure>();
-    index = min(index, measures.length - 1);
-    _addAllAt(index, newMeasures);
-    return true;
-  }
 
   bool append(int index, MeasureNode newMeasureNode) {
     if (newMeasureNode == null) return false;
@@ -252,6 +238,21 @@ class Phrase extends MeasureNode {
       measures.add(newMeasure); //  default to the end!
     }
 
+    return true;
+  }
+
+  bool add(List<Measure> newMeasures) {
+    if (newMeasures == null || newMeasures.isEmpty) return false;
+    if (measures == null) measures = new List<Measure>();
+    measures.addAll(newMeasures);
+    return true;
+  }
+
+  bool addAt(int index, List<Measure> newMeasures) {
+    if (newMeasures == null || newMeasures.isEmpty) return false;
+    if (measures == null) measures = new List<Measure>();
+    index = min(index, measures.length - 1);
+    _addAllAt(index, newMeasures);
     return true;
   }
 
@@ -385,7 +386,6 @@ class Phrase extends MeasureNode {
   }
 
   /// Delete the given measure if it belongs in the sequence item.
-  @deprecated
   bool delete(Measure measure) {
     if (measures == null) return false;
     return measures.remove(measure);
@@ -400,14 +400,17 @@ class Phrase extends MeasureNode {
     return false;
   }
 
-  int compareTo(Phrase o) {
-    int limit = min(measures.length, o.measures.length);
+  int compareTo(Object o) {
+    if ( !(o is Phrase))
+      return -1;
+    Phrase other = o as Phrase;
+    int limit = min(measures.length, other.measures.length);
     for (int i = 0; i < limit; i++) {
-      int ret = measures[i].compareTo(o.measures[i]);
+      int ret = measures[i].compareTo(other.measures[i]);
       if (ret != 0) return ret;
     }
-    if (measures.length != o.measures.length)
-      return measures.length < o.measures.length ? -1 : 1;
+    if (measures.length != other.measures.length)
+      return measures.length < other.measures.length ? -1 : 1;
     return 0;
   }
 
@@ -506,9 +509,7 @@ class Phrase extends MeasureNode {
     return toMarkup() + "\n";
   }
 
-  int size() {
-    return measures.length;
-  }
+  int get length => measures.length;
 
   int getPhraseIndex() {
     return phraseIndex;

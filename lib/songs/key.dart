@@ -170,7 +170,7 @@ class Key {
   }
 
   /// Guess the key from the collection of scale notes in a given song.
-  static Key guessKey(List<ScaleChord> scaleChords) {
+  static Key guessKey(Iterable<ScaleChord> scaleChords) {
     Key ret = getDefault(); //  default answer
 
 //  minimize the chord variations and keep a count of the scale note use

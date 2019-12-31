@@ -8,6 +8,10 @@ class MeasureComment extends Measure {
     endOfRow = true;
   }
 
+  MeasureComment.zeroArgs()
+      : _comment = "",
+        super.zeroArgs();
+
   @override
   bool isComment() {
     return true;
@@ -24,8 +28,7 @@ class MeasureComment extends Measure {
 
   /// Trash can of measure parsing.  Will consume all that it sees to the end of line.
   static MeasureComment parse(MarkedString markedString) {
-    if (markedString == null || markedString.isEmpty)
-      throw "no data to parse";
+    if (markedString == null || markedString.isEmpty) throw "no data to parse";
 
 //  prep a sub string to look for the comment
     int n =

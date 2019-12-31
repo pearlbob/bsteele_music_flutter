@@ -187,7 +187,7 @@ class ScaleNote {
     stringBuffer.write(markedString.getNextChar());
 
 //  look for modifier
-    if (!markedString.isEmpty) {
+    if (markedString.isNotEmpty) {
       switch (markedString.first()) {
         case 'b':
         case MusicConstants.flatChar:

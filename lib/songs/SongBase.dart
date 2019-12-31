@@ -19,6 +19,7 @@ import 'MeasureComment.dart';
 import 'MeasureNode.dart';
 import 'MeasureRepeat.dart';
 import 'MeasureRepeatExtension.dart';
+import 'MeasureRepeatMarker.dart';
 import 'MusicConstants.dart';
 import 'Phrase.dart';
 import 'Section.dart';
@@ -103,12 +104,12 @@ class SongBase {
     chordSectionBeats.clear();
     int beatNumber = 0;
     for (LyricSection lyricSection in lyricSections) {
-      ChordSection chordSection = findChordSection(lyricSection);
+      ChordSection chordSection = findChordSectionByLyricSection(lyricSection);
       if (chordSection == null)
         continue;
 
       //  compute section count
-      SectionVersion sectionVersion = chordSection.getSectionVersion();
+      SectionVersion sectionVersion = chordSection.sectionVersion;
       sectionCount = sectionVersionCountMap[sectionVersion];
       if (sectionCount == null) {
         sectionCount = 0;
@@ -203,13 +204,13 @@ class SongBase {
         if (lastLyricSection != songMoment.getLyricSection()) {
           if (lastLyricSection != null) {
             int rows = maxChordRow - baseChordRow + 1;
-            chordSectionRows[lastLyricSection.getSectionVersion()] = rows;
+            chordSectionRows[lastLyricSection.sectionVersion] = rows;
             row += rows;
           }
           lastLyricSection = songMoment.getLyricSection();
           GridCoordinate sectionGridCoordinate =
           getGridCoordinate(
-              new ChordSectionLocation(lastLyricSection.getSectionVersion()));
+              new ChordSectionLocation(lastLyricSection.sectionVersion));
 
           baseChordRow = sectionGridCoordinate.row;
           maxChordRow = baseChordRow;
@@ -240,7 +241,7 @@ class SongBase {
       //  push the last one in
       if (lastLyricSection != null) {
         int rows = maxChordRow - baseChordRow + 1;
-        chordSectionRows[lastLyricSection.getSectionVersion()] = rows;
+        chordSectionRows[lastLyricSection.sectionVersion] = rows;
       }
     }
 
@@ -330,7 +331,10 @@ class SongBase {
       beatNumber += measure.beatCount;
     beatNumber++;
 
-    String ret = songMoment.getChordSection().getSectionVersion().toString()
+    String ret = songMoment
+        .getChordSection()
+        .sectionVersion
+        .toString()
         + (songMoment.getRepeatMax() > 1
             ? " " + (songMoment.getRepeat() + 1).toString() + "/" +
             songMoment.getRepeatMax().toString()
@@ -354,7 +358,7 @@ class SongBase {
   }
 
   /// Find the corrsesponding chord section for the given lyrics section
-  ChordSection findChordSection(LyricSection lyricSection) {
+  ChordSection findChordSectionByLyricSection(LyricSection lyricSection) {
     if (lyricSection == null)
       return null;
     _logger.d(
@@ -409,7 +413,7 @@ class SongBase {
   }
 
   void setUser(String user) {
-    this.user = (user == null || user.length() <= 0) ? defaultUser : user;
+    this.user = (user == null || user.length <= 0) ? defaultUser : user;
   }
 
   List<MeasureNode> getMeasureNodes() {
@@ -462,7 +466,10 @@ class SongBase {
           continue;
       //  fall through
         case UpperCaseState.initial:
-          if ((c >= 'A' && c <= 'G') || (c >= 'a' && c <= 'g')) {
+          if ((c.codeUnitAt(0) >= 'A'.codeUnitAt(0) &&
+              c.codeUnitAt(0) <= 'G'.codeUnitAt(0)) ||
+              (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
+                  c.codeUnitAt(0) <= 'g'.codeUnitAt(0))) {
             if (i < entry.length - 1) {
               String sf = entry[i + 1];
               switch (sf) {
@@ -516,7 +523,8 @@ class SongBase {
           } else if (c == 'x') {
             if (i < entry.length - 1) {
               String d = entry[i + 1];
-              if (d >= '1' && d <= '9') {
+              if (d.codeUnitAt(0) >= '1'.codeUnitAt(0)
+                  && d.codeUnitAt(0) <= '9'.codeUnitAt(0)) {
                 sb.write(c);
                 break; //  don't cap a repeat repetition declaration
               }
@@ -530,7 +538,8 @@ class SongBase {
             state = UpperCaseState.comment;
             break;
           }
-          state = (c >= 'A' && c <= 'G')
+          state = (c.codeUnitAt(0) >= 'A'.codeUnitAt(0) &&
+              c.codeUnitAt(0) <= 'G'.codeUnitAt(0))
               ? UpperCaseState.flatIsPossible
               : UpperCaseState.normal;
           continue; //  fall through
@@ -575,7 +584,7 @@ class SongBase {
     clearCachedValues(); //  force lazy eval
 
     if (chords != null) {
-      _logger.f("parseChords for: " + getTitle());
+      _logger.d("parseChords for: " + getTitle());
       SplayTreeSet<ChordSection> emptyChordSections = new SplayTreeSet();
       MarkedString markedString = new MarkedString(chords);
       ChordSection chordSection;
@@ -595,13 +604,13 @@ class SongBase {
             //  share the common measure sequence items
             for (ChordSection wasEmptyChordSection in emptyChordSections) {
               wasEmptyChordSection.setPhrases(chordSection.getPhrases());
-              chordSectionMap[ wasEmptyChordSection.getSectionVersion()] =
+              chordSectionMap[ wasEmptyChordSection.sectionVersion] =
                   wasEmptyChordSection;
             }
             emptyChordSections.clear();
           }
           measureNodes.add(chordSection);
-          chordSectionMap[chordSection.getSectionVersion()] = chordSection;
+          chordSectionMap[chordSection.sectionVersion] = chordSection;
           clearCachedValues();
         }
         catch (e) {
@@ -799,7 +808,7 @@ class SongBase {
   int getChordSectionLocationGridMaxColCount() {
     int maxCols = 0;
     for (GridCoordinate gridCoordinate in getGridCoordinateChordSectionLocationMap()
-        .keySet()) {
+        .keys) {
       maxCols = max(maxCols, gridCoordinate.col);
     }
     return maxCols;
@@ -825,7 +834,7 @@ class SongBase {
     SplayTreeSet<SectionVersion> sectionVersionsToDo = SplayTreeSet();
     sectionVersionsToDo.addAll(getChordSectionMap().keys);
     for (ChordSection chordSection in getChordSectionMap().values) {
-      SectionVersion sectionVersion = chordSection.getSectionVersion();
+      SectionVersion sectionVersion = chordSection.sectionVersion;
 
       //  only do a chord section once.  it might have a duplicate set of phrases and already be listed
       if (!sectionVersionsToDo.contains(sectionVersion))
@@ -844,17 +853,16 @@ class SongBase {
 
       {
         //  grid the section header
-        SplayTreeSet<
-            SectionVersion> matchingSectionVersions = matchingSectionVersions(
-            sectionVersion);
+        SplayTreeSet<SectionVersion> matchingSectionVersionsSet
+        = matchingSectionVersions(sectionVersion);
         GridCoordinate coordinate = new GridCoordinate(row, col);
-        for (SectionVersion matchingSectionVersion in matchingSectionVersions) {
-          chordSectionGridCoorinateMap.put(matchingSectionVersion, coordinate);
+        for (SectionVersion matchingSectionVersion in matchingSectionVersionsSet) {
+          chordSectionGridCoorinateMap[matchingSectionVersion] = coordinate;
           ChordSectionLocation loc = new ChordSectionLocation(
               matchingSectionVersion);
-          gridChordSectionLocationCoordinateMap.put(loc, coordinate);
+          gridChordSectionLocationCoordinateMap[loc] = coordinate;
         }
-        for (SectionVersion matchingSectionVersion in matchingSectionVersions) {
+        for (SectionVersion matchingSectionVersion in matchingSectionVersionsSet) {
           //  don't add identity mapping
           if (matchingSectionVersion == sectionVersion)
             continue;
@@ -862,12 +870,12 @@ class SongBase {
         }
 
         ChordSectionLocation loc = new ChordSectionLocation
-            .byMultipleSectionVersion(matchingSectionVersions);
-        gridCoordinateChordSectionLocationMap.put(coordinate, loc);
-        gridChordSectionLocationCoordinateMap.put(loc, coordinate);
+            .byMultipleSectionVersion(matchingSectionVersionsSet);
+        gridCoordinateChordSectionLocationMap[coordinate] = loc;
+        gridChordSectionLocationCoordinateMap[loc] = coordinate;
         grid.set(col, row, loc);
         col = offset;
-        sectionVersionsToDo.removeAll(matchingSectionVersions);
+        sectionVersionsToDo.removeAll(matchingSectionVersionsSet);
       }
 
       //  allow for empty sections... on entry
@@ -1060,26 +1068,28 @@ class SongBase {
     SplayTreeSet<SectionVersion> ret = new SplayTreeSet();
     if (multSectionVersion == null)
       return ret;
-    ChordSection multChordSection = findChordSection(multSectionVersion);
+    ChordSection multChordSection = findChordSectionBySectionVersion(
+        multSectionVersion);
     if (multChordSection == null)
       return ret;
 
-    for (ChordSection chordSection in new SplayTreeSet<>(
-        getChordSectionMap().values())) {
-      if (multSectionVersion.equals(chordSection.getSectionVersion()))
-        ret.add(multSectionVersion);
-      else
-      if (chordSection.getPhrases().equals(multChordSection.getPhrases())) {
-        ret.add(chordSection.getSectionVersion());
+    {
+      SplayTreeSet<ChordSection> set = SplayTreeSet();
+      set.addAll(getChordSectionMap().values);
+      for (ChordSection chordSection in set) {
+        if (multSectionVersion == chordSection.sectionVersion)
+          ret.add(multSectionVersion);
+        else if (chordSection.getPhrases() == multChordSection.getPhrases) {
+          ret.add(chordSection.sectionVersion);
+        }
       }
     }
-    return
-      ret;
+    return ret;
   }
 
   ChordSectionLocation getLastChordSectionLocation() {
     Grid<ChordSectionLocation> grid = getChordSectionLocationGrid();
-    if (grid == null || grid.isEmpty())
+    if (grid == null || grid.isEmpty)
       return null;
     List<ChordSectionLocation> row = grid.getRow(grid.getRowCount() - 1);
     return grid.get(grid.getRowCount() - 1, row.length - 1);
@@ -1092,91 +1102,82 @@ class SongBase {
     return chordSectionGridCoorinateMap;
   }
 
-  final void clearCachedValues
-
-  () {
-  chordSectionLocationGrid = null;
-  complexity = 0;
-  chordsAsMarkup = null;
-  songMoments.clear();
-  duration = 0;
-  totalBeats = 0;
+  void clearCachedValues() {
+    chordSectionLocationGrid = null;
+    complexity = 0;
+    chordsAsMarkup = null;
+    songMoments.clear();
+    duration = 0;
+    totalBeats = 0;
   }
 
 
-  String chordsToJsonTransportString
+  String chordsToJsonTransportString() {
+    StringBuffer sb = StringBuffer();
 
-      () {
-    StringBuilder sb = new StringBuilder();
-
-    for (ChordSection chordSection in new SplayTreeSet<>(
-        getChordSectionMap().values())) {
-      sb.append(chordSection.toJson());
+    SplayTreeSet<ChordSection> set = SplayTreeSet();
+    set.addAll(getChordSectionMap().values);
+    for (ChordSection chordSection in set) {
+      sb.write(chordSection.toJson());
     }
     return sb.toString();
   }
 
-  String toMarkup
-
-      () {
+  String toMarkup() {
     if (chordsAsMarkup != null)
       return chordsAsMarkup;
 
-    StringBuilder sb = new StringBuilder();
+    StringBuffer sb = StringBuffer();
 
-    SplayTreeSet<SectionVersion> sortedSectionVersions = new SplayTreeSet<>(
-        getChordSectionMap().keySet());
+    SplayTreeSet<SectionVersion> sortedSectionVersions = new SplayTreeSet();
+    sortedSectionVersions = getChordSectionMap().keys;
     SplayTreeSet<SectionVersion> completedSectionVersions = new SplayTreeSet();
 
-
-//  markup by section version order
+    //  markup by section version order
     for (SectionVersion sectionVersion in sortedSectionVersions) {
-//  don't repeat anything
+      //  don't repeat anything
       if (completedSectionVersions.contains(sectionVersion))
         continue;
       completedSectionVersions.add(sectionVersion);
 
-//  find all section versions with the same chords
-      ChordSection chordSection = getChordSectionMap().get(sectionVersion);
+      //  find all section versions with the same chords
+      ChordSection chordSection = getChordSectionMap()[sectionVersion];
       if (chordSection.isEmpty()) {
-//  empty sections stand alone
-        sb.append(sectionVersion.toString());
-        sb.append(" ");
+        //  empty sections stand alone
+        sb.write(sectionVersion.toString());
+        sb.write(" ");
       } else {
-        SplayTreeSet<
-            SectionVersion> currentSectionVersions = new SplayTreeSet();
+        SplayTreeSet<SectionVersion> currentSectionVersions = SplayTreeSet();
         for (SectionVersion otherSectionVersion in sortedSectionVersions) {
-          if (chordSection.getPhrases().equals(
-              getChordSectionMap().get(otherSectionVersion).getPhrases())) {
+          if (chordSection.getPhrases() ==
+              getChordSectionMap()[otherSectionVersion].getPhrases()) {
             currentSectionVersions.add(otherSectionVersion);
             completedSectionVersions.add(otherSectionVersion);
           }
         }
 
-//  list the section versions for this chord section
+        //  list the section versions for this chord section
         for (SectionVersion currentSectionVersion in currentSectionVersions) {
-          sb.append(currentSectionVersion.toString());
-          sb.append(" ");
+          sb.write(currentSectionVersion.toString());
+          sb.write(" ");
         }
       }
 
-//  chord section phrases (only) to output
-      sb.append(chordSection.phrasesToMarkup());
-      sb.append(" "); //  for human readability only
+      //  chord section phrases (only) to output
+      sb.write(chordSection.phrasesToMarkup());
+      sb.write(" "); //  for human readability only
     }
     chordsAsMarkup = sb.toString();
     return chordsAsMarkup;
   }
 
-  String toMarkup
-
-      (ChordSectionLocation location) {
-    StringBuilder sb = new StringBuilder();
+  String toMarkupByLocation(ChordSectionLocation location) {
+    StringBuffer sb = new StringBuffer();
     if (location != null) {
-      if (location.isSection()) {
-        sb.append(location.toString());
-        sb.append(" ");
-        sb.append(getChordSection(location).phrasesToMarkup());
+      if (location.isSection) {
+        sb.write(location.toString());
+        sb.write(" ");
+        sb.write(getChordSectionByLocation(location).phrasesToMarkup());
         return sb.toString();
       } else {
         MeasureNode measureNode = findMeasureNodeByLocation(location);
@@ -1187,13 +1188,12 @@ class SongBase {
     return null;
   }
 
-  String toEntry
-
-      (ChordSectionLocation location) {
-    StringBuilder sb = new StringBuilder();
+  String toEntry(ChordSectionLocation location) {
+    StringBuffer sb = new StringBuffer();
     if (location != null) {
-      if (location.isSection()) {
-        sb.append(getChordSection(location).transposeToKey(key).toEntry());
+      if (location.isSection) {
+        sb.write(
+            getChordSectionByLocation(location).transposeToKey(key).toEntry());
         return sb.toString();
       } else {
         MeasureNode measureNode = findMeasureNodeByLocation(location);
@@ -1204,622 +1204,733 @@ class SongBase {
     return null;
   }
 
-  /**
-   * Add the given section version to the song chords
-   *
-   * @param sectionVersion the given section to add
-   * @return true if the section version was added
-   */
-  final bool addSectionVersion
-
-  (
-
-  SectionVersion sectionVersion
-
-  ) {
-  if (sectionVersion == null || getChordSectionMap().containsKey(sectionVersion))
-  return false;
-  getChordSectionMap().put(sectionVersion, new ChordSection(sectionVersion));
-  clearCachedValues();
-  setCurrentChordSectionLocation(new ChordSectionLocation(sectionVersion));
-  setCurrentMeasureEditType(MeasureEditType.append);
-  return true;
+  /// Add the given section version to the song chords
+  bool addSectionVersion(SectionVersion sectionVersion) {
+    if (sectionVersion == null ||
+        getChordSectionMap().containsKey(sectionVersion))
+      return false;
+    getChordSectionMap()[sectionVersion] =
+    new ChordSection(sectionVersion, null);
+    clearCachedValues();
+    setCurrentChordSectionLocation(new ChordSectionLocation(sectionVersion));
+    setCurrentMeasureEditType(MeasureEditType.append);
+    return true;
   }
 
 
-  final bool deleteCurrentChordSectionLocation
+  bool deleteCurrentChordSectionLocation() {
+    setCurrentMeasureEditType(MeasureEditType.delete); //  tell the world
 
-  () {
+    preMod(null);
 
-  setCurrentMeasureEditType(MeasureEditType.delete); //  tell the world
-
-  preMod(null);
-
-//  deal with deletes
-  ChordSectionLocation location = getCurrentChordSectionLocation();
+    //  deal with deletes
+    ChordSectionLocation location = getCurrentChordSectionLocation();
 
 
-//  find the named chord section
-  ChordSection chordSection = getChordSection(location);
-  if (chordSection == null) {
-  postMod();
-  return false;
+    //  find the named chord section
+    ChordSection chordSection = getChordSectionByLocation(location);
+    if (chordSection == null) {
+      postMod();
+      return false;
+    }
+
+    if (chordSection
+        .getPhrases()
+        .isEmpty) {
+      chordSection.getPhrases().add(new Phrase(new List(), 0));
+    }
+
+    Phrase phrase;
+    try {
+      phrase = chordSection.getPhrase(location.phraseIndex);
+    }
+    catch (e) {
+      phrase = chordSection.getPhrases()[0]; //  use the default empty list
+    }
+
+    bool ret = false;
+
+    if (location.isMeasure) {
+      ret = phrase.edit(MeasureEditType.delete, location.measureIndex, null);
+      if (ret && phrase.isEmpty())
+        return deleteCurrentChordSectionPhrase();
+    } else if (location.isPhrase) {
+      return deleteCurrentChordSectionPhrase();
+    } else if (location.isSection) {
+      //  find the section prior to the one being deleted
+      SplayTreeSet<SectionVersion> sortedSectionVersions = SplayTreeSet();
+      sortedSectionVersions.addAll(getChordSectionMap().keys);
+      SectionVersion nextSectionVersion = sortedSectionVersions.lower(
+          chordSection.sectionVersion);
+      ret = (getChordSectionMap().remove(chordSection.sectionVersion) != null);
+      if (ret) {
+        //  move deleted current to end of previous section
+        if (nextSectionVersion == null) {
+          sortedSectionVersions = SplayTreeSet();
+          sortedSectionVersions.addAll(getChordSectionMap().keys);
+          nextSectionVersion =
+          (sortedSectionVersions.isEmpty ? null : sortedSectionVersions.first);
+        }
+        if (nextSectionVersion != null) {
+          location = findChordSectionLocation(
+              getChordSectionMap()[nextSectionVersion]);
+        }
+      }
+    }
+    return standardEditCleanup(ret, location);
   }
 
-  if (chordSection.getPhrases().isEmpty()) {
-  chordSection.getPhrases().add(new Phrase(new List(), 0));
+  bool deleteCurrentChordSectionPhrase() {
+    ChordSectionLocation location = getCurrentChordSectionLocation();
+    ChordSection chordSection = getChordSectionByLocation(location);
+    bool ret = chordSection.deletePhrase(location.phraseIndex);
+    if (ret) {
+      //  move the current location if required
+      if (location.phraseIndex >= chordSection
+          .getPhrases()
+          .length) {
+        if (chordSection
+            .getPhrases()
+            .isEmpty)
+          location = new ChordSectionLocation(chordSection.sectionVersion);
+        else {
+          int i = chordSection
+              .getPhrases()
+              .length - 1;
+          Phrase phrase = chordSection.getPhrase(i);
+          int m = phrase
+              .getMeasures()
+              .length - 1;
+          location = new ChordSectionLocation(
+              chordSection.sectionVersion, phraseIndex: i, measureIndex: m);
+        }
+      }
+    }
+    return standardEditCleanup(ret, location);
   }
 
-  Phrase phrase;
-  try {
-  phrase = chordSection.getPhrase(location.getPhraseIndex());
-  } catch (IndexOutOfBoundsException iob) {
-  phrase = chordSection.getPhrases().get(0); //  use the default empty list
+  void preMod(MeasureNode measureNode) {
+    _logger.d("startingChords(\"" + toMarkup() + "\");");
+    _logger.d(" pre(MeasureEditType." + getCurrentMeasureEditType().toString()
+        + ", \"" + getCurrentChordSectionLocation().toString() + "\""
+        + ", \""
+        + (getCurrentChordSectionLocationMeasureNode() == null
+            ? "null"
+            : getCurrentChordSectionLocationMeasureNode().toMarkup()) + "\""
+        + ", \"" + (measureNode == null ? "null" : measureNode.toMarkup()) +
+        "\");");
   }
 
-  bool ret = false;
-
-  if (location.isMeasure()) {
-  ret = phrase.edit(MeasureEditType.delete, location.getMeasureIndex(), null);
-  if (ret && phrase.isEmpty())
-  return deleteCurrentChordSectionPhrase();
-  } else if (location.isPhrase()) {
-  return deleteCurrentChordSectionPhrase();
-  } else if (location.isSection()) {
-//  find the section prior to the one being deleted
-  SplayTreeSet<SectionVersion> sortedSectionVersions = new SplayTreeSet<>(getChordSectionMap().keySet());
-  SectionVersion nextSectionVersion = sortedSectionVersions.lower(chordSection.getSectionVersion());
-  ret = (getChordSectionMap().remove(chordSection.getSectionVersion()) != null);
-  if (ret) {
-//  move deleted current to end of previous section
-  if (nextSectionVersion == null) {
-  sortedSectionVersions = new SplayTreeSet<>(getChordSectionMap().keySet());
-  nextSectionVersion = (sortedSectionVersions.isEmpty() ? null : sortedSectionVersions.first());
-  }
-  if (nextSectionVersion != null) {
-  location = findChordSectionLocation(getChordSectionMap().get(nextSectionVersion));
-  }
-  }
-  }
-  return standardEditCleanup(ret, location);
-  }
-
-  final bool deleteCurrentChordSectionPhrase
-
-  () {
-  ChordSectionLocation location = getCurrentChordSectionLocation();
-  ChordSection chordSection = getChordSection(location);
-  bool ret = chordSection.deletePhrase(location.getPhraseIndex());
-  if (ret) {
-//  move the current location if required
-  if (location.getPhraseIndex() >= chordSection.getPhrases().length) {
-  if (chordSection.getPhrases().isEmpty())
-  location = new ChordSectionLocation(chordSection.getSectionVersion());
-  else {
-  int i = chordSection.getPhrases().length - 1;
-  Phrase phrase = chordSection.getPhrase(i);
-  int m = phrase.getMeasures().length - 1;
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), i, m);
-  }
-  }
-  }
-  return standardEditCleanup(ret, location);
-  }
-
-  final void preMod
-
-  (
-
-  MeasureNode measureNode
-
-  ) {
-  _logger.d("startingChords(\"" + toMarkup() + "\");");
-  _logger.d(" pre(MeasureEditType." + getCurrentMeasureEditType().name()
-  + ", \"" + getCurrentChordSectionLocation().toString() + "\""
-  + ", \""
-  + (getCurrentChordSectionLocationMeasureNode() == null
-  ? "null"
-      : getCurrentChordSectionLocationMeasureNode().toMarkup()) + "\""
-  + ", \"" + (measureNode == null ? "null" : measureNode.toMarkup()) + "\");");
-  }
-
-  final void postMod
-
-  () {
-  _logger.d("resultChords(\"" + toMarkup() + "\");");
-  _logger.d("post(MeasureEditType." + getCurrentMeasureEditType().name()
-  + ", \"" + getCurrentChordSectionLocation().toString() + "\""
-  + ", \"" + (getCurrentChordSectionLocationMeasureNode() == null
-  ? "null"
-      : getCurrentChordSectionLocationMeasureNode().toMarkup())
-  + "\");");
+  void postMod() {
+    _logger.d("resultChords(\"" + toMarkup() + "\");");
+    _logger.d("post(MeasureEditType." + getCurrentMeasureEditType().toString()
+        + ", \"" + getCurrentChordSectionLocation().toString() + "\""
+        + ", \"" + (getCurrentChordSectionLocationMeasureNode() == null
+        ? "null"
+        : getCurrentChordSectionLocationMeasureNode().toMarkup())
+        + "\");");
   }
 
 
-  final bool edit
+  bool editList(List<MeasureNode> measureNodes) {
+    if (measureNodes == null || measureNodes.isEmpty)
+      return false;
 
-  (
-
-  List<MeasureNode> measureNodes
-
-  ) {
-  if (measureNodes == null || measureNodes.isEmpty())
-  return false;
-
-  for (MeasureNode measureNode in measureNodes) {
-  if (!edit(measureNode))
-  return false;
-  }
-  return true;
+    for (MeasureNode measureNode in measureNodes) {
+      if (!editMeasureNode(measureNode))
+        return false;
+    }
+    return true;
   }
 
-  final bool deleteCurrentSelection
-
-  () {
-  setCurrentMeasureEditType(MeasureEditType.delete);
-  return edit((MeasureNode) null);
+  bool deleteCurrentSelection() {
+    setCurrentMeasureEditType(MeasureEditType.delete);
+    return editMeasureNode(null);
   }
 
-  /**
-   * Edit the given measure in or out of the song based on the data from the edit location.
-   *
-   * @param measureNode the measure in question
-   * @return true if the edit was performed
-   */
-  final bool edit
+  /// Edit the given measure in or out of the song based on the data from the edit location.
+  bool editMeasureNode(MeasureNode measureNode) {
+    MeasureEditType editType = getCurrentMeasureEditType();
 
-  (
+    if (editType == MeasureEditType.delete)
+      return deleteCurrentChordSectionLocation();
 
-  MeasureNode measureNode
+    preMod(measureNode);
 
-  ) {
-  MeasureEditType editType = getCurrentMeasureEditType();
+    if (measureNode == null) {
+      postMod();
+      return false;
+    }
 
-  if (editType == MeasureEditType.delete)
-  return deleteCurrentChordSectionLocation();
-
-  preMod(measureNode);
-
-  if (measureNode == null) {
-  postMod();
-  return false;
-  }
-
-  ChordSectionLocation location = getCurrentChordSectionLocation();
+    ChordSectionLocation location = getCurrentChordSectionLocation();
 
 
-//  find the named chord section
-  ChordSection chordSection = getChordSection(location);
-  if (chordSection == null) {
-  switch (measureNode.getMeasureNodeType()) {
-  case section:
-  chordSection = (ChordSection) measureNode;
-  break;
-  default:
-  chordSection = getChordSectionMap().get(SectionVersion.getDefault());
-  if (chordSection == null) {
-  chordSection = ChordSection.getDefault();
-  getChordSectionMap().put(chordSection.getSectionVersion(), chordSection);
-  }
-  break;
-  }
-  }
+    //  find the named chord section
+    ChordSection chordSection = getChordSectionByLocation(location);
+    if (chordSection == null) {
+      switch (measureNode.getMeasureNodeType()) {
+        case MeasureNodeType.section:
+          chordSection = measureNode as ChordSection;
+          break;
+        default:
+          chordSection = getChordSectionMap().get(SectionVersion.getDefault());
+          if (chordSection == null) {
+            chordSection = ChordSection.getDefault();
+            getChordSectionMap().put(chordSection.sectionVersion, chordSection);
+          }
+          break;
+      }
+    }
 
-//  default to insert if empty
-  if (chordSection.getPhrases().isEmpty()) {
-  chordSection.getPhrases().add(new Phrase(new List(), 0));
-//fixme?  editType = MeasureEditType.insert;
-  }
+    //  default to insert if empty
+    if (chordSection
+        .getPhrases()
+        .isEmpty) {
+      chordSection.getPhrases().add(new Phrase(new List(), 0));
+      //fixme?  editType = MeasureEditType.insert;
+    }
 
-  Phrase phrase = null;
-  try {
-  phrase = chordSection.getPhrase(location.getPhraseIndex());
-  } catch (Exception iob) {
-  if (!chordSection.isEmpty())
-  phrase = chordSection.getPhrases().get(0); //  use the default empty list
-  }
+    Phrase phrase = null;
+    try {
+      phrase = chordSection.getPhrase(location.phraseIndex);
+    }
+    catch (e) {
+      if (!chordSection.isEmpty())
+        phrase = chordSection.getPhrases()[0]; //  use the default empty list
+    }
 
-  bool ret = false;
+    bool ret = false;
 
-//  handle situations by the type of measure node being added
-  ChordSectionLocation newLocation;
-  ChordSection newChordSection;
-  MeasureRepeat newRepeat;
-  Phrase newPhrase;
-  switch (measureNode.getMeasureNodeType()) {
-  case section:
-  switch (editType) {
-  default:
-//  all sections replace themselves
-  newChordSection = (ChordSection) measureNode;
-  getChordSectionMap().put(newChordSection.getSectionVersion(), newChordSection);
-  ret = true;
-  location = new ChordSectionLocation(newChordSection.getSectionVersion());
-  break;
-  case delete:
-//  find the section prior to the one being deleted
-  SplayTreeSet<SectionVersion> sortedSectionVersions = new SplayTreeSet<>(getChordSectionMap().keySet());
-  SectionVersion nextSectionVersion = sortedSectionVersions.lower(chordSection.getSectionVersion());
-  ret = (getChordSectionMap().remove(chordSection.getSectionVersion()) != null);
-  if (ret) {
-//  move deleted current to end of previous section
-  if (nextSectionVersion == null) {
-  sortedSectionVersions = new SplayTreeSet<>(getChordSectionMap().keySet());
-  nextSectionVersion = sortedSectionVersions.first();
-  }
-  if (nextSectionVersion != null) {
-  location = new ChordSectionLocation(nextSectionVersion);
-  } else
-  ;// fixme: set location to empty location
-  }
-  break;
-  }
-  return standardEditCleanup(ret, location);
+    //  handle situations by the type of measure node being added
+    ChordSectionLocation newLocation;
+    ChordSection newChordSection;
+    MeasureRepeat newRepeat;
+    Phrase newPhrase;
+    switch (measureNode.getMeasureNodeType()) {
+      case MeasureNodeType.section:
+        switch (editType) {
+          case MeasureEditType.delete:
+          //  find the section prior to the one being deleted
+            SplayTreeSet<SectionVersion> sortedSectionVersions = SplayTreeSet();
+            sortedSectionVersions.addAll(getChordSectionMap().keys);
+            SectionVersion nextSectionVersion = sortedSectionVersions.lower(
+                chordSection.sectionVersion);
+            ret =
+            (getChordSectionMap().remove(chordSection.sectionVersion) != null);
+            if (ret) {
+              //  move deleted current to end of previous section
+              if (nextSectionVersion == null) {
+                sortedSectionVersions = new SplayTreeSet();
+                sortedSectionVersions.addAll(getChordSectionMap().keys);
+                nextSectionVersion = sortedSectionVersions.first;
+              }
+              if (nextSectionVersion != null) {
+                location = new ChordSectionLocation(nextSectionVersion);
+              } else
+                ; // fixme: set location to empty location
+            }
+            break;
+          default:
+          //  all sections replace themselves
+            newChordSection = measureNode as ChordSection;
+            getChordSectionMap()[ newChordSection.sectionVersion] =
+                newChordSection;
+            ret = true;
+            location = new ChordSectionLocation(newChordSection.sectionVersion);
+            break;
+        }
+        return standardEditCleanup(ret, location);
 
-  case repeat:
-  newRepeat = (MeasureRepeat) measureNode;
-  if (newRepeat.isEmpty()) {
-//  empty repeat
-  if (phrase.isRepeat()) {
-//  change repeats
-  MeasureRepeat repeat = (MeasureRepeat) phrase;
-  if (newRepeat.getRepeats() < 2) {
-  setCurrentMeasureEditType(MeasureEditType.append);
+      case MeasureNodeType.repeat:
+        newRepeat = measureNode as MeasureRepeat;
+        if (newRepeat.isEmpty()) {
+          //  empty repeat
+          if (phrase.isRepeat()) {
+            //  change repeats
+            MeasureRepeat repeat = (MeasureRepeat) phrase;
+            if (newRepeat.getRepeats() < 2) {
+              setCurrentMeasureEditType(MeasureEditType.append);
 
-//  convert repeat to phrase
-  newPhrase = new Phrase(repeat.getMeasures(), location.getPhraseIndex());
-  int phaseIndex = location.getPhraseIndex();
-  if (phaseIndex > 0 && chordSection.getPhrase(phaseIndex - 1).getMeasureNodeType() == MeasureNode.MeasureNodeType.phrase) {
+              //  convert repeat to phrase
+              newPhrase =
+              new Phrase(repeat.getMeasures(), location.phraseIndex);
+              int phaseIndex = location.phraseIndex;
+              if (phaseIndex > 0 &&
+                  chordSection.getPhrase(phaseIndex - 1).getMeasureNodeType() ==
+                      MeasureNode.MeasureNodeType.phrase) {
+                //  expect combination of the two phrases
+                Phrase priorPhrase = chordSection.getPhrase(phaseIndex - 1);
+                location = new ChordSectionLocation(chordSection.sectionVersion,
+                    phaseIndex - 1, priorPhrase
+                        .getMeasures()
+                        .length + newPhrase
+                        .getMeasures()
+                        .length - 1);
+                return standardEditCleanup(chordSection.deletePhrase(phaseIndex)
+                    && chordSection.add(phaseIndex, newPhrase), location);
+              }
+              location = new ChordSectionLocation(chordSection.sectionVersion,
+                  location.phraseIndex, newPhrase
+                      .getMeasures()
+                      .length - 1);
+              _logger.d("new loc: " + location.toString());
+              return standardEditCleanup(
+                  chordSection.deletePhrase(newPhrase.phraseIndex)
+                      && chordSection.add(newPhrase.phraseIndex, newPhrase),
+                  location);
+            }
+            repeat.setRepeats(newRepeat.getRepeats());
+            return standardEditCleanup(true, location);
+          }
+          if (newRepeat.getRepeats() <= 1)
+            return true; //  no change but no change was asked for
 
-//  expect combination of the two phrases
-  Phrase priorPhrase = chordSection.getPhrase(phaseIndex - 1);
-  location = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phaseIndex - 1, priorPhrase.getMeasures().length + newPhrase.getMeasures().length - 1);
-  return standardEditCleanup(chordSection.deletePhrase(phaseIndex)
-  && chordSection.add(phaseIndex, newPhrase), location);
-  }
-  location = new ChordSectionLocation(chordSection.getSectionVersion(),
-  location.getPhraseIndex(), newPhrase.getMeasures().length - 1);
-  _logger.d("new loc: " + location.toString());
-  return standardEditCleanup(chordSection.deletePhrase(newPhrase.getPhraseIndex())
-  && chordSection.add(newPhrase.getPhraseIndex(), newPhrase), location);
-  }
-  repeat.setRepeats(newRepeat.getRepeats());
-  return standardEditCleanup(true, location);
-  }
-  if (newRepeat.getRepeats() <= 1)
-  return true; //  no change but no change was asked for
+          if (!phrase.isEmpty()) {
+            //  convert phrase line to a repeat
+            GridCoordinate minGridCoordinate = getGridCoordinate(location);
+            minGridCoordinate = new GridCoordinate(minGridCoordinate.row, 1);
+            MeasureNode minMeasureNode = findMeasureNodeByGrid(
+                minGridCoordinate);
+            ChordSectionLocation minLocation = getChordSectionLocation(
+                minGridCoordinate);
+            GridCoordinate maxGridCoordinate = getGridCoordinate(location);
+            maxGridCoordinate =
+            new GridCoordinate(maxGridCoordinate.row, chordSectionLocationGrid
+                .getRow(maxGridCoordinate.getRow())
+                .length - 1);
+            MeasureNode maxMeasureNode = findMeasureNodeByGrid(
+                maxGridCoordinate);
+            ChordSectionLocation maxLocation = getChordSectionLocation(
+                maxGridCoordinate);
+            _logger.d("min: " + minGridCoordinate.toString() + " " +
+                minMeasureNode.toMarkup() + " " + minLocation.measureIndex);
+            _logger.d("max: " + maxGridCoordinate.toString() + " " +
+                maxMeasureNode.toMarkup() + " " + maxLocation.measureIndex);
 
-  if (!phrase.isEmpty()) {
-//  convert phrase line to a repeat
-  GridCoordinate minGridCoordinate = getGridCoordinate(location);
-  minGridCoordinate = new GridCoordinate(minGridCoordinate.row, 1);
-  MeasureNode minMeasureNode = findMeasureNodeByGrid(minGridCoordinate);
-  ChordSectionLocation minLocation = getChordSectionLocation(minGridCoordinate);
-  GridCoordinate maxGridCoordinate = getGridCoordinate(location);
-  maxGridCoordinate = new GridCoordinate(maxGridCoordinate.row, chordSectionLocationGrid.getRow(maxGridCoordinate.getRow()).length - 1);
-  MeasureNode maxMeasureNode = findMeasureNodeByGrid(maxGridCoordinate);
-  ChordSectionLocation maxLocation = getChordSectionLocation(maxGridCoordinate);
-  _logger.d("min: " + minGridCoordinate.toString() + " " + minMeasureNode.toMarkup() + " " + minLocation.getMeasureIndex());
-  _logger.d("max: " + maxGridCoordinate.toString() + " " + maxMeasureNode.toMarkup() + " " + maxLocation.getMeasureIndex());
+            //  delete the old
+            int phraseIndex = phrase.phraseIndex;
+            chordSection.deletePhrase(phraseIndex);
+            //  replace the old early part
+            if (minLocation.measureIndex > 0) {
+              chordSection.add(phraseIndex, new Phrase(
+                  phrase.getMeasures().subList(0, minLocation.measureIndex),
+                  phraseIndex));
+              phraseIndex++;
+            }
+            //  replace the sub-phrase with a repeat
+                {
+              MeasureRepeat repeat = new MeasureRepeat(
+                  phrase.getMeasures().subList(minLocation.measureIndex,
+                      maxLocation.measureIndex + 1), phraseIndex,
+                  newRepeat.getRepeats());
+              chordSection.add(phraseIndex, repeat);
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phraseIndex);
+              phraseIndex++;
+            }
+            //  replace the old late part
+            if (maxLocation.measureIndex < phrase
+                .getMeasures()
+                .length - 1) {
+              chordSection.add(phraseIndex, new Phrase(
+                  phrase.getMeasures().subList(
+                      maxLocation.measureIndex + 1, phrase
+                      .getMeasures()
+                      .length),
+                  phraseIndex));
+              //phraseIndex++;
+            }
+            return standardEditCleanup(true, location);
+          }
+        } else {
+          newPhrase = newRepeat;
 
-//  delete the old
-  int phraseIndex = phrase.getPhraseIndex();
-  chordSection.deletePhrase(phraseIndex);
-//  replace the old early part
-  if (minLocation.getMeasureIndex() > 0) {
-  chordSection.add(phraseIndex, new Phrase(phrase.getMeasures().subList(0, minLocation.getMeasureIndex()),
-  phraseIndex));
-  phraseIndex++;
-  }
-//  replace the sub-phrase with a repeat
-      {
-  MeasureRepeat repeat = new MeasureRepeat(phrase.getMeasures().subList(minLocation.getMeasureIndex(),
-  maxLocation.getMeasureIndex() + 1), phraseIndex, newRepeat.getRepeats());
-  chordSection.add(phraseIndex, repeat);
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), phraseIndex);
-  phraseIndex++;
-  }
-//  replace the old late part
-  if (maxLocation.getMeasureIndex() < phrase.getMeasures().length - 1) {
-  chordSection.add(phraseIndex, new Phrase(
-  phrase.getMeasures().subList(maxLocation.getMeasureIndex() + 1, phrase.getMeasures().length),
-  phraseIndex));
-//phraseIndex++;
-  }
-  return standardEditCleanup(true, location);
-  }
-  } else {
-  newPhrase = newRepeat;
+          //  demote x1 repeat to phrase
+          if (newRepeat.getRepeats() < 2)
+            newPhrase =
+            new Phrase(newRepeat.getMeasures(), newRepeat.phraseIndex);
 
-//  demote x1 repeat to phrase
-  if (newRepeat.getRepeats() < 2)
-  newPhrase = new Phrase(newRepeat.getMeasures(), newRepeat.getPhraseIndex());
+          //  non-empty repeat
+          switch (editType) {
+            case delete:
+              return standardEditCleanup(
+                  chordSection.deletePhrase(phrase.phraseIndex), location);
+            case append:
+              newPhrase.setPhraseIndex(phrase.phraseIndex + 1);
+              return standardEditCleanup(
+                  chordSection.add(phrase.phraseIndex + 1, newPhrase),
+                  new ChordSectionLocation(
+                      chordSection.sectionVersion, phrase.phraseIndex + 1));
+            case insert:
+              newPhrase.setPhraseIndex(phrase.phraseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phrase.phraseIndex, newPhrase), location);
+            case replace:
+              newPhrase.setPhraseIndex(phrase.phraseIndex);
+              return standardEditCleanup(
+                  chordSection.deletePhrase(phrase.phraseIndex)
+                      && chordSection.add(newPhrase.phraseIndex, newPhrase),
+                  location);
+          }
+        }
+        break;
 
-//  non-empty repeat
-  switch (editType) {
-  case delete:
-  return standardEditCleanup(chordSection.deletePhrase(phrase.getPhraseIndex()), location);
-  case append:
-  newPhrase.setPhraseIndex(phrase.getPhraseIndex() + 1);
-  return standardEditCleanup(chordSection.add(phrase.getPhraseIndex() + 1, newPhrase),
-  new ChordSectionLocation(chordSection.getSectionVersion(), phrase.getPhraseIndex() + 1));
-  case insert:
-  newPhrase.setPhraseIndex(phrase.getPhraseIndex());
-  return standardEditCleanup(chordSection.add(phrase.getPhraseIndex(), newPhrase), location);
-  case replace:
-  newPhrase.setPhraseIndex(phrase.getPhraseIndex());
-  return standardEditCleanup(chordSection.deletePhrase(phrase.getPhraseIndex())
-  && chordSection.add(newPhrase.getPhraseIndex(), newPhrase), location);
-  }
-  }
-  break;
-
-  case phrase:
-  newPhrase = (Phrase) measureNode;
-  int phaseIndex = 0;
-  switch (editType) {
-  case append:
-  if (location == null) {
-  if (chordSection.getPhraseCount() == 0) {
+      case MeasureNodeType.phrase:
+        newPhrase = (Phrase)
+        measureNode;
+        int phaseIndex = 0;
+        switch (editType) {
+          case append:
+            if (location == null) {
+              if (chordSection.getPhraseCount() == 0) {
 //  append as first phrase
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), 0, newPhrase.length - 1);
-  newPhrase.setPhraseIndex(phaseIndex);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
-  }
+                location = new ChordSectionLocation(
+                    chordSection.sectionVersion, 0, newPhrase.length - 1);
+                newPhrase.setPhraseIndex(phaseIndex);
+                return standardEditCleanup(
+                    chordSection.add(phaseIndex, newPhrase), location);
+              }
 
 //  last of section
-  Phrase lastPhrase = chordSection.lastPhrase();
-  switch (lastPhrase.getMeasureNodeType()) {
-  case phrase:
-  location = new ChordSectionLocation(chordSection.getSectionVersion(),
-  lastPhrase.getPhraseIndex(), lastPhrase.length + newPhrase.length - 1);
-  return standardEditCleanup(lastPhrase.add(newPhrase.getMeasures()), location);
-  }
-  phaseIndex = chordSection.getPhraseCount();
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex, lastPhrase.length);
-  newPhrase.setPhraseIndex(phaseIndex);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
-  }
-  if (chordSection.isEmpty()) {
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex, newPhrase.length - 1);
-  newPhrase.setPhraseIndex(phaseIndex);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
-  }
+              Phrase lastPhrase = chordSection.lastPhrase();
+              switch (lastPhrase.getMeasureNodeType()) {
+                case phrase:
+                  location =
+                  new ChordSectionLocation(chordSection.sectionVersion,
+                      lastPhrase.phraseIndex,
+                      lastPhrase.length + newPhrase.length - 1);
+                  return standardEditCleanup(
+                      lastPhrase.add(newPhrase.getMeasures()), location);
+              }
+              phaseIndex = chordSection.getPhraseCount();
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phaseIndex, lastPhrase.length);
+              newPhrase.setPhraseIndex(phaseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phaseIndex, newPhrase), location);
+            }
+            if (chordSection.isEmpty()) {
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phaseIndex,
+                  newPhrase.length - 1);
+              newPhrase.setPhraseIndex(phaseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phaseIndex, newPhrase), location);
+            }
 
-  if (location.hasMeasureIndex()) {
-  newLocation = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phrase.getPhraseIndex(), location.getMeasureIndex() + newPhrase.length);
-  return standardEditCleanup(phrase.edit(editType, location.getMeasureIndex(), newPhrase), newLocation);
-  }
-  if (location.hasPhraseIndex()) {
-  phaseIndex = location.getPhraseIndex() + 1;
-  newLocation = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex, newPhrase.length - 1);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), newLocation);
-  }
-  newLocation = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phrase.getPhraseIndex(), phrase.getMeasures().length + newPhrase.length - 1);
-  return standardEditCleanup(phrase.add(newPhrase.getMeasures()), newLocation);
+            if (location.hasMeasureIndex()) {
+              newLocation =
+              new ChordSectionLocation(chordSection.sectionVersion,
+                  phrase.phraseIndex, location.measureIndex + newPhrase.length);
+              return standardEditCleanup(
+                  phrase.edit(editType, location.measureIndex, newPhrase),
+                  newLocation);
+            }
+            if (location.hasPhraseIndex()) {
+              phaseIndex = location.phraseIndex + 1;
+              newLocation = new ChordSectionLocation(
+                  chordSection.sectionVersion, phaseIndex,
+                  newPhrase.length - 1);
+              return standardEditCleanup(
+                  chordSection.add(phaseIndex, newPhrase), newLocation);
+            }
+            newLocation = new ChordSectionLocation(chordSection.sectionVersion,
+                phrase.phraseIndex, phrase
+                    .getMeasures()
+                    .length + newPhrase.length - 1);
+            return standardEditCleanup(
+                phrase.add(newPhrase.getMeasures()), newLocation);
 
-  case insert:
-  if (location == null) {
-  if (chordSection.getPhraseCount() == 0) {
+          case insert:
+            if (location == null) {
+              if (chordSection.getPhraseCount() == 0) {
 //  append as first phrase
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), 0, newPhrase.length - 1);
-  newPhrase.setPhraseIndex(phaseIndex);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
-  }
+                location = new ChordSectionLocation(
+                    chordSection.sectionVersion, 0, newPhrase.length - 1);
+                newPhrase.setPhraseIndex(phaseIndex);
+                return standardEditCleanup(
+                    chordSection.add(phaseIndex, newPhrase), location);
+              }
 
 //  first of section
-  Phrase firstPhrase = chordSection.getPhrase(0);
-  switch (firstPhrase.getMeasureNodeType()) {
-  case phrase:
-  location = new ChordSectionLocation(chordSection.getSectionVersion(),
-  firstPhrase.getPhraseIndex(), 0);
-  return standardEditCleanup(firstPhrase.add(newPhrase.getMeasures()), location);
-  }
+              Phrase firstPhrase = chordSection.getPhrase(0);
+              switch (firstPhrase.getMeasureNodeType()) {
+                case phrase:
+                  location =
+                  new ChordSectionLocation(chordSection.sectionVersion,
+                      firstPhrase.phraseIndex, 0);
+                  return standardEditCleanup(
+                      firstPhrase.add(newPhrase.getMeasures()), location);
+              }
 
-  phaseIndex = 0;
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex, firstPhrase.length);
-  newPhrase.setPhraseIndex(phaseIndex);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
-  }
-  if (chordSection.isEmpty()) {
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex, newPhrase.length - 1);
-  newPhrase.setPhraseIndex(phaseIndex);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
-  }
+              phaseIndex = 0;
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phaseIndex, firstPhrase.length);
+              newPhrase.setPhraseIndex(phaseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phaseIndex, newPhrase), location);
+            }
+            if (chordSection.isEmpty()) {
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phaseIndex,
+                  newPhrase.length - 1);
+              newPhrase.setPhraseIndex(phaseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phaseIndex, newPhrase), location);
+            }
 
-  if (location.hasMeasureIndex()) {
-  newLocation = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phrase.getPhraseIndex(), location.getMeasureIndex() + newPhrase.length - 1);
-  return standardEditCleanup(phrase.edit(editType, location.getMeasureIndex(), newPhrase), newLocation);
-  }
+            if (location.hasMeasureIndex()) {
+              newLocation =
+              new ChordSectionLocation(chordSection.sectionVersion,
+                  phrase.phraseIndex,
+                  location.measureIndex + newPhrase.length - 1);
+              return standardEditCleanup(
+                  phrase.edit(editType, location.measureIndex, newPhrase),
+                  newLocation);
+            }
 
-//  insert new phrase in front of existing phrase
-  newLocation = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phrase.getPhraseIndex(), newPhrase.length - 1);
-  return standardEditCleanup(phrase.add(0, newPhrase.getMeasures()), newLocation);
-  case replace:
-  if (location != null) {
-  if (location.hasPhraseIndex()) {
-  if (location.hasMeasureIndex()) {
-  newLocation = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex,
-  location.getMeasureIndex() + newPhrase.length - 1);
-  return standardEditCleanup(phrase.edit(
-  editType, location.getMeasureIndex(), newPhrase), newLocation);
-  }
-//  delete the phrase before replacing it
-  phaseIndex = location.getPhraseIndex();
-  if (phaseIndex > 0 && chordSection.getPhrase(phaseIndex - 1).getMeasureNodeType() == MeasureNode.MeasureNodeType.phrase) {
-//  expect combination of the two phrases
-  Phrase priorPhrase = chordSection.getPhrase(phaseIndex - 1);
-  location = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phaseIndex - 1, priorPhrase.getMeasures().length + newPhrase.getMeasures().length);
-  return standardEditCleanup(chordSection.deletePhrase(phaseIndex)
-  && chordSection.add(phaseIndex, newPhrase), location);
-  } else {
-  location = new ChordSectionLocation(chordSection.getSectionVersion(),
-  phaseIndex, newPhrase.getMeasures().length - 1);
-  return standardEditCleanup(chordSection.deletePhrase(phaseIndex)
-  && chordSection.add(phaseIndex, newPhrase), location);
-  }
-  }
-  break;
-  }
-  phaseIndex = (location != null && location.hasPhraseIndex() ? location.getPhraseIndex() : 0);
-  break;
-  default:
-  phaseIndex = (location != null && location.hasPhraseIndex() ? location.getPhraseIndex() : 0);
-  break;
-  }
-  newPhrase.setPhraseIndex(phaseIndex);
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), phaseIndex, newPhrase.length - 1);
-  return standardEditCleanup(chordSection.add(phaseIndex, newPhrase), location);
+            //  insert new phrase in front of existing phrase
+            newLocation = new ChordSectionLocation(chordSection.sectionVersion,
+                phrase.phraseIndex, newPhrase.length - 1);
+            return standardEditCleanup(
+                phrase.add(0, newPhrase.getMeasures()), newLocation);
+          case replace:
+            if (location != null) {
+              if (location.hasPhraseIndex()) {
+                if (location.hasMeasureIndex()) {
+                  newLocation = new ChordSectionLocation(
+                      chordSection.sectionVersion, phaseIndex,
+                      location.measureIndex + newPhrase.length - 1);
+                  return standardEditCleanup(phrase.edit(
+                      editType, location.measureIndex, newPhrase), newLocation);
+                }
+                //  delete the phrase before replacing it
+                phaseIndex = location.phraseIndex;
+                if (phaseIndex > 0 && chordSection.getPhrase(phaseIndex - 1)
+                    .getMeasureNodeType() ==
+                    MeasureNode.MeasureNodeType.phrase) {
+                  //  expect combination of the two phrases
+                  Phrase priorPhrase = chordSection.getPhrase(phaseIndex - 1);
+                  location =
+                  new ChordSectionLocation(chordSection.sectionVersion,
+                      phaseIndex - 1, priorPhrase
+                          .getMeasures()
+                          .length + newPhrase
+                          .getMeasures()
+                          .length);
+                  return standardEditCleanup(
+                      chordSection.deletePhrase(phaseIndex)
+                          && chordSection.add(phaseIndex, newPhrase), location);
+                } else {
+                  location =
+                  new ChordSectionLocation(chordSection.sectionVersion,
+                      phaseIndex, newPhrase
+                          .getMeasures()
+                          .length - 1);
+                  return standardEditCleanup(
+                      chordSection.deletePhrase(phaseIndex)
+                          && chordSection.add(phaseIndex, newPhrase), location);
+                }
+              }
+              break;
+            }
+            phaseIndex =
+            (location != null && location.hasPhraseIndex() ? location
+                .phraseIndex : 0);
+            break;
+          default:
+            phaseIndex =
+            (location != null && location.hasPhraseIndex() ? location
+                .phraseIndex : 0);
+            break;
+        }
+        newPhrase.setPhraseIndex(phaseIndex);
+        location = new ChordSectionLocation(
+            chordSection.sectionVersion, phaseIndex, newPhrase.length - 1);
+        return standardEditCleanup(
+            chordSection.add(phaseIndex, newPhrase), location);
 
-  case measure:
-  case comment:
-//  add measure to current phrase
-  if (location.hasMeasureIndex()) {
-  newLocation = location;
-  switch (editType) {
-  case append:
-  newLocation = location.nextMeasureIndexLocation();
-  break;
-  }
-  return standardEditCleanup(phrase.edit(editType, newLocation.getMeasureIndex(), measureNode), newLocation);
-  }
+      case MeasureNodeType.measure:
+      case MeasureNodeType.comment:
+      //  add measure to current phrase
+        if (location.hasMeasureIndex) {
+          newLocation = location;
+          switch (editType) {
+            case MeasureEditType.append:
+              newLocation = location.nextMeasureIndexLocation();
+              break;
+            default:
+              break;
+          }
+          return standardEditCleanup(
+              phrase.edit(editType, newLocation.measureIndex, measureNode),
+              newLocation);
+        }
 
-//  add measure to chordSection by creating a new phase
-  if (location.hasPhraseIndex()) {
-  List<Measure> measures = new List();
-  measures.add((Measure) measureNode);
-  newPhrase = new Phrase(measures, location.getPhraseIndex());
-  switch (editType) {
-  case delete:
-  break;
-  case append:
-  newPhrase.setPhraseIndex(phrase.getPhraseIndex());
-  return standardEditCleanup(chordSection.add(phrase.getPhraseIndex(), newPhrase),
-  location.nextMeasureIndexLocation());
-  case insert:
-  newPhrase.setPhraseIndex(phrase.getPhraseIndex());
-  return standardEditCleanup(chordSection.add(phrase.getPhraseIndex(), newPhrase), location);
-  case replace:
-  newPhrase.setPhraseIndex(phrase.getPhraseIndex());
-  return standardEditCleanup(chordSection.deletePhrase(phrase.getPhraseIndex())
-  && chordSection.add(newPhrase.getPhraseIndex(), newPhrase), location);
-  }
-  }
-  break;
-  }
+        //  add measure to chordSection by creating a new phase
+        if (location.hasPhraseIndex) {
+          List<Measure> measures = new List();
+          measures.add(measureNode as Measure);
+          newPhrase = new Phrase(measures, location.phraseIndex);
+          switch (editType) {
+            case MeasureEditType.delete:
+              break;
+            case MeasureEditType.append:
+              newPhrase.setPhraseIndex(phrase.phraseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phrase.phraseIndex, newPhrase),
+                  location.nextMeasureIndexLocation());
+            case MeasureEditType.insert:
+              newPhrase.setPhraseIndex(phrase.phraseIndex);
+              return standardEditCleanup(
+                  chordSection.add(phrase.phraseIndex, newPhrase), location);
+            case MeasureEditType.replace:
+              newPhrase.setPhraseIndex(phrase.phraseIndex);
+              return standardEditCleanup(
+                  chordSection.deletePhrase(phrase.phraseIndex)
+                      && chordSection.add(newPhrase.phraseIndex, newPhrase),
+                  location);
+          }
+        }
+        break;
+      case MeasureNodeType.decoration:
+        return false;
+    }
 
 
 //  edit measure node into location
-  switch (editType) {
-  case insert:
-  switch (measureNode.getMeasureNodeType()) {
-  case repeat:
-  case phrase:
-  ret = chordSection.insert(location.getPhraseIndex(), measureNode);
-  break;
-  }
-//  no location change
-  standardEditCleanup(ret, location);
-  break;
+    switch (editType) {
+      case MeasureEditType.insert:
+        switch (measureNode.getMeasureNodeType()) {
+          case MeasureNodeType.repeat:
+          case MeasureNodeType.phrase:
+            ret = chordSection.insert(location.phraseIndex, measureNode);
+            break;
+          default:
+            break;
+        }
+        //  no location change
+        standardEditCleanup(ret, location);
+        break;
 
-  case append:
-//  promote marker to repeat
-  try {
-  Measure refMeasure = phrase.getMeasure(location.getMeasureIndex());
-  if (refMeasure instanceof MeasureRepeatMarker && phrase.isRepeat()) {
-  MeasureRepeat measureRepeat = (MeasureRepeat) phrase;
-  if (refMeasure == measureRepeat.getRepeatMarker()) {
-//  appending at the repeat marker forces the section to add a sequenceItem list after the repeat
-  int phraseIndex = chordSection.indexOf(measureRepeat) + 1;
-  newPhrase = new Phrase(new List(), phraseIndex);
-  chordSection.getPhrases().add(phraseIndex, newPhrase);
-  phrase = newPhrase;
-  }
-  }
-  } catch (IndexOutOfBoundsException iob) {
-//  ignore attempt
-  }
+      case MeasureEditType.append:
+      //  promote marker to repeat
+        try {
+          Measure refMeasure = phrase.getMeasure(location.measureIndex);
+          if (refMeasure is MeasureRepeatMarker && phrase.isRepeat()) {
+            MeasureRepeat measureRepeat = phrase as MeasureRepeat;
+            if (refMeasure == measureRepeat.getRepeatMarker()) {
+              //  appending at the repeat marker forces the section to add a sequenceItem list after the repeat
+              int phraseIndex = chordSection.indexOf(measureRepeat) + 1;
+              newPhrase = new Phrase(new List(), phraseIndex);
+              chordSection.getPhrases().add(phraseIndex, newPhrase);
+              phrase = newPhrase;
+            }
+          }
+        }
+        catch (e) {
+          //  ignore attempt
+        }
 
-  if (location.isSection()) {
-  switch (measureNode.getMeasureNodeType()) {
-  case section:
-  SectionVersion sectionVersion = location.getSectionVersion();
-  return standardEditCleanup((getChordSectionMap().put(sectionVersion,
-  (ChordSection) measureNode) != null), location.nextMeasureIndexLocation());
-  case phrase:
-  case repeat:
-  return standardEditCleanup(chordSection.add(location.getPhraseIndex(),
-  (Phrase) measureNode), location);
-  }
-  }
-  if (location.isPhrase()) {
-  switch (measureNode.getMeasureNodeType()) {
-  case repeat:
-  case phrase:
-  chordSection.getPhrases().add(location.getPhraseIndex(), (Phrase) measureNode);
-  return standardEditCleanup(true, location);
-  }
-  break;
-  }
+        if (location.isSection) {
+          switch (measureNode.getMeasureNodeType()) {
+            case MeasureNodeType.section:
+              SectionVersion sectionVersion = location.sectionVersion;
+              return standardEditCleanup(((
+                  getChordSectionMap()[sectionVersion] =
+                  measureNode as ChordSection) != null),
+                  location.nextMeasureIndexLocation());
+            case MeasureNodeType.phrase:
+            case MeasureNodeType.repeat:
+              return standardEditCleanup(chordSection.add(location.phraseIndex,
+                  measureNode as Phrase), location);
+            default:
+              break;
+          }
+        }
+        if (location.isPhrase) {
+          switch (measureNode.getMeasureNodeType()) {
+            case MeasureNodeType.repeat:
+            case MeasureNodeType.phrase:
+              chordSection.getPhrases().add(
+                  location.phraseIndex, (Phrase) measureNode);
+              return standardEditCleanup(true, location);
+            default:
+              break;
+          }
+          break;
+        }
 
-  break;
+        break;
 
-  case delete:
+      case MeasureEditType.delete:
 //  note: measureNode is ignored, and should be ignored
-  if (location.isMeasure()) {
-  ret = (phrase.delete(location.getMeasureIndex()) != null);
-  if (ret) {
-  if (location.getMeasureIndex() < phrase.length) {
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), location.getPhraseIndex(), location.getMeasureIndex());
-  measureNode = findMeasureNodeByLocation(location);
-  } else {
-  if (phrase.length > 0) {
-  int index = phrase.length - 1;
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), location.getPhraseIndex(), index);
-  measureNode = findMeasureNodeByLocation(location);
-  } else {
-  chordSection.deletePhrase(location.getPhraseIndex());
-  if (chordSection.getPhraseCount() > 0) {
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), 0, chordSection.getPhrase(0).length - 1);
-  measureNode = findMeasureNodeByLocation(location);
-  } else {
-//  last phase was deleted
-  location = new ChordSectionLocation(chordSection.getSectionVersion());
-  measureNode = findMeasureNodeByLocation(location);
-  }
-  }
-  }
-  }
-  } else if (location.isPhrase()) {
-  ret = chordSection.deletePhrase(location.getPhraseIndex());
-  if (ret) {
-  if (location.getPhraseIndex() > 0) {
-  int index = location.getPhraseIndex() - 1;
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), index, chordSection.getPhrase(index).length - 1);
-  measureNode = findMeasureNodeByLocation(location);
-  } else if (chordSection.getPhraseCount() > 0) {
-  location = new ChordSectionLocation(chordSection.getSectionVersion(), 0, chordSection.getPhrase(0).length - 1);
-  measureNode = findMeasureNodeByLocation(location);
-  } else {
-//  last one was deleted
-  location = new ChordSectionLocation(chordSection.getSectionVersion());
-  measureNode = findMeasureNodeByLocation(location);
-  }
-  }
-  } else if (location.isSection()) {
-
-  }
-  standardEditCleanup(ret, location);
-  break;
-  }
-  postMod();
-  return ret;
+        if (location.isMeasure) {
+          ret = (phrase.deleteAt(location.measureIndex) != null);
+          if (ret) {
+            if (location.measureIndex < phrase.length) {
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion,
+                  phraseIndex: location.phraseIndex,
+                  measureIndex: location.measureIndex);
+              measureNode = findMeasureNodeByLocation(location);
+            } else {
+              if (phrase.length > 0) {
+                int index = phrase.length - 1;
+                location = new ChordSectionLocation(
+                    chordSection.sectionVersion,
+                    phraseIndex: location.phraseIndex, measureIndex: index);
+                measureNode = findMeasureNodeByLocation(location);
+              } else {
+                chordSection.deletePhrase(location.phraseIndex);
+                if (chordSection.getPhraseCount() > 0) {
+                  location = new ChordSectionLocation(
+                      chordSection.sectionVersion, phraseIndex: 0,
+                      measureIndex: chordSection
+                          .getPhrase(0)
+                          .length - 1);
+                  measureNode = findMeasureNodeByLocation(location);
+                } else {
+                  //  last phase was deleted
+                  location =
+                  new ChordSectionLocation(chordSection.sectionVersion);
+                  measureNode = findMeasureNodeByLocation(location);
+                }
+              }
+            }
+          }
+        } else if (location.isPhrase) {
+          ret = chordSection.deletePhrase(location.phraseIndex);
+          if (ret) {
+            if (location.phraseIndex > 0) {
+              int index = location.phraseIndex - 1;
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phraseIndex: index,
+                  measureIndex: chordSection
+                      .getPhrase(index)
+                      .length - 1);
+              measureNode = findMeasureNodeByLocation(location);
+            } else if (chordSection.getPhraseCount() > 0) {
+              location = new ChordSectionLocation(
+                  chordSection.sectionVersion, phraseIndex: 0,
+                  measureIndex: chordSection
+                      .getPhrase(0)
+                      .length - 1);
+              measureNode = findMeasureNodeByLocation(location);
+            } else {
+              //  last one was deleted
+              location = new ChordSectionLocation(chordSection.sectionVersion);
+              measureNode = findMeasureNodeByLocation(location);
+            }
+          }
+        } else if (location.isSection) {
+          //  fixme: what did i have in mind?
+        }
+        standardEditCleanup(ret, location);
+        break;
+    }
+    postMod();
+    return ret;
   }
 
   bool standardEditCleanup(bool ret, ChordSectionLocation location) {
@@ -1862,7 +1973,7 @@ class SongBase {
       }
       if (phrase.getMeasureNodeType() == MeasureNode.MeasureNodeType.phrase) {
         if (lastPhrase != null) {
-//  two contiguous phrases: join
+          //  two contiguous phrases: join
           lastPhrase.add(phrase.getMeasures());
           chordSection.deletePhrase(i);
           limit--; //  one less index
@@ -1873,12 +1984,7 @@ class SongBase {
     }
   }
 
-  /**
-   * Find the measure sequence item for the given measure (i.e. the measure's parent container).
-   *
-   * @param measure the measure referenced
-   * @return the measure's sequence item
-   */
+  /// Find the measure sequence item for the given measure (i.e. the measure's parent container).
   Phrase findPhrase(Measure measure) {
     if (measure == null)
       return null;
@@ -1916,23 +2022,23 @@ class SongBase {
 
     Phrase phrase;
     try {
-      ChordSection chordSection = findChordSection(measureNode);
+      ChordSection chordSection = findChordSectionByMeasure(measureNode);
       switch (measureNode.getMeasureNodeType()) {
         case MeasureNodeType.section:
-          return new ChordSectionLocation(chordSection.getSectionVersion());
+          return new ChordSectionLocation(chordSection.sectionVersion);
         case MeasureNodeType.repeat:
         case MeasureNodeType.phrase:
           phrase = chordSection.findPhrase(measureNode);
           return new ChordSectionLocation(
-              chordSection.getSectionVersion(),
-              phraseIndex: phrase.getPhraseIndex());
+              chordSection.sectionVersion,
+              phraseIndex: phrase.phraseIndex);
         case MeasureNodeType.decoration:
         case MeasureNodeType.comment:
         case MeasureNodeType.measure:
           phrase = chordSection.findPhrase(measureNode);
           return new ChordSectionLocation(
-              chordSection.getSectionVersion(),
-              phraseIndex: phrase.getPhraseIndex(),
+              chordSection.sectionVersion,
+              phraseIndex: phrase.phraseIndex,
               measureIndex: phrase.findMeasureNodeIndex(measureNode));
         default:
           return null;
@@ -1953,46 +2059,44 @@ class SongBase {
   }
 
   /// Find the chord section for the given type of chord section
-  ChordSection findChordSection(SectionVersion sectionVersion) {
+  ChordSection findChordSectionBySectionVersion(SectionVersion sectionVersion) {
     if (sectionVersion == null)
       return null;
     return getChordSectionMap()[sectionVersion]; //  get not type safe!!!!
   }
 
-  Measure findMeasure
-
-      (ChordSectionLocation chordSectionLocation) {
+  Measure findMeasureByChordSectionLocation(
+      ChordSectionLocation chordSectionLocation) {
     try {
-      return getChordSectionMap().get(chordSectionLocation.getSectionVersion())
-          .getPhrase(chordSectionLocation.getPhraseIndex())
-          .getMeasure(chordSectionLocation.getMeasureIndex());
+      return getChordSectionMap()[chordSectionLocation.sectionVersion]
+          .getPhrase(chordSectionLocation.phraseIndex)
+          .getMeasure(chordSectionLocation.measureIndex);
     }
-    catch
-    (
-    NullPointerException
-    | IndexOutOfBoundsException ex) {
+    catch (e) {
+      return null;
+    }
+  }
+
+  Measure getCurrentChordSectionLocationMeasure() {
+    ChordSectionLocation location = getCurrentChordSectionLocation();
+    if (location.hasMeasureIndex) {
+      int index = location.measureIndex;
+      if (index > 0) {
+        location = new ChordSectionLocation(
+            location.sectionVersion, phraseIndex: location.phraseIndex,
+            measureIndex: index);
+        MeasureNode measureNode = findMeasureNodeByLocation(location);
+        if (measureNode != null) {
+          switch (measureNode.getMeasureNodeType()) {
+            case MeasureNodeType.measure:
+              return measureNode as Measure;
+            default:
+              break;
+          }
+        }
+      }
+    }
     return null;
-    }
-  }
-
-  final Measure getCurrentChordSectionLocationMeasure
-
-  () {
-  ChordSectionLocation location = getCurrentChordSectionLocation();
-  if (location.hasMeasureIndex()) {
-  int index = location.getMeasureIndex();
-  if (index > 0) {
-  location = new ChordSectionLocation(location.getSectionVersion(), location.getPhraseIndex(), index);
-  MeasureNode measureNode = findMeasureNodeByLocation(location);
-  if (measureNode != null) {
-  switch (measureNode.getMeasureNodeType()) {
-  case measure:
-  return (Measure) measureNode;
-  }
-  }
-  }
-  }
-  return null;
   }
 
   MeasureNode findMeasureNodeByGrid(GridCoordinate coordinate) {
@@ -2039,36 +2143,26 @@ class SongBase {
       (MarkedString markedString) {
     SectionVersion sectionVersion = SectionVersion.parse(
         markedString);
-    return getChordSectionMap
-      (
-    ).
-    get(sectionVersion);
+    return getChordSectionMap()[sectionVersion];
   }
 
 
-  bool chordSectionLocationDelete
-      (ChordSectionLocation chordSectionLocation) {
+  bool chordSectionLocationDelete(ChordSectionLocation chordSectionLocation) {
     try {
       ChordSection chordSection = getChordSection(
-          chordSectionLocation.getSectionVersion());
-      if (chordSection.deleteMeasure(chordSectionLocation.getPhraseIndex(),
-          chordSectionLocation.getMeasureIndex())) {
+          chordSectionLocation.sectionVersion);
+      if (chordSection.deleteMeasure(chordSectionLocation.phraseIndex,
+          chordSectionLocation.measureIndex)) {
         clearCachedValues();
         setCurrentChordSectionLocation(chordSectionLocation);
         return true;
       }
     }
-    catch
-    (
-    NullPointerException
-    npe) {
-    }
-    return
-    false;
+    catch (e) {}
+    return false;
   }
 
-  bool chordSectionDelete
-      (ChordSection chordSection) {
+  bool chordSectionDelete(ChordSection chordSection) {
     if (chordSection == null)
       return false;
     bool ret = getChordSectionMap().remove(chordSection) != null;
@@ -2077,27 +2171,25 @@ class SongBase {
   }
 
   void guessTheKey() {
-//  fixme: key guess based on chords section or lyrics?
+    //  fixme: key guess based on chords section or lyrics?
     setKey(Key.guessKey(findScaleChordsUsed().keys));
   }
 
 
-  HashMap<ScaleChord, int> findScaleChordsUsed
-      () {
+  HashMap<ScaleChord, int> findScaleChordsUsed() {
     HashMap<ScaleChord, int> ret = new HashMap();
     for (ChordSection chordSection in getChordSectionMap().values) {
       for (Phrase msi in chordSection.getPhrases()) {
         for (Measure m in msi.getMeasures()) {
           for (Chord chord in m.chords) {
             ScaleChord scaleChord = chord.scaleChord;
-            int chordCount = ret.sget(scaleChord);
-            ret.put(scaleChord, chordCount == null ? 1 : chordCount + 1);
+            int chordCount = ret[scaleChord];
+            ret[scaleChord] = (chordCount == null ? 1 : chordCount + 1);
           }
         }
       }
     }
-    return
-      ret;
+    return ret;
   }
 
   void parseLyrics() {
@@ -2113,7 +2205,7 @@ class SongBase {
       String c = markedString.charAt(0);
       switch (state) {
         case 0:
-//  absorb leading white space
+        //  absorb leading white space
           if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
             break;
           }
@@ -2168,14 +2260,13 @@ class SongBase {
 
       markedString.consume(1);
     }
-//  last one is not terminated by another section
+    //  last one is not terminated by another section
     if (lyricSection != null)
       lyricSection.add(new LyricsLine(lyricsBuffer.toString()));
     lyricSections.add(lyricSection);
 
-//  safety with lazy eval
-    clearCachedValues(
-    );
+    //  safety with lazy eval
+    clearCachedValues();
   }
 
   /// Debug only!  a string form of the song chord section grid
@@ -2194,7 +2285,7 @@ class SongBase {
         sb.write(",");
         sb.write(c);
         sb.write(") ");
-        sb.write(loc.isMeasure() ? "        " : (loc.isPhrase() ? "    " : ""));
+        sb.write(loc.isMeasure ? "        " : (loc.isPhrase ? "    " : ""));
         sb.write(loc.toString());
         sb.write("  ");
         sb.write(findMeasureNodeByLocation(loc).toMarkup() + "\n");
@@ -2203,12 +2294,9 @@ class SongBase {
     return sb.toString();
   }
 
-  void addRepeat
-      (ChordSectionLocation chordSectionLocation
-      ,
-
+  void addRepeat(ChordSectionLocation chordSectionLocation,
       MeasureRepeat repeat) {
-    Measure measure = findMeasure(chordSectionLocation);
+    Measure measure = findMeasureByChordSectionLocation(chordSectionLocation);
     if (measure == null)
       return;
 
@@ -2216,11 +2304,11 @@ class SongBase {
     if (measureSequenceItem == null)
       return;
 
-    ChordSection chordSection = findChordSection(measure);
+    ChordSection chordSection = findChordSectionByMeasure(measure);
     List<Phrase> measureSequenceItems = chordSection.getPhrases();
     int i = measureSequenceItems.indexOf(measureSequenceItem);
     if (i >= 0) {
-      measureSequenceItems = new List<>(measureSequenceItems);
+      measureSequenceItems = new List(measureSequenceItems);
       measureSequenceItems.remove(i);
       repeat.setPhraseIndex(i);
       measureSequenceItems.add(i, repeat);
@@ -2232,7 +2320,7 @@ class SongBase {
     chordSectionDelete(chordSection);
     chordSection =
     new ChordSection(chordSection.sectionVersion, measureSequenceItems);
-    getChordSectionMap().put(chordSection.sectionVersion, chordSection);
+    getChordSectionMap()[chordSection.sectionVersion]= chordSection;
     clearCachedValues();
   }
 
@@ -2271,7 +2359,7 @@ class SongBase {
     } else {
 //  change sequence items to repeat
       MeasureRepeat measureRepeat = new MeasureRepeat(
-          phrase.getMeasures(), phrase.getPhraseIndex(), repeats);
+          phrase.getMeasures(), phrase.phraseIndex, repeats);
       ChordSection chordSection = findChordSection(phrase);
       List<Phrase> measureSequenceItems = chordSection.getPhrases();
       int i = measureSequenceItems.indexOf(phrase);
@@ -2565,7 +2653,7 @@ class SongBase {
       SectionVersion chordSectionVersion = chordSection.sectionVersion;
       bool found = false;
       for (LyricSection lyricSection in newSong.getLyricSections()) {
-        if (chordSectionVersion.equals(lyricSection.getSectionVersion())) {
+        if (chordSectionVersion.equals(lyricSection.sectionVersion)) {
           found = true;
           break;
         }
@@ -2585,7 +2673,7 @@ class SongBase {
       SectionVersion lyricSectionVersion = lyricSection.sectionVersion;
       bool found = false;
       for (ChordSection chordSection in newSong.getChordSections()) {
-        if (lyricSectionVersion.equals(chordSection.getSectionVersion())) {
+        if (lyricSectionVersion.equals(chordSection.sectionVersion)) {
           found = true;
           break;
         }
@@ -2636,87 +2724,109 @@ class SongBase {
       newSong;
   }
 
-  static final List<StringTriple> diff
+  static List<StringTriple> diff(SongBase a, SongBase b) {
+    List<StringTriple> ret = new List();
 
-  (
+    if (a.getTitle().compareTo(b.getTitle()) != 0)
+      ret.add(new StringTriple("title:", a.getTitle(), b.getTitle()));
+    if (a.getArtist().compareTo(b.getArtist()) != 0)
+      ret.add(new StringTriple("artist:", a.getArtist(), b.getArtist()));
+    if (a.getCoverArtist() != null && b.getCoverArtist() != null &&
+        a.getCoverArtist().compareTo(b.getCoverArtist()) != 0)
+      ret.add(
+          new StringTriple("cover:", a.getCoverArtist(), b.getCoverArtist()));
+    if (a.getCopyright().compareTo(b.getCopyright()) != 0)
+      ret.add(
+          new StringTriple("copyright:", a.getCopyright(), b.getCopyright()));
+    if (a.getKey().compareTo(b.getKey()) != 0)
+      ret.add(new StringTriple(
+          "key:", a.getKey().toString(), b.getKey().toString()));
+    if (a.getBeatsPerMinute() != b.getBeatsPerMinute())
+      ret.add(new StringTriple("BPM:", a.getBeatsPerMinute().toString(),
+          b.getBeatsPerMinute().toString()));
+    if (a.getBeatsPerBar() != b.getBeatsPerBar())
+      ret.add(new StringTriple("per bar:", a.getBeatsPerBar().toString(),
+          b.getBeatsPerBar().toString()));
+    if (a.getUnitsPerMeasure() != b.getUnitsPerMeasure())
+      ret.add(new StringTriple(
+          "units/measure:", a.getUnitsPerMeasure().toString(),
+          b.getUnitsPerMeasure().toString()));
 
-  SongBase a, SongBase
+    //  chords
+    for (ChordSection aChordSection in a.getChordSections()) {
+      ChordSection bChordSection = b.getChordSection(
+          aChordSection.sectionVersion);
+      if (bChordSection == null) {
+        ret.add(
+            new StringTriple("chords missing:", aChordSection.toMarkup(), ""));
+      } else if (aChordSection.compareTo(bChordSection) != 0) {
+        ret.add(new StringTriple(
+            "chords:", aChordSection.toMarkup(), bChordSection.toMarkup()));
+      }
+    }
+    for (ChordSection bChordSection in b.getChordSections()) {
+      ChordSection aChordSection = a.getChordSection(
+          bChordSection.sectionVersion);
+      if (aChordSection == null) {
+        ret.add(
+            new StringTriple("chords missing:", "", bChordSection.toMarkup()));
+      }
+    }
 
-  b
+    //  lyrics
+        {
+      int limit = min(a
+          .getLyricSections()
+          .length, b
+          .getLyricSections()
+          .length);
+      for (int i = 0; i < limit; i++) {
+        LyricSection aLyricSection = a.getLyricSections()[i];
+        SectionVersion sectionVersion = aLyricSection.sectionVersion;
+        LyricSection bLyricSection = b.getLyricSections()[i];
+        int lineLimit = min(aLyricSection
+            .getLyricsLines()
+            .length, bLyricSection
+            .getLyricsLines()
+            .length);
+        for (int j = 0; j < lineLimit; j++) {
+          String aLine = aLyricSection.getLyricsLines()[j].getLyrics();
+          String bLine = bLyricSection.getLyricsLines()[j].getLyrics();
+          if (aLine.compareTo(bLine) != 0)
+            ret.add(new StringTriple(
+                "lyrics " + sectionVersion.toString(), aLine, bLine));
+        }
+        lineLimit = aLyricSection
+            .getLyricsLines()
+            .length;
+        for (int j = bLyricSection
+            .getLyricsLines()
+            .length; j < lineLimit; j++) {
+          String aLine = aLyricSection.getLyricsLines()[j].getLyrics();
+          ret.add(new StringTriple(
+              "lyrics missing " + sectionVersion.toString(), aLine, ""));
+        }
+        lineLimit = bLyricSection
+            .getLyricsLines()
+            .length;
+        for (int j = aLyricSection
+            .getLyricsLines()
+            .length; j < lineLimit; j++) {
+          String bLine = bLyricSection.getLyricsLines()[j].getLyrics();
+          ret.add(new StringTriple(
+              "lyrics missing " + sectionVersion.toString(), "", bLine));
+        }
+      }
+    }
 
-  ) {
-  List<StringTriple> ret = new List();
-
-  if (a.getTitle().compareTo(b.getTitle()) != 0)
-  ret.add(new StringTriple("title:", a.getTitle(), b.getTitle()));
-  if (a.getArtist().compareTo(b.getArtist()) != 0)
-  ret.add(new StringTriple("artist:", a.getArtist(), b.getArtist()));
-  if (a.getCoverArtist() != null && b.getCoverArtist() != null && a.getCoverArtist().compareTo(b.getCoverArtist()) != 0)
-  ret.add(new StringTriple("cover:", a.getCoverArtist(), b.getCoverArtist()));
-  if (a.getCopyright().compareTo(b.getCopyright()) != 0)
-  ret.add(new StringTriple("copyright:", a.getCopyright(), b.getCopyright()));
-  if (a.getKey().compareTo(b.getKey()) != 0)
-  ret.add(new StringTriple("key:", a.getKey().toString(), b.getKey().toString()));
-  if (a.getBeatsPerMinute() != b.getBeatsPerMinute())
-  ret.add(new StringTriple("BPM:", int.toString(a.getBeatsPerMinute()), int.toString(b.getBeatsPerMinute())));
-  if (a.getBeatsPerBar() != b.getBeatsPerBar())
-  ret.add(new StringTriple("per bar:", int.toString(a.getBeatsPerBar()), int.toString(b.getBeatsPerBar())));
-  if (a.getUnitsPerMeasure() != b.getUnitsPerMeasure())
-  ret.add(new StringTriple("units/measure:", int.toString(a.getUnitsPerMeasure()), int.toString(b.getUnitsPerMeasure())));
-
-//  chords
-  for (ChordSection aChordSection in a.getChordSections()) {
-  ChordSection bChordSection = b.getChordSection(aChordSection.getSectionVersion());
-  if (bChordSection == null) {
-  ret.add(new StringTriple("chords missing:", aChordSection.toMarkup(), ""));
-  } else if (aChordSection.compareTo(bChordSection) != 0) {
-  ret.add(new StringTriple("chords:", aChordSection.toMarkup(), bChordSection.toMarkup()));
-  }
-  }
-  for (ChordSection bChordSection in b.getChordSections()) {
-  ChordSection aChordSection = a.getChordSection(bChordSection.getSectionVersion());
-  if (aChordSection == null) {
-  ret.add(new StringTriple("chords missing:", "", bChordSection.toMarkup()));
-  }
-  }
-
-//  lyrics
-      {
-  int limit = Math.min(a.getLyricSections().length, b.getLyricSections().length);
-  for (int i = 0; i < limit; i++) {
-
-  LyricSection aLyricSection = a.getLyricSections().get(i);
-  SectionVersion sectionVersion = aLyricSection.sectionVersion;
-  LyricSection bLyricSection = b.getLyricSections().get(i);
-  int lineLimit = Math.min(aLyricSection.getLyricsLines().length, bLyricSection.getLyricsLines().length);
-  for (int j = 0; j < lineLimit; j++) {
-  String aLine = aLyricSection.getLyricsLines().get(j).getLyrics();
-  String bLine = bLyricSection.getLyricsLines().get(j).getLyrics();
-  if (aLine.compareTo(bLine) != 0)
-  ret.add(new StringTriple("lyrics " + sectionVersion.toString(), aLine, bLine));
-  }
-  lineLimit = aLyricSection.getLyricsLines().length;
-  for (int j = bLyricSection.getLyricsLines().length; j < lineLimit; j++) {
-  String aLine = aLyricSection.getLyricsLines().get(j).getLyrics();
-  ret.add(new StringTriple("lyrics missing " + sectionVersion.toString(), aLine, ""));
-  }
-  lineLimit = bLyricSection.getLyricsLines().length;
-  for (int j = aLyricSection.getLyricsLines().length; j < lineLimit; j++) {
-  String bLine = bLyricSection.getLyricsLines().get(j).getLyrics();
-  ret.add(new StringTriple("lyrics missing " + sectionVersion.toString(), "", bLine));
-  }
-
-  }
-  }
-
-  return ret;
+    return ret;
   }
 
   bool hasSectionVersion(Section section, int version) {
     if (section == null)
       return false;
 
-    for (SectionVersion sectionVersion in getChordSectionMap().keySet()) {
+    for (SectionVersion sectionVersion in getChordSectionMap().keys) {
       if (sectionVersion.getSection() == section &&
           sectionVersion.getVersion() == version)
         return true;
@@ -3216,17 +3326,17 @@ class SongBase {
             .last];
         if (lastChordSection.isEmpty())
           currentChordSectionLocation =
-          new ChordSectionLocation(lastChordSection.getSectionVersion());
+          new ChordSectionLocation(lastChordSection.sectionVersion);
         else {
           Phrase phrase = lastChordSection.lastPhrase();
           if (phrase.isEmpty())
             currentChordSectionLocation =
             new ChordSectionLocation(lastChordSection.sectionVersion,
-                phraseIndex: phrase.getPhraseIndex());
+                phraseIndex: phrase.phraseIndex);
           else
             currentChordSectionLocation =
             new ChordSectionLocation(lastChordSection.sectionVersion,
-                phraseIndex: phrase.getPhraseIndex(), measureIndex: phrase
+                phraseIndex: phrase.phraseIndex, measureIndex: phrase
                     .getMeasures()
                     .length - 1);
         }
@@ -3262,14 +3372,14 @@ class SongBase {
           cs = getChordSectionMap()[sortedSectionVersions.last];
         }
         if (chordSectionLocation.hasPhraseIndex()) {
-          Phrase phrase = cs.getPhrase(chordSectionLocation.getPhraseIndex());
+          Phrase phrase = cs.getPhrase(chordSectionLocation.phraseIndex);
           if (phrase == null)
             phrase = cs.getPhrase(cs.getPhraseCount() - 1);
-          int phraseIndex = phrase.getPhraseIndex();
+          int phraseIndex = phrase.phraseIndex;
           if (chordSectionLocation.hasMeasureIndex()) {
             int pi = (phraseIndex >= cs.getPhraseCount() ? cs.getPhraseCount() -
                 1 : phraseIndex);
-            int measureIndex = chordSectionLocation.getMeasureIndex();
+            int measureIndex = chordSectionLocation.measureIndex;
             int mi = (measureIndex >= phrase.length
                 ? phrase.length - 1
                 : measureIndex);
@@ -3280,7 +3390,10 @@ class SongBase {
           }
         }
       }
-    catch ( NullPointerException npe ) {
+    catch
+    (
+    NullPointerException
+    npe ) {
     chordSectionLocation = null;
     } catch (Exception ex) {
 //  javascript parse error
@@ -3294,21 +3407,46 @@ class SongBase {
     + " "
     + (currentMeasureEditType != null ? currentMeasureEditType.toString() : "no type")
     + " " + (currentChordSectionLocation != null ? findMeasureNodeByLocation(currentChordSectionLocation)
-    :"none")
+    :
+    "
+    none
+    "
+    )
     );
   }
 
 
-
-
-
   @override
   String toString() {
-  return title + (fileVersionNumber > 0 ? ":(" + fileVersionNumber + ")" : "") + " by " + artist;
+    return title +
+        (fileVersionNumber > 0 ? ":(" + fileVersionNumber + ")" : "") + " by " +
+        artist;
   }
 
-  static final bool containsSongTitleAndArtist(Collection<? extends SongBase> collection, SongBase
-  song) {
+  static final bool containsSongTitleAndArtist
+
+  (
+
+  Collection
+
+  <
+
+  ?
+
+  extends
+
+  SongBase
+
+  >
+
+  collection
+
+  ,
+
+  SongBase
+  song
+
+  ) {
   for (SongBase collectionSong : collection) {
   if (song.compareBySongId(collectionSong) == 0)
   return true;
@@ -3319,54 +3457,53 @@ class SongBase {
   /// Compare only the title and artist.
   ///To be used for listing purposes only.
   int compareBySongId(SongBase o) {
-  if (o == null)
-  return -1;
-  int ret = getSongId().compareTo(o.getSongId());
-  if (ret != 0) {
-  return ret;
-  }
-  return 0;
+    if (o == null)
+      return -1;
+    int ret = getSongId().compareTo(o.getSongId());
+    if (ret != 0) {
+      return ret;
+    }
+    return 0;
   }
 
   bool songBaseSameAs(SongBase o) {
-  //  song id built from title with reduced whitespace
-  if (getTitle()!=(o.getTitle()))
-  return false;
-  if (getArtist()!=(o.getArtist()))
-  return false;
-  if (getCoverArtist() != null) {
-  if (getCoverArtist()!=(o.getCoverArtist()))
-  return false;
-  } else if (o.getCoverArtist() != null) {
-  return false;
-  }
-  if (getCopyright()!=(o.getCopyright()))
-  return false;
-  if (getKey()!=(o.getKey()))
-  return false;
-  if (defaultBpm != o.defaultBpm)
-  return false;
-  if (unitsPerMeasure != o.unitsPerMeasure)
-  return false;
-  if (beatsPerBar != o.beatsPerBar)
-  return false;
-  if (toMarkup()!=(o.toMarkup()))
-  return false;
-  if (rawLyrics!=(o.rawLyrics))
-  return false;
-  if (metadata!=(o.metadata))
-  return false;
-  if (lastModifiedTime != o.lastModifiedTime)
-  return false;
+    //  song id built from title with reduced whitespace
+    if (getTitle() != (o.getTitle()))
+      return false;
+    if (getArtist() != (o.getArtist()))
+      return false;
+    if (getCoverArtist() != null) {
+      if (getCoverArtist() != (o.getCoverArtist()))
+        return false;
+    } else if (o.getCoverArtist() != null) {
+      return false;
+    }
+    if (getCopyright() != (o.getCopyright()))
+      return false;
+    if (getKey() != (o.getKey()))
+      return false;
+    if (defaultBpm != o.defaultBpm)
+      return false;
+    if (unitsPerMeasure != o.unitsPerMeasure)
+      return false;
+    if (beatsPerBar != o.beatsPerBar)
+      return false;
+    if (toMarkup() != (o.toMarkup()))
+      return false;
+    if (rawLyrics != (o.rawLyrics))
+      return false;
+    if (metadata != (o.metadata))
+      return false;
+    if (lastModifiedTime != o.lastModifiedTime)
+      return false;
 
 //  hmm, think about these
-  if (fileName != o.fileName)
-  return false;
-  if (fileVersionNumber != o.fileVersionNumber)
-  return false;
+    if (fileName != o.fileName)
+      return false;
+    if (fileVersionNumber != o.fileVersionNumber)
+      return false;
 
-  return true;
-
+    return true;
   }
 
 //  primary values
@@ -3377,7 +3514,7 @@ class SongBase {
   String copyright = "Unknown";
   Key key = Key.get(KeyEnum.C); //  default
   int defaultBpm = 106; //  beats per minute
-  int unitsPerMeasure = 4;//  units per measure, i.e. timeSignature numerator
+  int unitsPerMeasure = 4; //  units per measure, i.e. timeSignature numerator
   int beatsPerBar = 4; //  beats per bar, i.e. timeSignature denominator
   double lastModifiedTime;
   String rawLyrics = "";
@@ -3390,7 +3527,8 @@ class SongBase {
 
 //  computed values
   SongId songId;
-  String timeSignature = unitsPerMeasure.toString() + "/" + beatsPerBar.toString();//   fixme: doesn't update!!!!
+  String timeSignature = unitsPerMeasure.toString() + "/" +
+      beatsPerBar.toString(); //   fixme: doesn't update!!!!
   double duration; //  units of seconds
   int totalBeats;
   String chords = "";
@@ -3398,14 +3536,19 @@ class SongBase {
   List<MeasureNode> measureNodes;
 
   List<LyricSection> lyricSections = new List();
-  HashMap<SectionVersion, GridCoordinate> chordSectionGridCoorinateMap = new HashMap();
+  HashMap<SectionVersion,
+      GridCoordinate> chordSectionGridCoorinateMap = new HashMap();
 
 //  match to representative section version
-  HashMap<SectionVersion, SectionVersion> chordSectionGridMatches = new HashMap();
+  HashMap<SectionVersion,
+      SectionVersion> chordSectionGridMatches = new HashMap();
 
-  HashMap<GridCoordinate, ChordSectionLocation> gridCoordinateChordSectionLocationMap;
-  HashMap<ChordSectionLocation, GridCoordinate> gridChordSectionLocationCoordinateMap;
-  HashMap<SongMoment, GridCoordinate> songMomentGridCoordinateHashMap = new HashMap();
+  HashMap<GridCoordinate,
+      ChordSectionLocation> gridCoordinateChordSectionLocationMap;
+  HashMap<ChordSectionLocation,
+      GridCoordinate> gridChordSectionLocationCoordinateMap;
+  HashMap<SongMoment,
+      GridCoordinate> songMomentGridCoordinateHashMap = new HashMap();
   HashMap<SectionVersion, int> chordSectionBeats = new HashMap();
   HashMap<SectionVersion, int> chordSectionRows = new HashMap();
 
@@ -3433,7 +3576,7 @@ class SongBase {
 
   Logger
 
-  (
+    (
 
   );
 
@@ -3461,15 +3604,15 @@ class ComparatorByTitle implements Comparator<SongBase> {
   }
 }
 
- class ComparatorByArtist implements Comparator<SongBase> {
+class ComparatorByArtist implements Comparator<SongBase> {
 
-@override
-int compare(SongBase o1, SongBase o2) {
-int ret = o1.getArtist().compareTo(o2.getArtist());
-if (ret != 0) {
-return ret;
-}
-return o1.compareBySongId(o2);
-}
+  @override
+  int compare(SongBase o1, SongBase o2) {
+    int ret = o1.getArtist().compareTo(o2.getArtist());
+    if (ret != 0) {
+      return ret;
+    }
+    return o1.compareBySongId(o2);
+  }
 
 }

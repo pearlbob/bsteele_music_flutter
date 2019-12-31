@@ -50,8 +50,8 @@ class MarkedString {
   }
 
   bool get isEmpty => _string.length <= 0 || _index >= _string.length;
-  bool get isNotEmpty => _string.length > 0 && _index < _string.length;
 
+  bool get isNotEmpty => _string.length > 0 && _index < _string.length;
 
   String getNextChar() {
     return _string[_index++];
@@ -130,4 +130,22 @@ class MarkedString {
   int _index = 0;
   int _markIndex = 0;
   final String _string;
+}
+
+class StringTriple {
+  StringTriple(this._a, this._b, this._c);
+
+  @override
+  String toString() {
+    return "(" + _a + ": \"" + _b + "\", \"" + _c + "\")";
+  }
+
+  String get a => _a;
+  String _a;
+
+  String get b => _b;
+  String _b;
+
+  String get c => _c;
+  String _c;
 }

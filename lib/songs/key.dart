@@ -11,7 +11,7 @@ enum KeyEnum { Gb, Db, Ab, Eb, Bb, F, C, G, D, A, E, B, Fs }
 // Representation of the song key used generate the expression of the proper scales.
 // <p>Six flats and six sharps are labeled differently but are otherwise the same key.
 // Seven flats and seven sharps are not included.</p>
-class Key {
+class Key implements Comparable<Key>{
   Key._(this._keyEnum, this._keyValue, this._halfStep)
       : _name = _keyEnumToString(_keyEnum),
         _keyScaleNote = ScaleNote.valueOf(_keyEnumToString(_keyEnum));
@@ -289,6 +289,12 @@ class Key {
     return "";
   }
 
+
+  @override
+  int compareTo(Key other) {
+    return _keyEnum.index - other._keyEnum.index;
+  }
+
   bool get isSharp =>  _keyValue >= 0;
 
 
@@ -346,6 +352,7 @@ class Key {
   ScaleNote _keyMinorScaleNote;
   List<ScaleChord> _majorDiatonics;
   List<ScaleChord> _minorDiatonics;
+
 }
 
 /*                     1  2  3  4  5  6  7                 I    II   III  IV   V    VI   VII               0  1  2  3  4  5  6  7  8  9  10 11

@@ -267,7 +267,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     for (Phrase phrase in getPhrases()) {
       int i = phrase.findMeasureNodeIndex(measureNode);
       if (i >= 0) return index + i;
-      index += phrase.size();
+      index += phrase.length;
     }
     return -1;
   }

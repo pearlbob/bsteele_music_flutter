@@ -7,16 +7,6 @@
     return "(" + _row.toString() + "," + _col.toString() + ")";
   }
 
-  @override
-    bool equals(Object obj) {
-    try {
-      GridCoordinate o = obj as GridCoordinate;
-      return _row == o._row && _col == o._col;
-    } catch ( ex) {
-    return false;
-    }
-  }
-
 
   @override
     int compareTo(GridCoordinate o) {

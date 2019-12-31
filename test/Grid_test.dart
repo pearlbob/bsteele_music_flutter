@@ -55,7 +55,8 @@ void main() {
     grid.set(0,1, 5);
     grid.set(0,3, 9);
     grid.set(3,3, 12);
-    expect("Grid{[[1], [5], [], [9, null, null, 12]]}", grid.toString());
+    _logger.d(grid.toString());
+    expect(grid.toString(), "Grid{[[1], [5], [], [9, null, null, 12]]}" );
     expect( 1,grid.get(0,0));
     expect(grid.get(3,0),isNull);
     expect( 5,grid.get(0,1));

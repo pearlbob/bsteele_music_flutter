@@ -6,20 +6,12 @@ import 'LegacyDrumMeasure.dart';
 
 @deprecated
 class LegacyDrumSection {
-  /**
-   * Get the section's drum measures
-   *
-   * @return the drum measure
-   */
+  /// Get the section's drum measures
   List<LegacyDrumMeasure> getDrumMeasures() {
     return drumMeasures;
   }
 
-  /**
-   * Set the section's drum measures in bulk
-   *
-   * @param drumMeasures the drum measures
-   */
+  ///Set the section's drum measures in bulk
   void setDrumMeasures(List<LegacyDrumMeasure> drumMeasures) {
     this.drumMeasures = drumMeasures;
   }

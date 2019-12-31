@@ -54,7 +54,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     List<Measure> measures = List();
     List<Measure> lineMeasures = List();
     //  bool repeatMarker = false;
-    Measure lastMeasure = null;
+    Measure lastMeasure;
     for (int i = 0; i < 2000; i++) //  arbitrary safety hard limit
     {
       markedString.stripLeadingSpaces();
@@ -350,18 +350,9 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 //        return beatsPerBar;
 //    }
 
-  /**
-   * Compares this object with the specified object for order.  Returns a
-   * negative integer, zero, or a positive integer as this object is less
-   * than, equal to, or greater than the specified object.
-   *
-   * @param o the object to be compared.
-   * @return a negative integer, zero, or a positive integer as this object
-   * is less than, equal to, or greater than the specified object.
-   * @throws NullPointerException if the specified object is null
-   * @throws ClassCastException   if the specified object's type prevents it
-   *                              from being compared to this object.
-   */
+  /// Compares this object with the specified object for order.  Returns a
+  /// negative integer, zero, or a positive integer as this object is less
+  /// than, equal to, or greater than the specified object.
   @override
   int compareTo(ChordSection o) {
     if (_sectionVersion.compareTo(o._sectionVersion) != 0)
@@ -407,7 +398,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 
   @override
   MeasureNode transposeToKey(Key key) {
-    List<Phrase> newPhrases = null;
+    List<Phrase> newPhrases ;
     if (_phrases != null) {
       newPhrases = List();
       for (Phrase phrase in _phrases)
@@ -479,11 +470,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     return sb.toString();
   }
 
-  /**
-   * Old style markup
-   *
-   * @return old style markup
-   */
+  ///Old style markup
   @override
   String toString() {
     StringBuffer sb = new StringBuffer();

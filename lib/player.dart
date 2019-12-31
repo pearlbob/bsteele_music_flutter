@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'appData.dart';
+import 'appOptions.dart';
 
 class Player extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
             appBar: AppBar(
-                title: Text('Player: '+_app.songTitle),
+                title: Text('Player: debug: '+AppOptions().debug.toString()),
             ),
             body: Center(
                 child: RaisedButton(
@@ -19,7 +19,5 @@ class Player extends StatelessWidget {
             ),
         );
     }
-
-    final _app = AppData();
 }
 

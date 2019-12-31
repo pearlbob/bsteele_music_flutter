@@ -1,4 +1,3 @@
-import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/GridCoordinate.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/ChordSectionLocation.dart';
@@ -11,6 +10,8 @@ import 'package:bsteele_music_flutter/songs/key.dart';
 import 'package:bsteele_music_flutter/util.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
+
+import 'SongBase_test.dart';
 
 void main() {
   Logger.level = Level.warning;
@@ -145,7 +146,6 @@ void main() {
     MeasureRepeat measureRepeat = phrase as MeasureRepeat;
     expect(5, measureRepeat.length);
 
-    //Grid<ChordSectionLocation> grid = a.getChordSectionLocationGrid();
     MeasureNode measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("G", a.getBeatsPerBar()), measureNode);
@@ -207,7 +207,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(9, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -271,7 +270,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(16, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -326,7 +324,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(4, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -364,7 +361,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(4, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -402,7 +398,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(12, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -453,7 +448,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(11, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -507,7 +501,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(12, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
@@ -560,7 +553,6 @@ void main() {
     measureRepeat = phrase as MeasureRepeat;
     expect(12, measureRepeat.length);
 
-    grid = a.getChordSectionLocationGrid();
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 1));
     expect(measureNode, isNotNull);
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);

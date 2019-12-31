@@ -213,7 +213,6 @@ class Phrase extends MeasureNode {
     return true;
   }
 
-
   bool append(int index, MeasureNode newMeasureNode) {
     if (newMeasureNode == null) return false;
 
@@ -252,7 +251,7 @@ class Phrase extends MeasureNode {
     if (newMeasures == null || newMeasures.isEmpty) return false;
     if (measures == null) measures = new List<Measure>();
     index = min(index, measures.length - 1);
-    _addAllAt(index, newMeasures);
+    addAllAt(index, newMeasures);
     return true;
   }
 
@@ -264,13 +263,15 @@ class Phrase extends MeasureNode {
       measures.insert(index + 1, m);
   }
 
-  void _addAllAt(int index, List<Measure> list) {
+  bool addAllAt(int index, List<Measure> list) {
+    if (list == null || list.isEmpty) return false;
     if (measures == null) measures = List();
     if (measures.length < index)
       measures.addAll(list);
     else {
       for (Measure m in list) measures.insert(index++ + 1, m);
     }
+    return true;
   }
 
   bool edit(MeasureEditType type, int index, MeasureNode newMeasureNode) {
@@ -332,7 +333,7 @@ class Phrase extends MeasureNode {
           if (newMeasureNode.isSingleItem())
             _addAt(index, newMeasureNode as Measure);
           else
-            _addAllAt(index, (newMeasureNode as Phrase).getMeasures());
+            addAllAt(index, (newMeasureNode as Phrase).getMeasures());
         } catch (ex) {
           //  default to the end!
           if (newMeasureNode.isSingleItem())
@@ -346,7 +347,7 @@ class Phrase extends MeasureNode {
           if (newMeasureNode.isSingleItem())
             _addAt(index + 1, newMeasureNode as Measure);
           else
-            _addAllAt(index + 1, (newMeasureNode as Phrase).getMeasures());
+            addAllAt(index + 1, (newMeasureNode as Phrase).getMeasures());
         } catch (ex) {
           //  default to the end!
           if (newMeasureNode.isSingleItem())
@@ -361,7 +362,7 @@ class Phrase extends MeasureNode {
           if (newMeasureNode.isSingleItem())
             _addAt(index, newMeasureNode as Measure);
           else
-            _addAllAt(index, (newMeasureNode as Phrase).getMeasures());
+            addAllAt(index, (newMeasureNode as Phrase).getMeasures());
         } catch (ex) {
           //  default to the end!
           if (newMeasureNode.isSingleItem())
@@ -401,8 +402,7 @@ class Phrase extends MeasureNode {
   }
 
   int compareTo(Object o) {
-    if ( !(o is Phrase))
-      return -1;
+    if (!(o is Phrase)) return -1;
     Phrase other = o as Phrase;
     int limit = min(measures.length, other.measures.length);
     for (int i = 0; i < limit; i++) {

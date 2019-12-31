@@ -2,7 +2,7 @@ import 'package:bsteele_music_flutter/player.dart';
 import 'package:flutter/material.dart';
 
 
-import 'appData.dart';
+import 'appOptions.dart';
 
 void main() => runApp(MyApp());
 
@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //      print(sg); // show the original signal
 //      print(sgFiltered); // show the filtered signal
 
-      _app.songTitle = 'Song_'+_counter.toString();
+      _appOptions.debug = !_appOptions.debug;
     });
   }
 
@@ -191,6 +191,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
-  var _app = AppData();
+  AppOptions _appOptions = AppOptions();
 }

@@ -1,5 +1,6 @@
 import 'package:bsteele_music_flutter/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
+import 'package:quiver/core.dart';
 import '../util.dart';
 import 'ChordAnticipationOrDelay.dart';
 import 'key.dart';
@@ -50,8 +51,7 @@ class Chord implements Comparable<Chord> {
   }
 
   static Chord parse(final MarkedString markedString, int beatsPerBar) {
-    if (markedString == null || markedString.isEmpty)
-      throw "no data to parse";
+    if (markedString == null || markedString.isEmpty) throw "no data to parse";
 
     int beats = beatsPerBar; //  default only
     ScaleChord scaleChord = ScaleChord.parse(markedString);
@@ -146,22 +146,23 @@ class Chord implements Comparable<Chord> {
     return ret;
   }
 
-//@override
-// bool equals(Object o) {
-//  if (!(o instanceof Chord))
-//    return false;
-//  Chord oc = (Chord) o;
-//
-//  if (slashScaleNote == null) {
-//    if (oc.slashScaleNote != null) return false;
-//  } else if (!slashScaleNote.equals(oc.slashScaleNote))
-//    return false;
-//  return scaleChord.equals(oc.scaleChord)
-//      && anticipationOrDelay.equals(oc.anticipationOrDelay)
-//      && beats == oc.beats
-//      && beatsPerBar == oc.beatsPerBar
-//  ;
-//}
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is Chord &&
+        beats == other.beats &&
+        _beatsPerBar == other._beatsPerBar &&
+        slashScaleNote == other.slashScaleNote &&
+        _anticipationOrDelay == other._anticipationOrDelay;
+  }
+
+
+  @override
+  int get hashCode {
+    return hash4(beats, _beatsPerBar, slashScaleNote, _anticipationOrDelay);
+  }
 
   ScaleChord get scaleChord => _scaleChord;
   ScaleChord _scaleChord;
@@ -179,5 +180,5 @@ class Chord implements Comparable<Chord> {
 
   static final RegExp _beatSizeRegexp = new RegExp(r"^\.\d");
 
-  //static Logger _logger = new Logger();
+//static Logger _logger = new Logger();
 }

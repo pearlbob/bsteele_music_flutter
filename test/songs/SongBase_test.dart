@@ -53,7 +53,7 @@ class SongBaseTest {
 }
 
 void main() {
-  Logger.level = Level.warning;
+  Logger.level = Level.info;
   Logger logger = Logger();
 
   test("testEquals", () {
@@ -76,7 +76,10 @@ void main() {
     expect(a.hashCode != b.hashCode, isTrue);
     b = SongBaseTest.createSongBase("A", "bob", "photos.bsteele.com",
         Key.getDefault(), 100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
-    expect(a.getSongId() == b.getSongId(), isTrue);
+    logger.d("a.getSongId(): " + a.getSongId().hashCode.toString());
+    logger.d("b.getSongId(): " + b.getSongId().hashCode.toString());
+    expect(a.getSongId().compareTo(b.getSongId()), 0);
+    expect(a.getSongId(), b.getSongId());
     expect(a.hashCode != b.hashCode, isTrue);
 
     b = SongBaseTest.createSongBase(
@@ -133,12 +136,11 @@ void main() {
     expect(MeasureEditType.append, a.getCurrentMeasureEditType());
     logger.d(a.getCurrentChordSectionLocation().toString());
 
-    expect(Measure.parseString("D", a.getBeatsPerBar()),
-        a.getCurrentMeasureNode());
+    expect(a.getCurrentMeasureNode(),
+        Measure.parseString("D", a.getBeatsPerBar()));
 
-    a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("i:0:0"));
-    expect(Measure.parseString("A", a.getBeatsPerBar()),
-        a.getCurrentMeasureNode());
+    expect(a.getCurrentMeasureNode(),
+        Measure.parseString("A", a.getBeatsPerBar()));
     a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("i:0:1"));
     expect(Measure.parseString("BCm7/ADE", a.getBeatsPerBar()),
         a.getCurrentMeasureNode());
@@ -228,7 +230,7 @@ void main() {
       a.parseChords(chords);
       text = a.toMarkup().trim();
       //logger.info("\"" + text + "\"");
-      expect(chords, text);
+      expect(text, "I: A A# B C  V: C# D D# E" );
       //Measure  newMeasure = Measure.parseString("F", a.getBeatsPerBar());
       for (int i = 0; i < 8; i++) {
         //logger.d();
@@ -268,7 +270,6 @@ void main() {
 
   test("testChordSectionEntry", () {
     SongBase a;
-
 
     //  empty sections
     a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
@@ -563,7 +564,7 @@ void main() {
     logger.d("\t" + a.toMarkup());
     logger.d(a.getRawLyrics());
 
-    ChordSectionLocation chordSectionLocation ;
+    ChordSectionLocation chordSectionLocation;
 
     chordSectionLocation = ChordSectionLocation.parseString("v:0:0");
 
@@ -637,7 +638,7 @@ void main() {
         "i: A B C D V: D E F F# ",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
 
-    ChordSectionLocation loc ;
+    ChordSectionLocation loc;
 
     loc = ChordSectionLocation.parseString("i:0:2");
     a.setCurrentChordSectionLocation(loc);
@@ -1483,7 +1484,7 @@ void main() {
             "  " +
             expected.toString() +
             "  @" +
-            count .toString()+
+            count.toString() +
             "  b:" +
             SongBase.getBeatNumberAtTime(bpm, t).toString() +
             ": " +

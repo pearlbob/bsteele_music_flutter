@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:quiver/collection.dart';
+import 'package:quiver/core.dart';
+
 import '../util.dart';
 import 'Chord.dart';
 import 'MeasureNode.dart';
@@ -46,8 +49,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   static Measure parse(final MarkedString markedString, final int beatsPerBar,
       final Measure priorMeasure) {
     //  should not be white space, even leading, in a measure
-    if (markedString == null || markedString.isEmpty)
-      throw "no data to parse";
+    if (markedString == null || markedString.isEmpty) throw "no data to parse";
 
     List<Chord> chords = new List();
     Measure ret;
@@ -279,6 +281,25 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   @override
   String toString() {
     return toMarkup();
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is Measure &&
+        beatCount == other.beatCount &&
+        endOfRow == other.endOfRow &&
+        listsEqual(chords, other.chords);
+  }
+
+  @override
+  int get hashCode {
+    //  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+    int ret = hash2(beatCount, endOfRow);
+    ret = ret * 17 + hashObjects(chords);
+    return ret;
   }
 
   /// The beat count for the measure should be set prior to chord additions

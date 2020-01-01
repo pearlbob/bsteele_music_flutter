@@ -1,3 +1,5 @@
+import 'package:quiver/core.dart';
+
 import '../util.dart';
 import 'SectionVersion.dart';
 
@@ -73,7 +75,7 @@ class ChordSectionLocation {
   }
 
   ChordSectionLocation changeSectionVersion(SectionVersion sectionVersion) {
-    if (sectionVersion == null || sectionVersion == sectionVersion)
+    if (sectionVersion == null || sectionVersion == this._sectionVersion)
       return this; //  no change
 
     if (hasPhraseIndex) {
@@ -162,6 +164,27 @@ class ChordSectionLocation {
       }
     }
     return id;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is ChordSectionLocation &&
+        _sectionVersion == other._sectionVersion &&
+        _phraseIndex == other._phraseIndex &&
+        _measureIndex == other._measureIndex &&
+        labelSectionVersions == labelSectionVersions;
+  }
+
+  @override
+  int get hashCode {
+    //  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+    int ret = hash3(_sectionVersion, _phraseIndex, _measureIndex);
+    if (labelSectionVersions != null && labelSectionVersions.isNotEmpty)
+      ret = ret * 83 + labelSectionVersions.hashCode;   //  fixme: will the set always be ordered?
+    return ret;
   }
 
   bool get isSection => hasPhraseIndex == false && _hasMeasureIndex == false;

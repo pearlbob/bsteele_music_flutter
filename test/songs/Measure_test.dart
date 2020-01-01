@@ -2,6 +2,7 @@ import 'package:bsteele_music_flutter/songs/Chord.dart';
 import 'package:bsteele_music_flutter/songs/ChordAnticipationOrDelay.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
 import 'package:bsteele_music_flutter/songs/Measure.dart';
+import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/key.dart';
 import 'package:bsteele_music_flutter/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
@@ -14,6 +15,28 @@ import '../CustomMatchers.dart';
 void main() {
   Logger.level = Level.warning;
   Logger logger = Logger();
+
+  test("test equality", () {
+    String s;
+    Measure m;
+    Measure ref;
+    int beats = 4;
+    int beatsPerBar = 4;
+
+    {
+      m = Measure.parseString("B", beats);
+      expect(m, isNotNull);
+      Chord chord = Chord.byScaleChordAndBeats(
+          ScaleChord(ScaleNote.get(ScaleNoteEnum.B), ChordDescriptor.major),
+          beats,
+          beatsPerBar);
+      ref = Measure(beats, [chord]);
+      logger.i("m:   " + m.toMarkup());
+      logger.i("ref: " + ref.toMarkup());
+      logger.i("m == ref: " + (m == ref).toString());
+      expect(m, ref);
+    }
+  });
 
   test("testparseString", () {
     String s;

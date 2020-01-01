@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import '../util.dart';
 import 'SectionVersion.dart';
 
@@ -126,6 +128,20 @@ class Section implements Comparable<Section> {
     return _sections;
   }
 
+  static HashMap<String, Section> _getMapStringToSection() {
+    if (mapStringToSection == null) {
+      mapStringToSection = HashMap();
+      for (Section section in _getSections().values) {
+        mapStringToSection[section._formalName.toLowerCase()] = section;
+        mapStringToSection[section._abbreviation.toLowerCase()] = section;
+        if (section._alternateAbbreviation != null)
+          mapStringToSection[section._alternateAbbreviation.toLowerCase()] =
+              section;
+      }
+    }
+    return mapStringToSection;
+  }
+
   static Section get(SectionEnum se) {
     return _getSections()[se];
   }
@@ -169,15 +185,7 @@ class Section implements Comparable<Section> {
 
   static Section getSection(String sectionId) {
     sectionId = sectionId.toLowerCase();
-    for (Section section in values) {
-      if (sectionId == section._lowerCaseName ||
-          sectionId == section._abbreviation ||
-          (section._alternateAbbreviation != null &&
-              sectionId == section._alternateAbbreviation)) {
-        return section;
-      }
-    }
-    return null;
+    return _getMapStringToSection()[sectionId];
   }
 
   @override
@@ -186,7 +194,8 @@ class Section implements Comparable<Section> {
   }
 
   /// Utility to return the default section.
-  static SectionVersion getDefaultVersion  () { //  fixme: is this in the right place?
+  static SectionVersion getDefaultVersion() {
+    //  fixme: is this in the right place?
     return SectionVersion.bySection(Section.get(SectionEnum.verse));
   }
 
@@ -207,6 +216,8 @@ class Section implements Comparable<Section> {
 
   String get originalAbbreviation => _originalAbbreviation;
   final String _originalAbbreviation;
+
+  static HashMap<String, Section> mapStringToSection;
 
   static final int maxLength = 10; //  fixme: compute
 

@@ -1,3 +1,5 @@
+import 'package:quiver/core.dart';
+
 import '../util.dart';
 import 'Section.dart';
 
@@ -5,12 +7,13 @@ import 'Section.dart';
 class SectionVersion implements Comparable<SectionVersion> {
   /// A convenience constructor for a section without numerical variation.
   SectionVersion.bySection(this._section)
-      : version = 0,
-        name = _section.abbreviation;
+      : _version = 0,
+        _name = _section.abbreviation;
 
   /// A constructor for the section version variation's representation.
-  SectionVersion(this._section, this.version)
-      : name = _section.abbreviation + (version > 0 ? version.toString() : "");
+  SectionVersion(this._section, this._version)
+      : _name =
+            _section.abbreviation + (_version > 0 ? _version.toString() : "");
 
   static SectionVersion getDefault() {
     return new SectionVersion.bySection(Section.get(SectionEnum.verse));
@@ -52,25 +55,37 @@ class SectionVersion implements Comparable<SectionVersion> {
 
   /// Return the numeric count for this section version.
   int getVersion() {
-    return version;
+    return _version;
   }
 
   /// Gets the internal name that will identify this specific section and version
   String getId() {
-    return name;
+    return _name;
   }
 
   /// The external facing string that represents the section version to the user.
   @override
   String toString() {
     //  note: designed to go to the user display
-    return name + ":";
+    return _name + ":";
   }
 
   ///Gets a more formal name for the section version that can be presented to the user.
   String getFormalName() {
     //  note: designed to go to the user display
-    return _section.formalName + (version > 0 ? version.toString() : "") + ":";
+    return _section.formalName +
+        (_version > 0 ? _version.toString() : "") +
+        ":";
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is SectionVersion &&
+        _section == other._section &&
+        _version == other._version;
   }
 
   @override
@@ -79,16 +94,26 @@ class SectionVersion implements Comparable<SectionVersion> {
       return getSection().compareTo(o.getSection());
     }
 
-    if (version != o.version) {
-      return version < o.version ? -1 : 1;
+    if (_version != o._version) {
+      return _version < o._version ? -1 : 1;
     }
     return 0;
   }
 
+  @override
+  int get hashCode {
+    return hash2(_section, _version);
+  }
+
   Section get section => _section;
   final Section _section;
-  final int version;
-  final String name;
+
+  int get version => _version;
+  final int _version;
+
+  //  computed values
+  String get name => _name;
+  final String _name;
 
   static final RegExp sectionRegexp = RegExp("^([a-zA-Z]+)([\\d]*):\\s*,*");
 }

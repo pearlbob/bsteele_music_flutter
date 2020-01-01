@@ -5,8 +5,9 @@ import 'package:test/test.dart';
 
 void main() {
   test("ChordDescriptor testing", () {
-    expect(ChordDescriptor.major7,
-        ChordDescriptor.parseString("" + MusicConstants.greekCapitalDelta));
+    expect(ChordDescriptor.major, ChordDescriptor.major);
+    expect(ChordDescriptor.parseString("" + MusicConstants.greekCapitalDelta),
+        ChordDescriptor.major7);
     expect(ChordDescriptor.diminished,
         ChordDescriptor.parseString("" + MusicConstants.diminishedCircle));
     expect(ChordDescriptor.major, ChordDescriptor.parseString(""));

@@ -1,6 +1,6 @@
 import 'package:logger/logger.dart';
 
-class _appPrinter extends LogPrinter {
+class _AppPrinter extends LogPrinter {
   @override
   List<String> log(LogEvent event) {
     return [event.message];
@@ -9,6 +9,6 @@ class _appPrinter extends LogPrinter {
 
 var logger = Logger(
   filter: null, // Use the default LogFilter (-> only log in debug mode)
-  printer: _appPrinter(), // Use the PrettyPrinter to format and print log
+  printer: _AppPrinter(), // Use the PrettyPrinter to format and print log
   output: null, // Use the default LogOutput (-> send everything to console)
 );

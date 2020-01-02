@@ -306,7 +306,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 
   bool deletePhrase(int phraseIndex) {
     try {
-      return _phrases.remove(phraseIndex) != null;
+      return _phrases.removeAt(phraseIndex) != null;
     } catch (e) {
       return false;
     }
@@ -315,7 +315,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   bool deleteMeasure(int phraseIndex, int measureIndex) {
     try {
       Phrase phrase = getPhrase(phraseIndex);
-      bool ret = phrase.deleteAt(measureIndex) != null;
+      bool ret = phrase.deleteAt(measureIndex);
       if (ret && phrase.isEmpty()) return deletePhrase(phraseIndex);
       return ret;
     } catch (e) {
@@ -381,7 +381,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   MeasureNode lastMeasureNode() {
     if (_phrases == null || _phrases.isEmpty) return this;
     Phrase measureSequenceItem = _phrases[_phrases.length - 1];
-    List<Measure> measures = measureSequenceItem.getMeasures();
+    List<Measure> measures = measureSequenceItem.measures;
     if (measures == null || measures.isEmpty) return measureSequenceItem;
     return measures[measures.length - 1];
   }

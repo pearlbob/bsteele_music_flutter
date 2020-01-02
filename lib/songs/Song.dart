@@ -372,7 +372,7 @@ class Song extends SongBase implements Comparable<Song> {
     int limit = 15;
     if (ret.length > limit) {
       while (ret.length > limit) {
-        ret.remove(ret.length - 1);
+        ret.removeAt(ret.length - 1);
       }
       ret.add(new StringTriple("+more", "", ""));
     }

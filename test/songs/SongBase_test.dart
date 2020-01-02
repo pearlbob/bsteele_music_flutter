@@ -14,7 +14,6 @@ import 'package:bsteele_music_flutter/songs/SongBase.dart';
 import 'package:bsteele_music_flutter/songs/SongMoment.dart';
 import 'package:bsteele_music_flutter/songs/key.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
-import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 class SongBaseTest {
@@ -54,7 +53,6 @@ class SongBaseTest {
 }
 
 void main() {
-
   test("testEquals", () {
     SongBase a = SongBaseTest.createSongBase("A", "bob", "bsteele.com",
         Key.getDefault(), 100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
@@ -137,7 +135,7 @@ void main() {
 
     expect(a.getCurrentMeasureNode(),
         Measure.parseString("D", a.getBeatsPerBar()));
-
+    a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("i:0:0"));
     expect(a.getCurrentMeasureNode(),
         Measure.parseString("A", a.getBeatsPerBar()));
     a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("i:0:1"));
@@ -218,8 +216,8 @@ void main() {
       ChordSection chordSection = chordSections.first;
       Phrase phrase = chordSection.phrases[0];
 
-      Measure measure = phrase.getMeasures()[1];
-      expect(4, phrase.getMeasures().length);
+      Measure measure = phrase.measures[1];
+      expect(4, phrase.measures.length);
       expect(ScaleNote.get(ScaleNoteEnum.B),
           measure.chords[0].scaleChord.scaleNote);
     }
@@ -229,7 +227,7 @@ void main() {
       a.parseChords(chords);
       text = a.toMarkup().trim();
       //logger.info("\"" + text + "\"");
-      expect(text, "I: A A# B C  V: C# D D# E" );
+      expect(text, "I: A A# B C  V: C# D D# E");
       //Measure  newMeasure = Measure.parseString("F", a.getBeatsPerBar());
       for (int i = 0; i < 8; i++) {
         //logger.d();
@@ -274,14 +272,23 @@ void main() {
     a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "i: v: t:", "i: dude v: bob, bob, bob berand");
 
-    expect( a.toMarkup().trim(),"I: [] V: [] T: []");
+    expect(a.toMarkup().trim(), "I: [] V: [] T: []");
     expect(a.editList(a.parseChordEntry("t: G G C G")), isTrue);
-    expect( a.toMarkup().trim(),"I: [] V: [] T: G G C G");
+    expect(a.toMarkup().trim(), "I: [] V: [] T: G G C G");
     expect(a.editList(a.parseChordEntry("I: V:  A B C D")), isTrue);
-    expect(a.toMarkup().trim(), "I: V: A B C D  T: G G C G", );
+    expect(
+      a.toMarkup().trim(),
+      "I: V: A B C D  T: G G C G",
+    );
 
-    expect(a.findChordSectionByString("I:").toMarkup().trim(), "I: A B C D", );
-    expect(a.findChordSectionByString("V:").toMarkup().trim(), "V: A B C D", );
+    expect(
+      a.findChordSectionByString("I:").toMarkup().trim(),
+      "I: A B C D",
+    );
+    expect(
+      a.findChordSectionByString("V:").toMarkup().trim(),
+      "V: A B C D",
+    );
     expect(a.findChordSectionByString("T:").toMarkup().trim(), "T: G G C G");
 
     //  auto rows of 4 when 8 or more measures entered at once
@@ -314,7 +321,7 @@ void main() {
     chordSection = a.findChordSectionByString("v:");
     logger.d(chordSection.toMarkup());
     logger.d(a.findChordSectionByString("v:").toMarkup());
-    expect("V: E F G A♯ ", chordSection.toMarkup());
+    expect(chordSection.toMarkup(), "V: E F G A# ");
 
     chordSection = a.findChordSectionByString("t:");
     logger.d(chordSection.toMarkup());
@@ -409,7 +416,7 @@ void main() {
     chordSections.addAll(a.getChordSections());
     expect(1, chordSections.length);
     chordSection = chordSections.first;
-    measures = chordSection.phrases[0].getMeasures();
+    measures = chordSection.phrases[0].measures;
     expect(4, measures.length);
 
     a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
@@ -418,7 +425,7 @@ void main() {
     chordSections.addAll(a.getChordSections());
     expect(1, chordSections.length);
     chordSection = chordSections.first;
-    measures = chordSection.phrases[0].getMeasures();
+    measures = chordSection.phrases[0].measures;
     expect(5, measures.length);
     expect("(yo)", measures[4].toMarkup());
   });
@@ -440,7 +447,7 @@ void main() {
     logger.d(a.logGrid());
     Grid<ChordSectionLocation> grid = a.getChordSectionLocationGrid();
 
-    expect(5, grid.getRowCount());
+    expect(grid.getRowCount(), 5);
     for (int r = 2; r < grid.getRowCount(); r++) {
       List<ChordSectionLocation> row = grid.getRow(r);
       for (int c = 1; c < row.length; c++) {
@@ -477,8 +484,8 @@ void main() {
               case 1:
               case 2:
                 measure = node as Measure;
-                expect(ScaleNote.get(ScaleNoteEnum.D),
-                    measure.chords[0].scaleChord.scaleNote);
+                expect(measure.chords[0].scaleChord.scaleNote,
+                    ScaleNote.get(ScaleNoteEnum.D));
                 break;
               case 3:
                 measure = node as Measure;
@@ -584,7 +591,10 @@ void main() {
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v1:0:4"));
     expect(m, isNull);
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v1:0:3"));
-    expect(Measure.parseString("G", a.getBeatsPerBar()), m);
+    expect(
+        m,
+        Measure.parseString(
+            "G,", a.getBeatsPerBar())); //  default measures per row
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v1:1:0"));
     expect(Measure.parseString("C", a.getBeatsPerBar()), m);
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v1:1:1"));
@@ -595,11 +605,11 @@ void main() {
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v2:0:0"));
     expect(Measure.parseString("A", a.getBeatsPerBar()), m);
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v2:0:3"));
-    expect(Measure.parseString("D", a.getBeatsPerBar()), m);
+    expect(m, Measure.parseString("D,", a.getBeatsPerBar()));
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v2:0:4"));
     expect(Measure.parseString("E", a.getBeatsPerBar()), m);
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v2:1:3"));
-    expect(Measure.parseString("GbB", a.getBeatsPerBar()), m);
+    expect(m, Measure.parseString("GbB,", a.getBeatsPerBar()));
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("v2:1:4"));
     expect(m, isNull);
     m = a.findMeasureNodeByLocation(ChordSectionLocation.parseString("o:0:4"));
@@ -616,7 +626,7 @@ void main() {
     chordSectionLocation = ChordSectionLocation.parseString("v:0");
     MeasureNode mn = a.findMeasureNodeByLocation(chordSectionLocation);
     logger.d(mn.toMarkup());
-    expect("D E F F♯ ", mn.toMarkup());
+    expect(mn.toMarkup(), "V: D E F F# ");
 
     chordSectionLocation = ChordSectionLocation.parseString("out:");
     mn = a.findMeasureNodeByLocation(chordSectionLocation);
@@ -656,9 +666,9 @@ void main() {
         .toMarkup());
     expect(a.findMeasureNodeByLocation(loc),
         a.findMeasureNodeByLocation(a.getCurrentChordSectionLocation()));
-
-    expect("I: A B D ",
-        a.getChordSection(SectionVersion.parseString("i:")).toMarkup());
+    logger.d(a.toMarkup());
+    expect(a.getChordSection(SectionVersion.parseString("i:")).toMarkup(),
+        "I: A B D ");
     expect(Measure.parseString("D", beatsPerBar),
         a.getCurrentChordSectionLocationMeasureNode());
     logger
@@ -684,8 +694,8 @@ void main() {
     expect(a.getCurrentChordSectionLocationMeasureNode(), isNull);
     //expect(ChordSection.parseString("I:", beatsPerBar ),a.getCurrentChordSectionLocationMeasureNode());
 
-    expect("V: D E F F♯ ",
-        a.getChordSection(SectionVersion.parseString("v:")).toMarkup());
+    expect(a.getChordSection(SectionVersion.parseString("v:")).toMarkup(),
+        "V: D E F F# ");
     a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("v:0:3"));
     expect(Measure.parseString("F#", beatsPerBar),
         a.getCurrentChordSectionLocationMeasureNode());
@@ -772,16 +782,16 @@ void main() {
         4,
         "O:" + "D..Dm7 Dm7 C..B♭maj7 B♭maj7\n" + " x12",
         "o: nothing");
-    logger.d(a.logGrid());
+    logger.d("grid: "+a.logGrid());
     location = ChordSectionLocation(
         SectionVersion(Section.get(SectionEnum.outro), 0),
         phraseIndex: 0,
         measureIndex: 3);
     MeasureNode measureNode = a.findMeasureNodeByLocation(location);
-    logger.d(measureNode.toMarkup());
-    expect(Measure.parseString("B♭maj7", beatsPerBar), measureNode);
-    expect(Measure.parseString("B♭maj7", beatsPerBar),
-        a.findMeasureNodeByGrid(new GridCoordinate(0, 4)));
+    logger.d("measure: "+measureNode.toMarkup());
+    expect(measureNode, Measure.parseString("B♭maj7,", beatsPerBar));
+    expect(a.findMeasureNodeByGrid(new GridCoordinate(0, 3)),
+        Measure.parseString("B♭maj7", beatsPerBar));
 
     final int row = 0;
     final int lastCol = 3;

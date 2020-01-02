@@ -169,7 +169,7 @@ class MeasureRepeat extends Phrase {
     List<Measure> newMeasures = List<Measure>();
     for (Measure measure in measures)
       newMeasures.add(measure.transposeToKey(key) as Measure);
-    return MeasureRepeat(newMeasures, getPhraseIndex(), repeats);
+    return MeasureRepeat(newMeasures, phraseIndex, repeats);
   }
 
   int compareTo(Object o) {

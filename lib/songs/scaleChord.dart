@@ -7,8 +7,7 @@ import 'ChordDescriptor.dart';
 import 'key.dart';
 
 ///  A chord with a scale note and an optional chord descriptor and tension.
-class ScaleChord implements Comparable<ScaleChord>
-{
+class ScaleChord implements Comparable<ScaleChord> {
   ScaleChord(this._scaleNote, ChordDescriptor chordDescriptor)
       : _chordDescriptor = chordDescriptor.deAlias();
 
@@ -95,20 +94,18 @@ class ScaleChord implements Comparable<ScaleChord>
     return 0;
   }
 
-
   @override
   bool operator ==(other) {
     if (identical(this, other)) {
       return true;
     }
     return other is ScaleChord &&
-        scaleNote == other.scaleNote &&
-        chordDescriptor == other.chordDescriptor;
+        _scaleNote == other._scaleNote &&
+        _chordDescriptor == other._chordDescriptor;
   }
 
   @override
   int get hashCode {
-    //  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
     int ret = hash2(_scaleNote, _chordDescriptor);
     return ret;
   }

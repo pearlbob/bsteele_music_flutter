@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/GridCoordinate.dart';
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/ChordSectionLocation.dart';
 import 'package:bsteele_music_flutter/songs/Measure.dart';
@@ -53,8 +54,6 @@ class SongBaseTest {
 }
 
 void main() {
-  Logger.level = Level.info;
-  Logger logger = Logger();
 
   test("testEquals", () {
     SongBase a = SongBaseTest.createSongBase("A", "bob", "bsteele.com",
@@ -275,15 +274,15 @@ void main() {
     a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "i: v: t:", "i: dude v: bob, bob, bob berand");
 
-    expect("I: [] V: [] T: []", a.toMarkup().trim());
+    expect( a.toMarkup().trim(),"I: [] V: [] T: []");
     expect(a.editList(a.parseChordEntry("t: G G C G")), isTrue);
-    expect("I: [] V: [] T: G G C G", a.toMarkup().trim());
+    expect( a.toMarkup().trim(),"I: [] V: [] T: G G C G");
     expect(a.editList(a.parseChordEntry("I: V:  A B C D")), isTrue);
-    expect("I: V: A B C D  T: G G C G", a.toMarkup().trim());
+    expect(a.toMarkup().trim(), "I: V: A B C D  T: G G C G", );
 
-    expect("I: A B C D", a.findChordSectionByString("I:").toMarkup().trim());
-    expect("V: A B C D", a.findChordSectionByString("V:").toMarkup().trim());
-    expect("T: G G C G", a.findChordSectionByString("T:").toMarkup().trim());
+    expect(a.findChordSectionByString("I:").toMarkup().trim(), "I: A B C D", );
+    expect(a.findChordSectionByString("V:").toMarkup().trim(), "V: A B C D", );
+    expect(a.findChordSectionByString("T:").toMarkup().trim(), "T: G G C G");
 
     //  auto rows of 4 when 8 or more measures entered at once
     a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),

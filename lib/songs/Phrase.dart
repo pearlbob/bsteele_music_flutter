@@ -1,6 +1,9 @@
 import 'dart:core';
 import 'dart:math';
 
+import 'package:quiver/collection.dart';
+import 'package:quiver/core.dart';
+
 import '../util.dart';
 import 'Measure.dart';
 import 'MeasureComment.dart';
@@ -517,6 +520,23 @@ class Phrase extends MeasureNode {
 
   void setPhraseIndex(int phraseIndex) {
     this.phraseIndex = phraseIndex;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is Phrase &&
+        phraseIndex == other.phraseIndex &&
+        listsEqual(measures, other.measures);
+  }
+
+  @override
+  int get hashCode {
+    int ret = phraseIndex.hashCode;
+    ret = ret * 17 + hashObjects(measures);
+    return ret;
   }
 
   List<Measure> measures;

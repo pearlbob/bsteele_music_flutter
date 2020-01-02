@@ -1,5 +1,4 @@
-import 'package:logger/logger.dart';
-
+import '../appLogger.dart';
 import '../util.dart';
 import 'Measure.dart';
 import 'MeasureComment.dart';
@@ -38,7 +37,7 @@ class MeasureRepeat extends Phrase {
     for (int i = 0; i < 1e3; i++) {
       //  safety
       markedString.stripLeadingSpaces();
-      _logger.d("repeat parsing: " + markedString.remainingStringLimited(10));
+      logger.v("repeat parsing: " + markedString.remainingStringLimited(10));
       if (markedString.isEmpty) {
         markedString.resetTo(initialMark);
         throw "no data to parse";
@@ -103,7 +102,7 @@ class MeasureRepeat extends Phrase {
       int repeats = int.parse(mr.group(1));
       if (measures.isNotEmpty) measures[measures.length - 1].endOfRow = false;
       MeasureRepeat ret = MeasureRepeat(measures, phraseIndex, repeats);
-      _logger.d(" measure repeat: " + ret.toMarkup());
+      logger.d(" measure repeat: " + ret.toMarkup());
       markedString.consume(mr.group(0).length);
       return ret;
     }
@@ -232,6 +231,4 @@ class MeasureRepeat extends Phrase {
   }
 
   MeasureRepeatMarker repeatMarker;
-
-  static final Logger _logger = Logger();
 }

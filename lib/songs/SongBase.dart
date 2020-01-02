@@ -2,11 +2,12 @@ import 'dart:collection';
 import 'dart:core';
 import 'dart:math';
 
-import 'package:logger/logger.dart';
+import 'package:quiver/collection.dart';
 import 'package:quiver/core.dart';
 
 import '../Grid.dart';
 import '../GridCoordinate.dart';
+import '../appLogger.dart';
 import '../appOptions.dart';
 import '../util.dart';
 import 'Chord.dart';
@@ -98,7 +99,7 @@ class SongBase {
 
     if (lyricSections == null) return;
 
-    _logger.d("lyricSections size: " + lyricSections.length.toString());
+    logger.d("lyricSections size: " + lyricSections.length.toString());
     int sectionCount;
     HashMap<SectionVersion, int> sectionVersionCountMap = new HashMap();
     chordSectionBeats.clear();
@@ -220,11 +221,11 @@ class SongBase {
 
         GridCoordinate momentGridCoordinate = new GridCoordinate(
             row + (gridCoordinate.row - baseChordRow), gridCoordinate.col);
-        _logger
+        logger
             .d(songMoment.toString() + ": " + momentGridCoordinate.toString());
         songMomentGridCoordinateHashMap[songMoment] = momentGridCoordinate;
 
-        _logger.d("moment: " +
+        logger.d("moment: " +
             songMoment.getMomentNumber().toString() +
             ": " +
             songMoment.getChordSectionLocation().toString() +
@@ -275,7 +276,7 @@ class SongBase {
     for (SongMoment songMoment in songMoments) {
       GridCoordinate momentGridCoordinate =
           getMomentGridCoordinateFromMomentNumber(songMoment.getMomentNumber());
-      _logger.d(songMoment.getMomentNumber().toString() +
+      logger.d(songMoment.getMomentNumber().toString() +
           ": " +
           songMoment.getChordSectionLocation().toString() +
           "#" +
@@ -366,7 +367,7 @@ class SongBase {
   /// Find the corrsesponding chord section for the given lyrics section
   ChordSection findChordSectionByLyricSection(LyricSection lyricSection) {
     if (lyricSection == null) return null;
-    _logger.d(
+    logger.d(
         "chordSectionMap size: " + getChordSectionMap().keys.length.toString());
     return getChordSectionMap()[lyricSection.sectionVersion];
   }
@@ -418,7 +419,7 @@ class SongBase {
       try {
         parseChords(chords);
       } catch (e) {
-        _logger.w("unexpected: " + e.getMessage());
+        logger.w("unexpected: " + e.getMessage());
         return null;
       }
     }
@@ -431,7 +432,7 @@ class SongBase {
       try {
         parseChords(chords);
       } catch (e) {
-        _logger.i("unexpected: " + e.getMessage().toString());
+        logger.i("unexpected: " + e.getMessage().toString());
         return null;
       }
     }
@@ -571,14 +572,14 @@ class SongBase {
     clearCachedValues(); //  force lazy eval
 
     if (chords != null) {
-      _logger.d("parseChords for: " + getTitle());
+      logger.d("parseChords for: " + getTitle());
       SplayTreeSet<ChordSection> emptyChordSections = new SplayTreeSet();
       MarkedString markedString = new MarkedString(chords);
       ChordSection chordSection;
       while (markedString.isNotEmpty) {
         markedString.stripLeadingWhitespace();
         if (markedString.isEmpty) break;
-        _logger.d(markedString.toString());
+        logger.d(markedString.toString());
 
         try {
           chordSection = ChordSection.parse(markedString, beatsPerBar, false);
@@ -600,7 +601,7 @@ class SongBase {
           //  try some repair
           clearCachedValues();
 
-          _logger.d(logGrid());
+          logger.d(logGrid());
           throw e;
         }
       }
@@ -609,7 +610,7 @@ class SongBase {
 
     setDefaultCurrentChordLocation();
 
-    _logger.d(logGrid());
+    logger.d(logGrid());
   }
 
   /// Will always return something, even if errors have to be commented out
@@ -617,7 +618,7 @@ class SongBase {
     List<MeasureNode> ret = new List();
 
     if (entry != null) {
-      _logger.d("parseChordEntry: " + entry);
+      logger.d("parseChordEntry: " + entry);
       SplayTreeSet<ChordSection> emptyChordSections = new SplayTreeSet();
       MarkedString markedString = new MarkedString(entry);
       ChordSection chordSection;
@@ -625,7 +626,7 @@ class SongBase {
       while (markedString.isNotEmpty) {
         markedString.stripLeadingWhitespace();
         if (markedString.isEmpty) break;
-        _logger.d("parseChordEntry: " + markedString.toString());
+        logger.d("parseChordEntry: " + markedString.toString());
 
         int mark = markedString.mark();
 
@@ -815,7 +816,7 @@ class SongBase {
       }
       col = 0;
 
-      _logger.d("gridding: " +
+      logger.d("gridding: " +
           sectionVersion.toString() +
           " (" +
           col.toString() +
@@ -1020,11 +1021,11 @@ class SongBase {
     }
 
     if (false) {
-      _logger.d("gridCoordinateChordSectionLocationMap: ");
+      logger.d("gridCoordinateChordSectionLocationMap: ");
       SplayTreeSet set = SplayTreeSet<GridCoordinate>();
       set.addAll(gridCoordinateChordSectionLocationMap.keys);
       for (GridCoordinate coordinate in set) {
-        _logger.d(" " +
+        logger.d(" " +
             coordinate.toString() +
             " " +
             gridCoordinateChordSectionLocationMap[coordinate].toString() +
@@ -1036,7 +1037,7 @@ class SongBase {
     }
 
     chordSectionLocationGrid = grid;
-    _logger.d(grid.toString());
+    logger.d(grid.toString());
     return chordSectionLocationGrid;
   }
 
@@ -1120,8 +1121,8 @@ class SongBase {
       } else {
         SplayTreeSet<SectionVersion> currentSectionVersions = SplayTreeSet();
         for (SectionVersion otherSectionVersion in sortedSectionVersions) {
-          if (chordSection.phrases ==
-              getChordSectionMap()[otherSectionVersion].phrases) {
+          if (listsEqual(chordSection.phrases,
+              getChordSectionMap()[otherSectionVersion].phrases)) {
             currentSectionVersions.add(otherSectionVersion);
             completedSectionVersions.add(otherSectionVersion);
           }
@@ -1264,8 +1265,8 @@ class SongBase {
   }
 
   void preMod(MeasureNode measureNode) {
-    _logger.d("startingChords(\"" + toMarkup() + "\");");
-    _logger.d(" pre(MeasureEditType." +
+    logger.d("startingChords(\"" + toMarkup() + "\");");
+    logger.d(" pre(MeasureEditType." +
         getCurrentMeasureEditType().toString() +
         ", \"" +
         getCurrentChordSectionLocation().toString() +
@@ -1281,8 +1282,8 @@ class SongBase {
   }
 
   void postMod() {
-    _logger.d("resultChords(\"" + toMarkup() + "\");");
-    _logger.d("post(MeasureEditType." +
+    logger.d("resultChords(\"" + toMarkup() + "\");");
+    logger.d("post(MeasureEditType." +
         getCurrentMeasureEditType().toString() +
         ", \"" +
         getCurrentChordSectionLocation().toString() +
@@ -1427,7 +1428,7 @@ class SongBase {
               location = new ChordSectionLocation(chordSection.sectionVersion,
                   phraseIndex: location.phraseIndex,
                   measureIndex: newPhrase.getMeasures().length - 1);
-              _logger.d("new loc: " + location.toString());
+              logger.d("new loc: " + location.toString());
               return standardEditCleanup(
                   chordSection.deletePhrase(newPhrase.phraseIndex) &&
                       chordSection.add(newPhrase.phraseIndex, newPhrase),
@@ -1456,13 +1457,13 @@ class SongBase {
                 findMeasureNodeByGrid(maxGridCoordinate);
             ChordSectionLocation maxLocation =
                 getChordSectionLocation(maxGridCoordinate);
-            _logger.d("min: " +
+            logger.d("min: " +
                 minGridCoordinate.toString() +
                 " " +
                 minMeasureNode.toMarkup() +
                 " " +
                 minLocation.measureIndex.toString());
-            _logger.d("max: " +
+            logger.d("max: " +
                 maxGridCoordinate.toString() +
                 " " +
                 maxMeasureNode.toMarkup() +
@@ -2786,7 +2787,7 @@ class SongBase {
       fileVersionNumber = int.parse(mr.group(1));
     } else
       fileVersionNumber = 0;
-    //_logger.info("setFileName(): "+fileVersionNumber);
+    //logger.info("setFileName(): "+fileVersionNumber);
   }
 
   double getDuration() {
@@ -2985,7 +2986,7 @@ class SongBase {
 
   void setCurrentMeasureEditType(MeasureEditType measureEditType) {
     currentMeasureEditType = measureEditType;
-    _logger.d("curloc: " +
+    logger.d("curloc: " +
         (currentChordSectionLocation != null
             ? currentChordSectionLocation.toString()
             : "none") +
@@ -3077,12 +3078,12 @@ class SongBase {
 //    (
 //    Exception ex) {
 //    //  javascript parse error
-//    _logger.d(ex.getMessage());
+//    logger.d(ex.getMessage());
 //    chordSectionLocation = null;
 //    }
 
     currentChordSectionLocation = chordSectionLocation;
-    _logger.d("curloc: " +
+    logger.d("curloc: " +
         (currentChordSectionLocation != null
             ? currentChordSectionLocation.toString()
             : "none") +
@@ -3202,7 +3203,7 @@ class SongBase {
   HashMap<SectionVersion, GridCoordinate> chordSectionGridCoorinateMap =
       new HashMap();
 
-//  match to representative section version
+  //  match to representative section version
   HashMap<SectionVersion, SectionVersion> chordSectionGridMatches =
       new HashMap();
 
@@ -3228,8 +3229,6 @@ class SongBase {
   //SplayTreeSet<Metadata> metadata = new SplayTreeSet();
   static final AppOptions appOptions = AppOptions();
   static final String defaultUser = "Unknown";
-
-  static final Logger _logger = Logger();
 }
 
 //  set.sort(comparatorByTitle);

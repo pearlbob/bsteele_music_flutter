@@ -152,6 +152,7 @@ class Chord implements Comparable<Chord> {
       return true;
     }
     return other is Chord &&
+        _scaleChord == other._scaleChord &&
         beats == other.beats &&
         _beatsPerBar == other._beatsPerBar &&
         slashScaleNote == other.slashScaleNote &&

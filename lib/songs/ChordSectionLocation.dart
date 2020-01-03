@@ -17,18 +17,18 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
       {int phraseIndex, int measureIndex})
       : _labelSectionVersions = null {
     if (phraseIndex == null || phraseIndex < 0) {
-      this._phraseIndex = -1;
+      _phraseIndex = -1;
       hasPhraseIndex = false;
-      this._measureIndex = measureIndex;
+      this._measureIndex = -1;
       _hasMeasureIndex = false;
     } else {
       this._phraseIndex = phraseIndex;
       hasPhraseIndex = true;
       if (measureIndex == null || measureIndex < 0) {
-        this._measureIndex = 0;
+        _measureIndex = 0;
         _hasMeasureIndex = false;
       } else {
-        this._measureIndex = measureIndex;
+        _measureIndex = measureIndex;
         _hasMeasureIndex = true;
       }
     }
@@ -104,7 +104,11 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
       if (mr != null) {
         try {
           int phraseIndex = int.parse(mr.group(1));
+          if ( phraseIndex == null )
+            phraseIndex=-1;
           int measureIndex = int.parse(mr.group(2));
+          if ( measureIndex == null )
+            measureIndex=-1;
           markedString.consume(mr.group(0).length);
           return new ChordSectionLocation(sectionVersion,
               phraseIndex: phraseIndex, measureIndex: measureIndex);
@@ -175,6 +179,12 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
     if (ret != 0) return ret;
     ret = _measureIndex - other._measureIndex;
     if (ret != 0) return ret;
+
+    if (_labelSectionVersions == null )
+      return other._labelSectionVersions==null ? 0 : -1;
+    if ( other._labelSectionVersions == null )
+      return 1;
+
     ret = _labelSectionVersions.length - other._labelSectionVersions.length;
     if (ret != 0) return ret;
     if (_labelSectionVersions.isNotEmpty) {

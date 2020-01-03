@@ -765,13 +765,13 @@ class SongBase {
   }
 
   HashMap<GridCoordinate, ChordSectionLocation>
-      getGridCoordinateChordSectionLocationMap() {
+      _getGridCoordinateChordSectionLocationMap() {
     getChordSectionLocationGrid();
     return gridCoordinateChordSectionLocationMap;
   }
 
   HashMap<ChordSectionLocation, GridCoordinate>
-      getGridChordSectionLocationCoordinateMap() {
+      _getGridChordSectionLocationCoordinateMap() {
     getChordSectionLocationGrid();
     return gridChordSectionLocationCoordinateMap;
   }
@@ -779,7 +779,7 @@ class SongBase {
   int getChordSectionLocationGridMaxColCount() {
     int maxCols = 0;
     for (GridCoordinate gridCoordinate
-        in getGridCoordinateChordSectionLocationMap().keys) {
+        in _getGridCoordinateChordSectionLocationMap().keys) {
       maxCols = max(maxCols, gridCoordinate.col);
     }
     return maxCols;
@@ -803,7 +803,9 @@ class SongBase {
     //  use a separate set to avoid modifying a set
     SplayTreeSet<SectionVersion> sectionVersionsToDo = SplayTreeSet();
     sectionVersionsToDo.addAll(getChordSectionMap().keys);
-    for (ChordSection chordSection in getChordSectionMap().values) {
+    SplayTreeSet<ChordSection> sortedChordSections = SplayTreeSet();
+    sortedChordSections.addAll(getChordSectionMap().values);
+    for (ChordSection chordSection in sortedChordSections) {
       SectionVersion sectionVersion = chordSection.sectionVersion;
 
       //  only do a chord section once.  it might have a duplicate set of phrases and already be listed
@@ -816,7 +818,7 @@ class SongBase {
       }
       col = 0;
 
-      logger.d("gridding: " +
+      logger.v("gridding: " +
           sectionVersion.toString() +
           " (" +
           col.toString() +
@@ -843,9 +845,13 @@ class SongBase {
           chordSectionGridMatches[matchingSectionVersion] = sectionVersion;
         }
 
-        ChordSectionLocation loc =
-            new ChordSectionLocation.byMultipleSectionVersion(
-                matchingSectionVersionsSet);
+        ChordSectionLocation loc;
+        if (matchingSectionVersionsSet.length > 1) {
+          loc = new ChordSectionLocation.byMultipleSectionVersion(
+              matchingSectionVersionsSet);
+        } else {
+           loc = new ChordSectionLocation(sectionVersion);
+        }
         gridCoordinateChordSectionLocationMap[coordinate] = loc;
         gridChordSectionLocationCoordinateMap[loc] = coordinate;
         grid.set(col, row, loc);
@@ -1021,6 +1027,10 @@ class SongBase {
     }
 
 
+
+    chordSectionLocationGrid = grid;
+    //logger.d(grid.toString());
+
     {
       logger.d("gridCoordinateChordSectionLocationMap: ");
       SplayTreeSet set = SplayTreeSet<GridCoordinate>();
@@ -1032,13 +1042,28 @@ class SongBase {
             gridCoordinateChordSectionLocationMap[coordinate].toString() +
             " -> " +
             findMeasureNodeByLocation(
-                    gridCoordinateChordSectionLocationMap[coordinate])
-                ?.toMarkup().toString());
+                gridCoordinateChordSectionLocationMap[coordinate])
+                ?.toMarkup()
+                .toString());
+      }
+    }
+    {
+      logger.d("gridChordSectionLocationCoordinateMap: ");
+      SplayTreeSet set = SplayTreeSet<ChordSectionLocation>();
+      set.addAll(gridChordSectionLocationCoordinateMap.keys);
+      for (ChordSectionLocation loc in set) {
+        logger.d(" " +
+            loc.toString() +
+              " " +
+            gridChordSectionLocationCoordinateMap[loc].toString() +
+            " -> " +
+            findMeasureNodeByGrid(
+                gridChordSectionLocationCoordinateMap[loc])
+                ?.toMarkup()
+                .toString());
       }
     }
 
-    chordSectionLocationGrid = grid;
-    logger.d(grid.toString());
     return chordSectionLocationGrid;
   }
 
@@ -2017,13 +2042,13 @@ class SongBase {
   }
 
   ChordSectionLocation getChordSectionLocation(GridCoordinate gridCoordinate) {
-    return getGridCoordinateChordSectionLocationMap()[gridCoordinate];
+    return _getGridCoordinateChordSectionLocationMap()[gridCoordinate];
   }
 
   GridCoordinate getGridCoordinate(ChordSectionLocation chordSectionLocation) {
     chordSectionLocation = chordSectionLocation.changeSectionVersion(
         chordSectionGridMatches[chordSectionLocation.sectionVersion]);
-    return getGridChordSectionLocationCoordinateMap()[chordSectionLocation];
+    return _getGridChordSectionLocationCoordinateMap()[chordSectionLocation];
   }
 
   /// Find the chord section for the given type of chord section
@@ -2065,8 +2090,9 @@ class SongBase {
   }
 
   MeasureNode findMeasureNodeByGrid(GridCoordinate coordinate) {
-    return findMeasureNodeByLocation(
-        getGridCoordinateChordSectionLocationMap()[coordinate]);
+    MeasureNode ret = findMeasureNodeByLocation(
+        _getGridCoordinateChordSectionLocationMap()[coordinate]);
+    return ret;
   }
 
   MeasureNode findMeasureNodeByLocation(
@@ -2244,7 +2270,8 @@ class SongBase {
         sb.write(loc.isMeasure ? "        " : (loc.isPhrase ? "    " : ""));
         sb.write(loc.toString());
         sb.write("  ");
-        //sb.write(findMeasureNodeByLocation(loc).toMarkup() + "\n");
+        sb.write(findMeasureNodeByLocation(loc)?.toMarkup());
+        sb.write("\n");
       }
     }
     return sb.toString();
@@ -2629,8 +2656,8 @@ class SongBase {
     if (section == null) return false;
 
     for (SectionVersion sectionVersion in getChordSectionMap().keys) {
-      if (sectionVersion.getSection() == section &&
-          sectionVersion.getVersion() == version) return true;
+      if (sectionVersion.section == section &&
+          sectionVersion.version == version) return true;
     }
     return false;
   }
@@ -2863,7 +2890,7 @@ class SongBase {
   static int getBeatNumberAtTime(int bpm, double songTime) {
     if (bpm <= 0) return null; //  we're done with this song play
 
-    int songBeat = songTime * bpm ~/ 60.0;
+    int songBeat = (songTime * bpm / 60.0).floor();
     return songBeat;
   }
 

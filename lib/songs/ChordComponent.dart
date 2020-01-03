@@ -4,7 +4,7 @@ import 'MusicConstants.dart';
 ///
 // Components of a chord expressed in a structured single note form.
 //
-class ChordComponent {
+class ChordComponent implements Comparable<ChordComponent> {
   static final ChordComponent root = ChordComponent._("R", 1, 0);
   static final ChordComponent minorSecond = ChordComponent._("m2", 2, 1);
   static final second = ChordComponent._("2", 2, 2);
@@ -21,7 +21,7 @@ class ChordComponent {
   static final eleventh = ChordComponent._("11", 11, 12 + 7);
   static final thirteenth = ChordComponent._("13", 13, 12 + 11);
 
-  ChordComponent._(this._shortName, this._scaleNumber, this._halfSteps) ;
+  ChordComponent._(this._shortName, this._scaleNumber, this._halfSteps);
 
   static Set<ChordComponent> parse(String chordComponentString) {
     Set<ChordComponent> ret = Set();
@@ -65,6 +65,21 @@ class ChordComponent {
   static ChordComponent getByHalfStep(int halfStep) {
     return _chordComponentByHalfSteps[
         Util.mod(halfStep, MusicConstants.halfStepsPerOctave)];
+  }
+
+  @override
+  int compareTo(ChordComponent other) {
+    return _halfSteps - other._halfSteps;
+  }
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other);
+  }
+
+  @override
+  int get hashCode {
+    return _halfSteps.hashCode;
   }
 
   @override

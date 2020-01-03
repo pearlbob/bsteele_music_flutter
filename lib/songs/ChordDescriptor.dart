@@ -8,7 +8,7 @@ import 'MusicConstants.dart';
 // <p>
 // Try:  https://www.scales-chords.com/chord/
 //
-class ChordDescriptor {
+class ChordDescriptor implements Comparable<ChordDescriptor> {
   //  longest short names must come first!
   //  avoid starting descriptors with b, #, s to avoid confusion with scale notes
   /// Dominant 7th chord with the 3rd replaced by the 4th. Suspended chords are neither major or minor.
@@ -253,19 +253,6 @@ class ChordDescriptor {
     return ChordDescriptor._major; //  chord without modifier short name
   }
 
-//public static final ChordDescriptor[] getOtherChordDescriptorsOrdered() {
-//  return otherChordDescriptorsOrdered;
-//}
-//
-//public static final ChordDescriptor[] getPrimaryChordDescriptorsOrdered() {
-//  return primaryChordDescriptorsOrdered;
-//}
-//
-//
-//public static final ChordDescriptor[] getAllChordDescriptorsOrdered() {
-//  return allChordDescriptorsOrdered;
-//}
-
   ///
   // Returns the human name of this enum.
   @override
@@ -296,6 +283,34 @@ class ChordDescriptor {
     if (_alias != null) return _alias;
     return this;
   }
+
+  @override
+  int get hashCode {
+    return _name.hashCode;
+  }
+
+  @override
+  bool operator ==(other) {
+    return _name == other._name;
+  }
+
+  int compareTo(ChordDescriptor other) {
+    if (other == null) return -1;
+    return _name.compareTo(other._name);
+  }
+
+  //public static final ChordDescriptor[] getOtherChordDescriptorsOrdered() {
+//  return otherChordDescriptorsOrdered;
+//}
+//
+//public static final ChordDescriptor[] getPrimaryChordDescriptorsOrdered() {
+//  return primaryChordDescriptorsOrdered;
+//}
+//
+//
+//public static final ChordDescriptor[] getAllChordDescriptorsOrdered() {
+//  return allChordDescriptorsOrdered;
+//}
 
   /// The name for the chord descriptor used internally in the software.
   /// This name will likely be understood by musicians but will not necessarily
@@ -442,11 +457,6 @@ class ChordDescriptor {
       _allChordDescriptorsOrdered = list;
     }
     return _allChordDescriptorsOrdered;
-  }
-
-  int compareTo(ChordDescriptor other) {
-    if (other == null) return -1;
-    return values.indexOf(this) - values.indexOf(other);
   }
 
 //  static String generateGrammar() {

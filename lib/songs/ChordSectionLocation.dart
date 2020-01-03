@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:quiver/core.dart';
 
 import '../util.dart';
@@ -10,10 +12,10 @@ enum ChordSectionLocationMarker {
   repeatLowerRight
 }
 
-class ChordSectionLocation {
+class ChordSectionLocation implements Comparable<ChordSectionLocation> {
   ChordSectionLocation(this._sectionVersion,
       {int phraseIndex, int measureIndex})
-      : labelSectionVersions = null {
+      : _labelSectionVersions = null {
     if (phraseIndex == null || phraseIndex < 0) {
       this._phraseIndex = -1;
       hasPhraseIndex = false;
@@ -42,13 +44,13 @@ class ChordSectionLocation {
         this._measureIndex = -1,
         _hasMeasureIndex = false {
     if (labelSectionVersions != null) {
-      labelSectionVersions = Set();
+      _labelSectionVersions = SplayTreeSet();
       if (labelSectionVersions.isEmpty)
-        labelSectionVersions.add(SectionVersion.getDefault());
+        _labelSectionVersions.add(SectionVersion.getDefault());
+      else
+        _labelSectionVersions.addAll(labelSectionVersions);
 
-      this._sectionVersion = labelSectionVersions.first;
-      this.labelSectionVersions =
-          (labelSectionVersions.length == 1 ? null : labelSectionVersions);
+      _sectionVersion = labelSectionVersions.first;
       this._phraseIndex = -1;
       hasPhraseIndex = false;
       this._measureIndex = -1;
@@ -60,9 +62,8 @@ class ChordSectionLocation {
   }
 
   ChordSectionLocation.withMarker(
-      this._sectionVersion, int phraseIndex, this._marker) {
-    labelSectionVersions = null;
-
+      this._sectionVersion, int phraseIndex, this._marker)
+      : _labelSectionVersions = null {
     if (phraseIndex == null || phraseIndex < 0) {
       this._phraseIndex = -1;
       hasPhraseIndex = false;
@@ -148,7 +149,7 @@ class ChordSectionLocation {
 
   String getId() {
     if (id == null) {
-      if (labelSectionVersions == null)
+      if (_labelSectionVersions == null)
         id = _sectionVersion.toString() +
             (hasPhraseIndex
                 ? _phraseIndex.toString() +
@@ -156,7 +157,7 @@ class ChordSectionLocation {
                 : "");
       else {
         StringBuffer sb = new StringBuffer();
-        for (SectionVersion sv in labelSectionVersions) {
+        for (SectionVersion sv in _labelSectionVersions) {
           sb.write(sv.toString());
           sb.write(" ");
         }
@@ -167,23 +168,56 @@ class ChordSectionLocation {
   }
 
   @override
+  int compareTo(ChordSectionLocation other) {
+    int ret = _sectionVersion.compareTo(other._sectionVersion);
+    if (ret != 0) return ret;
+    ret = _phraseIndex - other._phraseIndex;
+    if (ret != 0) return ret;
+    ret = _measureIndex - other._measureIndex;
+    if (ret != 0) return ret;
+    ret = _labelSectionVersions.length - other._labelSectionVersions.length;
+    if (ret != 0) return ret;
+    if (_labelSectionVersions.isNotEmpty) {
+      for (int i = 0; i < _labelSectionVersions.length; i++) {
+        ret = _labelSectionVersions
+            .elementAt(i)
+            .compareTo(other._labelSectionVersions.elementAt(i));
+        if (ret != 0) return ret;
+      }
+    }
+    return 0;
+  }
+
+  @override
   bool operator ==(other) {
     if (identical(this, other)) {
       return true;
     }
-    return other is ChordSectionLocation &&
+    if (!(other is ChordSectionLocation &&
         _sectionVersion == other._sectionVersion &&
         _phraseIndex == other._phraseIndex &&
-        _measureIndex == other._measureIndex &&
-        labelSectionVersions == labelSectionVersions;
+        _measureIndex == other._measureIndex)) return false;
+
+    if (_labelSectionVersions == null)
+      return (other._labelSectionVersions == null);
+
+    if (_labelSectionVersions.length != other._labelSectionVersions.length)
+      return false;
+    for (int i = 0; i < _labelSectionVersions.length; i++) {
+      if (_labelSectionVersions.elementAt(i) !=
+          other._labelSectionVersions.elementAt(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @override
   int get hashCode {
     //  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
     int ret = hash3(_sectionVersion, _phraseIndex, _measureIndex);
-    if (labelSectionVersions != null && labelSectionVersions.isNotEmpty)
-      ret = ret * 83 + labelSectionVersions.hashCode;   //  fixme: will the set always be ordered?
+    if (_labelSectionVersions != null && _labelSectionVersions.isNotEmpty)
+      ret = ret * 83 + _labelSectionVersions.hashCode;
     return ret;
   }
 
@@ -195,7 +229,7 @@ class ChordSectionLocation {
 
   SectionVersion get sectionVersion => _sectionVersion;
   SectionVersion _sectionVersion;
-  Set<SectionVersion> labelSectionVersions;
+  SplayTreeSet<SectionVersion> _labelSectionVersions;
 
   int get phraseIndex => _phraseIndex;
   int _phraseIndex;

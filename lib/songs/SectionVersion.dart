@@ -48,20 +48,9 @@ class SectionVersion implements Comparable<SectionVersion> {
     return SectionVersion(section, version);
   }
 
-  /// Return the generic section for this section version.
-  Section getSection() {
-    return _section;
-  }
-
-  /// Return the numeric count for this section version.
-  int getVersion() {
-    return _version;
-  }
 
   /// Gets the internal name that will identify this specific section and version
-  String getId() {
-    return _name;
-  }
+  String get id => _name;
 
   /// The external facing string that represents the section version to the user.
   @override
@@ -90,8 +79,8 @@ class SectionVersion implements Comparable<SectionVersion> {
 
   @override
   int compareTo(SectionVersion o) {
-    if (getSection() != o.getSection()) {
-      return getSection().compareTo(o.getSection());
+    if (_section != o._section) {
+      return _section.compareTo(o._section);
     }
 
     if (_version != o._version) {
@@ -105,9 +94,11 @@ class SectionVersion implements Comparable<SectionVersion> {
     return hash2(_section, _version);
   }
 
+  /// Return the generic section for this section version.
   Section get section => _section;
   final Section _section;
 
+  /// Return the numeric count for this section version.
   int get version => _version;
   final int _version;
 

@@ -221,44 +221,6 @@ class ScaleNote {
     return _scaleNoteMarkup;
   }
 
-  ScaleNoteEnum _enum;
-
-  int _halfStep;
-
-  int get halfStep => _halfStep;
-
-  String get scaleNoteString => _scaleNoteString;
-  String _scaleNoteString;
-  String _scaleNoteHtml;
-  String _scaleNoteMarkup;
-
-  ScaleNote _alias;
-
-  ScaleNote get alias => _alias;
-
-  bool _isSharp;
-
-  bool get isSharp => _isSharp;
-
-  bool _isFlat;
-
-  bool get isFlat => _isFlat;
-
-  bool _isNatural;
-
-  bool get isNatural => _isNatural;
-
-  bool _isSilent;
-
-  bool get isSilent => _isSilent;
-
-  ///  Returns the name of this scale note in a user friendly text format,
-  //  i.e. as UTF-8
-  @override
-  String toString() {
-    return _scaleNoteMarkup;
-  }
-
   //  all sharps
   static final _sharps = [
     ScaleNoteEnum.A,
@@ -344,11 +306,61 @@ class ScaleNote {
     return _parseMap[name];
   }
 
-  int compareTo( ScaleNote other ){
+  int compareTo(ScaleNote other) {
     return getEnum().index - other.getEnum().index;
   }
 
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is ScaleNote && _enum == other._enum;
+  }
+
+  @override
+  int get hashCode {
+    return _enum.hashCode;
+  }
+
   static final int halfStepsPerOctave = 12;
+
+  ScaleNoteEnum _enum;
+
+  int get halfStep => _halfStep;
+  int _halfStep;
+
+  String get scaleNoteString => _scaleNoteString;
+  String _scaleNoteString;
+  String _scaleNoteHtml;
+  String _scaleNoteMarkup;
+
+  ScaleNote _alias;
+
+  ScaleNote get alias => _alias;
+
+  bool _isSharp;
+
+  bool get isSharp => _isSharp;
+
+  bool _isFlat;
+
+  bool get isFlat => _isFlat;
+
+  bool _isNatural;
+
+  bool get isNatural => _isNatural;
+
+  bool _isSilent;
+
+  bool get isSilent => _isSilent;
+
+  ///  Returns the name of this scale note in a user friendly text format,
+  //  i.e. as UTF-8
+  @override
+  String toString() {
+    return _scaleNoteMarkup;
+  }
 
   static Map<ScaleNoteEnum, ScaleNote> _hashmap;
   static Map<String, ScaleNote> _parseMap;

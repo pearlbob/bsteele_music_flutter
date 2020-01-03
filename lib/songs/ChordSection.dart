@@ -1,4 +1,6 @@
 import 'package:logger/logger.dart';
+import 'package:quiver/collection.dart';
+import 'package:quiver/core.dart';
 
 import '../util.dart';
 import 'Measure.dart';
@@ -370,7 +372,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 
   @override
   String getId() {
-    return _sectionVersion.getId();
+    return _sectionVersion.id;
   }
 
   @override
@@ -486,7 +488,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   }
 
   Section getSection() {
-    return _sectionVersion.getSection();
+    return _sectionVersion.section;
   }
 
   Phrase getPhrase(int index) {
@@ -512,6 +514,25 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     return _phrases == null || _phrases.isEmpty || _phrases[0].isEmpty();
   }
 
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is ChordSection &&
+        _sectionVersion == other._sectionVersion &&
+        listsEqual(_phrases, other._phrases);
+  }
+
+  @override
+  int get hashCode {
+    int ret = _sectionVersion.hashCode;
+    ret = ret * 17 + hashObjects(_phrases);
+    return ret;
+  }
+
+
   SectionVersion get sectionVersion => _sectionVersion;
   final SectionVersion _sectionVersion;
 
@@ -522,4 +543,6 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   static RegExp commentRegExp = RegExp("^(\\S+)\\s+");
 
   static Logger _logger = new Logger();
+
+
 }

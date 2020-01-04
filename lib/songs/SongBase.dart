@@ -457,8 +457,8 @@ class SongBase {
             sb.write(c);
             break;
           }
-          continue;
-        //  fall through
+          continue toInitial; //  fall through
+        toInitial:
         case UpperCaseState.initial:
           if ((c.codeUnitAt(0) >= 'A'.codeUnitAt(0) &&
                   c.codeUnitAt(0) <= 'G'.codeUnitAt(0)) ||
@@ -535,7 +535,8 @@ class SongBase {
                   c.codeUnitAt(0) <= 'G'.codeUnitAt(0))
               ? UpperCaseState.flatIsPossible
               : UpperCaseState.normal;
-          continue; //  fall through
+          continue toNormal; //  fall through
+        toNormal:
         case UpperCaseState.normal:
           //  reset on sequential reset characters
           if (c == ' ' ||

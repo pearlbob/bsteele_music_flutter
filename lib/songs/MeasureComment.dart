@@ -84,6 +84,19 @@ class MeasureComment extends Measure {
     return toString();
   }
 
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return runtimeType == other.runtimeType && _comment == other._comment;
+  }
+
+  @override
+  int get hashCode {
+    return _comment.hashCode;
+  }
+
   String get comment => _comment;
   final String _comment;
 

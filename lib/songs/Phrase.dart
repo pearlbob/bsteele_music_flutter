@@ -400,19 +400,6 @@ class Phrase extends MeasureNode {
     return false;
   }
 
-  int compareTo(Object o) {
-    if (!(o is Phrase)) return -1;
-    Phrase other = o as Phrase;
-    int limit = min(_measures.length, other._measures.length);
-    for (int i = 0; i < limit; i++) {
-      int ret = _measures[i].compareTo(other._measures[i]);
-      if (ret != 0) return ret;
-    }
-    if (_measures.length != other._measures.length)
-      return _measures.length < other._measures.length ? -1 : 1;
-    return 0;
-  }
-
   @override
   String getId() {
     return null;
@@ -518,12 +505,25 @@ class Phrase extends MeasureNode {
     this._phraseIndex = phraseIndex;
   }
 
+  int compareTo(Object o) {
+    if (!(o is Phrase)) return -1;
+    Phrase other = o as Phrase;
+    int limit = min(_measures.length, other._measures.length);
+    for (int i = 0; i < limit; i++) {
+      int ret = _measures[i].compareTo(other._measures[i]);
+      if (ret != 0) return ret;
+    }
+    if (_measures.length != other._measures.length)
+      return _measures.length < other._measures.length ? -1 : 1;
+    return 0;
+  }
+
   @override
   bool operator ==(other) {
     if (identical(this, other)) {
       return true;
     }
-    return other is Phrase &&
+    return runtimeType == other.runtimeType &&
         _phraseIndex == other._phraseIndex &&
         listsEqual(_measures, other._measures);
   }
@@ -531,8 +531,7 @@ class Phrase extends MeasureNode {
   @override
   int get hashCode {
     int ret = _phraseIndex.hashCode;
-    if ( _measures!=null)
-    ret = ret * 17 + hashObjects(_measures);
+    if (_measures != null) ret = ret * 17 + hashObjects(_measures);
     return ret;
   }
 

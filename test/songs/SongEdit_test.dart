@@ -30,7 +30,7 @@ class TestSong {
   void pre(MeasureEditType type, String locationString,
       String measureNodeString, String editEntry) {
     a.setCurrentMeasureEditType(type);
-    if (locationString != null && !locationString.isEmpty) {
+    if (locationString != null && locationString.isNotEmpty) {
       a.setCurrentChordSectionLocation(
           ChordSectionLocation.parseString(locationString));
 
@@ -57,6 +57,10 @@ class TestSong {
   }
 
   void resultChords(String chords) {
+    //  de-music character the result
+    chords = chords.replaceAll("♯", "#");
+    chords = chords.replaceAll("♭", "b");
+
     expect(chords.trim(), a.toMarkup().trim());
   }
 
@@ -70,8 +74,8 @@ class TestSong {
     if (measureNodeString == null)
       expect(a.getCurrentMeasureNode(), isNull);
     else {
-      expect(measureNodeString.trim(),
-          a.getCurrentMeasureNode().toMarkup().trim());
+      expect(a.getCurrentMeasureNode().toMarkup().trim(),
+          measureNodeString.trim());
     }
   }
 }
@@ -90,10 +94,10 @@ void main() {
     Phrase newPhrase;
     Measure newMeasure;
 
-//            ts.startingChords("");
-//            ts.pre(MeasureEditType.append, "", "", "i: [A B C D]");
-//            ts.resultChords("I: A B C D ");
-//            ts.post(MeasureEditType.append, "I:", "I: A B C D");
+    ts.startingChords("");
+    ts.pre(MeasureEditType.append, "", "", "i: [A B C D]");
+    ts.resultChords("I: A B C D ");
+    ts.post(MeasureEditType.append, "I:", "I: A B C D");
 
     ts.startingChords("");
     ts.pre(MeasureEditType.append, "", "",
@@ -106,7 +110,7 @@ void main() {
     ts.pre(MeasureEditType.replace, "C:", "C: F F C C G G F F ",
         "C: F F C C G G C B F F ");
     ts.resultChords(
-        "I: V: [Am Am/G Am/F♯ FE ] x4  I2: [Am Am/G Am/F♯ FE ] x2  C: F F C C, G G C B, F F  O: Dm C B B♭ A  ");
+        "I: V: [Am Am/G Am/F# FE ] x4  I2: [Am Am/G Am/F♯ FE ] x2  C: F F C C, G G C B, F F  O: Dm C B B♭ A  ");
     ts.post(MeasureEditType.append, "C:", "C: F F C C, G G C B, F F ");
 
     ts.startingChords(

@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/SectionVersion.dart';
 import 'package:bsteele_music_flutter/util.dart';
@@ -5,14 +6,13 @@ import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Logger.level = Level.debug;
-  Logger logger = Logger();
+  Logger.level = Level.info;
 
   test("parseString", () {
     for (Section section in Section.values)
       for (int i = 0; i < 10; i++) {
         SectionVersion sectionVersionExpected =
-            new SectionVersion.bySection(section);
+            SectionVersion.bySection(section);
         SectionVersion sectionVersion;
 
         sectionVersion = SectionVersion.parseString(section.toString() + ":");
@@ -23,10 +23,12 @@ void main() {
         expect(sectionVersionExpected, sectionVersion);
         sectionVersion =
             SectionVersion.parseString(section.formalName + ": A B C");
+        logger.d(sectionVersion.toString());
         expect(sectionVersionExpected, sectionVersion);
         try {
           sectionVersion =
               SectionVersion.parseString(section.formalName + "asdf");
+          fail("bad section name should not pass the test");
         } catch (e) {
           //  expected
         }

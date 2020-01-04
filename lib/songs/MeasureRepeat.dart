@@ -172,17 +172,6 @@ class MeasureRepeat extends Phrase {
     return MeasureRepeat(newMeasures, phraseIndex, repeats);
   }
 
-  int compareTo(Object o) {
-    if (!(o is MeasureRepeat)) return -1;
-
-    int ret = super.compareTo(o);
-    if (ret != 0) return ret;
-    MeasureRepeat other = o as MeasureRepeat;
-    ret = repeatMarker.compareTo(other.repeatMarker);
-    if (ret != 0) return ret;
-    return 0;
-  }
-
   @override
   String toMarkup() {
     return "[" +
@@ -228,6 +217,34 @@ class MeasureRepeat extends Phrase {
   @override
   String toString() {
     return super.toMarkup() + " x" + repeats.toString() + "\n";
+  }
+
+  int compareTo(Object o) {
+    if (!(o is MeasureRepeat)) return -1;
+
+    int ret = super.compareTo(o);
+    if (ret != 0) return ret;
+    MeasureRepeat other = o as MeasureRepeat;
+    ret = repeatMarker.compareTo(other.repeatMarker);
+    if (ret != 0) return ret;
+    return 0;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is MeasureRepeat &&
+        super == (other) &&
+        repeatMarker == other.repeatMarker;
+  }
+
+  @override
+  int get hashCode {
+    int ret = super.hashCode;
+    ret = ret * 17 + repeatMarker.hashCode;
+    return ret;
   }
 
   MeasureRepeatMarker repeatMarker;

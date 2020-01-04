@@ -4,7 +4,7 @@ import 'Measure.dart';
 import 'MeasureNode.dart';
 import 'key.dart';
 
-class MeasureRepeatMarker extends Measure  {
+class MeasureRepeatMarker extends Measure {
   MeasureRepeatMarker(this.repeats) : super.zeroArgs();
 
   @override
@@ -32,6 +32,19 @@ class MeasureRepeatMarker extends Measure  {
   @override
   String toString() {
     return "x" + repeats.toString();
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return runtimeType == other.runtimeType && repeats == other.repeats;
+  }
+
+  @override
+  int get hashCode {
+    return repeats.hashCode;
   }
 
   int repeats;

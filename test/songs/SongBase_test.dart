@@ -353,12 +353,12 @@ void main() {
       logger.d(chordSectionLocation.toString());
       a.setRepeat(chordSectionLocation, 2);
       logger.d(a.toMarkup());
-      expect( a.toMarkup().trim(),"I: [A B C D ] x2  V: E F G A#");
+      expect(a.toMarkup().trim(), "I: [A B C D ] x2  V: E F G A#");
 
       //  remove the repeat
       chordSectionLocation = a.findChordSectionLocation(m);
       a.setRepeat(chordSectionLocation, 1);
-      expect(a.toMarkup().trim(),"I: A B C D  V: E F G A#");
+      expect(a.toMarkup().trim(), "I: A B C D  V: E F G A#");
     }
 
     {
@@ -392,17 +392,16 @@ void main() {
         List<ChordSectionLocation> cols = grid.getRow(row);
         for (int col = 1; col < cols.length; col++)
           for (int r = 6; r > 1; r--) {
-            MeasureNode m =
-                a.findMeasureNodeByGrid(GridCoordinate(row, col));
+            MeasureNode m = a.findMeasureNodeByGrid(GridCoordinate(row, col));
             ChordSectionLocation chordSectionLocation =
                 a.findChordSectionLocation(m);
             a.setRepeat(chordSectionLocation, r);
             String s = a.toMarkup().trim();
             logger.d(s);
             if (row == 0)
-              expect(s,"I: [A B C D ] x" + r.toString() + "  V: E F G A#");
+              expect(s, "I: [A B C D ] x" + r.toString() + "  V: E F G A#");
             else
-              expect(s,"I: A B C D" + "  V: [E F G A# ] x" + r.toString());
+              expect(s, "I: A B C D" + "  V: [E F G A# ] x" + r.toString());
           }
       }
     }
@@ -806,8 +805,8 @@ void main() {
         measureIndex: lastCol);
     measureNode = a.findMeasureNodeByLocation(location);
     logger.d(measureNode.toMarkup());
-    expect(measureNode,
-        a.findMeasureNodeByGrid(GridCoordinate(row, lastCol + 1)));
+    expect(
+        measureNode, a.findMeasureNodeByGrid(GridCoordinate(row, lastCol + 1)));
 
     a = SongBaseTest.createSongBase(
         "A",
@@ -913,10 +912,14 @@ void main() {
         "i:\nv: bob, bob, bob berand\nv: nope\nc: sing chorus here o: end here");
 
     logger.v(a.toMarkup());
-    logger.i("testing: "+ChordSectionLocation.parseString("I:0:0").toString());
-    logger.i("testing2: "+a.getGridCoordinate(ChordSectionLocation.parseString("I:0:0")).toString()
-    );
-    expect( a.getGridCoordinate(ChordSectionLocation.parseString("I:0:0")),GridCoordinate(0, 1));
+    logger
+        .i("testing: " + ChordSectionLocation.parseString("I:0:0").toString());
+    logger.i("testing2: " +
+        a
+            .getGridCoordinate(ChordSectionLocation.parseString("I:0:0"))
+            .toString());
+    expect(a.getGridCoordinate(ChordSectionLocation.parseString("I:0:0")),
+        GridCoordinate(0, 1));
 
     expect(GridCoordinate(0, 0),
         a.getGridCoordinate(ChordSectionLocation.parseString("I:")));
@@ -1380,7 +1383,7 @@ void main() {
     logger.d(a.toMarkup());
     expect(a.setMeasuresPerRow(4), isFalse);
     logger.d(a.toMarkup());
-    expect(a.toMarkup().trim(),"I: [A B C D, E F G G#, Ab Bb ] x2  C: D E F" );
+    expect(a.toMarkup().trim(), "I: [A B C D, E F G G#, Ab Bb ] x2  C: D E F");
 
     //  take the comma off a repeat
     a = SongBaseTest.createSongBase(
@@ -1457,8 +1460,8 @@ void main() {
             "  " +
             SongBase.getBeatNumberAtTime(bpm, t).toString());
         int result = SongBase.getBeatNumberAtTime(bpm, t);
-        logger.v( "beat at "+t.toString()+" = "+result.toString());
-        logger.v( "   expected: "+expected.toString());
+        logger.v("beat at " + t.toString() + " = " + result.toString());
+        logger.v("   expected: " + expected.toString());
         if (result != expected) {
           //  deal with test rounding issues
           logger.v("t/dt - e: " + (t / (dtDiv * dt) - expected).toString());
@@ -1524,5 +1527,31 @@ void main() {
         }
       }
     }
+  });
+
+  test("testSong Section collapse", () {
+    int beatsPerBar = 4;
+    SongBase a;
+
+    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+        100, beatsPerBar, 4, "I: A B C D V: A B C D", "i:\nv:\n");
+    logger.i(a.toMarkup());
+    expect(a.toMarkup(), "I: V: A B C D  ");
+    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+        100, beatsPerBar, 4, "I: A B C D V: [A B C D] x2", "i:\nv:\n");
+    logger.i(a.toMarkup());
+    expect(a.toMarkup(), "I: A B C D  V: [A B C D ] x2  ");
+    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+        100, beatsPerBar, 4, "I: [A B C D] x2 V: A B C D ", "i:\nv:\n");
+    logger.i(a.toMarkup());
+    expect(a.toMarkup(), "I: [A B C D ] x2  V: A B C D  ");
+    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+        100, beatsPerBar, 4, "I: [A B C D] x2 V: [A B C D] x2", "i:\nv:\n");
+    logger.i(a.toMarkup());
+    expect(a.toMarkup(), "I: V: [A B C D ] x2  ");
+    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+        100, beatsPerBar, 4, "I: [A B C D] x2 V: [A B C D] x4", "i:\nv:\n");
+    logger.i(a.toMarkup());
+    expect(a.toMarkup(), "I: [A B C D ] x2  V: [A B C D ] x4  ");
   });
 }

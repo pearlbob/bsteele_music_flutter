@@ -35,23 +35,23 @@ void main() {
   final int beatsPerBar = 4;
 
   test("testChordSectionparseString", () {
-//    {
-//      //  - at end of repeat
-//      ChordSection chordSection =
-//          ChordSection.parseString("V: [D G D - ] x3", beatsPerBar);
-//      expect(chordSection, isNotNull);
-//      logger.d(chordSection.toMarkup());
-//      expect("V: [D G D D ] x3 ", chordSection.toMarkup());
-//    }
-//    {
-//      //  - at end of repeat
-//      ChordSection chordSection = ChordSection.parseString(
-//          "V: D G D - [D G D - ] x3 C A C A  C..A D - ", beatsPerBar);
-//      expect(chordSection, isNotNull);
-//      logger.d(chordSection.toMarkup());
-//      expect("V: D G D D [D G D D ] x3 C A C A C..A D D ",
-//          chordSection.toMarkup());
-//    }
+    {
+      //  - at end of repeat
+      ChordSection chordSection =
+          ChordSection.parseString("V: [D G D - ] x3", beatsPerBar);
+      expect(chordSection, isNotNull);
+      logger.d(chordSection.toMarkup());
+      expect("V: [D G D D ] x3 ", chordSection.toMarkup());
+    }
+    {
+      //  - at end of repeat
+      ChordSection chordSection = ChordSection.parseString(
+          "V: D G D - [D G D - ] x3 C A C A  C..A D - ", beatsPerBar);
+      expect(chordSection, isNotNull);
+      logger.d(chordSection.toMarkup());
+      expect("V: D G D D [D G D D ] x3 C A C A C..A D D ",
+          chordSection.toMarkup());
+    }
     {
       //  - at end of repeat
       ChordSection chordSection = ChordSection.parseString(

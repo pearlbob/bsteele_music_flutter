@@ -38,7 +38,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
       MarkedString markedString, int beatsPerBar, bool strict) {
     if (markedString == null || markedString.isEmpty) throw "no data to parse";
 
-    markedString.stripLeadingSpaces(); //  includes newline
+    markedString.stripLeadingWhitespace(); //  includes newline
     if (markedString.isEmpty) throw "no data to parse";
 
     SectionVersion sectionVersion;

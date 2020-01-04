@@ -199,6 +199,12 @@ class Section implements Comparable<Section> {
     return SectionVersion.bySection(Section.get(SectionEnum.verse));
   }
 
+
+  @override
+  String toString() {
+    return _abbreviation;
+  }
+
   SectionEnum get sectionEnum => _sectionEnum;
   final SectionEnum _sectionEnum;
 

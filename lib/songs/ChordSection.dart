@@ -352,23 +352,6 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 //        return beatsPerBar;
 //    }
 
-  /// Compares this object with the specified object for order.  Returns a
-  /// negative integer, zero, or a positive integer as this object is less
-  /// than, equal to, or greater than the specified object.
-  @override
-  int compareTo(ChordSection o) {
-    if (_sectionVersion.compareTo(o._sectionVersion) != 0)
-      return _sectionVersion.compareTo(o._sectionVersion);
-
-    if (_phrases.length != o._phrases.length)
-      return _phrases.length < o._phrases.length ? -1 : 1;
-
-    for (int i = 0; i < _phrases.length; i++) {
-      int ret = _phrases[i].toMarkup().compareTo(o._phrases[i].toMarkup());
-      if (ret != 0) return ret;
-    }
-    return 0;
-  }
 
   @override
   String getId() {
@@ -514,6 +497,23 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     return _phrases == null || _phrases.isEmpty || _phrases[0].isEmpty();
   }
 
+  /// Compares this object with the specified object for order.  Returns a
+  /// negative integer, zero, or a positive integer as this object is less
+  /// than, equal to, or greater than the specified object.
+  @override
+  int compareTo(ChordSection o) {
+    if (_sectionVersion.compareTo(o._sectionVersion) != 0)
+      return _sectionVersion.compareTo(o._sectionVersion);
+
+    if (_phrases.length != o._phrases.length)
+      return _phrases.length < o._phrases.length ? -1 : 1;
+
+    for (int i = 0; i < _phrases.length; i++) {
+      int ret = _phrases[i].toMarkup().compareTo(o._phrases[i].toMarkup());
+      if (ret != 0) return ret;
+    }
+    return 0;
+  }
 
   @override
   bool operator ==(other) {
@@ -528,6 +528,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   @override
   int get hashCode {
     int ret = _sectionVersion.hashCode;
+    if ( _phrases!= null)
     ret = ret * 17 + hashObjects(_phrases);
     return ret;
   }

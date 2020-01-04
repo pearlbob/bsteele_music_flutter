@@ -35,7 +35,7 @@ void main() {
     MarkedString markedString = new MarkedString(s);
     MeasureRepeat refRepeat = MeasureRepeat.parse(markedString, 0, 4, null);
     expect(refRepeat, isNotNull);
-    expect("[A B C D, E F G G♭ ] x2 ", refRepeat.toMarkup());
+    expect(refRepeat.toMarkup(), "[A B C D, E F G Gb ] x2 ");
     expect(0, markedString.available());
 
     s = "[A B C D ] x2 ";
@@ -123,6 +123,7 @@ void main() {
   test("testGridMapping", () {
     int beatsPerBar = 4;
     SongBase a;
+    Measure m;
 
     a = SongBaseTest.createSongBase(
         "A",
@@ -160,7 +161,9 @@ void main() {
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("G", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("G", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 1));
     expect(measureNode, isNotNull);
@@ -213,7 +216,9 @@ void main() {
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 2));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("B", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("B", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 3));
     expect(measureNode, isNull);
@@ -222,7 +227,9 @@ void main() {
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 3));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("Eb", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("Eb", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 4));
     expect(measureNode, isNull);
@@ -404,11 +411,14 @@ void main() {
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("D", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("D", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("Db", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("Db", a.getBeatsPerBar());
+    m.endOfRow = true;
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(2, 4));
     expect(measureNode, isNotNull);
@@ -454,11 +464,15 @@ void main() {
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("D", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("D", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("Db", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("Db", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(2, 3));
     expect(measureNode, isNotNull);
@@ -506,15 +520,21 @@ void main() {
     expect(Measure.parseString("A", a.getBeatsPerBar()), measureNode);
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("Db", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("Db", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(0, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("D", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("D", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(1, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("Db", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("Db", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(2, 4));
     expect(measureNode, isNotNull);
@@ -567,7 +587,9 @@ void main() {
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(2, 4));
     expect(measureNode, isNotNull);
-    expect(Measure.parseString("Db", a.getBeatsPerBar()), measureNode);
+    m = Measure.parseString("Db", a.getBeatsPerBar());
+    m.endOfRow = true;
+    expect(measureNode, m);
 
     measureNode = a.findMeasureNodeByGrid(new GridCoordinate(3, 4));
     expect(measureNode, isNotNull);

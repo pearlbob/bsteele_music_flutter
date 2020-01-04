@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:quiver/core.dart';
+
 enum DrumType { closedHighHat, openHighHat, snare, kick }
 
 /// Descriptor of a single drum in the measure.
@@ -16,12 +18,12 @@ class Part {
   }
 
   /// Get the divisions per beat, i.e. the drum part resolution
-    int getDivisionsPerBeat() {
+  int getDivisionsPerBeat() {
     return divisionsPerBeat;
   }
 
   /// Set the divisions per beat, i.e. the drum part resolution
-   void setDivisionsPerBeat(int divisionsPerBeat) {
+  void setDivisionsPerBeat(int divisionsPerBeat) {
     this.divisionsPerBeat = divisionsPerBeat;
   }
 
@@ -48,7 +50,7 @@ class Part {
 /// likely subsequent measures.
 
 @deprecated
-class LegacyDrumMeasure {
+class LegacyDrumMeasure implements Comparable<LegacyDrumMeasure> {
   /// Get all parts as a map.
   Map<DrumType, Part> getParts() {
     return parts;
@@ -106,6 +108,37 @@ class LegacyDrumMeasure {
   @override
   String toString() {
     return "{" + highHat + ", " + snare + ", " + kick + '}';
+  }
+
+  @override
+  int compareTo(LegacyDrumMeasure o) {
+    int ret = (_isSilent == o._isSilent ? 0 : (_isSilent ? -1 : 1));
+    if (ret != 0) return ret;
+    ret = highHat.compareTo(o.highHat);
+    if (ret != 0) return ret;
+    ret = snare.compareTo(o.snare);
+    if (ret != 0) return ret;
+    ret = kick.compareTo(o.kick);
+    if (ret != 0) return ret;
+    return 0;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is LegacyDrumMeasure &&
+        highHat == other.highHat &&
+        snare == other.snare &&
+        kick == other.kick &&
+        _isSilent == other._isSilent;
+  }
+
+  @override
+  int get hashCode {
+    int ret = hash4(highHat, snare, kick, _isSilent);
+    return ret;
   }
 
   String highHat = "";

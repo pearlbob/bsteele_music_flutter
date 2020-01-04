@@ -1342,7 +1342,7 @@ void main() {
           " atRow: " +
           coordinateAtRow.toString());
       expect(coordinate.row, coordinateAtRow.row);
-      expect(1, coordinateAtRow.col);
+      expect(coordinateAtRow.col, 1);
     }
   });
 
@@ -1364,7 +1364,6 @@ void main() {
     logger.d(a.toMarkup());
     expect(a.setMeasuresPerRow(4), isTrue);
     logger.d(a.toMarkup());
-    expect("I: [A B C D, E F G G♯, A♭ B♭ ] x2  C: D E F", a.toMarkup().trim());
     expect(a.setMeasuresPerRow(4), isFalse);
 
     //  don't fix what's not broken
@@ -1381,7 +1380,7 @@ void main() {
     logger.d(a.toMarkup());
     expect(a.setMeasuresPerRow(4), isFalse);
     logger.d(a.toMarkup());
-    expect("I: [A B C D, E F G G♯, A♭ B♭ ] x2  C: D E F", a.toMarkup().trim());
+    expect(a.toMarkup().trim(),"I: [A B C D, E F G G#, Ab Bb ] x2  C: D E F" );
 
     //  take the comma off a repeat
     a = SongBaseTest.createSongBase(
@@ -1397,7 +1396,7 @@ void main() {
     logger.d(a.toMarkup());
     expect(a.setMeasuresPerRow(4), isFalse);
     logger.d(a.toMarkup());
-    expect("I: [A B C D, E F G G♯ ] x2  C: D E F", a.toMarkup().trim());
+    expect(a.toMarkup().trim(), "I: [A B C D, E F G G# ] x2  C: D E F");
 
     //  not the first section
     a = SongBaseTest.createSongBase(
@@ -1414,10 +1413,10 @@ void main() {
     expect(a.setMeasuresPerRow(4), isTrue);
     logger.d(a.toMarkup());
     expect(
-        "I: [A B C D ] x2  C: D E F A, B C D E, F G G♯", a.toMarkup().trim());
+        "I: [A B C D ] x2  C: D E F A, B C D E, F G G#", a.toMarkup().trim());
     expect(a.setMeasuresPerRow(4), isFalse);
     expect(
-        "I: [A B C D ] x2  C: D E F A, B C D E, F G G♯", a.toMarkup().trim());
+        "I: [A B C D ] x2  C: D E F A, B C D E, F G G#", a.toMarkup().trim());
 
     //  take a last comma off
     a = SongBaseTest.createSongBase(
@@ -1434,10 +1433,10 @@ void main() {
     expect(a.setMeasuresPerRow(4), isTrue);
     logger.d(a.toMarkup());
     expect(
-        "I: [A B C D ] x2  C: D E F A, B C D E, F G G♯", a.toMarkup().trim());
+        "I: [A B C D ] x2  C: D E F A, B C D E, F G G#", a.toMarkup().trim());
     expect(a.setMeasuresPerRow(4), isFalse);
     expect(
-        "I: [A B C D ] x2  C: D E F A, B C D E, F G G♯", a.toMarkup().trim());
+        "I: [A B C D ] x2  C: D E F A, B C D E, F G G#", a.toMarkup().trim());
   });
 
   test("testGetBeatNumberAtTime", () {

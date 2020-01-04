@@ -531,6 +531,7 @@ class Phrase extends MeasureNode {
   @override
   int get hashCode {
     int ret = _phraseIndex.hashCode;
+    if ( _measures!=null)
     ret = ret * 17 + hashObjects(_measures);
     return ret;
   }

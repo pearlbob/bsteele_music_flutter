@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
 import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
 import 'package:flutter/cupertino.dart';
@@ -52,12 +53,12 @@ void main() {
         int compareValue = cd2.compareTo(cd1);
         compareValue = (compareValue < 0 ? -1 : (compareValue > 0 ? 1 : 0));
 
-        debugPrint(cd2.toString() + ":\tcompare:\t" + compareValue.toString());
+        logger.i(cd2.toString() + ":\tcompare:\t" + compareValue.toString());
         if (cd1 == cd2) {
-          expect(0, compareValue);
+          expect(compareValue, 0 );
           expected = 1;
         } else
-          expect(expected, compareValue);
+          expect(compareValue, cd2.name.compareTo(cd1.name) );
       }
     }
 

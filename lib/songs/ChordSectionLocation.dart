@@ -19,13 +19,13 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
     if (phraseIndex == null || phraseIndex < 0) {
       _phraseIndex = -1;
       hasPhraseIndex = false;
-      this._measureIndex = -1;
+      _measureIndex = -1;
       _hasMeasureIndex = false;
     } else {
-      this._phraseIndex = phraseIndex;
+      _phraseIndex = phraseIndex;
       hasPhraseIndex = true;
       if (measureIndex == null || measureIndex < 0) {
-        _measureIndex = 0;
+        _measureIndex = -1;
         _hasMeasureIndex = false;
       } else {
         _measureIndex = measureIndex;
@@ -51,11 +51,6 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
         _labelSectionVersions.addAll(labelSectionVersions);
 
       _sectionVersion = labelSectionVersions.first;
-      this._phraseIndex = -1;
-      hasPhraseIndex = false;
-      this._measureIndex = -1;
-      _hasMeasureIndex = false;
-      _marker = ChordSectionLocationMarker.none;
     }
 
     _marker = ChordSectionLocationMarker.none;
@@ -65,13 +60,13 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
       this._sectionVersion, int phraseIndex, this._marker)
       : _labelSectionVersions = null {
     if (phraseIndex == null || phraseIndex < 0) {
-      this._phraseIndex = -1;
+      _phraseIndex = -1;
       hasPhraseIndex = false;
     } else {
       this._phraseIndex = phraseIndex;
       hasPhraseIndex = true;
     }
-    _measureIndex = 0;
+    _measureIndex = -1;
     _hasMeasureIndex = false;
   }
 
@@ -104,11 +99,9 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
       if (mr != null) {
         try {
           int phraseIndex = int.parse(mr.group(1));
-          if ( phraseIndex == null )
-            phraseIndex=-1;
+          if (phraseIndex == null) phraseIndex = -1;
           int measureIndex = int.parse(mr.group(2));
-          if ( measureIndex == null )
-            measureIndex=-1;
+          if (measureIndex == null) measureIndex = -1;
           markedString.consume(mr.group(0).length);
           return new ChordSectionLocation(sectionVersion,
               phraseIndex: phraseIndex, measureIndex: measureIndex);

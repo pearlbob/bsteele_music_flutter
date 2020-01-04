@@ -256,19 +256,6 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   }
 
   @override
-  int compareTo(Measure o) {
-    int limit = min(chords.length, o.chords.length);
-    for (int i = 0; i < limit; i++) {
-      int ret = chords[i].compareTo(o.chords[i]);
-      if (ret != 0) return ret;
-    }
-    if (chords.length != o.chords.length)
-      return chords.length < o.chords.length ? -1 : 1;
-    if (beatCount != o.beatCount) return beatCount < o.beatCount ? -1 : 1;
-    return 0;
-  }
-
-  @override
   String getId() {
     return null;
   }
@@ -281,6 +268,24 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   @override
   String toString() {
     return toMarkup();
+  }
+
+  @override
+  int compareTo(Measure o) {
+    if (beatCount != o.beatCount) return beatCount < o.beatCount ? -1 : 1;
+    if (!listsEqual(chords, o.chords)) {
+      //  compare the lists
+      if (chords == null) return o.chords == null ? 0 : 1;
+      if (o.chords == null) return -1;
+      if (chords.length != o.chords.length)
+        return chords.length < o.chords.length ? -1 : 1;
+      for (int i = 0; i < chords.length; i++) {
+        int ret = chords[i].compareTo(o.chords[i]);
+        if (ret != 0) return ret;
+      }
+    }
+
+    return 0;
   }
 
   @override
@@ -298,7 +303,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   int get hashCode {
     //  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
     int ret = hash2(beatCount, endOfRow);
-    ret = ret * 17 + hashObjects(chords);
+    if (chords != null) ret = ret * 17 + hashObjects(chords);
     return ret;
   }
 

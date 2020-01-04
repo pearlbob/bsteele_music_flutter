@@ -850,7 +850,7 @@ class SongBase {
           loc = new ChordSectionLocation.byMultipleSectionVersion(
               matchingSectionVersionsSet);
         } else {
-           loc = new ChordSectionLocation(sectionVersion);
+          loc = new ChordSectionLocation(sectionVersion);
         }
         gridCoordinateChordSectionLocationMap[coordinate] = loc;
         gridChordSectionLocationCoordinateMap[loc] = coordinate;
@@ -1026,8 +1026,6 @@ class SongBase {
       }
     }
 
-
-
     chordSectionLocationGrid = grid;
     //logger.d(grid.toString());
 
@@ -1042,7 +1040,7 @@ class SongBase {
             gridCoordinateChordSectionLocationMap[coordinate].toString() +
             " -> " +
             findMeasureNodeByLocation(
-                gridCoordinateChordSectionLocationMap[coordinate])
+                    gridCoordinateChordSectionLocationMap[coordinate])
                 ?.toMarkup()
                 .toString());
       }
@@ -1054,11 +1052,10 @@ class SongBase {
       for (ChordSectionLocation loc in set) {
         logger.d(" " +
             loc.toString() +
-              " " +
+            " " +
             gridChordSectionLocationCoordinateMap[loc].toString() +
             " -> " +
-            findMeasureNodeByGrid(
-                gridChordSectionLocationCoordinateMap[loc])
+            findMeasureNodeByGrid(gridChordSectionLocationCoordinateMap[loc])
                 ?.toMarkup()
                 .toString());
       }
@@ -2624,8 +2621,8 @@ class SongBase {
         int lineLimit = min(aLyricSection.getLyricsLines().length,
             bLyricSection.getLyricsLines().length);
         for (int j = 0; j < lineLimit; j++) {
-          String aLine = aLyricSection.getLyricsLines()[j].getLyrics();
-          String bLine = bLyricSection.getLyricsLines()[j].getLyrics();
+          String aLine = aLyricSection.getLyricsLines()[j].lyrics;
+          String bLine = bLyricSection.getLyricsLines()[j].lyrics;
           if (aLine.compareTo(bLine) != 0)
             ret.add(new StringTriple(
                 "lyrics " + sectionVersion.toString(), aLine, bLine));
@@ -2634,7 +2631,7 @@ class SongBase {
         for (int j = bLyricSection.getLyricsLines().length;
             j < lineLimit;
             j++) {
-          String aLine = aLyricSection.getLyricsLines()[j].getLyrics();
+          String aLine = aLyricSection.getLyricsLines()[j].lyrics;
           ret.add(new StringTriple(
               "lyrics missing " + sectionVersion.toString(), aLine, ""));
         }
@@ -2642,7 +2639,7 @@ class SongBase {
         for (int j = aLyricSection.getLyricsLines().length;
             j < lineLimit;
             j++) {
-          String bLine = bLyricSection.getLyricsLines()[j].getLyrics();
+          String bLine = bLyricSection.getLyricsLines()[j].lyrics;
           ret.add(new StringTriple(
               "lyrics missing " + sectionVersion.toString(), "", bLine));
         }
@@ -3232,18 +3229,17 @@ class SongBase {
 
   List<LyricSection> lyricSections = new List();
   HashMap<SectionVersion, GridCoordinate> chordSectionGridCoorinateMap =
-      new HashMap();
+      HashMap();
 
   //  match to representative section version
-  HashMap<SectionVersion, SectionVersion> chordSectionGridMatches =
-      new HashMap();
+  HashMap<SectionVersion, SectionVersion> chordSectionGridMatches = HashMap();
 
   HashMap<GridCoordinate, ChordSectionLocation>
       gridCoordinateChordSectionLocationMap;
   HashMap<ChordSectionLocation, GridCoordinate>
       gridChordSectionLocationCoordinateMap;
   HashMap<SongMoment, GridCoordinate> songMomentGridCoordinateHashMap =
-      new HashMap();
+      HashMap();
   HashMap<SectionVersion, int> chordSectionBeats = new HashMap();
   HashMap<SectionVersion, int> chordSectionRows = new HashMap();
 
@@ -3255,7 +3251,7 @@ class SongBase {
   String chordsAsMarkup;
   String message;
   List<SongMoment> songMoments = List();
-  HashMap<int, SongMoment> beatsToMoment = new HashMap();
+  HashMap<int, SongMoment> beatsToMoment = HashMap();
 
   //SplayTreeSet<Metadata> metadata = new SplayTreeSet();
   static final AppOptions appOptions = AppOptions();

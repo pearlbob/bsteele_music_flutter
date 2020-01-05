@@ -3015,14 +3015,15 @@ class SongBase {
 
   void setCurrentMeasureEditType(MeasureEditType measureEditType) {
     currentMeasureEditType = measureEditType;
-    logger.d("curloc: " +
-        (currentChordSectionLocation != null
-            ? currentChordSectionLocation.toString()
-            : "none") +
-        " " +
+    logger.d("set edit type: " +
         (currentMeasureEditType != null
             ? currentMeasureEditType.toString()
-            : "no type"));
+            : "no type") +
+        " at " +
+        (currentChordSectionLocation != null
+            ? currentChordSectionLocation.toString()
+            : "none")
+        );
   }
 
   ChordSectionLocation getCurrentChordSectionLocation() {
@@ -3096,7 +3097,7 @@ class SongBase {
                 ? phrase.length - 1
                 : measureIndex);
             if (cs != chordSection || pi != phraseIndex || mi != measureIndex)
-              chordSectionLocation = new ChordSectionLocation(cs.sectionVersion,
+              chordSectionLocation = ChordSectionLocation(cs.sectionVersion,
                   phraseIndex: pi, measureIndex: mi);
           }
         }
@@ -3112,15 +3113,15 @@ class SongBase {
 //    }
 
     currentChordSectionLocation = chordSectionLocation;
-    logger.d("curloc: " +
+    logger.d("set loc: " +
         (currentChordSectionLocation != null
             ? currentChordSectionLocation.toString()
             : "none") +
-        " " +
+        ", type: " +
         (currentMeasureEditType != null
             ? currentMeasureEditType.toString()
             : "no type") +
-        " " +
+        ", song value: " +
         (currentChordSectionLocation != null
             ? findMeasureNodeByLocation(currentChordSectionLocation).toString()
             : "none"));

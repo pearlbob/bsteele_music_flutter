@@ -1,4 +1,3 @@
-import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Measure.dart';
 import 'package:bsteele_music_flutter/songs/MeasureComment.dart';
@@ -328,7 +327,7 @@ void main() {
     }
     {
       MarkedString markedString = new MarkedString("\nT:D\n");
-      ChordSection chordSection = ChordSection.parse(markedString, 4, false);
+     // ChordSection chordSection = ChordSection.parse(markedString, 4, false);
       expect(markedString, isEmpty);
     }
     {

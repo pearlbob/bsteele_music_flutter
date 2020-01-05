@@ -103,7 +103,7 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
           int measureIndex = int.parse(mr.group(2));
           if (measureIndex == null) measureIndex = -1;
           markedString.consume(mr.group(0).length);
-          return new ChordSectionLocation(sectionVersion,
+          return ChordSectionLocation(sectionVersion,
               phraseIndex: phraseIndex, measureIndex: measureIndex);
         } catch (e) {
           throw e.getMessage();
@@ -112,13 +112,12 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
     }
     if (markedString.isNotEmpty) {
       RegExpMatch mr =
-          numberRangeRegexp.firstMatch(markedString.remainingStringLimited(2));
+          numberRegexp.firstMatch(markedString.remainingStringLimited(2));
       if (mr != null) {
         try {
           int phraseIndex = int.parse(mr.group(1));
           markedString.consume(mr.group(0).length);
-          return new ChordSectionLocation(sectionVersion,
-              phraseIndex: phraseIndex);
+          return ChordSectionLocation(sectionVersion, phraseIndex: phraseIndex);
         } catch (nfe) {
           throw nfe.getMessage();
         }
@@ -173,10 +172,9 @@ class ChordSectionLocation implements Comparable<ChordSectionLocation> {
     ret = _measureIndex - other._measureIndex;
     if (ret != 0) return ret;
 
-    if (_labelSectionVersions == null )
-      return other._labelSectionVersions==null ? 0 : -1;
-    if ( other._labelSectionVersions == null )
-      return 1;
+    if (_labelSectionVersions == null)
+      return other._labelSectionVersions == null ? 0 : -1;
+    if (other._labelSectionVersions == null) return 1;
 
     ret = _labelSectionVersions.length - other._labelSectionVersions.length;
     if (ret != 0) return ret;

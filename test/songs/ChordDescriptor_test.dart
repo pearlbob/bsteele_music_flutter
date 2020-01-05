@@ -1,7 +1,6 @@
 import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
 import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -47,7 +46,6 @@ void main() {
       print(cd.toString() + ":\t" + cd.chordComponentsToString());
     }
     {
-      int expected = -1;
       ChordDescriptor cd1 = ChordDescriptor.dominant7;
       for (ChordDescriptor cd2 in ChordDescriptor.values) {
         int compareValue = cd2.compareTo(cd1);
@@ -56,7 +54,6 @@ void main() {
         logger.i(cd2.toString() + ":\tcompare:\t" + compareValue.toString());
         if (cd1 == cd2) {
           expect(compareValue, 0 );
-          expected = 1;
         } else
           expect(compareValue, cd2.name.compareTo(cd1.name) );
       }

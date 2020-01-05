@@ -268,7 +268,7 @@ class Phrase extends MeasureNode {
     if (_measures.length < index)
       _measures.addAll(list);
     else {
-      for (Measure m in list) _measures.insert(index++ + 1, m);
+      for (Measure m in list) _measures.insert(index++, m);
     }
     return true;
   }

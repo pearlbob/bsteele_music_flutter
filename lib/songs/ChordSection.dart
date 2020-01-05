@@ -343,11 +343,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 //    return bpm;
 //}
 
-  /**
-   * Return the sections's number of beats per bar or null to default to the song's number of beats per bar
-   *
-   * @return the number of beats per bar
-   */
+  /// Return the sections's number of beats per bar or null to default to the song's number of beats per bar
 //       Integer getBeatsPerBar() {
 //        return beatsPerBar;
 //    }

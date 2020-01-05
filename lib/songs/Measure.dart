@@ -41,13 +41,14 @@ class Measure extends MeasureNode implements Comparable<Measure> {
         chords = null;
 
   /// Convenience method for testing only
-  static Measure parseString(String s, int beatsPerBar) {
-    return parse(new MarkedString(s), beatsPerBar, null);
+  static Measure parseString(String s, int beatsPerBar, {bool endOfRow}) {
+    return parse(new MarkedString(s), beatsPerBar, null, endOfRow: endOfRow);
   }
 
   /// Parse a measure from the input string
   static Measure parse(final MarkedString markedString, final int beatsPerBar,
-      final Measure priorMeasure) {
+      final Measure priorMeasure,
+      {bool endOfRow}) {
     //  should not be white space, even leading, in a measure
     if (markedString == null || markedString.isEmpty) throw "no data to parse";
 
@@ -96,6 +97,8 @@ class Measure extends MeasureNode implements Comparable<Measure> {
       markedString.consume(mr.group(0).length);
       ret.endOfRow = true;
     }
+
+    if (endOfRow != null) ret.endOfRow = endOfRow;
 
     return ret;
   }

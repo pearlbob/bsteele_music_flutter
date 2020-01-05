@@ -29,6 +29,9 @@ class TestSong {
 
   void pre(MeasureEditType type, String locationString,
       String measureNodeString, String editEntry) {
+    //  de-music character the result
+    measureNodeString = _deMusic(measureNodeString);
+
     a.setCurrentMeasureEditType(type);
     if (locationString != null && locationString.isNotEmpty) {
       a.setCurrentChordSectionLocation(
@@ -37,12 +40,13 @@ class TestSong {
       expect(a.getCurrentChordSectionLocation().toString(), locationString);
 
       if (measureNodeString != null) {
-        expect(measureNodeString.trim(),
-            a.getCurrentMeasureNode().toMarkup().trim());
+        expect(a.getCurrentMeasureNode().toMarkup().trim(),
+            measureNodeString.trim());
       }
     }
 
     logger.d("editEntry: " + editEntry);
+    logger.v("edit loc: " + a.getCurrentChordSectionLocation().toString());
     List<MeasureNode> measureNodes = a.parseChordEntry(editEntry);
     if (measureNodes.isEmpty &&
         (editEntry == null || editEntry.isEmpty) &&
@@ -54,18 +58,17 @@ class TestSong {
       }
       expect(a.editList(measureNodes), isTrue);
     }
+    logger.v("after edit loc: " + a.getCurrentChordSectionLocation().toString());
   }
 
   void resultChords(String chords) {
-    //  de-music character the result
-    chords = chords.replaceAll("♯", "#");
-    chords = chords.replaceAll("♭", "b");
-
-    expect(chords.trim(), a.toMarkup().trim());
+    expect(a.toMarkup().trim(), _deMusic(chords).trim());
   }
 
   void post(
       MeasureEditType type, String locationString, String measureNodeString) {
+    measureNodeString = _deMusic(measureNodeString);
+
     expect(type, a.getCurrentMeasureEditType());
     expect(locationString, a.getCurrentChordSectionLocation().toString());
     logger.d("measureNodeString: " + measureNodeString);
@@ -77,6 +80,15 @@ class TestSong {
       expect(a.getCurrentMeasureNode().toMarkup().trim(),
           measureNodeString.trim());
     }
+  }
+
+  String _deMusic(String s) {
+    if (s == null) return null;
+
+    //  de-music characters in the string
+    s = s.replaceAll("♯", "#");
+    s = s.replaceAll("♭", "b");
+    return s;
   }
 }
 
@@ -166,10 +178,10 @@ void main() {
 
     ts.startingChords(
         "I: A G D  V: D C G G  V1: Dm  V2: Em  PC: D C G D  C: F7 G7 G Am  ");
-    ts.pre(MeasureEditType.replace, "I:0:1", "G", "G G");
+    ts.pre(MeasureEditType.replace, "I:0:1", "G", "B C");
     ts.resultChords(
-        "I: A G G D  V: D C G G  V1: Dm  V2: Em  PC: D C G D  C: F7 G7 G Am  ");
-    ts.post(MeasureEditType.append, "I:0:2", "G");
+        "I: A B C D  V: D C G G  V1: Dm  V2: Em  PC: D C G D  C: F7 G7 G Am  ");
+    ts.post(MeasureEditType.append, "I:0:2", "C");
 
     ts.startingChords("V: C F C C F F C C G F C G  ");
     ts.pre(MeasureEditType.append, "V:0:11", "G", "PC: []");

@@ -9,8 +9,6 @@ import 'package:bsteele_music_flutter/songs/key.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
-import 'SongBase_test.dart';
-
 void main() {
   Logger.level = Level.warning;
 
@@ -89,7 +87,7 @@ void main() {
    */
   test("find testing", () {
     int beatsPerBar = 4;
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",

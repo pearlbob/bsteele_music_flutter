@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Measure.dart';
 import 'package:bsteele_music_flutter/songs/MeasureComment.dart';
@@ -26,7 +27,6 @@ void checkMeasureNodesSlashScaleNoteByMeasure(
 
 void main() {
   Logger.level = Level.warning;
-  Logger logger = Logger();
 
   List<Phrase> phrases;
   Phrase phrase;
@@ -116,7 +116,7 @@ void main() {
       expect(measures.length, 8);
       Measure m = measures[3];
       Measure mExpected = Measure.parseString("AmDm", beatsPerBar);
-      mExpected.endOfRow=true;
+      mExpected.endOfRow = true;
       expect(m, mExpected);
       m = measures[measures.length - 1];
       expect(Measure.parseString("DmAm", beatsPerBar), m);
@@ -157,7 +157,7 @@ void main() {
       expect(chordSection != null, isTrue);
       SectionVersion intro =
           SectionVersion.bySection(Section.get(SectionEnum.intro));
-      expect(chordSection.sectionVersion,intro);
+      expect(chordSection.sectionVersion, intro);
       phrases = chordSection.phrases;
       expect(phrases != null, isTrue);
       expect(1, phrases.length);
@@ -327,8 +327,12 @@ void main() {
     }
     {
       MarkedString markedString = new MarkedString("\nT:D\n");
-     // ChordSection chordSection = ChordSection.parse(markedString, 4, false);
+      ChordSection chordSection = ChordSection.parse(markedString, 4, false);
       expect(markedString, isEmpty);
+      logger.i(chordSection.toString());
+      expect(chordSection.isEmpty(), isFalse);
+      expect(chordSection.sectionVersion,
+          SectionVersion.bySection(Section.get(SectionEnum.tag)));
     }
     {
       MarkedString markedString = new MarkedString("\nT:\n" + "D C AG D\n");
@@ -337,7 +341,7 @@ void main() {
       expect(chordSection, isNotNull);
       SectionVersion sectionVersion =
           SectionVersion.bySection(Section.get(SectionEnum.tag));
-      expect(chordSection.getSectionVersion(),sectionVersion);
+      expect(chordSection.getSectionVersion(), sectionVersion);
       phrases = chordSection.phrases;
       expect(phrases != null, isTrue);
       expect(1, phrases.length);
@@ -346,7 +350,6 @@ void main() {
       measures = phrase.measures;
       expect(measures != null, isTrue);
       expect(4, measures.length);
-      MeasureNode measureNode = measures[0];
 
       checkMeasureNodesScaleNoteByMeasure(
           ScaleNote.get(ScaleNoteEnum.D), measures, 0, 0);

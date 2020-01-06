@@ -4,10 +4,10 @@ import 'package:test/test.dart';
 
 void main() {
   Logger.level = Level.warning;
-  Logger _logger = new Logger();
+  Logger _logger = Logger();
 
   test("test set", () {
-    Grid<int> grid = new Grid();
+    Grid<int> grid = Grid<int>();
 
     expect("Grid{[]}", grid.toString());
     grid.clear();
@@ -43,7 +43,7 @@ void main() {
   });
 
   test("test get", () {
-    Grid<int> grid = new Grid();
+    Grid<int> grid = new Grid<int>();
 
     expect("Grid{[]}", grid.toString());
     expect(grid.get(0, 0),isNull);

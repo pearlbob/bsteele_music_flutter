@@ -48,7 +48,6 @@ class SectionVersion implements Comparable<SectionVersion> {
     return SectionVersion(section, version);
   }
 
-
   /// Gets the internal name that will identify this specific section and version
   String get id => _name;
 
@@ -79,9 +78,8 @@ class SectionVersion implements Comparable<SectionVersion> {
 
   @override
   int compareTo(SectionVersion o) {
-    if (_section != o._section) {
-      return _section.compareTo(o._section);
-    }
+    int ret = _section.compareTo(o._section);
+    if (ret != 0) return ret;
 
     if (_version != o._version) {
       return _version < o._version ? -1 : 1;

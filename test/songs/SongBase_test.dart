@@ -17,64 +17,28 @@ import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
-class SongBaseTest {
-  /// A convenience constructor used to enforce the minimum requirements for a song.
-
-  static SongBase createSongBase(
-      String title,
-      String artist,
-      String copyright,
-      Key key,
-      int bpm,
-      int beatsPerBar,
-      int unitsPerMeasure,
-      String chords,
-      String lyrics) {
-    SongBase song = new SongBase();
-    song.setTitle(title);
-    song.setArtist(artist);
-    song.setCopyright(copyright);
-    song.setKey(key);
-    song.setUnitsPerMeasure(unitsPerMeasure);
-    song.parseChords(chords);
-
-    song.setRawLyrics(lyrics);
-
-    song.setBeatsPerMinute(bpm);
-    song.setBeatsPerBar(beatsPerBar);
-
-    return song;
-  }
-
-  int countCommas(String s) {
-    final RegExp commaRegexp = RegExp(",");
-
-    return commaRegexp.allMatches(s).length;
-  }
-}
-
 void main() {
   Logger.level = Level.verbose;
 
   test("testEquals", () {
-    SongBase a = SongBaseTest.createSongBase("A", "bob", "bsteele.com",
+    SongBase a = SongBase.createSongBase("A", "bob", "bsteele.com",
         Key.getDefault(), 100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
-    SongBase b = SongBaseTest.createSongBase("A", "bob", "bsteele.com",
+    SongBase b = SongBase.createSongBase("A", "bob", "bsteele.com",
         Key.getDefault(), 100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
 
     expect(a == a, isTrue);
     expect(a.hashCode == a.hashCode, isTrue);
     expect(a == b, isTrue);
     expect(a.hashCode == b.hashCode, isTrue);
-    b = SongBaseTest.createSongBase("B", "bob", "bsteele.com", Key.getDefault(),
+    b = SongBase.createSongBase("B", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
-    b = SongBaseTest.createSongBase("A", "bobby", "bsteele.com",
-        Key.getDefault(), 100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
+    b = SongBase.createSongBase("A", "bobby", "bsteele.com", Key.getDefault(),
+        100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
-    b = SongBaseTest.createSongBase("A", "bob", "photos.bsteele.com",
+    b = SongBase.createSongBase("A", "bob", "photos.bsteele.com",
         Key.getDefault(), 100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
     logger.d("a.getSongId(): " + a.getSongId().hashCode.toString());
     logger.d("b.getSongId(): " + b.getSongId().hashCode.toString());
@@ -82,48 +46,40 @@ void main() {
     expect(a.getSongId(), b.getSongId());
     expect(a.hashCode != b.hashCode, isTrue);
 
-    b = SongBaseTest.createSongBase(
-        "A",
-        "bob",
-        "bsteele.com",
-        Key.get(KeyEnum.Ab),
-        100,
-        4,
-        4,
-        "v: A B C D",
-        "v: bob, bob, bob berand");
+    b = SongBase.createSongBase("A", "bob", "bsteele.com", Key.get(KeyEnum.Ab),
+        100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
 
-    b = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    b = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         102, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
 
-    b = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    b = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 3, 8, "v: A B C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     //top
     expect(a.hashCode != b.hashCode, isTrue);
 
-    b = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    b = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 8, "v: A B C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
 
-    b = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    b = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "v: A A C D", "v: bob, bob, bob berand");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
 
-    b = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    b = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "v: A B C D", "v: bob, bob, bob berand.");
     expect(a != b, isTrue);
     expect(a.hashCode != b.hashCode, isTrue);
   });
 
   test("testCurrentLocation", () {
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -160,7 +116,7 @@ void main() {
     expect(Measure.parseString("D", a.getBeatsPerBar()),
         a.getCurrentMeasureNode());
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -170,9 +126,10 @@ void main() {
         8,
         "I:v: A B C D ch3: [ E F G A ] x4 A# C D# F",
         "I:v: bob, bob, bob berand");
-    expect(MeasureEditType.append, a.getCurrentMeasureEditType());
-    expect(Measure.parseString("F", a.getBeatsPerBar()),
-        a.getCurrentMeasureNode());
+    expect(a.getCurrentMeasureEditType(), MeasureEditType.append);
+    a.setDefaultCurrentChordLocation();
+    expect(a.getCurrentMeasureNode(),
+        Measure.parseString("F", a.getBeatsPerBar()));
     a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("i:0:0"));
     expect(Measure.parseString("A", a.getBeatsPerBar()),
         a.getCurrentMeasureNode());
@@ -198,73 +155,28 @@ void main() {
     expect(cs.sectionVersion, chordSection.sectionVersion);
   });
 
-  test("testEdits", () {
+  test("test basics", () {
     SongBase a;
     String text;
 
     {
-      a = SongBaseTest.createSongBase(
-          "A",
-          "bob",
-          "bsteele.com",
-          Key.getDefault(),
-          100,
-          4,
-          8,
-          "I:v: A B C D",
-          "I:v: bob, bob, bob berand");
+      a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+          100, 4, 8, "I:v: A B C D", "I:v: bob, bob, bob berand");
 
-      SplayTreeSet<ChordSection> chordSections = SplayTreeSet();
-      chordSections.addAll(a.getChordSections());
+      SplayTreeSet<ChordSection> chordSections =
+          SplayTreeSet<ChordSection>.of(a.getChordSections());
       ChordSection chordSection = chordSections.first;
       Phrase phrase = chordSection.phrases[0];
 
       Measure measure = phrase.measures[1];
-      expect(4, phrase.measures.length);
-      expect(ScaleNote.get(ScaleNoteEnum.B),
-          measure.chords[0].scaleChord.scaleNote);
-    }
-
-    {
-      String chords = "I: A A♯ B C  V: C♯ D D♯ E";
-      a.parseChords(chords);
-      text = a.toMarkup().trim();
-      //logger.info("\"" + text + "\"");
-      expect(text, "I: A A# B C  V: C# D D# E");
-      //Measure  newMeasure = Measure.parseString("F", a.getBeatsPerBar());
-      for (int i = 0; i < 8; i++) {
-        //logger.d();
-
-        String s =
-            a.getKey().getScaleNoteByHalfStep(i).toString().substring(0, 1) +
-                "♯?";
-        chords = chords.replaceFirst(s, "F");
-        //logger.d("chords: " + chords);
-      }
-    }
-
-    {
-      //  backwards
-      String chords = "I: A A A A  V: B♯ C D♯ E";
-      String chordSequence = "AAAABCDE";
-      a.parseChords(chords);
-      for (int i = 7; i >= 4; i--) {
-        String s = chordSequence.substring(i, i + 1) + "♯?";
-        logger.d("s: " + s);
-        chords = chords.replaceFirst(s, "F");
-
-        logger.d("chords: " + chords);
-
-        SongMoment songMoment = a.getSongMoment(i);
-        logger.d("songMoment: " + songMoment.toString());
-        logger.d("ChordSectionLocation: " +
-            songMoment.getChordSectionLocation().toString());
-      }
+      expect(phrase.measures.length, 4);
+      expect(measure.chords[0].scaleChord.scaleNote,
+          ScaleNote.get(ScaleNoteEnum.B));
     }
 
     for (int i = 50; i < 401; i++) {
       a.setBeatsPerMinute(i);
-      expect(i, a.getBeatsPerMinute());
+      expect(a.getBeatsPerMinute(), i);
     }
   });
 
@@ -272,7 +184,7 @@ void main() {
     SongBase a;
 
     //  empty sections
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "i: v: t:", "i: dude v: bob, bob, bob berand");
 
     expect(a.toMarkup().trim(), "I: [] V: [] T: []");
@@ -295,7 +207,7 @@ void main() {
     expect(a.findChordSectionByString("T:").toMarkup().trim(), "T: G G C G");
 
     //  auto rows of 4 when 8 or more measures entered at once
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "i: v: t:", "i: dude v: bob, bob, bob berand");
 
     expect(a.editList(a.parseChordEntry("I: A B C D A B C D")), isTrue);
@@ -305,7 +217,7 @@ void main() {
   });
 
   test("testFind", () {
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -337,7 +249,7 @@ void main() {
 
   test("testSetRepeats", () {
     {
-      SongBase a = SongBaseTest.createSongBase(
+      SongBase a = SongBase.createSongBase(
           "A",
           "bob",
           "bsteele.com",
@@ -362,7 +274,7 @@ void main() {
     }
 
     {
-      SongBase a = SongBaseTest.createSongBase(
+      SongBase a = SongBase.createSongBase(
           "A",
           "bob",
           "bsteele.com",
@@ -378,16 +290,8 @@ void main() {
 
       grid = a.getChordSectionLocationGrid();
       for (int row = 0; row < grid.getRowCount(); row++) {
-        a = SongBaseTest.createSongBase(
-            "A",
-            "bob",
-            "bsteele.com",
-            Key.getDefault(),
-            100,
-            4,
-            4,
-            "i: A B C D v: E F G A#",
-            "i: v: bob, bob, bob berand");
+        a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+            100, 4, 4, "i: A B C D v: E F G A#", "i: v: bob, bob, bob berand");
         grid = a.getChordSectionLocationGrid();
         List<ChordSectionLocation> cols = grid.getRow(row);
         for (int col = 1; col < cols.length; col++)
@@ -407,13 +311,13 @@ void main() {
     }
   });
 
-  test("testSetRepeats", () {
+  test("test parsing comments", () {
     SongBase a;
     SplayTreeSet<ChordSection> chordSections = SplayTreeSet();
     ChordSection chordSection;
     List<Measure> measures;
 
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "v: A B C D", "v: bob, bob, bob berand");
     chordSections.addAll(a.getChordSections());
     expect(1, chordSections.length);
@@ -421,7 +325,7 @@ void main() {
     measures = chordSection.phrases[0].measures;
     expect(4, measures.length);
 
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, 4, 4, "v: A B C D (yo)", "v: bob, bob, bob berand");
     chordSections.clear();
     chordSections.addAll(a.getChordSections());
@@ -429,14 +333,14 @@ void main() {
     chordSection = chordSections.first;
     measures = chordSection.phrases[0].measures;
     expect(5, measures.length);
-    expect("(yo)", measures[4].toMarkup());
+    expect(measures[4].toMarkup(), "(yo)");
   });
 
   test("testGetGrid", () {
     SongBase a;
     Measure measure;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -552,7 +456,7 @@ void main() {
 
   test("testFindChordSectionLocation", () {
     int beatsPerBar = 4;
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -628,7 +532,7 @@ void main() {
     chordSectionLocation = ChordSectionLocation.parseString("v:0");
     MeasureNode mn = a.findMeasureNodeByLocation(chordSectionLocation);
     logger.d(mn.toMarkup());
-    expect(mn.toMarkup(), "V: D E F F# ");
+    expect(mn.toMarkup(), "D E F F# ");
 
     chordSectionLocation = ChordSectionLocation.parseString("out:");
     mn = a.findMeasureNodeByLocation(chordSectionLocation);
@@ -638,7 +542,7 @@ void main() {
 
   test("testMeasureDelete", () {
     int beatsPerBar = 4;
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -707,7 +611,7 @@ void main() {
   });
 
   test("testLastLineWithoutNewline", () {
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -722,7 +626,7 @@ void main() {
         "c: sing chorus here \n" +
         "o: last line of outro";
     //logger.d(    a.getRawLyrics());
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -738,7 +642,7 @@ void main() {
   test("testSongWithoutStartingSection", () {
 //  fixme: doesn't test much, not very well
 
-    SongBase a = SongBaseTest.createSongBase(
+    SongBase a = SongBase.createSongBase(
         "Rio",
         "Duran Duran",
         "Sony/ATV Music Publishing LLC",
@@ -774,7 +678,7 @@ void main() {
     int beatsPerBar = 4;
     ChordSectionLocation location;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -808,7 +712,7 @@ void main() {
     expect(
         measureNode, a.findMeasureNodeByGrid(GridCoordinate(row, lastCol + 1)));
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -866,7 +770,7 @@ void main() {
         a.findMeasureNodeByGrid(GridCoordinate(20, 4)));
 
     //  not what's intended, but what's declared
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -900,7 +804,7 @@ void main() {
     GridCoordinate gridCoordinate;
 
     //  see that section identifiers are on first phrase row
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -929,7 +833,7 @@ void main() {
         a.getGridCoordinate(ChordSectionLocation.parseString("C:")));
 
     //  see that section identifiers are on first phrase row
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -941,17 +845,18 @@ void main() {
         "i:\nv: bob, bob, bob berand\nv: nope\nc: sing chorus here o: end here");
 
     logger.d(a.logGrid());
-    expect(GridCoordinate(0, 1),
-        a.getGridCoordinate(ChordSectionLocation.parseString("I:0:0")));
 
     expect(GridCoordinate(0, 0),
         a.getGridCoordinate(ChordSectionLocation.parseString("I:")));
+    expect(GridCoordinate(0, 1),
+        a.getGridCoordinate(ChordSectionLocation.parseString("I:0:0")));
+
     expect(GridCoordinate(2, 0),
         a.getGridCoordinate(ChordSectionLocation.parseString("V:")));
     expect(GridCoordinate(3, 0),
         a.getGridCoordinate(ChordSectionLocation.parseString("C:")));
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -963,17 +868,17 @@ void main() {
         "i:\nv: bob, bob, bob berand\nv: nope\nc: sing chorus here");
 
     logger.d(a.toMarkup());
-    expect(GridCoordinate(0, 1),
-        a.getGridCoordinate(ChordSectionLocation.parseString("V:0:0")));
+    expect(a.getGridCoordinate(ChordSectionLocation.parseString("V:")),
+        GridCoordinate(0, 0));
+    expect(a.getGridCoordinate(ChordSectionLocation.parseString("V:0:0")),
+        GridCoordinate(0, 1));
 
-    expect(GridCoordinate(0, 0),
-        a.getGridCoordinate(ChordSectionLocation.parseString("I:")));
-    expect(GridCoordinate(0, 0),
-        a.getGridCoordinate(ChordSectionLocation.parseString("V:")));
-    expect(GridCoordinate(2, 0),
-        a.getGridCoordinate(ChordSectionLocation.parseString("C:")));
+    expect(a.getGridCoordinate(ChordSectionLocation.parseString("I:")),
+        GridCoordinate(0, 0));
+    expect(a.getGridCoordinate(ChordSectionLocation.parseString("C:")),
+        GridCoordinate(2, 0));
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1021,7 +926,7 @@ void main() {
     expect(gridCoordinate, a.getGridCoordinate(location));
     expect("I: V: C: ", location.toString());
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1062,7 +967,7 @@ void main() {
   test("testComputeMarkup", () {
     int beatsPerBar = 4;
     SongBase a;
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1074,7 +979,7 @@ void main() {
         "i:\nv: bob, bob, bob berand\npc: nope\nc: sing chorus here \no: last line of outro");
     expect(a.toMarkup().trim(),
         "V: V2: C2: A B C D  PC: D E F F#  C: [G D C G ] x3");
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1091,7 +996,7 @@ void main() {
     int beatsPerBar = 4;
     SongBase a;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1101,7 +1006,7 @@ void main() {
         4,
         "verse: C2: V2: A B C D Ab Bb Eb Db prechorus: D E F F# o:chorus: G D C G x3 T: A",
         "i:\nv: bob, bob, bob berand\npc: nope\nc: sing chorus here \nv: nope\nc: yes\nv: nope\nt:\no: last line of outro\n");
-    a.debugSongMoments();
+//    a.debugSongMoments();
 
     int count = 0;
     for (int momentNumber = 0;
@@ -1109,11 +1014,11 @@ void main() {
         momentNumber++) {
       SongMoment songMoment = a.getSongMoment(momentNumber);
       if (songMoment == null) break;
-      logger.d(songMoment.toString());
-      expect(count, songMoment.getMomentNumber());
-      GridCoordinate momentGridCoordinate =
-          a.getMomentGridCoordinate(songMoment);
-      expect(momentGridCoordinate, isNotNull);
+//      logger.d(songMoment.toString());
+//      expect(count, songMoment.getMomentNumber());
+//      GridCoordinate momentGridCoordinate =
+//          a.getMomentGridCoordinate(songMoment);
+//      expect(momentGridCoordinate, isNotNull);
 
       count++;
     }
@@ -1123,7 +1028,7 @@ void main() {
     int beatsPerBar = 4;
     SongBase a;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1144,7 +1049,7 @@ void main() {
     int beatsPerBar = 4;
     SongBase a;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1167,7 +1072,7 @@ void main() {
     int beatsPerBar = 4;
     SongBase a;
 
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, beatsPerBar, 4, "I: [A B C D, E F]  x2  ", "i:\n");
     a.debugSongMoments();
     {
@@ -1212,7 +1117,7 @@ void main() {
       }
     }
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1319,7 +1224,7 @@ void main() {
     int beatsPerBar = 4;
     SongBase a;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1354,7 +1259,7 @@ void main() {
     SongBase a;
 
     //  split a long repeat
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1370,7 +1275,7 @@ void main() {
     expect(a.setMeasuresPerRow(4), isFalse);
 
     //  don't fix what's not broken
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1386,7 +1291,7 @@ void main() {
     expect(a.toMarkup().trim(), "I: [A B C D, E F G G#, Ab Bb ] x2  C: D E F");
 
     //  take the comma off a repeat
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1402,7 +1307,7 @@ void main() {
     expect(a.toMarkup().trim(), "I: [A B C D, E F G G# ] x2  C: D E F");
 
     //  not the first section
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1422,7 +1327,7 @@ void main() {
         "I: [A B C D ] x2  C: D E F A, B C D E, F G G#", a.toMarkup().trim());
 
     //  take a last comma off
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1482,16 +1387,8 @@ void main() {
     SongBase a;
 
     for (int bpm = 60; bpm < 132; bpm++) {
-      a = SongBaseTest.createSongBase(
-          "A",
-          "bob",
-          "bsteele.com",
-          Key.getDefault(),
-          bpm,
-          beatsPerBar,
-          4,
-          "I: A B C D E F  x2  ",
-          "i:\n");
+      a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+          bpm, beatsPerBar, 4, "I: A B C D E F  x2  ", "i:\n");
 
       double dt = 60.0 / (dtDiv * bpm);
 
@@ -1533,23 +1430,23 @@ void main() {
     int beatsPerBar = 4;
     SongBase a;
 
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, beatsPerBar, 4, "I: A B C D V: A B C D", "i:\nv:\n");
     logger.i(a.toMarkup());
     expect(a.toMarkup(), "I: V: A B C D  ");
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, beatsPerBar, 4, "I: A B C D V: [A B C D] x2", "i:\nv:\n");
     logger.i(a.toMarkup());
     expect(a.toMarkup(), "I: A B C D  V: [A B C D ] x2  ");
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, beatsPerBar, 4, "I: [A B C D] x2 V: A B C D ", "i:\nv:\n");
     logger.i(a.toMarkup());
     expect(a.toMarkup(), "I: [A B C D ] x2  V: A B C D  ");
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, beatsPerBar, 4, "I: [A B C D] x2 V: [A B C D] x2", "i:\nv:\n");
     logger.i(a.toMarkup());
     expect(a.toMarkup(), "I: V: [A B C D ] x2  ");
-    a = SongBaseTest.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
+    a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
         100, beatsPerBar, 4, "I: [A B C D] x2 V: [A B C D] x4", "i:\nv:\n");
     logger.i(a.toMarkup());
     expect(a.toMarkup(), "I: [A B C D ] x2  V: [A B C D ] x4  ");

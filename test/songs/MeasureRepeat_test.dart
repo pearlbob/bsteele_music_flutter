@@ -11,8 +11,6 @@ import 'package:bsteele_music_flutter/util.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
-import 'SongBase_test.dart';
-
 void main() {
   Logger.level = Level.warning;
   Logger logger = Logger();
@@ -125,7 +123,7 @@ void main() {
     SongBase a;
     Measure m;
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -189,7 +187,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -254,7 +252,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -310,7 +308,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -347,7 +345,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -384,7 +382,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -437,7 +435,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -494,7 +492,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -552,7 +550,7 @@ void main() {
     expect(measureNode, isNotNull);
     expect(measureNode.isRepeat(), isTrue);
 
-    a = SongBaseTest.createSongBase(
+    a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",

@@ -58,7 +58,8 @@ class TestSong {
       }
       expect(a.editList(measureNodes), isTrue);
     }
-    logger.v("after edit loc: " + a.getCurrentChordSectionLocation().toString());
+    logger
+        .v("after edit loc: " + a.getCurrentChordSectionLocation().toString());
   }
 
   void resultChords(String chords) {
@@ -69,20 +70,26 @@ class TestSong {
       MeasureEditType type, String locationString, String measureNodeString) {
     measureNodeString = _deMusic(measureNodeString);
 
-    expect(type, a.getCurrentMeasureEditType());
-    expect(locationString, a.getCurrentChordSectionLocation().toString());
-    logger.d("measureNodeString: " + measureNodeString);
+    expect(a.getCurrentMeasureEditType(), type);
+    expect(
+      a.getCurrentChordSectionLocation().toString(),
+      locationString,
+    );
+
     logger
         .d("getCurrentMeasureNode(): " + a.getCurrentMeasureNode().toString());
-    if (measureNodeString == null)
+    if (measureNodeString == null) {
+      logger.d("measureNodeString: null");
       expect(a.getCurrentMeasureNode(), isNull);
-    else {
+    } else {
+      logger.d("measureNodeString: " + measureNodeString);
+      expect(a.getCurrentMeasureNode(), isNotNull);
       expect(a.getCurrentMeasureNode().toMarkup().trim(),
           measureNodeString.trim());
     }
   }
 
-  String _deMusic(String s) {
+  static String _deMusic(String s) {
     if (s == null) return null;
 
     //  de-music characters in the string
@@ -200,10 +207,12 @@ void main() {
     ts.resultChords("V: C F C C F F C C G F C G  PC: [] O: [] ");
     ts.post(MeasureEditType.append, "O:", "O: []");
 
+    //  delete the section
     ts.startingChords("V: [C♯m A♭ F A♭ ] x4 C  C: [C G B♭ F ] x4  ");
     ts.pre(MeasureEditType.delete, "V:", "V: [C♯m A♭ F A♭ ] x4 C ", "null");
     ts.resultChords("C: [C G B♭ F ] x4  ");
     ts.post(MeasureEditType.delete, "C:", "C: [C G B♭ F ] x4 ");
+
     ts.startingChords("C: [C G B♭ F ] x4  ");
     ts.pre(MeasureEditType.delete, "C:", "C: [C G B♭ F ] x4 ", "null");
     ts.resultChords("");
@@ -213,18 +222,21 @@ void main() {
     ts.pre(MeasureEditType.delete, "PC2:", "PC2: [C G B♭ F ] x4", "null");
     ts.resultChords("V: [C♯m A♭ F A♭ ] x4 C  C: T: [C G B♭ F ] x4  ");
     ts.post(MeasureEditType.delete, "V:", "V: [C♯m A♭ F A♭ ] x4 C ");
+
     ts.startingChords("V: [C♯m A♭ F A♭ ] x4 C  C: T: [C G B♭ F ] x4  ");
     ts.pre(MeasureEditType.delete, "V:", "V: [C♯m A♭ F A♭ ] x4 C ", "null");
     ts.resultChords("C: T: [C G B♭ F ] x4  ");
     ts.post(MeasureEditType.delete, "C:", "C: [C G B♭ F ] x4 ");
+
     ts.startingChords("C: T: [C G B♭ F ] x4  ");
     ts.pre(MeasureEditType.delete, "C:", "C: [C G B♭ F ] x4 ", "null");
     ts.resultChords("T: [C G B♭ F ] x4  ");
     ts.post(MeasureEditType.delete, "T:", "T: [C G B♭ F ] x4 ");
+
     ts.startingChords("T: [C G B♭ F ] x4  ");
     ts.pre(MeasureEditType.delete, "T:", "T: [C G B♭ F ] x4 ", "null");
     ts.resultChords("");
-    ts.post(MeasureEditType.append, "V:", null);
+    ts.post(MeasureEditType.delete, "V:", null);
 
     ts.startingChords("V: C F C C F F C C G F C G  ");
     ts.pre(MeasureEditType.append, "V:0:7", "C", "C PC:");
@@ -247,11 +259,11 @@ void main() {
         "V: [C♯m A♭ F A♭ ] x4 (Prechorus) C (C/) (chorus) [C G B♭ F ] x4 (Tag Chorus)  ");
     ts.post(MeasureEditType.delete, "V:0:0", "C♯m");
     a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("V:0"));
-    expect("[C♯m A♭ F A♭ ] x4 ",
-        a.getCurrentChordSectionLocationMeasureNode().toMarkup());
+    expect(a.getCurrentChordSectionLocationMeasureNode().toMarkup(),
+        TestSong._deMusic("[C♯m A♭ F A♭ ] x4 "));
     a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("V:1:0"));
-    expect("(Prechorus)",
-        a.getCurrentChordSectionLocationMeasureNode().toMarkup());
+    expect(a.getCurrentChordSectionLocationMeasureNode().toMarkup(),
+        "(Prechorus)");
     ts.pre(MeasureEditType.delete, "V:1:0", "(Prechorus)", "null");
     ts.resultChords(
         "V: [C♯m A♭ F A♭ ] x4 C (C/) (chorus) [C G B♭ F ] x4 (Tag Chorus)  ");

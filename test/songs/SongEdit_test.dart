@@ -11,11 +11,11 @@ import 'package:bsteele_music_flutter/songs/key.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
-SongBase a;
+SongBase _a;
 
 class TestSong {
   void startingChords(String chords) {
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -25,6 +25,7 @@ class TestSong {
         4,
         chords,
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
+    this._myA = _a;
   }
 
   void pre(MeasureEditType type, String locationString,
@@ -32,59 +33,56 @@ class TestSong {
     //  de-music character the result
     measureNodeString = _deMusic(measureNodeString);
 
-    a.setCurrentMeasureEditType(type);
+    _myA.setCurrentMeasureEditType(type);
     if (locationString != null && locationString.isNotEmpty) {
-      a.setCurrentChordSectionLocation(
+      _myA.setCurrentChordSectionLocation(
           ChordSectionLocation.parseString(locationString));
 
-      expect(a.getCurrentChordSectionLocation().toString(), locationString);
+      expect(_myA.getCurrentChordSectionLocation().toString(), locationString);
 
       if (measureNodeString != null) {
-        expect(a.getCurrentMeasureNode().toMarkup().trim(),
+        expect(_myA.getCurrentMeasureNode().toMarkup().trim(),
             measureNodeString.trim());
       }
     }
 
-    logger.d("editEntry: " + editEntry);
-    logger.v("edit loc: " + a.getCurrentChordSectionLocation().toString());
-    List<MeasureNode> measureNodes = a.parseChordEntry(editEntry);
+    logger.d("editEntry: " + (editEntry == null ? "null" : editEntry));
+    logger.v("edit loc: " + _myA.getCurrentChordSectionLocation().toString());
+    List<MeasureNode> measureNodes = _myA.parseChordEntry(editEntry);
     if (measureNodes.isEmpty &&
         (editEntry == null || editEntry.isEmpty) &&
         type == MeasureEditType.delete) {
-      expect(a.deleteCurrentSelection(), isTrue);
+      expect(_myA.deleteCurrentSelection(), isTrue);
     } else {
       for (MeasureNode measureNode in measureNodes) {
         logger.d("edit: " + measureNode.toMarkup());
       }
-      expect(a.editList(measureNodes), isTrue);
+      expect(_myA.editList(measureNodes), isTrue);
     }
-    logger
-        .v("after edit loc: " + a.getCurrentChordSectionLocation().toString());
+    logger.v(
+        "after edit loc: " + _myA.getCurrentChordSectionLocation().toString());
   }
 
   void resultChords(String chords) {
-    expect(a.toMarkup().trim(), _deMusic(chords).trim());
+    expect(_myA.toMarkup().trim(), _deMusic(chords).trim());
   }
 
   void post(
       MeasureEditType type, String locationString, String measureNodeString) {
     measureNodeString = _deMusic(measureNodeString);
 
-    expect(a.getCurrentMeasureEditType(), type);
-    expect(
-      a.getCurrentChordSectionLocation().toString(),
-      locationString,
-    );
+    expect(_myA.getCurrentMeasureEditType(), type);
+    expect(_myA.getCurrentChordSectionLocation().toString(), locationString);
 
-    logger
-        .d("getCurrentMeasureNode(): " + a.getCurrentMeasureNode().toString());
+    logger.d(
+        "getCurrentMeasureNode(): " + _myA.getCurrentMeasureNode().toString());
     if (measureNodeString == null) {
       logger.d("measureNodeString: null");
-      expect(a.getCurrentMeasureNode(), isNull);
+      expect(_myA.getCurrentMeasureNode(), isNull);
     } else {
       logger.d("measureNodeString: " + measureNodeString);
-      expect(a.getCurrentMeasureNode(), isNotNull);
-      expect(a.getCurrentMeasureNode().toMarkup().trim(),
+      expect(_myA.getCurrentMeasureNode(), isNotNull);
+      expect(_myA.getCurrentMeasureNode().toMarkup().trim(),
           measureNodeString.trim());
     }
   }
@@ -97,10 +95,12 @@ class TestSong {
     s = s.replaceAll("♭", "b");
     return s;
   }
+
+  SongBase _myA;
 }
 
 void main() {
-  Logger.level = Level.verbose;
+  Logger.level = Level.debug;
   TestSong ts = TestSong();
 
   test("testEdits", () {
@@ -236,7 +236,7 @@ void main() {
     ts.startingChords("T: [C G B♭ F ] x4  ");
     ts.pre(MeasureEditType.delete, "T:", "T: [C G B♭ F ] x4 ", "null");
     ts.resultChords("");
-    ts.post(MeasureEditType.delete, "V:", null);
+    ts.post(MeasureEditType.append, "V:", null);
 
     ts.startingChords("V: C F C C F F C C G F C G  ");
     ts.pre(MeasureEditType.append, "V:0:7", "C", "C PC:");
@@ -258,11 +258,12 @@ void main() {
     ts.resultChords(
         "V: [C♯m A♭ F A♭ ] x4 (Prechorus) C (C/) (chorus) [C G B♭ F ] x4 (Tag Chorus)  ");
     ts.post(MeasureEditType.delete, "V:0:0", "C♯m");
-    a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("V:0"));
-    expect(a.getCurrentChordSectionLocationMeasureNode().toMarkup(),
+    _a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("V:0"));
+    expect(_a.getCurrentChordSectionLocationMeasureNode().toMarkup(),
         TestSong._deMusic("[C♯m A♭ F A♭ ] x4 "));
-    a.setCurrentChordSectionLocation(ChordSectionLocation.parseString("V:1:0"));
-    expect(a.getCurrentChordSectionLocationMeasureNode().toMarkup(),
+    _a.setCurrentChordSectionLocation(
+        ChordSectionLocation.parseString("V:1:0"));
+    expect(_a.getCurrentChordSectionLocationMeasureNode().toMarkup(),
         "(Prechorus)");
     ts.pre(MeasureEditType.delete, "V:1:0", "(Prechorus)", "null");
     ts.resultChords(
@@ -395,45 +396,45 @@ void main() {
     ts.resultChords("V: C Dm C C F F C C G F C G  "); //
     ts.post(MeasureEditType.append, "V:0:1", "Dm"); //
 
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A", "bob", "bsteele.com", Key.getDefault(), 100, 4, 4, "", "");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     newPhrase = Phrase.parseString("A B C D", 0, beatsPerBar, null);
     logger.d(newPhrase.toMarkup());
-    expect(a.editMeasureNode(newPhrase), isTrue);
-    logger.d(a.toMarkup());
-    expect("V: A B C D", a.toMarkup().trim());
-    expect("V:0:3", a.getCurrentChordSectionLocation().toString());
+    expect(_a.editMeasureNode(newPhrase), isTrue);
+    logger.d(_a.toMarkup());
+    expect("V: A B C D", _a.toMarkup().trim());
+    expect("V:0:3", _a.getCurrentChordSectionLocation().toString());
 
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A", "bob", "bsteele.com", Key.getDefault(), 100, 4, 4, "", "");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     newSection = ChordSection.parseString("v:", beatsPerBar);
-    expect(a.editMeasureNode(newSection), isTrue);
-    logger.d(a.toMarkup());
-    expect("V: []", a.toMarkup().trim());
-    expect("V:", a.getCurrentChordSectionLocation().toString());
-    a.setCurrentMeasureEditType(MeasureEditType.append);
+    expect(_a.editMeasureNode(newSection), isTrue);
+    logger.d(_a.toMarkup());
+    expect("V: []", _a.toMarkup().trim());
+    expect("V:", _a.getCurrentChordSectionLocation().toString());
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
     newPhrase = Phrase.parseString("A B C D", 0, beatsPerBar, null);
     logger.d(newPhrase.toMarkup());
-    expect(a.editMeasureNode(newPhrase), isTrue);
-    logger.d(a.toMarkup());
-    expect("V: A B C D", a.toMarkup().trim());
-    expect("V:0:3", a.getCurrentChordSectionLocation().toString());
+    expect(_a.editMeasureNode(newPhrase), isTrue);
+    logger.d(_a.toMarkup());
+    expect("V: A B C D", _a.toMarkup().trim());
+    expect("V:0:3", _a.getCurrentChordSectionLocation().toString());
     newMeasure = Measure.parseString("E", beatsPerBar);
     logger.d(newPhrase.toMarkup());
-    expect(a.editMeasureNode(newMeasure), isTrue);
-    logger.d(a.toMarkup());
-    expect("V: A B C D E", a.toMarkup().trim());
-    expect("V:0:4", a.getCurrentChordSectionLocation().toString());
+    expect(_a.editMeasureNode(newMeasure), isTrue);
+    logger.d(_a.toMarkup());
+    expect("V: A B C D E", _a.toMarkup().trim());
+    expect("V:0:4", _a.getCurrentChordSectionLocation().toString());
     newPhrase = Phrase.parseString("F", 0, beatsPerBar, null);
     logger.d(newPhrase.toMarkup());
-    expect(a.editMeasureNode(newPhrase), isTrue);
-    logger.d(a.toMarkup());
-    expect("V: A B C D E F", a.toMarkup().trim());
-    expect("V:0:5", a.getCurrentChordSectionLocation().toString());
+    expect(_a.editMeasureNode(newPhrase), isTrue);
+    logger.d(_a.toMarkup());
+    expect("V: A B C D E F", _a.toMarkup().trim());
+    expect("V:0:5", _a.getCurrentChordSectionLocation().toString());
 
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -443,30 +444,31 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: nope nope");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("i:0:3");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newPhrase = Phrase.parseString("Db C B A", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newPhrase), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D D♭ C B A  V: D E F F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newPhrase), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D D♭ C B A  V: D E F F♯  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect("I:0:7", a.getCurrentChordSectionLocation().toString());
-    expect("A", a.getCurrentMeasureNode().toMarkup());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect("I:0:7", _a.getCurrentChordSectionLocation().toString());
+    expect("A", _a.getCurrentMeasureNode().toMarkup());
 
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -476,34 +478,37 @@ void main() {
         4,
         "V: C F C C [GB F C Dm7 ] x4 G F C G  ",
         "v: bob, bob, bob berand");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:1");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat = MeasureRepeat.parseString("[]x1", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("V: C F C C GB F C Dm7 G F C G", a.toMarkup().trim());
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect(
+      _a.toMarkup().trim(),
+      "V: C F C C GB F C Dm7 G F C G",
+    );
     //                        0 1 2 3 4  5 6 7   8 9 0 1
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect("V:0:7", a.getCurrentChordSectionLocation().toString());
-    expect("Dm7", a.getCurrentMeasureNode().toMarkup());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect("V:0:7", _a.getCurrentChordSectionLocation().toString());
+    expect("Dm7", _a.getCurrentMeasureNode().toMarkup());
 
     //   current type	current edit loc	entry	replace entry	new edit type	new edit loc	result
     logger.d(
         "section	append	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -513,32 +518,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newSection = ChordSection.parseString("v: A D C D", beatsPerBar);
-    expect(a.editMeasureNode(newSection), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newSection), isTrue);
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(location, a.getCurrentChordSectionLocation());
-    expect(newSection, a.getCurrentMeasureNode());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(location, _a.getCurrentChordSectionLocation());
+    expect(newSection, _a.getCurrentMeasureNode());
 
     logger.d(
         "repeat	append	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -548,57 +553,57 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v, phraseIndex: 1);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
     location = ChordSectionLocation.parseString("i:0:3");
-    a.setCurrentChordSectionLocation(location);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newMeasure = Measure.parseString("F", beatsPerBar);
-    expect(a.editMeasureNode(newMeasure), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D F  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newMeasure), isTrue);
+    logger.d(_a.toMarkup());
+    expect("I: A B C D F  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("i:0:4"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
     expect(newMeasure.toMarkup(),
-        a.getCurrentChordSectionLocationMeasureNode().toMarkup());
+        _a.getCurrentChordSectionLocationMeasureNode().toMarkup());
 
     logger.d(
         "phrase	append	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -608,32 +613,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 0));
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "measure	append	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -643,32 +648,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 0));
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "section	insert	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -678,32 +683,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.insert);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.insert);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(location, a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(location, _a.getCurrentChordSectionLocation());
 
     logger.d(
         "repeat	insert	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -713,35 +718,35 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v, phraseIndex: 1);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.insert);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.insert);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "phrase	insert	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -751,32 +756,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 0));
-    a.setCurrentMeasureEditType(MeasureEditType.insert);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.insert);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "measure	insert	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -786,32 +791,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 0));
-    a.setCurrentMeasureEditType(MeasureEditType.insert);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.insert);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "section	replace	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -821,32 +826,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(iSection);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "repeat	replace	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -856,32 +861,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 1));
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "phrase	replace	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -891,32 +896,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 0));
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d(
         "measure	replace	section(s)		replace	section(s)	add or replace section(s), de-dup");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -926,31 +931,31 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
-    a.setCurrentChordSectionLocation(
+    logger.d(_a.toMarkup());
+    _a.setCurrentChordSectionLocation(
         new ChordSectionLocation(v, phraseIndex: 0, measureIndex: 2));
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(v), _a.getCurrentChordSectionLocation());
 
     logger.d("section	delete	section(s)	yes	append	measure	delete section");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -960,29 +965,29 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(iSection);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("V: D E F F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(), TestSong._deMusic("V: D E F F♯  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(new ChordSectionLocation(v), a.getCurrentChordSectionLocation());
-    a = SongBase.createSongBase(
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(_a.getCurrentChordSectionLocation(), new ChordSectionLocation(v));
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -992,32 +997,32 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(
-        a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
+        _a.editMeasureNode(ChordSection.parseString("v: A D C D", beatsPerBar)),
         isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(
-        new ChordSectionLocation(iSection), a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(new ChordSectionLocation(iSection),
+        _a.getCurrentChordSectionLocation());
 
     logger.d("repeat  delete  section(s)  yes  append  measure  delete repeat");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1027,30 +1032,31 @@ void main() {
         4,
         "i: A B C D   V: D E F F# [ D C B A ]x2  c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v, phraseIndex: 1);
-    a.setCurrentChordSectionLocation(location);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    expect(a.deleteCurrentSelection(), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    expect(_a.deleteCurrentSelection(), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D  V: D E F F♯  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("V:0:3"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     logger.d("phrase	delete	section(s)	yes	append	measure	delete phrase");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1060,31 +1066,31 @@ void main() {
         4,
         "i: A B C D   V: D E F F# [ D C B A ]x2  c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(
-        a.editMeasureNode(ChordSection.parseString("v:", beatsPerBar)), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(_a.editMeasureNode(ChordSection.parseString("v:", beatsPerBar)),
+        isTrue);
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("I:"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     logger.d("measure	delete	section(s)	yes	append	measure	delete measure");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1094,32 +1100,32 @@ void main() {
         4,
         "i: A B C D   V: D E F F# [ D C B A ]x2  c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v, phraseIndex: 0, measureIndex: 1);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(a.deleteCurrentSelection(), isTrue);
-    logger.d(a.toMarkup());
-    expect(
-        "I: A B C D  V: D F F♯ [D C B A ] x2  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(_a.deleteCurrentSelection(), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D  V: D F F♯ [D C B A ] x2  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("V:0:1"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     logger.d(
         "section  append  repeat    replace  repeat  add to start of section");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1129,35 +1135,35 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = new ChordSectionLocation(v);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat =
         MeasureRepeat.parseString("[ A D C D ] x3", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F F♯ [A D C D ] x3  C: D C G G",
-        a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D  V: D E F F♯ [A D C D ] x3  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("V:1"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     //   current type	current edit loc	entry	replace entry	new edit type	new edit loc	result
     logger.d("repeat  append  repeat    replace  repeat  replace repeat");
     //  x1 repeat should be converted to phrase
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1167,32 +1173,32 @@ void main() {
         4,
         "i: A B C D V: [D E F F#]x3 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation(v, phraseIndex: 0);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat =
         MeasureRepeat.parseString("[ A D C D ] x1", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: A D C D  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: A D C D  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("V:0"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     //  empty x1 repeat appended should be convert repeat to phrase
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1202,30 +1208,31 @@ void main() {
         4,
         "i: A B C D V: [D E F F#]x3 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation(v, phraseIndex: 0);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat = MeasureRepeat.parseString("[] x1", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D  V: D E F F♯  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("V:0:3"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1235,35 +1242,35 @@ void main() {
         4,
         "i: A B C D V: [D E F F#]x3 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation(v, phraseIndex: 0);
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.replace);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.replace);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat =
         MeasureRepeat.parseString("[ A D C D ] x4", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: [A D C D ] x4  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect("I: A B C D  V: [A D C D ] x4  C: D C G G", _a.toMarkup().trim());
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("V:0"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     logger.d("phrase  append  repeat    replace  repeat  append repeat");
 
     logger.d("measure  append  repeat    replace  repeat  append repeat");
     //  empty repeat replaces current phrase
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1273,30 +1280,31 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:0:3");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat = MeasureRepeat.parseString("[ ] x3", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: [D E F F♯ ] x3  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D  V: [D E F F♯ ] x3  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("v:0"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
     //  non-empty repeat appends to current section
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1306,30 +1314,30 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:0:3");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.append);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.append);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newRepeat =
         MeasureRepeat.parseString("[ D C G G] x3", 0, beatsPerBar, null);
-    expect(a.editMeasureNode(newRepeat), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F F♯ [D C G G ] x3  C: D C G G",
-        a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newRepeat), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(),
+        TestSong._deMusic("I: A B C D  V: D E F F♯ [D C G G ] x3  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     expect(ChordSectionLocation.parseString("v:1"),
-        a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocation());
 
     logger.d(
         "section  insert  repeat    replace  repeat  add to start of section");
@@ -1387,7 +1395,7 @@ void main() {
 
     logger.d(
         "measure  insert  measure    append  measure  insert to start of measure");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1397,28 +1405,30 @@ void main() {
         4,
         "i: A B C D V: D E F F# [ A D C D ] x3 c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:0:2");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.insert);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.insert);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newMeasure = Measure.parseString("Gm", beatsPerBar);
-    expect(a.editMeasureNode(newMeasure), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E Gm F F♯ [A D C D ] x3  C: D C G G",
-        a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newMeasure), isTrue);
+    logger.d(_a.toMarkup());
+    expect(
+        _a.toMarkup().trim(),
+        TestSong._deMusic(
+            "I: A B C D  V: D E Gm F F♯ [A D C D ] x3  C: D C G G"));
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(location, a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(location, _a.getCurrentChordSectionLocation());
 
     logger.d(
         "section  replace  measure    append  measure  replace section content");
@@ -1428,7 +1438,7 @@ void main() {
     logger.d("section  delete  measure  yes  append  measure  delete section");
     logger.d("repeat  delete  measure  yes  append  measure  delete repeat");
     logger.d("phrase  delete  measure  yes  append  measure  delete phrase");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1438,29 +1448,29 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:0:2");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(a.deleteCurrentSelection(), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(_a.deleteCurrentSelection(), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(), TestSong._deMusic("I: A B C D  V: D E F♯  C: D C G G") );
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(location, a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(location, _a.getCurrentChordSectionLocation());
 
     logger.d("measure  delete  measure  yes  append  measure  delete measure");
-    a = SongBase.createSongBase(
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1470,27 +1480,27 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:0:2");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(a.deleteCurrentSelection(), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(_a.deleteCurrentSelection(), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(), TestSong._deMusic("I: A B C D  V: D E F♯  C: D C G G") );
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(location, a.getCurrentChordSectionLocation());
-    a = SongBase.createSongBase(
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(location, _a.getCurrentChordSectionLocation());
+    _a = SongBase.createSongBase(
         "A",
         "bob",
         "bsteele.com",
@@ -1500,26 +1510,26 @@ void main() {
         4,
         "i: A B C D V: D E F F# c: D C G G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
-    logger.d(a.toMarkup());
+    logger.d(_a.toMarkup());
     location = ChordSectionLocation.parseString("v:0:2");
-    a.setCurrentChordSectionLocation(location);
-    a.setCurrentMeasureEditType(MeasureEditType.delete);
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    _a.setCurrentChordSectionLocation(location);
+    _a.setCurrentMeasureEditType(MeasureEditType.delete);
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a
-            .findMeasureNodeByLocation(a.getCurrentChordSectionLocation())
+        _a
+            .findMeasureNodeByLocation(_a.getCurrentChordSectionLocation())
             .toString() +
         " " +
-        a.getCurrentMeasureEditType().toString() +
+        _a.getCurrentMeasureEditType().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
     newMeasure = Measure.parseString("F", beatsPerBar);
-    expect(a.editMeasureNode(newMeasure), isTrue);
-    logger.d(a.toMarkup());
-    expect("I: A B C D  V: D E F♯  C: D C G G", a.toMarkup().trim());
-    logger.d(a.getCurrentChordSectionLocation().toString() +
+    expect(_a.editMeasureNode(newMeasure), isTrue);
+    logger.d(_a.toMarkup());
+    expect(_a.toMarkup().trim(), TestSong._deMusic("I: A B C D  V: D E F♯  C: D C G G") );
+    logger.d(_a.getCurrentChordSectionLocation().toString() +
         " " +
-        a.getCurrentChordSectionLocationMeasureNode().toString());
-    expect(location, a.getCurrentChordSectionLocation());
+        _a.getCurrentChordSectionLocationMeasureNode().toString());
+    expect(location, _a.getCurrentChordSectionLocation());
   });
 }

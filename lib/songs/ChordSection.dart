@@ -348,7 +348,6 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 //        return beatsPerBar;
 //    }
 
-
   @override
   String getId() {
     return _sectionVersion.id;
@@ -498,14 +497,14 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   /// than, equal to, or greater than the specified object.
   @override
   int compareTo(ChordSection o) {
-    if (_sectionVersion.compareTo(o._sectionVersion) != 0)
-      return _sectionVersion.compareTo(o._sectionVersion);
+    int ret = _sectionVersion.compareTo(o._sectionVersion);
+    if (ret != 0) return ret;
 
     if (_phrases.length != o._phrases.length)
       return _phrases.length < o._phrases.length ? -1 : 1;
 
     for (int i = 0; i < _phrases.length; i++) {
-      int ret = _phrases[i].toMarkup().compareTo(o._phrases[i].toMarkup());
+      ret = _phrases[i].toMarkup().compareTo(o._phrases[i].toMarkup());
       if (ret != 0) return ret;
     }
     return 0;
@@ -524,11 +523,9 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   @override
   int get hashCode {
     int ret = _sectionVersion.hashCode;
-    if ( _phrases!= null)
-    ret = ret * 17 + hashObjects(_phrases);
+    if (_phrases != null) ret = ret * 17 + hashObjects(_phrases);
     return ret;
   }
-
 
   SectionVersion get sectionVersion => _sectionVersion;
   final SectionVersion _sectionVersion;
@@ -540,6 +537,4 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
   static RegExp commentRegExp = RegExp("^(\\S+)\\s+");
 
   static Logger _logger = new Logger();
-
-
 }

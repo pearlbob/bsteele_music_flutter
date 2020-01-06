@@ -330,7 +330,7 @@ class Phrase extends MeasureNode {
       case MeasureEditType.insert:
         try {
           if (newMeasureNode.isSingleItem())
-            _addAt(index, newMeasureNode as Measure);
+            _addAt(index-1, newMeasureNode as Measure);
           else
             addAllAt(index, (newMeasureNode as Phrase)._measures);
         } catch (ex) {

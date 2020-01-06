@@ -362,11 +362,6 @@ class Song extends SongBase implements Comparable<Song> {
     return sb.toString();
   }
 
-  @override
-  void resetLastModifiedDateToNow() {
-    lastModifiedTime = DateTime.now().millisecondsSinceEpoch;
-  }
-
   static List<StringTriple> diff(Song a, Song b) {
     List<StringTriple> ret = SongBase.diff(a, b);
     int limit = 15;

@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:quiver/core.dart';
-
 import '../util.dart';
 import 'SectionVersion.dart';
 
@@ -213,7 +211,7 @@ class Section implements Comparable<Section> {
 
   @override
   int get hashCode {
-    return hash2(runtimeType, _sectionEnum);
+    return _sectionEnum.hashCode;
   }
 
   SectionEnum get sectionEnum => _sectionEnum;

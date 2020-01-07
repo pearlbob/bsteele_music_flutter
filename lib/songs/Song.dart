@@ -170,101 +170,93 @@ class Song extends SongBase implements Comparable<Song> {
 //    return song;
 //  }
 
-//  static Song songFromJsonObject(JSONObject jsonObject) {
-//    Song song = Song.createEmptySong();
-//    JSONNumber jn;
-//    JSONArray ja;
-//    for (String name in jsonObject.keySet()) {
-//      JSONValue jv = jsonObject.get(name);
-//      switch (name) {
-//        case "title":
-//          song.setTitle(jv.isString().stringValue());
-//          break;
-//        case "artist":
-//          song.setArtist(jv.isString().stringValue());
-//          break;
-//        case "copyright":
-//          song.setCopyright(jv.isString().stringValue());
-//          break;
-//        case "key":
-//          song.setKey(Key.parseString(jv.isString().stringValue()));
-//          break;
-//        case "defaultBpm":
-//          jn = jv.isNumber();
-//          if (jn != null) {
-//            song.setDefaultBpm(jn.doubleValue() as int);
-//          } else {
-//            song.setDefaultBpm(int.parse(jv.isString().stringValue()));
-//          }
-//          break;
-//        case "timeSignature":
-//          //  most of this is coping with real old events with poor formatting
-//          jn = jv.isNumber();
-//          if (jn != null) {
-//            song.setBeatsPerBar(jn.doubleValue() as int);
-//            song.setUnitsPerMeasure(4); //  safe default
-//          } else {
-//            String s = jv.isString().stringValue();
-//
-//            final RegExp timeSignatureExp =
-//                RegExp(r"^\w*(\d{1,2})\w*\/\w*(\d)\w*$");
-//            RegExpMatch mr = timeSignatureExp.firstMatch(s);
-//            if (mr != null) {
-//              // parse
-//              song.setBeatsPerBar(int.parse(mr.group(1)));
-//              song.setUnitsPerMeasure(int.parse(mr.group(2)));
-//            } else {
-//              s = s.replaceAll("/.*", ""); //  fixme: info lost
-//              if (s.length > 0) {
-//                song.setBeatsPerBar(int.parse(s));
-//              }
-//              song.setUnitsPerMeasure(4); //  safe default
-//            }
-//          }
-//          break;
-//        case "chords":
-//          ja = jv.isArray();
-//          if (ja != null) {
-//            int jaLimit = ja.size();
-//            StringBuffer sb = new StringBuffer();
-//            for (int i = 0; i < jaLimit; i++) {
-//              sb.write(ja.get(i).isString().stringValue());
-//              sb.write(
-//                  ", "); //  brutal way to transcribe the new line without the chaos of a newline character
-//            }
-//            song.setChords(sb.toString());
-//          } else {
-//            song.setChords(jv.isString().stringValue());
-//          }
-//          break;
-//        case "lyrics":
-//          ja = jv.isArray();
-//          if (ja != null) {
-//            int jaLimit = ja.size();
-//            StringBuffer sb = new StringBuffer();
-//            for (int i = 0; i < jaLimit; i++) {
-//              sb.write(ja.get(i).isString().stringValue());
-//              sb.write("\n");
-//            }
-//            song.setRawLyrics(sb.toString());
-//          } else {
-//            song.setRawLyrics(jv.isString().stringValue());
-//          }
-//          break;
-//        case "lastModifiedDate":
-//          jn = jv.isNumber();
-//          if (jn != null) {
-//            song.setLastModifiedTime(jn.doubleValue());
-//          }
-//          break;
-//        case "user":
-//          song.setUser(jv.isString().stringValue());
-//          break;
-//      }
-//    }
-//    return song;
-//  }
-//
+  static List<Song> songListFromJson(String jsonString) {
+    List<Song> songList = List();
+    dynamic json = jsonDecoder.convert(jsonString);
+    if (json is List) {
+      //  a list of songs
+      for (Map jsonMap in json) {
+        songList.add(songFromJson(jsonMap));
+      }
+    } else if (json is Map) {
+      //  a single song
+      songList.add(songFromJson(json as Map));
+    }
+    return songList;
+  }
+
+  static Song songFromJson(Map jsonSongFile) {
+    Song song = Song.createEmptySong();
+
+    Map jsonSong = jsonSongFile['song'];
+    DateTime fileDateTime =
+        DateTime.fromMillisecondsSinceEpoch(jsonSong['lastModifiedDate']);
+    song.lastModifiedTime = fileDateTime.millisecondsSinceEpoch;
+
+    for (String name in jsonSong.keys) {
+      switch (name) {
+        case "title":
+          song.setTitle(jsonSong[name]);
+          break;
+        case "artist":
+          song.setArtist(jsonSong[name]);
+          break;
+        case "copyright":
+          song.setCopyright(jsonSong[name]);
+          break;
+        case "key":
+          song.setKey(Key.parseString(jsonSong[name]));
+          break;
+        case "defaultBpm":
+          song.setDefaultBpm(jsonSong[name] as int);
+          break;
+        case "timeSignature":
+          //  most of this is coping with real old events with poor formatting
+          String timeSignature = jsonSong[name];
+          RegExpMatch mr = _timeSignatureExp.firstMatch(timeSignature);
+          if (mr != null) {
+            // parse
+            song.setBeatsPerBar(int.parse(mr.group(1)));
+            song.setUnitsPerMeasure(int.parse(mr.group(2)));
+          } else {
+            //  safe default
+            song.setBeatsPerBar(4);
+            song.setUnitsPerMeasure(4);
+          }
+          break;
+        case "chords":
+          dynamic chordRows = jsonSong[name];
+          StringBuffer sb = new StringBuffer();
+          for (int chordRow = 0; chordRow < chordRows.length; chordRow++) {
+            sb.write(chordRows[chordRow]);
+            //  brutal way to transcribe the new line without the chaos of a newline character
+            sb.write(", ");
+          }
+          song.setChords(sb.toString());
+          break;
+        case "lyrics":
+          dynamic lyricRows = jsonSong[name];
+          StringBuffer sb = new StringBuffer();
+          for (int lyricRow = 0; lyricRow < lyricRows.length; lyricRow++) {
+            sb.write(lyricRows[lyricRow]);
+            sb.write("\n");
+          }
+          song.setRawLyrics(sb.toString());
+          break;
+        case "lastModifiedDate":
+          DateTime songDateTime =
+              DateTime.fromMillisecondsSinceEpoch(jsonSong[name]);
+          if (songDateTime.isAfter(fileDateTime))
+            song.lastModifiedTime = songDateTime.millisecondsSinceEpoch;
+          break;
+        case "user":
+          song.setUser(jsonSong[name]);
+          break;
+      }
+    }
+    return song;
+  }
+
 //  static String toJson(Collection<Song> songs) {
 //    if (songs == null || songs.isEmpty()) {
 //      return null;
@@ -282,17 +274,17 @@ class Song extends SongBase implements Comparable<Song> {
 //    sb.write("]\n");
 //    return sb.toString();
 //  }
-
-  String toJsonAsFile() {
-    return "{ \"file\": " +
-        jsonEncode(getFileName()) +
-        ", \"lastModifiedDate\": " +
-        lastModifiedTime.toString() +
-        ", \"song\":" +
-        " \n" +
-        toJson() +
-        "}";
-  }
+//
+//  String toJsonAsFile() {
+//    return "{ \"file\": " +
+//        jsonEncode(getFileName()) +
+//        ", \"lastModifiedDate\": " +
+//        lastModifiedTime.toString() +
+//        ", \"song\":" +
+//        " \n" +
+//        toJson() +
+//        "}";
+//  }
 
   ///Generate the JSON expression of this song.
   String toJson() {
@@ -423,6 +415,11 @@ class Song extends SongBase implements Comparable<Song> {
     //    }
     return 0;
   }
+
+  static final RegExp _timeSignatureExp =
+      RegExp(r"^\w*(\d{1,2})\w*\/\w*(\d)\w*$");
+
+  static final JsonDecoder jsonDecoder = JsonDecoder();
 
   static final Logger logger = Logger();
 }

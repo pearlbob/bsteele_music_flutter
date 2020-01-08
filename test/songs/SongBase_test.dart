@@ -429,7 +429,7 @@ void main() {
           expect(
               measure,
               a.findMeasureNodeByLocation(
-                  a.getChordSectionLocationGrid().get(r,c)));
+                  a.getChordSectionLocationGrid().get(r, c)));
           logger.d("measure(" +
               c.toString() +
               "," +
@@ -1041,29 +1041,6 @@ void main() {
     expect(4, a.getChordSectionBeats(SectionVersion.parseString("t:")));
   });
 
-  test("testChordSectionRows", () {
-    int beatsPerBar = 4;
-    SongBase a;
-
-    a = SongBase.createSongBase(
-        "A",
-        "bob",
-        "bsteele.com",
-        Key.getDefault(),
-        100,
-        beatsPerBar,
-        4,
-        "verse: C2: V2: A B C D, Ab Bb Eb Db prechorus: D E F F# o:chorus: G D C G x3 T: A",
-        "i:\nv: bob, bob\npc: nope\nc: sing \nC2: d\nV2:df\nv: nope\nc: yes\nv: nope\nt:\no: last line of outro\n");
-
-    expect(2, a.getChordSectionRows(SectionVersion.parseString("v:")));
-    expect(2, a.getChordSectionRows(SectionVersion.parseString("c2:")));
-    expect(2, a.getChordSectionRows(SectionVersion.parseString("v2:")));
-    expect(1, a.getChordSectionRows(SectionVersion.parseString("o:")));
-    expect(1, a.getChordSectionRows(SectionVersion.parseString("t:")));
-    expect(0, a.getChordSectionRows(SectionVersion.parseString("v3:")));
-  });
-
   test("testSongMomentGridding", () {
     int beatsPerBar = 4;
     SongBase a;
@@ -1078,38 +1055,35 @@ void main() {
       for (int momentNumber = 0; momentNumber < 4; momentNumber++) {
         songMoment = a.getSongMoment(momentNumber);
         expect(
-            0,
-            a
+                      a
                 .getMomentGridCoordinateFromMomentNumber(
                     songMoment.momentNumber)
-                .row);
+                .row,0);
       }
       for (int momentNumber = 4; momentNumber < 6; momentNumber++) {
         songMoment = a.getSongMoment(momentNumber);
         expect(
-            1,
             a
                 .getMomentGridCoordinateFromMomentNumber(
                     songMoment.momentNumber)
-                .row);
+                .row,1);
       }
       for (int momentNumber = 6; momentNumber < 10; momentNumber++) {
         songMoment = a.getSongMoment(momentNumber);
         expect(
-            0,
             a
                 .getMomentGridCoordinateFromMomentNumber(
                     songMoment.momentNumber)
-                .row);
+                .row,
+            2);
       }
       for (int momentNumber = 10; momentNumber < 12; momentNumber++) {
         songMoment = a.getSongMoment(momentNumber);
         expect(
-            1,
-            a
+       a
                 .getMomentGridCoordinateFromMomentNumber(
                     songMoment.momentNumber)
-                .row);
+                .row,3);
       }
     }
 
@@ -1149,8 +1123,9 @@ void main() {
         expect(count, songMoment.getMomentNumber());
         GridCoordinate momentGridCoordinate =
             a.getMomentGridCoordinate(songMoment);
-        expect(momentGridCoordinate, isNotNull);
         logger.d(momentGridCoordinate.toString());
+        expect(momentGridCoordinate, isNotNull);
+
 
         count++;
       }
@@ -1159,59 +1134,15 @@ void main() {
       //  verify repeats stay on correct row
       SongMoment songMoment;
 
-      for (int momentNumber = 0; momentNumber < 8; momentNumber++) {
+      for (int momentNumber = 0; momentNumber < 56; momentNumber++) {
         songMoment = a.getSongMoment(momentNumber);
+        logger.d(songMoment.toString());
+        int e = momentNumber ~/ 4;
         expect(
-            0,
             a
                 .getMomentGridCoordinateFromMomentNumber(
-                    songMoment.momentNumber)
-                .row);
-      }
-      for (int momentNumber = 8; momentNumber < 12; momentNumber++) {
-        songMoment = a.getSongMoment(momentNumber);
-        expect(
-            1,
-            a
-                .getMomentGridCoordinateFromMomentNumber(
-                    songMoment.momentNumber)
-                .row);
-      }
-      for (int momentNumber = 12; momentNumber < 16; momentNumber++) {
-        songMoment = a.getSongMoment(momentNumber);
-        expect(
-            2,
-            a
-                .getMomentGridCoordinateFromMomentNumber(
-                    songMoment.momentNumber)
-                .row);
-      }
-      for (int momentNumber = 16; momentNumber < 28; momentNumber++) {
-        songMoment = a.getSongMoment(momentNumber);
-        expect(
-            3,
-            a
-                .getMomentGridCoordinateFromMomentNumber(
-                    songMoment.momentNumber)
-                .row);
-      }
-      for (int momentNumber = 28; momentNumber < 36; momentNumber++) {
-        songMoment = a.getSongMoment(momentNumber);
-        expect(
-            4,
-            a
-                .getMomentGridCoordinateFromMomentNumber(
-                    songMoment.momentNumber)
-                .row);
-      }
-      for (int momentNumber = 48; momentNumber < 56; momentNumber++) {
-        songMoment = a.getSongMoment(momentNumber);
-        expect(
-            6,
-            a
-                .getMomentGridCoordinateFromMomentNumber(
-                    songMoment.momentNumber)
-                .row);
+                songMoment.momentNumber)
+                .row,e);
       }
     }
   });

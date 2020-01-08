@@ -197,59 +197,42 @@ class SongBase {
     {
 //  generate song moment grid coordinate map for play to display purposes
       _songMomentGridCoordinateHashMap = HashMap<SongMoment, GridCoordinate>();
-      chordSectionRows = HashMap<SectionVersion, int>();
 
-      LyricSection lastLyricSection;
       int row = 0;
-      int baseChordRow = 0;
-      int maxChordRow = 0;
+      GridCoordinate lastGridCoordinate;
       for (SongMoment songMoment in _songMoments) {
-        if (lastLyricSection != songMoment.getLyricSection()) {
-          if (lastLyricSection != null) {
-            int rows = maxChordRow - baseChordRow + 1;
-            chordSectionRows[lastLyricSection.sectionVersion] = rows;
-            row += rows;
-          }
-          lastLyricSection = songMoment.getLyricSection();
-          GridCoordinate sectionGridCoordinate = getGridCoordinate(
-              new ChordSectionLocation(lastLyricSection.sectionVersion));
-
-          baseChordRow = sectionGridCoordinate.row;
-          maxChordRow = baseChordRow;
-        }
-
-        //  use the change of chord section rows to trigger moment grid row change
+        //  increment the row based on the chord section change
         GridCoordinate gridCoordinate =
             getGridCoordinate(songMoment.getChordSectionLocation());
-        maxChordRow = max(maxChordRow, gridCoordinate.row);
+        if (lastGridCoordinate != null &&
+            (gridCoordinate.row != lastGridCoordinate.row ||
+                gridCoordinate.col != lastGridCoordinate.col + 1)) {
+          row++;
+        }
+        lastGridCoordinate=gridCoordinate;
 
-        GridCoordinate momentGridCoordinate = new GridCoordinate(
-            row + (gridCoordinate.row - baseChordRow), gridCoordinate.col);
+        GridCoordinate momentGridCoordinate =
+            new GridCoordinate(row, gridCoordinate.col);
         logger
             .d(songMoment.toString() + ": " + momentGridCoordinate.toString());
         _songMomentGridCoordinateHashMap[songMoment] = momentGridCoordinate;
 
-        logger.d("moment: " +
-            songMoment.getMomentNumber().toString() +
-            ": " +
-            songMoment.getChordSectionLocation().toString() +
-            "#" +
-            songMoment.getSectionCount().toString() +
-            " m:" +
-            momentGridCoordinate.toString() +
-            " " +
-            songMoment.getMeasure().toMarkup() +
-            (songMoment.getRepeatMax() > 1
-                ? " " +
-                    (songMoment.getRepeat() + 1).toString() +
-                    "/" +
-                    songMoment.getRepeatMax().toString()
-                : ""));
-      }
-      //  push the last one in
-      if (lastLyricSection != null) {
-        int rows = maxChordRow - baseChordRow + 1;
-        chordSectionRows[lastLyricSection.sectionVersion] = rows;
+//        logger.d("moment: " +
+//            songMoment.getMomentNumber().toString() +
+//            ": " +
+//            songMoment.getChordSectionLocation().toString() +
+//            "#" +
+//            songMoment.getSectionCount().toString() +
+//            " m:" +
+//            momentGridCoordinate.toString() +
+//            " " +
+//            songMoment.getMeasure().toMarkup() +
+//            (songMoment.getRepeatMax() > 1
+//                ? " " +
+//                    (songMoment.getRepeat() + 1).toString() +
+//                    "/" +
+//                    songMoment.getRepeatMax().toString()
+//                : ""));
       }
     }
 
@@ -828,8 +811,7 @@ class SongBase {
       logger.v("gridding: " +
           sectionVersion.toString() +
           " (" +
-          row.toString()
-           +
+          row.toString() +
           ", " +
           col.toString() +
           ")");
@@ -945,7 +927,7 @@ class SongBase {
                     sectionVersion,
                     phraseIndex: phraseIndex,
                     measureIndex: measureIndex);
-                grid.set(row,offset,  loc);
+                grid.set(row, offset, loc);
                 GridCoordinate coordinate = new GridCoordinate(row, offset);
                 gridCoordinateChordSectionLocationMap[coordinate] = loc;
                 gridChordSectionLocationCoordinateMap[loc] = coordinate;
@@ -962,11 +944,13 @@ class SongBase {
                               measuresPerline //  limit line length to the measures per line
                   ) {
                 //  fill the row with nulls if the row is shorter then the others in this phrase
-                while (col < maxCol) grid.set(row, col++,  null);
+                while (col < maxCol) grid.set(row, col++, null);
 
                 //  put an end of line marker on multiline repeats
                 if (phrase.isRepeat()) {
-                  grid.set(  row,  col++,
+                  grid.set(
+                      row,
+                      col++,
                       new ChordSectionLocation.withMarker(
                           sectionVersion,
                           phraseIndex,
@@ -990,7 +974,7 @@ class SongBase {
                 GridCoordinate coordinate = new GridCoordinate(row, col);
                 gridCoordinateChordSectionLocationMap[coordinate] = loc;
                 gridChordSectionLocationCoordinateMap[loc] = coordinate;
-                grid.set(row,col++,  loc);
+                grid.set(row, col++, loc);
               }
 
               //  put the repeat on the end of the last line of the repeat
@@ -1020,7 +1004,7 @@ class SongBase {
                   GridCoordinate coordinate = new GridCoordinate(row, col);
                   gridCoordinateChordSectionLocationMap[coordinate] = loc;
                   gridChordSectionLocationCoordinateMap[loc] = coordinate;
-                  grid.set( row, col++, loc);
+                  grid.set(row, col++, loc);
                 }
                 row++;
                 col = offset;
@@ -2984,13 +2968,6 @@ class SongBase {
     return ret;
   }
 
-  int getChordSectionRows(SectionVersion sectionVersion) {
-    computeSongMoments();
-    int ret = chordSectionRows[sectionVersion];
-    if (ret == null) return 0;
-    return ret;
-  }
-
   ///Compute a relative complexity index for the song
   int getComplexity() {
     if (complexity == 0) {
@@ -3291,7 +3268,6 @@ class SongBase {
   HashMap<SongMoment, GridCoordinate> _songMomentGridCoordinateHashMap;
 
   HashMap<SectionVersion, int> chordSectionBeats = new HashMap();
-  HashMap<SectionVersion, int> chordSectionRows;//  fixme: delete this, it's not used
 
   ChordSectionLocation currentChordSectionLocation;
   MeasureEditType currentMeasureEditType = MeasureEditType.append;
@@ -3300,6 +3276,7 @@ class SongBase {
   int complexity;
   String chordsAsMarkup;
   String message;
+
   List<SongMoment> get songMoments => getSongMoments();
   List<SongMoment> _songMoments;
   HashMap<int, SongMoment> beatsToMoment;

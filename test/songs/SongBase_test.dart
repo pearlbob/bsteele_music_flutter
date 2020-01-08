@@ -157,7 +157,6 @@ void main() {
 
   test("test basics", () {
     SongBase a;
-    String text;
 
     {
       a = SongBase.createSongBase("A", "bob", "bsteele.com", Key.getDefault(),
@@ -1008,7 +1007,6 @@ void main() {
         "i:\nv: bob, bob, bob berand\npc: nope\nc: sing chorus here \nv: nope\nc: yes\nv: nope\nt:\no: last line of outro\n");
 //    a.debugSongMoments();
 
-    int count = 0;
     for (int momentNumber = 0;
         momentNumber < a.getSongMomentsSize();
         momentNumber++) {
@@ -1019,8 +1017,6 @@ void main() {
 //      GridCoordinate momentGridCoordinate =
 //          a.getMomentGridCoordinate(songMoment);
 //      expect(momentGridCoordinate, isNotNull);
-
-      count++;
     }
   });
 

@@ -170,6 +170,7 @@ class Song extends SongBase implements Comparable<Song> {
 //    return song;
 //  }
 
+  /// Read a single song or a list from a JSON string
   static List<Song> songListFromJson(String jsonString) {
     List<Song> songList = List();
     dynamic json = jsonDecoder.convert(jsonString);
@@ -180,11 +181,13 @@ class Song extends SongBase implements Comparable<Song> {
       }
     } else if (json is Map) {
       //  a single song
-      songList.add(songFromJson(json as Map));
+      songList.add(songFromJson(json));
     }
     return songList;
   }
 
+
+  /// Read a single song from a JSON map
   static Song songFromJson(Map jsonSongFile) {
     Song song = Song.createEmptySong();
 

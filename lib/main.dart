@@ -1,29 +1,29 @@
 import 'package:bsteele_music_flutter/player.dart';
+import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:flutter/material.dart';
-
-
-import 'appOptions.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
 /*
 project structure
-json
+__json
 packaging
 deployment
 websockets/server
-resources
+__resources
 ui tables
 MVC?
 file io (web, android)
 flutter on linux?
 what is debugPrint
-software documentation
-string parsing mechanics
-
+__software documentation
 ____.gitignore
 ____unit tests
  */
+
+List<Song> songList = List();
+Song selectedSong;
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/player': (context) => Player(),
+        '/player': (context) => Player(selectedSong),
       },
     );
   }
@@ -77,119 +77,60 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  @override
+  void initState() {
+    super.initState();
+    _readInternalSongList();
+  }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  void _readInternalSongList() async {
+    String songListAsString =
+        await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
-
-//      //-------- FIR filter -----------//
-//      // generate the test signal for filter
-//      // a sum of sine waves with 1Hz and 10Hz, 50 samples and
-//      // sample frequency (fs) 128Hz
-//      var N = 50.0;
-//      var fs = 128;
-//      var n = linspace(0, N, num: (N * fs).toInt(), endpoint: false);
-//      var f1 = 1; // 1Hz
-//      var sg1 = arraySin(arrayMultiplyToScalar(n, 2 * pi * f1));
-//      var f2 = 10; // 10Hz
-//      var sg2 = arraySin(arrayMultiplyToScalar(n, 2 * pi * f2));
-//      var sg = sg1 + sg2;
-//
-//      // design a FIR filter low pass with cut frequency at 1Hz, the objective is
-//      // remove the 10Hz sine wave signal
-//      var nyq = 0.5 * fs; // nyquist frequency
-//      var fc = 1; // cut frequency 1Hz
-//      var normalFc = fc / nyq; // frequency normalization for digital filters
-//      var numtaps = 30; // attenuation of the filter after cut frequency
-//
-//      // generation of the filter coefficients
-//      var b = firwin(numtaps, Array([normalFc]));
-////  print('FIR');
-////  print(b);
-//
-//      //-------- Digital filter application -----------//
-//      print('digital filter application');
-//      // Apply the filter on the signal using lfilter function
-//      // lfilter uses direct form II transposed, for FIR filter
-//      // the a coefficient is 1.0
-//      var sgFiltered = lfilter(b, Array([1.0]), sg);
-//
-//      print(sg); // show the original signal
-//      print(sgFiltered); // show the filtered signal
-
-      _appOptions.debug = !_appOptions.debug;
-    });
+    try {
+      songList = Song.songListFromJson(songListAsString);
+      selectedSong = songList[0];
+      print(selectedSong.toString());
+      setState(() {});
+    } catch (fe) {
+      print("songList parse error: " + fe.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    List<StatelessWidget> listViewChildren = List();
+    for (Song song in songList)
+      listViewChildren.add(GestureDetector(
+        child: ListTile(
+            title: Text(song.getTitle()), subtitle: Text(song.getArtist())),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Player(song)),
+          );
+        },
+      ));
+
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RaisedButton(
-              child: Text('Open route'),
-              onPressed: () {
-                // Navigate to second route when tapped.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Player()),
-                );
-              },
-            ),
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+      //                // Navigate to second route when tapped.
+//
+      body: Scrollbar(
+        child: ListView(
+          padding: EdgeInsets.symmetric(vertical: 0),
+          children: listViewChildren,
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: null,
         tooltip: 'Increment',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-
+      ),
     );
   }
-
-  AppOptions _appOptions = AppOptions();
 }

@@ -85,13 +85,14 @@ class SongMoment implements Comparable<SongMoment> {
     return chordSectionLocation;
   }
 
+  String get momentLocation =>
+      getChordSectionLocation().toString() + "#" + sectionCount.toString();
+
   @override
   String toString() {
     return momentNumber.toString() +
         ": " +
-        getChordSectionLocation().toString() +
-        "#" +
-        sectionCount.toString() +
+        momentLocation +
         " " +
         measure.toMarkup() +
         " beat " +
@@ -101,14 +102,12 @@ class SongMoment implements Comparable<SongMoment> {
             : "");
   }
 
-
   @override
   int compareTo(SongMoment o) {
     //  number should be unique for a given song
     if (momentNumber == o.momentNumber) return 0;
     return momentNumber < o.momentNumber ? -1 : 1;
   }
-
 
 //  @override
 //  int compareTo(SongMoment other) {

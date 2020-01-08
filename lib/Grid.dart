@@ -1,4 +1,7 @@
-/// A generic grid used to store data presenations to the user.
+
+
+/// A generic grid used to store data presentations to the user.
+/// Grid locations are logically assigned without the details of the UI mapping.
 class Grid<T> {
 
   /// Deep copy, not as a constructor

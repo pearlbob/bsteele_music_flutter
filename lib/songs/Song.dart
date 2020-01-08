@@ -20,8 +20,8 @@ enum SongComparatorType {
 /// file I/O routines and comparators for various sortings.
 /// This is the class most all song interactions should reference.
 /// <p>
-/// The class is designed to provide all the GWT dependencies
-/// away from SongBase so SongBase can be tested without a browser environment.
+/// The class is designed to provide some functionality outside
+/// of the main purpose of the the SongBase class.
 /// All the musical functions happen in SongBase.
 
 class Song extends SongBase implements Comparable<Song> {

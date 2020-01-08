@@ -92,12 +92,12 @@ class SongBase {
   /// All repeats are expanded.  Measure node such as comments,
   /// repeat ends, repeat counts, section headers, etc. are ignored.
   void computeSongMoments() {
-    if (songMoments != null && songMoments.isNotEmpty) return;
+    if (_songMoments != null && _songMoments.isNotEmpty) return;
 
     //  force the chord parse
     getChordSectionMap();
 
-    songMoments = List<SongMoment>();
+    _songMoments = List<SongMoment>();
     beatsToMoment = new HashMap<int, SongMoment>();
 
     if (lyricSections == null) return;
@@ -138,8 +138,8 @@ class SongBase {
                 }
                 int measureIndex = 0;
                 for (Measure measure in measures) {
-                  songMoments.add(new SongMoment(
-                      songMoments.length,
+                  _songMoments.add(new SongMoment(
+                      _songMoments.length,
                       //  size prior to add
                       beatNumber,
                       sectionVersionBeats,
@@ -164,8 +164,8 @@ class SongBase {
             if (measures != null) {
               int measureIndex = 0;
               for (Measure measure in measures) {
-                songMoments.add(new SongMoment(
-                    songMoments.length,
+                _songMoments.add(new SongMoment(
+                    _songMoments.length,
                     //  size prior to add
                     beatNumber,
                     sectionVersionBeats,
@@ -203,7 +203,7 @@ class SongBase {
       int row = 0;
       int baseChordRow = 0;
       int maxChordRow = 0;
-      for (SongMoment songMoment in songMoments) {
+      for (SongMoment songMoment in _songMoments) {
         if (lastLyricSection != songMoment.getLyricSection()) {
           if (lastLyricSection != null) {
             int rows = maxChordRow - baseChordRow + 1;
@@ -256,7 +256,7 @@ class SongBase {
     {
       //  install the beats to moment lookup entries
       int beat = 0;
-      for (SongMoment songMoment in songMoments) {
+      for (SongMoment songMoment in _songMoments) {
         int limit = songMoment.getMeasure().beatCount;
         for (int b = 0; b < limit; b++) beatsToMoment[beat++] = songMoment;
       }
@@ -277,7 +277,7 @@ class SongBase {
   void debugSongMoments() {
     computeSongMoments();
 
-    for (SongMoment songMoment in songMoments) {
+    for (SongMoment songMoment in _songMoments) {
       GridCoordinate momentGridCoordinate =
           getMomentGridCoordinateFromMomentNumber(songMoment.getMomentNumber());
       logger.d(songMoment.getMomentNumber().toString() +
@@ -301,9 +301,9 @@ class SongBase {
   String songMomentMeasure(int momentNumber, Key key, int halfStepOffset) {
     computeSongMoments();
     if (momentNumber < 0 ||
-        songMoments.isEmpty ||
-        momentNumber > songMoments.length - 1) return "";
-    return songMoments[momentNumber]
+        _songMoments.isEmpty ||
+        momentNumber > _songMoments.length - 1) return "";
+    return _songMoments[momentNumber]
         .getMeasure()
         .transpose(key, halfStepOffset);
   }
@@ -311,16 +311,16 @@ class SongBase {
   String songNextMomentMeasure(int momentNumber, Key key, int halfStepOffset) {
     computeSongMoments();
     if (momentNumber < -1 ||
-        songMoments.isEmpty ||
-        momentNumber > songMoments.length - 2) return "";
-    return songMoments[momentNumber + 1]
+        _songMoments.isEmpty ||
+        momentNumber > _songMoments.length - 2) return "";
+    return _songMoments[momentNumber + 1]
         .getMeasure()
         .transpose(key, halfStepOffset);
   }
 
   String songMomentStatus(int beatNumber, int momentNumber) {
     computeSongMoments();
-    if (songMoments.isEmpty) return "unknown";
+    if (_songMoments.isEmpty) return "unknown";
 
     if (momentNumber < 0) {
 //            beatNumber %= getBeatsPerBar();
@@ -1112,7 +1112,7 @@ class SongBase {
     chordSectionLocationGrid = null;
     complexity = 0;
     chordsAsMarkup = null;
-    songMoments = null;
+    _songMoments = null;
     duration = 0;
     totalBeats = 0;
   }
@@ -2876,16 +2876,16 @@ class SongBase {
 
   List<SongMoment> getSongMoments() {
     computeSongMoments();
-    return songMoments;
+    return _songMoments;
   }
 
   SongMoment getSongMoment(int momentNumber) {
     computeSongMoments();
-    if (songMoments == null ||
-        songMoments.isEmpty ||
+    if (_songMoments == null ||
+        _songMoments.isEmpty ||
         momentNumber < 0 ||
-        momentNumber >= songMoments.length) return null;
-    return songMoments[momentNumber];
+        momentNumber >= _songMoments.length) return null;
+    return _songMoments[momentNumber];
   }
 
   SongMoment getFirstSongMomentInSection(int momentNumber) {
@@ -2895,7 +2895,7 @@ class SongBase {
     SongMoment firstSongMoment = songMoment;
     String id = songMoment.getChordSection().getId();
     for (int m = momentNumber - 1; m >= 0; m--) {
-      SongMoment sm = songMoments[m];
+      SongMoment sm = _songMoments[m];
       if (id != sm.getChordSection().getId() ||
           sm.getSectionCount() != firstSongMoment.getSectionCount())
         return firstSongMoment;
@@ -2910,9 +2910,9 @@ class SongBase {
 
     SongMoment lastSongMoment = songMoment;
     String id = songMoment.getChordSection().getId();
-    int limit = songMoments.length;
+    int limit = _songMoments.length;
     for (int m = momentNumber + 1; m < limit; m++) {
-      SongMoment sm = songMoments[m];
+      SongMoment sm = _songMoments[m];
       if (id != sm.getChordSection().getId() ||
           sm.getSectionCount() != lastSongMoment.getSectionCount())
         return lastSongMoment;
@@ -2955,7 +2955,7 @@ class SongBase {
   SongMoment getSongMomentAtRow(int rowIndex) {
     if (rowIndex < 0) return null;
     computeSongMoments();
-    for (SongMoment songMoment in songMoments) {
+    for (SongMoment songMoment in _songMoments) {
       //  return the first moment on this row
       if (rowIndex == getMomentGridCoordinate(songMoment).row)
         return songMoment;
@@ -3301,7 +3301,8 @@ class SongBase {
   int complexity;
   String chordsAsMarkup;
   String message;
-  List<SongMoment> songMoments;
+  List<SongMoment> get songMoments => getSongMoments();
+  List<SongMoment> _songMoments;
   HashMap<int, SongMoment> beatsToMoment;
 
   //SplayTreeSet<Metadata> metadata = new SplayTreeSet();

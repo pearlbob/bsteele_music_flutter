@@ -429,7 +429,7 @@ void main() {
           expect(
               measure,
               a.findMeasureNodeByLocation(
-                  a.getChordSectionLocationGrid().get(c, r)));
+                  a.getChordSectionLocationGrid().get(r,c)));
           logger.d("measure(" +
               c.toString() +
               "," +

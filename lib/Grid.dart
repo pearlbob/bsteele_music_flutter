@@ -1,9 +1,6 @@
-
-
 /// A generic grid used to store data presentations to the user.
 /// Grid locations are logically assigned without the details of the UI mapping.
 class Grid<T> {
-
   /// Deep copy, not as a constructor
   Grid<T> deepCopy(Grid<T> other) {
     if (other == null) return null;
@@ -24,18 +21,19 @@ class Grid<T> {
     if (x < 0) x = 0;
     if (y < 0) y = 0;
 
-    while (y >= grid.length) {
+    while (x >= grid.length) {
       //  addTo a new row to the grid
-      grid.add( List<T>());
+      grid.add(List.generate(1, (a) {
+        return null;
+      }));
     }
 
-    List<T> row = grid[y];
-    if (x == row.length)
+    List<T> row = grid[x];
+    if (y == row.length)
       row.add(t);
     else {
-      while (x > row.length - 1)
-        row.add(null);
-      row[x]=t;
+      while (y > row.length - 1) row.add(null);
+      row[y] = t;
     }
   }
 
@@ -46,11 +44,11 @@ class Grid<T> {
 
   T get(int x, int y) {
     try {
-      List<T> row = grid[y];
+      List<T> row = grid[x];
       if (row == null) {
         return null;
       }
-      return row[x];
+      return row[y];
     } catch (ex) {
       return null;
     }
@@ -60,9 +58,17 @@ class Grid<T> {
     return grid.length;
   }
 
-  List<T> getRow(int y) {
+  List<T> getRow(int r) {
     try {
-      return grid[y];
+      return grid[r];
+    } catch (ex) {
+      return null;
+    }
+  }
+
+  int rowLength(int r ){
+    try {
+      return grid[r].length;
     } catch (ex) {
       return null;
     }
@@ -70,7 +76,16 @@ class Grid<T> {
 
   void clear() {
     grid.clear();
+    grid.add(List.generate(1, (a) {
+      return null;
+    }));
   }
 
-  final List<List<T>> grid = List();
+  final List<List<T>> grid =
+  //  fixme: is this required for a dart bug?
+  List.generate(1, (a) {
+    return List.generate(1, (a) {
+      return null;
+    });
+  });
 }

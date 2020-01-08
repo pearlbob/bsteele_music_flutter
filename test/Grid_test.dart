@@ -9,43 +9,43 @@ void main() {
   test("test set", () {
     Grid<int> grid = Grid<int>();
 
-    expect("Grid{[]}", grid.toString());
+    expect(grid.toString(), "Grid{[[null]]}");
     grid.clear();
-    expect("Grid{[]}", grid.toString());
+    expect(grid.toString(), "Grid{[[null]]}" );
 
 
     grid.set(0,0, 1);
-    expect("Grid{[[1]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[1]]}");
     grid.set(0,0, 1);
-    expect("Grid{[[1]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[1]]}", );
     grid.set(0,1, 2);
-    expect("Grid{[[1], [2]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[1, 2]]}");
     grid.set(0,3, 4);
-    expect("Grid{[[1], [2], [], [4]]}", grid.toString());
+    expect( grid.toString(),"Grid{[[1, 2, null, 4]]}");
     grid.set(2,3, 4);
-    expect("Grid{[[1], [2], [], [4, null, 4]]}", grid.toString());
+    expect( grid.toString(),"Grid{[[1, 2, null, 4], [null], [null, null, null, 4]]}");
     grid.set(-2,3, 444);
-    expect("Grid{[[1], [2], [], [444, null, 4]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[1, 2, null, 444], [null], [null, null, null, 4]]}");
     grid.set(-2,-3, 555);
-    expect("Grid{[[555], [2], [], [444, null, 4]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[555, 2, null, 444], [null], [null, null, null, 4]]}");
 
     grid.clear();
-    expect("Grid{[]}", grid.toString());
+    expect(grid.toString(),"Grid{[[null]]}");
     grid.set(4,0, 1);
-    expect("Grid{[[null, null, null, null, 1]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[null], [null], [null], [null], [1]]}");
     grid.clear();
-    expect("Grid{[]}", grid.toString());
+    expect(grid.toString(),"Grid{[[null]]}");
     grid.set(0,4, 1);
-    expect("Grid{[[], [], [], [], [1]]}", grid.toString());
+    expect(grid.toString(),"Grid{[[null, null, null, null, 1]]}");
 
     grid.clear();
-    expect("Grid{[]}", grid.toString());
+    expect(grid.toString(),"Grid{[[null]]}");
   });
 
   test("test get", () {
     Grid<int> grid = new Grid<int>();
 
-    expect("Grid{[]}", grid.toString());
+    expect(grid.toString(),"Grid{[[null]]}");
     expect(grid.get(0, 0),isNull);
     expect(grid.get(1000, 0),isNull);
     expect(grid.get(1000, 2345678),isNull);
@@ -56,7 +56,7 @@ void main() {
     grid.set(0,3, 9);
     grid.set(3,3, 12);
     _logger.d(grid.toString());
-    expect(grid.toString(), "Grid{[[1], [5], [], [9, null, null, 12]]}" );
+    expect(grid.toString(), "Grid{[[1, 5, null, 9], [null], [null], [null, null, null, 12]]}" );
     expect( 1,grid.get(0,0));
     expect(grid.get(3,0),isNull);
     expect( 5,grid.get(0,1));

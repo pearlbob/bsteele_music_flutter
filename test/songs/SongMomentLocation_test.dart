@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/GridCoordinate.dart';
 import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSectionLocation.dart';
@@ -18,8 +21,8 @@ void main() {
     SongMomentLocation loc;
     {
       loc = SongMomentLocation.parseString(null);
-
       expect(loc, isNull);
+
       loc = SongMomentLocation.parseString("V2:");
       expect(loc, isNull);
       loc = SongMomentLocation.parseString("V2:0");
@@ -68,8 +71,7 @@ void main() {
           }
   });
 
-  test("grid ", ()
-  {
+  test("grid ", () {
     SongBase _a = SongBase.createSongBase(
         "A",
         "bob",
@@ -78,13 +80,31 @@ void main() {
         100,
         4,
         4,
-        "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G",
+        "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G A B",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
 
-    for ( SongMoment songMoment in _a.songMoments){
-      GridCoordinate momentGridCoordinate =  _a.getMomentGridCoordinate(songMoment);
-      logger.d('${songMoment.toString()}  at (${momentGridCoordinate.row},${momentGridCoordinate.col})');
-      ChordSectionLocation chordSectionLocation= songMoment.getChordSectionLocation();
+    Grid<SongMoment> grid = Grid();
+    int maxCol = 0;
+    for (SongMoment songMoment in _a.songMoments) {
+      GridCoordinate momentGridCoordinate =
+          _a.getMomentGridCoordinate(songMoment);
+      logger.d(
+          'add ${songMoment.toString()}  at (${momentGridCoordinate.row},${momentGridCoordinate.col})');
+      grid.set(momentGridCoordinate.row, momentGridCoordinate.col, songMoment);
+      maxCol = max(maxCol, momentGridCoordinate.col);
+    }
+    //  fill the rows to a common maximum length
+    for (int row = 0; row < grid.getRowCount(); row++) {
+      if (grid.getRow(row).length < maxCol)
+        grid.set(row, maxCol, null);
+    }
+    for (int row = 0; row < grid.getRowCount(); row++) {
+      logger.i('$row:');
+      for (int col = 0; col < grid.rowLength(row); col++) {
+        SongMoment songMoment = grid.get(row, col);
+        String s = (songMoment == null ? 'null' : songMoment.toString());
+        logger.i('\t($row,$col): $s');
+      }
     }
   });
 }

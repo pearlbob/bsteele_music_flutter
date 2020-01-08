@@ -828,9 +828,10 @@ class SongBase {
       logger.v("gridding: " +
           sectionVersion.toString() +
           " (" +
-          col.toString() +
+          row.toString()
+           +
           ", " +
-          row.toString() +
+          col.toString() +
           ")");
 
       {
@@ -862,7 +863,7 @@ class SongBase {
         }
         gridCoordinateChordSectionLocationMap[coordinate] = loc;
         gridChordSectionLocationCoordinateMap[loc] = coordinate;
-        grid.set(col, row, loc);
+        grid.set(row, col, loc);
         col = offset;
         sectionVersionsToDo.removeAll(matchingSectionVersionsSet);
       }
@@ -902,7 +903,7 @@ class SongBase {
               GridCoordinate coordinate = new GridCoordinate(row, col);
               gridCoordinateChordSectionLocationMap[coordinate] = loc;
               gridChordSectionLocationCoordinateMap[loc] = coordinate;
-              grid.set(col++, row, loc);
+              grid.set(row, col++, loc);
             }
           } else {
             Measure measure;
@@ -944,7 +945,7 @@ class SongBase {
                     sectionVersion,
                     phraseIndex: phraseIndex,
                     measureIndex: measureIndex);
-                grid.set(offset, row, loc);
+                grid.set(row,offset,  loc);
                 GridCoordinate coordinate = new GridCoordinate(row, offset);
                 gridCoordinateChordSectionLocationMap[coordinate] = loc;
                 gridChordSectionLocationCoordinateMap[loc] = coordinate;
@@ -961,13 +962,11 @@ class SongBase {
                               measuresPerline //  limit line length to the measures per line
                   ) {
                 //  fill the row with nulls if the row is shorter then the others in this phrase
-                while (col < maxCol) grid.set(col++, row, null);
+                while (col < maxCol) grid.set(row, col++,  null);
 
                 //  put an end of line marker on multiline repeats
                 if (phrase.isRepeat()) {
-                  grid.set(
-                      col++,
-                      row,
+                  grid.set(  row,  col++,
                       new ChordSectionLocation.withMarker(
                           sectionVersion,
                           phraseIndex,
@@ -991,7 +990,7 @@ class SongBase {
                 GridCoordinate coordinate = new GridCoordinate(row, col);
                 gridCoordinateChordSectionLocationMap[coordinate] = loc;
                 gridChordSectionLocationCoordinateMap[loc] = coordinate;
-                grid.set(col++, row, loc);
+                grid.set(row,col++,  loc);
               }
 
               //  put the repeat on the end of the last line of the repeat
@@ -1008,7 +1007,7 @@ class SongBase {
                   GridCoordinate coordinate = new GridCoordinate(row, col);
                   gridCoordinateChordSectionLocationMap[coordinate] = loc;
                   gridChordSectionLocationCoordinateMap[loc] = coordinate;
-                  grid.set(col++, row, loc);
+                  grid.set(row, col++, loc);
 
                   repeatExtensionUsed = false;
                 }
@@ -1021,7 +1020,7 @@ class SongBase {
                   GridCoordinate coordinate = new GridCoordinate(row, col);
                   gridCoordinateChordSectionLocationMap[coordinate] = loc;
                   gridChordSectionLocationCoordinateMap[loc] = coordinate;
-                  grid.set(col++, row, loc);
+                  grid.set( row, col++, loc);
                 }
                 row++;
                 col = offset;
@@ -3292,7 +3291,7 @@ class SongBase {
   HashMap<SongMoment, GridCoordinate> _songMomentGridCoordinateHashMap;
 
   HashMap<SectionVersion, int> chordSectionBeats = new HashMap();
-  HashMap<SectionVersion, int> chordSectionRows;
+  HashMap<SectionVersion, int> chordSectionRows;//  fixme: delete this, it's not used
 
   ChordSectionLocation currentChordSectionLocation;
   MeasureEditType currentMeasureEditType = MeasureEditType.append;

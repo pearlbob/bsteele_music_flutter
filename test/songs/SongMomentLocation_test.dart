@@ -83,33 +83,17 @@ void main() {
         "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G A B",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
 
-    Grid<SongMoment> grid = Grid();
+    Grid<SongMoment> songMomentGrid = _a.songMomentGrid;
 
-    //  find the maximum number of cols in the rows
-    int maxCol = 0;
-    for (SongMoment songMoment in _a.songMoments) {
-      GridCoordinate momentGridCoordinate =
-          _a.getMomentGridCoordinate(songMoment);
-      logger.v(
-          'add ${songMoment.toString()}  at (${momentGridCoordinate.row},${momentGridCoordinate.col})');
-      grid.set(momentGridCoordinate.row, momentGridCoordinate.col, songMoment);
-      maxCol = max(maxCol, momentGridCoordinate.col);
-    }
-    expect(grid.getRowCount(), 5);
-
-    //  fill the rows to a common maximum length,
-    //  even if you have to fill with null
-    for (int row = 0; row < grid.getRowCount(); row++) {
-      if (grid.getRow(row).length < maxCol) grid.set(row, maxCol, null);
-    }
+    expect(songMomentGrid.getRowCount(), 5);
 
     {
       SongMoment lastSongMoment;
 
-      for (int row = 0; row < grid.getRowCount(); row++) {
+      for (int row = 0; row < songMomentGrid.getRowCount(); row++) {
         logger.i('$row:');
-        for (int col = 0; col < grid.rowLength(row); col++) {
-          SongMoment songMoment = grid.get(row, col);
+        for (int col = 0; col < songMomentGrid.rowLength(row); col++) {
+          SongMoment songMoment = songMomentGrid.get(row, col);
           String s = (songMoment == null ? 'null' : songMoment.toString());
           logger.d('\t($row,$col): $s');
           if (songMoment != null) {

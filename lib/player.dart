@@ -1,6 +1,9 @@
 import 'dart:math';
 
-import 'package:bsteele_music_flutter/GridCoordinate.dart';
+import 'package:bsteele_music_flutter/Grid.dart';
+import 'package:bsteele_music_flutter/Gui.dart';
+import 'package:bsteele_music_flutter/songs/ChordSection.dart';
+import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:bsteele_music_flutter/songs/SongMoment.dart';
 import 'package:bsteele_music_flutter/songs/key.dart' as songs;
@@ -16,69 +19,99 @@ class Player extends StatelessWidget {
   Widget build(BuildContext context) {
     songs.Key key = song.key;
 
-    print("size: " + MediaQuery
-        .of(context)
-        .size
-        .toString());
-    double textScaleFactor = MediaQuery
-        .of(context)
-        .size
-        .width / 640;
-    textScaleFactor = min(4, max(1, textScaleFactor));
-    print("textScaleFactor: $textScaleFactor");
+    print("size: " + MediaQuery.of(context).size.toString());
+    double chordScaleFactor = MediaQuery.of(context).size.width / 640;
+    chordScaleFactor = min(4, max(1, chordScaleFactor));
+    double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
+    print("textScaleFactor: $chordScaleFactor");
 
-    //  build the table from the song moments
+    //  build the table from the song moment grid
     Table table;
-    {
-      int lastRow;
-      int maxCol = 0;
-      for (SongMoment songMoment in song.songMoments) {
-        maxCol = max(
-            maxCol,
-            song
-                .getMomentGridCoordinateFromMomentNumber(
-                songMoment.getMomentNumber())
-                .col);
-      }
-      List<TableRow> rows = List();
-      List<Widget> children = List();
-      GridCoordinate gridCoordinate;
-      for (SongMoment songMoment in song.songMoments) {
-        songMoment.getChordSectionLocation();
-        gridCoordinate = song.getMomentGridCoordinateFromMomentNumber(
-            songMoment.getMomentNumber());
-        if (lastRow != null && lastRow != gridCoordinate.row) {
-          if (children.isNotEmpty) {
-            while (children.length < maxCol)
-              children.add(Text(
-                " ",
-                textScaleFactor: textScaleFactor,
-              ));
-            rows.add(TableRow(
-                key: ValueKey(songMoment.momentLocation), children: children));
+    Grid<SongMoment> grid = song.songMomentGrid;
+    if (grid.isNotEmpty) {
+      {
+        List<TableRow> rows = List();
+        List<Widget> children = List();
+        Color color =
+            GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+        ChordSection lastChordSection;
+        for (int r = 0; r < grid.getRowCount(); r++) {
+          List<SongMoment> row = grid.getRow(r);
+
+          //  assume col 1 has a chord in it
+          if (row.length < 2 || row[1] == null) continue;
+          ChordSection chordSection = row[1].getChordSection();
+          String columnFiller;
+          EdgeInsets edgeInsets = EdgeInsets.only(left: 8, right: 8);
+          if (chordSection != lastChordSection) {
+            //  add the section heading
+            columnFiller = chordSection.sectionVersion.toString();
+            //  add some vertical spacing between chord sections
+            edgeInsets =
+                EdgeInsets.only(top: 16 * chordScaleFactor, left: 8, right: 8);
+
+            color = GuiColors.getColorForSection(chordSection.getSection());
           }
+          lastChordSection = chordSection;
+
+          String momentLocation;
+          for (int c = 0; c < row.length; c++) {
+            SongMoment sm = row[c];
+
+            if (sm == null) {
+              if ( columnFiller == null )
+              //  empty cell
+              children.add(Padding(
+                  padding: edgeInsets,
+                  child: Text(
+                    " ",
+                  )));
+              else
+              children.add(Padding(
+                  padding: edgeInsets,
+                  child: Text(
+                    columnFiller,
+                    style: TextStyle(backgroundColor: color),
+                    textScaleFactor: chordScaleFactor,
+                  )));
+              columnFiller=null; //  for subsequent rows
+            } else {
+              //  moment found
+              children.add(Padding(
+                  padding: edgeInsets,
+                  child: Text(
+                    sm.getMeasure().toMarkup(),
+                    style: TextStyle(backgroundColor: color),
+                    textScaleFactor: chordScaleFactor,
+                  )));
+
+              //  use the first non-null location for the table value key
+              if (momentLocation == null) momentLocation = sm.momentLocation;
+            }
+          }
+
+          if (momentLocation != null) {
+            //  lyrics
+            children.add(Padding(
+                padding: edgeInsets,
+                child: Text(
+                  "row $r lyrics go here\nand here",
+                  style: TextStyle(backgroundColor: color),
+                  textScaleFactor: lyricsScaleFactor,
+                )));
+
+            //  add row to table
+            rows.add(
+                TableRow(key: ValueKey(momentLocation), children: children));
+          }
+
           children = List();
         }
-        songMoment.getChordSectionLocation();
-        children.add(Text(
-          songMoment.getMeasure().toMarkup(),
-          textScaleFactor: textScaleFactor,
-        ));
-        lastRow = gridCoordinate.row;
+
+        table = Table(
+          children: rows,
+        );
       }
-      //  add the last row
-      if (children.isNotEmpty) {
-        while (children.length < maxCol)
-          children.add(Text(
-            " ",
-            textScaleFactor: textScaleFactor,
-          ));
-        rows.add(
-            TableRow(key: ValueKey(gridCoordinate.row), children: children));
-      }
-      table = Table(
-        children: rows,
-      );
     }
 
     return Scaffold(
@@ -91,19 +124,18 @@ class Player extends StatelessWidget {
             children: <Widget>[
               AppBar(
                   title: Text(
-                    '${song.title}',
-                    textScaleFactor: 1.4,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+                '${song.title}',
+                textScaleFactor: 1.4,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
               Text(
                 song.artist,
-                textScaleFactor: textScaleFactor,
+                textScaleFactor: chordScaleFactor,
               ),
               Text(
-                "Key: $key ${key.sharpsFlatsToString()}   BPM: ${song
-                    .getBeatsPerMinute()}" +
+                "Key: $key ${key.sharpsFlatsToString()}   BPM: ${song.getBeatsPerMinute()}" +
                     "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                textScaleFactor: textScaleFactor,
+                textScaleFactor: chordScaleFactor,
               ),
               Scrollbar(
                 child: table,

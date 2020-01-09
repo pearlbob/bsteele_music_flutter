@@ -16,6 +16,7 @@ class Grid<T> {
   }
 
   bool get isEmpty => grid.isEmpty;
+  bool get isNotEmpty => !grid.isEmpty;
 
   void set(int x, int y, T t) {
     if (x < 0) x = 0;

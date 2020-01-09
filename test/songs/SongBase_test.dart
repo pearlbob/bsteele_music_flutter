@@ -18,7 +18,7 @@ import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Logger.level = Level.verbose;
+  Logger.level = Level.info;
 
   test("testEquals", () {
     SongBase a = SongBase.createSongBase("A", "bob", "bsteele.com",

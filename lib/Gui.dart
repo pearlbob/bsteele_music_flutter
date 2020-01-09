@@ -5,17 +5,29 @@ class GuiColors {
   static Color getColorForSection(Section section) {
     switch (section.sectionEnum) {
       case SectionEnum.verse:
-        return Colors.lightGreen[100];
+        return Colors.grey[200];
       case SectionEnum.intro:
         return Colors.orange[100];
       case SectionEnum.preChorus:
         return Colors.blue[100];
       case SectionEnum.chorus:
-        return Colors.lightBlue[100];
+        return Colors.white;
       case SectionEnum.tag:
         return Colors.blue[200];
+      case SectionEnum.a:
+        return Colors.purple[100];
+      case SectionEnum.b:
+        return Colors.teal[100];
+      case SectionEnum.bridge:
+        return Colors.lime[100];
+      case SectionEnum.coda:
+        return Colors.yellow[100];
+      case SectionEnum.outro:
+        return Colors.lightBlue[100];
       default:
         return Colors.grey[200];
     }
   }
 }
+
+

@@ -100,10 +100,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     List<StatelessWidget> listViewChildren = List();
-    for (Song song in songList)
+    bool oddEven = false;
+    for (Song song in songList) {
+      oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
         child: ListTile(
-            title: Text(song.getTitle()), subtitle: Text(song.getArtist())),
+          title: Text(
+            song.getTitle(),
+            style: TextStyle(
+                backgroundColor: oddEven ? Colors.white : Colors.grey[200]),
+          ),
+          subtitle: Text(
+            song.getArtist(),
+            style: TextStyle(
+                backgroundColor: oddEven ? Colors.white : Colors.grey[200]),
+          ),
+        ),
         onTap: () {
           Navigator.push(
             context,
@@ -111,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
       ));
+    }
 
     return Scaffold(
       appBar: AppBar(

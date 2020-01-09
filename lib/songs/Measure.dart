@@ -242,7 +242,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
 
   @override
   String toJson() {
-    return toMarkupWithEnd('\000');
+    return toMarkupWithEnd(null);
   }
 
   String toMarkupWithEnd(String endOfRowChar) {
@@ -251,10 +251,10 @@ class Measure extends MeasureNode implements Comparable<Measure> {
       for (Chord chord in chords) {
         sb.write(chord.toString());
       }
-      if (endOfRowChar.length > 0 && endOfRow) sb.write(endOfRowChar);
+      if (endOfRowChar!=null && endOfRow) sb.write(endOfRowChar);
       return sb.toString();
     }
-    if (endOfRowChar.length > 0 && endOfRow) return "X" + endOfRowChar;
+    if (endOfRowChar!=null && endOfRow) return "X" + endOfRowChar;
     return "X"; // no chords
   }
 

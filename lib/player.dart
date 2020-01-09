@@ -20,8 +20,8 @@ class Player extends StatelessWidget {
     songs.Key key = song.key;
 
     print("size: " + MediaQuery.of(context).size.toString());
-    double chordScaleFactor = MediaQuery.of(context).size.width / 640;
-    chordScaleFactor = min(4, max(1, chordScaleFactor));
+    double chordScaleFactor = MediaQuery.of(context).size.width / 300;
+    chordScaleFactor = min(10, max(1, chordScaleFactor));
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
     print("textScaleFactor: $chordScaleFactor");
 
@@ -42,14 +42,10 @@ class Player extends StatelessWidget {
           if (row.length < 2 || row[1] == null) continue;
           ChordSection chordSection = row[1].getChordSection();
           String columnFiller;
-          EdgeInsets edgeInsets = EdgeInsets.only(left: 8, right: 8);
+          EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
           if (chordSection != lastChordSection) {
             //  add the section heading
             columnFiller = chordSection.sectionVersion.toString();
-            //  add some vertical spacing between chord sections
-            edgeInsets =
-                EdgeInsets.only(top: 16 * chordScaleFactor, left: 8, right: 8);
-
             color = GuiColors.getColorForSection(chordSection.getSection());
           }
           lastChordSection = chordSection;
@@ -59,28 +55,28 @@ class Player extends StatelessWidget {
             SongMoment sm = row[c];
 
             if (sm == null) {
-              if ( columnFiller == null )
-              //  empty cell
-              children.add(Padding(
-                  padding: edgeInsets,
-                  child: Text(
-                    " ",
-                  )));
+              if (columnFiller == null)
+                //  empty cell
+                children.add(Container(
+                    margin: marginInsets,
+                    child: Text(
+                      " ",
+                    )));
               else
-              children.add(Padding(
-                  padding: edgeInsets,
-                  child: Text(
-                    columnFiller,
-                    style: TextStyle(backgroundColor: color),
-                    textScaleFactor: chordScaleFactor,
-                  )));
-              columnFiller=null; //  for subsequent rows
+                children.add(Container(
+                    margin: marginInsets,
+                    child: Text(
+                      columnFiller,
+                      style: TextStyle(backgroundColor: color),
+                      textScaleFactor: chordScaleFactor,
+                    )));
+              columnFiller = null; //  for subsequent rows
             } else {
               //  moment found
-              children.add(Padding(
-                  padding: edgeInsets,
+              children.add(Container(
+                  margin: marginInsets,
                   child: Text(
-                    sm.getMeasure().toMarkup(),
+                    sm.getMeasure().toJson(),
                     style: TextStyle(backgroundColor: color),
                     textScaleFactor: chordScaleFactor,
                   )));
@@ -92,8 +88,8 @@ class Player extends StatelessWidget {
 
           if (momentLocation != null) {
             //  lyrics
-            children.add(Padding(
-                padding: edgeInsets,
+            children.add(Container(
+                margin: marginInsets,
                 child: Text(
                   "row $r lyrics go here\nand here",
                   style: TextStyle(backgroundColor: color),
@@ -109,6 +105,7 @@ class Player extends StatelessWidget {
         }
 
         table = Table(
+          defaultColumnWidth: IntrinsicColumnWidth(),
           children: rows,
         );
       }
@@ -138,7 +135,7 @@ class Player extends StatelessWidget {
                 textScaleFactor: chordScaleFactor,
               ),
               Scrollbar(
-                child: table,
+                child: Center(child: table),
               ),
             ]),
       ),

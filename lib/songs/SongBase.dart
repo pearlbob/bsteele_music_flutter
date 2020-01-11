@@ -314,7 +314,7 @@ class SongBase {
             minimumLinesPerRow = rows > 0 ? lines ~/ rows : 0;
             rowsOfExtraLines = lines % rows;
 
-            logger.i(
+            logger.v(
                 '$chordSection has $rows chord rows and $lines lines of lyrics'
                 ' = $minimumLinesPerRow per + $rowsOfExtraLines rows with extra line');
 

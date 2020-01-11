@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _readInternalSongList() async {
     String songListAsString =
-    await rootBundle.loadString('lib/assets/allSongs.songlyrics');
+        await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
     try {
       allSongs = Song.songListFromJson(songListAsString);
@@ -107,10 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ScrollController _scrollController = new ScrollController();
     bool oddEven = false;
 
-    double titleScaleFactor = max(1, MediaQuery
-        .of(context)
-        .size
-        .width / 800);
+    double titleScaleFactor = max(1, MediaQuery.of(context).size.width / 800);
     double artistScaleFactor = 0.75 * titleScaleFactor;
 
     for (Song song in songList) {
@@ -149,8 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
             prefixIcon: Icon(Icons.search),
             hintText: "Enter search filter string here.",
           ),
-          style:
-          new TextStyle(fontSize: 12 * titleScaleFactor),
+          style: new TextStyle(fontSize: 12 * titleScaleFactor),
           onChanged: (text) {
             logger.v('search text: "$text"');
             _searchSongs(text);
@@ -158,11 +154,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         Expanded(
             child: Scrollbar(
-              child: ListView(
-                controller: _scrollController,
-                children: listViewChildren,
-              ),
-            )),
+          child: ListView(
+            controller: _scrollController,
+            children: listViewChildren,
+          ),
+        )),
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -210,11 +206,11 @@ class _MyHomePageState extends State<MyHomePage> {
 //    }
 
     //  apply search filter
-    songList=List();
+    songList = List();
     for (Song song in allSongs) {
-      if (search.length == 0
-          || song.getTitle().toLowerCase().contains(search)
-          || song.getArtist().toLowerCase().contains(search)) {
+      if (search.length == 0 ||
+          song.getTitle().toLowerCase().contains(search) ||
+          song.getArtist().toLowerCase().contains(search)) {
         songList.add(song);
       }
     }

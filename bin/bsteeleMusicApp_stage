@@ -1,0 +1,52 @@
+#!/bin/tcsh
+set debug=0
+set isBeta=1
+set app=bsteeleMusicApp
+
+while ( $#argv > 0 )
+	switch ( $1 )
+#	case '-beta':
+#		set isBeta=1
+#		shift
+#		continue;
+	case '-d':		#	debug
+	case '-debug':
+		set debug=1
+		shift
+		continue;
+	default:
+		echo unknown argument: $1
+		exit -1;
+		breaksw;
+	endsw
+
+	break;
+end
+
+
+if ( $debug != 0 ) then
+	set echo; set verbose
+endif
+
+set dst=/var/www/html/public_html
+if ( $isBeta != 0 ) then
+	set dst=$dst/beta
+endif
+set git=~/GitHub/bsteeleMusicFlutter
+set target=$git/build/web
+
+#	build the release version
+flutter build web
+
+#	clear the last one
+mkdir -p $dst
+rm  -rf $dst/$app
+
+#	copy to localhost website
+cp -r build/web $dst/$app
+
+#	send to beta web location
+set gs=gs://www.bsteele.com/beta/$app
+gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/$app/ $gs 	#	source needs the /
+gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
+gsutil -m -q acl -r ch -u AllUsers:R $gs

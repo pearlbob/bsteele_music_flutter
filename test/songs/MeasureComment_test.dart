@@ -1,4 +1,5 @@
 import 'package:bsteele_music_flutter/songs/MeasureComment.dart';
+import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 
@@ -15,8 +16,7 @@ void parse(String s) {
 }
 
   void main() {
-//    Logger.level = Level.warning;
-//    Logger logger = Logger();
+    Logger.level = Level.debug;
 
     test("testparseString", () {
     parse("  (  123  )   A\n");

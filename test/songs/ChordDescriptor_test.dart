@@ -43,7 +43,7 @@ void main() {
     expect(ChordDescriptor.minor13, ChordDescriptor.parseString("m13"));
 
     for (ChordDescriptor cd in ChordDescriptor.values) {
-      print(cd.toString() + ":\t" + cd.chordComponentsToString());
+      logger.i(cd.toString() + ":\t" + cd.chordComponentsToString());
     }
     {
       ChordDescriptor cd1 = ChordDescriptor.dominant7;
@@ -58,7 +58,5 @@ void main() {
           expect(compareValue, cd2.name.compareTo(cd1.name) );
       }
     }
-
-    //print(ChordDescriptor.generateGrammar());
   });
 }

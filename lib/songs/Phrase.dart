@@ -10,7 +10,6 @@ import 'MeasureComment.dart';
 import 'MeasureNode.dart';
 import 'Section.dart';
 import 'key.dart';
-import 'package:logger/logger.dart';
 
 class Phrase extends MeasureNode {
   Phrase(List<Measure> measures, int phraseIndex) {
@@ -330,7 +329,7 @@ class Phrase extends MeasureNode {
       case MeasureEditType.insert:
         try {
           if (newMeasureNode.isSingleItem())
-            _addAt(index-1, newMeasureNode as Measure);
+            _addAt(index - 1, newMeasureNode as Measure);
           else
             addAllAt(index, (newMeasureNode as Phrase)._measures);
         } catch (ex) {
@@ -469,6 +468,15 @@ class Phrase extends MeasureNode {
     return ret;
   }
 
+  int get chordRows {
+    if (_measures == null || _measures.isEmpty) return 0;
+    int chordRows = 0;
+    for (Measure measure in _measures) {
+      chordRows += (measure.endOfRow ? 1 : 0);
+    }
+    return chordRows + 1; //  end of row not there on last measure
+  }
+
   @override
   String toJson() {
     if (_measures == null || _measures.isEmpty) return " ";
@@ -537,6 +545,4 @@ class Phrase extends MeasureNode {
 
   List<Measure> _measures;
   int _phraseIndex;
-
-  Logger logger = Logger();
 }

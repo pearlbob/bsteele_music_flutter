@@ -1,10 +1,10 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 import 'package:logger/logger.dart';
 import "package:test/test.dart";
 
 void main() {
   Logger.level = Level.warning;
-  Logger _logger = new Logger();
 
   test("Scale note sharps, flats and naturals", () {
     ScaleNote sn = ScaleNote.get(ScaleNoteEnum.A);
@@ -16,7 +16,7 @@ void main() {
     final RegExp endsInS = new RegExp(r"s$");
     for (final e in ScaleNoteEnum.values) {
       sn = ScaleNote.get(e);
-      _logger.d(e.toString() + ": "
+      logger.d(e.toString() + ": "
           + endsInB.hasMatch(e.toString()).toString());
       expect(sn.isFlat, endsInB.hasMatch(e.toString()));
       expect(sn.isSharp, endsInS.hasMatch(e.toString()));

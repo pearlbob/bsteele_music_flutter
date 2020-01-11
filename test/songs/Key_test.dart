@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
 import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
 import 'package:bsteele_music_flutter/songs/key.dart';
@@ -34,34 +35,17 @@ class _Help {
     }
     return sb.toString().trim();
   }
-
-  static void generateKeySelection() {
-//        StringBuilder sb = new StringBuilder();
-//        for (Key key : Key.values()) {
-//            sb.write("<option value=\"").append(key.name() + "\"");
-//            if (key.getKeyValue() == 0)
-//                sb.write(" selected=\"selected\"");
-//            sb.write(">");
-//            sb.write(key.toString());
-//            if (key.getKeyValue() != 0)
-//                sb.write(" ").append(Math.abs(key.getKeyValue()))
-//                        .append(key.getKeyValue() < 0 ? MusicConstant.flatChar : MusicConstant.sharpChar);
-//            sb.write("</option>\n");
-//        }
-//        println(sb);
-  }
 }
 
 void main() {
   Logger.level = Level.warning;
-  Logger _logger = new Logger();
 
   test("testGetKeyByValue testing", () {
-    //  print the table of values
+    //  the table of values
     for (int i = -6; i <= 6; i++) {
       Key key = Key.getKeyByValue(i);
       expect(i, key.getKeyValue());
-      print((i >= 0 ? " " : "") +
+      logger.v((i >= 0 ? " " : "") +
               i.toString() +
               " " +
               key.name
@@ -73,37 +57,35 @@ void main() {
           //+ " html: " + key.toHtml()
           );
 
-      _logger.i("\tscale: ");
+      logger.i("\tscale: ");
       for (int j = 0; j < 7; j++) {
         ScaleNote sn = key.getMajorScaleByNote(j);
         String s = sn.toString();
-        _logger.i(s);
-        if (s.toString().length < 2) _logger.i(" ");
-        _logger.i(" ");
+        logger.i(s);
+        if (s.toString().length < 2) logger.i(" ");
+        logger.i(" ");
       }
-      //println("\t");
 
-      _logger.i("\tdiatonics: ");
+      logger.i("\tdiatonics: ");
       for (int j = 0; j < 7; j++) {
         ScaleChord sc = key.getMajorDiatonicByDegree(j);
         String s = sc.toString();
-        _logger.i(s);
+        logger.i(s);
         int len = s.length;
         while (len < 4) {
           len++;
-          _logger.i(" ");
+          logger.i(" ");
         }
-        _logger.i(" ");
+        logger.i(" ");
       }
-      //print;
 
-      _logger.i("\tall notes: ");
+      logger.i("\tall notes: ");
       for (int j = 0; j < 12; j++) {
         ScaleNote sn = key.getScaleNoteByHalfStep(j);
         String s = sn.toString();
-        _logger.i(s);
-        if (s.toString().length < 2) _logger.i(" ");
-        _logger.i(" ");
+        logger.i(s);
+        if (s.toString().length < 2) logger.i(" ");
+        logger.i(" ");
       }
     }
 
@@ -218,17 +200,17 @@ void main() {
 
   test("testScaleNoteByHalfStep testing", () {
     for (Key key in Key.values) {
-      _logger.i("key " + key.toString());
+      logger.i("key " + key.toString());
       if (key.isSharp)
         for (int i = -18; i < 18; i++) {
           ScaleNote scaleNote = key.getScaleNoteByHalfStep(i);
-          _logger.i("\t" + i.toString() + ": " + scaleNote.toString());
+          logger.i("\t" + i.toString() + ": " + scaleNote.toString());
           expect(true, scaleNote.toString().indexOf("♭") < 0);
         }
       else
         for (int i = -18; i < 18; i++) {
           ScaleNote scaleNote = key.getScaleNoteByHalfStep(i);
-          _logger.i("\t" + i.toString() + ": " + scaleNote.toString());
+          logger.i("\t" + i.toString() + ": " + scaleNote.toString());
           expect(true, scaleNote.toString().indexOf("♯") < 0);
         }
     }
@@ -406,28 +388,27 @@ void main() {
   test("testTranspose testing", () {
     for (int k = -6; k <= 6; k++) {
       Key key = Key.getKeyByValue(k);
-//            println(key.toString() + ":");
+      logger.d(key.toString() + ":");
 
       for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
         ScaleNote fsn = ScaleNote.getFlatByHalfStep(i);
         ScaleNote ssn = ScaleNote.getSharpByHalfStep(i);
         expect(fsn.halfStep, ssn.halfStep);
-//                _logger.i(" " + i + ":");
+//                logger.i(" " + i + ":");
 //                if ( i < 10)
-//                    _logger.i(" ");
+//                    logger.i(" ");
         for (int j = 0; j <= MusicConstants.halfStepsPerOctave; j++) {
           ScaleNote fTranSn = key.transpose(fsn, j);
           ScaleNote sTranSn = key.transpose(ssn, j);
           expect(fTranSn.halfStep, sTranSn.halfStep);
-//                    _logger.i(" ");
+//                    logger.i(" ");
 //                    ScaleNote sn =  key.getScaleNoteByHalfStep(fTranSn.getHalfStep());
 //                    String s = sn.toString();
-//                    _logger.i(s);
+//                    logger.i(s);
 //                    if ( s.length() < 2)
-//                        _logger.i(" ");
+//                        logger.i(" ");
 
         }
-        //println();
       }
     }
   });

@@ -169,6 +169,4 @@ class AppOptions {
   bool playWithMeasureLabel = true;
   bool debug = false;
   bool alwaysUseTheNewestSongOnRead = false;
-
-//  logger doesn't seem appropriate here    static final Logger logger = Logger.getLogger(AppOptions.class.getName());
 }

@@ -4,6 +4,8 @@ import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:logger/logger.dart';
 import 'package:resource/resource.dart' show Resource;
 
+import 'appLogger.dart';
+
 main() async {
   Logger.level = Level.info;
 
@@ -16,11 +18,11 @@ main() async {
     List<Song> songList = Song.songListFromJson(s);
 
     for (Song song in songList) {
-      print("");
-      print(song.toString());
-      print("\t${song.toMarkup()}");
+      logger.i("");
+      logger.i(song.toString());
+      logger.i("\t${song.toMarkup()}");
     }
   } catch (fe) {
-    print(fe.toString());
+    logger.w(fe.toString());
   }
 }

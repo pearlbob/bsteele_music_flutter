@@ -2,29 +2,41 @@ import 'package:bsteele_music_flutter/player.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
-void main() => runApp(MyApp());
+import 'appLogger.dart';
+
+void main() {
+  Logger.level = Level.info;
+  runApp(MyApp());
+}
 
 /*
 project structure
-__json
+
 packaging
 deployment
 websockets/server
-__resources
-ui tables
+
 MVC?
-file io (web, android)
+file io (web, android, ios)
+file io (web write)
 flutter on linux?
 what is debugPrint
+
 __software documentation
 ____.gitignore
 ____unit tests
+____file io (web read)
+__resources
+__ui tables
+__json
  */
 
 List<Song> songList = List();
 Song selectedSong;
 
+/// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -90,17 +102,18 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       songList = Song.songListFromJson(songListAsString);
       selectedSong = songList[0];
-      print(selectedSong.toString());
       setState(() {});
     } catch (fe) {
-      print("songList parse error: " + fe.toString());
+      logger.w("songList parse error: " + fe.toString());
     }
   }
 
   @override
   Widget build(BuildContext context) {
     List<StatelessWidget> listViewChildren = List();
+    ScrollController _scrollController = new ScrollController();
     bool oddEven = false;
+
     for (Song song in songList) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
@@ -129,18 +142,25 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      // Navigate to second route when tapped.
+      /// Navigate to song player when song tapped.
       body: Scrollbar(
         child: ListView(
+          controller: _scrollController,
           padding: EdgeInsets.symmetric(vertical: 0),
           children: listViewChildren,
         ),
       ),
-//      floatingActionButton: FloatingActionButton(
-//        onPressed: null,
-//        tooltip: 'Increment',
-//        child: Icon(Icons.add),
-//      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed:  () {
+          _scrollController.animateTo(
+            0.0,
+            curve: Curves.easeOut,
+            duration: const Duration(milliseconds: 800),
+          );
+        },
+         tooltip: 'Back to the list top',
+        child: const Icon(Icons.arrow_upward),
+      ),
     );
   }
 }

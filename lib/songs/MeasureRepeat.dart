@@ -173,6 +173,11 @@ class MeasureRepeat extends Phrase {
   }
 
   @override
+  int get chordRows {
+    return super.chordRows * repeats;
+  }
+
+  @override
   String toMarkup() {
     return "[" +
         (measures.isEmpty ? "" : super.toMarkup()) +

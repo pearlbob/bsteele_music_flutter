@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:bsteele_music_flutter/Grid.dart';
-import 'package:bsteele_music_flutter/GridCoordinate.dart';
 import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSectionLocation.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
@@ -15,7 +12,7 @@ import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Logger.level = Level.debug;
+  Logger.level = Level.verbose;
 
   test("parse ", () {
     SongMomentLocation loc;
@@ -40,7 +37,7 @@ void main() {
               phraseIndex: 2,
               measureIndex: 1),
           3);
-      //System.out.println(locExpected);
+      logger.d(locExpected);
       expect(loc, locExpected);
     }
 
@@ -80,19 +77,26 @@ void main() {
         100,
         4,
         4,
-        "i: A B C D V: D E F F# [ D C B A ]x2 c: D C G G A B",
+        "i: A B C D V: D E F F# [ D C B A ]x2 (comment) c: D C G G A B o: G",
         "i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro");
 
     Grid<SongMoment> songMomentGrid = _a.songMomentGrid;
 
-    expect(songMomentGrid.getRowCount(), 5);
+    expect(songMomentGrid.getRowCount(), 7);
 
     {
       SongMoment lastSongMoment;
 
+      int lastRowLength;
       for (int row = 0; row < songMomentGrid.getRowCount(); row++) {
         logger.i('$row:');
-        for (int col = 0; col < songMomentGrid.rowLength(row); col++) {
+
+        int rowLength =songMomentGrid.rowLength(row);
+        if ( lastRowLength!= null )
+          expect(rowLength,lastRowLength);
+        lastRowLength=rowLength;
+
+        for (int col = 0; col < rowLength; col++) {
           SongMoment songMoment = songMomentGrid.get(row, col);
           String s = (songMoment == null ? 'null' : songMoment.toString());
           logger.d('\t($row,$col): $s');

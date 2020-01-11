@@ -262,18 +262,18 @@ class SongBase {
     int maxCol = 0;
     for (SongMoment songMoment in songMoments) {
       GridCoordinate momentGridCoordinate = getMomentGridCoordinate(songMoment);
-      logger.v(
-          'add ${songMoment.toString()}  at (${momentGridCoordinate.row},${momentGridCoordinate.col})');
-      songMomentGrid.set(
+      logger.v('add ${songMoment.toString()}' +
+          '  at (${momentGridCoordinate.row},${momentGridCoordinate.col})');
+      _songMomentGrid.set(
           momentGridCoordinate.row, momentGridCoordinate.col, songMoment);
       maxCol = max(maxCol, momentGridCoordinate.col);
     }
 
     //  fill the rows to a common maximum length,
     //  even if you have to fill with null
-    for (int row = 0; row < songMomentGrid.getRowCount(); row++) {
-      if (songMomentGrid.getRow(row).length < maxCol)
-        songMomentGrid.set(row, maxCol, null);
+    for (int row = 0; row < _songMomentGrid.getRowCount(); row++) {
+      if (_songMomentGrid.getRow(row).length <= maxCol)
+        _songMomentGrid.set(row, maxCol, null);
     }
     return _songMomentGrid;
   }
@@ -386,8 +386,8 @@ class SongBase {
   /// Find the corrsesponding chord section for the given lyrics section
   ChordSection findChordSectionByLyricSection(LyricSection lyricSection) {
     if (lyricSection == null) return null;
-    logger.d(
-        "chordSectionMap size: " + _getChordSectionMap().keys.length.toString());
+    logger.d("chordSectionMap size: " +
+        _getChordSectionMap().keys.length.toString());
     return _getChordSectionMap()[lyricSection.sectionVersion];
   }
 
@@ -2298,9 +2298,10 @@ class SongBase {
       markedString.consume(1);
     }
     //  last one is not terminated by another section
-    if (lyricSection != null)
+    if (lyricSection != null) {
       lyricSection.add(new LyricsLine(lyricsBuffer.toString()));
-    lyricSections.add(lyricSection);
+      lyricSections.add(lyricSection);
+    }
 
     //  safety with lazy eval
     clearCachedValues();

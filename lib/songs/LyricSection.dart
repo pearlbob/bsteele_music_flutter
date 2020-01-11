@@ -5,21 +5,17 @@ import 'LegacyDrumSection.dart';
 import 'LyricsLine.dart';
 import 'SectionVersion.dart';
 
-/// A sectionVersion of a song that carries the lyrics, any special drum sectionVersion,
+/// A _sectionVersion of a song that carries the lyrics, any special drum _sectionVersion,
 /// and the chord changes on a measure basis
 /// with ultimately beat resolution.
 class LyricSection implements Comparable<LyricSection> {
-  /// Get the lyric sectionVersion's identifier
-  SectionVersion getSectionVersion() {
-    return sectionVersion;
+
+  /// Get the lyric _sectionVersion's identifier
+  void setSectionVersion(SectionVersion _sectionVersion) {
+    this._sectionVersion = _sectionVersion;
   }
 
-  /// Get the lyric sectionVersion's identifier
-  void setSectionVersion(SectionVersion sectionVersion) {
-    this.sectionVersion = sectionVersion;
-  }
-
-  /// The sectionVersion's measures.
+  /// The _sectionVersion's measures.
   List<LyricsLine> getLyricsLines() {
     return lyricsLines;
   }
@@ -34,19 +30,19 @@ class LyricSection implements Comparable<LyricSection> {
 
   @override
   String toString() {
-    return sectionVersion.toString();
+    return _sectionVersion.toString();
   }
 
-  /// Get the song's default drum sectionVersion.
-  /// The sectionVersion will be played through all of its measures
-  /// and then repeated as required for the sectionVersion's duration.
-  /// When done, the drums will default back to the song's default drum sectionVersion.
+  /// Get the song's default drum _sectionVersion.
+  /// The _sectionVersion will be played through all of its measures
+  /// and then repeated as required for the _sectionVersion's duration.
+  /// When done, the drums will default back to the song's default drum _sectionVersion.
 
   LegacyDrumSection getDrumSection() {
     return drumSection;
   }
 
-  ///Set the song's default drum sectionVersion
+  ///Set the song's default drum _sectionVersion
   void setDrumSection(LegacyDrumSection drumSection) {
     this.drumSection = drumSection;
   }
@@ -56,7 +52,7 @@ class LyricSection implements Comparable<LyricSection> {
   /// than, equal to, or greater than the specified object.
   @override
   int compareTo(LyricSection other) {
-    int ret = sectionVersion.compareTo(other.sectionVersion);
+    int ret = _sectionVersion.compareTo(other._sectionVersion);
     if (ret != 0) return ret;
 
     if (lyricsLines == null) {
@@ -73,7 +69,7 @@ class LyricSection implements Comparable<LyricSection> {
     }
     ret = drumSection.compareTo(other.drumSection);
     if (ret != 0) return ret;
-    ret = sectionVersion.compareTo(other.sectionVersion);
+    ret = _sectionVersion.compareTo(other._sectionVersion);
     if (ret != 0) return ret;
 
     if (!listsEqual(lyricsLines, other.lyricsLines)) {
@@ -96,21 +92,22 @@ class LyricSection implements Comparable<LyricSection> {
       return true;
     }
     return other is LyricSection &&
-        sectionVersion == other.sectionVersion &&
+        _sectionVersion == other._sectionVersion &&
         drumSection == other.drumSection &&
         listsEqual(lyricsLines, other.lyricsLines);
   }
 
   @override
   int get hashCode {
-    int ret = sectionVersion.hashCode;
+    int ret = _sectionVersion.hashCode;
     ret = ret * 13 + drumSection.hashCode;
     if ( lyricsLines!=null )
     ret = ret * 17 + hashObjects(lyricsLines);
     return ret;
   }
 
-  SectionVersion sectionVersion;
+  SectionVersion get sectionVersion => _sectionVersion;
+  SectionVersion _sectionVersion;
   LegacyDrumSection drumSection = new LegacyDrumSection();
   List<LyricsLine> lyricsLines = new List();
 }

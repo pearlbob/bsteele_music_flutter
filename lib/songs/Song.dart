@@ -423,8 +423,6 @@ class Song extends SongBase implements Comparable<Song> {
       RegExp(r"^\w*(\d{1,2})\w*\/\w*(\d)\w*$");
 
   static final JsonDecoder jsonDecoder = JsonDecoder();
-
-  static final Logger logger = Logger();
 }
 
 /// A comparator that sorts by song title and then artist.

@@ -1,10 +1,10 @@
 import 'package:bsteele_music_flutter/Grid.dart';
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
   Logger.level = Level.warning;
-  Logger _logger = Logger();
 
   test("test set", () {
     Grid<int> grid = Grid<int>();
@@ -55,7 +55,7 @@ void main() {
     grid.set(0,1, 5);
     grid.set(0,3, 9);
     grid.set(3,3, 12);
-    _logger.d(grid.toString());
+    logger.d(grid.toString());
     expect(grid.toString(), "Grid{[[1, 5, null, 9], [null], [null], [null, null, null, 12]]}" );
     expect( 1,grid.get(0,0));
     expect(grid.get(3,0),isNull);

@@ -180,6 +180,4 @@ class Chord implements Comparable<Chord> {
   ChordAnticipationOrDelay _anticipationOrDelay;
 
   static final RegExp _beatSizeRegexp = new RegExp(r"^\.\d");
-
-//static Logger _logger = new Logger();
 }

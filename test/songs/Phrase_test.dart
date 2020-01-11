@@ -1,10 +1,10 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/Phrase.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
   Logger.level = Level.warning;
-  Logger logger = Logger();
 
   test("testParsing", () {
     int phraseIndex = 0;

@@ -10,6 +10,9 @@ import 'package:bsteele_music_flutter/songs/key.dart' as songs;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'appLogger.dart';
+
+/// Display the song in sequential order so it can be played.
 class Player extends StatelessWidget {
   final Song song;
 
@@ -19,11 +22,11 @@ class Player extends StatelessWidget {
   Widget build(BuildContext context) {
     songs.Key key = song.key;
 
-    print("size: " + MediaQuery.of(context).size.toString());
-    double chordScaleFactor = MediaQuery.of(context).size.width / 300;
+    logger.d("size: " + MediaQuery.of(context).size.toString());
+    double chordScaleFactor = MediaQuery.of(context).size.width / 700;
     chordScaleFactor = min(10, max(1, chordScaleFactor));
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
-    print("textScaleFactor: $chordScaleFactor");
+    logger.d("textScaleFactor: $chordScaleFactor");
 
     //  build the table from the song moment grid
     Table table;
@@ -34,21 +37,45 @@ class Player extends StatelessWidget {
         List<Widget> children = List();
         Color color =
             GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+
+        //  keep track of the section
         ChordSection lastChordSection;
+        int lastSectionCount;
+
+        //  map the song moment grid to a flutter table, one row at a time
         for (int r = 0; r < grid.getRowCount(); r++) {
           List<SongMoment> row = grid.getRow(r);
 
-          //  assume col 1 has a chord in it
-          if (row.length < 2 || row[1] == null) continue;
-          ChordSection chordSection = row[1].getChordSection();
+          //  assume col 1 has a chord or comment in it
+          if (row.length < 2 ) continue;
+
+          //  find the first col with data
+          //  should normally be col 1 (i.e. the second col)
+          SongMoment firstMeasure;
+          {
+            for ( SongMoment measure in row )
+            if ( measure == null) continue;
+            else
+              {
+                firstMeasure = measure;
+                break;
+              }
+          }
+          if ( firstMeasure== null )
+            continue;
+
+          ChordSection chordSection = firstMeasure.getChordSection();
+          int sectionCount = firstMeasure.sectionCount;
           String columnFiller;
           EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
-          if (chordSection != lastChordSection) {
+          if (chordSection != lastChordSection ||
+              sectionCount != lastSectionCount) {
             //  add the section heading
             columnFiller = chordSection.sectionVersion.toString();
             color = GuiColors.getColorForSection(chordSection.getSection());
           }
           lastChordSection = chordSection;
+          lastSectionCount = sectionCount;
 
           String momentLocation;
           for (int c = 0; c < row.length; c++) {
@@ -82,7 +109,8 @@ class Player extends StatelessWidget {
                   )));
 
               //  use the first non-null location for the table value key
-              if (momentLocation == null) momentLocation = sm.momentLocation;
+              if (momentLocation == null)
+                momentLocation = sm.momentNumber.toString();
             }
           }
 
@@ -112,6 +140,7 @@ class Player extends StatelessWidget {
     }
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
@@ -120,6 +149,7 @@ class Player extends StatelessWidget {
             textDirection: TextDirection.ltr,
             children: <Widget>[
               AppBar(
+                  //  let the app bar scroll off the screen for more room for the song
                   title: Text(
                 '${song.title}',
                 textScaleFactor: 1.4,

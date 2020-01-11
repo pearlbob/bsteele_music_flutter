@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordComponent.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
 import 'package:bsteele_music_flutter/songs/key.dart';
@@ -28,7 +29,6 @@ String chordComponentScaleNotesToString(Key key, ScaleChord scaleChord) {
 
 void main() {
   Logger.level = Level.warning;
-  Logger logger = Logger();
 
   test("ScaleChord HTML", () {
     StringBuffer sb=StringBuffer();

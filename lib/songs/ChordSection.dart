@@ -1,7 +1,7 @@
-import 'package:logger/logger.dart';
 import 'package:quiver/collection.dart';
 import 'package:quiver/core.dart';
 
+import '../appLogger.dart';
 import '../util.dart';
 import 'Measure.dart';
 import 'MeasureComment.dart';
@@ -120,7 +120,7 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
       //  consume unused commas
       {
         String s = markedString.remainingStringLimited(10);
-        _logger.d("s: " + s);
+        logger.d("s: " + s);
         RegExpMatch mr = commaRegexp.firstMatch(s);
         if (mr != null) {
           markedString.consume(mr.group(0).length);
@@ -166,9 +166,9 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
           lineMeasures.add(measureComment);
           continue;
         } else
-          _logger.i("here: " + s);
+          logger.i("here: " + s);
       }
-      _logger.i("can't figure out: " + markedString.toString());
+      logger.i("can't figure out: " + markedString.toString());
       throw "can't figure out: " + markedString.toString(); //  all whitespace
     }
 
@@ -487,6 +487,15 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     return _phrases[_phrases.length - 1];
   }
 
+  int get chordRows {
+    if (_phrases == null || _phrases.isEmpty) return 0;
+    int chordRows = 0;
+    for (Phrase phrase in _phrases) {
+      chordRows += phrase.chordRows;
+    }
+    return chordRows;
+  }
+
   @override
   bool isEmpty() {
     return _phrases == null || _phrases.isEmpty || _phrases[0].isEmpty();
@@ -535,6 +544,4 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
 
   static RegExp commaRegexp = RegExp("^\\s*,");
   static RegExp commentRegExp = RegExp("^(\\S+)\\s+");
-
-  static Logger _logger = new Logger();
 }

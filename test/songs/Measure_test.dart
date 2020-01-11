@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/Chord.dart';
 import 'package:bsteele_music_flutter/songs/ChordAnticipationOrDelay.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
@@ -13,7 +14,6 @@ import '../CustomMatchers.dart';
 
 void main() {
   Logger.level = Level.warning;
-  Logger logger = Logger();
 
   test("test equality", () {
     Measure m;
@@ -403,7 +403,7 @@ void main() {
     }
     {
       int beatsPerBar = 3;
-      //System.out.println("beatsPerBar: " + beatsPerBar);
+      logger.d("beatsPerBar: " + beatsPerBar.toString());
       try {
         m = Measure.parseString(" .G ", beatsPerBar);
         fail("should fail on stupid entry: .G");

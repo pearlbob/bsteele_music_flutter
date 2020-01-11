@@ -1,4 +1,5 @@
 import 'package:bsteele_music_flutter/GridCoordinate.dart';
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/ChordSectionLocation.dart';
 import 'package:bsteele_music_flutter/songs/Measure.dart';
@@ -13,7 +14,6 @@ import 'package:test/test.dart';
 
 void main() {
   Logger.level = Level.warning;
-  Logger logger = Logger();
 
   test("parseMarkup", () {
     MeasureRepeat measureRepeat;

@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/util.dart';
 import 'package:logger/logger.dart';
@@ -5,7 +6,6 @@ import "package:test/test.dart";
 
 void main() {
   Logger.level = Level.info;
-  Logger _logger = new Logger();
 
   test("section abbreviations", () {
     StringBuffer sb = StringBuffer();
@@ -17,11 +17,10 @@ void main() {
       else
         sb.write(", ");
       sb.write(section.formalName + ":");
-      //System.out.println(" "+section.toString());
       String s = section.abbreviation;
       if (s != null) sb.write(" " + s);
     }
-    _logger.d(sb.toString());
+    logger.d(sb.toString());
     expect(sb.toString(),
         "Intro: I, Verse: V, Prechorus: PC, Chorus: C, A: A, B: B, Bridge: Br, Coda: Co, Tag: T, Outro: O");
   });

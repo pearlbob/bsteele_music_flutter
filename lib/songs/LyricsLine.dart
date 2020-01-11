@@ -6,10 +6,6 @@ class LyricsLine implements Comparable<LyricsLine> {
   LyricsLine(this._lyrics) ;
 
   ///  The lyrics to be sung over this measure.
-
-
-
-  ///  The lyrics to be sung over this measure.
   void setLyrics(String lyrics) {
     _lyrics = (lyrics == null ? "" : lyrics);
   }
@@ -32,6 +28,11 @@ class LyricsLine implements Comparable<LyricsLine> {
     return _lyrics.hashCode;
   }
 
+
+  @override
+  String toString() {
+    return _lyrics;
+  }
 
   String get lyrics=>  _lyrics;
   String _lyrics;

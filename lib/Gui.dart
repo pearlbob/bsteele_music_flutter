@@ -11,9 +11,9 @@ class GuiColors {
       case SectionEnum.preChorus:
         return Colors.blue[100];
       case SectionEnum.chorus:
-        return Colors.white;
+        return Colors.grey[100];
       case SectionEnum.tag:
-        return Colors.blue[200];
+        return Colors.blue[100];
       case SectionEnum.a:
         return Colors.purple[100];
       case SectionEnum.b:

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bsteele_music_flutter/player.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ __ui tables
 __json
  */
 
+List<Song> allSongs = List();
 List<Song> songList = List();
 Song selectedSong;
 
@@ -44,16 +47,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'bsteele Music',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.lightBlue[300],
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: MyHomePage(title: 'bsteele Music'),
 
@@ -73,14 +68,11 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
+  // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  //  Fields in a Widget subclass are always marked "final".
 
   final String title;
 
@@ -97,10 +89,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _readInternalSongList() async {
     String songListAsString =
-        await rootBundle.loadString('lib/assets/allSongs.songlyrics');
+    await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
     try {
-      songList = Song.songListFromJson(songListAsString);
+      allSongs = Song.songListFromJson(songListAsString);
+      songList = allSongs;
       selectedSong = songList[0];
       setState(() {});
     } catch (fe) {
@@ -114,21 +107,27 @@ class _MyHomePageState extends State<MyHomePage> {
     ScrollController _scrollController = new ScrollController();
     bool oddEven = false;
 
+    double titleScaleFactor = max(1, MediaQuery
+        .of(context)
+        .size
+        .width / 800);
+    double artistScaleFactor = 0.75 * titleScaleFactor;
+
     for (Song song in songList) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
-        child: ListTile(
-          title: Text(
-            song.getTitle(),
-            style: TextStyle(
-                backgroundColor: oddEven ? Colors.white : Colors.grey[200]),
-          ),
-          subtitle: Text(
-            song.getArtist(),
-            style: TextStyle(
-                backgroundColor: oddEven ? Colors.white : Colors.grey[200]),
-          ),
-        ),
+        child: Container(
+            color: oddEven ? Colors.white : Colors.grey[100],
+            child: ListTile(
+              title: Text(
+                song.getTitle(),
+                textScaleFactor: titleScaleFactor,
+              ),
+              subtitle: Text(
+                song.getArtist(),
+                textScaleFactor: artistScaleFactor,
+              ),
+            )),
         onTap: () {
           Navigator.push(
             context,
@@ -142,25 +141,83 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
+
       /// Navigate to song player when song tapped.
-      body: Scrollbar(
-        child: ListView(
-          controller: _scrollController,
-          padding: EdgeInsets.symmetric(vertical: 0),
-          children: listViewChildren,
+      body: Column(children: <Widget>[
+        TextField(
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: "Enter search filter string here.",
+          ),
+          style:
+          new TextStyle(fontSize: 12 * titleScaleFactor),
+          onChanged: (text) {
+            logger.v('search text: "$text"');
+            _searchSongs(text);
+          },
         ),
-      ),
+        Expanded(
+            child: Scrollbar(
+              child: ListView(
+                controller: _scrollController,
+                children: listViewChildren,
+              ),
+            )),
+      ]),
       floatingActionButton: FloatingActionButton(
-        onPressed:  () {
+        onPressed: () {
           _scrollController.animateTo(
             0.0,
             curve: Curves.easeOut,
             duration: const Duration(milliseconds: 800),
           );
         },
-         tooltip: 'Back to the list top',
+        tooltip: 'Back to the list top',
         child: const Icon(Icons.arrow_upward),
       ),
     );
+  }
+
+  void _searchSongs(String search) {
+    if (search == null) {
+      search = "";
+    }
+    search = search.replaceAll("[^\\w\\s']+", "");
+    search = search.toLowerCase();
+
+    //  apply complexity filster
+//    TreeSet<Song> allSongsFiltered = allSongs;
+//    if (complexityFilter != ComplexityFilter.all) {
+//      TreeSet<Song> sortedSongs = new TreeSet<>(Song.getComparatorByType(Song.ComparatorType.complexity));
+//      sortedSongs.addAll(allSongs);
+//      double factor = 1.0;
+//      switch (complexityFilter) {
+//        case veryEasy:
+//          factor = 1.0 / 4;
+//          break;
+//        case easy:
+//          factor = 2.0 / 4;
+//          break;
+//        case moderate:
+//          factor = 3.0 / 4;
+//          break;
+//      }
+//      int limit = (int) (factor * sortedSongs.size());
+//      Song[] allSongsFilteredList = sortedSongs.toArray(new Song[0]);
+//      allSongsFiltered = new TreeSet<>();
+//      for (int i = 0; i < limit; i++)
+//        allSongsFiltered.add(allSongsFilteredList[i]);
+//    }
+
+    //  apply search filter
+    songList=List();
+    for (Song song in allSongs) {
+      if (search.length == 0
+          || song.getTitle().toLowerCase().contains(search)
+          || song.getArtist().toLowerCase().contains(search)) {
+        songList.add(song);
+      }
+    }
+    setState(() {});
   }
 }

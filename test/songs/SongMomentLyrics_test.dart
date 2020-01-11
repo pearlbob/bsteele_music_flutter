@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/LyricSection.dart';
@@ -9,7 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
 
   test("test song moment lyrics distribution", () {
     List<String> lyricsData = [
@@ -24,6 +25,7 @@ void main() {
       "i don't know more",
     ];
     for (int lines = 0; lines < lyricsData.length; lines++) {
+      //  Generate the lyrics lines for the given number of lines
       String lyrics = '';
       for (int i = 0; i < lines; i++) {
         lyrics = (lyrics.isEmpty
@@ -32,46 +34,35 @@ void main() {
       }
       logger.i('lines: $lines\n$lyrics');
 
+      //  Create the song
       SongBase a = SongBase.createSongBase("A", "bob", "bsteele.com",
           Key.getDefault(), 100, 4, 4, "v: A B C D x4", lyrics);
       logger.d('lines: $lines');
       logger.d('lyrics: ${a.rawLyrics}');
-      for (SongMoment songMoment in a.songMoments) {
-        logger.d(songMoment.toString());
-      }
 
-      for (LyricSection lyricSection in a.getLyricSections()) {
-        ChordSection chordSection =
-            a.getChordSection(lyricSection.sectionVersion);
-        int lines = 0;
-        for (LyricsLine lyricsLine in lyricSection.lyricsLines) {
-          lines++;
-          logger.v('\t$lyricSection:$lines: "${lyricsLine.lyrics}"');
-        }
-        int rows = chordSection.chordRows;
+      Grid<SongMoment> grid = a.songMomentGrid;
+      int rows = grid.getRowCount();
+      ChordSection chordSection;
+      for (int r = 0; r < rows; r++) {
+        List<SongMoment> row = grid.getRow(r);
+        int cols = row.length;
+        String rowLyrics;
+        for (int c = 0; c < cols; c++) {
+          SongMoment songMoment = grid.get(r, c);
+          if (songMoment == null) continue;
 
-        int minimumLinesPerRow = rows > 0 ? lines ~/ rows : 0;
-        int rowsOfExtraLines = lines % rows;
-
-        logger.i('$chordSection has $rows chord rows and $lines lines of lyrics'
-            ' = $minimumLinesPerRow per + $rowsOfExtraLines rows with extra line');
-
-        int lineIndex = 0;
-        int extraLine = rowsOfExtraLines;
-        for (int row = 0; row < rows; row++) {
-          String rowLyrics = '';
-          if (lineIndex < lyricSection.lyricsLines.length) {
-            for (int i = 0; i < minimumLinesPerRow; i++)
-              rowLyrics = (rowLyrics.length > 0 ? rowLyrics + '\n' : '') +
-                  lyricSection.lyricsLines[lineIndex++].toString();
-            if (extraLine > 0) {
-              rowLyrics += (rowLyrics.length > 0 ? rowLyrics + '\n' : '') +
-                  lyricSection.lyricsLines[lineIndex++].toString();
-              extraLine--;
-            }
+          //  Change of section is a change in lyrics... typically.
+          if (songMoment.chordSection != chordSection) {
+            chordSection = songMoment.chordSection;
+            rowLyrics = null;
           }
-          logger.i('row $row:');
-          logger.i('\t$rowLyrics');
+
+          //  All moments in the row have the same lyrics
+          if (rowLyrics == null)
+            rowLyrics = songMoment.lyrics;
+          else
+            expect(songMoment.lyrics, rowLyrics);
+          logger.d('($r,$c) ${songMoment.toString()}: ${songMoment.lyrics}');
         }
       }
     }

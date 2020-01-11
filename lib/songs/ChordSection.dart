@@ -487,13 +487,13 @@ class ChordSection extends MeasureNode implements Comparable<ChordSection> {
     return _phrases[_phrases.length - 1];
   }
 
-  int get chordRows {
+  int get chordRowCount {
     if (_phrases == null || _phrases.isEmpty) return 0;
-    int chordRows = 0;
+    int chordRowCount = 0;
     for (Phrase phrase in _phrases) {
-      chordRows += phrase.chordRows;
+      chordRowCount += phrase.chordRowCount;
     }
-    return chordRows;
+    return chordRowCount;
   }
 
   @override

@@ -100,15 +100,15 @@ class SongBase {
     _songMoments = List<SongMoment>();
     beatsToMoment = new HashMap<int, SongMoment>();
 
-    if (lyricSections == null) return;
+    if (_lyricSections == null) return;
 
-    logger.d("lyricSections size: " + lyricSections.length.toString());
+    logger.d("_lyricSections size: " + _lyricSections.length.toString());
     int sectionCount;
     HashMap<SectionVersion, int> sectionVersionCountMap =
         new HashMap<SectionVersion, int>();
     chordSectionBeats = HashMap<SectionVersion, int>();
     int beatNumber = 0;
-    for (LyricSection lyricSection in lyricSections) {
+    for (LyricSection lyricSection in _lyricSections) {
       ChordSection chordSection = findChordSectionByLyricSection(lyricSection);
       if (chordSection == null) continue;
 
@@ -195,7 +195,7 @@ class SongBase {
     }
 
     {
-//  generate song moment grid coordinate map for play to display purposes
+      //  Generate song moment grid coordinate map for play to display purposes.
       _songMomentGridCoordinateHashMap = HashMap<SongMoment, GridCoordinate>();
 
       int row = 0;
@@ -269,12 +269,89 @@ class SongBase {
       maxCol = max(maxCol, momentGridCoordinate.col);
     }
 
-    //  fill the rows to a common maximum length,
-    //  even if you have to fill with null
+    //  Fill the rows to a common maximum length,
+    //  even if you have to fill with null.
+    //  This is done in preparation of the flutter table.
     for (int row = 0; row < _songMomentGrid.getRowCount(); row++) {
       if (_songMomentGrid.getRow(row).length <= maxCol)
         _songMomentGrid.set(row, maxCol, null);
     }
+
+    if (_lyricSections != null) {
+      {
+        LyricSection lyricSection;
+        int minimumLinesPerRow;
+        int rows;
+        int rowsOfExtraLines;
+        int rowInSection;
+        int lastRow;
+        int lineIndex;
+        int extraLine;
+        String rowLyrics = '';
+        for (int songMomentNumber = 0;
+            songMomentNumber < songMoments.length;
+            songMomentNumber++) {
+          SongMoment songMoment = songMoments[songMomentNumber];
+
+          //  Compute values for the next lyric section.
+          if (songMoment.lyricSection != lyricSection) {
+            lyricSection = songMoment.lyricSection;
+
+            //  Find the number of lines in this section
+            ChordSection chordSection =
+                getChordSection(lyricSection.sectionVersion);
+            int lines = 0;
+            for (LyricsLine lyricsLine in lyricSection.lyricsLines) {
+              lines++;
+              logger.v('\t$lyricSection:$lines: "${lyricsLine.lyrics}"');
+            }
+
+            //  Find the number of rows in this chord section griding
+            rows = chordSection.chordRowCount;
+
+            //  Distribute the lines over the rows.
+            //  Extra lines go in earlier rows.
+            minimumLinesPerRow = rows > 0 ? lines ~/ rows : 0;
+            rowsOfExtraLines = lines % rows;
+
+            logger.i(
+                '$chordSection has $rows chord rows and $lines lines of lyrics'
+                ' = $minimumLinesPerRow per + $rowsOfExtraLines rows with extra line');
+
+            //  Generate the lyrics for the rows.
+            lineIndex = 0;
+            extraLine = rowsOfExtraLines;
+            rowInSection = 0;
+            lineIndex = 0;
+          }
+
+          //  Compute a new set of lyrics lines when required.
+          GridCoordinate gridCoordinate =
+              _songMomentGridCoordinateHashMap[songMoment];
+          if (gridCoordinate == null) continue;
+          if (gridCoordinate.row != lastRow) {
+            lastRow = gridCoordinate.row;
+            rowLyrics = '';
+            if (lineIndex < lyricSection.lyricsLines.length) {
+              for (int i = 0; i < minimumLinesPerRow; i++)
+                rowLyrics += (rowLyrics.length > 0 ? '\n' : '') +
+                    lyricSection.lyricsLines[lineIndex++].toString();
+              if (extraLine > 0) {
+                rowLyrics += (rowLyrics.length > 0 ? '\n' : '') +
+                    lyricSection.lyricsLines[lineIndex++].toString();
+                extraLine--;
+              }
+            }
+            logger.v('row $rowInSection:');
+            logger.v('\t$rowLyrics');
+          }
+
+          //  Note that every moment in the row gets the same lyrics.
+          songMoment.lyrics = rowLyrics;
+        }
+      }
+    }
+
     return _songMomentGrid;
   }
 
@@ -2236,7 +2313,7 @@ class SongBase {
     StringBuffer lyricsBuffer = new StringBuffer();
     LyricSection lyricSection;
 
-    lyricSections = new List();
+    _lyricSections = new List();
 
     MarkedString markedString = new MarkedString(rawLyrics);
     while (markedString.isNotEmpty) {
@@ -2252,7 +2329,7 @@ class SongBase {
         case 1:
           try {
             SectionVersion version = SectionVersion.parse(markedString);
-            if (lyricSection != null) lyricSections.add(lyricSection);
+            if (lyricSection != null) _lyricSections.add(lyricSection);
 
             lyricSection = new LyricSection();
             lyricSection.setSectionVersion(version);
@@ -2300,7 +2377,7 @@ class SongBase {
     //  last one is not terminated by another section
     if (lyricSection != null) {
       lyricSection.add(new LyricsLine(lyricsBuffer.toString()));
-      lyricSections.add(lyricSection);
+      _lyricSections.add(lyricSection);
     }
 
     //  safety with lazy eval
@@ -2563,7 +2640,7 @@ class SongBase {
     for (ChordSection chordSection in newSong.getChordSections()) {
       SectionVersion chordSectionVersion = chordSection.sectionVersion;
       bool found = false;
-      for (LyricSection lyricSection in newSong.getLyricSections()) {
+      for (LyricSection lyricSection in newSong._lyricSections) {
         if (chordSectionVersion == lyricSection.sectionVersion) {
           found = true;
           break;
@@ -2576,7 +2653,7 @@ class SongBase {
     }
 
     //  see that all lyric sections have a chord section
-    for (LyricSection lyricSection in newSong.getLyricSections()) {
+    for (LyricSection lyricSection in newSong._lyricSections) {
       SectionVersion lyricSectionVersion = lyricSection.sectionVersion;
       bool found = false;
       for (ChordSection chordSection in newSong.getChordSections()) {
@@ -2608,8 +2685,8 @@ class SongBase {
 
     if (newSong.getMessage() == null) {
       //  an early song with default (no) structure?
-      if (newSong.getLyricSections().length == 1 &&
-          newSong.getLyricSections()[0].sectionVersion ==
+      if (newSong._lyricSections.length == 1 &&
+          newSong._lyricSections[0].sectionVersion ==
               Section.getDefaultVersion()) {
         newSong
             .setMessage("song looks too simple, is there really no structure?");
@@ -2672,11 +2749,11 @@ class SongBase {
 
     //  lyrics
     {
-      int limit = min(a.getLyricSections().length, b.getLyricSections().length);
+      int limit = min(a._lyricSections.length, b._lyricSections.length);
       for (int i = 0; i < limit; i++) {
-        LyricSection aLyricSection = a.getLyricSections()[i];
+        LyricSection aLyricSection = a._lyricSections[i];
         SectionVersion sectionVersion = aLyricSection.sectionVersion;
-        LyricSection bLyricSection = b.getLyricSections()[i];
+        LyricSection bLyricSection = b._lyricSections[i];
         int lineLimit = min(aLyricSection.getLyricsLines().length,
             bLyricSection.getLyricsLines().length);
         for (int j = 0; j < lineLimit; j++) {
@@ -2978,10 +3055,6 @@ class SongBase {
         return songMoment;
     }
     return null;
-  }
-
-  List<LyricSection> getLyricSections() {
-    return lyricSections;
   }
 
   int getFileVersionNumber() {
@@ -3289,7 +3362,8 @@ class SongBase {
   double duration; //  units of seconds
   int totalBeats;
 
-  List<LyricSection> lyricSections = new List();
+  List<LyricSection> get lyricSections => _lyricSections;
+  List<LyricSection> _lyricSections = new List();
   HashMap<SectionVersion, GridCoordinate> chordSectionGridCoorinateMap;
 
   //  match to representative section version

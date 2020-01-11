@@ -23,7 +23,7 @@ class Player extends StatelessWidget {
     songs.Key key = song.key;
 
     logger.d("size: " + MediaQuery.of(context).size.toString());
-    double chordScaleFactor = MediaQuery.of(context).size.width / 700;
+    double chordScaleFactor = MediaQuery.of(context).size.width / 400;
     chordScaleFactor = min(10, max(1, chordScaleFactor));
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
     logger.d("textScaleFactor: $chordScaleFactor");
@@ -47,25 +47,22 @@ class Player extends StatelessWidget {
           List<SongMoment> row = grid.getRow(r);
 
           //  assume col 1 has a chord or comment in it
-          if (row.length < 2 ) continue;
+          if (row.length < 2) continue;
 
           //  find the first col with data
           //  should normally be col 1 (i.e. the second col)
-          SongMoment firstMeasure;
-          {
-            for ( SongMoment measure in row )
-            if ( measure == null) continue;
-            else
-              {
-                firstMeasure = measure;
-                break;
-              }
-          }
-          if ( firstMeasure== null )
-            continue;
+          SongMoment firstSongMoment;
+          for (SongMoment sm in row)
+            if (sm == null)
+              continue;
+            else {
+              firstSongMoment = sm;
+              break;
+            }
+          if (firstSongMoment == null) continue;
 
-          ChordSection chordSection = firstMeasure.getChordSection();
-          int sectionCount = firstMeasure.sectionCount;
+          ChordSection chordSection = firstSongMoment.getChordSection();
+          int sectionCount = firstSongMoment.sectionCount;
           String columnFiller;
           EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
           if (chordSection != lastChordSection ||
@@ -119,7 +116,7 @@ class Player extends StatelessWidget {
             children.add(Container(
                 margin: marginInsets,
                 child: Text(
-                  "row $r lyrics go here\nand here",
+                  firstSongMoment.lyrics,
                   style: TextStyle(backgroundColor: color),
                   textScaleFactor: lyricsScaleFactor,
                 )));

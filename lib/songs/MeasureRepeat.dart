@@ -173,8 +173,8 @@ class MeasureRepeat extends Phrase {
   }
 
   @override
-  int get chordRows {
-    return super.chordRows * repeats;
+  int get chordRowCount {
+    return super.chordRowCount * repeats;
   }
 
   @override

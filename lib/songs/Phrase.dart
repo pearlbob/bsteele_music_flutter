@@ -468,13 +468,14 @@ class Phrase extends MeasureNode {
     return ret;
   }
 
-  int get chordRows {
+  /// Get the number of rows in this phrase after gridding.
+  int get chordRowCount {
     if (_measures == null || _measures.isEmpty) return 0;
-    int chordRows = 0;
+    int chordRowCount = 0;
     for (Measure measure in _measures) {
-      chordRows += (measure.endOfRow ? 1 : 0);
+      chordRowCount += (measure.endOfRow ? 1 : 0);
     }
-    return chordRows + 1; //  end of row not there on last measure
+    return chordRowCount + 1; //  end of row not there on last measure
   }
 
   @override

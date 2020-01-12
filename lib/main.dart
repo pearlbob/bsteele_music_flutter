@@ -81,6 +81,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  _MyHomePageState()
+      : _searchTextFieldController = TextEditingController(),
+        _searchFocusNode = FocusNode() {
+    _searchTextFieldController = TextEditingController();
+    _searchTextField = TextField(
+      controller: _searchTextFieldController,
+      focusNode: _searchFocusNode,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.search),
+        hintText: "Enter search filter string here.",
+      ),
+      autofocus: true,
+      style: new TextStyle(fontSize: 24),
+      onChanged: (text) {
+        logger.v('search text: "$text"');
+        _searchSongs(text);
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -126,10 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             )),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Player(song)),
-          );
+          _navigateToPlayer(context, song);
         },
       ));
     }
@@ -141,17 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
-        TextField(
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search),
-            hintText: "Enter search filter string here.",
-          ),
-          style: new TextStyle(fontSize: 12 * titleScaleFactor),
-          onChanged: (text) {
-            logger.v('search text: "$text"');
-            _searchSongs(text);
-          },
-        ),
+        _searchTextField,
         Expanded(
             child: Scrollbar(
           child: ListView(
@@ -216,4 +223,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     setState(() {});
   }
+
+  _navigateToPlayer(BuildContext context, Song song) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Player(song)),
+    );
+
+    //  select all text on a navigation pop
+    _searchTextFieldController.selection = TextSelection(
+        baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
+    FocusScope.of(context).requestFocus(_searchFocusNode);
+  }
+
+  TextField _searchTextField;
+  TextEditingController _searchTextFieldController;
+  FocusNode _searchFocusNode;
 }

@@ -23,7 +23,9 @@ class Player extends StatelessWidget {
     songs.Key key = song.key;
 
     logger.d("size: " + MediaQuery.of(context).size.toString());
-    double chordScaleFactor = MediaQuery.of(context).size.width / 400;
+    double w = MediaQuery.of(context).size.width;
+    double chordScaleFactor =  w/ 400;
+    bool isTooNarrow = w < 801;
     chordScaleFactor = min(10, max(1, chordScaleFactor));
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
     logger.d("textScaleFactor: $chordScaleFactor");
@@ -109,9 +111,13 @@ class Player extends StatelessWidget {
               if (momentLocation == null)
                 momentLocation = sm.momentNumber.toString();
             }
+
+            //  section and lyrics only if on a cell phone
+            if ( isTooNarrow)
+              break;
           }
 
-          if (momentLocation != null) {
+          if (momentLocation != null || isTooNarrow) {
             //  lyrics
             children.add(Container(
                 margin: marginInsets,
@@ -123,9 +129,10 @@ class Player extends StatelessWidget {
 
             //  add row to table
             rows.add(
-                TableRow(key: ValueKey(momentLocation), children: children));
+                TableRow(key: ValueKey(r), children: children));
           }
 
+          //  get ready for the next row by clearing the row data
           children = List();
         }
 

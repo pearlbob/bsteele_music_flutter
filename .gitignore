@@ -9,6 +9,8 @@
 .history
 .svn/
 
+local.properties
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -36,6 +38,7 @@ lib/generated_plugin_registrant.dart
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
+linux/
 
 # See https://www.dartlang.org/guides/libraries/private-files
 

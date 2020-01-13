@@ -37,7 +37,7 @@ void main() {
               phraseIndex: 2,
               measureIndex: 1),
           3);
-      logger.d(locExpected);
+      logger.d(locExpected.toString());
       expect(loc, locExpected);
     }
 

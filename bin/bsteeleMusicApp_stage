@@ -36,6 +36,7 @@ set git=~/GitHub/bsteeleMusicFlutter
 set target=$git/build/web
 
 #	build the release version
+flutter clean
 flutter build web
 
 #	clear the last one
@@ -50,3 +51,5 @@ set gs=gs://www.bsteele.com/beta/$app
 gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/$app/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs
+
+echo test http://www.bsteele.com/beta/bsteeleMusicApp

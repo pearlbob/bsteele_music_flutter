@@ -12,7 +12,7 @@ import 'package:flutter/rendering.dart';
 
 import 'appLogger.dart';
 
-/// Display the song in sequential order so it can be played.
+/// Display the song moments in sequential order.
 class Player extends StatelessWidget {
   final Song song;
 
@@ -25,7 +25,7 @@ class Player extends StatelessWidget {
     logger.d("size: " + MediaQuery.of(context).size.toString());
     double w = MediaQuery.of(context).size.width;
     double chordScaleFactor =  w/ 400;
-    bool isTooNarrow = w < 801;
+    bool isTooNarrow = w <= 800;
     chordScaleFactor = min(10, max(1, chordScaleFactor));
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
     logger.d("textScaleFactor: $chordScaleFactor");
@@ -140,6 +140,8 @@ class Player extends StatelessWidget {
           defaultColumnWidth: IntrinsicColumnWidth(),
           children: rows,
         );
+
+       // logger.i(table.toString( minLevel: DiagnosticLevel.debug));
       }
     }
 

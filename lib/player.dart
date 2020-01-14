@@ -24,7 +24,7 @@ class Player extends StatelessWidget {
 
     logger.d("size: " + MediaQuery.of(context).size.toString());
     double w = MediaQuery.of(context).size.width;
-    double chordScaleFactor =  w/ 400;
+    double chordScaleFactor = w / 400;
     bool isTooNarrow = w <= 800;
     chordScaleFactor = min(10, max(1, chordScaleFactor));
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
@@ -49,7 +49,9 @@ class Player extends StatelessWidget {
           List<SongMoment> row = grid.getRow(r);
 
           //  assume col 1 has a chord or comment in it
-          if (row.length < 2) continue;
+          if (row.length < 2) {
+            continue;
+          }
 
           //  find the first col with data
           //  should normally be col 1 (i.e. the second col)
@@ -113,8 +115,7 @@ class Player extends StatelessWidget {
             }
 
             //  section and lyrics only if on a cell phone
-            if ( isTooNarrow)
-              break;
+            if (isTooNarrow) break;
           }
 
           if (momentLocation != null || isTooNarrow) {
@@ -128,8 +129,7 @@ class Player extends StatelessWidget {
                 )));
 
             //  add row to table
-            rows.add(
-                TableRow(key: ValueKey(r), children: children));
+            rows.add(TableRow(key: ValueKey(r), children: children));
           }
 
           //  get ready for the next row by clearing the row data
@@ -141,7 +141,7 @@ class Player extends StatelessWidget {
           children: rows,
         );
 
-       // logger.i(table.toString( minLevel: DiagnosticLevel.debug));
+         //logger.i(table.toString());
       }
     }
 

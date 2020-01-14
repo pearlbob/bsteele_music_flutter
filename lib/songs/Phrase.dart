@@ -475,7 +475,7 @@ class Phrase extends MeasureNode {
     for (Measure measure in _measures) {
       chordRowCount += (measure.endOfRow ? 1 : 0);
     }
-    return chordRowCount + 1; //  end of row not there on last measure
+    return chordRowCount;
   }
 
   @override

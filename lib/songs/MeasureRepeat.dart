@@ -11,7 +11,7 @@ import 'key.dart';
 class MeasureRepeat extends Phrase {
   MeasureRepeat(List<Measure> measures, int phraseIndex, int repeats)
       : super(measures, phraseIndex) {
-    this.repeatMarker = MeasureRepeatMarker(repeats);
+    this._repeatMarker = MeasureRepeatMarker(repeats);
   }
 
   static MeasureRepeat parseString(
@@ -129,7 +129,7 @@ class MeasureRepeat extends Phrase {
   MeasureNode findMeasureNode(MeasureNode measureNode) {
     MeasureNode ret = super.findMeasureNode(measureNode);
     if (ret != null) return ret;
-    if (measureNode == repeatMarker) return repeatMarker;
+    if (measureNode == _repeatMarker) return _repeatMarker;
     return null;
   }
 
@@ -146,7 +146,7 @@ class MeasureRepeat extends Phrase {
   }
 
   MeasureRepeatMarker getRepeatMarker() {
-    return repeatMarker;
+    return _repeatMarker;
   }
 
   @override
@@ -174,7 +174,8 @@ class MeasureRepeat extends Phrase {
 
   @override
   int get chordRowCount {
-    return super.chordRowCount * repeats;
+    return (super.chordRowCount+1)  //  last end of row not marked on repeats
+        * _repeatMarker.repeats;
   }
 
   @override
@@ -230,7 +231,7 @@ class MeasureRepeat extends Phrase {
     int ret = super.compareTo(o);
     if (ret != 0) return ret;
     MeasureRepeat other = o as MeasureRepeat;
-    ret = repeatMarker.compareTo(other.repeatMarker);
+    ret = _repeatMarker.compareTo(other._repeatMarker);
     if (ret != 0) return ret;
     return 0;
   }
@@ -242,15 +243,15 @@ class MeasureRepeat extends Phrase {
     }
     return other is MeasureRepeat &&
         super == (other) &&
-        repeatMarker == other.repeatMarker;
+        _repeatMarker == other._repeatMarker;
   }
 
   @override
   int get hashCode {
     int ret = super.hashCode;
-    ret = ret * 17 + repeatMarker.hashCode;
+    ret = ret * 17 + _repeatMarker.hashCode;
     return ret;
   }
 
-  MeasureRepeatMarker repeatMarker;
+  MeasureRepeatMarker _repeatMarker;
 }

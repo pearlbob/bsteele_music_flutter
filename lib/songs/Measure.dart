@@ -95,7 +95,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
     RegExpMatch mr = sectionRegexp.firstMatch(markedString.toString());
     if (mr != null) {
       markedString.consume(mr.group(0).length);
-      ret.endOfRow = true;
+      endOfRow = true;
     }
 
     if (endOfRow != null) ret.endOfRow = endOfRow;

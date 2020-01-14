@@ -10,6 +10,18 @@ class Util {
     return n;
   }
 
+  /// add quotes to a string so it can be used as a dart constant
+  static String quote(String s){
+    if ( s == null)
+      return null;
+    if ( s.length==0)
+      return "''";
+    s = s.replaceAll("'", "\'")
+    .replaceAll("\n", "\\n'\n'")
+    ;
+    return "'$s'";
+  }
+
   /// capitalize the first character
   static String firstToUpper(String s) => s[0].toUpperCase() + s.substring(1);
 }

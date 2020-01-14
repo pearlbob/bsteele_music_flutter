@@ -190,5 +190,6 @@ class SongMoment implements Comparable<SongMoment> {
   final int measureIndex;
   final Measure measure;
   final int sectionCount;
+
   String lyrics;
 }

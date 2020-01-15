@@ -1,8 +1,8 @@
 import 'package:quiver/collection.dart';
 import 'package:quiver/core.dart';
 
+import '../appLogger.dart';
 import 'LegacyDrumSection.dart';
-import 'LyricsLine.dart';
 import 'SectionVersion.dart';
 
 /// A _sectionVersion of a song that carries the lyrics, any special drum _sectionVersion,
@@ -15,16 +15,17 @@ class LyricSection implements Comparable<LyricSection> {
   }
 
   /// The _sectionVersion's measures.
-  List<LyricsLine> getLyricsLines() {
-    return lyricsLines;
+  List<String> getLyricsLines() {
+    return _lyricsLines;
   }
 
 //  void setLyricsLines(List<LyricsLine> lyricsLines) {
 //    this.lyricsLines = lyricsLines;
 //  }
 
-  void add(LyricsLine lyricsLine) {
-    lyricsLines.add(lyricsLine);
+  void add(String lyricsLine) {
+    logger.d("LyricSection.add($lyricsLine)");
+    _lyricsLines.add(lyricsLine);
   }
 
   @override
@@ -54,15 +55,15 @@ class LyricSection implements Comparable<LyricSection> {
     int ret = _sectionVersion.compareTo(other._sectionVersion);
     if (ret != 0) return ret;
 
-    if (lyricsLines == null) {
-      if (other.lyricsLines != null) return -1;
+    if (_lyricsLines == null) {
+      if (other._lyricsLines != null) return -1;
     } else {
-      if (other.lyricsLines == null) return 1;
-      if (lyricsLines.length != other.lyricsLines.length)
-        return lyricsLines.length - other.lyricsLines.length;
-      for (int i = 0; i < lyricsLines.length; i++) {
+      if (other._lyricsLines == null) return 1;
+      if (_lyricsLines.length != other._lyricsLines.length)
+        return _lyricsLines.length - other._lyricsLines.length;
+      for (int i = 0; i < _lyricsLines.length; i++) {
         ret =
-            lyricsLines.elementAt(i).compareTo(other.lyricsLines.elementAt(i));
+            _lyricsLines.elementAt(i).compareTo(other._lyricsLines.elementAt(i));
         if (ret != 0) return ret;
       }
     }
@@ -71,14 +72,14 @@ class LyricSection implements Comparable<LyricSection> {
     ret = _sectionVersion.compareTo(other._sectionVersion);
     if (ret != 0) return ret;
 
-    if (!listsEqual(lyricsLines, other.lyricsLines)) {
+    if (!listsEqual(_lyricsLines, other._lyricsLines)) {
       //  compare the lists
-      if (lyricsLines == null) return other.lyricsLines == null ? 0 : 1;
-      if (other.lyricsLines == null) return -1;
-      if (lyricsLines.length != other.lyricsLines.length)
-        return lyricsLines.length < other.lyricsLines.length ? -1 : 1;
-      for (int i = 0; i < lyricsLines.length; i++) {
-        int ret = lyricsLines[i].compareTo(other.lyricsLines[i]);
+      if (_lyricsLines == null) return other._lyricsLines == null ? 0 : 1;
+      if (other._lyricsLines == null) return -1;
+      if (_lyricsLines.length != other._lyricsLines.length)
+        return _lyricsLines.length < other._lyricsLines.length ? -1 : 1;
+      for (int i = 0; i < _lyricsLines.length; i++) {
+        int ret = _lyricsLines[i].compareTo(other._lyricsLines[i]);
         if (ret != 0) return ret;
       }
     }
@@ -93,19 +94,21 @@ class LyricSection implements Comparable<LyricSection> {
     return other is LyricSection &&
         _sectionVersion == other._sectionVersion &&
         drumSection == other.drumSection &&
-        listsEqual(lyricsLines, other.lyricsLines);
+        listsEqual(_lyricsLines, other._lyricsLines);
   }
 
   @override
   int get hashCode {
     int ret = _sectionVersion.hashCode;
     ret = ret * 13 + drumSection.hashCode;
-    if (lyricsLines != null) ret = ret * 17 + hashObjects(lyricsLines);
+    if (_lyricsLines != null) ret = ret * 17 + hashObjects(_lyricsLines);
     return ret;
   }
 
   SectionVersion get sectionVersion => _sectionVersion;
   SectionVersion _sectionVersion;
   LegacyDrumSection drumSection = new LegacyDrumSection();
-  List<LyricsLine> lyricsLines = new List();
+
+  List<String> get lyricsLines => _lyricsLines;
+  List<String> _lyricsLines = new List();
 }

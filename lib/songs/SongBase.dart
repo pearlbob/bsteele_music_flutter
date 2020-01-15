@@ -15,7 +15,6 @@ import 'ChordDescriptor.dart';
 import 'ChordSection.dart';
 import 'ChordSectionLocation.dart';
 import 'LyricSection.dart';
-import 'LyricsLine.dart';
 import 'Measure.dart';
 import 'MeasureComment.dart';
 import 'MeasureNode.dart';
@@ -279,11 +278,11 @@ class SongBase {
 
     if (_lyricSections != null) {
       {
-        {
+        if (_debugging) {
           int i = 0;
           for (LyricSection ls in _lyricSections) {
             logger.i('lyricSection $i: ${ls.toString()}');
-            for (LyricsLine lyricsLine in ls.lyricsLines) {
+            for (String lyricsLine in ls.lyricsLines) {
               logger.i('     $i: ${lyricsLine.toString()}');
               i++;
             }
@@ -293,7 +292,6 @@ class SongBase {
         int minimumLinesPerRow;
         int rows;
         int rowsOfExtraLines;
-        int rowInSection;
         int priorRow;
         int lineIndex;
         int extraLine;
@@ -316,23 +314,23 @@ class SongBase {
             rows = chordSection.chordRowCount;
             if (rows == 0) continue;
 
-            for (LyricsLine lyricsLine in lyricSection.lyricsLines) {
-              logger.i(
-                  '\t$lyricSection:$lines lines/$rows: "${lyricsLine.lyrics}"');
-            }
+            if (_debugging)
+              for (String lyricsLine in lyricSection.lyricsLines) {
+                logger.i('\t$lyricSection:$lines lines/$rows: "$lyricsLine"');
+              }
 
             //  Distribute the lines over the rows.
             //  Extra lines go in earlier rows.
             minimumLinesPerRow = lines ~/ rows;
             rowsOfExtraLines = lines.remainder(rows);
 
-            logger.i(
-                '${chordSection.sectionVersion.toString()} has $rows chord rows and $lines lines of lyrics'
-                ' = $minimumLinesPerRow per + $rowsOfExtraLines rows with extra line');
+            if (_debugging)
+              logger.i(
+                  '${chordSection.sectionVersion.toString()} has $rows chord rows and $lines lines of lyrics'
+                  ' = $minimumLinesPerRow per + $rowsOfExtraLines rows with extra line');
 
             //  Generate the lyrics for the rows.
             extraLine = rowsOfExtraLines;
-            rowInSection = 0;
             lineIndex = 0;
           }
 
@@ -346,27 +344,34 @@ class SongBase {
             priorRow = gridCoordinate.row;
             rowLyrics = '';
             if (lineIndex < lyricSection.lyricsLines.length) {
-              for (int i = 0; i < minimumLinesPerRow; i++)
+              for (int i = 0; i < minimumLinesPerRow; i++) {
+                logger.v(
+                    "min lyricsLines[$lineIndex]=${lyricSection.lyricsLines[lineIndex].toString()}");
                 rowLyrics = rowLyrics +
                     (rowLyrics.length > 0 ? '\n' : '') +
                     lyricSection.lyricsLines[lineIndex++].toString();
+              }
               if (extraLine > 0) {
+                logger.v(
+                    "ext lyricsLines[$lineIndex]=${lyricSection.lyricsLines[lineIndex].toString()}");
                 rowLyrics = rowLyrics +
                     (rowLyrics.length > 0 ? '\n' : '') +
                     lyricSection.lyricsLines[lineIndex++].toString();
                 extraLine--;
               }
             }
-            logger.i('row ${gridCoordinate.row}:');
-            logger.i('\t$rowLyrics');
+            if (_debugging) {
+              logger.d('row ${gridCoordinate.row}:');
+              logger.d('\t$rowLyrics');
+            }
           }
 
           //  Note that every moment in the row gets the same lyrics.
           songMoment.lyrics =
               rowLyrics; //  fixme: should not change a value of an object already in a hashmap!
 
-          if (gridCoordinate.col == 1) {
-            logger.i('(${gridCoordinate.row},1) = ${songMoment.lyrics}');
+          if (_debugging && gridCoordinate.col == 1) {
+            logger.d('(${gridCoordinate.row},1) = ${songMoment.lyrics}');
           }
         }
       }
@@ -2330,76 +2335,80 @@ class SongBase {
   void _parseLyrics() {
     int state = 0;
     String whiteSpace = "";
-    StringBuffer lyricsBuffer = new StringBuffer();
+    StringBuffer lyricsBuffer = StringBuffer();
     LyricSection lyricSection;
 
     _lyricSections = new List();
 
-    MarkedString markedString = new MarkedString(rawLyrics);
+    MarkedString markedString = MarkedString(rawLyrics);
     while (markedString.isNotEmpty) {
       String c = markedString.charAt(0);
-      switch (state) {
-        case 0:
-          //  absorb leading white space
-          if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-            break;
-          }
+
+      //  absorb leading white space
+      if (state == 0) {
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+          ; //  do nothing but consume it
+        } else
           state = 1;
-          continue toState1; //  fall through
-        toState1:
-        case 1:
-          try {
-            SectionVersion version = SectionVersion.parse(markedString);
-            if (lyricSection != null) _lyricSections.add(lyricSection);
-
-            lyricSection = new LyricSection();
-            lyricSection.setSectionVersion(version);
-
-            whiteSpace = ""; //  ignore white space
-            state = 1;
-            continue;
-          } catch (e) {
-            logger.v('not section: ${markedString.remainingStringLimited(25)}');
-            //  ignore
-          }
-          state = 2;
-          continue toState2; //  fall through
-        toState2:
-        case 2:
-          //  absorb all characters to newline
-          switch (c) {
-            case ' ':
-            case '\t':
-              whiteSpace = whiteSpace + c;
-              break;
-            case '\n':
-            case '\r':
-              if (lyricSection == null) {
-                //  oops, an old unformatted song, force a lyrics section
-                lyricSection = new LyricSection();
-                lyricSection.setSectionVersion(Section.getDefaultVersion());
-              }
-              lyricSection.add(new LyricsLine(lyricsBuffer.toString()));
-              lyricsBuffer.clear();
-              whiteSpace = ""; //  ignore trailing white space
-              state = 0;
-              break;
-            default:
-              lyricsBuffer.write(whiteSpace);
-              lyricsBuffer.write(c);
-              whiteSpace = "";
-              break;
-          }
-          break;
-        default:
-          throw "fsm broken at state: " + state.toString();
       }
+
+      //  note that fall through is possible
+      if (state == 1) {
+        try {
+          //  try to find the section version marker
+          SectionVersion version = SectionVersion.parse(markedString);
+          if (lyricSection != null) _lyricSections.add(lyricSection);
+
+          lyricSection = new LyricSection();
+          lyricSection.setSectionVersion(version);
+
+          whiteSpace = ""; //  ignore white space
+          state = 1;
+          continue;
+        } catch (e) {
+          logger.v('not section: ${markedString.remainingStringLimited(25)}');
+          //  ignore
+        }
+        state = 2;
+      }
+
+      //  note that fall through is possible
+      if (state == 2) {
+        //  absorb all characters to a newline
+        switch (c) {
+          case ' ':
+          case '\t':
+            whiteSpace = whiteSpace + c;
+            break;
+          case '\n':
+          case '\r':
+            if (lyricSection == null) {
+              //  oops, an old unformatted song, force a lyrics section
+              lyricSection = new LyricSection();
+              lyricSection.setSectionVersion(Section.getDefaultVersion());
+            }
+            lyricSection.add(lyricsBuffer.toString());
+            lyricsBuffer = StringBuffer();
+            whiteSpace = ""; //  ignore trailing white space
+            state = 0;
+            break;
+          default:
+            lyricsBuffer.write(whiteSpace);
+            lyricsBuffer.write(c);
+            whiteSpace = "";
+            break;
+        }
+      }
+
+      if (state < 0 || state > 2)
+        throw "fsm broken at state: " + state.toString();
 
       markedString.consume(1);
     }
+
     //  last one is not terminated by another section
     if (lyricSection != null) {
-      lyricSection.add(new LyricsLine(lyricsBuffer.toString()));
+      lyricSection.add(lyricsBuffer.toString());
       _lyricSections.add(lyricSection);
     }
 
@@ -2586,7 +2595,7 @@ class SongBase {
       throw "no BPM given!";
     }
 
-    //  check bpm
+//  check bpm
     RegExp twoOrThreeDigitsRegexp = RegExp("^\\d{2,3}\$");
     if (!twoOrThreeDigitsRegexp.hasMatch(bpmEntry)) {
       throw "BPM has to be a number from " +
@@ -2602,7 +2611,7 @@ class SongBase {
           MusicConstants.maxBpm.toString();
     }
 
-    //  check beats per bar
+//  check beats per bar
     if (beatsPerBarEntry == null || beatsPerBarEntry.length <= 0) {
       throw "no beats per bar given!";
     }
@@ -2659,7 +2668,7 @@ class SongBase {
             " is empty.";
     }
 
-    //  see that all chord sections have a lyric section
+//  see that all chord sections have a lyric section
     for (ChordSection chordSection in newSong.getChordSections()) {
       SectionVersion chordSectionVersion = chordSection.sectionVersion;
       bool found = false;
@@ -2675,7 +2684,7 @@ class SongBase {
       }
     }
 
-    //  see that all lyric sections have a chord section
+//  see that all lyric sections have a chord section
     for (LyricSection lyricSection in newSong._lyricSections) {
       SectionVersion lyricSectionVersion = lyricSection.sectionVersion;
       bool found = false;
@@ -2707,7 +2716,7 @@ class SongBase {
     newSong.setMessage(null);
 
     if (newSong.getMessage() == null) {
-      //  an early song with default (no) structure?
+//  an early song with default (no) structure?
       if (newSong._lyricSections.length == 1 &&
           newSong._lyricSections[0].sectionVersion ==
               Section.getDefaultVersion()) {
@@ -2749,7 +2758,7 @@ class SongBase {
           a.getUnitsPerMeasure().toString(),
           b.getUnitsPerMeasure().toString()));
 
-    //  chords
+//  chords
     for (ChordSection aChordSection in a.getChordSections()) {
       ChordSection bChordSection =
           b.getChordSection(aChordSection.sectionVersion);
@@ -2770,7 +2779,7 @@ class SongBase {
       }
     }
 
-    //  lyrics
+//  lyrics
     {
       int limit = min(a._lyricSections.length, b._lyricSections.length);
       for (int i = 0; i < limit; i++) {
@@ -2780,8 +2789,8 @@ class SongBase {
         int lineLimit = min(aLyricSection.getLyricsLines().length,
             bLyricSection.getLyricsLines().length);
         for (int j = 0; j < lineLimit; j++) {
-          String aLine = aLyricSection.getLyricsLines()[j].lyrics;
-          String bLine = bLyricSection.getLyricsLines()[j].lyrics;
+          String aLine = aLyricSection.getLyricsLines()[j];
+          String bLine = bLyricSection.getLyricsLines()[j];
           if (aLine.compareTo(bLine) != 0)
             ret.add(new StringTriple(
                 "lyrics " + sectionVersion.toString(), aLine, bLine));
@@ -2790,7 +2799,7 @@ class SongBase {
         for (int j = bLyricSection.getLyricsLines().length;
             j < lineLimit;
             j++) {
-          String aLine = aLyricSection.getLyricsLines()[j].lyrics;
+          String aLine = aLyricSection.getLyricsLines()[j];
           ret.add(new StringTriple(
               "lyrics missing " + sectionVersion.toString(), aLine, ""));
         }
@@ -2798,7 +2807,7 @@ class SongBase {
         for (int j = aLyricSection.getLyricsLines().length;
             j < lineLimit;
             j++) {
-          String bLine = bLyricSection.getLyricsLines()[j].lyrics;
+          String bLine = bLyricSection.getLyricsLines()[j];
           ret.add(new StringTriple(
               "lyrics missing " + sectionVersion.toString(), "", bLine));
         }
@@ -3354,7 +3363,7 @@ class SongBase {
     return ret;
   }
 
-  //  primary values
+//  primary values
   String title = "Unknown";
   String artist = "Unknown";
   String user = defaultUser;
@@ -3366,21 +3375,21 @@ class SongBase {
   int beatsPerBar = 4; //  beats per bar, i.e. timeSignature denominator
   int lastModifiedTime;
 
-  //  chords as a string is only valid on input or output
+//  chords as a string is only valid on input or output
   String _chords = "";
 
-  //  normally the chords data is held in the chord section map
+//  normally the chords data is held in the chord section map
   HashMap<SectionVersion, ChordSection> _chordSectionMap;
 
   String rawLyrics = "";
 
-  //  deprecated values
+//  deprecated values
   int fileVersionNumber = 0;
 
-  //  meta data
+//  meta data
   String fileName;
 
-  //  computed values
+//  computed values
   SongId songId;
   double duration; //  units of seconds
   int totalBeats;
@@ -3389,7 +3398,7 @@ class SongBase {
   List<LyricSection> _lyricSections = new List();
   HashMap<SectionVersion, GridCoordinate> chordSectionGridCoorinateMap;
 
-  //  match to representative section version
+//  match to representative section version
   HashMap<SectionVersion, SectionVersion> _chordSectionGridMatches;
 
   HashMap<GridCoordinate, ChordSectionLocation>
@@ -3413,7 +3422,8 @@ class SongBase {
   List<SongMoment> _songMoments;
   HashMap<int, SongMoment> beatsToMoment;
 
-  //SplayTreeSet<Metadata> metadata = new SplayTreeSet();
+//SplayTreeSet<Metadata> metadata = new SplayTreeSet();
   static final AppOptions appOptions = AppOptions();
   static final String defaultUser = "Unknown";
+  static final bool _debugging = false;
 }

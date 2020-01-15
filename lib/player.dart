@@ -1,3 +1,4 @@
+
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/Grid.dart';
@@ -9,6 +10,7 @@ import 'package:bsteele_music_flutter/songs/SongMoment.dart';
 import 'package:bsteele_music_flutter/songs/key.dart' as songs;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'appLogger.dart';
 
@@ -205,6 +207,7 @@ class _Player extends State<Player> {
               Scrollbar(
                 child: Center(child: table),
               ),
+              _KeyboardListener(),
             ]),
       ),
       floatingActionButton: FloatingActionButton(
@@ -216,4 +219,34 @@ class _Player extends State<Player> {
       ),
     );
   }
+}
+
+class _KeyboardListener extends StatefulWidget {
+  _KeyboardListener();
+
+  @override
+  _KeyboardListenerState createState() => new _KeyboardListenerState();
+}
+
+class _KeyboardListenerState extends State<_KeyboardListener> {
+
+  handleKey(RawKeyEventData key) {
+    logger.i('KeyCode: ${key.keyLabel} ${key.toString()}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _textFocusNode.requestFocus();
+    return RawKeyboardListener(
+      focusNode: _textFocusNode,
+      onKey: (key) => handleKey(key.data),
+      child: Visibility(
+        visible: false,
+        child: TextField(
+        ),
+      ),
+    );
+  }
+
+  FocusNode _textFocusNode = new FocusNode();
 }

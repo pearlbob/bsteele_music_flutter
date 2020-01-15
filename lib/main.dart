@@ -1,4 +1,4 @@
-import 'dart:html';
+
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/player.dart';
@@ -66,6 +66,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -81,24 +82,6 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-void _processKeyboard(KeyboardEvent ke) {
-  logger.d("processKeyboard: ${ke.key}");
-  switch (ke.key) {
-    case 'ArrowDown':
-      logger.i("processKeyboard: down");
-      break;
-    case 'ArrowUp':
-      logger.i("processKeyboard: up");
-      break;
-    case 'ArrowRight':
-      logger.i("processKeyboard: right");
-      break;
-    case 'ArrowLeft':
-      logger.i("processKeyboard: left");
-      break;
-  }
-}
-
 class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState()
       : _searchTextFieldController = TextEditingController(),
@@ -111,7 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
         prefixIcon: Icon(Icons.search),
         hintText: "Enter search filter string here.",
       ),
+
+      //  currently causes:
+      //  EXCEPTION CAUGHT BY FOUNDATION LIBRARY
+      //  RenderBox was not laid out: RenderEditable#7e016 NEEDS-LAYOUT NEEDS-PAINT
       autofocus: true,
+
       style: new TextStyle(fontSize: 24),
       onChanged: (text) {
         logger.v('search text: "$text"');
@@ -124,8 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _readInternalSongList();
-
-    window.onKeyDown.listen(_processKeyboard);
   }
 
   void _readInternalSongList() async {

@@ -3,7 +3,7 @@ import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 import 'package:quiver/core.dart';
 import '../util.dart';
 import 'ChordAnticipationOrDelay.dart';
-import 'key.dart';
+import 'Key.dart';
 
 class Chord implements Comparable<Chord> {
   Chord(

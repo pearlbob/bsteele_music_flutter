@@ -10,7 +10,7 @@ import 'MeasureRepeat.dart';
 import 'Phrase.dart';
 import 'Section.dart';
 import 'SectionVersion.dart';
-import 'key.dart';
+import 'Key.dart';
 
 /// A chord section of a song is typically a collection of measures
 /// that constitute a portion of the song that is considered musically a unit.

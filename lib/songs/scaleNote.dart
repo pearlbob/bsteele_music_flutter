@@ -4,7 +4,7 @@ import 'dart:collection';
 
 import '../util.dart';
 import 'MusicConstants.dart';
-import 'key.dart';
+import 'Key.dart';
 
 enum ScaleNoteEnum {
   A,

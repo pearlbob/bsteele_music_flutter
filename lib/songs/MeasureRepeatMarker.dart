@@ -2,7 +2,7 @@ import 'dart:core';
 
 import 'Measure.dart';
 import 'MeasureNode.dart';
-import 'key.dart';
+import 'Key.dart';
 
 class MeasureRepeatMarker extends Measure {
   MeasureRepeatMarker(this.repeats) : super.zeroArgs();

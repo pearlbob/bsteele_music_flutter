@@ -9,7 +9,7 @@ import 'Measure.dart';
 import 'MeasureComment.dart';
 import 'MeasureNode.dart';
 import 'Section.dart';
-import 'key.dart';
+import 'Key.dart';
 
 class Phrase extends MeasureNode {
   Phrase(List<Measure> measures, int phraseIndex) {

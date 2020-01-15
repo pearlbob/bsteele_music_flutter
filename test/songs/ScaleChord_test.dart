@@ -1,7 +1,7 @@
 import 'package:bsteele_music_flutter/appLogger.dart';
 import 'package:bsteele_music_flutter/songs/ChordComponent.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
-import 'package:bsteele_music_flutter/songs/key.dart';
+import 'package:bsteele_music_flutter/songs/Key.dart';
 import 'package:bsteele_music_flutter/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 import 'package:logger/logger.dart';

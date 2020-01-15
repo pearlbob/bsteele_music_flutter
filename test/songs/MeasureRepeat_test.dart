@@ -7,7 +7,7 @@ import 'package:bsteele_music_flutter/songs/MeasureNode.dart';
 import 'package:bsteele_music_flutter/songs/MeasureRepeat.dart';
 import 'package:bsteele_music_flutter/songs/Phrase.dart';
 import 'package:bsteele_music_flutter/songs/SongBase.dart';
-import 'package:bsteele_music_flutter/songs/key.dart';
+import 'package:bsteele_music_flutter/songs/Key.dart';
 import 'package:bsteele_music_flutter/util.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';

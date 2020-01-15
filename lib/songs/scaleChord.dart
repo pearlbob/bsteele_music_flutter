@@ -4,7 +4,7 @@ import 'package:quiver/core.dart';
 import '../util.dart';
 import 'ChordComponent.dart';
 import 'ChordDescriptor.dart';
-import 'key.dart';
+import 'Key.dart';
 
 ///  A chord with a scale note and an optional chord descriptor and tension.
 class ScaleChord implements Comparable<ScaleChord> {

@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/Grid.dart';
@@ -7,7 +6,8 @@ import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:bsteele_music_flutter/songs/SongMoment.dart';
-import 'package:bsteele_music_flutter/songs/key.dart' as songs;
+import 'package:bsteele_music_flutter/songs/Key.dart' as songs;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +33,6 @@ class _Player extends State<Player> {
   @override
   Widget build(BuildContext context) {
     Song song = widget.song;
-    songs.Key key = song.key;
 
     logger.d("size: " + MediaQuery.of(context).size.toString());
     double w = MediaQuery.of(context).size.width;
@@ -52,6 +51,9 @@ class _Player extends State<Player> {
         List<Widget> children = List();
         Color color =
             GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+
+        //  compute transposition offset from base key
+        int tranOffset = _key.getHalfStep() - song.getKey().getHalfStep();
 
         //  keep track of the section
         ChordSection lastChordSection;
@@ -117,7 +119,7 @@ class _Player extends State<Player> {
               children.add(Container(
                   margin: marginInsets,
                   child: Text(
-                    sm.getMeasure().toJson(),
+                    sm.getMeasure().transpose(_key, tranOffset),
                     style: TextStyle(backgroundColor: color),
                     textScaleFactor: chordScaleFactor,
                   )));
@@ -153,8 +155,6 @@ class _Player extends State<Player> {
           defaultColumnWidth: IntrinsicColumnWidth(),
           children: rows,
         );
-
-        //logger.i(table.toString());
       }
     }
 
@@ -180,23 +180,32 @@ class _Player extends State<Player> {
               ),
               Row(children: <Widget>[
                 Text(
-                  "Key: $key ${key.sharpsFlatsToString()}",
+                  "Key: ",
                   textScaleFactor: chordScaleFactor,
                 ),
-                DropdownButton<String>(
-                  items: <String>['A', 'B', 'C', 'D'].map((String value) {
-                    return new DropdownMenuItem<String>(
+                DropdownButton<songs.Key>(
+                  items: songs.Key.values.toList().map((songs.Key value) {
+                    return new DropdownMenuItem<songs.Key>(
+                      key: ValueKey(value.getHalfStep()),
                       value: value,
                       child: new Text(
-                        value,
-                        textScaleFactor: chordScaleFactor,
+                        '${value.toString()}  ${value.sharpsFlatsToString()}',
+                        textScaleFactor: chordScaleFactor,  //  note well
                       ),
                     );
                   }).toList(),
                   onChanged: (_value) {
-                    logger.i("picked: $_value");
+                    setState(() {
+                      _key = _value;
+                    });
                   },
-                  value: 'A',
+                  value: _key,
+                  style: TextStyle(
+                    //  size controlled by textScaleFactor above
+                    color: Colors.black87,
+                    textBaseline: TextBaseline.alphabetic,
+                  ),
+                  iconSize: chordScaleFactor * 24,
                 ),
                 Text(
                   "   BPM: ${song.getBeatsPerMinute()}" +
@@ -219,6 +228,8 @@ class _Player extends State<Player> {
       ),
     );
   }
+
+  songs.Key _key = songs.Key.get(songs.KeyEnum.C);
 }
 
 class _KeyboardListener extends StatefulWidget {
@@ -229,7 +240,6 @@ class _KeyboardListener extends StatefulWidget {
 }
 
 class _KeyboardListenerState extends State<_KeyboardListener> {
-
   handleKey(RawKeyEventData key) {
     logger.i('KeyCode: ${key.keyLabel} ${key.toString()}');
   }
@@ -242,8 +252,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
       onKey: (key) => handleKey(key.data),
       child: Visibility(
         visible: false,
-        child: TextField(
-        ),
+        child: TextField(),
       ),
     );
   }

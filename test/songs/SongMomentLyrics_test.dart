@@ -4,7 +4,7 @@ import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:bsteele_music_flutter/songs/SongBase.dart';
 import 'package:bsteele_music_flutter/songs/SongMoment.dart';
-import 'package:bsteele_music_flutter/songs/key.dart';
+import 'package:bsteele_music_flutter/songs/Key.dart';
 import 'package:bsteele_music_flutter/util.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';

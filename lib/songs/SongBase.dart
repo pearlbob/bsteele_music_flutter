@@ -28,7 +28,7 @@ import 'SectionVersion.dart';
 import 'Song.dart';
 import 'SongId.dart';
 import 'SongMoment.dart';
-import 'key.dart';
+import 'Key.dart';
 import 'scaleChord.dart';
 
 enum UpperCaseState {

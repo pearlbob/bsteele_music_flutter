@@ -3,7 +3,7 @@ import 'package:bsteele_music_flutter/songs/Chord.dart';
 import 'package:bsteele_music_flutter/songs/ChordAnticipationOrDelay.dart';
 import 'package:bsteele_music_flutter/songs/ChordDescriptor.dart';
 import 'package:bsteele_music_flutter/songs/Measure.dart';
-import 'package:bsteele_music_flutter/songs/key.dart';
+import 'package:bsteele_music_flutter/songs/Key.dart';
 import 'package:bsteele_music_flutter/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
 import 'package:bsteele_music_flutter/util.dart';

@@ -5,7 +5,7 @@ import 'package:logger/logger.dart';
 
 import '../util.dart';
 import 'SongBase.dart';
-import 'key.dart';
+import 'Key.dart';
 
 enum SongComparatorType {
   title,

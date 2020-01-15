@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/songs/key.dart';
+import 'package:bsteele_music_flutter/songs/Key.dart';
 
 enum MeasureNodeType {
   section,

@@ -6,7 +6,7 @@ import 'MeasureNode.dart';
 import 'MeasureRepeatMarker.dart';
 import 'Phrase.dart';
 import 'Section.dart';
-import 'key.dart';
+import 'Key.dart';
 
 class MeasureRepeat extends Phrase {
   MeasureRepeat(List<Measure> measures, int phraseIndex, int repeats)

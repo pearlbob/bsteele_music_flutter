@@ -1,7 +1,7 @@
 import '../util.dart';
 import 'Measure.dart';
 import 'MeasureNode.dart';
-import 'key.dart';
+import 'Key.dart';
 
 class MeasureComment extends Measure {
   MeasureComment(this._comment) : super.zeroArgs() {

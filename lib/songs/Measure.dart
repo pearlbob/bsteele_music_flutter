@@ -7,7 +7,7 @@ import '../util.dart';
 import 'Chord.dart';
 import 'MeasureNode.dart';
 import 'Section.dart';
-import 'key.dart';
+import 'Key.dart';
 
 /// A measure in a section of a song.
 /// Holds the lyrics, the chord changes and their beats.

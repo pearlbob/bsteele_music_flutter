@@ -293,7 +293,7 @@ class SongBase {
         int rows;
         int rowsOfExtraLines;
         int priorRow;
-        int lineIndex;
+        int lineIndex=0;
         int extraLine;
         String rowLyrics = '';
         for (int songMomentNumber = 0;

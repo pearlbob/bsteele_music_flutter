@@ -15,7 +15,7 @@ class Util {
     if ( s == null)
       return null;
     if ( s.length==0)
-      return "''";
+      return "";
     s = s.replaceAll("'", "\'")
     .replaceAll("\n", "\\n'\n'")
     ;

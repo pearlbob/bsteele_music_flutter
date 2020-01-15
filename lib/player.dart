@@ -13,13 +13,24 @@ import 'package:flutter/rendering.dart';
 import 'appLogger.dart';
 
 /// Display the song moments in sequential order.
-class Player extends StatelessWidget {
-  final Song song;
+class Player extends StatefulWidget {
+  const Player({Key key, @required this.song}) : super(key: key);
 
-  Player(this.song);
+  @override
+  _Player createState() => _Player();
+
+  final Song song;
+}
+
+class _Player extends State<Player> {
+  @override
+  initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    Song song = widget.song;
     songs.Key key = song.key;
 
     logger.d("size: " + MediaQuery.of(context).size.toString());
@@ -141,7 +152,7 @@ class Player extends StatelessWidget {
           children: rows,
         );
 
-         //logger.i(table.toString());
+        //logger.i(table.toString());
       }
     }
 
@@ -165,11 +176,32 @@ class Player extends StatelessWidget {
                 song.artist,
                 textScaleFactor: chordScaleFactor,
               ),
-              Text(
-                "Key: $key ${key.sharpsFlatsToString()}   BPM: ${song.getBeatsPerMinute()}" +
-                    "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                textScaleFactor: chordScaleFactor,
-              ),
+              Row(children: <Widget>[
+                Text(
+                  "Key: $key ${key.sharpsFlatsToString()}",
+                  textScaleFactor: chordScaleFactor,
+                ),
+                DropdownButton<String>(
+                  items: <String>['A', 'B', 'C', 'D'].map((String value) {
+                    return new DropdownMenuItem<String>(
+                      value: value,
+                      child: new Text(
+                        value,
+                        textScaleFactor: chordScaleFactor,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (_value) {
+                    logger.i("picked: $_value");
+                  },
+                  value: 'A',
+                ),
+                Text(
+                  "   BPM: ${song.getBeatsPerMinute()}" +
+                      "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                  textScaleFactor: chordScaleFactor,
+                ),
+              ]),
               Scrollbar(
                 child: Center(child: table),
               ),

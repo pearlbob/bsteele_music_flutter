@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/player.dart';
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/player': (context) => Player(selectedSong),
+        '/player': (context) => Player(song:selectedSong),
       },
     );
   }
@@ -78,6 +79,24 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
+}
+
+void _processKeyboard(KeyboardEvent ke) {
+  logger.d("processKeyboard: ${ke.key}");
+  switch (ke.key) {
+    case 'ArrowDown':
+      logger.i("processKeyboard: down");
+      break;
+    case 'ArrowUp':
+      logger.i("processKeyboard: up");
+      break;
+    case 'ArrowRight':
+      logger.i("processKeyboard: right");
+      break;
+    case 'ArrowLeft':
+      logger.i("processKeyboard: left");
+      break;
+  }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -105,6 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _readInternalSongList();
+
+    window.onKeyDown.listen(_processKeyboard);
   }
 
   void _readInternalSongList() async {
@@ -227,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToPlayer(BuildContext context, Song song) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Player(song)),
+      MaterialPageRoute(builder: (context) => Player(song: song)),
     );
 
     //  select all text on a navigation pop

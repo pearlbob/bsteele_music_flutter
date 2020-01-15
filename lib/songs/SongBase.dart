@@ -293,7 +293,7 @@ class SongBase {
         int rows;
         int rowsOfExtraLines;
         int priorRow;
-        int lineIndex=0;
+        int lineIndex = 0;
         int extraLine;
         String rowLyrics = '';
         for (int songMomentNumber = 0;
@@ -2346,10 +2346,9 @@ class SongBase {
 
       //  absorb leading white space
       if (state == 0) {
-        if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-          ; //  do nothing but consume it
-        } else
+        if (!(c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
           state = 1;
+        }
       }
 
       //  note that fall through is possible

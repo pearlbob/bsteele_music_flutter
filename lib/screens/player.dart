@@ -197,10 +197,7 @@ class _Player extends State<Player> {
                     textScaleFactor: lyricsScaleFactor,
                   ),
                   DropdownButton<songs.Key>(
-                    items: songs.Key.values
-                        .toList()
-                        .reversed
-                        .map((songs.Key value) {
+                    items: songs.Key.byHalfStep().map((songs.Key value) {
                       return new DropdownMenuItem<songs.Key>(
                         key: ValueKey(value.getHalfStep()),
                         value: value,

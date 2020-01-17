@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:bsteele_music_flutter/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../Util/util.dart';
 import 'ChordDescriptor.dart';
@@ -11,7 +14,7 @@ enum KeyEnum { Gb, Db, Ab, Eb, Bb, F, C, G, D, A, E, B, Fs }
 // Representation of the song key used generate the expression of the proper scales.
 // <p>Six flats and six sharps are labeled differently but are otherwise the same key.
 // Seven flats and seven sharps are not included.</p>
-class Key implements Comparable<Key>{
+class Key implements Comparable<Key> {
   Key._(this._keyEnum, this._keyValue, this._halfStep)
       : _name = _keyEnumToString(_keyEnum),
         _keyScaleNote = ScaleNote.valueOf(_keyEnumToString(_keyEnum));
@@ -37,6 +40,14 @@ class Key implements Comparable<Key>{
     [KeyEnum.Fs, 6, 9]
   ];
   static Map<String, KeyEnum> _keyEnums;
+
+  static List<Key> byHalfStep() {
+    SplayTreeSet<Key> sortedSet = SplayTreeSet((a1, a2) {
+      return a2._halfStep.compareTo(a1._halfStep);
+    });
+    sortedSet.addAll(_getKeys().values);
+    return sortedSet.toList();
+  }
 
   static Map<KeyEnum, Key> _getKeys() {
     if (_keys == null) {
@@ -141,12 +152,12 @@ class Key implements Comparable<Key>{
   }
 
   /// Return an integer value that represents the key's number of half steps from A.
-   int getHalfStep() {
+  int getHalfStep() {
     return _keyScaleNote.halfStep;
   }
 
   /// Return the key represented by the given integer value.
-   static Key getKeyByValue(int keyValue) {
+  static Key getKeyByValue(int keyValue) {
     for (Key key in _getKeys().values)
       if (key._keyValue == keyValue) return key;
     return get(KeyEnum.C); //  not found, so use the default, expected to be C
@@ -165,7 +176,7 @@ class Key implements Comparable<Key>{
   }
 
   /// Return a representation of the key in HTML.
-    String toHtml() {
+  String toHtml() {
     return _keyScaleNote.toHtml();
   }
 
@@ -289,14 +300,12 @@ class Key implements Comparable<Key>{
     return "";
   }
 
-
   @override
   int compareTo(Key other) {
     return _keyEnum.index - other._keyEnum.index;
   }
 
-  bool get isSharp =>  _keyValue >= 0;
-
+  bool get isSharp => _keyValue >= 0;
 
   /// Returns the name of this enum constant in a user friendly format,
   /// i.e. as UTF-8
@@ -352,7 +361,6 @@ class Key implements Comparable<Key>{
   ScaleNote _keyMinorScaleNote;
   List<ScaleChord> _majorDiatonics;
   List<ScaleChord> _minorDiatonics;
-
 }
 
 /*                     1  2  3  4  5  6  7                 I    II   III  IV   V    VI   VII               0  1  2  3  4  5  6  7  8  9  10 11

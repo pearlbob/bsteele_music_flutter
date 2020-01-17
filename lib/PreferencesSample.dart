@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // rememeber to import shared_preferences: ^0.5.6
+import 'package:shared_preferences/shared_preferences.dart'; // remember to import shared_preferences: ^0.5.6
 
 
 void main() {

@@ -1,6 +1,8 @@
 import 'dart:math';
 
-import 'package:bsteele_music_flutter/player.dart';
+import 'package:bsteele_music_flutter/screens/about.dart';
+import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +24,8 @@ project structure
 packaging
 deployment
 websockets/server
+
+C's ipad: model ML0F2LL/A
 
 MVC?
 file io (web, android, ios)
@@ -65,6 +69,8 @@ class MyApp extends StatelessWidget {
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/player': (context) => Player(song: selectedSong),
+        '/edit': (context) => Edit(song: selectedSong),
+        '/about': (context) => About(),
       },
     );
   }
@@ -88,7 +94,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState()
       : _searchTextFieldController = TextEditingController(),
-        _searchFocusNode = FocusNode() {}
+        _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -105,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
       songList = allSongs;
       selectedSong = songList[0];
       setState(() {});
-      print("internal songList read");
+      print("internal songList used");
     } catch (fe) {
       print("internal songList parse error: " + fe.toString());
     }
@@ -176,6 +182,71 @@ class _MyHomePageState extends State<MyHomePage> {
           widget.title,
           style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
+        actions: <Widget>[
+          new Tooltip(
+            message: "Visit bsteele.com, the provider of this app.",
+            child: InkWell(
+              onTap: () {
+                openLink('http://www.bsteele.com');
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Image(
+                  image: AssetImage('lib/assets/runningMan.png'),
+                  width: fontSize,
+                  height: fontSize,
+                  semanticLabel: "bsteele.com website",
+                ),
+              ),
+            ),
+          ),
+          new Tooltip(
+            message:
+                "Visit Community Jams, the motivation and main user for this app.",
+            child: InkWell(
+              onTap: () {
+                openLink('http://communityjams.org');
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Image(
+                  image: AssetImage('lib/assets/cjLogo.png'),
+                  width: fontSize,
+                  height: fontSize,
+                  semanticLabel: "community jams",
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.all(4.0),
+          children: <Widget>[
+            ListTile(
+              title: Text("Song list options"),
+              onTap: () {
+                print("Song list options");
+              },
+            ),
+            if (!isTooNarrow) //  no edits on phones!
+              ListTile(
+                title: Text("Edit"),
+                onTap: () {
+                  _navigateToEdit(context, selectedSong);
+                },
+              ),
+            ListTile(
+              title: Text("About"),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToAbout(context);
+              },
+            ),
+          ],
+        ),
       ),
 
       /// Navigate to song player when song tapped.
@@ -188,7 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Row(children: <Widget>[
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 4.0),
-                  width: min(mediaWidth - 3 * fontSize, 20 * fontSize),
+                  width: min(mediaWidth / 2, 20 * fontSize),
                   //  limit text entry display length
                   child: TextField(
                     controller: _searchTextFieldController,
@@ -225,40 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
               alignment: Alignment.centerRight,
               child: Row(
                 children: <Widget>[
-                  new Tooltip(
-                    message: "Visit Community Jams, the motivation and main user for this app.",
-                    child: InkWell(
-                      onTap: () {
-                        openLink('http://communityjams.org');
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Image(
-                          image: AssetImage('lib/assets/cjLogo.png'),
-                          width: fontSize,
-                          height: fontSize,
-                          semanticLabel: "community jams",
-                        ),
-                      ),
-                    ),
-                  ),
-                  new Tooltip(
-                    message: "Visit bsteele.com, the provider of this app.",
-                    child: InkWell(
-                      onTap: () {
-                        openLink('http://www.bsteele.com');
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Image(
-                          image: AssetImage('lib/assets/runningMan.png'),
-                          width: fontSize,
-                          height: fontSize,
-                          semanticLabel: "bsteele.com website",
-                        ),
-                      ),
-                    ),
-                  ),
+//  framework for the future
                 ],
               ),
             ),
@@ -341,6 +379,20 @@ class _MyHomePageState extends State<MyHomePage> {
     _searchTextFieldController.selection = TextSelection(
         baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
     FocusScope.of(context).requestFocus(_searchFocusNode);
+  }
+
+  _navigateToEdit(BuildContext context, Song song) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Edit(song: song)),
+    );
+  }
+
+  _navigateToAbout(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => About()),
+    );
   }
 
   TextEditingController _searchTextFieldController;

@@ -224,6 +224,7 @@ class _Player extends State<Player> {
             ]),
       ),
       floatingActionButton: FloatingActionButton(
+        mini: isTooNarrow,
         onPressed: () {
           Navigator.pop(context);
         },

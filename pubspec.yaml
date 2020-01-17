@@ -24,6 +24,8 @@ dependencies:
   resource: "^2.1.6"
   shared_preferences: ^0.5.6
   http: ^0.12.0+4
+  url_launcher: ">=5.4.1"
+  universal_html: ">=1.1.10"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -1,4 +1,4 @@
-
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/player.dart';
@@ -6,11 +6,13 @@ import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:http/http.dart' as http;
 
 import 'appLogger.dart';
 
 void main() {
   Logger.level = Level.info;
+
   runApp(MyApp());
 }
 
@@ -60,12 +62,11 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/player': (context) => Player(song:selectedSong),
+        '/player': (context) => Player(song: selectedSong),
       },
     );
   }
 }
-
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -85,33 +86,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState()
       : _searchTextFieldController = TextEditingController(),
-        _searchFocusNode = FocusNode() {
-    _searchTextFieldController = TextEditingController();
-    _searchTextField = TextField(
-      controller: _searchTextFieldController,
-      focusNode: _searchFocusNode,
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.search),
-        hintText: "Enter search filter string here.",
-      ),
-
-      //  currently causes:
-      //  EXCEPTION CAUGHT BY FOUNDATION LIBRARY
-      //  RenderBox was not laid out: RenderEditable#7e016 NEEDS-LAYOUT NEEDS-PAINT
-      autofocus: true,
-
-      style: new TextStyle(fontSize: 24),
-      onChanged: (text) {
-        logger.v('search text: "$text"');
-        _searchSongs(text);
-      },
-    );
-  }
+        _searchFocusNode = FocusNode() {}
 
   @override
   void initState() {
     super.initState();
-    _readInternalSongList();
+    _readExternalSongList();
   }
 
   void _readInternalSongList() async {
@@ -123,8 +103,28 @@ class _MyHomePageState extends State<MyHomePage> {
       songList = allSongs;
       selectedSong = songList[0];
       setState(() {});
+      print("internal songList read");
     } catch (fe) {
-      logger.w("songList parse error: " + fe.toString());
+      print("internal songList parse error: " + fe.toString());
+    }
+  }
+
+
+  void _readExternalSongList() async {
+
+    try {
+      String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
+
+      String allSongsAsString = await fetchString(url);
+
+      allSongs = Song.songListFromJson(allSongsAsString);
+      songList = allSongs;
+      selectedSong = songList[0];
+      setState(() {});
+      print("external songList read from: " + url);
+    } catch (fe) {
+      print("external songList parse error: " + fe.toString());
+      _readInternalSongList();
     }
   }
 
@@ -160,12 +160,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+        ),
       ),
 
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
-        _searchTextField,
+        TextField(
+          controller: _searchTextFieldController,
+          focusNode: _searchFocusNode,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: "Enter search filter string here.",
+          ),
+
+          //  currently causes:
+          //  EXCEPTION CAUGHT BY FOUNDATION LIBRARY
+          //  RenderBox was not laid out: RenderEditable#7e016 NEEDS-LAYOUT NEEDS-PAINT
+          autofocus: true,
+
+          style: new TextStyle(fontSize: titleScaleFactor * 14),
+          onChanged: (text) {
+            logger.v('search text: "$text"');
+            _searchSongs(text);
+          },
+        ),
         Expanded(
             child: Scrollbar(
           child: ListView(
@@ -231,6 +252,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+
+
   _navigateToPlayer(BuildContext context, Song song) async {
     await Navigator.push(
       context,
@@ -243,7 +266,18 @@ class _MyHomePageState extends State<MyHomePage> {
     FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 
-  TextField _searchTextField;
   TextEditingController _searchTextFieldController;
   FocusNode _searchFocusNode;
 }
+
+Future<String> fetchString(String url) async {
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    return response.body;
+  } else {
+    // If that call was not successful, throw an error.
+    throw Exception('Failed to load url: $url');
+  }
+}
+

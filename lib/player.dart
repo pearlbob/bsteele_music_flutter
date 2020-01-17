@@ -168,51 +168,55 @@ class _Player extends State<Player> {
             textDirection: TextDirection.ltr,
             children: <Widget>[
               AppBar(
-                  //  let the app bar scroll off the screen for more room for the song
-                  title: Text(
-                '${song.title}',
-                textScaleFactor: 1.4,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-              Text(
-                song.artist,
-                textScaleFactor: chordScaleFactor,
+                //  let the app bar scroll off the screen for more room for the song
+                title: Text(
+                  '${song.title}',
+                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                ),
+                centerTitle: true,
               ),
-              Row(children: <Widget>[
-                Text(
-                  "Key: ",
-                  textScaleFactor: chordScaleFactor,
-                ),
-                DropdownButton<songs.Key>(
-                  items: songs.Key.values.toList().map((songs.Key value) {
-                    return new DropdownMenuItem<songs.Key>(
-                      key: ValueKey(value.getHalfStep()),
-                      value: value,
-                      child: new Text(
-                        '${value.toString()}  ${value.sharpsFlatsToString()}',
-                        textScaleFactor: chordScaleFactor,  //  note well
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (_value) {
-                    setState(() {
-                      _key = _value;
-                    });
-                  },
-                  value: _key,
-                  style: TextStyle(
-                    //  size controlled by textScaleFactor above
-                    color: Colors.black87,
-                    textBaseline: TextBaseline.alphabetic,
+              Text(
+                ' by  ${song.artist}',
+                textScaleFactor: lyricsScaleFactor,
+              ),
+              Row(
+                children: <Widget>[
+                  Text(
+                    "Key: ",
+                    textScaleFactor: lyricsScaleFactor,
                   ),
-                  iconSize: chordScaleFactor * 24,
-                ),
-                Text(
-                  "   BPM: ${song.getBeatsPerMinute()}" +
-                      "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                  textScaleFactor: chordScaleFactor,
-                ),
-              ]),
+                  DropdownButton<songs.Key>(
+                    items: songs.Key.values.toList().map((songs.Key value) {
+                      return new DropdownMenuItem<songs.Key>(
+                        key: ValueKey(value.getHalfStep()),
+                        value: value,
+                        child: new Text(
+                          '${value.toString()} ${value.sharpsFlatsToString()}',
+                          textScaleFactor: lyricsScaleFactor, //  note well
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (_value) {
+                      setState(() {
+                        _key = _value;
+                      });
+                    },
+                    value: _key,
+                    style: TextStyle(
+                      //  size controlled by textScaleFactor above
+                      color: Colors.black87,
+                      textBaseline: TextBaseline.ideographic,
+                    ),
+                    iconSize: lyricsScaleFactor * 24,
+                    itemHeight: lyricsScaleFactor * kMinInteractiveDimension,
+                  ),
+                  Text(
+                    "   BPM: ${song.getBeatsPerMinute()}" +
+                        "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                    textScaleFactor: lyricsScaleFactor,
+                  ),
+                ],
+              ),
               Scrollbar(
                 child: Center(child: table),
               ),

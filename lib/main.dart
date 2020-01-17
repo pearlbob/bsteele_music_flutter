@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/player.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 
 import 'appLogger.dart';
 
@@ -109,14 +108,19 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-
   void _readExternalSongList() async {
+    const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
+
+    String allSongsAsString;
+    try {
+      allSongsAsString = await fetchString(url);
+    } catch (e) {
+      print("read of url: '$url' failed: ${e.toString()}");
+      _readInternalSongList();
+      return;
+    }
 
     try {
-      String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
-
-      String allSongsAsString = await fetchString(url);
-
       allSongs = Song.songListFromJson(allSongsAsString);
       songList = allSongs;
       selectedSong = songList[0];
@@ -252,8 +256,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-
-
   _navigateToPlayer(BuildContext context, Song song) async {
     await Navigator.push(
       context,
@@ -280,4 +282,3 @@ Future<String> fetchString(String url) async {
     throw Exception('Failed to load url: $url');
   }
 }
-

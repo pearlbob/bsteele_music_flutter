@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/Gui.dart';
+import 'package:bsteele_music_flutter/Util/OpenLink.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
@@ -169,15 +170,25 @@ class _Player extends State<Player> {
             children: <Widget>[
               AppBar(
                 //  let the app bar scroll off the screen for more room for the song
-                title: Text(
-                  '${song.title}',
-                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                title: InkWell(
+                  onTap: () {
+                    openLink(_titleAnchor());
+                  },
+                  child: Text(
+                    '${song.title}',
+                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 centerTitle: true,
               ),
-              Text(
-                ' by  ${song.artist}',
-                textScaleFactor: lyricsScaleFactor,
+              InkWell(
+                onTap: () {
+                  openLink(_artistAnchor());
+                },
+                child: Text(
+                  ' by  ${song.artist}',
+                  textScaleFactor: lyricsScaleFactor,
+                ),
               ),
               Row(
                 children: <Widget>[
@@ -186,7 +197,10 @@ class _Player extends State<Player> {
                     textScaleFactor: lyricsScaleFactor,
                   ),
                   DropdownButton<songs.Key>(
-                    items: songs.Key.values.toList().reversed.map((songs.Key value) {
+                    items: songs.Key.values
+                        .toList()
+                        .reversed
+                        .map((songs.Key value) {
                       return new DropdownMenuItem<songs.Key>(
                         key: ValueKey(value.getHalfStep()),
                         value: value,
@@ -233,6 +247,18 @@ class _Player extends State<Player> {
       ),
     );
   }
+
+  String _titleAnchor() {
+    return anchorUrlStart +
+        Uri.encodeFull('${widget.song.title} ${widget.song.artist}');
+  }
+
+  String _artistAnchor() {
+    return anchorUrlStart + Uri.encodeFull('${widget.song.artist}');
+  }
+
+  static final String anchorUrlStart =
+      "https://www.youtube.com/results?search_query=";
 
   songs.Key _key = songs.Key.get(songs.KeyEnum.C);
 }

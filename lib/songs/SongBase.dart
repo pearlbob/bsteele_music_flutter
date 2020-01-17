@@ -9,7 +9,7 @@ import '../Grid.dart';
 import '../GridCoordinate.dart';
 import '../appLogger.dart';
 import '../appOptions.dart';
-import '../util.dart';
+import '../Util/util.dart';
 import 'Chord.dart';
 import 'ChordDescriptor.dart';
 import 'ChordSection.dart';

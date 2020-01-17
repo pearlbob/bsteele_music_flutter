@@ -3,7 +3,7 @@ import 'dart:core';
 
 import 'package:logger/logger.dart';
 
-import '../util.dart';
+import '../Util/util.dart';
 import 'SongBase.dart';
 import 'Key.dart';
 

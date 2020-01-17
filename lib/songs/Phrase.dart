@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:quiver/collection.dart';
 import 'package:quiver/core.dart';
 
-import '../util.dart';
+import '../Util/util.dart';
 import 'Measure.dart';
 import 'MeasureComment.dart';
 import 'MeasureNode.dart';

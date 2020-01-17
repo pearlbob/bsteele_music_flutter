@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:quiver/core.dart';
 
-import '../util.dart';
+import '../Util/util.dart';
 import 'SectionVersion.dart';
 
 enum ChordSectionLocationMarker {

@@ -6,7 +6,7 @@ import 'package:bsteele_music_flutter/songs/Phrase.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/SectionVersion.dart';
 import 'package:bsteele_music_flutter/songs/scaleNote.dart';
-import 'package:bsteele_music_flutter/util.dart';
+import 'package:bsteele_music_flutter/Util/util.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 

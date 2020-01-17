@@ -1,6 +1,6 @@
 import 'package:quiver/core.dart';
 
-import '../util.dart';
+import '../Util/util.dart';
 import 'Section.dart';
 
 /// A version identifier for multiple numerical variations of a given section.

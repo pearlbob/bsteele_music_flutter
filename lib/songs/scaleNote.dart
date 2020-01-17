@@ -2,7 +2,7 @@
 
 import 'dart:collection';
 
-import '../util.dart';
+import '../Util/util.dart';
 import 'MusicConstants.dart';
 import 'Key.dart';
 

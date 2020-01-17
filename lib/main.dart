@@ -181,71 +181,81 @@ class _MyHomePageState extends State<MyHomePage> {
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 4.0),
-              width: min(mediaWidth - 3 * fontSize, 20 * fontSize),
-              //  limit text entry display length
-              child: Expanded(
-                child: TextField(
-                  controller: _searchTextFieldController,
-                  focusNode: _searchFocusNode,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: "Enter search filter string here.",
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Row(children: <Widget>[
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 4.0),
+                  width: min(mediaWidth - 3 * fontSize, 20 * fontSize),
+                  //  limit text entry display length
+                  child: TextField(
+                    controller: _searchTextFieldController,
+                    focusNode: _searchFocusNode,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search),
+                      hintText: "Enter search filter string here.",
+                    ),
+
+                    //  currently causes:
+                    //  EXCEPTION CAUGHT BY FOUNDATION LIBRARY
+                    //  RenderBox was not laid out: RenderEditable#7e016 NEEDS-LAYOUT NEEDS-PAINT
+                    autofocus: true,
+
+                    style: new TextStyle(fontSize: titleScaleFactor * 14),
+                    onChanged: (text) {
+                      logger.v('search text: "$text"');
+                      _searchSongs(text);
+                    },
                   ),
-
-                  //  currently causes:
-                  //  EXCEPTION CAUGHT BY FOUNDATION LIBRARY
-                  //  RenderBox was not laid out: RenderEditable#7e016 NEEDS-LAYOUT NEEDS-PAINT
-                  autofocus: true,
-
-                  style: new TextStyle(fontSize: titleScaleFactor * 14),
-                  onChanged: (text) {
-                    logger.v('search text: "$text"');
-                    _searchSongs(text);
-                  },
                 ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.clear),
-              tooltip: 'Clear the search text.',
-              onPressed: (() {
-                _searchTextFieldController.clear();
-                FocusScope.of(context).requestFocus(_searchFocusNode);
-                _searchSongs(null);
-              }),
+                IconButton(
+                  icon: Icon(Icons.clear),
+                  tooltip: 'Clear the search text.',
+                  onPressed: (() {
+                    _searchTextFieldController.clear();
+                    FocusScope.of(context).requestFocus(_searchFocusNode);
+                    _searchSongs(null);
+                  }),
+                ),
+              ]),
             ),
             Align(
               alignment: Alignment.centerRight,
               child: Row(
                 children: <Widget>[
-                  InkWell(
-                    onTap: () {
-                      openLink('http://communityjams.org');
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Image(
-                        image: AssetImage('lib/assets/cjLogo.png'),
-                        width: fontSize,
-                        height: fontSize,
-                        semanticLabel: "community jams",
+                  new Tooltip(
+                    message: "Visit Community Jams, the motivation and main user for this app.",
+                    child: InkWell(
+                      onTap: () {
+                        openLink('http://communityjams.org');
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Image(
+                          image: AssetImage('lib/assets/cjLogo.png'),
+                          width: fontSize,
+                          height: fontSize,
+                          semanticLabel: "community jams",
+                        ),
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      openLink('http://www.bsteele.com');
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Image(
-                        image: AssetImage('lib/assets/runningMan.png'),
-                        width: fontSize,
-                        height: fontSize,
-                        semanticLabel: "bsteele.com website",
+                  new Tooltip(
+                    message: "Visit bsteele.com, the provider of this app.",
+                    child: InkWell(
+                      onTap: () {
+                        openLink('http://www.bsteele.com');
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Image(
+                          image: AssetImage('lib/assets/runningMan.png'),
+                          width: fontSize,
+                          height: fontSize,
+                          semanticLabel: "bsteele.com website",
+                        ),
                       ),
                     ),
                   ),

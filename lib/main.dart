@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/screens/about.dart';
@@ -200,24 +201,25 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          new Tooltip(
-            message:
-                "Visit Community Jams, the motivation and main user for this app.",
-            child: InkWell(
-              onTap: () {
-                openLink('http://communityjams.org');
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Image(
-                  image: AssetImage('lib/assets/cjLogo.png'),
-                  width: fontSize,
-                  height: fontSize,
-                  semanticLabel: "community jams",
+          if (!isTooNarrow) //  sorry CJ
+            new Tooltip(
+              message:
+                  "Visit Community Jams, the motivation and main user for this app.",
+              child: InkWell(
+                onTap: () {
+                  openLink('http://communityjams.org');
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Image(
+                    image: AssetImage('lib/assets/cjLogo.png'),
+                    width: fontSize,
+                    height: fontSize,
+                    semanticLabel: "community jams",
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
 
@@ -403,7 +405,7 @@ Future<String> fetchString(String url) async {
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
-    return response.body;
+    return utf8.decode(response.bodyBytes);
   } else {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $url');

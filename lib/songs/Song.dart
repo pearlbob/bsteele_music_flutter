@@ -186,7 +186,6 @@ class Song extends SongBase implements Comparable<Song> {
     return songList;
   }
 
-
   /// Read a single song from a JSON map
   static Song songFromJson(Map jsonSongFile) {
     Song song = Song.createEmptySong();

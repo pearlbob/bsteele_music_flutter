@@ -460,4 +460,15 @@ void main() {
       }
     }
   });
+
+  test("test getKeyByHalfStep()", () {
+    Key key = Key.get(KeyEnum.E);
+    List<Key> test = Key.keysByHalfStepFrom(key);
+    int i = MusicConstants.halfStepsPerOctave ~/ 2;
+    Key tk = test[i];
+    expect(tk, isNotNull);
+    expect(tk.keyEnum, KeyEnum.Bb);
+    expect(test[0].keyEnum, KeyEnum.E);
+    expect(test[12].keyEnum, KeyEnum.E);
+  });
 }

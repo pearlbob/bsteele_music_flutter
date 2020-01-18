@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/Gui.dart';
+import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
 import 'package:bsteele_music_flutter/util/OpenLink.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
@@ -29,6 +30,8 @@ class _Player extends State<Player> {
   @override
   initState() {
     super.initState();
+
+    _displaySongKey = widget.song.key;
   }
 
   @override
@@ -54,7 +57,8 @@ class _Player extends State<Player> {
             GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
         //  compute transposition offset from base key
-        int tranOffset = _key.getHalfStep() - song.getKey().getHalfStep();
+        int tranOffset =
+            _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
 
         //  keep track of the section
         ChordSection lastChordSection;
@@ -120,7 +124,7 @@ class _Player extends State<Player> {
               children.add(Container(
                   margin: marginInsets,
                   child: Text(
-                    sm.getMeasure().transpose(_key, tranOffset),
+                    sm.getMeasure().transpose(_displaySongKey, tranOffset),
                     style: TextStyle(backgroundColor: color),
                     textScaleFactor: chordScaleFactor,
                   )));
@@ -155,6 +159,63 @@ class _Player extends State<Player> {
         table = Table(
           defaultColumnWidth: IntrinsicColumnWidth(),
           children: rows,
+        );
+      }
+    }
+
+    //  generate the rolled key list
+    //  higher pitch on top
+    //  lower pit on bottom
+    List<DropdownMenuItem<songs.Key>> keyDropDownMenuList;
+    {
+      const int steps = MusicConstants.halfStepsPerOctave;
+      const int halfOctave = steps ~/ 2;
+      List<songs.Key> rolledKeyList = List(steps);
+
+      List<songs.Key> list = songs.Key.keysByHalfStepFrom(song.key); //temp loc
+      for (int i = 0; i <= halfOctave; i++) {
+        rolledKeyList[i] = list[halfOctave - i];
+      }
+      for (int i = halfOctave + 1; i < steps; i++) {
+        rolledKeyList[i] = list[steps - i + halfOctave];
+      }
+
+      keyDropDownMenuList = List();
+      for (int i = 0; i < steps; i++) {
+        songs.Key value = rolledKeyList[i];
+
+        int relativeOffset = halfOctave - i;
+
+        String relativeName = relativeOffset > 0
+            ? value.toStringAsSharp()
+            : value.toStringAsFlat();
+
+        String relativeString;
+        if (relativeOffset > 0)
+          relativeString = " +${relativeOffset.toString()}";
+        else if (relativeOffset < 0)
+          relativeString = " ${relativeOffset.toString()}";
+        else
+          relativeString = ' ';
+
+        keyDropDownMenuList.add(
+          DropdownMenuItem<songs.Key>(
+            key: ValueKey(value.getHalfStep()),
+            value: value,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  relativeName,
+                  textScaleFactor: lyricsScaleFactor, //  note well
+                ),
+                Text(
+                  relativeString,
+                  textScaleFactor: lyricsScaleFactor, //  note well
+                ),
+              ],
+            ),
+          ),
         );
       }
     }
@@ -197,22 +258,13 @@ class _Player extends State<Player> {
                     textScaleFactor: lyricsScaleFactor,
                   ),
                   DropdownButton<songs.Key>(
-                    items: songs.Key.keysByHalfStepFrom(song.key).map((songs.Key value) {
-                      return new DropdownMenuItem<songs.Key>(
-                        key: ValueKey(value.getHalfStep()),
-                        value: value,
-                        child: new Text(
-                          '${value.toString()}',
-                          textScaleFactor: lyricsScaleFactor, //  note well
-                        ),
-                      );
-                    }).toList(),
+                    items: keyDropDownMenuList,
                     onChanged: (_value) {
                       setState(() {
-                        _key = _value;
+                        _displaySongKey = _value;
                       });
                     },
-                    value: _key,
+                    value: _displaySongKey,
                     style: TextStyle(
                       //  size controlled by textScaleFactor above
                       color: Colors.black87,
@@ -257,7 +309,7 @@ class _Player extends State<Player> {
   static final String anchorUrlStart =
       "https://www.youtube.com/results?search_query=";
 
-  songs.Key _key = songs.Key.get(songs.KeyEnum.C);
+  songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
 }
 
 class _KeyboardListener extends StatefulWidget {

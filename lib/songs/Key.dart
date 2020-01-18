@@ -56,8 +56,8 @@ class Key implements Comparable<Key> {
   }
 
   static List<Key> keysByHalfStepFrom(Key key) {
-    List<Key> ret = List(halfStepsPerOctave);
-    for (int i = halfStepsPerOctave ~/ 2; i <= halfStepsPerOctave ~/ 2; i++)
+    List<Key> ret = List(halfStepsPerOctave+1);
+    for (int i = 0; i <= halfStepsPerOctave; i++)
       ret[i] = byHalfStep(offset: key._halfStep + i);
     return ret;
   }
@@ -319,6 +319,18 @@ class Key implements Comparable<Key> {
   /// i.e. as UTF-8
   @override
   String toString() {
+    return _keyScaleNote.toString();
+  }
+
+  String toStringAsSharp(){
+    if ( _keyScaleNote.isFlat )
+      return _keyScaleNote.alias.toString();
+    return _keyScaleNote.toString();
+  }
+
+  String toStringAsFlat(){
+    if ( _keyScaleNote.isSharp )
+      return _keyScaleNote.alias.toString();
     return _keyScaleNote.toString();
   }
 

@@ -2,9 +2,16 @@
 set debug=0
 set isBeta=1
 set app=bsteeleMusicApp
+set flavor=beta
 
 while ( $#argv > 0 )
 	switch ( $1 )
+	case '-a':
+	case '-alpha':
+		set isBeta=1
+		set flavor=alpha
+		shift
+		continue;
 #	case '-beta':
 #		set isBeta=1
 #		shift
@@ -30,7 +37,7 @@ endif
 
 set dst=/var/www/html/public_html
 if ( $isBeta != 0 ) then
-	set dst=$dst/beta
+	set dst=$dst/$flavor
 endif
 set git=~/GitHub/bsteeleMusicFlutter
 set target=$git/build/web
@@ -46,10 +53,10 @@ rm  -rf $dst/$app
 #	copy to localhost website
 cp -r build/web $dst/$app
 
-#	send to beta web location
-set gs=gs://www.bsteele.com/beta/$app
+#	send to flavor's web location
+set gs=gs://www.bsteele.com/$flavor/$app
 gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/$app/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs
 
-echo test http://www.bsteele.com/beta/bsteeleMusicApp
+echo test http://www.bsteele.com/$flavor/bsteeleMusicApp

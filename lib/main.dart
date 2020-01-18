@@ -5,6 +5,7 @@ import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
+import 'package:bsteele_music_flutter/util/Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -149,10 +150,11 @@ class _MyHomePageState extends State<MyHomePage> {
     ScrollController _scrollController = new ScrollController();
     bool oddEven = false;
 
-    final double mediaWidth = MediaQuery.of(context).size.width;
-    final bool isTooNarrow = mediaWidth <= 800;
-    final double titleScaleFactor = max(1, mediaWidth / 800);
-    final double artistScaleFactor = 0.75 * titleScaleFactor;
+    ScreenInfo screenInfo = ScreenInfo(context);
+    final double mediaWidth = screenInfo.mediaWidth;
+    final bool isTooNarrow = screenInfo.isTooNarrow;
+    final double titleScaleFactor = screenInfo.titleScaleFactor;
+    final double artistScaleFactor = screenInfo.artistScaleFactor;
 
     for (Song song in songList) {
       oddEven = !oddEven;

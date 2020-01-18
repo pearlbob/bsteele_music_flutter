@@ -3,12 +3,6 @@ import 'dart:core';
 import 'dart:math';
 
 class Util {
-  /// Always return a positive modulus
-  static int mod(int n, int modulus) {
-    n = n % modulus;
-    if (n < 0) n += modulus;
-    return n;
-  }
 
   /// add quotes to a string so it can be used as a dart constant
   static String quote(String s){

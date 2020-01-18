@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import '../Util/util.dart';
+import '../util/util.dart';
 import 'SectionVersion.dart';
 
 enum SectionEnum {

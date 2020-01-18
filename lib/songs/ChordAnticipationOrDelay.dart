@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:core';
 
-import '../Util/util.dart';
+import '../util/util.dart';
 
 enum ChordAnticipationOrDelayEnum {
   /// Play the chord on time.

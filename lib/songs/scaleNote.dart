@@ -2,7 +2,7 @@
 
 import 'dart:collection';
 
-import '../Util/util.dart';
+import '../util/util.dart';
 import 'MusicConstants.dart';
 import 'Key.dart';
 
@@ -85,7 +85,6 @@ class ScaleNote {
     }
 
     String mod = "";
-    String modHtml = "";
     String modMarkup = "";
 
     _isSharp = false;
@@ -102,7 +101,6 @@ class ScaleNote {
       case ScaleNoteEnum.F:
       case ScaleNoteEnum.G:
         //mod += '\u266E';  //  fixme: natural sign on scale not is overkill?
-        modHtml = "&#9838;";
         _isNatural = true;
         break;
       case ScaleNoteEnum.X:
@@ -116,7 +114,6 @@ class ScaleNote {
       case ScaleNoteEnum.Fs:
       case ScaleNoteEnum.Gs:
         mod += '\u266F';
-        modHtml = "&#9839;";
         modMarkup = "#";
         _isSharp = true;
         break;
@@ -128,7 +125,6 @@ class ScaleNote {
       case ScaleNoteEnum.Fb:
       case ScaleNoteEnum.Gb:
         mod += '\u266D';
-        modHtml = "&#9837;";
         modMarkup = "b";
         _isFlat = true;
         break;
@@ -136,7 +132,6 @@ class ScaleNote {
     String base = scaleNoteE.toString().split('.').last;
     base = base.substring(0, 1);
     _scaleNoteString = base + mod;
-    _scaleNoteHtml = base + modHtml;
     _scaleNoteMarkup = base + modMarkup;
 
     //  alia's done at the static class level
@@ -152,7 +147,7 @@ class ScaleNote {
   /// @param step the number of half steps from A
   /// @return the sharp scale note
   static ScaleNote getSharpByHalfStep(int step) {
-    return get(_sharps[Util.mod(step, halfStepsPerOctave)]);
+    return get(_sharps[step % halfStepsPerOctave]);
   }
 
   /// A utility to map the flat scale notes to their half step offset.
@@ -161,7 +156,7 @@ class ScaleNote {
   /// @param step the number of half steps from A
   /// @return the sharp scale note
   static ScaleNote getFlatByHalfStep(int step) {
-    return get(_flats[Util.mod(step, halfStepsPerOctave)]);
+    return get(_flats[step % halfStepsPerOctave]);
   }
 
   static ScaleNote parseString(String s) {
@@ -209,11 +204,6 @@ class ScaleNote {
   ScaleNote transpose(Key key, int steps) {
     if (getEnum() == ScaleNoteEnum.X) return get(ScaleNoteEnum.X);
     return key.getScaleNoteByHalfStep(halfStep + steps);
-  }
-
-  /// Returns the name of this scale note in an HTML format.
-  String toHtml() {
-    return _scaleNoteHtml;
   }
 
   /// Return the scale note as markup.
@@ -332,7 +322,6 @@ class ScaleNote {
 
   String get scaleNoteString => _scaleNoteString;
   String _scaleNoteString;
-  String _scaleNoteHtml;
   String _scaleNoteMarkup;
 
   ScaleNote _alias;

@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/Util/util.dart';
+import 'package:bsteele_music_flutter/util/util.dart';
 import "package:test/test.dart";
 
 void main() {

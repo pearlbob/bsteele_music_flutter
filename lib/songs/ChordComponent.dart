@@ -1,4 +1,3 @@
-import '../Util/util.dart';
 import 'MusicConstants.dart';
 
 ///
@@ -63,8 +62,7 @@ class ChordComponent implements Comparable<ChordComponent> {
   }
 
   static ChordComponent getByHalfStep(int halfStep) {
-    return _chordComponentByHalfSteps[
-        Util.mod(halfStep, MusicConstants.halfStepsPerOctave)];
+    return _chordComponentByHalfSteps[ halfStep% MusicConstants.halfStepsPerOctave];
   }
 
   @override

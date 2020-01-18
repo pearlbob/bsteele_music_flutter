@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
-import 'Util/OpenLink.dart';
+import 'util/OpenLink.dart';
 import 'appLogger.dart';
 
 void main() {

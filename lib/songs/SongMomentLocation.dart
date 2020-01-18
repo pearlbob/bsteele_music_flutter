@@ -1,6 +1,6 @@
 import 'package:bsteele_music_flutter/songs/ChordSectionLocation.dart';
 
-import '../Util/util.dart';
+import '../util/util.dart';
 
 class SongMomentLocation {
   SongMomentLocation(this._chordSectionLocation, this._index);

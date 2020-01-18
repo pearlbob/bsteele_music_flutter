@@ -1,4 +1,4 @@
-import '../Util/util.dart';
+import '../util/util.dart';
 import 'ChordComponent.dart';
 import 'MusicConstants.dart';
 

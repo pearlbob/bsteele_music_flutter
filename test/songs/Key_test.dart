@@ -38,7 +38,7 @@ class _Help {
 }
 
 void main() {
-  Logger.level = Level.warning;
+  Logger.level = Level.info;
 
   test("testGetKeyByValue testing", () {
     //  the table of values
@@ -91,17 +91,17 @@ void main() {
 
     expect(_Help.majorScale(KeyEnum.Gb), "Gb Ab Bb Cb Db Eb F");
     //  fixme: actual should be first on expect!
-    expect("Db Eb F  Gb Ab Bb C", _Help.majorScale(KeyEnum.Db));
-    expect("Ab Bb C  Db Eb F  G", _Help.majorScale(KeyEnum.Ab));
-    expect("Eb F  G  Ab Bb C  D", _Help.majorScale(KeyEnum.Eb));
-    expect("Bb C  D  Eb F  G  A", _Help.majorScale(KeyEnum.Bb));
-    expect("F  G  A  Bb C  D  E", _Help.majorScale(KeyEnum.F));
-    expect("C  D  E  F  G  A  B", _Help.majorScale(KeyEnum.C));
-    expect("G  A  B  C  D  E  F#", _Help.majorScale(KeyEnum.G));
-    expect("D  E  F# G  A  B  C#", _Help.majorScale(KeyEnum.D));
-    expect("E  F# G# A  B  C# D#", _Help.majorScale(KeyEnum.E));
-    expect("B  C# D# E  F# G# A#", _Help.majorScale(KeyEnum.B));
-    expect("F# G# A# B  C# D# E#", _Help.majorScale(KeyEnum.Fs));
+    expect(_Help.majorScale(KeyEnum.Db), "Db Eb F  Gb Ab Bb C");
+    expect(_Help.majorScale(KeyEnum.Ab), "Ab Bb C  Db Eb F  G");
+    expect(_Help.majorScale(KeyEnum.Eb), "Eb F  G  Ab Bb C  D");
+    expect(_Help.majorScale(KeyEnum.Bb), "Bb C  D  Eb F  G  A");
+    expect(_Help.majorScale(KeyEnum.F), "F  G  A  Bb C  D  E");
+    expect(_Help.majorScale(KeyEnum.C), "C  D  E  F  G  A  B");
+    expect(_Help.majorScale(KeyEnum.G), "G  A  B  C  D  E  F#");
+    expect(_Help.majorScale(KeyEnum.D), "D  E  F# G  A  B  C#");
+    expect(_Help.majorScale(KeyEnum.E), "E  F# G# A  B  C# D#");
+    expect(_Help.majorScale(KeyEnum.B), "B  C# D# E  F# G# A#");
+    expect(_Help.majorScale(KeyEnum.Fs), "F# G# A# B  C# D# E#");
 
     expect(_Help.diatonicByDegree(KeyEnum.Gb),
         "Gb   Abm  Bbm  Cb   Db7  Ebm  Fm7b5");
@@ -195,7 +195,11 @@ void main() {
   });
 
   test("testMinorKey testing", () {
-    expect(Key.get(KeyEnum.A), Key.get(KeyEnum.C).getMinorKey());
+    expect(Key.get(KeyEnum.C).getMinorKey(), Key.get(KeyEnum.A));
+    expect(Key.get(KeyEnum.F).getMinorKey(), Key.get(KeyEnum.D));
+    expect(Key.get(KeyEnum.A).getMinorKey(), Key.get(KeyEnum.Gb));
+    expect(Key.get(KeyEnum.Ab).getMinorKey(), Key.get(KeyEnum.F));
+    expect(Key.get(KeyEnum.Eb).getMinorKey(), Key.get(KeyEnum.C));
   });
 
   test("testScaleNoteByHalfStep testing", () {
@@ -443,5 +447,17 @@ void main() {
     expect(Key.parseString("F").keyEnum, KeyEnum.F);
     expect(Key.parseString("E♭").keyEnum, KeyEnum.Eb);
     expect(Key.parseString("Eb").keyEnum, KeyEnum.Eb);
+  });
+
+  test("test byHalfStep()", () {
+    for (int off = -6; off <= 6; off++) {
+      logger.i('$off');
+      Key key = Key.getKeyByHalfStep(off);
+
+      for (int i = -6; i <= 6; i++) {
+        Key offsetKey = Key.getKeyByHalfStep(off + i);
+        logger.i('\t+$i: ${offsetKey.toString()}   ${key.toString()}');
+      }
+    }
   });
 }

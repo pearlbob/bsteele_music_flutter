@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/Gui.dart';
-import 'package:bsteele_music_flutter/Util/OpenLink.dart';
+import 'package:bsteele_music_flutter/util/OpenLink.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
@@ -197,12 +197,12 @@ class _Player extends State<Player> {
                     textScaleFactor: lyricsScaleFactor,
                   ),
                   DropdownButton<songs.Key>(
-                    items: songs.Key.byHalfStep().map((songs.Key value) {
+                    items: songs.Key.keysByHalfStepFrom(song.key).map((songs.Key value) {
                       return new DropdownMenuItem<songs.Key>(
                         key: ValueKey(value.getHalfStep()),
                         value: value,
                         child: new Text(
-                          '${value.toString()} ${value.sharpsFlatsToString()}',
+                          '${value.toString()}',
                           textScaleFactor: lyricsScaleFactor, //  note well
                         ),
                       );

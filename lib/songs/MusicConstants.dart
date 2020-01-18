@@ -1,25 +1,8 @@
-import '../Util/util.dart';
 import 'ChordDescriptor.dart';
 
-enum MajorDiatonic {
-  i,
-  ii,
-  iii,
-  IV,
-  V,
-  VI,
-  vii
-}
+enum MajorDiatonic { i, ii, iii, IV, V, VI, vii }
 
-enum MinorDiatonic {
-  i,
-  ii,
-  III,
-  iv,
-  v,
-  VI,
-  VII
-}
+enum MinorDiatonic { i, ii, III, iv, v, VI, VII }
 
 class MusicConstants {
   static const String flatChar = '\u266D';
@@ -46,7 +29,6 @@ class MusicConstants {
   static const int minBpm = 50;
   static const int maxBpm = 400;
 
-
   //  has to be ahead of it's use since it's static
   static final List<ChordDescriptor> _majorDiatonicChordModifiers = [
     ChordDescriptor.major, //  0 + 1 = 1
@@ -58,15 +40,13 @@ class MusicConstants {
     ChordDescriptor.minor7b5, //  6 + 1 = 7
   ];
 
-
-///
-//    Return the major diatonic chord descriptor for the given degree.
+  ///    Return the major diatonic chord descriptor for the given degree.
   static ChordDescriptor getMajorDiatonicChordModifier(int degree) {
-    return _majorDiatonicChordModifiers[Util.mod(
-        degree, _majorDiatonicChordModifiers.length)];
+    return _majorDiatonicChordModifiers[
+        degree % _majorDiatonicChordModifiers.length];
   }
 
-//  has to be ahead of it's use since it's static
+  //  has to be ahead of it's use since it's static
   static final List<ChordDescriptor> _minorDiatonicChordModifiers = [
     ChordDescriptor.minor, //  0 + 1 = 1
     ChordDescriptor.diminished, //  1 + 1 = 2
@@ -77,11 +57,9 @@ class MusicConstants {
     ChordDescriptor.major, //  6 + 1 = 7
   ];
 
-
-///
-//    Return the major diatonic chord descriptor for the given degree.
+  ///  Return the major diatonic chord descriptor for the given degree.
   static ChordDescriptor getMinorDiatonicChordModifier(int degree) {
-    return _minorDiatonicChordModifiers[Util.mod(
-        degree, _minorDiatonicChordModifiers.length)];
+    return _minorDiatonicChordModifiers[
+        degree % _minorDiatonicChordModifiers.length];
   }
 }

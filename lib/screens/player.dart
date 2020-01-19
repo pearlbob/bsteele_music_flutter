@@ -1,14 +1,15 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/Gui.dart';
-import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
-import 'package:bsteele_music_flutter/util/OpenLink.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
+import 'package:bsteele_music_flutter/songs/Key.dart' as songs;
+import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
 import 'package:bsteele_music_flutter/songs/Section.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:bsteele_music_flutter/songs/SongMoment.dart';
-import 'package:bsteele_music_flutter/songs/Key.dart' as songs;
+import 'package:bsteele_music_flutter/util/OpenLink.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -40,6 +41,7 @@ class _Player extends State<Player> {
 
     logger.d("size: " + MediaQuery.of(context).size.toString());
     double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
     double chordScaleFactor = w / 400;
     bool isTooNarrow = w <= 800;
     chordScaleFactor = min(10, max(1, chordScaleFactor));
@@ -97,6 +99,7 @@ class _Player extends State<Player> {
           }
           lastChordSection = chordSection;
           lastSectionCount = sectionCount;
+
 
           String momentLocation;
           for (int c = 0; c < row.length; c++) {
@@ -220,71 +223,99 @@ class _Player extends State<Player> {
       }
     }
 
+    double boxCenter = 0.4 * h;
+    double boxHeight = 0.3 * h;
+    double boxOffset = boxHeight / 2;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              AppBar(
-                //  let the app bar scroll off the screen for more room for the song
-                title: InkWell(
-                  onTap: () {
-                    openLink(_titleAnchor());
-                  },
-                  child: Text(
-                    '${song.title}',
-                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                centerTitle: true,
-              ),
-              InkWell(
-                onTap: () {
-                  openLink(_artistAnchor());
-                },
-                child: Text(
-                  ' by  ${song.artist}',
-                  textScaleFactor: lyricsScaleFactor,
+      body: Stack(
+        children: <Widget>[
+          Positioned(
+            top: boxCenter - boxOffset,
+            child: Container(
+              constraints: BoxConstraints.loose(Size(w, boxHeight)),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    Colors.white,
+                    Colors.blue[300],
+                    Colors.blue[300],
+                    Colors.white,
+                  ],
                 ),
               ),
-              Row(
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                textDirection: TextDirection.ltr,
                 children: <Widget>[
-                  Text(
-                    "Key: ",
-                    textScaleFactor: lyricsScaleFactor,
-                  ),
-                  DropdownButton<songs.Key>(
-                    items: keyDropDownMenuList,
-                    onChanged: (_value) {
-                      setState(() {
-                        _displaySongKey = _value;
-                      });
-                    },
-                    value: _displaySongKey,
-                    style: TextStyle(
-                      //  size controlled by textScaleFactor above
-                      color: Colors.black87,
-                      textBaseline: TextBaseline.ideographic,
+                  AppBar(
+                    //  let the app bar scroll off the screen for more room for the song
+                    title: InkWell(
+                      onTap: () {
+                        openLink(_titleAnchor());
+                      },
+                      child: Text(
+                        '${song.title}',
+                        style: TextStyle(
+                            fontSize: 48, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    iconSize: lyricsScaleFactor * 24,
-                    itemHeight: lyricsScaleFactor * kMinInteractiveDimension,
+                    centerTitle: true,
                   ),
-                  Text(
-                    "   BPM: ${song.getBeatsPerMinute()}" +
-                        "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                    textScaleFactor: lyricsScaleFactor,
+                  InkWell(
+                    onTap: () {
+                      openLink(_artistAnchor());
+                    },
+                    child: Text(
+                      ' by  ${song.artist}',
+                      textScaleFactor: lyricsScaleFactor,
+                    ),
                   ),
-                ],
-              ),
-              Scrollbar(
-                child: Center(child: table),
-              ),
-              _KeyboardListener(),
-            ]),
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        "Key: ",
+                        textScaleFactor: lyricsScaleFactor,
+                      ),
+                      DropdownButton<songs.Key>(
+                        items: keyDropDownMenuList,
+                        onChanged: (_value) {
+                          setState(() {
+                            _displaySongKey = _value;
+                          });
+                        },
+                        value: _displaySongKey,
+                        style: TextStyle(
+                          //  size controlled by textScaleFactor above
+                          color: Colors.black87,
+                          textBaseline: TextBaseline.ideographic,
+                        ),
+                        iconSize: lyricsScaleFactor * 24,
+                        itemHeight:
+                            lyricsScaleFactor * kMinInteractiveDimension,
+                      ),
+                      Text(
+                        "   BPM: ${song.getBeatsPerMinute()}" +
+                            "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                        textScaleFactor: lyricsScaleFactor,
+                      ),
+                    ],
+                  ),
+                  Scrollbar(
+                    child: Center(child: table),
+                  ),
+                  _KeyboardListener(),
+                ]),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         mini: isTooNarrow,

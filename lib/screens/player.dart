@@ -100,7 +100,6 @@ class _Player extends State<Player> {
           lastChordSection = chordSection;
           lastSectionCount = sectionCount;
 
-
           String momentLocation;
           for (int c = 0; c < row.length; c++) {
             SongMoment sm = row[c];
@@ -223,9 +222,10 @@ class _Player extends State<Player> {
       }
     }
 
-    double boxCenter = 0.4 * h;
+    double boxCenter = 0.5 * h;
     double boxHeight = 0.3 * h;
     double boxOffset = boxHeight / 2;
+    double textLocation = 0.5 * h;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -250,6 +250,7 @@ class _Player extends State<Player> {
             ),
           ),
           SingleChildScrollView(
+            //physics: _PlayerScrollPhysics(),
             scrollDirection: Axis.vertical,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -309,9 +310,7 @@ class _Player extends State<Player> {
                       ),
                     ],
                   ),
-                  Scrollbar(
-                    child: Center(child: table),
-                  ),
+                  Center(child: table),
                   _KeyboardListener(),
                 ]),
           ),
@@ -369,4 +368,45 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   }
 
   FocusNode _textFocusNode = new FocusNode();
+}
+
+class _PlayerSimulation extends Simulation {
+  final double _initialPosition;
+  final double _velocity = 0.01;
+  final int t0 = DateTime.now().millisecondsSinceEpoch;
+
+  _PlayerSimulation(this._initialPosition,  velocity);
+
+  @override
+  double dx(double time) {
+    return _velocity;
+  }
+
+  @override
+  double x(double time) {
+    double x = _initialPosition + _velocity * (DateTime.now().millisecondsSinceEpoch - t0);
+    x = max(0, x);
+    logger.i('x: ${x.toString()}, t: $time');
+    return x;
+  }
+
+  @override
+  bool isDone(double time) {
+    return true;
+  }
+}
+
+_PlayerSimulation _playerSimulation = _PlayerSimulation(0,0);
+
+class _PlayerScrollPhysics extends ScrollPhysics {
+  @override
+  ScrollPhysics applyTo(ScrollPhysics ancestor) {
+    return _PlayerScrollPhysics();
+  }
+
+  @override
+  Simulation createBallisticSimulation(
+      ScrollMetrics position, double velocity) {
+    return _playerSimulation;
+  }
 }

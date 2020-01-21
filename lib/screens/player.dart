@@ -32,6 +32,8 @@ class _Player extends State<Player> {
   initState() {
     super.initState();
 
+    logger.i("_Player.initState()");
+
     _displaySongKey = widget.song.key;
   }
 
@@ -39,7 +41,6 @@ class _Player extends State<Player> {
   Widget build(BuildContext context) {
     Song song = widget.song;
 
-    logger.d("size: " + MediaQuery.of(context).size.toString());
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
     double chordScaleFactor = w / 400;
@@ -48,120 +49,123 @@ class _Player extends State<Player> {
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
     logger.d("textScaleFactor: $chordScaleFactor");
 
-    //  build the table from the song moment grid
-    Table table;
-    Grid<SongMoment> grid = song.songMomentGrid;
-    if (grid.isNotEmpty) {
-      {
-        List<TableRow> rows = List();
-        List<Widget> children = List();
-        Color color =
-            GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+    if (_table == null) {
+      logger.d("size: " + MediaQuery.of(context).size.toString());
 
-        //  compute transposition offset from base key
-        int tranOffset =
-            _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
+      //  build the table from the song moment grid
+      Grid<SongMoment> grid = song.songMomentGrid;
+      if (grid.isNotEmpty) {
+        {
+          List<TableRow> rows = List();
+          List<Widget> children = List();
+          Color color =
+              GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
-        //  keep track of the section
-        ChordSection lastChordSection;
-        int lastSectionCount;
+          //  compute transposition offset from base key
+          int tranOffset =
+              _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
 
-        //  map the song moment grid to a flutter table, one row at a time
-        for (int r = 0; r < grid.getRowCount(); r++) {
-          List<SongMoment> row = grid.getRow(r);
+          //  keep track of the section
+          ChordSection lastChordSection;
+          int lastSectionCount;
 
-          //  assume col 1 has a chord or comment in it
-          if (row.length < 2) {
-            continue;
-          }
+          //  map the song moment grid to a flutter table, one row at a time
+          for (int r = 0; r < grid.getRowCount(); r++) {
+            List<SongMoment> row = grid.getRow(r);
 
-          //  find the first col with data
-          //  should normally be col 1 (i.e. the second col)
-          SongMoment firstSongMoment;
-          for (SongMoment sm in row)
-            if (sm == null)
+            //  assume col 1 has a chord or comment in it
+            if (row.length < 2) {
               continue;
-            else {
-              firstSongMoment = sm;
-              break;
             }
-          if (firstSongMoment == null) continue;
 
-          ChordSection chordSection = firstSongMoment.getChordSection();
-          int sectionCount = firstSongMoment.sectionCount;
-          String columnFiller;
-          EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
-          if (chordSection != lastChordSection ||
-              sectionCount != lastSectionCount) {
-            //  add the section heading
-            columnFiller = chordSection.sectionVersion.toString();
-            color = GuiColors.getColorForSection(chordSection.getSection());
-          }
-          lastChordSection = chordSection;
-          lastSectionCount = sectionCount;
+            //  find the first col with data
+            //  should normally be col 1 (i.e. the second col)
+            SongMoment firstSongMoment;
+            for (SongMoment sm in row)
+              if (sm == null)
+                continue;
+              else {
+                firstSongMoment = sm;
+                break;
+              }
+            if (firstSongMoment == null) continue;
 
-          String momentLocation;
-          for (int c = 0; c < row.length; c++) {
-            SongMoment sm = row[c];
+            ChordSection chordSection = firstSongMoment.getChordSection();
+            int sectionCount = firstSongMoment.sectionCount;
+            String columnFiller;
+            EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
+            if (chordSection != lastChordSection ||
+                sectionCount != lastSectionCount) {
+              //  add the section heading
+              columnFiller = chordSection.sectionVersion.toString();
+              color = GuiColors.getColorForSection(chordSection.getSection());
+            }
+            lastChordSection = chordSection;
+            lastSectionCount = sectionCount;
 
-            if (sm == null) {
-              if (columnFiller == null)
-                //  empty cell
+            String momentLocation;
+            for (int c = 0; c < row.length; c++) {
+              SongMoment sm = row[c];
+
+              if (sm == null) {
+                if (columnFiller == null)
+                  //  empty cell
+                  children.add(Container(
+                      margin: marginInsets,
+                      child: Text(
+                        " ",
+                      )));
+                else
+                  children.add(Container(
+                      margin: marginInsets,
+                      child: Text(
+                        columnFiller,
+                        style: TextStyle(backgroundColor: color),
+                        textScaleFactor: chordScaleFactor,
+                      )));
+                columnFiller = null; //  for subsequent rows
+              } else {
+                //  moment found
                 children.add(Container(
                     margin: marginInsets,
                     child: Text(
-                      " ",
-                    )));
-              else
-                children.add(Container(
-                    margin: marginInsets,
-                    child: Text(
-                      columnFiller,
+                      sm.getMeasure().transpose(_displaySongKey, tranOffset),
                       style: TextStyle(backgroundColor: color),
                       textScaleFactor: chordScaleFactor,
                     )));
-              columnFiller = null; //  for subsequent rows
-            } else {
-              //  moment found
+
+                //  use the first non-null location for the table value key
+                if (momentLocation == null)
+                  momentLocation = sm.momentNumber.toString();
+              }
+
+              //  section and lyrics only if on a cell phone
+              if (isTooNarrow) break;
+            }
+
+            if (momentLocation != null || isTooNarrow) {
+              //  lyrics
               children.add(Container(
                   margin: marginInsets,
                   child: Text(
-                    sm.getMeasure().transpose(_displaySongKey, tranOffset),
+                    firstSongMoment.lyrics,
                     style: TextStyle(backgroundColor: color),
-                    textScaleFactor: chordScaleFactor,
+                    textScaleFactor: lyricsScaleFactor,
                   )));
 
-              //  use the first non-null location for the table value key
-              if (momentLocation == null)
-                momentLocation = sm.momentNumber.toString();
+              //  add row to table
+              rows.add(TableRow(key: ValueKey(r), children: children));
             }
 
-            //  section and lyrics only if on a cell phone
-            if (isTooNarrow) break;
+            //  get ready for the next row by clearing the row data
+            children = List();
           }
 
-          if (momentLocation != null || isTooNarrow) {
-            //  lyrics
-            children.add(Container(
-                margin: marginInsets,
-                child: Text(
-                  firstSongMoment.lyrics,
-                  style: TextStyle(backgroundColor: color),
-                  textScaleFactor: lyricsScaleFactor,
-                )));
-
-            //  add row to table
-            rows.add(TableRow(key: ValueKey(r), children: children));
-          }
-
-          //  get ready for the next row by clearing the row data
-          children = List();
+          _table = Table(
+            defaultColumnWidth: IntrinsicColumnWidth(),
+            children: rows,
+          );
         }
-
-        table = Table(
-          defaultColumnWidth: IntrinsicColumnWidth(),
-          children: rows,
-        );
       }
     }
 
@@ -225,7 +229,6 @@ class _Player extends State<Player> {
     double boxCenter = 0.5 * h;
     double boxHeight = 0.3 * h;
     double boxOffset = boxHeight / 2;
-    double textLocation = 0.5 * h;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -250,7 +253,7 @@ class _Player extends State<Player> {
             ),
           ),
           SingleChildScrollView(
-            //physics: _PlayerScrollPhysics(),
+            physics: (_isPlaying ? _PlayerScrollPhysics() : null),
             scrollDirection: Axis.vertical,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -282,27 +285,47 @@ class _Player extends State<Player> {
                   ),
                   Row(
                     children: <Widget>[
+                      if (!isTooNarrow)
+                        Container(
+                          padding: const EdgeInsets.only(left: 8, right: 32),
+                          child: FlatButton.icon(
+                            color: Colors.lightBlue[300],
+                            icon: Icon(
+                              _playStopIcon,
+                              size: 24 * lyricsScaleFactor,
+                            ),
+                            label: Text(''),
+                            onPressed: () {
+                              _isPlaying = !_isPlaying;
+                              setState(() {});
+                            },
+                          ),
+                        ),
                       Text(
                         "Key: ",
                         textScaleFactor: lyricsScaleFactor,
                       ),
-                      DropdownButton<songs.Key>(
-                        items: keyDropDownMenuList,
-                        onChanged: (_value) {
-                          setState(() {
-                            _displaySongKey = _value;
-                          });
-                        },
-                        value: _displaySongKey,
-                        style: TextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black87,
-                          textBaseline: TextBaseline.ideographic,
-                        ),
-                        iconSize: lyricsScaleFactor * 24,
-                        itemHeight:
-                            lyricsScaleFactor * kMinInteractiveDimension,
-                      ),
+                      if (!isTooNarrow)
+                        DropdownButton<songs.Key>(
+                          items: keyDropDownMenuList,
+                          onChanged: (_value) {
+                            setState(() {
+                              _displaySongKey = _value;
+                              _table = null;
+                            });
+                          },
+                          value: _displaySongKey,
+                          style: TextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black87,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                          iconSize: lyricsScaleFactor * 24,
+                          itemHeight:
+                              lyricsScaleFactor * kMinInteractiveDimension,
+                        )
+                      else
+                        Text(_displaySongKey.toString()),
                       Text(
                         "   BPM: ${song.getBeatsPerMinute()}" +
                             "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
@@ -310,7 +333,7 @@ class _Player extends State<Player> {
                       ),
                     ],
                   ),
-                  Center(child: table),
+                  Center(child: _table),
                   _KeyboardListener(),
                 ]),
           ),
@@ -327,6 +350,8 @@ class _Player extends State<Player> {
     );
   }
 
+  IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
+
   String _titleAnchor() {
     return anchorUrlStart +
         Uri.encodeFull('${widget.song.title} ${widget.song.artist}');
@@ -339,24 +364,39 @@ class _Player extends State<Player> {
   static final String anchorUrlStart =
       "https://www.youtube.com/results?search_query=";
 
+  Table _table;
   songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
+
+  bool _isPlaying = false;
 }
 
 class _KeyboardListener extends StatefulWidget {
-  _KeyboardListener();
-
   @override
-  _KeyboardListenerState createState() => new _KeyboardListenerState();
+  _KeyboardListenerState createState() => _keyboardListenerState;
+
+  final _KeyboardListenerState _keyboardListenerState =
+      _KeyboardListenerState();
 }
 
 class _KeyboardListenerState extends State<_KeyboardListener> {
   handleKey(RawKeyEventData key) {
-    logger.i('KeyCode: ${key.keyLabel} ${key.toString()}');
+    //  can't get enough data from raw key
+    //  so use time to discriminate pressings from repeats
+    final int t = DateTime.now().millisecondsSinceEpoch;
+    final int dt = t - _lastKeyTime;
+    _lastKeyTime = t;
+    if (dt < 350) return;
+
+    logger.d('KeyCode: ${key.logicalKey.toString()} ${key.toString()}, t: $dt');
+    if (key.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
+      logger.i('space hit');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     _textFocusNode.requestFocus();
+
     return RawKeyboardListener(
       focusNode: _textFocusNode,
       onKey: (key) => handleKey(key.data),
@@ -368,14 +408,15 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   }
 
   FocusNode _textFocusNode = new FocusNode();
+  int _lastKeyTime = DateTime.now().millisecondsSinceEpoch;
 }
 
 class _PlayerSimulation extends Simulation {
   final double _initialPosition;
-  final double _velocity = 0.01;
+  final double _velocity = 0.05;
   final int t0 = DateTime.now().millisecondsSinceEpoch;
 
-  _PlayerSimulation(this._initialPosition,  velocity);
+  _PlayerSimulation(this._initialPosition, velocity);
 
   @override
   double dx(double time) {
@@ -384,9 +425,10 @@ class _PlayerSimulation extends Simulation {
 
   @override
   double x(double time) {
-    double x = _initialPosition + _velocity * (DateTime.now().millisecondsSinceEpoch - t0);
+    double x = _initialPosition +
+        _velocity * (DateTime.now().millisecondsSinceEpoch - t0);
     x = max(0, x);
-    logger.i('x: ${x.toString()}, t: $time');
+    logger.d('x: ${x.toString()}, t: $time');
     return x;
   }
 
@@ -396,7 +438,7 @@ class _PlayerSimulation extends Simulation {
   }
 }
 
-_PlayerSimulation _playerSimulation = _PlayerSimulation(0,0);
+_PlayerSimulation _playerSimulation = _PlayerSimulation(0, 0);
 
 class _PlayerScrollPhysics extends ScrollPhysics {
   @override

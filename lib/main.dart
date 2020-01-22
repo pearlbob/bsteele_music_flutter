@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
+import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:bsteele_music_flutter/util/Screen.dart';
 import 'package:flutter/material.dart';
@@ -34,14 +35,8 @@ file io (web, android, ios)
 file io (web write)
 flutter on linux?
 what is debugPrint
+json write
 
-__software documentation
-____.gitignore
-____unit tests
-____file io (web read)
-__resources
-__ui tables
-__json
  */
 
 List<Song> allSongs = List();
@@ -72,6 +67,7 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/player': (context) => Player(song: selectedSong),
         '/edit': (context) => Edit(song: selectedSong),
+        '/privacy': (context) => Privacy(),
         '/about': (context) => About(),
       },
     );
@@ -243,6 +239,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ListTile(
+              title: Text("Privacy Policy"),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToPrivacyPolicy(context);
+              },
+            ),
+            ListTile(
               title: Text("About"),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -396,6 +399,13 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => About()),
+    );
+  }
+
+  _navigateToPrivacyPolicy(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Privacy()),
     );
   }
 

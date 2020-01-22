@@ -51,6 +51,10 @@ class _About extends State<About> {
                   // textScaleFactor: textScaleFactor,
                 ),
                 Text(
+                  'See www.bsteele.com',
+                  // textScaleFactor: textScaleFactor,
+                ),
+                Text(
                   'appName: ${_packageInfo.appName}',
                 ),
                 Text(

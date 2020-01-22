@@ -253,7 +253,8 @@ class _Player extends State<Player> {
             ),
           ),
           SingleChildScrollView(
-            physics: (_isPlaying ? _PlayerScrollPhysics() : null),
+            physics:
+                (_playerSimulation._isRunning ? _playerScrollPhysics : null),
             scrollDirection: Axis.vertical,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -290,14 +291,16 @@ class _Player extends State<Player> {
                           padding: const EdgeInsets.only(left: 8, right: 32),
                           child: FlatButton.icon(
                             color: Colors.lightBlue[300],
+                            hoverColor: Colors.red,
                             icon: Icon(
                               _playStopIcon,
                               size: 24 * lyricsScaleFactor,
                             ),
                             label: Text(''),
                             onPressed: () {
-                              _isPlaying = !_isPlaying;
-                              setState(() {});
+                              setState(() {
+                                _playerSimulation.resetAndRun();
+                              });
                             },
                           ),
                         ),
@@ -334,23 +337,48 @@ class _Player extends State<Player> {
                     ],
                   ),
                   Center(child: _table),
-                  _KeyboardListener(),
+                  _KeyboardListener(this),
                 ]),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        mini: isTooNarrow,
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: Icon(Icons.arrow_back),
-      ),
+      floatingActionButton: _isPlaying
+          ? FloatingActionButton(
+              mini: isTooNarrow,
+              onPressed: () {
+                _playStop();
+              },
+              tooltip: 'Stop.  Space bar will pause the play.',
+              child: Icon(Icons.stop),
+            )
+          : FloatingActionButton(
+              mini: isTooNarrow,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              tooltip: 'Back',
+              child: Icon(Icons.arrow_back),
+            ),
     );
   }
 
-  IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
+  bool get _isPlaying => _playerSimulation._isRunning;
+
+  IconData get _playStopIcon =>
+      _playerSimulation._isRunning ? Icons.stop : Icons.play_arrow;
+
+  void _playToggle() {
+    if (_playerSimulation._isRunning) {
+      _playerSimulation.stop();
+    } else
+      _playerSimulation.run();
+    setState(() {});
+  }
+
+  void _playStop() {
+    _playerSimulation.resetAndStop();
+    setState(() {});
+  }
 
   String _titleAnchor() {
     return anchorUrlStart +
@@ -366,19 +394,21 @@ class _Player extends State<Player> {
 
   Table _table;
   songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
-
-  bool _isPlaying = false;
 }
 
 class _KeyboardListener extends StatefulWidget {
+  _KeyboardListener(_Player player)
+      : _keyboardListenerState = _KeyboardListenerState(player);
+
   @override
   _KeyboardListenerState createState() => _keyboardListenerState;
 
-  final _KeyboardListenerState _keyboardListenerState =
-      _KeyboardListenerState();
+  final _KeyboardListenerState _keyboardListenerState;
 }
 
 class _KeyboardListenerState extends State<_KeyboardListener> {
+  _KeyboardListenerState(this._player);
+
   handleKey(RawKeyEventData key) {
     //  can't get enough data from raw key
     //  so use time to discriminate pressings from repeats
@@ -390,6 +420,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
     logger.d('KeyCode: ${key.logicalKey.toString()} ${key.toString()}, t: $dt');
     if (key.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
       logger.i('space hit');
+      _player._playToggle();
     }
   }
 
@@ -407,38 +438,82 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
     );
   }
 
+  final _Player _player;
   FocusNode _textFocusNode = new FocusNode();
   int _lastKeyTime = DateTime.now().millisecondsSinceEpoch;
 }
 
 class _PlayerSimulation extends Simulation {
   final double _initialPosition;
+  double _x;
   final double _velocity = 0.05;
-  final int t0 = DateTime.now().millisecondsSinceEpoch;
+  int t0;
+  int _t;
 
-  _PlayerSimulation(this._initialPosition, velocity);
+  _PlayerSimulation(this._initialPosition, velocity) : _x = _initialPosition;
 
   @override
   double dx(double time) {
+    if (!_isRunning) return 0;
     return _velocity;
   }
 
   @override
   double x(double time) {
-    double x = _initialPosition +
-        _velocity * (DateTime.now().millisecondsSinceEpoch - t0);
-    x = max(0, x);
-    logger.d('x: ${x.toString()}, t: $time');
-    return x;
+    if (_isRunning) {
+      _x = _initialPosition;
+      if (t0 == null)
+        t0 = DateTime.now().millisecondsSinceEpoch;
+      else {
+        _x += _velocity * (DateTime.now().millisecondsSinceEpoch - t0);
+        _x = max(0, _x);
+        logger.v('_x: ${_x.toString()}, t: $time');
+      }
+    }
+    return _x;
   }
 
   @override
   bool isDone(double time) {
     return true;
   }
-}
 
-_PlayerSimulation _playerSimulation = _PlayerSimulation(0, 0);
+  void stop() {
+    //  prepare for the next run
+    if (t0 != null)
+      _t = DateTime.now().millisecondsSinceEpoch - t0;
+    else
+      _t = null;
+    _isRunning = false;
+  }
+
+  void run() {
+    //  restart time where we left off by updating t0
+    if (_t != null) {
+      t0 = DateTime.now().millisecondsSinceEpoch - _t;
+      _t = null;
+    }
+
+    //  x and velocity can remain as is
+
+    _isRunning = true;
+  }
+
+  void resetAndRun() {
+    _x = _initialPosition;
+    t0 = DateTime.now().millisecondsSinceEpoch;
+    _isRunning = true;
+  }
+
+  void resetAndStop() {
+    _isRunning = false;
+    _x = _initialPosition;
+    t0 = null;
+    _t = null;
+  }
+
+  bool _isRunning = false;
+}
 
 class _PlayerScrollPhysics extends ScrollPhysics {
   @override
@@ -452,3 +527,6 @@ class _PlayerScrollPhysics extends ScrollPhysics {
     return _playerSimulation;
   }
 }
+
+_PlayerSimulation _playerSimulation = _PlayerSimulation(0, 0);
+_PlayerScrollPhysics _playerScrollPhysics = _PlayerScrollPhysics();

@@ -154,7 +154,8 @@ class SongMoment implements Comparable<SongMoment> {
         phrase == other.phrase &&
         measureIndex == other.measureIndex &&
         measure == other.measure &&
-        sectionCount == other.sectionCount);
+        sectionCount == other.sectionCount &&
+        row == other.row);
   }
 
   @override
@@ -168,6 +169,7 @@ class SongMoment implements Comparable<SongMoment> {
     ret = ret * 29 + chordSection.hashCode;
     ret = ret * 31 + phrase.hashCode;
     ret = ret * 37 + measure.hashCode;
+    ret = ret * 41 + row.hashCode;
 
     return ret;
   }
@@ -192,4 +194,5 @@ class SongMoment implements Comparable<SongMoment> {
   final int sectionCount;
 
   String lyrics;
+  int row;
 }

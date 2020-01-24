@@ -45,6 +45,8 @@ set target=$git/build/web
 #	build the release version
 flutter clean
 flutter build web
+flutter build appbundle
+#   aap: build/app/outputs/bundle/release/app-release.aab
 
 #	clear the last one
 mkdir -p $dst

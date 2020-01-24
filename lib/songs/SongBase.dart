@@ -214,6 +214,7 @@ class SongBase {
             new GridCoordinate(row, gridCoordinate.col);
         logger
             .d(songMoment.toString() + ": " + momentGridCoordinate.toString());
+        songMoment.row = momentGridCoordinate.row; //  convenience later
         _songMomentGridCoordinateHashMap[songMoment] = momentGridCoordinate;
 
 //        logger.d("moment: " +
@@ -496,9 +497,9 @@ class SongBase {
   /// Compute the duration and total beat count for the song.
   void computeDuration() {
     //  be lazy
-    if (duration > 0) return;
+    if (_duration > 0) return;
 
-    duration = 0;
+    _duration = 0;
     totalBeats = 0;
 
     List<SongMoment> moments = getSongMoments();
@@ -510,7 +511,7 @@ class SongBase {
     for (SongMoment moment in moments) {
       totalBeats += moment.getMeasure().beatCount;
     }
-    duration = totalBeats * 60.0 / defaultBpm;
+    _duration = totalBeats * 60.0 / defaultBpm;
   }
 
   /// Find the chord section for the given section version.
@@ -1231,7 +1232,7 @@ class SongBase {
     chordsAsMarkup = null;
     _songMomentGrid = null;
     _songMoments = null;
-    duration = 0;
+    _duration = 0;
     totalBeats = 0;
   }
 
@@ -2985,11 +2986,6 @@ class SongBase {
     //logger.info("setFileName(): "+fileVersionNumber);
   }
 
-  double getDuration() {
-    computeDuration();
-    return duration;
-  }
-
   int getTotalBeats() {
     computeDuration();
     return totalBeats;
@@ -3077,7 +3073,7 @@ class SongBase {
   }
 
   /// Return the first moment on the given row
-  SongMoment getSongMomentAtRow(int rowIndex) {
+  SongMoment getFirstSongMomentAtRow(int rowIndex) {
     if (rowIndex < 0) return null;
     _computeSongMoments();
     for (SongMoment songMoment in _songMoments) {
@@ -3086,6 +3082,19 @@ class SongBase {
         return songMoment;
     }
     return null;
+  }
+
+  int rowBeats(int rowIndex) {
+    int ret = 0;
+    SongMoment songMoment = getFirstSongMomentAtRow(rowIndex);
+    if (songMoment != null) {
+      for (int i = songMoment.getMomentNumber(); i < _songMoments.length; i++) {
+        songMoment = _songMoments[i];
+        if (songMoment.row != rowIndex) break;
+        ret += songMoment.measure.beatCount;
+      }
+    }
+    return ret;
   }
 
   int getFileVersionNumber() {
@@ -3128,7 +3137,7 @@ class SongBase {
   }
 
   void setDuration(double duration) {
-    this.duration = duration;
+    this._duration = duration;
   }
 
   String getRawLyrics() {
@@ -3390,7 +3399,13 @@ class SongBase {
 
 //  computed values
   SongId songId;
-  double duration; //  units of seconds
+
+  double get duration {
+    computeDuration();
+    return _duration;
+  }
+
+  double _duration; //  units of seconds
   int totalBeats;
 
   List<LyricSection> get lyricSections => _lyricSections;

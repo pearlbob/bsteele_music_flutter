@@ -59,7 +59,10 @@ class _Privacy extends State<Privacy> {
                     'or in local storage on your browser.'
                     '\n\n'
                     'Note that entered songs will contain your user name '
-                    'in their .songlyrics file.'),
+                    'in their .songlyrics file.'
+                    '\n\n'
+                    'Note that the app will try on initialization to access the internet '
+                    'to download the latest song list.'),
               ]),
         ),
       ),

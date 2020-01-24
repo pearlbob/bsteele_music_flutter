@@ -1167,7 +1167,7 @@ void main() {
     for (int momentNumber = 0; momentNumber < size; momentNumber++) {
       SongMoment songMoment = a.getSongMoment(momentNumber);
       GridCoordinate coordinate = a.getMomentGridCoordinate(songMoment);
-      SongMoment songMomentAtRow = a.getSongMomentAtRow(coordinate.row);
+      SongMoment songMomentAtRow = a.getFirstSongMomentAtRow(coordinate.row);
       GridCoordinate coordinateAtRow =
           a.getMomentGridCoordinate(songMomentAtRow);
       logger.d("songMoment: " +

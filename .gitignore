@@ -67,4 +67,5 @@ doc/api/
 gradle/
 gradlew.bat
 *.jar
-
+key.properties
+*.aab

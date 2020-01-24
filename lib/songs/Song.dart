@@ -72,7 +72,7 @@ class Song extends SongBase implements Comparable<Song> {
         getLyricsAsString());
     ret.setFileName(getFileName());
     ret.lastModifiedTime = lastModifiedTime;
-    ret.setDuration(getDuration());
+    ret.setDuration(duration);
     ret.setTotalBeats(getTotalBeats());
     ret.setCurrentChordSectionLocation(getCurrentChordSectionLocation());
     ret.setCurrentMeasureEditType(getCurrentMeasureEditType());

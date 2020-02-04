@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/util/OpenLink.dart';
 import 'package:bsteele_music_flutter/util/Screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class _About extends State<About> {
   @override
   Widget build(BuildContext context) {
     ScreenInfo screenInfo = ScreenInfo(context);
-    double fontSize = screenInfo.isTooNarrow ? 18 : 48;
+    double fontSize = screenInfo.isTooNarrow ? 18 : 36;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -50,10 +51,21 @@ class _About extends State<About> {
                   'bsteele music has been written by bob.',
                   // textScaleFactor: textScaleFactor,
                 ),
-                Text(
-                  'See www.bsteele.com',
-                  // textScaleFactor: textScaleFactor,
-                ),
+                Row(children: <Widget>[
+                  Text(
+                    'See ',
+                    // textScaleFactor: textScaleFactor,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      openLink('http://www.bsteele.com');
+                    },
+                    child: Text(
+                      'bsteele.com',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ]),
                 Text(
                   'appName: ${_packageInfo.appName}',
                 ),

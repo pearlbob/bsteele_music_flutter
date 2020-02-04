@@ -373,12 +373,12 @@
     ]
 }
 },
-{ "file": "3 am (6).songlyrics", "lastModifiedDate": 1524073755000, "song": 
+{ "file": "3 am.songlyrics", "lastModifiedDate": 1580101656000, "song": 
 {
 "title": "3 am",
 "artist": "Matchbox Twenty",
-"user": "Unknown",
-"lastModifiedDate": 1524073755000,
+"user": "Doug",
+"lastModifiedDate": 1580101656000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 106,
@@ -445,7 +445,8 @@
 	"Well I can't help but be scared of it all sometimes",
 	"The rain's gonna wash away I believe it",
 	"I:",
-	"Resolve"
+	"Resolve",
+	"O:"
     ]
 }
 },
@@ -999,20 +1000,20 @@
     ]
 }
 },
-{ "file": "A Lot of Livin' To Do.songlyrics", "lastModifiedDate": 1541647381229, "song": 
+{ "file": "A Lot of Livin' To Do.songlyrics", "lastModifiedDate": 1579988920000, "song": 
 {
 "title": "A Lot of Livin' To Do",
 "artist": "Bye Bye Birdie",
-"user": "Unknown",
-"lastModifiedDate": 1541647381229,
-"copyright": "TBD",
+"user": "Doug",
+"lastModifiedDate": 1579988920000,
+"copyright": "Williamson Music Co. Obo Strada Music",
 "key": "C",
 "defaultBpm": 100,
 "timeSignature": "4/4",
 "chords": 
     [
 	"I:",
-	"CXCC XCCC CXCC XCCC (bass-only)",
+	"CXCC XCCC CXCC XCCC",
 	"V:",
 	"Cmaj7 Cmaj7 Cmaj7 Cmaj7",
 	"Cmaj7 C7 F F",
@@ -1028,11 +1029,11 @@
 	"F G Em A7",
 	"F F G G",
 	"Cmaj7 Cmaj7 Cmaj7 Cmaj7",
-	"Cmaj7 Cmaj7 (fade)"
+	"Cmaj7 Cmaj7"
     ],
 "lyrics": 
     [
-	"I: (instrumental)",
+	"I: (instrumental -- bass only)",
 	"",
 	"V: There are chicks just ripe for some kissin'",
 	"And I mean to kiss me a few!",
@@ -1059,7 +1060,7 @@
 	"Such a lot of livin'",
 	"Such a lot of livin' to - do, ",
 	"ooh ooh ooh!",
-	"ooh ooh ooh ooh! Yeah!"
+	"ooh ooh ooh ooh! Yeah! (fade)"
     ]
 }
 },
@@ -1415,12 +1416,12 @@
     ]
 }
 },
-{ "file": "Africa (5).songlyrics", "lastModifiedDate": 1535748504418, "song": 
+{ "file": "Africa.songlyrics", "lastModifiedDate": 1580101832000, "song": 
 {
 "title": "Africa",
 "artist": "Toto",
-"user": "Unknown",
-"lastModifiedDate": 1535748504418,
+"user": "Doug",
+"lastModifiedDate": 1580101832000,
 "copyright": "toto",
 "key": "C",
 "defaultBpm": 100,
@@ -1428,29 +1429,25 @@
 "chords": 
     [
 	"I:",
-	"G",
-	"(.G)",
+	"G G",
 	"Bm Bm x2",
 	"V:",
 	"A C♯m F♯m F♯m/E",
 	"G Bm F♯m G GBm x3",
 	"A C♯m F♯m F♯m/E",
-	"G",
-	"(.G)",
+	"G G",
 	"Bm Bm",
 	"V1:",
 	"A C♯m F♯m F♯m/E",
 	"G Bm F♯m G GBm x2",
 	"A C♯m F♯m F♯m/E",
-	"G",
-	"(.G)",
+	"G G",
 	"Bm Bm",
 	"V3:",
 	"A C♯m F♯m F♯m/E",
 	"G Bm F♯m G GBm",
 	"A C♯m F♯m F♯m/E",
-	"G",
-	"(.G)",
+	"G G",
 	"Bm Bm",
 	"C:",
 	"Em C G D x3",
@@ -2292,12 +2289,12 @@
     ]
 }
 },
-{ "file": "All I Really Want (4).songlyrics", "lastModifiedDate": 1566754822626, "song": 
+{ "file": "All I Really Want.songlyrics", "lastModifiedDate": 1580168416000, "song": 
 {
 "title": "All I Really Want",
 "artist": "Alanis Morissette",
-"user": "Unknown",
-"lastModifiedDate": 1566754822626,
+"user": "Doug",
+"lastModifiedDate": 1580168416000,
 "copyright": "Universal Music Publishing Group, BMG Rights Management, The Bicycle Music Company",
 "key": "Bb",
 "defaultBpm": 112,
@@ -2312,8 +2309,7 @@
 	"V:",
 	"B♭ B♭ B♭ B♭ x2",
 	"V2:",
-	"B♭ B♭ B♭",
-	"(NC)",
+	"B♭ B♭ B♭ XXXX",
 	"B♭ B♭ B♭ B♭",
 	"PC:",
 	"B♭7 B♭7 B♭7sus4 E♭B♭",
@@ -2564,12 +2560,12 @@
     ]
 }
 },
-{ "file": "Allison Road.songlyrics", "lastModifiedDate": 1541287717212, "song": 
+{ "file": "Allison Road.songlyrics", "lastModifiedDate": 1580101988000, "song": 
 {
 "title": "Allison Road",
 "artist": "Gin Blossoms, The",
-"user": "Unknown",
-"lastModifiedDate": 1541287717212,
+"user": "Doug",
+"lastModifiedDate": 1580101988000,
 "copyright": "1994 A&M",
 "key": "C",
 "defaultBpm": 120,
@@ -2593,7 +2589,9 @@
     ],
 "lyrics": 
     [
-	"I1: (Instrumental)",
+	"I1:",
+	"(Instrumental)",
+	"",
 	"V:",
 	"I’ve lost my mind on what I’d find",
 	"All of the pressure that I left behind",
@@ -2634,8 +2632,13 @@
 	"On Allison Road",
 	"Yeah I didn’t know I was lost at the time",
 	"On Allison Road",
-	"I2: (Instrumental)",
-	"I1: (Instrumental)",
+	"",
+	"I2:",
+	"(Instrumental)",
+	"",
+	"I1:",
+	"(Instrumental)",
+	"",
 	"V:",
 	"I’ve lost my mind",
 	"If the sun gets through",
@@ -4901,12 +4904,12 @@
     ]
 }
 },
-{ "file": "Baby Bitch (1).songlyrics", "lastModifiedDate": 1546218191724, "song": 
+{ "file": "Baby Bitch.songlyrics", "lastModifiedDate": 1580102212000, "song": 
 {
 "title": "Baby Bitch",
 "artist": "Ween",
-"user": "Unknown",
-"lastModifiedDate": 1546218191724,
+"user": "Doug",
+"lastModifiedDate": 1580102212000,
 "copyright": "℗© 2004 Elektra Entertainment Group Manufactured & Marketed by Warner Strategic Marketing",
 "key": "C",
 "defaultBpm": 110,
@@ -4919,10 +4922,8 @@
 	"AmC G.. Dm",
 	"AmC G G",
 	"V2:",
-	"(|AmC)",
-	"G.. Dm (|,)",
-	"(|AmC)",
-	"G (|,)",
+	"AmC G.. Dm",
+	"AmC G",
 	"AmC G.. Dm",
 	"AmC G G",
 	"V3:",
@@ -4980,13 +4981,13 @@
     ]
 }
 },
-{ "file": "Baby Blue (4).songlyrics", "lastModifiedDate": 1553306184437, "song": 
+{ "file": "Baby Blue.songlyrics", "lastModifiedDate": 1579993604000, "song": 
 {
 "title": "Baby Blue",
 "artist": "Badfinger",
-"user": "Unknown",
-"lastModifiedDate": 1553306184437,
-"copyright": " (C) 2007 Cleopatra Records",
+"user": "Doug",
+"lastModifiedDate": 1579993604000,
+"copyright": "Cleopatra Records",
 "key": "B",
 "defaultBpm": 123,
 "timeSignature": "4/4",
@@ -5000,16 +5001,15 @@
 	"F♯ F♯ E B",
 	"A E B B",
 	"F♯ F♯ C♯m C♯m7",
-	"E E E E E",
+	"E E",
 	"PC:",
 	"D A E B",
 	"D A E B B",
 	"Br:",
-	"D♯m G♯m G♯m (maj7)",
-	"C♯m",
-	"C♯m7 A E B",
-	"B D♯m G♯m G♯m7 (maj7)",
-	"C♯m C♯m7 A E",
+	"D♯m G♯m G♯m C♯m C♯m7",
+	"A E B B",
+	"D♯m G♯m G♯m7 C♯m C♯m7",
+	"A E",
 	"O:",
 	"B B C♯m C♯m7",
 	"A E B"
@@ -5117,12 +5117,12 @@
     ]
 }
 },
-{ "file": "Baby Love.songlyrics", "lastModifiedDate": 1536807058234, "song": 
+{ "file": "Baby Love.songlyrics", "lastModifiedDate": 1579993878000, "song": 
 {
 "title": "Baby Love",
 "artist": "Supremes",
-"user": "Unknown",
-"lastModifiedDate": 1536807058234,
+"user": "Doug",
+"lastModifiedDate": 1579993878000,
 "copyright": "Motown",
 "key": "C",
 "defaultBpm": 106,
@@ -5137,7 +5137,9 @@
 	"F C FEm DmG",
 	"O:",
 	"C C7 A Dm",
-	"F C F C x3",
+	"F C F C",
+	"F C F C",
+	"F C F C",
 	"C"
     ],
 "lyrics": 
@@ -6930,13 +6932,13 @@
     ]
 }
 },
-{ "file": "Bertha (2).songlyrics", "lastModifiedDate": 1546401307878, "song": 
+{ "file": "Bertha.songlyrics", "lastModifiedDate": 1580102684000, "song": 
 {
 "title": "Bertha",
 "artist": "Grateful Dead",
-"user": "Unknown",
-"lastModifiedDate": 1546401307878,
-"copyright": "℗© Copyright SRI Records",
+"user": "Doug",
+"lastModifiedDate": 1580102684000,
+"copyright": "SRI Records",
 "key": "C",
 "defaultBpm": 106,
 "timeSignature": "2/4",
@@ -6945,13 +6947,8 @@
 	"I:",
 	"GG CGG GG CGG x2",
 	"V:",
-	"(|CC)",
-	"FCC CC FCC (|,)",
-	"(|GG)",
-	"C",
-	"(G..)",
-	"GG C",
-	"(G..)",
+	"CC FCC CC FCC",
+	"GG C GG C",
 	"C:",
 	"D Am G CD",
 	"C G D C",
@@ -7467,12 +7464,12 @@
     ]
 }
 },
-{ "file": "Billie Jean.songlyrics", "lastModifiedDate": 1519348451000, "song": 
+{ "file": "Billie Jean.songlyrics", "lastModifiedDate": 1580102730000, "song": 
 {
 "title": "Billie Jean",
 "artist": "Michael Jackson",
-"user": "Unknown",
-"lastModifiedDate": 1519348451000,
+"user": "Doug",
+"lastModifiedDate": 1580102730000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -7502,8 +7499,8 @@
     ],
 "lyrics": 
     [
-	"T",
-	"T:",
+	"",
+	"i:",
 	"v:She was more like a beauty queen from a movie scene",
 	"I said don't mind, but what do you mean I am the one",
 	"Who will dance on the floor in the round",
@@ -7820,12 +7817,12 @@
     ]
 }
 },
-{ "file": "Black Is Black.songlyrics", "lastModifiedDate": 1544675742750, "song": 
+{ "file": "Black Is Black.songlyrics", "lastModifiedDate": 1579996026000, "song": 
 {
 "title": "Black Is Black",
 "artist": "Los Bravos",
-"user": "Unknown",
-"lastModifiedDate": 1544675742750,
+"user": "Doug",
+"lastModifiedDate": 1579996026000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "E",
 "defaultBpm": 120,
@@ -7833,8 +7830,7 @@
 "chords": 
     [
 	"I:",
-	"Em Em D D",
-	"(2x,)",
+	"Em Em D D x2",
 	"V:",
 	"Em Em D D",
 	"Em Em A A7",
@@ -8086,12 +8082,12 @@
     ]
 }
 },
-{ "file": "Black.songlyrics", "lastModifiedDate": 1568577979396, "song": 
+{ "file": "Black.songlyrics", "lastModifiedDate": 1580102810000, "song": 
 {
 "title": "Black",
 "artist": "Pearl Jam",
-"user": "Unknown",
-"lastModifiedDate": 1568577979396,
+"user": "Doug",
+"lastModifiedDate": 1580102810000,
 "copyright": "1991 Epic",
 "key": "C",
 "defaultBpm": 106,
@@ -8115,8 +8111,7 @@
 	"D C Em",
 	"D C",
 	"O:",
-	"D C Em (x)",
-	"(14,)"
+	"D C Em x14"
     ],
 "lyrics": 
     [
@@ -10633,12 +10628,12 @@
     ]
 }
 },
-{ "file": "Breathe (2 am) (1) (1).songlyrics", "lastModifiedDate": 1525227816546, "song": 
+{ "file": "Breathe (2 am).songlyrics", "lastModifiedDate": 1580102992000, "song": 
 {
 "title": "Breathe (2 am)",
 "artist": "Anna Nalick",
-"user": "Unknown",
-"lastModifiedDate": 1525227816546,
+"user": "Doug",
+"lastModifiedDate": 1580102992000,
 "copyright": "Imagem Music Inc",
 "key": "C",
 "defaultBpm": 100,
@@ -10660,8 +10655,7 @@
 	"G G D D",
 	"A A A A",
 	"O:",
-	"(repeat)",
-	"(ch,)"
+	"XXXX"
     ],
 "lyrics": 
     [
@@ -10722,7 +10716,9 @@
 	"woah breathe, just breathe,",
 	"c:",
 	"Oh breathe, just breathe,",
-	"Oh breathe, just breathe."
+	"Oh breathe, just breathe.",
+	"",
+	"O:"
     ]
 }
 },
@@ -11652,12 +11648,12 @@
     ]
 }
 },
-{ "file": "Burning Down the House.songlyrics", "lastModifiedDate": 1527645523850, "song": 
+{ "file": "Burning Down the House.songlyrics", "lastModifiedDate": 1580103242000, "song": 
 {
 "title": "Burning Down the House",
 "artist": "Talking Heads",
-"user": "Unknown",
-"lastModifiedDate": 1527645523850,
+"user": "Doug",
+"lastModifiedDate": 1580103242000,
 "copyright": "Warner/Chappell Music, Inc",
 "key": "G",
 "defaultBpm": 100,
@@ -11668,18 +11664,12 @@
 	"G..G F G..G F",
 	"G..G F G..G♯ AF",
 	"V:",
-	"GG FF B♭G..",
-	"(..F.,)",
-	"GG FF B♭G..",
-	"(..F.,)",
+	"GG FF A♯G.. GF",
+	"GG FF A♯G.. GF",
 	"Gm7",
 	"C:",
-	"(.G.G)",
-	"(.F..)",
-	"G..G",
-	"(.F..,)",
-	"G..G",
-	"(..F)",
+	"G..G GF.. G..G",
+	"XF.. G GF",
 	"GA F"
     ],
 "lyrics": 
@@ -12275,13 +12265,13 @@
     ]
 }
 },
-{ "file": "Call Me The Breeze Lynyrd Skynyrd Version (corrected).songlyrics", "lastModifiedDate": 1550112092776, "song": 
+{ "file": "Call Me The Breeze Lynyrd Skynyrd Version (corrected).songlyrics", "lastModifiedDate": 1580103646000, "song": 
 {
 "title": "Call Me The Breeze Lynyrd Skynyrd Version (corrected)",
 "artist": "J. J. Cale",
-"user": "Unknown",
-"lastModifiedDate": 1550112092776,
-"copyright": "â„—Â© 2009 The All Blacks U.S.A. Inc. Issued Under License To Roadrunner Records From The All Blacks U.S.A. Inc. Roadrunner Records Is A Registered Trademark Of The All Blacks B.V.",
+"user": "Doug",
+"lastModifiedDate": 1580103646000,
+"copyright": "All Blacks B.V.",
 "key": "A",
 "defaultBpm": 94,
 "timeSignature": "4/4",
@@ -12295,29 +12285,28 @@
 	"A A A A",
 	"D D A A",
 	"E D A A",
-	"A:",
-	"(intro)",
+	"O:",
 	"A A A A"
     ],
 "lyrics": 
     [
-	"A: (Intro)",
+	"I: (Intro)",
 	"",
 	"V:",
 	"They call me the breeze",
-	"I keep blowinâ€™ down the road",
+	"I keep blowin' down the road",
 	"Well now They call me the breeze",
-	"I keep blowinâ€™ down the road",
-	"I ainâ€™t got me nobody",
-	"I donâ€™t carry me no load",
+	"I keep blowin' down the road",
+	"I ain't got me nobody",
+	"I don't carry me no load",
 	"",
 	"V:",
-	"Ainâ€™t no change in the weather",
-	"Ainâ€™t no change in me",
-	"Well there ainâ€™t no change in the weather",
-	"Ainâ€™t no change in me ",
-	"I ainâ€™t hidinâ€™ from nobody",
-	"nobodyâ€™s hiding from me",
+	"ain't no change in the weather",
+	"ain't no change in me",
+	"Well there ain't no change in the weather",
+	"ain't no change in me ",
+	"I ain't hidin' from nobody",
+	"nobody's hiding from me",
 	"",
 	"",
 	"I:",
@@ -12325,12 +12314,12 @@
 	"           ",
 	"V:",
 	"I got that green light baby",
-	"I got to keep movinâ€™ on",
+	"I got to keep movin' on",
 	"Well I got that green light baby",
-	"I got to keep movinâ€™ on",
+	"I got to keep movin' on",
 	"I might go up to California",
 	"Might go to Georgia",
-	"I donâ€™t know",
+	"I don't know",
 	"",
 	"I:",
 	"(Instrumental)",
@@ -12350,6 +12339,8 @@
 	"I keep blowin down the road",
 	"I ain't got me nobody",
 	"I don't carry me no load",
+	"",
+	"O: (instrumental)",
 	"",
 	"Oooh Mr Breeze"
     ]
@@ -13079,12 +13070,12 @@
     ]
 }
 },
-{ "file": "Carry On My Wayward Song (4).songlyrics", "lastModifiedDate": 1547687619145, "song": 
+{ "file": "Carry On My Wayward Song.songlyrics", "lastModifiedDate": 1580104860000, "song": 
 {
 "title": "Carry On My Wayward Song",
 "artist": "Kansas",
-"user": "Unknown",
-"lastModifiedDate": 1547687619145,
+"user": "Doug",
+"lastModifiedDate": 1580104860000,
 "copyright": "(P) 1974, 1975, 1976, 1977, 1980, 1982, 1983, 1999 Sony Music Entertainment Inc.",
 "key": "C",
 "defaultBpm": 122,
@@ -13092,16 +13083,10 @@
 "chords": 
     [
 	"I:",
-	"(Am..C)",
-	"CAm Am",
-	"(D..)",
-	"C",
-	"G D",
-	"(Am..C)",
-	"CAm Am",
-	"(D..)",
-	"C",
-	"G D",
+	"AmAmAmC CAm",
+	"Am DDDC G",
+	"D AmAmAmC CAm",
+	"Am DDDC G",
 	"I2:",
 	"Em Em Em Em",
 	"Em EmA Em Em",
@@ -13407,12 +13392,12 @@
     ]
 }
 },
-{ "file": "Cat in the Well, The.songlyrics", "lastModifiedDate": 1541983064430, "song": 
+{ "file": "Cat in the Well, The.songlyrics", "lastModifiedDate": 1579997422000, "song": 
 {
 "title": "Cat in the Well, The",
 "artist": "Merry Macs, The",
-"user": "Unknown",
-"lastModifiedDate": 1541983064430,
+"user": "Doug",
+"lastModifiedDate": 1579997422000,
 "copyright": "Shapiro Bernstein & Co. Inc.",
 "key": "C",
 "defaultBpm": 80,
@@ -13434,8 +13419,8 @@
 	"Cm Fm G C",
 	"C:",
 	"F F G G",
-	"(2x,)",
-	"F F7 B♭ B♭m",
+	"F F G G",
+	"F F7 A♯ A♯m",
 	"C C F F",
 	"O:",
 	"XX XX Cdim Cdim",
@@ -13599,12 +13584,12 @@
     ]
 }
 },
-{ "file": "Champagne Supernova (1).songlyrics", "lastModifiedDate": 1545006243095, "song": 
+{ "file": "Champagne Supernova.songlyrics", "lastModifiedDate": 1580105054000, "song": 
 {
 "title": "Champagne Supernova",
 "artist": "Oasis",
-"user": "Unknown",
-"lastModifiedDate": 1545006243095,
+"user": "Doug",
+"lastModifiedDate": 1580105054000,
 "copyright": "1995 Creation",
 "key": "C",
 "defaultBpm": 75,
@@ -13613,50 +13598,37 @@
     [
 	"I1:",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"I2:",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"V:",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"C:",
 	"A A/G D7/F♯",
-	"(m)",
 	"E",
 	"A A/G D7/F♯",
-	"(m)",
 	"E",
 	"Br:",
 	"G G A A",
 	"G D E E",
 	"O:",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E",
 	"A A/G A/F♯",
-	"(m)",
 	"A/E"
     ],
 "lyrics": 
@@ -13831,12 +13803,12 @@
     ]
 }
 },
-{ "file": "Change of Heart (9).songlyrics", "lastModifiedDate": 1559332922367, "song": 
+{ "file": "Change of Heart.songlyrics", "lastModifiedDate": 1580105112000, "song": 
 {
 "title": "Change of Heart",
 "artist": "Cyndi Lauper",
-"user": "Unknown",
-"lastModifiedDate": 1559332922367,
+"user": "Doug",
+"lastModifiedDate": 1580105112000,
 "copyright": "Cyndi Lauper, Essra Mohawk",
 "key": "G",
 "defaultBpm": 100,
@@ -13859,7 +13831,6 @@
 	"Em.EmC C Em.EmC C",
 	"Em.EmC C Em Em",
 	"O:",
-	"(slower)",
 	"G F CD G"
     ],
 "lyrics": 
@@ -13935,7 +13906,7 @@
 	"Turn it around",
 	"And I'm",
 	"",
-	"Outro:",
+	"Outro: (slower)",
 	"Waiting for your change of heart",
 	"Oh, Waiting for your change of heart",
 	"",
@@ -14073,12 +14044,12 @@
     ]
 }
 },
-{ "file": "Christmas Song (Chestnuts Roasting on an Open Fire), The (4).songlyrics", "lastModifiedDate": 1544046662498, "song": 
+{ "file": "Christmas Song (Chestnuts Roasting on an Open Fire), The.songlyrics", "lastModifiedDate": 1580105178000, "song": 
 {
 "title": "Christmas Song (Chestnuts Roasting on an Open Fire), The",
 "artist": "Christmas",
-"user": "Unknown",
-"lastModifiedDate": 1544046662498,
+"user": "Doug",
+"lastModifiedDate": 1580105178000,
 "copyright": "Christmas",
 "key": "C",
 "defaultBpm": 106,
@@ -14103,10 +14074,8 @@
 	"C:",
 	"Gm7 C9 Gm7 C9",
 	"Gm7 C9 Fmaj7",
-	"(9)",
 	"Fmaj7",
-	"(9,)",
-	"Fm7 B♭9 E♭maj7 E♭maj7",
+	"Fm7 A♯9 D♯maj7 D♯maj7",
 	"Am7 D7 G7 G7"
     ],
 "lyrics": 
@@ -14268,12 +14237,12 @@
     ]
 }
 },
-{ "file": "Circle in the Sand (4).songlyrics", "lastModifiedDate": 1542592544217, "song": 
+{ "file": "Circle in the Sand.songlyrics", "lastModifiedDate": 1580105234000, "song": 
 {
 "title": "Circle in the Sand",
 "artist": "Belinda Carlisle",
-"user": "Unknown",
-"lastModifiedDate": 1542592544217,
+"user": "Doug",
+"lastModifiedDate": 1580105234000,
 "copyright": "?",
 "key": "C",
 "defaultBpm": 106,
@@ -14282,9 +14251,7 @@
     [
 	"V:",
 	"Dm C Dm Am",
-	"B♭ C Dm Dm",
-	"X",
-	"(2,)",
+	"A♯ C Dm Dm x2",
 	"PC:",
 	"Am Am B♭ B♭",
 	"Gm Gm C C x2",
@@ -15204,12 +15171,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Come Undone.songlyrics", "lastModifiedDate": 1580105270000, "song": 
 {
 "title": "Come Undone",
 "artist": "Duran Duran",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580105270000,
 "copyright": "Duran Duran, John Jones",
 "key": "C",
 "defaultBpm": 106,
@@ -15217,8 +15184,7 @@
 "chords": 
     [
 	"V:",
-	"Bm A G A X",
-	"(4,)",
+	"Bm A G A x4",
 	"C:",
 	"G G F♯m F♯m",
 	"G G A A",
@@ -16302,12 +16268,12 @@
     ]
 }
 },
-{ "file": "Cowgirl in the Sand (2).songlyrics", "lastModifiedDate": 1552099153928, "song": 
+{ "file": "Cowgirl in the Sand.songlyrics", "lastModifiedDate": 1580105326000, "song": 
 {
 "title": "Cowgirl in the Sand",
 "artist": "Neil Young",
-"user": "Unknown",
-"lastModifiedDate": 1552099153928,
+"user": "Doug",
+"lastModifiedDate": 1580105326000,
 "copyright": "Neilyoung.com",
 "key": "C",
 "defaultBpm": 100,
@@ -16325,8 +16291,7 @@
 	"Dm Dm C F",
 	"F C E7/A A",
 	"O:",
-	"Am F x4",
-	"(fade,)"
+	"Am F x4"
     ],
 "lyrics": 
     [
@@ -16654,12 +16619,12 @@
     ]
 }
 },
-{ "file": "Crazy Mama.songlyrics", "lastModifiedDate": 1545275508762, "song": 
+{ "file": "Crazy Mama.songlyrics", "lastModifiedDate": 1580105360000, "song": 
 {
 "title": "Crazy Mama",
 "artist": "J.J. Cale",
-"user": "Unknown",
-"lastModifiedDate": 1545275508762,
+"user": "Doug",
+"lastModifiedDate": 1580105360000,
 "copyright": "This Compilation 1997 The Island Def Jam Music Group © 1997 The Island Def Jam Music Group",
 "key": "Fs",
 "defaultBpm": 98,
@@ -16671,8 +16636,7 @@
 	"V:",
 	"F♯ F♯ F♯ F♯ x4",
 	"Br:",
-	"EB F♯ EB F♯ X",
-	"(2,)",
+	"EB F♯ EB F♯ x2",
 	"O:",
 	"EB F♯ EB F♯ x2"
     ],
@@ -16709,12 +16673,12 @@
     ]
 }
 },
-{ "file": "Crazy Train.songlyrics", "lastModifiedDate": 1520605230000, "song": 
+{ "file": "Crazy Train.songlyrics", "lastModifiedDate": 1580105424000, "song": 
 {
 "title": "Crazy Train",
 "artist": "Ozzy Ozbourne",
-"user": "Unknown",
-"lastModifiedDate": 1520605230000,
+"user": "Doug",
+"lastModifiedDate": 1580105424000,
 "copyright": "Ozbourne",
 "key": "C",
 "defaultBpm": 100,
@@ -16725,10 +16689,10 @@
 	"F♯m F♯m A E |",
 	"F♯m F♯m D E | x2",
 	"V:",
-	"(-)",
-	"(-)",
+	"XXXX XXXX",
 	"A A A E E E",
-	"D D D A A A A A x2",
+	"D D D A |",
+	"A A A A | x2",
 	"PC:",
 	"F♯m F♯m F♯m F♯m F♯m E E D",
 	"D D D D D D D D x2",
@@ -16795,12 +16759,12 @@
     ]
 }
 },
-{ "file": "Crazy.songlyrics", "lastModifiedDate": 1551661454112, "song": 
+{ "file": "Crazy.songlyrics", "lastModifiedDate": 1580105488000, "song": 
 {
 "title": "Crazy",
 "artist": "Patsy Cline",
-"user": "Unknown",
-"lastModifiedDate": 1551661454112,
+"user": "Doug",
+"lastModifiedDate": 1580105488000,
 "copyright": "?",
 "key": "C",
 "defaultBpm": 106,
@@ -16810,7 +16774,6 @@
 	"V1:",
 	"A F♯ Bm Bm",
 	"E E AE",
-	"(*)",
 	"BmE",
 	"V2:",
 	"A F♯ Bm Bm",
@@ -19092,12 +19055,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Desperado.songlyrics", "lastModifiedDate": 1580105556000, "song": 
 {
 "title": "Desperado",
 "artist": "Eagles",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580105556000,
 "copyright": "Cass County Music / Wisteria Music / Privet Music, Warner/Chappell Music, Inc, Red Cloud Music",
 "key": "C",
 "defaultBpm": 100,
@@ -19121,7 +19084,6 @@
 	"G G7 C Cm7",
 	"GD Em CD Am",
 	"GD Em X",
-	"(slow)",
 	"C Am D D7",
 	"G G7 C Cm7",
 	"G"
@@ -19155,7 +19117,7 @@
 	"Ain't it funny how the feeling goes away?",
 	"o:",
 	"Desperado, why don't you come to your senses?",
-	"Come down from your fences, open the gate",
+	"Come down from your fences, open the gate [slow]",
 	"It may be rainin', but there's a rainbow above you",
 	"You better let somebody love you (let somebody love you)",
 	"You better let somebody love you before it's too late"
@@ -19698,12 +19660,12 @@
     ]
 }
 },
-{ "file": "Do It Again 1 (1).songlyrics", "lastModifiedDate": 1540957605614, "song": 
+{ "file": "Do It Again.songlyrics", "lastModifiedDate": 1580105620000, "song": 
 {
 "title": "Do It Again",
 "artist": "Steely Dan",
-"user": "Unknown",
-"lastModifiedDate": 1540957605614,
+"user": "Doug",
+"lastModifiedDate": 1580105620000,
 "copyright": "Do It Again lyrics © Universal Music Publishing Group",
 "key": "G",
 "defaultBpm": 120,
@@ -19715,8 +19677,7 @@
 	"V:",
 	"Gm Gm7 Gm Gm7 x4",
 	"C:",
-	"(|Cm7)",
-	"Dm7 E♭maj7 Dm7",
+	"Cm7 Dm7 D♯maj7 Dm7",
 	"Gm7 Gm7 Gm7 Gm7 x2"
     ],
 "lyrics": 
@@ -20211,12 +20172,12 @@
     ]
 }
 },
-{ "file": "Don't Fear the Reaper.songlyrics", "lastModifiedDate": 1559500020285, "song": 
+{ "file": "Don't Fear the Reaper.songlyrics", "lastModifiedDate": 1580105694000, "song": 
 {
 "title": "Don't Fear the Reaper",
 "artist": "Blue Oyster Cult",
-"user": "Unknown",
-"lastModifiedDate": 1559500020285,
+"user": "Doug",
+"lastModifiedDate": 1580105694000,
 "copyright": "1978 Columbia",
 "key": "C",
 "defaultBpm": 284,
@@ -20224,8 +20185,7 @@
 "chords": 
     [
 	"I1:",
-	"Am G F G (x)",
-	"(4,)",
+	"Am G F G x4",
 	"V1:",
 	"Am G F G x4",
 	"V2:",
@@ -20242,12 +20202,10 @@
 	"Am G F G x5",
 	"Am X X X",
 	"Br:",
-	"(|Fm)",
-	"Fm Fm Fm",
+	"Fm Fm Fm Fm",
 	"G G G G x8",
 	"O:",
-	"Am G F G (x)",
-	"(8,)"
+	"Am G F G x8"
     ],
 "lyrics": 
     [
@@ -20445,12 +20403,12 @@
     ]
 }
 },
-{ "file": "Don't Let Me Down.songlyrics", "lastModifiedDate": 1569717264650, "song": 
+{ "file": "Don't Let Me Down.songlyrics", "lastModifiedDate": 1579998028000, "song": 
 {
 "title": "Don't Let Me Down",
 "artist": "Beatles, The",
-"user": "Unknown",
-"lastModifiedDate": 1569717264650,
+"user": "Doug",
+"lastModifiedDate": 1579998028000,
 "copyright": "Sony/ATV",
 "key": "E",
 "defaultBpm": 80,
@@ -20460,11 +20418,9 @@
 	"I:",
 	"EA EXXX",
 	"V:",
-	"F♯m A E..Esus4 E",
-	"(2x,)",
+	"F♯m A E..Esus4 E x2",
 	"C:",
-	"F♯m F♯m E..Esus4 E",
-	"(2x)",
+	"F♯m F♯m E..Esus4 E x2",
 	"Br:",
 	"E E B B",
 	"B7 B7 E E"
@@ -20502,12 +20458,12 @@
     ]
 }
 },
-{ "file": "Don't Let the Sun Catch You Crying.songlyrics", "lastModifiedDate": 1545275387454, "song": 
+{ "file": "Don't Let the Sun Catch You Crying.songlyrics", "lastModifiedDate": 1579998408000, "song": 
 {
 "title": "Don't Let the Sun Catch You Crying",
 "artist": "Gerry &The Pacemakers",
-"user": "Unknown",
-"lastModifiedDate": 1545275387454,
+"user": "Doug",
+"lastModifiedDate": 1579998408000,
 "copyright": " Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 80,
@@ -20515,48 +20471,22 @@
 "chords": 
     [
 	"I:",
-	"C7",
-	"(M)",
-	"F C7",
-	"(M)",
-	"F",
+	"Cmaj7 F Cmaj7 F",
 	"V:",
-	"C7",
-	"(M)",
-	"F C7",
-	"(M)",
-	"F",
-	"C7",
-	"(M)",
-	"F G G",
+	"Cmaj7 F Cmaj7 F",
+	"Cmaj7 F G G",
 	"Am Em Am Em",
-	"F G C7",
-	"(M)",
-	"F",
-	"C7",
-	"(M)",
-	"F",
+	"F G Cmaj7 F",
+	"Cmaj7 F",
 	"C:",
 	"G G Am Am",
 	"F F G G",
 	"O:",
-	"C7",
-	"(M)",
-	"F C7",
-	"(M)",
-	"F",
-	"C7",
-	"(M)",
-	"F G G",
+	"Cmaj7 F Cmaj7 F",
+	"Cmaj7 F G G",
 	"Am Em Am Em",
-	"F G C7",
-	"(M)",
-	"F",
-	"C7",
-	"(M)",
-	"F C7",
-	"(M)",
-	"(-,)"
+	"F G Cmaj7 F",
+	"Cmaj7 F Cmaj7 Cmaj7"
     ],
 "lyrics": 
     [
@@ -20885,12 +20815,12 @@
     ]
 }
 },
-{ "file": "Don't Worry Baby.songlyrics", "lastModifiedDate": 1575242187662, "song": 
+{ "file": "Don't Worry Baby.songlyrics", "lastModifiedDate": 1579998560000, "song": 
 {
 "title": "Don't Worry Baby",
 "artist": "Beach Boys, The",
-"user": "Unknown",
-"lastModifiedDate": 1575242187662,
+"user": "Doug",
+"lastModifiedDate": 1579998560000,
 "copyright": "Universal Music Publishing Group",
 "key": "D",
 "defaultBpm": 80,
@@ -20898,8 +20828,7 @@
 "chords": 
     [
 	"I:",
-	"D D G G",
-	"(2x,)",
+	"D D G G x2",
 	"V:",
 	"D D G A",
 	"D D G A",
@@ -20912,8 +20841,7 @@
 	"D D G A",
 	"D D G A",
 	"O:",
-	"E E F♯m B7",
-	"(3x,)",
+	"E E F♯m B7 x3",
 	"E"
     ],
 "lyrics": 
@@ -21441,13 +21369,13 @@
     ]
 }
 },
-{ "file": "Down by the Seaside.songlyrics", "lastModifiedDate": 1574305680854, "song": 
+{ "file": "Down by the Seaside.songlyrics", "lastModifiedDate": 1580105896000, "song": 
 {
 "title": "Down by the Seaside",
 "artist": "Led Zeppelin",
-"user": "bob",
-"lastModifiedDate": 1574305680854,
-"copyright": "Warner Chappell Music, Inc.",
+"user": "Doug",
+"lastModifiedDate": 1580105896000,
+"copyright": "Page",
 "key": "C",
 "defaultBpm": 100,
 "timeSignature": "4/4",
@@ -21496,7 +21424,7 @@
 	"ch1:",
 	"The people turned away. The people turned away ",
 	"So far away, so far away ",
-	"Br: (twice speed)",
+	"Br: (faster)",
 	"See how they run, see how they run, see how they run, see how they run. ",
 	"(instrumental guitar riff 8 times)",
 	"Do you still do the twist ",
@@ -21506,7 +21434,7 @@
 	"though sometimes it's awful hard to tell ",
 	"Uh Huh",
 	"Uh Huh",
-	"i: (slower)",
+	"i:",
 	"v1:",
 	"Out in the country, hear the people singin' ",
 	"Singin' 'bout their progress, knowin' where they're goin' ",
@@ -21526,12 +21454,12 @@
     ]
 }
 },
-{ "file": "Down by the Water (1).songlyrics", "lastModifiedDate": 1549245377948, "song": 
+{ "file": "Down by the Water.songlyrics", "lastModifiedDate": 1580106092000, "song": 
 {
 "title": "Down by the Water",
 "artist": "Decemberists, The",
-"user": "Unknown",
-"lastModifiedDate": 1549245377948,
+"user": "Doug",
+"lastModifiedDate": 1580106092000,
 "copyright": "BMG Rights Management US, LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -21546,7 +21474,6 @@
 	"PC:",
 	"Em D Em Em",
 	"Em D C",
-	"(pause,)",
 	"C:",
 	"Em G D C",
 	"Em D Em Em",
@@ -21567,7 +21494,7 @@
 	"",
 	"pc:",
 	"The season rubs me wrong",
-	"The summer swells anon",
+	"The summer swells anon [pause]",
 	"c:",
 	"So knock me down, tear me up",
 	"But I would bear it all broken just to fill my cup",
@@ -21582,7 +21509,7 @@
 	"Queen of the water and queen of the old main drag",
 	"pc:",
 	"The season rubs me wrong",
-	"The summer swells anon",
+	"The summer swells anon [pause]",
 	"c:",
 	"So knock me down, tear me up",
 	"But I would bear it all broken just to fill my cup",
@@ -21591,7 +21518,7 @@
 	"v: inst.",
 	"pc:",
 	"The season rubs me wrong",
-	"The summer swells anon",
+	"The summer swells anon [pause]",
 	"c:",
 	"So knock me down, tear me up",
 	"But I would bear it all broken just to fill my cup",
@@ -21751,12 +21678,12 @@
     ]
 }
 },
-{ "file": "Down to the River to Pray.songlyrics", "lastModifiedDate": 1524073758000, "song": 
+{ "file": "Down to the River to Pray.songlyrics", "lastModifiedDate": 1580106208000, "song": 
 {
 "title": "Down to the River to Pray",
 "artist": "Traditional",
-"user": "Unknown",
-"lastModifiedDate": 1524073758000,
+"user": "Doug",
+"lastModifiedDate": 1580106208000,
 "copyright": "traditional",
 "key": "C",
 "defaultBpm": 106,
@@ -21764,12 +21691,12 @@
 "chords": 
     [
 	"V:",
-	"E E (2/4)",
+	"E E",
 	"B7 E",
 	"E E BA E",
 	"C:",
-	"B7 E (2/4)",
-	"E A (2/4)",
+	"B7 E",
+	"E A",
 	"E",
 	"B7 E A E"
     ],
@@ -21899,12 +21826,12 @@
     ]
 }
 },
-{ "file": "Dream A Little Dream Of Me.songlyrics", "lastModifiedDate": 1546218173575, "song": 
+{ "file": "Dream A Little Dream Of Me.songlyrics", "lastModifiedDate": 1579999800000, "song": 
 {
 "title": "Dream A Little Dream Of Me",
 "artist": "Mamas & Papas (orig. Ozzie Nelson 1931)",
-"user": "Unknown",
-"lastModifiedDate": 1546218173575,
+"user": "Doug",
+"lastModifiedDate": 1579999800000,
 "copyright": "Warner/Chappell Music, Inc",
 "key": "C",
 "defaultBpm": 106,
@@ -21930,8 +21857,7 @@
 	"F F Fm Fm",
 	"C G♯G",
 	"C B7 G♯ G x3",
-	"C",
-	"(fade,)"
+	"C"
     ],
 "lyrics": 
     [
@@ -22111,13 +22037,13 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Drops of Jupiter.songlyrics", "lastModifiedDate": 1580106380000, "song": 
 {
 "title": "Drops of Jupiter",
 "artist": "Train",
-"user": "Unknown",
-"lastModifiedDate": 0,
-"copyright": "",
+"user": "Doug",
+"lastModifiedDate": 1580106380000,
+"copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
 "timeSignature": "4/4",
@@ -22271,12 +22197,12 @@
     ]
 }
 },
-{ "file": "Early In The Morning.songlyrics", "lastModifiedDate": 1572487228631, "song": 
+{ "file": "Early In The Morning.songlyrics", "lastModifiedDate": 1579998486000, "song": 
 {
 "title": "Early In The Morning",
 "artist": "Vanity Fare",
-"user": "Unknown",
-"lastModifiedDate": 1572487228631,
+"user": "Doug",
+"lastModifiedDate": 1579998486000,
 "copyright": "Universal Music Publishing Group",
 "key": "E",
 "defaultBpm": 90,
@@ -22284,8 +22210,7 @@
 "chords": 
     [
 	"I:",
-	"Em Em D B7",
-	"(2x,)",
+	"Em Em D B7 x2",
 	"V:",
 	"Em Em Am Am",
 	"D D G Em",
@@ -22371,12 +22296,12 @@
     ]
 }
 },
-{ "file": "Edge Of Seventeen (1).songlyrics", "lastModifiedDate": 1526590952021, "song": 
+{ "file": "Edge Of Seventeen.songlyrics", "lastModifiedDate": 1580106730000, "song": 
 {
 "title": "Edge Of Seventeen",
 "artist": "Stevie Nicks",
-"user": "Unknown",
-"lastModifiedDate": 1526590952021,
+"user": "Doug",
+"lastModifiedDate": 1580106730000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -22384,31 +22309,28 @@
 "chords": 
     [
 	"V:",
-	"(|E)",
-	"(|F#)",
-	"(|)",
-	"G♯m (|)",
-	"G♯m (|,)",
-	"Br:",
-	"(|G#m)",
-	"(|)",
-	"F♯ (|)",
-	"E (|)",
+	"E",
 	"F♯",
-	"(|E)",
-	"(|)",
-	"F♯ (|)",
-	"E (|)",
-	"F♯ (|,)",
-	"(repeat,)",
-	"(then)",
-	"(...,)",
-	"(|E)",
-	"(|)",
-	"F♯ (|)",
-	"E (|)",
-	"F♯ (|,)",
-	"(|G#m)",
+	"G♯m",
+	"G♯m",
+	"PC:",
+	"E",
+	"C:",
+	"E",
+	"Br:",
+	"G♯m",
+	"F♯",
+	"E",
+	"F♯",
+	"E",
+	"F♯",
+	"E",
+	"F♯",
+	"E",
+	"F♯",
+	"E",
+	"F♯",
+	"G♯m",
 	"F♯"
     ],
 "lyrics": 
@@ -22504,6 +22426,8 @@
 	"Of a nightbird singin'",
 	"(Come away)",
 	"(Come away)",
+	"",
+	"Br: (instrumental?)",
 	"",
 	"C:Just like the white winged dove",
 	"Sings a song",
@@ -22601,12 +22525,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Elderly Woman Behind the Counter.songlyrics", "lastModifiedDate": 1580106852000, "song": 
 {
 "title": "Elderly Woman Behind the Counter",
 "artist": "Pearl Jam",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580106852000,
 "copyright": "Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -22616,9 +22540,8 @@
 	"V:",
 	"D C G G",
 	"C C G G x4",
-	"(pre-chorus,)",
-	"Am C x3",
-	"Em Em"
+	"PC:",
+	"Am C Em Em x3"
     ],
 "lyrics": 
     [
@@ -22642,7 +22565,9 @@
 	"hearts and thoughts they fade...away...",
 	"hearts and thoughts they fade...away...",
 	"hearts and thoughts they fade, fade away...",
-	"hearts and thoughts they fade..."
+	"hearts and thoughts they fade...",
+	"",
+	"PC: (?)"
     ]
 }
 },
@@ -22951,13 +22876,13 @@
     ]
 }
 },
-{ "file": "Enter Sandman (7).songlyrics", "lastModifiedDate": 1553470471669, "song": 
+{ "file": "Enter Sandman.songlyrics", "lastModifiedDate": 1580107174000, "song": 
 {
 "title": "Enter Sandman",
 "artist": "Metallica",
-"user": "Unknown",
-"lastModifiedDate": 1553470471669,
-"copyright": "Songwriters: KIRK HAMMETT Enter Sandman lyrics © Creeping Death Music",
+"user": "Doug",
+"lastModifiedDate": 1580107174000,
+"copyright": "Creeping Death Music",
 "key": "C",
 "defaultBpm": 106,
 "timeSignature": "2/4",
@@ -22972,19 +22897,19 @@
 	"Em A/E GEF♯E F♯GF♯E | x2",
 	"V:",
 	"Em",
-	"(Em..F5)",
+	"EmEmEmF5",
 	"Em",
-	"(Em..F5,)",
+	"EmEmEmF5",
 	"Em",
-	"(Em..G5)",
+	"EmEmEmG5",
 	"GEF♯E F♯GF♯E",
 	"V1:",
 	"Em",
-	"(Em..F5)",
+	"EmEmEmF5",
 	"Em",
-	"(Em..F5,)",
+	"EmEmEmF5",
 	"Em",
-	"(Em..G5)",
+	"EmEmEmG5",
 	"GEF♯E F♯GEF♯",
 	"PC:",
 	"F♯m B/F♯ F♯m B/F♯",
@@ -23276,13 +23201,13 @@
     ]
 }
 },
-{ "file": "Every Day I Write The Book (1).songlyrics", "lastModifiedDate": 1551322501391, "song": 
+{ "file": "Every Day I Write The Book.songlyrics", "lastModifiedDate": 1580107240000, "song": 
 {
 "title": "Every Day I Write The Book",
 "artist": "Elvis Costello",
-"user": "Unknown",
-"lastModifiedDate": 1551322501391,
-"copyright": "Every Day I Write the Book lyrics © Universal Music Publishing Group",
+"user": "Doug",
+"lastModifiedDate": 1580107240000,
+"copyright": "Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
 "timeSignature": "2/4",
@@ -23310,8 +23235,7 @@
 	"C C C C",
 	"C2:",
 	"C G/D F G",
-	"C G/D F G",
-	"(repeat)"
+	"C G/D F G"
     ],
 "lyrics": 
     [
@@ -23493,12 +23417,12 @@
     ]
 }
 },
-{ "file": "Everybody Knows This is Nowhere.songlyrics", "lastModifiedDate": 1519347159000, "song": 
+{ "file": "Everybody Knows This is Nowhere.songlyrics", "lastModifiedDate": 1580107340000, "song": 
 {
 "title": "Everybody Knows This is Nowhere",
 "artist": "Bourbon Tabernacle Choir",
-"user": "Unknown",
-"lastModifiedDate": 1519347159000,
+"user": "Doug",
+"lastModifiedDate": 1580107340000,
 "copyright": "Young",
 "key": "C",
 "defaultBpm": 100,
@@ -23508,8 +23432,7 @@
 	"I:",
 	"G G G G",
 	"V:",
-	"G",
-	"(&lt;CG)",
+	"G CG",
 	"C G G x2",
 	"PC:",
 	"C G Em A/AG A/F♯E",
@@ -23521,7 +23444,7 @@
 	"O:",
 	"G D C C",
 	"Em D C",
-	"(&gt;A,)"
+	"A"
     ],
 "lyrics": 
     [
@@ -24730,12 +24653,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Feelin' Alright.songlyrics", "lastModifiedDate": 1580107538000, "song": 
 {
 "title": "Feelin' Alright",
 "artist": "Traffic, Joe Cocker",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580107538000,
 "copyright": "Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -24743,22 +24666,23 @@
 "chords": 
     [
 	"V:",
-	"(I)",
-	"(IV,)"
+	"C7 F7"
     ],
 "lyrics": 
     [
-	"Seems I got to have a change of scene",
+	"V: Seems I got to have a change of scene",
 	"Cause every night I have the strangest dreams",
 	"Imprisoned by the way it used to be",
 	"Left here on my own or so it seems",
 	"I got to leave before I start to scream",
 	"But someone's locked the door and took the key",
-	"Feelin' alright",
+	"",
+	"V: Feelin' alright",
 	"Not feelin' too good myself",
 	"Feelin' alright",
 	"Not feelin' too good myself",
-	"Boy you sure took me for one big ride",
+	"",
+	"V: Boy you sure took me for one big ride",
 	"Even now I sit and wonder why",
 	"And when I think of you I start to cry",
 	"Got to stop belivin' in all your lies",
@@ -25304,12 +25228,12 @@
     ]
 }
 },
-{ "file": "Fire (3).songlyrics", "lastModifiedDate": 1558310220550, "song": 
+{ "file": "Fire.songlyrics", "lastModifiedDate": 1580107660000, "song": 
 {
 "title": "Fire",
 "artist": "Sara Bareilles",
-"user": "Unknown",
-"lastModifiedDate": 1558310220550,
+"user": "Doug",
+"lastModifiedDate": 1580107660000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "Bb",
 "defaultBpm": 108,
@@ -25326,19 +25250,16 @@
 	"A♭ G♭ B♭m B♭m",
 	"D♭ D♭ B♭m B♭m",
 	"D♭ D♭ A♭ G♭",
-	"A♭",
-	"(NC,)",
+	"A♭ XXXX",
 	"V1:",
 	"B♭m B♭m D♭ D♭",
 	"B♭m B♭m D♭ D♭",
-	"A♭ G♭ A♭",
-	"(NC,)",
+	"A♭ G♭ A♭ XXXX",
 	"C:",
 	"G♭ G♭ B♭m B♭m",
 	"D♭ D♭ G♭ G♭",
 	"G♭ G♭ B♭m B♭m",
-	"A♭ G♭",
-	"(NC,)",
+	"A♭ G♭ XXXX",
 	"C2:",
 	"D♭ D♭ G♭ G♭",
 	"G♭ G♭ B♭m B♭m",
@@ -25524,12 +25445,12 @@
     ]
 }
 },
-{ "file": "Five O'Clock World.songlyrics", "lastModifiedDate": 1541041238675, "song": 
+{ "file": "Five O'Clock World.songlyrics", "lastModifiedDate": 1579998726000, "song": 
 {
 "title": "Five O'Clock World",
 "artist": "Vogues, The",
-"user": "Unknown",
-"lastModifiedDate": 1541041238675,
+"user": "Doug",
+"lastModifiedDate": 1579998726000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "E",
 "defaultBpm": 106,
@@ -25546,8 +25467,7 @@
 	"Br:",
 	"ED ED ED ED",
 	"O:",
-	"ED ED ED ED",
-	"(fade)"
+	"ED ED ED ED"
     ],
 "lyrics": 
     [
@@ -25589,7 +25509,9 @@
 	"I know that it's all worthwhile, yeah",
 	"",
 	"O: A-da-lay-ee-ee (up, up, up!)",
-	"A-da-lay-ee-ee (up, up, up!)"
+	"A-da-lay-ee-ee (up, up, up!)",
+	"",
+	"(fade)"
     ]
 }
 },
@@ -25675,12 +25597,12 @@
     ]
 }
 },
-{ "file": "Flaming Telepaths (1).songlyrics", "lastModifiedDate": 1559332925020, "song": 
+{ "file": "Flaming Telepaths.songlyrics", "lastModifiedDate": 1580107824000, "song": 
 {
 "title": "Flaming Telepaths",
 "artist": "Blue Oyster Cult",
-"user": "Unknown",
-"lastModifiedDate": 1559332925020,
+"user": "Doug",
+"lastModifiedDate": 1580107824000,
 "copyright": "lbert Bouchard / Donald Roeser / E Bloom / Samuel Pearlman",
 "key": "A",
 "defaultBpm": 100,
@@ -25705,8 +25627,7 @@
 	"Dm E7 F E7 x4",
 	"E7 E7 E7 E7",
 	"O:",
-	"Dm E7 F E7 x12",
-	"(last E7 is just one abrupt strum)"
+	"Dm E7 F E7XXX x12"
     ],
 "lyrics": 
     [
@@ -25864,12 +25785,12 @@
     ]
 }
 },
-{ "file": "Folk Bloodbath.songlyrics", "lastModifiedDate": 1519450925000, "song": 
+{ "file": "Folk Bloodbath.songlyrics", "lastModifiedDate": 1580108130000, "song": 
 {
 "title": "Folk Bloodbath",
 "artist": "Josh Ritter",
-"user": "Unknown",
-"lastModifiedDate": 1519450925000,
+"user": "Doug",
+"lastModifiedDate": 1580108130000,
 "copyright": "Josh Ritter",
 "key": "C",
 "defaultBpm": 100,
@@ -25877,19 +25798,20 @@
 "chords": 
     [
 	"V:",
-	"(verse)",
 	"C C C C",
 	"C C F F",
 	"C G C C",
-	"(Chorus)",
+	"C:",
 	"C F C C",
 	"C C/G F F",
-	"C G C C"
+	"C G C C",
+	"O:",
+	"C G C C x3"
     ],
 "lyrics": 
     [
 	"",
-	"Lewis Collins took a trip out west",
+	"V: Lewis Collins took a trip out west",
 	"And when he returned",
 	"little Delia had gone to rest",
 	"The angels laid her away",
@@ -25906,11 +25828,11 @@
 	"they dressed in red",
 	"the angels laid her away",
 	"",
-	"Angels laid her away",
+	"C: Angels laid her away",
 	"laid her six feet under the clay",
 	"the angels laid her away",
 	"",
-	"Lewis went downtown",
+	"V: Lewis went downtown",
 	"for a new suit of clothes",
 	"He's gonna dress up",
 	"for Delia like a fine red rose",
@@ -25928,11 +25850,11 @@
 	"you won't ever have to leave",
 	"the angels laid him away",
 	"",
-	"Angels laid him away",
+	"C: Angels laid him away",
 	"laid him six feet under the clay",
 	"the angels laid him away",
 	"",
-	"Oh the judge was a mean one",
+	"V: Oh the judge was a mean one",
 	"his name was hangin' Billy Lyons",
 	"He said you've always been a bad man, Stack",
 	"You're gonna hang this time",
@@ -25943,27 +25865,28 @@
 	"Oh jailer, Lewis Collins ghost brought Delia's with him too",
 	"and the angels laid him away",
 	"",
-	"Angels laid him away",
+	"C: Angels laid him away",
 	"laid him six feet under the clay",
 	"the angels laid him away",
 	"",
-	"Well they buried little Delia",
+	"V: Well they buried little Delia",
 	"in the churchyard deep",
 	"With Lewis Collins at her head",
 	"Stacker Lee at her feet",
 	"the angels laid them away",
 	"",
-	"And out of Delia's bed came briars",
+	"V: And out of Delia's bed came briars",
 	"and out of Lewis' bed a rose",
 	"and out of Stacker Lee's came",
 	"Stacker Lee's cold lonely little ghost",
 	"the angels laid them away",
 	"",
-	"And I'm lookin' over rooftops",
+	"V: And I'm lookin' over rooftops",
 	"and I'm hopin' that it ain't true",
 	"that the same God looks out for them",
 	"looks out for me and you",
-	"the angels laid them away",
+	"",
+	"O: the angels laid them away",
 	"the angels laid them away",
 	"the angels laid them away"
     ]
@@ -26195,12 +26118,12 @@
     ]
 }
 },
-{ "file": "Fooled Around and Fell In Love.songlyrics", "lastModifiedDate": 1519347160000, "song": 
+{ "file": "Fooled Around and Fell In Love.songlyrics", "lastModifiedDate": 1580108254000, "song": 
 {
 "title": "Fooled Around and Fell In Love",
 "artist": "Elvin Bishop",
-"user": "Unknown",
-"lastModifiedDate": 1519347160000,
+"user": "Doug",
+"lastModifiedDate": 1580108254000,
 "copyright": "Warner/Chappell Music, Inc",
 "key": "C",
 "defaultBpm": 100,
@@ -26224,7 +26147,10 @@
 	"Since I met you baby",
 	"I fooled around and fell in love",
 	"I fooled around and fell in love",
-	"Free, on my own that's the way I used to be",
+	"",
+	"Br: (instrumental)",
+	"",
+	"V: Free, on my own that's the way I used to be",
 	"Ah, but since I met you baby",
 	"Love's got a hold on me",
 	"It's got a hold on me now",
@@ -27550,12 +27476,12 @@
     ]
 }
 },
-{ "file": "Fuck Was I (4).songlyrics", "lastModifiedDate": 1568577943297, "song": 
+{ "file": "Fuck Was I.songlyrics", "lastModifiedDate": 1580108328000, "song": 
 {
 "title": "Fuck Was I",
 "artist": "Jenny Owen Youngs",
-"user": "Unknown",
-"lastModifiedDate": 1568577943297,
+"user": "Doug",
+"lastModifiedDate": 1580108328000,
 "copyright": "BMG Rights Management",
 "key": "C",
 "defaultBpm": 144,
@@ -27568,13 +27494,11 @@
 	"G D Am C x5",
 	"V2:",
 	"G D Am C x4",
-	"G D Am",
-	"(NC,)",
+	"G D Am XXX",
 	"PC:",
 	"C C/B Am Am",
 	"C C/B Am Am",
-	"(NC)",
-	"(NC,)",
+	"XXX XXX",
 	"C:",
 	"G D Am C x4",
 	"Br:",
@@ -28319,30 +28243,34 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Gentle On My Mind.songlyrics", "lastModifiedDate": 1580108464000, "song": 
 {
 "title": "Gentle On My Mind",
 "artist": "Glen Campbell",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580108464000,
 "copyright": "John Hartford",
 "key": "C",
-"defaultBpm": 90,
+"defaultBpm": 106,
 "timeSignature": "4/4",
 "chords": 
     [
 	"I:",
-	"C C",
-	"V:",
-	"C C",
+	"C C C C",
 	"V1:",
-	"C C Dm Dm",
-	"Dm DmG7 C C",
+	"C C C C",
+	"Dm Dm Dm Dm",
+	"Dm Dm Dm G7",
+	"C C C C",
 	"V2:",
-	"C C C Dm Dm",
-	"Dm Dm DmG7 C C",
+	"C C C C",
+	"C C Dm Dm",
+	"Dm Dm",
+	"Dm Dm Dm Dm",
+	"Dm G7 C C",
+	"C C",
 	"O:",
-	"C C C C"
+	"C C C C x2"
     ],
 "lyrics": 
     [
@@ -28376,7 +28304,7 @@
 	"And some other woman's cryin' to her mother",
 	"'Cause she turned and I was gone",
 	"",
-	"V2: I still might run in silence, tears of joy might stain my face",
+	"V2: I still might run in silence tears of joy might stain my face",
 	"And the summer sun might burn me 'til I'm blind",
 	"But not to where I cannot see",
 	"You walkin' on the backroads",
@@ -28567,12 +28495,12 @@
     ]
 }
 },
-{ "file": "Get Back.songlyrics", "lastModifiedDate": 1540438803434, "song": 
+{ "file": "Get Back.songlyrics", "lastModifiedDate": 1580108610000, "song": 
 {
 "title": "Get Back",
 "artist": "Beatles, The",
-"user": "Unknown",
-"lastModifiedDate": 1540438803434,
+"user": "Doug",
+"lastModifiedDate": 1580108610000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -28582,8 +28510,7 @@
 	"V:",
 	"A A A A",
 	"D D A GD",
-	"C C",
-	"(walkdown-once,)"
+	"C C"
     ],
 "lyrics": 
     [
@@ -28592,6 +28519,7 @@
 	"But he knew it couldn't last",
 	"Jo Jo left his home in Tucson, Arizona",
 	"For some California grass",
+	"[walkdown-once]",
 	"v:",
 	"Get back, get back",
 	"Get back to where you once belonged",
@@ -28611,6 +28539,7 @@
 	"But she was another man",
 	"All the girls around her say she's got it coming",
 	"But she gets it while she can",
+	"[walkdown-once]",
 	"v:",
 	"Oh, get back, get back",
 	"Get back to where you once belonged",
@@ -28628,12 +28557,12 @@
     ]
 }
 },
-{ "file": "Get Together.songlyrics", "lastModifiedDate": 1561938888276, "song": 
+{ "file": "Get Together.songlyrics", "lastModifiedDate": 1580000252000, "song": 
 {
 "title": "Get Together",
 "artist": "Youngbloods",
-"user": "Unknown",
-"lastModifiedDate": 1561938888276,
+"user": "Doug",
+"lastModifiedDate": 1580000252000,
 "copyright": "Chet Powers, 1964, Youngbloods release 1967",
 "key": "C",
 "defaultBpm": 100,
@@ -28641,7 +28570,7 @@
 "chords": 
     [
 	"I:",
-	"G F (x3)",
+	"G F x3",
 	"V:",
 	"G G F F F",
 	"G G F F F",
@@ -28650,7 +28579,7 @@
 	"C D G CD",
 	"G F G",
 	"O:",
-	"G F (x3)"
+	"G F x3"
     ],
 "lyrics": 
     [
@@ -29193,12 +29122,12 @@
     ]
 }
 },
-{ "file": "Girl (1).songlyrics", "lastModifiedDate": 1531876378009, "song": 
+{ "file": "Girl.songlyrics", "lastModifiedDate": 1580000326000, "song": 
 {
 "title": "Girl",
 "artist": "Beatles",
-"user": "Unknown",
-"lastModifiedDate": 1531876378009,
+"user": "Doug",
+"lastModifiedDate": 1580000326000,
 "copyright": "@Apple records",
 "key": "C",
 "defaultBpm": 120,
@@ -29212,10 +29141,9 @@
 	"E♭ Gm/D Fm/C B♭ x2",
 	"Br:",
 	"Fm C Fm C",
-	"Fm C Fm A♭G7",
-	"(instrumental:,)",
+	"Fm C Fm G♯G7",
 	"Cm G7 Cm Cm",
-	"Fm Fm E♭ G7",
+	"Fm Fm D♯ G7",
 	"Cm G7 Cm Cm",
 	"Fm Fm Cm Cm"
     ],
@@ -30261,12 +30189,12 @@
     ]
 }
 },
-{ "file": "Good Day (4).songlyrics", "lastModifiedDate": 1540695795388, "song": 
+{ "file": "Good Day.songlyrics", "lastModifiedDate": 1580108740000, "song": 
 {
 "title": "Good Day",
 "artist": "Dresden Dolls",
-"user": "Unknown",
-"lastModifiedDate": 1540695795388,
+"user": "Doug",
+"lastModifiedDate": 1580108740000,
 "copyright": "Amanda Fucking Palmer",
 "key": "C",
 "defaultBpm": 106,
@@ -30281,9 +30209,7 @@
 	"C D F C",
 	"C D F F",
 	"O:",
-	"(|CD)",
-	"FC",
-	"CD F (|,)"
+	"CD FC CD F"
     ],
 "lyrics": 
     [
@@ -31166,12 +31092,12 @@
     ]
 }
 },
-{ "file": "Hallowed Ground.songlyrics", "lastModifiedDate": 1548793126122, "song": 
+{ "file": "Hallowed Ground.songlyrics", "lastModifiedDate": 1580108822000, "song": 
 {
 "title": "Hallowed Ground",
 "artist": "KT Tunstall",
-"user": "Unknown",
-"lastModifiedDate": 1548793126122,
+"user": "Doug",
+"lastModifiedDate": 1580108822000,
 "copyright": "2013 Virgin Records",
 "key": "A",
 "defaultBpm": 140,
@@ -31183,26 +31109,22 @@
 	"A FE A E",
 	"I2:",
 	"A C D F",
-	"A C E",
-	"(–,)",
+	"A C E E",
 	"A C D F",
 	"A FE A E",
 	"V:",
 	"A C D F",
-	"A C E",
-	"(–,)",
+	"A C E E",
 	"A C D F",
 	"A FE A E",
 	"C:",
 	"A C D F",
-	"A C E",
-	"(–,)",
+	"A C E E",
 	"A C D F",
 	"A FE A E",
 	"O:",
 	"A C D F",
-	"A C E",
-	"(–,)",
+	"A C E E",
 	"A C D F",
 	"A FE A D",
 	"A FE A"
@@ -31531,12 +31453,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Hand me Down.songlyrics", "lastModifiedDate": 1580109266000, "song": 
 {
 "title": "Hand me Down",
 "artist": "Matchbox Twenty",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580109266000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -31545,32 +31467,34 @@
     [
 	"V:",
 	"C F C F x2",
-	"Am",
-	"(/G)",
+	"Am/G",
 	"F F",
+	"Am E C D",
+	"F G",
+	"C:",
 	"C C G G",
 	"Dm Dm F F",
-	"C C G",
-	"(/G#)",
+	"C C G/G♯",
 	"Am Am F F",
-	"Am E C D",
-	"F G"
+	"O:",
+	"C F"
     ],
 "lyrics": 
     [
-	"Someday they'll find your small town world on a big town avenue",
+	"V: Someday they'll find your small town world on a big town avenue",
 	"Gonna make you like the way they talk when they're talking to you",
 	"Gonna make you break out of the shell cause they tell you to",
 	"Gonna make you like the way they lie better than the truth",
 	"They'll tell you everything you wanted someone else to say",
 	"They're gonna break your heart, yeah",
-	"[Chorus]",
-	"From what I've seen",
+	"",
+	"C: From what I've seen",
 	"You're just a one more hand me down",
 	"Cause no one's tried to give you what you need",
 	"So lay all your troubles down",
 	"I am with you now",
-	"Somebody ought to take you in ",
+	"",
+	"V: Somebody ought to take you in ",
 	"Try to make you love again",
 	"Try to make you like the way they feel",
 	"When they're under your skin",
@@ -31579,13 +31503,14 @@
 	"When they said they'd call you",
 	"You start to wonder if you're ever gonna make it by",
 	"You'll start to think you were born blind",
-	"[Chorus]",
-	"From what I've seen",
+	"",
+	"C: From what I've seen",
 	"You're just a one more hand me down",
 	"Cause no one's tried to give you what you need",
 	"So lay all your troubles down",
 	"I am with you now",
-	"I'm here for the hard times",
+	"",
+	"V: I'm here for the hard times",
 	"The straight to your heart times",
 	"Whenever it ain't easy",
 	"You can stand up against me",
@@ -31596,26 +31521,29 @@
 	"Shake it down on a drawing board",
 	"Do their best to change you",
 	"They still can't erase you",
-	"[Chorus]",
-	"From what I've seen",
+	"",
+	"C: From what I've seen",
 	"You're just a one more hand me down",
 	"Cause no one's tried to give you what you need",
 	"So lay all your troubles down",
 	"I am with you now",
-	"Lay them down on me",
+	"",
+	"V: Lay them down on me",
 	"Oh yeah",
 	"You're just one more hand me down",
 	"And all those nots don't give you what you need",
-	"So lay all your troubles down...on me"
+	"So lay all your troubles down...on me",
+	"",
+	"O: (instrumental)"
     ]
 }
 },
-{ "file": "Hand that Feeds, The.songlyrics", "lastModifiedDate": 1524073760000, "song": 
+{ "file": "Hand that Feeds, The.songlyrics", "lastModifiedDate": 1580109388000, "song": 
 {
 "title": "Hand that Feeds, The",
 "artist": "Nine Inch Nails",
-"user": "Unknown",
-"lastModifiedDate": 1524073760000,
+"user": "Doug",
+"lastModifiedDate": 1580109388000,
 "copyright": "Kobalt Music Publishing Ltd., The Bicycle Music Company",
 "key": "C",
 "defaultBpm": 106,
@@ -31662,7 +31590,9 @@
 	"But I keep holding on and on and on and on",
 	"[8X]",
 	"Will you bite the hand that feeds you?",
-	"Will you stay down on your knees?"
+	"Will you stay down on your knees?",
+	"",
+	"A: ?"
     ]
 }
 },
@@ -32672,12 +32602,12 @@
     ]
 }
 },
-{ "file": "Heatwave.songlyrics", "lastModifiedDate": 1551322517931, "song": 
+{ "file": "Heatwave.songlyrics", "lastModifiedDate": 1580109452000, "song": 
 {
 "title": "Heatwave",
 "artist": "Linda Ronstadt",
-"user": "Unknown",
-"lastModifiedDate": 1551322517931,
+"user": "Doug",
+"lastModifiedDate": 1580109452000,
 "copyright": "1989",
 "key": "A",
 "defaultBpm": 106,
@@ -32685,8 +32615,7 @@
 "chords": 
     [
 	"V:",
-	"Bm C♯m F♯m F♯m (x)",
-	"(3,)",
+	"Bm C♯m F♯m F♯m x3",
 	"Bm C♯m D E",
 	"A A A A",
 	"V3:",
@@ -32737,12 +32666,12 @@
     ]
 }
 },
-{ "file": "Heavy Fuel.songlyrics", "lastModifiedDate": 1537745696100, "song": 
+{ "file": "Heavy Fuel.songlyrics", "lastModifiedDate": 1580109492000, "song": 
 {
 "title": "Heavy Fuel",
 "artist": "Dire Straits",
-"user": "Unknown",
-"lastModifiedDate": 1537745696100,
+"user": "Doug",
+"lastModifiedDate": 1580109492000,
 "copyright": "1991 Warner Bros",
 "key": "E",
 "defaultBpm": 132,
@@ -32750,9 +32679,9 @@
 "chords": 
     [
 	"I:",
-	"Em Em Em Em (x2)",
+	"Em Em Em Em x2",
 	"V:",
-	"Em Em Em Em (x2)",
+	"Em Em Em Em x2",
 	"PC:",
 	"C C D D",
 	"C D",
@@ -32957,12 +32886,12 @@
     ]
 }
 },
-{ "file": "Here Comes The Rain Again.songlyrics", "lastModifiedDate": 1564018580473, "song": 
+{ "file": "Here Comes The Rain Again.songlyrics", "lastModifiedDate": 1580109544000, "song": 
 {
 "title": "Here Comes The Rain Again",
 "artist": "Eurythmics",
-"user": "Unknown",
-"lastModifiedDate": 1564018580473,
+"user": "Doug",
+"lastModifiedDate": 1580109544000,
 "copyright": "Annie Lennox & David Stewart © 1983",
 "key": "A",
 "defaultBpm": 126,
@@ -32972,8 +32901,7 @@
 	"V:",
 	"Am Am",
 	"F F",
-	"G G",
-	"(repeat on open ending?)"
+	"G G"
     ],
 "lyrics": 
     [
@@ -33097,6 +33025,8 @@
 	"Falling on my hand like a memory,",
 	"G",
 	"Falling on my hand like a new emotion.",
+	"",
+	"(repeat on open ending?)",
 	"",
 	"Set8"
     ]
@@ -34729,12 +34659,12 @@
     ]
 }
 },
-{ "file": "Homeward Bound.songlyrics", "lastModifiedDate": 1529882298908, "song": 
+{ "file": "Homeward Bound.songlyrics", "lastModifiedDate": 1580109602000, "song": 
 {
 "title": "Homeward Bound",
 "artist": "Simon & Garfunkel",
-"user": "Unknown",
-"lastModifiedDate": 1529882298908,
+"user": "Doug",
+"lastModifiedDate": 1580109602000,
 "copyright": "Simon & Garfunkel",
 "key": "G",
 "defaultBpm": 80,
@@ -34752,8 +34682,8 @@
 	"GC GC GC DG",
 	"G",
 	"O:",
-	"G G/F♯ G G (slow)",
-	"G Gsus4 C G (slow)"
+	"G G/F♯ G G",
+	"G Gsus4 C G"
     ],
 "lyrics": 
     [
@@ -35461,12 +35391,12 @@
     ]
 }
 },
-{ "file": "HowDoILive.songlyrics", "lastModifiedDate": 1552867785609, "song": 
+{ "file": "How DO I LIVE.songlyrics", "lastModifiedDate": 1580109726000, "song": 
 {
 "title": "How Do I Live",
 "artist": "LeAnn Rimes",
-"user": "Unknown",
-"lastModifiedDate": 1552867785609,
+"user": "Doug",
+"lastModifiedDate": 1580109726000,
 "copyright": "1995",
 "key": "C",
 "defaultBpm": 100,
@@ -35494,8 +35424,7 @@
 	"O:",
 	"DA GF♯m DA GF♯m",
 	"BmEm7 F♯m7. G Em7",
-	"DA GF♯m DA GF♯m (x)",
-	"(3,)"
+	"DA GF♯m DA GF♯m x3"
     ],
 "lyrics": 
     [
@@ -35757,12 +35686,12 @@
     ]
 }
 },
-{ "file": "Hungry Like the Wolf.songlyrics", "lastModifiedDate": 1519453043000, "song": 
+{ "file": "Hungry Like the Wolf.songlyrics", "lastModifiedDate": 1580110206000, "song": 
 {
 "title": "Hungry Like the Wolf",
 "artist": "Duran Duran",
-"user": "Unknown",
-"lastModifiedDate": 1519453043000,
+"user": "Doug",
+"lastModifiedDate": 1580110206000,
 "copyright": "Duran Duran",
 "key": "C",
 "defaultBpm": 100,
@@ -35770,26 +35699,27 @@
 "chords": 
     [
 	"V:",
-	"(verse)",
-	"E E E E",
-	"D D E E",
-	"(repeat,)",
-	"(Chorus)",
-	"C G F F",
-	"C G F D",
-	"(repeat,)"
+	"E E E E |",
+	"D D E E | x2",
+	"C:",
+	"C G F F |",
+	"C G F D | x2",
+	"Br:",
+	"C C C C",
+	"G G G G",
+	"F F F F"
     ],
 "lyrics": 
     [
 	"",
-	"Darken the city, night is a wire",
+	"V: Darken the city, night is a wire",
 	"Steam in the subway, earth is a afire",
 	"Do do do do do do do dodo dododo dodo",
 	"Woman, you want me, give me a sign",
 	"And catch my breathing even closer behind",
 	"Do do do do do do do dodo dododo dodo",
 	"",
-	"In touch with the ground",
+	"C: In touch with the ground",
 	"I'm on the hunt I'm after you",
 	"Smell like I sound, I'm lost in a crowd",
 	"And I'm hungry like the wolf",
@@ -35798,14 +35728,14 @@
 	"Mouth is alive with juices like wine",
 	"And I'm hungry like the wolf",
 	"",
-	"Stalked in the forest, too close to hide",
+	"V: Stalked in the forest, too close to hide",
 	"I'll be upon you by the moonlight side",
 	"Do do do do do do do dodo dododo dodo",
 	"High blood drumming on your skin, it's so tight",
 	"You feel my heat, I'm just a moment behind",
 	"Do do do do do do do dodo dododo dodo",
 	"",
-	"In touch with the ground",
+	"C: In touch with the ground",
 	"I'm on the hunt I'm after you",
 	"A scent and a sound, I'm lost and I'm found",
 	"And I'm hungry like the wolf",
@@ -35814,11 +35744,11 @@
 	"Mouth is alive, all running inside",
 	"And I'm hungry like the wolf",
 	"",
-	"Hungry like the wolf",
+	"Br: Hungry like the wolf",
 	"Hungry like the wolf",
 	"Hungry like the wolf",
 	"",
-	"Burning the ground, I break from the crowd",
+	"C: Burning the ground, I break from the crowd",
 	"I'm on the hunt, I'm after you",
 	"I smell like I sound, I'm lost and I'm found",
 	"And I'm hungry like the wolf",
@@ -36290,12 +36220,12 @@
     ]
 }
 },
-{ "file": "I Can Help.songlyrics", "lastModifiedDate": 1576121057804, "song": 
+{ "file": "I Can Help .songlyrics", "lastModifiedDate": 1580000880000, "song": 
 {
 "title": "I Can Help ",
 "artist": "Billy Swan",
-"user": "Guest",
-"lastModifiedDate": 1576121057804,
+"user": "Doug",
+"lastModifiedDate": 1580000880000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -36714,12 +36644,12 @@
     ]
 }
 },
-{ "file": "I Can't Help falling in Love With You (4).songlyrics", "lastModifiedDate": 1529547870654, "song": 
+{ "file": "I Can't Help falling in Love With You.songlyrics", "lastModifiedDate": 1580000742000, "song": 
 {
 "title": "I Can't Help falling in Love With You",
 "artist": "Elvis Presley",
-"user": "Unknown",
-"lastModifiedDate": 1529547870654,
+"user": "Doug",
+"lastModifiedDate": 1580000742000,
 "copyright": "Elvis Presley",
 "key": "C",
 "defaultBpm": 100,
@@ -36742,7 +36672,7 @@
     ],
 "lyrics": 
     [
-	"t: (intro)",
+	"i: (intro)",
 	"v:",
 	"Wise men say",
 	"Only fools rush in",
@@ -37408,12 +37338,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "I Just Fall In Love Again.songlyrics", "lastModifiedDate": 1580002718000, "song": 
 {
 "title": "I Just Fall In Love Again",
 "artist": "Anne Murray",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580002718000,
 "copyright": "Universal Music Publishing Group",
 "key": "D",
 "defaultBpm": 80,
@@ -37432,7 +37362,7 @@
 	"Em Am F G7",
 	"C Am D7 G7",
 	"Em Am F E",
-	"Am D7 (hold last chord)",
+	"Am D7",
 	"C FG C C",
 	"O:",
 	"C FG C C",
@@ -37687,12 +37617,12 @@
     ]
 }
 },
-{ "file": "I Saw Her Standing There.songlyrics", "lastModifiedDate": 1539110283521, "song": 
+{ "file": "I Saw Her Standing There.songlyrics", "lastModifiedDate": 1580101176000, "song": 
 {
 "title": "I Saw Her Standing There",
 "artist": "Beatles, The",
-"user": "Unknown",
-"lastModifiedDate": 1539110283521,
+"user": "Doug",
+"lastModifiedDate": 1580101176000,
 "copyright": "Sony/ATV",
 "key": "E",
 "defaultBpm": 106,
@@ -37713,8 +37643,7 @@
 	"O:",
 	"E7 B7 E7 E7",
 	"E7 B7 A7 C7",
-	"C7",
-	"(+9,)"
+	"C7"
     ],
 "lyrics": 
     [
@@ -37763,12 +37692,12 @@
     ]
 }
 },
-{ "file": "I Shot The Sheriff.songlyrics", "lastModifiedDate": 1552099163253, "song": 
+{ "file": "I Shot The Sheriff.songlyrics", "lastModifiedDate": 1580110548000, "song": 
 {
 "title": "I Shot The Sheriff",
 "artist": "Bob Marley",
-"user": "Unknown",
-"lastModifiedDate": 1552099163253,
+"user": "Doug",
+"lastModifiedDate": 1580110548000,
 "copyright": "Kobalt Music Publishing Ltd.",
 "key": "Bb",
 "defaultBpm": 100,
@@ -37785,8 +37714,7 @@
 	"E♭ Dm Gm Gm",
 	"E♭ Dm Gm Gm",
 	"PC:",
-	"(Instrumental)",
-	"(riff)",
+	"E♭ Dm Gm Gm",
 	"C:",
 	"Gm Cm Gm Gm",
 	"Gm Cm Gm Gm"
@@ -38680,12 +38608,12 @@
     ]
 }
 },
-{ "file": "If Venice is Sinking.songlyrics", "lastModifiedDate": 1541983073169, "song": 
+{ "file": "If Venice is Sinking.songlyrics", "lastModifiedDate": 1580110608000, "song": 
 {
 "title": "If Venice is Sinking",
 "artist": "Spirit of the West",
-"user": "Unknown",
-"lastModifiedDate": 1541983073169,
+"user": "Doug",
+"lastModifiedDate": 1580110608000,
 "copyright": "Warner/Chappell Music, Inc.",
 "key": "C",
 "defaultBpm": 106,
@@ -38695,14 +38623,11 @@
 	"I:",
 	"C F G AmG",
 	"V:",
-	"C F G",
-	"(amG,)",
+	"C F G AmG",
 	"C:",
-	"F CG F",
-	"(amG,)",
+	"F CG F AmG",
 	"C2:",
-	"F G F",
-	"(amG,)"
+	"F G F AmG"
     ],
 "lyrics": 
     [
@@ -38888,12 +38813,12 @@
     ]
 }
 },
-{ "file": "If you leave.songlyrics", "lastModifiedDate": 1554088742943, "song": 
+{ "file": "If you leave.songlyrics", "lastModifiedDate": 1580110714000, "song": 
 {
 "title": "If you leave",
 "artist": "omd",
-"user": "Unknown",
-"lastModifiedDate": 1554088742943,
+"user": "Doug",
+"lastModifiedDate": 1580110714000,
 "copyright": "Songwriters: Martin Handsley Cooper / Paul David Humphreys / Andrew McCluskey If You Leave lyrics © Sony/ATV Music Publishing LLC, Warner/Chappell Music, Inc, BMG Rights Management",
 "key": "C",
 "defaultBpm": 106,
@@ -38903,8 +38828,9 @@
 	"V1:",
 	"F G C AmD x4",
 	"V2:",
-	"[]C1:",
-	"[]"
+	"D G A G",
+	"C1:",
+	"D G A G"
     ],
 "lyrics": 
     [
@@ -40193,12 +40119,12 @@
     ]
 }
 },
-{ "file": "I'm Looking Through You - CORRECTED.songlyrics", "lastModifiedDate": 1545006278317, "song": 
+{ "file": "I'm Looking Through You - CORRECTED.songlyrics", "lastModifiedDate": 1580101314000, "song": 
 {
 "title": "I'm Looking Through You - CORRECTED",
 "artist": "Beatles, The",
-"user": "Unknown",
-"lastModifiedDate": 1545006278317,
+"user": "Doug",
+"lastModifiedDate": 1580101314000,
 "copyright": "Sony/ATV",
 "key": "C",
 "defaultBpm": 120,
@@ -40206,8 +40132,7 @@
 "chords": 
     [
 	"V:",
-	"CF Dm7 Am G",
-	"(2x,)",
+	"CF Dm7 Am G x2",
 	"Am GDm7 CF G",
 	"CF Dm7 F7 CF",
 	"CF CF CF",
@@ -40215,8 +40140,7 @@
 	"F C G G",
 	"F C Gsus4 G",
 	"O:",
-	"CF CF CF CF",
-	"(2x,)"
+	"CF CF CF CF x2"
     ],
 "lyrics": 
     [
@@ -40307,12 +40231,12 @@
     ]
 }
 },
-{ "file": "I'm So Lonesome I Could Cry.songlyrics", "lastModifiedDate": 1575242171429, "song": 
+{ "file": "I'm So Lonesome I Could Cry.songlyrics", "lastModifiedDate": 1580101420000, "song": 
 {
 "title": "I'm So Lonesome I Could Cry",
 "artist": "BJ Thomas (orig. by Hank Williams)",
-"user": "Unknown",
-"lastModifiedDate": 1575242171429,
+"user": "Doug",
+"lastModifiedDate": 1580101420000,
 "copyright": "Sony/ATV",
 "key": "G",
 "defaultBpm": 106,
@@ -40320,8 +40244,7 @@
 "chords": 
     [
 	"I:",
-	"G Bm Em D",
-	"(2x,)",
+	"G Bm Em D x2",
 	"V:",
 	"G Bm Em D",
 	"G Bm Dmaj7 G7",
@@ -40554,12 +40477,12 @@
     ]
 }
 },
-{ "file": "In Bloom.songlyrics", "lastModifiedDate": 1524073761000, "song": 
+{ "file": "In Bloom.songlyrics", "lastModifiedDate": 1580161610000, "song": 
 {
 "title": "In Bloom",
 "artist": "Nirvana",
-"user": "Unknown",
-"lastModifiedDate": 1524073761000,
+"user": "Doug",
+"lastModifiedDate": 1580161610000,
 "copyright": "BMG Rights Management US, LLC",
 "key": "C",
 "defaultBpm": 106,
@@ -40576,17 +40499,21 @@
     ],
 "lyrics": 
     [
-	"Sell the kids for food ",
+	"i: (instrumental)",
+	"",
+	"v: Sell the kids for food ",
 	"Weather changes moods",
 	"Spring is here again",
 	"Reproductive glands",
-	"Hey - he's the one",
+	"",
+	"c: Hey - he's the one",
 	"Who likes all our pretty songs",
 	"And he likes to sing along",
 	"And he likes to shoot his gun",
 	"But he knows not what it means",
 	"Don't know what it means, when I say:",
-	"He's the one",
+	"",
+	"c: He's the one",
 	"Who likes all our pretty songs",
 	"And he likes to sing along",
 	"And he likes to shoot his gun",
@@ -40594,25 +40521,29 @@
 	"Knows not what it means when I say ah...",
 	"We can have some more - nature is a whore",
 	"Bruises on the fruit - tender age in bloom",
-	"Hey - he's the one",
+	"",
+	"c: Hey - he's the one",
 	"Who likes all our pretty songs",
 	"And he likes to sing along",
 	"And he likes to shoot his gun",
 	"But he knows not what it means",
 	"Don't know what it means, when I say:",
-	"He's the one",
+	"",
+	"c: He's the one",
 	"Who likes all our pretty songs",
 	"And he likes to sing along",
 	"And he likes to shoot his gun",
 	"But he knows not what it means",
 	"Knows not what it means when I say ah...",
-	"He's the one",
+	"",
+	"c: He's the one",
 	"Who likes all our pretty songs",
 	"And he likes to sing along",
 	"And he likes to shoot his gun",
 	"But he knows not what it means",
 	"Knows not what it means when I say:",
-	"He's the one",
+	"",
+	"c: He's the one",
 	"Who likes all our pretty songs",
 	"And he likes to sing along",
 	"And he likes to shoot his gun",
@@ -40943,12 +40874,12 @@
     ]
 }
 },
-{ "file": "Indian Reservation (2).songlyrics", "lastModifiedDate": 1535508976752, "song": 
+{ "file": "Indian Reservation.songlyrics", "lastModifiedDate": 1580161724000, "song": 
 {
 "title": "Indian Reservation",
 "artist": "Paul Revere & the Raiders",
-"user": "Unknown",
-"lastModifiedDate": 1535508976752,
+"user": "Doug",
+"lastModifiedDate": 1580161724000,
 "copyright": "John Loudermilk © Sony/ATV Music Publishing LLC",
 "key": "G",
 "defaultBpm": 106,
@@ -40966,17 +40897,16 @@
 	"C:",
 	"Dm Dm Am Am",
 	"AmE E E7 E7",
-	"(ia:)",
-	"EDCBA (single notes rapid)",
+	"EDCBA",
 	"Br:",
 	"Am Am AmDm Dm",
-	"Dm DmE E Am (ascending vocal tag)",
+	"Dm DmE E Am",
 	"Am AmGm Am",
 	"Gm GmB Gm",
 	"Cm CmDm Cm",
 	"Em EmD Gm",
 	"O:",
-	"AGEDCAGEDCAGA (organ descending scale)"
+	"AGED CAGE DCAG A"
     ],
 "lyrics": 
     [
@@ -41021,12 +40951,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Innocent.songlyrics", "lastModifiedDate": 1580161874000, "song": 
 {
 "title": "Innocent",
 "artist": "Our Lady Peace",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580161874000,
 "copyright": "Warner/Chappell Music, Inc, Sony/ATV Music Publishing LLC, Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -41036,13 +40966,12 @@
 	"V:",
 	"G D Em CD x2",
 	"C D C D",
-	"(chorus)",
-	"(verse twice as fast)",
+	"C:",
 	"G D Em CD"
     ],
 "lyrics": 
     [
-	"Oh, Johnny wishes he was famous",
+	"v: Oh, Johnny wishes he was famous",
 	"Spends his time alone ",
 	"In the basement",
 	"With Lennon and Cobain",
@@ -41052,7 +40981,7 @@
 	"It all seems so contagious",
 	"Not to be yourself and faceless",
 	"In a song that has no soul",
-	"[Chorus]",
+	"c:",
 	"I remember feeling low",
 	"I remember losing hope",
 	"I remember all the feelings",
@@ -41075,7 +41004,7 @@
 	"She wishes God would give her",
 	"Some answers",
 	"And make her feel beautiful",
-	"[Chorus]",
+	"c:",
 	"One day",
 	"You'll have to let it go,",
 	"Oh",
@@ -41621,12 +41550,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1529478839661, "song": 
+{ "file": "Islands in the Stream (2001 version).songlyrics", "lastModifiedDate": 1580161954000, "song": 
 {
 "title": "Islands in the Stream (2001 version)",
 "artist": "Bee Gees",
-"user": "Unknown",
-"lastModifiedDate": 1529478839661,
+"user": "Doug",
+"lastModifiedDate": 1580161954000,
 "copyright": "© Warner/Chappell Music, Inc, Universal Music Publishing Group",
 "key": "Db",
 "defaultBpm": 108,
@@ -41652,7 +41581,7 @@
     ],
 "lyrics": 
     [
-	"",
+	"i: (instrumental)",
 	"V:",
 	"Baby when I met you there was peace unknown",
 	"I set out to get you with a fine tooth comb",
@@ -41807,12 +41736,12 @@
     ]
 }
 },
-{ "file": "It Aint Me.songlyrics", "lastModifiedDate": 1566780616441, "song": 
+{ "file": "It Aint Me.songlyrics", "lastModifiedDate": 1580162000000, "song": 
 {
 "title": "It Aint Me",
 "artist": "Kygo",
-"user": "Unknown",
-"lastModifiedDate": 1566780616441,
+"user": "Doug",
+"lastModifiedDate": 1580162000000,
 "copyright": "Universal Music Publishing",
 "key": "C",
 "defaultBpm": 106,
@@ -41837,9 +41766,7 @@
 	"Em G D C",
 	"Em G D D",
 	"C G Em D",
-	"C G D D",
-	"X",
-	"(2,)",
+	"C G D D x2",
 	"Em G",
 	"O:",
 	"C G D D"
@@ -42034,12 +41961,12 @@
     ]
 }
 },
-{ "file": "It's All In The Game.songlyrics", "lastModifiedDate": 1540941530674, "song": 
+{ "file": "It's All In The Game.songlyrics", "lastModifiedDate": 1580162070000, "song": 
 {
 "title": "It's All In The Game",
 "artist": "Tommy Edwards",
-"user": "Unknown",
-"lastModifiedDate": 1540941530674,
+"user": "Doug",
+"lastModifiedDate": 1580162070000,
 "copyright": "Music Sales Corporation",
 "key": "C",
 "defaultBpm": 80,
@@ -42136,12 +42063,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Its the end of the world as we know it.songlyrics", "lastModifiedDate": 1580162182000, "song": 
 {
 "title": "Its the end of the world as we know it",
 "artist": "R.E.M.",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580162182000,
 "copyright": "Warner/Chappell Music, Inc, Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -42151,17 +42078,24 @@
 	"V:",
 	"G C D D",
 	"G G C C x4",
-	"B♭ B♭ D",
-	"G C D D x4",
-	"(1st)",
-	"(verse)",
-	"(double,)",
-	"(3rd)",
-	"(verse)",
-	"(short,)"
+	"A♯ A♯ D",
+	"G C D D x4"
     ],
 "lyrics": 
     [
+	" ",
+	"(1st)",
+	" ",
+	"(verse)",
+	" ",
+	"(double,)",
+	" ",
+	"(3rd)",
+	" ",
+	"(verse)",
+	" ",
+	"(short,)",
+	"",
 	"That's great! It starts with an earthquake,",
 	"Birds and snakes, an aeroplane;",
 	"Lenny Bruce is not afraid.",
@@ -43201,12 +43135,12 @@
     ]
 }
 },
-{ "file": "John Barleycorn Must  Die.songlyrics", "lastModifiedDate": 1553047774569, "song": 
+{ "file": "John Barleycorn Must Die.songlyrics", "lastModifiedDate": 1580162290000, "song": 
 {
 "title": "John Barleycorn Must Die",
 "artist": "Steve Winwood",
-"user": "Unknown",
-"lastModifiedDate": 1553047774569,
+"user": "Doug",
+"lastModifiedDate": 1580162290000,
 "copyright": "Warner/Chappell Music, Inc, Kobalt Music Publishing Ltd.",
 "key": "D",
 "defaultBpm": 106,
@@ -43214,12 +43148,6 @@
 "chords": 
     [
 	"I:",
-	"G",
-	"(uitar)",
-	"(solo)",
-	"(followed)",
-	"(by)",
-	"(chords,)",
 	"A G/D Em Em x4",
 	"V:",
 	"A Em G/D Em",
@@ -43231,13 +43159,12 @@
 	"G A Bsus4 B B B",
 	"Am Em G/D Em Em",
 	"A G/D Em Em",
-	"(Inst:,)",
 	"A G/D Em Em x4",
 	"O:",
 	"G G Em Em",
 	"G A Bsus4 B B B",
 	"Am Em G/D Em Em",
-	"A G/D Em (slow arpeggio)"
+	"A G/D Em"
     ],
 "lyrics": 
     [
@@ -44284,12 +44211,12 @@
     ]
 }
 },
-{ "file": "Kicks.songlyrics", "lastModifiedDate": 1544672314529, "song": 
+{ "file": "Kicks.songlyrics", "lastModifiedDate": 1580162358000, "song": 
 {
 "title": "Kicks",
 "artist": "Paul Revere & The Raiders",
-"user": "Unknown",
-"lastModifiedDate": 1544672314529,
+"user": "Doug",
+"lastModifiedDate": 1580162358000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "D",
 "defaultBpm": 106,
@@ -44299,8 +44226,7 @@
 	"I:",
 	"D Am D Am",
 	"V:",
-	"D Am D Am",
-	"(2x,)",
+	"D Am D Am x2",
 	"F F AmCaug CD",
 	"F F E E",
 	"V1:",
@@ -44368,12 +44294,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Kids Don't Stand a Chance.songlyrics", "lastModifiedDate": 1580162420000, "song": 
 {
 "title": "Kids Don't Stand a Chance",
 "artist": "Vampire Weekend",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580162420000,
 "copyright": "Vampire Weekend Music",
 "key": "C",
 "defaultBpm": 100,
@@ -44381,8 +44307,8 @@
 "chords": 
     [
 	"V:",
-	"G Am C (N.C.)",
-	"C D G (N.C.)"
+	"G Am C XXXX",
+	"C D G XXXX"
     ],
 "lyrics": 
     [
@@ -44689,12 +44615,12 @@
     ]
 }
 },
-{ "file": "King of Pain (13).songlyrics", "lastModifiedDate": 1527047130985, "song": 
+{ "file": "King of Pain.songlyrics", "lastModifiedDate": 1580162502000, "song": 
 {
 "title": "King of Pain",
 "artist": "Police, Gordon Sumner, The",
-"user": "Unknown",
-"lastModifiedDate": 1527047130985,
+"user": "Doug",
+"lastModifiedDate": 1580162502000,
 "copyright": "© Sony/ATV Music Publishing LLC",
 "key": "G",
 "defaultBpm": 136,
@@ -44726,7 +44652,7 @@
     ],
 "lyrics": 
     [
-	"",
+	"i: (instrumental)",
 	"",
 	"v:There's a little black spot on the sun today",
 	"It's the same old thing as yesterday",
@@ -44758,7 +44684,7 @@
 	"I guess I'm always hoping that you'll end this reign",
 	"But it's my destiny to be the king of pain",
 	"",
-	"Br:There's a king on a throne with his eyes torn out",
+	"B:There's a king on a throne with his eyes torn out",
 	"There's a blind man looking for a shadow of doubt",
 	"There's a rich man sleeping on a golden bed",
 	"There's a skeleton choking on a crust of bread",
@@ -44977,12 +44903,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "L.A. Freeway.songlyrics", "lastModifiedDate": 1580162536000, "song": 
 {
 "title": "L.A. Freeway",
 "artist": "Jerry Jeff Walker, Guy Clark",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580162536000,
 "copyright": "Guy Clark, 1975",
 "key": "C",
 "defaultBpm": 100,
@@ -44990,7 +44916,7 @@
 "chords": 
     [
 	"I:",
-	"A D A E7 (2X)",
+	"A D A E7 x2",
 	"V:",
 	"A A D D",
 	"A A E7 E7",
@@ -45113,12 +45039,12 @@
     ]
 }
 },
-{ "file": "La Grange.songlyrics", "lastModifiedDate": 1554231428246, "song": 
+{ "file": "La Grange.songlyrics", "lastModifiedDate": 1580162632000, "song": 
 {
 "title": "La Grange",
 "artist": "ZZ Top",
-"user": "Unknown",
-"lastModifiedDate": 1554231428246,
+"user": "Doug",
+"lastModifiedDate": 1580162632000,
 "copyright": "ZZ Top",
 "key": "C",
 "defaultBpm": 130,
@@ -45130,23 +45056,14 @@
 	"V:",
 	"A CD A",
 	"A:",
-	"(SOLO)",
-	"(in)",
 	"Cm",
-	"(in/Eb)",
-	"(Maj,)",
-	"C E♭F C",
+	"C D♯F C",
 	"Br:",
 	"A CD A",
 	"O:",
-	"(Outro)",
 	"B",
-	"(ack)",
-	"(to)",
 	"C",
-	"(Maj/Amin,)",
-	"A CD A",
-	"(Repeat till end and fade)"
+	"A CD A"
     ],
 "lyrics": 
     [
@@ -45985,12 +45902,12 @@
     ]
 }
 },
-{ "file": "Lean on Me (1).songlyrics", "lastModifiedDate": 1526865122222, "song": 
+{ "file": "Lean on Me.songlyrics", "lastModifiedDate": 1580162798000, "song": 
 {
 "title": "Lean on Me",
 "artist": "Bill Withers",
-"user": "Unknown",
-"lastModifiedDate": 1526865122222,
+"user": "Doug",
+"lastModifiedDate": 1580162798000,
 "copyright": "1971 Interior Music",
 "key": "C",
 "defaultBpm": 100,
@@ -45998,9 +45915,6 @@
 "chords": 
     [
 	"V:",
-	"C F C G",
-	"C F C GC",
-	"PC:",
 	"C F C G",
 	"C F C GC",
 	"C:",
@@ -46061,12 +45975,12 @@
     ]
 }
 },
-{ "file": "Learning to Fly (2).songlyrics", "lastModifiedDate": 1521603720038, "song": 
+{ "file": "Learning to Fly.songlyrics", "lastModifiedDate": 1580162970000, "song": 
 {
 "title": "Learning to Fly",
 "artist": "Tom Petty",
-"user": "Unknown",
-"lastModifiedDate": 1521603720038,
+"user": "Doug",
+"lastModifiedDate": 1580162970000,
 "copyright": "Petty",
 "key": "C",
 "defaultBpm": 100,
@@ -46075,7 +45989,9 @@
     [
 	"V:",
 	"F FC C C",
-	"Am AmG G G"
+	"Am AmG G G",
+	"C:",
+	"F C Am G x4"
     ],
 "lyrics": 
     [
@@ -46084,7 +46000,7 @@
 	"Started out all alone",
 	"And the sun went down as I crossed the hill",
 	"And the town lit up, the world got still",
-	"ch:",
+	"c:",
 	"I'm learning to fly, but I ain't got wings",
 	"Coming down is the hardest thing",
 	"v:",
@@ -46095,20 +46011,20 @@
 	"Break your heart, steal your crown",
 	"So I've started out for God knows where",
 	"I guess I'll know when I get there",
-	"ch:",
+	"c:",
 	"I'm learning to fly, around the clouds",
 	"But what goes up must come down",
 	"",
-	"[Chorus]"
+	"[Chorus]???"
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1527387514490, "song": 
+{ "file": "Learn to Fly.songlyrics", "lastModifiedDate": 1580163434000, "song": 
 {
 "title": "Learn to Fly",
 "artist": "Foo Fighters",
-"user": "Unknown",
-"lastModifiedDate": 1527387514490,
+"user": "Doug",
+"lastModifiedDate": 1580163434000,
 "copyright": "Foo Fighters",
 "key": "C",
 "defaultBpm": 100,
@@ -46117,17 +46033,19 @@
     [
 	"V:",
 	"B F♯m E E",
-	"PC:",
-	"G A",
 	"C:",
 	"B F♯m E E",
 	"Br:",
-	"B G D E G A x2"
+	"B G D E G A x2",
+	"O:",
+	"B B B B",
+	"B B A A",
+	"B7"
     ],
 "lyrics": 
     [
 	"",
-	"Run and tell all of the angels",
+	"v: Run and tell all of the angels",
 	"This could take all night",
 	"Think I need a devil to help me get things right",
 	"",
@@ -46135,21 +46053,23 @@
 	"'Cause this one is a lie",
 	"We sat around laughing and watched the last one die",
 	"",
-	"Now I'm looking to the sky to save me",
+	"c: Now I'm looking to the sky to save me",
 	"Looking for a sign of life",
 	"Looking for something to help me burn out bright",
 	"I'm looking for a complication",
 	"Looking 'cause I'm tired of lying",
 	"Make my way back home when I learn to fly high.",
 	"",
-	"I think I'm done nursing the patience",
+	"Br: (instrumental)",
+	"",
+	"v: I think I'm done nursing the patience",
 	"It can wait one night",
 	"I'd give it all away if you give me one last try",
 	"",
 	"We'll live happily ever trapped if you just save my life",
 	"Run and tell the angels that everything's alright...",
 	"",
-	"I'm looking to the sky to save me",
+	"c: I'm looking to the sky to save me",
 	"Looking for a sign of life",
 	"Looking for something to help me burn out bright",
 	"I'm looking for a complication",
@@ -46157,26 +46077,28 @@
 	"Make my way back home when I learn to fly high.",
 	"Make my way back home when I learn to...",
 	"",
-	"...fly along with me, I can't quite make it alone",
+	"Br: ...fly along with me, I can't quite make it alone",
 	"Try to make this life my own",
 	"Fly along with me, I can't quite make it alone",
 	"Try to make this life my own",
 	"",
-	"I'm looking to the sky to save me",
+	"c: I'm looking to the sky to save me",
 	"Looking for a sign of life",
 	"Looking for something to help me burn out bright",
 	"I'm looking for a complication",
 	"Looking 'cause I'm tired of trying",
 	"Make my way back home when I learn to...",
 	"",
-	"...looking to the sky to save me",
+	"c: ...looking to the sky to save me",
 	"Looking for a sign of life",
 	"Looking for something to help me burn out bright",
 	"I'm looking for a complication",
 	"Looking 'cause I'm tired of trying",
 	"Make my way back home when I learn to fly high.",
 	"Make my way back home when I learn to fly.",
-	"Make my way back home when I learn to..."
+	"Make my way back home when I learn to...",
+	"",
+	"O: (instrumental)"
     ]
 }
 },
@@ -46397,12 +46319,12 @@
     ]
 }
 },
-{ "file": "Let It Rain.songlyrics", "lastModifiedDate": 1553629459318, "song": 
+{ "file": "Let It Rain.songlyrics", "lastModifiedDate": 1580163538000, "song": 
 {
 "title": "Let It Rain",
 "artist": "Eric Clapton",
-"user": "Unknown",
-"lastModifiedDate": 1553629459318,
+"user": "Doug",
+"lastModifiedDate": 1580163538000,
 "copyright": "1970",
 "key": "E",
 "defaultBpm": 106,
@@ -46426,7 +46348,7 @@
 	"Em7 A Em7 A",
 	"Em7 A",
 	"O:",
-	"A G G A (x8)"
+	"A G G A x8"
     ],
 "lyrics": 
     [
@@ -46878,12 +46800,12 @@
     ]
 }
 },
-{ "file": "Liability (1).songlyrics", "lastModifiedDate": 1540695142931, "song": 
+{ "file": "Liability.songlyrics", "lastModifiedDate": 1580163738000, "song": 
 {
 "title": "Liability",
 "artist": "Lorde",
-"user": "Unknown",
-"lastModifiedDate": 1540695142931,
+"user": "Doug",
+"lastModifiedDate": 1580163738000,
 "copyright": "Ella Yelich-O'Connor, Jack Antonoff",
 "key": "G",
 "defaultBpm": 106,
@@ -46891,17 +46813,11 @@
 "chords": 
     [
 	"V:",
-	"(|C)",
-	"Em Am G",
-	"F Am/E Dm G (|)",
-	"X",
-	"(3,)",
+	"C Em Am G |",
+	"F Am/E Dm G | x3",
 	"C:",
-	"(|C)",
-	"Em Am G",
-	"F Am/E Dm G (|)",
-	"X",
-	"(2,)",
+	"C Em Am G |",
+	"F Am/E Dm G | x2",
 	"Am G F F",
 	"O:",
 	"F Am/E Dm G",
@@ -47619,18 +47535,20 @@
     ]
 }
 },
-{ "file": "Listen to the Music (1).songlyrics", "lastModifiedDate": 1520605230000, "song": 
+{ "file": "Listen to the Music.songlyrics", "lastModifiedDate": 1580164202000, "song": 
 {
 "title": "Listen to the Music",
 "artist": "Doobie Brothers, The",
-"user": "Unknown",
-"lastModifiedDate": 1520605230000,
+"user": "Doug",
+"lastModifiedDate": 1580164202000,
 "copyright": "EMI Music Publishing, Warner/Chappell Music, Inc",
 "key": "C",
 "defaultBpm": 100,
 "timeSignature": "4/4",
 "chords": 
     [
+	"I:",
+	"E A E A",
 	"V:",
 	"D D D G",
 	"D D Bm Bm",
@@ -47646,8 +47564,9 @@
     ],
 "lyrics": 
     [
+	"i: (instrumental)",
 	"",
-	"Don't you feel it growin', day by day",
+	"v: Don't you feel it growin', day by day",
 	"People gettin' ready for the news",
 	"Some are happy, some are sad",
 	"Oh, we got to let the music play",
@@ -47656,12 +47575,16 @@
 	"It ain't so hard to do if you know how",
 	"Gotta get a message",
 	"Get it on through",
-	"Oh, now mama's go'n' to after 'while",
-	"Oh, oh, listen to the music",
+	"Oh, now mama, don't you ask me why.",
+	"",
+	"c: Oh, oh, listen to the music",
 	"Oh, oh, listen to the music",
 	"Oh, oh, listen to the music",
 	"All the time",
-	"Well I know, you know better",
+	"",
+	"i: (instrumental)",
+	"",
+	"v: Well I know, you know better",
 	"Everything I say",
 	"Meet me in the country for a day",
 	"We'll be happy",
@@ -47672,28 +47595,31 @@
 	"There ain't nothin' we can't do or say",
 	"Feelin' good, feeling fine",
 	"Oh, baby, let the music play",
-	"Oh, oh, listen to the music",
+	"",
+	"c: Oh, oh, listen to the music",
 	"Oh, oh, listen to the music",
 	"Oh, oh, listen to the music",
 	"All the time",
-	"Like a lazy flowing river",
+	"",
+	"Br: Like a lazy flowing river",
 	"Surrounding castles in the sky",
 	"And the crowd is growing bigger",
 	"List'nin' for the happy sounds",
 	"And I got to let them fly",
-	"Oh, oh, listen to the music",
+	"",
+	"c: Oh, oh, listen to the music",
 	"Oh, oh, listen to the music",
 	"Oh, oh, listen to the music",
 	"All the time"
     ]
 }
 },
-{ "file": "Listen to your Heart (5).songlyrics", "lastModifiedDate": 1527474244562, "song": 
+{ "file": "Listen to your Heart.songlyrics", "lastModifiedDate": 1580164544000, "song": 
 {
 "title": "Listen to your Heart",
 "artist": "Roxette",
-"user": "Unknown",
-"lastModifiedDate": 1527474244562,
+"user": "Doug",
+"lastModifiedDate": 1580164544000,
 "copyright": "Gessle, Tider",
 "key": "C",
 "defaultBpm": 120,
@@ -47739,12 +47665,12 @@
 	"",
 	"i:",
 	"v:",
-	"I know thereC's something in the wight of you smile",
+	"I know there's something in the wight of you smile",
 	"I get a notion from the look in your eyes ya",
 	"You've built a love but that love falls apart",
 	"Your little piece of heaven turns to dark",
 	"",
-	"ch:",
+	"c:",
 	"Listen to your heart(when he's calling for you)",
 	"Listen to your heart, there's nothing else you can do",
 	"I don't know where you're going, and I don't know why",
@@ -47756,7 +47682,7 @@
 	"there swept away and nothing is what it seems",
 	"a feeling of belonging to your dreams",
 	"",
-	"ch2:",
+	"c2:",
 	"Listen to your heart(when he's calling for you)",
 	"Listen to your heart, there's nothing else you can do",
 	"I don't know where you're going, and I don't know why",
@@ -47768,12 +47694,12 @@
 	"so much to mention but you can't find the words",
 	"that scent of magic, the beauty that speed",
 	"when love was wilder than the wind",
-	"ch3:",
+	"c3:",
 	"listen to your heart(take a listen when he's calling for you)",
 	"listen to your heart(take a listen nothin else you can do)",
 	"I don't know where you're goin and I don't know why",
 	"but listen to you heart before oh ",
-	"ch4:",
+	"c4:",
 	"listen to your heart(take a listen to him)when he's calling for you",
 	"listen to your heart(take a listen nothing else you can do)",
 	"I don't know where you're goin and I don't know why",
@@ -47781,11 +47707,13 @@
 	"",
 	"o:",
 	"",
-	"listne to you heart",
+	"listen to you heart",
 	"oh take a listen to it",
 	"oh  take a listen to it",
 	"",
-	"(listen to your heart)  uoouuu  x5"
+	"(listen to your heart)  uoouuu  x5",
+	"",
+	"c1: (place holder until someone fixes)"
     ]
 }
 },
@@ -47954,12 +47882,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Little Talks.songlyrics", "lastModifiedDate": 1580165030000, "song": 
 {
 "title": "Little Talks",
 "artist": "Of Monsters and Men",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580165030000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -47967,15 +47895,14 @@
 "chords": 
     [
 	"V:",
-	"(|:Am)",
-	"F C G",
-	"Am F C C",
-	"(:|x4,)",
+	"Am F C G |",
+	"Am F C C | x4",
 	"C:",
 	"Am F C G x4"
     ],
 "lyrics": 
     [
+	"v:",
 	"Hey! Hey! Hey!",
 	"I don't like walking around this old and empty house",
 	"So hold my hand, I'll walk with you, my dear",
@@ -48029,7 +47956,8 @@
 	"Though the truth may vary",
 	"This ship will carry our bodies safe to shore",
 	"Though the truth may vary",
-	"This ship will carry our bodies safe to shore"
+	"This ship will carry our bodies safe to shore",
+	"c: (place holder until someone fixes)"
     ]
 }
 },
@@ -48976,12 +48904,12 @@
     ]
 }
 },
-{ "file": "Looking at Lightning (6).songlyrics", "lastModifiedDate": 1547609183431, "song": 
+{ "file": "Looking at Lightning.songlyrics", "lastModifiedDate": 1580165146000, "song": 
 {
 "title": "Looking at Lightning",
 "artist": "Leanne",
-"user": "Unknown",
-"lastModifiedDate": 1547609183431,
+"user": "Doug",
+"lastModifiedDate": 1580165146000,
 "copyright": "2019 ",
 "key": "C",
 "defaultBpm": 100,
@@ -48989,8 +48917,7 @@
 "chords": 
     [
 	"I:",
-	"DDsus2 AmAmsus2 DDsus2 AmAm",
-	"(sus)",
+	"DDsus2 AmAmsus2 DDsus2 AmAmsus2",
 	"I2:",
 	"D D CG D D CG D D CG D D CG",
 	"V:",
@@ -49004,8 +48931,7 @@
 	"D D CG D D CG D D CG D D CG",
 	"D D CG D D CG D D CG G",
 	"O:",
-	"DDsus2 AmAmsus2 DDsus2 AmAm",
-	"(sus,)",
+	"DDsus2 AmAmsus2 DDsus2 AmAmsus2",
 	"D"
     ],
 "lyrics": 
@@ -49289,45 +49215,39 @@
     ]
 }
 },
-{ "file": "Love Fool (5).songlyrics", "lastModifiedDate": 1519453042000, "song": 
+{ "file": "Love Fool.songlyrics", "lastModifiedDate": 1580165656000, "song": 
 {
 "title": "Love Fool",
 "artist": "Cardigans",
-"user": "Unknown",
-"lastModifiedDate": 1519453042000,
+"user": "Doug",
+"lastModifiedDate": 1580165656000,
 "copyright": "Cardigans",
 "key": "C",
 "defaultBpm": 100,
 "timeSignature": "4/4",
 "chords": 
     [
+	"I:",
+	"Am",
 	"V:",
-	"(verse)",
-	"Am Dm G |",
-	"C Cmaj7 | x4",
-	"(prechorus)",
-	"(|Dm)",
-	"B7 (|)",
-	"E",
-	"(Chorus)",
-	"A D |",
-	"Bm E |",
-	"A D |",
-	"Bm E | x2",
-	"F♯m Bm E (|A-DE|,)",
-	"(|A)",
-	"D (|Bm)",
-	"E (|A)",
-	"D (|Bm)",
-	"E (|,)",
-	"(|Am)",
-	"Dm (|)",
+	"Dm G C Cmaj7 x4",
+	"PC:",
+	"Dm B7 E",
+	"C:",
+	"A D Bm E |",
+	"A D Bm E | x2",
+	"F♯m Bm E",
+	"A A D E",
+	"A D Bm E",
+	"A D Bm E",
+	"Am Dm",
 	"E Am Am"
     ],
 "lyrics": 
     [
+	"i: (instrumental)",
 	"",
-	"Dear, I fear we're facing a problem",
+	"v: Dear, I fear we're facing a problem",
 	"You love me no longer, I know",
 	"And maybe there is nothing",
 	"That I can do to make you do",
@@ -49336,8 +49256,7 @@
 	"A man that surely deserves me",
 	"But I think you do!",
 	"",
-	"So I cry, and I pray, and I beg",
-	"",
+	"PC: So I cry, and I pray, and I beg",
 	"Love me, love me",
 	"Say that you love me",
 	"Fool me, fool me",
@@ -49347,7 +49266,7 @@
 	"Leave me, leave me",
 	"Just say that you need me",
 	"",
-	"So, I cry, and I beg for you to",
+	"C: So, I cry, and I beg for you to",
 	"",
 	"Love me, love me",
 	"Say that you love me",
@@ -49355,7 +49274,7 @@
 	"Just say that you need me",
 	"I can't care 'bout anything but you",
 	"",
-	"Lately I have desperately pondered",
+	"v: Lately I have desperately pondered",
 	"Spent my nights awake and I wondered",
 	"What I could have done in another way",
 	"To make you stay",
@@ -49364,7 +49283,7 @@
 	"I don't care if you really care",
 	"As long as you don't go",
 	"",
-	"So I cry, and I pray, and I beg",
+	"c: So I cry, and I pray, and I beg",
 	"",
 	"Love me, love me",
 	"Say that you love me",
@@ -49375,7 +49294,7 @@
 	"Leave me, leave me",
 	"Just say that you need me",
 	"",
-	"So I cry, and I beg for you to",
+	"PC: So I cry, and I beg for you to",
 	"",
 	"Love me, love me",
 	"Say that you love me",
@@ -49385,7 +49304,7 @@
 	"",
 	"Anything but you",
 	"",
-	"Love me, love me",
+	"c: Love me, love me",
 	"Say that you love me",
 	"Fool me, fool me",
 	"Go on and fool me",
@@ -49729,12 +49648,12 @@
     ]
 }
 },
-{ "file": "Love Me Like You Do (5).songlyrics", "lastModifiedDate": 1540703020518, "song": 
+{ "file": "Love Me Like You Do.songlyrics", "lastModifiedDate": 1580165730000, "song": 
 {
 "title": "Love Me Like You Do",
 "artist": "Ellie Goulding",
-"user": "Unknown",
-"lastModifiedDate": 1540703020518,
+"user": "Doug",
+"lastModifiedDate": 1580165730000,
 "copyright": "Kotecha, Salmanzadeh et al",
 "key": "C",
 "defaultBpm": 120,
@@ -49747,10 +49666,8 @@
 	"F C Dm Dm",
 	"B♭ C Dm Dm",
 	"C:",
-	"F Am Dm B♭",
-	"Gm Dm C",
-	"(s)",
-	"C",
+	"F Am Dm A♯",
+	"Gm Dm C C",
 	"B:",
 	"F Am Dm Dm",
 	"B♭ C Dm C"
@@ -50226,12 +50143,12 @@
     ]
 }
 },
-{ "file": "Lover, You Should've Come Over (3).songlyrics", "lastModifiedDate": 1524545593237, "song": 
+{ "file": "Lover, You Should've Come Over.songlyrics", "lastModifiedDate": 1580165984000, "song": 
 {
 "title": "Lover, You Should've Come Over",
 "artist": "Jeff Buckley",
-"user": "Unknown",
-"lastModifiedDate": 1524545593237,
+"user": "Doug",
+"lastModifiedDate": 1580165984000,
 "copyright": "Kobalt Music Publishing Ltd., Sony/ATV Music Publishing LLC",
 "key": "D",
 "defaultBpm": 120,
@@ -50243,11 +50160,7 @@
 	"Em Em Em Em | x2",
 	"V1:",
 	"C♯dim",
-	"(M7)",
-	"(-)",
 	"F♯.A",
-	"(ug)",
-	"(-,)",
 	"Bm A G G",
 	"V2:",
 	"Gm Gm",
@@ -50351,7 +50264,9 @@
 	"Lover, you should've come over",
 	"",
 	"V:",
-	"'Cause it's not too late"
+	"'Cause it's not too late",
+	"",
+	"B: (place holder until someone fixes)"
     ]
 }
 },
@@ -51959,12 +51874,12 @@
     ]
 }
 },
-{ "file": "Many the Miles (3).songlyrics", "lastModifiedDate": 1553470465300, "song": 
+{ "file": "Many the Miles.songlyrics", "lastModifiedDate": 1580166108000, "song": 
 {
 "title": "Many the Miles",
 "artist": "Sara Bareilles",
-"user": "Unknown",
-"lastModifiedDate": 1553470465300,
+"user": "Doug",
+"lastModifiedDate": 1580166108000,
 "copyright": "© Sony/ATV Music Publishing LLC",
 "key": "Bb",
 "defaultBpm": 80,
@@ -51993,19 +51908,7 @@
 	"B♭ E♭/G A♭ E♭/G",
 	"B♭ B♭/D E♭ E♭",
 	"C2:",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC,)",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC,)",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC,)",
-	"(NC)",
+	"XXXX XXXX XXXX XXXX",
 	"B♭/D E♭ Cm7",
 	"C3:",
 	"B♭ E♭/G A♭ E♭/G",
@@ -52299,12 +52202,12 @@
     ]
 }
 },
-{ "file": "Me and Julio Down By the Schoolyard.songlyrics", "lastModifiedDate": 1572487204295, "song": 
+{ "file": "Me and Julio Down By the Schoolyard.songlyrics", "lastModifiedDate": 1580166266000, "song": 
 {
 "title": "Me and Julio Down By the Schoolyard",
 "artist": "Simon and Garfunkel",
-"user": "Unknown",
-"lastModifiedDate": 1572487204295,
+"user": "Doug",
+"lastModifiedDate": 1580166266000,
 "copyright": "Universal Music Publishing Group",
 "key": "A",
 "defaultBpm": 106,
@@ -52312,8 +52215,7 @@
 "chords": 
     [
 	"I:",
-	"AD AE AD AE",
-	"(2x,)",
+	"AD AE AD AE x2",
 	"AD AE AD AE",
 	"V:",
 	"A A A D D",
@@ -52336,9 +52238,7 @@
 	"E E A A",
 	"O:",
 	"AG DE AD AE",
-	"(1x,)",
-	"AD AE AD AE",
-	"(2x,)",
+	"AD AE AD AE x2",
 	"A"
     ],
 "lyrics": 
@@ -52635,12 +52535,12 @@
     ]
 }
 },
-{ "file": "Mess We're In, The.songlyrics", "lastModifiedDate": 1558993427648, "song": 
+{ "file": "Mess We're In, The.songlyrics", "lastModifiedDate": 1580166774000, "song": 
 {
 "title": "Mess We're In, The",
 "artist": "PJ Harvey and Thom Yorke",
-"user": "Unknown",
-"lastModifiedDate": 1558993427648,
+"user": "Doug",
+"lastModifiedDate": 1580166774000,
 "copyright": "2000 Universal Island Records",
 "key": "C",
 "defaultBpm": 100,
@@ -52648,23 +52548,25 @@
 "chords": 
     [
 	"V:",
-	"(|Am..C|C|Am..C|C|,)",
-	"(|Am..C|C|Am..C|C|,)",
-	"(|D..C|C|D..C|C|,)",
-	"(|Am..C|C|Am..C|C|,)",
+	"A5 Am/C A5 Am/C",
+	"A5 Am/C A5 Am/C",
+	"G5/D Csus2 G5/D Csus2",
+	"A5 Am/C A5 Am/C",
+	"G5/D Csus2",
+	"A5 Am/C A5 Am/C",
+	"G5/D Csus2",
+	"A5 Am/C A5 Am/C",
 	"C:",
-	"(|F|G|Am..C|Am..C|,)",
-	"(|F|G|Am..C|Am..C|,)",
+	"F/C G5/D Csus2 A5",
+	"Am/C A5 Am/C",
+	"F/C G5/D Csus2 A5",
+	"Am/C A5",
 	"Br:",
-	"(|Am..C|C|Am..C|C|,)",
-	"(|Am..C|C|Am..C|C|,)",
-	"(|D..C|C|D..C|C|,)",
-	"(|Am..C|C|Am..C|C|,)",
+	"Am..C C Am..C C x2",
+	"D..C C D..C C",
+	"Am..C C Am..C C",
 	"O:",
-	"(|F|G|Am..C|Am..C|,)",
-	"(|F|G|Am..C|Am..C|,)",
-	"(|F|G|Am..C|Am..C|,)",
-	"(|F|G|Am..C|Am..C|,)"
+	"F G Am..C Am..C x4"
     ],
 "lyrics": 
     [
@@ -52870,12 +52772,12 @@
     ]
 }
 },
-{ "file": "Middle of the Road (1).songlyrics", "lastModifiedDate": 1551056227387, "song": 
+{ "file": "Middle of the Road.songlyrics", "lastModifiedDate": 1580166966000, "song": 
 {
 "title": "Middle of the Road",
 "artist": "Pretenders",
-"user": "Unknown",
-"lastModifiedDate": 1551056227387,
+"user": "Doug",
+"lastModifiedDate": 1580166966000,
 "copyright": "Middle of the Road lyrics © EMI Music Publishing, Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 110,
@@ -52887,8 +52789,7 @@
 	"V1:",
 	"A G D C x2",
 	"C:",
-	"(xA)",
-	"G E E x4"
+	"A G E E x4"
     ],
 "lyrics": 
     [
@@ -52914,7 +52815,7 @@
 	"Oh man I don't mean a hampstead nursery",
 	"When you own a big chunk of the bloody third world",
 	"The babies just come with the scenery",
-	"ch:",
+	"c:",
 	"Oh come on baby",
 	"Get in the road",
 	"Oh come on now",
@@ -52922,7 +52823,7 @@
 	"",
 	"",
 	"v: (instrumental)",
-	"ch: (instrumental)",
+	"c: (instrumental)",
 	"v: (instrumental)",
 	"One...two...three...four...",
 	"v:",
@@ -52934,13 +52835,13 @@
 	"I'm going home, I'm tired as hell",
 	"I'm not the cat I used to be",
 	"I got a kid, I'm thirty-three",
-	"ch:",
+	"c:",
 	"Baby, get in the road",
 	"Come on now",
 	"In the middle of the road",
 	"Yeah",
 	"v: (instrumental)",
-	"ch: (instrumental)"
+	"c: (instrumental)"
     ]
 }
 },
@@ -53183,12 +53084,12 @@
     ]
 }
 },
-{ "file": "Mile on the Moon (2).songlyrics", "lastModifiedDate": 1533782613541, "song": 
+{ "file": "Mile on the Moon.songlyrics", "lastModifiedDate": 1580167246000, "song": 
 {
 "title": "Mile on the Moon",
 "artist": "Sarah Jarosz",
-"user": "Unknown",
-"lastModifiedDate": 1533782613541,
+"user": "Doug",
+"lastModifiedDate": 1580167246000,
 "copyright": "2013 Sugar Hill Records",
 "key": "C",
 "defaultBpm": 120,
@@ -53198,7 +53099,7 @@
 	"I1:",
 	"Em Em A A x2",
 	"I2:",
-	"Em Em A A (x4)",
+	"Em Em A A x4",
 	"V:",
 	"Em Em A A x4",
 	"C:",
@@ -53252,12 +53153,12 @@
     ]
 }
 },
-{ "file": "Minnie the Moocher.songlyrics", "lastModifiedDate": 1564357253565, "song": 
+{ "file": "Minnie the Moocher.songlyrics", "lastModifiedDate": 1580167286000, "song": 
 {
 "title": "Minnie the Moocher",
 "artist": "Cab Calloway",
-"user": "Unknown",
-"lastModifiedDate": 1564357253565,
+"user": "Doug",
+"lastModifiedDate": 1580167286000,
 "copyright": "Sony/ATV Music Publishing LLC, Universal Music Publishing Group, BMG Rights Management",
 "key": "Eb",
 "defaultBpm": 60,
@@ -53268,8 +53169,7 @@
 	"Em Em C7 B7Em",
 	"Em Em C7 B7Em",
 	"C:",
-	"Em Em Em Em",
-	"(2x,)",
+	"Em Em Em Em x2",
 	"O:",
 	"Em C7",
 	"C7 B7",
@@ -53653,12 +53553,12 @@
     ]
 }
 },
-{ "file": "Montego Bay (2).songlyrics", "lastModifiedDate": 1530154394327, "song": 
+{ "file": "Montego Bay.songlyrics", "lastModifiedDate": 1580167330000, "song": 
 {
 "title": "Montego Bay",
 "artist": "Bobby Bloom",
-"user": "Unknown",
-"lastModifiedDate": 1530154394327,
+"user": "Doug",
+"lastModifiedDate": 1580167330000,
 "copyright": "Bobby Bloom, Jeff Barry, & Robert Bloom",
 "key": "C",
 "defaultBpm": 100,
@@ -53674,7 +53574,7 @@
 	"Br:",
 	"G G C G",
 	"O:",
-	"(vocal only)"
+	"XXXX"
     ],
 "lyrics": 
     [
@@ -55267,12 +55167,12 @@
     ]
 }
 },
-{ "file": "New Soul.songlyrics", "lastModifiedDate": 1554951926916, "song": 
+{ "file": "New Soul.songlyrics", "lastModifiedDate": 1580167446000, "song": 
 {
 "title": "New Soul",
 "artist": "Yael Naim",
-"user": "Unknown",
-"lastModifiedDate": 1554951926916,
+"user": "Doug",
+"lastModifiedDate": 1580167446000,
 "copyright": "2007 Atlantic",
 "key": "C",
 "defaultBpm": 100,
@@ -55296,7 +55196,7 @@
 	"Gm C F Fm",
 	"O:",
 	"C F AmG C",
-	"C F Em G (x4)"
+	"C F Em G x4"
     ],
 "lyrics": 
     [
@@ -55349,12 +55249,12 @@
     ]
 }
 },
-{ "file": "New Speedway Boogie.songlyrics", "lastModifiedDate": 1536538515737, "song": 
+{ "file": "New Speedway Boogie.songlyrics", "lastModifiedDate": 1580167504000, "song": 
 {
 "title": "New Speedway Boogie",
 "artist": "Grateful Dead",
-"user": "Unknown",
-"lastModifiedDate": 1536538515737,
+"user": "Doug",
+"lastModifiedDate": 1580167504000,
 "copyright": "1970 Warner Bros.",
 "key": "A",
 "defaultBpm": 122,
@@ -55364,14 +55264,12 @@
 	"I:",
 	"E E E E",
 	"V:",
-	"E E E E X",
-	"(2,)",
+	"E E E E x2",
 	"PC:",
 	"E E E E",
 	"E E GD A",
 	"C:",
-	"E E GD A X",
-	"(2,)",
+	"E E GD A x2",
 	"A A",
 	"O:",
 	"E E E E",
@@ -57372,12 +57270,12 @@
     ]
 }
 },
-{ "file": "One Dance (1).songlyrics", "lastModifiedDate": 1520996556960, "song": 
+{ "file": "One Dance.songlyrics", "lastModifiedDate": 1580167678000, "song": 
 {
 "title": "One Dance",
 "artist": "Drake",
-"user": "Unknown",
-"lastModifiedDate": 1520996556960,
+"user": "Doug",
+"lastModifiedDate": 1580167678000,
 "copyright": "Drake",
 "key": "C",
 "defaultBpm": 100,
@@ -57385,7 +57283,13 @@
 "chords": 
     [
 	"V:",
-	"Bm A D Em x2"
+	"Bm A D Em x2",
+	"C:",
+	"Bm A D Em x2",
+	"Br:",
+	"Bm A D Em x2",
+	"T:",
+	"Bm A D Em"
     ],
 "lyrics": 
     [
@@ -58578,12 +58482,12 @@
     ]
 }
 },
-{ "file": "Our Day Will Come.songlyrics", "lastModifiedDate": 1547002674032, "song": 
+{ "file": "Our Day Will Come.songlyrics", "lastModifiedDate": 1580167796000, "song": 
 {
 "title": "Our Day Will Come",
 "artist": "Ruby and the Romantics",
-"user": "Unknown",
-"lastModifiedDate": 1547002674032,
+"user": "Doug",
+"lastModifiedDate": 1580167796000,
 "copyright": "Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 106,
@@ -58593,18 +58497,15 @@
 	"I:",
 	"C G7 C G7",
 	"V:",
-	"C E♭7 Dm7 G7",
-	"(2x,)",
+	"C D♯7 Dm7 G7 x2",
 	"Gm7 C7Gm7 Fmaj7 Fmaj7",
-	"Fm6 Fm6 Em7E♭7 Dm7G7",
+	"Fm6 Fm6 Em7D♯7 Dm7G7",
 	"V1:",
-	"C E♭7 Dm7 G7",
-	"(2x,)",
+	"C D♯7 Dm7 G7 x2",
 	"Gm7 C7Gm7 Fmaj7 Fm6",
 	"CAm Dm7G7 CGm Dm7G7",
 	"O:",
-	"C E♭7 Dm7 G7",
-	"(2x,)",
+	"C D♯7 Dm7 G7 x2",
 	"Gm7 C7Gm7 Fmaj7 Fm6",
 	"CAm Dm7G7 C G7",
 	"CAm Dm7G7 C G7",
@@ -58814,12 +58715,12 @@
     ]
 }
 },
-{ "file": "Pain (4).songlyrics", "lastModifiedDate": 1564962964748, "song": 
+{ "file": "Pain.songlyrics", "lastModifiedDate": 1580167920000, "song": 
 {
 "title": "Pain",
 "artist": "Alice Cooper",
-"user": "Unknown",
-"lastModifiedDate": 1564962964748,
+"user": "Doug",
+"lastModifiedDate": 1580167920000,
 "copyright": "Alice Cooper, Davey Johnstone, Fred Mandel",
 "key": "E",
 "defaultBpm": 80,
@@ -58834,8 +58735,7 @@
 	"I2:",
 	"Em EmD G GD x2",
 	"V:",
-	"(|Em)",
-	"EmD G GD",
+	"Em EmD G GD",
 	"G GD G GD x2",
 	"PC:",
 	"Am Em CEm D",
@@ -59040,12 +58940,12 @@
     ]
 }
 },
-{ "file": "Paradise Circus.songlyrics", "lastModifiedDate": 1553131689608, "song": 
+{ "file": "Paradise Circus.songlyrics", "lastModifiedDate": 1580168022000, "song": 
 {
 "title": "Paradise Circus",
 "artist": "Massive Attack",
-"user": "Unknown",
-"lastModifiedDate": 1553131689608,
+"user": "Doug",
+"lastModifiedDate": 1580168022000,
 "copyright": "2010 Virgin",
 "key": "Ab",
 "defaultBpm": 136,
@@ -59060,20 +58960,15 @@
 	"Fm A♭ A♭ C",
 	"Fm A♭ A♭ C",
 	"I3:",
-	"Fm A♭ A♭ C (x)",
-	"(4,)",
+	"Fm A♭ A♭ C x4",
 	"I4:",
-	"Fm A♭ A♭ C (x)",
-	"(3,)",
+	"Fm A♭ A♭ C x3",
 	"V1:",
-	"Fm A♭ A♭ C (x)",
-	"(4,)",
+	"Fm A♭ A♭ C x4",
 	"V2:",
-	"Fm A♭ E♭ C (x)",
-	"(4,)",
+	"Fm A♭ E♭ C x4",
 	"C1:",
-	"Fm A♭ A♭ C (x)",
-	"(4,)",
+	"Fm A♭ A♭ C x4",
 	"C2:",
 	"Fm A♭ E♭ C",
 	"Fm A♭ A♭ C",
@@ -61224,12 +61119,12 @@
     ]
 }
 },
-{ "file": "Promises.songlyrics", "lastModifiedDate": 1520605230000, "song": 
+{ "file": "Promises.songlyrics", "lastModifiedDate": 1580168304000, "song": 
 {
 "title": "Promises",
 "artist": "Clapton",
-"user": "Unknown",
-"lastModifiedDate": 1520605230000,
+"user": "Doug",
+"lastModifiedDate": 1580168304000,
 "copyright": "Clapton",
 "key": "C",
 "defaultBpm": 100,
@@ -61242,13 +61137,13 @@
 	"G G G G",
 	"D D D",
 	"G G G G",
-	"PC:",
+	"C:",
 	"C C Bm Bm",
 	"D D D D",
 	"C C Bm Bm",
 	"D D D",
 	"G G G G",
-	"C:",
+	"Br:",
 	"C C Bm Bm",
 	"D D D D",
 	"C C Bm Bm",
@@ -62291,12 +62186,12 @@
     ]
 }
 },
-{ "file": "Rebel Rebel (1).songlyrics", "lastModifiedDate": 1560059090417, "song": 
+{ "file": "Rebel Rebel.songlyrics", "lastModifiedDate": 1580168378000, "song": 
 {
 "title": "Rebel Rebel",
 "artist": "David Bowie",
-"user": "Unknown",
-"lastModifiedDate": 1560059090417,
+"user": "Doug",
+"lastModifiedDate": 1580168378000,
 "copyright": "David Bowie",
 "key": "E",
 "defaultBpm": 120,
@@ -62314,7 +62209,7 @@
 	"Dsus2 A E E x3",
 	"D D E E",
 	"O:",
-	"Dsus2 A E E (xlosecount,)"
+	"Dsus2 A E E"
     ],
 "lyrics": 
     [
@@ -62454,12 +62349,12 @@
     ]
 }
 },
-{ "file": "Reckless Side of Me (1).songlyrics", "lastModifiedDate": 1525230674053, "song": 
+{ "file": "Reckless Side of Me.songlyrics", "lastModifiedDate": 1580168560000, "song": 
 {
 "title": "Reckless Side of Me",
 "artist": "Steeldrivers",
-"user": "Unknown",
-"lastModifiedDate": 1525230674053,
+"user": "Doug",
+"lastModifiedDate": 1580168560000,
 "copyright": "Stapleton",
 "key": "C",
 "defaultBpm": 82,
@@ -62467,11 +62362,6 @@
 "chords": 
     [
 	"V:",
-	"Dm C G G",
-	"G F Dm Dm",
-	"Dm C G G",
-	"G F Dm Dm",
-	"V1:",
 	"Dm C G G",
 	"G F Dm Dm",
 	"Dm C G G",
@@ -62671,12 +62561,12 @@
     ]
 }
 },
-{ "file": "Reservoir (3).songlyrics", "lastModifiedDate": 1533091303446, "song": 
+{ "file": "Reservoir.songlyrics", "lastModifiedDate": 1580168684000, "song": 
 {
 "title": "Reservoir",
 "artist": "Hem",
-"user": "Unknown",
-"lastModifiedDate": 1533091303446,
+"user": "Doug",
+"lastModifiedDate": 1580168684000,
 "copyright": "2006 Nettwerk",
 "key": "A",
 "defaultBpm": 106,
@@ -62684,13 +62574,9 @@
 "chords": 
     [
 	"I1:",
-	"DA",
-	"(–)",
-	"(–)",
-	"BD",
+	"DA DA DA BD",
 	"I2:",
-	"A",
-	"(–)",
+	"A A",
 	"V:",
 	"DA BmA DA BD",
 	"DA EF♯m DA BmA",
@@ -62698,10 +62584,7 @@
 	"F♯mA DA F♯mA DA",
 	"F♯mA DA DA EA",
 	"Br:",
-	"EA",
-	"(–)",
-	"(–)",
-	"F♯mD",
+	"EA EA EA F♯mD",
 	"T:",
 	"DA EA"
     ],
@@ -62917,12 +62800,12 @@
     ]
 }
 },
-{ "file": "Right Through You.songlyrics", "lastModifiedDate": 1570409909771, "song": 
+{ "file": "Right Through You.songlyrics", "lastModifiedDate": 1580168736000, "song": 
 {
 "title": "Right Through You",
 "artist": "Alanis Morissette",
-"user": "Unknown",
-"lastModifiedDate": 1570409909771,
+"user": "Doug",
+"lastModifiedDate": 1580168736000,
 "copyright": "Universal Music Publishing Group, The Bicycle Music Company",
 "key": "E",
 "defaultBpm": 80,
@@ -62937,8 +62820,7 @@
 	"E Esus4 E Esus4 x4",
 	"V2:",
 	"E Esus4 E Esus4 x3",
-	"E Esus4 E",
-	"(NC,)",
+	"E Esus4 E XXXX",
 	"C:",
 	"E G A E",
 	"E G A E",
@@ -63077,12 +62959,12 @@
     ]
 }
 },
-{ "file": "Ring of Fire (1).songlyrics", "lastModifiedDate": 1520994795026, "song": 
+{ "file": "Ring of Fire.songlyrics", "lastModifiedDate": 1580168870000, "song": 
 {
 "title": "Ring of Fire",
 "artist": "Johnny Cash",
-"user": "Unknown",
-"lastModifiedDate": 1520994795026,
+"user": "Doug",
+"lastModifiedDate": 1580168870000,
 "copyright": "Shapiro Bernstein & Co. Inc.",
 "key": "C",
 "defaultBpm": 100,
@@ -63101,10 +62983,15 @@
 	"DD DD CC GG",
 	"DD DD CC GG",
 	"GG GG GC GG",
-	"DD GG GG"
+	"DD GG GG",
+	"T:",
+	"DD DD CC GG",
+	"DD GG DD GG x3"
     ],
 "lyrics": 
     [
+	"i: (instrumental)",
+	"",
 	"v:",
 	"Love is a burning thing",
 	"And it makes a fiery ring.",
@@ -63137,12 +63024,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Rio.songlyrics", "lastModifiedDate": 1580169016000, "song": 
 {
 "title": "Rio",
 "artist": "Duran Duran",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580169016000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -63150,16 +63037,11 @@
 "chords": 
     [
 	"V:",
-	"(Verse,)",
-	"C♯m A♭ F A♭ x4",
-	"(Prechorus,)",
-	"C",
-	"(C/,)",
-	"(chorus,)",
-	"C G B♭ F x4",
-	"(Tag)",
-	"C",
-	"(horus,)"
+	"C♯m G♯ F G♯ x4",
+	"PC:",
+	"C C",
+	"C:",
+	"C G A♯ F x4"
     ],
 "lyrics": 
     [
@@ -63192,7 +63074,10 @@
 	"And I might find her if I'm looking like I can",
 	"Oh Rio, Rio hear them shout across the land",
 	"From mountains in the north down to the Rio Grande",
-	"Do do do do do do do do do do do do do do do do do do do do do do"
+	"Do do do do do do do do do do do do do do do do do do do do do do",
+	"",
+	"PC: (place holder until somebody fixes)",
+	"C: (place holder until somebody fixes)"
     ]
 }
 },
@@ -63881,12 +63766,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Rockin' in the Free World.songlyrics", "lastModifiedDate": 1580191194000, "song": 
 {
 "title": "Rockin' in the Free World",
 "artist": "Neil Young",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580191194000,
 "copyright": "Silver Fiddle Music",
 "key": "C",
 "defaultBpm": 100,
@@ -63895,15 +63780,14 @@
     [
 	"V:",
 	"Em Em D C x4",
-	"(|:G)",
-	"(-)",
-	"D D",
+	"G G D D",
 	"C C C C",
-	"(:|)",
 	"D D D D"
     ],
 "lyrics": 
     [
+	"v:",
+	"",
 	"There's colors on the street",
 	"Red, white and blue",
 	"People shufflin' their feet",
@@ -64550,12 +64434,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Round Here.songlyrics", "lastModifiedDate": 1580191384000, "song": 
 {
 "title": "Round Here",
 "artist": "Counting Crows",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580191384000,
 "copyright": "Imagem U.S. LLC",
 "key": "C",
 "defaultBpm": 100,
@@ -64564,11 +64448,9 @@
     [
 	"V:",
 	"F G Am C",
-	"(bridge,)",
+	"Br:",
 	"F G Am D.DG",
-	"DDCD F/G DDCD F/G (x2)",
-	"(pause)",
-	"(pause)"
+	"DDCD F/G DDCD F/G x2"
     ],
 "lyrics": 
     [
@@ -64630,16 +64512,18 @@
 	"Oh, man, I said, \"I'm under the gun...\"",
 	"Round here.",
 	"And I can't see nothin', nothin'.",
-	"Round here."
+	"Round here.",
+	"",
+	"Br: (place holder)"
     ]
 }
 },
-{ "file": "Route 66.songlyrics", "lastModifiedDate": 1532483358474, "song": 
+{ "file": "Route 66.songlyrics", "lastModifiedDate": 1580191482000, "song": 
 {
 "title": "Route 66",
 "artist": "Bobby Troup",
-"user": "Unknown",
-"lastModifiedDate": 1532483358474,
+"user": "Doug",
+"lastModifiedDate": 1580191482000,
 "copyright": "Capitol",
 "key": "G",
 "defaultBpm": 90,
@@ -64657,9 +64541,7 @@
 	"C7 C7 G7 G7",
 	"D7 C7 D7 D7",
 	"O:",
-	"D7 C7 G7 G7",
-	"D7 C7 G7 G7",
-	"(+9,)"
+	"D7 C7 G7 G7 x9"
     ],
 "lyrics": 
     [
@@ -65033,12 +64915,12 @@
     ]
 }
 },
-{ "file": "Rumor Has It (4).songlyrics", "lastModifiedDate": 1559500008862, "song": 
+{ "file": "Rumor Has It.songlyrics", "lastModifiedDate": 1580191662000, "song": 
 {
 "title": "Rumor Has It",
 "artist": "Adele",
-"user": "Unknown",
-"lastModifiedDate": 1559500008862,
+"user": "Doug",
+"lastModifiedDate": 1580191662000,
 "copyright": "Adele Laurie Blue Adkins / Ryan B. Tedder and Universal Music Publishing Group, Downtown Music Publishing, BMG Rights Management",
 "key": "D",
 "defaultBpm": 112,
@@ -65046,23 +64928,16 @@
 "chords": 
     [
 	"I:",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC,)",
+	"XXXX XXXX XXXX XXXX",
+	"XXXX",
 	"V:",
-	"(NC,)",
+	"XXXX",
 	"V1:",
 	"Dm Dm Dm Dm",
 	"Dm Dm Dm Dm",
-	"(NC)",
-	"(NC)",
-	"(NC)",
-	"(NC,)",
+	"XXXX XXXX XXXX XXXX",
 	"PC:",
-	"(NC,)",
+	"XXXX",
 	"PC1:",
 	"Dm Dm G G",
 	"B♭ B♭ Dm Dm",
@@ -65128,12 +65003,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Run.songlyrics", "lastModifiedDate": 1580191766000, "song": 
 {
 "title": "Run",
 "artist": "Leona Lewis",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580191766000,
 "copyright": "Kobalt Music Publishing Ltd., Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -65143,7 +65018,7 @@
 	"V:",
 	"Am Am F G G x4",
 	"C C G G",
-	"G G Am Am (x?,)"
+	"G G Am Am"
     ],
 "lyrics": 
     [
@@ -65190,12 +65065,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Runaway Train.songlyrics", "lastModifiedDate": 1580191888000, "song": 
 {
 "title": "Runaway Train",
 "artist": "Soul Asylum",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580191888000,
 "copyright": "Warner/Chappell Music, Inc",
 "key": "C",
 "defaultBpm": 100,
@@ -65204,7 +65079,7 @@
     [
 	"V:",
 	"C Em Am G",
-	"(pre-chorus,)",
+	"PC:",
 	"F G C Em",
 	"F Em G G"
     ],
@@ -65253,7 +65128,9 @@
 	"runaway train, never comin' back",
 	"runaway train, tearin' up the track",
 	"runaway train, burnin' in my veins",
-	"i run away but it always seems the same"
+	"i run away but it always seems the same",
+	"",
+	"PC: (place holder)"
     ]
 }
 },
@@ -65397,12 +65274,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Sail (A.D.D.).songlyrics", "lastModifiedDate": 1580192004000, "song": 
 {
 "title": "Sail (A.D.D.)",
 "artist": "AWOLNATION",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580192004000,
 "copyright": "Kobalt Music Publishing Ltd., Red Bull Media House NA, Inc",
 "key": "C",
 "defaultBpm": 100,
@@ -65411,7 +65288,6 @@
     [
 	"V:",
 	"Am",
-	"(4)",
 	"Am Am Am x2",
 	"G4 G G G",
 	"C C G G"
@@ -65560,23 +65436,18 @@
     ]
 }
 },
-{ "file": "San Francisco Bay Blues (2).songlyrics", "lastModifiedDate": 1545613132054, "song": 
+{ "file": "San Francisco Bay Blues.songlyrics", "lastModifiedDate": 1580192074000, "song": 
 {
 "title": "San Francisco Bay Blues",
 "artist": "Eric Clapton",
-"user": "Unknown",
-"lastModifiedDate": 1545613132054,
+"user": "Doug",
+"lastModifiedDate": 1580192074000,
 "copyright": "2013 MTV Networks. Manufactured & Marketed by Warner Music Group. Made In U.S.A. Â© 2013 Reprise Records, A Warner Music Group Company. All Rights Reserved",
 "key": "C",
 "defaultBpm": 62,
 "timeSignature": "4/4",
 "chords": 
     [
-	"V:",
-	"C F C C7",
-	"F F C C7",
-	"F F C A7",
-	"D7 D7 G7 G7",
 	"V1:",
 	"C F C C7",
 	"F F C C7",
@@ -65628,12 +65499,12 @@
     ]
 }
 },
-{ "file": "San Francisco.songlyrics", "lastModifiedDate": 1549657756000, "song": 
+{ "file": "San Francisco.songlyrics", "lastModifiedDate": 1580192124000, "song": 
 {
 "title": "San Francisco",
 "artist": "Mowglis, The",
-"user": "Unknown",
-"lastModifiedDate": 1549657756000,
+"user": "Doug",
+"lastModifiedDate": 1580192124000,
 "copyright": "San Francisco lyrics © Kobalt Music Publishing Ltd.",
 "key": "G",
 "defaultBpm": 100,
@@ -65650,8 +65521,7 @@
 	"Em G C G |",
 	"C G B B7 | x2",
 	"B:",
-	"EmEm/F♯ GA EmEm/F♯ GA X",
-	"(3,)",
+	"EmEm/F♯ GA EmEm/F♯ GA x3",
 	"EmEm/F♯ GA Em Em",
 	"O:",
 	"Em G C G",
@@ -67899,12 +67769,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Shooting Star.songlyrics", "lastModifiedDate": 1580192402000, "song": 
 {
 "title": "Shooting Star",
 "artist": "Bad Company",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580192402000,
 "copyright": "1975 Swan Song",
 "key": "C",
 "defaultBpm": 166,
@@ -67931,8 +67801,7 @@
 	"F♯5 E B B x3",
 	"F♯5 F♯5 E E",
 	"O:",
-	"(|D)",
-	"D A AD",
+	"D D A AD",
 	"E ED E E x8"
     ],
 "lyrics": 
@@ -68399,12 +68268,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Signed, Sealed, Delivered I'm Yours.songlyrics", "lastModifiedDate": 1580192476000, "song": 
 {
 "title": "Signed, Sealed, Delivered I'm Yours",
 "artist": "Stevie Wonder",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580192476000,
 "copyright": "Jobete Music Co., Inc.",
 "key": "C",
 "defaultBpm": 100,
@@ -68412,16 +68281,15 @@
 "chords": 
     [
 	"I:",
-	"F F F F (riff)",
+	"F F F F",
 	"V:",
 	"F Dm F Dm",
-	"B♭ C F F (riff)",
+	"A♯ C F F",
 	"C:",
-	"F B♭ F B♭ x2",
-	"F F F F (riff)",
+	"F A♯ F A♯ x2",
+	"F F F F",
 	"Co:",
-	"F B♭ F B♭ x3",
-	"(+,)"
+	"F A♯ F A♯ x3"
     ],
 "lyrics": 
     [
@@ -68682,12 +68550,12 @@
     ]
 }
 },
-{ "file": "Silver Bells - Christmas.songlyrics", "lastModifiedDate": 1544829136250, "song": 
+{ "file": "Silver Bells - Christmas.songlyrics", "lastModifiedDate": 1580192544000, "song": 
 {
 "title": "Silver Bells - Christmas",
 "artist": "Livingston and Evans",
-"user": "Unknown",
-"lastModifiedDate": 1544829136250,
+"user": "Doug",
+"lastModifiedDate": 1580192544000,
 "copyright": "Originally Released 1965 Sony Music Entertainment Inc.",
 "key": "C",
 "defaultBpm": 110,
@@ -68704,10 +68572,8 @@
 	"D D7 G D | x2",
 	"C1:",
 	"G G",
-	"(&)",
 	"C C",
 	"D D",
-	"(&)",
 	"G D",
 	"G G7 C C",
 	"D D7 G C",
@@ -69632,12 +69498,12 @@
     ]
 }
 },
-{ "file": "Smooth Operator (9).songlyrics", "lastModifiedDate": 1530766975304, "song": 
+{ "file": "Smooth Operator.songlyrics", "lastModifiedDate": 1580192702000, "song": 
 {
 "title": "Smooth Operator",
 "artist": "Sade",
-"user": "Unknown",
-"lastModifiedDate": 1530766975304,
+"user": "Doug",
+"lastModifiedDate": 1580192702000,
 "copyright": "Sade Adu and St. John",
 "key": "C",
 "defaultBpm": 100,
@@ -69650,9 +69516,8 @@
 	"G♭ A♭ B♭m B♭m/A B♭m/A♭ B♭m/G x2",
 	"G♭ A♭ B♭mB♭m/FA♭B♭",
 	"C:",
-	"B♭m A♭ G♭ A♭Fm x4",
-	"(S:,)",
-	"B♭m B♭m G♭ A♭ x2"
+	"A♯m G♯ F♯ G♯Fm x4",
+	"A♯m A♯m F♯ G♯ x2"
     ],
 "lyrics": 
     [
@@ -69942,12 +69807,12 @@
     ]
 }
 },
-{ "file": "Solsbury Hill (2).songlyrics", "lastModifiedDate": 1524073767000, "song": 
+{ "file": "Solsbury Hill.songlyrics", "lastModifiedDate": 1580192934000, "song": 
 {
 "title": "Solsbury Hill",
 "artist": "Peter Gabriel",
-"user": "Unknown",
-"lastModifiedDate": 1524073767000,
+"user": "Doug",
+"lastModifiedDate": 1580192934000,
 "copyright": "Peter Gabriel",
 "key": "C",
 "defaultBpm": 100,
@@ -69955,7 +69820,10 @@
 "chords": 
     [
 	"I:",
-	"(|C--D|--G-|-|C--G|--D-|-|-,)",
+	"C C C D",
+	"G C G D",
+	"C D G C",
+	"G D",
 	"V:",
 	"G |",
 	"G D |",
@@ -69978,8 +69846,7 @@
 	"C C C C C C C",
 	"Am Am Am Am Am Am Am",
 	"Am Am Am Am C C D D",
-	"(*,)",
-	"(*extra beat)",
+	"X",
 	"C:",
 	"G |",
 	"G D |",
@@ -70050,16 +69917,18 @@
 	"My heart going boom boom boom",
 	"\"Hey\" I said \"You can keep my things,",
 	"they've come to take me home.\"",
-	"(Chorus-Riff)"
+	"(Chorus-Riff)",
+	"",
+	"C: (place holder)"
     ]
 }
 },
-{ "file": "Some Day Soon.songlyrics", "lastModifiedDate": 1551214529862, "song": 
+{ "file": "Some Day Soon.songlyrics", "lastModifiedDate": 1580193072000, "song": 
 {
 "title": "Some Day Soon",
 "artist": "Ian Tyson and Sylvia Fricker",
-"user": "Unknown",
-"lastModifiedDate": 1551214529862,
+"user": "Doug",
+"lastModifiedDate": 1580193072000,
 "copyright": "Ian Tyson, Slick Fork Music/Socan, Witmark Music/ASCAP 1964",
 "key": "C",
 "defaultBpm": 106,
@@ -70069,7 +69938,7 @@
 	"I:",
 	"D Em A D",
 	"V:",
-	"D Em A D",
+	"C.CC",
 	"V1:",
 	"D Bm G D",
 	"F♯m F♯m G A",
@@ -70113,7 +69982,9 @@
 	"    Loves his dammed old rodeos as much as he loves me",
 	"    Someday soon goin' with him someday soon",
 	"    ",
-	"O:  Someday soon goin' with him someday soon"
+	"O:  Someday soon goin' with him someday soon",
+	"",
+	"V: (place holder)"
     ]
 }
 },
@@ -70337,12 +70208,12 @@
     ]
 }
 },
-{ "file": "Someone Like You (17).songlyrics", "lastModifiedDate": 1530499984891, "song": 
+{ "file": "Someone Like You.songlyrics", "lastModifiedDate": 1580193118000, "song": 
 {
 "title": "Someone Like You",
 "artist": "Adele",
-"user": "Unknown",
-"lastModifiedDate": 1530499984891,
+"user": "Doug",
+"lastModifiedDate": 1580193118000,
 "copyright": "Adele",
 "key": "C",
 "defaultBpm": 100,
@@ -70355,8 +70226,7 @@
 	"EF♯m DD",
 	"EF♯m DD D7.",
 	"C:",
-	"AE F♯mD (x)",
-	"(4,)",
+	"AE F♯mD x4",
 	"B:",
 	"E E F♯m F♯m",
 	"D D Bm Bm D D",
@@ -70740,12 +70610,12 @@
     ]
 }
 },
-{ "file": "Somewhere Only We Know (1).songlyrics", "lastModifiedDate": 1520605231000, "song": 
+{ "file": "Somewhere Only We Know.songlyrics", "lastModifiedDate": 1580193348000, "song": 
 {
 "title": "Somewhere Only We Know",
 "artist": "Keane",
-"user": "Unknown",
-"lastModifiedDate": 1520605231000,
+"user": "Doug",
+"lastModifiedDate": 1580193348000,
 "copyright": "Keane",
 "key": "C",
 "defaultBpm": 100,
@@ -70756,12 +70626,9 @@
 	"A A/G♯ Bm Esus4E x2",
 	"F♯m C♯m D E x2",
 	"C:",
-	"Bm (|C#m7E)",
-	"(|)",
-	"Bm (|C#m7E,)",
-	"Bm (|C#M7E)",
-	"(|)",
-	"Bm (|C#m7A,)"
+	"Bm C♯m7E",
+	"Bm C♯m7E Bm C♯M7E",
+	"Bm C♯m7A"
     ],
 "lyrics": 
     [
@@ -71083,12 +70950,12 @@
     ]
 }
 },
-{ "file": "Sonic Reducer.songlyrics", "lastModifiedDate": 1560059089779, "song": 
+{ "file": "Sonic Reducer.songlyrics", "lastModifiedDate": 1580193484000, "song": 
 {
 "title": "Sonic Reducer",
 "artist": "Dead Boys",
-"user": "Unknown",
-"lastModifiedDate": 1560059089779,
+"user": "Doug",
+"lastModifiedDate": 1580193484000,
 "copyright": "Stiv Bators / Cheetah Chrome / Jimmy Zero / Johnny Blitz / David Thomas / Jeff Magnum  © Memory Lane Music Group",
 "key": "D",
 "defaultBpm": 400,
@@ -71096,29 +70963,24 @@
 "chords": 
     [
 	"I:",
-	"(|Dm)",
-	"Dm A A",
-	"B♭ B♭ G G x2",
+	"Dm Dm A A",
+	"A♯ A♯ G G x2",
 	"V:",
-	"(|Dm)",
-	"Dm A A",
-	"B♭ B♭ G G x3",
+	"Dm Dm A A",
+	"A♯ A♯ G G x3",
 	"PC:",
-	"(|F)",
-	"F G G",
-	"B♭ B♭ C C (|,)",
+	"F F G G",
+	"A♯ A♯ C C",
 	"C:",
-	"(|C..Dm)",
+	"C..Dm",
 	"Dm C..Dm DmC",
-	"B♭ B♭ C C x2",
+	"A♯ A♯ C C x2",
 	"B1:",
-	"(|Dm)",
-	"Dm A A",
-	"B♭ B♭ G G x4",
+	"Dm Dm A A",
+	"A♯ A♯ G G x4",
 	"B2:",
-	"(|Dm)",
-	"Dm A A",
-	"B♭ B♭ G G x2",
+	"Dm Dm A A",
+	"A♯ A♯ G G x2",
 	"O:",
 	"Dm"
     ],
@@ -72130,12 +71992,12 @@
     ]
 }
 },
-{ "file": "Star Dust.songlyrics", "lastModifiedDate": 1561938870915, "song": 
+{ "file": "Star Dust.songlyrics", "lastModifiedDate": 1580193596000, "song": 
 {
 "title": "Star Dust",
 "artist": "Nat King Cole, Willie Nelson and others",
-"user": "Unknown",
-"lastModifiedDate": 1561938870915,
+"user": "Doug",
+"lastModifiedDate": 1580193596000,
 "copyright": "Hoagy Carmichael, 1927  Lyrics by Mitchell Parish, 1929",
 "key": "C",
 "defaultBpm": 80,
@@ -72147,25 +72009,21 @@
 	"Dm CAM B7 Em.CdimG7",
 	"C F9 E7 A7",
 	"Dm CCdim G7 C6C",
-	"(+/C,)",
 	"C1:",
-	"(C7)",
+	"C7",
 	"F F Fm Fm",
 	"C EmEm6 Dm F6Fm6",
 	"G7.GdimG7 G7 C.AmC Cmaj.AmC",
-	"(+C,)",
+	"C",
 	"D9.CD7 D7 G7F6 G7GdimG7C7",
-	"(+,)",
 	"C2:",
 	"F F Fm Fm",
 	"C EmEm6 Dm F6Fm6",
 	"Dm7b5 Dm7b5 CGAmC B7B7b5E7E7",
-	"(+,)",
 	"F A7.AdimG7 C C",
 	"O:",
 	"F6Fm6",
 	"Dm7b5 Dm7b5 CGAmC B7B7b5E7E7",
-	"(+,)",
 	"F A7.AdimG7 C C"
     ],
 "lyrics": 
@@ -73132,12 +72990,12 @@
     ]
 }
 },
-{ "file": "Strange Days.songlyrics", "lastModifiedDate": 1551560723698, "song": 
+{ "file": "Strange Days.songlyrics", "lastModifiedDate": 1580193656000, "song": 
 {
 "title": "Strange Days",
 "artist": "Matthew Good Band",
-"user": "Unknown",
-"lastModifiedDate": 1551560723698,
+"user": "Doug",
+"lastModifiedDate": 1580193656000,
 "copyright": "Matthew Good",
 "key": "A",
 "defaultBpm": 90,
@@ -73146,7 +73004,7 @@
     [
 	"V:",
 	"A E G Bm",
-	"A E G (|G/F#)",
+	"A E G G/F♯",
 	"D",
 	"PC:",
 	"F♯m A D D",
@@ -73709,12 +73567,12 @@
     ]
 }
 },
-{ "file": "Sugar Magnolia.songlyrics", "lastModifiedDate": 1560145890561, "song": 
+{ "file": "Sugar Magnolia.songlyrics", "lastModifiedDate": 1580193818000, "song": 
 {
 "title": "Sugar Magnolia",
 "artist": "Grateful Dead",
-"user": "Unknown",
-"lastModifiedDate": 1560145890561,
+"user": "Doug",
+"lastModifiedDate": 1580193818000,
 "copyright": "Grateful Dead",
 "key": "A",
 "defaultBpm": 155,
@@ -73747,9 +73605,7 @@
 	"AEGD",
 	"D D A",
 	"O:",
-	"B",
-	"(..E)",
-	"B F♯E"
+	"B..E B F♯E"
     ],
 "lyrics": 
     [
@@ -74049,12 +73905,12 @@
     ]
 }
 },
-{ "file": "Summer Breeze (3).songlyrics", "lastModifiedDate": 1528847958176, "song": 
+{ "file": "Summer Breeze.songlyrics", "lastModifiedDate": 1580194020000, "song": 
 {
 "title": "Summer Breeze",
 "artist": "Darrell Crofts / Jimmy Seals",
-"user": "Unknown",
-"lastModifiedDate": 1528847958176,
+"user": "Doug",
+"lastModifiedDate": 1580194020000,
 "copyright": " lyrics © Universal Music Publishing Group",
 "key": "A",
 "defaultBpm": 88,
@@ -74072,11 +73928,8 @@
 	"Em7 Am7 Em7 Am7",
 	"Em7 Am7 Em7 Am7",
 	"Am7 Bm7 Am7 Bm7",
-	"(|Amaj7/B)",
-	"Asus4 (|)",
-	"(|Bmaj7/B)",
-	"Bsus4 (|)",
-	"Bsus4 Bsus4"
+	"Amaj7/B Asus4",
+	"Bmaj7/B Bsus4 Bsus4 Bsus4"
     ],
 "lyrics": 
     [
@@ -74189,12 +74042,12 @@
     ]
 }
 },
-{ "file": "Summer In the City.songlyrics", "lastModifiedDate": 1540940180153, "song": 
+{ "file": "Summer In the City.songlyrics", "lastModifiedDate": 1580194062000, "song": 
 {
 "title": "Summer In the City",
 "artist": "Lovin' Spoonful",
-"user": "Unknown",
-"lastModifiedDate": 1540940180153,
+"user": "Doug",
+"lastModifiedDate": 1580194062000,
 "copyright": " Round Hill Music Big Loud Songs",
 "key": "A",
 "defaultBpm": 120,
@@ -74216,7 +74069,7 @@
 	"D",
 	"O:",
 	"D G D G x2",
-	"D G (fade)"
+	"D G"
     ],
 "lyrics": 
     [
@@ -74438,12 +74291,12 @@
     ]
 }
 },
-{ "file": "Sunny .songlyrics", "lastModifiedDate": 1543698014028, "song": 
+{ "file": "Sunny .songlyrics", "lastModifiedDate": 1580193780000, "song": 
 {
 "title": "Sunny ",
 "artist": "Bobby Hebb",
-"user": "Unknown",
-"lastModifiedDate": 1543698014028,
+"user": "Doug",
+"lastModifiedDate": 1580193780000,
 "copyright": "© Downtown Music Publishing, Universal Music Publishing Group, Words & Music A Div Of Big Deal Music LLC, BMG Rights Management",
 "key": "C",
 "defaultBpm": 180,
@@ -74453,8 +74306,7 @@
 	"V:",
 	"Am C7 F7 E7",
 	"Am C7 F7 E7",
-	"AmAm7 Am6..FM7",
-	"(.Bb7..)",
+	"AmAm7 Am6..FM7 A♯7",
 	"E7 E7 F7 Am"
     ],
 "lyrics": 
@@ -75249,12 +75101,12 @@
     ]
 }
 },
-{ "file": "Sweet Jane, cover by Cowboy Junkies.songlyrics", "lastModifiedDate": 1539562939947, "song": 
+{ "file": "Sweet Jane, cover by Cowboy Junkies.songlyrics", "lastModifiedDate": 1580194104000, "song": 
 {
 "title": "Sweet Jane, cover by Cowboy Junkies",
 "artist": "Lou Reed",
-"user": "Unknown",
-"lastModifiedDate": 1539562939947,
+"user": "Doug",
+"lastModifiedDate": 1580194104000,
 "copyright": "1988 RCA Records",
 "key": "G",
 "defaultBpm": 120,
@@ -75271,8 +75123,7 @@
 	"D..A G..A D..A G..A",
 	"D..A G..A",
 	"C2:",
-	"D..A G..A D..A G..A X",
-	"(2,)",
+	"D..A G..A D..A G..A x2",
 	"C3:",
 	"D..A G..A D..A G..A",
 	"D..A G..A D D",
@@ -75507,12 +75358,12 @@
     ]
 }
 },
-{ "file": "Synchronicity II (6).songlyrics", "lastModifiedDate": 1520605231000, "song": 
+{ "file": "Synchronicity II.songlyrics", "lastModifiedDate": 1580194244000, "song": 
 {
 "title": "Synchronicity II",
 "artist": "Police",
-"user": "Unknown",
-"lastModifiedDate": 1520605231000,
+"user": "Doug",
+"lastModifiedDate": 1580194244000,
 "copyright": "Sting",
 "key": "C",
 "defaultBpm": 100,
@@ -75522,17 +75373,14 @@
 	"I:",
 	"F♯m F♯m F♯m F♯m",
 	"F♯4 F♯4",
-	"(m)",
 	"F♯4 F♯4",
-	"(m)",
 	"F♯4 F♯4",
-	"(m)",
 	"F♯4 F♯4 F♯4 GD",
 	"V:",
 	"A C♯m GD GD x4",
 	"PC:",
 	"A Asus4 Asus4",
-	"(b5)",
+	"B5",
 	"Asus4 x2",
 	"F/D Dm6 Fmaj7/D Dm6",
 	"F/D Dm6 D/EE D/EE",
@@ -75548,11 +75396,8 @@
 	"Esus4 F/D G6/E Fmaj7/D x8",
 	"Br:",
 	"F♯4 F♯4",
-	"(m)",
 	"F♯4 F♯4",
-	"(mx3,)",
 	"F♯4 F♯4",
-	"(m)",
 	"F♯4 F♯4 F♯4 GD",
 	"T:",
 	"D/EE D/EE"
@@ -75747,12 +75592,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "Take It Easy.songlyrics", "lastModifiedDate": 1580194292000, "song": 
 {
 "title": "Take It Easy",
 "artist": "Jackson Browne",
-"user": "Unknown",
-"lastModifiedDate": 0,
+"user": "Doug",
+"lastModifiedDate": 1580194292000,
 "copyright": "Kobalt Music Publishing Ltd., Peermusic Publishing, Warner/Chappell Music, Inc.",
 "key": "C",
 "defaultBpm": 100,
@@ -75766,7 +75611,6 @@
 	"Am C Em Em",
 	"C G C G",
 	"Am C G G",
-	"(....,)",
 	"C C G G x2",
 	"G F C C x4"
     ],
@@ -75813,12 +75657,12 @@
     ]
 }
 },
-{ "file": "Take Me As I Am.songlyrics", "lastModifiedDate": 1551661463649, "song": 
+{ "file": "Take Me As I Am.songlyrics", "lastModifiedDate": 1580194376000, "song": 
 {
 "title": "Take Me As I Am",
 "artist": "Faith Hill",
-"user": "Unknown",
-"lastModifiedDate": 1551661463649,
+"user": "Doug",
+"lastModifiedDate": 1580194376000,
 "copyright": "?",
 "key": "C",
 "defaultBpm": 106,
@@ -75826,13 +75670,9 @@
 "chords": 
     [
 	"I:",
-	"Gm7 F/A C",
-	"(s)",
-	"C",
+	"Gm7 F/A C C",
 	"V:",
-	"Gm7 F/A C",
-	"(s)",
-	"C x3",
+	"Gm7 F/A C C x3",
 	"PC:",
 	"Gm7 B♭ B♭ C7",
 	"C:",
@@ -76450,6 +76290,110 @@
 	"Go on take the money and run",
 	"Go on take the money and run",
 	"Go on take the money and run"
+    ]
+}
+},
+{ "file": "Takin' Care of Business.songlyrics", "lastModifiedDate": 1580194458000, "song": 
+{
+"title": "Takin' Care of Business",
+"artist": "Bachman Turner Overdrive",
+"user": "Doug",
+"lastModifiedDate": 1580194458000,
+"copyright": "Sony/ATV Music Publishing LLC",
+"key": "C",
+"defaultBpm": 100,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"V:",
+	"C B F C7",
+	"C:",
+	"C B F C7"
+    ],
+"lyrics": 
+    [
+	"v: intro",
+	"v:You get up every morning",
+	"From your 'larm clock's warning",
+	"Take the 8:15 into the city",
+	"There's a whistle up above",
+	"And people pushin', people shovin'",
+	"And the girls who try to look pretty",
+	"And if your train's on time",
+	"You can get to work by nine",
+	"And start your slaving job to get your pay",
+	"If you ever get annoyed",
+	"Look at me I'm self-employed",
+	"I love to work at nothing all day",
+	"And I'll be",
+	"ch:",
+	"Taking care of business (every day)",
+	"Taking care of business (every way)",
+	"I've been taking care of business (it's all mine)",
+	"Taking care of business and working overtime",
+	"Work out",
+	"v: (instrumental)",
+	"v:",
+	"if it were easy as fishin'",
+	"You could be a musician",
+	"If you could make sounds loud or mellow",
+	"Get a second-hand guitar",
+	"Chances are you'll go far",
+	"If you get in with the right bunch of fellows",
+	"People see you having fun",
+	"Just a-lying in the sun",
+	"Tell them that you like it this way",
+	"It's the work that we avoid",
+	"And we're all self-employed",
+	"We love to work at nothing all day",
+	"And we be",
+	"ch:Taking care of business (every day)",
+	"Taking care of business (every way)",
+	"We be been taking care of business (it's all mine)",
+	"Taking care of business and working overtime",
+	"Mercy",
+	"Whooooo",
+	"All right",
+	"[Instrumental Interlude]",
+	"Take good care of my business",
+	"When I'm away, every day",
+	"Whoooo",
+	"You get up every morning",
+	"From your 'larm clock's warning",
+	"Take the 8:15 into the city",
+	"There's a whistle up above",
+	"And people pushin', people shovin'",
+	"And the girls who try to look pretty",
+	"And if your train's on time",
+	"You can get to work by nine",
+	"And start your slaving job to get your pay",
+	"If you ever get annoyed",
+	"Look at me I'm self-employed",
+	"I love to work at nothing all day",
+	"And I'll be",
+	"Taking care of business (every day)",
+	"Taking care of business (every way)",
+	"I've been taking care of business (it's all mine)",
+	"Taking care of business and working overtime",
+	"[Brief Instrumental Interlude]",
+	"Takin' care of business, whoo",
+	"Takin' care of business",
+	"Takin' care of business",
+	"Takin' care of business",
+	"Takin' care of business (every day)",
+	"Takin' care of business (every way)",
+	"Takin' care of business (it's all mine)",
+	"Takin' care of business",
+	"And working overtime",
+	"Whoooo",
+	"Takin' care of business",
+	"Takin' care of business",
+	"Takin' care of business",
+	"We be Takin' care of business",
+	"We be Takin' care of business",
+	"Takin' care of business",
+	"Takin' care of business",
+	"[Fades Out]"
     ]
 }
 },
@@ -77397,12 +77341,12 @@
     ]
 }
 },
-{ "file": "Tell Me.songlyrics", "lastModifiedDate": 1554262595610, "song": 
+{ "file": "Tell Me.songlyrics", "lastModifiedDate": 1580194616000, "song": 
 {
 "title": "Tell Me",
 "artist": "Rolling Stones",
-"user": "Unknown",
-"lastModifiedDate": 1554262595610,
+"user": "Doug",
+"lastModifiedDate": 1580194616000,
 "copyright": "Songwriters: Mick Jagger / Keith Richards Tell Me lyrics © Peermusic Publishing, Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 106,
@@ -77411,9 +77355,7 @@
     [
 	"V:",
 	"B BsusB F♯ F♯",
-	"(SusF#,)",
 	"B BsusB F♯ F♯",
-	"(SusF#,)",
 	"D♯m E F♯7 B",
 	"D♯M E C♯7 F♯",
 	"C:",
@@ -78160,12 +78102,12 @@
     ]
 }
 },
-{ "file": "That's What You Get For Loving Me -- 2_4 (1).songlyrics", "lastModifiedDate": 1534385090402, "song": 
+{ "file": "That's What You Get For Loving Me -- 2_4.songlyrics", "lastModifiedDate": 1580194728000, "song": 
 {
 "title": "That's What You Get For Loving Me -- 2/4",
 "artist": "Peter Paul and Mary",
-"user": "Unknown",
-"lastModifiedDate": 1534385090402,
+"user": "Doug",
+"lastModifiedDate": 1580194728000,
 "copyright": "Warner/Chappell Music, Inc",
 "key": "G",
 "defaultBpm": 90,
@@ -78182,8 +78124,7 @@
 	"G G",
 	"O:",
 	"G G A A",
-	"(D..G)",
-	"D"
+	"DDDG D"
     ],
 "lyrics": 
     [
@@ -78273,12 +78214,12 @@
     ]
 }
 },
-{ "file": "There is a Light That Never Goes Out (2).songlyrics", "lastModifiedDate": 1567892469172, "song": 
+{ "file": "There is a Light That Never Goes Out.songlyrics", "lastModifiedDate": 1580194772000, "song": 
 {
 "title": "There is a Light That Never Goes Out",
 "artist": "Smiths, The",
-"user": "Unknown",
-"lastModifiedDate": 1567892469172,
+"user": "Doug",
+"lastModifiedDate": 1580194772000,
 "copyright": "Johnny Marr, Morrissey",
 "key": "E",
 "defaultBpm": 90,
@@ -78292,8 +78233,7 @@
 	"PC:",
 	"Am C..D",
 	"C:",
-	"(|G)",
-	"Em C D",
+	"G Em C D",
 	"D G C AmD x2"
     ],
 "lyrics": 
@@ -78499,12 +78439,12 @@
     ]
 }
 },
-{ "file": "Things Have Changed (15).songlyrics", "lastModifiedDate": 1553306166478, "song": 
+{ "file": "Things Have Changed.songlyrics", "lastModifiedDate": 1580194808000, "song": 
 {
 "title": "Things Have Changed",
 "artist": "Bob Dylan",
-"user": "Unknown",
-"lastModifiedDate": 1553306166478,
+"user": "Doug",
+"lastModifiedDate": 1580194808000,
 "copyright": "Bob Dylan",
 "key": "Bb",
 "defaultBpm": 126,
@@ -78525,7 +78465,6 @@
 	"Cm Cm",
 	"Gm D7 Gm Gm",
 	"A:",
-	"(Solo,)",
 	"Gm Gm",
 	"Cm Cm",
 	"Gm Gm D7 Gm"
@@ -79538,12 +79477,12 @@
     ]
 }
 },
-{ "file": "Tie Me Kangaroo Down.songlyrics", "lastModifiedDate": 1569464379365, "song": 
+{ "file": "Tie Me Kangaroo Down.songlyrics", "lastModifiedDate": 1580194884000, "song": 
 {
 "title": "Tie Me Kangaroo Down",
 "artist": "Rolf Harris",
-"user": "Unknown",
-"lastModifiedDate": 1569464379365,
+"user": "Doug",
+"lastModifiedDate": 1580194884000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 106,
@@ -79551,10 +79490,9 @@
 "chords": 
     [
 	"I:",
-	"(spoken only)",
+	"XXXX XXXX XXXX XXXX x8",
 	"V:",
-	"C F G C",
-	"(2x,)",
+	"C F G C x2",
 	"O:",
 	"C F G C",
 	"C F G CF",
@@ -80420,12 +80358,12 @@
     ]
 }
 },
-{ "file": "Toxic (4).songlyrics", "lastModifiedDate": 1568577969910, "song": 
+{ "file": "Toxic.songlyrics", "lastModifiedDate": 1580194930000, "song": 
 {
 "title": "Toxic",
 "artist": "Britney Spears",
-"user": "Unknown",
-"lastModifiedDate": 1568577969910,
+"user": "Doug",
+"lastModifiedDate": 1580194930000,
 "copyright": "Kobalt Music Publishing Ltd., Sony/ATV Music Publishing LLC, Universal Music Publishing Group, BMG Rights Management",
 "key": "C",
 "defaultBpm": 100,
@@ -80448,9 +80386,7 @@
 	"Am C F7 E7",
 	"Am C F7 E7",
 	"C2:",
-	"(NC)",
-	"(NC)",
-	"B7 B♭7",
+	"XXXX XXXX B7 A♯7",
 	"Am C F7 E7",
 	"C3:",
 	"Am C B7 B♭7",
@@ -80628,12 +80564,12 @@
     ]
 }
 },
-{ "file": "Truckin.songlyrics", "lastModifiedDate": 1561487969502, "song": 
+{ "file": "Truckin.songlyrics", "lastModifiedDate": 1580195022000, "song": 
 {
 "title": "Truckin",
 "artist": "Grateful Dead",
-"user": "Unknown",
-"lastModifiedDate": 1561487969502,
+"user": "Doug",
+"lastModifiedDate": 1580195022000,
 "copyright": "Grateful Dead",
 "key": "E",
 "defaultBpm": 130,
@@ -80650,18 +80586,15 @@
 	"C:",
 	"E A",
 	"B A",
-	"E..E7 (x4)",
+	"E..E7 x4",
 	"Br:",
 	"A D/F A",
 	"A GD/F♯ A",
 	"D BmF♯",
 	"F♯ Amaj7",
-	"E (x4)",
+	"E x4",
 	"O:",
-	"E",
-	"(Repeat)",
-	"(and)",
-	"(fade,)"
+	"E"
     ],
 "lyrics": 
     [
@@ -80833,12 +80766,12 @@
     ]
 }
 },
-{ "file": "Tupelo Honey (1).songlyrics", "lastModifiedDate": 1549428564934, "song": 
+{ "file": "Tupelo Honey.songlyrics", "lastModifiedDate": 1580195354000, "song": 
 {
 "title": "Tupelo Honey",
 "artist": "Van Morrison",
-"user": "Unknown",
-"lastModifiedDate": 1549428564934,
+"user": "Doug",
+"lastModifiedDate": 1580195354000,
 "copyright": "© Warner/Chappell Music, Inc",
 "key": "G",
 "defaultBpm": 106,
@@ -80846,52 +80779,51 @@
 "chords": 
     [
 	"I1:",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭ x2",
+	"A♯ Dm",
+	"D♯D♯D♯A♯ A♯ x2",
 	"I2:",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
-	"B♭ Dm",
-	"(Eb..F)",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
+	"A♯ Dm",
+	"D♯D♯D♯F",
 	"F",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
 	"V:",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
-	"B♭ Dm",
-	"(Eb..F)",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
+	"A♯ Dm",
+	"D♯D♯D♯F",
 	"F",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
 	"C:",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
-	"B♭ Dm",
-	"(Eb..F)",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
+	"A♯ Dm",
+	"D♯D♯D♯F",
 	"F",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯",
 	"Br:",
-	"B♭ Dm",
-	"(Eb..Bb)",
-	"B♭ x4"
+	"A♯ Dm",
+	"D♯D♯D♯A♯",
+	"A♯ x4"
     ],
 "lyrics": 
     [
@@ -81046,12 +80978,12 @@
     ]
 }
 },
-{ "file": "Twelve Days of Christmas.songlyrics", "lastModifiedDate": 1544841852147, "song": 
+{ "file": "Twelve Days of Christmas.songlyrics", "lastModifiedDate": 1580195642000, "song": 
 {
 "title": "Twelve Days of Christmas",
 "artist": "Traditional Christmas",
-"user": "Unknown",
-"lastModifiedDate": 1544841852147,
+"user": "Doug",
+"lastModifiedDate": 1580195642000,
 "copyright": "traditional",
 "key": "C",
 "defaultBpm": 106,
@@ -81076,70 +81008,70 @@
 	"V5:",
 	"C Am DmG C",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V6:",
 	"C Am DmG C",
 	"G G",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V7:",
 	"C Am DmG C",
 	"G G x2",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V8:",
 	"C Am DmG C",
 	"G G x3",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V9:",
 	"C Am DmG C",
 	"G G x4",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V10:",
 	"C Am DmG C",
 	"G G x5",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V11:",
 	"C Am DmG C",
 	"G G x6",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C",
 	"V12:",
 	"C Am DmG C",
 	"G G x7",
 	"C D G G",
-	"(C..)",
-	"(F..)",
+	"CCC",
+	"FFF",
 	"DGG",
 	"CF CG C C"
     ],
 "lyrics": 
     [
-	"v:",
+	"",
 	"v1:",
 	"On the first day of Christmas",
 	"My true love gave to me",
@@ -81321,12 +81253,12 @@
     ]
 }
 },
-{ "file": "Twenty Four Hours From Tulsa (1).songlyrics", "lastModifiedDate": 1536807141426, "song": 
+{ "file": "Twenty Four Hours From Tulsa.songlyrics", "lastModifiedDate": 1580195710000, "song": 
 {
 "title": "Twenty Four Hours From Tulsa",
 "artist": "Gene Pitney",
-"user": "Unknown",
-"lastModifiedDate": 1536807141426,
+"user": "Doug",
+"lastModifiedDate": 1580195710000,
 "copyright": "Warner/Chappell Music, Inc",
 "key": "G",
 "defaultBpm": 106,
@@ -81347,7 +81279,6 @@
 	"G G",
 	"O:",
 	"G G G G7",
-	"(<-hold,)",
 	"C C C C"
     ],
 "lyrics": 
@@ -81523,12 +81454,12 @@
     ]
 }
 },
-{ "file": "Unchain My Heart.songlyrics", "lastModifiedDate": 1552099149094, "song": 
+{ "file": "Unchain My Heart.songlyrics", "lastModifiedDate": 1580195876000, "song": 
 {
 "title": "Unchain My Heart",
 "artist": "Joe Cocker",
-"user": "Unknown",
-"lastModifiedDate": 1552099149094,
+"user": "Doug",
+"lastModifiedDate": 1580195876000,
 "copyright": "B. Sharp Music",
 "key": "C",
 "defaultBpm": 100,
@@ -81536,8 +81467,7 @@
 "chords": 
     [
 	"I:",
-	"Am Am F/E",
-	"(7)",
+	"Am Am F/E F7",
 	"Am",
 	"V:",
 	"Am Am Am Am",
@@ -81674,12 +81604,12 @@
     ]
 }
 },
-{ "file": "Uncle John's Band (9).songlyrics", "lastModifiedDate": 1549426974149, "song": 
+{ "file": "Uncle John's Band.songlyrics", "lastModifiedDate": 1580195984000, "song": 
 {
 "title": "Uncle John's Band",
 "artist": "Grateful Dead",
-"user": "Unknown",
-"lastModifiedDate": 1549426974149,
+"user": "Doug",
+"lastModifiedDate": 1580195984000,
 "copyright": "Songwriters: Jerome J. Garcia / Robert C. Hunter Uncle John's Band lyrics © Universal Music Publishing Group, Warner/Chappell Music, Inc",
 "key": "G",
 "defaultBpm": 106,
@@ -81693,7 +81623,7 @@
 	"I3:",
 	"G G",
 	"I4:",
-	"(G....,)",
+	"G",
 	"V:",
 	"G G C.. G",
 	"G G C.. G",
@@ -81856,8 +81786,7 @@
 	"D..Dm7 Dm7 C..B♭maj7 B♭maj7",
 	"B♭maj7 B♭maj7 A7 C",
 	"O:",
-	"D..Dm7 Dm7 C..B♭maj7 B♭maj7",
-	" "
+	"D..Dm7 Dm7 C..B♭maj7 B♭maj7"
     ],
 "lyrics": 
     [
@@ -83075,12 +83004,12 @@
     ]
 }
 },
-{ "file": "Walk This World (2).songlyrics", "lastModifiedDate": 1564962960183, "song": 
+{ "file": "Walk This World.songlyrics", "lastModifiedDate": 1580196038000, "song": 
 {
 "title": "Walk This World",
 "artist": "Heather Nova",
-"user": "Unknown",
-"lastModifiedDate": 1564962960183,
+"user": "Doug",
+"lastModifiedDate": 1580196038000,
 "copyright": "Heather Nova",
 "key": "E",
 "defaultBpm": 100,
@@ -83088,10 +83017,10 @@
 "chords": 
     [
 	"I:",
-	"Em Em (Eb) |",
+	"Em Em D♯ |",
 	"Em7 Em6 | x2",
 	"V:",
-	"Em Em (Eb) |",
+	"Em Em D♯ |",
 	"Em7 Em6 | x2",
 	"C C B7 B7",
 	"Em A Em Em",
@@ -83828,12 +83757,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1527385777498, "song": 
+{ "file": "Wave of Mutilation.songlyrics", "lastModifiedDate": 1580196132000, "song": 
 {
 "title": "Wave of Mutilation",
 "artist": "Pixies",
-"user": "Unknown",
-"lastModifiedDate": 1527385777498,
+"user": "Doug",
+"lastModifiedDate": 1580196132000,
 "copyright": "Pixies",
 "key": "C",
 "defaultBpm": 100,
@@ -83849,9 +83778,7 @@
 	"D F.ED | x2",
 	"C E F D",
 	"C:",
-	"(2/4)",
 	"C E F x3",
-	"(4/4)",
 	"C F C F",
 	"F F F"
     ],
@@ -84321,12 +84248,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1527104930385, "song": 
+{ "file": "Weird Fishes_Arpeggi.songlyrics", "lastModifiedDate": 1580196206000, "song": 
 {
 "title": "Weird Fishes/Arpeggi",
 "artist": "Radiohead - Thomas Edward Yorke",
-"user": "Unknown",
-"lastModifiedDate": 1527104930385,
+"user": "Doug",
+"lastModifiedDate": 1580196206000,
 "copyright": "© Warner/Chappell Music, Inc",
 "key": "D",
 "defaultBpm": 152,
@@ -84335,26 +84262,22 @@
     [
 	"I:",
 	"Bm C5 Bm A G7",
-	"(M)",
 	"V:",
 	"Em7 Em7 Em7 Em7",
 	"F♯m7 F♯m7 F♯m7 F♯m7",
 	"A A7 A6 Em7 x2",
 	"Br:",
 	"A/C♯ A/C♯ A/C♯ A/C♯",
-	"(-)",
 	"Bm Bm Bm Bm x2",
-	"(-)",
 	"A A A",
 	"A Dmaj7 Gmaj7 G",
 	"O:",
 	"Bm Bm C5 C5",
-	"(-)",
 	"Bm Bm A x2"
     ],
 "lyrics": 
     [
-	"",
+	"i: (instrumental)",
 	"",
 	"v:In the deepest ocean",
 	"The bottom of the sea",
@@ -84468,12 +84391,12 @@
     ]
 }
 },
-{ "file": "Wharf Rat.songlyrics", "lastModifiedDate": 1552860756000, "song": 
+{ "file": "Wharf Rat.songlyrics", "lastModifiedDate": 1580196296000, "song": 
 {
 "title": "Wharf Rat",
 "artist": "Grateful Dead",
-"user": "Unknown",
-"lastModifiedDate": 1552860756000,
+"user": "Doug",
+"lastModifiedDate": 1580196296000,
 "copyright": "1971 Ice Nine Publishing Co., INC.",
 "key": "A",
 "defaultBpm": 55,
@@ -84499,7 +84422,7 @@
 	"Asus2 Asus2 Asus2 Asus2",
 	"Em Em Asus2 Asus2",
 	"Em D",
-	"(A....)",
+	"A",
 	"V3:",
 	"Asus2 Asus2 Asus2 Asus2",
 	"Em Em Asus2 Asus2 Asus2 Asus2",
@@ -84524,8 +84447,7 @@
 	"A Asus A Asus2",
 	"A A7 Em Em Em Em",
 	"C:",
-	"Em Em Em Em X",
-	"(200,)",
+	"Em Em Em Em x20",
 	"C1:",
 	"Em Em Em Em",
 	"Em Em",
@@ -85396,12 +85318,12 @@
     ]
 }
 },
-{ "file": "What is Life (1).songlyrics", "lastModifiedDate": 1560124349555, "song": 
+{ "file": "What is Life.songlyrics", "lastModifiedDate": 1580196364000, "song": 
 {
 "title": "What is Life",
 "artist": "George Harrison",
-"user": "Unknown",
-"lastModifiedDate": 1560124349555,
+"user": "Doug",
+"lastModifiedDate": 1580196364000,
 "copyright": "1973",
 "key": "E",
 "defaultBpm": 132,
@@ -85410,24 +85332,15 @@
     [
 	"I:",
 	"X X X X",
-	"(guitar,)",
-	"(then)",
-	"(add)",
-	"(bass,)",
 	"EB A..B EB A D B",
 	"V:",
-	"(|E)",
-	"E B B",
+	"E E B B",
 	"C♯M D A A x2",
 	"C:",
 	"EB A..B x4",
 	"D B",
 	"B:",
 	"X X X X",
-	"(guitar,)",
-	"(then)",
-	"(add)",
-	"(bass,)",
 	"EB A..B EB A D B",
 	"O:",
 	"EB A..B x4",
@@ -85526,12 +85439,12 @@
     ]
 }
 },
-{ "file": "When I Change Your Mind (1).songlyrics", "lastModifiedDate": 1534392114138, "song": 
+{ "file": "When I Change Your Mind.songlyrics", "lastModifiedDate": 1580196410000, "song": 
 {
 "title": "When I Change Your Mind",
 "artist": "Cherry Poppin' Daddies",
-"user": "Unknown",
-"lastModifiedDate": 1534392114138,
+"user": "Doug",
+"lastModifiedDate": 1580196410000,
 "copyright": "Sony/ATV Music Publishing LLC",
 "key": "C",
 "defaultBpm": 106,
@@ -85549,9 +85462,7 @@
 	"O:",
 	"C C F Fm",
 	"C G C G",
-	"G CX C6",
-	"(+9)",
-	"(-)"
+	"G CX C6 C6"
     ],
 "lyrics": 
     [
@@ -85733,12 +85644,12 @@
     ]
 }
 },
-{ "file": "When the Circus Comes to Town.songlyrics", "lastModifiedDate": 1552841570000, "song": 
+{ "file": "When the Circus Comes to Town.songlyrics", "lastModifiedDate": 1580196460000, "song": 
 {
 "title": "When the Circus Comes to Town",
 "artist": "Los Lobos",
-"user": "Unknown",
-"lastModifiedDate": 1552841570000,
+"user": "Doug",
+"lastModifiedDate": 1580196460000,
 "copyright": "I do not know",
 "key": "C",
 "defaultBpm": 65,
@@ -85746,8 +85657,7 @@
 "chords": 
     [
 	"I:",
-	"G G G G X",
-	"(2,)",
+	"G G G G x2",
 	"V:",
 	"G G G G",
 	"Em Em Em Em",
@@ -85764,8 +85674,7 @@
 	"GD EmG",
 	"F G GD EmG",
 	"C3:",
-	"F F F F X",
-	"(2,)",
+	"F F F F x2",
 	"C5:",
 	"D D/C",
 	"D D/C",
@@ -86461,12 +86370,12 @@
     ]
 }
 },
-{ "file": "While my guitar gently weeps (1).songlyrics", "lastModifiedDate": 1525316512161, "song": 
+{ "file": "While my guitar gently weeps.songlyrics", "lastModifiedDate": 1580196628000, "song": 
 {
 "title": "While my guitar gently weeps",
 "artist": "Beatles, The",
-"user": "Unknown",
-"lastModifiedDate": 1525316512161,
+"user": "Doug",
+"lastModifiedDate": 1580196628000,
 "copyright": "Sony/ATV Music Publishing LLC, The Bicycle Music Company",
 "key": "Eb",
 "defaultBpm": 100,
@@ -86474,14 +86383,9 @@
 "chords": 
     [
 	"V:",
-	"Am",
-	"(/G)",
-	"(/F#)",
-	"F",
+	"Am Am/G Am/G♭ F",
 	"Am G D E7",
-	"Am",
-	"(/G)",
-	"(/F#)",
+	"Am/G Am/G♭",
 	"F",
 	"Am G C E7",
 	"C:",
@@ -87859,12 +87763,12 @@
     ]
 }
 },
-{ "file": "Wish You Were Here (10).songlyrics", "lastModifiedDate": 1553306207178, "song": 
+{ "file": "Wish You Were Here.songlyrics", "lastModifiedDate": 1580196670000, "song": 
 {
 "title": "Wish You Were Here",
 "artist": "Pink Floyd",
-"user": "Unknown",
-"lastModifiedDate": 1553306207178,
+"user": "Doug",
+"lastModifiedDate": 1580196670000,
 "copyright": "Floyd",
 "key": "G",
 "defaultBpm": 66,
@@ -87872,7 +87776,6 @@
 "chords": 
     [
 	"I:",
-	"(Intro)",
 	"Em7 G",
 	"Em7 G",
 	"Em7 A7sus4",
@@ -88304,12 +88207,12 @@
     ]
 }
 },
-{ "file": "Words Get in the Way.songlyrics", "lastModifiedDate": 1521084203522, "song": 
+{ "file": "Words Get in the Way.songlyrics", "lastModifiedDate": 1580196714000, "song": 
 {
 "title": "Words Get in the Way",
 "artist": "Gloria Estefan",
-"user": "Unknown",
-"lastModifiedDate": 1521084203522,
+"user": "Doug",
+"lastModifiedDate": 1580196714000,
 "copyright": "Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -88318,9 +88221,7 @@
     [
 	"V:",
 	"D D Bm Bm",
-	"Gm Gm A",
-	"(s4)",
-	"A",
+	"Gm Gm Asus4 A",
 	"C:",
 	"D D E E",
 	"Bm G Gm Asus4A",
@@ -90648,12 +90549,12 @@
     ]
 }
 },
-{ "file": "You're The One.songlyrics", "lastModifiedDate": 1572487164299, "song": 
+{ "file": "You're The One.songlyrics", "lastModifiedDate": 1580196760000, "song": 
 {
 "title": "You're The One",
 "artist": "Vogues, The",
-"user": "Unknown",
-"lastModifiedDate": 1572487164299,
+"user": "Doug",
+"lastModifiedDate": 1580196760000,
 "copyright": "Downtown Music Publishing",
 "key": "Bb",
 "defaultBpm": 106,
@@ -90683,8 +90584,7 @@
 	"Cm/E♭ Cm/E♭ E♭ F",
 	"F",
 	"O:",
-	"B E F♯ B",
-	"(4x,)",
+	"B E G♭ B x4",
 	"B"
     ],
 "lyrics": 
@@ -90808,12 +90708,12 @@
     ]
 }
 },
-{ "file": "You've Got Your Troubles.songlyrics", "lastModifiedDate": 1536693163197, "song": 
+{ "file": "You've Got Your Troubles.songlyrics", "lastModifiedDate": 1580196796000, "song": 
 {
 "title": "You've Got Your Troubles",
 "artist": "Fortunes, The",
-"user": "Unknown",
-"lastModifiedDate": 1536693163197,
+"user": "Doug",
+"lastModifiedDate": 1580196796000,
 "copyright": "Sony/ATV",
 "key": "A",
 "defaultBpm": 90,
@@ -90836,7 +90736,7 @@
 	"G G A E",
 	"O:",
 	"Dm E A A",
-	"Dm E E E (slow)",
+	"Dm E E E",
 	"A A G G",
 	"A"
     ],
@@ -91120,12 +91020,12 @@
     ]
 }
 },
-{ "file": "Zombie (1).songlyrics", "lastModifiedDate": 1519453044000, "song": 
+{ "file": "Zombie.songlyrics", "lastModifiedDate": 1580196834000, "song": 
 {
 "title": "Zombie",
 "artist": "Cranberries, The",
-"user": "Unknown",
-"lastModifiedDate": 1519453044000,
+"user": "Doug",
+"lastModifiedDate": 1580196834000,
 "copyright": "Warner/Chappell Music, Inc, Universal Music Publishing Group",
 "key": "C",
 "defaultBpm": 100,
@@ -91133,8 +91033,7 @@
 "chords": 
     [
 	"V:",
-	"Em C G D",
-	"(/F#,)"
+	"Em C G D/F♯"
     ],
 "lyrics": 
     [

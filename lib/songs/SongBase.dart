@@ -497,7 +497,7 @@ class SongBase {
   /// Compute the duration and total beat count for the song.
   void computeDuration() {
     //  be lazy
-    if (_duration > 0) return;
+    if (_duration != null && _duration > 0) return;
 
     _duration = 0;
     totalBeats = 0;
@@ -2905,6 +2905,7 @@ class SongBase {
       bpm = 20;
     else if (bpm > 1000) bpm = 1000;
     this.defaultBpm = bpm;
+    _duration = null;
   }
 
   /// Return the song's number of beats per bar
@@ -3134,10 +3135,6 @@ class SongBase {
       complexity += differentChords.length;
     }
     return complexity;
-  }
-
-  void setDuration(double duration) {
-    this._duration = duration;
   }
 
   String getRawLyrics() {

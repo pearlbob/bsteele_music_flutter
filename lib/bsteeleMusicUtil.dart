@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
 import 'package:logger/logger.dart';
 
@@ -7,8 +9,28 @@ Directory _outputDirectory = Directory.current;
 File _file;
 bool _verbose = false;
 
-main(List<String> args) async {
+void _help() {
+  print('''
+bsteeleMusicUtil:
+//  a utility for the bsteele Music App
+arguments:
+-h                  this help message
+-o {output dir}     select the output directory
+-v                  verbose output
+-x {file}           expand a songlyrics list file to the output directory
+''');
+}
+
+void main() async {
   Logger.level = Level.info;
+
+  List<String> args = [
+    '-v',
+    '-o',
+    '/home/bob/junk/songs',
+    '-x',
+    '/home/bob/junk/allSongs.zip'
+  ];
 
   //  help if nothing to do
   if (args == null || args.length <= 0) {
@@ -46,6 +68,7 @@ main(List<String> args) async {
                       : ' at ${Directory.current}'));
               return;
             }
+            _outputDirectory.createSync();
           }
         } else {
           print('missing output path for -o');
@@ -64,7 +87,6 @@ main(List<String> args) async {
           return;
         }
 
-
         i++;
         _file = File(args[i]);
         if (_verbose) print('input file path: ${_file.toString()}');
@@ -81,31 +103,42 @@ main(List<String> args) async {
           print(
               'input file: ${_file.toString()}, file size: ${await _file.length()}');
 
-        List<Song> songs = Song.songListFromJson(_file.readAsStringSync());
+        List<Song> songs;
+        if (_file.path.endsWith('.zip')) {
+          // Read the Zip file from disk.
+          final bytes = await _file.readAsBytes();
+
+          // Decode the Zip file
+          final archive = ZipDecoder().decodeBytes(bytes);
+
+          // Extract the contents of the Zip archive
+          for (final file in archive) {
+            if (file.isFile) {
+              final data = file.content as List<int>;
+              songs = Song.songListFromJson(utf8.decode(data));
+            }
+          }
+        } else
+          songs = Song.songListFromJson(_file.readAsStringSync( ));
+
         if (songs == null || songs.isEmpty) {
           print('didn\'t find songs in ${_file.toString()}');
           exit(-1);
         }
-        if (_verbose) {
-          print('songs found: ');
-          for (Song song in songs) {
-            print('${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()}');
-          }
+
+        for (Song song in songs) {
+          if (_verbose)
+            print(
+                '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()}');
+          File writeTo = File(_outputDirectory.path +
+              '/' +
+              song.songId.toString() +
+              '.songlyrics');
+          print(writeTo.path);
+          await writeTo.writeAsString(song.toJson(), flush: true);
         }
         break;
     }
   }
   exit(0);
-}
-
-void _help() {
-  print('''
-bsteeleMusicUtil:
-//  a utility for the bsteele Music App
-arguments:
--h                  this help message
--o {output dir}     select the output directory
--v                  verbose output
--x {file}           expand a songlyrics list file to the output directory
-''');
 }

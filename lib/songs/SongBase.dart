@@ -2866,12 +2866,19 @@ class SongBase {
 
   static SongId computeSongId(String title, String artist, String coverArtist) {
     return new SongId("Song_" +
-        title.replaceAll("\\W+", "") +
+        toSongId(title) +
         "_by_" +
-        artist.replaceAll("\\W+", "") +
+        toSongId(artist) +
         (coverArtist == null || coverArtist.length <= 0
             ? ""
-            : "_coverBy_" + coverArtist));
+            : "_coverBy_" + toSongId(coverArtist)));
+  }
+
+  static String toSongId(String s) {
+    return s
+        .trim()
+        .replaceAllMapped(new RegExp(r'[^\w\s]'), (Match m) => '')
+        .replaceAll(' ', "_");
   }
 
   /// Sets the copyright for the song.  All songs should have a copyright.

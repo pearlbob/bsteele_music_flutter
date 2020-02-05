@@ -176,14 +176,19 @@ class SongMoment implements Comparable<SongMoment> {
 
   final int momentNumber;
   ChordSectionLocation chordSectionLocation;
-  final int
-      beatNumber; //  total beat count from start of song to the start of the moment
-  final int
-      sectionBeatNumber; //  total beat count from start of the current section to the start of the moment
 
-  final int repeat; //  current iteration from 0 to repeatMax - 1
+  ///  total beat count from start of song to the start of the moment
+  final int beatNumber;
+
+  ///  total beat count from start of the current section to the start of the moment
+  final int sectionBeatNumber;
+
+  ///  current iteration from 0 to repeatMax - 1
+  final int repeat;
   final int repeatMax;
-  final int repeatCycleBeats; //  number of beats in one cycle of the repeat
+
+  ///  number of beats in one cycle of the repeat
+  final int repeatCycleBeats;
 
   final LyricSection lyricSection;
   final ChordSection chordSection;

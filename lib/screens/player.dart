@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
@@ -36,37 +37,71 @@ class _Player extends State<Player> {
 
     _displaySongKey = widget.song.key;
 
-    //  eval behind first render
-
+    //  eval sizes after first render
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      //  find the song's widget sizes after first rendering pass
       _lastDy = 0;
-
-      //  find the song's widget sizes on first pass
+      double firstBoxDy;
       for (int i = 0; i < _rowLocations.length; i++) {
         _RowLocation rowLocation = _rowLocations[i];
         RenderBox box = rowLocation.globalKey.currentContext.findRenderObject();
-        rowLocation.dy = box.localToGlobal(Offset.zero).dy;
+
+        {
+          double dy = box.localToGlobal(Offset.zero).dy;
+          if (firstBoxDy == null) {
+            firstBoxDy = dy;
+            rowLocation.dispY = 0;
+          } else
+            rowLocation.dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
+        }
+
         rowLocation.height = _lastDy != null
-            ? rowLocation.dy - _lastDy
+            ? rowLocation.dispY - _lastDy
             : box.size.height; //  placeholder
-        _lastDy = rowLocation.dy; //  for next time
+        _lastDy = rowLocation.dispY; //  for next time
         //logger.i(rowLocation.toString());
         //logger.i('    ${rowLocation.globalKey.currentContext.toString()}');
       }
+
+      //  diagnostics only
+      for (_RowLocation rowLocation in _rowLocations) {
+        logger.i('${rowLocation.toString()}');
+      }
     });
 
-    scrollController.addListener(() {
-      if (scrollController.hasClients) {
-        if (scrollController.offset == 0) {
+    _scrollController.addListener(() {
+      int t = DateTime.now().millisecondsSinceEpoch;
+      logger.i('scroll:'
+          ' pos: ${_scrollController.offset.toStringAsFixed(1)}'
+          ' posT: ${songTimeAtPosition(_scrollController.offset).toStringAsFixed(3)} s'
+          ' d: ${(_scrollController.offset - _lastScrollPos).toStringAsFixed(2)}'
+          ' t: ${((t - t0) / 1000).toStringAsFixed(3)} s'
+          ' dt: ${(t - _lastScrollT).toStringAsFixed(3)} ms');
+      _lastScrollPos = _scrollController.offset;
+      _lastScrollT = t;
+
+      if (_scrollController.hasClients) {
+        if (_scrollController.offset == 0) {
+          //  re-draw at top
           setState(() {});
         } else if (!_isTooNarrow &&
-            scrollController.position.pixels >=
-                scrollController.position.maxScrollExtent) {
-          logger.i('scrollController listener: ${scrollController.offset}');
+            _scrollController.position.pixels >=
+                _scrollController.position.maxScrollExtent) {
+          //  stop playing at the bottom
           _stop();
         }
       }
     });
+  }
+
+  double songTimeAtPosition(double position) {
+    for (_RowLocation _rowLocation in _rowLocations) {
+      if (position <= _rowLocation.dispY + _rowLocation.height)
+        return _rowLocation.songMoment.beatNumber *
+            60 /
+            widget.song.getBeatsPerMinute();
+    }
+    return 0;
   }
 
   @override
@@ -126,7 +161,8 @@ class _Player extends State<Player> {
             if (firstSongMoment == null) continue;
 
             GlobalKey _rowKey = GlobalKey(debugLabel: r.toString());
-            _rowLocations[r] = _RowLocation(r, _rowKey, song.rowBeats(r));
+            _rowLocations[r] =
+                _RowLocation(firstSongMoment, r, _rowKey, song.rowBeats(r));
 
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
@@ -331,7 +367,7 @@ class _Player extends State<Player> {
             ),
           ),
           SingleChildScrollView(
-            controller: scrollController,
+            controller: _scrollController,
             scrollDirection: Axis.vertical,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -473,13 +509,17 @@ class _Player extends State<Player> {
               tooltip: 'Stop.  Space bar will pause the play.',
               child: Icon(Icons.stop),
             )
-          : (scrollController.hasClients && scrollController.offset > 0
+          : (_scrollController.hasClients && _scrollController.offset > 0
               ? FloatingActionButton(
                   mini: _isTooNarrow,
                   onPressed: () {
-                    scrollController.animateTo(0,
-                        duration: Duration(milliseconds: 333),
-                        curve: Curves.ease);
+                    _scrollController
+                        .animateTo(0,
+                            duration: Duration(milliseconds: 333),
+                            curve: Curves.ease)
+                        .then((_) {
+                      logger.i('_scrollAnimationFuture complete');
+                    });
                   },
                   tooltip: 'Top',
                   child: Icon(Icons.arrow_upward),
@@ -501,36 +541,44 @@ class _Player extends State<Player> {
 
   _play() {
     _isPlaying = true;
-    scrollController.jumpTo(0);
-    scrollController.animateTo(_lastDy,
-        duration: Duration(milliseconds: (widget.song.duration * 1000).toInt()),
-        curve: Curves.ease);
+    _scrollController.jumpTo(0);
+    _playAnimation();
     logger.d('animated play');
     setState(() {});
   }
 
   _stop() {
     _isPlaying = true;
-    scrollController.jumpTo(scrollController.offset);
+    _scrollController.jumpTo(_scrollController.offset);
     setState(() {});
   }
 
   void _playToggle() {
     _isPlaying = !_isPlaying;
     if (_isPlaying) {
-      scrollController.animateTo(_lastDy,
-          duration: Duration(
-              milliseconds: ((widget.song.duration
-                      //fixme      - seconds song at the current row
-                      ) *
-                      1000)
-                  .toInt()),
-          curve: Curves.ease);
+      _playAnimation();
       logger.d('animated scroll');
     } else {
-      scrollController.jumpTo(scrollController.offset - _screenHeight / 2);
+      _scrollController.jumpTo(_scrollController.offset - _screenHeight / 2);
     }
     setState(() {});
+  }
+
+  void _playAnimation() {
+    t0 = DateTime.now().millisecondsSinceEpoch;
+    _scrollController
+        .animateTo(_lastDy,
+            duration: Duration(
+                milliseconds: ((widget.song.duration
+                        //fixme      - seconds song at the current row
+                        ) *
+                        1000)
+                    .toInt()),
+            curve: Curves.linear)
+        .then((_) {
+      logger.i('_playAnimation finished'
+          ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
+    });
   }
 
   String _titleAnchor() {
@@ -545,6 +593,10 @@ class _Player extends State<Player> {
   static final String anchorUrlStart =
       "https://www.youtube.com/results?search_query=";
 
+  double _lastScrollPos = 0;
+  int t0 = DateTime.now().millisecondsSinceEpoch;
+  int _lastScrollT = DateTime.now().millisecondsSinceEpoch;
+
   bool _isTooNarrow = false;
   double _screenWidth;
   double _screenHeight;
@@ -555,16 +607,19 @@ class _Player extends State<Player> {
   songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
   List<DropdownMenuItem<songs.Key>> keyDropDownMenuList;
   List<DropdownMenuItem<int>> bpmDropDownMenuList;
+
+  ScrollController _scrollController = ScrollController();
 }
 
 class _RowLocation {
-  _RowLocation(this.row, this.globalKey, this._beats);
+  _RowLocation(this.songMoment, this.row, this.globalKey, this._beats);
 
   @override
   String toString() {
     return ('${row.toString()} ${globalKey.toString()}'
+        ', ${songMoment.toString()}'
         ', beats: ${beats.toString()}'
-        ', dy: ${dy.toStringAsFixed(1)}'
+        ', dispY: ${dispY.toStringAsFixed(1)}'
         ', h: ${height.toStringAsFixed(1)}'
         ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}');
   }
@@ -574,6 +629,7 @@ class _RowLocation {
       _pixelsPerBeat = _height / beats;
   }
 
+  final SongMoment songMoment;
   final GlobalKey globalKey;
   final int row;
 
@@ -585,7 +641,7 @@ class _RowLocation {
   int get beats => _beats;
   int _beats;
 
-  double dy;
+  double dispY;
 
   set height(value) {
     _height = value;
@@ -620,10 +676,17 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
     _lastKeyTime = t;
     if (dt < 350) return;
 
-    logger.d('KeyCode: ${key.logicalKey.toString()} ${key.toString()}, t: $dt');
+    logger.i('KeyCode: ${key.logicalKey.toString()} ${key.toString()}, t: $dt');
     if (key.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
-      logger.d('space hit');
+      logger.i('space hit');
       _player._playToggle();
+    } else if (_player._isPlaying &&
+        (key.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
+            key.logicalKey.keyLabel == LogicalKeyboardKey.arrowUp.keyLabel)) {
+      //  restart the scrolling after a bit
+      Timer(Duration(milliseconds: 33 * 5), () {
+        _player._playAnimation();
+      });
     }
   }
 
@@ -645,5 +708,3 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   FocusNode _textFocusNode = new FocusNode();
   int _lastKeyTime = DateTime.now().millisecondsSinceEpoch;
 }
-
-ScrollController scrollController = ScrollController();

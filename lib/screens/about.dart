@@ -30,7 +30,7 @@ class _About extends State<About> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'About bsteele Music',
+          'About the bsteele Music App',
           style: TextStyle(
               color: Colors.black87,
               fontSize: fontSize,
@@ -48,7 +48,7 @@ class _About extends State<About> {
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 Text(
-                  'bsteele music has been written by bob.',
+                  'The bsteele Music App has been written by bob.',
                   // textScaleFactor: textScaleFactor,
                 ),
                 Row(children: <Widget>[

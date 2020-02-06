@@ -51,12 +51,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'bsteele Music',
+      title: 'bsteele Music App',
       theme: ThemeData(
         primaryColor: _primaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: MyHomePage(title: 'bsteele Music'),
+      home: MyHomePage(title: 'bsteele Music App'),
 
       // Start the app with the "/" named route. In this case, the app starts
       // on the FirstScreen widget.

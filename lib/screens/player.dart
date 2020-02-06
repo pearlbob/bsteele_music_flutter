@@ -95,9 +95,13 @@ class _Player extends State<Player> {
   }
 
   double songTimeAtPosition(double position) {
+    if (position <= 0) return 0;
     for (_RowLocation _rowLocation in _rowLocations) {
       if (position <= _rowLocation.dispY + _rowLocation.height)
-        return _rowLocation.songMoment.beatNumber *
+        return (_rowLocation.songMoment.beatNumber +
+                (position - _rowLocation.dispY) /
+                    _rowLocation.height *
+                    _rowLocation.beats) *
             60 /
             widget.song.getBeatsPerMinute();
     }
@@ -320,8 +324,9 @@ class _Player extends State<Player> {
       final int bpm = song.getBeatsPerMinute();
 
       bpmDropDownMenuList = List();
-      for (int i = -30; i < 30; i++) {
+      for (int i = -60; i < 60; i++) {
         int value = bpm + i;
+        if (value < 40) continue;
         bpmDropDownMenuList.add(
           DropdownMenuItem<int>(
             key: ValueKey(value),
@@ -336,7 +341,10 @@ class _Player extends State<Player> {
             ),
           ),
         );
-        if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
+        if (i < -30 || i > 30)
+          i += 10 - 1; //  in addition to increment above
+        else if (i < -5 || i > 5)
+          i += 5 - 1; //  in addition to increment above
       }
     }
 
@@ -569,10 +577,17 @@ class _Player extends State<Player> {
     _scrollController
         .animateTo(_lastDy,
             duration: Duration(
-                milliseconds: ((widget.song.duration
-                        //fixme      - seconds song at the current row
-                        ) *
-                        1000)
+                milliseconds: ((
+                            //  total duration
+                            widget.song.duration
+                                //  minus time already consumed
+                                -
+                                (_isPlaying
+                                    ? songTimeAtPosition(
+                                        _scrollController.offset)
+                                    : 0)) *
+                        1000 //  ms/s
+                    )
                     .toInt()),
             curve: Curves.linear)
         .then((_) {

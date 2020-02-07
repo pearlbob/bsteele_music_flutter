@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 
 class GuiColors {
   static Color getColorForSection(Section section) {
-    switch (section.sectionEnum) {
+    return getColorForSectionEnum(section.sectionEnum);
+  }
+
+  static Color getColorForSectionEnum(SectionEnum sectionEnum) {
+    switch (sectionEnum) {
       case SectionEnum.verse:
         return Colors.grey[300];
       case SectionEnum.intro:
@@ -29,5 +33,3 @@ class GuiColors {
     }
   }
 }
-
-

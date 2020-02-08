@@ -21,15 +21,21 @@ class Edit extends StatefulWidget {
   final Song song;
 }
 
-final TextStyle _boldTextStyle =
+final TextStyle _boldTextStyle = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    backgroundColor: Colors.grey[100]);
+final TextStyle _labelTextStyle =
+    TextStyle(fontSize: 24, fontWeight: FontWeight.bold);
+final TextStyle _buttonTextStyle =
     TextStyle(fontSize: 24, fontWeight: FontWeight.bold);
 final TextStyle _textStyle = TextStyle(fontSize: 24, color: Colors.grey[800]);
 const Color _defaultColor = Color(0xFFB3E5FC); //Colors.lightBlue[100];
 
 class AppContainedButton extends RaisedButton {
   AppContainedButton(
-    String text,
-    VoidCallback onPressed, {
+    String text, {
+    VoidCallback onPressed,
     Color color = _defaultColor,
   }) : super(
           shape: new RoundedRectangleBorder(
@@ -46,7 +52,7 @@ class AppContainedButton extends RaisedButton {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: _boldTextStyle,
+            style: _buttonTextStyle,
           ),
           onPressed: onPressed,
         );
@@ -54,8 +60,8 @@ class AppContainedButton extends RaisedButton {
 
 class AppOutlineButton extends OutlineButton {
   AppOutlineButton(
-    String text,
-    VoidCallback onPressed, {
+    String text, {
+    VoidCallback onPressed,
     Color color = _defaultColor,
   }) : super(
           shape: new RoundedRectangleBorder(
@@ -68,10 +74,16 @@ class AppOutlineButton extends OutlineButton {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: _boldTextStyle,
+            style: _buttonTextStyle,
           ),
           onPressed: onPressed,
         );
+}
+
+enum _EditTypeEnum {
+  insert,
+  replace,
+  append,
 }
 
 class _Edit extends State<Edit> {
@@ -132,11 +144,11 @@ class _Edit extends State<Edit> {
       }
     }
 
-    final majorChordButton = AppOutlineButton(_keyChordNote.toString(), () {});
+    final majorChordButton = AppOutlineButton(_keyChordNote.toString(), );
     ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.minor);
-    final minorChordButton = AppOutlineButton(sc.toString(), () {});
+    final minorChordButton = AppOutlineButton(sc.toString(), );
     sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
-    final dominant7ChordButton = AppOutlineButton(sc.toString(), () {});
+    final dominant7ChordButton = AppOutlineButton(sc.toString(), );
 
     if (_otherChordDropDownMenuList == null) {
       // other chords
@@ -191,7 +203,9 @@ class _Edit extends State<Edit> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    AppContainedButton('Enter Song', () {},),
+                    AppContainedButton(
+                      'Enter Song',
+                    ),
                     Container(
                       width: 800.0,
                       child: Text('', style: _textStyle),
@@ -200,8 +214,12 @@ class _Edit extends State<Edit> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          AppContainedButton('Clear', () {}),
-                          AppContainedButton('Remove', () {}),
+                          AppContainedButton(
+                            'Clear',
+                          ),
+                          AppContainedButton(
+                            'Remove',
+                          ),
                           Container(
                             child: FlatButton.icon(
                               icon: Icon(
@@ -223,7 +241,7 @@ class _Edit extends State<Edit> {
                               ),
                               label: Text(
                                 '',
-                                style: _boldTextStyle,
+                                style: _buttonTextStyle,
                               ),
                               onPressed: () {},
                             ),
@@ -263,7 +281,7 @@ class _Edit extends State<Edit> {
                       padding: EdgeInsets.only(right: 24, bottom: 24.0),
                       child: Text(
                         'Artist: ',
-                        style: _boldTextStyle,
+                        style: _labelTextStyle,
                       ),
                     ),
                     Container(
@@ -284,7 +302,7 @@ class _Edit extends State<Edit> {
                       padding: EdgeInsets.only(right: 24, bottom: 24.0),
                       child: Text(
                         'Cover Artist:',
-                        style: _boldTextStyle,
+                        style: _labelTextStyle,
                       ),
                     ),
                     Container(
@@ -306,7 +324,7 @@ class _Edit extends State<Edit> {
                       padding: EdgeInsets.only(right: 24, bottom: 24.0),
                       child: Text(
                         'Copyright:',
-                        style: _boldTextStyle,
+                        style: _labelTextStyle,
                       ),
                     ),
                     Container(
@@ -326,7 +344,7 @@ class _Edit extends State<Edit> {
                     padding: EdgeInsets.only(bottom: 24.0),
                     child: Text(
                       "Key:",
-                      style: _boldTextStyle,
+                      style: _labelTextStyle,
                     ),
                   ),
                   Container(
@@ -365,7 +383,7 @@ class _Edit extends State<Edit> {
                     padding: EdgeInsets.only(bottom: 24.0),
                     child: Text(
                       "   BPM: ",
-                      style: _boldTextStyle,
+                      style: _labelTextStyle,
                     ),
                   ),
                   Container(
@@ -383,7 +401,7 @@ class _Edit extends State<Edit> {
                     padding: EdgeInsets.only(bottom: 24.0),
                     child: Text(
                       "Time:",
-                      style: _boldTextStyle,
+                      style: _labelTextStyle,
                     ),
                   ),
                   Container(
@@ -411,323 +429,359 @@ class _Edit extends State<Edit> {
               ),
               Text(
                 "Chords:",
-                style: _boldTextStyle,
+                style: _labelTextStyle,
               ),
-              Container(
-                width: 800.0,
-                padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                child: Column(children: <Widget>[
-                  TextField(
-                    decoration: InputDecoration(
-                        hintText: '\n\nEnter the song\'s chords. Required.'),
-                    style: _boldTextStyle,
-                    maxLines: 8,
+              Row(
+                children: <Widget>[
+                  Container(
+                    width: 800.0,
+                    padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                    child: Column(children: <Widget>[
+                      TextField(
+                        decoration: InputDecoration(
+                            hintText:
+                                '\n\nEnter the song\'s chords. Required.'),
+                        style: _boldTextStyle,
+                        maxLines: 8,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          AppContainedButton(
+                            'Enter',
+                          ),
+                          AppContainedButton(
+                            'Insert',
+                          ),
+                          AppContainedButton(
+                            'Replace',
+                          ),
+                          AppContainedButton(
+                            'Delete',
+                          ),
+                          AppContainedButton(
+                            'Append',
+                          ),
+                        ],
+                      ),
+                    ]),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      AppContainedButton('Enter', () {}),
-                      AppContainedButton('Insert', () {}),
-                      AppContainedButton('Replace', () {}),
-                      AppContainedButton('Delete', () {}),
-                      AppContainedButton('Append', () {}),
-                    ],
+                  Container(
+                    width: 1000.0,
+                    padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                    child: Column(children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          AppContainedButton('Intro/Instrumental',
+                              color: GuiColors.getColorForSectionEnum(
+                                  SectionEnum.intro)),
+                          AppContainedButton('Verse',
+                              color: GuiColors.getColorForSectionEnum(
+                                  SectionEnum.verse)),
+                          AppContainedButton('PreChorus',
+                              color: GuiColors.getColorForSectionEnum(
+                                  SectionEnum.preChorus)),
+                          AppContainedButton('Bridge',
+                              color: GuiColors.getColorForSectionEnum(
+                                  SectionEnum.bridge)),
+                          AppContainedButton('Outro',
+                              color: GuiColors.getColorForSectionEnum(
+                                  SectionEnum.outro)),
+                        ],
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            AppContainedButton('Section A',
+                                color: GuiColors.getColorForSectionEnum(
+                                    SectionEnum.a)),
+                            AppContainedButton('Section B',
+                                color: GuiColors.getColorForSectionEnum(
+                                    SectionEnum.b)),
+                            AppContainedButton('Coda',
+                                color: GuiColors.getColorForSectionEnum(
+                                    SectionEnum.coda)),
+                            AppContainedButton('Tag',
+                                color: GuiColors.getColorForSectionEnum(
+                                    SectionEnum.tag)),
+                            Text(
+                              ' Section Version: ',
+                              style: _textStyle,
+                            ),
+                            DropdownButton<int>(
+                              items: _sectionVersionDropDownMenuList,
+                              onChanged: (_value) {
+                                _sectionVersion = _value;
+                                setState(() {});
+                              },
+                              value: _sectionVersion,
+                              style: _textStyle,
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              ' Any Chord: ',
+                              style: _textStyle,
+                            ),
+                            DropdownButton<ScaleNote>(
+                              items: _keyChordDropDownMenuList,
+                              onChanged: (_value) {
+                                _keyChordNote = _value;
+                                _otherChordDropDownMenuList = null;
+                                setState(() {});
+                              },
+                              value: _keyChordNote,
+                              style: _textStyle,
+                            ),
+                            majorChordButton,
+                            minorChordButton,
+                            dominant7ChordButton,
+                            DropdownButton<ScaleChord>(
+                              items: _otherChordDropDownMenuList,
+                              onChanged: (_value) {
+                                setState(() {});
+                              },
+                              style: _textStyle,
+                            ),
+                            AppOutlineButton('X', ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              ' Recent: ',
+                              style: _textStyle,
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              ' Frequent: ',
+                              style: _textStyle,
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              ' Repeats: ',
+                              style: _textStyle,
+                            ),
+                            AppOutlineButton(
+                              'No Repeat',
+                            ),
+                            AppOutlineButton(
+                              'Repeat x2',
+                            ),
+                            AppOutlineButton(
+                              'Repeat x3',
+                            ),
+                            AppOutlineButton(
+                              'Repeat x4',
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              ' Extras: ',
+                              style: _textStyle,
+                            ),
+                            AppOutlineButton(
+                              'Undo',
+                            ),
+                            AppOutlineButton(
+                              'Redo',
+                            ),
+                            AppOutlineButton(
+                              '4/Row',
+                            ),
+                            AppOutlineButton('Hints', onPressed: () {
+                              _showHints = !_showHints;
+                              setState(() {});
+                            }),
+                          ]),
+                      if (_showHints)
+                        RichText(
+                          text: TextSpan(
+                            children: <InlineSpan>[
+                              TextSpan(
+                                text: '\n'
+                                    'Section types are followed by a colon (:).'
+                                    ' Sections can be entered abbreviated and in lower case.'
+                                    ' The available section buttons will enter the correct abbreviation.'
+                                    ' Section types can be followed with a digit to indicate a variation.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Sections with the same content will automatically be placed in the same declaration.'
+                                    ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
+                                    ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
+                                    ' the capitalization for your input and place it on the line below the test entry box.'
+                                    ' What you see in the text below the entry box will be what will be entered into the edit.'
+                                    ' Note that often as you type, parts of a partial chord entry will be considered a comment,'
+                                    ' i.e. will be placed in parenthesis in the text below.'
+                                    ' When the chord entry is correct, the characters will be removed from the comment and will be'
+                                    ' returned to their correct position in the entry.'
+                                    '\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    '''A capital X is used to indicate no chord.\n\n''',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
+                                    ' be a B♭m7 or the chord B followed by a Bm7?'
+                                    ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
+                                    '',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Limited set of case sensitive chord modifiers can be used: 7sus4,'
+                                    ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
+                                    ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
+                                    ' 6, dim7, º7, ◦, dim, aug5, aug7, aug, sus7, sus4,'
+                                    ' sus2, sus, m9, m11, m13, m6, Maj7, maj7, maj9, maj,'
+                                    ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
+                                    ' And of course the major chord is assumed if there is no modifier!'
+                                    ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
+                                    ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
+                                    ' The bass note is a single note, not a chord.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Periods (.) can be used to repeat chords on another beat within the same meausure. For'
+                                    ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text: '''Sample measures to use:
+      A B C G
+      A# C# Bb Db
+      C7 D7 Dbm Dm Em Dm7 F#m7 A#maj7 Gsus9
+      DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Commas (,) between measures can be used to indicate the end of a row of measures.'
+                                    ' The maximum number of measures allowed within a single row is 8.'
+                                    ' If there are no commas within a phrase of 8 or more measures, the phrase will'
+                                    ' automatically be split into rows of 4 measures.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Minus signs (-) can be used to indicate a repeated measure.'
+                                    ' There must be a space before and after it.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Row repeats are indicated by a lower case x followed by a number 2 or more.'
+                                    ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
+                                    ' first measure of the first row and a closing square bracket (]) after the last'
+                                    ' measure before the x and the digits.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Comments are not allowed in the chord section.'
+                                    ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Since you can enter the return key to format your entry, you must us the Enter button'
+                                    ' to enter it into the song.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'The red bar or measure highlight indicate where entry text will be entered.'
+                                    ' The radio buttons control the fine position of this indicator for inserting, replacing,'
+                                    ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
+                                    ' to delete it. Note that the delete key will always apply to text entry.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Double click a measure to select it for replacement or deletion.'
+                                    ' Note that if you double click the section type, the entire section will be'
+                                    ' available on the entry line for modification.'
+                                    ' If two sections have identical content, they will appear as multiple types for the'
+                                    ' single content. Define a different section content for one of the multiple sections'
+                                    ' and it will be separated from the others.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'In the lyrics section, anything else not recognized as a section identifier is'
+                                    ' considered lyrics to the end of the line.'
+                                    ' I suggest comments go into parenthesis.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'A trick: Select a section similar to a new section you are about to enter.'
+                                    ' Copy the text from the entery area. Delete the entry line. Enter the new section identifier'
+                                    ' (I suggest the section buttons on the right).'
+                                    ' Paste the old text after the new section. Make edit adjustments in the entry text'
+                                    ' and press the keyboard enter button.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
+                                    ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
+                                style: _textStyle,
+                              ),
+                              TextSpan(
+                                text:
+                                    'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
+                                style: _textStyle,
+                              ),
+                            ],
+                          ),
+                        ),
+                    ]),
                   ),
-                ]),
-              ),
-              Container(
-                width: 1000.0,
-                padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                child: Column(children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      AppContainedButton('Intro/Instrumental', () {},
-                          color: GuiColors.getColorForSectionEnum(
-                              SectionEnum.intro)),
-                      AppContainedButton('Verse', () {},
-                          color: GuiColors.getColorForSectionEnum(
-                              SectionEnum.verse)),
-                      AppContainedButton('PreChorus', () {},
-                          color: GuiColors.getColorForSectionEnum(
-                              SectionEnum.preChorus)),
-                      AppContainedButton('Bridge', () {},
-                          color: GuiColors.getColorForSectionEnum(
-                              SectionEnum.bridge)),
-                      AppContainedButton('Outro', () {},
-                          color: GuiColors.getColorForSectionEnum(
-                              SectionEnum.outro)),
-                    ],
-                  ),
-                  Row(mainAxisAlignment: MainAxisAlignment.start, children: <
-                      Widget>[
-                    AppContainedButton('Section A', () {},
-                        color: GuiColors.getColorForSectionEnum(SectionEnum.a)),
-                    AppContainedButton('Section B', () {},
-                        color: GuiColors.getColorForSectionEnum(SectionEnum.b)),
-                    AppContainedButton('Coda', () {},
-                        color:
-                            GuiColors.getColorForSectionEnum(SectionEnum.coda)),
-                    AppContainedButton('Tag', () {},
-                        color:
-                            GuiColors.getColorForSectionEnum(SectionEnum.tag)),
-                    Text(
-                      ' Section Version: ',
-                      style: _textStyle,
-                    ),
-                    DropdownButton<int>(
-                      items: _sectionVersionDropDownMenuList,
-                      onChanged: (_value) {
-                        _sectionVersion = _value;
-                        setState(() {});
-                      },
-                      value: _sectionVersion,
-                      style: _textStyle,
-                    ),
-                  ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          ' Any Chord: ',
-                          style: _textStyle,
-                        ),
-                        DropdownButton<ScaleNote>(
-                          items: _keyChordDropDownMenuList,
-                          onChanged: (_value) {
-                            _keyChordNote = _value;
-                            _otherChordDropDownMenuList = null;
-                            setState(() {});
-                          },
-                          value: _keyChordNote,
-                          style: _textStyle,
-                        ),
-                        majorChordButton,
-                        minorChordButton,
-                        dominant7ChordButton,
-                        DropdownButton<ScaleChord>(
-                          items: _otherChordDropDownMenuList,
-                          onChanged: (_value) {
-                            setState(() {});
-                          },
-                          style: _textStyle,
-                        ),
-                        AppOutlineButton('X', () {}),
-                      ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          ' Recent: ',
-                          style: _textStyle,
-                        ),
-                      ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          ' Frequent: ',
-                          style: _textStyle,
-                        ),
-                      ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          ' Repeats: ',
-                          style: _textStyle,
-                        ),
-                        AppOutlineButton('No Repeat', () {}),
-                        AppOutlineButton('Repeat x2', () {}),
-                        AppOutlineButton('Repeat x3', () {}),
-                        AppOutlineButton('Repeat x4', () {}),
-                      ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          ' Extras: ',
-                          style: _textStyle,
-                        ),
-                        AppOutlineButton('Undo', () {}),
-                        AppOutlineButton('Redo', () {}),
-                        AppOutlineButton('4/Row', () {}),
-                        AppOutlineButton('Hints', () { _showHints = !_showHints; setState(() {});}),
-                      ]),
-                  if ( _showHints )
-                  RichText(
-                    text: TextSpan(
-                      children: <InlineSpan>[
-                        TextSpan(
-                          text:'\n'
-                              'Section types are followed by a colon (:).'
-                              ' Sections can be entered abbreviated and in lower case.'
-                              ' The available section buttons will enter the correct abbreviation.'
-                              ' Section types can be followed with a digit to indicate a variation.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Sections with the same content will automatically be placed in the same declaration.'
-                              ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
-                              ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
-                              ' the capitalization for your input and place it on the line below the test entry box.'
-                              ' What you see in the text below the entry box will be what will be entered into the edit.'
-                              ' Note that often as you type, parts of a partial chord entry will be considered a comment,'
-                              ' i.e. will be placed in parenthesis in the text below.'
-                              ' When the chord entry is correct, the characters will be removed from the comment and will be'
-                              ' returned to their correct position in the entry.'
-                              '\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              '''A capital X is used to indicate no chord.\n\n''',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
-                              ' be a B♭m7 or the chord B followed by a Bm7?'
-                              ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
-                              '',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Limited set of case sensitive chord modifiers can be used: 7sus4,'
-                              ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
-                              ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
-                              ' 6, dim7, º7, ◦, dim, aug5, aug7, aug, sus7, sus4,'
-                              ' sus2, sus, m9, m11, m13, m6, Maj7, maj7, maj9, maj,'
-                              ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
-                              ' And of course the major chord is assumed if there is no modifier!'
-                              ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
-                              ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
-                              ' The bass note is a single note, not a chord.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Periods (.) can be used to repeat chords on another beat within the same meausure. For'
-                              ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text: '''Sample measures to use:
-                            A B C G
-                            A# C# Bb Db
-                            C7 D7 Dbm Dm Em Dm7 F#m7 A#maj7 Gsus9
-                            DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Commas (,) between measures can be used to indicate the end of a row of measures.'
-                              ' The maximum number of measures allowed within a single row is 8.'
-                              ' If there are no commas within a phrase of 8 or more measures, the phrase will'
-                              ' automatically be split into rows of 4 measures.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Minus signs (-) can be used to indicate a repeated measure.'
-                              ' There must be a space before and after it.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Row repeats are indicated by a lower case x followed by a number 2 or more.'
-                              ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
-                              ' first measure of the first row and a closing square bracket (]) after the last'
-                              ' measure before the x and the digits.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text: 'Comments are not allowed in the chord section.'
-                              ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Since you can enter the return key to format your entry, you must us the Enter button'
-                              ' to enter it into the song.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'The red bar or measure highlight indicate where entry text will be entered.'
-                              ' The radio buttons control the fine position of this indicator for inserting, replacing,'
-                              ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
-                              ' to delete it. Note that the delete key will always apply to text entry.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Double click a measure to select it for replacement or deletion.'
-                              ' Note that if you double click the section type, the entire section will be'
-                              ' available on the entry line for modification.'
-                              ' If two sections have identical content, they will appear as multiple types for the'
-                              ' single content. Define a different section content for one of the multiple sections'
-                              ' and it will be separated from the others.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'In the lyrics section, anything else not recognized as a section identifier is'
-                              ' considered lyrics to the end of the line.'
-                              ' I suggest comments go into parenthesis.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'A trick: Select a section similar to a new section you are about to enter.'
-                              ' Copy the text from the entery area. Delete the entry line. Enter the new section identifier'
-                              ' (I suggest the section buttons on the right).'
-                              ' Paste the old text after the new section. Make edit adjustments in the entry text'
-                              ' and press the keyboard enter button.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
-                              ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
-                          style: _textStyle,
-                        ),
-                        TextSpan(
-                          text:
-                              'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
-                          style: _textStyle,
-                        ),
-                      ],
-                    ),
-                  ),
-                ]),
+                ],
               ),
             ],
           ),
@@ -739,6 +793,7 @@ class _Edit extends State<Edit> {
   bool _showHints = false;
   int _sectionVersion = 0;
   ScaleNote _keyChordNote;
+  _EditTypeEnum _editType = _EditTypeEnum.append;
 
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList;
   List<DropdownMenuItem<int>> _sectionVersionDropDownMenuList;

@@ -21,11 +21,26 @@ arguments:
 ''');
 }
 
+Future setLastModified(File file, int lastModified) async {
+  DateTime t = DateTime.fromMillisecondsSinceEpoch(lastModified);
+  //print ('t: ${t.toIso8601String()}');
+  //  print ('file.path: ${file.path}');
+  await Process.run(
+          'bash', ['-c', 'touch --date="${t.toIso8601String()}" ${file.path}'])
+      .then((result) {
+    stdout.write(result.stdout);
+    stderr.write(result.stderr);
+    if (result.exitCode != 0)
+      throw "setLastModified() bad exit code: ${result.exitCode}";
+  });
+}
+
 void main() async {
   Logger.level = Level.info;
 
   List<String> args = [
     '-v',
+//    '-test',
     '-o',
     '/home/bob/junk/songs',
     '-x',
@@ -76,6 +91,13 @@ void main() async {
           return;
         }
         break;
+      case '-test':
+        {
+          DateTime t = DateTime.fromMillisecondsSinceEpoch(1570675021323);
+          File file = File('/home/bob/junk/j');
+          await setLastModified(file, t.millisecondsSinceEpoch);
+        }
+        break;
       case '-v':
         _verbose = true;
         break;
@@ -119,7 +141,7 @@ void main() async {
             }
           }
         } else
-          songs = Song.songListFromJson(_file.readAsStringSync( ));
+          songs = Song.songListFromJson(_file.readAsStringSync());
 
         if (songs == null || songs.isEmpty) {
           print('didn\'t find songs in ${_file.toString()}');
@@ -127,15 +149,19 @@ void main() async {
         }
 
         for (Song song in songs) {
-          if (_verbose)
+          DateTime fileTime =
+              DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime);
+          if (_verbose) {
             print(
-                '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()}');
+                '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()} ${fileTime.toIso8601String()}');
+          }
           File writeTo = File(_outputDirectory.path +
               '/' +
               song.songId.toString() +
               '.songlyrics');
           print(writeTo.path);
           await writeTo.writeAsString(song.toJson(), flush: true);
+          await setLastModified(writeTo, fileTime.millisecondsSinceEpoch);
         }
         break;
     }

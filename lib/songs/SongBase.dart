@@ -2877,9 +2877,10 @@ class SongBase {
   static String toSongId(String s) {
     return s
         .trim()
-        .replaceAllMapped(new RegExp(r'[^\w\s]'), (Match m) => '')
-        .replaceAll(' ', "_");
+        .replaceAllMapped( notWordOrSpaceRegExp, (Match m) => '')
+        .replaceAllMapped( dupUnderscoreOrSpaceRegExp, (Match m) => '_');
   }
+
 
   /// Sets the copyright for the song.  All songs should have a copyright.
   void setCopyright(String copyright) {
@@ -3444,4 +3445,7 @@ class SongBase {
   static final AppOptions appOptions = AppOptions();
   static final String defaultUser = "Unknown";
   static final bool _debugging = false;
+
+  static RegExp notWordOrSpaceRegExp = RegExp(r'[^\w\s]');
+  static RegExp dupUnderscoreOrSpaceRegExp = RegExp('[ _]+');
 }

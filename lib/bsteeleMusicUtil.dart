@@ -35,17 +35,13 @@ Future setLastModified(File file, int lastModified) async {
   });
 }
 
-void main() async {
-  Logger.level = Level.info;
+void main(List<String> args) {
+  runMain(args);
+}
 
-  List<String> args = [
-    '-v',
-//    '-test',
-    '-o',
-    '/home/bob/junk/songs',
-    '-x',
-    '/home/bob/junk/allSongs.zip'
-  ];
+/// A workaround method to get the async on main()
+void runMain(List<String> args) async {
+  Logger.level = Level.info;
 
   //  help if nothing to do
   if (args == null || args.length <= 0) {

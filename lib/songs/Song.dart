@@ -193,6 +193,7 @@ class Song extends SongBase implements Comparable<Song> {
     DateTime fileDateTime =
         DateTime.fromMillisecondsSinceEpoch(jsonSong['lastModifiedDate']);
     song.lastModifiedTime = fileDateTime.millisecondsSinceEpoch;
+    song.setFileName(jsonSongFile['file']);
 
     for (String name in jsonSong.keys) {
       switch (name) {
@@ -258,34 +259,34 @@ class Song extends SongBase implements Comparable<Song> {
     return song;
   }
 
-//  static String toJson(Collection<Song> songs) {
-//    if (songs == null || songs.isEmpty()) {
-//      return null;
-//    }
-//    StringBuffer sb = new StringBuffer();
-//    sb.write("[\n");
-//    bool first = true;
-//    for (Song song in songs) {
-//      if (first)
-//        first = false;
-//      else
-//        sb.write(",\n");
-//      sb.write(song.toJsonAsFile());
-//    }
-//    sb.write("]\n");
-//    return sb.toString();
-//  }
-//
-//  String toJsonAsFile() {
-//    return "{ \"file\": " +
-//        jsonEncode(getFileName()) +
-//        ", \"lastModifiedDate\": " +
-//        lastModifiedTime.toString() +
-//        ", \"song\":" +
-//        " \n" +
-//        toJson() +
-//        "}";
-//  }
+  static String listToJson(List<Song> songs) {
+    if (songs == null || songs.isEmpty) {
+      return null;
+    }
+    StringBuffer sb = new StringBuffer();
+    sb.write("[\n");
+    bool first = true;
+    for (Song song in songs) {
+      if (first)
+        first = false;
+      else
+        sb.write(",\n");
+      sb.write(song.toJsonAsFile());
+    }
+    sb.write("]\n");
+    return sb.toString();
+  }
+
+  String toJsonAsFile() {
+    return "{ \"file\": " +
+        jsonEncode(getFileName()) +
+        ", \"lastModifiedDate\": " +
+        lastModifiedTime.toString() +
+        ", \"song\":" +
+        " \n" +
+        toJson() +
+        "}";
+  }
 
   ///Generate the JSON expression of this song.
   String toJson() {

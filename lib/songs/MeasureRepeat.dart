@@ -174,8 +174,9 @@ class MeasureRepeat extends Phrase {
 
   @override
   int get chordRowCount {
-    return (super.chordRowCount+1)  //  last end of row not marked on repeats
-        * _repeatMarker.repeats;
+    return (super.chordRowCount + 1) //  last end of row not marked on repeats
+        *
+        _repeatMarker.repeats;
   }
 
   @override
@@ -203,10 +204,11 @@ class MeasureRepeat extends Phrase {
     StringBuffer sb = StringBuffer();
     if (measures.isNotEmpty) {
       int rowCount = 0;
-      Measure lastMeasure = measures[measures.length - 1];
+      int i = 0;
+      int last = measures.length - 1;
       for (Measure measure in measures) {
         sb.write(measure.toJson());
-        if (measure == lastMeasure) {
+        if (i == last) {
           if (rowCount > 0) sb.write(" |");
           sb.write(" x" + repeats.toString() + "\n");
           break;
@@ -215,6 +217,7 @@ class MeasureRepeat extends Phrase {
           rowCount++;
         } else
           sb.write(" ");
+        i++;
       }
     }
     return sb.toString();

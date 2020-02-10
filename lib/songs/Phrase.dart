@@ -484,16 +484,18 @@ class Phrase extends MeasureNode {
 
     StringBuffer sb = new StringBuffer();
     if (_measures.isNotEmpty) {
-      Measure lastMeasure = _measures[_measures.length - 1];
+      int i =0;
+      int last = _measures.length - 1;
       for (Measure measure in _measures) {
         sb.write(measure.toJson());
-        if (measure == lastMeasure) {
+        if (i == last) {
           sb.write("\n");
           break;
         } else if (measure.endOfRow) {
           sb.write("\n");
         } else
           sb.write(" ");
+        i++;
       }
     }
     return sb.toString();

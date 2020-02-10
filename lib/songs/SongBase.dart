@@ -2985,6 +2985,8 @@ class SongBase {
 
   void setFileName(String fileName) {
     this.fileName = fileName;
+    if ( fileName== null)
+      return;
 
     RegExp fileVersionRegExp = RegExp(r" \(([0-9]+)\).songlyrics$");
     RegExpMatch mr = fileVersionRegExp.firstMatch(fileName);

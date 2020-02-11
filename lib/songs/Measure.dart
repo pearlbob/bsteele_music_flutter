@@ -314,6 +314,8 @@ class Measure extends MeasureNode implements Comparable<Measure> {
   /// to avoid awkward behavior when chords are added without a count.
   /// Defaults to 4.
   int beatCount = 4; //  default only
+
+  /// indicate that the measure is at the end of it's row of measures in the phrase
   bool endOfRow = false;
 
   /// The chords to be played over this measure.

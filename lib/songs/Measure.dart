@@ -249,7 +249,7 @@ class Measure extends MeasureNode implements Comparable<Measure> {
     if (chords != null && chords.isNotEmpty) {
       StringBuffer sb = StringBuffer();
       for (Chord chord in chords) {
-        sb.write(chord.toString());
+        sb.write(chord.toMarkup());
       }
       if (endOfRowChar!=null && endOfRow) sb.write(endOfRowChar);
       return sb.toString();

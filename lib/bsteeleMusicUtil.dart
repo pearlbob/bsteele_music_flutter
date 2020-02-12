@@ -9,7 +9,8 @@ import 'package:logger/logger.dart';
 
 //  -v -o songs -x allSongs.songlyrics -a songs -f -w allSongs2.songlyrics
 //  -v -o songs -x allSongs.songlyrics -a songs -f -w allSongs2.songlyrics -o songs2 -x allSongs2.songlyrics
-void main(List<String> args) {
+void main() {
+  List<String> args;
   Logger.level = Level.info;
 
   BsteeleMusicUtil util = BsteeleMusicUtil();

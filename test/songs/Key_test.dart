@@ -12,7 +12,7 @@ class _Help {
     StringBuffer sb = StringBuffer();
     for (int j = 0; j < 7; j++) {
       ScaleNote sn = Key.get(keyEnum).getMajorScaleByNote(j);
-      String s = sn.toString();
+      String s = sn.toMarkup();
       sb.write(s);
       if (s.toString().length < 2) sb.write(" ");
       sb.write(" ");
@@ -24,7 +24,7 @@ class _Help {
     StringBuffer sb = StringBuffer();
     for (int j = 0; j < 7; j++) {
       ScaleChord sc = Key.get(keyEnum).getMajorDiatonicByDegree(j);
-      String s = sc.toString();
+      String s = sc.toMarkup();
       sb.write(s);
       int i = s.length;
       while (i < 4) {

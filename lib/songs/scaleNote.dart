@@ -348,7 +348,7 @@ class ScaleNote {
   //  i.e. as UTF-8
   @override
   String toString() {
-    return _scaleNoteMarkup;
+    return _scaleNoteString;
   }
 
   static Map<ScaleNoteEnum, ScaleNote> _hashmap;

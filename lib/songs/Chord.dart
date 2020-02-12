@@ -146,6 +146,23 @@ class Chord implements Comparable<Chord> {
     return ret;
   }
 
+  /// Returns a markup representation of the object.
+  @override
+  String toMarkup() {
+    String ret = _scaleChord.toMarkup() +
+        (slashScaleNote == null ? "" : "/" + slashScaleNote.toMarkup()) +
+        _anticipationOrDelay.toString();
+    if (!implicitBeats && beats < _beatsPerBar) {
+      if (beats == 1) {
+        ret += ".1";
+      } else {
+        int b = 1;
+        while (b++ < beats && b < 12) ret += ".";
+      }
+    }
+    return ret;
+  }
+
   @override
   bool operator ==(other) {
     if (identical(this, other)) {

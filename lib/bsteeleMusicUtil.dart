@@ -19,7 +19,6 @@ void main(List<String> args) {
 /// a command line utility to help manage song list maintenance
 /// to and from tools like git and the bsteele Music App.
 class BsteeleMusicUtil {
-
   /// help message to the user
   void _help() {
     print(((('''
@@ -92,17 +91,7 @@ coerced to reflect the songlist's last modification for that song.
             _help();
             exit(-1);
           }
-          {
-            List contents = inputDirectory.listSync();
-            for (var file in contents) {
-              if (!(file is File)) continue;
-              if (!file.path.endsWith('.songlyrics')) continue;
-
-              List<Song> addSongs =
-                  Song.songListFromJson(file.readAsStringSync());
-              allSongs.addAll(addSongs);
-            }
-          }
+          _addAllSongsFromDir(inputDirectory);
           break;
 
         case '-f':
@@ -235,10 +224,22 @@ coerced to reflect the songlist's last modification for that song.
             DateTime fileTime =
                 DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime);
 
-            File writeTo = File(_outputDirectory.path +
-                '/' +
-                song.songId.toString() +
-                '.songlyrics');
+            //  used to spread the songs thinner than the maximum 1000 files
+            //  per directory limit in github.com
+            Directory songDir;
+            {
+              String s = song
+                  .getTitle()
+                  .replaceAll(notWordOrSpaceRegExp, '')
+                  .trim()
+                  .substring(0, 1)
+                  .toUpperCase();
+              songDir = Directory(_outputDirectory.path + '/' + s);
+            }
+            songDir.createSync();
+
+            File writeTo = File(
+                songDir.path + '/' + song.songId.toString() + '.songlyrics');
             if (_verbose) logger.d('\t' + writeTo.path);
             String fileAsJson = song.toJsonAsFile();
             if (writeTo.existsSync()) {
@@ -252,17 +253,14 @@ coerced to reflect the songlist's last modification for that song.
               } else {
                 if (_veryVerbose) {
                   logger.i(
-                      '${song.getTitle()} by ${song.getArtist()}  ${song.songId
-                          .toString()} ${fileTime.toIso8601String()}');
+                      '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()} ${fileTime.toIso8601String()}');
                   logger.i("\tidentical");
                 }
-
               }
             } else {
               if (_verbose) {
                 logger.i(
-                    '${song.getTitle()} by ${song.getArtist()}  ${song.songId
-                        .toString()} ${fileTime.toIso8601String()}');
+                    '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()} ${fileTime.toIso8601String()}');
               }
               writeTo.writeAsStringSync(fileAsJson, flush: true);
             }
@@ -276,10 +274,27 @@ coerced to reflect the songlist's last modification for that song.
     exit(0);
   }
 
+  void _addAllSongsFromDir(Directory directory) {
+    List contents = directory.listSync();
+    for (var file in contents) {
+      if (file is Directory) {
+        _addAllSongsFromDir(file);
+        continue;
+      }
+
+      if (!(file is File)) continue;
+      if (!file.path.endsWith('.songlyrics')) continue;
+
+      List<Song> addSongs = Song.songListFromJson(file.readAsStringSync());
+      allSongs.addAll(addSongs);
+    }
+  }
+
   Directory _outputDirectory = Directory.current;
   SplayTreeSet<Song> allSongs = SplayTreeSet();
   File _file;
   bool _verbose = false;
   bool _veryVerbose = false;
   bool _force = false; //  force a file write, even if it already exists
+  static RegExp notWordOrSpaceRegExp = RegExp(r'[^\w\s]');
 }

@@ -174,6 +174,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     const double fontSize = 48;
+    final TextStyle _textStyle =
+        TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     return Scaffold(
       appBar: AppBar(
@@ -226,27 +228,39 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: EdgeInsets.all(4.0),
           children: <Widget>[
             ListTile(
-              title: Text("Song list options"),
+              title: Text(
+                "Options",
+                style: _textStyle,
+              ),
               onTap: () {
-                print("Song list options");
+                print("Options");
               },
             ),
             if (!isTooNarrow) //  no edits on phones!
               ListTile(
-                title: Text("Edit"),
+                title: Text(
+                  "Edit",
+                  style: _textStyle,
+                ),
                 onTap: () {
                   _navigateToEdit(context, selectedSong);
                 },
               ),
             ListTile(
-              title: Text("Privacy Policy"),
+              title: Text(
+                "Privacy",
+                style: _textStyle,
+              ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 _navigateToPrivacyPolicy(context);
               },
             ),
             ListTile(
-              title: Text("About"),
+              title: Text(
+                "About",
+                style: _textStyle,
+              ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 _navigateToAbout(context);

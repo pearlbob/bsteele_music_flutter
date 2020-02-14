@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:bsteele_music_flutter/Grid.dart';
 import 'package:bsteele_music_flutter/Gui.dart';
+import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/songs/ChordSection.dart';
 import 'package:bsteele_music_flutter/songs/Key.dart' as songs;
 import 'package:bsteele_music_flutter/songs/MusicConstants.dart';
@@ -343,14 +344,15 @@ class _Player extends State<Player> {
         );
         if (i < -30 || i > 30)
           i += 10 - 1; //  in addition to increment above
-        else if (i < -5 || i > 5)
-          i += 5 - 1; //  in addition to increment above
+        else if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
       }
     }
 
     double boxCenter = 0.5 * _screenHeight;
     double boxHeight = 0.5 * _screenHeight;
     double boxOffset = boxHeight / 2;
+
+    final hoverColor = Colors.blue[700];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -396,16 +398,39 @@ class _Player extends State<Player> {
                               style: TextStyle(
                                   fontSize: 48, fontWeight: FontWeight.bold),
                             ),
+                            hoverColor: hoverColor,
                           ),
                           centerTitle: true,
                         ),
-                        InkWell(
-                          onTap: () {
-                            openLink(_artistAnchor());
-                          },
-                          child: Text(
-                            ' by  ${song.artist}',
-                            textScaleFactor: lyricsScaleFactor,
+                        Container(
+                          padding: const EdgeInsets.only(top: 16, right: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () {
+                                  openLink(_artistAnchor());
+                                },
+                                child: Text(
+                                  ' by  ${song.artist}',
+                                  textScaleFactor: lyricsScaleFactor,
+                                ),
+                                hoverColor: hoverColor,
+                              ),
+                              FlatButton.icon(
+                                padding: const EdgeInsets.all(16),
+                                color: Colors.lightBlue[300],
+                                hoverColor: hoverColor,
+                                icon: Icon(
+                                  Icons.edit,
+                                  size: 48,
+                                ),
+                                label: Text(''),
+                                onPressed: () {
+                                  _navigateToEdit(context, song);
+                                },
+                              ),
+                            ],
                           ),
                         ),
                         Row(
@@ -416,7 +441,7 @@ class _Player extends State<Player> {
                                     const EdgeInsets.only(left: 8, right: 32),
                                 child: FlatButton.icon(
                                   color: Colors.lightBlue[300],
-                                  hoverColor: Colors.red,
+                                  hoverColor: hoverColor,
                                   icon: Icon(
                                     _playStopIcon,
                                     size: 24 * lyricsScaleFactor,
@@ -603,6 +628,13 @@ class _Player extends State<Player> {
 
   String _artistAnchor() {
     return anchorUrlStart + Uri.encodeFull('${widget.song.artist}');
+  }
+
+  _navigateToEdit(BuildContext context, Song song) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Edit(song: song)),
+    );
   }
 
   static final String anchorUrlStart =

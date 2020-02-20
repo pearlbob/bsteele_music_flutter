@@ -72,7 +72,7 @@ class _Player extends State<Player> {
 
     _scrollController.addListener(() {
       int t = DateTime.now().millisecondsSinceEpoch;
-      logger.i('scroll:'
+      logger.d('scroll:'
           ' pos: ${_scrollController.offset.toStringAsFixed(1)}'
           ' posT: ${songTimeAtPosition(_scrollController.offset).toStringAsFixed(3)} s'
           ' d: ${(_scrollController.offset - _lastScrollPos).toStringAsFixed(2)}'
@@ -118,9 +118,10 @@ class _Player extends State<Player> {
     double chordScaleFactor = _screenWidth / 400;
     _isTooNarrow = _screenWidth <= 800;
     _isTooNarrow = _screenWidth <= 800;
-    chordScaleFactor = min(10, max(1, chordScaleFactor));
+    chordScaleFactor = min(5, max(1, chordScaleFactor));
+    logger.i("chordScaleFactor: $chordScaleFactor");
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
-    logger.d("textScaleFactor: $chordScaleFactor");
+    logger.d("lyricsScaleFactor: $lyricsScaleFactor");
 
     if (_table == null) {
       logger.i("size: " + MediaQuery.of(context).size.toString());
@@ -173,6 +174,7 @@ class _Player extends State<Player> {
             int sectionCount = firstSongMoment.sectionCount;
             String columnFiller;
             EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
+            EdgeInsets textPadding = EdgeInsets.all(12);
             if (chordSection != lastChordSection ||
                 sectionCount != lastSectionCount) {
               //  add the section heading
@@ -197,9 +199,10 @@ class _Player extends State<Player> {
                 else
                   children.add(Container(
                       margin: marginInsets,
+                      padding: textPadding,
+                      color: color,
                       child: Text(
                         columnFiller,
-                        style: TextStyle(backgroundColor: color),
                         textScaleFactor: chordScaleFactor,
                       )));
                 columnFiller = null; //  for subsequent rows
@@ -208,9 +211,10 @@ class _Player extends State<Player> {
                 children.add(Container(
                     key: _rowKey,
                     margin: marginInsets,
+                    padding: textPadding,
+                    color: color,
                     child: Text(
                       sm.getMeasure().transpose(_displaySongKey, tranOffset),
-                      style: TextStyle(backgroundColor: color),
                       textScaleFactor: chordScaleFactor,
                     )));
                 _rowKey = null;
@@ -228,9 +232,10 @@ class _Player extends State<Player> {
               //  lyrics
               children.add(Container(
                   margin: marginInsets,
+                  padding: textPadding,
+                  color: color,
                   child: Text(
                     firstSongMoment.lyrics,
-                    style: TextStyle(backgroundColor: color),
                     textScaleFactor: lyricsScaleFactor,
                   )));
 
@@ -376,160 +381,174 @@ class _Player extends State<Player> {
               ),
             ),
           ),
-          SingleChildScrollView(
-            controller: _scrollController,
-            scrollDirection: Axis.vertical,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                textDirection: TextDirection.ltr,
-                children: <Widget>[
-                  if (!_isPlaying)
-                    Column(
-                      children: <Widget>[
-                        AppBar(
-                          //  let the app bar scroll off the screen for more room for the song
-                          title: InkWell(
-                            onTap: () {
-                              openLink(_titleAnchor());
-                            },
-                            child: Text(
-                              '${song.title}',
-                              style: TextStyle(
-                                  fontSize: 48, fontWeight: FontWeight.bold),
+          NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification is ScrollStartNotification) {
+                _isInAnitmation = true;
+                logger.i('start scroll: ${scrollNotification.metrics}');
+              } else if (scrollNotification is ScrollUpdateNotification) {
+                _isInAnitmation = true;
+                logger.d('update scroll: ${scrollNotification.metrics}');
+              } else if (scrollNotification is ScrollEndNotification) {
+                _isInAnitmation = false;
+                logger.i('end scroll: ${scrollNotification.metrics}');
+              }
+            },
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  textDirection: TextDirection.ltr,
+                  children: <Widget>[
+                    if (!_isPlaying)
+                      Column(
+                        children: <Widget>[
+                          AppBar(
+                            //  let the app bar scroll off the screen for more room for the song
+                            title: InkWell(
+                              onTap: () {
+                                openLink(_titleAnchor());
+                              },
+                              child: Text(
+                                '${song.title}',
+                                style: TextStyle(
+                                    fontSize: 48, fontWeight: FontWeight.bold),
+                              ),
+                              hoverColor: hoverColor,
                             ),
-                            hoverColor: hoverColor,
+                            centerTitle: true,
                           ),
-                          centerTitle: true,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(top: 16, right: 12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              InkWell(
-                                onTap: () {
-                                  openLink(_artistAnchor());
-                                },
-                                child: Text(
-                                  ' by  ${song.artist}',
-                                  textScaleFactor: lyricsScaleFactor,
+                          Container(
+                            padding: const EdgeInsets.only(top: 16, right: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                InkWell(
+                                  onTap: () {
+                                    openLink(_artistAnchor());
+                                  },
+                                  child: Text(
+                                    ' by  ${song.artist}',
+                                    textScaleFactor: lyricsScaleFactor,
+                                  ),
+                                  hoverColor: hoverColor,
                                 ),
-                                hoverColor: hoverColor,
-                              ),
-                              FlatButton.icon(
-                                padding: const EdgeInsets.all(16),
-                                color: Colors.lightBlue[300],
-                                hoverColor: hoverColor,
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 48,
-                                ),
-                                label: Text(''),
-                                onPressed: () {
-                                  _navigateToEdit(context, song);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: <Widget>[
-                            if (!_isTooNarrow)
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 32),
-                                child: FlatButton.icon(
+                                FlatButton.icon(
+                                  padding: const EdgeInsets.all(16),
                                   color: Colors.lightBlue[300],
                                   hoverColor: hoverColor,
                                   icon: Icon(
-                                    _playStopIcon,
-                                    size: 24 * lyricsScaleFactor,
+                                    Icons.edit,
+                                    size: 48,
                                   ),
                                   label: Text(''),
                                   onPressed: () {
-                                    _play();
+                                    _navigateToEdit(context, song);
                                   },
                                 ),
-                              ),
-                            Text(
-                              "Key: ",
-                              textScaleFactor: lyricsScaleFactor,
+                              ],
                             ),
-                            if (!_isTooNarrow)
-                              DropdownButton<songs.Key>(
-                                items: keyDropDownMenuList,
-                                onChanged: (_value) {
-                                  setState(() {
-                                    _displaySongKey = _value;
-                                    _table = null;
-                                  });
-                                },
-                                value: _displaySongKey,
-                                style: TextStyle(
-                                  //  size controlled by textScaleFactor above
-                                  color: Colors.black87,
-                                  textBaseline: TextBaseline.ideographic,
+                          ),
+                          Row(
+                            children: <Widget>[
+                              if (!_isTooNarrow)
+                                Container(
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 32),
+                                  child: FlatButton.icon(
+                                    color: Colors.lightBlue[300],
+                                    hoverColor: hoverColor,
+                                    icon: Icon(
+                                      _playStopIcon,
+                                      size: 24 * lyricsScaleFactor,
+                                    ),
+                                    label: Text(''),
+                                    onPressed: () {
+                                      _play();
+                                    },
+                                  ),
                                 ),
-                                iconSize: lyricsScaleFactor * 16,
-                                itemHeight: lyricsScaleFactor *
-                                    kMinInteractiveDimension,
-                              )
-                            else
-                              Text(_displaySongKey.toString()),
-                            Text(
-                              "   BPM: ",
-                              textScaleFactor: lyricsScaleFactor,
-                            ),
-                            if (!_isTooNarrow)
-                              DropdownButton<int>(
-                                items: bpmDropDownMenuList,
-                                onChanged: (_value) {
-                                  setState(() {
-                                    song.setBeatsPerMinute(_value);
-                                    bpmDropDownMenuList =
-                                        null; //  refresh to new value
-                                    setState(() {});
-                                  });
-                                },
-                                value: song.getBeatsPerMinute(),
-                                style: TextStyle(
-                                  //  size controlled by textScaleFactor above
-                                  color: Colors.black87,
-                                  textBaseline: TextBaseline.ideographic,
-                                ),
-                                iconSize: lyricsScaleFactor * 16,
-                                itemHeight: lyricsScaleFactor *
-                                    kMinInteractiveDimension,
-                              )
-                            else
                               Text(
-                                song.getBeatsPerMinute().toString(),
+                                "Key: ",
                                 textScaleFactor: lyricsScaleFactor,
                               ),
-                            Text(
-                              "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                              textScaleFactor: lyricsScaleFactor,
-                            ),
-                          ],
-                        ),
-                      ],
+                              if (!_isTooNarrow)
+                                DropdownButton<songs.Key>(
+                                  items: keyDropDownMenuList,
+                                  onChanged: (_value) {
+                                    setState(() {
+                                      _displaySongKey = _value;
+                                      _table = null;
+                                    });
+                                  },
+                                  value: _displaySongKey,
+                                  style: TextStyle(
+                                    //  size controlled by textScaleFactor above
+                                    color: Colors.black87,
+                                    textBaseline: TextBaseline.ideographic,
+                                  ),
+                                  iconSize: lyricsScaleFactor * 16,
+                                  itemHeight: lyricsScaleFactor *
+                                      kMinInteractiveDimension,
+                                )
+                              else
+                                Text(_displaySongKey.toString()),
+                              Text(
+                                "   BPM: ",
+                                textScaleFactor: lyricsScaleFactor,
+                              ),
+                              if (!_isTooNarrow)
+                                DropdownButton<int>(
+                                  items: bpmDropDownMenuList,
+                                  onChanged: (_value) {
+                                    setState(() {
+                                      song.setBeatsPerMinute(_value);
+                                      bpmDropDownMenuList =
+                                          null; //  refresh to new value
+                                      setState(() {});
+                                    });
+                                  },
+                                  value: song.getBeatsPerMinute(),
+                                  style: TextStyle(
+                                    //  size controlled by textScaleFactor above
+                                    color: Colors.black87,
+                                    textBaseline: TextBaseline.ideographic,
+                                  ),
+                                  iconSize: lyricsScaleFactor * 16,
+                                  itemHeight: lyricsScaleFactor *
+                                      kMinInteractiveDimension,
+                                )
+                              else
+                                Text(
+                                  song.getBeatsPerMinute().toString(),
+                                  textScaleFactor: lyricsScaleFactor,
+                                ),
+                              Text(
+                                "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                                textScaleFactor: lyricsScaleFactor,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    if (_isPlaying)
+                      SizedBox(
+                        height: _screenHeight / 2,
+                      ),
+                    Center(child: _table),
+                    Text(
+                      "Copyright: ${song.getCopyright()}",
+                      textScaleFactor: lyricsScaleFactor,
                     ),
-                  if (_isPlaying)
-                    SizedBox(
-                      height: _screenHeight / 2,
-                    ),
-                  Center(child: _table),
-                  Text(
-                    "Copyright: ${song.getCopyright()}",
-                    textScaleFactor: lyricsScaleFactor,
-                  ),
-                  if (_isPlaying)
-                    SizedBox(
-                      height: _screenHeight / 2,
-                    ),
-                  _KeyboardListener(this),
-                ]),
+                    if (_isPlaying)
+                      SizedBox(
+                        height: _screenHeight / 2,
+                      ),
+                    _KeyboardListener(this),
+                  ]),
+            ),
           ),
         ],
       ),
@@ -583,6 +602,7 @@ class _Player extends State<Player> {
   _stop() {
     _isPlaying = true;
     _scrollController.jumpTo(_scrollController.offset);
+    _isInAnitmation = false;
     setState(() {});
   }
 
@@ -593,11 +613,13 @@ class _Player extends State<Player> {
       logger.d('animated scroll');
     } else {
       _scrollController.jumpTo(_scrollController.offset - _screenHeight / 2);
+      _isInAnitmation = false;
     }
     setState(() {});
   }
 
   void _playAnimation() {
+    _isInAnitmation = true;
     t0 = DateTime.now().millisecondsSinceEpoch;
     _scrollController
         .animateTo(_lastDy,
@@ -616,6 +638,7 @@ class _Player extends State<Player> {
                     .toInt()),
             curve: Curves.linear)
         .then((_) {
+      _isInAnitmation = false;
       logger.i('_playAnimation finished'
           ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
     });
@@ -656,6 +679,7 @@ class _Player extends State<Player> {
   List<DropdownMenuItem<int>> bpmDropDownMenuList;
 
   ScrollController _scrollController = ScrollController();
+  bool _isInAnitmation = false;
 }
 
 class _RowLocation {
@@ -715,23 +739,25 @@ class _KeyboardListener extends StatefulWidget {
 class _KeyboardListenerState extends State<_KeyboardListener> {
   _KeyboardListenerState(this._player);
 
-  handleKey(RawKeyEventData key) {
+  handleKey(RawKeyEventData rawKey) {
     //  can't get enough data from raw key
     //  so use time to discriminate pressings from repeats
     final int t = DateTime.now().millisecondsSinceEpoch;
     final int dt = t - _lastKeyTime;
     _lastKeyTime = t;
-    if (dt < 350) return;
+    if (dt < 250) return;
 
-    logger.i('KeyCode: ${key.logicalKey.toString()} ${key.toString()}, t: $dt');
-    if (key.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
-      logger.i('space hit');
+    logger.d(
+        'KeyCode: ${rawKey.logicalKey.toString()} ${rawKey.toString()}, t: $dt');
+    if (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
+      logger.d('space hit');
       _player._playToggle();
     } else if (_player._isPlaying &&
-        (key.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
-            key.logicalKey.keyLabel == LogicalKeyboardKey.arrowUp.keyLabel)) {
+        (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
+            rawKey.logicalKey.keyLabel ==
+                LogicalKeyboardKey.arrowUp.keyLabel)) {
       //  restart the scrolling after a bit
-      Timer(Duration(milliseconds: 33 * 5), () {
+      Timer(Duration(milliseconds: 200), () {
         _player._playAnimation();
       });
     }

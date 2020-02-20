@@ -819,6 +819,22 @@ class _Edit extends State<Edit> {
                     ],
                   ),
                 ),
+              TextField(
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Enter the song\'s lyrics by chord section. Required.',
+                  //  fixme
+                  hintStyle: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      backgroundColor: Colors.grey[100]),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                ),
+                style: _boldTextStyle,
+                maxLines: 80,
+              ),
             ],
           ),
         ),

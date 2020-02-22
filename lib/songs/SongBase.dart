@@ -465,7 +465,7 @@ class SongBase {
                 songMoment.getRepeatMax().toString()
             : "");
 
-    if (appOptions.isDebug())
+    if (appOptions.debug)
       ret = songMoment.getMomentNumber().toString() +
           ": " +
           songMoment.getChordSectionLocation().toString() +

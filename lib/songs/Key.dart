@@ -322,6 +322,11 @@ class Key implements Comparable<Key> {
     return _keyScaleNote.toString();
   }
 
+  @override
+  String toMarkup() {
+    return _keyScaleNote.toMarkup();
+  }
+
   String toStringAsSharp(){
     if ( _keyScaleNote.isFlat )
       return _keyScaleNote.alias.toString();

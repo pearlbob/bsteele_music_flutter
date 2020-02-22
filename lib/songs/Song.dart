@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:logger/logger.dart';
+import 'package:universal_html/html.dart';
 
 import '../util/util.dart';
 import 'SongBase.dart';
@@ -176,11 +177,13 @@ class Song extends SongBase implements Comparable<Song> {
     if (json is List) {
       //  a list of songs
       for (Map jsonMap in json) {
-        songList.add(songFromJson(jsonMap));
+        Song song = songFromJson(jsonMap);
+        if (song != null) songList.add(song);
       }
     } else if (json is Map) {
       //  a single song
-      songList.add(songFromJson(json));
+      Song song = songFromJson(json);
+      if (song != null) songList.add(song);
     }
     return songList;
   }
@@ -190,6 +193,8 @@ class Song extends SongBase implements Comparable<Song> {
     Song song = Song.createEmptySong();
 
     Map jsonSong = jsonSongFile['song'];
+    if (jsonSong == null) return null;
+
     DateTime fileDateTime =
         DateTime.fromMillisecondsSinceEpoch(jsonSong['lastModifiedDate']);
     song.lastModifiedTime = fileDateTime.millisecondsSinceEpoch;
@@ -309,7 +314,7 @@ class Song extends SongBase implements Comparable<Song> {
     sb.write(jsonEncode(getCopyright()));
     sb.write(",\n");
     sb.write("\"key\": \"");
-    sb.write(getKey().toString());
+    sb.write(getKey().toMarkup());
     sb.write("\",\n");
     sb.write("\"defaultBpm\": ");
     sb.write(getDefaultBpm());

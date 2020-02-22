@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 class AppOptions {
-
   static final AppOptions _singleton = AppOptions._internal();
 
   factory AppOptions() {
@@ -10,67 +9,76 @@ class AppOptions {
 
   AppOptions._internal();
 
-    bool isCountIn() {
+  bool isCountIn() {
     return countIn;
   }
 
-    void setCountIn(bool countIn) {
+  void setCountIn(bool countIn) {
     this.countIn = countIn;
     save();
   }
 
-    bool isDashAllMeasureRepetitions() {
+  bool isDashAllMeasureRepetitions() {
     return dashAllMeasureRepetitions;
   }
 
-    void setDashAllMeasureRepetitions(bool dashAllMeasureRepetitions) {
+  void setDashAllMeasureRepetitions(bool dashAllMeasureRepetitions) {
     this.dashAllMeasureRepetitions = dashAllMeasureRepetitions;
     save();
   }
 
-    bool isDebug() {
-    return debug;
-  }
+  bool get debug => _debug;
 
-    void setDebug(bool debug) {
-    this.debug = debug;
+  void set debug(debug) {
+    _debug = debug;
     save();
   }
 
-
-    bool isPlayWithLineIndicator() {
+  bool isPlayWithLineIndicator() {
     return playWithLineIndicator;
   }
 
-    void setPlayWithLineIndicator(bool playWithLineIndicator) {
+  void setPlayWithLineIndicator(bool playWithLineIndicator) {
     this.playWithLineIndicator = playWithLineIndicator;
     save();
   }
 
-    bool isPlayWithMeasureIndicator() {
+  bool isPlayWithMeasureIndicator() {
     return playWithMeasureIndicator;
   }
 
-    void setPlayWithMeasureIndicator(bool playWithMeasureIndicator) {
+  void setPlayWithMeasureIndicator(bool playWithMeasureIndicator) {
     this.playWithMeasureIndicator = playWithMeasureIndicator;
     save();
   }
 
-    String toJson() {
+  String toJson() {
     StringBuffer sb = new StringBuffer();
     sb.write("[ ");
     sb.write("\"countIn\": \"" + jsonEncode(countIn) + "\", ");
-    sb.write("\"dashAllMeasureRepetitions\": \"" + jsonEncode(dashAllMeasureRepetitions) + "\", ");
-    sb.write("\"playWithLineIndicator\": \"" + jsonEncode(playWithLineIndicator )+ "\", ");
-    sb.write("\"playWithMeasureIndicator\": \"" + jsonEncode(playWithMeasureIndicator )+ "\", ");
-    sb.write("\"playWithBouncingBall\": \"" + jsonEncode(playWithBouncingBall )+ "\", ");
-    sb.write("\"playWithMeasureLabel\": \"" + jsonEncode(playWithMeasureLabel) + "\", ");
+    sb.write("\"dashAllMeasureRepetitions\": \"" +
+        jsonEncode(dashAllMeasureRepetitions) +
+        "\", ");
+    sb.write("\"playWithLineIndicator\": \"" +
+        jsonEncode(playWithLineIndicator) +
+        "\", ");
+    sb.write("\"playWithMeasureIndicator\": \"" +
+        jsonEncode(playWithMeasureIndicator) +
+        "\", ");
+    sb.write("\"playWithBouncingBall\": \"" +
+        jsonEncode(playWithBouncingBall) +
+        "\", ");
+    sb.write("\"playWithMeasureLabel\": \"" +
+        jsonEncode(playWithMeasureLabel) +
+        "\", ");
     sb.write("\"debug\": \"" + jsonEncode(debug) + "\",");
-    sb.write("\"alwaysUseTheNewestSongOnRead\": \"" + jsonEncode(alwaysUseTheNewestSongOnRead) + "\"");      //  no comma at end
+    sb.write("\"alwaysUseTheNewestSongOnRead\": \"" +
+        jsonEncode(alwaysUseTheNewestSongOnRead) +
+        "\""); //  no comma at end
     sb.write(" ]");
     return sb.toString();
   }
-  
+
 //  bool _parseBool( String value ){
 //      return value.toLowerCase()=='true';
 //  }
@@ -129,34 +137,34 @@ class AppOptions {
 //    this.saveCallback = saveCallback;
 //  }
 
-    void save() {
+  void save() {
 //    if (saveCallback != null)
 //      saveCallback.save();
   }
 
-    bool isPlayWithBouncingBall() {
+  bool isPlayWithBouncingBall() {
     return playWithBouncingBall;
   }
 
-    void setPlayWithBouncingBall(bool playWithBouncingBall) {
+  void setPlayWithBouncingBall(bool playWithBouncingBall) {
     this.playWithBouncingBall = playWithBouncingBall;
     save();
   }
 
-    bool isPlayWithMeasureLabel() {
+  bool isPlayWithMeasureLabel() {
     return playWithMeasureLabel;
   }
 
-    void setPlayWithMeasureLabel(bool playWithMeasureLabel) {
+  void setPlayWithMeasureLabel(bool playWithMeasureLabel) {
     this.playWithMeasureLabel = playWithMeasureLabel;
     save();
   }
 
-    bool isAlwaysUseTheNewestSongOnRead() {
+  bool isAlwaysUseTheNewestSongOnRead() {
     return alwaysUseTheNewestSongOnRead;
   }
 
-    void setAlwaysUseTheNewestSongOnRead(bool alwaysUseTheNewestSongOnRead) {
+  void setAlwaysUseTheNewestSongOnRead(bool alwaysUseTheNewestSongOnRead) {
     this.alwaysUseTheNewestSongOnRead = alwaysUseTheNewestSongOnRead;
     save();
   }
@@ -167,6 +175,6 @@ class AppOptions {
   bool playWithMeasureIndicator = true;
   bool playWithBouncingBall = true;
   bool playWithMeasureLabel = true;
-  bool debug = false;
+  bool _debug = false;
   bool alwaysUseTheNewestSongOnRead = false;
 }

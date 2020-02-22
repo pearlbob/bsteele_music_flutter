@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/songs/Song.dart';
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/player': (context) => Player(song: selectedSong),
+        '/options': (context) => Options(),
         '/edit': (context) => Edit(song: selectedSong),
         '/privacy': (context) => Privacy(),
         '/about': (context) => About(),
@@ -233,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: _textStyle,
               ),
               onTap: () {
-                print("Options");
+                _navigateToOptions(context);
               },
             ),
             if (!isTooNarrow) //  no edits on phones!
@@ -400,6 +402,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _searchTextFieldController.selection = TextSelection(
         baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
     FocusScope.of(context).requestFocus(_searchFocusNode);
+  }
+
+  _navigateToOptions(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Options()),
+    );
   }
 
   _navigateToEdit(BuildContext context, Song song) async {

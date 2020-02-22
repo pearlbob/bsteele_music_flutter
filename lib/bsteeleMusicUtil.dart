@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'package:archive/archive.dart';
 import 'package:bsteele_music_flutter/appLogger.dart';
@@ -9,8 +10,7 @@ import 'package:logger/logger.dart';
 
 //  -v -o songs -x allSongs.songlyrics -a songs -f -w allSongs2.songlyrics
 //  -v -o songs -x allSongs.songlyrics -a songs -f -w allSongs2.songlyrics -o songs2 -x allSongs2.songlyrics
-void main() {
-  List<String> args;
+void main(List<String> args) {
   Logger.level = Level.info;
 
   BsteeleMusicUtil util = BsteeleMusicUtil();
@@ -26,18 +26,19 @@ class BsteeleMusicUtil {
 bsteeleMusicUtil:
 //  a utility for the bsteele Music App
 arguments:
--a {dir}            add the allSongs list from the given directory
+-a {dir}            add all the .songlyrics files to the utility's allSongs list 
 -f                  force file writes over existing files
 -h                  this help message
 -o {output dir}     select the output directory, must be specified prior to -x
--v                  verbose output
+-url {url}          read the given url into the utility's allSongs list
+-v                  verbose output utility's allSongs list
 -V                  very verbose output
--w {file}           write the current allSongs list to the given file
+-w {file}           write the utility's allSongs list to the given file
 -x {file}           expand a songlyrics list file to the output directory
 
-note: the output directory will not be cleaned prior to the expansion.
+note: the output directory will NOT be cleaned prior to the expansion.
 this means old and stale songs might remain in the directory.
-note: the last modification date and time of the songlyrics file will be 
+note: the modification date and time of the songlyrics file will be 
 coerced to reflect the songlist's last modification for that song.
 '''))));
   }
@@ -172,6 +173,21 @@ coerced to reflect the songlist's last modification for that song.
           _veryVerbose = true;
           break;
 
+        case '-url':
+          //  assert there is another arg
+          if (i >= args.length - 1) {
+            logger.e('missing file path for -url');
+            _help();
+            exit(-1);
+          }
+          i++;
+          String url = args[i];
+          logger.d("url: '$url'");
+          List<Song> addSongs =
+              Song.songListFromJson(utf8.decode(await http.readBytes(url)));
+          allSongs.addAll(addSongs);
+          break;
+
         case '-x':
           //  assert there is another arg
           if (i >= args.length - 1) {
@@ -249,19 +265,19 @@ coerced to reflect the songlist's last modification for that song.
                 writeTo.writeAsStringSync(fileAsJson, flush: true);
                 if (_verbose) {
                   logger.i(
-                      '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()} ${fileTime.toIso8601String()}');
+                      '${song.getTitle()} by ${song.getArtist()}:  ${song.songId.toString()} ${fileTime.toIso8601String()}');
                 }
               } else {
                 if (_veryVerbose) {
                   logger.i(
-                      '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()} ${fileTime.toIso8601String()}');
+                      '${song.getTitle()} by ${song.getArtist()}:  ${song.songId.toString()} ${fileTime.toIso8601String()}');
                   logger.i("\tidentical");
                 }
               }
             } else {
               if (_verbose) {
                 logger.i(
-                    '${song.getTitle()} by ${song.getArtist()}  ${song.songId.toString()} ${fileTime.toIso8601String()}');
+                    '${song.getTitle()} by ${song.getArtist()}:  ${song.songId.toString()} ${fileTime.toIso8601String()}');
               }
               writeTo.writeAsStringSync(fileAsJson, flush: true);
             }
@@ -276,6 +292,7 @@ coerced to reflect the songlist's last modification for that song.
   }
 
   void _addAllSongsFromDir(Directory directory) {
+    logger.i( "$directory");
     List contents = directory.listSync();
     for (var file in contents) {
       if (file is Directory) {
@@ -285,9 +302,21 @@ coerced to reflect the songlist's last modification for that song.
 
       if (!(file is File)) continue;
       if (!file.path.endsWith('.songlyrics')) continue;
+      if ( _verbose )
+        logger.i( "$file");
 
+      //  only add the most recent modification
       List<Song> addSongs = Song.songListFromJson(file.readAsStringSync());
-      allSongs.addAll(addSongs);
+      for (Song song in addSongs) {
+        if (allSongs.contains(song)) {
+          Song listSong = allSongs
+              .firstWhere((value) => value.songId.compareTo(song.songId) == 0);
+          if (song.lastModifiedTime > listSong.lastModifiedTime) {
+            allSongs.add(song);
+          }
+        } else
+          allSongs.add(song);
+      }
     }
   }
 

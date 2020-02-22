@@ -34,7 +34,7 @@ class _Player extends State<Player> {
   initState() {
     super.initState();
 
-    logger.i("_Player.initState()");
+    logger.d("_Player.initState()");
 
     _displaySongKey = widget.song.key;
 
@@ -42,6 +42,7 @@ class _Player extends State<Player> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       //  find the song's widget sizes after first rendering pass
       _lastDy = 0;
+      double lastH = 0;
       double firstBoxDy;
       for (int i = 0; i < _rowLocations.length; i++) {
         _RowLocation rowLocation = _rowLocations[i];
@@ -56,18 +57,21 @@ class _Player extends State<Player> {
             rowLocation.dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
         }
 
-        rowLocation.height = _lastDy != null
+        lastH = _lastDy != null
             ? rowLocation.dispY - _lastDy
             : box.size.height; //  placeholder
+        rowLocation.height = lastH;
         _lastDy = rowLocation.dispY; //  for next time
         //logger.i(rowLocation.toString());
         //logger.i('    ${rowLocation.globalKey.currentContext.toString()}');
       }
+      _lastDy += lastH;
 
       //  diagnostics only
       for (_RowLocation rowLocation in _rowLocations) {
         logger.i('${rowLocation.toString()}');
       }
+      logger.i('_lastDy: $_lastDy');
     });
 
     _scrollController.addListener(() {
@@ -384,15 +388,14 @@ class _Player extends State<Player> {
           NotificationListener<ScrollNotification>(
             onNotification: (scrollNotification) {
               if (scrollNotification is ScrollStartNotification) {
-                _isInAnitmation = true;
                 logger.i('start scroll: ${scrollNotification.metrics}');
               } else if (scrollNotification is ScrollUpdateNotification) {
-                _isInAnitmation = true;
                 logger.d('update scroll: ${scrollNotification.metrics}');
               } else if (scrollNotification is ScrollEndNotification) {
-                _isInAnitmation = false;
-                logger.i('end scroll: ${scrollNotification.metrics}');
+                logger.i(
+                    'end scroll: ${scrollNotification.metrics}, isPlaying: $_isPlaying');
               }
+              return false;
             },
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -602,7 +605,6 @@ class _Player extends State<Player> {
   _stop() {
     _isPlaying = true;
     _scrollController.jumpTo(_scrollController.offset);
-    _isInAnitmation = false;
     setState(() {});
   }
 
@@ -613,32 +615,30 @@ class _Player extends State<Player> {
       logger.d('animated scroll');
     } else {
       _scrollController.jumpTo(_scrollController.offset - _screenHeight / 2);
-      _isInAnitmation = false;
     }
     setState(() {});
   }
 
   void _playAnimation() {
-    _isInAnitmation = true;
     t0 = DateTime.now().millisecondsSinceEpoch;
+    int milliseconds = ((
+                //  total duration
+                widget.song.duration
+                    //  minus time already consumed
+                    -
+                    (_isPlaying
+                        ? songTimeAtPosition(_scrollController.offset)
+                        : 0)) *
+            1000 //  ms/s
+        )
+        .toInt();
+    logger.i(
+        "_playAnimation(): from: ${_scrollController.offset}, to: $_lastDy, ms: $milliseconds");
     _scrollController
         .animateTo(_lastDy,
-            duration: Duration(
-                milliseconds: ((
-                            //  total duration
-                            widget.song.duration
-                                //  minus time already consumed
-                                -
-                                (_isPlaying
-                                    ? songTimeAtPosition(
-                                        _scrollController.offset)
-                                    : 0)) *
-                        1000 //  ms/s
-                    )
-                    .toInt()),
+            duration: Duration(milliseconds: milliseconds),
             curve: Curves.linear)
         .then((_) {
-      _isInAnitmation = false;
       logger.i('_playAnimation finished'
           ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
     });
@@ -679,7 +679,6 @@ class _Player extends State<Player> {
   List<DropdownMenuItem<int>> bpmDropDownMenuList;
 
   ScrollController _scrollController = ScrollController();
-  bool _isInAnitmation = false;
 }
 
 class _RowLocation {
@@ -751,7 +750,10 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
         'KeyCode: ${rawKey.logicalKey.toString()} ${rawKey.toString()}, t: $dt');
     if (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
       logger.d('space hit');
-      _player._playToggle();
+      if (!_player._isPlaying)
+        _player._play();
+      else
+        _player._playToggle();
     } else if (_player._isPlaying &&
         (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
             rawKey.logicalKey.keyLabel ==

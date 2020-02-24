@@ -22,7 +22,7 @@ void main(List<String> args) {
 class BsteeleMusicUtil {
   /// help message to the user
   void _help() {
-    print(((('''
+    print('''
 bsteeleMusicUtil:
 //  a utility for the bsteele Music App
 arguments:
@@ -40,7 +40,7 @@ note: the output directory will NOT be cleaned prior to the expansion.
 this means old and stale songs might remain in the directory.
 note: the modification date and time of the songlyrics file will be 
 coerced to reflect the songlist's last modification for that song.
-'''))));
+''');
   }
 
   /// A workaround to call the unix touch command to modify the

@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:logger/logger.dart';
-import 'package:universal_html/html.dart';
-
 import '../util/util.dart';
-import 'SongBase.dart';
 import 'Key.dart';
+import 'SongBase.dart';
 
 enum SongComparatorType {
   title,

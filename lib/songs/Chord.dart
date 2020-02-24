@@ -147,7 +147,6 @@ class Chord implements Comparable<Chord> {
   }
 
   /// Returns a markup representation of the object.
-  @override
   String toMarkup() {
     String ret = _scaleChord.toMarkup() +
         (slashScaleNote == null ? "" : "/" + slashScaleNote.toMarkup()) +

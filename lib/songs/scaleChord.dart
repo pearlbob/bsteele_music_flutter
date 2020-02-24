@@ -73,7 +73,6 @@ class ScaleChord implements Comparable<ScaleChord> {
         (chordDescriptor != null ? chordDescriptor.shortName : "");
   }
 
-  @override
   String toMarkup() {
     return scaleNote.toMarkup() +
         (chordDescriptor != null ? chordDescriptor.shortName : "");

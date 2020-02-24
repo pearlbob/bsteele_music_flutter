@@ -18,6 +18,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../appLogger.dart';
+import '../appOptions.dart';
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
@@ -33,6 +34,7 @@ class _Player extends State<Player> {
   @override
   initState() {
     super.initState();
+    _appOptions = AppOptions();
 
     logger.d("_Player.initState()");
 
@@ -46,7 +48,9 @@ class _Player extends State<Player> {
       double firstBoxDy;
       for (int i = 0; i < _rowLocations.length; i++) {
         _RowLocation rowLocation = _rowLocations[i];
-        RenderBox box = rowLocation.globalKey.currentContext.findRenderObject();
+        BuildContext buildContext = rowLocation.globalKey.currentContext;
+        if (buildContext == null) continue;
+        RenderBox box = buildContext.findRenderObject();
 
         {
           double dy = box.localToGlobal(Offset.zero).dy;
@@ -62,16 +66,16 @@ class _Player extends State<Player> {
             : box.size.height; //  placeholder
         rowLocation.height = lastH;
         _lastDy = rowLocation.dispY; //  for next time
-        //logger.i(rowLocation.toString());
-        //logger.i('    ${rowLocation.globalKey.currentContext.toString()}');
+        //logger.d(rowLocation.toString());
+        //logger.d('    ${rowLocation.globalKey.currentContext.toString()}');
       }
       _lastDy += lastH;
 
       //  diagnostics only
       for (_RowLocation rowLocation in _rowLocations) {
-        logger.i('${rowLocation.toString()}');
+        logger.d('${rowLocation.toString()}');
       }
-      logger.i('_lastDy: $_lastDy');
+      logger.d('_lastDy: $_lastDy');
     });
 
     _scrollController.addListener(() {
@@ -121,14 +125,15 @@ class _Player extends State<Player> {
     _screenHeight = MediaQuery.of(context).size.height;
     double chordScaleFactor = _screenWidth / 400;
     _isTooNarrow = _screenWidth <= 800;
-    _isTooNarrow = _screenWidth <= 800;
     chordScaleFactor = min(5, max(1, chordScaleFactor));
-    logger.i("chordScaleFactor: $chordScaleFactor");
+    logger.d("chordScaleFactor: $chordScaleFactor");
     double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
     logger.d("lyricsScaleFactor: $lyricsScaleFactor");
 
+    TextStyle chordTextStyle = TextStyle(fontWeight: FontWeight.bold);
+
     if (_table == null) {
-      logger.i("size: " + MediaQuery.of(context).size.toString());
+      logger.d("size: " + MediaQuery.of(context).size.toString());
 
       //  build the table from the song moment grid
       Grid<SongMoment> grid = song.songMomentGrid;
@@ -140,6 +145,9 @@ class _Player extends State<Player> {
           List<Widget> children = List();
           Color color =
               GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+
+          bool showChords = !_isTooNarrow || _appOptions.playerDisplay;
+          bool showFullLyrics = !_isTooNarrow || !_appOptions.playerDisplay;
 
           //  compute transposition offset from base key
           int tranOffset =
@@ -178,7 +186,7 @@ class _Player extends State<Player> {
             int sectionCount = firstSongMoment.sectionCount;
             String columnFiller;
             EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
-            EdgeInsets textPadding = EdgeInsets.all(12);
+            EdgeInsets textPadding = EdgeInsets.all(6);
             if (chordSection != lastChordSection ||
                 sectionCount != lastSectionCount) {
               //  add the section heading
@@ -208,6 +216,7 @@ class _Player extends State<Player> {
                       child: Text(
                         columnFiller,
                         textScaleFactor: chordScaleFactor,
+                        style: chordTextStyle,
                       )));
                 columnFiller = null; //  for subsequent rows
               } else {
@@ -220,6 +229,7 @@ class _Player extends State<Player> {
                     child: Text(
                       sm.getMeasure().transpose(_displaySongKey, tranOffset),
                       textScaleFactor: chordScaleFactor,
+                      style: chordTextStyle,
                     )));
                 _rowKey = null;
 
@@ -229,26 +239,42 @@ class _Player extends State<Player> {
               }
 
               //  section and lyrics only if on a cell phone
-              if (_isTooNarrow) break;
+              if (!showChords) break;
             }
 
-            if (momentLocation != null || _isTooNarrow) {
-              //  lyrics
-              children.add(Container(
-                  margin: marginInsets,
-                  padding: textPadding,
-                  color: color,
-                  child: Text(
-                    firstSongMoment.lyrics,
-                    textScaleFactor: lyricsScaleFactor,
-                  )));
+            if (momentLocation != null|| _isTooNarrow) {
+              if (showFullLyrics) {
+                //  lyrics
+                children.add(Container(
+                    margin: marginInsets,
+                    padding: textPadding,
+                    color: color,
+                    child: Text(
+                      firstSongMoment.lyrics,
+                      textScaleFactor: lyricsScaleFactor,
+                    )));
 
-              //  add row to table
-              rows.add(TableRow(key: ValueKey(r), children: children));
+                //  add row to table
+                rows.add(TableRow(key: ValueKey(r), children: children));
+              } else {
+                //  short lyrics
+                children.add(Container(
+                    margin: marginInsets,
+                    padding: EdgeInsets.all(2),
+                    color: color,
+                    child: Text(
+                      firstSongMoment.lyrics,
+                      textScaleFactor: lyricsScaleFactor,
+                      overflow: TextOverflow.ellipsis,
+                    )));
+
+                //  add row to table
+                rows.add(TableRow(key: ValueKey(r), children: children));
+              }
+
+              //  get ready for the next row by clearing the row data
+              children = List();
             }
-
-            //  get ready for the next row by clearing the row data
-            children = List();
           }
 
           _table = Table(
@@ -259,19 +285,20 @@ class _Player extends State<Player> {
       }
     }
 
-//   {
-//      int i = 0;
-//      for (TableRow tableRow in _table.children) {
-//        logger.v('rowkey:  ${tableRow.key.toString()}');
-//        int j = 0;
-//        for (Widget widget in tableRow.children) {
-//          if (widget.key != null)
-//            logger.v('\t\($i\,$j\) ${widget.key.toString()}');
-//          j++;
-//        }
-//        i++;
-//      }
-//    }
+    if ( _appOptions.debug)
+    {
+      int i = 0;
+      for (TableRow tableRow in _table.children) {
+        logger.v('rowkey:  ${tableRow.key.toString()}');
+        int j = 0;
+        for (Widget widget in tableRow.children) {
+          if (widget.key != null)
+            logger.d('\t\($i\,$j\) ${widget.key.toString()}');
+          j++;
+        }
+        i++;
+      }
+    }
 
     //  generate the rolled key list
     //  higher pitch on top
@@ -357,6 +384,8 @@ class _Player extends State<Player> {
       }
     }
 
+    const double defaultFontSize = 48;
+    double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
     double boxCenter = 0.5 * _screenHeight;
     double boxHeight = 0.5 * _screenHeight;
     double boxOffset = boxHeight / 2;
@@ -388,11 +417,11 @@ class _Player extends State<Player> {
           NotificationListener<ScrollNotification>(
             onNotification: (scrollNotification) {
               if (scrollNotification is ScrollStartNotification) {
-                logger.i('start scroll: ${scrollNotification.metrics}');
+                logger.d('start scroll: ${scrollNotification.metrics}');
               } else if (scrollNotification is ScrollUpdateNotification) {
                 logger.d('update scroll: ${scrollNotification.metrics}');
               } else if (scrollNotification is ScrollEndNotification) {
-                logger.i(
+                logger.d(
                     'end scroll: ${scrollNotification.metrics}, isPlaying: $_isPlaying');
               }
               return false;
@@ -417,7 +446,7 @@ class _Player extends State<Player> {
                               child: Text(
                                 '${song.title}',
                                 style: TextStyle(
-                                    fontSize: 48, fontWeight: FontWeight.bold),
+                                    fontSize: fontSize, fontWeight: FontWeight.bold),
                               ),
                               hoverColor: hoverColor,
                             ),
@@ -438,19 +467,20 @@ class _Player extends State<Player> {
                                   ),
                                   hoverColor: hoverColor,
                                 ),
-                                FlatButton.icon(
-                                  padding: const EdgeInsets.all(16),
-                                  color: Colors.lightBlue[300],
-                                  hoverColor: hoverColor,
-                                  icon: Icon(
-                                    Icons.edit,
-                                    size: 48,
+                                if (!_isTooNarrow)
+                                  FlatButton.icon(
+                                    padding: const EdgeInsets.all(16),
+                                    color: Colors.lightBlue[300],
+                                    hoverColor: hoverColor,
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: fontSize,
+                                    ),
+                                    label: Text(''),
+                                    onPressed: () {
+                                      _navigateToEdit(context, song);
+                                    },
                                   ),
-                                  label: Text(''),
-                                  onPressed: () {
-                                    _navigateToEdit(context, song);
-                                  },
-                                ),
                               ],
                             ),
                           ),
@@ -497,7 +527,10 @@ class _Player extends State<Player> {
                                       kMinInteractiveDimension,
                                 )
                               else
-                                Text(_displaySongKey.toString()),
+                                Text(
+                                  _displaySongKey.toString(),
+                                  textScaleFactor: lyricsScaleFactor,
+                                ),
                               Text(
                                 "   BPM: ",
                                 textScaleFactor: lyricsScaleFactor,
@@ -573,7 +606,7 @@ class _Player extends State<Player> {
                             duration: Duration(milliseconds: 333),
                             curve: Curves.ease)
                         .then((_) {
-                      logger.i('_scrollAnimationFuture complete');
+                      logger.d('_scrollAnimationFuture complete');
                     });
                   },
                   tooltip: 'Top',
@@ -632,14 +665,14 @@ class _Player extends State<Player> {
             1000 //  ms/s
         )
         .toInt();
-    logger.i(
+    logger.d(
         "_playAnimation(): from: ${_scrollController.offset}, to: $_lastDy, ms: $milliseconds");
     _scrollController
         .animateTo(_lastDy,
             duration: Duration(milliseconds: milliseconds),
             curve: Curves.linear)
         .then((_) {
-      logger.i('_playAnimation finished'
+      logger.d('_playAnimation finished'
           ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
     });
   }
@@ -679,6 +712,7 @@ class _Player extends State<Player> {
   List<DropdownMenuItem<int>> bpmDropDownMenuList;
 
   ScrollController _scrollController = ScrollController();
+  AppOptions _appOptions;
 }
 
 class _RowLocation {
@@ -689,9 +723,10 @@ class _RowLocation {
     return ('${row.toString()} ${globalKey.toString()}'
         ', ${songMoment.toString()}'
         ', beats: ${beats.toString()}'
-        ', dispY: ${dispY.toStringAsFixed(1)}'
-        ', h: ${height.toStringAsFixed(1)}'
-        ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}');
+       // ', dispY: ${dispY.toStringAsFixed(1)}'
+       // ', h: ${height.toStringAsFixed(1)}'
+      //  ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}'
+    );
   }
 
   void _computePixelsPerBeat() {

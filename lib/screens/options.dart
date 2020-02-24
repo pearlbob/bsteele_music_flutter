@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:logger/logger.dart';
 
-import '../appLogger.dart';
 import '../appOptions.dart';
 
 /// Display the song moments in sequential order.
@@ -16,9 +15,15 @@ class Options extends StatefulWidget {
 }
 
 class _Options extends State<Options> {
+
   @override
   initState() {
     super.initState();
+  }
+
+  void onPlayerChanged(bool value) {
+    _appOptions.playerDisplay = value;
+    setState(() {});
   }
 
   @override
@@ -47,6 +52,26 @@ class _Options extends State<Options> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Radio<bool>(
+                      value: true,
+                      groupValue: _appOptions.playerDisplay,
+                      onChanged: onPlayerChanged,
+                    ),
+                    Text(
+                      'Player',
+                    ),
+                    Radio<bool>(
+                      value: false,
+                      groupValue: _appOptions.playerDisplay,
+                      onChanged: onPlayerChanged,
+                    ),
+                    Text(
+                      'Singer',
+                    ),
+                  ],
+                ),
                 Row(children: <Widget>[
                   Text(
                     'debug: ',
@@ -75,5 +100,5 @@ class _Options extends State<Options> {
     );
   }
 
-  AppOptions _appOptions = AppOptions();
+  final AppOptions _appOptions= AppOptions();
 }

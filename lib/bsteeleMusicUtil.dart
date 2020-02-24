@@ -73,7 +73,7 @@ coerced to reflect the songlist's last modification for that song.
       String arg = args[i];
       switch (arg) {
         case '-a':
-          //  assert there is another arg
+          //  insist there is another arg
           if (i >= args.length - 1) {
             logger.e('missing directory path for -a');
             _help();
@@ -189,7 +189,7 @@ coerced to reflect the songlist's last modification for that song.
           break;
 
         case '-x':
-          //  assert there is another arg
+          //  insist there is another arg
           if (i >= args.length - 1) {
             logger.e('missing file path for -x');
             _help();
@@ -288,6 +288,7 @@ coerced to reflect the songlist's last modification for that song.
           break;
       }
     }
+    print( "updates: $_updateCount");
     exit(0);
   }
 
@@ -313,6 +314,7 @@ coerced to reflect the songlist's last modification for that song.
               .firstWhere((value) => value.songId.compareTo(song.songId) == 0);
           if (song.lastModifiedTime > listSong.lastModifiedTime) {
             allSongs.add(song);
+            _updateCount++;
           }
         } else
           allSongs.add(song);
@@ -326,5 +328,6 @@ coerced to reflect the songlist's last modification for that song.
   bool _verbose = false;
   bool _veryVerbose = false;
   bool _force = false; //  force a file write, even if it already exists
+  int _updateCount =0;
   static RegExp notWordOrSpaceRegExp = RegExp(r'[^\w\s]');
 }

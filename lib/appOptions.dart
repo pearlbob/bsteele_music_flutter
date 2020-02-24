@@ -1,4 +1,5 @@
-import 'dart:convert';
+import 'package:bsteele_music_flutter/appLogger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppOptions {
   static final AppOptions _singleton = AppOptions._internal();
@@ -9,13 +10,29 @@ class AppOptions {
 
   AppOptions._internal();
 
+  Future<void> init() async {
+    _playerDisplay = await _readBool('playerDisplay', defaultValue: true);
+    countIn = await _readBool('countIn');
+    dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
+    dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
+    debug = await _readBool('debug');
+    playWithLineIndicator = await _readBool('playWithLineIndicator');
+    playWithMeasureIndicator = await _readBool('playWithMeasureIndicator');
+    playWithBouncingBall = await _readBool('playWithBouncingBall');
+    playWithMeasureLabel = await _readBool('playWithMeasureLabel');
+    alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead');
+
+    logger.v('readOptions: playerDisplay: $playerDisplay');
+  }
+
   bool isCountIn() {
     return countIn;
   }
 
   void setCountIn(bool countIn) {
+    if (this.countIn == countIn) return;
     this.countIn = countIn;
-    save();
+    _saveBool('countIn', countIn);
   }
 
   bool isDashAllMeasureRepetitions() {
@@ -23,15 +40,16 @@ class AppOptions {
   }
 
   void setDashAllMeasureRepetitions(bool dashAllMeasureRepetitions) {
+    if (this.dashAllMeasureRepetitions == dashAllMeasureRepetitions) return;
     this.dashAllMeasureRepetitions = dashAllMeasureRepetitions;
-    save();
+    _saveBool('dashAllMeasureRepetitions', dashAllMeasureRepetitions);
   }
 
   bool get debug => _debug;
 
-  void set debug(debug) {
+  set debug(debug) {
     _debug = debug;
-    save();
+    _saveBool('debug', debug);
   }
 
   bool isPlayWithLineIndicator() {
@@ -39,8 +57,9 @@ class AppOptions {
   }
 
   void setPlayWithLineIndicator(bool playWithLineIndicator) {
+    if (this.playWithLineIndicator == playWithLineIndicator) return;
     this.playWithLineIndicator = playWithLineIndicator;
-    save();
+    _saveBool('playWithLineIndicator', playWithLineIndicator);
   }
 
   bool isPlayWithMeasureIndicator() {
@@ -48,36 +67,38 @@ class AppOptions {
   }
 
   void setPlayWithMeasureIndicator(bool playWithMeasureIndicator) {
+    if (this.playWithMeasureIndicator == playWithMeasureIndicator) return;
     this.playWithMeasureIndicator = playWithMeasureIndicator;
-    save();
+    _saveBool('playWithMeasureIndicator', playWithMeasureIndicator);
   }
 
-  String toJson() {
-    StringBuffer sb = new StringBuffer();
-    sb.write("[ ");
-    sb.write("\"countIn\": \"" + jsonEncode(countIn) + "\", ");
-    sb.write("\"dashAllMeasureRepetitions\": \"" +
-        jsonEncode(dashAllMeasureRepetitions) +
-        "\", ");
-    sb.write("\"playWithLineIndicator\": \"" +
-        jsonEncode(playWithLineIndicator) +
-        "\", ");
-    sb.write("\"playWithMeasureIndicator\": \"" +
-        jsonEncode(playWithMeasureIndicator) +
-        "\", ");
-    sb.write("\"playWithBouncingBall\": \"" +
-        jsonEncode(playWithBouncingBall) +
-        "\", ");
-    sb.write("\"playWithMeasureLabel\": \"" +
-        jsonEncode(playWithMeasureLabel) +
-        "\", ");
-    sb.write("\"debug\": \"" + jsonEncode(debug) + "\",");
-    sb.write("\"alwaysUseTheNewestSongOnRead\": \"" +
-        jsonEncode(alwaysUseTheNewestSongOnRead) +
-        "\""); //  no comma at end
-    sb.write(" ]");
-    return sb.toString();
-  }
+//  String toJson() {
+//    StringBuffer sb = new StringBuffer();
+//    sb.write("[ ");
+//    sb.write("\"countIn\": \"" + jsonEncode(countIn) + "\", ");
+//    sb.write("\"dashAllMeasureRepetitions\": \"" +
+//        jsonEncode(dashAllMeasureRepetitions) +
+//        "\", ");
+//    sb.write("\"playWithLineIndicator\": \"" +
+//        jsonEncode(playWithLineIndicator) +
+//        "\", ");
+//    sb.write("\"playWithMeasureIndicator\": \"" +
+//        jsonEncode(playWithMeasureIndicator) +
+//        "\", ");
+//    sb.write("\"playWithBouncingBall\": \"" +
+//        jsonEncode(playWithBouncingBall) +
+//        "\", ");
+//    sb.write("\"playWithMeasureLabel\": \"" +
+//        jsonEncode(playWithMeasureLabel) +
+//        "\", ");
+//    sb.write("\"playerDisplay\": \"" + jsonEncode(playerDisplay) + "\", ");
+//    sb.write("\"debug\": \"" + jsonEncode(debug) + "\",");
+//    sb.write("\"alwaysUseTheNewestSongOnRead\": \"" +
+//        jsonEncode(alwaysUseTheNewestSongOnRead) +
+//        "\""); //  no comma at end
+//    sb.write(" ]");
+//    return sb.toString();
+//  }
 
 //  bool _parseBool( String value ){
 //      return value.toLowerCase()=='true';
@@ -132,23 +153,16 @@ class AppOptions {
 //      }
 //    }
 //  }
-//
-//    void registerSaveCallback(SaveCallback saveCallback) {
-//    this.saveCallback = saveCallback;
-//  }
 
-  void save() {
-//    if (saveCallback != null)
-//      saveCallback.save();
-  }
 
   bool isPlayWithBouncingBall() {
     return playWithBouncingBall;
   }
 
   void setPlayWithBouncingBall(bool playWithBouncingBall) {
+    if (this.playWithBouncingBall == playWithBouncingBall) return;
     this.playWithBouncingBall = playWithBouncingBall;
-    save();
+    _saveBool('playWithBouncingBall', playWithBouncingBall);
   }
 
   bool isPlayWithMeasureLabel() {
@@ -156,8 +170,9 @@ class AppOptions {
   }
 
   void setPlayWithMeasureLabel(bool playWithMeasureLabel) {
+    if (this.playWithMeasureLabel == playWithMeasureLabel) return;
     this.playWithMeasureLabel = playWithMeasureLabel;
-    save();
+    _saveBool('playWithMeasureLabel', playWithMeasureLabel);
   }
 
   bool isAlwaysUseTheNewestSongOnRead() {
@@ -165,8 +180,21 @@ class AppOptions {
   }
 
   void setAlwaysUseTheNewestSongOnRead(bool alwaysUseTheNewestSongOnRead) {
+    if (this.alwaysUseTheNewestSongOnRead == alwaysUseTheNewestSongOnRead)
+      return;
     this.alwaysUseTheNewestSongOnRead = alwaysUseTheNewestSongOnRead;
-    save();
+    _saveBool('alwaysUseTheNewestSongOnRead', alwaysUseTheNewestSongOnRead);
+  }
+
+  dynamic _readBool(final String key, {defaultValue: false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    bool value = prefs.getBool(key) ?? defaultValue;
+    return value;
+  }
+
+  _saveBool(final String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(key, value);
   }
 
   bool countIn = true;
@@ -175,6 +203,19 @@ class AppOptions {
   bool playWithMeasureIndicator = true;
   bool playWithBouncingBall = true;
   bool playWithMeasureLabel = true;
+
+  set playerDisplay(value) {
+    if (_playerDisplay == value)
+    return;
+
+      _playerDisplay = value;
+      _saveBool('playerDisplay', value);
+      logger.v('set playerDisplay: $value');
+  }
+
+  bool get playerDisplay => _playerDisplay;
+  bool _playerDisplay = true;
+
   bool _debug = false;
   bool alwaysUseTheNewestSongOnRead = false;
 }

@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
+import 'appOptions.dart';
 import 'util/OpenLink.dart';
 import 'appLogger.dart';
 
@@ -99,7 +100,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    _appOptionsInit();
     _readExternalSongList();
+  }
+
+  /// initialize async options read from shared preferences
+  void _appOptionsInit() async {
+    await AppOptions().init();
   }
 
   void _readInternalSongList() async {
@@ -150,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double mediaWidth = screenInfo.mediaWidth;
-    final bool isTooNarrow = screenInfo.isTooNarrow;
+    final bool _isTooNarrow = screenInfo.isTooNarrow;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
 
@@ -175,8 +183,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
-    const double fontSize = 48;
-    final TextStyle _textStyle =
+    const double defaultFontSize = 48;
+    double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
+    final TextStyle _navTextStyle =
         TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     return Scaffold(
@@ -203,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          if (!isTooNarrow) //  sorry CJ
+          if (!_isTooNarrow) //  sorry CJ
             new Tooltip(
               message:
                   "Visit Community Jams, the motivation and main user for this app.",
@@ -229,20 +238,23 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: EdgeInsets.all(4.0),
           children: <Widget>[
+            Container(
+              height: 50,
+            ), //  filler for notched phones
             ListTile(
               title: Text(
                 "Options",
-                style: _textStyle,
+                style: _navTextStyle,
               ),
               onTap: () {
                 _navigateToOptions(context);
               },
             ),
-            if (!isTooNarrow) //  no edits on phones!
+            if (!_isTooNarrow) //  no edits on phones!
               ListTile(
                 title: Text(
                   "Edit",
-                  style: _textStyle,
+                  style: _navTextStyle,
                 ),
                 onTap: () {
                   _navigateToEdit(context, selectedSong);
@@ -251,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text(
                 "Privacy",
-                style: _textStyle,
+                style: _navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -261,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text(
                 "About",
-                style: _textStyle,
+                style: _navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -335,7 +347,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ]),
 
       floatingActionButton: FloatingActionButton(
-        mini: isTooNarrow,
+        mini: _isTooNarrow,
         onPressed: () {
           _scrollController.animateTo(
             0.0,

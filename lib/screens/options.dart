@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/util/Screen.dart';
+import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -73,10 +73,6 @@ class _Options extends State<Options> {
                   ],
                 ),
                 Row(children: <Widget>[
-                  Text(
-                    'debug: ',
-                    // textScaleFactor: textScaleFactor,
-                  ),
                   Checkbox(
                     value: _appOptions.debug,
                     onChanged: (value) {
@@ -85,6 +81,10 @@ class _Options extends State<Options> {
                           _appOptions.debug ? Level.debug : Level.info;
                       setState(() {});
                     },
+                  ),
+                  Text(
+                    'debug: ',
+                    // textScaleFactor: textScaleFactor,
                   ),
                 ]),
               ]),

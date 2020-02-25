@@ -1,21 +1,21 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
-import 'package:bsteeleMusicLib/songs/Song.dart';
-import 'package:bsteele_music_flutter/util/Screen.dart';
+import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 import 'appOptions.dart';
-import 'util/OpenLink.dart';
-import 'appLogger.dart';
+import 'util/openLink.dart';
 
 void main() {
   Logger.level = Level.info;

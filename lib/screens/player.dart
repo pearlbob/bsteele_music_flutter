@@ -2,22 +2,22 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:bsteeleMusicLib/Grid.dart';
+import 'package:bsteeleMusicLib/grid.dart';
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/ChordSection.dart';
 import 'package:bsteeleMusicLib/songs/Key.dart' as songs;
 import 'package:bsteeleMusicLib/songs/MusicConstants.dart';
 import 'package:bsteeleMusicLib/songs/Section.dart';
 import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:bsteeleMusicLib/songs/SongMoment.dart';
-import 'package:bsteele_music_flutter/Gui.dart';
+import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
-import 'package:bsteele_music_flutter/util/OpenLink.dart';
+import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import '../appLogger.dart';
 import '../appOptions.dart';
 
 /// Display the song moments in sequential order.
@@ -80,7 +80,7 @@ class _Player extends State<Player> {
 
     _scrollController.addListener(() {
       int t = DateTime.now().millisecondsSinceEpoch;
-      logger.d('scroll:'
+      logger.i('scroll:'
           ' pos: ${_scrollController.offset.toStringAsFixed(1)}'
           ' posT: ${songTimeAtPosition(_scrollController.offset).toStringAsFixed(3)} s'
           ' d: ${(_scrollController.offset - _lastScrollPos).toStringAsFixed(2)}'
@@ -89,20 +89,25 @@ class _Player extends State<Player> {
       _lastScrollPos = _scrollController.offset;
       _lastScrollT = t;
 
-      if (_scrollController.hasClients) {
-        if (_scrollController.offset == 0) {
-          //  re-draw at top
-          setState(() {});
-        } else if (!_isTooNarrow &&
-            _scrollController.position.pixels >=
-                _scrollController.position.maxScrollExtent) {
-          //  stop playing at the bottom
-          _stop();
-        }
-      }
+//      if (_scrollController.hasClients) {
+//        if (_scrollController.offset == 0) {
+//          logger.i('reset scroll to top');
+//          //  re-draw at top
+//          setState(() {});
+//        } else if (!_isTooNarrow &&
+//            _scrollController.position.pixels >=
+//                _scrollController.position.maxScrollExtent) {
+//          //  stop playing at the bottom
+//          logger.i('stop scroll at bottom');
+//          _stop();
+//        }
+//      }
     });
   }
 
+
+  /// for the given position on the screen,
+  /// return the time represented in the song at that position
   double songTimeAtPosition(double position) {
     if (position <= 0) return 0;
     for (_RowLocation _rowLocation in _rowLocations) {
@@ -121,8 +126,9 @@ class _Player extends State<Player> {
   Widget build(BuildContext context) {
     Song song = widget.song; //  convenience only
 
-    _screenWidth = MediaQuery.of(context).size.width;
-    _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+    double _screenHeight = MediaQuery.of(context).size.height;
+    _screenOffset = _screenHeight / 2;
     double chordScaleFactor = _screenWidth / 400;
     _isTooNarrow = _screenWidth <= 800;
     chordScaleFactor = min(5, max(1, chordScaleFactor));
@@ -242,7 +248,7 @@ class _Player extends State<Player> {
               if (!showChords) break;
             }
 
-            if (momentLocation != null|| _isTooNarrow) {
+            if (momentLocation != null || _isTooNarrow) {
               if (showFullLyrics) {
                 //  lyrics
                 children.add(Container(
@@ -285,8 +291,7 @@ class _Player extends State<Player> {
       }
     }
 
-    if ( _appOptions.debug)
-    {
+    if (_appOptions.debug) {
       int i = 0;
       for (TableRow tableRow in _table.children) {
         logger.v('rowkey:  ${tableRow.key.toString()}');
@@ -386,8 +391,8 @@ class _Player extends State<Player> {
 
     const double defaultFontSize = 48;
     double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
-    double boxCenter = 0.5 * _screenHeight;
-    double boxHeight = 0.5 * _screenHeight;
+    double boxCenter = _screenOffset;
+    double boxHeight = _screenOffset;
     double boxOffset = boxHeight / 2;
 
     final hoverColor = Colors.blue[700];
@@ -417,11 +422,11 @@ class _Player extends State<Player> {
           NotificationListener<ScrollNotification>(
             onNotification: (scrollNotification) {
               if (scrollNotification is ScrollStartNotification) {
-                logger.d('start scroll: ${scrollNotification.metrics}');
+                logger.i('start scroll: ${scrollNotification.metrics}');
               } else if (scrollNotification is ScrollUpdateNotification) {
-                logger.d('update scroll: ${scrollNotification.metrics}');
+                logger.i('update scroll: ${scrollNotification.metrics}');
               } else if (scrollNotification is ScrollEndNotification) {
-                logger.d(
+                logger.i(
                     'end scroll: ${scrollNotification.metrics}, isPlaying: $_isPlaying');
               }
               return false;
@@ -446,7 +451,8 @@ class _Player extends State<Player> {
                               child: Text(
                                 '${song.title}',
                                 style: TextStyle(
-                                    fontSize: fontSize, fontWeight: FontWeight.bold),
+                                    fontSize: fontSize,
+                                    fontWeight: FontWeight.bold),
                               ),
                               hoverColor: hoverColor,
                             ),
@@ -571,7 +577,7 @@ class _Player extends State<Player> {
                       ),
                     if (_isPlaying)
                       SizedBox(
-                        height: _screenHeight / 2,
+                        height: _screenOffset,
                       ),
                     Center(child: _table),
                     Text(
@@ -580,7 +586,7 @@ class _Player extends State<Player> {
                     ),
                     if (_isPlaying)
                       SizedBox(
-                        height: _screenHeight / 2,
+                        height: _screenOffset,
                       ),
                     _KeyboardListener(this),
                   ]),
@@ -647,7 +653,7 @@ class _Player extends State<Player> {
       _playAnimation();
       logger.d('animated scroll');
     } else {
-      _scrollController.jumpTo(_scrollController.offset - _screenHeight / 2);
+      _scrollController.jumpTo(_scrollController.offset - _screenOffset);
     }
     setState(() {});
   }
@@ -665,16 +671,17 @@ class _Player extends State<Player> {
             1000 //  ms/s
         )
         .toInt();
-    logger.d(
+    logger.i(
         "_playAnimation(): from: ${_scrollController.offset}, to: $_lastDy, ms: $milliseconds");
     _scrollController
-        .animateTo(_lastDy,
-            duration: Duration(milliseconds: milliseconds),
-            curve: Curves.linear)
-        .then((_) {
-      logger.d('_playAnimation finished'
-          ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
-    });
+      ..jumpTo(_scrollController.offset)  //  end the prior scroll?
+      ..animateTo(_lastDy,
+              duration: Duration(milliseconds: milliseconds),
+              curve: Curves.linear)
+          .then((_) {
+        logger.d('_playAnimation finished'
+            ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
+      });
   }
 
   String _titleAnchor() {
@@ -701,8 +708,7 @@ class _Player extends State<Player> {
   int _lastScrollT = DateTime.now().millisecondsSinceEpoch;
 
   bool _isTooNarrow = false;
-  double _screenWidth;
-  double _screenHeight;
+  double _screenOffset;
   double _lastDy = 0;
   List<_RowLocation> _rowLocations;
 
@@ -721,12 +727,12 @@ class _RowLocation {
   @override
   String toString() {
     return ('${row.toString()} ${globalKey.toString()}'
-        ', ${songMoment.toString()}'
-        ', beats: ${beats.toString()}'
-       // ', dispY: ${dispY.toStringAsFixed(1)}'
-       // ', h: ${height.toStringAsFixed(1)}'
-      //  ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}'
-    );
+            ', ${songMoment.toString()}'
+            ', beats: ${beats.toString()}'
+        // ', dispY: ${dispY.toStringAsFixed(1)}'
+        // ', h: ${height.toStringAsFixed(1)}'
+        //  ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}'
+        );
   }
 
   void _computePixelsPerBeat() {
@@ -779,7 +785,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
     final int t = DateTime.now().millisecondsSinceEpoch;
     final int dt = t - _lastKeyTime;
     _lastKeyTime = t;
-    if (dt < 250) return;
+    //if (dt < 250) return;
 
     logger.d(
         'KeyCode: ${rawKey.logicalKey.toString()} ${rawKey.toString()}, t: $dt');
@@ -789,15 +795,17 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
         _player._play();
       else
         _player._playToggle();
-    } else if (_player._isPlaying &&
-        (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
-            rawKey.logicalKey.keyLabel ==
-                LogicalKeyboardKey.arrowUp.keyLabel)) {
-      //  restart the scrolling after a bit
-      Timer(Duration(milliseconds: 200), () {
-        _player._playAnimation();
-      });
     }
+//    else if (_player._isPlaying &&
+//        (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
+//            rawKey.logicalKey.keyLabel ==
+//                LogicalKeyboardKey.arrowUp.keyLabel)) {
+//      //  restart the scrolling after a bit
+//      Timer(Duration(milliseconds: 200), () {
+//        logger.i('restart scrolling');
+//        _player._playAnimation();
+//      });
+//    }
   }
 
   @override

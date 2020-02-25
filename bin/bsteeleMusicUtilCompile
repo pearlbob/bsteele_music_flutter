@@ -1,8 +1,0 @@
-#!/bin/tcsh
-
-
-#	run from bsteeleMusicFlutter home!
-cd $HOME/GitHub/bsteeleMusicFlutter
-
-dart2native lib/bsteeleMusicUtil.dart -o build/bsteeleMusicUtil
-

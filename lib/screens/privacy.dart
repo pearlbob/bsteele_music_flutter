@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/util/Screen.dart';
+import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -45,15 +45,16 @@ class _Privacy extends State<Privacy> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                Text(
-                    'The bsteele Music App has always been as a client side application. '
+                Text('The bsteele Music App is a client side application. '
                     'Neither the phone app nor the web application has '
-                    'any contact with the server after initialization.'
+                    'no contact with the server after initialization'
+                    ' other than the distribution of local song information'
+                    ' using websockets.'
                     '\n\n'
                     'Even as a webpage, the app is loaded from static pages '
                     'on the server at the initialization. No other communication occurs.'
                     '\n\n'
-                    'No data is collected in any fashion at any server.  '
+                    'No personal data is collected in any fashion at any server.  '
                     'Data unique to your use, such as your user name or an entered song, '
                     'is held either in phone memory local to your phone '
                     'or in local storage on your browser.'
@@ -62,7 +63,7 @@ class _Privacy extends State<Privacy> {
                     'in their .songlyrics file.'
                     '\n\n'
                     'Note that the app will try on initialization to access the internet '
-                    'to download the latest song list.'),
+                    'to download the latest song list from www.bsteele.com.'),
               ]),
         ),
       ),

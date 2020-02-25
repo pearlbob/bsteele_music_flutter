@@ -4,7 +4,7 @@ import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:logger/logger.dart';
 import 'package:resource/resource.dart' show Resource;
 
-import 'appLogger.dart';
+import 'package:bsteeleMusicLib/appLogger.dart';
 
 main() async {
   Logger.level = Level.info;

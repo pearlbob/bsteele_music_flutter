@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/Gui.dart';
+import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteeleMusicLib/songs/ChordComponent.dart';
 import 'package:bsteeleMusicLib/songs/ChordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/Key.dart' as songs;

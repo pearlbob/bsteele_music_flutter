@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:archive/archive.dart';
 import 'package:bsteele_music_flutter/appLogger.dart';
-import 'package:bsteele_music_flutter/songs/Song.dart';
+import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:logger/logger.dart';
 
 //  -v -o songs -x allSongs.songlyrics -a songs -f -w allSongs2.songlyrics

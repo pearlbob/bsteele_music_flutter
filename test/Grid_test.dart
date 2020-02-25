@@ -1,5 +1,5 @@
-import 'package:bsteele_music_flutter/Grid.dart';
-import 'package:bsteele_music_flutter/appLogger.dart';
+import 'package:bsteeleMusicLib/Grid.dart';
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 

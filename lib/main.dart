@@ -6,7 +6,7 @@ import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
-import 'package:bsteele_music_flutter/songs/Song.dart';
+import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:bsteele_music_flutter/util/Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

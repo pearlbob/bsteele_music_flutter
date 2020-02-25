@@ -1,6 +1,6 @@
 import 'dart:convert' show utf8;
 
-import 'package:bsteele_music_flutter/songs/Song.dart';
+import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:logger/logger.dart';
 import 'package:resource/resource.dart' show Resource;
 

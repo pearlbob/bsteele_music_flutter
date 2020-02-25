@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/appLogger.dart';
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppOptions {
@@ -22,7 +22,7 @@ class AppOptions {
     playWithMeasureLabel = await _readBool('playWithMeasureLabel');
     alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead');
 
-    logger.v('readOptions: playerDisplay: $playerDisplay');
+    logger.i('readOptions: playerDisplay: $playerDisplay');
   }
 
   bool isCountIn() {

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/ChordSection.dart';
 import 'package:bsteeleMusicLib/songs/Key.dart' as songs;
 import 'package:bsteeleMusicLib/songs/MusicConstants.dart';
@@ -104,7 +104,6 @@ class _Player extends State<Player> {
 //      }
     });
   }
-
 
   /// for the given position on the screen,
   /// return the time represented in the song at that position
@@ -674,7 +673,7 @@ class _Player extends State<Player> {
     logger.i(
         "_playAnimation(): from: ${_scrollController.offset}, to: $_lastDy, ms: $milliseconds");
     _scrollController
-      ..jumpTo(_scrollController.offset)  //  end the prior scroll?
+      ..jumpTo(_scrollController.offset) //  end the prior scroll?
       ..animateTo(_lastDy,
               duration: Duration(milliseconds: milliseconds),
               curve: Curves.linear)
@@ -795,17 +794,17 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
         _player._play();
       else
         _player._playToggle();
+    } else if (_player._isPlaying &&
+        (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
+            rawKey.logicalKey.keyLabel ==
+                LogicalKeyboardKey.arrowUp.keyLabel)) {
+      //  restart the scrolling after a bit
+      if (_timer != null) _timer.cancel();
+      _timer = Timer(Duration(milliseconds: 300), () {
+        logger.i('restart scrolling');
+        _player._playAnimation();
+      });
     }
-//    else if (_player._isPlaying &&
-//        (rawKey.logicalKey.keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
-//            rawKey.logicalKey.keyLabel ==
-//                LogicalKeyboardKey.arrowUp.keyLabel)) {
-//      //  restart the scrolling after a bit
-//      Timer(Duration(milliseconds: 200), () {
-//        logger.i('restart scrolling');
-//        _player._playAnimation();
-//      });
-//    }
   }
 
   @override
@@ -823,6 +822,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   }
 
   final _Player _player;
+  Timer _timer;
   FocusNode _textFocusNode = new FocusNode();
   int _lastKeyTime = DateTime.now().millisecondsSinceEpoch;
 }

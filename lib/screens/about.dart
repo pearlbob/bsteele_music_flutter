@@ -1,6 +1,7 @@
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:package_info/package_info.dart';
@@ -67,16 +68,16 @@ class _About extends State<About> {
                   ),
                 ]),
                 Text(
-                  'appName: ${_packageInfo.appName}',
+                  'appName: ${_packageInfo.appName ?? 'unknown'}',
                 ),
                 Text(
-                  'version: ${_packageInfo.version}',
+                  'version: ${_packageInfo.version ?? 'unknown'}',
                 ),
                 Text(
-                  'packageName: ${_packageInfo.packageName}',
+                  'packageName: ${_packageInfo.packageName ?? 'unknown'}',
                 ),
                 Text(
-                  'buildNumber: ${_packageInfo.buildNumber}',
+                  'buildNumber: ${_packageInfo.buildNumber ?? 'unknown'}',
                 ),
               ]),
         ),
@@ -92,14 +93,16 @@ class _About extends State<About> {
   }
 
   void _readPackageInfo() async {
-    _packageInfo = await PackageInfo.fromPlatform();
-    setState(() {});
+    if (kIsWeb) {
+      _packageInfo = PackageInfo(
+          appName: 'bsteele Music App',
+          version: 'unknown, web workaround', // fixme
+          packageName: 'unknown',
+          buildNumber: '0');
+    } else {
+      _packageInfo = await PackageInfo.fromPlatform();
+    }
   }
 
-  static const String unknown = "unknown";
-  PackageInfo _packageInfo = PackageInfo(
-      appName: unknown,
-      version: unknown,
-      packageName: unknown,
-      buildNumber: unknown);
+  PackageInfo _packageInfo;
 }

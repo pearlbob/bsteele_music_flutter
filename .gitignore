@@ -69,3 +69,4 @@ gradlew.bat
 *.jar
 key.properties
 *.aab
+utcDate.txt

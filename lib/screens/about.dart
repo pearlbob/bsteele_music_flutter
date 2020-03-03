@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 
 /// Display the song moments in sequential order.
@@ -68,16 +69,19 @@ class _About extends State<About> {
                   ),
                 ]),
                 Text(
-                  'appName: ${_packageInfo.appName ?? 'unknown'}',
+                  'appName: ${_packageInfo?.appName ?? 'unknown'}',
                 ),
                 Text(
-                  'version: ${_packageInfo.version ?? 'unknown'}',
+                  'version: ${_packageInfo?.version ?? 'unknown'}',
                 ),
                 Text(
-                  'packageName: ${_packageInfo.packageName ?? 'unknown'}',
+                  'packageName: ${_packageInfo?.packageName ?? 'unknown'}',
                 ),
                 Text(
-                  'buildNumber: ${_packageInfo.buildNumber ?? 'unknown'}',
+                  'buildNumber: ${_packageInfo?.buildNumber ?? 'unknown'}',
+                ),
+                Text(
+                  'utcDate: ${_utcDateAsString ?? 'unknown'}',
                 ),
               ]),
         ),
@@ -102,7 +106,13 @@ class _About extends State<About> {
     } else {
       _packageInfo = await PackageInfo.fromPlatform();
     }
+
+    _utcDateAsString = await rootBundle.loadString('lib/assets/utcDate.txt');
+    print('_utcDateAsString: $_utcDateAsString');
+
+    setState(() {});
   }
 
+  String _utcDateAsString;
   PackageInfo _packageInfo;
 }

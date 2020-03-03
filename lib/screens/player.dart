@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/MusicConstants.dart';
 import 'package:bsteeleMusicLib/songs/Section.dart';
 import 'package:bsteeleMusicLib/songs/Song.dart';
 import 'package:bsteeleMusicLib/songs/SongMoment.dart';
+import 'package:bsteeleMusicLib/util/rollingAverage.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
@@ -73,36 +74,10 @@ class _Player extends State<Player> {
 
       //  diagnostics only
       for (_RowLocation rowLocation in _rowLocations) {
-        logger.d('${rowLocation.toString()}');
+        logger.i('${rowLocation.toString()}');
       }
-      logger.d('_lastDy: $_lastDy');
+      logger.i('_lastDy: $_lastDy');
     });
-
-//    _scrollController.addListener(() {
-//      int t = DateTime.now().millisecondsSinceEpoch;
-//      logger.i('scroll:'
-//          ' pos: ${_scrollController.offset.toStringAsFixed(1)}'
-//          ' posT: ${songTimeAtPosition(_scrollController.offset).toStringAsFixed(3)} s'
-//          ' d: ${(_scrollController.offset - _lastScrollPos).toStringAsFixed(2)}'
-//          ' t: ${((t - t0) / 1000).toStringAsFixed(3)} s'
-//          ' dt: ${(t - _lastScrollT).toStringAsFixed(3)} ms');
-//      _lastScrollPos = _scrollController.offset;
-//      _lastScrollT = t;
-//
-////      if (_scrollController.hasClients) {
-////        if (_scrollController.offset == 0) {
-////          logger.i('reset scroll to top');
-////          //  re-draw at top
-////          setState(() {});
-////        } else if (!_isTooNarrow &&
-////            _scrollController.position.pixels >=
-////                _scrollController.position.maxScrollExtent) {
-////          //  stop playing at the bottom
-////          logger.i('stop scroll at bottom');
-////          _stop();
-////        }
-////      }
-//    });
   }
 
   /// for the given position on the screen,
@@ -296,100 +271,105 @@ class _Player extends State<Player> {
         logger.v('rowkey:  ${tableRow.key.toString()}');
         int j = 0;
         for (Widget widget in tableRow.children) {
-          if (widget.key != null)
-            logger.d('\t\($i\,$j\) ${widget.key.toString()}');
+          if (widget.key != null) {
+            logger.i('\t\($i\,$j\)');
+          }
           j++;
         }
         i++;
       }
     }
 
-    //  generate the rolled key list
-    //  higher pitch on top
-    //  lower pit on bottom
-
-    if (keyDropDownMenuList == null) {
-      const int steps = MusicConstants.halfStepsPerOctave;
-      const int halfOctave = steps ~/ 2;
-      List<songs.Key> rolledKeyList = List(steps);
-
-      List<songs.Key> list = songs.Key.keysByHalfStepFrom(song.key); //temp loc
-      for (int i = 0; i <= halfOctave; i++) {
-        rolledKeyList[i] = list[halfOctave - i];
-      }
-      for (int i = halfOctave + 1; i < steps; i++) {
-        rolledKeyList[i] = list[steps - i + halfOctave];
-      }
-
-      keyDropDownMenuList = List();
-      for (int i = 0; i < steps; i++) {
-        songs.Key value = rolledKeyList[i];
-
-        int relativeOffset = halfOctave - i;
-
-        String relativeName = relativeOffset > 0
-            ? value.toStringAsSharp()
-            : value.toStringAsFlat();
-
-        String relativeString;
-        if (relativeOffset > 0)
-          relativeString = " +${relativeOffset.toString()}";
-        else if (relativeOffset < 0)
-          relativeString = " ${relativeOffset.toString()}";
-        else
-          relativeString = ' ';
-
-        keyDropDownMenuList.add(
-          DropdownMenuItem<songs.Key>(
-            key: ValueKey(value.getHalfStep()),
-            value: value,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  relativeName,
-                  textScaleFactor: lyricsScaleFactor, //  note well
-                ),
-                Text(
-                  relativeString,
-                  textScaleFactor: lyricsScaleFactor, //  note well
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    if (bpmDropDownMenuList == null) {
-      final int bpm = song.getBeatsPerMinute();
-
-      bpmDropDownMenuList = List();
-      for (int i = -60; i < 60; i++) {
-        int value = bpm + i;
-        if (value < 40) continue;
-        bpmDropDownMenuList.add(
-          DropdownMenuItem<int>(
-            key: ValueKey(value),
-            value: value,
-            child: Row(
-              children: <Widget>[
-                Text(
-                  value.toString(),
-                  textScaleFactor: lyricsScaleFactor, //  note well
-                ),
-              ],
-            ),
-          ),
-        );
-        if (i < -30 || i > 30)
-          i += 10 - 1; //  in addition to increment above
-        else if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
-      }
-    }
-
     const double defaultFontSize = 48;
     final double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
+
+    {
+      TextStyle dropDownTextStyle = TextStyle(fontSize: fontSize);
+
+      //  generate the rolled key list
+      //  higher pitch on top
+      //  lower pit on bottom
+
+      if (keyDropDownMenuList == null) {
+        const int steps = MusicConstants.halfStepsPerOctave;
+        const int halfOctave = steps ~/ 2;
+        List<songs.Key> rolledKeyList = List(steps);
+
+        List<songs.Key> list =
+            songs.Key.keysByHalfStepFrom(song.key); //temp loc
+        for (int i = 0; i <= halfOctave; i++) {
+          rolledKeyList[i] = list[halfOctave - i];
+        }
+        for (int i = halfOctave + 1; i < steps; i++) {
+          rolledKeyList[i] = list[steps - i + halfOctave];
+        }
+
+        keyDropDownMenuList = List();
+        for (int i = 0; i < steps; i++) {
+          songs.Key value = rolledKeyList[i];
+
+          int relativeOffset = halfOctave - i;
+
+          String relativeName = relativeOffset > 0
+              ? value.toStringAsSharp()
+              : value.toStringAsFlat();
+
+          String relativeString;
+          if (relativeOffset > 0)
+            relativeString = " +${relativeOffset.toString()}";
+          else if (relativeOffset < 0)
+            relativeString = " ${relativeOffset.toString()}";
+          else
+            relativeString = ' ';
+
+          keyDropDownMenuList.add(
+            DropdownMenuItem<songs.Key>(
+              key: ValueKey(value.getHalfStep()),
+              value: value,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    relativeName,
+                    style: dropDownTextStyle,
+                  ),
+                  Text(
+                    relativeString,
+                    style: dropDownTextStyle,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      }
+
+      if (bpmDropDownMenuList == null) {
+        final int bpm = song.getBeatsPerMinute();
+
+        bpmDropDownMenuList = List();
+        for (int i = -60; i < 60; i++) {
+          int value = bpm + i;
+          if (value < 40) continue;
+          bpmDropDownMenuList.add(
+            DropdownMenuItem<int>(
+              key: ValueKey(value),
+              value: value,
+              child: Text(
+                value.toString(),
+                style: dropDownTextStyle,
+                // textScaleFactor: lyricsScaleFactor, //  note well
+              ),
+            ),
+          );
+          if (i < -30 || i > 30)
+            i += 10 - 1; //  in addition to increment above
+          else if (i < -5 || i > 5)
+            i += 5 - 1; //  in addition to increment above
+        }
+      }
+    }
+
     final double boxCenter = _screenOffset;
     final double boxHeight = _screenOffset;
     final double boxOffset = boxHeight / 2;
@@ -599,14 +579,23 @@ class _Player extends State<Player> {
         ],
       ),
       floatingActionButton: _isPlaying
-          ? FloatingActionButton(
-              mini: _isTooNarrow,
-              onPressed: () {
-                _playToggle();
-              },
-              tooltip: 'Stop.  Space bar will pause the play.',
-              child: Icon(Icons.stop),
-            )
+          ? (_isPaused
+              ? FloatingActionButton(
+                  mini: _isTooNarrow,
+                  onPressed: () {
+                    _pauseToggle();
+                  },
+                  tooltip: 'Stop.  Space bar will continue the play.',
+                  child: Icon(Icons.play_arrow),
+                )
+              : FloatingActionButton(
+                  mini: _isTooNarrow,
+                  onPressed: () {
+                    _stop();
+                  },
+                  tooltip: 'Stop the play.',
+                  child: Icon(Icons.stop),
+                ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? FloatingActionButton(
                   mini: _isTooNarrow,
@@ -617,6 +606,7 @@ class _Player extends State<Player> {
                             curve: Curves.ease)
                         .then((_) {
                       logger.d('_scrollAnimationFuture complete');
+                      setState(() {});
                     });
                   },
                   tooltip: 'Top',
@@ -633,33 +623,43 @@ class _Player extends State<Player> {
     );
   }
 
-  String _dt() {
-    int t = DateTime.now().millisecondsSinceEpoch;
-    String ret = ((t - _lastT) / 1000.0).toStringAsFixed(3);
-    _lastT = t;
-    return ret;
-  }
-
-  bool _isPlaying = false;
+//  String _dt() {
+//    int t = DateTime.now().millisecondsSinceEpoch;
+//    String ret = ((t - _lastT) / 1000.0).toStringAsFixed(3);
+//    _lastT = t;
+//    return ret;
+//  }
 
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
 
   _play() {
     _isPlaying = true;
+    _isPaused = false;
     _scrollController.jumpTo(0);
     _playAnimation();
     logger.d('animated play');
     setState(() {});
   }
 
-  void _playToggle() {
-    _isPlaying = !_isPlaying;
+  _stop() {
+    _isPlaying = false;
+    _isPaused = false;
+    _scrollController.jumpTo(0);
+    setState(() {});
+  }
+
+  void _pauseToggle() {
     if (_isPlaying) {
-      _playAnimation();
-      logger.d('_playToggle animated scroll');
+      _isPaused = !_isPaused;
+      if (_isPaused) {
+        _scrollController.jumpTo(_scrollController.offset);
+      } else {
+        _playAnimation();
+      }
     } else {
-      _scrollController.jumpTo(_scrollController.offset);
-      logger.d('_playToggle stop');
+      _isPlaying = true;
+      _isPaused = false;
+      _playAnimation();
     }
     setState(() {});
   }
@@ -678,7 +678,7 @@ class _Player extends State<Player> {
         )
         .toInt();
     logger.i(
-        "_playAnimation(): from: ${_scrollController.offset}, to: $_lastDy, ms: $milliseconds");
+        "_playAnimation(): from: ${_scrollController.offset.toStringAsFixed(1)}, to: $_lastDy, ms: $milliseconds");
     _scrollController
 //      ..jumpTo(_scrollController.offset) //  end the prior scroll?
       ..animateTo(_lastDy,
@@ -706,13 +706,18 @@ class _Player extends State<Player> {
     );
   }
 
+  void _setBpm(int bpm) {
+    bpmDropDownMenuList = null;
+    widget.song.setBeatsPerMinute(bpm);
+    setState(() {});
+  }
+
   static final String anchorUrlStart =
       "https://www.youtube.com/results?search_query=";
 
-  double _lastScrollPos = 0;
+  bool _isPlaying = false;
+  bool _isPaused = false;
   int t0 = DateTime.now().millisecondsSinceEpoch;
-  int _lastT = DateTime.now().millisecondsSinceEpoch;
-  int _lastScrollT = DateTime.now().millisecondsSinceEpoch;
 
   bool _isTooNarrow = false;
   double _screenOffset;
@@ -734,12 +739,11 @@ class _RowLocation {
   @override
   String toString() {
     return ('${row.toString()} ${globalKey.toString()}'
-            ', ${songMoment.toString()}'
-            ', beats: ${beats.toString()}'
+        ', ${songMoment.toString()}'
+        ', beats: ${beats.toString()}'
         // ', dispY: ${dispY.toStringAsFixed(1)}'
         // ', h: ${height.toStringAsFixed(1)}'
-        //  ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}'
-        );
+        ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}');
   }
 
   void _computePixelsPerBeat() {
@@ -786,24 +790,57 @@ class _KeyboardListener extends StatefulWidget {
 class _KeyboardListenerState extends State<_KeyboardListener> {
   _KeyboardListenerState(this._player);
 
-  handleKey(RawKeyEventData rawKey) {
+  handleKey(RawKeyEvent rawKeyEvent) {
+    bool isDown = rawKeyEvent.runtimeType == RawKeyDownEvent;
+    if (!isDown) return;
+
+    int t = DateTime.now().millisecondsSinceEpoch;
+
+    //  find the key to process
+    String keyLabel = rawKeyEvent.data.logicalKey.keyLabel;
+
+    //  process control space
+    if (_player._isPlaying == false &&
+        keyLabel == LogicalKeyboardKey.space.keyLabel &&
+        rawKeyEvent.data.isControlPressed) {
+      int dt = t - lastTapToTime;
+      if (dt > 60 / 40.0 * 1000) {
+        //  minimum hertz in milliseconds per hertz
+        //  reset the rolling average
+        _tapRollingAverage.reset();
+      } else if (dt > 0) {
+        double bpm = _tapRollingAverage.roll(60 * 1000.0 / dt);
+        int intBpm = max(40, min(200, bpm.round()));
+        logger.d('roll: $intBpm');
+        _player._setBpm(intBpm);
+      }
+
+      lastTapToTime = t;
+      return;
+    }
+
     //  cancel any other key processing pending
     if (_debounce != null) {
       _debounce.cancel();
     }
 
     //  find the key to process
-    _keyLabel = rawKey.logicalKey.keyLabel;
+    keyLabel = rawKeyEvent.data.logicalKey.keyLabel;
+    int dt = t - lastKeyTime;
+    lastKeyTime = t;
+
+    logger.i('key: $keyLabel, dt: ${(dt / 1000.0).toStringAsFixed(3)}');
 
     _debounce = Timer(Duration(milliseconds: 250), () {
-      if (_keyLabel == LogicalKeyboardKey.space.keyLabel) {
+      if (keyLabel == LogicalKeyboardKey.space.keyLabel) {
         if (!_player._isPlaying)
           _player._play();
         else
-          _player._playToggle();
+          _player._pauseToggle();
+        setState(() {});
       } else if (_player._isPlaying &&
-          (_keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
-              _keyLabel == LogicalKeyboardKey.arrowUp.keyLabel)) {
+          (keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
+              keyLabel == LogicalKeyboardKey.arrowUp.keyLabel)) {
         //  restart the scrolling after the debounce
         _player._playAnimation();
       }
@@ -816,7 +853,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
 
     return RawKeyboardListener(
       focusNode: _textFocusNode,
-      onKey: (key) => handleKey(key.data),
+      onKey: (rawKeyEvent) => handleKey(rawKeyEvent),
       child: Visibility(
         visible: false,
         child: TextField(),
@@ -825,7 +862,9 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   }
 
   final _Player _player;
-  String _keyLabel;
   Timer _debounce;
+  int lastKeyTime = DateTime.now().millisecondsSinceEpoch;
+  int lastTapToTime = 0;
+  RollingAverage _tapRollingAverage = RollingAverage(5);
   FocusNode _textFocusNode = new FocusNode();
 }

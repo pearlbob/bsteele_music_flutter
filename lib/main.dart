@@ -8,6 +8,7 @@ import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
+import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/player': (context) => Player(song: selectedSong),
+        '/songs': (context) => Songs(),
         '/options': (context) => Options(),
         '/edit': (context) => Edit(song: selectedSong),
         '/privacy': (context) => Privacy(),
@@ -243,6 +245,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ), //  filler for notched phones
             ListTile(
               title: Text(
+                "Songs",
+                style: _navTextStyle,
+              ),
+              onTap: () {
+                _navigateToSongs(context);
+              },
+            ),
+            ListTile(
+              title: Text(
                 "Options",
                 style: _navTextStyle,
               ),
@@ -404,6 +415,15 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+
+  _navigateToSongs(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Songs()),
+    );
+    Navigator.pop(context);
+  }
+
   _navigateToPlayer(BuildContext context, Song song) async {
     await Navigator.push(
       context,
@@ -421,6 +441,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => Options()),
     );
+    Navigator.pop(context);
   }
 
   _navigateToEdit(BuildContext context, Song song) async {
@@ -428,6 +449,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => Edit(song: song)),
     );
+    Navigator.pop(context);
   }
 
   _navigateToAbout(BuildContext context) async {
@@ -435,6 +457,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => About()),
     );
+    Navigator.pop(context);
   }
 
   _navigateToPrivacyPolicy(BuildContext context) async {
@@ -442,6 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => Privacy()),
     );
+    Navigator.pop(context);
   }
 
   TextEditingController _searchTextFieldController;

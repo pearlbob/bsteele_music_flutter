@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -25,26 +26,24 @@ void main() {
 }
 
 /*
-project structure
-
-packaging
-deployment
 websockets/server
 
 C's ipad: model ML0F2LL/A
 
-MVC?
-file io (web, android, ios)
-file io (web write)
 flutter on linux?
 what is debugPrint
-json write
-
  */
 
-List<Song> allSongs = List();
-List<Song> songList = List();
-Song selectedSong;
+void addSong(Song song) {
+  print('addSong( ${song.toString()} )');
+  _allSongs.add(song);
+  _filteredSongs = null;
+  _selectedSong = song;
+}
+
+SplayTreeSet<Song> _allSongs = SplayTreeSet();
+SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
+Song _selectedSong;
 
 final Color _primaryColor = Colors.lightBlue[300];
 
@@ -68,10 +67,10 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/player': (context) => Player(song: selectedSong),
+        '/player': (context) => Player(song: _selectedSong),
         '/songs': (context) => Songs(),
         '/options': (context) => Options(),
-        '/edit': (context) => Edit(song: selectedSong),
+        '/edit': (context) => Edit(song: _selectedSong),
         '/privacy': (context) => Privacy(),
         '/about': (context) => About(),
       },
@@ -117,9 +116,10 @@ class _MyHomePageState extends State<MyHomePage> {
         await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
     try {
-      allSongs = Song.songListFromJson(songListAsString);
-      songList = allSongs;
-      selectedSong = songList[0];
+      _allSongs = SplayTreeSet();
+      _allSongs.addAll(Song.songListFromJson(songListAsString));
+      _filteredSongs = _allSongs;
+      _selectedSong = _filteredSongs.first;
       setState(() {});
       print("internal songList used");
     } catch (fe) {
@@ -141,9 +141,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     try {
-      allSongs = Song.songListFromJson(allSongsAsString);
-      songList = allSongs;
-      selectedSong = songList[0];
+      _allSongs = SplayTreeSet();
+      _allSongs.addAll(Song.songListFromJson(allSongsAsString));
+      _filteredSongs = _allSongs;
+      _selectedSong = _filteredSongs.first;
       setState(() {});
       print("external songList read from: " + url);
     } catch (fe) {
@@ -164,7 +165,13 @@ class _MyHomePageState extends State<MyHomePage> {
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
 
-    for (Song song in songList) {
+    //  re-search filtered list on data changes
+    if ( _filteredSongs == null ){
+      _searchTextFieldController.text ="";
+      _searchSongs(_searchTextFieldController.text);
+    }
+
+    for (Song song in _filteredSongs) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
         child: Container(
@@ -268,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: _navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToEdit(context, selectedSong);
+                  _navigateToEdit(context, _selectedSong);
                 },
               ),
             ListTile(
@@ -324,6 +331,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (text) {
                       logger.v('search text: "$text"');
                       _searchSongs(text);
+                      setState(() {});
                     },
                   ),
                 ),
@@ -334,6 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     _searchTextFieldController.clear();
                     FocusScope.of(context).requestFocus(_searchFocusNode);
                     _searchSongs(null);
+                    setState(() {});
                   }),
                 ),
               ]),
@@ -379,7 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
     search = search.replaceAll("[^\\w\\s']+", "");
     search = search.toLowerCase();
 
-    //  apply complexity filster
+    //  apply complexity filter
 //    TreeSet<Song> allSongsFiltered = allSongs;
 //    if (complexityFilter != ComplexityFilter.all) {
 //      TreeSet<Song> sortedSongs = new TreeSet<>(Song.getComparatorByType(Song.ComparatorType.complexity));
@@ -404,17 +413,15 @@ class _MyHomePageState extends State<MyHomePage> {
 //    }
 
     //  apply search filter
-    songList = List();
-    for (Song song in allSongs) {
+    _filteredSongs = SplayTreeSet();
+    for (Song song in _allSongs) {
       if (search.length == 0 ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
-        songList.add(song);
+        _filteredSongs.add(song);
       }
     }
-    setState(() {});
   }
-
 
   _navigateToSongs(BuildContext context) async {
     await Navigator.push(
@@ -422,6 +429,9 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => Songs()),
     );
     Navigator.pop(context);
+    setState(() {
+
+    });
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
@@ -442,6 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => Options()),
     );
     Navigator.pop(context);
+    setState(() {});
   }
 
   _navigateToEdit(BuildContext context, Song song) async {
@@ -450,6 +461,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => Edit(song: song)),
     );
     Navigator.pop(context);
+    setState(() {});
   }
 
   _navigateToAbout(BuildContext context) async {

@@ -14,15 +14,15 @@ description: bsteele Music App in Flutter
 version: 0.0.1+1
 
 environment:
-  sdk: ">=2.5.2 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  logger: ">=0.8.2"
+  logger: ^0.8.3
   shared_preferences: ^0.5.6
   url_launcher: ">=5.4.1"
-  universal_html: ^1.1.15
+  universal_html: ^1.1.18
   package_info: ">=0.4.0+13"
   file_picker: ">=1.4.3+2"
   bsteeleMusicLib:
@@ -37,8 +37,8 @@ dev_dependencies:
 #  flutter_test:
 #    sdk: flutter
   pedantic: ^1.9.0
-  test: ^1.12.0
-  test_api: ^0.2.11
+  test: ^1.14.2
+  test_api: ^0.2.15
 
 
 # For information on the generic Dart part of this file, see the

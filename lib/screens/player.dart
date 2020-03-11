@@ -37,8 +37,6 @@ class _Player extends State<Player> {
     super.initState();
     _appOptions = AppOptions();
 
-    logger.d("_Player.initState()");
-
     _displaySongKey = widget.song.key;
 
     //  eval sizes after first render
@@ -47,6 +45,7 @@ class _Player extends State<Player> {
       _lastDy = 0;
       double lastH = 0;
       double firstBoxDy;
+      _RowLocation lastRowLocation;
       for (int i = 0; i < _rowLocations.length; i++) {
         _RowLocation rowLocation = _rowLocations[i];
         BuildContext buildContext = rowLocation.globalKey.currentContext;
@@ -57,44 +56,56 @@ class _Player extends State<Player> {
           double dy = box.localToGlobal(Offset.zero).dy;
           if (firstBoxDy == null) {
             firstBoxDy = dy;
-            rowLocation.dispY = 0;
+            rowLocation._dispY = 0;
           } else
-            rowLocation.dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
+            rowLocation._dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
         }
 
-        lastH = _lastDy != null
-            ? rowLocation.dispY - _lastDy
-            : box.size.height; //  placeholder
-        rowLocation.height = lastH;
-        _lastDy = rowLocation.dispY; //  for next time
+        lastH =
+            _lastDy != null ? rowLocation._dispY - _lastDy : box.size.height;
+        rowLocation.height = box.size.height; //  placeholder
+        if (lastRowLocation != null) lastRowLocation.height = lastH;
+        _lastDy = rowLocation._dispY; //  for next time
+        lastRowLocation = rowLocation;
         //logger.d(rowLocation.toString());
         //logger.d('    ${rowLocation.globalKey.currentContext.toString()}');
       }
       _lastDy += lastH;
 
-      //  diagnostics only
-      for (_RowLocation rowLocation in _rowLocations) {
-        logger.i('${rowLocation.toString()}');
-      }
-      logger.i('_lastDy: $_lastDy');
+//      //  diagnostics only
+//      for (_RowLocation rowLocation in _rowLocations) {
+//        logger.i('${rowLocation.toString()}');
+//      }
+//      logger.i('_lastDy: $_lastDy');
     });
   }
 
   /// for the given position on the screen,
-  /// return the time represented in the song at that position
-  double songTimeAtPosition(double position) {
-    if (position <= 0) return 0;
-    for (_RowLocation _rowLocation in _rowLocations) {
-      if (position <= _rowLocation.dispY + _rowLocation.height)
-        return (_rowLocation.songMoment.beatNumber +
-                (position - _rowLocation.dispY) /
-                    _rowLocation.height *
-                    _rowLocation.beats) *
-            60 /
-            widget.song.getBeatsPerMinute();
+  /// return the row location in the song at that position
+  _RowLocation _rowLocationAtPosition(double position) {
+    if (position <= 0) return _rowLocations[0];
+    for (_RowLocation rowLocation in _rowLocations) {
+      if (position < rowLocation._dispY + rowLocation.height)
+        return rowLocation;
     }
-    return 0;
+    return null;
   }
+
+//  /// for the given position on the screen,
+//  /// return the time represented in the song at that position
+//  double songTimeAtPosition(double position) {
+//    if (position <= 0) return 0;
+//
+//    _RowLocation rowLocation = _rowLocationAtPosition(position);
+//    if (rowLocation == null) return null;
+//
+//    return (rowLocation.songMoment.beatNumber +
+//            (position - rowLocation._dispY) /
+//                rowLocation.height *
+//                rowLocation.beats) *
+//        60 /
+//        widget.song.getBeatsPerMinute();
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -380,6 +391,7 @@ class _Player extends State<Player> {
       backgroundColor: Colors.white,
       body: Stack(
         children: <Widget>[
+          //  smooth background
           Positioned(
             top: boxCenter - boxOffset,
             child: Container(
@@ -398,19 +410,30 @@ class _Player extends State<Player> {
               ),
             ),
           ),
+          //  tiny marker
+          Positioned(
+            top: boxCenter,
+            child: Container(
+              constraints: BoxConstraints.loose(Size(10, 4)),
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+            ),
+          ),
 //          NotificationListener<ScrollNotification>(
 //            onNotification: (scrollNotification) {
 //              if (scrollNotification is ScrollStartNotification) {
 //                logger.i(
 //                    'start scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
-//                    ' -> ${scrollNotification.metrics.extentAfter.toStringAsFixed(0)},${_isPlaying ? " isPlaying," : ""} dt: ${_dt()}');
+//                    ' -> ${scrollNotification.metrics.extentAfter.toStringAsFixed(0)},${_isPlaying ? " isPlaying," : ""} ');
 //              } else if (scrollNotification is ScrollUpdateNotification) {
 ////                logger.i(
 ////                    'update scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}, isPlaying: $_isPlaying');
 //              } else if (scrollNotification is ScrollEndNotification) {
 //                logger.i(
-//                'end scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
-//                    ' -> ${scrollNotification.metrics.extentAfter.toStringAsFixed(0)},${_isPlaying? " isPlaying,":""} dt: ${_dt()}');
+//                    'end scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
+//                    ' -> ${scrollNotification.metrics.extentAfter.toStringAsFixed(0)},${_isPlaying ? " isPlaying," : ""} ');
+//                _playAnimation();
 //              }
 //              return false;
 //            },
@@ -476,23 +499,22 @@ class _Player extends State<Player> {
                         ),
                         Row(
                           children: <Widget>[
-                            if (!_isTooNarrow)
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 32),
-                                child: FlatButton.icon(
-                                  color: Colors.lightBlue[300],
-                                  hoverColor: hoverColor,
-                                  icon: Icon(
-                                    _playStopIcon,
-                                    size: 24 * lyricsScaleFactor,
-                                  ),
-                                  label: Text(''),
-                                  onPressed: () {
-                                    _play();
-                                  },
+                            Container(
+                              padding:
+                                  const EdgeInsets.only(left: 8, right: 24),
+                              child: FlatButton.icon(
+                                color: Colors.lightBlue[300],
+                                hoverColor: hoverColor,
+                                icon: Icon(
+                                  _playStopIcon,
+                                  size: 24 * lyricsScaleFactor,
                                 ),
+                                label: Text(''),
+                                onPressed: () {
+                                  _play();
+                                },
                               ),
+                            ),
                             Text(
                               "Key: ",
                               textScaleFactor: lyricsScaleFactor,
@@ -635,6 +657,7 @@ class _Player extends State<Player> {
   _play() {
     _isPlaying = true;
     _isPaused = false;
+    _rowLocationIndex = 0;
     _scrollController.jumpTo(0);
     _playAnimation();
     logger.d('animated play');
@@ -644,7 +667,7 @@ class _Player extends State<Player> {
   _stop() {
     _isPlaying = false;
     _isPaused = false;
-    _scrollController.jumpTo(0);
+    _scrollController.jumpTo(_scrollController.offset);
     setState(() {});
   }
 
@@ -665,29 +688,65 @@ class _Player extends State<Player> {
   }
 
   void _playAnimation() {
-    t0 = DateTime.now().millisecondsSinceEpoch;
-    int milliseconds = ((
-                //  total duration
-                widget.song.duration
-                    //  minus time already consumed
-                    -
-                    (_isPlaying
-                        ? songTimeAtPosition(_scrollController.offset)
-                        : 0)) *
+    if (_rowLocationIndex == null) {
+      _rowLocationIndex = 0;
+    } else if (_rowLocationIndex >= _rowLocations.length) {
+      _stop();
+      return;
+    }
+
+    _RowLocation rowLocation;
+    if (_rowLocationIndex >= 0) {
+      rowLocation = _rowLocations[_rowLocationIndex];
+    } else {
+      rowLocation = _rowLocationAtPosition(_scrollController.offset);
+    }
+    if (rowLocation == null) {
+      return;
+    }
+    _rowLocationIndex++; //  for next time
+
+    double bottomY = rowLocation.dispY + rowLocation.height;
+    int milliseconds = (rowLocation.beats *
+            60 /
+            widget.song.getBeatsPerMinute() *
             1000 //  ms/s
         )
         .toInt();
+
+    //  compensate for the delayed start
+    if (milliseconds > 1.5 * _delayMs) milliseconds -= _delayMs;
+
     logger.i(
-        "_playAnimation(): from: ${_scrollController.offset.toStringAsFixed(1)}, to: $_lastDy, ms: $milliseconds");
+        '_playAnimation(): from: ${_scrollController.offset.toStringAsFixed(1)}'
+        ', to: $_rowLocationIndex @ ${bottomY.toStringAsFixed(1)}'
+        ', $milliseconds ms'
+        ', v: ${(1000 * (bottomY - _scrollController.offset).abs() / milliseconds).toStringAsFixed(3)}' //  pixels/s
+        );
+
     _scrollController
-//      ..jumpTo(_scrollController.offset) //  end the prior scroll?
-      ..animateTo(_lastDy,
-              duration: Duration(milliseconds: milliseconds),
-              curve: Curves.linear)
-          .then((_) {
-        logger.d('_playAnimation finished'
-            ', pos: ${_scrollController.offset.toStringAsFixed(1)}');
+      ..animateTo(
+        bottomY,
+        duration: Duration(milliseconds: milliseconds),
+        curve: Curves.linear,
+      ).then((_) {
+        logger.i('_playAnimation() finished'
+            ', pos: ${_scrollController.offset.toStringAsFixed(1)}'
+            ', loc: ${_rowLocationIndex.toString()}');
+        _delayAnimation();
       });
+  }
+
+  void _delayAnimation() {
+    if (_delayAnimationTimer != null) {
+      _delayAnimationTimer.cancel();
+      _delayAnimationTimer = null;
+    }
+    if (_isPaused) return;
+
+    _delayAnimationTimer = Timer(Duration(milliseconds: _delayMs), () {
+      _playAnimation();
+    });
   }
 
   String _titleAnchor() {
@@ -715,14 +774,16 @@ class _Player extends State<Player> {
   static final String anchorUrlStart =
       "https://www.youtube.com/results?search_query=";
 
+  Timer _delayAnimationTimer;
+  static const int _delayMs = 100;
   bool _isPlaying = false;
   bool _isPaused = false;
-  int t0 = DateTime.now().millisecondsSinceEpoch;
 
   bool _isTooNarrow = false;
   double _screenOffset;
   double _lastDy = 0;
   List<_RowLocation> _rowLocations;
+  int _rowLocationIndex;
 
   Table _table;
   songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
@@ -763,7 +824,8 @@ class _RowLocation {
   int get beats => _beats;
   int _beats;
 
-  double dispY;
+  double get dispY => _dispY;
+  double _dispY;
 
   set height(value) {
     _height = value;
@@ -791,18 +853,20 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   _KeyboardListenerState(this._player);
 
   handleKey(RawKeyEvent rawKeyEvent) {
-    bool isDown = rawKeyEvent.runtimeType == RawKeyDownEvent;
-    if (!isDown) return;
+    //  only deal with key down events
+    if (rawKeyEvent.runtimeType != RawKeyDownEvent) return;
+
+    RawKeyDownEvent rawKeyDownEvent = rawKeyEvent as RawKeyDownEvent;
 
     int t = DateTime.now().millisecondsSinceEpoch;
 
     //  find the key to process
-    String keyLabel = rawKeyEvent.data.logicalKey.keyLabel;
+    LogicalKeyboardKey keyDown = rawKeyDownEvent.data.logicalKey;
 
     //  process control space
     if (_player._isPlaying == false &&
-        keyLabel == LogicalKeyboardKey.space.keyLabel &&
-        rawKeyEvent.data.isControlPressed) {
+        keyDown == LogicalKeyboardKey.space &&
+        rawKeyDownEvent.data.isControlPressed) {
       int dt = t - lastTapToTime;
       if (dt > 60 / 40.0 * 1000) {
         //  minimum hertz in milliseconds per hertz
@@ -824,25 +888,34 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
       _debounce.cancel();
     }
 
-    //  find the key to process
-    keyLabel = rawKeyEvent.data.logicalKey.keyLabel;
     int dt = t - lastKeyTime;
     lastKeyTime = t;
 
-    logger.i('key: $keyLabel, dt: ${(dt / 1000.0).toStringAsFixed(3)}');
+    logger.i(
+        'key: ${keyDown.toString()}, dt: ${(dt / 1000.0).toStringAsFixed(3)}');
 
-    _debounce = Timer(Duration(milliseconds: 250), () {
-      if (keyLabel == LogicalKeyboardKey.space.keyLabel) {
+    _debounce = Timer(Duration(milliseconds: 100), () {
+      if (keyDown == LogicalKeyboardKey.space) {
         if (!_player._isPlaying)
           _player._play();
         else
           _player._pauseToggle();
         setState(() {});
-      } else if (_player._isPlaying &&
-          (keyLabel == LogicalKeyboardKey.arrowDown.keyLabel ||
-              keyLabel == LogicalKeyboardKey.arrowUp.keyLabel)) {
-        //  restart the scrolling after the debounce
-        _player._playAnimation();
+      } else if (_player._isPlaying) {
+        if (keyDown == LogicalKeyboardKey.arrowDown) {
+          logger.i('arrowDown @ ${_player._rowLocationIndex}');
+
+          //  restart the scrolling after the debounce
+          _player._rowLocationIndex++;
+          _player._delayAnimation();
+        } else if (keyDown == LogicalKeyboardKey.arrowUp) {
+          logger.i('arrowUp @ ${_player._rowLocationIndex}');
+
+          //  restart the scrolling after the debounce
+          _player._rowLocationIndex =
+              _player._rowLocationIndex > 0 ? _player._rowLocationIndex - 1 : 0;
+          _player._delayAnimation();
+        }
       }
     });
   }

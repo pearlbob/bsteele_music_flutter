@@ -112,8 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readInternalSongList() async {
-    String songListAsString =
-        await rootBundle.loadString('lib/assets/allSongs.songlyrics');
+    String songListAsString = await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
     try {
       _allSongs = SplayTreeSet();
@@ -128,8 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readExternalSongList() async {
-    const String url =
-        'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
+    const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
 
     String allSongsAsString;
     try {
@@ -166,8 +164,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final double artistScaleFactor = screenInfo.artistScaleFactor;
 
     //  re-search filtered list on data changes
-    if ( _filteredSongs == null ){
-      _searchTextFieldController.text ="";
+    if (_filteredSongs == null) {
+      _searchTextFieldController.text = "";
       _searchSongs(_searchTextFieldController.text);
     }
 
@@ -194,8 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     const double defaultFontSize = 48;
     double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
-    final TextStyle _navTextStyle =
-        TextStyle(fontSize: fontSize, color: Colors.grey[800]);
+    final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     return Scaffold(
       appBar: AppBar(
@@ -223,8 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           if (!_isTooNarrow) //  sorry CJ
             new Tooltip(
-              message:
-                  "Visit Community Jams, the motivation and main user for this app.",
+              message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
                 onTap: () {
                   openLink('http://communityjams.org');
@@ -424,14 +420,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToSongs(BuildContext context) async {
+    Song lastSelectedSong = _selectedSong;
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Songs()),
     );
     Navigator.pop(context);
-    setState(() {
 
-    });
+    //  jump the player screen if a song was read
+    if (lastSelectedSong != _selectedSong) _navigateToPlayer(context, _selectedSong);
+    setState(() {});
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
@@ -441,8 +439,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     //  select all text on a navigation pop
-    _searchTextFieldController.selection = TextSelection(
-        baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
+    _searchTextFieldController.selection =
+        TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
     FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 

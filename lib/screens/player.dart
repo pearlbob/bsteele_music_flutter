@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
@@ -61,8 +62,7 @@ class _Player extends State<Player> {
             rowLocation._dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
         }
 
-        lastH =
-            _lastDy != null ? rowLocation._dispY - _lastDy : box.size.height;
+        lastH = _lastDy != null ? rowLocation._dispY - _lastDy : box.size.height;
         rowLocation.height = box.size.height; //  placeholder
         if (lastRowLocation != null) lastRowLocation.height = lastH;
         _lastDy = rowLocation._dispY; //  for next time
@@ -80,16 +80,16 @@ class _Player extends State<Player> {
     });
   }
 
-  /// for the given position on the screen,
-  /// return the row location in the song at that position
-  _RowLocation _rowLocationAtPosition(double position) {
-    if (position <= 0) return _rowLocations[0];
-    for (_RowLocation rowLocation in _rowLocations) {
-      if (position < rowLocation._dispY + rowLocation.height)
-        return rowLocation;
-    }
-    return null;
-  }
+//  /// for the given position on the screen,
+//  /// return the row location in the song at that position
+//  _RowLocation _rowLocationAtPosition(double position) {
+//    if (position <= 0) return _rowLocations[0];
+//    for (_RowLocation rowLocation in _rowLocations) {
+//      if (position < rowLocation._dispY + rowLocation.height)
+//        return rowLocation;
+//    }
+//    return null;
+//  }
 
 //  /// for the given position on the screen,
 //  /// return the time represented in the song at that position
@@ -134,15 +134,13 @@ class _Player extends State<Player> {
           _rowLocations = List(grid.getRowCount());
           List<TableRow> rows = List();
           List<Widget> children = List();
-          Color color =
-              GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+          Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
           bool showChords = !_isTooNarrow || _appOptions.playerDisplay;
           bool showFullLyrics = !_isTooNarrow || !_appOptions.playerDisplay;
 
           //  compute transposition offset from base key
-          int tranOffset =
-              _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
+          int tranOffset = _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
 
           //  keep track of the section
           ChordSection lastChordSection;
@@ -170,16 +168,14 @@ class _Player extends State<Player> {
             if (firstSongMoment == null) continue;
 
             GlobalKey _rowKey = GlobalKey(debugLabel: r.toString());
-            _rowLocations[r] =
-                _RowLocation(firstSongMoment, r, _rowKey, song.rowBeats(r));
+            _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey, song.rowBeats(r));
 
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
             String columnFiller;
             EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
             EdgeInsets textPadding = EdgeInsets.all(6);
-            if (chordSection != lastChordSection ||
-                sectionCount != lastSectionCount) {
+            if (chordSection != lastChordSection || sectionCount != lastSectionCount) {
               //  add the section heading
               columnFiller = chordSection.sectionVersion.toString();
               color = GuiColors.getColorForSection(chordSection.getSection());
@@ -225,8 +221,7 @@ class _Player extends State<Player> {
                 _rowKey = null;
 
                 //  use the first non-null location for the table value key
-                if (momentLocation == null)
-                  momentLocation = sm.momentNumber.toString();
+                if (momentLocation == null) momentLocation = sm.momentNumber.toString();
               }
 
               //  section and lyrics only if on a cell phone
@@ -306,8 +301,7 @@ class _Player extends State<Player> {
         const int halfOctave = steps ~/ 2;
         List<songs.Key> rolledKeyList = List(steps);
 
-        List<songs.Key> list =
-            songs.Key.keysByHalfStepFrom(song.key); //temp loc
+        List<songs.Key> list = songs.Key.keysByHalfStepFrom(song.key); //temp loc
         for (int i = 0; i <= halfOctave; i++) {
           rolledKeyList[i] = list[halfOctave - i];
         }
@@ -321,9 +315,7 @@ class _Player extends State<Player> {
 
           int relativeOffset = halfOctave - i;
 
-          String relativeName = relativeOffset > 0
-              ? value.toStringAsSharp()
-              : value.toStringAsFlat();
+          String relativeName = relativeOffset > 0 ? value.toStringAsSharp() : value.toStringAsFlat();
 
           String relativeString;
           if (relativeOffset > 0)
@@ -375,8 +367,7 @@ class _Player extends State<Player> {
           );
           if (i < -30 || i > 30)
             i += 10 - 1; //  in addition to increment above
-          else if (i < -5 || i > 5)
-            i += 5 - 1; //  in addition to increment above
+          else if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
         }
       }
     }
@@ -420,184 +411,175 @@ class _Player extends State<Player> {
               ),
             ),
           ),
-//          NotificationListener<ScrollNotification>(
-//            onNotification: (scrollNotification) {
-//              if (scrollNotification is ScrollStartNotification) {
+          NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification is ScrollStartNotification) {
+                logger.i('start scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
+                    ' ,${_isPlaying ? " isPlaying," : ""} ');
+              } else if (scrollNotification is ScrollUpdateNotification) {
 //                logger.i(
-//                    'start scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
-//                    ' -> ${scrollNotification.metrics.extentAfter.toStringAsFixed(0)},${_isPlaying ? " isPlaying," : ""} ');
-//              } else if (scrollNotification is ScrollUpdateNotification) {
-////                logger.i(
-////                    'update scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}, isPlaying: $_isPlaying');
-//              } else if (scrollNotification is ScrollEndNotification) {
-//                logger.i(
-//                    'end scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
-//                    ' -> ${scrollNotification.metrics.extentAfter.toStringAsFixed(0)},${_isPlaying ? " isPlaying," : ""} ');
-//                _playAnimation();
-//              }
-//              return false;
-//            },
-//            child:
-          SingleChildScrollView(
-            controller: _scrollController,
-            scrollDirection: Axis.vertical,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                textDirection: TextDirection.ltr,
-                children: <Widget>[
-                  if (!_isPlaying)
-                    Column(
-                      children: <Widget>[
-                        AppBar(
-                          //  let the app bar scroll off the screen for more room for the song
-                          title: InkWell(
-                            onTap: () {
-                              openLink(_titleAnchor());
-                            },
-                            child: Text(
-                              '${song.title}',
-                              style: TextStyle(
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            hoverColor: hoverColor,
-                          ),
-                          centerTitle: true,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(top: 16, right: 12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              InkWell(
-                                onTap: () {
-                                  openLink(_artistAnchor());
-                                },
-                                child: Text(
-                                  ' by  ${song.artist}',
-                                  textScaleFactor: lyricsScaleFactor,
-                                ),
-                                hoverColor: hoverColor,
+//                    'update scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}, isPlaying: $_isPlaying');
+              } else if (scrollNotification is ScrollEndNotification) {
+                logger.i('end scroll: ${scrollNotification.metrics.extentBefore.toStringAsFixed(0)}'
+                    ' ,${_isPlaying ? " isPlaying," : ""} ');
+                // _playAnimation();
+              }
+              return false;
+            },
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  textDirection: TextDirection.ltr,
+                  children: <Widget>[
+                    if (!_isPlaying)
+                      Column(
+                        children: <Widget>[
+                          AppBar(
+                            //  let the app bar scroll off the screen for more room for the song
+                            title: InkWell(
+                              onTap: () {
+                                openLink(_titleAnchor());
+                              },
+                              child: Text(
+                                '${song.title}',
+                                style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                               ),
-                              if (!_isTooNarrow)
-                                FlatButton.icon(
-                                  padding: const EdgeInsets.all(16),
+                              hoverColor: hoverColor,
+                            ),
+                            centerTitle: true,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(top: 16, right: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                InkWell(
+                                  onTap: () {
+                                    openLink(_artistAnchor());
+                                  },
+                                  child: Text(
+                                    ' by  ${song.artist}',
+                                    textScaleFactor: lyricsScaleFactor,
+                                  ),
+                                  hoverColor: hoverColor,
+                                ),
+                                if (!_isTooNarrow)
+                                  FlatButton.icon(
+                                    padding: const EdgeInsets.all(16),
+                                    color: Colors.lightBlue[300],
+                                    hoverColor: hoverColor,
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: fontSize,
+                                    ),
+                                    label: Text(''),
+                                    onPressed: () {
+                                      _navigateToEdit(context, song);
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                padding: const EdgeInsets.only(left: 8, right: 24),
+                                child: FlatButton.icon(
                                   color: Colors.lightBlue[300],
                                   hoverColor: hoverColor,
                                   icon: Icon(
-                                    Icons.edit,
-                                    size: fontSize,
+                                    _playStopIcon,
+                                    size: 24 * lyricsScaleFactor,
                                   ),
                                   label: Text(''),
                                   onPressed: () {
-                                    _navigateToEdit(context, song);
+                                    _play();
                                   },
                                 ),
+                              ),
+                              Text(
+                                "Key: ",
+                                textScaleFactor: lyricsScaleFactor,
+                              ),
+                              if (!_isTooNarrow)
+                                DropdownButton<songs.Key>(
+                                  items: keyDropDownMenuList,
+                                  onChanged: (_value) {
+                                    setState(() {
+                                      _displaySongKey = _value;
+                                      _table = null;
+                                    });
+                                  },
+                                  value: _displaySongKey,
+                                  style: TextStyle(
+                                    //  size controlled by textScaleFactor above
+                                    color: Colors.black87,
+                                    textBaseline: TextBaseline.ideographic,
+                                  ),
+                                  iconSize: lyricsScaleFactor * 16,
+                                  itemHeight: lyricsScaleFactor * kMinInteractiveDimension,
+                                )
+                              else
+                                Text(
+                                  _displaySongKey.toString(),
+                                  textScaleFactor: lyricsScaleFactor,
+                                ),
+                              Text(
+                                "   BPM: ",
+                                textScaleFactor: lyricsScaleFactor,
+                              ),
+                              if (!_isTooNarrow)
+                                DropdownButton<int>(
+                                  items: bpmDropDownMenuList,
+                                  onChanged: (_value) {
+                                    setState(() {
+                                      song.setBeatsPerMinute(_value);
+                                      bpmDropDownMenuList = null; //  refresh to new value
+                                      setState(() {});
+                                    });
+                                  },
+                                  value: song.getBeatsPerMinute(),
+                                  style: TextStyle(
+                                    //  size controlled by textScaleFactor above
+                                    color: Colors.black87,
+                                    textBaseline: TextBaseline.ideographic,
+                                  ),
+                                  iconSize: lyricsScaleFactor * 16,
+                                  itemHeight: lyricsScaleFactor * kMinInteractiveDimension,
+                                )
+                              else
+                                Text(
+                                  song.getBeatsPerMinute().toString(),
+                                  textScaleFactor: lyricsScaleFactor,
+                                ),
+                              Text(
+                                "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                                textScaleFactor: lyricsScaleFactor,
+                              ),
                             ],
                           ),
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Container(
-                              padding:
-                                  const EdgeInsets.only(left: 8, right: 24),
-                              child: FlatButton.icon(
-                                color: Colors.lightBlue[300],
-                                hoverColor: hoverColor,
-                                icon: Icon(
-                                  _playStopIcon,
-                                  size: 24 * lyricsScaleFactor,
-                                ),
-                                label: Text(''),
-                                onPressed: () {
-                                  _play();
-                                },
-                              ),
-                            ),
-                            Text(
-                              "Key: ",
-                              textScaleFactor: lyricsScaleFactor,
-                            ),
-                            if (!_isTooNarrow)
-                              DropdownButton<songs.Key>(
-                                items: keyDropDownMenuList,
-                                onChanged: (_value) {
-                                  setState(() {
-                                    _displaySongKey = _value;
-                                    _table = null;
-                                  });
-                                },
-                                value: _displaySongKey,
-                                style: TextStyle(
-                                  //  size controlled by textScaleFactor above
-                                  color: Colors.black87,
-                                  textBaseline: TextBaseline.ideographic,
-                                ),
-                                iconSize: lyricsScaleFactor * 16,
-                                itemHeight: lyricsScaleFactor *
-                                    kMinInteractiveDimension,
-                              )
-                            else
-                              Text(
-                                _displaySongKey.toString(),
-                                textScaleFactor: lyricsScaleFactor,
-                              ),
-                            Text(
-                              "   BPM: ",
-                              textScaleFactor: lyricsScaleFactor,
-                            ),
-                            if (!_isTooNarrow)
-                              DropdownButton<int>(
-                                items: bpmDropDownMenuList,
-                                onChanged: (_value) {
-                                  setState(() {
-                                    song.setBeatsPerMinute(_value);
-                                    bpmDropDownMenuList =
-                                        null; //  refresh to new value
-                                    setState(() {});
-                                  });
-                                },
-                                value: song.getBeatsPerMinute(),
-                                style: TextStyle(
-                                  //  size controlled by textScaleFactor above
-                                  color: Colors.black87,
-                                  textBaseline: TextBaseline.ideographic,
-                                ),
-                                iconSize: lyricsScaleFactor * 16,
-                                itemHeight: lyricsScaleFactor *
-                                    kMinInteractiveDimension,
-                              )
-                            else
-                              Text(
-                                song.getBeatsPerMinute().toString(),
-                                textScaleFactor: lyricsScaleFactor,
-                              ),
-                            Text(
-                              "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                              textScaleFactor: lyricsScaleFactor,
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
+                    if (_isPlaying)
+                      SizedBox(
+                        height: _screenOffset,
+                      ),
+                    Center(child: _table),
+                    Text(
+                      "Copyright: ${song.getCopyright()}",
+                      textScaleFactor: lyricsScaleFactor,
                     ),
-                  if (_isPlaying)
-                    SizedBox(
-                      height: _screenOffset,
-                    ),
-                  Center(child: _table),
-                  Text(
-                    "Copyright: ${song.getCopyright()}",
-                    textScaleFactor: lyricsScaleFactor,
-                  ),
-                  if (_isPlaying)
-                    SizedBox(
-                      height: _screenOffset,
-                    ),
-                  _KeyboardListener(this),
-                ]),
+                    if (_isPlaying)
+                      SizedBox(
+                        height: _screenOffset,
+                      ),
+                    _KeyboardListener(this),
+                  ]),
+            ),
           ),
-//          ),
         ],
       ),
       floatingActionButton: _isPlaying
@@ -622,11 +604,8 @@ class _Player extends State<Player> {
               ? FloatingActionButton(
                   mini: _isTooNarrow,
                   onPressed: () {
-                    _scrollController
-                        .animateTo(0,
-                            duration: Duration(milliseconds: 333),
-                            curve: Curves.ease)
-                        .then((_) {
+                    _stop();
+                    _scrollController.animateTo(0, duration: Duration(milliseconds: 333), curve: Curves.ease).then((_) {
                       logger.d('_scrollAnimationFuture complete');
                       setState(() {});
                     });
@@ -665,9 +644,15 @@ class _Player extends State<Player> {
   }
 
   _stop() {
+    if (_delayAnimationTimer != null) {
+      _delayAnimationTimer.cancel();
+      _delayAnimationTimer = null;
+    }
+
     _isPlaying = false;
-    _isPaused = false;
-    _scrollController.jumpTo(_scrollController.offset);
+    _isPaused = true;
+    _scrollController.jumpTo(0);
+
     setState(() {});
   }
 
@@ -688,43 +673,55 @@ class _Player extends State<Player> {
   }
 
   void _playAnimation() {
+    if (!_isPlaying) return;
+
     if (_rowLocationIndex == null) {
       _rowLocationIndex = 0;
-    } else if (_rowLocationIndex >= _rowLocations.length) {
-      _stop();
+    }
+    _rowLocationIndex += _rowLocationBump != 0 ? _rowLocationBump - 1 : 1;
+    if (_rowLocationIndex < 0) {
+      _rowLocationIndex = 0;
+    }
+    if (_rowLocationIndex >= _rowLocations.length) {
+      _rowLocationBump = 0;
       return;
     }
 
-    _RowLocation rowLocation;
-    if (_rowLocationIndex >= 0) {
-      rowLocation = _rowLocations[_rowLocationIndex];
-    } else {
-      rowLocation = _rowLocationAtPosition(_scrollController.offset);
-    }
+    _RowLocation rowLocation = _rowLocations[_rowLocationIndex];
     if (rowLocation == null) {
+      _rowLocationBump = 0;
       return;
     }
-    _rowLocationIndex++; //  for next time
+    if (_rowLocationBump != 0) {
+      _scrollController.jumpTo(rowLocation.dispY);
+    }
+
+    logger.i('_rowLocationIndex: $_rowLocationIndex');
 
     double bottomY = rowLocation.dispY + rowLocation.height;
-    int milliseconds = (rowLocation.beats *
-            60 /
-            widget.song.getBeatsPerMinute() *
-            1000 //  ms/s
-        )
-        .toInt();
+    int milliseconds = _rowLocationBump == 0
+        ?
+        // normal
+        (rowLocation.beats * 60 / widget.song.getBeatsPerMinute() * 1000 //  ms/s
+            )
+            .toInt()
+        :
+        //  was bumped by _hand
+        _delayMs ~/ 3;
 
     //  compensate for the delayed start
     if (milliseconds > 1.5 * _delayMs) milliseconds -= _delayMs;
+    if (milliseconds < 1) milliseconds = 1;
 
-    logger.i(
-        '_playAnimation(): from: ${_scrollController.offset.toStringAsFixed(1)}'
+    logger.i('_playAnimation(): from: ${_scrollController.offset.toStringAsFixed(1)}'
         ', to: $_rowLocationIndex @ ${bottomY.toStringAsFixed(1)}'
         ', $milliseconds ms'
         ', v: ${(1000 * (bottomY - _scrollController.offset).abs() / milliseconds).toStringAsFixed(3)}' //  pixels/s
-        );
+        '${(_rowLocationBump != 0 ? _rowLocationBump.toString() : "")}');
+    _rowLocationBump = 0;
 
     _scrollController
+      //..jumpTo(_scrollController.offset) //  clear any scrolling
       ..animateTo(
         bottomY,
         duration: Duration(milliseconds: milliseconds),
@@ -745,13 +742,13 @@ class _Player extends State<Player> {
     if (_isPaused) return;
 
     _delayAnimationTimer = Timer(Duration(milliseconds: _delayMs), () {
+      logger.i('_delayAnimationTimer() fired');
       _playAnimation();
     });
   }
 
   String _titleAnchor() {
-    return anchorUrlStart +
-        Uri.encodeFull('${widget.song.title} ${widget.song.artist}');
+    return anchorUrlStart + Uri.encodeFull('${widget.song.title} ${widget.song.artist}');
   }
 
   String _artistAnchor() {
@@ -771,8 +768,7 @@ class _Player extends State<Player> {
     setState(() {});
   }
 
-  static final String anchorUrlStart =
-      "https://www.youtube.com/results?search_query=";
+  static final String anchorUrlStart = "https://www.youtube.com/results?search_query=";
 
   Timer _delayAnimationTimer;
   static const int _delayMs = 100;
@@ -784,6 +780,7 @@ class _Player extends State<Player> {
   double _lastDy = 0;
   List<_RowLocation> _rowLocations;
   int _rowLocationIndex;
+  int _rowLocationBump = 0;
 
   Table _table;
   songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
@@ -808,8 +805,7 @@ class _RowLocation {
   }
 
   void _computePixelsPerBeat() {
-    if (_height != null && beats != null && beats > 0)
-      _pixelsPerBeat = _height / beats;
+    if (_height != null && beats != null && beats > 0) _pixelsPerBeat = _height / beats;
   }
 
   final SongMoment songMoment;
@@ -840,8 +836,7 @@ class _RowLocation {
 }
 
 class _KeyboardListener extends StatefulWidget {
-  _KeyboardListener(_Player player)
-      : _keyboardListenerState = _KeyboardListenerState(player);
+  _KeyboardListener(_Player player) : _keyboardListenerState = _KeyboardListenerState(player);
 
   @override
   _KeyboardListenerState createState() => _keyboardListenerState;
@@ -853,20 +848,24 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   _KeyboardListenerState(this._player);
 
   handleKey(RawKeyEvent rawKeyEvent) {
-    //  only deal with key down events
-    if (rawKeyEvent.runtimeType != RawKeyDownEvent) return;
+    //  only deal with new key down events
+    int keyId = rawKeyEvent.data.logicalKey.keyId;
+    if (rawKeyEvent.runtimeType != RawKeyDownEvent) {
+      _keysDown.remove(keyId);
+      return;
+    }
+    if (_keysDown.contains(keyId)) return;
 
     RawKeyDownEvent rawKeyDownEvent = rawKeyEvent as RawKeyDownEvent;
-
-    int t = DateTime.now().millisecondsSinceEpoch;
 
     //  find the key to process
     LogicalKeyboardKey keyDown = rawKeyDownEvent.data.logicalKey;
 
     //  process control space
     if (_player._isPlaying == false &&
-        keyDown == LogicalKeyboardKey.space &&
+        keyId == LogicalKeyboardKey.space.keyId &&
         rawKeyDownEvent.data.isControlPressed) {
+      int t = DateTime.now().millisecondsSinceEpoch;
       int dt = t - lastTapToTime;
       if (dt > 60 / 40.0 * 1000) {
         //  minimum hertz in milliseconds per hertz
@@ -888,36 +887,30 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
       _debounce.cancel();
     }
 
-    int dt = t - lastKeyTime;
-    lastKeyTime = t;
+    logger.d('key: ${keyDown.toString()}');
 
-    logger.i(
-        'key: ${keyDown.toString()}, dt: ${(dt / 1000.0).toStringAsFixed(3)}');
+    if (keyId == LogicalKeyboardKey.space.keyId) {
+      if (!_player._isPlaying)
+        _player._play();
+      else
+        _player._pauseToggle();
+      setState(() {});
+    } else if (_player._isPlaying && !_player._isPaused) {
+      if (keyId == LogicalKeyboardKey.arrowDown.keyId) {
+        logger.d('arrowDown @ ${_player._rowLocationIndex}');
 
-    _debounce = Timer(Duration(milliseconds: 100), () {
-      if (keyDown == LogicalKeyboardKey.space) {
-        if (!_player._isPlaying)
-          _player._play();
-        else
-          _player._pauseToggle();
-        setState(() {});
-      } else if (_player._isPlaying) {
-        if (keyDown == LogicalKeyboardKey.arrowDown) {
-          logger.i('arrowDown @ ${_player._rowLocationIndex}');
+        //  restart the scrolling
+        _player._rowLocationBump++;
+        logger.i('down: ${_player._rowLocationBump}');
+        _player._delayAnimation();
+      } else if (keyId == LogicalKeyboardKey.arrowUp.keyId) {
+        logger.i('arrowUp @ ${_player._rowLocationIndex}');
 
-          //  restart the scrolling after the debounce
-          _player._rowLocationIndex++;
-          _player._delayAnimation();
-        } else if (keyDown == LogicalKeyboardKey.arrowUp) {
-          logger.i('arrowUp @ ${_player._rowLocationIndex}');
-
-          //  restart the scrolling after the debounce
-          _player._rowLocationIndex =
-              _player._rowLocationIndex > 0 ? _player._rowLocationIndex - 1 : 0;
-          _player._delayAnimation();
-        }
+        //  restart the scrolling
+        _player._rowLocationBump--;
+        _player._delayAnimation();
       }
-    });
+    }
   }
 
   @override
@@ -936,6 +929,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
 
   final _Player _player;
   Timer _debounce;
+  SplayTreeSet<int> _keysDown = SplayTreeSet();
   int lastKeyTime = DateTime.now().millisecondsSinceEpoch;
   int lastTapToTime = 0;
   RollingAverage _tapRollingAverage = RollingAverage(5);

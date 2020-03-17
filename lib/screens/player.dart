@@ -350,7 +350,7 @@ class _Player extends State<Player> {
           rolledKeyList[i] = list[steps - i + halfOctave];
         }
 
-        keyDropDownMenuList = List();
+        keyDropDownMenuList = [];
         for (int i = 0; i < steps; i++) {
           songs.Key value = rolledKeyList[i];
 

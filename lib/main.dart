@@ -318,9 +318,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: "Enter search filter string here.",
                     ),
 
-                    //  currently causes:
-                    //  EXCEPTION CAUGHT BY FOUNDATION LIBRARY
-                    //  RenderBox was not laid out: RenderEditable#7e016 NEEDS-LAYOUT NEEDS-PAINT
                     autofocus: true,
 
                     style: new TextStyle(fontSize: titleScaleFactor * 14),

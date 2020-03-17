@@ -14,6 +14,7 @@ import 'package:bsteeleMusicLib/songs/SongMoment.dart';
 import 'package:bsteeleMusicLib/util/rollingAverage.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/rowLocation.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,9 +47,9 @@ class _Player extends State<Player> {
       _lastDy = 0;
       double lastH = 0;
       double firstBoxDy;
-      _RowLocation lastRowLocation;
+      RowLocation lastRowLocation;
       for (int i = 0; i < _rowLocations.length; i++) {
-        _RowLocation rowLocation = _rowLocations[i];
+        RowLocation rowLocation = _rowLocations[i];
         BuildContext buildContext = rowLocation.globalKey.currentContext;
         if (buildContext == null) continue;
         RenderBox box = buildContext.findRenderObject();
@@ -57,15 +58,15 @@ class _Player extends State<Player> {
           double dy = box.localToGlobal(Offset.zero).dy;
           if (firstBoxDy == null) {
             firstBoxDy = dy;
-            rowLocation._dispY = 0;
+            rowLocation.dispY = 0;
           } else
-            rowLocation._dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
+            rowLocation.dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
         }
 
-        lastH = _lastDy != null ? rowLocation._dispY - _lastDy : box.size.height;
+        lastH = _lastDy != null ? rowLocation.dispY - _lastDy : box.size.height;
         rowLocation.height = box.size.height; //  placeholder
         if (lastRowLocation != null) lastRowLocation.height = lastH;
-        _lastDy = rowLocation._dispY; //  for next time
+        _lastDy = rowLocation.dispY; //  for next time
         lastRowLocation = rowLocation;
         //logger.d(rowLocation.toString());
         //logger.d('    ${rowLocation.globalKey.currentContext.toString()}');
@@ -73,7 +74,7 @@ class _Player extends State<Player> {
       _lastDy += lastH;
 
 //      //  diagnostics only
-//      for (_RowLocation rowLocation in _rowLocations) {
+//      for (RowLocation rowLocation in _rowLocations) {
 //        logger.i('${rowLocation.toString()}');
 //      }
 //      logger.i('_lastDy: $_lastDy');
@@ -88,7 +89,7 @@ class _Player extends State<Player> {
 
       if (_isPlaying) {
         if (!_isPaused) {
-          _RowLocation _rowLocation = _rowLocationAtPosition(_scrollController.offset);
+          RowLocation _rowLocation = _rowLocationAtPosition(_scrollController.offset);
           if (_rowLocation != null) {
             if (_rowLocationBump != 0) {
               //  deal with the user bumping the scroll
@@ -123,10 +124,10 @@ class _Player extends State<Player> {
 
   /// for the given position on the screen,
   /// return the row location in the song at that position
-  _RowLocation _rowLocationAtPosition(double position) {
+  RowLocation _rowLocationAtPosition(double position) {
     if (position <= 0) return _rowLocations[0];
-    for (_RowLocation rowLocation in _rowLocations) {
-      if (position < rowLocation._dispY + rowLocation._height) return rowLocation;
+    for (RowLocation rowLocation in _rowLocations) {
+      if (position < rowLocation.dispY + rowLocation.height) return rowLocation;
     }
     return null;
   }
@@ -136,11 +137,11 @@ class _Player extends State<Player> {
 //  double songTimeAtPosition(double position) {
 //    if (position <= 0) return 0;
 //
-//    _RowLocation rowLocation = _rowLocationAtPosition(position);
+//    RowLocation rowLocation = _rowLocationAtPosition(position);
 //    if (rowLocation == null) return null;
 //
 //    return (rowLocation.songMoment.beatNumber +
-//            (position - rowLocation._dispY) /
+//            (position - rowLocation.dispY) /
 //                rowLocation.height *
 //                rowLocation.beats) *
 //        60 /
@@ -208,7 +209,7 @@ class _Player extends State<Player> {
             if (firstSongMoment == null) continue;
 
             GlobalKey _rowKey = GlobalKey(debugLabel: r.toString());
-            _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey, song.rowBeats(r));
+            _rowLocations[r] = RowLocation(firstSongMoment, r, _rowKey, song.rowBeats(r));
 
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
@@ -716,7 +717,7 @@ class _Player extends State<Player> {
   bool _isTooNarrow = false;
   double _screenOffset;
   double _lastDy = 0;
-  List<_RowLocation> _rowLocations;
+  List<RowLocation> _rowLocations;
   int _rowLocationIndex;
   int _rowLocationBump = 0;
 
@@ -729,48 +730,6 @@ class _Player extends State<Player> {
   AppOptions _appOptions;
 }
 
-class _RowLocation {
-  _RowLocation(this.songMoment, this.row, this.globalKey, this._beats);
-
-  @override
-  String toString() {
-    return ('${row.toString()} ${globalKey.toString()}'
-        ', ${songMoment.toString()}'
-        ', beats: ${beats.toString()}'
-        // ', dispY: ${dispY.toStringAsFixed(1)}'
-        // ', h: ${height.toStringAsFixed(1)}'
-        ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}');
-  }
-
-  void _computePixelsPerBeat() {
-    if (_height != null && beats != null && beats > 0) _pixelsPerBeat = _height / beats;
-  }
-
-  final SongMoment songMoment;
-  final GlobalKey globalKey;
-  final int row;
-
-  set beats(value) {
-    _beats = value;
-    _computePixelsPerBeat();
-  }
-
-  int get beats => _beats;
-  int _beats;
-
-  double get dispY => _dispY;
-  double _dispY;
-
-  set height(value) {
-    _height = value;
-    _computePixelsPerBeat();
-  }
-
-  double _height;
-
-  double get pixelsPerBeat => _pixelsPerBeat;
-  double _pixelsPerBeat;
-}
 
 class _KeyboardListener extends StatefulWidget {
   _KeyboardListener(_Player player) : _keyboardListenerState = _KeyboardListenerState(player);

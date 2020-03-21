@@ -352,8 +352,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         Expanded(
             child: Scrollbar(
+              controller: _scrollController,
           child: ListView(
-            controller: _scrollController,
+
             children: listViewChildren,
           ),
         )),

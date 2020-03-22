@@ -264,6 +264,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToOptions(context);
               },
             ),
+            if (!_isTooNarrow) //  no edits on phones!
+              ListTile(
+                title: Text(
+                  "Edit",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToEdit(context, _selectedSong);
+                },
+              ),
             ListTile(
               title: Text(
                 "Privacy",
@@ -436,6 +446,15 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Options()),
+    );
+    Navigator.pop(context);
+    setState(() {});
+  }
+
+  _navigateToEdit(BuildContext context, Song song) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Edit(song: song)),
     );
     Navigator.pop(context);
     setState(() {});

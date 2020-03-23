@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -9,8 +10,7 @@ import 'package:bsteeleMusicLib/songs/ChordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/Key.dart' as songs;
 import 'package:bsteeleMusicLib/songs/Measure.dart';
 import 'package:bsteeleMusicLib/songs/MeasureNode.dart';
-
-//import 'package:bsteeleMusicLib/songs/MeasureRepeat.dart';
+import 'package:bsteeleMusicLib/songs/MeasureRepeat.dart';
 import 'package:bsteeleMusicLib/songs/MusicConstants.dart';
 import 'package:bsteeleMusicLib/songs/Section.dart';
 import 'package:bsteeleMusicLib/songs/SectionVersion.dart';
@@ -42,6 +42,7 @@ final TextStyle _labelTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeig
 const TextStyle _buttonTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
 final TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.grey[800]);
 const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
+const double _entryWidth = 750;
 
 const Color _defaultColor = Color(0xFFB3E5FC); //Colors.lightBlue[100];
 
@@ -97,35 +98,35 @@ class _Edit extends State<Edit> {
     _key = widget.song.key;
     _keyChordNote = _key.getKeyScaleNote(); //  initial value
 
-    _chordTextController.addListener(() {
+    _editTextController.addListener(() {
       //  fixme: workaround for loss of focus when pressing an edit button
-      TextSelection textSelection = _chordTextController.selection;
+      TextSelection textSelection = _editTextController.selection;
       if (textSelection.baseOffset >= 0) {
         _lastEditTextSelection = textSelection.copyWith();
       }
-      logger.d('_chordTextController.addListener(): "${_chordTextController.text}",'
+      logger.d('_chordTextController.addListener(): "${_editTextController.text}",'
           ' ${_selectedEditDataPoint?.toString()}'
           ', baseOffset: ${textSelection.baseOffset}'
           ', extentOffset: ${textSelection.extentOffset}');
 
-      _preProcessMeasureEntry(_chordTextController.text);
+      _preProcessMeasureEntry(_editTextController.text);
       if (_measureEntryValid) {
-        switch (_chordTextController.text[_chordTextController.text.length - 1]) {
+        switch (_editTextController.text[_editTextController.text.length - 1]) {
           case ' ':
-            logger.i('space entered');
-            _clearChordEditing();
+            //  space means move on to the next measure
+            _editMeasure();
             break;
           //  look for TextField.onSubmitted() for end of entry
         }
       }
 
-      logger.d('chordTextController: "${_chordTextController.text}"');
+      logger.d('chordTextController: "${_editTextController.text}"');
     });
   }
 
   @override
   void dispose() {
-    _chordTextController.dispose();
+    _editTextController.dispose();
     _editTextFieldFocusNode.dispose();
     super.dispose();
   }
@@ -155,6 +156,7 @@ class _Edit extends State<Edit> {
 
     _song = widget.song;
 
+    //  build a list of section version numbers
     if (_sectionVersionDropdownMenuList == null) {
       _sectionVersionDropdownMenuList = List();
       for (int i = 0; i <= 9; i++) {
@@ -174,6 +176,7 @@ class _Edit extends State<Edit> {
       }
     }
 
+    //  build the chords display based on the song chord section grid
     {
       logger.d("size: " + MediaQuery.of(context).size.toString());
 
@@ -206,8 +209,8 @@ class _Edit extends State<Edit> {
           for (int r = 0; r < grid.getRowCount(); r++) {
             List<ChordSectionLocation> row = grid.getRow(r);
 
-            //  assume col 1 has a chord or comment in it
-            if (row.length < 2) {
+            //  assume col 0 has at least a chord section in it
+            if (row.length < 1) {
               continue;
             }
 
@@ -238,130 +241,15 @@ class _Edit extends State<Edit> {
               }
             }
 
-//            //  for each column of the song grid, create the appropriate widget
-//            for (int c = 0; c < row.length; c++) {
-//              _EditChordSectionLocation editLoc;
-//              _EditChordSectionLocation editLocPlus;
-//              {
-//                ChordSectionLocation loc = row[c];
-//                editLoc = _EditChordSectionLocation(loc, false);
-//                if (c == 0 && loc == null && row.length > 0) {
-//                  loc = row[1];
-//                }
-//                editLocPlus = _EditChordSectionLocation(loc, true);
-//              }
-//
-//              MeasureNode measureNode = _song.findMeasureNodeByLocation(editLoc);
-//
-//              if (editLoc == null || measureNode == null) {
-//                if (columnFiller == null) {
-//                  children.add(Container(
-//                      margin: _marginInsets,
-//                      child: Text(
-//                        " ",
-//                      )));
-//                } else {
-//                  //  first widget of the section
-//                  children.add(InkWell(
-//                      onTap: () {
-//                        _setChordEditing(editLoc);
-//                      },
-//                      child: Container(
-//                          margin: _marginInsets,
-//                          padding: textPadding,
-//                          color: sectionColor,
-//                          child: Text(
-//                            columnFiller,
-//                            style: chordBoldTextStyle,
-//                          ))));
-//                }
-//                columnFiller = null; //  for subsequent rows
-//              } else {
-//                //  measure node found
-//                Widget editWidget;
-//                if (_selectedChordSectionLocation == editLoc) {
-//                  editWidget = measureNodeEditWidget();
-//                } else {
-//                  String text;
-//                  String tooltip;
-//                  switch (measureNode.getMeasureNodeType()) {
-//                    case MeasureNodeType.measure:
-//                      text = (measureNode as Measure).transpose(_displaySongKey, _tranOffset);
-//                      tooltip = 'modify or delete the measure';
-//                      break;
-//                    case MeasureNodeType.section:
-//                      text = (measureNode as ChordSection).sectionVersion.toString();
-//                      tooltip = 'modify the section';
-//                      break;
-//                    case MeasureNodeType.repeat:
-//                      text = 'x' + (measureNode as MeasureRepeat).repeats.toString();
-//                      tooltip = 'modify the repeat';
-//                      break;
-//                    default:
-//                      text = measureNode.toString();
-//                      tooltip = 'modify this';
-//                      break;
-//                  }
-//                  editWidget = EditTooltip(tooltip,
-//                      child: Text(
-//                        text,
-//                        style: chordBoldTextStyle,
-//                      ));
-//                }
-//
-//                children.add(InkWell(
-//                  onTap: () {
-//                    _setChordEditing(editLoc);
-//                  },
-//                  child: Container(margin: _marginInsets, padding: textPadding, color: sectionColor, child: editWidget),
-//                ));
-//              }
-//
-//              //  add the append markers between all the widgets
-//              if (measureNode != null &&
-//                  measureNode.getMeasureNodeType() != MeasureNodeType.repeat &&
-//                  _selectedChordSectionLocation == editLocPlus) {
-//                logger.d('selected locPlus: ${editLocPlus.toString()}');
-//                children.add(measureNodeEditWidget());
-//              } else {
-//                children.add(Container(
-//                    margin: appendInsets,
-//                    padding: appendPadding,
-//                    color: Colors.green[100],
-//                    child: EditTooltip('add new measure here ' + editLocPlus.toString(),
-//                        child: InkWell(
-//                          onTap: () {
-//                            logger.d('locPlus: ${editLocPlus.toString()}');
-//                            _setChordEditing(editLocPlus);
-//                          },
-//                          child: Icon(
-//                            Icons.add,
-//                            size: appendFontSize,
-//                          ),
-//                        ))));
-//              }
-//            }
-//
-//            //  add children to max columns to keep the table class happy
-//            while (children.length < maxCols) {
-//              children.add(Container());
-//            }
-//
-//            //  add row to table
-//            rows.add(TableRow(key: ValueKey('row' + r.toString()), children: children));
-//
-//            //  new element stuff
-//            //  get ready for the next row by clearing the row data
-//            children = List();
-
             {
               //  for each column of the song grid, create the appropriate widget
               for (int c = 0; c < row.length; c++) {
                 ChordSectionLocation loc = row[c];
+                logger.v('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
 
                 //  main elements
                 Widget w;
-                _EditDataPoint editDataPoint = _EditDataPoint(r, c * 2, loc);
+                _EditDataPoint editDataPoint = _EditDataPoint(loc);
                 if (loc == null) {
                   w = _nullEditGridDisplayWidget();
                 } else if (loc.isSection) {
@@ -376,7 +264,8 @@ class _Edit extends State<Edit> {
                 editDataPoints.set(r, c * 2, editDataPoint);
 
                 //  + elements
-                editDataPoint = _EditDataPoint(r, c * 2 + 1, loc, measureEditType: MeasureEditType.append); //  default
+                editDataPoint = _EditDataPoint(loc);
+                editDataPoint.measureEditType = MeasureEditType.append; //  default
                 if (loc == null) {
                   if (c == 0 && row.length > 1) {
                     editDataPoint.measureEditType = MeasureEditType.insert;
@@ -386,10 +275,16 @@ class _Edit extends State<Edit> {
                     w = _nullEditGridDisplayWidget();
                   }
                 } else if (loc.isSection) {
-                  if (c == 0 && row.length > 1) {
-                    editDataPoint.measureEditType = MeasureEditType.insert;
-                    editDataPoint.location = row[1];
-                    w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+                  if (c == 0) {
+                    if (row.length > 1) {
+                      editDataPoint.measureEditType = MeasureEditType.insert;
+                      editDataPoint.location = row[1];
+                      w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+                    } else {
+                      editDataPoint.measureEditType = MeasureEditType.append;
+                      editDataPoint.location = loc;
+                      w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+                    }
                   } else {
                     w = _nullEditGridDisplayWidget();
                   }
@@ -425,7 +320,16 @@ class _Edit extends State<Edit> {
                 child: EditTooltip('add new section here',
                     child: InkWell(
                       onTap: () {
-                        logger.i('fixme: add new section here'); // fixme
+                        setState(() {
+                          _song.setCurrentChordSectionLocation(null);
+                          _song.setCurrentMeasureEditType(MeasureEditType.append);
+                          ChordSection cs = _suggestNewSection();
+                          if (_song.editMeasureNode(cs)) {
+                            _clearChordEditing();
+                            _selectedEditDataPoint = _EditDataPoint.byMeasureNode(_song, cs);
+                            logger.v(_song.toMarkup());
+                          }
+                        });
                       },
                       child: Icon(
                         Icons.add,
@@ -455,13 +359,17 @@ class _Edit extends State<Edit> {
     {
       //  list the notes required
       List<ScaleNote> scaleNotes = List();
+
+      //  scale notes
       for (int i = 0; i < MusicConstants.notesPerScale; i++) scaleNotes.add(_key.getMajorScaleByNote(i));
+
+      //  not scale notes
       for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
         ScaleNote scaleNote = _key.getScaleNoteByHalfStep(i);
         if (!scaleNotes.contains(scaleNote)) scaleNotes.add(scaleNote);
       }
 
-      //  make the drop down list
+      //  make the key selection drop down list
       _keyChordDropDownMenuList = List();
       for (ScaleNote scaleNote in scaleNotes) {
         String s = scaleNote.toString();
@@ -978,30 +886,35 @@ class _Edit extends State<Edit> {
 
     ChordSection chordSection = measureNode as ChordSection;
     if (_selectedEditDataPoint == editDataPoint) {
+      //  we're editing the section
       if (_editTextField == null) {
         _editTextField = TextField(
-            controller: _chordTextController,
-            focusNode: _editTextFieldFocusNode,
-            maxLength: null,
-            style: _chordBoldTextStyle,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(14)),
-              ),
-              hintText: 'Enter the section.',
+          controller: _editTextController,
+          focusNode: _editTextFieldFocusNode,
+          maxLength: null,
+          style: _chordBoldTextStyle,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
-            autofocus: true,
-            enabled: true,
-           );
+            hintText: 'Enter the section.',
+          ),
+          autofocus: true,
+          enabled: true,
+          onSubmitted: (_) {
+            _editMeasure();
+          },
+        );
       }
 
-      SectionVersion entrySectionVersion = _parsedSectionEntry(_chordTextController.text);
+      SectionVersion entrySectionVersion = _parsedSectionEntry(_editTextController.text);
       bool isValidSectionEntry = (entrySectionVersion != null);
       Color color = isValidSectionEntry ? Colors.black87 : Colors.red;
       sectionColor = GuiColors.getColorForSection(isValidSectionEntry ? entrySectionVersion.section : _section);
 
       return Container(
         color: sectionColor,
+        width: _entryWidth,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1020,7 +933,7 @@ class _Edit extends State<Edit> {
                     onChanged: (_value) {
                       setState(() {
                         _section = _value;
-                        _chordTextController.text =
+                        _editTextController.text =
                             _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
                       });
                     },
@@ -1037,10 +950,10 @@ class _Edit extends State<Edit> {
                     onChanged: (value) {
                       setState(() {
                         _sectionVersion = value;
-                        _chordTextController.text =
+                        _editTextController.text =
                             _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
                       });
-                      logger.i('_sectionVersion = ${_sectionVersion.toString()}');
+                      logger.v('_sectionVersion = ${_sectionVersion.toString()}');
                     },
                     style: _chordTextStyle,
                   )
@@ -1103,15 +1016,14 @@ class _Edit extends State<Edit> {
       );
     }
 
-    //  not selected for editing
+    //  the section is not selected for editing, just display
     return InkWell(
       onTap: () {
         if (chordSection != null) {
           _section = chordSection.sectionVersion.section;
           _sectionVersion = chordSection.sectionVersion.version;
         }
-        _chordTextController.text =
-            _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
+        _editTextController.text = _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
         _setEditDataPoint(editDataPoint);
       },
       child: Container(
@@ -1127,19 +1039,21 @@ class _Edit extends State<Edit> {
   }
 
   Widget _measureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
-    Measure measure = _song.findMeasureNodeByLocation(editDataPoint.location) as Measure;
-    if (measure == null) {
+    MeasureNode measureNode = _song.findMeasureNodeByLocation(editDataPoint.location);
+    if (measureNode == null) {
       return Text('null');
     }
+    Measure measure;
+    if (measureNode.getMeasureNodeType() == MeasureNodeType.measure) measure = measureNode as Measure;
 
     Color color = GuiColors.getColorForSection(editDataPoint.location.sectionVersion.section);
 
     if (_selectedEditDataPoint == editDataPoint) {
       //  editing this measure
-      logger.d('pre : (${_chordTextController.selection.baseOffset},${_chordTextController.selection.extentOffset})');
+      logger.d('pre : (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
       if (_editTextField == null) {
         _editTextField = TextField(
-          controller: _chordTextController,
+          controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
           maxLength: null,
           style: _chordBoldTextStyle,
@@ -1151,19 +1065,22 @@ class _Edit extends State<Edit> {
           ),
           autofocus: true,
           enabled: true,
+          onSubmitted: (_) {
+            _editMeasure();
+          },
         );
       }
 
-      logger.d('post: (${_chordTextController.selection.baseOffset},${_chordTextController.selection.extentOffset})');
+      logger.d('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
 
       if (_measureEntry == null) {
-        _measureEntry = measure.toMarkupWithEnd(null);
+        _measureEntry = measure?.toMarkupWithEnd(null);
         _measureEntryValid = true; //  should always be!... at least at this moment
 
-        _chordTextController.text = _measureEntry;
-        _chordTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry.length);
+        _editTextController.text = _measureEntry;
+        _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry?.length??0);
         logger.d(
-            'post initial fill: (${_chordTextController.selection.baseOffset},${_chordTextController.selection.extentOffset})');
+            'post initial fill: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
       }
 
       AppContainedButton _majorChordButton = AppContainedButton(
@@ -1236,7 +1153,7 @@ class _Edit extends State<Edit> {
 
       return Container(
         color: color,
-        width: 750,
+        width: _entryWidth,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1295,20 +1212,21 @@ class _Edit extends State<Edit> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
-                        EditTooltip(
-                          'Delete this measure',
-                          child: InkWell(
-                            child: Icon(
-                              Icons.delete,
-                              size: _defaultChordFontSize,
-                              color: Colors.black,
+                        if (measure != null)
+                          EditTooltip(
+                            'Delete this measure',
+                            child: InkWell(
+                              child: Icon(
+                                Icons.delete,
+                                size: _defaultChordFontSize,
+                                color: Colors.black,
+                              ),
+                              onTap: () {
+                                _deleteMeasure();
+                                _clearChordEditing();
+                              },
                             ),
-                            onTap: () {
-                              _deleteMeasure();
-                              _clearChordEditing();
-                            },
                           ),
-                        ),
                       ],
                     ),
                     Row(
@@ -1358,53 +1276,178 @@ class _Edit extends State<Edit> {
           color: color,
           child: EditTooltip('modify or delete the measure',
               child: Text(
-                measure.transpose(_key, _tranOffset),
+                measure?.transpose(_key, _tranOffset) ?? '',
                 style: _chordBoldTextStyle,
               ))),
     );
   }
 
+//  Widget _repeatEditGridDisplayWidget(_EditDataPoint editDataPoint) {
+//    Measure measure = _song.findMeasureNodeByLocation(editDataPoint.location) as Measure;
+//    if (measure == null || !measure.isRepeat()) {
+//      return Text('null');
+//    }
+//
+//    MeasureRepeat repeat = measure as MeasureRepeat;
+//    Color color = GuiColors.getColorForSection(editDataPoint.location.sectionVersion.section);
+//
+//    if (_selectedEditDataPoint == editDataPoint) {
+//      return Container(
+//        color: color,
+//        width: _entryWidth,
+//        child: Column(
+//            mainAxisAlignment: MainAxisAlignment.spaceAround,
+//            crossAxisAlignment: CrossAxisAlignment.start,
+//            textDirection: TextDirection.ltr,
+//            children: <Widget>[
+//              //  repeat label
+//              Text(
+//                'x' + repeat.repeats.toString(),
+//                style: _chordBoldTextStyle,
+//              ),
+//              //  measure edit chord selection
+//              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+//                Text(
+//                  'Repeat: ',
+//                  style: _textStyle,
+//                ),
+//                AppContainedButton(
+//                  'x2',
+//                  onPressed: () {
+//                    setState(() {});
+//                  },
+//                  color: color,
+//                ),
+//                AppContainedButton(
+//                  'x3',
+//                  onPressed: () {
+//                    setState(() {});
+//                  },
+//                  color: color,
+//                ),
+//                AppContainedButton(
+//                  'x4',
+//                  onPressed: () {
+//                    setState(() {});
+//                  },
+//                  color: color,
+//                ),
+//              ]),
+//              Row(
+//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                  crossAxisAlignment: CrossAxisAlignment.center,
+//                  children: <Widget>[
+//                    Row(
+//                      mainAxisAlignment: MainAxisAlignment.start,
+//                      crossAxisAlignment: CrossAxisAlignment.end,
+//                      children: <Widget>[
+//                        EditTooltip(
+//                          'Delete this repeat',
+//                          child: InkWell(
+//                            child: Icon(
+//                              Icons.delete,
+//                              size: _defaultChordFontSize,
+//                              color: Colors.black,
+//                            ),
+//                            onTap: () {
+//                              _deleteMeasure();
+//                              _clearChordEditing();
+//                            },
+//                          ),
+//                        ),
+//                      ],
+//                    ),
+//                    Row(
+//                        mainAxisAlignment: MainAxisAlignment.end,
+//                        crossAxisAlignment: CrossAxisAlignment.end,
+//                        children: <Widget>[
+//                          EditTooltip(
+//                            'Accept the modification',
+//                            child: InkWell(
+//                              child: Icon(
+//                                Icons.check,
+//                                size: _defaultChordFontSize,
+//                              ),
+//                              onTap: () {
+//                                _editMeasure();
+//                              },
+//                            ),
+//                          ),
+//                          EditTooltip(
+//                            'Cancel the modification',
+//                            child: InkWell(
+//                              child: Icon(
+//                                Icons.cancel,
+//                                size: _defaultChordFontSize,
+//                                color: _measureEntryValid ? Colors.black : Colors.red,
+//                              ),
+//                              onTap: () {
+//                                _clearChordEditing();
+//                              },
+//                            ),
+//                          ),
+//                        ]),
+//                  ])
+//            ]),
+//      );
+//    }
+//
+//    //  not editing this measure
+//    return InkWell(
+//      onTap: () {
+//        _setEditDataPoint(editDataPoint);
+//      },
+//      child: Container(
+//          margin: _marginInsets,
+//          padding: textPadding,
+//          color: color,
+//          child: EditTooltip('modify or delete the measure',
+//              child: Text(
+//                measure.transpose(_key, _tranOffset),
+//                style: _chordBoldTextStyle,
+//              ))),
+//    );
+//  }
+
   void _updateChordText(final String s) {
     if (s == null) return;
-    String text = _chordTextController.text;
+    String text = _editTextController.text;
     if (text == null) {
       text = '';
     }
     if (_lastEditTextSelection == null) {
       //  append the string
-      _chordTextController.text = text + s;
+      _editTextController.text = text + s;
       logger.d('<0: "$text"');
       _editTextFieldFocusNode.requestFocus();
       return;
     }
-    logger.d(
-        '_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
-            '${_lastEditTextSelection.extentOffset.toString()}): "$text"');
+    logger.d('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
+        '${_lastEditTextSelection.extentOffset.toString()}): "$text"');
 
     if (_lastEditTextSelection.baseOffset < 0) {
       //  append the string
-      _chordTextController.text = text + s;
+      _editTextController.text = text + s;
       int len = text.length + s.length;
-      _chordTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
+      _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
       logger.d('<0: "$text"');
       return;
     } else {
-      logger.d(
-          '>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
-              '+"$s"'
-              '+"${text.substring(_lastEditTextSelection.extentOffset)}"');
-      _chordTextController.text = text.substring(0, _lastEditTextSelection.baseOffset) +
+      logger.d('>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
+          '+"$s"'
+          '+"${text.substring(_lastEditTextSelection.extentOffset)}"');
+      _editTextController.text = text.substring(0, _lastEditTextSelection.baseOffset) +
           s +
           text.substring(_lastEditTextSelection.extentOffset);
       int len = _lastEditTextSelection.baseOffset + s.length;
-      _chordTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
+      _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
     }
     _editTextFieldFocusNode.requestFocus();
   }
 
   Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
-    Measure measure = _song.findMeasureNodeByLocation(editDataPoint.location) as Measure;
-    if (measure == null) {
+    MeasureNode measureNode = _song.findMeasureNodeByLocation(editDataPoint.location);
+    if (measureNode == null) {
       return Text('null');
     }
 
@@ -1428,265 +1471,6 @@ class _Edit extends State<Edit> {
               ),
             )));
   }
-
-//  Widget measureNodeEditWidget() {
-//    if (_selectedChordSectionLocation == null) return null;
-//
-//    TextField editTextField = TextField(
-//        controller: _chordTextController,
-//        maxLength: null,
-//        style: chordBoldTextStyle,
-//        decoration: InputDecoration(
-//          border: OutlineInputBorder(
-//            borderRadius: BorderRadius.all(Radius.circular(14)),
-//          ),
-//          hintText: 'Enter the measure.',
-//        ),
-//        autofocus: true,
-//        enabled: true,
-//        onSubmitted: (text) {
-//          logger.d('editTextField onSubmitted: "$text"');
-//        });
-//
-//    Widget ret;
-//    MeasureNode measureNode;
-//
-//    //  find the selected measure node
-//    if (_selectedChordSectionLocation._isPlus && _selectedChordSectionLocation.isSection) {
-//      measureNode = (_song.findMeasureNodeByLocation(_selectedChordSectionLocation) as ChordSection).getMeasure(0, 0);
-//    } else {
-//      measureNode = _song.findMeasureNodeByLocation(_selectedChordSectionLocation);
-//    }
-//    switch (measureNode.getMeasureNodeType()) {
-//      case MeasureNodeType.measure:
-//        if (_measureEntry == null) {
-//          _measureEntry = (measureNode as Measure).toMarkupWithEnd(null);
-//          _measureEntryValid = true; //  should always be!
-//
-//          _chordTextController.text = _measureEntry;
-//          _chordTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry.length);
-//        }
-//
-//        ret = Column(
-//            mainAxisAlignment: MainAxisAlignment.spaceAround,
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            textDirection: TextDirection.ltr,
-//            children: <Widget>[
-//              Container(margin: _marginInsets, padding: textPadding, color: sectionColor, child: editTextField),
-//              if (_measureEntryCorrection != null)
-//                Text(
-//                  _measureEntryCorrection,
-//                  style: _measureEntryValid ? chordBoldTextStyle : _chordBadTextStyle,
-//                ),
-//              Row(
-//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                  crossAxisAlignment: CrossAxisAlignment.center,
-//                  children: <Widget>[
-//                    Row(
-//                      mainAxisAlignment: MainAxisAlignment.start,
-//                      crossAxisAlignment: CrossAxisAlignment.end,
-//                      children: <Widget>[
-//                        EditTooltip(
-//                          'Delete this measure',
-//                          child: InkWell(
-//                            child: Icon(
-//                              Icons.delete,
-//                              size: _defaultChordFontSize,
-//                              color: Colors.black,
-//                            ),
-//                            onTap: () {
-//                              _deleteMeasure();
-//                              _clearChordEditing();
-//                            },
-//                          ),
-//                        ),
-//                      ],
-//                    ),
-//                    Row(
-//                        mainAxisAlignment: MainAxisAlignment.end,
-//                        crossAxisAlignment: CrossAxisAlignment.end,
-//                        children: <Widget>[
-//                          if (_measureEntryValid)
-//                            EditTooltip(
-//                              'Accept the modification',
-//                              child: InkWell(
-//                                child: Icon(
-//                                  Icons.check,
-//                                  size: _defaultChordFontSize,
-//                                ),
-//                                onTap: () {
-//                                  _replaceMeasure();
-//                                },
-//                              ),
-//                            ),
-//                          EditTooltip(
-//                            'Cancel the modification',
-//                            child: InkWell(
-//                              child: Icon(
-//                                Icons.cancel,
-//                                size: _defaultChordFontSize,
-//                                color: _measureEntryValid ? Colors.black : Colors.red,
-//                              ),
-//                              onTap: () {
-//                                _clearChordEditing();
-//                              },
-//                            ),
-//                          ),
-//                        ]),
-//                  ])
-//            ]);
-//        break;
-//
-//      case MeasureNodeType.section:
-//        List<DropdownMenuItem<Section>> sectionDropdownList = [];
-//        for (SectionEnum sectionEnum in SectionEnum.values) {
-//          Section section = Section.get(sectionEnum);
-//
-//          sectionDropdownList.add(
-//            DropdownMenuItem<Section>(
-//              key: ValueKey(sectionEnum),
-//              value: section,
-//              child: Text(
-//                '${section.toString()}:  ${section.formalName}',
-//                style: chordBoldTextStyle,
-//              ),
-//            ),
-//          );
-//        }
-//
-//        Section section = (measureNode as ChordSection).getSection();
-//        logger.d('${section.toString()}: "${section.formalName}"');
-//
-//        ret = Column(
-//            mainAxisAlignment: MainAxisAlignment.spaceAround,
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            textDirection: TextDirection.ltr,
-//            children: <Widget>[
-//              DropdownButton<Section>(
-//                items: sectionDropdownList,
-//                onChanged: (_value) {
-//                  setState(() {});
-//                },
-//                value: section,
-//                style: TextStyle(
-//                  color: Colors.black87,
-//                  textBaseline: TextBaseline.alphabetic,
-//                ),
-//                isExpanded: true,
-//              ),
-//              Row(
-//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                  crossAxisAlignment: CrossAxisAlignment.center,
-//                  children: <Widget>[
-//                    EditTooltip(
-//                      'Delete this section',
-//                      child: InkWell(
-//                        child: Icon(
-//                          Icons.delete,
-//                          size: _defaultChordFontSize,
-//                          color: Colors.black,
-//                        ),
-//                        onTap: () {
-//                          _clearChordEditing();
-//                        },
-//                      ),
-//                    ),
-//                    EditTooltip(
-//                      'Cancel the modification',
-//                      child: InkWell(
-//                        child: Icon(
-//                          Icons.cancel,
-//                          size: _defaultChordFontSize,
-//                          color: Colors.black,
-//                        ),
-//                        onTap: () {
-//                          _clearChordEditing();
-//                        },
-//                      ),
-//                    ),
-//                  ])
-//            ]);
-//        break;
-//
-//      case MeasureNodeType.repeat:
-//        if (_measureEntry == null) {
-//          _measureEntry = (measureNode as MeasureRepeat).repeats.toString();
-//          _measureEntryValid = true; //  should always be!
-//
-//          _chordTextController.text = _measureEntry;
-//          _chordTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry.length);
-//        }
-//
-//        ret = Column(
-//            mainAxisAlignment: MainAxisAlignment.spaceAround,
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            textDirection: TextDirection.ltr,
-//            children: <Widget>[
-//              Container(margin: _marginInsets, padding: textPadding, color: sectionColor, child: editTextField),
-//              Row(
-//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                  crossAxisAlignment: CrossAxisAlignment.center,
-//                  children: <Widget>[
-//                    Row(
-//                      mainAxisAlignment: MainAxisAlignment.start,
-//                      crossAxisAlignment: CrossAxisAlignment.end,
-//                      children: <Widget>[
-//                        EditTooltip(
-//                          'Delete this measure',
-//                          child: InkWell(
-//                            child: Icon(
-//                              Icons.delete,
-//                              size: _defaultChordFontSize,
-//                              color: Colors.black,
-//                            ),
-//                            onTap: () {
-//                              _clearChordEditing();
-//                            },
-//                          ),
-//                        ),
-//                      ],
-//                    ),
-//                    Row(
-//                        mainAxisAlignment: MainAxisAlignment.end,
-//                        crossAxisAlignment: CrossAxisAlignment.end,
-//                        children: <Widget>[
-//                          if (_measureEntryValid)
-//                            EditTooltip(
-//                              'Accept the modification',
-//                              child: InkWell(
-//                                child: Icon(
-//                                  Icons.check,
-//                                  size: _defaultChordFontSize,
-//                                ),
-//                                onTap: () {
-//                                  _replaceMeasure();
-//                                },
-//                              ),
-//                            ),
-//                          EditTooltip(
-//                            'Cancel the modification',
-//                            child: InkWell(
-//                              child: Icon(
-//                                Icons.cancel,
-//                                size: _defaultChordFontSize,
-//                                color: _measureEntryValid ? Colors.black : Colors.red,
-//                              ),
-//                              onTap: () {
-//                                _clearChordEditing();
-//                              },
-//                            ),
-//                          ),
-//                        ]),
-//                  ])
-//            ]);
-//        break;
-//      default:
-//        break;
-//    }
-//
-//    return ret;
-//  }
-//
 
   List<DropdownMenuItem<Section>> _sectionDropdownList() {
     List<DropdownMenuItem<Section>> ret = [];
@@ -1759,7 +1543,51 @@ class _Edit extends State<Edit> {
     }
   }
 
+  //  preferred sections by order of priority
+  final List<SectionVersion> _suggestedSectionVersions = [
+    SectionVersion.bySection(Section.get(SectionEnum.verse)),
+    SectionVersion.bySection(Section.get(SectionEnum.chorus)),
+    SectionVersion.bySection(Section.get(SectionEnum.intro)),
+    SectionVersion.bySection(Section.get(SectionEnum.bridge)),
+    SectionVersion.bySection(Section.get(SectionEnum.outro)),
+    SectionVersion.bySection(Section.get(SectionEnum.tag)),
+    SectionVersion.bySection(Section.get(SectionEnum.a)),
+    SectionVersion.bySection(Section.get(SectionEnum.b)),
+  ];
+
+  /// suggest a new chord section (that doesn't currently exist
+  ChordSection _suggestNewSection() {
+    //  generate the set of the song's section versions
+    SplayTreeSet<SectionVersion> songSectionVersions = SplayTreeSet();
+    for (ChordSection cs in _song.getChordSections()) {
+      songSectionVersions.add(cs.sectionVersion);
+    }
+
+    //  see if one of the suggested default section versions is missing
+    for (SectionVersion sv in _suggestedSectionVersions) {
+      if (songSectionVersions.contains(sv)) {
+        continue;
+      }
+      return ChordSection(sv, null);
+    }
+
+    //  see if one of the suggested numbered section versions is missing
+    for (SectionVersion sv in _suggestedSectionVersions) {
+      for (int i = 1; i <= 9; i++) {
+        SectionVersion svn = SectionVersion(sv.section, i);
+        if (songSectionVersions.contains(svn)) {
+          continue;
+        }
+        return ChordSection(svn, null);
+      }
+    }
+
+    //  punt
+    return ChordSection(SectionVersion(Section.get(SectionEnum.b), 0), null);
+  }
+
   void _editMeasure() {
+    if (!_measureEntryValid) return;
     Song song = widget.song;
     song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
     song.setCurrentMeasureEditType(_selectedEditDataPoint.measureEditType);
@@ -1793,7 +1621,6 @@ class _Edit extends State<Edit> {
     _editTextField = null;
     _table = null; //  force re-display
     _selectedEditDataPoint = null;
-    _lastSelectedEditDataPoint = null;
     _measureEntry = null;
     _measureEntryCorrection = null;
     _measureEntryValid = false;
@@ -1806,7 +1633,6 @@ class _Edit extends State<Edit> {
 
   Table _table;
   _EditDataPoint _selectedEditDataPoint;
-  _EditDataPoint _lastSelectedEditDataPoint;
 
   int _tranOffset;
 
@@ -1828,7 +1654,7 @@ class _Edit extends State<Edit> {
   TextStyle _chordBadTextStyle;
 
   TextField _editTextField;
-  TextEditingController _chordTextController = TextEditingController();
+  TextEditingController _editTextController = TextEditingController();
   FocusNode _editTextFieldFocusNode = FocusNode();
   TextSelection _lastEditTextSelection;
 
@@ -1862,16 +1688,29 @@ class EditTooltip extends Tooltip {
   static const color = Color(0xFFE8F5E9);
 }
 
-class _EditDataPoint extends Point<int> {
-  _EditDataPoint(int x, int y, this.location, {this.widget, this.measureEditType: MeasureEditType.replace})
-      : super(x, y);
+class _EditDataPoint {
+  _EditDataPoint(this.location);
+
+  _EditDataPoint.byMeasureNode(final Song song, final MeasureNode measureNode)
+      : this(song.findChordSectionLocation(measureNode));
 
   @override
   String toString() {
     return super.toString() + ', loc: ${location.toString()}, editType: ${measureEditType.toString()}';
   }
 
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return runtimeType == other.runtimeType && location == other.location && measureEditType == other.measureEditType;
+  }
+
+  @override
+   int get hashCode => hashValues(location, measureEditType);
+
   ChordSectionLocation location;
   Widget widget;
-  MeasureEditType measureEditType;
+  MeasureEditType measureEditType = MeasureEditType.replace; //  default
 }

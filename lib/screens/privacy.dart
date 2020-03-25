@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-/// Display the song moments in sequential order.
+/// Display the application's privacy policy
 class Privacy extends StatefulWidget {
   const Privacy({Key key}) : super(key: key);
 

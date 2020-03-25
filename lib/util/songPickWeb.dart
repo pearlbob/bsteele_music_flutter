@@ -5,7 +5,7 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/Song.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/util/songPick.dart';
 
 import '../main.dart';

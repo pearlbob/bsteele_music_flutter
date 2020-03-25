@@ -1,15 +1,18 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
+//import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/Song.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
+import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -109,6 +112,28 @@ class _MyHomePageState extends State<MyHomePage> {
   /// initialize async options read from shared preferences
   void _appOptionsInit() async {
     await AppOptions().init();
+
+//    try {
+//      _assetsAudioPlayer.open('lib/assets/audio/bass_5.mp3');
+//      _assetsAudioPlayer.play();
+//      logger.i('audio?');
+//    } catch (e) {
+//      logger.e('exception: ${e.toString()}');
+//    }
+
+    try {
+      logger.i('test: JsAudioFilePlayer:');
+      jsAudioFilePlayer = JsAudioFilePlayer();
+      for ( int i =0; i < 27; i++) {
+        String path = 'audio/bass_$i.mp3';
+        jsAudioFilePlayer.bufferFile(path);
+      }
+   //   logger.i('audio: getBaseLatency="${jsAudioFilePlayer.getBaseLatency()}"');
+//   bool   found = jsAudioFilePlayer.play(path, 0.0, 3.0);
+//      logger.i('audio test: "${jsAudioFilePlayer.test()}" $path: $found');
+    } catch (e) {
+      logger.e('exception: ${e.toString()}');
+    }
   }
 
   void _readInternalSongList() async {
@@ -317,9 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefixIcon: Icon(Icons.search),
                       hintText: "Enter search filter string here.",
                     ),
-
                     autofocus: true,
-
                     style: new TextStyle(fontSize: titleScaleFactor * 14),
                     onChanged: (text) {
                       logger.v('search text: "$text"');
@@ -350,11 +373,42 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
+
+
+        Text(
+          jsAudioFilePlayer?.getCurrentTime()?.toStringAsFixed(3) ?? 'not yet',//  fixme: temp
+          style: _navTextStyle,
+        ),
+        Text(
+          'jsAudioFilePlayer.test(): ${jsAudioFilePlayer?.test()?.toString()}',//  fixme: temp
+          style: _navTextStyle,
+        ),
+      IconButton(
+              onPressed: _testPlay,
+              icon: Icon(Icons.play_arrow),
+            ),
+//        StreamBuilder(
+//          //  fixme: temp
+//          stream: _assetsAudioPlayer.isPlaying,
+//          initialData: false,
+//          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+//            return IconButton(
+//              onPressed: _playPause,
+//              icon: Icon(snapshot.data ? Icons.pause : Icons.play_arrow),
+//            );
+//          },
+//        ),
+//        StreamBuilder(
+//            stream: _assetsAudioPlayer.currentPosition,
+//            builder: (context, asyncSnapshot) {
+//              final Duration duration = asyncSnapshot.data;
+//              return Text(duration.toString());
+//            }),
+
         Expanded(
             child: Scrollbar(
-              controller: _scrollController,
+          controller: _scrollController,
           child: ListView(
-
             children: listViewChildren,
           ),
         )),
@@ -476,6 +530,19 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
   }
 
+//  void _playPause() {
+//    _assetsAudioPlayer.playOrPause();
+//  }
+//
+//  final AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
+
+ void  _testPlay() {
+    String path = 'audio/bass_5.mp3';
+   bool   found = jsAudioFilePlayer.play(path, 0.0, 3.0);
+      logger.i('audio test: "${jsAudioFilePlayer.test()}" $path: $found');
+ }
+
+  JsAudioFilePlayer jsAudioFilePlayer;
   TextEditingController _searchTextFieldController;
   FocusNode _searchFocusNode;
 }

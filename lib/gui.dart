@@ -1,4 +1,4 @@
-import 'package:bsteeleMusicLib/songs/Section.dart';
+import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:flutter/material.dart';
 
 class GuiColors {

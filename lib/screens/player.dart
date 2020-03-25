@@ -5,12 +5,12 @@ import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
-import 'package:bsteeleMusicLib/songs/ChordSection.dart';
-import 'package:bsteeleMusicLib/songs/Key.dart' as songs;
-import 'package:bsteeleMusicLib/songs/MusicConstants.dart';
-import 'package:bsteeleMusicLib/songs/Section.dart';
-import 'package:bsteeleMusicLib/songs/Song.dart';
-import 'package:bsteeleMusicLib/songs/SongMoment.dart';
+import 'package:bsteeleMusicLib/songs/chordSection.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as songs;
+import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/rollingAverage.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';

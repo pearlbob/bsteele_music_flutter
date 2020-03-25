@@ -1,6 +1,7 @@
-import 'package:bsteeleMusicLib/songs/SongMoment.dart';
+import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:flutter/material.dart';
 
+/// helper class to help manage a song display
 class RowLocation {
   RowLocation(this.songMoment, this.row, this.globalKey, this._beats);
 

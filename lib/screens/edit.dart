@@ -3,19 +3,18 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
-import 'package:bsteeleMusicLib/songs/ChordComponent.dart';
-import 'package:bsteeleMusicLib/songs/ChordDescriptor.dart';
-import 'package:bsteeleMusicLib/songs/ChordSection.dart';
-import 'package:bsteeleMusicLib/songs/ChordSectionLocation.dart';
-import 'package:bsteeleMusicLib/songs/Key.dart' as songs;
-import 'package:bsteeleMusicLib/songs/Measure.dart';
-import 'package:bsteeleMusicLib/songs/MeasureNode.dart';
-import 'package:bsteeleMusicLib/songs/MeasureRepeat.dart';
-import 'package:bsteeleMusicLib/songs/MusicConstants.dart';
-import 'package:bsteeleMusicLib/songs/Section.dart';
-import 'package:bsteeleMusicLib/songs/SectionVersion.dart';
-import 'package:bsteeleMusicLib/songs/Song.dart';
-import 'package:bsteeleMusicLib/songs/SongBase.dart';
+import 'package:bsteeleMusicLib/songs/chordComponent.dart';
+import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
+import 'package:bsteeleMusicLib/songs/chordSection.dart';
+import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as songs;
+import 'package:bsteeleMusicLib/songs/measure.dart';
+import 'package:bsteeleMusicLib/songs/measureNode.dart';
+import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteele_music_flutter/gui.dart';
@@ -24,7 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-///
+///   screen to edit a song
 class Edit extends StatefulWidget {
   const Edit({Key key, @required this.song}) : super(key: key);
 
@@ -46,8 +45,10 @@ const double _entryWidth = 750;
 
 const Color _defaultColor = Color(0xFFB3E5FC); //Colors.lightBlue[100];
 
-class AppContainedButton extends RaisedButton {
-  AppContainedButton(
+
+/// helper class to manage a RaisedButton
+class _AppContainedButton extends RaisedButton {
+  _AppContainedButton(
     String text, {
     VoidCallback onPressed,
     Color color = _defaultColor,
@@ -68,6 +69,7 @@ class AppContainedButton extends RaisedButton {
         );
 }
 
+/// helper class to manage an OutlineButton
 class AppOutlineButton extends OutlineButton {
   AppOutlineButton(
     String _text, {
@@ -191,7 +193,7 @@ class _Edit extends State<Edit> {
           sectionColor = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
           //  compute transposition offset from base key
-          _tranOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
+          _transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
 
           int maxCols = 0;
           {
@@ -317,7 +319,7 @@ class _Edit extends State<Edit> {
                 margin: _marginInsets,
                 padding: textPadding,
                 color: Colors.green[100],
-                child: EditTooltip('add new section here',
+                child: _EditTooltip('add new section here',
                     child: InkWell(
                       onTap: () {
                         setState(() {
@@ -414,11 +416,11 @@ class _Edit extends State<Edit> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          AppContainedButton(
+                          _AppContainedButton(
                             'Clear',
                             onPressed: () {},
                           ),
-                          AppContainedButton(
+                          _AppContainedButton(
                             'Remove',
                             onPressed: () {},
                           ),
@@ -964,7 +966,7 @@ class _Edit extends State<Edit> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     //  section delete
-                    EditTooltip(
+                    _EditTooltip(
                       'Delete this section',
                       child: InkWell(
                         child: Icon(
@@ -983,7 +985,7 @@ class _Edit extends State<Edit> {
                       children: <Widget>[
                         //  section enter
                         if (isValidSectionEntry)
-                          EditTooltip(
+                          _EditTooltip(
                             'Accept the modification',
                             child: InkWell(
                               child: Icon(
@@ -996,7 +998,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         //  section entry cancel
-                        EditTooltip(
+                        _EditTooltip(
                           'Cancel the modification',
                           child: InkWell(
                             child: Icon(
@@ -1030,7 +1032,7 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: textPadding,
           color: sectionColor,
-          child: EditTooltip('modify or delete the section',
+          child: _EditTooltip('modify or delete the section',
               child: Text(
                 chordSection.sectionVersion.toString(),
                 style: _chordBoldTextStyle,
@@ -1083,7 +1085,7 @@ class _Edit extends State<Edit> {
             'post initial fill: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
       }
 
-      AppContainedButton _majorChordButton = AppContainedButton(
+      _AppContainedButton _majorChordButton = _AppContainedButton(
         _keyChordNote.toString(),
         onPressed: () {
           setState(() {
@@ -1092,13 +1094,13 @@ class _Edit extends State<Edit> {
         },
         color: color,
       );
-      AppContainedButton _minorChordButton;
+      _AppContainedButton _minorChordButton;
       {
         ScaleChord sc = ScaleChord(
           _keyChordNote,
           ChordDescriptor.minor,
         );
-        _minorChordButton = AppContainedButton(
+        _minorChordButton = _AppContainedButton(
           sc.toString(),
           onPressed: () {
             setState(() {
@@ -1108,10 +1110,10 @@ class _Edit extends State<Edit> {
           color: color,
         );
       }
-      AppContainedButton _dominant7ChordButton;
+      _AppContainedButton _dominant7ChordButton;
       {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
-        _dominant7ChordButton = AppContainedButton(
+        _dominant7ChordButton = _AppContainedButton(
           sc.toString(),
           onPressed: () {
             setState(() {
@@ -1194,7 +1196,7 @@ class _Edit extends State<Edit> {
                   },
                   style: _textStyle,
                 ),
-                AppContainedButton(
+                _AppContainedButton(
                   'X',
                   onPressed: () {
                     setState(() {
@@ -1213,7 +1215,7 @@ class _Edit extends State<Edit> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         if (measure != null)
-                          EditTooltip(
+                          _EditTooltip(
                             'Delete this measure',
                             child: InkWell(
                               child: Icon(
@@ -1234,7 +1236,7 @@ class _Edit extends State<Edit> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
                           if (_measureEntryValid)
-                            EditTooltip(
+                            _EditTooltip(
                               'Accept the modification',
                               child: InkWell(
                                 child: Icon(
@@ -1246,7 +1248,7 @@ class _Edit extends State<Edit> {
                                 },
                               ),
                             ),
-                          EditTooltip(
+                          _EditTooltip(
                             'Cancel the modification',
                             child: InkWell(
                               child: Icon(
@@ -1274,9 +1276,9 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: textPadding,
           color: color,
-          child: EditTooltip('modify or delete the measure',
+          child: _EditTooltip('modify or delete the measure',
               child: Text(
-                measure?.transpose(_key, _tranOffset) ?? '',
+                measure?.transpose(_key, _transpositionOffset) ?? '',
                 style: _chordBoldTextStyle,
               ))),
     );
@@ -1463,7 +1465,7 @@ class _Edit extends State<Edit> {
             margin: appendInsets,
             padding: appendPadding,
             color: Colors.green[100],
-            child: EditTooltip(
+            child: _EditTooltip(
               'add new measure',
               child: Icon(
                 Icons.add,
@@ -1634,7 +1636,7 @@ class _Edit extends State<Edit> {
   Table _table;
   _EditDataPoint _selectedEditDataPoint;
 
-  int _tranOffset;
+  int _transpositionOffset;
 
   String _measureEntry;
   String _measureEntryCorrection;
@@ -1668,8 +1670,9 @@ class _Edit extends State<Edit> {
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList;
 }
 
-class EditTooltip extends Tooltip {
-  EditTooltip(String message, {Widget child})
+/// helper class to generate tool tips
+class _EditTooltip extends Tooltip {
+  _EditTooltip(String message, {Widget child})
       : super(
             message: message,
             child: child,
@@ -1688,6 +1691,8 @@ class EditTooltip extends Tooltip {
   static const color = Color(0xFFE8F5E9);
 }
 
+
+//  internal class to hold handy data for each point in the chord section edit display
 class _EditDataPoint {
   _EditDataPoint(this.location);
 

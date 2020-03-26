@@ -12,6 +12,8 @@ class JsAudioFilePlayer {
 
   external bool play(String filePath, double when, double duration);
 
+  external bool oscillate(double frequency, double when, double duration);
+
   external bool stop();
 
   external double getCurrentTime();

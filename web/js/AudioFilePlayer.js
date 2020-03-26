@@ -13,7 +13,7 @@ function AudioFilePlayer() {
     this.mp3Sources = new Array(0);
 
     this.gain = this.audioContext.createGain();
-    this.gain.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 0.01);
+    this.gain.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 0.1);
     this.gain.connect(this.audioContext.destination);
 
     // create Oscillator node to keep the timer running permanently
@@ -49,6 +49,20 @@ function AudioFilePlayer() {
         return false;
     };
 
+    this.oscillate = function ( frequency, when, duration ){
+        let oscillator = this.audioContext.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, 0); // value in hertz
+        let gain = context.createGain();
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        gain.gain.setValueAtTime(1, when);
+        gain.gain.exponentialRampToValueAtTime(0.001, when + duration);
+        oscillator.start(when);
+        oscillator.stop(when + duration);
+        return true;
+    }
+
     this.play = function (filePath, when, duration) {
         let buffer = this.fileMap.get(filePath);
         if (buffer === undefined) {
@@ -60,7 +74,7 @@ function AudioFilePlayer() {
         let source = this.audioContext.createBufferSource();
         source.buffer = buffer;
         source.connect(this.gain);
-        source.start(when);
+        source.start(when, 0, duration);
         this.mp3Sources.push(source);
         return true;
     };

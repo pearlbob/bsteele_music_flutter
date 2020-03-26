@@ -1,0 +1,65 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html';
+import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
+import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
+
+class WebAudioPlayer implements AppAudioPlayer {
+  //  private constructor for singleton
+  WebAudioPlayer._privateConstructor() {
+    try {
+      for (int i = 0; i < 40; i++) {
+        String path = 'audio/bass_$i.mp3';
+        _audioFilePlayer.bufferFile(path);
+      }
+      for (int i = 0; i <= 30; i++) {
+        String path = 'audio/guitar_$i.mp3';
+        _audioFilePlayer.bufferFile(path);
+      }
+      _audioFilePlayer.bufferFile('audio/kick_4513.mp3');
+      _audioFilePlayer.bufferFile('audio/kick_4515.mp3');
+      _audioFilePlayer.bufferFile('audio/snare_4405.mp3');
+      _audioFilePlayer.bufferFile('audio/snare_4406.mp3');
+      logger.i('audio: getBaseLatency="${_audioFilePlayer.getBaseLatency()}"');
+    } catch (e) {
+      logger.e('exception: ${e.toString()}');
+    }
+  }
+
+  factory WebAudioPlayer() {
+    return _instance;
+  }
+
+  @override
+  double getCurrentTime() {
+    return _audioFilePlayer.getCurrentTime();
+  }
+
+  @override
+  bool play(String filePath, double when, double duration) {
+    return _audioFilePlayer.play(filePath, when, duration);
+  }
+
+  @override
+  bool oscillate(double frequency, double when, double duration) {
+    return _audioFilePlayer.oscillate(frequency, when, duration);
+  }
+
+  @override
+  bool stop() {
+    return _audioFilePlayer.stop();
+  }
+
+  @override
+  String test() {
+    return 'WebAudioPlayer here';
+  }
+
+  static final WebAudioPlayer _instance = WebAudioPlayer._privateConstructor();
+  JsAudioFilePlayer _audioFilePlayer = JsAudioFilePlayer();
+
+  //  fixme: bogus use of dart html to keep android studio happy with conditional compile workaround
+  final File file = null;
+}
+
+AppAudioPlayer getAudioPlayer() => WebAudioPlayer();

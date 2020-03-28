@@ -54,7 +54,7 @@ function AudioFilePlayer() {
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, 0); // value in hertz
 
-        let rampDuration = 0.004;
+        let rampDuration = 0.008;
         let end = when + duration;
 
         let gainNode = this.audioContext.createGain();

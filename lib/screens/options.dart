@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/bass.dart';
+import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -205,28 +208,34 @@ class _Options extends State<Options> {
             _test++;
             break;
           case 3:
-            if ( _test < 12 )
-              _test = 3*12;
-            if (_test >= _pitches.length - 3*12) {
+            if (_test < 12) _test = 3 * 12;
+            if (_test >= _pitches.length - 3 * 12) {
               _timer.cancel();
               _timer = null;
             }
 
-
-
+            ChordDescriptor chordDescriptor = ChordDescriptor.minor;
             Pitch refPitch = _pitches[_test];
 
             //  guitar and bass
-            _audioPlayer.play('audio/bass_${Bass.mapPitchToBass(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play('audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
 
             int octave = refPitch.getLabelNumber();
-            logger.i('${refPitch.getScaleNote().toString()}');
-            List<int> chordOffsets = [0, 4, 7];
-            for (int i = 0; i < chordOffsets.length; i++) {
-              Pitch pitch = refPitch.offsetByHalfSteps(chordOffsets[i]);
-              logger.d('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3');
+//            logger.i('${refPitch.getScaleNote().toString()}');
+//            List<int> chordOffsets = [0, 4, 7];
+//            for (int i = 0; i < chordOffsets.length; i++) {
+//              Pitch pitch = refPitch.offsetByHalfSteps(chordOffsets[i]);
+//              logger.d('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3');
+//              _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${octave.toString()}.mp3', _timerT,
+//                  timerPeriod - gap, 1.0 / chordOffsets.length);
+//            }
+
+            //  piano chord
+            Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
+            List<Pitch> pitches = chord.getPitches(_atOrAbove);
+            for (Pitch pitch in pitches) {
               _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${octave.toString()}.mp3', _timerT,
-                  timerPeriod - gap, 1.0 / chordOffsets.length);
+                  timerPeriod - gap, 1.0 / pitches.length);
             }
 
             _test++;
@@ -243,6 +252,7 @@ class _Options extends State<Options> {
   int _test;
   String _testType;
   final List<Pitch> _pitches = Pitch.flats;
+  static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
 
   Timer _timer;
   double _timerT;

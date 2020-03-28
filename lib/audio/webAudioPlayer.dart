@@ -1,6 +1,7 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
 import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
 
@@ -8,6 +9,10 @@ class WebAudioPlayer implements AppAudioPlayer {
   //  private constructor for singleton
   WebAudioPlayer._privateConstructor() {
     try {
+      for (Pitch pitch in Pitch.flats) {
+        _audioFilePlayer
+            .bufferFile('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3');
+      }
       for (int i = 0; i < 40; i++) {
         String path = 'audio/bass_$i.mp3';
         _audioFilePlayer.bufferFile(path);

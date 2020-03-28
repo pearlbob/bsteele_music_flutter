@@ -5,31 +5,27 @@ class MobileAudioPlayer implements AppAudioPlayer {
 
   @override
   double getCurrentTime() {
-    // TODO: implement getCurrentTime
-    throw UnimplementedError('MobileAudioPlayer');
+    return 0;
   }
 
   @override
-  bool play(String filePath, double when, double duration) {
-    // TODO: implement play
-    throw UnimplementedError('MobileAudioPlayer');
+  bool play(String filePath, double when, double duration, double volume) {
+    return false;
   }
 
   @override
-  bool oscillate(double frequency, double when, double duration) {
-    throw UnimplementedError('MobileAudioPlayer');
+  bool oscillate(double frequency, double when, double duration, double volume) {
+    return false;
   }
 
   @override
   bool stop() {
-    // TODO: implement stop
-    throw UnimplementedError('MobileAudioPlayer');
+    return false;;
   }
 
   @override
   String test() {
-    // TODO: implement test
-    throw UnimplementedError('MobileAudioPlayer');
+    return 'MobileAudioPlayer fixme';
   }
   
 }

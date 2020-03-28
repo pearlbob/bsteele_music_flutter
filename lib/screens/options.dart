@@ -145,14 +145,19 @@ class _Options extends State<Options> {
     _timer?.cancel();
 
     _test = 0;
-    const int bpm = 200;
+    const int bpm = 104;
     const double timerPeriod = 60 / bpm;
+
     const int microsecondsPerSecond = 1000000;
-    logger.i('microseconds: ${(microsecondsPerSecond * timerPeriod).toString()}');
-    logger.i('timerPeriod: ${timerPeriod.toString()}');
+    int periodMs = (microsecondsPerSecond * timerPeriod).round();
+    logger.d('periodMs: ${periodMs.toString()}');
+    logger.d('timerPeriod: ${timerPeriod.toString()}');
+    _timerT = _audioPlayer.getCurrentTime() + 2;
     _testType = 'bass';
-    _timer = Timer.periodic(Duration(microseconds: (microsecondsPerSecond * timerPeriod) as int), (timer) {
+    final double gap = 0.25;
+    _timer = Timer.periodic(Duration(microseconds: periodMs), (timer) {
       try {
+        logger.d('_audioTest() ${_testNumber.toString()}.${_test.toString()}');
         switch (_testNumber) {
           case 0:
             switch (_testType) {
@@ -170,7 +175,7 @@ class _Options extends State<Options> {
                 break;
             }
 
-            _audioPlayer.play('audio/${_testType}_$_test.mp3', 0, timerPeriod - 0.02);
+            _audioPlayer.play('audio/${_testType}_$_test.mp3', _timerT, timerPeriod - gap, 1.0);
             _test++;
             break;
           case 1:
@@ -179,22 +184,26 @@ class _Options extends State<Options> {
               _timer = null;
             }
 
-            _audioPlayer.play('audio/bass_$_test.mp3', 0, timerPeriod - 0.02);
-            _audioPlayer.play('audio/guitar_$_test.mp3', 0, timerPeriod - 0.02);
-            _audioPlayer.play('audio/guitar_${_test + 4}.mp3', 0, timerPeriod - 0.02);
-            _audioPlayer.play('audio/guitar_${_test + 7}.mp3', 0, timerPeriod - 0.02);
+            _audioPlayer.play('audio/bass_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play('audio/guitar_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play(
+                'audio/guitar_${_test + 4 /*half steps to major 3rd*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play(
+                'audio/guitar_${_test + 7 /*half steps to 5th*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+
             _test++;
             break;
           case 2:
-            if (_test > _pitches.length) {
+            if (_test >= _pitches.length) {
               _timer.cancel();
               _timer = null;
             }
 
-            _audioPlayer.oscillate(_pitches[_test].getFrequency(), 0, timerPeriod - 0.02);
+            _audioPlayer.oscillate(_pitches[_test].getFrequency(), _timerT, timerPeriod - gap, 1.0);
             _test++;
             break;
         }
+        _timerT += periodMs / microsecondsPerSecond;
       } catch (e) {
         logger.i('_audioTest() error: ${e.toString()}');
       }
@@ -204,9 +213,10 @@ class _Options extends State<Options> {
   static final int _testNumber = 1;
   int _test;
   String _testType;
-  final List<Pitch> _pitches = Pitch.getPitches();
+  final List<Pitch> _pitches = Pitch.flats;
 
   Timer _timer;
+  double _timerT;
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
 }

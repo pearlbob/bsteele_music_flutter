@@ -36,13 +36,13 @@ class WebAudioPlayer implements AppAudioPlayer {
   }
 
   @override
-  bool play(String filePath, double when, double duration) {
-    return _audioFilePlayer.play(filePath, when, duration);
+  bool play(String filePath, double when, double duration, double volume) {
+    return _audioFilePlayer.play(filePath, when, duration, volume);
   }
 
   @override
-  bool oscillate(double frequency, double when, double duration) {
-    return _audioFilePlayer.oscillate(frequency, when, duration);
+  bool oscillate(double frequency, double when, double duration, double volume) {
+    return _audioFilePlayer.oscillate(frequency, when, duration, volume);
   }
 
   @override

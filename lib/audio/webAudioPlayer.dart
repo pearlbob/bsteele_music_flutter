@@ -9,10 +9,11 @@ class WebAudioPlayer implements AppAudioPlayer {
   //  private constructor for singleton
   WebAudioPlayer._privateConstructor() {
     try {
-      for (final Pitch pitch in Pitch.flats) {
-        _audioFilePlayer
-            .bufferFile('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3');
-      }
+//      for (final Pitch pitch in Pitch.flats) {
+//        String s = 'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3';
+//        print('piano: $s');
+//        _audioFilePlayer.bufferFile(s);
+//      }
       for (int i = 0; i < 40; i++) {
         String path = 'audio/bass_$i.mp3';
         _audioFilePlayer.bufferFile(path);
@@ -22,7 +23,7 @@ class WebAudioPlayer implements AppAudioPlayer {
         _audioFilePlayer.bufferFile(path);
       }
       _audioFilePlayer.bufferFile('audio/kick_4513.mp3');
-      _audioFilePlayer.bufferFile('audio/kick_4515.mp3');
+      _audioFilePlayer.bufferFile('audio/kick_4516.mp3');
       _audioFilePlayer.bufferFile('audio/snare_4405.mp3');
       _audioFilePlayer.bufferFile('audio/snare_4406.mp3');
       logger.i('audio: getBaseLatency="${_audioFilePlayer.getBaseLatency()}"');

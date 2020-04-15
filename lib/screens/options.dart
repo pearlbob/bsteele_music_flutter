@@ -249,16 +249,6 @@ class _Options extends State<Options> {
             _audioPlayer.play(
                 'audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
 
-            int octave = refPitch.getLabelNumber();
-//            logger.i('${refPitch.getScaleNote().toString()}');
-//            List<int> chordOffsets = [0, 4, 7];
-//            for (int i = 0; i < chordOffsets.length; i++) {
-//              Pitch pitch = refPitch.offsetByHalfSteps(chordOffsets[i]);
-//              logger.d('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3');
-//              _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${octave.toString()}.mp3', _timerT,
-//                  timerPeriod - gap, 1.0 / chordOffsets.length);
-//            }
-
             //  piano chord
             Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
             List<Pitch> pitches = chord.getPitches(_atOrAbove);

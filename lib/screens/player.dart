@@ -18,12 +18,14 @@ import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/rowLocation.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../appOptions.dart';
+import 'package:universal_html/html.dart' as html;
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
@@ -39,6 +41,37 @@ class _Player extends State<Player> {
   @override
   initState() {
     super.initState();
+
+    //  control font size with ctl+wheel
+    if (kIsWeb) {
+      html.window.onMouseWheel.listen((event) {
+        if (event.ctrlKey) {
+          logger.v('event type: ${event.runtimeType.toString()},'
+              ' d: ${event.deltaMode.toString()}'
+              ' x: ${event.deltaX.toString()}'
+              ' y: ${event.deltaY.toString()}'
+              ' z: ${event.deltaZ.toString()}'
+              //  ' ctl: ${event.ctrlKey.toString()}'
+              '');
+          event.preventDefault(); //  fixme: doesn't work
+
+          double newFontSize = _defaultFontSize;
+          if (event.deltaY < 0) {
+            newFontSize++;
+          } else if (event.deltaY > 0) {
+            newFontSize--;
+          }
+          newFontSize = max(_defaultFontSizeMin, min(_defaultFontSizeMax, newFontSize));
+          if (newFontSize != _defaultFontSize) {
+            logger.d('newFontSize: $newFontSize');
+            setState(() {
+              _defaultFontSize = newFontSize;
+              _forceTableRedisplay();
+            });
+          }
+        }
+      });
+    }
     _appOptions = AppOptions();
 
     _displaySongKey = widget.song.key;
@@ -82,10 +115,9 @@ class _Player extends State<Player> {
 //      logger.i('_lastDy: $_lastDy');
     });
 
-
     const int timerPeriod = 30;
     const int secondsPerMinute = 60;
-   // const int millisecondsPerSecond = 1000;
+    // const int millisecondsPerSecond = 1000;
     _ticker = Ticker((duration) {
       int t = DateTime.now().millisecondsSinceEpoch;
       int dt = t - _lastTime;
@@ -115,7 +147,7 @@ class _Player extends State<Player> {
         }
       }
       _rowLocationBump = 0;
-      logger.v( 'ticker ${_tickerCount.toString()} $dt');
+      logger.v('ticker ${_tickerCount.toString()} $dt');
       _tickerCount++;
     });
     _ticker.start();
@@ -163,15 +195,14 @@ class _Player extends State<Player> {
     double _screenHeight = MediaQuery.of(context).size.height;
     _screenOffset = _screenHeight / 2;
     _isTooNarrow = _screenWidth <= 800;
-    final double fontSize =  _defaultFontSize * min(5, max(1, _screenWidth / 400))/ (_isTooNarrow ? 2 : 1);
+    final double fontSize = _defaultFontSize * min(5, max(1, _screenWidth / 400)) / (_isTooNarrow ? 2 : 1);
     logger.i("fontSize: $fontSize");
-    final double fontScale = fontSize/_defaultFontSize;
+    final double fontScale = fontSize / _defaultFontSize;
 
     final double lyricsFontSize = fontSize * 0.75;
 
     final TextStyle chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
     final TextStyle lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: lyricsFontSize);
-
 
     if (_table == null) {
       logger.d("size: " + MediaQuery.of(context).size.toString());
@@ -223,7 +254,7 @@ class _Player extends State<Player> {
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
             String columnFiller;
-            EdgeInsets marginInsets = EdgeInsets.all( fontScale);
+            EdgeInsets marginInsets = EdgeInsets.all(fontScale);
             EdgeInsets textPadding = EdgeInsets.all(6);
             if (chordSection != lastChordSection || sectionCount != lastSectionCount) {
               //  add the section heading
@@ -264,7 +295,7 @@ class _Player extends State<Player> {
                     color: color,
                     child: Text(
                       sm.getMeasure().transpose(_displaySongKey, tranOffset),
-                          style: chordTextStyle,
+                      style: chordTextStyle,
                     )));
                 _rowKey = null;
 
@@ -333,7 +364,6 @@ class _Player extends State<Player> {
         i++;
       }
     }
-
 
     {
       //  generate the rolled key list
@@ -418,7 +448,7 @@ class _Player extends State<Player> {
 
     final hoverColor = Colors.blue[700];
 
-    logger.i( 'player scaffold');
+    logger.i('player scaffold');
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -536,7 +566,7 @@ class _Player extends State<Player> {
                                 onChanged: (_value) {
                                   setState(() {
                                     _displaySongKey = _value;
-                                    _table = null;
+                                    _forceTableRedisplay();
                                   });
                                 },
                                 value: _displaySongKey,
@@ -615,7 +645,10 @@ class _Player extends State<Player> {
                     _pauseToggle();
                   },
                   tooltip: 'Stop.  Space bar will continue the play.',
-                  child: Icon(Icons.play_arrow,size: floatingActionSize ,),
+                  child: Icon(
+                    Icons.play_arrow,
+                    size: floatingActionSize,
+                  ),
                 )
               : FloatingActionButton(
                   mini: _isTooNarrow,
@@ -623,7 +656,10 @@ class _Player extends State<Player> {
                     _stop();
                   },
                   tooltip: 'Stop the play.',
-                  child: Icon(Icons.stop,size: floatingActionSize,),
+                  child: Icon(
+                    Icons.stop,
+                    size: floatingActionSize,
+                  ),
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? FloatingActionButton(
@@ -636,7 +672,10 @@ class _Player extends State<Player> {
                     });
                   },
                   tooltip: 'Top',
-                  child: Icon(Icons.arrow_upward,size: floatingActionSize,),
+                  child: Icon(
+                    Icons.arrow_upward,
+                    size: floatingActionSize,
+                  ),
                 )
               : FloatingActionButton(
                   mini: _isTooNarrow,
@@ -644,7 +683,10 @@ class _Player extends State<Player> {
                     Navigator.pop(context);
                   },
                   tooltip: 'Back',
-                  child: Icon(Icons.arrow_back,size: floatingActionSize,),
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: floatingActionSize,
+                  ),
                 )),
     );
   }
@@ -682,7 +724,7 @@ class _Player extends State<Player> {
       if (_isPaused) {
         songMaster.pause();
         _scrollController.jumpTo(_scrollController.offset);
-      }else{
+      } else {
         songMaster.resume();
       }
     } else {
@@ -714,6 +756,10 @@ class _Player extends State<Player> {
     setState(() {});
   }
 
+  void _forceTableRedisplay() {
+    _table = null;
+  }
+
   static final String anchorUrlStart = "https://www.youtube.com/results?search_query=";
 
   Ticker _ticker;
@@ -738,8 +784,11 @@ class _Player extends State<Player> {
   SongMaster songMaster;
   ScrollController _scrollController = ScrollController();
   AppOptions _appOptions;
-  static const double _defaultFontSize = 14.0;  //  borrowed from Text widget
-  static const double floatingActionSize = 50;  //  inside the prescribed 56 pixel size
+  double _defaultFontSize = 14.0; //  borrowed from Text widget
+  static const double _defaultFontSizeMin = 14.0 - 5;
+  static const double _defaultFontSizeMax = 14.0 + 5;
+
+  static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
 }
 
 class _KeyboardListener extends StatefulWidget {
@@ -835,7 +884,3 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   RollingAverage _tapRollingAverage = RollingAverage(5);
   FocusNode _textFocusNode = new FocusNode();
 }
-
-
-
-

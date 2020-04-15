@@ -155,7 +155,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     List<StatelessWidget> listViewChildren = List();
-    ScrollController _scrollController = new ScrollController();
     bool oddEven = false;
 
     ScreenInfo screenInfo = ScreenInfo(context);
@@ -170,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _searchSongs(_searchTextFieldController.text);
     }
 
-    for (Song song in _filteredSongs) {
+    for (final Song song in _filteredSongs) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
         child: Container(
@@ -349,14 +348,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-
         Expanded(
-            child: Scrollbar(
-          controller: _scrollController,
-          child: ListView(
-            children: listViewChildren,
+          child: Scrollbar(
+            child: ListView(
+              controller: _scrollController,
+              children: listViewChildren,
+            ),
           ),
-        )),
+        ),
       ]),
 
       floatingActionButton: FloatingActionButton(
@@ -369,7 +368,10 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
         tooltip: 'Back to the list top',
-        child: const Icon(Icons.arrow_upward),
+        child: const Icon(
+          Icons.arrow_upward,
+          size: floatingActionSize,
+        ),
       ),
     );
   }
@@ -407,7 +409,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  apply search filter
     _filteredSongs = SplayTreeSet();
-    for (Song song in _allSongs) {
+    for (final Song song in _allSongs) {
       if (search.length == 0 ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
@@ -477,6 +479,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   TextEditingController _searchTextFieldController;
   FocusNode _searchFocusNode;
+  ScrollController _scrollController = new ScrollController();
+  static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
 }
 
 Future<String> fetchString(String url) async {

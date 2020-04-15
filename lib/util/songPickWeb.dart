@@ -13,7 +13,7 @@ import '../main.dart';
 class SongPickWeb implements SongPick {
   Future<void> filePick() async {
     List<Song> songs = await getSongsAsync();
-    for (Song song in songs) {
+    for (final Song song in songs) {
       addSong(song);
       //print('song: ${song.title.toString()}');
     }
@@ -23,12 +23,12 @@ class SongPickWeb implements SongPick {
     List<String> files = await getFiles();
     print("files.length: ${files.length}");
     List<Song> ret = [];
-    for (String data64 in files) {
+    for (final String data64 in files) {
       Uint8List data = Base64Decoder().convert(data64.split(",").last);
       String s = utf8.decode(data);
       print('\tfile: $s');
       List<Song> addSongs = Song.songListFromJson(s);
-      for (Song song in addSongs) {
+      for (final Song song in addSongs) {
         logger.d('add: ${song.toString()}');
         ret.add(song);
       }

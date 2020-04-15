@@ -19,8 +19,10 @@ class AppOptions {
     playWithLineIndicator = await _readBool('playWithLineIndicator');
     playWithMeasureIndicator = await _readBool('playWithMeasureIndicator');
     playWithBouncingBall = await _readBool('playWithBouncingBall');
-    playWithMeasureLabel = await _readBool('playWithMeasureLabel');
+    _playWithMeasureLabel = await _readBool('playWithMeasureLabel');
     alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead');
+    _playWithChords = await _readBool('playWithChords');
+    _playWithBass = await _readBool('playWithBass');
 
     logger.i('readOptions: playerDisplay: $playerDisplay');
   }
@@ -154,7 +156,6 @@ class AppOptions {
 //    }
 //  }
 
-
   bool isPlayWithBouncingBall() {
     return playWithBouncingBall;
   }
@@ -165,13 +166,11 @@ class AppOptions {
     _saveBool('playWithBouncingBall', playWithBouncingBall);
   }
 
-  bool isPlayWithMeasureLabel() {
-    return playWithMeasureLabel;
-  }
+  bool get playWithMeasureLabel => _playWithMeasureLabel;
 
   void setPlayWithMeasureLabel(bool playWithMeasureLabel) {
-    if (this.playWithMeasureLabel == playWithMeasureLabel) return;
-    this.playWithMeasureLabel = playWithMeasureLabel;
+    if (this._playWithMeasureLabel == playWithMeasureLabel) return;
+    this._playWithMeasureLabel = playWithMeasureLabel;
     _saveBool('playWithMeasureLabel', playWithMeasureLabel);
   }
 
@@ -180,8 +179,7 @@ class AppOptions {
   }
 
   void setAlwaysUseTheNewestSongOnRead(bool alwaysUseTheNewestSongOnRead) {
-    if (this.alwaysUseTheNewestSongOnRead == alwaysUseTheNewestSongOnRead)
-      return;
+    if (this.alwaysUseTheNewestSongOnRead == alwaysUseTheNewestSongOnRead) return;
     this.alwaysUseTheNewestSongOnRead = alwaysUseTheNewestSongOnRead;
     _saveBool('alwaysUseTheNewestSongOnRead', alwaysUseTheNewestSongOnRead);
   }
@@ -194,7 +192,19 @@ class AppOptions {
 
   _saveBool(final String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool(key, value);
+    await prefs.setBool(key, value);
+  }
+
+  set playWithChords(bool playWithChords) {
+    if (this._playWithChords == playWithChords) return;
+    this._playWithChords = playWithChords;
+    _saveBool('playWithChords', playWithChords);
+  }
+
+   set playWithBass(bool playWithBass) {
+    if (this._playWithBass == playWithBass) return;
+    this._playWithBass = playWithBass;
+    _saveBool('playWithBass', playWithBass);
   }
 
   bool countIn = true;
@@ -202,15 +212,19 @@ class AppOptions {
   bool playWithLineIndicator = true;
   bool playWithMeasureIndicator = true;
   bool playWithBouncingBall = true;
-  bool playWithMeasureLabel = true;
+  bool _playWithMeasureLabel = true;
+
+  bool get playWithChords => _playWithChords;
+  bool _playWithChords = false;
+
+  bool get playWithBass => _playWithBass;
+  bool _playWithBass = false;
 
   set playerDisplay(value) {
-    if (_playerDisplay == value)
-    return;
+    if (_playerDisplay == value) return;
 
-      _playerDisplay = value;
-      _saveBool('playerDisplay', value);
-      logger.v('set playerDisplay: $value');
+    _playerDisplay = value;
+    _saveBool('playerDisplay', value);
   }
 
   bool get playerDisplay => _playerDisplay;

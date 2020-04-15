@@ -20,7 +20,7 @@ class MobileAudioPlayer implements AppAudioPlayer {
 
   @override
   bool stop() {
-    return false;;
+    return false;
   }
 
   @override

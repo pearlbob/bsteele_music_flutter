@@ -7,7 +7,7 @@ class SongPickPhone implements SongPick {
   Future<void> filePick() async {
     Map<String, String> fileMap =
     await FilePicker.getMultiFilePath(fileExtension: '.songlyrics');
-    for (String filename in fileMap.keys) {
+    for (final String filename in fileMap.keys) {
       logger.i('file: $filename');
     }
   }

@@ -224,7 +224,7 @@ class _Edit extends State<Edit> {
             //  should normally be col 1 (i.e. the second col)
             //  use its section version for the row
             {
-              for (ChordSectionLocation loc in row)
+              for (final ChordSectionLocation loc in row)
                 if (loc == null)
                   continue;
                 else {
@@ -318,7 +318,7 @@ class _Edit extends State<Edit> {
             children.add(Container(
                 margin: _marginInsets,
                 padding: textPadding,
-                color: Colors.green[100],
+                decoration: BoxDecoration( shape: BoxShape.circle, color: Colors.green[100],),
                 child: _EditTooltip('add new section here',
                     child: InkWell(
                       onTap: () {
@@ -373,7 +373,7 @@ class _Edit extends State<Edit> {
 
       //  make the key selection drop down list
       _keyChordDropDownMenuList = List();
-      for (ScaleNote scaleNote in scaleNotes) {
+      for (final ScaleNote scaleNote in scaleNotes) {
         String s = scaleNote.toString();
         String label = s +
             (s.length < 2 ? "   " : " ") +
@@ -1464,7 +1464,7 @@ class _Edit extends State<Edit> {
         child: Container(
             margin: appendInsets,
             padding: appendPadding,
-            color: Colors.green[100],
+            decoration: BoxDecoration( shape: BoxShape.circle, color: Colors.green[100],),
             child: _EditTooltip(
               'add new measure',
               child: Icon(
@@ -1477,7 +1477,7 @@ class _Edit extends State<Edit> {
   List<DropdownMenuItem<Section>> _sectionDropdownList() {
     List<DropdownMenuItem<Section>> ret = [];
 
-    for (SectionEnum sectionEnum in SectionEnum.values) {
+    for (final SectionEnum sectionEnum in SectionEnum.values) {
       Section section = Section.get(sectionEnum);
 
       ret.add(
@@ -1561,12 +1561,12 @@ class _Edit extends State<Edit> {
   ChordSection _suggestNewSection() {
     //  generate the set of the song's section versions
     SplayTreeSet<SectionVersion> songSectionVersions = SplayTreeSet();
-    for (ChordSection cs in _song.getChordSections()) {
+    for (final ChordSection cs in _song.getChordSections()) {
       songSectionVersions.add(cs.sectionVersion);
     }
 
     //  see if one of the suggested default section versions is missing
-    for (SectionVersion sv in _suggestedSectionVersions) {
+    for (final SectionVersion sv in _suggestedSectionVersions) {
       if (songSectionVersions.contains(sv)) {
         continue;
       }
@@ -1574,7 +1574,7 @@ class _Edit extends State<Edit> {
     }
 
     //  see if one of the suggested numbered section versions is missing
-    for (SectionVersion sv in _suggestedSectionVersions) {
+    for (final SectionVersion sv in _suggestedSectionVersions) {
       for (int i = 1; i <= 9; i++) {
         SectionVersion svn = SectionVersion(sv.section, i);
         if (songSectionVersions.contains(svn)) {

@@ -92,6 +92,34 @@ class _Options extends State<Options> {
                   ),
                 ]),
                 Row(children: <Widget>[
+                  Checkbox(
+                    value: _appOptions.playWithChords,
+                    onChanged: (value) {
+                      setState(() {
+                        _appOptions.playWithChords = value;
+                      });
+                    },
+                  ),
+                  Text(
+                    'Playback with chords',
+                    style: TextStyle(fontSize: fontSize),
+                  ),
+                ]),
+                Row(children: <Widget>[
+                  Checkbox(
+                    value: _appOptions.playWithBass,
+                    onChanged: (value) {
+                      setState(() {
+                        _appOptions.playWithBass = value;
+                      });
+                    },
+                  ),
+                  Text(
+                    'Playback with bass',
+                    style: TextStyle(fontSize: fontSize),
+                  ),
+                ]),
+                Row(children: <Widget>[
                   Text(
                     'audio test: ',
                     style: TextStyle(fontSize: fontSize),
@@ -218,7 +246,8 @@ class _Options extends State<Options> {
             Pitch refPitch = _pitches[_test];
 
             //  guitar and bass
-            _audioPlayer.play('audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
+            _audioPlayer.play(
+                'audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
 
             int octave = refPitch.getLabelNumber();
 //            logger.i('${refPitch.getScaleNote().toString()}');
@@ -233,10 +262,14 @@ class _Options extends State<Options> {
             //  piano chord
             Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
             List<Pitch> pitches = chord.getPitches(_atOrAbove);
-            for (Pitch pitch in pitches) {
-              _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${octave.toString()}.mp3', _timerT,
-                  timerPeriod - gap, 1.0 / pitches.length);
+            double duration = timerPeriod - gap;
+            double amp = 1.0 / (pitches.length + 2);
+            for (final Pitch pitch in pitches) {
+              _playPianoPitch(pitch, duration, amp);
             }
+            Pitch octaveLower = pitches[0].octaveLower();
+            _playPianoPitch(octaveLower, duration, amp);
+            _playPianoPitch(octaveLower.octaveLower(), duration, amp);
 
             _test++;
             break;
@@ -246,6 +279,11 @@ class _Options extends State<Options> {
         logger.i('_audioTest() error: ${e.toString()}');
       }
     });
+  }
+
+  void _playPianoPitch(Pitch pitch, double duration, double amp) {
+    _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3',
+        _timerT, duration, amp);
   }
 
   static final int _testNumber = 3;

@@ -6,6 +6,7 @@
 
 function AudioFilePlayer() {
     this.fileMap = new Map();
+  let offset;
 
     //  setup audio output
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -17,10 +18,10 @@ function AudioFilePlayer() {
     this.gain.connect(this.audioContext.destination);
 
     // create Oscillator node to keep the timer running permanently
-    this.oscillator = this.audioContext.createOscillator();
-    this.oscillator.type = 'sine';
-    this.oscillator.frequency.setValueAtTime(20, 0); // value in hertz
-    this.oscillator.start();
+  // this.oscillator = this.audioContext.createOscillator();
+  // this.oscillator.type = 'sine';
+  // this.oscillator.frequency.setValueAtTime(20, 0); // value in hertz
+  // this.oscillator.start();
 
 
     this.bufferFile = function (filePath) {
@@ -78,6 +79,9 @@ function AudioFilePlayer() {
         if (buffer === undefined) {
             return false;
         }
+    if (when === 0) {
+      when = this.audioContext.currentTime;
+    }
 
         //  a throwaway source object!  by api design
         //  completed buffer sources will be garbage collected
@@ -131,7 +135,18 @@ function AudioFilePlayer() {
     };
 
     this.test = function () {
-        return this.fileMap.size;
+    //  intentionally copied to variables to limit the delay between the two readings
+    let now = window.performance.now();
+    let off = this.audioContext.currentTime ;
+
+    //  calc the offset
+    off = off * 1000 - now;
+    if (offset === undefined) {
+      offset = off;
+    }
+
+    let drift = off - offset
+    return drift;
     };
 
 }

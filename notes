@@ -1,0 +1,6 @@
+
+https://pub.dev/packages/just_audio
+	player.play();
+	await player.seek(Duration(seconds: 10));
+	await player.pause();
+	await player.stop();

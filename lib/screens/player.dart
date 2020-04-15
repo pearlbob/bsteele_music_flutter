@@ -12,6 +12,7 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/rollingAverage.dart';
+import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/rowLocation.dart';
@@ -19,6 +20,7 @@ import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../appOptions.dart';
@@ -74,15 +76,17 @@ class _Player extends State<Player> {
       _lastDy += lastH;
 
 //      //  diagnostics only
-//      for (RowLocation rowLocation in _rowLocations) {
+//      for (final RowLocation rowLocation in _rowLocations) {
 //        logger.i('${rowLocation.toString()}');
 //      }
 //      logger.i('_lastDy: $_lastDy');
     });
 
-    const int timerPeriod = 60;
-    const int microsecondsPerSecond = 1000000;
-    _timer = Timer.periodic(Duration(microseconds: microsecondsPerSecond ~/ timerPeriod), (timer) {
+
+    const int timerPeriod = 30;
+    const int secondsPerMinute = 60;
+   // const int millisecondsPerSecond = 1000;
+    _ticker = Ticker((duration) {
       int t = DateTime.now().millisecondsSinceEpoch;
       int dt = t - _lastTime;
       _lastTime = t;
@@ -103,22 +107,25 @@ class _Player extends State<Player> {
               _scrollController.jumpTo(_rowLocation.dispY);
             } else {
               double pixelsPerPeriod =
-                  _rowLocation.pixelsPerBeat * widget.song.getBeatsPerMinute() / (60 * timerPeriod);
+                  _rowLocation.pixelsPerBeat * widget.song.getBeatsPerMinute() / (secondsPerMinute * timerPeriod);
               logger.v('pixelsPerPeriod: ${pixelsPerPeriod.toString()}');
               _scrollController.jumpTo(_scrollController.offset + pixelsPerPeriod);
             }
           }
-          logger.d('${_rowLocation.toString()}');
         }
       }
       _rowLocationBump = 0;
-      logger.v('dt: $dt');
+      logger.v( 'ticker ${_tickerCount.toString()} $dt');
+      _tickerCount++;
     });
+    _ticker.start();
+
+    songMaster = SongMaster();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _ticker?.dispose();
     super.dispose();
   }
 
@@ -126,7 +133,7 @@ class _Player extends State<Player> {
   /// return the row location in the song at that position
   RowLocation _rowLocationAtPosition(double position) {
     if (position <= 0) return _rowLocations[0];
-    for (RowLocation rowLocation in _rowLocations) {
+    for (final RowLocation rowLocation in _rowLocations) {
       if (position < rowLocation.dispY + rowLocation.height) return rowLocation;
     }
     return null;
@@ -155,14 +162,16 @@ class _Player extends State<Player> {
     double _screenWidth = MediaQuery.of(context).size.width;
     double _screenHeight = MediaQuery.of(context).size.height;
     _screenOffset = _screenHeight / 2;
-    double chordScaleFactor = _screenWidth / 400;
     _isTooNarrow = _screenWidth <= 800;
-    chordScaleFactor = min(5, max(1, chordScaleFactor));
-    logger.d("chordScaleFactor: $chordScaleFactor");
-    double lyricsScaleFactor = max(1, 0.75 * chordScaleFactor);
-    logger.d("lyricsScaleFactor: $lyricsScaleFactor");
+    final double fontSize =  _defaultFontSize * min(5, max(1, _screenWidth / 400))/ (_isTooNarrow ? 2 : 1);
+    logger.i("fontSize: $fontSize");
+    final double fontScale = fontSize/_defaultFontSize;
 
-    TextStyle chordTextStyle = TextStyle(fontWeight: FontWeight.bold);
+    final double lyricsFontSize = fontSize * 0.75;
+
+    final TextStyle chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
+    final TextStyle lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: lyricsFontSize);
+
 
     if (_table == null) {
       logger.d("size: " + MediaQuery.of(context).size.toString());
@@ -199,7 +208,7 @@ class _Player extends State<Player> {
             //  find the first col with data
             //  should normally be col 1 (i.e. the second col)
             SongMoment firstSongMoment;
-            for (SongMoment sm in row)
+            for (final SongMoment sm in row)
               if (sm == null)
                 continue;
               else {
@@ -214,7 +223,7 @@ class _Player extends State<Player> {
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
             String columnFiller;
-            EdgeInsets marginInsets = EdgeInsets.all(4 * chordScaleFactor);
+            EdgeInsets marginInsets = EdgeInsets.all( fontScale);
             EdgeInsets textPadding = EdgeInsets.all(6);
             if (chordSection != lastChordSection || sectionCount != lastSectionCount) {
               //  add the section heading
@@ -243,7 +252,6 @@ class _Player extends State<Player> {
                       color: color,
                       child: Text(
                         columnFiller,
-                        textScaleFactor: chordScaleFactor,
                         style: chordTextStyle,
                       )));
                 columnFiller = null; //  for subsequent rows
@@ -256,8 +264,7 @@ class _Player extends State<Player> {
                     color: color,
                     child: Text(
                       sm.getMeasure().transpose(_displaySongKey, tranOffset),
-                      textScaleFactor: chordScaleFactor,
-                      style: chordTextStyle,
+                          style: chordTextStyle,
                     )));
                 _rowKey = null;
 
@@ -278,7 +285,7 @@ class _Player extends State<Player> {
                     color: color,
                     child: Text(
                       firstSongMoment.lyrics,
-                      textScaleFactor: lyricsScaleFactor,
+                      style: lyricsTextStyle,
                     )));
 
                 //  add row to table
@@ -291,7 +298,7 @@ class _Player extends State<Player> {
                     color: color,
                     child: Text(
                       firstSongMoment.lyrics,
-                      textScaleFactor: lyricsScaleFactor,
+                      style: lyricsTextStyle,
                       overflow: TextOverflow.ellipsis,
                     )));
 
@@ -314,10 +321,10 @@ class _Player extends State<Player> {
 
     if (_appOptions.debug) {
       int i = 0;
-      for (TableRow tableRow in _table.children) {
+      for (final TableRow tableRow in _table.children) {
         logger.v('rowkey:  ${tableRow.key.toString()}');
         int j = 0;
-        for (Widget widget in tableRow.children) {
+        for (final Widget widget in tableRow.children) {
           if (widget.key != null) {
             logger.i('\t\($i\,$j\)');
           }
@@ -327,12 +334,8 @@ class _Player extends State<Player> {
       }
     }
 
-    const double defaultFontSize = 48;
-    final double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
 
     {
-      TextStyle dropDownTextStyle = TextStyle(fontSize: fontSize);
-
       //  generate the rolled key list
       //  higher pitch on top
       //  lower pit on bottom
@@ -372,11 +375,11 @@ class _Player extends State<Player> {
                 children: <Widget>[
                   Text(
                     value.toString(),
-                    style: dropDownTextStyle,
+                    style: lyricsTextStyle,
                   ),
                   Text(
                     relativeString,
-                    style: dropDownTextStyle,
+                    style: lyricsTextStyle,
                   ),
                 ],
               ),
@@ -398,8 +401,7 @@ class _Player extends State<Player> {
               value: value,
               child: Text(
                 value.toString(),
-                style: dropDownTextStyle,
-                // textScaleFactor: lyricsScaleFactor, //  note well
+                style: lyricsTextStyle,
               ),
             ),
           );
@@ -416,6 +418,7 @@ class _Player extends State<Player> {
 
     final hoverColor = Colors.blue[700];
 
+    logger.i( 'player scaffold');
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -485,13 +488,13 @@ class _Player extends State<Player> {
                                 },
                                 child: Text(
                                   ' by  ${song.artist}',
-                                  textScaleFactor: lyricsScaleFactor,
+                                  style: lyricsTextStyle,
                                 ),
                                 hoverColor: hoverColor,
                               ),
                               if (!_isTooNarrow)
                                 FlatButton.icon(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(8),
                                   color: Colors.lightBlue[300],
                                   hoverColor: hoverColor,
                                   icon: Icon(
@@ -515,7 +518,7 @@ class _Player extends State<Player> {
                                 hoverColor: hoverColor,
                                 icon: Icon(
                                   _playStopIcon,
-                                  size: 24 * lyricsScaleFactor,
+                                  size: fontSize,
                                 ),
                                 label: Text(''),
                                 onPressed: () {
@@ -525,7 +528,7 @@ class _Player extends State<Player> {
                             ),
                             Text(
                               "Key: ",
-                              textScaleFactor: lyricsScaleFactor,
+                              style: lyricsTextStyle,
                             ),
                             if (!_isTooNarrow)
                               DropdownButton<songs.Key>(
@@ -542,17 +545,17 @@ class _Player extends State<Player> {
                                   color: Colors.black87,
                                   textBaseline: TextBaseline.ideographic,
                                 ),
-                                iconSize: lyricsScaleFactor * 16,
-                                itemHeight: lyricsScaleFactor * kMinInteractiveDimension,
+                                iconSize: fontSize,
+                                itemHeight: fontScale * kMinInteractiveDimension,
                               )
                             else
                               Text(
                                 _displaySongKey.toString(),
-                                textScaleFactor: lyricsScaleFactor,
+                                style: lyricsTextStyle,
                               ),
                             Text(
                               "   BPM: ",
-                              textScaleFactor: lyricsScaleFactor,
+                              style: lyricsTextStyle,
                             ),
                             if (!_isTooNarrow)
                               DropdownButton<int>(
@@ -570,17 +573,17 @@ class _Player extends State<Player> {
                                   color: Colors.black87,
                                   textBaseline: TextBaseline.ideographic,
                                 ),
-                                iconSize: lyricsScaleFactor * 16,
-                                itemHeight: lyricsScaleFactor * kMinInteractiveDimension,
+                                iconSize: fontSize,
+                                itemHeight: fontScale * kMinInteractiveDimension,
                               )
                             else
                               Text(
                                 song.getBeatsPerMinute().toString(),
-                                textScaleFactor: lyricsScaleFactor,
+                                style: lyricsTextStyle,
                               ),
                             Text(
                               "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                              textScaleFactor: lyricsScaleFactor,
+                              style: lyricsTextStyle,
                             ),
                           ],
                         ),
@@ -593,7 +596,7 @@ class _Player extends State<Player> {
                   Center(child: _table),
                   Text(
                     "Copyright: ${song.getCopyright()}",
-                    textScaleFactor: lyricsScaleFactor,
+                    style: lyricsTextStyle,
                   ),
                   if (_isPlaying)
                     SizedBox(
@@ -612,7 +615,7 @@ class _Player extends State<Player> {
                     _pauseToggle();
                   },
                   tooltip: 'Stop.  Space bar will continue the play.',
-                  child: Icon(Icons.play_arrow),
+                  child: Icon(Icons.play_arrow,size: floatingActionSize ,),
                 )
               : FloatingActionButton(
                   mini: _isTooNarrow,
@@ -620,7 +623,7 @@ class _Player extends State<Player> {
                     _stop();
                   },
                   tooltip: 'Stop the play.',
-                  child: Icon(Icons.stop),
+                  child: Icon(Icons.stop,size: floatingActionSize,),
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? FloatingActionButton(
@@ -633,7 +636,7 @@ class _Player extends State<Player> {
                     });
                   },
                   tooltip: 'Top',
-                  child: Icon(Icons.arrow_upward),
+                  child: Icon(Icons.arrow_upward,size: floatingActionSize,),
                 )
               : FloatingActionButton(
                   mini: _isTooNarrow,
@@ -641,7 +644,7 @@ class _Player extends State<Player> {
                     Navigator.pop(context);
                   },
                   tooltip: 'Back',
-                  child: Icon(Icons.arrow_back),
+                  child: Icon(Icons.arrow_back,size: floatingActionSize,),
                 )),
     );
   }
@@ -661,6 +664,7 @@ class _Player extends State<Player> {
     logger.d('animated play');
     _isPaused = false;
     _isPlaying = true;
+    songMaster.playSong(widget.song);
     setState(() {});
   }
 
@@ -668,6 +672,7 @@ class _Player extends State<Player> {
     _isPlaying = false;
     _isPaused = true;
     _scrollController.jumpTo(0);
+    songMaster.stop();
     setState(() {});
   }
 
@@ -675,15 +680,18 @@ class _Player extends State<Player> {
     if (_isPlaying) {
       _isPaused = !_isPaused;
       if (_isPaused) {
+        songMaster.pause();
         _scrollController.jumpTo(_scrollController.offset);
+      }else{
+        songMaster.resume();
       }
     } else {
+      songMaster.resume();
       _isPlaying = true;
       _isPaused = false;
     }
     setState(() {});
   }
-
 
   String _titleAnchor() {
     return anchorUrlStart + Uri.encodeFull('${widget.song.title} ${widget.song.artist}');
@@ -708,7 +716,8 @@ class _Player extends State<Player> {
 
   static final String anchorUrlStart = "https://www.youtube.com/results?search_query=";
 
-  Timer _timer;
+  Ticker _ticker;
+  static int _tickerCount = 0;
   int _lastTime = DateTime.now().millisecondsSinceEpoch;
 
   bool _isPlaying = false;
@@ -726,10 +735,12 @@ class _Player extends State<Player> {
   List<DropdownMenuItem<songs.Key>> keyDropDownMenuList;
   List<DropdownMenuItem<int>> bpmDropDownMenuList;
 
+  SongMaster songMaster;
   ScrollController _scrollController = ScrollController();
   AppOptions _appOptions;
+  static const double _defaultFontSize = 14.0;  //  borrowed from Text widget
+  static const double floatingActionSize = 50;  //  inside the prescribed 56 pixel size
 }
-
 
 class _KeyboardListener extends StatefulWidget {
   _KeyboardListener(_Player player) : _keyboardListenerState = _KeyboardListenerState(player);
@@ -824,3 +835,7 @@ class _KeyboardListenerState extends State<_KeyboardListener> {
   RollingAverage _tapRollingAverage = RollingAverage(5);
   FocusNode _textFocusNode = new FocusNode();
 }
+
+
+
+

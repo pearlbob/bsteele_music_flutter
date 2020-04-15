@@ -9,7 +9,7 @@ class WebAudioPlayer implements AppAudioPlayer {
   //  private constructor for singleton
   WebAudioPlayer._privateConstructor() {
     try {
-      for (Pitch pitch in Pitch.flats) {
+      for (final Pitch pitch in Pitch.flats) {
         _audioFilePlayer
             .bufferFile('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3');
       }

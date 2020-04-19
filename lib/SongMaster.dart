@@ -27,7 +27,7 @@ class SongMaster {
         }
       }
 
-      logger.d('dt $_tickerCount: ${dt.toStringAsFixed(3)}');
+      logger.v('dt $_tickerCount: ${dt.toStringAsFixed(3)}');
       _lastTime = time;
       _tickerCount++;
     });

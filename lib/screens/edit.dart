@@ -33,18 +33,18 @@ class Edit extends StatefulWidget {
   final Song song;
 }
 
-const double _defaultChordFontSize = 48;
-const double _defaultFontSize = _defaultChordFontSize / 2;
+const double _defaultChordFontSize = 24;
+const double _defaultFontSize = _defaultChordFontSize / 2 + 2;
 final TextStyle _boldTextStyle = TextStyle(
     fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Colors.grey[100]);
 final TextStyle _labelTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
-const TextStyle _buttonTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+const TextStyle _buttonTextStyle =
+    TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
 final TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.grey[800]);
 const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
-const double _entryWidth = 750;
+const double _entryWidth = 18 * _defaultChordFontSize;
 
 const Color _defaultColor = Color(0xFFB3E5FC); //Colors.lightBlue[100];
-
 
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
@@ -54,13 +54,13 @@ class _AppContainedButton extends RaisedButton {
     Color color = _defaultColor,
   }) : super(
           shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(12.0),
+            borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
           ),
           color: color,
           textColor: Colors.black,
           disabledTextColor: Colors.grey[400],
           disabledColor: Colors.grey[200],
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.all(0.0),
           child: Text(
             text,
             style: _buttonTextStyle,
@@ -159,7 +159,8 @@ class _Edit extends State<Edit> {
     _song = widget.song;
 
     //  build a list of section version numbers
-    if (_sectionVersionDropdownMenuList == null) {
+    //  if (_sectionVersionDropdownMenuList == null)
+    {
       _sectionVersionDropdownMenuList = List();
       for (int i = 0; i <= 9; i++) {
         _sectionVersionDropdownMenuList.add(
@@ -179,8 +180,9 @@ class _Edit extends State<Edit> {
     }
 
     //  build the chords display based on the song chord section grid
+    Table _table;
     {
-      logger.d("size: " + MediaQuery.of(context).size.toString());
+      logger.d('size: ' + MediaQuery.of(context).size.toString());
 
       //  build the table from the song chord section grid
       Grid<ChordSectionLocation> grid = _song.getChordSectionLocationGrid();
@@ -247,7 +249,7 @@ class _Edit extends State<Edit> {
               //  for each column of the song grid, create the appropriate widget
               for (int c = 0; c < row.length; c++) {
                 ChordSectionLocation loc = row[c];
-                logger.v('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
+                logger.d('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
 
                 //  main elements
                 Widget w;
@@ -318,9 +320,13 @@ class _Edit extends State<Edit> {
             children.add(Container(
                 margin: _marginInsets,
                 padding: textPadding,
-                decoration: BoxDecoration( shape: BoxShape.circle, color: Colors.green[100],),
-                child: _EditTooltip('add new section here',
-                    child: InkWell(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green[100],
+                ),
+                child: _editTooltip(
+                    'add new section here',
+                    InkWell(
                       onTap: () {
                         setState(() {
                           _song.setCurrentChordSectionLocation(null);
@@ -966,9 +972,9 @@ class _Edit extends State<Edit> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     //  section delete
-                    _EditTooltip(
+                    _editTooltip(
                       'Delete this section',
-                      child: InkWell(
+                      InkWell(
                         child: Icon(
                           Icons.delete,
                           size: _defaultChordFontSize,
@@ -985,9 +991,9 @@ class _Edit extends State<Edit> {
                       children: <Widget>[
                         //  section enter
                         if (isValidSectionEntry)
-                          _EditTooltip(
+                          _editTooltip(
                             'Accept the modification',
-                            child: InkWell(
+                            InkWell(
                               child: Icon(
                                 Icons.check,
                                 size: _defaultChordFontSize,
@@ -998,9 +1004,9 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         //  section entry cancel
-                        _EditTooltip(
+                        _editTooltip(
                           'Cancel the modification',
-                          child: InkWell(
+                          InkWell(
                             child: Icon(
                               Icons.cancel,
                               size: _defaultChordFontSize,
@@ -1032,8 +1038,9 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: textPadding,
           color: sectionColor,
-          child: _EditTooltip('modify or delete the section',
-              child: Text(
+          child: _editTooltip(
+              'modify or delete the section',
+              Text(
                 chordSection.sectionVersion.toString(),
                 style: _chordBoldTextStyle,
               ))),
@@ -1080,7 +1087,7 @@ class _Edit extends State<Edit> {
         _measureEntryValid = true; //  should always be!... at least at this moment
 
         _editTextController.text = _measureEntry;
-        _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry?.length??0);
+        _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry?.length ?? 0);
         logger.d(
             'post initial fill: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
       }
@@ -1154,117 +1161,101 @@ class _Edit extends State<Edit> {
       }
 
       return Container(
-        color: color,
-        width: _entryWidth,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              //  measure edit text field
-              Container(margin: _marginInsets, padding: textPadding, color: sectionColor, child: _editTextField),
-              if (_measureEntryCorrection != null)
-                Text(
-                  _measureEntryCorrection,
-                  style: _measureEntryValid ? _chordBoldTextStyle : _chordBadTextStyle,
-                ),
-              //  measure edit chord selection
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                Text(
-                  'Note: ',
-                  style: _textStyle,
-                ),
-                DropdownButton<ScaleNote>(
-                  items: _keyChordDropDownMenuList,
-                  onChanged: (_value) {
-                    setState(() {
-                      _keyChordNote = _value;
-                    });
-                  },
-                  value: _keyChordNote,
-                  style: _textStyle,
-                ),
-                _majorChordButton,
-                _minorChordButton,
-                _dominant7ChordButton,
-                DropdownButton<ScaleChord>(
-                  items: _otherChordDropDownMenuList,
-                  onChanged: (_value) {
-                    setState(() {
-                      _updateChordText(_value.toMarkup());
-                    });
-                  },
-                  style: _textStyle,
-                ),
-                _AppContainedButton(
-                  'X',
-                  onPressed: () {
-                    setState(() {
-                      _updateChordText('X');
-                    });
-                  },
-                  color: color,
-                ),
-              ]),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        if (measure != null)
-                          _EditTooltip(
-                            'Delete this measure',
-                            child: InkWell(
-                              child: Icon(
-                                Icons.delete,
-                                size: _defaultChordFontSize,
-                                color: Colors.black,
-                              ),
-                              onTap: () {
-                                _deleteMeasure();
-                                _clearChordEditing();
-                              },
+          color: color,
+          width: _entryWidth,
+          margin: _marginInsets,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              textDirection: TextDirection.ltr,
+              children: <Widget>[
+                //  measure edit text field
+                Container(margin: _marginInsets, padding: textPadding, color: sectionColor, child: _editTextField),
+                if (_measureEntryCorrection != null)
+                  Text(
+                    _measureEntryCorrection,
+                    style: _measureEntryValid ? _chordBoldTextStyle : _chordBadTextStyle,
+                  ),
+                //  measure edit chord selection
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+                  DropdownButton<ScaleNote>(
+                    items: _keyChordDropDownMenuList,
+                    onChanged: (_value) {
+                      setState(() {
+                        _keyChordNote = _value;
+                      });
+                    },
+                    value: _keyChordNote,
+                    style: _buttonTextStyle,
+                  ),
+                  _majorChordButton,
+                  _minorChordButton,
+                  _dominant7ChordButton,
+                ]),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      if (measure != null)
+                        _editTooltip(
+                          'Delete this measure',
+                          InkWell(
+                            child: Icon(
+                              Icons.delete,
+                              size: _defaultChordFontSize,
+                              color: Colors.black,
                             ),
+                            onTap: () {
+                              _deleteMeasure();
+                            },
                           ),
-                      ],
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          if (_measureEntryValid)
-                            _EditTooltip(
-                              'Accept the modification',
-                              child: InkWell(
-                                child: Icon(
-                                  Icons.check,
-                                  size: _defaultChordFontSize,
-                                ),
-                                onTap: () {
-                                  _editMeasure();
-                                },
-                              ),
+                        ),
+                      DropdownButton<ScaleChord>(
+                        items: _otherChordDropDownMenuList,
+                        onChanged: (_value) {
+                          setState(() {
+                            _updateChordText(_value.toMarkup());
+                          });
+                        },
+                        style: _textStyle,
+                      ),
+                      _AppContainedButton(
+                        'X',
+                        onPressed: () {
+                          setState(() {
+                            _updateChordText('X');
+                          });
+                        },
+                        color: color,
+                      ),
+                      if (_measureEntryValid)
+                        _editTooltip(
+                          'Accept the modification',
+                          InkWell(
+                            child: Icon(
+                              Icons.check,
+                              size: _defaultChordFontSize,
                             ),
-                          _EditTooltip(
-                            'Cancel the modification',
-                            child: InkWell(
-                              child: Icon(
-                                Icons.cancel,
-                                size: _defaultChordFontSize,
-                                color: _measureEntryValid ? Colors.black : Colors.red,
-                              ),
-                              onTap: () {
-                                _clearChordEditing();
-                              },
-                            ),
+                            onTap: () {
+                              _editMeasure();
+                            },
                           ),
-                        ]),
-                  ])
-            ]),
-      );
+                        ),
+                      _editTooltip(
+                        'Cancel the modification',
+                        InkWell(
+                          child: Icon(
+                            Icons.cancel,
+                            size: _defaultChordFontSize,
+                            color: _measureEntryValid ? Colors.black : Colors.red,
+                          ),
+                          onTap: () {
+                            _clearChordEditing();
+                          },
+                        ),
+                      ),
+                    ]),
+              ]));
     }
 
     //  not editing this measure
@@ -1276,9 +1267,11 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: textPadding,
           color: color,
-          child: _EditTooltip('modify or delete the measure',
-              child: Text(
-                measure?.transpose(_key, _transpositionOffset) ?? '',
+          child: _editTooltip(
+              'modify or delete the measure',
+              Text(
+                '${measure?.transpose(_key, _transpositionOffset) ?? ' '}',
+                //measure?.transpose(_key, _transpositionOffset) ?? ' ',
                 style: _chordBoldTextStyle,
               ))),
     );
@@ -1464,10 +1457,13 @@ class _Edit extends State<Edit> {
         child: Container(
             margin: appendInsets,
             padding: appendPadding,
-            decoration: BoxDecoration( shape: BoxShape.circle, color: Colors.green[100],),
-            child: _EditTooltip(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.green[100],
+            ),
+            child: _editTooltip(
               'add new measure',
-              child: Icon(
+              Icon(
                 Icons.add,
                 size: _appendFontSize,
               ),
@@ -1533,13 +1529,11 @@ class _Edit extends State<Edit> {
     if (upperEntry == minEntry) {
       if (_measureEntryCorrection != null) {
         setState(() {
-          _table = null;
           _measureEntryCorrection = null;
         });
       }
     } else {
       setState(() {
-        _table = null;
         _measureEntryCorrection = upperEntry;
       });
     }
@@ -1588,6 +1582,27 @@ class _Edit extends State<Edit> {
     return ChordSection(SectionVersion(Section.get(SectionEnum.b), 0), null);
   }
 
+  /// helper function to generate tool tips
+  Widget _editTooltip(String message, Widget child) {
+    return Tooltip(
+        message: message,
+        child: child,
+        textStyle: TextStyle(
+          backgroundColor: tooltipColor,
+          fontSize: _defaultChordFontSize / 2,
+        ),
+
+        //        waitDuration: Duration(milliseconds: 1200),//  fixme: why is this broken?
+
+        verticalOffset: 50,
+        decoration: BoxDecoration(
+            color: tooltipColor,
+            border: Border.all(),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            boxShadow: [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
+        padding: EdgeInsets.all(8));
+  }
+
   void _editMeasure() {
     if (!_measureEntryValid) return;
     Song song = widget.song;
@@ -1621,7 +1636,6 @@ class _Edit extends State<Edit> {
 
   void _clearMeasureEntry() {
     _editTextField = null;
-    _table = null; //  force re-display
     _selectedEditDataPoint = null;
     _measureEntry = null;
     _measureEntryCorrection = null;
@@ -1633,7 +1647,6 @@ class _Edit extends State<Edit> {
   double _appendFontSize;
   double _chordFontSize;
 
-  Table _table;
   _EditDataPoint _selectedEditDataPoint;
 
   int _transpositionOffset;
@@ -1668,29 +1681,9 @@ class _Edit extends State<Edit> {
 
   List<DropdownMenuItem<int>> _sectionVersionDropdownMenuList;
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList;
-}
 
-/// helper class to generate tool tips
-class _EditTooltip extends Tooltip {
-  _EditTooltip(String message, {Widget child})
-      : super(
-            message: message,
-            child: child,
-            textStyle: TextStyle(
-              backgroundColor: color,
-              fontSize: _defaultChordFontSize / 2,
-            ),
-            waitDuration: Duration(milliseconds: 1200),
-            verticalOffset: 50,
-            decoration: BoxDecoration(
-                color: color,
-                border: Border.all(),
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-                boxShadow: [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
-            padding: EdgeInsets.all(8));
-  static const color = Color(0xFFE8F5E9);
+  static const tooltipColor = Color(0xFFE8F5E9);
 }
-
 
 //  internal class to hold handy data for each point in the chord section edit display
 class _EditDataPoint {
@@ -1713,7 +1706,7 @@ class _EditDataPoint {
   }
 
   @override
-   int get hashCode => hashValues(location, measureEditType);
+  int get hashCode => hashValues(location, measureEditType);
 
   ChordSectionLocation location;
   Widget widget;

@@ -21,7 +21,7 @@ import 'appOptions.dart';
 import 'util/openLink.dart';
 
 void main() {
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
 
   runApp(MyApp());
 }

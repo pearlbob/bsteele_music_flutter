@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 class SongPickPhone implements SongPick {
   Future<void> filePick() async {
     Map<String, String> fileMap =
-    await FilePicker.getMultiFilePath(fileExtension: '.songlyrics');
+    await FilePicker.getMultiFilePath(allowedExtensions: ['.songlyrics']);
     for (final String filename in fileMap.keys) {
       logger.i('file: $filename');
     }

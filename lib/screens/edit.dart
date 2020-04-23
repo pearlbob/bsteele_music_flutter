@@ -97,6 +97,8 @@ class _Edit extends State<Edit> {
   initState() {
     super.initState();
 
+    _editTextFieldFocusNode = FocusNode();
+
     _key = widget.song.key;
     _keyChordNote = _key.getKeyScaleNote(); //  initial value
 
@@ -116,9 +118,13 @@ class _Edit extends State<Edit> {
         switch (_editTextController.text[_editTextController.text.length - 1]) {
           case ' ':
             //  space means move on to the next measure
+            logger.i('_editMeasure() called here.');
             _editMeasure();
             break;
-          //  look for TextField.onSubmitted() for end of entry
+//          case '\n':
+//            logger.i('newline: should _editMeasure() called here.');
+//            break;
+          //  look for TextField.onEditingComplete() for end of entry
         }
       }
 
@@ -129,13 +135,13 @@ class _Edit extends State<Edit> {
   @override
   void dispose() {
     _editTextController.dispose();
-    _editTextFieldFocusNode.dispose();
+    _editTextFieldFocusNode?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    logger.d('edit build: ${_keyChordNote.toString()}');
+    logger.d('edit build: "${_editTextController.text.toString()}"');
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double _screenWidth = screenInfo.mediaWidth;
@@ -221,6 +227,7 @@ class _Edit extends State<Edit> {
             ChordSectionLocation firstChordSectionLocation;
             //       String columnFiller;
             _marginInsets = EdgeInsets.all(_chordFontSize / 4);
+            _doubleMarginInsets = EdgeInsets.all(_chordFontSize / 2);
 
             //  find the first col with data
             //  should normally be col 1 (i.e. the second col)
@@ -249,7 +256,7 @@ class _Edit extends State<Edit> {
               //  for each column of the song grid, create the appropriate widget
               for (int c = 0; c < row.length; c++) {
                 ChordSectionLocation loc = row[c];
-                logger.d('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
+                logger.v('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
 
                 //  main elements
                 Widget w;
@@ -1059,7 +1066,8 @@ class _Edit extends State<Edit> {
 
     if (_selectedEditDataPoint == editDataPoint) {
       //  editing this measure
-      logger.d('pre : (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
+      logger.v('pre : (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
+          ' "${_editTextController.text}');
       if (_editTextField == null) {
         _editTextField = TextField(
           controller: _editTextController,
@@ -1074,13 +1082,11 @@ class _Edit extends State<Edit> {
           ),
           autofocus: true,
           enabled: true,
-          onSubmitted: (_) {
-            _editMeasure();
-          },
         );
       }
 
-      logger.d('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
+      logger.v('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
+          ' "${_editTextController.text}"');
 
       if (_measureEntry == null) {
         _measureEntry = measure?.toMarkupWithEnd(null);
@@ -1101,13 +1107,13 @@ class _Edit extends State<Edit> {
         },
         color: color,
       );
-      _AppContainedButton _minorChordButton;
+      _AppContainedButton minorChordButton;
       {
         ScaleChord sc = ScaleChord(
           _keyChordNote,
           ChordDescriptor.minor,
         );
-        _minorChordButton = _AppContainedButton(
+        minorChordButton = _AppContainedButton(
           sc.toString(),
           onPressed: () {
             setState(() {
@@ -1117,10 +1123,10 @@ class _Edit extends State<Edit> {
           color: color,
         );
       }
-      _AppContainedButton _dominant7ChordButton;
+      _AppContainedButton dominant7ChordButton;
       {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
-        _dominant7ChordButton = _AppContainedButton(
+        dominant7ChordButton = _AppContainedButton(
           sc.toString(),
           onPressed: () {
             setState(() {
@@ -1172,9 +1178,14 @@ class _Edit extends State<Edit> {
                 //  measure edit text field
                 Container(margin: _marginInsets, padding: textPadding, color: sectionColor, child: _editTextField),
                 if (_measureEntryCorrection != null)
-                  Text(
-                    _measureEntryCorrection,
-                    style: _measureEntryValid ? _chordBoldTextStyle : _chordBadTextStyle,
+                  Container(
+                    margin: _doubleMarginInsets,
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+                      Text(
+                        _measureEntryCorrection,
+                        style: _measureEntryValid ? _chordBoldTextStyle : _chordBadTextStyle,
+                      ),
+                    ]),
                   ),
                 //  measure edit chord selection
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
@@ -1189,8 +1200,8 @@ class _Edit extends State<Edit> {
                     style: _buttonTextStyle,
                   ),
                   _majorChordButton,
-                  _minorChordButton,
-                  _dominant7ChordButton,
+                  minorChordButton,
+                  dominant7ChordButton,
                 ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1405,16 +1416,18 @@ class _Edit extends State<Edit> {
 //  }
 
   void _updateChordText(final String s) {
+    logger.i('_updateChordText(${s.toString()})');
     if (s == null) return;
     String text = _editTextController.text;
     if (text == null) {
       text = '';
     }
+    _editTextFieldFocusNode.requestFocus();
+
     if (_lastEditTextSelection == null) {
       //  append the string
       _editTextController.text = text + s;
       logger.d('<0: "$text"');
-      _editTextFieldFocusNode.requestFocus();
       return;
     }
     logger.d('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
@@ -1437,7 +1450,6 @@ class _Edit extends State<Edit> {
       int len = _lastEditTextSelection.baseOffset + s.length;
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
     }
-    _editTextFieldFocusNode.requestFocus();
   }
 
   Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
@@ -1525,7 +1537,7 @@ class _Edit extends State<Edit> {
     upperEntry = upperEntry.trim();
     String minEntry =
         entry.trim().replaceAll("\t", " ").replaceAll(":\n", ":").replaceAll("  ", " ").replaceAll("\n", ",");
-    logger.d('entry: "$minEntry" vs "$upperEntry"');
+    logger.v('entry: "$minEntry" vs "$upperEntry"');
     if (upperEntry == minEntry) {
       if (_measureEntryCorrection != null) {
         setState(() {
@@ -1592,7 +1604,8 @@ class _Edit extends State<Edit> {
           fontSize: _defaultChordFontSize / 2,
         ),
 
-        //        waitDuration: Duration(milliseconds: 1200),//  fixme: why is this broken?
+        //  fixme: why is this broken on web?
+        //waitDuration: Duration(seconds: 1, milliseconds: 200),
 
         verticalOffset: 50,
         decoration: BoxDecoration(
@@ -1625,6 +1638,7 @@ class _Edit extends State<Edit> {
     setState(() {
       _clearMeasureEntry();
       _selectedEditDataPoint = _editDataPoint;
+      logger.i('_setEditDataPoint(${_editDataPoint.toString()})');
     });
   }
 
@@ -1635,6 +1649,7 @@ class _Edit extends State<Edit> {
   }
 
   void _clearMeasureEntry() {
+    logger.i('_clearMeasureEntry()');
     _editTextField = null;
     _selectedEditDataPoint = null;
     _measureEntry = null;
@@ -1661,6 +1676,7 @@ class _Edit extends State<Edit> {
   TextStyle _chordBoldTextStyle;
   TextStyle _chordTextStyle;
   EdgeInsets _marginInsets;
+  EdgeInsets _doubleMarginInsets;
   static const EdgeInsets textPadding = EdgeInsets.all(6);
   Color sectionColor;
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
@@ -1670,7 +1686,7 @@ class _Edit extends State<Edit> {
 
   TextField _editTextField;
   TextEditingController _editTextController = TextEditingController();
-  FocusNode _editTextFieldFocusNode = FocusNode();
+  FocusNode _editTextFieldFocusNode;
   TextSelection _lastEditTextSelection;
 
   bool _showHints = false;

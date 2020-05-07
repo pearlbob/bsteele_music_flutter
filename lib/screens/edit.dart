@@ -118,8 +118,7 @@ class _Edit extends State<Edit> {
       if (_measureEntryValid) {
         switch (_editTextController.text[_editTextController.text.length - 1]) {
           case ' ':
-            //  space means move on to the next measure
-
+            //  space means move on to the next measure, horizontally
             _editMeasure(done: false);
             setState(() {
               logger.i('post _editMeasure(): ${widget.song.getCurrentChordSectionLocation().toString()}');
@@ -413,23 +412,7 @@ class _Edit extends State<Edit> {
             //  note that return (i.e. enter) is not a keyboard event!
             RawKeyboardListener(
           focusNode: FocusNode(),
-          onKey: (value) {
-            if (value.runtimeType == RawKeyDownEvent) {
-              RawKeyDownEvent e = value as RawKeyDownEvent;
-              logger.i('main onkey: ${e.data.logicalKey.toString()}'
-                  ', ctl: ${e.isControlPressed.toString()}'
-                  ', shf: ${e.isShiftPressed.toString()}'
-                  ', alt: ${e.isAltPressed.toString()}');
-              if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
-                logger.i('main onkey: found arrowDown');
-              } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
-                logger.i('main onkey: found arrowUp');
-              } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
-                /// clear editing with the escape key
-                _clearChordEditing();
-              }
-            }
-          },
+          onKey: _mainOnKey,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Container(
@@ -920,6 +903,50 @@ class _Edit extends State<Edit> {
         ));
   }
 
+  /// process the raw keys flutter doesn't want to
+  void _mainOnKey(RawKeyEvent value) {
+    if (value.runtimeType == RawKeyDownEvent) {
+      RawKeyDownEvent e = value as RawKeyDownEvent;
+      logger.v('main onkey: ${e.data.logicalKey.toString()}'
+          ', ctl: ${e.isControlPressed.toString()}'
+          ', shf: ${e.isShiftPressed.toString()}'
+          ', alt: ${e.isAltPressed.toString()}');
+      if (e.isControlPressed) {
+        if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
+          if (_selectedEditDataPoint != null && _measureEntryValid) {
+            ChordSectionLocation location = _selectedEditDataPoint.location;
+            setState(() {
+              _editMeasure(done: false);
+              _getLocationMeasure(location)?.endOfRow = true;
+              _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
+              _selectedEditDataPoint.measureEditType = MeasureEditType.append;
+            });
+          }
+          logger.i('main onkey: found arrowDown');
+        } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+          if (_selectedEditDataPoint != null && _measureEntryValid) {
+            ChordSectionLocation location = _selectedEditDataPoint.location;
+            setState(() {
+              _editMeasure(done: false);
+              _getLocationMeasure(location)?.endOfRow = false;
+              _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
+              _selectedEditDataPoint.measureEditType = MeasureEditType.append;
+            });
+          }
+        } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
+          logger.i('main onkey: found arrowUp');
+        } else if (e.isKeyPressed(LogicalKeyboardKey.keyZ) && e.isShiftPressed) {
+          logger.i('shift ctl Z');
+        } else if (e.isKeyPressed(LogicalKeyboardKey.keyZ)) {
+          logger.i('ctl Z');
+        }
+      } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
+        /// clear editing with the escape key
+        _clearChordEditing();
+      }
+    }
+  }
+
   Widget _nullEditGridDisplayWidget() {
     return Text(
       '',
@@ -1087,6 +1114,20 @@ class _Edit extends State<Edit> {
                 style: _chordBoldTextStyle,
               ))),
     );
+  }
+
+  Measure _getLocationMeasure(ChordSectionLocation location) {
+    if (location == null) {
+      return null;
+    }
+    MeasureNode measureNode = _song.findMeasureNodeByLocation(location);
+    if (measureNode == null) {
+      return null;
+    }
+    if (measureNode.getMeasureNodeType() != MeasureNodeType.measure) {
+      return null;
+    }
+    return measureNode as Measure;
   }
 
   Widget _measureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
@@ -1284,11 +1325,26 @@ class _Edit extends State<Edit> {
                           'Accept the modification',
                           InkWell(
                             child: Icon(
+                              Icons.call_received,
+                              size: _defaultChordFontSize,
+                            ),
+                            onTap: () {
+                              _editMeasure();
+                              _getLocationMeasure(editDataPoint.location)?.endOfRow = true;
+                            },
+                          ),
+                        ),
+                      if (_measureEntryValid)
+                        _editTooltip(
+                          'Accept the modification',
+                          InkWell(
+                            child: Icon(
                               Icons.check,
                               size: _defaultChordFontSize,
                             ),
                             onTap: () {
                               _editMeasure();
+                              _getLocationMeasure(editDataPoint.location)?.endOfRow = false;
                             },
                           ),
                         ),
@@ -1493,13 +1549,13 @@ class _Edit extends State<Edit> {
   }
 
   Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
+    if (_selectedEditDataPoint == editDataPoint) {
+      return _measureEditGridDisplayWidget(editDataPoint); //  let it do the heavy lifting
+    }
+
     MeasureNode measureNode = _song.findMeasureNodeByLocation(editDataPoint.location);
     if (measureNode == null) {
       return Text('null');
-    }
-
-    if (_selectedEditDataPoint == editDataPoint) {
-      return _measureEditGridDisplayWidget(editDataPoint); //  let it do the heavy lifting
     }
 
     return InkWell(
@@ -1661,6 +1717,8 @@ class _Edit extends State<Edit> {
     Song song = widget.song;
     song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
     song.setCurrentMeasureEditType(_selectedEditDataPoint.measureEditType);
+
+    //  do the edit
     if (song.editMeasureNode(_measureEntryNode)) {
       _clearChordEditing(done: done);
     }

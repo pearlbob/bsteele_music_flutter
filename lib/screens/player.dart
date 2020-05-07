@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as songs;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
@@ -373,6 +374,10 @@ class _Player extends State<Player> {
       if (keyDropDownMenuList == null) {
         const int steps = MusicConstants.halfStepsPerOctave;
         const int halfOctave = steps ~/ 2;
+        ScaleNote firstScaleNote = song?.getSongMoment(0)?.measure.chords[0]?.scaleChord?.scaleNote;
+        if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
+          firstScaleNote = null; //  not needed
+        }
         List<songs.Key> rolledKeyList = List(steps);
 
         List<songs.Key> list = songs.Key.keysByHalfStepFrom(song.key); //temp loc
@@ -396,25 +401,35 @@ class _Player extends State<Player> {
           else
             relativeString = ' ';
 
-          keyDropDownMenuList.add(
-            DropdownMenuItem<songs.Key>(
+          keyDropDownMenuList.add(DropdownMenuItem<songs.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    value.toString(),
-                    style: lyricsTextStyle,
-                  ),
-                  Text(
-                    relativeString,
-                    style: lyricsTextStyle,
-                  ),
-                ],
-              ),
-            ),
-          );
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                Text(
+                  value.toString(),
+                  style: lyricsTextStyle,
+                ),
+                Text(
+                  relativeString,
+                  style: lyricsTextStyle,
+                ),
+                //  show the first note if it's not the same as the key
+                if (firstScaleNote != null)
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+                    Text(
+                      '(on ',
+                      style: lyricsTextStyle,
+                    ),
+                    Text(
+                      firstScaleNote.transpose(value, relativeOffset).toString(),
+                      style: lyricsTextStyle,
+                    ),
+                    Text(
+                      ')',
+                      style: lyricsTextStyle,
+                    ),
+                  ])
+              ])));
         }
       }
 

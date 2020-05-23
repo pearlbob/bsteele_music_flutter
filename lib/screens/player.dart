@@ -374,7 +374,7 @@ class _Player extends State<Player> {
       if (keyDropDownMenuList == null) {
         const int steps = MusicConstants.halfStepsPerOctave;
         const int halfOctave = steps ~/ 2;
-        ScaleNote firstScaleNote = song?.getSongMoment(0)?.measure.chords[0]?.scaleChord?.scaleNote;
+        ScaleNote firstScaleNote = song?.getSongMoment(0)?.measure?.chords[0]?.scaleChord?.scaleNote;
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }

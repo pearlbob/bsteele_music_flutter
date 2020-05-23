@@ -22,7 +22,7 @@ class SongMaster {
           } else {
             double songTime = time - _songStart;
             int moment = _song.getSongMomentNumberAtSongTime(songTime);
-            logger.i('moment: ${moment.toString()}');
+            logger.v('moment: ${moment.toString()}');
           }
         }
       }

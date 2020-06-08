@@ -238,7 +238,7 @@ class _MyHomePageState extends State<MyHomePage> {
           value: SongIdMetadata('CJ Ranking: best'),
           child: Text('CJ Ranking: best'),
           onTap: () {
-            logger.i('choose best');
+            logger.d('choose best');
             setState(() {
               _cjRanking = CjRankingEnum.best;
               _filteredSongs = null;
@@ -249,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
           value: SongIdMetadata('CJ Ranking: good'),
           child: Text('CJ Ranking: good'),
           onTap: () {
-            logger.i('choose good');
+            logger.d('choose good');
             setState(() {
               _cjRanking = CjRankingEnum.good;
               _filteredSongs = null;
@@ -260,7 +260,7 @@ class _MyHomePageState extends State<MyHomePage> {
           value: SongIdMetadata('CJ Ranking: all'),
           child: Text('CJ Ranking: all'),
           onTap: () {
-            logger.i('choose all');
+            logger.d('choose all');
             setState(() {
               _cjRanking = null;
               _filteredSongs = null;
@@ -271,22 +271,14 @@ class _MyHomePageState extends State<MyHomePage> {
           value: SongIdMetadata('christmas'),
           child: Text('christmas'),
           onTap: () {
-            logger.i('christmas');
-            setState(() {
-              _isChristmas = (_isChristmas == null || _isChristmas == false ? true : null);
-              _filteredSongs = null;
-            });
+            _setChristmas(_isChristmas == null || _isChristmas == false ? true : null);
           },
         ),
         DropdownMenuItem<SongIdMetadata>(
           value: SongIdMetadata('not christmas'),
           child: Text('not christmas'),
           onTap: () {
-            logger.i('not christmas');
-            setState(() {
-              _isChristmas = (_isChristmas == null || _isChristmas == true ? false : null);
-              _filteredSongs = null;
-            });
+            _setChristmas((_isChristmas == null || _isChristmas == true ? false : null));
           },
         ),
       ];
@@ -444,10 +436,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   textScaleFactor: artistScaleFactor,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _isChristmas = null;
-                    _filteredSongs = null;
-                  });
+                  _setChristmas(null);
                 },
               ),
             if (_isChristmas != null && !_isChristmas)
@@ -457,10 +446,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   textScaleFactor: artistScaleFactor,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _isChristmas = null;
-                    _filteredSongs = null;
-                  });
+                  _setChristmas(null);
                 },
               ),
             Spacer(),
@@ -517,6 +503,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _setChristmas(bool value) {
+    logger.d('set christmas: $value');
+    setState(() {
+      _isChristmas = value;
+      _filteredSongs = null;
+    });
+  }
+
   void _searchSongs(String search) {
     if (search == null) {
       search = "";
@@ -555,17 +549,18 @@ class _MyHomePageState extends State<MyHomePage> {
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
         //  if christmas and song is christmas, we're good
-        if (_isChristmas != null &&
-            _isChristmas &&
-            SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
-          _filteredSongs.add(song);
-          continue;
-        }
-        //  if song is christmas and we're not, nope
-        if (_isChristmas != null &&
-            !_isChristmas &&
-            SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
-          continue;
+        if (_isChristmas != null) {
+          if (_isChristmas) {
+            if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
+              _filteredSongs.add(song);
+            }
+            continue;
+          }
+          //  if song is christmas and we're not, nope
+          if (!_isChristmas && SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
+            continue;
+          }
+          //  otherwise try some other qualification
         }
 
         if (_cjRanking != null) {

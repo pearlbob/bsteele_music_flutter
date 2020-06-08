@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
@@ -20,8 +21,11 @@ import 'package:logger/logger.dart';
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
+bool _isChristmas = false;
+CjRankingEnum _cjRanking;
+
 void main() {
-  Logger.level = Level.debug;
+  Logger.level = Level.info;
 
   runApp(MyApp());
 }
@@ -113,42 +117,77 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readInternalSongList() async {
-    String songListAsString = await rootBundle.loadString('lib/assets/allSongs.songlyrics');
+    {
+      String songListAsString = await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
-    try {
-      _allSongs = SplayTreeSet();
-      _allSongs.addAll(Song.songListFromJson(songListAsString));
-      _filteredSongs = _allSongs;
-      _selectedSong = _filteredSongs.first;
-      setState(() {});
-      print("internal songList used");
-    } catch (fe) {
-      print("internal songList parse error: " + fe.toString());
+      try {
+        _allSongs = SplayTreeSet();
+        _allSongs.addAll(Song.songListFromJson(songListAsString));
+        _filteredSongs = _allSongs;
+        _selectedSong = _filteredSongs.first;
+        setState(() {});
+        print("internal songList used");
+      } catch (fe) {
+        print("internal songList parse error: " + fe.toString());
+      }
+    }
+    {
+      String songMetadataAsString = await rootBundle.loadString('lib/assets/allSongs.songmetadata');
+
+      try {
+        SongMetadata.clear();
+        SongMetadata.fromJson(songMetadataAsString);
+        print("internal song metadata used");
+      } catch (fe) {
+        print("internal song metadata parse error: " + fe.toString());
+      }
     }
   }
 
   void _readExternalSongList() async {
-    const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
+    {
+      const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
 
-    String allSongsAsString;
-    try {
-      allSongsAsString = await fetchString(url);
-    } catch (e) {
-      print("read of url: '$url' failed: ${e.toString()}");
-      _readInternalSongList();
-      return;
+      String allSongsAsString;
+      try {
+        allSongsAsString = await fetchString(url);
+      } catch (e) {
+        print("read of url: '$url' failed: ${e.toString()}");
+        _readInternalSongList();
+        return;
+      }
+
+      try {
+        _allSongs = SplayTreeSet();
+        _allSongs.addAll(Song.songListFromJson(allSongsAsString));
+        _filteredSongs = _allSongs;
+        _selectedSong = _filteredSongs.first;
+        setState(() {});
+        print("external songList read from: " + url);
+      } catch (fe) {
+        print("external songList parse error: " + fe.toString());
+        _readInternalSongList();
+      }
     }
+    {
+      const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songmetadata';
 
-    try {
-      _allSongs = SplayTreeSet();
-      _allSongs.addAll(Song.songListFromJson(allSongsAsString));
-      _filteredSongs = _allSongs;
-      _selectedSong = _filteredSongs.first;
-      setState(() {});
-      print("external songList read from: " + url);
-    } catch (fe) {
-      print("external songList parse error: " + fe.toString());
-      _readInternalSongList();
+      String metadataAsString;
+      try {
+        metadataAsString = await fetchString(url);
+      } catch (e) {
+        print("read of url: '$url' failed: ${e.toString()}");
+        _readInternalSongList();
+        return;
+      }
+
+      try {
+        SongMetadata.clear();
+        SongMetadata.fromJson(metadataAsString);
+        print("external song metadata read from: " + url);
+      } catch (fe) {
+        print("external song metadata parse error: " + fe.toString());
+      }
     }
   }
 
@@ -165,7 +204,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  re-search filtered list on data changes
     if (_filteredSongs == null) {
-      _searchTextFieldController.text = "";
       _searchSongs(_searchTextFieldController.text);
     }
 
@@ -193,6 +231,66 @@ class _MyHomePageState extends State<MyHomePage> {
     const double defaultFontSize = 48;
     double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
     final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
+
+    if (metadataDropDownMenuList == null) {
+      metadataDropDownMenuList = [
+        DropdownMenuItem<SongIdMetadata>(
+          value: SongIdMetadata('CJ Ranking: best'),
+          child: Text('CJ Ranking: best'),
+          onTap: () {
+            logger.i('choose best');
+            setState(() {
+              _cjRanking = CjRankingEnum.best;
+              _filteredSongs = null;
+            });
+          },
+        ),
+        DropdownMenuItem<SongIdMetadata>(
+          value: SongIdMetadata('CJ Ranking: good'),
+          child: Text('CJ Ranking: good'),
+          onTap: () {
+            logger.i('choose good');
+            setState(() {
+              _cjRanking = CjRankingEnum.good;
+              _filteredSongs = null;
+            });
+          },
+        ),
+        DropdownMenuItem<SongIdMetadata>(
+          value: SongIdMetadata('CJ Ranking: all'),
+          child: Text('CJ Ranking: all'),
+          onTap: () {
+            logger.i('choose all');
+            setState(() {
+              _cjRanking = null;
+              _filteredSongs = null;
+            });
+          },
+        ),
+        DropdownMenuItem<SongIdMetadata>(
+          value: SongIdMetadata('christmas'),
+          child: Text('christmas'),
+          onTap: () {
+            logger.i('christmas');
+            setState(() {
+              _isChristmas = (_isChristmas == null || _isChristmas == false ? true : null);
+              _filteredSongs = null;
+            });
+          },
+        ),
+        DropdownMenuItem<SongIdMetadata>(
+          value: SongIdMetadata('not christmas'),
+          child: Text('not christmas'),
+          onTap: () {
+            logger.i('not christmas');
+            setState(() {
+              _isChristmas = (_isChristmas == null || _isChristmas == true ? false : null);
+              _filteredSongs = null;
+            });
+          },
+        ),
+      ];
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -321,7 +419,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: new TextStyle(fontSize: titleScaleFactor * 14),
                     onChanged: (text) {
                       logger.v('search text: "$text"');
-                      _searchSongs(text);
+                      _searchSongs(_searchTextFieldController.text);
                       setState(() {});
                     },
                   ),
@@ -338,14 +436,57 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ]),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                children: <Widget>[
-//  framework for the future
-                ],
+            Spacer(),
+            if (_isChristmas != null && _isChristmas)
+              RaisedButton(
+                child: Text(
+                  'christmas',
+                  textScaleFactor: artistScaleFactor,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isChristmas = null;
+                    _filteredSongs = null;
+                  });
+                },
               ),
-            ),
+            if (_isChristmas != null && !_isChristmas)
+              RaisedButton(
+                child: Text(
+                  'not christmas',
+                  textScaleFactor: artistScaleFactor,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isChristmas = null;
+                    _filteredSongs = null;
+                  });
+                },
+              ),
+            Spacer(),
+            if (_cjRanking != null)
+              RaisedButton(
+                child: Text(
+                  'CJ Ranking: ${_cjRanking.toString().split('.').last}',
+                  textScaleFactor: artistScaleFactor,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _cjRanking = null;
+                    _filteredSongs = null;
+                  });
+                },
+              ),
+            Spacer(flex: 10),
+            DropdownButton<SongIdMetadata>(
+              hint: Text(
+                'Filters',
+                textScaleFactor: artistScaleFactor,
+                style: TextStyle(backgroundColor: Colors.lightBlue[300], color: Colors.black),
+              ),
+              items: metadataDropDownMenuList,
+              onChanged: (songIdMetadata) {},
+            )
           ],
         ),
         Expanded(
@@ -413,6 +554,37 @@ class _MyHomePageState extends State<MyHomePage> {
       if (search.length == 0 ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
+        //  if christmas and song is christmas, we're good
+        if (_isChristmas != null &&
+            _isChristmas &&
+            SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
+          _filteredSongs.add(song);
+          continue;
+        }
+        //  if song is christmas and we're not, nope
+        if (_isChristmas != null &&
+            !_isChristmas &&
+            SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
+          continue;
+        }
+
+        if (_cjRanking != null) {
+          //  insist on a cj ranking
+          NameValue nv = SongMetadata.songMetadataAt(song.songId.songId, 'cj');
+          if (nv == null) {
+            //  toss if not found
+            continue;
+          }
+          CjRankingEnum ranking = nv.value.toCjRankingEnum();
+          if (ranking != null && ranking.index >= _cjRanking.index)
+            //  ranking is good
+            _filteredSongs.add(song);
+
+          //  toss if not good enough for cj
+          continue;
+        }
+
+        //  not filtered
         _filteredSongs.add(song);
       }
     }
@@ -476,6 +648,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Navigator.pop(context);
   }
+
+  List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList;
 
   TextEditingController _searchTextFieldController;
   FocusNode _searchFocusNode;

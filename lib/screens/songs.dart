@@ -27,7 +27,7 @@ class _Songs extends State<Songs> {
     ScreenInfo screenInfo = ScreenInfo(context);
     final bool _isTooNarrow = screenInfo.isTooNarrow;
 
-    const double defaultFontSize = 48;
+    const double defaultFontSize = 24;
     final double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
 
     return Scaffold(
@@ -51,12 +51,21 @@ class _Songs extends State<Songs> {
             children: <Widget>[
               RaisedButton(
                 child: Text(
-                  'Read file',
+                  'Read files',
                   style: TextStyle(
                       fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   _filePick();
+                },
+              ),
+              RaisedButton(
+                child: Text(
+                  'Write all',
+                  style: TextStyle(
+                      fontSize: fontSize, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
                 },
               ),
             ]),

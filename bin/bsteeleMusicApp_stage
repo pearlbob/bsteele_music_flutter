@@ -44,6 +44,8 @@ set target=$git/build/web
 
 #	build the release version
 flutter clean
+utcDate
+mv utcDate.txt lib/assets
 flutter build web
 flutter build appbundle
 #   aap: build/app/outputs/bundle/release/app-release.aab

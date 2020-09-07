@@ -232,7 +232,7 @@ class _Options extends State<Options> {
               _timer = null;
             }
 
-            _audioPlayer.oscillate(_pitches[_test].getFrequency(), _timerT, timerPeriod - gap, 1.0);
+            _audioPlayer.oscillate(_pitches[_test].frequency, _timerT, timerPeriod - gap, 1.0);
             _test++;
             break;
           case 3:
@@ -272,7 +272,7 @@ class _Options extends State<Options> {
   }
 
   void _playPianoPitch(Pitch pitch, double duration, double amp) {
-    _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3',
+    _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3',
         _timerT, duration, amp);
   }
 

@@ -34,8 +34,9 @@ class Edit extends StatefulWidget {
   final Song song;
 }
 
-const double _defaultChordFontSize = 24;
-const double _defaultFontSize = _defaultChordFontSize / 2 + 2;
+const double _defaultChordFontSize = 28;
+const double _defaultFontSize = _defaultChordFontSize * 0.8;
+
 final TextStyle _boldTextStyle = TextStyle(
     fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Colors.grey[100]);
 final TextStyle _labelTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
@@ -395,12 +396,12 @@ class _Edit extends State<Edit> {
       //  make the key selection drop down list
       _keyChordDropDownMenuList = List();
       for (final ScaleNote scaleNote in scaleNotes) {
-        String s = scaleNote.toString();
-        String label = s +
-            (s.length < 2 ? "   " : " ") +
-            ChordComponent.getByHalfStep(scaleNote.halfStep - _key.getHalfStep()).shortName;
+        String s = scaleNote.toMarkup();
+        String label = s.padRight(2) +
+            " " +
+            ChordComponent.getByHalfStep(scaleNote.halfStep - _key.getHalfStep()).shortName.padLeft(2);
         DropdownMenuItem<ScaleNote> item =
-            DropdownMenuItem(key: ValueKey('scaleNote' + scaleNote.toString()), value: scaleNote, child: Text(label));
+            DropdownMenuItem(key: ValueKey('scaleNote' + scaleNote.toMarkup()), value: scaleNote, child: Text(label));
         _keyChordDropDownMenuList.add(item);
       }
     }
@@ -435,7 +436,10 @@ class _Edit extends State<Edit> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        Text('enter song button here'),
+                        _AppContainedButton(
+                          'todo: enter song button here',
+                          onPressed: () {},
+                        ),
                         Container(
                           child: Text(_errorMessage ?? '', style: _errorTextStyle),
                         ),
@@ -493,8 +497,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         ),
-                        Container(
-                          width: 800.0,
+                        Expanded(
                           child: TextField(
                             controller: TextEditingController(text: _song.title),
                             decoration: InputDecoration(
@@ -516,8 +519,7 @@ class _Edit extends State<Edit> {
                             style: _labelTextStyle,
                           ),
                         ),
-                        Container(
-                          width: 800.0,
+                        Expanded(
                           child: TextField(
                             controller: TextEditingController(text: _song.artist),
                             decoration: InputDecoration(hintText: 'Enter the song\'s artist.'),
@@ -537,8 +539,7 @@ class _Edit extends State<Edit> {
                             style: _labelTextStyle,
                           ),
                         ),
-                        Container(
-                          width: 800.0,
+                        Expanded(
                           child: TextField(
                             controller: TextEditingController(text: _song.coverArtist),
                             decoration: InputDecoration(hintText: 'Enter the song\'s cover artist.'),
@@ -558,8 +559,7 @@ class _Edit extends State<Edit> {
                             style: _labelTextStyle,
                           ),
                         ),
-                        Container(
-                          width: 800.0,
+                        Expanded(
                           child: TextField(
                             controller: TextEditingController(text: _song.copyright),
                             decoration: InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
@@ -587,7 +587,7 @@ class _Edit extends State<Edit> {
                               key: ValueKey('half' + value.getHalfStep().toString()),
                               value: value,
                               child: new Text(
-                                '${value.toString()} ${value.sharpsFlatsToString()}',
+                                '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
                                 style: _boldTextStyle,
                               ),
                             );
@@ -656,14 +656,12 @@ class _Edit extends State<Edit> {
                     "Chords:",
                     style: _labelTextStyle,
                   ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Container(
-                      padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                      child: Column(children: <Widget>[
-                        _table,
-                      ]),
-                    ),
+                  Container(
+                    padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                      //  pre-configured table of edit widgets
+                      _table,
+                    ]),
                   ),
                   Container(
                     padding: EdgeInsets.only(right: 24, bottom: 24.0),
@@ -1174,43 +1172,49 @@ class _Edit extends State<Edit> {
             'post initial fill: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
       }
 
-      _AppContainedButton _majorChordButton = _AppContainedButton(
-        _keyChordNote.toString(),
-        onPressed: () {
-          setState(() {
-            _updateChordText(_keyChordNote.toMarkup());
-          });
-        },
-        color: color,
-      );
-      _AppContainedButton minorChordButton;
+      Widget _majorChordButton = _editTooltip(
+          'Enter the major chord.',
+          _AppContainedButton(
+            _keyChordNote.toString(),
+            onPressed: () {
+              setState(() {
+                _updateChordText(_keyChordNote.toMarkup());
+              });
+            },
+            color: color,
+          ));
+      Widget minorChordButton;
       {
         ScaleChord sc = ScaleChord(
           _keyChordNote,
           ChordDescriptor.minor,
         );
-        minorChordButton = _AppContainedButton(
-          sc.toString(),
-          onPressed: () {
-            setState(() {
-              _updateChordText(sc.toMarkup());
-            });
-          },
-          color: color,
-        );
+        minorChordButton = _editTooltip(
+            'Enter the minor chord.',
+            _AppContainedButton(
+              sc.toString(),
+              onPressed: () {
+                setState(() {
+                  _updateChordText(sc.toMarkup());
+                });
+              },
+              color: color,
+            ));
       }
-      _AppContainedButton dominant7ChordButton;
+      Widget dominant7ChordButton;
       {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
-        dominant7ChordButton = _AppContainedButton(
-          sc.toString(),
-          onPressed: () {
-            setState(() {
-              _updateChordText(sc.toMarkup());
-            });
-          },
-          color: color,
-        );
+        dominant7ChordButton = _editTooltip(
+            'Enter the dominant7 chord.',
+            _AppContainedButton(
+              sc.toString(),
+              onPressed: () {
+                setState(() {
+                  _updateChordText(sc.toMarkup());
+                });
+              },
+              color: color,
+            ));
       }
 
       List<DropdownMenuItem<ScaleChord>> _otherChordDropDownMenuList = List();
@@ -1233,7 +1237,7 @@ class _Edit extends State<Edit> {
             child: Row(
               children: <Widget>[
                 Text(
-                  sc.toString(),
+                  sc.toMarkup(),
                   style: _textStyle,
                 ),
               ],
@@ -1270,15 +1274,18 @@ class _Edit extends State<Edit> {
                   ),
                 //  measure edit chord selection
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
-                  DropdownButton<ScaleNote>(
-                    items: _keyChordDropDownMenuList,
-                    onChanged: (_value) {
-                      setState(() {
-                        _keyChordNote = _value;
-                      });
-                    },
-                    value: _keyChordNote,
-                    style: _buttonTextStyle,
+                  _editTooltip(
+                    'Select other notes from the key scale.',
+                    DropdownButton<ScaleNote>(
+                      items: _keyChordDropDownMenuList,
+                      onChanged: (_value) {
+                        setState(() {
+                          _keyChordNote = _value;
+                        });
+                      },
+                      value: _keyChordNote,
+                      style: _buttonTextStyle,
+                    ),
                   ),
                   _majorChordButton,
                   minorChordButton,
@@ -1302,27 +1309,33 @@ class _Edit extends State<Edit> {
                             },
                           ),
                         ),
-                      DropdownButton<ScaleChord>(
-                        items: _otherChordDropDownMenuList,
-                        onChanged: (_value) {
-                          setState(() {
-                            _updateChordText(_value.toMarkup());
-                          });
-                        },
-                        style: _textStyle,
+                      _editTooltip(
+                        'Select from other chord descriptors.',
+                        DropdownButton<ScaleChord>(
+                          items: _otherChordDropDownMenuList,
+                          onChanged: (_value) {
+                            setState(() {
+                              _updateChordText(_value.toMarkup());
+                            });
+                          },
+                          style: _textStyle,
+                        ),
                       ),
-                      _AppContainedButton(
-                        'X',
-                        onPressed: () {
-                          setState(() {
-                            _updateChordText('X');
-                          });
-                        },
-                        color: color,
+                      _editTooltip(
+                        'Enter a silent chord.',
+                        _AppContainedButton(
+                          'X',
+                          onPressed: () {
+                            setState(() {
+                              _updateChordText('X');
+                            });
+                          },
+                          color: color,
+                        ),
                       ),
                       if (_measureEntryValid)
                         _editTooltip(
-                          'Accept the modification',
+                          'Accept the modification and end the row.',
                           InkWell(
                             child: Icon(
                               Icons.call_received,
@@ -1336,7 +1349,7 @@ class _Edit extends State<Edit> {
                         ),
                       if (_measureEntryValid)
                         _editTooltip(
-                          'Accept the modification',
+                          'Accept the modification.',
                           InkWell(
                             child: Icon(
                               Icons.check,
@@ -1349,7 +1362,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                       _editTooltip(
-                        'Cancel the modification',
+                        'Cancel the modification.',
                         InkWell(
                           child: Icon(
                             Icons.cancel,

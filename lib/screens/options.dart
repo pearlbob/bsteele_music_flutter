@@ -33,6 +33,11 @@ class _Options extends State<Options> {
     _appOptions.playerDisplay = value;
     setState(() {});
   }
+  void onHolidayChanged(bool value) {
+    _appOptions.holiday = value;
+    setState(() {});
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +79,26 @@ class _Options extends State<Options> {
                     ),
                     Text(
                       'Singer',
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Radio<bool>(
+                      value: false,
+                      groupValue: _appOptions.holiday,
+                      onChanged: onHolidayChanged,
+                    ),
+                    Text(
+                      'Not in a holiday mood',
+                    ),
+                    Radio<bool>(
+                      value: true,
+                      groupValue: _appOptions.holiday,
+                      onChanged: onHolidayChanged,
+                    ),
+                    Text(
+                      'All holiday, all the time!',
                     ),
                   ],
                 ),

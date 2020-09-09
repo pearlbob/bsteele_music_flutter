@@ -21,8 +21,7 @@ import 'package:logger/logger.dart';
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
-bool _isChristmas = false;
-CjRankingEnum _cjRanking;
+//CjRankingEnum _cjRanking;
 
 void main() {
   Logger.level = Level.info;
@@ -35,14 +34,13 @@ websockets/server
 
 C's ipad: model ML0F2LL/A
 
-flutter on linux?
 what is debugPrint
  */
 
 void addSong(Song song) {
   print('addSong( ${song.toString()} )');
   _allSongs.add(song);
-  _filteredSongs = null;
+  _filteredSongs = null;  //  fixme: bad reference
   _selectedSong = song;
 }
 
@@ -191,6 +189,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _refilterSongs(){
+    //  or at least induce the re-filtering
+    _filteredSongs = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     List<StatelessWidget> listViewChildren = List();
@@ -232,57 +235,43 @@ class _MyHomePageState extends State<MyHomePage> {
     double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
     final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
-    if (metadataDropDownMenuList == null) {
-      metadataDropDownMenuList = [
-        DropdownMenuItem<SongIdMetadata>(
-          value: SongIdMetadata('CJ Ranking: best'),
-          child: Text('CJ Ranking: best'),
-          onTap: () {
-            logger.d('choose best');
-            setState(() {
-              _cjRanking = CjRankingEnum.best;
-              _filteredSongs = null;
-            });
-          },
-        ),
-        DropdownMenuItem<SongIdMetadata>(
-          value: SongIdMetadata('CJ Ranking: good'),
-          child: Text('CJ Ranking: good'),
-          onTap: () {
-            logger.d('choose good');
-            setState(() {
-              _cjRanking = CjRankingEnum.good;
-              _filteredSongs = null;
-            });
-          },
-        ),
-        DropdownMenuItem<SongIdMetadata>(
-          value: SongIdMetadata('CJ Ranking: all'),
-          child: Text('CJ Ranking: all'),
-          onTap: () {
-            logger.d('choose all');
-            setState(() {
-              _cjRanking = null;
-              _filteredSongs = null;
-            });
-          },
-        ),
-        DropdownMenuItem<SongIdMetadata>(
-          value: SongIdMetadata('christmas'),
-          child: Text('christmas'),
-          onTap: () {
-            _setChristmas(_isChristmas == null || _isChristmas == false ? true : null);
-          },
-        ),
-        DropdownMenuItem<SongIdMetadata>(
-          value: SongIdMetadata('not christmas'),
-          child: Text('not christmas'),
-          onTap: () {
-            _setChristmas((_isChristmas == null || _isChristmas == true ? false : null));
-          },
-        ),
-      ];
-    }
+    // if (metadataDropDownMenuList == null) {
+    //   metadataDropDownMenuList = [
+    //     DropdownMenuItem<SongIdMetadata>(
+    //       value: SongIdMetadata('CJ Ranking: best'),
+    //       child: Text('CJ Ranking: best'),
+    //       onTap: () {
+    //         logger.d('choose best');
+    //         setState(() {
+    //           _cjRanking = CjRankingEnum.best;
+    //           _refilterSongs();
+    //         });
+    //       },
+    //     ),
+    //     DropdownMenuItem<SongIdMetadata>(
+    //       value: SongIdMetadata('CJ Ranking: good'),
+    //       child: Text('CJ Ranking: good'),
+    //       onTap: () {
+    //         logger.d('choose good');
+    //         setState(() {
+    //           _cjRanking = CjRankingEnum.good;
+    //           _refilterSongs();
+    //         });
+    //       },
+    //     ),
+    //     DropdownMenuItem<SongIdMetadata>(
+    //       value: SongIdMetadata('CJ Ranking: all'),
+    //       child: Text('CJ Ranking: all'),
+    //       onTap: () {
+    //         logger.d('choose all');
+    //         setState(() {
+    //           _cjRanking = null;
+    //           _refilterSongs();
+    //         });
+    //       },
+    //     ),
+    //   ];
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -428,51 +417,51 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ]),
             ),
-            Spacer(),
-            if (_isChristmas != null && _isChristmas)
-              RaisedButton(
-                child: Text(
-                  'christmas',
-                  textScaleFactor: artistScaleFactor,
-                ),
-                onPressed: () {
-                  _setChristmas(null);
-                },
-              ),
-            if (_isChristmas != null && !_isChristmas)
-              RaisedButton(
-                child: Text(
-                  'not christmas',
-                  textScaleFactor: artistScaleFactor,
-                ),
-                onPressed: () {
-                  _setChristmas(null);
-                },
-              ),
-            Spacer(),
-            if (_cjRanking != null)
-              RaisedButton(
-                child: Text(
-                  'CJ Ranking: ${_cjRanking.toString().split('.').last}',
-                  textScaleFactor: artistScaleFactor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _cjRanking = null;
-                    _filteredSongs = null;
-                  });
-                },
-              ),
-            Spacer(flex: 10),
-            DropdownButton<SongIdMetadata>(
-              hint: Text(
-                'Filters',
-                textScaleFactor: artistScaleFactor,
-                style: TextStyle(backgroundColor: Colors.lightBlue[300], color: Colors.black),
-              ),
-              items: metadataDropDownMenuList,
-              onChanged: (songIdMetadata) {},
-            )
+            // Spacer(),
+            // if (_appOptions.holiday)
+            //   RaisedButton(
+            //     child: Text(
+            //       'holiday',
+            //       textScaleFactor: artistScaleFactor,
+            //     ),
+            //     onPressed: () {
+            //       _setHoliday(null);
+            //     },
+            //   ),
+            // if (!_appOptions.holiday)
+            //   RaisedButton(
+            //     child: Text(
+            //       'not holiday',
+            //       textScaleFactor: artistScaleFactor,
+            //     ),
+            //     onPressed: () {
+            //       _setHoliday(null);
+            //     },
+            //   ),
+            // Spacer(),
+            // if (_cjRanking != null)
+            //   RaisedButton(
+            //     child: Text(
+            //       'CJ Ranking: ${_cjRanking.toString().split('.').last}',
+            //       textScaleFactor: artistScaleFactor,
+            //     ),
+            //     onPressed: () {
+            //       setState(() {
+            //         _cjRanking = null;
+            //         _refilterSongs();
+            //       });
+            //     },
+            //   ),
+            // Spacer(flex: 10),
+            // DropdownButton<SongIdMetadata>(
+            //   hint: Text(
+            //     'Filters',
+            //     textScaleFactor: artistScaleFactor,
+            //     style: TextStyle(backgroundColor: Colors.lightBlue[300], color: Colors.black),
+            //   ),
+            //   items: metadataDropDownMenuList,
+            //   onChanged: (songIdMetadata) {},
+            // )
           ],
         ),
         Expanded(
@@ -501,14 +490,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
-  }
-
-  void _setChristmas(bool value) {
-    logger.d('set christmas: $value');
-    setState(() {
-      _isChristmas = value;
-      _filteredSongs = null;
-    });
   }
 
   void _searchSongs(String search) {
@@ -548,36 +529,34 @@ class _MyHomePageState extends State<MyHomePage> {
       if (search.length == 0 ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
-        //  if christmas and song is christmas, we're good
-        if (_isChristmas != null) {
-          if (_isChristmas) {
-            if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
-              _filteredSongs.add(song);
-            }
-            continue;
-          }
-          //  if song is christmas and we're not, nope
-          if (!_isChristmas && SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
-            continue;
-          }
-          //  otherwise try some other qualification
-        }
-
-        if (_cjRanking != null) {
-          //  insist on a cj ranking
-          NameValue nv = SongMetadata.songMetadataAt(song.songId.songId, 'cj');
-          if (nv == null) {
-            //  toss if not found
-            continue;
-          }
-          CjRankingEnum ranking = nv.value.toCjRankingEnum();
-          if (ranking != null && ranking.index >= _cjRanking.index)
-            //  ranking is good
+        //  if holiday and song is holiday, we're good
+        if (_appOptions.holiday) {
+          if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
             _filteredSongs.add(song);
-
-          //  toss if not good enough for cj
+          }
+          continue; //  toss the others
+        } else
+        //  if song is holiday and we're not, nope
+        if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
           continue;
         }
+
+        // //  otherwise try some other qualification
+        // if (_cjRanking != null) {
+        //   //  insist on a cj ranking
+        //   NameValue nv = SongMetadata.songMetadataAt(song.songId.songId, 'cj');
+        //   if (nv == null) {
+        //     //  toss if not found
+        //     continue;
+        //   }
+        //   CjRankingEnum ranking = nv.value.toCjRankingEnum();
+        //   if (ranking != null && ranking.index >= _cjRanking.index)
+        //     //  ranking is good
+        //     _filteredSongs.add(song);
+        //
+        //   //  toss if not good enough for cj
+        //   continue;
+        // }
 
         //  not filtered
         _filteredSongs.add(song);
@@ -616,7 +595,8 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => Options()),
     );
     Navigator.pop(context);
-    setState(() {});
+    setState(() { _refilterSongs();  //  force re-filter on possible option changes
+       });
   }
 
   _navigateToEdit(BuildContext context, Song song) async {
@@ -650,6 +630,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FocusNode _searchFocusNode;
   ScrollController _scrollController = new ScrollController();
   static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
+  final AppOptions _appOptions = AppOptions();
 }
 
 Future<String> fetchString(String url) async {

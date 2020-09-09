@@ -23,6 +23,7 @@ class AppOptions {
     alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead');
     _playWithChords = await _readBool('playWithChords');
     _playWithBass = await _readBool('playWithBass');
+    _holiday = await _readBool('holiday');
 
     logger.i('readOptions: playerDisplay: $playerDisplay');
   }
@@ -201,7 +202,7 @@ class AppOptions {
     _saveBool('playWithChords', playWithChords);
   }
 
-   set playWithBass(bool playWithBass) {
+  set playWithBass(bool playWithBass) {
     if (this._playWithBass == playWithBass) return;
     this._playWithBass = playWithBass;
     _saveBool('playWithBass', playWithBass);
@@ -219,6 +220,15 @@ class AppOptions {
 
   bool get playWithBass => _playWithBass;
   bool _playWithBass = false;
+
+  set holiday(bool value) {
+    if (this._holiday == value) return;
+    this._holiday = value;
+    _saveBool('holiday', value);
+  }
+
+  bool get holiday => _holiday;
+  bool _holiday = false;
 
   set playerDisplay(value) {
     if (_playerDisplay == value) return;

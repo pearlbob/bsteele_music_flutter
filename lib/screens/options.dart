@@ -33,11 +33,11 @@ class _Options extends State<Options> {
     _appOptions.playerDisplay = value;
     setState(() {});
   }
+
   void onHolidayChanged(bool value) {
     _appOptions.holiday = value;
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -62,43 +62,59 @@ class _Options extends State<Options> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                Row(
+                Text(
+                  'User style: ',
+                  style: TextStyle(fontSize: fontSize),
+                ),
+                Column(
                   children: <Widget>[
-                    Radio<bool>(
+                    RadioListTile<bool>(
+                      title: Text('Player', style: TextStyle(fontSize: fontSize)),
                       value: true,
                       groupValue: _appOptions.playerDisplay,
-                      onChanged: onPlayerChanged,
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.playerDisplay = value;
+                        });
+                      },
                     ),
-                    Text(
-                      'Player',
-                    ),
-                    Radio<bool>(
+                    RadioListTile<bool>(
+                      title: Text('Singer', style: TextStyle(fontSize: fontSize)),
                       value: false,
                       groupValue: _appOptions.playerDisplay,
-                      onChanged: onPlayerChanged,
-                    ),
-                    Text(
-                      'Singer',
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.playerDisplay = value;
+                        });
+                      },
                     ),
                   ],
                 ),
-                Row(
+                Text(
+                  'Holliday choice: ',
+                  style: TextStyle(fontSize: fontSize),
+                ),
+                Column(
                   children: <Widget>[
-                    Radio<bool>(
+                    RadioListTile<bool>(
+                      title: Text('Not in a holiday mood', style: TextStyle(fontSize: fontSize)),
                       value: false,
                       groupValue: _appOptions.holiday,
-                      onChanged: onHolidayChanged,
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.holiday = value;
+                        });
+                      },
                     ),
-                    Text(
-                      'Not in a holiday mood',
-                    ),
-                    Radio<bool>(
+                    RadioListTile<bool>(
+                      title: Text('All holiday, all the time!', style: TextStyle(fontSize: fontSize)),
                       value: true,
                       groupValue: _appOptions.holiday,
-                      onChanged: onHolidayChanged,
-                    ),
-                    Text(
-                      'All holiday, all the time!',
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.holiday = value;
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -297,8 +313,8 @@ class _Options extends State<Options> {
   }
 
   void _playPianoPitch(Pitch pitch, double duration, double amp) {
-    _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3',
-        _timerT, duration, amp);
+    _audioPlayer.play(
+        'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
   }
 
   static final int _testNumber = 3;

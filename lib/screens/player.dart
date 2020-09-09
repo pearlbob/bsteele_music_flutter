@@ -6,7 +6,7 @@ import 'dart:ui';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as songs;
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
@@ -197,7 +197,6 @@ class _Player extends State<Player> {
     _screenOffset = _screenHeight / 2;
     _isTooNarrow = _screenWidth <= 800;
     final double fontSize = _defaultFontSize * min(5, max(1, _screenWidth / 400)) / (_isTooNarrow ? 2 : 1);
-    logger.i("fontSize: $fontSize");
     final double fontScale = fontSize / _defaultFontSize;
 
     final double lyricsFontSize = fontSize * 0.75;
@@ -378,9 +377,9 @@ class _Player extends State<Player> {
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
-        List<songs.Key> rolledKeyList = List(steps);
+        List<music_key.Key> rolledKeyList = List(steps);
 
-        List<songs.Key> list = songs.Key.keysByHalfStepFrom(song.key); //temp loc
+        List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
         for (int i = 0; i <= halfOctave; i++) {
           rolledKeyList[i] = list[halfOctave - i];
         }
@@ -390,42 +389,31 @@ class _Player extends State<Player> {
 
         keyDropDownMenuList = [];
         for (int i = 0; i < steps; i++) {
-          songs.Key value = rolledKeyList[i];
+          music_key.Key value = rolledKeyList[i];
 
           int relativeOffset = halfOctave - i;
-          String relativeString;
+          String valueString =
+              value.toMarkup(); //  fixme: required by pulldown list font bug!  (see the "on ..." below)
           if (relativeOffset > 0)
-            relativeString = " +${relativeOffset.toString()}";
+            valueString += " +${relativeOffset.toString()}";
           else if (relativeOffset < 0)
-            relativeString = " ${relativeOffset.toString()}";
+            valueString += " ${relativeOffset.toString()}";
           else
-            relativeString = ' ';
+            valueString += ' ';
 
-          keyDropDownMenuList.add(DropdownMenuItem<songs.Key>(
+          keyDropDownMenuList.add(DropdownMenuItem<music_key.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                 Text(
-                  value.toString(),
-                  style: lyricsTextStyle,
-                ),
-                Text(
-                  relativeString,
+                  valueString,
                   style: lyricsTextStyle,
                 ),
                 //  show the first note if it's not the same as the key
                 if (firstScaleNote != null)
                   Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
                     Text(
-                      '(on ',
-                      style: lyricsTextStyle,
-                    ),
-                    Text(
-                      firstScaleNote.transpose(value, relativeOffset).toString(),
-                      style: lyricsTextStyle,
-                    ),
-                    Text(
-                      ')',
+                      '(on ${firstScaleNote.transpose(value, relativeOffset).toMarkup().padLeft(2)})',
                       style: lyricsTextStyle,
                     ),
                   ])
@@ -445,7 +433,7 @@ class _Player extends State<Player> {
               key: ValueKey(value),
               value: value,
               child: Text(
-                value.toString(),
+                value.toString().padLeft(3),
                 style: lyricsTextStyle,
               ),
             ),
@@ -463,7 +451,6 @@ class _Player extends State<Player> {
 
     final hoverColor = Colors.blue[700];
 
-    logger.i('player scaffold');
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -576,7 +563,7 @@ class _Player extends State<Player> {
                               style: lyricsTextStyle,
                             ),
                             if (!_isTooNarrow)
-                              DropdownButton<songs.Key>(
+                              DropdownButton<music_key.Key>(
                                 items: keyDropDownMenuList,
                                 onChanged: (_value) {
                                   setState(() {
@@ -591,7 +578,7 @@ class _Player extends State<Player> {
                                   textBaseline: TextBaseline.ideographic,
                                 ),
                                 iconSize: fontSize,
-                                itemHeight: fontScale * kMinInteractiveDimension,
+                                itemHeight: 1.2 * kMinInteractiveDimension,
                               )
                             else
                               Text(
@@ -619,7 +606,7 @@ class _Player extends State<Player> {
                                   textBaseline: TextBaseline.ideographic,
                                 ),
                                 iconSize: fontSize,
-                                itemHeight: fontScale * kMinInteractiveDimension,
+                                itemHeight: 1.2 * kMinInteractiveDimension,
                               )
                             else
                               Text(
@@ -792,8 +779,8 @@ class _Player extends State<Player> {
   int _rowLocationBump = 0;
 
   Table _table;
-  songs.Key _displaySongKey = songs.Key.get(songs.KeyEnum.C);
-  List<DropdownMenuItem<songs.Key>> keyDropDownMenuList;
+  music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
+  List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList;
   List<DropdownMenuItem<int>> bpmDropDownMenuList;
 
   SongMaster songMaster;

@@ -121,10 +121,12 @@ class _Edit extends State<Edit> {
           case ' ':
             //  space means move on to the next measure, horizontally
             _editMeasure(done: false);
+            _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
+            _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = false;
+
             setState(() {
-              logger.i('post _editMeasure(): ${widget.song.getCurrentChordSectionLocation().toString()}');
-              _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
               _selectedEditDataPoint.measureEditType = MeasureEditType.append;
+              logger.i('post _editMeasure(): ${widget.song.getCurrentChordSectionLocation().toString()}');
             });
             break;
 //          case '\n':
@@ -420,7 +422,7 @@ class _Edit extends State<Edit> {
               padding: EdgeInsets.all(16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 textDirection: TextDirection.ltr,
                 children: <Widget>[
                   AppBar(
@@ -905,10 +907,10 @@ class _Edit extends State<Edit> {
   void _mainOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.v('main onkey: ${e.data.logicalKey.toString()}'
-          ', ctl: ${e.isControlPressed.toString()}'
-          ', shf: ${e.isShiftPressed.toString()}'
-          ', alt: ${e.isAltPressed.toString()}');
+      logger.v('main onkey: ${e.data.logicalKey}'
+          ', ctl: ${e.isControlPressed}'
+          ', shf: ${e.isShiftPressed}'
+          ', alt: ${e.isAltPressed}');
       if (e.isControlPressed) {
         if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
           if (_selectedEditDataPoint != null && _measureEntryValid) {
@@ -941,6 +943,44 @@ class _Edit extends State<Edit> {
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         /// clear editing with the escape key
         _clearChordEditing();
+      } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
+        setState(() {
+          _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = true; //  end of row
+          _editMeasure();
+        });
+      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+        int baseOffset = _editTextController.selection.extentOffset ?? 0;
+        if (baseOffset > 0) {
+          _editTextController.selection = TextSelection(baseOffset: baseOffset - 1, extentOffset: baseOffset - 1);
+        }
+      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        int extentOffset = _editTextController.selection.extentOffset ?? 0;
+
+        //  cancel multi character selection
+        if (_editTextController.selection.baseOffset < extentOffset) {
+          _editTextController.selection = TextSelection(baseOffset: extentOffset, extentOffset: extentOffset);
+        } else {
+          //  move closer to the end
+          if (extentOffset < _editTextController.text?.length ?? 0) {
+            _editTextController.selection = TextSelection(baseOffset: extentOffset + 1, extentOffset: extentOffset + 1);
+          }
+        }
+      } else if (e.isKeyPressed(LogicalKeyboardKey.delete)) {
+        if (_editTextController.selection.baseOffset < _editTextController.selection.extentOffset) {
+          int loc = _editTextController.selection.baseOffset;
+
+          //  selection in a range
+          _editTextController.text = (_editTextController.selection.baseOffset > 0
+                  ? _editTextController.text.substring(0, _editTextController.selection.baseOffset)
+                  : '') +
+              _editTextController.text.substring(_editTextController.selection.extentOffset);
+          _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
+        } else if (_editTextController.selection.extentOffset < _editTextController.text?.length ?? 0 - 1) {
+          int loc = _editTextController.selection.extentOffset;
+          _editTextController.text =
+              _editTextController.text.substring(0, loc) + _editTextController.text.substring(loc + 1);
+          _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
+        }
       }
     }
   }
@@ -1349,6 +1389,20 @@ class _Edit extends State<Edit> {
                         ),
                       if (_measureEntryValid)
                         _editTooltip(
+                          'Accept the modification and extend the row.',
+                          InkWell(
+                            child: Icon(
+                              Icons.arrow_forward,
+                              size: _defaultChordFontSize,
+                            ),
+                            onTap: () {
+                              _editMeasure();
+                              _getLocationMeasure(editDataPoint.location)?.endOfRow = false;
+                            },
+                          ),
+                        ),
+                      if (_measureEntryValid)
+                        _editTooltip(
                           'Accept the modification.',
                           InkWell(
                             child: Icon(
@@ -1357,7 +1411,6 @@ class _Edit extends State<Edit> {
                             ),
                             onTap: () {
                               _editMeasure();
-                              _getLocationMeasure(editDataPoint.location)?.endOfRow = false;
                             },
                           ),
                         ),
@@ -1763,7 +1816,7 @@ class _Edit extends State<Edit> {
   }
 
   void _clearMeasureEntry() {
-    logger.i('_clearMeasureEntry()');
+    logger.v('_clearMeasureEntry()');
     _editTextField = null;
     _selectedEditDataPoint = null;
     _measureEntry = null;

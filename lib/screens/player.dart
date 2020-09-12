@@ -748,7 +748,7 @@ class _Player extends State<Player> {
   _navigateToEdit(BuildContext context, Song song) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Edit(song: song)),
+      MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
     );
   }
 

@@ -66,57 +66,63 @@ class _Options extends State<Options> {
                   'User style: ',
                   style: TextStyle(fontSize: fontSize),
                 ),
-                Column(
-                  children: <Widget>[
-                    RadioListTile<bool>(
-                      title: Text('Player', style: TextStyle(fontSize: fontSize)),
-                      value: true,
-                      groupValue: _appOptions.playerDisplay,
-                      onChanged: (value) {
-                        setState(() {
-                          _appOptions.playerDisplay = value;
-                        });
-                      },
-                    ),
-                    RadioListTile<bool>(
-                      title: Text('Singer', style: TextStyle(fontSize: fontSize)),
-                      value: false,
-                      groupValue: _appOptions.playerDisplay,
-                      onChanged: (value) {
-                        setState(() {
-                          _appOptions.playerDisplay = value;
-                        });
-                      },
-                    ),
-                  ],
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Column(
+                    children: <Widget>[
+                      RadioListTile<bool>(
+                        title: Text('Player', style: TextStyle(fontSize: fontSize)),
+                        value: true,
+                        groupValue: _appOptions.playerDisplay,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.playerDisplay = value;
+                          });
+                        },
+                      ),
+                      RadioListTile<bool>(
+                        title: Text('Singer', style: TextStyle(fontSize: fontSize)),
+                        value: false,
+                        groupValue: _appOptions.playerDisplay,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.playerDisplay = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 Text(
                   'Holliday choice: ',
                   style: TextStyle(fontSize: fontSize),
                 ),
-                Column(
-                  children: <Widget>[
-                    RadioListTile<bool>(
-                      title: Text('Not in a holiday mood', style: TextStyle(fontSize: fontSize)),
-                      value: false,
-                      groupValue: _appOptions.holiday,
-                      onChanged: (value) {
-                        setState(() {
-                          _appOptions.holiday = value;
-                        });
-                      },
-                    ),
-                    RadioListTile<bool>(
-                      title: Text('All holiday, all the time!', style: TextStyle(fontSize: fontSize)),
-                      value: true,
-                      groupValue: _appOptions.holiday,
-                      onChanged: (value) {
-                        setState(() {
-                          _appOptions.holiday = value;
-                        });
-                      },
-                    ),
-                  ],
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Column(
+                    children: <Widget>[
+                      RadioListTile<bool>(
+                        title: Text('Not in a holiday mood', style: TextStyle(fontSize: fontSize)),
+                        value: false,
+                        groupValue: _appOptions.holiday,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.holiday = value;
+                          });
+                        },
+                      ),
+                      RadioListTile<bool>(
+                        title: Text('All holiday, all the time!', style: TextStyle(fontSize: fontSize)),
+                        value: true,
+                        groupValue: _appOptions.holiday,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.holiday = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 Row(children: <Widget>[
                   Checkbox(

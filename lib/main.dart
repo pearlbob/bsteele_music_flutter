@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
         '/player': (context) => Player(song: _selectedSong),
         '/songs': (context) => Songs(),
         '/options': (context) => Options(),
-        '/edit': (context) => Edit(song: _selectedSong),
+        '/edit': (context) => Edit(initialSong: _selectedSong),
         '/privacy': (context) => Privacy(),
         '/about': (context) => About(),
       },
@@ -602,7 +602,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToEdit(BuildContext context, Song song) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Edit(song: song)),
+      MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
     );
     Navigator.pop(context);
     setState(() {});

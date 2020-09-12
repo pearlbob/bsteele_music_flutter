@@ -9,6 +9,7 @@ import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as songs;
 import 'package:bsteeleMusicLib/songs/measure.dart';
+import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
@@ -26,12 +27,12 @@ import 'package:flutter/services.dart';
 
 ///   screen to edit a song
 class Edit extends StatefulWidget {
-  const Edit({Key key, @required this.song}) : super(key: key);
+  const Edit({Key key, @required this.initialSong}) : super(key: key);
 
   @override
-  _Edit createState() => _Edit();
+  _Edit createState() => _Edit(initialSong);
 
-  final Song song;
+  final Song initialSong;
 }
 
 const double _defaultChordFontSize = 28;
@@ -95,13 +96,17 @@ class AppOutlineButton extends OutlineButton {
 }
 
 class _Edit extends State<Edit> {
+  _Edit(Song initialSong) : _song = initialSong.copySong(){
+    _undoStack.push(_song.copySong());
+  }
+
   @override
   initState() {
     super.initState();
 
     _editTextFieldFocusNode = FocusNode();
 
-    _key = widget.song.key;
+    _key = _song.key;
     _keyChordNote = _key.getKeyScaleNote(); //  initial value
 
     _editTextController.addListener(() {
@@ -120,21 +125,21 @@ class _Edit extends State<Edit> {
         switch (_editTextController.text[_editTextController.text.length - 1]) {
           case ' ':
             //  space means move on to the next measure, horizontally
-            logger.i('pre-space: ${_selectedEditDataPoint.toString()}');
+            logger.d('pre-space: ${_selectedEditDataPoint.toString()}');
             if (_editMeasure(done: false)) {
               logger.i(
-                  'post-space, edit type: ${widget.song.getCurrentMeasureEditType()}, loc: ${widget.song.getCurrentChordSectionLocation()}');
+                  'post-space, edit type: ${_song.getCurrentMeasureEditType()}, loc: ${_song.getCurrentChordSectionLocation()}');
 
               setState(() {
-                ChordSectionLocation location = widget.song.getCurrentChordSectionLocation();
+                ChordSectionLocation location = _song.getCurrentChordSectionLocation();
                 _selectedEditDataPoint = _EditDataPoint(location);
 
-                logger.i('post-space new: $_selectedEditDataPoint');
+                logger.d('post-space new: $_selectedEditDataPoint');
                 _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = false;
 
                 _selectedEditDataPoint.measureEditType = MeasureEditType.append;
 
-                logger.i('post _editMeasure(): ${widget.song.getCurrentChordSectionLocation()}');
+                logger.d('post _editMeasure(): ${_song.getCurrentChordSectionLocation()}');
               });
             }
             break;
@@ -153,12 +158,16 @@ class _Edit extends State<Edit> {
   void dispose() {
     _editTextController.dispose();
     _editTextFieldFocusNode?.dispose();
+    for (var focusNode in disposeList) {
+      focusNode.dispose();
+    }
     super.dispose();
+    logger.d('edit dispose()');
   }
 
   @override
   Widget build(BuildContext context) {
-    logger.i('edit build: "${_editTextController.text.toString()}"');
+    logger.d('edit build: "${_editTextController.text.toString()}"');
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double _screenWidth = screenInfo.mediaWidth;
@@ -178,8 +187,6 @@ class _Edit extends State<Edit> {
     );
 
     _chordBadTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
-
-    _song = widget.song;
 
     //  build a list of section version numbers
     //  if (_sectionVersionDropdownMenuList == null)
@@ -452,7 +459,7 @@ class _Edit extends State<Edit> {
                           onPressed: () {},
                         ),
                         Container(
-                          child: Text(_errorMessage ?? '', style: _errorTextStyle),
+                          child: Text(_errorMessageString ?? '', style: _errorTextStyle),
                         ),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -714,9 +721,15 @@ class _Edit extends State<Edit> {
                         ),
                         AppOutlineButton(
                           'Undo',
+                          onPressed: () {
+                            _undo();
+                          },
                         ),
                         AppOutlineButton(
                           'Redo',
+                          onPressed: () {
+                            _redo();
+                          },
                         ),
                         AppOutlineButton(
                           '4/Row',
@@ -928,35 +941,46 @@ class _Edit extends State<Edit> {
             setState(() {
               _editMeasure(done: false);
               _getLocationMeasure(location)?.endOfRow = true;
-              _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
+              _selectedEditDataPoint = _EditDataPoint(_song.getCurrentChordSectionLocation());
               _selectedEditDataPoint.measureEditType = MeasureEditType.append;
             });
           }
-          logger.i('main onkey: found arrowDown');
+          logger.d('main onkey: found arrowDown');
         } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
           if (_selectedEditDataPoint != null && _measureEntryValid) {
             ChordSectionLocation location = _selectedEditDataPoint.location;
             setState(() {
               _editMeasure(done: false);
               _getLocationMeasure(location)?.endOfRow = false;
-              _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
+              _selectedEditDataPoint = _EditDataPoint(_song.getCurrentChordSectionLocation());
               _selectedEditDataPoint.measureEditType = MeasureEditType.append;
             });
           }
         } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
-          logger.i('main onkey: found arrowUp');
-        } else if (e.isKeyPressed(LogicalKeyboardKey.keyZ) && e.isShiftPressed) {
-          logger.i('shift ctl Z');
+          logger.d('main onkey: found arrowUp');
+        } else if (e.isKeyPressed(LogicalKeyboardKey.keyV) && e.isShiftPressed) {
+          logger.i('shift ctl V');
+        } else if (e.isKeyPressed(LogicalKeyboardKey.keyV)) {
+          if (e.isShiftPressed) {
+            logger.i('ctl shift V');
+          } else {
+            logger.i('ctl V');
+          }
         } else if (e.isKeyPressed(LogicalKeyboardKey.keyZ)) {
-          logger.i('ctl Z');
+          if (e.isShiftPressed) {
+            _redo();
+          } else {
+            _undo();
+          }
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         /// clear editing with the escape key
         _clearChordEditing();
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         setState(() {
-          _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = true; //  end of row
           _editMeasure();
+          //  assure end of row
+          _getLocationMeasure(_song.getCurrentChordSectionLocation())?.endOfRow = true;
         });
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
         int baseOffset = _editTextController.selection.extentOffset ?? 0;
@@ -992,11 +1016,14 @@ class _Edit extends State<Edit> {
           _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.space)) {
-        logger.i('main onkey: space found');
+        logger.d('main onkey: space');
       } else {
-        logger.i('main onkey: not processed: "${e.data.logicalKey}"');
+        logger.d('main onkey: not processed: "${e.data.logicalKey}"');
       }
     }
+    logger.d('main onkey: text:"${_editTextController.text}"'
+        ', f:${_editTextFieldFocusNode.hasFocus}'
+        ', pf:${_editTextFieldFocusNode.hasPrimaryFocus}');
   }
 
   Widget _nullEditGridDisplayWidget() {
@@ -1200,6 +1227,10 @@ class _Edit extends State<Edit> {
       logger.v('pre : (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
           ' "${_editTextController.text}');
       if (_editTextField == null) {
+        if (_editTextFieldFocusNode != null) {
+          disposeList.add(_editTextFieldFocusNode);
+        }
+        _editTextFieldFocusNode = FocusNode(); //  fixme: dispose of the old?
         _editTextField = TextField(
           controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
@@ -1223,19 +1254,17 @@ class _Edit extends State<Edit> {
         );
       }
 
-      _editTextFieldFocusNode.requestFocus();
+      logger.i('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
+          ' "${_editTextController.text}", ${_editTextController.text.isEmpty}');
 
-      logger.v('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
-          ' "${_editTextController.text}"');
-
-      if (_measureEntry == null) {
-        _measureEntry = measure?.toMarkupWithEnd(null);
+      if (_measureEntryIsClear) {
+        _measureEntryIsClear = false;
+        _editTextController.text = measure?.toMarkupWithEnd(null);
         _measureEntryValid = true; //  should always be!... at least at this moment,  fixme: verify
-
-        _editTextController.text = _measureEntry;
-        _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry?.length ?? 0);
+        _editTextController.selection =
+            TextSelection(baseOffset: 0, extentOffset: _editTextController.text?.length ?? 0);
         _editTextFieldFocusNode.requestFocus();
-        logger.i(
+        logger.d(
             'post initial fill: (${_editTextController.selection.baseOffset}, ${_editTextController.selection.extentOffset})');
       }
 
@@ -1605,7 +1634,7 @@ class _Edit extends State<Edit> {
 //  }
 
   void _updateChordText(final String s) {
-    logger.i('_updateChordText(${s.toString()})');
+    logger.d('_updateChordText(${s.toString()})');
     if (s == null) return;
     String text = _editTextController.text;
     if (text == null) {
@@ -1616,10 +1645,10 @@ class _Edit extends State<Edit> {
     if (_lastEditTextSelection == null) {
       //  append the string
       _editTextController.text = text + s;
-      logger.i('<0: "$text"');
+      logger.d('<0: "$text"');
       return;
     }
-    logger.i('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
+    logger.d('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
         '${_lastEditTextSelection.extentOffset.toString()}): "$text"');
 
     if (_lastEditTextSelection.baseOffset < 0) {
@@ -1627,19 +1656,19 @@ class _Edit extends State<Edit> {
       _editTextController.text = text + s;
       int len = text.length + s.length;
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
-      logger.i('<0: "$text"');
+      logger.d('<0: "$text"');
       return;
     } else {
-      logger.i('>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
+      logger.d('>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
           '+"$s"'
           '+"${text.substring(_lastEditTextSelection.extentOffset)}"');
       _editTextController.text = text.substring(0, _lastEditTextSelection.baseOffset) +
           s +
           text.substring(_lastEditTextSelection.extentOffset);
       int len = _lastEditTextSelection.baseOffset + s.length;
-      logger.i('   len: $len');
+      logger.d('   len: $len');
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
-      logger.i('   selection: ${_editTextController.selection}');
+      logger.d('   selection: ${_editTextController.selection}');
     }
   }
 
@@ -1695,7 +1724,7 @@ class _Edit extends State<Edit> {
 
   /// validate the given measure entry string
   List<MeasureNode> validateMeasureEntry(String entry) {
-    List<MeasureNode> entries = widget.song.parseChordEntry(SongBase.entryToUppercase(entry));
+    List<MeasureNode> entries = _song.parseChordEntry(SongBase.entryToUppercase(entry));
     _measureEntryValid =
         (entries != null && entries.length == 1 && entries[0].getMeasureNodeType() != MeasureNodeType.comment);
     _measureEntryNode = (_measureEntryValid ? entries[0] : null);
@@ -1719,7 +1748,7 @@ class _Edit extends State<Edit> {
       return;
     }
 
-    if (widget.song == null) {
+    if (_song == null) {
       _measureEntryCorrection = null;
       return;
     }
@@ -1810,26 +1839,61 @@ class _Edit extends State<Edit> {
         padding: EdgeInsets.all(8));
   }
 
+  void _undo() {
+    setState(() {
+      _clearErrorMessage();
+      if (_undoStack.canUndo) {
+        _song = _undoStack.pop();
+      } else {
+        _errorMessage('cannot undo any more');
+      }
+    });
+  }
+
+  void _redo() {
+    setState(() {
+      _clearErrorMessage();
+      if (_undoStack.canRedo) {
+        _clearMeasureEntry();
+        _song = _undoStack.redo();
+      } else {
+        _errorMessage('cannot redo any more');
+      }
+    });
+  }
+
+  void _errorMessage(String error) {
+    _errorMessageString = error;
+  }
+
+  void _clearErrorMessage() {
+    _errorMessageString = null;
+  }
+
+  /// perform the actual edit to the song
   bool _editMeasure({done: true}) {
     if (!_measureEntryValid) return false;
-    Song song = widget.song;
-    song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
-    song.setCurrentMeasureEditType(_selectedEditDataPoint.measureEditType);
+    _song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
+    _song.setCurrentMeasureEditType(_selectedEditDataPoint.measureEditType);
 
     //  do the edit
-    if (song.editMeasureNode(_measureEntryNode)) {
-      logger.i('edit: post: location: ${song.getCurrentChordSectionLocation().toString()}');
+    if (_song.editMeasureNode(_measureEntryNode)) {
+      _undoStack.push(_song.copySong());
+      logger.i('undostack.length: ${_undoStack.length}');
+      logger.d('edit: post: location: ${_song.getCurrentChordSectionLocation().toString()}');
       _clearChordEditing(done: done);
       return true;
     }
+
     return false;
   }
 
+  ///  delete the current measure
   void _deleteMeasure() {
-    Song song = widget.song;
-    song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
-    song.setCurrentMeasureEditType(MeasureEditType.delete);
-    song.editMeasureNode(_measureEntryNode);
+    _undoStack.push(_song.copySong());
+    _song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
+    _song.setCurrentMeasureEditType(MeasureEditType.delete);
+    _song.editMeasureNode(_measureEntryNode);
     _clearChordEditing();
   }
 
@@ -1837,7 +1901,7 @@ class _Edit extends State<Edit> {
     setState(() {
       _clearMeasureEntry();
       _selectedEditDataPoint = editDataPoint;
-      logger.i('_setEditDataPoint(${editDataPoint.toString()})');
+      logger.d('_setEditDataPoint(${editDataPoint.toString()})');
     });
   }
 
@@ -1854,7 +1918,7 @@ class _Edit extends State<Edit> {
     logger.v('_clearMeasureEntry()');
     _editTextField = null;
     _selectedEditDataPoint = null;
-    _measureEntry = null;
+    _measureEntryIsClear = true;
     _measureEntryCorrection = null;
     _measureEntryValid = false;
   }
@@ -1868,10 +1932,10 @@ class _Edit extends State<Edit> {
 
   int _transpositionOffset;
 
-  String _measureEntry;
+  bool _measureEntryIsClear;
   String _measureEntryCorrection;
   bool _measureEntryValid;
-  String _errorMessage;
+  String _errorMessageString;
 
   MeasureNode _measureEntryNode;
 
@@ -1899,6 +1963,10 @@ class _Edit extends State<Edit> {
 
   List<DropdownMenuItem<int>> _sectionVersionDropdownMenuList;
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList;
+
+  UndoStack<Song> _undoStack = UndoStack();
+
+  List<ChangeNotifier> disposeList = []; //  fixme: workaround to dispose the text controllers
 
   static const tooltipColor = Color(0xFFE8F5E9);
 }

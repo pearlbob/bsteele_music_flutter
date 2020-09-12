@@ -120,18 +120,27 @@ class _Edit extends State<Edit> {
         switch (_editTextController.text[_editTextController.text.length - 1]) {
           case ' ':
             //  space means move on to the next measure, horizontally
-            _editMeasure(done: false);
-            _selectedEditDataPoint = _EditDataPoint(widget.song.getCurrentChordSectionLocation());
-            _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = false;
+            logger.i('pre-space: ${_selectedEditDataPoint.toString()}');
+            if (_editMeasure(done: false)) {
+              logger.i(
+                  'post-space, edit type: ${widget.song.getCurrentMeasureEditType()}, loc: ${widget.song.getCurrentChordSectionLocation()}');
 
-            setState(() {
-              _selectedEditDataPoint.measureEditType = MeasureEditType.append;
-              logger.i('post _editMeasure(): ${widget.song.getCurrentChordSectionLocation().toString()}');
-            });
+              setState(() {
+                ChordSectionLocation location = widget.song.getCurrentChordSectionLocation();
+                _selectedEditDataPoint = _EditDataPoint(location);
+
+                logger.i('post-space new: $_selectedEditDataPoint');
+                _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = false;
+
+                _selectedEditDataPoint.measureEditType = MeasureEditType.append;
+
+                logger.i('post _editMeasure(): ${widget.song.getCurrentChordSectionLocation()}');
+              });
+            }
             break;
-//          case '\n':
-//            logger.i('newline: should _editMeasure() called here.');
-//            break;
+          case '\n':
+            logger.i('newline: should _editMeasure() called here.');
+            break;
           //  look for TextField.onEditingComplete() for end of entry... but it happens too often!
         }
       }
@@ -149,7 +158,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('edit build: "${_editTextController.text.toString()}"');
+    logger.i('edit build: "${_editTextController.text.toString()}"');
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double _screenWidth = screenInfo.mediaWidth;
@@ -904,10 +913,11 @@ class _Edit extends State<Edit> {
   }
 
   /// process the raw keys flutter doesn't want to
+  /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void _mainOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.v('main onkey: ${e.data.logicalKey}'
+      logger.i('main onkey: ${e.data.logicalKey}'
           ', ctl: ${e.isControlPressed}'
           ', shf: ${e.isShiftPressed}'
           ', alt: ${e.isAltPressed}');
@@ -981,6 +991,10 @@ class _Edit extends State<Edit> {
               _editTextController.text.substring(0, loc) + _editTextController.text.substring(loc + 1);
           _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
         }
+      } else if (e.isKeyPressed(LogicalKeyboardKey.space)) {
+        logger.i('main onkey: space found');
+      } else {
+        logger.i('main onkey: not processed: "${e.data.logicalKey}"');
       }
     }
   }
@@ -1017,7 +1031,10 @@ class _Edit extends State<Edit> {
           autofocus: true,
           enabled: true,
           onSubmitted: (_) {
-            _editMeasure();
+            logger.i('onSubmitted: ($_)');
+          },
+          onEditingComplete: () {
+            logger.i('onEditingComplete()');
           },
         );
       }
@@ -1196,20 +1213,30 @@ class _Edit extends State<Edit> {
           ),
           autofocus: true,
           enabled: true,
+          autocorrect: false,
+          onEditingComplete: () {
+            logger.i('_editTextField.onEditingComplete(): "${_editTextField?.controller?.text}"');
+          },
+          onSubmitted: (_) {
+            logger.i('_editTextField.onSubmitted: ($_)');
+          },
         );
       }
+
+      _editTextFieldFocusNode.requestFocus();
 
       logger.v('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
           ' "${_editTextController.text}"');
 
       if (_measureEntry == null) {
         _measureEntry = measure?.toMarkupWithEnd(null);
-        _measureEntryValid = true; //  should always be!... at least at this moment
+        _measureEntryValid = true; //  should always be!... at least at this moment,  fixme: verify
 
         _editTextController.text = _measureEntry;
         _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: _measureEntry?.length ?? 0);
-        logger.d(
-            'post initial fill: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})');
+        _editTextFieldFocusNode.requestFocus();
+        logger.i(
+            'post initial fill: (${_editTextController.selection.baseOffset}, ${_editTextController.selection.extentOffset})');
       }
 
       Widget _majorChordButton = _editTooltip(
@@ -1589,10 +1616,10 @@ class _Edit extends State<Edit> {
     if (_lastEditTextSelection == null) {
       //  append the string
       _editTextController.text = text + s;
-      logger.d('<0: "$text"');
+      logger.i('<0: "$text"');
       return;
     }
-    logger.d('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
+    logger.i('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
         '${_lastEditTextSelection.extentOffset.toString()}): "$text"');
 
     if (_lastEditTextSelection.baseOffset < 0) {
@@ -1600,17 +1627,19 @@ class _Edit extends State<Edit> {
       _editTextController.text = text + s;
       int len = text.length + s.length;
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
-      logger.d('<0: "$text"');
+      logger.i('<0: "$text"');
       return;
     } else {
-      logger.d('>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
+      logger.i('>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
           '+"$s"'
           '+"${text.substring(_lastEditTextSelection.extentOffset)}"');
       _editTextController.text = text.substring(0, _lastEditTextSelection.baseOffset) +
           s +
           text.substring(_lastEditTextSelection.extentOffset);
       int len = _lastEditTextSelection.baseOffset + s.length;
+      logger.i('   len: $len');
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
+      logger.i('   selection: ${_editTextController.selection}');
     }
   }
 
@@ -1695,11 +1724,14 @@ class _Edit extends State<Edit> {
       return;
     }
 
+    //  construct a properly capitalized version of the entry
     String upperEntry = MeasureNode.concatMarkup(validateMeasureEntry(entry));
     upperEntry = upperEntry.trim();
     String minEntry =
         entry.trim().replaceAll("\t", " ").replaceAll(":\n", ":").replaceAll("  ", " ").replaceAll("\n", ",");
     logger.v('entry: "$minEntry" vs "$upperEntry"');
+
+    //  suggest the corrected input if different
     if (upperEntry == minEntry) {
       if (_measureEntryCorrection != null) {
         setState(() {
@@ -1778,16 +1810,19 @@ class _Edit extends State<Edit> {
         padding: EdgeInsets.all(8));
   }
 
-  void _editMeasure({done: true}) {
-    if (!_measureEntryValid) return;
+  bool _editMeasure({done: true}) {
+    if (!_measureEntryValid) return false;
     Song song = widget.song;
     song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
     song.setCurrentMeasureEditType(_selectedEditDataPoint.measureEditType);
 
     //  do the edit
     if (song.editMeasureNode(_measureEntryNode)) {
+      logger.i('edit: post: location: ${song.getCurrentChordSectionLocation().toString()}');
       _clearChordEditing(done: done);
+      return true;
     }
+    return false;
   }
 
   void _deleteMeasure() {
@@ -1877,7 +1912,7 @@ class _EditDataPoint {
 
   @override
   String toString() {
-    return super.toString() + ', loc: ${location.toString()}, editType: ${_measureEditType.toString()}';
+    return '_EditDataPoint{ loc: ${location?.toString()}, editType: ${_measureEditType?.toString()}}';
   }
 
   @override

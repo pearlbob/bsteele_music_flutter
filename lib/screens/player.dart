@@ -393,13 +393,13 @@ class _Player extends State<Player> {
 
           int relativeOffset = halfOctave - i;
           String valueString =
-              value.toMarkup(); //  fixme: required by pulldown list font bug!  (see the "on ..." below)
-          if (relativeOffset > 0)
-            valueString += " +${relativeOffset.toString()}";
-          else if (relativeOffset < 0)
-            valueString += " ${relativeOffset.toString()}";
-          else
-            valueString += ' ';
+              value.toMarkup().padRight(2); //  fixme: required by pulldown list font bug!  (see the "on ..." below)
+          String offsetString = ' ';
+          if (relativeOffset > 0) {
+            offsetString = ' +${relativeOffset.toString()}';
+          } else if (relativeOffset < 0) {
+            offsetString = ' ${relativeOffset.toString()}';
+          }
 
           keyDropDownMenuList.add(DropdownMenuItem<music_key.Key>(
               key: ValueKey(value.getHalfStep()),
@@ -409,6 +409,12 @@ class _Player extends State<Player> {
                   valueString,
                   style: lyricsTextStyle,
                 ),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+                  Text(
+                    offsetString,
+                    style: lyricsTextStyle,
+                  ),
+                ]),
                 //  show the first note if it's not the same as the key
                 if (firstScaleNote != null)
                   Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[

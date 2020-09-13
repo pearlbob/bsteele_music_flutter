@@ -56,7 +56,7 @@ class _Options extends State<Options> {
       body: DefaultTextStyle(
         style: TextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
-          padding: EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(12.0),
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +67,7 @@ class _Options extends State<Options> {
                   style: TextStyle(fontSize: fontSize),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  padding: EdgeInsets.only(left: 30.0),
                   child: Column(
                     children: <Widget>[
                       RadioListTile<bool>(
@@ -98,7 +98,7 @@ class _Options extends State<Options> {
                   style: TextStyle(fontSize: fontSize),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  padding: EdgeInsets.only(left: 30.0),
                   child: Column(
                     children: <Widget>[
                       RadioListTile<bool>(

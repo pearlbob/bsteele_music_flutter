@@ -48,23 +48,24 @@ final TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Colors
 const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
 const double _entryWidth = 18 * _defaultChordFontSize;
 
-const Color _defaultColor = Color(0xFFB3E5FC); //Colors.lightBlue[100];
+ Color _defaultColor = Colors.lightBlue[100];
+ Color _hoverColor = Colors.lightBlue[300];
 
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
   _AppContainedButton(
     String text, {
     VoidCallback onPressed,
-    Color color = _defaultColor,
   }) : super(
           shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
           ),
-          color: color,
+          color: _defaultColor,
           textColor: Colors.black,
           disabledTextColor: Colors.grey[400],
           disabledColor: Colors.grey[200],
-          padding: const EdgeInsets.all(0.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          hoverColor: _hoverColor,
           child: Text(
             text,
             style: _buttonTextStyle,
@@ -78,16 +79,16 @@ class AppOutlineButton extends OutlineButton {
   AppOutlineButton(
     String _text, {
     VoidCallback onPressed,
-    Color color = _defaultColor,
   }) : super(
           shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(12.0),
           ),
-          color: color,
+          color: _defaultColor,
           textColor: Colors.black87,
+    hoverColor: _hoverColor,
           disabledTextColor: Colors.grey[400],
           borderSide: BorderSide(width: 1.66, color: Colors.black54),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           child: new Text(
             _text,
             style: _buttonTextStyle,
@@ -97,7 +98,7 @@ class AppOutlineButton extends OutlineButton {
 }
 
 class _Edit extends State<Edit> {
-  _Edit(Song initialSong) : _song = initialSong.copySong(){
+  _Edit(Song initialSong) : _song = initialSong.copySong() {
     _undoStack.push(_song.copySong());
   }
 
@@ -127,7 +128,7 @@ class _Edit extends State<Edit> {
           case ' ':
             //  space means move on to the next measure, horizontally
             logger.d('pre-space: ${_selectedEditDataPoint.toString()}');
-            if (_editMeasure(done: false)) {
+            if (_editMeasure(done: false, endOfRow: false)) {
               logger.i(
                   'post-space, edit type: ${_song.getCurrentMeasureEditType()}, loc: ${_song.getCurrentChordSectionLocation()}');
 
@@ -136,7 +137,6 @@ class _Edit extends State<Edit> {
                 _selectedEditDataPoint = _EditDataPoint(location);
 
                 logger.d('post-space new: $_selectedEditDataPoint');
-                _getLocationMeasure(_selectedEditDataPoint.location)?.endOfRow = false;
 
                 _selectedEditDataPoint.measureEditType = MeasureEditType.append;
 
@@ -484,7 +484,9 @@ class _Edit extends State<Edit> {
                                     '',
                                     style: _boldTextStyle,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    _errorMessage('bob: fixme: arrow_left');
+                                  },
                                 ),
                               ),
                               Container(
@@ -497,7 +499,9 @@ class _Edit extends State<Edit> {
                                     '',
                                     style: _buttonTextStyle,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    _errorMessage('bob: fixme: arrow_right');
+                                  },
                                 ),
                               ),
                             ]),
@@ -671,10 +675,40 @@ class _Edit extends State<Edit> {
                       ),
                     ],
                   ),
-                  Text(
-                    "Chords:",
-                    style: _labelTextStyle,
-                  ),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Flexible(
+                      flex: 1,
+                      child: Text(
+                        "Chords:",
+                        style: _labelTextStyle,
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        AppOutlineButton(
+                          'Undo',
+                          onPressed: () {
+                            _undo();
+                          },
+                        ),
+                        AppOutlineButton(
+                          'Redo',
+                          onPressed: () {
+                            _redo();
+                          },
+                        ),
+                        AppOutlineButton(
+                          '4/Row',
+                        ),
+                        AppOutlineButton('Hints',
+                            onPressed: () {
+                          _showHints = !_showHints;
+                          setState(() {});
+                        }),
+                      ]),
+                    ),
+                  ]),
                   Container(
                     padding: EdgeInsets.only(right: 24, bottom: 24.0),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
@@ -685,18 +719,18 @@ class _Edit extends State<Edit> {
                   Container(
                     padding: EdgeInsets.only(right: 24, bottom: 24.0),
                     child: Column(children: <Widget>[
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                        Text(
-                          ' Recent: ',
-                          style: _textStyle,
-                        ),
-                      ]),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                        Text(
-                          ' Frequent: ',
-                          style: _textStyle,
-                        ),
-                      ]),
+                      // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                      //   Text(
+                      //     ' Recent: ',
+                      //     style: _textStyle,
+                      //   ),
+                      // ]),
+                      // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                      //   Text(
+                      //     ' Frequent: ',
+                      //     style: _textStyle,
+                      //   ),
+                      // ]),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                         Text(
                           ' Repeats: ',
@@ -714,31 +748,6 @@ class _Edit extends State<Edit> {
                         AppOutlineButton(
                           'Repeat x4',
                         ),
-                      ]),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                        Text(
-                          ' Extras: ',
-                          style: _textStyle,
-                        ),
-                        AppOutlineButton(
-                          'Undo',
-                          onPressed: () {
-                            _undo();
-                          },
-                        ),
-                        AppOutlineButton(
-                          'Redo',
-                          onPressed: () {
-                            _redo();
-                          },
-                        ),
-                        AppOutlineButton(
-                          '4/Row',
-                        ),
-                        AppOutlineButton('Hints', onPressed: () {
-                          _showHints = !_showHints;
-                          setState(() {});
-                        }),
                       ]),
                     ]),
                   ),
@@ -938,10 +947,8 @@ class _Edit extends State<Edit> {
       if (e.isControlPressed) {
         if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
           if (_selectedEditDataPoint != null && _measureEntryValid) {
-            ChordSectionLocation location = _selectedEditDataPoint.location;
             setState(() {
-              _editMeasure(done: false);
-              _getLocationMeasure(location)?.endOfRow = true;
+              _editMeasure(done: false, endOfRow: true);
               _selectedEditDataPoint = _EditDataPoint(_song.getCurrentChordSectionLocation());
               _selectedEditDataPoint.measureEditType = MeasureEditType.append;
             });
@@ -949,10 +956,8 @@ class _Edit extends State<Edit> {
           logger.d('main onkey: found arrowDown');
         } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
           if (_selectedEditDataPoint != null && _measureEntryValid) {
-            ChordSectionLocation location = _selectedEditDataPoint.location;
             setState(() {
-              _editMeasure(done: false);
-              _getLocationMeasure(location)?.endOfRow = false;
+              _editMeasure(done: false, endOfRow: false);
               _selectedEditDataPoint = _EditDataPoint(_song.getCurrentChordSectionLocation());
               _selectedEditDataPoint.measureEditType = MeasureEditType.append;
             });
@@ -979,9 +984,7 @@ class _Edit extends State<Edit> {
         _clearChordEditing();
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         setState(() {
-          _editMeasure();
-          //  assure end of row
-          _getLocationMeasure(_song.getCurrentChordSectionLocation())?.endOfRow = true;
+          _editMeasure(endOfRow: true);
         });
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
         int baseOffset = _editTextController.selection.extentOffset ?? 0;
@@ -1199,19 +1202,19 @@ class _Edit extends State<Edit> {
     );
   }
 
-  Measure _getLocationMeasure(ChordSectionLocation location) {
-    if (location == null) {
-      return null;
-    }
-    MeasureNode measureNode = _song.findMeasureNodeByLocation(location);
-    if (measureNode == null) {
-      return null;
-    }
-    if (measureNode.getMeasureNodeType() != MeasureNodeType.measure) {
-      return null;
-    }
-    return measureNode as Measure;
-  }
+  // Measure _getLocationMeasure(ChordSectionLocation location) {
+  //   if (location == null) {
+  //     return null;
+  //   }
+  //   MeasureNode measureNode = _song.findMeasureNodeByLocation(location);
+  //   if (measureNode == null) {
+  //     return null;
+  //   }
+  //   if (measureNode.getMeasureNodeType() != MeasureNodeType.measure) {
+  //     return null;
+  //   }
+  //   return measureNode as Measure;
+  // }
 
   Widget _measureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
     MeasureNode measureNode = _song.findMeasureNodeByLocation(editDataPoint.location);
@@ -1255,7 +1258,7 @@ class _Edit extends State<Edit> {
         );
       }
 
-      logger.i('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
+      logger.d('post: (${_editTextController.selection.baseOffset},${_editTextController.selection.extentOffset})'
           ' "${_editTextController.text}", ${_editTextController.text.isEmpty}');
 
       if (_measureEntryIsClear) {
@@ -1278,7 +1281,6 @@ class _Edit extends State<Edit> {
                 _updateChordText(_keyChordNote.toMarkup());
               });
             },
-            color: color,
           ));
       Widget minorChordButton;
       {
@@ -1295,7 +1297,6 @@ class _Edit extends State<Edit> {
                   _updateChordText(sc.toMarkup());
                 });
               },
-              color: color,
             ));
       }
       Widget dominant7ChordButton;
@@ -1310,7 +1311,6 @@ class _Edit extends State<Edit> {
                   _updateChordText(sc.toMarkup());
                 });
               },
-              color: color,
             ));
       }
 
@@ -1427,7 +1427,6 @@ class _Edit extends State<Edit> {
                               _updateChordText('X');
                             });
                           },
-                          color: color,
                         ),
                       ),
                       if (_measureEntryValid)
@@ -1439,8 +1438,7 @@ class _Edit extends State<Edit> {
                               size: _defaultChordFontSize,
                             ),
                             onTap: () {
-                              _editMeasure();
-                              _getLocationMeasure(editDataPoint.location)?.endOfRow = true;
+                              _editMeasure(endOfRow: true);
                             },
                           ),
                         ),
@@ -1453,8 +1451,7 @@ class _Edit extends State<Edit> {
                               size: _defaultChordFontSize,
                             ),
                             onTap: () {
-                              _editMeasure();
-                              _getLocationMeasure(editDataPoint.location)?.endOfRow = false;
+                              _editMeasure(endOfRow: false);
                             },
                           ),
                         ),
@@ -1865,8 +1862,8 @@ class _Edit extends State<Edit> {
     });
   }
 
-  void _undoStackLog(){
-    if ( Logger.level.index <= Level.debug.index ) {
+  void _undoStackLog() {
+    if (Logger.level.index <= Level.debug.index) {
       for (int i = 0;; i++) {
         Song s = _undoStack.get(i);
         if (s == null) {
@@ -1886,19 +1883,23 @@ class _Edit extends State<Edit> {
   }
 
   /// perform the actual edit to the song
-  bool _editMeasure({done: true}) {
+  bool _editMeasure({bool done: true, bool endOfRow}) {
     if (!_measureEntryValid) return false;
     _song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
     _song.setCurrentMeasureEditType(_selectedEditDataPoint.measureEditType);
 
     //  do the edit
     if (_song.editMeasureNode(_measureEntryNode)) {
+      if (endOfRow != null) {
+        _song.setCurrentChordSectionLocationMeasureEndOfRow(endOfRow);
+      }
       _undoStack.push(_song.copySong());
       _undoStackLog();
-      logger.i('undostack.length: ${_undoStack.length}');
-      logger.d('edit: post: location: ${_song.getCurrentChordSectionLocation().toString()}');
       _clearChordEditing(done: done);
       return true;
+    } else {
+      logger.i('_editMeasure: failed');
+      _errorMessage('edit failed: ${_song.getMessage()}');
     }
 
     return false;

@@ -24,6 +24,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 ///   screen to edit a song
 class Edit extends StatefulWidget {
@@ -1843,7 +1844,8 @@ class _Edit extends State<Edit> {
     setState(() {
       _clearErrorMessage();
       if (_undoStack.canUndo) {
-        _song = _undoStack.pop();
+        _song = _undoStack.undo();
+        _undoStackLog();
       } else {
         _errorMessage('cannot undo any more');
       }
@@ -1856,10 +1858,23 @@ class _Edit extends State<Edit> {
       if (_undoStack.canRedo) {
         _clearMeasureEntry();
         _song = _undoStack.redo();
+        _undoStackLog();
       } else {
         _errorMessage('cannot redo any more');
       }
     });
+  }
+
+  void _undoStackLog(){
+    if ( Logger.level.index <= Level.debug.index ) {
+      for (int i = 0;; i++) {
+        Song s = _undoStack.get(i);
+        if (s == null) {
+          break;
+        }
+        logger.d('$i: "${s.toMarkup()}"');
+      }
+    }
   }
 
   void _errorMessage(String error) {
@@ -1879,6 +1894,7 @@ class _Edit extends State<Edit> {
     //  do the edit
     if (_song.editMeasureNode(_measureEntryNode)) {
       _undoStack.push(_song.copySong());
+      _undoStackLog();
       logger.i('undostack.length: ${_undoStack.length}');
       logger.d('edit: post: location: ${_song.getCurrentChordSectionLocation().toString()}');
       _clearChordEditing(done: done);

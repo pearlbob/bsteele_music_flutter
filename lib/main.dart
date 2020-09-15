@@ -38,12 +38,13 @@ what is debugPrint
  */
 
 void addSong(Song song) {
-  print('addSong( ${song.toString()} )');
+  logger.i('addSong( ${song.toString()} )');
   _allSongs.add(song);
-  _filteredSongs = null;  //  fixme: bad reference
+  _filteredSongs = null; //  fixme: bad reference
   _selectedSong = song;
 }
 
+SplayTreeSet<Song> get allSongs => _allSongs;
 SplayTreeSet<Song> _allSongs = SplayTreeSet();
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 Song _selectedSong;
@@ -189,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _refilterSongs(){
+  void _refilterSongs() {
     //  or at least induce the re-filtering
     _filteredSongs = null;
   }
@@ -572,9 +573,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Navigator.pop(context);
 
-    //  jump the player screen if a song was read
-    if (lastSelectedSong != _selectedSong) _navigateToPlayer(context, _selectedSong);
-    setState(() {});
+    setState(() {
+      //  jump the player screen if a song was read
+      if (lastSelectedSong != _selectedSong) {
+        _navigateToPlayer(context, _selectedSong);
+      }
+    });
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
@@ -595,8 +599,9 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => Options()),
     );
     Navigator.pop(context);
-    setState(() { _refilterSongs();  //  force re-filter on possible option changes
-       });
+    setState(() {
+      _refilterSongs(); //  force re-filter on possible option changes
+    });
   }
 
   _navigateToEdit(BuildContext context, Song song) async {

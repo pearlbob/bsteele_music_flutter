@@ -18,6 +18,7 @@ import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/rowLocation.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
+import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -265,6 +266,7 @@ class _Player extends State<Player> {
             lastSectionCount = sectionCount;
 
             String momentLocation;
+            String rowLyrics = '';
             for (int c = 0; c < row.length; c++) {
               SongMoment sm = row[c];
 
@@ -288,6 +290,7 @@ class _Player extends State<Player> {
                 columnFiller = null; //  for subsequent rows
               } else {
                 //  moment found
+                rowLyrics += ' '+sm.lyrics;
                 children.add(Container(
                     key: _rowKey,
                     margin: marginInsets,
@@ -315,7 +318,7 @@ class _Player extends State<Player> {
                     padding: textPadding,
                     color: color,
                     child: Text(
-                      firstSongMoment.lyrics,
+                      rowLyrics.trimLeft(),
                       style: lyricsTextStyle,
                     )));
 
@@ -388,41 +391,53 @@ class _Player extends State<Player> {
         }
 
         keyDropDownMenuList = [];
+        final double lyricsTextWidth = textWidth(context, lyricsTextStyle, "G"); //  something sane
+        final String onString = '(on ';
+        final double onStringWidth = textWidth(context, lyricsTextStyle, onString);
+
         for (int i = 0; i < steps; i++) {
           music_key.Key value = rolledKeyList[i];
 
           int relativeOffset = halfOctave - i;
           String valueString =
               value.toMarkup().padRight(2); //  fixme: required by pulldown list font bug!  (see the "on ..." below)
-          String offsetString = ' ';
+          String offsetString = '';
           if (relativeOffset > 0) {
-            offsetString = ' +${relativeOffset.toString()}';
+            offsetString = '+${relativeOffset.toString()}';
           } else if (relativeOffset < 0) {
-            offsetString = ' ${relativeOffset.toString()}';
+            offsetString = '${relativeOffset.toString()}';
           }
 
           keyDropDownMenuList.add(DropdownMenuItem<music_key.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                Text(
-                  valueString,
-                  style: lyricsTextStyle,
+                SizedBox(
+                  width: 2 * lyricsTextWidth, //  max width of chars expected
+                  child: Text(
+                    valueString,
+                    style: lyricsTextStyle,
+                    textAlign: TextAlign.left,
+                  ),
                 ),
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-                  Text(
+                SizedBox(
+                  width: 2 * lyricsTextWidth, //  max width of chars expected
+                  child: Text(
                     offsetString,
                     style: lyricsTextStyle,
+                    textAlign: TextAlign.right,
                   ),
-                ]),
+                ),
                 //  show the first note if it's not the same as the key
                 if (firstScaleNote != null)
-                  Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-                    Text(
-                      '(on ${firstScaleNote.transpose(value, relativeOffset).toMarkup().padLeft(2)})',
+                  SizedBox(
+                    width: onStringWidth + 3 * lyricsTextWidth, //  max width of chars expected
+                    child: Text(
+                      onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
                       style: lyricsTextStyle,
+                      textAlign: TextAlign.right,
                     ),
-                  ])
+                  )
               ])));
         }
       }

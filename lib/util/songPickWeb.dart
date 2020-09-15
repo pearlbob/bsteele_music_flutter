@@ -26,7 +26,6 @@ class SongPickWeb implements SongPick {
     for (final String data64 in files) {
       Uint8List data = Base64Decoder().convert(data64.split(",").last);
       String s = utf8.decode(data);
-      print('\tfile: $s');
       List<Song> addSongs = Song.songListFromJson(s);
       for (final Song song in addSongs) {
         logger.d('add: ${song.toString()}');

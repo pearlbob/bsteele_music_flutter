@@ -3,7 +3,6 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
-import 'package:bsteele_music_flutter/util/songPick.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +87,7 @@ class _Songs extends State<Songs> {
   }
 
   void _filePick() async {
-    await SongPick().filePick();
+    await UtilWorkaround().filePick();
     Navigator.pop(context);
   }
 

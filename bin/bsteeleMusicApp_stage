@@ -47,7 +47,7 @@ flutter clean
 utcDate
 mv utcDate.txt lib/assets
 flutter build web
-flutter build appbundle
+#flutter build appbundle
 #   aap: build/app/outputs/bundle/release/app-release.aab
 
 #	clear the last one

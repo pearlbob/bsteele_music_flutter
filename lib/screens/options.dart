@@ -55,146 +55,148 @@ class _Options extends State<Options> {
       ),
       body: DefaultTextStyle(
         style: TextStyle(color: Colors.black87, fontSize: fontSize),
-        child: Container(
-          padding: EdgeInsets.all(12.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                Text(
-                  'User style: ',
-                  style: TextStyle(fontSize: fontSize),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 30.0),
-                  child: Column(
-                    children: <Widget>[
-                      RadioListTile<bool>(
-                        title: Text('Player', style: TextStyle(fontSize: fontSize)),
-                        value: true,
-                        groupValue: _appOptions.playerDisplay,
-                        onChanged: (value) {
-                          setState(() {
-                            _appOptions.playerDisplay = value;
-                          });
-                        },
-                      ),
-                      RadioListTile<bool>(
-                        title: Text('Singer', style: TextStyle(fontSize: fontSize)),
-                        value: false,
-                        groupValue: _appOptions.playerDisplay,
-                        onChanged: (value) {
-                          setState(() {
-                            _appOptions.playerDisplay = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  'Holliday choice: ',
-                  style: TextStyle(fontSize: fontSize),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 30.0),
-                  child: Column(
-                    children: <Widget>[
-                      RadioListTile<bool>(
-                        title: Text('Not in a holiday mood', style: TextStyle(fontSize: fontSize)),
-                        value: false,
-                        groupValue: _appOptions.holiday,
-                        onChanged: (value) {
-                          setState(() {
-                            _appOptions.holiday = value;
-                          });
-                        },
-                      ),
-                      RadioListTile<bool>(
-                        title: Text('All holiday, all the time!', style: TextStyle(fontSize: fontSize)),
-                        value: true,
-                        groupValue: _appOptions.holiday,
-                        onChanged: (value) {
-                          setState(() {
-                            _appOptions.holiday = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Row(children: <Widget>[
-                  Checkbox(
-                    value: _appOptions.debug,
-                    onChanged: (value) {
-                      _appOptions.debug = value;
-                      Logger.level = _appOptions.debug ? Level.debug : Level.info;
-                      setState(() {});
-                    },
-                  ),
+        child: SingleChildScrollView( //  for phones when horizontal
+          child: Container(
+            padding: EdgeInsets.all(12.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                textDirection: TextDirection.ltr,
+                children: <Widget>[
                   Text(
-                    'debug: ',
+                    'User style: ',
                     style: TextStyle(fontSize: fontSize),
                   ),
-                ]),
-                Row(children: <Widget>[
-                  Checkbox(
-                    value: _appOptions.playWithChords,
-                    onChanged: (value) {
-                      setState(() {
-                        _appOptions.playWithChords = value;
-                      });
-                    },
-                  ),
-                  Text(
-                    'Playback with chords',
-                    style: TextStyle(fontSize: fontSize),
-                  ),
-                ]),
-                Row(children: <Widget>[
-                  Checkbox(
-                    value: _appOptions.playWithBass,
-                    onChanged: (value) {
-                      setState(() {
-                        _appOptions.playWithBass = value;
-                      });
-                    },
-                  ),
-                  Text(
-                    'Playback with bass',
-                    style: TextStyle(fontSize: fontSize),
-                  ),
-                ]),
-                Row(children: <Widget>[
-                  Text(
-                    'audio test: ',
-                    style: TextStyle(fontSize: fontSize),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _stop();
-                      });
-                    },
-                    child: Icon(
-                      Icons.stop,
-                      size: fontSize * 2,
+                  Container(
+                    padding: EdgeInsets.only(left: 30.0),
+                    child: Column(
+                      children: <Widget>[
+                        RadioListTile<bool>(
+                          title: Text('Player', style: TextStyle(fontSize: fontSize)),
+                          value: true,
+                          groupValue: _appOptions.playerDisplay,
+                          onChanged: (value) {
+                            setState(() {
+                              _appOptions.playerDisplay = value;
+                            });
+                          },
+                        ),
+                        RadioListTile<bool>(
+                          title: Text('Singer', style: TextStyle(fontSize: fontSize)),
+                          value: false,
+                          groupValue: _appOptions.playerDisplay,
+                          onChanged: (value) {
+                            setState(() {
+                              _appOptions.playerDisplay = value;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _audioTest();
-                      });
-                    },
-                    child: Icon(
-                      Icons.play_arrow,
-                      size: fontSize * 2,
+                  Text(
+                    'Holliday choice: ',
+                    style: TextStyle(fontSize: fontSize),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 30.0),
+                    child: Column(
+                      children: <Widget>[
+                        RadioListTile<bool>(
+                          title: Text('Not in a holiday mood', style: TextStyle(fontSize: fontSize)),
+                          value: false,
+                          groupValue: _appOptions.holiday,
+                          onChanged: (value) {
+                            setState(() {
+                              _appOptions.holiday = value;
+                            });
+                          },
+                        ),
+                        RadioListTile<bool>(
+                          title: Text('All holiday, all the time!', style: TextStyle(fontSize: fontSize)),
+                          value: true,
+                          groupValue: _appOptions.holiday,
+                          onChanged: (value) {
+                            setState(() {
+                              _appOptions.holiday = value;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
+                  Row(children: <Widget>[
+                    Checkbox(
+                      value: _appOptions.debug,
+                      onChanged: (value) {
+                        _appOptions.debug = value;
+                        Logger.level = _appOptions.debug ? Level.debug : Level.info;
+                        setState(() {});
+                      },
+                    ),
+                    Text(
+                      'debug: ',
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                  ]),
+                  Row(children: <Widget>[
+                    Checkbox(
+                      value: _appOptions.playWithChords,
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.playWithChords = value;
+                        });
+                      },
+                    ),
+                    Text(
+                      'Playback with chords',
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                  ]),
+                  Row(children: <Widget>[
+                    Checkbox(
+                      value: _appOptions.playWithBass,
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.playWithBass = value;
+                        });
+                      },
+                    ),
+                    Text(
+                      'Playback with bass',
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                  ]),
+                  Row(children: <Widget>[
+                    Text(
+                      'audio test: ',
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _stop();
+                        });
+                      },
+                      child: Icon(
+                        Icons.stop,
+                        size: fontSize * 2,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _audioTest();
+                        });
+                      },
+                      child: Icon(
+                        Icons.play_arrow,
+                        size: fontSize * 2,
+                      ),
+                    ),
+                  ]),
                 ]),
-              ]),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

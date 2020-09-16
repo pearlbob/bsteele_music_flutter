@@ -290,7 +290,7 @@ class _Player extends State<Player> {
                 columnFiller = null; //  for subsequent rows
               } else {
                 //  moment found
-                rowLyrics += ' '+sm.lyrics;
+                rowLyrics += ' ' + sm.lyrics;
                 children.add(Container(
                     key: _rowKey,
                     margin: marginInsets,
@@ -307,7 +307,16 @@ class _Player extends State<Player> {
               }
 
               //  section and lyrics only if on a cell phone
-              if (!showChords) break;
+              if (!showChords) {
+                //  collect the rest of the lyrics
+                for (; c < row.length; c++) {
+                  SongMoment sm = row[c];
+                  if (sm != null) {
+                    rowLyrics += ' ' + sm.lyrics;
+                  }
+                }
+                break;
+              }
             }
 
             if (momentLocation != null || _isTooNarrow) {

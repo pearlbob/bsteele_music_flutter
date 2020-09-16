@@ -1,7 +1,5 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as webFile;
-import 'dart:io';
-import 'dart:ui';
+import 'package:bsteele_music_flutter/util/utilLinux.dart'
+    if (dart.library.html) 'package:bsteele_music_flutter/util/writeWeb.dart';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -11,7 +9,6 @@ import 'package:bsteele_music_flutter/util/songPick.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:path_provider/path_provider.dart';
 
 /// Display the song moments in sequential order.
 class Songs extends StatefulWidget {
@@ -64,7 +61,7 @@ class _Songs extends State<Songs> {
               ),
               RaisedButton(
                 child: Text(
-                  'Write all',
+                  'Write songs all to $fileLocation',
                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
@@ -83,32 +80,12 @@ class _Songs extends State<Songs> {
   /// write all songs to the standard location
   void _writeAll() async {
     String fileName = 'allSongs_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songlyrics';
-    if (kIsWeb) {
-      //  web stuff
-      var blob = webFile.Blob([Song.listToJson(allSongs.toList())], 'text/plain', 'native');
+    String contents = Song.listToJson(allSongs.toList());
+    writeFileContents(fileName, contents);
 
-      var anchorElement = webFile.AnchorElement(
-        href: webFile.Url.createObjectUrlFromBlob(blob).toString(),
-      )
-        ..setAttribute("download", fileName)
-        ..click();
-      setState(() {
-        _message = 'wrote file: $fileName to download area';
-      });
-    } else {
-      //  not web stuff
-      final directory = await getApplicationDocumentsDirectory();
-      String path = directory.path;
-      logger.d('path: $path');
-
-      File file = File('$path/$fileName');
-      logger.d('file: $file');
-      await file.writeAsString(Song.listToJson(allSongs.toList()), flush: true);
-
-      setState(() {
-        _message = 'wrote file: ${file.path}';
-      });
-    }
+    setState(() {
+      _message = 'wrote file: $fileName to $fileLocation';
+    });
   }
 
   void _filePick() async {
@@ -116,5 +93,6 @@ class _Songs extends State<Songs> {
     Navigator.pop(context);
   }
 
+  String fileLocation = kIsWeb ? 'download area' : 'Documents';
   String _message;
 }

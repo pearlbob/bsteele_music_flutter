@@ -64,3 +64,5 @@ gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs
 
 echo test http://www.bsteele.com/$flavor/bsteeleMusicApp
+ls -l lib/assets/utcDate.txt
+cat lib/assets/utcDate.txt

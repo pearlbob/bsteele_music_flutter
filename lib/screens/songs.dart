@@ -1,11 +1,10 @@
-import 'package:bsteele_music_flutter/util/utilLinux.dart'
-    if (dart.library.html) 'package:bsteele_music_flutter/util/writeWeb.dart';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:bsteele_music_flutter/util/songPick.dart';
+import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -81,7 +80,7 @@ class _Songs extends State<Songs> {
   void _writeAll() async {
     String fileName = 'allSongs_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songlyrics';
     String contents = Song.listToJson(allSongs.toList());
-    writeFileContents(fileName, contents);
+    UtilWorkaround().writeFileContents(fileName, contents);
 
     setState(() {
       _message = 'wrote file: $fileName to $fileLocation';

@@ -16,6 +16,7 @@ import 'package:bsteele_music_flutter/util/screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 import 'appOptions.dart';
@@ -205,6 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final bool _isTooNarrow = screenInfo.isTooNarrow;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
+    final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold);
 
     //  re-search filtered list on data changes
     if (_filteredSongs == null) {
@@ -217,13 +219,29 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
             color: oddEven ? Colors.white : Colors.grey[100],
             child: ListTile(
-              title: Text(
-                song.getTitle(),
-                textScaleFactor: titleScaleFactor,
-              ),
-              subtitle: Text(
-                song.getArtist(),
-                textScaleFactor: artistScaleFactor,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                children: <Widget>[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    children: <Widget>[
+                      Text(
+                        song.getTitle(),
+                        textScaleFactor: titleScaleFactor,
+                        style: titleTextStyle,
+                      ),
+                      Text(
+                        '      ' + song.getArtist(),
+                        textScaleFactor: artistScaleFactor,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                    textScaleFactor: artistScaleFactor,
+                  ),
+                ],
               ),
             )),
         onTap: () {

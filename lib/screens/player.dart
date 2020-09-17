@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -29,8 +30,8 @@ import '../appOptions.dart';
 fixme: player hints:
 Space bar starts "play" mode.  First section is in the middle of the display. Display items on the top will be missing.
 Another space bar hit advances one section.
-Down arrow advances one row.
-Up arrow backs up one row.
+Down or right arrow also advances one section.
+Up or left arrow backs up one section.
 Scrolling the mouse wheel still works.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.
@@ -55,7 +56,7 @@ class _Player extends State<Player> {
     if (kIsWeb) {
       html.window.onMouseWheel.listen((event) {
         if (event.ctrlKey) {
-          logger.v('event type: ${event.runtimeType.toString()},'
+          logger.i('event type: ${event.runtimeType.toString()},'
               ' d: ${event.deltaMode.toString()}'
               ' x: ${event.deltaX.toString()}'
               ' y: ${event.deltaY.toString()}'
@@ -116,60 +117,72 @@ class _Player extends State<Player> {
         //logger.d('    ${rowLocation.globalKey.currentContext.toString()}');
       }
       _lastDy += lastH;
-
-//      //  diagnostics only
-//      for (final RowLocation rowLocation in _rowLocations) {
-//        logger.i('${rowLocation.toString()}');
-//      }
-//      logger.i('_lastDy: $_lastDy');
     });
 
     _ticker = Ticker((duration) {
-      int t = DateTime.now().millisecondsSinceEpoch;
-      int dt = t - _lastTime;
-      _lastTime = t;
-
       if (_isPlaying) {
         if (!_isPaused) {
           _RowLocation _rowLocation = _rowLocationAtPosition(_scrollController.offset);
           if (_rowLocation != null) {
-            if (_rowLocationBump != 0) {
+            if (_sectionBump != 0) {
               //  deal with the user bumping the scroll
               int row = _rowLocation.row;
-              if (_rowLocationBump > 0) {
+
+              int limit = _rowLocations.length-1;
+              while (_sectionBump > 0 && row < limit) {
                 ChordSection chordSection = _rowLocation.songMoment.chordSection;
                 int sectionCount = _rowLocation.songMoment.sectionCount;
-                for (int b = 0; b < _rowLocationBump; b++) {
-                  int index = row + b;
-                  if (index >= _rowLocations.length) {
-                    break;
+                for (; row < limit; row++) {
+                  _RowLocation _nextRowLocation = _rowLocations[row];
+                  if (chordSection == _nextRowLocation.songMoment.chordSection &&
+                      sectionCount == _nextRowLocation.songMoment.sectionCount) {
+                    continue;
                   }
-                  _RowLocation _nextRowLocation = _rowLocations[index];
-                  if (chordSection != _nextRowLocation.songMoment.chordSection ||
-                      sectionCount != _nextRowLocation.songMoment.sectionCount) {
-                    _rowLocationBump = b + _nextRowLocation.songMoment.chordSection.chordRowCount ~/ 2;
-                    break; //  don't roll over a section just by sloppy behavior
+                  _sectionBump--;
+                  if (_sectionBump == 0) {
+                    //  aim for the middle... middle-ish
+                    row += _nextRowLocation.songMoment.chordSection.chordRowCount ~/ 2;
+                    break; //  done bumping to next section
                   }
+                  //  prep for next row
+                  chordSection = _nextRowLocation.songMoment.chordSection;
+                  sectionCount = _nextRowLocation.songMoment.sectionCount;
                 }
               }
-              row += _rowLocationBump;
 
-              if (row < _rowLocation.songMoment.chordSection.chordRowCount ~/ 2) {
-                row = _rowLocation.songMoment.chordSection.chordRowCount ~/ 2;
-              } else if (row > _rowLocations.length - 1) {
-                row = _rowLocations.length - 1;
+              while (_sectionBump < 0 && row > 0) {
+                ChordSection chordSection = _rowLocation.songMoment.chordSection;
+                int sectionCount = _rowLocation.songMoment.sectionCount;
+                for (; row > 0; row--) {
+                  _RowLocation _priorRowLocation = _rowLocations[row];
+                  if (chordSection == _priorRowLocation.songMoment.chordSection &&
+                      sectionCount == _priorRowLocation.songMoment.sectionCount) {
+                    continue;
+                  }
+                  _sectionBump++;
+                  if (_sectionBump == 0) {
+                    //  aim for the middle... middle-ish
+                    row -= _priorRowLocation.songMoment.chordSection.chordRowCount ~/ 2;
+                    break; //  done bumping to next section
+                  }
+                  //  prep for next row
+                  chordSection = _priorRowLocation.songMoment.chordSection;
+                  sectionCount = _priorRowLocation.songMoment.sectionCount;
+                }
               }
+
+              row = Util.limit(row, _rowLocation.songMoment.chordSection.chordRowCount ~/ 2, _rowLocations.length - 1);
               _rowLocation = _rowLocations[row];
 
               _scrollController.animateTo(_rowLocation.dispY,
-                  duration: Duration(milliseconds: 450), curve: Curves.ease);
+                  duration: Duration(milliseconds: 550), curve: Curves.ease);
               logger.d('_rowLocation: row: $row, Y: ${_rowLocation.dispY}');
             }
           }
         }
       }
-      _rowLocationBump = 0;
-      logger.v('ticker ${_tickerCount.toString()} $dt');
+      _sectionBump = 0;
+      logger.v('ticker ${_tickerCount.toString()}');
       _tickerCount++;
     });
     _ticker.start();
@@ -192,22 +205,6 @@ class _Player extends State<Player> {
     }
     return null;
   }
-
-//  /// for the given position on the screen,
-//  /// return the time represented in the song at that position
-//  double songTimeAtPosition(double position) {
-//    if (position <= 0) return 0;
-//
-//    RowLocation rowLocation = _rowLocationAtPosition(position);
-//    if (rowLocation == null) return null;
-//
-//    return (rowLocation.songMoment.beatNumber +
-//            (position - rowLocation.dispY) /
-//                rowLocation.height *
-//                rowLocation.beats) *
-//        60 /
-//        widget.song.getBeatsPerMinute();
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -755,7 +752,7 @@ class _Player extends State<Player> {
   void _playerOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.i('_playerOnKey(): ${e.data.logicalKey}'
+      logger.d('_playerOnKey(): ${e.data.logicalKey}'
           ', ctl: ${e.isControlPressed}'
           ', shf: ${e.isShiftPressed}'
           ', alt: ${e.isAltPressed}');
@@ -767,16 +764,18 @@ class _Player extends State<Player> {
         if (!_isPlaying)
           _play();
         else {
-          _RowLocation _rowLocation = _rowLocationAtPosition(_scrollController.offset);
-          _rowLocationBump =
-              (_rowLocation?.songMoment?.chordSection?.chordRowCount ?? 1) + 1; //  force the middle of the next section
+          _sectionBump++;
         }
-      } else if (_isPlaying && !_isPaused && e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
+      } else if (_isPlaying &&
+          !_isPaused &&
+          (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
         logger.d('arrowDown @ $_rowLocationIndex');
-        _rowLocationBump++;
-      } else if (_isPlaying && !_isPaused && e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
+        _sectionBump++;
+      } else if (_isPlaying &&
+          !_isPaused &&
+          (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
         logger.d('arrowUp @ $_rowLocationIndex');
-        _rowLocationBump--;
+        _sectionBump--;
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         if (_isPlaying) {
           _stop();
@@ -784,9 +783,7 @@ class _Player extends State<Player> {
           logger.i('pop the navigator');
           Navigator.pop(context);
         }
-      } else if (
-          e.isKeyPressed(LogicalKeyboardKey.numpadEnter) ||
-          e.isKeyPressed(LogicalKeyboardKey.enter)) {
+      } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
         if (_isPlaying) {
           _stop();
         }
@@ -802,7 +799,7 @@ class _Player extends State<Player> {
       if (_rowLocations.isNotEmpty) {
         _scrollController.jumpTo(_rowLocations[_rowLocations.first.songMoment.chordSection.chordRowCount ~/ 2].dispY);
       }
-      logger.d('play');
+      logger.i('play');
       _isPaused = false;
       _isPlaying = true;
       songMaster.playSong(widget.song);
@@ -885,7 +882,6 @@ class _Player extends State<Player> {
 
   Ticker _ticker;
   static int _tickerCount = 0;
-  int _lastTime = DateTime.now().millisecondsSinceEpoch;
 
   bool _isPlaying = false;
   bool _isPaused = false;
@@ -895,7 +891,7 @@ class _Player extends State<Player> {
   double _lastDy = 0;
   List<_RowLocation> _rowLocations;
   int _rowLocationIndex;
-  int _rowLocationBump = 0;
+  int _sectionBump = 0;
 
   Table _table;
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);

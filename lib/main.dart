@@ -36,6 +36,15 @@ websockets/server
 C's ipad: model ML0F2LL/A
 
 what is debugPrint
+
+remember keys songs were played in
+remember keys songs were played in for a singer
+remember songs played
+roll list start when returning to song list
+edit: paste from edit buffer
+fix key guess
+wider fade area on player
+edit: slash note pulldown
  */
 
 void addSong(Song song) {

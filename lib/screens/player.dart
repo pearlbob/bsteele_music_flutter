@@ -20,7 +20,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -86,124 +85,14 @@ class _Player extends State<Player> {
 
     _displaySongKey = widget.song.key;
 
-    //  eval sizes after first render
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      //  find the song's widget sizes after first rendering pass
-      _lastDy = 0;
-      double lastH = 0;
-      double firstBoxDy;
-      _RowLocation lastRowLocation;
-      for (int i = 0; i < _rowLocations.length; i++) {
-        _RowLocation rowLocation = _rowLocations[i];
-        BuildContext buildContext = rowLocation.globalKey.currentContext;
-        if (buildContext == null) continue;
-        RenderBox box = buildContext.findRenderObject();
-
-        {
-          double dy = box.localToGlobal(Offset.zero).dy;
-          if (firstBoxDy == null) {
-            firstBoxDy = dy;
-            rowLocation.dispY = 0;
-          } else
-            rowLocation.dispY = box.localToGlobal(Offset.zero).dy - firstBoxDy;
-        }
-
-        lastH = _lastDy != null ? rowLocation.dispY - _lastDy : box.size.height;
-        rowLocation.height = box.size.height; //  placeholder
-        if (lastRowLocation != null) lastRowLocation.height = lastH;
-        _lastDy = rowLocation.dispY; //  for next time
-        lastRowLocation = rowLocation;
-        //logger.d(rowLocation.toString());
-        //logger.d('    ${rowLocation.globalKey.currentContext.toString()}');
-      }
-      _lastDy += lastH;
-    });
-
-    _ticker = Ticker((duration) {
-      if (_isPlaying) {
-        if (!_isPaused) {
-          _RowLocation _rowLocation = _rowLocationAtPosition(_scrollController.offset);
-          if (_rowLocation != null) {
-            if (_sectionBump != 0) {
-              //  deal with the user bumping the scroll
-              int row = _rowLocation.row;
-
-              int limit = _rowLocations.length-1;
-              while (_sectionBump > 0 && row < limit) {
-                ChordSection chordSection = _rowLocation.songMoment.chordSection;
-                int sectionCount = _rowLocation.songMoment.sectionCount;
-                for (; row < limit; row++) {
-                  _RowLocation _nextRowLocation = _rowLocations[row];
-                  if (chordSection == _nextRowLocation.songMoment.chordSection &&
-                      sectionCount == _nextRowLocation.songMoment.sectionCount) {
-                    continue;
-                  }
-                  _sectionBump--;
-                  if (_sectionBump == 0) {
-                    //  aim for the middle... middle-ish
-                    row += _nextRowLocation.songMoment.chordSection.chordRowCount ~/ 2;
-                    break; //  done bumping to next section
-                  }
-                  //  prep for next row
-                  chordSection = _nextRowLocation.songMoment.chordSection;
-                  sectionCount = _nextRowLocation.songMoment.sectionCount;
-                }
-              }
-
-              while (_sectionBump < 0 && row > 0) {
-                ChordSection chordSection = _rowLocation.songMoment.chordSection;
-                int sectionCount = _rowLocation.songMoment.sectionCount;
-                for (; row > 0; row--) {
-                  _RowLocation _priorRowLocation = _rowLocations[row];
-                  if (chordSection == _priorRowLocation.songMoment.chordSection &&
-                      sectionCount == _priorRowLocation.songMoment.sectionCount) {
-                    continue;
-                  }
-                  _sectionBump++;
-                  if (_sectionBump == 0) {
-                    //  aim for the middle... middle-ish
-                    row -= _priorRowLocation.songMoment.chordSection.chordRowCount ~/ 2;
-                    break; //  done bumping to next section
-                  }
-                  //  prep for next row
-                  chordSection = _priorRowLocation.songMoment.chordSection;
-                  sectionCount = _priorRowLocation.songMoment.sectionCount;
-                }
-              }
-
-              row = Util.limit(row, _rowLocation.songMoment.chordSection.chordRowCount ~/ 2, _rowLocations.length - 1);
-              _rowLocation = _rowLocations[row];
-
-              _scrollController.animateTo(_rowLocation.dispY,
-                  duration: Duration(milliseconds: 550), curve: Curves.ease);
-              logger.d('_rowLocation: row: $row, Y: ${_rowLocation.dispY}');
-            }
-          }
-        }
-      }
-      _sectionBump = 0;
-      logger.v('ticker ${_tickerCount.toString()}');
-      _tickerCount++;
-    });
-    _ticker.start();
+    WidgetsBinding.instance.scheduleWarmUpFrame();
 
     songMaster = SongMaster();
   }
 
   @override
   void dispose() {
-    _ticker?.dispose();
     super.dispose();
-  }
-
-  /// for the given position on the screen,
-  /// return the row location in the song at that position
-  _RowLocation _rowLocationAtPosition(double position) {
-    if (position <= 0) return _rowLocations[0];
-    for (final _RowLocation rowLocation in _rowLocations) {
-      if (position < rowLocation.dispY + rowLocation.height) return rowLocation;
-    }
-    return null;
   }
 
   @override
@@ -214,7 +103,7 @@ class _Player extends State<Player> {
     double _screenHeight = MediaQuery.of(context).size.height;
     _screenOffset = _screenHeight / 2;
     _isTooNarrow = _screenWidth <= 800;
-    final double fontSize = _defaultFontSize * min(5, max(1, _screenWidth / 600)) / (_isTooNarrow ? 2 : 1);
+    final double fontSize = _defaultFontSize * min(5, max(1, _screenWidth / 650)) / (_isTooNarrow ? 2 : 1);
     final double fontScale = fontSize / _defaultFontSize;
 
     final double lyricsFontSize = fontSize * 0.75;
@@ -266,8 +155,8 @@ class _Player extends State<Player> {
               }
             if (firstSongMoment == null) continue;
 
-            GlobalKey _rowKey = GlobalKey(debugLabel: r.toString());
-            _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey, song.rowBeats(r));
+            GlobalKey<_Player> _rowKey = GlobalKey(debugLabel: 'rowLoc${r.toString()}');
+            _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey);
 
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
@@ -373,6 +262,7 @@ class _Player extends State<Player> {
 
           _table = Table(
             defaultColumnWidth: IntrinsicColumnWidth(),
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: rows,
           );
         }
@@ -764,18 +654,18 @@ class _Player extends State<Player> {
         if (!_isPlaying)
           _play();
         else {
-          _sectionBump++;
+          _sectionBump(1);
         }
       } else if (_isPlaying &&
           !_isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
         logger.d('arrowDown @ $_rowLocationIndex');
-        _sectionBump++;
+        _sectionBump(1);
       } else if (_isPlaying &&
           !_isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
         logger.d('arrowUp @ $_rowLocationIndex');
-        _sectionBump--;
+        _sectionBump(-1);
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         if (_isPlaying) {
           _stop();
@@ -791,14 +681,65 @@ class _Player extends State<Player> {
     }
   }
 
+  /// bump from one section to the next
+  _sectionBump(int bump) {
+    if (_rowLocations.isEmpty) {
+      _sectionLocations = null;
+      return;
+    }
+    if (_sectionLocations == null && _rowLocations.isNotEmpty) {
+      //  initialize the section locations... after the initial rendering
+      double y0;
+      ChordSection chordSection = _rowLocations[0].songMoment.chordSection;
+      int sectionCount = 0;
+
+      _sectionLocations = [];
+      for (_RowLocation _rowLocation in _rowLocations) {
+        if (chordSection == _rowLocation.songMoment.chordSection &&
+            sectionCount == _rowLocation.songMoment.sectionCount) {
+          continue;   //  same section, no entry
+        }
+        chordSection = _rowLocation.songMoment.chordSection;
+        sectionCount = _rowLocation.songMoment.sectionCount;
+
+        GlobalKey key = _rowLocation.globalKey;
+        double y = (key.currentContext.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+        y0 ??= y;
+        y -= y0;
+        _sectionLocations.add(y);
+
+        logger.d('${key.toString()}: $y');
+      }
+
+      //  add half of the deltas to center each selection
+      {
+        List<double> tmp = [];
+        for (int i = 0; i < _sectionLocations.length - 1; i++) {
+          tmp.add((_sectionLocations[i] + _sectionLocations[i + 1]) / 2);
+        }
+
+        //  average the last with the end of the last
+        GlobalKey key = _rowLocations.last.globalKey;
+        double y = (key.currentContext.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+        y0 ??= y;
+        y -= y0;
+        tmp.add((_sectionLocations[_sectionLocations.length - 1] + y + key.currentContext.size.height) / 2);
+        _sectionLocations = tmp;
+      }
+    }
+    _sectionSelection = Util.limit(_sectionSelection + bump, 0, _sectionLocations.length - 1);
+    _scrollController.animateTo(_sectionLocations[_sectionSelection],
+        duration: Duration(milliseconds: 550), curve: Curves.ease);
+    logger.d('_sectionSelection: $_sectionSelection');
+  }
+
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
 
   _play() {
     setState(() {
+      _sectionSelection = 0;
+      _sectionBump(0);
       _rowLocationIndex = 0;
-      if (_rowLocations.isNotEmpty) {
-        _scrollController.jumpTo(_rowLocations[_rowLocations.first.songMoment.chordSection.chordRowCount ~/ 2].dispY);
-      }
       logger.i('play');
       _isPaused = false;
       _isPlaying = true;
@@ -875,23 +816,19 @@ class _Player extends State<Player> {
   }
 
   void _forceTableRedisplay() {
+    _sectionLocations = null;
     _table = null;
   }
 
   static final String anchorUrlStart = "https://www.youtube.com/results?search_query=";
-
-  Ticker _ticker;
-  static int _tickerCount = 0;
 
   bool _isPlaying = false;
   bool _isPaused = false;
 
   bool _isTooNarrow = false;
   double _screenOffset;
-  double _lastDy = 0;
   List<_RowLocation> _rowLocations;
   int _rowLocationIndex;
-  int _sectionBump = 0;
 
   Table _table;
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
@@ -908,50 +845,23 @@ class _Player extends State<Player> {
   static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final FocusNode _focusNode = FocusNode();
   TextStyle _lyricsTextStyle = TextStyle();
+  int _sectionSelection = 0;
+  List<double> _sectionLocations;
 }
 
 /// helper class to help manage a song display
 class _RowLocation {
-  _RowLocation(this.songMoment, this.row, this.globalKey, this._beats);
+  _RowLocation(this.songMoment, this.row, this.globalKey);
 
   @override
   String toString() {
     return ('${row.toString()} ${globalKey.toString()}'
-        ', ${songMoment.toString()}'
-        ', beats: ${beats.toString()}'
-        // ', dispY: ${dispY.toStringAsFixed(1)}'
-        // ', h: ${height.toStringAsFixed(1)}'
-        ', b/h: ${pixelsPerBeat.toStringAsFixed(1)}');
-  }
-
-  void _computePixelsPerBeat() {
-    if (_height != null && beats != null && beats > 0) _pixelsPerBeat = _height / beats;
+        ', ${songMoment.toString()}');
   }
 
   final SongMoment songMoment;
   final GlobalKey globalKey;
   final int row;
-
-  set beats(value) {
-    _beats = value;
-    _computePixelsPerBeat();
-  }
-
-  int get beats => _beats;
-  int _beats;
-
-  double dispY;
-
-  set height(value) {
-    _height = value;
-    _computePixelsPerBeat();
-  }
-
-  double get height => _height;
-  double _height;
-
-  double get pixelsPerBeat => _pixelsPerBeat;
-  double _pixelsPerBeat;
 }
 
 const _tooltipColor = Color(0xFFE8F5E9);

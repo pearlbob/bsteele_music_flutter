@@ -19,7 +19,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/gui.dart';
-import 'package:bsteele_music_flutter/util/screen.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -161,7 +161,7 @@ class _Edit extends State<Edit> {
     logger.d('edit build: "${_editTextController.text.toString()}"');
 
     ScreenInfo screenInfo = ScreenInfo(context);
-    final double _screenWidth = screenInfo.mediaWidth;
+    final double _screenWidth = screenInfo.widthInLogicalPixels;
 
     _chordFontSize = _defaultChordFontSize * _screenWidth / 800;
     _chordFontSize = min(_defaultChordFontSize, max(12, _chordFontSize));

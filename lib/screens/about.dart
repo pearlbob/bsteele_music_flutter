@@ -1,5 +1,5 @@
 import 'package:bsteele_music_flutter/util/openLink.dart';
-import 'package:bsteele_music_flutter/util/screen.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

@@ -14,7 +14,7 @@ import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
-import 'package:bsteele_music_flutter/util/screen.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -50,8 +50,11 @@ wider fade area on player
 edit: slash note pulldown
  */
 
-final bool isNotPhone = kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
-final bool isPhone = !isNotPhone;
+const double defaultFontSize = 14.0; //  borrowed from Text widget
+ScreenInfo screenInfo; //  refreshed on main build
+bool isEditReady = kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+bool isScreenBig = isEditReady || !(screenInfo?.isTooNarrow ?? false);
+bool isPhone = !isScreenBig;
 
 void addSong(Song song) {
   logger.i('addSong( ${song.toString()} )');
@@ -217,9 +220,10 @@ class _MyHomePageState extends State<MyHomePage> {
     List<StatelessWidget> listViewChildren = List();
     bool oddEven = false;
 
-    ScreenInfo screenInfo = ScreenInfo(context);
-    final double mediaWidth = screenInfo.mediaWidth;
-    bool _isTooNarrow = screenInfo.isTooNarrow;
+    screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
+    logger.i('screen: logical: (${screenInfo.widthInLogicalPixels},${screenInfo.heightInLogicalPixels})');
+
+    final double mediaWidth = screenInfo.widthInLogicalPixels;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
     final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold);
@@ -236,7 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: oddEven ? Colors.white : Colors.grey[100],
             child: ListTile(
               title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                if (isNotPhone)
+                if (isScreenBig)
                   Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -286,8 +290,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
-    const double defaultFontSize = 48;
-    double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
+    double fontSize = defaultFontSize * max(1, screenInfo.titleScaleFactor);
     final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     // if (metadataDropDownMenuList == null) {
@@ -352,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          if (!_isTooNarrow) //  sorry CJ
+          if (isScreenBig) //  sorry CJ
             new Tooltip(
               message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
@@ -380,7 +383,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: 50,
             ), //  filler for notched phones
-            if (isNotPhone) //  no files on phones!
+            if (isEditReady) //  no files on phones!
               ListTile(
                 title: Text(
                   "Songs",
@@ -452,7 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: "Enter search filter string here.",
                     ),
                     autofocus: true,
-                    style: new TextStyle(fontSize: titleScaleFactor * 24),
+                    style: new TextStyle(fontSize: fontSize),
                     onChanged: (text) {
                       logger.v('search text: "$text"');
                       _searchSongs(_searchTextFieldController.text);
@@ -530,7 +533,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ]),
 
       floatingActionButton: FloatingActionButton(
-        mini: _isTooNarrow,
+        mini: !isScreenBig,
         onPressed: () {
           _scrollController.animateTo(
             0.0,
@@ -546,8 +549,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-  bool get _canEdit => isNotPhone && !_isTooNarrow;
 
   void _searchSongs(String search) {
     if (search == null) {
@@ -685,7 +686,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList;
-  bool _isTooNarrow = false;
 
   TextEditingController _searchTextFieldController;
   FocusNode _searchFocusNode;

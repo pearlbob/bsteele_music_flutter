@@ -1,4 +1,4 @@
-import 'package:bsteele_music_flutter/util/screen.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

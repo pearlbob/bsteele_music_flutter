@@ -7,7 +7,7 @@ import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/bass.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
-import 'package:bsteele_music_flutter/util/screen.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

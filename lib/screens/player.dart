@@ -21,7 +21,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../appOptions.dart';
 import '../main.dart';
@@ -45,36 +44,36 @@ class _Player extends State<Player> {
   initState() {
     super.initState();
 
-    //  control font size with ctl+wheel
-    if (kIsWeb) {
-      html.window.onMouseWheel.listen((event) {
-        if (event.ctrlKey) {
-          logger.i('event type: ${event.runtimeType.toString()},'
-              ' d: ${event.deltaMode.toString()}'
-              ' x: ${event.deltaX.toString()}'
-              ' y: ${event.deltaY.toString()}'
-              ' z: ${event.deltaZ.toString()}'
-              //  ' ctl: ${event.ctrlKey.toString()}'
-              '');
-          event.preventDefault(); //  fixme: doesn't work
-
-          double newFontSize = _defaultFontSize;
-          if (event.deltaY < 0) {
-            newFontSize++;
-          } else if (event.deltaY > 0) {
-            newFontSize--;
-          }
-          newFontSize = max(_defaultFontSizeMin, min(_defaultFontSizeMax, newFontSize));
-          if (newFontSize != _defaultFontSize) {
-            logger.d('newFontSize: $newFontSize');
-            setState(() {
-              _defaultFontSize = newFontSize;
-              _forceTableRedisplay();
-            });
-          }
-        }
-      });
-    }
+    // //  control font size with ctl+wheel
+    // if (kIsWeb) {
+    //   html.window.onMouseWheel.listen((event) {
+    //     if (event.ctrlKey) {
+    //       logger.i('event type: ${event.runtimeType.toString()},'
+    //           ' d: ${event.deltaMode.toString()}'
+    //           ' x: ${event.deltaX.toString()}'
+    //           ' y: ${event.deltaY.toString()}'
+    //           ' z: ${event.deltaZ.toString()}'
+    //           //  ' ctl: ${event.ctrlKey.toString()}'
+    //           '');
+    //       event.preventDefault(); //  fixme: doesn't work
+    //
+    //       double newFontSize = defaultFontSize;
+    //       if (event.deltaY < 0) {
+    //         newFontSize++;
+    //       } else if (event.deltaY > 0) {
+    //         newFontSize--;
+    //       }
+    //       newFontSize = max(_defaultFontSizeMin, min(_defaultFontSizeMax, newFontSize));
+    //       if (newFontSize != defaultFontSize) {
+    //         logger.d('newFontSize: $newFontSize');
+    //         setState(() {
+    //           defaultFontSize = newFontSize;
+    //           _forceTableRedisplay();
+    //         });
+    //       }
+    //     }
+    //   });
+    // }
     _appOptions = AppOptions();
 
     _displaySongKey = widget.song.key;
@@ -93,13 +92,11 @@ class _Player extends State<Player> {
   Widget build(BuildContext context) {
     Song song = widget.song; //  convenience only
 
-    double _screenWidth = MediaQuery.of(context).size.width;
-    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = screenInfo.widthInLogicalPixels;
+    double _screenHeight = screenInfo.heightInLogicalPixels;
     _screenOffset = _screenHeight / 2;
-    _isTooNarrow = _screenWidth <= 800;
-    final double fontSize =
-        isPhone ? _defaultFontSize : _defaultFontSize * min(5, max(1, _screenWidth / 650)) / (_isTooNarrow ? 2 : 1);
-    final double fontScale = fontSize / _defaultFontSize;
+    final double fontSize = isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650));
+    final double fontScale = fontSize / defaultFontSize;
 
     final double lyricsFontSize = fontSize * 0.75;
 
@@ -119,8 +116,8 @@ class _Player extends State<Player> {
           List<Widget> children = List();
           Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
-          bool showChords = !_isTooNarrow || _appOptions.playerDisplay;
-          bool showFullLyrics = !_isTooNarrow || !_appOptions.playerDisplay;
+          bool showChords = isScreenBig || _appOptions.playerDisplay;
+          bool showFullLyrics = true; //fixme: too rash for a phone?  isScreenBig || !_appOptions.playerDisplay;
 
           //  compute transposition offset from base key
           int tranOffset = _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
@@ -220,7 +217,7 @@ class _Player extends State<Player> {
               }
             }
 
-            if (momentLocation != null || _isTooNarrow) {
+            if (momentLocation != null || !isScreenBig) {
               if (showFullLyrics) {
                 //  lyrics
                 children.add(Container(
@@ -461,7 +458,7 @@ class _Player extends State<Player> {
                                     ),
                                     hoverColor: hoverColor,
                                   ),
-                                  if (!_isTooNarrow)
+                                  if (isScreenBig)
                                     _playTooltip(
                                       '''
 Space bar or clicking the song area starts "play" mode.
@@ -484,7 +481,7 @@ With escape, the app goes back to the play list.''',
                                         onPressed: () {},
                                       ),
                                     ),
-                                  if (kIsWeb && !_isTooNarrow)
+                                  if (isEditReady)
                                     FlatButton.icon(
                                       padding: const EdgeInsets.all(8),
                                       color: Colors.lightBlue[300],
@@ -525,7 +522,7 @@ With escape, the app goes back to the play list.''',
                                   'Key: ',
                                   style: _lyricsTextStyle,
                                 ),
-                                if (!_isTooNarrow)
+                                if (isScreenBig)
                                   DropdownButton<music_key.Key>(
                                     items: keyDropDownMenuList,
                                     onChanged: (_value) {
@@ -552,7 +549,7 @@ With escape, the app goes back to the play list.''',
                                   "   BPM: ",
                                   style: _lyricsTextStyle,
                                 ),
-                                if (!_isTooNarrow)
+                                if (isScreenBig)
                                   DropdownButton<int>(
                                     items: bpmDropDownMenuList,
                                     onChanged: (_value) {
@@ -613,7 +610,7 @@ With escape, the app goes back to the play list.''',
       floatingActionButton: _isPlaying
           ? (_isPaused
               ? FloatingActionButton(
-                  mini: _isTooNarrow,
+                  mini: !isScreenBig,
                   onPressed: () {
                     _pauseToggle();
                   },
@@ -624,7 +621,7 @@ With escape, the app goes back to the play list.''',
                   ),
                 )
               : FloatingActionButton(
-                  mini: _isTooNarrow,
+                  mini: !isScreenBig,
                   onPressed: () {
                     _stop();
                   },
@@ -638,7 +635,7 @@ With escape, the app goes back to the play list.''',
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? FloatingActionButton(
-                  mini: _isTooNarrow,
+                  mini: !isScreenBig,
                   onPressed: () {
                     _stop();
                     _scrollController.animateTo(0, duration: Duration(milliseconds: 333), curve: Curves.ease).then((_) {
@@ -653,7 +650,7 @@ With escape, the app goes back to the play list.''',
                   ),
                 )
               : FloatingActionButton(
-                  mini: _isTooNarrow,
+                  mini: !isScreenBig,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -856,7 +853,6 @@ With escape, the app goes back to the play list.''',
   bool _isPlaying = false;
   bool _isPaused = false;
 
-  bool _isTooNarrow = false;
   double _screenOffset;
   List<_RowLocation> _rowLocations;
   int _rowLocationIndex;
@@ -869,9 +865,9 @@ With escape, the app goes back to the play list.''',
   SongMaster songMaster;
   ScrollController _scrollController = ScrollController();
   AppOptions _appOptions;
-  double _defaultFontSize = 14.0; //  borrowed from Text widget
-  static const double _defaultFontSizeMin = 14.0 - 5;
-  static const double _defaultFontSizeMax = 14.0 + 5;
+
+  // static const double _defaultFontSizeMin = defaultFontSize - 5;
+  // static const double _defaultFontSizeMax = defaultFontSize + 5;
 
   static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final FocusNode _focusNode = FocusNode();

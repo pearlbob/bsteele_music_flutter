@@ -723,7 +723,7 @@ class _Edit extends State<Edit> {
                       ),
                     ]),
                     Container(
-                      padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                      padding: EdgeInsets.all( 16.0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         //  pre-configured table of edit widgets
                         _table,

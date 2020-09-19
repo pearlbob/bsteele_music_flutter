@@ -1,18 +1,21 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
+import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/util/screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -46,6 +49,9 @@ fix key guess
 wider fade area on player
 edit: slash note pulldown
  */
+
+final bool isNotPhone = kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+final bool isPhone = !isNotPhone;
 
 void addSong(Song song) {
   logger.i('addSong( ${song.toString()} )');
@@ -86,6 +92,7 @@ class MyApp extends StatelessWidget {
         '/options': (context) => Options(),
         '/edit': (context) => Edit(initialSong: _selectedSong),
         '/privacy': (context) => Privacy(),
+        '/documentation': (context) => Documentation(),
         '/about': (context) => About(),
       },
     );
@@ -212,7 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double mediaWidth = screenInfo.mediaWidth;
-    final bool _isTooNarrow = screenInfo.isTooNarrow;
+    bool _isTooNarrow = screenInfo.isTooNarrow;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
     final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold);
@@ -228,12 +235,37 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
             color: oddEven ? Colors.white : Colors.grey[100],
             child: ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
+              title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                if (isNotPhone)
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      children: <Widget>[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          children: <Widget>[
+                            Text(
+                              song.getTitle(),
+                              textScaleFactor: titleScaleFactor,
+                              style: titleTextStyle,
+                            ),
+                            Text(
+                              '      ' + song.getArtist(),
+                              textScaleFactor: artistScaleFactor,
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                          textScaleFactor: artistScaleFactor,
+                        ),
+                      ],
+                    ),
+                  ),
+                if (isPhone)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
                         song.getTitle(),
@@ -246,12 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   ),
-                  Text(
-                    '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                    textScaleFactor: artistScaleFactor,
-                  ),
-                ],
-              ),
+              ]),
             )),
         onTap: () {
           _navigateToPlayer(context, song);
@@ -353,15 +380,16 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: 50,
             ), //  filler for notched phones
-            ListTile(
-              title: Text(
-                "Songs",
-                style: _navTextStyle,
+            if (isNotPhone) //  no files on phones!
+              ListTile(
+                title: Text(
+                  "Songs",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToSongs(context);
+                },
               ),
-              onTap: () {
-                _navigateToSongs(context);
-              },
-            ),
             ListTile(
               title: Text(
                 "Options",
@@ -371,16 +399,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToOptions(context);
               },
             ),
-            if (!_isTooNarrow) //  no edits on phones!
-              ListTile(
-                title: Text(
-                  "Edit",
-                  style: _navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToEdit(context, _selectedSong);
-                },
+            ListTile(
+              title: Text(
+                "Docs",
+                style: _navTextStyle,
               ),
+              onTap: () {
+                _navigateToDocumentation(context);
+              },
+            ),
             ListTile(
               title: Text(
                 "Privacy",
@@ -425,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: "Enter search filter string here.",
                     ),
                     autofocus: true,
-                    style: new TextStyle(fontSize: titleScaleFactor * 14),
+                    style: new TextStyle(fontSize: titleScaleFactor * 24),
                     onChanged: (text) {
                       logger.v('search text: "$text"');
                       _searchSongs(_searchTextFieldController.text);
@@ -519,6 +546,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  bool get _canEdit => isNotPhone && !_isTooNarrow;
 
   void _searchSongs(String search) {
     if (search == null) {
@@ -631,19 +660,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _navigateToEdit(BuildContext context, Song song) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
-    );
-    Navigator.pop(context);
-    setState(() {});
-  }
-
   _navigateToAbout(BuildContext context) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => About()),
+    );
+    Navigator.pop(context);
+  }
+
+  _navigateToDocumentation(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Documentation()),
     );
     Navigator.pop(context);
   }
@@ -657,6 +685,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList;
+  bool _isTooNarrow = false;
 
   TextEditingController _searchTextFieldController;
   FocusNode _searchFocusNode;

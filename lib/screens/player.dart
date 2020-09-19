@@ -24,6 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
 import '../appOptions.dart';
+import '../main.dart';
 
 /*
 
@@ -96,7 +97,8 @@ class _Player extends State<Player> {
     double _screenHeight = MediaQuery.of(context).size.height;
     _screenOffset = _screenHeight / 2;
     _isTooNarrow = _screenWidth <= 800;
-    final double fontSize = _defaultFontSize * min(5, max(1, _screenWidth / 650)) / (_isTooNarrow ? 2 : 1);
+    final double fontSize =
+        isPhone ? _defaultFontSize : _defaultFontSize * min(5, max(1, _screenWidth / 650)) / (_isTooNarrow ? 2 : 1);
     final double fontScale = fontSize / _defaultFontSize;
 
     final double lyricsFontSize = fontSize * 0.75;
@@ -482,7 +484,7 @@ With escape, the app goes back to the play list.''',
                                         onPressed: () {},
                                       ),
                                     ),
-                                  if (!_isTooNarrow)
+                                  if (kIsWeb && !_isTooNarrow)
                                     FlatButton.icon(
                                       padding: const EdgeInsets.all(8),
                                       color: Colors.lightBlue[300],

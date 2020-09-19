@@ -29,6 +29,7 @@ dependencies:
   universal_html: ">=1.2.3"
   intl: ">=0.16.1"
   path_provider: ">=1.6.14"
+  flutter_markdown: ">=0.4.4"
 
   bsteeleMusicLib:
     path: ../bsteeleMusicLib

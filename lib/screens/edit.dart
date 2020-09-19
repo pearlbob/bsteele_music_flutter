@@ -202,6 +202,7 @@ class _Edit extends State<Edit> {
 
     //  build the chords display based on the song chord section grid
     Table _table;
+    _tableKeyId = 0;
     {
       logger.d('size: ' + MediaQuery.of(context).size.toString());
 
@@ -260,6 +261,7 @@ class _Edit extends State<Edit> {
               SectionVersion sectionVersion = firstChordSectionLocation.sectionVersion;
 
               if (sectionVersion != lastSectionVersion) {
+                _addSectionVersionEndToTable(rows, lastSectionVersion, maxCols);
                 //  add the section heading
                 //           columnFiller = sectionVersion.toString();
                 sectionColor = GuiColors.getColorForSection(sectionVersion.section);
@@ -333,14 +335,18 @@ class _Edit extends State<Edit> {
               }
 
               //  add row to table
-              rows.add(TableRow(key: ValueKey('element' + r.toString()), children: children));
+              rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
+
 
               //  get ready for the next row by clearing the row data
               children = List();
             }
           }
 
-          //  add the append for new sections
+          //  end for last section
+          _addSectionVersionEndToTable(rows, lastSectionVersion, maxCols);
+
+          //  add the append for a new section
           {
             children.add(Container(
                 margin: _marginInsets,
@@ -372,12 +378,13 @@ class _Edit extends State<Edit> {
                       ),
                     ))));
 
+            //  add children to max columns to keep the table class happy
             while (children.length < maxCols) {
               children.add(Container());
             }
 
             //  add row to table
-            rows.add(TableRow(key: ValueKey('rowNewSectionAppend'), children: children));
+            rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
           }
 
           _table = Table(
@@ -678,17 +685,23 @@ class _Edit extends State<Edit> {
                     Flexible(
                       flex: 1,
                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        AppOutlineButton(
-                          'Undo',
-                          onPressed: () {
-                            _undo();
-                          },
+                        _editTooltip(
+                          _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
+                          AppOutlineButton(
+                            'Undo',
+                            onPressed: () {
+                              _undo();
+                            },
+                          ),
                         ),
-                        AppOutlineButton(
-                          'Redo',
-                          onPressed: () {
-                            _redo();
-                          },
+                        _editTooltip(
+                          _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
+                          AppOutlineButton(
+                            'Redo',
+                            onPressed: () {
+                              _redo();
+                            },
+                          ),
                         ),
                         AppOutlineButton(
                           '4/Row',
@@ -924,6 +937,27 @@ class _Edit extends State<Edit> {
             ),
           ),
         ));
+  }
+
+  ///  add a row for a plus on the bottom of the section to continue on the next row
+  void _addSectionVersionEndToTable(List<TableRow> rows, SectionVersion sectionVersion, int maxCols) {
+    if ( sectionVersion==null ){return;}
+    ChordSection chordSection = _song.findChordSectionBySectionVersion(sectionVersion);
+    ChordSectionLocation loc = ChordSectionLocation(chordSection.sectionVersion);
+    _EditDataPoint editDataPoint = _EditDataPoint(loc);
+    editDataPoint.measureEditType = MeasureEditType.append;
+    Widget w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+    List<Widget> children = List();
+    children.add(_nullEditGridDisplayWidget());
+    children.add(w);
+
+    //  add children to max columns to keep the table class happy
+    while (children.length < maxCols) {
+      children.add(Container());
+    }
+
+    //  add row to table
+   rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
   }
 
   /// process the raw keys flutter doesn't want to
@@ -1224,6 +1258,7 @@ class _Edit extends State<Edit> {
         if (_editTextFieldFocusNode != null) {
           _disposeList.add(_editTextFieldFocusNode); //  fixme: dispose of the old?
         }
+        //  measure
         _editTextFieldFocusNode = FocusNode();
         _editTextField = TextField(
           controller: _editTextController,
@@ -1235,6 +1270,7 @@ class _Edit extends State<Edit> {
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
             hintText: 'Enter the measure.',
+            contentPadding: EdgeInsets.all(_defaultFontSize / 2),
           ),
           autofocus: true,
           enabled: true,
@@ -1318,7 +1354,7 @@ class _Edit extends State<Edit> {
           ),
         ));
         for (ChordDescriptor cd in ChordDescriptor.otherChordDescriptorsOrdered) {
-          ScaleChord sc =  ScaleChord(_keyChordNote, cd);
+          ScaleChord sc = ScaleChord(_keyChordNote, cd);
           _otherChordDropDownMenuList.add(DropdownMenuItem<ScaleChord>(
             key: ValueKey('scaleChord' + sc.toString()),
             value: sc,
@@ -1346,9 +1382,8 @@ class _Edit extends State<Edit> {
             ],
           ),
         ));
-        for ( int i =0; i < MusicConstants.halfStepsPerOctave; i++ )
- {
-          ScaleNote sc =  _key.getScaleNoteByHalfStep(i);
+        for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+          ScaleNote sc = _key.getScaleNoteByHalfStep(i);
           _slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
             key: ValueKey('scaleNote' + sc.toString()),
             value: sc,
@@ -1420,34 +1455,39 @@ class _Edit extends State<Edit> {
                   ),
                 ]),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    _editTooltip(
+                      'Select from other chord descriptors.',
+                      DropdownButton<ScaleChord>(
+                        items: _otherChordDropDownMenuList,
+                        onChanged: (_value) {
+                          setState(() {
+                            _updateChordText(_value.toMarkup());
+                          });
+                        },
+                        style: _textStyle,
+                      ),
+                    ),
+                    _editTooltip(
+                      'Select a slash note',
+                      DropdownButton<ScaleNote>(
+                        items: _slashNoteDropDownMenuList,
+                        onChanged: (_value) {
+                          setState(() {
+                            _updateChordText('/' + _value.toMarkup());
+                          });
+                        },
+                        style: _textStyle,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      _editTooltip(
-                        'Select from other chord descriptors.',
-                        DropdownButton<ScaleChord>(
-                          items: _otherChordDropDownMenuList,
-                          onChanged: (_value) {
-                            setState(() {
-                              _updateChordText(_value.toMarkup());
-                            });
-                          },
-                          style: _textStyle,
-                        ),
-                      ),
-                      _editTooltip(
-                        'Select a slash note',
-                        DropdownButton<ScaleNote>(
-                          items: _slashNoteDropDownMenuList,
-                          onChanged: (_value) {
-                            setState(() {
-                              _updateChordText(_value.toMarkup());
-                            });
-                          },
-                          style: _textStyle,
-                        ),
-                      ),
-
                       if (measure != null && editDataPoint._measureEditType == MeasureEditType.replace)
                         _editTooltip(
                           'Delete this measure',
@@ -1672,6 +1712,7 @@ class _Edit extends State<Edit> {
 
   void _updateChordText(final String s) {
     logger.d('_updateChordText(${s.toString()})');
+
     if (s == null) return;
     String text = _editTextController.text;
     if (text == null) {
@@ -1682,7 +1723,6 @@ class _Edit extends State<Edit> {
     if (_lastEditTextSelection == null) {
       //  append the string
       _editTextController.text = text + s;
-      logger.i('<0: "$text"');
       return;
     }
     logger.d('_updateChordText: (${_lastEditTextSelection.baseOffset.toString()},'
@@ -1693,19 +1733,17 @@ class _Edit extends State<Edit> {
       _editTextController.text = text + s;
       int len = text.length + s.length;
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
-      logger.i('<0: "$text"');
       return;
     } else {
       logger.i('>=0: "${text.substring(0, _lastEditTextSelection.baseOffset)}"'
           '+"$s"'
           '+"${text.substring(_lastEditTextSelection.extentOffset)}"');
+
       _editTextController.text = text.substring(0, _lastEditTextSelection.baseOffset) +
           s +
           text.substring(_lastEditTextSelection.extentOffset);
       int len = _lastEditTextSelection.baseOffset + s.length;
-      logger.i('   len: $len');
       _editTextController.selection = _lastEditTextSelection.copyWith(baseOffset: len, extentOffset: len);
-      logger.i('   selection: ${_editTextController.selection}');
     }
   }
 
@@ -2067,6 +2105,7 @@ class _Edit extends State<Edit> {
   TextEditingController _editTextController = TextEditingController();
   FocusNode _editTextFieldFocusNode;
   TextSelection _lastEditTextSelection;
+  int _tableKeyId = 0;
 
   bool _showHints = false;
 

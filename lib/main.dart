@@ -524,7 +524,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (search == null) {
       search = "";
     }
-    search = search.replaceAll("[^\\w\\s']+", "");
+    search = search.replaceAll("[^\\w\\s']+", '');
     search = search.toLowerCase();
 
     //  apply complexity filter

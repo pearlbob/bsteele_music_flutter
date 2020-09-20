@@ -97,7 +97,8 @@ class _Player extends State<Player> {
     _screenOffset = _screenHeight / 2;
     final double fontSize = isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650));
     final double fontScale = fontSize / defaultFontSize;
-    logger.i('player: ($_screenWidth,$_screenHeight), default:$defaultFontSize  => fontSize: $fontSize, fontScale: $fontScale');
+    logger.d(
+        'player: ($_screenWidth,$_screenHeight), default:$defaultFontSize  => fontSize: $fontSize, fontScale: $fontScale');
 
     final double lyricsFontSize = fontSize * 0.75;
 
@@ -522,29 +523,23 @@ With escape, the app goes back to the play list.''',
                                   'Key: ',
                                   style: _lyricsTextStyle,
                                 ),
-                                if (isScreenBig)
-                                  DropdownButton<music_key.Key>(
-                                    items: keyDropDownMenuList,
-                                    onChanged: (_value) {
-                                      setState(() {
-                                        _displaySongKey = _value;
-                                        _forceTableRedisplay();
-                                      });
-                                    },
-                                    value: _displaySongKey,
-                                    style: TextStyle(
-                                      //  size controlled by textScaleFactor above
-                                      color: Colors.black87,
-                                      textBaseline: TextBaseline.ideographic,
-                                    ),
-                                    iconSize: fontSize,
-                                    itemHeight: 1.2 * kMinInteractiveDimension,
-                                  )
-                                else
-                                  Text(
-                                    _displaySongKey.toString(),
-                                    style: _lyricsTextStyle,
+                                DropdownButton<music_key.Key>(
+                                  items: keyDropDownMenuList,
+                                  onChanged: (_value) {
+                                    setState(() {
+                                      _displaySongKey = _value;
+                                      _forceTableRedisplay();
+                                    });
+                                  },
+                                  value: _displaySongKey,
+                                  style: TextStyle(
+                                    //  size controlled by textScaleFactor above
+                                    color: Colors.black87,
+                                    textBaseline: TextBaseline.ideographic,
                                   ),
+                                  iconSize: fontSize,
+                                  itemHeight: 1.2 * kMinInteractiveDimension,
+                                ),
                                 Text(
                                   "   BPM: ",
                                   style: _lyricsTextStyle,
@@ -617,7 +612,6 @@ With escape, the app goes back to the play list.''',
                   tooltip: 'Stop.  Space bar will continue the play.',
                   child: Icon(
                     Icons.play_arrow,
-                    size: floatingActionSize,
                   ),
                 )
               : FloatingActionButton(
@@ -629,7 +623,6 @@ With escape, the app goes back to the play list.''',
                     'Escape to stop the play\nor space to next section',
                     Icon(
                       Icons.stop,
-                      size: floatingActionSize,
                     ),
                   ),
                 ))
@@ -646,7 +639,6 @@ With escape, the app goes back to the play list.''',
                   tooltip: 'Top',
                   child: Icon(
                     Icons.arrow_upward,
-                    size: floatingActionSize,
                   ),
                 )
               : FloatingActionButton(
@@ -657,7 +649,6 @@ With escape, the app goes back to the play list.''',
                   tooltip: 'Back',
                   child: Icon(
                     Icons.arrow_back,
-                    size: floatingActionSize,
                   ),
                 )),
     );
@@ -869,7 +860,6 @@ With escape, the app goes back to the play list.''',
   // static const double _defaultFontSizeMin = defaultFontSize - 5;
   // static const double _defaultFontSizeMax = defaultFontSize + 5;
 
-  static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final FocusNode _focusNode = FocusNode();
   TextStyle _lyricsTextStyle = TextStyle();
   List<double> _sectionLocations;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,10 +35,7 @@ class _About extends State<About> {
       appBar: AppBar(
         title: Text(
           'About the bsteele Music App',
-          style: TextStyle(
-              color: Colors.black87,
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -83,6 +82,17 @@ class _About extends State<About> {
                 Text(
                   'utcDate: ${_utcDateAsString ?? 'unknown'}',
                 ),
+                Text(''),
+                Text(
+                  'screen: (${screenInfo.widthInLogicalPixels.toStringAsFixed(0)}'
+                  ',${screenInfo.heightInLogicalPixels.toStringAsFixed(0)})',
+                ),
+                Text(
+                  'OS: ${kIsWeb ? 'web' : Platform.operatingSystem}',
+                ),
+                // Text(
+                //   'ver: ${Platform.version}',
+                // ),
               ]),
         ),
       ),
@@ -104,13 +114,27 @@ class _About extends State<About> {
           packageName: 'unknown',
           buildNumber: '0');
     } else {
-      _packageInfo = await PackageInfo.fromPlatform();
+      if (Platform.isAndroid || Platform.isIOS) {
+        PackageInfo.fromPlatform().then((value) {
+          setState(() {
+            _packageInfo = value;
+          });
+        });
+      } else {
+        //  fixme: have to fake PackageInfo for other platforms
+        _packageInfo = PackageInfo(
+            appName: 'bsteele Music App',
+            version: 'unknown from platform', // fixme
+            packageName: 'unknown',
+            buildNumber: '0');
+      }
     }
 
-    _utcDateAsString = await rootBundle.loadString('lib/assets/utcDate.txt');
-    print('_utcDateAsString: $_utcDateAsString');
-
-    setState(() {});
+    rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
+      setState(() {
+        _utcDateAsString = value;
+      });
+    });
   }
 
   String _utcDateAsString;

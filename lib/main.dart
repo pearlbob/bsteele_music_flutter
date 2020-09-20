@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'appOptions.dart';
 import 'util/openLink.dart';
@@ -56,7 +57,7 @@ const double defaultFontSize = 14.0; //  borrowed from Text widget
 ScreenInfo screenInfo; //  refreshed on main build
 bool isEditReady;
 bool isScreenBig;
-bool isPhone ;
+bool isPhone;
 
 void addSong(Song song) {
   logger.i('addSong( ${song.toString()} )');
@@ -120,9 +121,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState()
-      : _searchTextFieldController = TextEditingController(),
-        _searchFocusNode = FocusNode();
+  _MyHomePageState() : _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -132,9 +131,12 @@ class _MyHomePageState extends State<MyHomePage> {
     _readExternalSongList();
 
     //  figure the configuration when the values are established
-    isEditReady =kIsWeb
-      //  if is web, Platform doesn't exist!  not evaluated here
-        || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+    isEditReady = kIsWeb
+        //  if is web, Platform doesn't exist!  not evaluated here in the expression
+        ||
+        Platform.isLinux ||
+        Platform.isMacOS ||
+        Platform.isWindows;
   }
 
   /// initialize async options read from shared preferences
@@ -186,9 +188,10 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         _allSongs = SplayTreeSet();
         _allSongs.addAll(Song.songListFromJson(allSongsAsString));
-        _filteredSongs = _allSongs;
-        _selectedSong = _filteredSongs.first;
-        setState(() {});
+        setState(() {
+          _filteredSongs = _allSongs;
+          _selectedSong = _filteredSongs.first;
+        });
         print("external songList read from: " + url);
       } catch (fe) {
         print("external songList parse error: " + fe.toString());
@@ -230,7 +233,9 @@ class _MyHomePageState extends State<MyHomePage> {
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
     isScreenBig = isEditReady || !screenInfo.isTooNarrow;
     isPhone = !isScreenBig;
+
     logger.v('screen: logical: (${screenInfo.widthInLogicalPixels},${screenInfo.heightInLogicalPixels})');
+    logger.v('isScreenBig: $isScreenBig, isPhone: $isPhone');
 
     final double mediaWidth = screenInfo.widthInLogicalPixels;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
@@ -246,53 +251,53 @@ class _MyHomePageState extends State<MyHomePage> {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
         child: Container(
-            color: oddEven ? Colors.white : Colors.grey[100],
-            child: ListTile(
-              title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                if (isScreenBig)
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          color: oddEven ? Colors.white : Colors.grey[100],
+          padding: EdgeInsets.all(8.0),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            if (isScreenBig)
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  children: <Widget>[
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       children: <Widget>[
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          children: <Widget>[
-                            Text(
-                              song.getTitle(),
-                              textScaleFactor: titleScaleFactor,
-                              style: titleTextStyle,
-                            ),
-                            Text(
-                              '      ' + song.getArtist(),
-                              textScaleFactor: artistScaleFactor,
-                            ),
-                          ],
+                        Text(
+                          song.getTitle(),
+                          textScaleFactor: titleScaleFactor,
+                          style: titleTextStyle,
                         ),
                         Text(
-                          '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                          '      ' + song.getArtist(),
                           textScaleFactor: artistScaleFactor,
                         ),
                       ],
                     ),
+                    Text(
+                      '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                      textScaleFactor: artistScaleFactor,
+                    ),
+                  ],
+                ),
+              ),
+            if (isPhone)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    song.getTitle(),
+                    textScaleFactor: titleScaleFactor,
+                    style: titleTextStyle,
                   ),
-                if (isPhone)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        song.getTitle(),
-                        textScaleFactor: titleScaleFactor,
-                        style: titleTextStyle,
-                      ),
-                      Text(
-                        '      ' + song.getArtist(),
-                        textScaleFactor: artistScaleFactor,
-                      ),
-                    ],
+                  Text(
+                    '      ' + song.getArtist(),
+                    textScaleFactor: artistScaleFactor,
                   ),
-              ]),
-            )),
+                ],
+              ),
+          ]),
+        ),
         onTap: () {
           _navigateToPlayer(context, song);
         },
@@ -383,6 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
         ],
+        toolbarHeight: kToolbarHeight * 0.9, //  trim for cell phone overrun
       ),
 
       drawer: Drawer(
@@ -466,20 +472,24 @@ class _MyHomePageState extends State<MyHomePage> {
                     autofocus: true,
                     style: new TextStyle(fontSize: fontSize),
                     onChanged: (text) {
-                      logger.v('search text: "$text"');
-                      _searchSongs(_searchTextFieldController.text);
-                      setState(() {});
+                      setState(() {
+                        logger.v('search text: "$text"');
+                        _searchSongs(_searchTextFieldController.text);
+                      });
                     },
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.clear),
-                  tooltip: 'Clear the search text.',
+                  tooltip: _searchTextFieldController.text?.isEmpty ?? true
+                      ? 'Scroll the list some.'
+                      : 'Clear the search text.',
                   onPressed: (() {
                     _searchTextFieldController.clear();
-                    FocusScope.of(context).requestFocus(_searchFocusNode);
-                    _searchSongs(null);
-                    setState(() {});
+                    setState(() {
+                      FocusScope.of(context).requestFocus(_searchFocusNode);
+                      _searchSongs(null);
+                    });
                   }),
                 ),
               ]),
@@ -532,39 +542,51 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         Expanded(
-          child: Scrollbar(
-            child: ListView(
-              controller: _scrollController,
-              children: listViewChildren,
-            ),
-          ),
-        ),
+            child: ScrollablePositionedList.builder(
+          itemCount: _filteredSongs.length,
+          itemScrollController: _itemScrollController,
+          itemBuilder: (context, index) {
+            return listViewChildren[index];
+          },
+        )),
+        // Expanded(
+        //   child: Scrollbar(
+        //     child: ListView(
+        //       controller: _scrollController,
+        //       children: listViewChildren,
+        //     ),
+        //   ),
+        // ),
       ]),
 
       floatingActionButton: FloatingActionButton(
         mini: !isScreenBig,
         onPressed: () {
-          _scrollController.animateTo(
-            0.0,
+          _itemScrollController.scrollTo(
+            index: 0,
             curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 500),
           );
         },
         tooltip: 'Back to the list top',
         child: const Icon(
           Icons.arrow_upward,
-          size: floatingActionSize,
         ),
       ),
     );
   }
 
   void _searchSongs(String search) {
-    if (search == null) {
-      search = "";
-    }
+    search ??= '';
+
     search = search.replaceAll("[^\\w\\s']+", '');
     search = search.toLowerCase();
+
+    //  on new search, start the list at the first location
+    if (search.isNotEmpty) {
+      _rollIndex = 0;
+      _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
+    }
 
     //  apply complexity filter
 //    TreeSet<Song> allSongsFiltered = allSongs;
@@ -629,6 +651,29 @@ class _MyHomePageState extends State<MyHomePage> {
         _filteredSongs.add(song);
       }
     }
+
+    if (search.isEmpty) {
+      _rollUnfilteredSongs();
+    }
+  }
+
+  void _rollUnfilteredSongs() {
+    const int rollStep = 15;
+
+    //  skip if searching for something
+    if (_searchTextFieldController.text?.isNotEmpty ?? true) {
+      return;
+    }
+
+    List<Song> list = _filteredSongs.toList();
+
+    _rollIndex ??= _random.nextInt(list.length); //  start with a random location
+    _rollIndex += rollStep;
+    if (_rollIndex >= list.length) {
+      _rollIndex = 0;
+    }
+
+    _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
   }
 
   _navigateToSongs(BuildContext context) async {
@@ -648,6 +693,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
+    _selectedSong = song;
+
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Player(song: song)),
@@ -657,6 +704,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _searchTextFieldController.selection =
         TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
     FocusScope.of(context).requestFocus(_searchFocusNode);
+    _rollUnfilteredSongs();
   }
 
   _navigateToOptions(BuildContext context) async {
@@ -696,11 +744,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList;
 
-  TextEditingController _searchTextFieldController;
+  final TextEditingController _searchTextFieldController = TextEditingController();
   FocusNode _searchFocusNode;
-  ScrollController _scrollController = new ScrollController();
-  static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
+
+  //ScrollController _scrollController = new ScrollController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
+  final Duration _itemScrollDuration = Duration(milliseconds: 500);
+  int _rollIndex;
+
+  //static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final AppOptions _appOptions = AppOptions();
+  final _random = new Random();
 }
 
 Future<String> fetchString(String url) async {

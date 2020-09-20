@@ -48,19 +48,21 @@ final TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Colors
 const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
 const double _entryWidth = 18 * _defaultChordFontSize;
 
-Color _defaultColor = Colors.lightBlue[100];
-Color _hoverColor = Colors.lightBlue[300];
+final Color _defaultColor = Colors.lightBlue[100];
+final Color _hoverColor = Colors.lightBlue[300];
+final Color _disabledColor = Colors.grey[300];
 
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
   _AppContainedButton(
     String text, {
+    Color color,
     VoidCallback onPressed,
   }) : super(
           shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
           ),
-          color: _defaultColor,
+          color: color ?? _defaultColor,
           textColor: Colors.black,
           disabledTextColor: Colors.grey[400],
           disabledColor: Colors.grey[200],
@@ -98,7 +100,10 @@ class AppOutlineButton extends OutlineButton {
 }
 
 class _Edit extends State<Edit> {
-  _Edit(Song initialSong) : _song = initialSong.copySong() {
+  _Edit(Song initialSong)
+      : _song = initialSong.copySong(),
+        _originalSong = initialSong.copySong() {
+    //  _checkSongStatus();
     _undoStack.push(_song.copySong());
   }
 
@@ -142,6 +147,7 @@ class _Edit extends State<Edit> {
       }
 
       logger.d('chordTextController: "${_editTextController.text}"');
+
     });
   }
 
@@ -439,7 +445,7 @@ class _Edit extends State<Edit> {
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Container(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(12),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -459,8 +465,11 @@ class _Edit extends State<Edit> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           _AppContainedButton(
-                            'todo: enter song button here',
-                            onPressed: () {},
+                            _isDirty ? 'Enter song' : 'Nothing has changed',
+                            color: _isDirty ? null : _disabledColor,
+                            onPressed: () {
+                              //  fixme enter song
+                            },
                           ),
                           Container(
                             child: Text(_errorMessageString ?? '', style: _errorTextStyle),
@@ -531,6 +540,10 @@ class _Edit extends State<Edit> {
                               ),
                               maxLength: null,
                               style: TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
+                              onSubmitted: (value) {
+                                _song.setTitle(value);
+                                _checkSongStatus();
+                              },
                             ),
                           ),
                         ]),
@@ -986,7 +999,7 @@ class _Edit extends State<Edit> {
   void _mainOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.i('main onkey: ${e.data.logicalKey}'
+      logger.d('main onkey: ${e.data.logicalKey}'
           ', ctl: ${e.isControlPressed}'
           ', shf: ${e.isShiftPressed}'
           ', alt: ${e.isAltPressed}');
@@ -1533,7 +1546,7 @@ class _Edit extends State<Edit> {
                         ),
                       if (_measureEntryValid)
                         _editTooltip(
-                          'Accept the modification.',
+                          'Accept the modification.\nFinished adding measures.',
                           InkWell(
                             child: Icon(
                               Icons.check,
@@ -1924,6 +1937,7 @@ class _Edit extends State<Edit> {
         _clearMeasureEntry();
         _song = _undoStack.undo();
         _undoStackLog();
+        _checkSongStatus();
       } else {
         _errorMessage('cannot undo any more');
       }
@@ -1937,6 +1951,7 @@ class _Edit extends State<Edit> {
         _clearMeasureEntry();
         _song = _undoStack.redo();
         _undoStackLog();
+        _checkSongStatus();
       } else {
         _errorMessage('cannot redo any more');
       }
@@ -2011,6 +2026,7 @@ class _Edit extends State<Edit> {
 
       //  clean up after edit
       _song.setChordSectionLocationMeasureEndOfRow(priorLocation, _priorEndOfRow);
+      _priorEndOfRow = false;
       _song.setCurrentChordSectionLocationMeasureEndOfRow(endOfRow);
 
       //  don't push an identical copy
@@ -2025,6 +2041,8 @@ class _Edit extends State<Edit> {
         _selectedEditDataPoint = _EditDataPoint(_song.getCurrentChordSectionLocation());
         logger.i('_selectedEditDataPoint: $_selectedEditDataPoint');
       }
+
+      _checkSongStatus();
 
       return true;
     } else {
@@ -2077,7 +2095,18 @@ class _Edit extends State<Edit> {
     _measureEntryValid = false;
   }
 
+  _checkSongStatus() {
+    bool isDirty = _song != _originalSong;
+    if (isDirty != _isDirty) {
+      setState(() {
+        _isDirty = isDirty;
+      });
+    }
+  }
+
   Song _song;
+  Song _originalSong;
+  bool _isDirty = false;
   songs.Key _key;
   double _appendFontSize;
   double _chordFontSize;

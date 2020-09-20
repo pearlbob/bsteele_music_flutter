@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:flutter/material.dart';
 
 class ScreenInfo {
@@ -7,8 +8,9 @@ class ScreenInfo {
       : _widthInLogicalPixels = MediaQuery.of(context).size.width,
         _heightInLogicalPixels = MediaQuery.of(context).size.height {
     _isTooNarrow = _widthInLogicalPixels < minLogicalPixels; //  logical pixels
-    _titleScaleFactor = max(1, _widthInLogicalPixels / (2 * minLogicalPixels));
+    _titleScaleFactor = max(1, _widthInLogicalPixels / ( 1.25 * minLogicalPixels));
     _artistScaleFactor = 0.75 * _titleScaleFactor;
+    logger.v('ScreenInfo: narrow: $_isTooNarrow, title: $_titleScaleFactor');
   }
 
   double get widthInLogicalPixels => _widthInLogicalPixels;

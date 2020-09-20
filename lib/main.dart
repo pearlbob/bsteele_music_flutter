@@ -51,10 +51,12 @@ edit: slash note pulldown
  */
 
 const double defaultFontSize = 14.0; //  borrowed from Text widget
+
+//  parameters to be evaluated before use
 ScreenInfo screenInfo; //  refreshed on main build
-bool isEditReady = kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
-bool isScreenBig = isEditReady || !(screenInfo?.isTooNarrow ?? false);
-bool isPhone = !isScreenBig;
+bool isEditReady;
+bool isScreenBig;
+bool isPhone ;
 
 void addSong(Song song) {
   logger.i('addSong( ${song.toString()} )');
@@ -128,6 +130,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _appOptionsInit();
     _readExternalSongList();
+
+    //  figure the configuration when the values are established
+    isEditReady =kIsWeb
+      //  if is web, Platform doesn't exist!  not evaluated here
+        || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
   }
 
   /// initialize async options read from shared preferences
@@ -221,7 +228,9 @@ class _MyHomePageState extends State<MyHomePage> {
     bool oddEven = false;
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
-    logger.i('screen: logical: (${screenInfo.widthInLogicalPixels},${screenInfo.heightInLogicalPixels})');
+    isScreenBig = isEditReady || !screenInfo.isTooNarrow;
+    isPhone = !isScreenBig;
+    logger.v('screen: logical: (${screenInfo.widthInLogicalPixels},${screenInfo.heightInLogicalPixels})');
 
     final double mediaWidth = screenInfo.widthInLogicalPixels;
     final double titleScaleFactor = screenInfo.titleScaleFactor;

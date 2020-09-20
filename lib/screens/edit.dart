@@ -723,7 +723,7 @@ class _Edit extends State<Edit> {
                       ),
                     ]),
                     Container(
-                      padding: EdgeInsets.all( 16.0),
+                      padding: EdgeInsets.all(16.0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         //  pre-configured table of edit widgets
                         _table,
@@ -966,7 +966,7 @@ class _Edit extends State<Edit> {
       _EditDataPoint editDataPoint = _EditDataPoint(loc);
       editDataPoint.priorEndOfRow = true;
       editDataPoint.measureEditType = MeasureEditType.append;
-      Widget w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+      Widget w = _plusMeasureEditGridDisplayWidget(editDataPoint, tooltip: 'add new measure on a new row');
       List<Widget> children = List();
       children.add(_nullEditGridDisplayWidget());
       children.add(w);
@@ -1166,58 +1166,40 @@ class _Edit extends State<Edit> {
                 ],
               ),
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    //  section delete
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                children: <Widget>[
+                  //  section delete
+                  _editTooltip(
+                    'Delete this section',
+                    InkWell(
+                      child: Icon(
+                        Icons.delete,
+                        size: _defaultChordFontSize,
+                        color: Colors.black,
+                      ),
+                      onTap: () {
+                        _performMeasureEntryCancel();
+                      },
+                    ),
+                  ),
+                  //  section enter
+                  if (isValidSectionEntry)
                     _editTooltip(
-                      'Delete this section',
+                      'Accept the modification',
                       InkWell(
                         child: Icon(
-                          Icons.delete,
+                          Icons.check,
                           size: _defaultChordFontSize,
-                          color: Colors.black,
                         ),
                         onTap: () {
-                          _performMeasureEntryCancel();
+                          _performEdit(done: true); //  section enter
                         },
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        //  section enter
-                        if (isValidSectionEntry)
-                          _editTooltip(
-                            'Accept the modification',
-                            InkWell(
-                              child: Icon(
-                                Icons.check,
-                                size: _defaultChordFontSize,
-                              ),
-                              onTap: () {
-                                _performEdit(done: true); //  section enter
-                              },
-                            ),
-                          ),
-                        //  section entry cancel
-                        _editTooltip(
-                          'Cancel the modification',
-                          InkWell(
-                            child: Icon(
-                              Icons.cancel,
-                              size: _defaultChordFontSize,
-                              color: color,
-                            ),
-                            onTap: () {
-                              _performMeasureEntryCancel();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ])
+                  //  can't cancel some chordsection has already been added!
+                ],
+              ),
             ]),
       );
     }
@@ -1768,7 +1750,7 @@ class _Edit extends State<Edit> {
     }
   }
 
-  Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
+  Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint, {String tooltip}) {
     if (_selectedEditDataPoint == editDataPoint) {
       return _measureEditGridDisplayWidget(editDataPoint); //  let it do the heavy lifting
     }
@@ -1790,7 +1772,7 @@ class _Edit extends State<Edit> {
               color: Colors.green[100],
             ),
             child: _editTooltip(
-              'add new measure',
+              tooltip ?? 'add new measure on this row',
               Icon(
                 Icons.add,
                 size: _appendFontSize,

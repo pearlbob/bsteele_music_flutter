@@ -97,6 +97,7 @@ class _Player extends State<Player> {
     _screenOffset = _screenHeight / 2;
     final double fontSize = isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650));
     final double fontScale = fontSize / defaultFontSize;
+    logger.i('player: ($_screenWidth,$_screenHeight), default:$defaultFontSize  => fontSize: $fontSize, fontScale: $fontScale');
 
     final double lyricsFontSize = fontSize * 0.75;
 
@@ -458,9 +459,8 @@ class _Player extends State<Player> {
                                     ),
                                     hoverColor: hoverColor,
                                   ),
-                                  if (isScreenBig)
-                                    _playTooltip(
-                                      '''
+                                  _playTooltip(
+                                    '''
 Space bar or clicking the song area starts "play" mode.
     First section is in the middle of the display.
     Display items on the top will be missing.
@@ -470,17 +470,17 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                      FlatButton(
-                                        padding: const EdgeInsets.all(8),
-                                        color: Colors.lightBlue[300],
-                                        hoverColor: hoverColor,
-                                        child: Text(
-                                          'Hints',
-                                          style: _lyricsTextStyle,
-                                        ),
-                                        onPressed: () {},
+                                    FlatButton(
+                                      padding: const EdgeInsets.all(8),
+                                      color: Colors.lightBlue[300],
+                                      hoverColor: hoverColor,
+                                      child: Text(
+                                        'Hints',
+                                        style: _lyricsTextStyle,
                                       ),
+                                      onPressed: () {},
                                     ),
+                                  ),
                                   if (isEditReady)
                                     FlatButton.icon(
                                       padding: const EdgeInsets.all(8),

@@ -301,7 +301,7 @@ class _Player extends State<Player> {
         }
 
         keyDropDownMenuList = [];
-        final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, "G"); //  something sane
+        final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, 'G'); //  something sane
         final String onString = '(on ';
         final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
@@ -409,7 +409,28 @@ class _Player extends State<Player> {
                 ),
               ),
             ),
-            //  tiny marker
+            //  put title and artist on top, behind the chords and lyrics
+            if (_isPlaying)
+              Positioned(
+                top: boxHeight/3,
+                left: _screenWidth / 3,   //  fixed position
+                child: Row(children: <Widget>[
+                  Text(
+                    song.title,
+                    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '  by  ',
+                  ),
+                  Text(
+                    song.artist,
+                    style: TextStyle(
+                      fontSize: lyricsFontSize,
+                    ),
+                  ),
+                ]),
+              ),
+            //  tiny center marker
             Positioned(
               top: boxCenter,
               child: Container(

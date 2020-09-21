@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -227,8 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<StatelessWidget> listViewChildren = List();
-    bool oddEven = false;
+    bool oddEven = true;
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
     isScreenBig = isEditReady || !screenInfo.isTooNarrow;
@@ -247,6 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _searchSongs(_searchTextFieldController.text);
     }
 
+    List<StatelessWidget> listViewChildren = List();
     for (final Song song in _filteredSongs) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
@@ -541,14 +542,15 @@ class _MyHomePageState extends State<MyHomePage> {
             // )
           ],
         ),
-        Expanded(
-            child: ScrollablePositionedList.builder(
-          itemCount: _filteredSongs.length,
-          itemScrollController: _itemScrollController,
-          itemBuilder: (context, index) {
-            return listViewChildren[index];
-          },
-        )),
+        if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
+          Expanded(
+              child: ScrollablePositionedList.builder(
+            itemCount: listViewChildren.length,
+            itemScrollController: _itemScrollController,
+            itemBuilder: (context, index) {
+              return listViewChildren[Util.limit(index, 0, listViewChildren.length)];
+            },
+          )),
         // Expanded(
         //   child: Scrollbar(
         //     child: ListView(
@@ -562,11 +564,13 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         mini: !isScreenBig,
         onPressed: () {
-          _itemScrollController.scrollTo(
-            index: 0,
-            curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 500),
-          );
+          if (_itemScrollController.isAttached) {
+            _itemScrollController.scrollTo(
+              index: 0,
+              curve: Curves.easeOut,
+              duration: const Duration(milliseconds: 500),
+            );
+          }
         },
         tooltip: 'Back to the list top',
         child: const Icon(
@@ -578,15 +582,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _searchSongs(String search) {
     search ??= '';
+    search = search.trim();
 
     search = search.replaceAll("[^\\w\\s']+", '');
     search = search.toLowerCase();
-
-    //  on new search, start the list at the first location
-    if (search.isNotEmpty) {
-      _rollIndex = 0;
-      _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
-    }
 
     //  apply complexity filter
 //    TreeSet<Song> allSongsFiltered = allSongs;
@@ -652,7 +651,13 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    if (search.isEmpty) {
+    //  on new search, start the list at the first location
+    if (search.isNotEmpty) {
+      _rollIndex = 0;
+      if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
+        _itemScrollController.jumpTo(index: _rollIndex);
+      }
+    } else if (_filteredSongs.isNotEmpty) {
       _rollUnfilteredSongs();
     }
   }
@@ -661,7 +666,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const int rollStep = 15;
 
     //  skip if searching for something
-    if (_searchTextFieldController.text?.isNotEmpty ?? true) {
+    if (_searchTextFieldController.text?.isNotEmpty ?? true || _filteredSongs.isEmpty) {
       return;
     }
 
@@ -673,7 +678,9 @@ class _MyHomePageState extends State<MyHomePage> {
       _rollIndex = 0;
     }
 
-    _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
+    if (_itemScrollController.isAttached) {
+      _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
+    }
   }
 
   _navigateToSongs(BuildContext context) async {

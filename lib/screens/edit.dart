@@ -59,7 +59,7 @@ class _AppContainedButton extends RaisedButton {
     Color color,
     VoidCallback onPressed,
   }) : super(
-          shape: new RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
           ),
           color: color ?? _defaultColor,
@@ -77,8 +77,8 @@ class _AppContainedButton extends RaisedButton {
 }
 
 /// helper class to manage an OutlineButton
-class AppOutlineButton extends OutlineButton {
-  AppOutlineButton(
+class _AppOutlineButton extends OutlineButton {
+  _AppOutlineButton(
     String _text, {
     VoidCallback onPressed,
   }) : super(
@@ -104,7 +104,7 @@ class _Edit extends State<Edit> {
       : _song = initialSong.copySong(),
         _originalSong = initialSong.copySong() {
     //  _checkSongStatus();
-    _undoStack.push(_song.copySong());
+    _undoStackPush();
   }
 
   @override
@@ -147,7 +147,6 @@ class _Edit extends State<Edit> {
       }
 
       logger.d('chordTextController: "${_editTextController.text}"');
-
     });
   }
 
@@ -241,11 +240,6 @@ class _Edit extends State<Edit> {
           //  map the song moment grid to a flutter table, one row at a time
           for (int r = 0; r < grid.getRowCount(); r++) {
             List<ChordSectionLocation> row = grid.getRow(r);
-
-            //  assume col 0 has at least a chord section in it
-            if (row.length < 1) {
-              continue;
-            }
 
             ChordSectionLocation firstChordSectionLocation;
             //       String columnFiller;
@@ -372,8 +366,7 @@ class _Edit extends State<Edit> {
                           _song.setCurrentMeasureEditType(MeasureEditType.append);
                           ChordSection cs = _suggestNewSection();
                           if (_song.editMeasureNode(cs)) {
-                            _undoStack.push(_song);
-                            _undoStackLog();
+                            _undoStackPush();
                             _clearMeasureEntry();
                             _selectedEditDataPoint = _EditDataPoint.byMeasureNode(_song, cs);
                             logger.v(_song.toMarkup());
@@ -704,7 +697,7 @@ class _Edit extends State<Edit> {
                         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                           _editTooltip(
                             _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                            AppOutlineButton(
+                            _AppOutlineButton(
                               'Undo',
                               onPressed: () {
                                 _undo();
@@ -713,20 +706,20 @@ class _Edit extends State<Edit> {
                           ),
                           _editTooltip(
                             _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
-                            AppOutlineButton(
+                            _AppOutlineButton(
                               'Redo',
                               onPressed: () {
                                 _redo();
                               },
                             ),
                           ),
-                          AppOutlineButton(
+                          _AppOutlineButton(
                             '4/Row',
                           ),
                           _editTooltip(
                             (_selectedEditDataPoint != null ? 'Click outside the chords to cancel editing\n' : '') +
                                 (_showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                            AppOutlineButton('Hints', onPressed: () {
+                            _AppOutlineButton('Hints', onPressed: () {
                               setState(() {
                                 _showHints = !_showHints;
                               });
@@ -762,16 +755,16 @@ class _Edit extends State<Edit> {
                             ' Repeats: ',
                             style: _textStyle,
                           ),
-                          AppOutlineButton(
+                          _AppOutlineButton(
                             'No Repeat',
                           ),
-                          AppOutlineButton(
+                          _AppOutlineButton(
                             'Repeat x2',
                           ),
-                          AppOutlineButton(
+                          _AppOutlineButton(
                             'Repeat x3',
                           ),
-                          AppOutlineButton(
+                          _AppOutlineButton(
                             'Repeat x4',
                           ),
                         ]),
@@ -1034,7 +1027,7 @@ class _Edit extends State<Edit> {
         /// clear editing with the escape key
         _performMeasureEntryCancel();
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
-        _performEditAndAppend(endOfRow: true);
+        _performEditAndAppend(done: false, endOfRow: true);
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
         int baseOffset = _editTextController.selection.extentOffset ?? 0;
         if (baseOffset > 0) {
@@ -1069,7 +1062,7 @@ class _Edit extends State<Edit> {
                   : '') +
               _editTextController.text.substring(_editTextController.selection.extentOffset);
           _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
-        } else if (_editTextController.selection.extentOffset < _editTextController.text?.length ?? 0 - 1) {
+        } else if (_editTextController.selection.extentOffset < (_editTextController.text?.length ?? 0) - 1) {
           int loc = _editTextController.selection.extentOffset;
           _editTextController.text =
               _editTextController.text.substring(0, loc) + _editTextController.text.substring(loc + 1);
@@ -1206,11 +1199,11 @@ class _Edit extends State<Edit> {
                           size: _defaultChordFontSize,
                         ),
                         onTap: () {
-                          _performEdit(done: true); //  section enter
+                          _performEdit(); //  section enter
                         },
                       ),
                     ),
-                  //  can't cancel some chordsection has already been added!
+                  //  can't cancel some chordSection that has already been added!
                 ],
               ),
             ]),
@@ -1958,6 +1951,19 @@ class _Edit extends State<Edit> {
     });
   }
 
+  ///  don't push an identical copy
+  void _undoStackPushIfDifferent() {
+    if (!_song.songBaseSameContent(_undoStack.top)) {
+      _undoStackPush();
+    }
+  }
+
+  /// push a copy of the current song onto the undo stack
+  void _undoStackPush() {
+    _undoStack.push(_song.copySong());
+    _undoStackLog();
+  }
+
   void _undoStackLog() {
     if (Logger.level.index <= Level.verbose.index) {
       for (int i = 0;; i++) {
@@ -1967,6 +1973,8 @@ class _Edit extends State<Edit> {
         }
         logger.i('undo $i: "${s.toMarkup()}"');
       }
+    } else {
+      logger.i('undo ${_undoStack.pointer}: "${_undoStack.top.toMarkup()}"');
     }
   }
 
@@ -1979,11 +1987,11 @@ class _Edit extends State<Edit> {
   }
 
   /// perform the current edit and setup for the following append
-  void _performEditAndAppend({bool endOfRow}) {
+  void _performEditAndAppend({bool done, bool endOfRow}) {
     logger.i('pre edit: ${_selectedEditDataPoint.toString()}, endOfRow: $endOfRow');
 
     setState(() {
-      if (_edit(endOfRow: endOfRow)) {
+      if (_edit(done: done, endOfRow: endOfRow)) {
         logger.i('post edit, edit type: ${_song.getCurrentMeasureEditType()}'
             ', loc: ${_song.getCurrentChordSectionLocation()}');
 
@@ -2030,10 +2038,8 @@ class _Edit extends State<Edit> {
       _song.setCurrentChordSectionLocationMeasureEndOfRow(endOfRow);
 
       //  don't push an identical copy
-      if (!_song.songBaseSameContent(_undoStack.top)) {
-        _undoStack.push(_song.copySong());
-        _undoStackLog();
-      }
+      _undoStackPushIfDifferent();
+      logger.i('undo top: ${_undoStack.pointer}: "${_undoStack.top.toMarkup()}"');
 
       _clearMeasureEntry();
 
@@ -2063,8 +2069,7 @@ class _Edit extends State<Edit> {
       if (_song.editMeasureNode(_measureEntryNode)) {
         //  apply the deleted end of row to the prior
         _song.setChordSectionLocationMeasureEndOfRow(priorLocation, endOfRow);
-        _undoStack.push(_song.copySong());
-        _undoStackLog();
+        _undoStackPush();
         _clearMeasureEntry();
       }
     });

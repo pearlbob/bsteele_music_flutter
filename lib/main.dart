@@ -50,6 +50,13 @@ edit: paste from edit buffer
 fix key guess
 wider fade area on player
 edit: slash note pulldown
+
+
+linux notes:
+build release:
+% flutter build linux
+executable (without assets) is in ./build/linux/release/bundle/${project}
+
  */
 
 const double defaultFontSize = 14.0; //  borrowed from Text widget
@@ -353,7 +360,7 @@ class _MyHomePageState extends State<MyHomePage> {
           style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
-          new Tooltip(
+           Tooltip(
             message: "Visit bsteele.com, the provider of this app.",
             child: InkWell(
               onTap: () {
@@ -371,7 +378,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           if (isScreenBig) //  sorry CJ
-            new Tooltip(
+             Tooltip(
               message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
                 onTap: () {
@@ -471,7 +478,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: "Enter search filter string here.",
                     ),
                     autofocus: true,
-                    style: new TextStyle(fontSize: fontSize),
+                    style:  TextStyle(fontSize: fontSize),
                     onChanged: (text) {
                       setState(() {
                         logger.v('search text: "$text"');
@@ -590,7 +597,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //  apply complexity filter
 //    TreeSet<Song> allSongsFiltered = allSongs;
 //    if (complexityFilter != ComplexityFilter.all) {
-//      TreeSet<Song> sortedSongs = new TreeSet<>(Song.getComparatorByType(Song.ComparatorType.complexity));
+//      TreeSet<Song> sortedSongs =  TreeSet<>(Song.getComparatorByType(Song.ComparatorType.complexity));
 //      sortedSongs.addAll(allSongs);
 //      double factor = 1.0;
 //      switch (complexityFilter) {
@@ -605,8 +612,8 @@ class _MyHomePageState extends State<MyHomePage> {
 //          break;
 //      }
 //      int limit = (int) (factor * sortedSongs.size());
-//      Song[] allSongsFilteredList = sortedSongs.toArray(new Song[0]);
-//      allSongsFiltered = new TreeSet<>();
+//      Song[] allSongsFilteredList = sortedSongs.toArray( Song[0]);
+//      allSongsFiltered =  TreeSet<>();
 //      for (int i = 0; i < limit; i++)
 //        allSongsFiltered.add(allSongsFilteredList[i]);
 //    }
@@ -666,7 +673,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const int rollStep = 15;
 
     //  skip if searching for something
-    if (_searchTextFieldController.text?.isNotEmpty ?? true || _filteredSongs.isEmpty) {
+    if ((_searchTextFieldController.text?.isNotEmpty ?? true) || _filteredSongs.isEmpty) {
       return;
     }
 
@@ -754,14 +761,14 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchTextFieldController = TextEditingController();
   FocusNode _searchFocusNode;
 
-  //ScrollController _scrollController = new ScrollController();
+  //ScrollController _scrollController =  ScrollController();
   final ItemScrollController _itemScrollController = ItemScrollController();
   final Duration _itemScrollDuration = Duration(milliseconds: 500);
   int _rollIndex;
 
   //static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final AppOptions _appOptions = AppOptions();
-  final _random = new Random();
+  final _random =  Random();
 }
 
 Future<String> fetchString(String url) async {

@@ -41,12 +41,14 @@ if ( $isBeta != 0 ) then
 endif
 set git=~/GitHub/bsteeleMusicFlutter
 set target=$git/build/web
+cd $git
 
 #	build the release version
 flutter clean
 utcDate
 mv utcDate.txt lib/assets
 flutter build web
+
 #flutter build appbundle
 #   aap: build/app/outputs/bundle/release/app-release.aab
 
@@ -56,6 +58,8 @@ rm  -rf $dst/$app
 
 #	copy to localhost website
 cp -r build/web $dst/$app
+#	clean up for public distribution:
+rm $dst/$app/main.dart.js.map
 
 #	send to flavor's web location
 set gs=gs://www.bsteele.com/$flavor/$app

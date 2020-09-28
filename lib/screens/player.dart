@@ -686,7 +686,9 @@ With escape, the app goes back to the play list.''',
 
       logger.d('key: ${e.data.logicalKey.toString()}');
 
-      if (e.isKeyPressed(LogicalKeyboardKey.space)) {
+      if (e.isKeyPressed(LogicalKeyboardKey.space)
+          || e.isKeyPressed(LogicalKeyboardKey.keyB)//  workaround for cheap foot pedal... only outputs b
+      ) {
         if (!_isPlaying)
           _play();
         else {
@@ -780,7 +782,7 @@ With escape, the app goes back to the play list.''',
     setState(() {
       _sectionBump(0);
       _rowLocationIndex = 0;
-      logger.i('play');
+      logger.d('play');
       _isPaused = false;
       _isPlaying = true;
       songMaster.playSong(widget.song);
@@ -793,7 +795,7 @@ With escape, the app goes back to the play list.''',
       _isPaused = true;
       _scrollController.jumpTo(0);
       songMaster.stop();
-      logger.i('stop()');
+      logger.d('stop()');
     });
   }
 

@@ -39,14 +39,14 @@ set dst=/var/www/html/public_html
 if ( $isBeta != 0 ) then
 	set dst=$dst/$flavor
 endif
-set git=~/GitHub/bsteeleMusicFlutter
+set git=~/github/bsteeleMusicFlutter
 set target=$git/build/web
 cd $git
 
 #	build the release version
 flutter clean
-utcDate
-mv utcDate.txt lib/assets
+utcDate > lib/assets/utcDate.txt
+#flutter config --enable-web
 flutter build web
 
 #flutter build appbundle

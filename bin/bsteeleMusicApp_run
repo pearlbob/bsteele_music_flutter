@@ -2,11 +2,11 @@
 #set echo; set verbose
 
 set app=bsteeleMusicApp
-set git=~/GitHub/bsteeleMusicFlutter
+set git=~/github/bsteeleMusicFlutter
 
 
 cd $git
-set runner=$home/GitHub/bsteeleMusicFlutter/build/linux/debug/bundle/bsteeleMusicFlutter
+set runner=$home/github/bsteeleMusicFlutter/build/linux/debug/bundle/bsteeleMusicFlutter
 if ( -e $runner ) then
 	echo running old version:
 	ll $runner

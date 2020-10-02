@@ -20,9 +20,9 @@ dependencies:
   flutter:
     sdk: flutter
   assets_audio_player: ^2.0.10
-  file_picker: ^2.0.4
+  file_picker: ^2.0.6
   js: ^0.6.2
-  logger: ^0.9.3
+  logger: ^0.9.4
   package_info: ^0.4.3
   shared_preferences: ^0.5.12
   url_launcher: ^5.5.3
@@ -33,7 +33,7 @@ dependencies:
   scrollable_positioned_list: ^0.1.7
 
   bsteeleMusicLib:
-    path: ../bsteeleMusicLib
+    path: ../bsteeleMusicLib/bsteele_music_lib
 
 
   # The following adds the Cupertino Icons font to your application.

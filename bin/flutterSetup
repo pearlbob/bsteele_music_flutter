@@ -1,0 +1,13 @@
+#!/bin/tcsh
+set echo; set verbose
+
+set git=~/github/bsteeleMusicFlutter
+cd $git
+
+#	build the release version
+rm -rf linux/
+flutter clean
+flutter pub get
+flutter -d linux create . #> /dev/null
+
+echo run command:  flutter -d linux run

@@ -27,6 +27,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
+
 //CjRankingEnum _cjRanking;
 
 void main() {

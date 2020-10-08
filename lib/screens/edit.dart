@@ -52,6 +52,9 @@ final Color _defaultColor = Colors.lightBlue[100];
 final Color _hoverColor = Colors.lightBlue[300];
 final Color _disabledColor = Colors.grey[300];
 
+//  intentionally left persistent, to allow for re-edit undos to previous songs
+UndoStack<Song> _undoStack = UndoStack();
+
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
   _AppContainedButton(
@@ -183,27 +186,6 @@ class _Edit extends State<Edit> {
     );
 
     _chordBadTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
-
-    //  build a list of section version numbers
-    //  if (_sectionVersionDropdownMenuList == null)
-    {
-      _sectionVersionDropdownMenuList = List();
-      for (int i = 0; i <= 9; i++) {
-        _sectionVersionDropdownMenuList.add(
-          DropdownMenuItem<int>(
-            key: ValueKey('sectionVersion' + i.toString()),
-            value: i,
-            child: Row(
-              children: <Widget>[
-                Text(
-                  (i == 0 ? 'Default' : i.toString()),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
 
     //  build the chords display based on the song chord section grid
     Table _table;
@@ -1122,7 +1104,26 @@ class _Edit extends State<Edit> {
       SectionVersion entrySectionVersion = _parsedSectionEntry(_editTextController.text);
       bool isValidSectionEntry = (entrySectionVersion != null);
       Color color = isValidSectionEntry ? Colors.black87 : Colors.red;
-      sectionColor = GuiColors.getColorForSection(isValidSectionEntry ? entrySectionVersion.section : _section);
+      sectionColor =
+          GuiColors.getColorForSection(isValidSectionEntry ? entrySectionVersion.section : _sectionVersion.section);
+
+      //  build a list of section version numbers
+      List<DropdownMenuItem<int>> sectionVersionNumberDropdownMenuList = [];
+      for (int i = 0; i <= 9; i++) {
+        sectionVersionNumberDropdownMenuList.add(
+          DropdownMenuItem<int>(
+            key: ValueKey('sectionVersionNumber' + i.toString()),
+            value: i,
+            child: Row(
+              children: <Widget>[
+                Text(
+                  (i == 0 ? 'Default' : i.toString()),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
 
       return Container(
         color: sectionColor,
@@ -1140,16 +1141,14 @@ class _Edit extends State<Edit> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   //  section selection
-                  DropdownButton<Section>(
-                    items: _sectionDropdownList(),
+                  DropdownButton<SectionVersion>(
+                    items: _sectionVersionDropdownList(),
                     onChanged: (_value) {
                       setState(() {
-                        _section = _value;
-                        _editTextController.text =
-                            _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
+                        _sectionVersion = _value;
+                        _editTextController.text = _sectionVersion.toString();
                       });
                     },
-                    value: _section,
                     style: TextStyle(
                       color: color,
                       textBaseline: TextBaseline.alphabetic,
@@ -1157,13 +1156,12 @@ class _Edit extends State<Edit> {
                   ),
                   //  section version selection
                   DropdownButton<int>(
-                    value: _sectionVersion,
-                    items: _sectionVersionDropdownMenuList,
+                    value: _sectionVersion.version,
+                    items: sectionVersionNumberDropdownMenuList,
                     onChanged: (value) {
                       setState(() {
-                        _sectionVersion = value;
-                        _editTextController.text =
-                            _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
+                        _sectionVersion = SectionVersion(_sectionVersion.section, value);
+                        _editTextController.text = _sectionVersion.toString();
                       });
                       logger.v('_sectionVersion = ${_sectionVersion.toString()}');
                     },
@@ -1214,10 +1212,11 @@ class _Edit extends State<Edit> {
     return InkWell(
       onTap: () {
         if (chordSection != null) {
-          _section = chordSection.sectionVersion.section;
-          _sectionVersion = chordSection.sectionVersion.version;
+          _sectionVersion = chordSection.sectionVersion;
+        } else {
+          _sectionVersion = SectionVersion.getDefault();
         }
-        _editTextController.text = _section.toString() + (_sectionVersion == 0 ? '' : _sectionVersion.toString()) + ':';
+        _editTextController.text = _sectionVersion.toString();
         _setEditDataPoint(editDataPoint);
       },
       child: Container(
@@ -1278,7 +1277,10 @@ class _Edit extends State<Edit> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
-            hintText: 'Enter the measure.',
+            hintText: (_editTextController.text == null || _editTextController.text.isEmpty) &&
+                    (_selectedEditDataPoint.measureEditType == MeasureEditType.replace)
+                ? 'Second delete will delete this measure'
+                : 'Enter the measure.',
             contentPadding: EdgeInsets.all(_defaultFontSize / 2),
           ),
           autofocus: true,
@@ -1786,22 +1788,45 @@ class _Edit extends State<Edit> {
             )));
   }
 
-  List<DropdownMenuItem<Section>> _sectionDropdownList() {
-    List<DropdownMenuItem<Section>> ret = [];
+  /// make a drop down list for the next most available, new sectionVersion
+  List<DropdownMenuItem<SectionVersion>> _sectionVersionDropdownList() {
+    List<DropdownMenuItem<SectionVersion>> ret = [];
 
+    SectionVersion sectionVersion;
     for (final SectionEnum sectionEnum in SectionEnum.values) {
       Section section = Section.get(sectionEnum);
+      //  find a version that is not currently in the song
+      for (int i = 0; i <= 9; i++) {
+        sectionVersion = SectionVersion(section, i);
+        if (_song.findChordSectionBySectionVersion(sectionVersion) == null) {
+          break;
+        } else {
+          sectionVersion = null;
+        }
+      }
+      if (sectionVersion == null) {
+        continue;
+      }
+      logger.d('sectionVersion item: $sectionVersion, hash: ${sectionVersion.hashCode}');
 
-      ret.add(
-        DropdownMenuItem<Section>(
-          key: ValueKey(sectionEnum),
-          value: section,
-          child: Text(
-            '${section.toString()}:  ${section.formalName}',
-            style: _chordTextStyle,
-          ),
+      ret.add(DropdownMenuItem<SectionVersion>(
+        key: UniqueKey(), // ValueKey(sectionVersion),
+        value: sectionVersion,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${sectionVersion.toString()}',
+              style: _chordTextStyle,
+            ),
+            Text(
+              '${sectionVersion.section.formalName} '
+              '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
+              style: _chordTextStyle,
+            ),
+          ],
         ),
-      );
+      ));
     }
     return ret;
   }
@@ -1928,7 +1953,7 @@ class _Edit extends State<Edit> {
       if (_undoStack.canUndo) {
         _clearErrorMessage();
         _clearMeasureEntry();
-        _song = _undoStack.undo();
+        _song = _undoStack.undo().copySong();
         _undoStackLog();
         _checkSongStatus();
       } else {
@@ -1942,7 +1967,7 @@ class _Edit extends State<Edit> {
       if (_undoStack.canRedo) {
         _clearErrorMessage();
         _clearMeasureEntry();
-        _song = _undoStack.redo();
+        _song = _undoStack.redo().copySong();
         _undoStackLog();
         _checkSongStatus();
       } else {
@@ -2147,14 +2172,10 @@ class _Edit extends State<Edit> {
 
   bool _showHints = false;
 
-  Section _section = Section.get(SectionEnum.verse);
-  int _sectionVersion = 0;
+  SectionVersion _sectionVersion = SectionVersion.getDefault();
   ScaleNote _keyChordNote;
 
-  List<DropdownMenuItem<int>> _sectionVersionDropdownMenuList;
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList;
-
-  UndoStack<Song> _undoStack = UndoStack();
 
   List<ChangeNotifier> _disposeList = []; //  fixme: workaround to dispose the text controllers
 

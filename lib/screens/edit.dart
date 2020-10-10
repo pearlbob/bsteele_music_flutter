@@ -1141,19 +1141,8 @@ class _Edit extends State<Edit> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   //  section selection
-                  DropdownButton<SectionVersion>(
-                    items: _sectionVersionDropdownList(),
-                    onChanged: (_value) {
-                      setState(() {
-                        _sectionVersion = _value;
-                        _editTextController.text = _sectionVersion.toString();
-                      });
-                    },
-                    style: TextStyle(
-                      color: color,
-                      textBaseline: TextBaseline.alphabetic,
-                    ),
-                  ),
+                  _sectionVersionDropdownButton(),
+
                   //  section version selection
                   DropdownButton<int>(
                     value: _sectionVersion.version,
@@ -1197,6 +1186,8 @@ class _Edit extends State<Edit> {
                           size: _defaultChordFontSize,
                         ),
                         onTap: () {
+                          logger.i(
+                              'sectionVersion measureEditType: ${_selectedEditDataPoint._measureEditType.toString()}');
                           _performEdit(); //  section enter
                         },
                       ),
@@ -1279,6 +1270,7 @@ class _Edit extends State<Edit> {
             ),
             hintText: (_editTextController.text == null || _editTextController.text.isEmpty) &&
                     (_selectedEditDataPoint.measureEditType == MeasureEditType.replace)
+            //  fixme: delete of last measure in section should warn about second delete
                 ? 'Second delete will delete this measure'
                 : 'Enter the measure.',
             contentPadding: EdgeInsets.all(_defaultFontSize / 2),
@@ -1789,12 +1781,16 @@ class _Edit extends State<Edit> {
   }
 
   /// make a drop down list for the next most available, new sectionVersion
-  List<DropdownMenuItem<SectionVersion>> _sectionVersionDropdownList() {
-    List<DropdownMenuItem<SectionVersion>> ret = [];
+  DropdownButton<SectionVersion> _sectionVersionDropdownButton() {
+    //  figure the selection versions to show
+    SectionVersion selectedSectionVersion;
+    List<SectionVersion> sectionVersions = [];
+    int selectedWeight = 0;
 
-    SectionVersion sectionVersion;
     for (final SectionEnum sectionEnum in SectionEnum.values) {
       Section section = Section.get(sectionEnum);
+      SectionVersion sectionVersion;
+
       //  find a version that is not currently in the song
       for (int i = 0; i <= 9; i++) {
         sectionVersion = SectionVersion(section, i);
@@ -1807,28 +1803,59 @@ class _Edit extends State<Edit> {
       if (sectionVersion == null) {
         continue;
       }
-      logger.d('sectionVersion item: $sectionVersion, hash: ${sectionVersion.hashCode}');
+      logger.v('sectionVersion: $sectionVersion');
 
-      ret.add(DropdownMenuItem<SectionVersion>(
-        key: UniqueKey(), // ValueKey(sectionVersion),
-        value: sectionVersion,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${sectionVersion.toString()}',
-              style: _chordTextStyle,
-            ),
-            Text(
-              '${sectionVersion.section.formalName} '
-              '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
-              style: _chordTextStyle,
-            ),
-          ],
-        ),
-      ));
+      if (selectedWeight < sectionVersion.weight) {
+        selectedWeight = sectionVersion.weight;
+        selectedSectionVersion = sectionVersion;
+        logger.v('selectedSectionVersion: $selectedSectionVersion');
+      }
+      sectionVersions.add(sectionVersion);
     }
-    return ret;
+
+    //  generate the widgets
+    List<DropdownMenuItem<SectionVersion>> ret = [];
+    for (final SectionVersion sectionVersion in sectionVersions) {
+      //fixme: deal with selectedSectionVersion;
+      DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
+        value: sectionVersion,
+        child: Container(
+          color: GuiColors.getColorForSection(sectionVersion.section),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${sectionVersion.toString()}',
+                style: _chordTextStyle,
+              ),
+              Text(
+                '${sectionVersion.section.formalName} '
+                '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
+                style: _chordTextStyle,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      ret.add(dropdownMenuItem);
+    }
+
+    return DropdownButton<SectionVersion>(
+      hint: Text('Other section version', style: _chordTextStyle),
+      value: selectedSectionVersion,
+      items: ret,
+      onChanged: (_value) {
+        setState(() {
+          _sectionVersion = _value;
+          _editTextController.text = _sectionVersion.toString();
+        });
+      },
+      style: TextStyle(
+        color: GuiColors.getColorForSection(selectedSectionVersion.section),
+        textBaseline: TextBaseline.alphabetic,
+      ),
+    );
   }
 
   /// validate the given measure entry string
@@ -1990,7 +2017,7 @@ class _Edit extends State<Edit> {
   }
 
   void _undoStackLog() {
-    if (Logger.level.index <= Level.verbose.index) {
+    if (Logger.level.index <= Level.debug.index) {
       for (int i = 0;; i++) {
         Song s = _undoStack.get(i);
         if (s == null) {
@@ -2022,14 +2049,22 @@ class _Edit extends State<Edit> {
 
         ChordSectionLocation loc = _song.getCurrentChordSectionLocation();
         if (endOfRow) {
-          _selectedEditDataPoint = _EditDataPoint(loc.nextMeasureIndexLocation());
-          _selectedEditDataPoint.measureEditType = MeasureEditType.insert;
+          ChordSectionLocation lastChordSectionLocation =
+              _song.getLastMeasureLocationOfSectionVersion(loc.sectionVersion);
+          if (loc == lastChordSectionLocation) {
+            //  editing past the last of section version has to be an append
+            _selectedEditDataPoint = _EditDataPoint(loc);
+            _selectedEditDataPoint.measureEditType = MeasureEditType.append;
+          } else {
+            _selectedEditDataPoint = _EditDataPoint(loc.nextMeasureIndexLocation());
+            _selectedEditDataPoint.measureEditType = MeasureEditType.insert;
+          }
         } else {
           _selectedEditDataPoint = _EditDataPoint(loc);
           _selectedEditDataPoint.measureEditType = MeasureEditType.append;
         }
 
-        logger.d('post append setup: $_selectedEditDataPoint');
+        logger.i('post append setup: $_selectedEditDataPoint');
       }
     });
   }

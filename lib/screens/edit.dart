@@ -332,7 +332,6 @@ class _Edit extends State<Edit> {
 
           //  add the append for a new section
           {
-            logger.i('+section: $_selectedEditDataPoint, isSection: ${_selectedEditDataPoint?.isSection}');
             Widget child;
             if (_selectedEditDataPoint?.isSection ?? false) {
               child = _sectionEditGridDisplayWidget(_selectedEditDataPoint);
@@ -1087,6 +1086,9 @@ class _Edit extends State<Edit> {
     if (_selectedEditDataPoint == editDataPoint) {
       //  we're editing the section
       if (_editTextField == null) {
+        String entry = measureNode.toString();
+        _editTextController.text = entry;
+        _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: entry?.length ?? 0);
         _editTextField = TextField(
           controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
@@ -1184,6 +1186,19 @@ class _Edit extends State<Edit> {
                       },
                     ),
                   ),
+                  if (isValidSectionEntry)
+                    _editTooltip(
+                      'Accept the modification and add measures to the section.',
+                      InkWell(
+                        child: Icon(
+                          Icons.arrow_forward,
+                          size: _defaultChordFontSize,
+                        ),
+                        onTap: () {
+                          _performEditAndAppend(endOfRow: false);
+                        },
+                      ),
+                    ),
                   //  section enter
                   if (isValidSectionEntry)
                     _editTooltip(
@@ -2048,30 +2063,23 @@ class _Edit extends State<Edit> {
 
   /// perform the current edit and setup for the following append
   void _performEditAndAppend({bool done, bool endOfRow}) {
-    logger.i('pre edit: ${_selectedEditDataPoint.toString()}, endOfRow: $endOfRow');
+    logger.i('_performEditAndAppend: ${_selectedEditDataPoint.toString()}, done: $done, endOfRow: $endOfRow');
 
     setState(() {
       if (_edit(done: done, endOfRow: endOfRow)) {
         logger.i('post edit, edit type: ${_song.getCurrentMeasureEditType()}'
+            ', endOfRow: $endOfRow'
             ', loc: ${_song.getCurrentChordSectionLocation()}');
 
         ChordSectionLocation loc = _song.getCurrentChordSectionLocation();
-        if (endOfRow) {
-          ChordSectionLocation lastChordSectionLocation =
-              _song.getLastMeasureLocationOfSectionVersion(loc.sectionVersion);
-          if (loc == lastChordSectionLocation) {
-            //  editing past the last of section version has to be an append
-            _selectedEditDataPoint = _EditDataPoint(loc);
-            _selectedEditDataPoint._measureEditType = MeasureEditType.append;
-          } else {
-            _selectedEditDataPoint = _EditDataPoint(loc.nextMeasureIndexLocation());
-            _selectedEditDataPoint._measureEditType = MeasureEditType.insert;
-          }
-        } else {
-          _selectedEditDataPoint = _EditDataPoint(loc);
-          _selectedEditDataPoint._measureEditType = MeasureEditType.append;
+        MeasureNode measureNode = _song.findMeasureNodeByLocation(loc);
+        bool resultingEndOfRow;
+        if ( measureNode.getMeasureNodeType() == MeasureNodeType.measure ){
+          resultingEndOfRow = (measureNode as Measure).endOfRow;
         }
-
+        logger.i('   loc: $loc: $measureNode  ${resultingEndOfRow!=null?', endOfRow: $resultingEndOfRow}':''}');
+        _selectedEditDataPoint = _EditDataPoint(loc);
+        _selectedEditDataPoint._measureEditType = MeasureEditType.append;
         logger.i('post append setup: $_selectedEditDataPoint');
       }
     });
@@ -2086,6 +2094,7 @@ class _Edit extends State<Edit> {
   /// perform the actual edit to the song
   bool _edit({bool done, bool endOfRow}) {
     if (!_measureEntryValid) return false;
+    endOfRow = endOfRow ?? false;
 
     //  setup song for edit
     _song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
@@ -2101,9 +2110,7 @@ class _Edit extends State<Edit> {
           ', "${_song.findMeasureByChordSectionLocation(priorLocation)}"');
 
       //  clean up after edit
-      _song.setChordSectionLocationMeasureEndOfRow(priorLocation, _priorEndOfRow);
-      _priorEndOfRow = false;
-      _song.setCurrentChordSectionLocationMeasureEndOfRow(endOfRow);
+      _song.setChordSectionLocationMeasureEndOfRow(priorLocation, endOfRow);
 
       //  don't push an identical copy
       _undoStackPushIfDifferent();
@@ -2207,6 +2214,8 @@ class _Edit extends State<Edit> {
   TextStyle _chordBadTextStyle;
 
   TextField _editTextField;
+
+  bool get priorEndOfRow => _priorEndOfRow;
   bool _priorEndOfRow;
   TextEditingController _editTextController = TextEditingController();
   FocusNode _editTextFieldFocusNode;

@@ -1160,7 +1160,7 @@ class _Edit extends State<Edit> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
+                crossAxisAlignment: CrossAxisAlignment.baseline,textBaseline: TextBaseline.alphabetic,
                 children: <Widget>[
                   //  section delete
                   _editTooltip(

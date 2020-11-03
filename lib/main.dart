@@ -268,9 +268,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: <Widget>[
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
                         Text(
                           song.getTitle(),
@@ -367,6 +368,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 openLink('http://www.bsteele.com');
               },
+
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Image(

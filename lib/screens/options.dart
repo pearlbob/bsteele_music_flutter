@@ -59,6 +59,7 @@ class _Options extends State<Options> {
           child: Container(
             padding: EdgeInsets.all(12.0),
             child: Column(
+
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 textDirection: TextDirection.ltr,

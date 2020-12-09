@@ -30,6 +30,9 @@ import '../main.dart';
 
  */
 
+const _lightBlue = const Color(0xFF4FC3F7);
+const _tooltipColor = const Color(0xFFE8F5E9);
+
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
   const Player({Key key, @required this.song}) : super(key: key);
@@ -114,9 +117,9 @@ class _Player extends State<Player> {
       _rowLocations = null;
       if (grid.isNotEmpty) {
         {
-          _rowLocations = List(grid.getRowCount());
-          List<TableRow> rows = List();
-          List<Widget> children = List();
+          _rowLocations = List.generate(grid.getRowCount(), (i) { return null; } );
+          List<TableRow> rows = [];
+          List<Widget> children = [];
           Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
           bool showChords = isScreenBig || _appOptions.playerDisplay;
@@ -251,7 +254,7 @@ class _Player extends State<Player> {
               }
 
               //  get ready for the next row by clearing the row data
-              children = List();
+              children = [];
             }
           }
 
@@ -291,7 +294,7 @@ class _Player extends State<Player> {
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
-        List<music_key.Key> rolledKeyList = List(steps);
+        List<music_key.Key> rolledKeyList = List.generate(steps, (i) { return null; } );
 
         List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
         for (int i = 0; i <= halfOctave; i++) {
@@ -356,7 +359,7 @@ class _Player extends State<Player> {
       if (bpmDropDownMenuList == null) {
         final int bpm = song.getBeatsPerMinute();
 
-        bpmDropDownMenuList = List();
+        bpmDropDownMenuList = [];
         for (int i = -60; i < 60; i++) {
           int value = bpm + i;
           if (value < 40) continue;
@@ -411,10 +414,10 @@ class _Player extends State<Player> {
               ),
             ),
             //  put title and artist on top, behind the chords and lyrics
-            if (_isPlaying)
+            if (_isPlaying && false)  //  no longer required
               Positioned(
-                top: boxHeight/3,
-                left: _screenWidth / 3,   //  fixed position
+                top: boxHeight / 3,
+                left: _screenWidth / 3, //  fixed position
                 child: Row(children: <Widget>[
                   Text(
                     song.title,
@@ -495,7 +498,7 @@ Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
                                     FlatButton(
                                       padding: const EdgeInsets.all(8),
-                                      color: Colors.lightBlue[300],
+                                      color: _lightBlue,
                                       hoverColor: hoverColor,
                                       child: Text(
                                         'Hints',
@@ -507,7 +510,7 @@ With escape, the app goes back to the play list.''',
                                   if (isEditReady)
                                     FlatButton.icon(
                                       padding: const EdgeInsets.all(8),
-                                      color: Colors.lightBlue[300],
+                                      color: _lightBlue,
                                       hoverColor: hoverColor,
                                       icon: Icon(
                                         Icons.edit,
@@ -528,7 +531,7 @@ With escape, the app goes back to the play list.''',
                                   child: _playTooltip(
                                     'Tip: use space bar to start playing',
                                     FlatButton.icon(
-                                      color: Colors.lightBlue[300],
+                                      color: _lightBlue,
                                       hoverColor: hoverColor,
                                       icon: Icon(
                                         _playStopIcon,
@@ -687,9 +690,9 @@ With escape, the app goes back to the play list.''',
 
       logger.d('key: ${e.data.logicalKey.toString()}');
 
-      if (e.isKeyPressed(LogicalKeyboardKey.space)
-          || e.isKeyPressed(LogicalKeyboardKey.keyB)//  workaround for cheap foot pedal... only outputs b
-      ) {
+      if (e.isKeyPressed(LogicalKeyboardKey.space) ||
+              e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
+          ) {
         if (!_isPlaying)
           _play();
         else {
@@ -832,8 +835,8 @@ With escape, the app goes back to the play list.''',
         decoration: BoxDecoration(
             color: _tooltipColor,
             border: Border.all(),
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            boxShadow: [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
         padding: EdgeInsets.all(8));
   }
 
@@ -904,4 +907,3 @@ class _RowLocation {
   final int row;
 }
 
-const _tooltipColor = Color(0xFFE8F5E9);

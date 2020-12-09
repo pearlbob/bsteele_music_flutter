@@ -1,4 +1,3 @@
-import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -29,13 +28,13 @@ class SongMaster {
       //
       // logger.v('dt $_tickerCount: ${dt.toStringAsFixed(3)}');
       // _lastTime = time;
-      _tickerCount++;
+      // _tickerCount++;
     });
     _ticker.start();
   }
 
   void playSong(Song song) {
-    _song = song;
+    // _song = song;
     _isPlaying = true;
     _isPaused = false;
     //_songStart = appAudioPlayer.getCurrentTime();
@@ -54,8 +53,8 @@ class SongMaster {
   }
 
   Ticker _ticker;
-  static int _tickerCount = 0;
-  double _lastTime = 0;
+  // static int _tickerCount = 0;
+  // double _lastTime = 0;
 
   //AppAudioPlayer appAudioPlayer = AppAudioPlayer();
 
@@ -64,6 +63,6 @@ class SongMaster {
 
   get isPaused => _isPaused;
   bool _isPaused = false;
-  Song _song;
-  double _songStart;
+  // Song _song;
+  // double _songStart;
 }

@@ -255,7 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _searchSongs(_searchTextFieldController.text);
     }
 
-    List<StatelessWidget> listViewChildren = List();
+    List<StatelessWidget> listViewChildren = [];
     for (final Song song in _filteredSongs) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(

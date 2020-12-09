@@ -21,6 +21,7 @@ import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -39,18 +40,18 @@ class Edit extends StatefulWidget {
 const double _defaultChordFontSize = 28;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
-final TextStyle _boldTextStyle = TextStyle(
-    fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Colors.grey[100]);
-final TextStyle _labelTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+const TextStyle _boldTextStyle = const TextStyle(
+    fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Color(0xFFF5F5F5));
+const TextStyle _labelTextStyle = const TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
 const TextStyle _buttonTextStyle =
     TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
-final TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.grey[800]);
-const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
+const TextStyle _textStyle = const TextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
+const TextStyle _errorTextStyle = const TextStyle(fontSize: _defaultFontSize, color: Colors.red);
 const double _entryWidth = 18 * _defaultChordFontSize;
 
-final Color _defaultColor = Colors.lightBlue[100];
-final Color _hoverColor = Colors.lightBlue[300];
-final Color _disabledColor = Colors.grey[300];
+const Color _defaultColor = const Color(0xFFB3E5FC);
+const Color _hoverColor = const Color(0xFF4FC3F7);
+const Color _disabledColor = const Color(0xFFE0E0E0);
 
 //  intentionally left persistent, to allow for re-edit undos to previous songs
 UndoStack<Song> _undoStack = UndoStack();
@@ -199,8 +200,8 @@ class _Edit extends State<Edit> {
 
       if (grid.isNotEmpty) {
         {
-          List<TableRow> rows = List();
-          List<Widget> children = List();
+          List<TableRow> rows = [];
+          List<Widget> children = [];
           sectionColor = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
           //  compute transposition offset from base key
@@ -323,7 +324,7 @@ class _Edit extends State<Edit> {
               rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
 
               //  get ready for the next row by clearing the row data
-              children = List();
+              children = [];
             }
           }
 
@@ -389,7 +390,7 @@ class _Edit extends State<Edit> {
 
     {
       //  list the notes required
-      List<ScaleNote> scaleNotes = List();
+      List<ScaleNote> scaleNotes = [];
 
       //  scale notes
       for (int i = 0; i < MusicConstants.notesPerScale; i++) scaleNotes.add(_key.getMajorScaleByNote(i));
@@ -401,7 +402,7 @@ class _Edit extends State<Edit> {
       }
 
       //  make the key selection drop down list
-      _keyChordDropDownMenuList = List();
+      _keyChordDropDownMenuList = [];
       for (final ScaleNote scaleNote in scaleNotes) {
         String s = scaleNote.toMarkup();
         String label = s.padRight(2) +
@@ -436,11 +437,11 @@ class _Edit extends State<Edit> {
                       //  let the app bar scroll off the screen for more room for the song
                       title: Text(
                         'Edit',
-                        style: TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
                       ),
                       centerTitle: true,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -473,7 +474,7 @@ class _Edit extends State<Edit> {
                                       Icons.arrow_left,
                                       size: 48,
                                     ),
-                                    label: Text(
+                                    label: const Text(
                                       '',
                                       style: _boldTextStyle,
                                     ),
@@ -954,14 +955,14 @@ class _Edit extends State<Edit> {
       return;
     }
     ChordSection chordSection = _song.findChordSectionBySectionVersion(sectionVersion);
-    Measure measure = chordSection.lastMeasure;
-    if (measure != null) {
-      ChordSectionLocation loc = _song.findChordSectionLocation(measure);
+    ChordSectionLocation loc = _song.findLastChordSectionLocation(chordSection);
+    if (loc != null) {
       _EditDataPoint editDataPoint = _EditDataPoint(loc);
-      editDataPoint.priorEndOfRow = true;
       editDataPoint._measureEditType = MeasureEditType.append;
-      Widget w = _plusMeasureEditGridDisplayWidget(editDataPoint, tooltip: 'add new measure on a new row');
-      List<Widget> children = List();
+      Widget w = _plusMeasureEditGridDisplayWidget(editDataPoint,
+          tooltip: 'add new measure on a new row'
+              ' loc: ${loc.toString()} ${describeEnum(editDataPoint._measureEditType)}');
+      List<Widget> children = [];
       children.add(_nullEditGridDisplayWidget());
       children.add(w);
 
@@ -1170,7 +1171,8 @@ class _Edit extends State<Edit> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.baseline,textBaseline: TextBaseline.alphabetic,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: <Widget>[
                   //  section delete
                   _editTooltip(
@@ -1211,7 +1213,7 @@ class _Edit extends State<Edit> {
                         onTap: () {
                           logger.i(
                               'sectionVersion measureEditType: ${_selectedEditDataPoint._measureEditType.toString()}');
-                          _performEdit(); //  section enter
+                          _performEdit(done: true); //  section enter
                         },
                       ),
                     ),
@@ -1367,7 +1369,7 @@ class _Edit extends State<Edit> {
             ));
       }
 
-      List<DropdownMenuItem<ScaleChord>> _otherChordDropDownMenuList = List();
+      List<DropdownMenuItem<ScaleChord>> _otherChordDropDownMenuList = [];
       {
         // other chords
         _otherChordDropDownMenuList.add(DropdownMenuItem<ScaleChord>(
@@ -1396,7 +1398,7 @@ class _Edit extends State<Edit> {
         }
       }
 
-      List<DropdownMenuItem<ScaleNote>> _slashNoteDropDownMenuList = List();
+      List<DropdownMenuItem<ScaleNote>> _slashNoteDropDownMenuList = [];
       {
         // other chords
         _slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
@@ -1543,14 +1545,14 @@ class _Edit extends State<Edit> {
                         ),
                       if (_measureEntryValid)
                         _editTooltip(
-                          'Accept the modification and end the row.',
+                          'Accept the modification, end the row, and continue editing.',
                           InkWell(
                             child: Icon(
                               Icons.call_received,
                               size: _defaultChordFontSize,
                             ),
                             onTap: () {
-                              _performEdit(endOfRow: true);
+                              _performEditAndAppend(done: false, endOfRow: true);
                             },
                           ),
                         ),
@@ -1566,6 +1568,7 @@ class _Edit extends State<Edit> {
                               logger.v(
                                   'endOfRow?:  ${_song.findMeasureByChordSectionLocation(_selectedEditDataPoint?.location)?.endOfRow} ');
                               _performEdit(
+                                  done: true,
                                   endOfRow: _song
                                           .findMeasureByChordSectionLocation(_selectedEditDataPoint?.location)
                                           ?.endOfRow ??
@@ -1785,7 +1788,7 @@ class _Edit extends State<Edit> {
 
     return InkWell(
         onTap: () {
-          _setEditDataPoint(editDataPoint, priorEndOfRow: editDataPoint.priorEndOfRow);
+          _setEditDataPoint(editDataPoint);
         },
         child: Container(
             margin: appendInsets,
@@ -1795,7 +1798,9 @@ class _Edit extends State<Edit> {
               color: Colors.green[100],
             ),
             child: _editTooltip(
-              tooltip ?? 'add new measure on this row',
+              tooltip ?? ('add new measure on this row'+
+                  ' edit: ${editDataPoint.toString()}}')
+              ,
               Icon(
                 Icons.add,
                 size: _appendFontSize,
@@ -2074,10 +2079,10 @@ class _Edit extends State<Edit> {
         ChordSectionLocation loc = _song.getCurrentChordSectionLocation();
         MeasureNode measureNode = _song.findMeasureNodeByLocation(loc);
         bool resultingEndOfRow;
-        if ( measureNode.getMeasureNodeType() == MeasureNodeType.measure ){
+        if (measureNode.getMeasureNodeType() == MeasureNodeType.measure) {
           resultingEndOfRow = (measureNode as Measure).endOfRow;
         }
-        logger.i('   loc: $loc: $measureNode  ${resultingEndOfRow!=null?', endOfRow: $resultingEndOfRow}':''}');
+        logger.i('   loc: $loc: $measureNode  ${resultingEndOfRow != null ? ', endOfRow: $resultingEndOfRow}' : ''}');
         _selectedEditDataPoint = _EditDataPoint(loc);
         _selectedEditDataPoint._measureEditType = MeasureEditType.append;
         logger.i('post append setup: $_selectedEditDataPoint');
@@ -2095,6 +2100,7 @@ class _Edit extends State<Edit> {
   bool _edit({bool done, bool endOfRow}) {
     if (!_measureEntryValid) return false;
     endOfRow = endOfRow ?? false;
+    done = done ?? false;
 
     //  setup song for edit
     _song.setCurrentChordSectionLocation(_selectedEditDataPoint.location);
@@ -2107,7 +2113,7 @@ class _Edit extends State<Edit> {
     //  do the edit
     if (_song.editMeasureNode(_measureEntryNode)) {
       logger.i('post location: ${_song.getCurrentChordSectionLocation()}'
-          ', "${_song.findMeasureByChordSectionLocation(priorLocation)}"');
+          ', prior: "${_song.findMeasureByChordSectionLocation(priorLocation)}"');
 
       //  clean up after edit
       _song.setChordSectionLocationMeasureEndOfRow(priorLocation, endOfRow);
@@ -2118,8 +2124,17 @@ class _Edit extends State<Edit> {
 
       _clearMeasureEntry();
 
-      if (done != null && !done) {
-        _selectedEditDataPoint = _EditDataPoint(_song.getCurrentChordSectionLocation());
+      if (done) {
+        _selectedEditDataPoint = null;
+      } else {
+        ChordSectionLocation loc = _song.getCurrentChordSectionLocation();
+        if (endOfRow) {
+          loc = loc.nextMeasureIndexLocation();
+        }
+        _selectedEditDataPoint = _EditDataPoint(loc);
+        if (endOfRow) {
+          _selectedEditDataPoint._measureEditType = MeasureEditType.append;
+        }
         logger.i('_selectedEditDataPoint: $_selectedEditDataPoint');
       }
 
@@ -2150,13 +2165,12 @@ class _Edit extends State<Edit> {
     });
   }
 
-  void _setEditDataPoint(_EditDataPoint editDataPoint, {bool priorEndOfRow}) {
+  void _setEditDataPoint(_EditDataPoint editDataPoint) {
     setState(() {
       _clearMeasureEntry();
       _clearErrorMessage();
-      _priorEndOfRow = priorEndOfRow;
       _selectedEditDataPoint = editDataPoint;
-      logger.d('_setEditDataPoint(${editDataPoint.toString()})');
+      logger.i('_setEditDataPoint(${editDataPoint.toString()})');
     });
   }
 
@@ -2234,6 +2248,7 @@ class _Edit extends State<Edit> {
   static const tooltipColor = Color(0xFFE8F5E9);
 }
 
+
 //  internal class to hold handy data for each point in the chord section edit display
 class _EditDataPoint {
   _EditDataPoint(this.location);
@@ -2246,7 +2261,7 @@ class _EditDataPoint {
   String toString() {
     return '_EditDataPoint{'
         ' loc: ${location?.toString()}'
-        ', editType: ${_measureEditType?.toString()}'
+        ', editType: ${describeEnum(_measureEditType)}'
         '${(measureNode == null ? '' : ', measureNode: $measureNode')}'
         '}';
   }
@@ -2259,19 +2274,16 @@ class _EditDataPoint {
     return runtimeType == other.runtimeType &&
         location == other.location &&
         _measureEditType == other._measureEditType &&
-        measureNode == other.measureNode &&
-        priorEndOfRow == other.priorEndOfRow;
+        measureNode == other.measureNode ;
   }
 
   bool get isSection => measureNode != null && measureNode.getMeasureNodeType() == MeasureNodeType.section;
 
   @override
-  int get hashCode => hashValues(location, _measureEditType, measureNode, priorEndOfRow);
+  int get hashCode => hashValues(location, _measureEditType, measureNode);
 
   ChordSectionLocation location;
   Widget widget;
   MeasureEditType _measureEditType = MeasureEditType.replace; //  default
   MeasureNode measureNode;
-
-  bool priorEndOfRow = false;
 }

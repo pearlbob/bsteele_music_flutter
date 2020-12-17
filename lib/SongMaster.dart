@@ -52,7 +52,7 @@ class SongMaster {
     _isPaused = false;
   }
 
-  Ticker _ticker;
+   Ticker _ticker;
   // static int _tickerCount = 0;
   // double _lastTime = 0;
 

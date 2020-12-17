@@ -80,9 +80,9 @@ class _Player extends State<Player> {
     // }
     _appOptions = AppOptions();
 
-    _displaySongKey = widget.song.key;
+    _displaySongKey = widget.song.key ?? music_key.Key.getDefault();
 
-    WidgetsBinding.instance.scheduleWarmUpFrame();
+    WidgetsBinding.instance?.scheduleWarmUpFrame();
 
     songMaster = SongMaster();
   }
@@ -117,7 +117,9 @@ class _Player extends State<Player> {
       _rowLocations = null;
       if (grid.isNotEmpty) {
         {
-          _rowLocations = List.generate(grid.getRowCount(), (i) { return null; } );
+          _rowLocations = List.generate(grid.getRowCount(), (i) {
+            return null;
+          });
           List<TableRow> rows = [];
           List<Widget> children = [];
           Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
@@ -272,7 +274,7 @@ class _Player extends State<Player> {
       for (final TableRow tableRow in _table.children) {
         logger.v('rowkey:  ${tableRow.key.toString()}');
         int j = 0;
-        for (final Widget widget in tableRow.children) {
+        for (final Widget widget in tableRow.children ?? []) {
           if (widget.key != null) {
             logger.i('\t\($i\,$j\)');
           }
@@ -290,11 +292,13 @@ class _Player extends State<Player> {
       if (keyDropDownMenuList == null) {
         const int steps = MusicConstants.halfStepsPerOctave;
         const int halfOctave = steps ~/ 2;
-        ScaleNote firstScaleNote = song?.getSongMoment(0)?.measure?.chords[0]?.scaleChord?.scaleNote;
+        ScaleNote firstScaleNote = song.getSongMoment(0)?.measure?.chords[0]?.scaleChord?.scaleNote;
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
-        List<music_key.Key> rolledKeyList = List.generate(steps, (i) { return null; } );
+        List<music_key.Key> rolledKeyList = List.generate(steps, (i) {
+          return null;
+        });
 
         List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
         for (int i = 0; i <= halfOctave; i++) {
@@ -385,6 +389,7 @@ class _Player extends State<Player> {
     final double boxOffset = boxHeight / 2;
 
     final hoverColor = Colors.blue[700];
+    const Color blue300 = Color(0xFF64B5F6);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -405,8 +410,8 @@ class _Player extends State<Player> {
                     end: Alignment.bottomCenter,
                     colors: <Color>[
                       Colors.white,
-                      Colors.blue[300],
-                      Colors.blue[300],
+                      blue300,
+                      blue300,
                       Colors.white,
                     ],
                   ),
@@ -414,26 +419,26 @@ class _Player extends State<Player> {
               ),
             ),
             //  put title and artist on top, behind the chords and lyrics
-            if (_isPlaying && false)  //  no longer required
-              Positioned(
-                top: boxHeight / 3,
-                left: _screenWidth / 3, //  fixed position
-                child: Row(children: <Widget>[
-                  Text(
-                    song.title,
-                    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '  by  ',
-                  ),
-                  Text(
-                    song.artist,
-                    style: TextStyle(
-                      fontSize: lyricsFontSize,
-                    ),
-                  ),
-                ]),
-              ),
+            // if (_isPlaying && false) //  no longer required
+            //   Positioned(
+            //     top: boxHeight / 3,
+            //     left: _screenWidth / 3, //  fixed position
+            //     child: Row(children: <Widget>[
+            //       Text(
+            //         song.title,
+            //         style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+            //       ),
+            //       Text(
+            //         '  by  ',
+            //       ),
+            //       Text(
+            //         song.artist,
+            //         style: TextStyle(
+            //           fontSize: lyricsFontSize,
+            //         ),
+            //       ),
+            //     ]),
+            //   ),
             //  tiny center marker
             Positioned(
               top: boxCenter,
@@ -552,8 +557,10 @@ With escape, the app goes back to the play list.''',
                                   items: keyDropDownMenuList,
                                   onChanged: (_value) {
                                     setState(() {
-                                      _displaySongKey = _value;
-                                      _forceTableRedisplay();
+                                      if ( _value != null ) {
+                                        _displaySongKey = _value;
+                                        _forceTableRedisplay();
+                                      }
                                     });
                                   },
                                   value: _displaySongKey,
@@ -725,7 +732,7 @@ With escape, the app goes back to the play list.''',
 
   /// bump from one section to the next
   _sectionBump(int bump) {
-    if (_rowLocations.isEmpty) {
+    if (_rowLocations?.isEmpty??true) {
       _sectionLocations = null;
       return;
     }
@@ -736,7 +743,8 @@ With escape, the app goes back to the play list.''',
       int sectionCount = 0;
 
       _sectionLocations = [];
-      for (_RowLocation _rowLocation in _rowLocations) {
+      for (_RowLocation _rowLocation in (_rowLocations??[])) {
+        if ( _rowLocation == null ) continue;
         if (chordSection == _rowLocation.songMoment.chordSection &&
             sectionCount == _rowLocation.songMoment.sectionCount) {
           continue; //  same section, no entry
@@ -774,7 +782,7 @@ With escape, the app goes back to the play list.''',
     double target = (_sectionLocations.where((e) => e >= _scrollController.offset).toList()..sort()).first;
 
     //  bump it by units of section
-    target = _sectionLocations[Util.limit(_sectionLocations.indexOf(target) + bump, 0, _sectionLocations.length - 1)];
+    target = _sectionLocations[Util.limit(_sectionLocations.indexOf(target) + bump, 0, _sectionLocations.length - 1) as int];
 
     _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
     logger.d('_sectionSelection: $target');
@@ -871,9 +879,9 @@ With escape, the app goes back to the play list.''',
   bool _isPlaying = false;
   bool _isPaused = false;
 
-  double _screenOffset;
+  double _screenOffset=0;
   List<_RowLocation> _rowLocations;
-  int _rowLocationIndex;
+  int _rowLocationIndex=0;
 
   Table _table;
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
@@ -906,4 +914,3 @@ class _RowLocation {
   final GlobalKey globalKey;
   final int row;
 }
-

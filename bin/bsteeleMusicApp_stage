@@ -39,7 +39,7 @@ set dst=/var/www/html/public_html
 if ( $isBeta != 0 ) then
 	set dst=$dst/$flavor
 endif
-set git=~/github/bsteeleMusicFlutter
+set git=~/github/bsteele_music_flutter
 set target=$git/build/web
 cd $git
 
@@ -58,8 +58,6 @@ rm  -rf $dst/$app
 
 #	copy to localhost website
 cp -r build/web $dst/$app
-#	clean up for public distribution:
-rm $dst/$app/main.dart.js.map
 
 #	send to flavor's web location
 set gs=gs://www.bsteele.com/$flavor/$app

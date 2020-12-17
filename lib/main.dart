@@ -27,7 +27,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
-
 //CjRankingEnum _cjRanking;
 
 void main() {
@@ -63,10 +62,11 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 const double defaultFontSize = 14.0; //  borrowed from Text widget
 
 //  parameters to be evaluated before use
-ScreenInfo screenInfo; //  refreshed on main build
-bool isEditReady;
-bool isScreenBig;
-bool isPhone;
+ ScreenInfo screenInfo; //  refreshed on main build
+bool isEditReady = false;
+bool isScreenBig = true;
+bool isPhone = false;
+final Song _emptySong = Song.createEmptySong();
 
 void addSong(Song song) {
   logger.i('addSong( ${song.toString()} )');
@@ -78,9 +78,9 @@ void addSong(Song song) {
 SplayTreeSet<Song> get allSongs => _allSongs;
 SplayTreeSet<Song> _allSongs = SplayTreeSet();
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
-Song _selectedSong;
+Song _selectedSong = Song.createEmptySong();
 
-final Color _primaryColor = Colors.lightBlue[300];
+final Color _primaryColor = Color(0xFF4FC3F7);
 
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
@@ -115,7 +115,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.title: 'unknown'}) : super(key: key);
 
   // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _allSongs = SplayTreeSet();
         _allSongs.addAll(Song.songListFromJson(songListAsString));
         _filteredSongs = _allSongs;
-        _selectedSong = _filteredSongs.first;
+        _selectedSong = _filteredSongs?.first ?? _emptySong;
         setState(() {});
         print("internal songList used");
       } catch (fe) {
@@ -199,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _allSongs.addAll(Song.songListFromJson(allSongsAsString));
         setState(() {
           _filteredSongs = _allSongs;
-          _selectedSong = _filteredSongs.first;
+          _selectedSong = _filteredSongs?.first??_emptySong;
         });
         print("external songList read from: " + url);
       } catch (fe) {
@@ -256,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     List<StatelessWidget> listViewChildren = [];
-    for (final Song song in _filteredSongs) {
+    for (final Song song in (_filteredSongs ?? [])) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
         child: Container(
@@ -271,7 +271,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   textBaseline: TextBaseline.alphabetic,
                   children: <Widget>[
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,textBaseline: TextBaseline.alphabetic,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
                         Text(
                           song.getTitle(),
@@ -362,13 +363,12 @@ class _MyHomePageState extends State<MyHomePage> {
           style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
-           Tooltip(
+          Tooltip(
             message: "Visit bsteele.com, the provider of this app.",
             child: InkWell(
               onTap: () {
                 openLink('http://www.bsteele.com');
               },
-
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Image(
@@ -381,7 +381,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           if (isScreenBig) //  sorry CJ
-             Tooltip(
+            Tooltip(
               message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
                 onTap: () {
@@ -481,7 +481,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: "Enter search filter string here.",
                     ),
                     autofocus: true,
-                    style:  TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: fontSize),
                     onChanged: (text) {
                       setState(() {
                         logger.v('search text: "$text"');
@@ -492,7 +492,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.clear),
-                  tooltip: _searchTextFieldController.text?.isEmpty ?? true
+                  tooltip: _searchTextFieldController.text.isEmpty
                       ? 'Scroll the list some.'
                       : 'Clear the search text.',
                   onPressed: (() {
@@ -558,7 +558,7 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: listViewChildren.length,
             itemScrollController: _itemScrollController,
             itemBuilder: (context, index) {
-              return listViewChildren[Util.limit(index, 0, listViewChildren.length)];
+              return listViewChildren[Util.limit(index, 0, listViewChildren.length) as int];
             },
           )),
         // Expanded(
@@ -630,7 +630,7 @@ class _MyHomePageState extends State<MyHomePage> {
         //  if holiday and song is holiday, we're good
         if (_appOptions.holiday) {
           if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
-            _filteredSongs.add(song);
+            _filteredSongs?.add(song);
           }
           continue; //  toss the others
         } else
@@ -657,17 +657,17 @@ class _MyHomePageState extends State<MyHomePage> {
         // }
 
         //  not filtered
-        _filteredSongs.add(song);
+        _filteredSongs?.add(song);
       }
     }
 
     //  on new search, start the list at the first location
     if (search.isNotEmpty) {
       _rollIndex = 0;
-      if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
+      if (_itemScrollController.isAttached && (_filteredSongs?.isNotEmpty ?? false)) {
         _itemScrollController.jumpTo(index: _rollIndex);
       }
-    } else if (_filteredSongs.isNotEmpty) {
+    } else if (_filteredSongs?.isNotEmpty ?? false) {
       _rollUnfilteredSongs();
     }
   }
@@ -676,14 +676,14 @@ class _MyHomePageState extends State<MyHomePage> {
     const int rollStep = 15;
 
     //  skip if searching for something
-    if ((_searchTextFieldController.text?.isNotEmpty ?? true) || _filteredSongs.isEmpty) {
+    if (_searchTextFieldController.text.isNotEmpty || (_filteredSongs?.isEmpty ?? false)) {
       return;
     }
 
-    List<Song> list = _filteredSongs.toList();
+    List<Song> list = _filteredSongs?.toList() ?? [];
 
     _rollIndex ??= _random.nextInt(list.length); //  start with a random location
-    _rollIndex += rollStep;
+    _rollIndex = _rollIndex + rollStep;
     if (_rollIndex >= list.length) {
       _rollIndex = 0;
     }
@@ -694,22 +694,26 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToSongs(BuildContext context) async {
-    Song lastSelectedSong = _selectedSong;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Songs()),
-    );
-    Navigator.pop(context);
+    if (_selectedSong != null) {
+      Song lastSelectedSong = _selectedSong;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Songs()),
+      );
+      Navigator.pop(context);
 
-    setState(() {
-      //  jump the player screen if a song was read
-      if (lastSelectedSong != _selectedSong) {
-        _navigateToPlayer(context, _selectedSong);
-      }
-    });
+      setState(() {
+        //  jump the player screen if a song was read
+        if (lastSelectedSong != _selectedSong) {
+          _navigateToPlayer(context, _selectedSong);
+        }
+      });
+    }
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
+    if (song == null) return;
+
     _selectedSong = song;
 
     await Navigator.push(
@@ -759,7 +763,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
   }
 
-  List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList;
+  List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList = [];
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   FocusNode _searchFocusNode;
@@ -771,7 +775,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final AppOptions _appOptions = AppOptions();
-  final _random =  Random();
+  final _random = Random();
 }
 
 Future<String> fetchString(String url) async {

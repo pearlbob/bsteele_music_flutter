@@ -55,11 +55,11 @@ class _Options extends State<Options> {
       ),
       body: DefaultTextStyle(
         style: TextStyle(color: Colors.black87, fontSize: fontSize),
-        child: SingleChildScrollView( //  for phones when horizontal
+        child: SingleChildScrollView(
+          //  for phones when horizontal
           child: Container(
             padding: EdgeInsets.all(12.0),
             child: Column(
-
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 textDirection: TextDirection.ltr,
@@ -109,7 +109,7 @@ class _Options extends State<Options> {
                           groupValue: _appOptions.holiday,
                           onChanged: (value) {
                             setState(() {
-                              _appOptions.holiday = value;
+                              _appOptions.holiday = value ?? false;
                             });
                           },
                         ),
@@ -119,7 +119,7 @@ class _Options extends State<Options> {
                           groupValue: _appOptions.holiday,
                           onChanged: (value) {
                             setState(() {
-                              _appOptions.holiday = value;
+                              _appOptions.holiday = value ?? true;
                             });
                           },
                         ),
@@ -145,7 +145,7 @@ class _Options extends State<Options> {
                       value: _appOptions.playWithChords,
                       onChanged: (value) {
                         setState(() {
-                          _appOptions.playWithChords = value;
+                          _appOptions.playWithChords = value ?? false;
                         });
                       },
                     ),
@@ -159,7 +159,7 @@ class _Options extends State<Options> {
                       value: _appOptions.playWithBass,
                       onChanged: (value) {
                         setState(() {
-                          _appOptions.playWithBass = value;
+                          _appOptions.playWithBass = value ?? true;
                         });
                       },
                     ),
@@ -327,13 +327,14 @@ class _Options extends State<Options> {
   }
 
   static final int _testNumber = 3;
-  int _test;
-  String _testType;
+  int _test = 0;
+
+  String _testType = 'unknown';
   final List<Pitch> _pitches = Pitch.flats;
   static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
 
   Timer _timer;
-  double _timerT;
+  double _timerT = 0;
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
 }

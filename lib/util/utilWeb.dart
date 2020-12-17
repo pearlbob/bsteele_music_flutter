@@ -51,21 +51,23 @@ class UtilWeb implements UtilWorkaround {
 
   Future<List<String>> getFiles() {
     final completer = new Completer<List<String>>();
-    final InputElement input = document.createElement('input');
+    final InputElement input = document.createElement('input') as InputElement;
     input
       ..type = 'file'
       ..multiple = true
       ..accept = '.songlyrics';
     input.onChange.listen((e) async {
       final List<File> files = input.files;
-      Iterable<Future<String>> resultsFutures = files.map((file) {
-        final reader = new FileReader();
-        reader.readAsDataUrl(file);
-        reader.onError.listen((error) => completer.completeError(error));
-        return reader.onLoad.first.then((_) => reader.result as String);
-      });
-      final results = await Future.wait(resultsFutures);
-      completer.complete(results);
+      if ( files != null ) {
+        Iterable<Future<String>> resultsFutures = files.map((file) {
+          final reader = new FileReader();
+          reader.readAsDataUrl(file);
+          reader.onError.listen((error) => completer.completeError(error));
+          return reader.onLoad.first.then((_) => reader.result as String);
+        });
+        final results = await Future.wait(resultsFutures);
+        completer.complete(results);
+      }
     });
     input.click();
     return completer.future;

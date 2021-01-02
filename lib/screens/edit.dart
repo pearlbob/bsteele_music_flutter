@@ -54,8 +54,6 @@ const Color _hoverColor = const Color(0xFF4FC3F7);
 const Color _disabledColor = const Color(0xFFE0E0E0);
 final Section _defaultSection = Section.get(SectionEnum.chorus);
 
-//  intentionally left persistent, to allow for re-edit undos to previous songs
-UndoStack<Song> _undoStack = UndoStack();
 
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
@@ -1074,6 +1072,8 @@ class _Edit extends State<Edit> {
             case MeasureEditType.replace:
               _selectedEditDataPoint._measureEditType = MeasureEditType.insert;
               break;
+            default:
+              break;
           }
           _performEdit();
         }
@@ -1998,12 +1998,13 @@ class _Edit extends State<Edit> {
 
   /// helper function to generate tool tips
   Widget _editTooltip(String message, Widget child) {
-    String debug = '';
-    if (Logger.level.index <= Level.debug.index && _selectedEditDataPoint != null) {
-      debug = '  edit: ${_selectedEditDataPoint.toString()}}';
-    }
+    // String debug = '';
+    // if (Logger.level.index <= Level.debug.index && _selectedEditDataPoint != null) {
+    //   debug = '  edit: ${_selectedEditDataPoint.toString()}}';
+    // }
     return Tooltip(
-        message: message + debug,
+        // message: message + debug,
+        message: message,
         child: child,
         textStyle: TextStyle(
           backgroundColor: tooltipColor,
@@ -2103,10 +2104,11 @@ class _Edit extends State<Edit> {
 
     //  setup for prior end of row after the edit
     ChordSectionLocation priorLocation = _song?.getCurrentChordSectionLocation();
-    logger.i('pre edit: $priorLocation'
+    logger.i('pre edit: prior: $priorLocation'
         ' "${_song?.findMeasureByChordSectionLocation(priorLocation)}"'
         ', done: $done'
-        ', endOfRow: $endOfRow');
+        ', endOfRow: $endOfRow'
+        ', selectedEditDataPoint: $_selectedEditDataPoint');
 
     //  do the edit
     if (_song?.editMeasureNode(_measureEntryNode) ?? false) {
@@ -2120,6 +2122,11 @@ class _Edit extends State<Edit> {
       ChordSectionLocation loc = _song?.getCurrentChordSectionLocation();
       switch (_selectedEditDataPoint._measureEditType) {
         case MeasureEditType.append:
+          logger.i('post append: location: ${_song?.getCurrentChordSectionLocation()} '
+              '"${_song?.findMeasureByChordSectionLocation(_song?.getCurrentChordSectionLocation())}"'
+              ', prior: $priorLocation "${_song?.findMeasureByChordSectionLocation(priorLocation)}"'
+              ', selectedEditDataPoint: $_selectedEditDataPoint'
+              ', endOfRow: $endOfRow');
           _song?.setChordSectionLocationMeasureEndOfRow(priorLocation, _selectedEditDataPoint.onEndOfRow);
           _song?.setChordSectionLocationMeasureEndOfRow(loc, endOfRow);
           break;
@@ -2267,6 +2274,9 @@ class _Edit extends State<Edit> {
 
   List<ChangeNotifier> _disposeList = []; //  fixme: workaround to dispose the text controllers
 
+
+  UndoStack<Song> _undoStack = UndoStack();
+
   static const tooltipColor = Color(0xFFE8F5E9);
 }
 
@@ -2314,3 +2324,9 @@ class _EditDataPoint {
   MeasureEditType _measureEditType = MeasureEditType.replace; //  default
   MeasureNode measureNode;
 }
+
+/*
+c:a b c d, d c g g
+C: C G D A, E E E E
+
+ */

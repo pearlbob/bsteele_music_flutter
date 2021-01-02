@@ -453,7 +453,11 @@ class _Player extends State<Player> {
               child: SingleChildScrollView(
                 controller: _scrollController,
                 scrollDirection: Axis.vertical,
-                child: Column(
+                child:
+                SizedBox(
+                  //width: _screenWidth*3/4,//  fixme: temp!!!!!!!!!!!!!!!!!
+                  child:
+                Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.ltr,
@@ -622,7 +626,7 @@ With escape, the app goes back to the play list.''',
                           height: _screenOffset,
                         ),
                     ]),
-              ),
+              ),),
               onTap: () {
                 if (_isPlaying) {
                   _sectionBump(1);

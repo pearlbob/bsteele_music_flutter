@@ -11,7 +11,7 @@ abstract class UtilWorkaround {
   /// Workaround to implement functionality that is not generic across all platforms at this point.
   void writeFileContents(String fileName, String contents);
 
-  Future<void> filePick() { return null; }
+  Future<void> filePick();
 
   /// factory constructor to return the correct implementation.
   factory UtilWorkaround() => getUtilWorkaround();

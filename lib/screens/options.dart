@@ -17,7 +17,7 @@ import '../appOptions.dart';
 
 /// Display the song moments in sequential order.
 class Options extends StatefulWidget {
-  const Options({Key key}) : super(key: key);
+  const Options({Key? key}) : super(key: key);
 
   @override
   _Options createState() => _Options();
@@ -251,7 +251,7 @@ class _Options extends State<Options> {
                 break;
               case 'guitar':
                 if (_test > 30) {
-                  _timer.cancel();
+                  _timer?.cancel();
                   _timer = null;
                 }
                 break;
@@ -262,7 +262,7 @@ class _Options extends State<Options> {
             break;
           case 1:
             if (_test > 20) {
-              _timer.cancel();
+              _timer?.cancel();
               _timer = null;
             }
 
@@ -278,7 +278,7 @@ class _Options extends State<Options> {
             break;
           case 2:
             if (_test >= _pitches.length) {
-              _timer.cancel();
+              _timer?.cancel();
               _timer = null;
             }
 
@@ -288,7 +288,7 @@ class _Options extends State<Options> {
           case 3:
             if (_test < 12) _test = 3 * 12;
             if (_test >= _pitches.length - 3 * 12) {
-              _timer.cancel();
+              _timer?.cancel();
               _timer = null;
             }
 
@@ -333,7 +333,7 @@ class _Options extends State<Options> {
   final List<Pitch> _pitches = Pitch.flats;
   static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
 
-  Timer _timer;
+  Timer? _timer;
   double _timerT = 0;
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();

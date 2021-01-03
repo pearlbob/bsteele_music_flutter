@@ -35,7 +35,7 @@ const _tooltipColor = const Color(0xFFE8F5E9);
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
-  const Player({Key key, @required this.song}) : super(key: key);
+  const Player({Key? key, required this.song}) : super(key: key);
 
   @override
   _Player createState() => _Player();
@@ -78,13 +78,10 @@ class _Player extends State<Player> {
     //     }
     //   });
     // }
-    _appOptions = AppOptions();
 
-    _displaySongKey = widget.song.key ?? music_key.Key.getDefault();
+    _displaySongKey = widget.song.key;
 
     WidgetsBinding.instance?.scheduleWarmUpFrame();
-
-    songMaster = SongMaster();
   }
 
   @override
@@ -114,7 +111,7 @@ class _Player extends State<Player> {
 
       //  build the table from the song moment grid
       Grid<SongMoment> grid = song.songMomentGrid;
-      _rowLocations = null;
+      _rowLocations = [];
       if (grid.isNotEmpty) {
         {
           _rowLocations = List.generate(grid.getRowCount(), (i) {
@@ -131,12 +128,15 @@ class _Player extends State<Player> {
           int tranOffset = _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
 
           //  keep track of the section
-          ChordSection lastChordSection;
-          int lastSectionCount;
+          ChordSection? lastChordSection;
+          int? lastSectionCount;
 
           //  map the song moment grid to a flutter table, one row at a time
           for (int r = 0; r < grid.getRowCount(); r++) {
-            List<SongMoment> row = grid.getRow(r);
+            List<SongMoment?>? row = grid.getRow(r);
+            if (row == null) {
+              continue;
+            }
 
             //  assume col 1 has a chord or comment in it
             if (row.length < 2) {
@@ -145,8 +145,8 @@ class _Player extends State<Player> {
 
             //  find the first col with data
             //  should normally be col 1 (i.e. the second col)
-            SongMoment firstSongMoment;
-            for (final SongMoment sm in row)
+            SongMoment? firstSongMoment;
+            for (final SongMoment? sm in row)
               if (sm == null)
                 continue;
               else {
@@ -155,12 +155,12 @@ class _Player extends State<Player> {
               }
             if (firstSongMoment == null) continue;
 
-            GlobalKey<_Player> _rowKey = GlobalKey(debugLabel: 'rowLoc${r.toString()}');
+            GlobalKey<_Player>? _rowKey = GlobalObjectKey(row);
             _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey);
 
             ChordSection chordSection = firstSongMoment.getChordSection();
             int sectionCount = firstSongMoment.sectionCount;
-            String columnFiller;
+            String? columnFiller;
             EdgeInsets marginInsets = EdgeInsets.all(fontScale);
             EdgeInsets textPadding = EdgeInsets.all(6);
             if (chordSection != lastChordSection || sectionCount != lastSectionCount) {
@@ -171,10 +171,10 @@ class _Player extends State<Player> {
             lastChordSection = chordSection;
             lastSectionCount = sectionCount;
 
-            String momentLocation;
+            String? momentLocation;
             String rowLyrics = '';
             for (int c = 0; c < row.length; c++) {
-              SongMoment sm = row[c];
+              SongMoment? sm = row[c];
 
               if (sm == null) {
                 if (columnFiller == null)
@@ -196,7 +196,7 @@ class _Player extends State<Player> {
                 columnFiller = null; //  for subsequent rows
               } else {
                 //  moment found
-                rowLyrics += ' ' + sm.lyrics;
+                rowLyrics += ' ' + (sm.lyrics ?? '');
                 children.add(Container(
                     key: _rowKey,
                     margin: marginInsets,
@@ -216,9 +216,9 @@ class _Player extends State<Player> {
               if (!showChords) {
                 //  collect the rest of the lyrics
                 for (; c < row.length; c++) {
-                  SongMoment sm = row[c];
+                  SongMoment? sm = row[c];
                   if (sm != null) {
-                    rowLyrics += ' ' + sm.lyrics;
+                    rowLyrics += ' ' + (sm.lyrics ?? '');
                   }
                 }
                 break;
@@ -246,7 +246,7 @@ class _Player extends State<Player> {
                     padding: EdgeInsets.all(2),
                     color: color,
                     child: Text(
-                      firstSongMoment.lyrics,
+                      (firstSongMoment.lyrics ?? ''),
                       style: _lyricsTextStyle,
                       overflow: TextOverflow.ellipsis,
                     )));
@@ -269,9 +269,9 @@ class _Player extends State<Player> {
       }
     }
 
-    if (_appOptions.debug) {
+    if (_appOptions.debug&& _table!=null) {
       int i = 0;
-      for (final TableRow tableRow in _table.children) {
+      for (final TableRow tableRow in _table!.children) {
         logger.v('rowkey:  ${tableRow.key.toString()}');
         int j = 0;
         for (final Widget widget in tableRow.children ?? []) {
@@ -292,11 +292,11 @@ class _Player extends State<Player> {
       if (keyDropDownMenuList == null) {
         const int steps = MusicConstants.halfStepsPerOctave;
         const int halfOctave = steps ~/ 2;
-        ScaleNote firstScaleNote = song.getSongMoment(0)?.measure?.chords[0]?.scaleChord?.scaleNote;
+        ScaleNote? firstScaleNote = song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
-        List<music_key.Key> rolledKeyList = List.generate(steps, (i) {
+        List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
           return null;
         });
 
@@ -314,7 +314,7 @@ class _Player extends State<Player> {
         final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
         for (int i = 0; i < steps; i++) {
-          music_key.Key value = rolledKeyList[i];
+          music_key.Key value = rolledKeyList[i]!;
 
           int relativeOffset = halfOctave - i;
           String valueString =
@@ -326,7 +326,7 @@ class _Player extends State<Player> {
             offsetString = '${relativeOffset.toString()}';
           }
 
-          keyDropDownMenuList.add(DropdownMenuItem<music_key.Key>(
+          keyDropDownMenuList!.add(DropdownMenuItem<music_key.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -367,7 +367,7 @@ class _Player extends State<Player> {
         for (int i = -60; i < 60; i++) {
           int value = bpm + i;
           if (value < 40) continue;
-          bpmDropDownMenuList.add(
+          bpmDropDownMenuList!.add(
             DropdownMenuItem<int>(
               key: ValueKey(value),
               value: value,
@@ -453,49 +453,47 @@ class _Player extends State<Player> {
               child: SingleChildScrollView(
                 controller: _scrollController,
                 scrollDirection: Axis.vertical,
-                child:
-                SizedBox(
+                child: SizedBox(
                   //width: _screenWidth*3/4,//  fixme: temp!!!!!!!!!!!!!!!!!
-                  child:
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    textDirection: TextDirection.ltr,
-                    children: <Widget>[
-                      if (!_isPlaying)
-                        Column(
-                          children: <Widget>[
-                            AppBar(
-                              //  let the app bar scroll off the screen for more room for the song
-                              title: InkWell(
-                                onTap: () {
-                                  openLink(_titleAnchor());
-                                },
-                                child: Text(
-                                  '${song.title}',
-                                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                                ),
-                                hoverColor: hoverColor,
-                              ),
-                              centerTitle: true,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 16, right: 12),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  InkWell(
-                                    onTap: () {
-                                      openLink(_artistAnchor());
-                                    },
-                                    child: Text(
-                                      ' by  ${song.artist}',
-                                      style: _lyricsTextStyle,
-                                    ),
-                                    hoverColor: hoverColor,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      textDirection: TextDirection.ltr,
+                      children: <Widget>[
+                        if (!_isPlaying)
+                          Column(
+                            children: <Widget>[
+                              AppBar(
+                                //  let the app bar scroll off the screen for more room for the song
+                                title: InkWell(
+                                  onTap: () {
+                                    openLink(_titleAnchor());
+                                  },
+                                  child: Text(
+                                    '${song.title}',
+                                    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                                   ),
-                                  _playTooltip(
-                                    '''
+                                  hoverColor: hoverColor,
+                                ),
+                                centerTitle: true,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.only(top: 16, right: 12),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    InkWell(
+                                      onTap: () {
+                                        openLink(_artistAnchor());
+                                      },
+                                      child: Text(
+                                        ' by  ${song.artist}',
+                                        style: _lyricsTextStyle,
+                                      ),
+                                      hoverColor: hoverColor,
+                                    ),
+                                    _playTooltip(
+                                      '''
 Space bar or clicking the song area starts "play" mode.
     First section is in the middle of the display.
     Display items on the top will be missing.
@@ -505,92 +503,69 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                    FlatButton(
-                                      padding: const EdgeInsets.all(8),
-                                      color: _lightBlue,
-                                      hoverColor: hoverColor,
-                                      child: Text(
-                                        'Hints',
-                                        style: _lyricsTextStyle,
+                                      FlatButton(
+                                        padding: const EdgeInsets.all(8),
+                                        color: _lightBlue,
+                                        hoverColor: hoverColor,
+                                        child: Text(
+                                          'Hints',
+                                          style: _lyricsTextStyle,
+                                        ),
+                                        onPressed: () {},
                                       ),
-                                      onPressed: () {},
                                     ),
-                                  ),
-                                  if (isEditReady)
-                                    FlatButton.icon(
-                                      padding: const EdgeInsets.all(8),
-                                      color: _lightBlue,
-                                      hoverColor: hoverColor,
-                                      icon: Icon(
-                                        Icons.edit,
-                                        size: fontSize,
+                                    if (isEditReady)
+                                      FlatButton.icon(
+                                        padding: const EdgeInsets.all(8),
+                                        color: _lightBlue,
+                                        hoverColor: hoverColor,
+                                        icon: Icon(
+                                          Icons.edit,
+                                          size: fontSize,
+                                        ),
+                                        label: Text(''),
+                                        onPressed: () {
+                                          _navigateToEdit(context, song);
+                                        },
                                       ),
-                                      label: Text(''),
-                                      onPressed: () {
-                                        _navigateToEdit(context, song);
-                                      },
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.only(left: 8, right: 24),
-                                  child: _playTooltip(
-                                    'Tip: use space bar to start playing',
-                                    FlatButton.icon(
-                                      color: _lightBlue,
-                                      hoverColor: hoverColor,
-                                      icon: Icon(
-                                        _playStopIcon,
-                                        size: fontSize,
+                              Row(
+                                children: <Widget>[
+                                  Container(
+                                    padding: const EdgeInsets.only(left: 8, right: 24),
+                                    child: _playTooltip(
+                                      'Tip: use space bar to start playing',
+                                      FlatButton.icon(
+                                        color: _lightBlue,
+                                        hoverColor: hoverColor,
+                                        icon: Icon(
+                                          _playStopIcon,
+                                          size: fontSize,
+                                        ),
+                                        label: Text(''),
+                                        onPressed: () {
+                                          _play();
+                                        },
                                       ),
-                                      label: Text(''),
-                                      onPressed: () {
-                                        _play();
-                                      },
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  'Key: ',
-                                  style: _lyricsTextStyle,
-                                ),
-                                DropdownButton<music_key.Key>(
-                                  items: keyDropDownMenuList,
-                                  onChanged: (_value) {
-                                    setState(() {
-                                      if ( _value != null ) {
-                                        _displaySongKey = _value;
-                                        _forceTableRedisplay();
-                                      }
-                                    });
-                                  },
-                                  value: _displaySongKey,
-                                  style: TextStyle(
-                                    //  size controlled by textScaleFactor above
-                                    color: Colors.black87,
-                                    textBaseline: TextBaseline.ideographic,
+                                  Text(
+                                    'Key: ',
+                                    style: _lyricsTextStyle,
                                   ),
-                                  iconSize: fontSize,
-                                  itemHeight: 1.2 * kMinInteractiveDimension,
-                                ),
-                                Text(
-                                  "   BPM: ",
-                                  style: _lyricsTextStyle,
-                                ),
-                                if (isScreenBig)
-                                  DropdownButton<int>(
-                                    items: bpmDropDownMenuList,
+                                  DropdownButton<music_key.Key>(
+                                    items: keyDropDownMenuList,
                                     onChanged: (_value) {
                                       setState(() {
-                                        song.setBeatsPerMinute(_value);
-                                        bpmDropDownMenuList = null; //  refresh to new value
-                                        setState(() {});
+                                        if (_value != null) {
+                                          _displaySongKey = _value;
+                                          _forceTableRedisplay();
+                                        }
                                       });
                                     },
-                                    value: song.getBeatsPerMinute(),
+                                    value: _displaySongKey,
                                     style: TextStyle(
                                       //  size controlled by textScaleFactor above
                                       color: Colors.black87,
@@ -598,35 +573,61 @@ With escape, the app goes back to the play list.''',
                                     ),
                                     iconSize: fontSize,
                                     itemHeight: 1.2 * kMinInteractiveDimension,
-                                  )
-                                else
+                                  ),
                                   Text(
-                                    song.getBeatsPerMinute().toString(),
+                                    "   BPM: ",
                                     style: _lyricsTextStyle,
                                   ),
-                                Text(
-                                  "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
-                                  style: _lyricsTextStyle,
-                                ),
-                              ],
-                            ),
-                          ],
+                                  if (isScreenBig)
+                                    DropdownButton<int>(
+                                      items: bpmDropDownMenuList,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          if (value != null) {
+                                            song.setBeatsPerMinute(value);
+                                            bpmDropDownMenuList = null; //  refresh to new value
+                                            setState(() {});
+                                          }
+                                        });
+                                      },
+                                      value: song.getBeatsPerMinute(),
+                                      style: TextStyle(
+                                        //  size controlled by textScaleFactor above
+                                        color: Colors.black87,
+                                        textBaseline: TextBaseline.ideographic,
+                                      ),
+                                      iconSize: fontSize,
+                                      itemHeight: 1.2 * kMinInteractiveDimension,
+                                    )
+                                  else
+                                    Text(
+                                      song.getBeatsPerMinute().toString(),
+                                      style: _lyricsTextStyle,
+                                    ),
+                                  Text(
+                                    "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                                    style: _lyricsTextStyle,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        if (_isPlaying)
+                          SizedBox(
+                            height: _screenOffset,
+                          ),
+                        Center(child: _table),
+                        Text(
+                          "Copyright: ${song.getCopyright()}",
+                          style: _lyricsTextStyle,
                         ),
-                      if (_isPlaying)
-                        SizedBox(
-                          height: _screenOffset,
-                        ),
-                      Center(child: _table),
-                      Text(
-                        "Copyright: ${song.getCopyright()}",
-                        style: _lyricsTextStyle,
-                      ),
-                      if (_isPlaying)
-                        SizedBox(
-                          height: _screenOffset,
-                        ),
-                    ]),
-              ),),
+                        if (_isPlaying)
+                          SizedBox(
+                            height: _screenOffset,
+                          ),
+                      ]),
+                ),
+              ),
               onTap: () {
                 if (_isPlaying) {
                   _sectionBump(1);
@@ -736,19 +737,19 @@ With escape, the app goes back to the play list.''',
 
   /// bump from one section to the next
   _sectionBump(int bump) {
-    if (_rowLocations?.isEmpty??true) {
+    if (_rowLocations.isEmpty ) {
       _sectionLocations = null;
       return;
     }
     if (_sectionLocations == null && _rowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
-      double y0;
-      ChordSection chordSection = _rowLocations[0].songMoment.chordSection;
+      double? y0;
+      ChordSection chordSection = _rowLocations[0]!.songMoment.chordSection;
       int sectionCount = 0;
 
       _sectionLocations = [];
-      for (_RowLocation _rowLocation in (_rowLocations??[])) {
-        if ( _rowLocation == null ) continue;
+      for (_RowLocation? _rowLocation in _rowLocations) {
+        if (_rowLocation == null) continue;
         if (chordSection == _rowLocation.songMoment.chordSection &&
             sectionCount == _rowLocation.songMoment.sectionCount) {
           continue; //  same section, no entry
@@ -757,10 +758,10 @@ With escape, the app goes back to the play list.''',
         sectionCount = _rowLocation.songMoment.sectionCount;
 
         GlobalKey key = _rowLocation.globalKey;
-        double y = (key.currentContext.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+        double y = (key.currentContext?.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
         y0 ??= y;
         y -= y0;
-        _sectionLocations.add(y);
+        _sectionLocations!.add(y);
 
         logger.d('${key.toString()}: $y');
       }
@@ -768,25 +769,26 @@ With escape, the app goes back to the play list.''',
       //  add half of the deltas to center each selection
       {
         List<double> tmp = [];
-        for (int i = 0; i < _sectionLocations.length - 1; i++) {
-          tmp.add((_sectionLocations[i] + _sectionLocations[i + 1]) / 2);
+        for (int i = 0; i < _sectionLocations!.length - 1; i++) {
+          tmp.add((_sectionLocations![i] + _sectionLocations![i + 1]) / 2);
         }
 
         //  average the last with the end of the last
-        GlobalKey key = _rowLocations.last.globalKey;
-        double y = (key.currentContext.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+        GlobalKey key = _rowLocations.last!.globalKey;
+        double y = (key.currentContext?.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
         y0 ??= y;
         y -= y0;
-        tmp.add((_sectionLocations[_sectionLocations.length - 1] + y + key.currentContext.size.height) / 2);
+        tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y + (key.currentContext?.size?.height??0)) / 2);
         _sectionLocations = tmp;
       }
     }
 
     //  find the best location for the current scroll position
-    double target = (_sectionLocations.where((e) => e >= _scrollController.offset).toList()..sort()).first;
+    double target = (_sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort()).first;
 
     //  bump it by units of section
-    target = _sectionLocations[Util.limit(_sectionLocations.indexOf(target) + bump, 0, _sectionLocations.length - 1) as int];
+    target = _sectionLocations![
+        Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
 
     _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
     logger.d('_sectionSelection: $target');
@@ -883,25 +885,26 @@ With escape, the app goes back to the play list.''',
   bool _isPlaying = false;
   bool _isPaused = false;
 
-  double _screenOffset=0;
-  List<_RowLocation> _rowLocations;
-  int _rowLocationIndex=0;
+  double _screenOffset = 0;
+  List<_RowLocation?> _rowLocations = [];
+  int _rowLocationIndex = 0;
 
-  Table _table;
+  Table? _table;
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
-  List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList;
-  List<DropdownMenuItem<int>> bpmDropDownMenuList;
+  List<DropdownMenuItem<music_key.Key>>? keyDropDownMenuList;
+  List<DropdownMenuItem<int>>? bpmDropDownMenuList;
 
-  SongMaster songMaster;
+  SongMaster songMaster = SongMaster();
+
   ScrollController _scrollController = ScrollController();
-  AppOptions _appOptions;
+  AppOptions _appOptions = AppOptions();
 
   // static const double _defaultFontSizeMin = defaultFontSize - 5;
   // static const double _defaultFontSizeMax = defaultFontSize + 5;
 
   final FocusNode _focusNode = FocusNode();
   TextStyle _lyricsTextStyle = TextStyle();
-  List<double> _sectionLocations;
+  List<double>? _sectionLocations;
 }
 
 /// helper class to help manage a song display

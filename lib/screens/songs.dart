@@ -10,7 +10,7 @@ import 'package:intl/intl.dart' as intl;
 
 /// Display the song moments in sequential order.
 class Songs extends StatefulWidget {
-  const Songs({Key key}) : super(key: key);
+  const Songs({Key? key}) : super(key: key);
 
   @override
   _Songs createState() => _Songs();
@@ -92,5 +92,5 @@ class _Songs extends State<Songs> {
   }
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
-  String _message;
+  String? _message;
 }

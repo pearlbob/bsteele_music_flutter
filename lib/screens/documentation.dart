@@ -10,7 +10,7 @@ import '../main.dart';
 
 /// Display the application's privacy policy
 class Documentation extends StatefulWidget {
-  const Documentation({Key key}) : super(key: key);
+  const Documentation({Key? key}) : super(key: key);
 
   @override
   _State createState() => _State();

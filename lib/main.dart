@@ -62,7 +62,7 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 const double defaultFontSize = 14.0; //  borrowed from Text widget
 
 //  parameters to be evaluated before use
- ScreenInfo screenInfo; //  refreshed on main build
+ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
 bool isEditReady = false;
 bool isScreenBig = true;
 bool isPhone = false;
@@ -71,7 +71,7 @@ final Song _emptySong = Song.createEmptySong();
 void addSong(Song song) {
   logger.i('addSong( ${song.toString()} )');
   _allSongs.add(song);
-  _filteredSongs = null; //  fixme: bad reference
+  _filteredSongs = SplayTreeSet();
   _selectedSong = song;
 }
 
@@ -115,7 +115,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title: 'unknown'}) : super(key: key);
+  MyHomePage({Key? key, this.title: 'unknown'}) : super(key: key);
 
   // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -161,7 +161,11 @@ class _MyHomePageState extends State<MyHomePage> {
         _allSongs = SplayTreeSet();
         _allSongs.addAll(Song.songListFromJson(songListAsString));
         _filteredSongs = _allSongs;
-        _selectedSong = _filteredSongs?.first ?? _emptySong;
+        try {
+          _selectedSong = _filteredSongs.first;
+        } catch (e) {
+          _selectedSong = _emptySong;
+        }
         setState(() {});
         print("internal songList used");
       } catch (fe) {
@@ -199,7 +203,11 @@ class _MyHomePageState extends State<MyHomePage> {
         _allSongs.addAll(Song.songListFromJson(allSongsAsString));
         setState(() {
           _filteredSongs = _allSongs;
-          _selectedSong = _filteredSongs?.first??_emptySong;
+          try {
+            _selectedSong = _filteredSongs.first;
+          } catch (e) {
+            _selectedSong = _emptySong;
+          }
         });
         print("external songList read from: " + url);
       } catch (fe) {
@@ -231,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _refilterSongs() {
     //  or at least induce the re-filtering
-    _filteredSongs = null;
+    _filteredSongs = SplayTreeSet();
   }
 
   @override
@@ -239,6 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
     bool oddEven = true;
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
+
     isScreenBig = isEditReady || !screenInfo.isTooNarrow;
     isPhone = !isScreenBig;
 
@@ -251,12 +260,12 @@ class _MyHomePageState extends State<MyHomePage> {
     final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold);
 
     //  re-search filtered list on data changes
-    if (_filteredSongs == null) {
+    if (_filteredSongs.isEmpty) {
       _searchSongs(_searchTextFieldController.text);
     }
 
     List<StatelessWidget> listViewChildren = [];
-    for (final Song song in (_filteredSongs ?? [])) {
+    for (final Song song in (_filteredSongs)) {
       oddEven = !oddEven;
       listViewChildren.add(GestureDetector(
         child: Container(
@@ -492,9 +501,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.clear),
-                  tooltip: _searchTextFieldController.text.isEmpty
-                      ? 'Scroll the list some.'
-                      : 'Clear the search text.',
+                  tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
                   onPressed: (() {
                     _searchTextFieldController.clear();
                     setState(() {
@@ -590,7 +597,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _searchSongs(String search) {
+  void _searchSongs(String? search) {
     search ??= '';
     search = search.trim();
 
@@ -630,7 +637,7 @@ class _MyHomePageState extends State<MyHomePage> {
         //  if holiday and song is holiday, we're good
         if (_appOptions.holiday) {
           if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
-            _filteredSongs?.add(song);
+            _filteredSongs.add(song);
           }
           continue; //  toss the others
         } else
@@ -657,17 +664,17 @@ class _MyHomePageState extends State<MyHomePage> {
         // }
 
         //  not filtered
-        _filteredSongs?.add(song);
+        _filteredSongs.add(song);
       }
     }
 
     //  on new search, start the list at the first location
     if (search.isNotEmpty) {
       _rollIndex = 0;
-      if (_itemScrollController.isAttached && (_filteredSongs?.isNotEmpty ?? false)) {
+      if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
         _itemScrollController.jumpTo(index: _rollIndex);
       }
-    } else if (_filteredSongs?.isNotEmpty ?? false) {
+    } else if (_filteredSongs.isNotEmpty) {
       _rollUnfilteredSongs();
     }
   }
@@ -676,13 +683,16 @@ class _MyHomePageState extends State<MyHomePage> {
     const int rollStep = 15;
 
     //  skip if searching for something
-    if (_searchTextFieldController.text.isNotEmpty || (_filteredSongs?.isEmpty ?? false)) {
+    if (_searchTextFieldController.text.isNotEmpty || _filteredSongs.isEmpty) {
       return;
     }
 
-    List<Song> list = _filteredSongs?.toList() ?? [];
+    List<Song> list = _filteredSongs.toList();
 
-    _rollIndex ??= _random.nextInt(list.length); //  start with a random location
+    if (_rollIndex < 0) {
+      //  start with a random location
+      _rollIndex = _random.nextInt(list.length);
+    }
     _rollIndex = _rollIndex + rollStep;
     if (_rollIndex >= list.length) {
       _rollIndex = 0;
@@ -694,7 +704,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToSongs(BuildContext context) async {
-    if (_selectedSong != null) {
+    if (_selectedSong.getTitle().isNotEmpty) {
       Song lastSelectedSong = _selectedSong;
       await Navigator.push(
         context,
@@ -712,7 +722,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
-    if (song == null) return;
+    if (song.getTitle().isEmpty) return;
 
     _selectedSong = song;
 
@@ -771,7 +781,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //ScrollController _scrollController =  ScrollController();
   final ItemScrollController _itemScrollController = ItemScrollController();
   final Duration _itemScrollDuration = Duration(milliseconds: 500);
-  int _rollIndex;
+  int _rollIndex = -1;
 
   //static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final AppOptions _appOptions = AppOptions();

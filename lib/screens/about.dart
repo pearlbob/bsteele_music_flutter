@@ -11,7 +11,7 @@ import 'package:package_info/package_info.dart';
 
 /// Display the song moments in sequential order.
 class About extends StatefulWidget {
-  const About({Key key}) : super(key: key);
+  const About({Key? key}) : super(key: key);
 
   @override
   _About createState() => _About();
@@ -137,6 +137,6 @@ class _About extends State<About> {
     });
   }
 
-  String _utcDateAsString;
-  PackageInfo _packageInfo;
+  String? _utcDateAsString;
+  PackageInfo? _packageInfo;
 }

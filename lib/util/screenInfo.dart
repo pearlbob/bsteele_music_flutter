@@ -6,11 +6,21 @@ import 'package:flutter/material.dart';
 class ScreenInfo {
   ScreenInfo(BuildContext context)
       : _widthInLogicalPixels = MediaQuery.of(context).size.width,
-        _heightInLogicalPixels = MediaQuery.of(context).size.height {
+        _heightInLogicalPixels = MediaQuery.of(context).size.height,
+        _isDefaultValue = false {
     _isTooNarrow = _widthInLogicalPixels < minLogicalPixels; //  logical pixels
-    _titleScaleFactor = max(1, _widthInLogicalPixels / ( 1.25 * minLogicalPixels));
+    _titleScaleFactor = max(1, _widthInLogicalPixels / (1.25 * minLogicalPixels));
     _artistScaleFactor = 0.75 * _titleScaleFactor;
     logger.v('ScreenInfo: narrow: $_isTooNarrow, title: $_titleScaleFactor');
+  }
+
+  ScreenInfo.defaultValue()
+      : _widthInLogicalPixels = 1024,
+        _heightInLogicalPixels = 800,
+        _isDefaultValue = true {
+    _isTooNarrow = false; //  logical pixels
+    _titleScaleFactor = 1;
+    _artistScaleFactor = 0.75;
   }
 
   double get widthInLogicalPixels => _widthInLogicalPixels;
@@ -20,13 +30,16 @@ class ScreenInfo {
   final double _heightInLogicalPixels;
 
   bool get isTooNarrow => _isTooNarrow;
-  bool _isTooNarrow;
+  late bool _isTooNarrow;
 
   double get titleScaleFactor => _titleScaleFactor;
-  double _titleScaleFactor;
+  late double _titleScaleFactor;
 
   double get artistScaleFactor => _artistScaleFactor;
-  double _artistScaleFactor;
+  late double _artistScaleFactor;
+
+  bool get isDefaultValue => _isDefaultValue;
+  final bool _isDefaultValue;
 
   static const double minLogicalPixels = 725; //  just enough for a nexus 3 XL to be "big" when horizontal
 }

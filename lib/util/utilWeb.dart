@@ -57,7 +57,7 @@ class UtilWeb implements UtilWorkaround {
       ..multiple = true
       ..accept = '.songlyrics';
     input.onChange.listen((e) async {
-      final List<File> files = input.files;
+      final List<File>? files = input.files;
       if ( files != null ) {
         Iterable<Future<String>> resultsFutures = files.map((file) {
           final reader = new FileReader();

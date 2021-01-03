@@ -1,11 +1,10 @@
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 /// Display the application's privacy policy
 class Privacy extends StatefulWidget {
-  const Privacy({Key key}) : super(key: key);
+  const Privacy({Key? key}) : super(key: key);
 
   @override
   _Privacy createState() => _Privacy();

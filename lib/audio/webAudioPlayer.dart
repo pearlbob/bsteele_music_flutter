@@ -65,7 +65,7 @@ class WebAudioPlayer implements AppAudioPlayer {
   JsAudioFilePlayer _audioFilePlayer = JsAudioFilePlayer();
 
   //  fixme: bogus use of dart html to keep android studio happy with conditional compile workaround
-  final File file = null;
+  final File? file = null;
 }
 
 AppAudioPlayer getAudioPlayer() => WebAudioPlayer();

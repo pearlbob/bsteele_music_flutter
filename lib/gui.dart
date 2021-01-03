@@ -2,34 +2,48 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:flutter/material.dart';
 
 class GuiColors {
-  static Color getColorForSection(Section section) {
-    return getColorForSectionEnum(section.sectionEnum);
+  static Color getColorForSection(Section? section) {
+    return getColorForSectionEnum(section?.sectionEnum ?? SectionEnum.chorus);
   }
 
   static Color getColorForSectionEnum(SectionEnum sectionEnum) {
+    Color? ret;
+
     switch (sectionEnum) {
       case SectionEnum.verse:
-        return Colors.grey[300];
+        ret = Colors.grey[300];
+        break;
       case SectionEnum.intro:
-        return Colors.orange[100];
+        ret = Colors.orange[100];
+        break;
       case SectionEnum.preChorus:
-        return Colors.blue[100];
+        ret = Colors.blue[100];
+        break;
       case SectionEnum.chorus:
-        return Colors.grey[100];
+        ret = Colors.grey[100];
+        break;
       case SectionEnum.tag:
-        return Colors.blue[100];
+        ret = Colors.blue[100];
+        break;
       case SectionEnum.a:
-        return Colors.purple[100];
+        ret = Colors.purple[100];
+        break;
       case SectionEnum.b:
-        return Colors.teal[100];
+        ret = Colors.teal[100];
+        break;
       case SectionEnum.bridge:
-        return Colors.green[100];
+        ret = Colors.green[100];
+        break;
       case SectionEnum.coda:
-        return Colors.yellow[100];
+        ret = Colors.yellow[100];
+        break;
       case SectionEnum.outro:
-        return Colors.lightBlue[100];
+        ret = Colors.lightBlue[100];
+        break;
       default:
-        return Colors.grey[200];
+        ret = Colors.grey[300];
     }
+
+    return ret ?? Color(0xFFE0E0E0); //  safety
   }
 }

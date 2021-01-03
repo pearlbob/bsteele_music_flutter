@@ -52,7 +52,8 @@ class SongMaster {
     _isPaused = false;
   }
 
-   Ticker _ticker;
+  late Ticker _ticker;
+
   // static int _tickerCount = 0;
   // double _lastTime = 0;
 
@@ -63,6 +64,6 @@ class SongMaster {
 
   get isPaused => _isPaused;
   bool _isPaused = false;
-  // Song _song;
-  // double _songStart;
+// Song _song;
+// double _songStart;
 }

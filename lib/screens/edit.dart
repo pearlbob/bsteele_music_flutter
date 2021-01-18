@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as songs;
+import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
@@ -188,8 +189,9 @@ class _Edit extends State<Edit> {
     _chordBadTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
 
     //  build the chords display based on the song chord section grid
-    Table? _table;
+    Table? _chordTable;
     _tableKeyId = 0;
+    int maxCols = 0;
     {
       logger.d('size: ' + MediaQuery.of(context).size.toString());
 
@@ -198,215 +200,267 @@ class _Edit extends State<Edit> {
       Grid<_EditDataPoint> editDataPoints = Grid();
 
       if (grid.isNotEmpty) {
+        List<TableRow> rows = [];
+        List<Widget> children = [];
+        sectionColor = GuiColors.getColorForSection(_defaultSection);
+
+        //  compute transposition offset from base key
+        _transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
+
+        //  compute the maximum number of columns to even out the table rows
+
         {
-          List<TableRow> rows = [];
-          List<Widget> children = [];
-          sectionColor = GuiColors.getColorForSection(_defaultSection);
-
-          //  compute transposition offset from base key
-          _transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
-
-          //  compute the maximum number of columns to even out the table rows
-          int maxCols = 0;
-          {
-            for (int r = 0; r < grid.getRowCount(); r++) {
-              List<ChordSectionLocation?>? row = grid.getRow(r);
-              maxCols = max(maxCols, row?.length ?? 0);
-
-              // //  test for no end of row
-              // if (row != null && row.isNotEmpty) {
-              //   for (int c = 0; c < row.length; c++) {
-              //     ChordSectionLocation? loc = row[c];
-              //     // ChordSectionLocation? loc = row.last;
-              //     logger.i('   missing endOfRow: $loc');
-              //
-              //     MeasureNode? mn = _song.findMeasureNodeByGrid(GridCoordinate(r, c));
-              //     logger.i('   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toString()}');
-              //     Measure? m = _song.findMeasureByChordSectionLocation(loc);
-              //     if (m != null //&& m.endOfRow != true
-              //     ) {
-              //       logger.i('   missing endOfRow: $loc: ${m.getMeasureNodeType()} $m');
-              //     }
-              //   }
-              // }
-            }
-          }
-          maxCols *= 2; //  add for the plus markers
-
-          //  keep track of the section
-          SectionVersion? lastSectionVersion;
-
-          //  map the song moment grid to a flutter table, one row at a time
           for (int r = 0; r < grid.getRowCount(); r++) {
             List<ChordSectionLocation?>? row = grid.getRow(r);
-            if (row == null) {
-              continue;
-            }
+            maxCols = max(maxCols, row?.length ?? 0);
 
-            ChordSectionLocation? firstChordSectionLocation;
-            //       String columnFiller;
-            _marginInsets = EdgeInsets.all(_chordFontSize / 4);
-            _doubleMarginInsets = EdgeInsets.all(_chordFontSize / 2);
+            // //  test for no end of row
+            // if (row != null && row.isNotEmpty) {
+            //   for (int c = 0; c < row.length; c++) {
+            //     ChordSectionLocation? loc = row[c];
+            //     // ChordSectionLocation? loc = row.last;
+            //     logger.i('   missing endOfRow: $loc');
+            //
+            //     MeasureNode? mn = _song.findMeasureNodeByGrid(GridCoordinate(r, c));
+            //     logger.i('   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toString()}');
+            //     Measure? m = _song.findMeasureByChordSectionLocation(loc);
+            //     if (m != null //&& m.endOfRow != true
+            //     ) {
+            //       logger.i('   missing endOfRow: $loc: ${m.getMeasureNodeType()} $m');
+            //     }
+            //   }
+            // }
+          }
+        }
 
-            //  find the first col with data
-            //  should normally be col 1 (i.e. the second col)
-            //  use its section version for the row
-            {
-              for (final ChordSectionLocation? loc in row)
-                if (loc == null)
-                  continue;
-                else {
-                  firstChordSectionLocation = loc;
-                  break;
-                }
-              if (firstChordSectionLocation == null) continue;
+        //  keep track of the section
+        SectionVersion? lastSectionVersion;
 
-              SectionVersion? sectionVersion = firstChordSectionLocation.sectionVersion;
+        //  map the song moment grid to a flutter table, one row at a time
+        for (int r = 0; r < grid.getRowCount(); r++) {
+          List<ChordSectionLocation?>? row = grid.getRow(r);
+          if (row == null) {
+            continue;
+          }
 
-              if (sectionVersion != lastSectionVersion) {
-                //  add a plus for appending a new row to the section
-                _addSectionVersionEndToTable(rows, lastSectionVersion, maxCols);
+          ChordSectionLocation? firstChordSectionLocation;
+          //       String columnFiller;
+          _marginInsets = EdgeInsets.all(_chordFontSize / 4);
+          _doubleMarginInsets = EdgeInsets.all(_chordFontSize / 2);
 
-                //  add the section heading
-                //           columnFiller = sectionVersion.toString();
-                sectionColor = GuiColors.getColorForSection(sectionVersion?.section);
-                lastSectionVersion = sectionVersion;
+          //  find the first col with data
+          //  should normally be col 1 (i.e. the second col)
+          //  use its section version for the row
+          {
+            for (final ChordSectionLocation? loc in row)
+              if (loc == null)
+                continue;
+              else {
+                firstChordSectionLocation = loc;
+                break;
               }
+            if (firstChordSectionLocation == null) continue;
+
+            SectionVersion? sectionVersion = firstChordSectionLocation.sectionVersion;
+
+            if (sectionVersion != lastSectionVersion) {
+              //  add a plus for appending a new row to the section
+              _addSectionVersionEndToTable(rows, lastSectionVersion, 2 * maxCols /*col+add markers*/);
+
+              //  add the section heading
+              //           columnFiller = sectionVersion.toString();
+              sectionColor = GuiColors.getColorForSection(sectionVersion?.section);
+              lastSectionVersion = sectionVersion;
             }
+          }
 
-            {
-              //  for each column of the song grid, create the appropriate widget
-              for (int c = 0; c < row.length; c++) {
-                ChordSectionLocation? loc = row[c];
-                logger.v('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
+          {
+            //  for each column of the song grid, create the appropriate widget
+            for (int c = 0; c < row.length; c++) {
+              ChordSectionLocation? loc = row[c];
+              logger.v('loc: ($r,$c): ${loc.toString()}, marker: ${loc?.marker.toString()}');
 
-                //  main elements
-                Widget w;
-                _EditDataPoint editDataPoint = _EditDataPoint(loc);
-                if (loc == null) {
-                  w = _nullEditGridDisplayWidget();
-                } else if (loc.isSection) {
-                  w = _sectionEditGridDisplayWidget(editDataPoint);
-                } else if (loc.isMeasure) {
-                  w = _measureEditGridDisplayWidget(editDataPoint);
-                } else if (loc.isRepeat) {
-                  w = _repeatEditGridDisplayWidget(editDataPoint);
-                } else if (loc.isMarker) {
-                  w = _markerEditGridDisplayWidget(editDataPoint);
-                } else {
-                  w = _nullEditGridDisplayWidget();
-                }
-                children.add(w);
-                editDataPoints.set(r, c * 2, editDataPoint);
+              //  main elements
+              Widget w;
+              _EditDataPoint editDataPoint = _EditDataPoint(loc);
+              if (loc == null) {
+                w = _nullEditGridDisplayWidget();
+              } else if (loc.isSection) {
+                w = _sectionEditGridDisplayWidget(editDataPoint);
+              } else if (loc.isMeasure) {
+                w = _measureEditGridDisplayWidget(editDataPoint);
+              } else if (loc.isRepeat) {
+                w = _repeatEditGridDisplayWidget(editDataPoint);
+              } else if (loc.isMarker) {
+                w = _markerEditGridDisplayWidget(editDataPoint);
+              } else {
+                w = _nullEditGridDisplayWidget();
+              }
+              children.add(w);
+              editDataPoints.set(r, c * 2, editDataPoint);
 
-                //  + elements
-                editDataPoint = _EditDataPoint(loc);
-                editDataPoint._measureEditType = MeasureEditType.append; //  default
-                if (loc == null) {
-                  if (c == 0 && row.length > 1) {
-                    //  insert in front of first measure of the row
-                    editDataPoint._measureEditType = MeasureEditType.insert;
-                    editDataPoint.location = row[1];
-                    w = _plusMeasureEditGridDisplayWidget(editDataPoint);
-                  } else {
-                    w = _nullEditGridDisplayWidget();
-                  }
-                } else if (loc.isSection) {
-                  if (c == 0) {
-                    if (row.length > 1) {
-                      //  insert in front of first measure of the section
-                      editDataPoint._measureEditType = MeasureEditType.insert;
-                      editDataPoint.location = row[1];
-                      w = _plusMeasureEditGridDisplayWidget(editDataPoint);
-                    } else {
-                      //  append to an empty section
-                      editDataPoint._measureEditType = MeasureEditType.append;
-                      editDataPoint.location = loc;
-                      w = _plusMeasureEditGridDisplayWidget(editDataPoint);
-                    }
-                  } else {
-                    w = _nullEditGridDisplayWidget();
-                  }
-                } else if (loc.isMeasure) {
+              //  + elements
+              editDataPoint = _EditDataPoint(loc);
+              editDataPoint._measureEditType = MeasureEditType.append; //  default
+              if (loc == null) {
+                if (c == 0 && row.length > 1) {
+                  //  insert in front of first measure of the row
+                  editDataPoint._measureEditType = MeasureEditType.insert;
+                  editDataPoint.location = row[1];
                   w = _plusMeasureEditGridDisplayWidget(editDataPoint);
                 } else {
                   w = _nullEditGridDisplayWidget();
                 }
-                children.add(w);
-                editDataPoints.set(r, c * 2 + 1, editDataPoint);
+              } else if (loc.isSection) {
+                if (c == 0) {
+                  if (row.length > 1) {
+                    //  insert in front of first measure of the section
+                    editDataPoint._measureEditType = MeasureEditType.insert;
+                    editDataPoint.location = row[1];
+                    w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+                  } else {
+                    //  append to an empty section
+                    editDataPoint._measureEditType = MeasureEditType.append;
+                    editDataPoint.location = loc;
+                    w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+                  }
+                } else {
+                  w = _nullEditGridDisplayWidget();
+                }
+              } else if (loc.isMeasure) {
+                w = _plusMeasureEditGridDisplayWidget(editDataPoint);
+              } else {
+                w = _nullEditGridDisplayWidget();
               }
-
-              //  add children to max columns to keep the table class happy
-              while (children.length < maxCols) {
-                children.add(Container());
-              }
-
-              //  add row to table
-              rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
-
-              //  get ready for the next row by clearing the row data
-              children = [];
+              children.add(w);
+              editDataPoints.set(r, c * 2 + 1, editDataPoint);
             }
-          }
-
-          //  end for last section
-          _addSectionVersionEndToTable(rows, lastSectionVersion, maxCols);
-
-          //  add the append for a new section
-          {
-            Widget child;
-            if (_selectedEditDataPoint?.isSection ?? false) {
-              child = _sectionEditGridDisplayWidget(_selectedEditDataPoint!);
-            } else {
-              child = Container(
-                  margin: _marginInsets,
-                  padding: textPadding,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green[100],
-                  ),
-                  child: _editTooltip(
-                      'add new section here',
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            _song.setCurrentChordSectionLocation(null);
-                            _song.setCurrentMeasureEditType(MeasureEditType.append);
-                            ChordSection cs = _suggestNewSection();
-                            // if (_song.editMeasureNode(cs)) {
-                            //   _undoStackPush();
-                            //   _clearMeasureEntry();
-                            _selectedEditDataPoint = _EditDataPoint.byMeasureNode(_song, cs);
-                            logger.d('${_song.toMarkup()} + $_selectedEditDataPoint');
-                            // }
-                          });
-                        },
-                        child: Icon(
-                          Icons.add,
-                          size: _chordFontSize,
-                        ),
-                      )));
-            }
-            children.add(child);
 
             //  add children to max columns to keep the table class happy
-            while (children.length < maxCols) {
+            while (children.length < 2 * maxCols) {
               children.add(Container());
             }
 
             //  add row to table
             rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
+
+            //  get ready for the next row by clearing the row data
+            children = [];
+          }
+        }
+
+        //  end for last section
+        _addSectionVersionEndToTable(rows, lastSectionVersion, 2 * maxCols);
+
+        //  add the append for a new section
+        {
+          Widget child;
+          if (_selectedEditDataPoint?.isSection ?? false) {
+            child = _sectionEditGridDisplayWidget(_selectedEditDataPoint!);
+          } else {
+            child = Container(
+                margin: _marginInsets,
+                padding: textPadding,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green[100],
+                ),
+                child: _editTooltip(
+                    'add new section here',
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _song.setCurrentChordSectionLocation(null);
+                          _song.setCurrentMeasureEditType(MeasureEditType.append);
+                          ChordSection cs = _suggestNewSection();
+                          // if (_song.editMeasureNode(cs)) {
+                          //   _undoStackPush();
+                          //   _clearMeasureEntry();
+                          _selectedEditDataPoint = _EditDataPoint.byMeasureNode(_song, cs);
+                          logger.d('${_song.toMarkup()} + $_selectedEditDataPoint');
+                          // }
+                        });
+                      },
+                      child: Icon(
+                        Icons.add,
+                        size: _chordFontSize,
+                      ),
+                    )));
+          }
+          children.add(child);
+
+          //  add children to max columns to keep the table class happy
+          while (children.length < 2 * maxCols) {
+            children.add(Container());
           }
 
-          _table = Table(
-            defaultColumnWidth: IntrinsicColumnWidth(),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: rows,
-          );
+          //  add row to table
+          rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
+        }
 
-          logger.v(editDataPoints.toMultiLineString());
+        _chordTable = Table(
+          defaultColumnWidth: IntrinsicColumnWidth(),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: rows,
+        );
+
+        logger.v(editDataPoints.toMultiLineString());
+      }
+    }
+
+    Table? _lyricsTable;
+    {
+      List<TableRow> rows = [];
+      List<Widget> children;
+
+      sectionColor = GuiColors.getColorForSection(SectionVersion.getDefault().section);
+      for (var lyricSection in _song.lyricSections) {
+        ChordSection? chordSection = _song.getChordSection(lyricSection.sectionVersion);
+        SectionVersion? sectionVersion;
+        if (chordSection != null) {
+          sectionVersion = chordSection.sectionVersion;
+        }
+
+        for (int row = 0; row < 200; row++) {
+          if (row > lyricSection.lyricsLines.length) {
+            break;
+          }
+          children = [];
+          if (sectionVersion != null) {
+            sectionColor = GuiColors.getColorForSection(sectionVersion.section);
+            children.add(Container(
+                margin: _marginInsets,
+                padding: textPadding,
+                color: sectionColor,
+                child: _editTooltip(
+                    'modify or delete the section',
+                    Text(
+                      sectionVersion.toString(),
+                      style: _chordBoldTextStyle,
+                    ))));
+            sectionVersion = null;
+          } else {
+            children.add(_nullEditGridDisplayWidget());
+          }
+
+          if (row < lyricSection.lyricsLines.length) {
+            children.add(Text(
+              lyricSection.lyricsLines[row],
+              style: _textStyle,
+            ));
+          } else {
+            children.add(_nullEditGridDisplayWidget());
+          }
+
+          rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
         }
       }
+
+      _lyricsTable = Table(
+        defaultColumnWidth: IntrinsicColumnWidth(),
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: rows,
+      );
     }
 
     {
@@ -742,52 +796,14 @@ class _Edit extends State<Edit> {
                         ]),
                       ),
                     ]),
-                    if (_table != null)
+                    if (_chordTable != null)
                       Container(
                         padding: EdgeInsets.all(16.0),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                           //  pre-configured table of edit widgets
-                          _table,
+                          _chordTable,
                         ]),
                       ),
-                    Container(
-                      padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                      child: Column(children: <Widget>[
-                        // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                        //   Text(
-                        //     ' Recent: ',
-                        //     style: _textStyle,
-                        //   ),
-                        // ]),
-                        // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                        //   Text(
-                        //     ' Frequent: ',
-                        //     style: _textStyle,
-                        //   ),
-                        // ]),
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                          Text(
-                            ' Repeats: ',
-                            style: _textStyle,
-                          ),
-                          _AppOutlineButton('Repeat x2', onPressed: () {
-                            setState(() {
-                              logger.i('x2');
-                            });
-                          }),
-                          _AppOutlineButton('Repeat x3', onPressed: () {
-                            setState(() {
-                              logger.i('x3');
-                            });
-                          }),
-                          _AppOutlineButton('Repeat x4', onPressed: () {
-                            setState(() {
-                              logger.i('x4');
-                            });
-                          }),
-                        ]),
-                      ]),
-                    ),
                     if (_showHints)
                       RichText(
                         text: TextSpan(
@@ -797,11 +813,26 @@ class _Edit extends State<Edit> {
                                   'Section types are followed by a colon (:).'
                                   ' Sections can be entered abbreviated and in lower case.'
                                   ' The available section buttons will enter the correct abbreviation.'
-                                  ' Section types can be followed with a digit to indicate a variation.\n\n',
+                                  ' Section types can be followed with a digit to indicate a variation.\n',
                               style: _textStyle,
                             ),
                             TextSpan(
-                              text:
+                              text: '\n\n'
+                                      'The sections are: ' +
+                                  _listSections(),
+                              style: _textStyle,
+                            ),
+                            TextSpan(
+                              text: '\n'
+                                  'Their abbreviations are: ',
+                              style: _textStyle,
+                            ),
+                            TextSpan(
+                              text: _listSectionAbbreviations(),
+                              style: _textStyle,
+                            ),
+                            TextSpan(
+                              text: '.\n\n'
                                   'Sections with the same content will automatically be placed in the same declaration.'
                                   ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
                                   ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
@@ -825,6 +856,7 @@ class _Edit extends State<Edit> {
                             ),
                             TextSpan(
                               text:
+                                  //  todo: fix the font, ♭ is not represented properly
                                   'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
                                   ' be a B♭m7 or the chord B followed by a Bm7?'
                                   ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
@@ -892,9 +924,9 @@ class _Edit extends State<Edit> {
                               style: _textStyle,
                             ),
                             TextSpan(
-                              text:
-                                  'Since you can enter the return key to format your entry, you must us the Enter button'
-                                  ' to enter it into the song.\n\n',
+                              text: 'Since you can enter the return key to create a new row for your entry,'
+                                  ' you must us the exit to stop editing.  Clicking outside the entry'
+                                  ' box or typing escape will work as well.\n\n',
                               style: _textStyle,
                             ),
                             TextSpan(
@@ -951,21 +983,16 @@ class _Edit extends State<Edit> {
                           ],
                         ),
                       ),
-                    TextField(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter the song\'s lyrics by chord section. Required.',
-                        //  fixme
-                        hintStyle: TextStyle(
-                            fontSize: _defaultFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                            backgroundColor: Colors.grey[100]),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                      ),
-                      style: _boldTextStyle,
-                      maxLines: 80,
+                    Text(
+                      "Lyrics:",
+                      style: _labelTextStyle,
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                        //  pre-configured table of edit widgets
+                        _lyricsTable,
+                      ]),
                     ),
                   ],
                 ),
@@ -2270,6 +2297,38 @@ class _Edit extends State<Edit> {
         _isDirty = isDirty;
       });
     }
+  }
+
+  String _listSections() {
+    var sb = StringBuffer();
+    var first = true;
+    for (var s in Section.values) {
+      if (first) {
+        first = false;
+      } else {
+        sb.write(', ');
+      }
+      sb.write(s.formalName);
+    }
+    return sb.toString();
+  }
+
+  String _listSectionAbbreviations() {
+    var sb = StringBuffer();
+    var first = true;
+    for (var s in Section.values) {
+      if (first) {
+        first = false;
+      } else {
+        sb.write(', ');
+      }
+      s.formalName;
+      sb.write('${s.formalName}: \'${s.abbreviation.toLowerCase()}\'');
+      if (s.alternateAbbreviation != null) {
+        sb.write(' or \'${s.alternateAbbreviation!.toLowerCase()}\'');
+      }
+    }
+    return sb.toString();
   }
 
   Song _song;

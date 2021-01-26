@@ -1,20 +1,16 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
-import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
-
 import 'package:bsteele_music_flutter/SongMaster.dart';
-import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:flutter/cupertino.dart';
@@ -93,196 +89,28 @@ class _Player extends State<Player> {
   Widget build(BuildContext context) {
     Song song = widget.song; //  convenience only
 
-    double _screenWidth = screenInfo.widthInLogicalPixels;
-    double _screenHeight = screenInfo.heightInLogicalPixels;
-    _screenOffset = _screenHeight / 2;
-    final double fontSize = isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650));
-    final double fontScale = fontSize / defaultFontSize;
-    logger.d(
-        'player: ($_screenWidth,$_screenHeight), default:$defaultFontSize  => fontSize: $fontSize, fontScale: $fontScale');
+    _lyricsTable.computeScreenSizes();
 
-    final double lyricsFontSize = fontSize * 0.75;
+    var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
-    final TextStyle chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
-    _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: lyricsFontSize);
-
-    if (_table == null) {
-      logger.d("size: " + MediaQuery.of(context).size.toString());
-
-      //  build the table from the song moment grid
-      Grid<SongMoment> grid = song.songMomentGrid;
-      _rowLocations = [];
-      if (grid.isNotEmpty) {
-        {
-          _rowLocations = List.generate(grid.getRowCount(), (i) {
-            return null;
-          });
-          List<TableRow> rows = [];
-          List<Widget> children = [];
-          Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
-
-          bool showChords = isScreenBig || _appOptions.playerDisplay;
-          bool showFullLyrics = true; //fixme: too rash for a phone?  isScreenBig || !_appOptions.playerDisplay;
-
-          //  compute transposition offset from base key
-          int tranOffset = _displaySongKey.getHalfStep() - song.getKey().getHalfStep();
-
-          //  keep track of the section
-          ChordSection? lastChordSection;
-          int? lastSectionCount;
-
-          //  map the song moment grid to a flutter table, one row at a time
-          for (int r = 0; r < grid.getRowCount(); r++) {
-            List<SongMoment?>? row = grid.getRow(r);
-            if (row == null) {
-              continue;
-            }
-
-            //  assume col 1 has a chord or comment in it
-            if (row.length < 2) {
-              continue;
-            }
-
-            //  find the first col with data
-            //  should normally be col 1 (i.e. the second col)
-            SongMoment? firstSongMoment;
-            for (final SongMoment? sm in row)
-              if (sm == null)
-                continue;
-              else {
-                firstSongMoment = sm;
-                break;
-              }
-            if (firstSongMoment == null) continue;
-
-            GlobalKey<_Player>? _rowKey = GlobalObjectKey(row);
-            _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey);
-
-            ChordSection chordSection = firstSongMoment.getChordSection();
-            int sectionCount = firstSongMoment.sectionCount;
-            String? columnFiller;
-            EdgeInsets marginInsets = EdgeInsets.all(fontScale);
-            EdgeInsets textPadding = EdgeInsets.all(6);
-            if (chordSection != lastChordSection || sectionCount != lastSectionCount) {
-              //  add the section heading
-              columnFiller = chordSection.sectionVersion.toString();
-              color = GuiColors.getColorForSection(chordSection.getSection());
-            }
-            lastChordSection = chordSection;
-            lastSectionCount = sectionCount;
-
-            String? momentLocation;
-            String rowLyrics = '';
-            for (int c = 0; c < row.length; c++) {
-              SongMoment? sm = row[c];
-
-              if (sm == null) {
-                if (columnFiller == null)
-                  //  empty cell
-                  children.add(Container(
-                      margin: marginInsets,
-                      child: Text(
-                        " ",
-                      )));
-                else
-                  children.add(Container(
-                      margin: marginInsets,
-                      padding: textPadding,
-                      color: color,
-                      child: Text(
-                        columnFiller,
-                        style: chordTextStyle,
-                      )));
-                columnFiller = null; //  for subsequent rows
-              } else {
-                //  moment found
-                rowLyrics += ' ' + (sm.lyrics ?? '');
-                children.add(Container(
-                    key: _rowKey,
-                    margin: marginInsets,
-                    padding: textPadding,
-                    color: color,
-                    child: Text(
-                      sm.getMeasure().transpose(_displaySongKey, tranOffset),
-                      style: chordTextStyle,
-                    )));
-                _rowKey = null;
-
-                //  use the first non-null location for the table value key
-                if (momentLocation == null) momentLocation = sm.momentNumber.toString();
-              }
-
-              //  section and lyrics only if on a cell phone
-              if (!showChords) {
-                //  collect the rest of the lyrics
-                for (; c < row.length; c++) {
-                  SongMoment? sm = row[c];
-                  if (sm != null) {
-                    rowLyrics += ' ' + (sm.lyrics ?? '');
-                  }
-                }
-                break;
-              }
-            }
-
-            if (momentLocation != null || !isScreenBig) {
-              if (showFullLyrics) {
-                //  lyrics
-                children.add(Container(
-                    margin: marginInsets,
-                    padding: textPadding,
-                    color: color,
-                    child: Text(
-                      rowLyrics.trimLeft(),
-                      style: _lyricsTextStyle,
-                    )));
-
-                //  add row to table
-                rows.add(TableRow(key: ValueKey(r), children: children));
-              } else {
-                //  short lyrics
-                children.add(Container(
-                    margin: marginInsets,
-                    padding: EdgeInsets.all(2),
-                    color: color,
-                    child: Text(
-                      (firstSongMoment.lyrics ?? ''),
-                      style: _lyricsTextStyle,
-                      overflow: TextOverflow.ellipsis,
-                    )));
-
-                //  add row to table
-                rows.add(TableRow(key: ValueKey(r), children: children));
-              }
-
-              //  get ready for the next row by clearing the row data
-              children = [];
-            }
-          }
-
-          _table = Table(
-            defaultColumnWidth: IntrinsicColumnWidth(),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: rows,
-          );
-        }
-      }
+    if ( _table == null ) {
+      _table = _lyricsTable.lyricsTable(song, key: _displaySongKey);
     }
 
-    if (_appOptions.debug&& _table!=null) {
-      int i = 0;
-      for (final TableRow tableRow in _table!.children) {
-        logger.v('rowkey:  ${tableRow.key.toString()}');
-        int j = 0;
-        for (final Widget widget in tableRow.children ?? []) {
-          if (widget.key != null) {
-            logger.i('\t\($i\,$j\)');
-          }
-          j++;
-        }
-        i++;
-      }
-    }
+    // if (_appOptions.debug && _table != null) {
+    //   int i = 0;
+    //   for (final TableRow tableRow in _table!.children) {
+    //     logger.v('rowkey:  ${tableRow.key.toString()}');
+    //     int j = 0;
+    //     for (final Widget widget in tableRow.children ?? []) {
+    //       if (widget.key != null) {
+    //         logger.i('\t\($i\,$j\)');
+    //       }
+    //       j++;
+    //     }
+    //     i++;
+    //   }
+    // }
 
     {
       //  generate the rolled key list
@@ -403,7 +231,7 @@ class _Player extends State<Player> {
             Positioned(
               top: boxCenter - boxOffset,
               child: Container(
-                constraints: BoxConstraints.loose(Size(_screenWidth, boxHeight)),
+                constraints: BoxConstraints.loose(Size(_lyricsTable.screenWidth, boxHeight)),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -471,7 +299,7 @@ class _Player extends State<Player> {
                                   },
                                   child: Text(
                                     '${song.title}',
-                                    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                                    style: TextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
                                   ),
                                   hoverColor: hoverColor,
                                 ),
@@ -521,7 +349,7 @@ With escape, the app goes back to the play list.''',
                                         hoverColor: hoverColor,
                                         icon: Icon(
                                           Icons.edit,
-                                          size: fontSize,
+                                          size: _lyricsTable.fontSize,
                                         ),
                                         label: Text(''),
                                         onPressed: () {
@@ -542,7 +370,7 @@ With escape, the app goes back to the play list.''',
                                         hoverColor: hoverColor,
                                         icon: Icon(
                                           _playStopIcon,
-                                          size: fontSize,
+                                          size: _lyricsTable.fontSize,
                                         ),
                                         label: Text(''),
                                         onPressed: () {
@@ -571,7 +399,7 @@ With escape, the app goes back to the play list.''',
                                       color: Colors.black87,
                                       textBaseline: TextBaseline.ideographic,
                                     ),
-                                    iconSize: fontSize,
+                                    iconSize: _lyricsTable.fontSize,
                                     itemHeight: 1.2 * kMinInteractiveDimension,
                                   ),
                                   Text(
@@ -596,7 +424,7 @@ With escape, the app goes back to the play list.''',
                                         color: Colors.black87,
                                         textBaseline: TextBaseline.ideographic,
                                       ),
-                                      iconSize: fontSize,
+                                      iconSize: _lyricsTable.fontSize,
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
                                   else
@@ -737,7 +565,7 @@ With escape, the app goes back to the play list.''',
 
   /// bump from one section to the next
   _sectionBump(int bump) {
-    if (_rowLocations.isEmpty ) {
+    if (_rowLocations.isEmpty) {
       _sectionLocations = null;
       return;
     }
@@ -778,7 +606,7 @@ With escape, the app goes back to the play list.''',
         double y = (key.currentContext?.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
         y0 ??= y;
         y -= y0;
-        tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y + (key.currentContext?.size?.height??0)) / 2);
+        tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y + (key.currentContext?.size?.height ?? 0)) / 2);
         _sectionLocations = tmp;
       }
     }
@@ -840,7 +668,7 @@ With escape, the app goes back to the play list.''',
     return Tooltip(
         message: message,
         child: child,
-        textStyle: _lyricsTextStyle,
+        textStyle: _lyricsTable.lyricsTextStyle,
 
         //  fixme: why is this broken on web?
         //waitDuration: Duration(seconds: 1, milliseconds: 200),
@@ -890,6 +718,7 @@ With escape, the app goes back to the play list.''',
   int _rowLocationIndex = 0;
 
   Table? _table;
+  LyricsTable _lyricsTable = LyricsTable();
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
   List<DropdownMenuItem<music_key.Key>>? keyDropDownMenuList;
   List<DropdownMenuItem<int>>? bpmDropDownMenuList;
@@ -903,7 +732,6 @@ With escape, the app goes back to the play list.''',
   // static const double _defaultFontSizeMax = defaultFontSize + 5;
 
   final FocusNode _focusNode = FocusNode();
-  TextStyle _lyricsTextStyle = TextStyle();
   List<double>? _sectionLocations;
 }
 

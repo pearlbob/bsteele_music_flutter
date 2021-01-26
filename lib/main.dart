@@ -61,6 +61,7 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 
 const double defaultFontSize = 14.0; //  borrowed from Text widget
 
+
 //  parameters to be evaluated before use
 ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
 bool isEditReady = false;

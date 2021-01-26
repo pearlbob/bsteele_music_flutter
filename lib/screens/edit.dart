@@ -21,6 +21,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/gui.dart';
+import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -167,7 +168,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('edit build: "${_editTextController.text.toString()}"');
+    logger.i('edit build: "${_editTextController.text.toString()}"');
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double _screenWidth = screenInfo.widthInLogicalPixels;
@@ -236,7 +237,7 @@ class _Edit extends State<Edit> {
         //  keep track of the section
         SectionVersion? lastSectionVersion;
 
-        //  map the song moment grid to a flutter table, one row at a time
+        //  map the song chord section grid to a flutter table, one row at a time
         for (int r = 0; r < grid.getRowCount(); r++) {
           List<ChordSectionLocation?>? row = grid.getRow(r);
           if (row == null) {
@@ -408,60 +409,74 @@ class _Edit extends State<Edit> {
       }
     }
 
-    Table? _lyricsTable;
-    {
-      List<TableRow> rows = [];
-      List<Widget> children;
-
-      sectionColor = GuiColors.getColorForSection(SectionVersion.getDefault().section);
-      for (var lyricSection in _song.lyricSections) {
-        ChordSection? chordSection = _song.getChordSection(lyricSection.sectionVersion);
-        SectionVersion? sectionVersion;
-        if (chordSection != null) {
-          sectionVersion = chordSection.sectionVersion;
-        }
-
-        for (int row = 0; row < 200; row++) {
-          if (row > lyricSection.lyricsLines.length) {
-            break;
-          }
-          children = [];
-          if (sectionVersion != null) {
-            sectionColor = GuiColors.getColorForSection(sectionVersion.section);
-            children.add(Container(
-                margin: _marginInsets,
-                padding: textPadding,
-                color: sectionColor,
-                child: _editTooltip(
-                    'modify or delete the section',
-                    Text(
-                      sectionVersion.toString(),
-                      style: _chordBoldTextStyle,
-                    ))));
-            sectionVersion = null;
-          } else {
-            children.add(_nullEditGridDisplayWidget());
-          }
-
-          if (row < lyricSection.lyricsLines.length) {
-            children.add(Text(
-              lyricSection.lyricsLines[row],
-              style: _textStyle,
-            ));
-          } else {
-            children.add(_nullEditGridDisplayWidget());
-          }
-
-          rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
-        }
-      }
-
-      _lyricsTable = Table(
-        defaultColumnWidth: IntrinsicColumnWidth(),
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        children: rows,
-      );
-    }
+    // Table _lyricsTable = Table();
+    // {
+    //   List<TableRow> rows = [];
+    //   List<Widget> children;
+    //
+    //   sectionColor = GuiColors.getColorForSection(SectionVersion.getDefault().section);
+    //   for (var lyricSection in _song.lyricSections) {
+    //     ChordSection? chordSection = _song.findChordSectionByLyricSection(lyricSection);
+    //     SectionVersion? sectionVersion;
+    //     if (chordSection != null) {
+    //       sectionVersion = chordSection.sectionVersion;
+    //     }
+    //
+    //     var gridCoordinate =  _song.getChordSectionGridCoorinateMap()[sectionVersion];
+    //     var gridRow = gridCoordinate?.row ?? 0;
+    //
+    //     for (int rowNumber = 0; rowNumber < 200; rowNumber++) {
+    //       if (rowNumber > lyricSection.lyricsLines.length) {
+    //         break;
+    //       }
+    //       children = [];
+    //       if (sectionVersion != null) {
+    //         sectionColor = GuiColors.getColorForSection(sectionVersion.section);
+    //         children.add(Container(
+    //             margin: _marginInsets,
+    //             padding: textPadding,
+    //             color: sectionColor,
+    //             child: _editTooltip(
+    //                 'modify or delete the section',
+    //                 Text(
+    //                   sectionVersion.toString(),
+    //                   style: _chordBoldTextStyle,
+    //                 ))));
+    //         sectionVersion = null;
+    //       } else {
+    //         children.add(_nullEditGridDisplayWidget());
+    //       }
+    //
+    //       children.add(Text(
+    //         gridRow.toString() + ' row',
+    //         style: _chordBoldTextStyle,
+    //       ));
+    //
+    //       //  fill the columns so they are all the same length
+    //       while ( children.length < maxCols) {
+    //         children.add(_nullEditGridDisplayWidget());
+    //       }
+    //
+    //       if (rowNumber < lyricSection.lyricsLines.length) {
+    //         children.add(Text(
+    //           lyricSection.lyricsLines[rowNumber],
+    //           style: _textStyle,
+    //         ));
+    //       } else {
+    //         children.add(_nullEditGridDisplayWidget());
+    //       }
+    //
+    //       rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
+    //       gridRow++;
+    //     }
+    //   }
+    //
+    //   _lyricsTable = Table(
+    //     defaultColumnWidth: IntrinsicColumnWidth(),
+    //     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+    //     children: rows,
+    //   );
+    // }
 
     {
       //  list the notes required
@@ -490,6 +505,16 @@ class _Edit extends State<Edit> {
         _keyChordDropDownMenuList.add(item);
       }
     }
+
+    //  push the lyrics into the song if they have changed
+    if (_lyricsAreDirty) {
+      String s = _songLyricsEntry();
+      logger.i('new lyrics: $s');
+      _song.setRawLyrics(s);
+      _lyricsAreDirty = false;
+    }
+
+    _lyricsTextFields = [];
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -991,7 +1016,10 @@ class _Edit extends State<Edit> {
                       padding: EdgeInsets.all(16.0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         //  pre-configured table of edit widgets
-                        _lyricsTable,
+                        _lyricsTable.lyricsTable(_song,
+                            sectionHeaderWidget: _editSectionHeaderWidget,
+                            textWidget: _editTextWidget,
+                            lyricEndWidget: _lyricEndWidget),
                       ]),
                     ),
                   ],
@@ -1003,6 +1031,84 @@ class _Edit extends State<Edit> {
             },
           ),
         ));
+  }
+
+  Widget _editSectionHeaderWidget(LyricSection lyricSection) {
+    return InkWell(
+        onTap: () {
+          logger.i('figure how to add section here');
+        },
+        child: Container(
+            margin: appendInsets,
+            padding: textPadding,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.green[100],
+            ),
+            child: _editTooltip(
+              'add new lyric section here',
+              Icon(
+                Icons.add,
+                size: _chordFontSize,
+              ),
+            )));
+  }
+
+  Widget _editTextWidget(LyricSection lyricSection, String s) {
+    var ret = _LyricsTextField(
+      lyricSection,
+      controller: TextEditingController(text: s),
+      style: _chordBoldTextStyle,
+      decoration: InputDecoration(
+        hintText: '(Enter ${lyricSection.sectionVersion} lyrics here.)',
+      ),
+      onSubmitted: (_) {
+        logger.i('lyrics onSubmitted: ($_)');
+      },
+      onEditingComplete: () {
+        logger.i('lyrics onEditingComplete()');
+      },
+      onChanged: (value) {
+        _lyricsAreDirty = true;
+      },
+    );
+    _lyricsTextFields.add(ret);
+    return ret;
+  }
+
+  Widget _lyricEndWidget() {
+    return InkWell(
+        onTap: () {
+          logger.i('figure how to add section at the end');
+        },
+        child: Container(
+            margin: appendInsets,
+            padding: textPadding,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.green[100],
+            ),
+            child: _editTooltip(
+              'add new lyric section here at the end',
+              Icon(
+                Icons.add,
+                size: _chordFontSize,
+              ),
+            )));
+  }
+
+  /// collect all the entered song lyrics
+  String _songLyricsEntry() {
+    StringBuffer sb = StringBuffer();
+    LyricSection? lastLyricSection;
+    for (var lf in _lyricsTextFields) {
+      if (!identical(lf.lyricSection, lastLyricSection)) {
+        lastLyricSection = lf.lyricSection;
+        sb.write('${lf.lyricSection.sectionVersion}');
+      }
+      sb.writeln('${lf.controller?.text ?? ''}');
+    }
+    return sb.toString();
   }
 
   ///  add a row for a plus on the bottom of the section to continue on the next row
@@ -1143,6 +1249,7 @@ class _Edit extends State<Edit> {
   Widget _nullEditGridDisplayWidget() {
     return Text(
       '',
+      //' null',  //  diagnostic
     );
   }
 
@@ -1297,6 +1404,12 @@ class _Edit extends State<Edit> {
       );
     }
 
+    var matchingVersions = _song.matchingSectionVersions(editDataPoint.location?.sectionVersion);
+    var matchingVersionsString = '';
+    for (var mv in matchingVersions) {
+      matchingVersionsString += mv.toString();
+    }
+
     //  the section is not selected for editing, just display
     return InkWell(
       onTap: () {
@@ -1315,7 +1428,7 @@ class _Edit extends State<Edit> {
           child: _editTooltip(
               'modify or delete the section',
               Text(
-                chordSection?.sectionVersion.toString() ?? 'no chord section',
+                matchingVersionsString,
                 style: _chordBoldTextStyle,
               ))),
     );
@@ -2367,6 +2480,10 @@ class _Edit extends State<Edit> {
   TextSelection? _lastEditTextSelection;
   int _tableKeyId = 0;
 
+  LyricsTable _lyricsTable = LyricsTable();
+  bool _lyricsAreDirty = false;
+  List<_LyricsTextField> _lyricsTextFields = [];
+
   bool _showHints = false;
 
   SectionVersion _sectionVersion = SectionVersion.getDefault();
@@ -2379,6 +2496,25 @@ class _Edit extends State<Edit> {
   UndoStack<Song> _undoStack = UndoStack();
 
   static const tooltipColor = Color(0xFFE8F5E9);
+}
+
+class _LyricsTextField extends TextField {
+  _LyricsTextField(
+    this.lyricSection, {
+    controller,
+    style,
+    decoration,
+    onSubmitted,
+    onEditingComplete,
+    onChanged,
+  }) : super(
+            controller: controller,
+            style: style,
+            decoration: decoration,
+            onSubmitted: onSubmitted,
+            onEditingComplete: onEditingComplete,
+            onChanged: onChanged);
+  final LyricSection lyricSection;
 }
 
 //  internal class to hold handy data for each point in the chord section edit display

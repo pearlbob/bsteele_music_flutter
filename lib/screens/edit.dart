@@ -1016,10 +1016,13 @@ class _Edit extends State<Edit> {
                       padding: EdgeInsets.all(16.0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         //  pre-configured table of edit widgets
-                        _lyricsTable.lyricsTable(_song,
-                            sectionHeaderWidget: _editSectionHeaderWidget,
-                            textWidget: _editTextWidget,
-                            lyricEndWidget: _lyricEndWidget),
+                        _lyricsTable.lyricsTable(
+                          _song,
+                          sectionHeaderWidget: _editSectionHeaderWidget,
+                          textWidget: _editTextWidget,
+                          lyricEndWidget: _lyricEndWidget,
+                          requestedFontSize: _chordFontSize,
+                        ),
                       ]),
                     ),
                   ],
@@ -1034,6 +1037,39 @@ class _Edit extends State<Edit> {
   }
 
   Widget _editSectionHeaderWidget(LyricSection lyricSection) {
+    if (_song.lyricSections.isNotEmpty && lyricSection == _song.lyricSections.first) {
+      List<DropdownMenuItem<ChordSection>> chordSectionDropdownMenuList = [];
+      SplayTreeSet<ChordSection> set = SplayTreeSet();
+      set.addAll( _song.getChordSections());
+      for (var chordSection in set) {
+      var  sectionVersion = chordSection.sectionVersion;
+        chordSectionDropdownMenuList.add(DropdownMenuItem<ChordSection>(
+            child: Text(
+          '${sectionVersion.toString()}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: _chordFontSize,
+            backgroundColor: GuiColors.getColorForSection(sectionVersion.section),
+          ),
+        )));
+      }
+      return _editTooltip(
+        'Select chord section for this point in the song lyrics.',
+        DropdownButton<ChordSection>(
+          items: chordSectionDropdownMenuList,
+          onChanged: (value) {
+            // setState(() {
+            //   if (value != null) {
+            //     _keyChordNote = value;
+            //   }
+            // });
+          },
+         // value: _song.getChordSections().first,
+          style: _buttonTextStyle,
+        ),
+      );
+    }
+
     return InkWell(
         onTap: () {
           logger.i('figure how to add section here');
@@ -1089,7 +1125,7 @@ class _Edit extends State<Edit> {
               color: Colors.green[100],
             ),
             child: _editTooltip(
-              'add new lyric section here at the end',
+              'add new lyric section here at the end of the song',
               Icon(
                 Icons.add,
                 size: _chordFontSize,
@@ -1262,11 +1298,11 @@ class _Edit extends State<Edit> {
 
     if (measureNode.getMeasureNodeType() != MeasureNodeType.section) return Text('not_section');
 
-    ChordSection? chordSection = measureNode as ChordSection?;
+    ChordSection chordSection = measureNode as ChordSection;
     if (_selectedEditDataPoint == editDataPoint) {
       //  we're editing the section
       if (_editTextField == null) {
-        String entry = measureNode.toString();
+        String entry = chordSection.sectionVersion.toString();
         _editTextController.text = entry;
         _editTextController.selection = TextSelection(baseOffset: 0, extentOffset: entry.length);
         _editTextField = TextField(

@@ -24,15 +24,18 @@ typedef LyricsSectionHeaderWidget = Widget Function(LyricSection lyricSection);
 typedef LyricsEndWidget = Widget Function();
 
 class LyricsTable {
-  Table lyricsTable(Song song, {key,
+  Table lyricsTable(
+    Song song, {
+    key,
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
+    double? requestedFontSize,
   }) {
     displaySongKey = key ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
 
-    computeScreenSizes();
+    computeScreenSizes(requestedFontSize: requestedFontSize);
 
     //  build the table from the song moment grid
     Grid<SongMoment> grid = song.songMomentGrid;
@@ -229,15 +232,15 @@ class LyricsTable {
   }
 
   /// compute screen size values used here and on other screens
-  void computeScreenSizes() {
+  void computeScreenSizes({double? requestedFontSize}) {
     _screenWidth = screenInfo.widthInLogicalPixels;
     _screenHeight = screenInfo.heightInLogicalPixels;
-    fontSize = isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650));
-    fontScale = fontSize / defaultFontSize;
-    logger.d('player: ($_screenWidth,$_screenHeight),'
-        ' default:$defaultFontSize  => fontSize: $fontSize, fontScale: $fontScale');
-
+    _fontSize = requestedFontSize ?? (isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650)));
     _lyricsFontSize = fontSize * 0.75;
+
+    fontScale = fontSize / defaultFontSize;
+    logger.i('lyricsTable: ($_screenWidth,$_screenHeight),'
+        ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $fontScale');
 
     _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
     _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize);
@@ -252,7 +255,9 @@ class LyricsTable {
 
   double get lyricsFontSize => _lyricsFontSize;
   double _lyricsFontSize = 18;
-  double fontSize = 10;
+
+  double get fontSize => _fontSize;
+  double _fontSize = 10;
   double fontScale = 1;
 
   TextStyle get chordTextStyle => _chordTextStyle;

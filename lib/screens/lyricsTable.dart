@@ -95,7 +95,7 @@ class LyricsTable {
       if (firstSongMoment == null) continue;
 
       GlobalKey? _rowKey = GlobalObjectKey(row);
-      _rowLocations[r] = _RowLocation(firstSongMoment, r, _rowKey);
+      _rowLocations[r] = RowLocation(firstSongMoment, r, _rowKey);
 
       ChordSection chordSection = firstSongMoment.getChordSection();
       LyricSection lyricSection = firstSongMoment.lyricSection;
@@ -239,7 +239,7 @@ class LyricsTable {
     _lyricsFontSize = fontSize * 0.75;
 
     fontScale = fontSize / defaultFontSize;
-    logger.i('lyricsTable: ($_screenWidth,$_screenHeight),'
+    logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'
         ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $fontScale');
 
     _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
@@ -251,7 +251,9 @@ class LyricsTable {
 
   double get screenHeight => _screenHeight;
   double _screenHeight = 50;
-  List<_RowLocation?> _rowLocations = [];
+
+  List<RowLocation?> get rowLocations => _rowLocations;
+  List<RowLocation?> _rowLocations = [];
 
   double get lyricsFontSize => _lyricsFontSize;
   double _lyricsFontSize = 18;
@@ -274,8 +276,8 @@ class LyricsTable {
 }
 
 /// helper class to help manage a song display
-class _RowLocation {
-  _RowLocation(this.songMoment, this.row, this.globalKey);
+class RowLocation {
+  RowLocation(this.songMoment, this.row, this.globalKey);
 
   @override
   String toString() {

@@ -23,8 +23,8 @@ class UtilLinux implements UtilWorkaround {
 
   Future<void> filePick() async {
     _Picker picker = _Picker();
-    FilePickerResult result = await picker.pickFiles(allowedExtensions: ['.songlyrics']);
-    for (final PlatformFile file in result.files) {
+    FilePickerResult? result = await picker.pickFiles(allowedExtensions: ['.songlyrics']);
+    for (final PlatformFile file in result?.files ?? []) {
       logger.i('file: ${file.name}');
     }
   }

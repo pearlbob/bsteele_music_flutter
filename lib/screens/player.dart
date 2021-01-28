@@ -93,8 +93,10 @@ class _Player extends State<Player> {
 
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
-    if ( _table == null ) {
+    if (_table == null) {
       _table = _lyricsTable.lyricsTable(song, key: _displaySongKey);
+      _rowLocations = _lyricsTable.rowLocations;
+      _screenOffset = _lyricsTable.screenHeight / 2;
     }
 
     // if (_appOptions.debug && _table != null) {
@@ -569,6 +571,8 @@ With escape, the app goes back to the play list.''',
       _sectionLocations = null;
       return;
     }
+
+    //  lazy update
     if (_sectionLocations == null && _rowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
       double? y0;
@@ -576,7 +580,7 @@ With escape, the app goes back to the play list.''',
       int sectionCount = 0;
 
       _sectionLocations = [];
-      for (_RowLocation? _rowLocation in _rowLocations) {
+      for (RowLocation? _rowLocation in _rowLocations) {
         if (_rowLocation == null) continue;
         if (chordSection == _rowLocation.songMoment.chordSection &&
             sectionCount == _rowLocation.songMoment.sectionCount) {
@@ -619,7 +623,7 @@ With escape, the app goes back to the play list.''',
         Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
 
     _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
-    logger.d('_sectionSelection: $target');
+    logger.i('_sectionSelection: $target');
   }
 
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
@@ -714,7 +718,7 @@ With escape, the app goes back to the play list.''',
   bool _isPaused = false;
 
   double _screenOffset = 0;
-  List<_RowLocation?> _rowLocations = [];
+  List<RowLocation?> _rowLocations = [];
   int _rowLocationIndex = 0;
 
   Table? _table;
@@ -733,19 +737,4 @@ With escape, the app goes back to the play list.''',
 
   final FocusNode _focusNode = FocusNode();
   List<double>? _sectionLocations;
-}
-
-/// helper class to help manage a song display
-class _RowLocation {
-  _RowLocation(this.songMoment, this.row, this.globalKey);
-
-  @override
-  String toString() {
-    return ('${row.toString()} ${globalKey.toString()}'
-        ', ${songMoment.toString()}');
-  }
-
-  final SongMoment songMoment;
-  final GlobalKey globalKey;
-  final int row;
 }

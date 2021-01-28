@@ -1037,20 +1037,25 @@ class _Edit extends State<Edit> {
   }
 
   Widget _editSectionHeaderWidget(LyricSection lyricSection) {
-    if (_song.lyricSections.isNotEmpty && lyricSection == _song.lyricSections.first) {
+    if (_song.lyricSections.isNotEmpty && lyricSection == _selectedLyricSection) {
       List<DropdownMenuItem<ChordSection>> chordSectionDropdownMenuList = [];
       SplayTreeSet<ChordSection> set = SplayTreeSet();
-      set.addAll( _song.getChordSections());
+      set.addAll(_song.getChordSections());
       for (var chordSection in set) {
-      var  sectionVersion = chordSection.sectionVersion;
+        var sectionVersion = chordSection.sectionVersion;
         chordSectionDropdownMenuList.add(DropdownMenuItem<ChordSection>(
-            child: Text(
-          '${sectionVersion.toString()}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: _chordFontSize,
-            backgroundColor: GuiColors.getColorForSection(sectionVersion.section),
+            child: Container(
+          padding: EdgeInsets.all(10),
+          width: 100,
+          child: Text(
+            '${sectionVersion.toString()}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: _chordFontSize,
+              backgroundColor: GuiColors.getColorForSection(sectionVersion.section),
+            ),
           ),
+          color: GuiColors.getColorForSection(sectionVersion.section),
         )));
       }
       return _editTooltip(
@@ -1064,7 +1069,12 @@ class _Edit extends State<Edit> {
             //   }
             // });
           },
-         // value: _song.getChordSections().first,
+          onTap: () {
+            setState(() {
+              _selectedLyricSection = lyricSection;
+            });
+          },
+          // value: _song.getChordSections().first,
           style: _buttonTextStyle,
         ),
       );
@@ -2517,6 +2527,7 @@ class _Edit extends State<Edit> {
   int _tableKeyId = 0;
 
   LyricsTable _lyricsTable = LyricsTable();
+  LyricSection? _selectedLyricSection;
   bool _lyricsAreDirty = false;
   List<_LyricsTextField> _lyricsTextFields = [];
 

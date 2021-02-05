@@ -1501,7 +1501,7 @@ class _Edit extends State<Edit> {
     }
     Measure? measure;
     if (measureNode.getMeasureNodeType() == MeasureNodeType.measure) {
-      measure = measureNode as Measure;
+      measure = measureNode.transposeToKey(_key) as Measure;
     }
 
     Color color = GuiColors.getColorForSection(editDataPoint.location?.sectionVersion?.section);
@@ -1603,15 +1603,6 @@ class _Edit extends State<Edit> {
       List<DropdownMenuItem<ScaleChord>> _otherChordDropDownMenuList = [];
       {
         // other chords
-        _otherChordDropDownMenuList.add(DropdownMenuItem<ScaleChord>(
-          child: Row(
-            children: <Widget>[
-              Text(
-                "Other chords",
-              ),
-            ],
-          ),
-        ));
         for (ChordDescriptor cd in ChordDescriptor.otherChordDescriptorsOrdered) {
           ScaleChord sc = ScaleChord(_keyChordNote, cd);
           _otherChordDropDownMenuList.add(DropdownMenuItem<ScaleChord>(
@@ -1632,15 +1623,6 @@ class _Edit extends State<Edit> {
       List<DropdownMenuItem<ScaleNote>> _slashNoteDropDownMenuList = [];
       {
         // other chords
-        _slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
-          child: Row(
-            children: <Widget>[
-              Text(
-                "/note",
-              ),
-            ],
-          ),
-        ));
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
           ScaleNote sc = _key.getScaleNoteByHalfStep(i);
           _slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
@@ -1722,6 +1704,7 @@ class _Edit extends State<Edit> {
                     _editTooltip(
                       'Select from other chord descriptors.',
                       DropdownButton<ScaleChord>(
+                        hint: Text('Other chords'),
                         items: _otherChordDropDownMenuList,
                         onChanged: (_value) {
                           setState(() {
@@ -1734,6 +1717,9 @@ class _Edit extends State<Edit> {
                     _editTooltip(
                       'Select a slash note',
                       DropdownButton<ScaleNote>(
+                        hint: Text(
+                          "/note",
+                        ),
                         items: _slashNoteDropDownMenuList,
                         onChanged: (_value) {
                           setState(() {

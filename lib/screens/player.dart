@@ -623,7 +623,7 @@ With escape, the app goes back to the play list.''',
         Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
 
     _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
-    logger.i('_sectionSelection: $target');
+    logger.d('_sectionSelection: $target');
   }
 
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;

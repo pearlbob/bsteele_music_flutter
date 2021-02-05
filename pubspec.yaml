@@ -14,7 +14,7 @@ description: bsteele Music App in Flutter
 version: 0.0.1+1
 
 environment:
-  sdk: ">=2.12.0-267.0.dev <3.0.0"
+  sdk: ">=2.12.0-282.0.dev <3.0.0"
 
 dependencies:
   flutter:
@@ -23,9 +23,9 @@ dependencies:
   file_picker: ^3.0.0-nullsafety.2
   js: ^0.6.3-nullsafety.3
   logger: ^1.0.0-nullsafety.0
-  package_info: ^0.4.3+2  # not nullable
+  package_info: ^0.4.3+4  # not nullable
   shared_preferences: ^0.5.12+4  # not nullable
-  url_launcher: ^6.0.0-nullsafety.4
+  url_launcher: ^6.0.0-nullsafety.6
   universal_html: ^1.2.3  # not nullable
   intl: ^0.17.0-nullsafety.2
   path_provider: ^1.6.24  # not nullable
@@ -44,9 +44,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   pedantic: ^1.10.0-nullsafety.3
-  test: ^1.16.0-nullsafety.16
-  build_runner: ^1.11.0  # not nullable
-  build_web_compilers: ^2.16.1  # not nullable
+  test: ^1.16.0-nullsafety.19
+  build_runner: ^1.11.1  # not nullable
+  build_web_compilers: ^2.16.3  # not nullable
   #integration_test: ^1.0.1  # not nullable
 
 

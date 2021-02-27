@@ -14,12 +14,12 @@ description: bsteele Music App in Flutter
 version: 0.0.1+1
 
 environment:
-  sdk: ">=2.12.0-282.0.dev <3.0.0"
+  sdk: ">=2.13.0-79.0.dev <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  assets_audio_player: ^2.0.13+1  # not nullable
+  assets_audio_player: ^2.0.13+7  # not nullable
   file_picker: ^3.0.0-nullsafety.2
   js: ^0.6.3-nullsafety.3
   logger: ^1.0.0-nullsafety.0
@@ -44,7 +44,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   pedantic: ^1.10.0-nullsafety.3
-  test: ^1.16.0-nullsafety.19
+  test: ^1.16.4-nullsafety.19
   build_runner: ^1.11.1  # not nullable
   build_web_compilers: ^2.16.3  # not nullable
   #integration_test: ^1.0.1  # not nullable

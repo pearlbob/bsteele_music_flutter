@@ -121,6 +121,8 @@ class _Edit extends State<Edit> {
     _key = _song.key;
     _keyChordNote = _key.getKeyScaleNote(); //  initial value
 
+    _lyricsEntry = _LyricsEntry._fromSong(_song);
+
     _editTextController.addListener(() {
       //  fixme: workaround for loss of focus when pressing an edit button
       TextSelection textSelection = _editTextController.selection;
@@ -1014,6 +1016,10 @@ class _Edit extends State<Edit> {
                     ),
                     Container(
                       padding: EdgeInsets.all(16.0),
+                      child: _lyricsEntryWidget(),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(16.0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         //  pre-configured table of edit widgets
                         _lyricsTable.lyricsTable(
@@ -1044,45 +1050,45 @@ class _Edit extends State<Edit> {
       for (var chordSection in set) {
         var sectionVersion = chordSection.sectionVersion;
         chordSectionDropdownMenuList.add(DropdownMenuItem<ChordSection>(
-            child: Container(
-          padding: EdgeInsets.all(10),
-          width: 100,
-          child: Text(
-            '${sectionVersion.toString()}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: _chordFontSize,
-              backgroundColor: GuiColors.getColorForSection(sectionVersion.section),
+          value: chordSection,
+          child: Container(
+            padding: EdgeInsets.all(10),
+            width: 100,
+            child: Text(
+              '${sectionVersion.toString()}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: _chordFontSize,
+                backgroundColor: GuiColors.getColorForSection(sectionVersion.section),
+              ),
             ),
+            color: GuiColors.getColorForSection(sectionVersion.section),
           ),
-          color: GuiColors.getColorForSection(sectionVersion.section),
-        )));
+        ));
       }
       return _editTooltip(
         'Select chord section for this point in the song lyrics.',
         DropdownButton<ChordSection>(
           items: chordSectionDropdownMenuList,
           onChanged: (value) {
-            // setState(() {
-            //   if (value != null) {
-            //     _keyChordNote = value;
-            //   }
-            // });
-          },
-          onTap: () {
             setState(() {
-              _selectedLyricSection = lyricSection;
+              logger.i('selected: ${value?.toMarkup()}');
+
+              _selectedLyricSection = null;
             });
           },
           // value: _song.getChordSections().first,
           style: _buttonTextStyle,
+          hint: Text('Select section'),
         ),
       );
     }
 
     return InkWell(
         onTap: () {
-          logger.i('figure how to add section here');
+          setState(() {
+            _selectedLyricSection = lyricSection;
+          });
         },
         child: Container(
             margin: appendInsets,
@@ -1100,13 +1106,34 @@ class _Edit extends State<Edit> {
             )));
   }
 
+  Widget _lyricsEntryWidget() {
+    var children = <Widget>[];
+
+    for (var entry in _lyricsEntry.entries) {
+      children.add(_editSectionHeaderWidget(entry.lyricSection));
+      var sb = StringBuffer();
+
+      sb.writeln(entry.lyricSection.sectionVersion.toString());
+      sb.writeln('fixme: from textfield'); // fixme:
+      for (var line in entry.lines) {
+        sb.writeln(line);
+      }
+      children.add(Text(sb.toString()));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+  }
+
   Widget _editTextWidget(LyricSection lyricSection, String s) {
     var ret = _LyricsTextField(
       lyricSection,
       controller: TextEditingController(text: s),
       style: _chordBoldTextStyle,
       decoration: InputDecoration(
-        hintText: '(Enter ${lyricSection.sectionVersion} lyrics here.)',
+        hintText: 'Enter ${lyricSection.sectionVersion} lyrics here.',
       ),
       onSubmitted: (_) {
         logger.i('lyrics onSubmitted: ($_)');
@@ -1459,11 +1486,7 @@ class _Edit extends State<Edit> {
     //  the section is not selected for editing, just display
     return InkWell(
       onTap: () {
-        if (chordSection != null) {
-          _sectionVersion = chordSection.sectionVersion;
-        } else {
-          _sectionVersion = SectionVersion.getDefault();
-        }
+        _sectionVersion = chordSection.sectionVersion;
         _editTextController.text = _sectionVersion.toString();
         _setEditDataPoint(editDataPoint);
       },
@@ -2514,6 +2537,7 @@ class _Edit extends State<Edit> {
 
   LyricsTable _lyricsTable = LyricsTable();
   LyricSection? _selectedLyricSection;
+  _LyricsEntry _lyricsEntry = _LyricsEntry();
   bool _lyricsAreDirty = false;
   List<_LyricsTextField> _lyricsTextFields = [];
 
@@ -2546,7 +2570,8 @@ class _LyricsTextField extends TextField {
             decoration: decoration,
             onSubmitted: onSubmitted,
             onEditingComplete: onEditingComplete,
-            onChanged: onChanged);
+            onChanged: onChanged,
+            maxLines: null);
   final LyricSection lyricSection;
 }
 
@@ -2595,8 +2620,63 @@ class _EditDataPoint {
   MeasureNode? measureNode;
 }
 
+class _LyricsEntry {
+  _LyricsEntry();
+
+  _LyricsEntry._fromSong(Song song) {
+    for (var lyricSection in song.lyricSections) {
+      entries.add(_LyricsDataEntry(entries.length, lyricSection));
+    }
+    logger.i('_asLyricsEntry():\n${_asLyricsEntry()}');
+  }
+
+  String _asLyricsEntry() {
+    var sb = StringBuffer();
+    for (var entry in entries) {
+      sb.writeln(entry.lyricSection.sectionVersion.toString());
+      for (var line in entry.lines) {
+        sb.writeln(line);
+      }
+    }
+    return sb.toString();
+  }
+
+  List<_LyricsDataEntry> entries = [];
+}
+
+class _LyricsDataEntry {
+  _LyricsDataEntry(this.index, this.lyricSection) {
+    lines = List.from(lyricSection.lyricsLines);
+  }
+
+  Widget? widgetAt(int r, int c) {
+    if (c == 0) {
+      return Text('unknown section');
+    }
+    return Text(lyricSection.sectionVersion.toString());
+  }
+
+  Widget lyricsWidget() {
+    return Text('empty lyrics');
+  }
+
+  final int index;
+  final LyricSection lyricSection;
+  int? initialGridRowIndex;
+  ChordSectionLocation? location;
+  List<String> lines = [];
+}
+
 /*
-c:a b c d, d c g g
+v: a b c d, d c g g
 C: C G D A, E E E E
+
+
+Off the top of my head, since the order of flats is
+B, E, A, D, G, C and F
+
+We pretty-much never see Gb, Cb and Fb  (because Cb is B and Fb is E)
+
+going the other way, we pretty-much never see A#, E#, and B# (Because E# is F and B# is C)
 
  */

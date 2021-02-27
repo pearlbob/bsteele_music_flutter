@@ -6,7 +6,6 @@ import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -28,6 +27,8 @@ import '../main.dart';
 
 const _lightBlue = const Color(0xFF4FC3F7);
 const _tooltipColor = const Color(0xFFE8F5E9);
+
+bool _isCapo = false;
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
@@ -75,7 +76,7 @@ class _Player extends State<Player> {
     //   });
     // }
 
-    _displaySongKey = widget.song.key;
+    _setSelectedSongKey(widget.song.key);
 
     WidgetsBinding.instance?.scheduleWarmUpFrame();
   }
@@ -344,6 +345,33 @@ With escape, the app goes back to the play list.''',
                                         onPressed: () {},
                                       ),
                                     ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Capo',
+                                          style: _lyricsTextStyle,
+                                        ),
+                                        Switch(
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _isCapo = !_isCapo;
+                                              _setSelectedSongKey(_selectedSongKey);
+                                            });
+                                          },
+                                          value: _isCapo,
+                                        ),
+                                        if (_isCapo && _capoLocation > 0)
+                                          Text(
+                                            'on $_capoLocation',
+                                            style: _lyricsTextStyle,
+                                          ),
+                                        if (_isCapo && _capoLocation == 0)
+                                          Text(
+                                            'no capo needed',
+                                            style: _lyricsTextStyle,
+                                          ),
+                                      ],
+                                    ),
                                     if (isEditReady)
                                       FlatButton.icon(
                                         padding: const EdgeInsets.all(8),
@@ -387,15 +415,14 @@ With escape, the app goes back to the play list.''',
                                   ),
                                   DropdownButton<music_key.Key>(
                                     items: keyDropDownMenuList,
-                                    onChanged: (_value) {
+                                    onChanged: (value) {
                                       setState(() {
-                                        if (_value != null) {
-                                          _displaySongKey = _value;
-                                          _forceTableRedisplay();
+                                        if (value != null) {
+                                          _setSelectedSongKey( value );
                                         }
                                       });
                                     },
-                                    value: _displaySongKey,
+                                    value: _selectedSongKey,
                                     style: TextStyle(
                                       //  size controlled by textScaleFactor above
                                       color: Colors.black87,
@@ -667,6 +694,19 @@ With escape, the app goes back to the play list.''',
     });
   }
 
+  _setSelectedSongKey( music_key.Key key ){
+    _selectedSongKey = key;
+    
+    if (_isCapo) {
+      _displaySongKey = key.capoKey;
+      _capoLocation = key.capoLocation;
+    } else {
+      _displaySongKey = key;
+    }
+
+    _forceTableRedisplay();
+  }
+
   /// helper function to generate tool tips
   Widget _playTooltip(String message, Widget child) {
     return Tooltip(
@@ -717,20 +757,25 @@ With escape, the app goes back to the play list.''',
   bool _isPlaying = false;
   bool _isPaused = false;
 
+  
+
   double _screenOffset = 0;
   List<RowLocation?> _rowLocations = [];
   int _rowLocationIndex = 0;
 
   Table? _table;
   LyricsTable _lyricsTable = LyricsTable();
+  music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
+
+  int _capoLocation = 0;
   List<DropdownMenuItem<music_key.Key>>? keyDropDownMenuList;
   List<DropdownMenuItem<int>>? bpmDropDownMenuList;
 
   SongMaster songMaster = SongMaster();
 
   ScrollController _scrollController = ScrollController();
-  AppOptions _appOptions = AppOptions();
+  //AppOptions _appOptions = AppOptions();
 
   // static const double _defaultFontSizeMin = defaultFontSize - 5;
   // static const double _defaultFontSizeMax = defaultFontSize + 5;

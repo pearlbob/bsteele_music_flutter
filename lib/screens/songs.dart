@@ -43,10 +43,9 @@ class _Songs extends State<Songs> {
       ),
       body: Container(
         padding: EdgeInsets.all(36.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            textDirection: TextDirection.ltr,
+        child: Wrap(
+            direction: Axis.vertical, // make sure to set this
+            spacing: 36,
             children: <Widget>[
               RaisedButton(
                 child: Text(
@@ -57,7 +56,7 @@ class _Songs extends State<Songs> {
                   _filePick();
                 },
               ),
-              RaisedButton(
+                         RaisedButton(
                 child: Text(
                   'Write songs all to $fileLocation',
                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),

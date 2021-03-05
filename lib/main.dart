@@ -789,13 +789,13 @@ class _MyHomePageState extends State<MyHomePage> {
   final _random = Random();
 }
 
-Future<String> fetchString(String url) async {
-  final response = await http.get(url);
+Future<String> fetchString(String uriString) async {
+  final response = await http.get(Uri.parse(uriString));
 
   if (response.statusCode == 200) {
     return utf8.decode(response.bodyBytes);
   } else {
     // If that call was not successful, throw an error.
-    throw Exception('Failed to load url: $url');
+    throw Exception('Failed to load url: $uriString');
   }
 }

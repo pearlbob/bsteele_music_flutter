@@ -418,7 +418,7 @@ With escape, the app goes back to the play list.''',
                                     onChanged: (value) {
                                       setState(() {
                                         if (value != null) {
-                                          _setSelectedSongKey( value );
+                                          _setSelectedSongKey(value);
                                         }
                                       });
                                     },
@@ -694,9 +694,9 @@ With escape, the app goes back to the play list.''',
     });
   }
 
-  _setSelectedSongKey( music_key.Key key ){
+  _setSelectedSongKey(music_key.Key key) {
     _selectedSongKey = key;
-    
+
     if (_isCapo) {
       _displaySongKey = key.capoKey;
       _capoLocation = key.capoLocation;
@@ -757,8 +757,6 @@ With escape, the app goes back to the play list.''',
   bool _isPlaying = false;
   bool _isPaused = false;
 
-  
-
   double _screenOffset = 0;
   List<RowLocation?> _rowLocations = [];
   int _rowLocationIndex = 0;
@@ -775,6 +773,7 @@ With escape, the app goes back to the play list.''',
   SongMaster songMaster = SongMaster();
 
   ScrollController _scrollController = ScrollController();
+
   //AppOptions _appOptions = AppOptions();
 
   // static const double _defaultFontSizeMin = defaultFontSize - 5;

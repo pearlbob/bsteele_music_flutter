@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
+import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
@@ -123,7 +124,7 @@ class _Edit extends State<Edit> {
     _key = _song.key;
     _keyChordNote = _key.getKeyScaleNote(); //  initial value
 
-    _lyricsEntry = _LyricsEntry._fromSong(_song);
+    _lyricsEntries = _LyricsEntries._fromSong(_song);
 
     _editTextController.addListener(() {
       //  fixme: workaround for loss of focus when pressing an edit button
@@ -172,7 +173,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('edit build: "${_editTextController.text.toString()}"');
+    logger.d('edit build: "${_editTextController.text.toString()}"');
 
     ScreenInfo screenInfo = ScreenInfo(context);
     final double _screenWidth = screenInfo.widthInLogicalPixels;
@@ -1020,19 +1021,19 @@ class _Edit extends State<Edit> {
                       padding: EdgeInsets.all(16.0),
                       child: _lyricsEntryWidget(),
                     ),
-                    Container(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                        //  pre-configured table of edit widgets
-                        _lyricsTable.lyricsTable(
-                          _song,
-                          sectionHeaderWidget: _editSectionHeaderWidget,
-                          textWidget: _editTextWidget,
-                          lyricEndWidget: _lyricEndWidget,
-                          requestedFontSize: _chordFontSize,
-                        ),
-                      ]),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.all(16.0),
+                    //   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                    //     //  pre-configured table of edit widgets
+                    //     _lyricsTable.lyricsTable(
+                    //       _song,
+                    //       sectionHeaderWidget: _editSectionHeaderWidget,
+                    //       textWidget: _editLyricsTextWidget,
+                    //       lyricEndWidget: _lyricEndWidget,
+                    //       requestedFontSize: _chordFontSize,
+                    //     ),
+                    //   ]),
+                    // ),
                   ],
                 ),
               ),
@@ -1109,36 +1110,21 @@ class _Edit extends State<Edit> {
   }
 
   Widget _lyricsEntryWidget() {
-    // for (var entry in _lyricsEntry.entries) {
-    //   children.add(_editSectionHeaderWidget(entry.lyricSection));
-    //   var sb = StringBuffer();
-    //
-    //   sb.writeln(entry.lyricSection.sectionVersion.toString());
-    //   sb.writeln('fixme: from textfield'); // fixme:
-    //   for (var line in entry.lines) {
-    //     sb.writeln(line);
-    //   }
-    //   children.add(Text(sb.toString()));
-    // }
-    //
-    // return Column(
-    //   crossAxisAlignment: CrossAxisAlignment.start,
-    //   children: children,
-    // );
-
     List<TableRow> rows = [];
-    const chordWidth = 1;
+
+    //  find the longest row
+    var chordMaxColCount = _song.getChordSectionLocationGridMaxColCount();
+    chordMaxColCount++;
 
     //  main entries
     var row = 0;
-    for (var entry in _lyricsEntry.entries) {
+    for (var entry in _lyricsEntries._entries) {
       //  insert section above
       {
         var children = <Widget>[];
-        children.add(
-            Row(
-              children: [
-                Container(
+        children.add(Row(
+          children: [
+            Container(
                 margin: appendInsets,
                 padding: _textPadding,
                 decoration: BoxDecoration(
@@ -1152,9 +1138,9 @@ class _Edit extends State<Edit> {
                     size: _chordFontSize,
                   ),
                 )),
-              ],
-            ));
-        for (var c = 0; c < chordWidth - 1 + 1; c++) {
+          ],
+        ));
+        for (var c = 0; c < chordMaxColCount - 1 + 1; c++) {
           children.add(Text(''));
         }
         rows.add(TableRow(children: children));
@@ -1163,63 +1149,15 @@ class _Edit extends State<Edit> {
       //  chord section headers
       {
         var children = <Widget>[];
-        children.add(Row(
-          children: [
-            Container(
-              padding: _textPadding,
-              child: Text(
-                entry.lyricSection.sectionVersion.toString(),
-                style: _chordBoldTextStyle,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  logger.i('lyric section upwards: $entry');
-                  _lyricsEntry._moveChordSection(entry.index, true);
-                });
-              },
-              child: Container(
-                  margin: appendInsets,
-                  padding: _textPadding,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _addColor,
-                  ),
-                  child: _editTooltip(
-                    'move the lyric section upwards',
-                    Icon(
-                      Icons.arrow_upward,
-                      size: _chordFontSize,
-                    ),
-                  )),
-            ),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  logger.i('lyric section downwards: $entry');
-                  _lyricsEntry._moveChordSection(entry.index, false);
-                });
-              },
-              child: Container(
-                  margin: appendInsets,
-                  padding: _textPadding,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _addColor,
-                  ),
-                  child: _editTooltip(
-                    'move the lyric section downwards',
-                    Icon(
-                      Icons.arrow_downward,
-                      size: _chordFontSize,
-                    ),
-                  )),
-            ),
-          ],
+        children.add(Container(
+          padding: _textPadding,
+          child: Text(
+            entry.lyricSection.sectionVersion.toString(),
+            style: _chordBoldTextStyle,
+          ),
         ));
 
-        for (var c = 0; c < chordWidth - 1 + 1; c++) {
+        for (var c = 0; c < chordMaxColCount - 1 + 1; c++) {
           children.add(Text(''));
         }
         rows.add(TableRow(children: children));
@@ -1227,43 +1165,116 @@ class _Edit extends State<Edit> {
 
       //  chord rows and lyrics lines
       var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
+      var gridCoordinate = _song.getGridCoordinate(ChordSectionLocation(chordSection?.sectionVersion));
       var chordRowCount = chordSection?.chordRowCount ?? 0;
       var lineCount = entry.lines.length;
       var limit = max(chordRowCount, lineCount);
       for (var i = 0; i < limit; i++) {
         var children = <Widget>[];
-        var c = 0;
-        if (i < chordRowCount) {
-          children.add(Text(
-            'chord row $i',
-            style: _lyricsTextStyle,
-          ));
-          c++;
+
+        //  chord rows
+        {
+          var c = 0;
+          if (gridCoordinate != null && i < chordRowCount) {
+            var grid = _song.getChordSectionLocationGrid();
+            var row = grid.getRow(i);
+            logger.i('row.length: ${row?.length}/$chordMaxColCount');
+            for (var coordinate in row ?? []) {
+              children.add(Text(
+                'chord row $i $coordinate',
+                style: _lyricsTextStyle,
+              ));
+              c++;
+            }
+          }
+          for (; c < chordMaxColCount; c++) {
+            children.add(Text(''));
+          }
         }
-        for (; c < chordWidth; c++) {
-          children.add(Text(''));
-        }
+
         if (i < lineCount) {
-          children.add(Container(padding: _textPadding, child: Text(entry.lines[i], style: _lyricsTextStyle)));
+          var textField = _LyricsTextField(
+            entry.lyricSection,
+            controller: TextEditingController(text: entry.lines[i]),
+            style: _chordBoldTextStyle,
+            decoration: InputDecoration(
+              hintText: 'Enter ${entry.lyricSection.sectionVersion} lyrics here.',
+            ),
+            onSubmitted: (_) {
+              logger.i('lyrics onSubmitted: ($_)');
+            },
+            onEditingComplete: () {
+              logger.i('lyrics onEditingComplete()');
+            },
+            onChanged: (value) {
+              _lyricsAreDirty = true;
+            },
+          );
+          _lyricsTextFields.add(textField);
+
+          children.add(Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _lyricsEntries._moveLyricLine(entry.lyricSection, i, isUp: true);
+                  });
+                },
+                child: Container(
+                    margin: appendInsets,
+                    padding: _textPadding,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _addColor,
+                    ),
+                    child: _editTooltip(
+                      'move the lyric line upwards a section',
+                      Icon(
+                        Icons.arrow_upward,
+                        size: _chordFontSize,
+                      ),
+                    )),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _lyricsEntries._moveLyricLine(entry.lyricSection, i, isUp: false);
+                  });
+                },
+                child: Container(
+                    margin: appendInsets,
+                    padding: _textPadding,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _addColor,
+                    ),
+                    child: _editTooltip(
+                      'move the lyric line downwards a section',
+                      Icon(
+                        Icons.arrow_downward,
+                        size: _chordFontSize,
+                      ),
+                    )),
+              ),
+              Spacer(),
+              Expanded(
+                child: textField,
+                flex: 30,
+              ),
+            ],
+          ));
         } else {
           children.add(Text(''));
         }
         rows.add(TableRow(children: children));
       }
-      // for (var line in entry.lines) {
-      //   var children = <Widget>[];
-      //   for (var c = 0; c < chordWidth; c++) {
-      //     children.add(Text(''));
-      //   }
-      //   children.add(Container(padding: _textPadding, child: Text(line, style: _lyricsTextStyle)));
-      //   rows.add(TableRow(children: children));
-      // }
     }
 
     //  last append
 
     return Table(
       children: rows,
+      defaultColumnWidth: IntrinsicColumnWidth(),
       border: TableBorder(
           top: BorderSide(width: 2),
           bottom: BorderSide(width: 2),
@@ -1274,8 +1285,8 @@ class _Edit extends State<Edit> {
     );
   }
 
-  Widget _editTextWidget(LyricSection lyricSection, String s) {
-    var ret = _LyricsTextField(
+  Widget _editLyricsTextWidget(LyricSection lyricSection, int lineNumber, String s) {
+    var textField = _LyricsTextField(
       lyricSection,
       controller: TextEditingController(text: s),
       style: _chordBoldTextStyle,
@@ -1292,8 +1303,58 @@ class _Edit extends State<Edit> {
         _lyricsAreDirty = true;
       },
     );
-    _lyricsTextFields.add(ret);
-    return ret;
+    _lyricsTextFields.add(textField);
+
+    return Row(
+      children: [
+        InkWell(
+          onTap: () {
+            setState(() {
+              _lyricsEntries._moveLyricLine(lyricSection, lineNumber, isUp: true);
+            });
+          },
+          child: Container(
+              margin: appendInsets,
+              padding: _textPadding,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _addColor,
+              ),
+              child: _editTooltip(
+                'move the lyric line upwards a section',
+                Icon(
+                  Icons.arrow_upward,
+                  size: _chordFontSize,
+                ),
+              )),
+        ),
+        InkWell(
+          onTap: () {
+            setState(() {
+              _lyricsEntries._moveLyricLine(lyricSection, lineNumber, isUp: false);
+            });
+          },
+          child: Container(
+              margin: appendInsets,
+              padding: _textPadding,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _addColor,
+              ),
+              child: _editTooltip(
+                'move the lyric line downwards a section',
+                Icon(
+                  Icons.arrow_downward,
+                  size: _chordFontSize,
+                ),
+              )),
+        ),
+        Expanded(
+          child: textField,
+        ),
+      ],
+    );
+    // return textField;
   }
 
   Widget _lyricEndWidget() {
@@ -1995,7 +2056,6 @@ class _Edit extends State<Edit> {
               'modify or delete the measure',
               Text(
                 '${measure?.transpose(_key, _transpositionOffset) ?? ' '}',
-                //measure?.transpose(_key, _transpositionOffset) ?? ' ',
                 style: _chordBoldTextStyle,
               ))),
     );
@@ -2684,7 +2744,7 @@ class _Edit extends State<Edit> {
 
   LyricsTable _lyricsTable = LyricsTable();
   LyricSection? _selectedLyricSection;
-  _LyricsEntry _lyricsEntry = _LyricsEntry();
+  _LyricsEntries _lyricsEntries = _LyricsEntries();
   bool _lyricsAreDirty = false;
   List<_LyricsTextField> _lyricsTextFields = [];
 
@@ -2767,19 +2827,19 @@ class _EditDataPoint {
   MeasureNode? measureNode;
 }
 
-class _LyricsEntry {
-  _LyricsEntry();
+class _LyricsEntries {
+  _LyricsEntries();
 
-  _LyricsEntry._fromSong(Song song) {
+  _LyricsEntries._fromSong(Song song) {
     for (var lyricSection in song.lyricSections) {
-      entries.add(_LyricsDataEntry(entries.length, lyricSection));
+      _entries.add(_LyricsDataEntry(_entries.length, lyricSection));
     }
     logger.v('_asLyricsEntry():\n${_asLyricsEntry()}');
   }
 
   String _asLyricsEntry() {
     var sb = StringBuffer();
-    for (var entry in entries) {
+    for (var entry in _entries) {
       sb.writeln(entry.lyricSection.sectionVersion.toString());
       for (var line in entry.lines) {
         sb.writeln(line);
@@ -2788,23 +2848,24 @@ class _LyricsEntry {
     return sb.toString();
   }
 
-  void _moveChordSection(int chordSectionNumber, bool isUp) {
-    if (entries.length <= 1) {
+  void _moveChordSection(_LyricsDataEntry entry, {bool isUp = false}) {
+    if (_entries.length <= 1) {
       return;
     }
+    var chordSectionNumber = entry.index;
     if (isUp) {
       if (chordSectionNumber <= 0) {
         return;
       }
       var topSectionNumber = chordSectionNumber - 1;
       var bottomSectionNumber = chordSectionNumber;
-      var topLines = entries[topSectionNumber].lines;
-      var bottomLines = entries[bottomSectionNumber].lines;
+      var topLines = _entries[topSectionNumber].lines;
+      var bottomLines = _entries[bottomSectionNumber].lines;
       if (topLines.isNotEmpty) {
         var line = topLines.removeLast();
         bottomLines.insert(0, line);
-        entries[topSectionNumber].lines = topLines;
-        entries[bottomSectionNumber].lines = bottomLines;
+        _entries[topSectionNumber].lines = topLines;
+        _entries[bottomSectionNumber].lines = bottomLines;
       }
     } else {
       //  down
@@ -2813,18 +2874,64 @@ class _LyricsEntry {
       }
       var topSectionNumber = chordSectionNumber - 1;
       var bottomSectionNumber = chordSectionNumber;
-      var topLines = entries[topSectionNumber].lines;
-      var bottomLines = entries[bottomSectionNumber].lines;
+      var topLines = _entries[topSectionNumber].lines;
+      var bottomLines = _entries[bottomSectionNumber].lines;
       if (bottomLines.isNotEmpty) {
         var line = bottomLines.removeAt(0);
         topLines.add(line);
-        entries[topSectionNumber].lines = topLines;
-        entries[bottomSectionNumber].lines = bottomLines;
+        _entries[topSectionNumber].lines = topLines;
+        _entries[bottomSectionNumber].lines = bottomLines;
       }
     }
   }
 
-  List<_LyricsDataEntry> entries = [];
+  void _moveLyricLine(LyricSection section, int line, {bool isUp = false}) {
+    logger.d('_LyricsEntries._moveLyricLine( $section, line: $line, isUp: $isUp )');
+    if (_entries.length <= 1) {
+      return;
+    }
+    var chordSectionNumber = section.index;
+    if (isUp) {
+      //  up
+      if (chordSectionNumber <= 0) {
+        return;
+      }
+      var topSectionNumber = chordSectionNumber - 1;
+      var bottomSectionNumber = chordSectionNumber;
+      var topLines = _entries[topSectionNumber].lines;
+      var bottomLines = _entries[bottomSectionNumber].lines;
+      for (var i = 0; i <= line; i++) {
+        if (bottomLines.isEmpty) {
+          break;
+        }
+        var lyrics = bottomLines.removeAt(0);
+        topLines.add(lyrics);
+      }
+      _entries[topSectionNumber].lines = topLines;
+      _entries[bottomSectionNumber].lines = bottomLines;
+    } else {
+      //  down
+      if (chordSectionNumber >= _entries.length - 1) {
+        return;
+      }
+      var topSectionNumber = chordSectionNumber;
+      var bottomSectionNumber = chordSectionNumber + 1;
+      var topLines = _entries[topSectionNumber].lines;
+      var bottomLines = _entries[bottomSectionNumber].lines;
+
+      for (var i = topLines.length - 1; i >= line; i--) {
+        if (topLines.isEmpty) {
+          break;
+        }
+        var lyrics = topLines.removeLast();
+        bottomLines.insert(0, lyrics);
+      }
+      _entries[topSectionNumber].lines = topLines;
+      _entries[bottomSectionNumber].lines = bottomLines;
+    }
+  }
+
+  List<_LyricsDataEntry> _entries = [];
 }
 
 class _LyricsDataEntry {
@@ -2845,7 +2952,7 @@ class _LyricsDataEntry {
 
   @override
   String toString() {
-    return '$index: $lyricSection $location lines: ${lines.length}';
+    return '{ $index: $lyricSection, loc: $location, lines: ${lines.length} }';
   }
 
   final int index;

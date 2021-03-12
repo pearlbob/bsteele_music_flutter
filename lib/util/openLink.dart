@@ -1,6 +1,5 @@
-import 'package:url_launcher/url_launcher.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
 
@@ -13,10 +12,14 @@ A custom target name of a window that exists
  */
 
 void openLink(String url) async {
-  if(kIsWeb) {
-    html.window.open(url, '_blank');
-  } else if ( !isPhone){
-    if(await canLaunch(url)) {
+  if (kIsWeb) {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  } else if (!isPhone) {
+    if (await canLaunch(url)) {
       launch(url);
     }
   }

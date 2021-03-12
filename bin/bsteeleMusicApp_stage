@@ -61,6 +61,7 @@ cp -r build/web $dst/$app
 
 #	send to flavor's web location
 set gs=gs://www.bsteele.com/$flavor/$app
+bsteele_auth
 gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/$app/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs

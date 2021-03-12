@@ -19,7 +19,7 @@ import 'package:flutter/rendering.dart';
 import '../appOptions.dart';
 import '../main.dart';
 
-typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, String s);
+typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, int lineNumber, String s);
 typedef LyricsSectionHeaderWidget = Widget Function(LyricSection lyricSection);
 typedef LyricsEndWidget = Widget Function();
 
@@ -181,10 +181,12 @@ class LyricsTable {
               margin: marginInsets,
               padding: textPadding,
               color: color,
-              child: textWidget(lyricSection, rowLyrics.trimLeft())));
+              child: textWidget(lyricSection, 0,  //  fixme: offset of lyrics lines within lyrics section
+                  rowLyrics.trimLeft())));
 
           //  add row to table
-          rows.add(TableRow(key: ValueKey(r), children: children));
+          rows.add(TableRow(//key: ValueKey(r),
+              children: children));
         } else {
           //  short lyrics
           children.add(Container(
@@ -224,7 +226,7 @@ class LyricsTable {
     return _table;
   }
 
-  Widget _defaultTextWidget(LyricSection lyricSection, String s) {
+  Widget _defaultTextWidget(LyricSection lyricSection, int lineNumber, String s) {
     return Text(
       s,
       style: _lyricsTextStyle,

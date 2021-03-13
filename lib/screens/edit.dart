@@ -208,7 +208,7 @@ class _Edit extends State<Edit> {
       if (grid.isNotEmpty) {
         List<TableRow> rows = [];
         List<Widget> children = [];
-        sectionColor = GuiColors.getColorForSection(_defaultSection);
+        _sectionColor = GuiColors.getColorForSection(_defaultSection);
 
         //  compute transposition offset from base key
         _transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
@@ -258,13 +258,14 @@ class _Edit extends State<Edit> {
           //  should normally be col 1 (i.e. the second col)
           //  use its section version for the row
           {
-            for (final ChordSectionLocation? loc in row)
+            for (final ChordSectionLocation? loc in row) {
               if (loc == null)
                 continue;
               else {
                 firstChordSectionLocation = loc;
                 break;
               }
+            }
             if (firstChordSectionLocation == null) continue;
 
             SectionVersion? sectionVersion = firstChordSectionLocation.sectionVersion;
@@ -275,7 +276,7 @@ class _Edit extends State<Edit> {
 
               //  add the section heading
               //           columnFiller = sectionVersion.toString();
-              sectionColor = GuiColors.getColorForSection(sectionVersion?.section);
+              _sectionColor = GuiColors.getColorForSection(sectionVersion?.section);
               lastSectionVersion = sectionVersion;
             }
           }
@@ -1114,7 +1115,10 @@ class _Edit extends State<Edit> {
 
     //  find the longest row
     var chordMaxColCount = _song.getChordSectionLocationGridMaxColCount();
-    chordMaxColCount++;
+    logger.i('chordMaxColCount: $chordMaxColCount');
+    chordMaxColCount = _song.chordRowMaxLength();
+
+    EdgeInsets marginInsets = EdgeInsets.all(6);
 
     //  main entries
     var row = 0;
@@ -1147,10 +1151,14 @@ class _Edit extends State<Edit> {
       }
 
       //  chord section headers
+      var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
+      _sectionColor = GuiColors.getColorForSection(chordSection?.sectionVersion.section);
       {
         var children = <Widget>[];
         children.add(Container(
+          margin: _marginInsets,
           padding: _textPadding,
+          color: _sectionColor,
           child: Text(
             entry.lyricSection.sectionVersion.toString(),
             style: _chordBoldTextStyle,
@@ -1164,9 +1172,9 @@ class _Edit extends State<Edit> {
       }
 
       //  chord rows and lyrics lines
-      var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
-      var gridCoordinate = _song.getGridCoordinate(ChordSectionLocation(chordSection?.sectionVersion));
-      var chordRowCount = chordSection?.chordRowCount ?? 0;
+
+      final expanded = true;
+      var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.lines.length;
       var limit = max(chordRowCount, lineCount);
       for (var i = 0; i < limit; i++) {
@@ -1175,14 +1183,19 @@ class _Edit extends State<Edit> {
         //  chord rows
         {
           var c = 0;
-          if (gridCoordinate != null && i < chordRowCount) {
-            var grid = _song.getChordSectionLocationGrid();
-            var row = grid.getRow(i);
-            logger.i('row.length: ${row?.length}/$chordMaxColCount');
-            for (var coordinate in row ?? []) {
-              children.add(Text(
-                'chord row $i $coordinate',
-                style: _lyricsTextStyle,
+          if (i < chordRowCount) {
+            var row = chordSection?.rowAt(i, expanded: expanded);
+            logger.d('row.length: ${row?.length}/$chordMaxColCount');
+            for (var measure in row ?? []) {
+              children.add(Container(
+                margin: _marginInsets,
+                padding: _textPadding,
+                color: _sectionColor,
+                child: Text(
+                  '${measure.toMarkupWithoutEnd()}',
+                  style: _chordBoldTextStyle,
+                  maxLines: 1,
+                ),
               ));
               c++;
             }
@@ -1270,18 +1283,28 @@ class _Edit extends State<Edit> {
       }
     }
 
-    //  last append
+    //  last append goes here
+
+    //  compute the flex for the columns
+    var columnWidths = <int, TableColumnWidth>{};
+    for ( var i =0; i < chordMaxColCount; i++ ){
+      columnWidths[i]= IntrinsicColumnWidth();
+    }
+    columnWidths[chordMaxColCount]= FlexColumnWidth(3);
+
 
     return Table(
       children: rows,
       defaultColumnWidth: IntrinsicColumnWidth(),
-      border: TableBorder(
-          top: BorderSide(width: 2),
-          bottom: BorderSide(width: 2),
-          left: BorderSide(width: 2),
-          right: BorderSide(width: 2),
-          horizontalInside: BorderSide(width: 1),
-          verticalInside: BorderSide(width: 1)),
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      columnWidths: columnWidths,
+      // border: TableBorder(
+      // top: BorderSide(width: 2),
+      // bottom: BorderSide(width: 2),
+      // left: BorderSide(width: 2),
+      // right: BorderSide(width: 2),
+      // horizontalInside: BorderSide(width: 1),
+      // verticalInside: BorderSide(width: 1)),
     );
   }
 
@@ -1575,7 +1598,7 @@ class _Edit extends State<Edit> {
       SectionVersion? entrySectionVersion = _parsedSectionEntry(_editTextController.text);
       bool isValidSectionEntry = (entrySectionVersion != null);
       //Color color = isValidSectionEntry ? Colors.black87 : Colors.red;
-      sectionColor = GuiColors.getColorForSection(entrySectionVersion?.section ?? _sectionVersion.section);
+      _sectionColor = GuiColors.getColorForSection(entrySectionVersion?.section ?? _sectionVersion.section);
 
       //  build a list of section version numbers
       List<DropdownMenuItem<int>> sectionVersionNumberDropdownMenuList = [];
@@ -1596,7 +1619,7 @@ class _Edit extends State<Edit> {
       }
 
       return Container(
-        color: sectionColor,
+        color: _sectionColor,
         width: _entryWidth,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1604,7 +1627,7 @@ class _Edit extends State<Edit> {
             textDirection: TextDirection.ltr,
             children: <Widget>[
               //  section entry text field
-              Container(margin: _marginInsets, padding: _textPadding, color: sectionColor, child: _editTextField),
+              Container(margin: _marginInsets, padding: _textPadding, color: _sectionColor, child: _editTextField),
               //  section entry pull downs
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1701,7 +1724,7 @@ class _Edit extends State<Edit> {
       child: Container(
           margin: _marginInsets,
           padding: _textPadding,
-          color: sectionColor,
+          color: _sectionColor,
           child: _editTooltip(
               'modify or delete the section',
               Text(
@@ -1883,7 +1906,7 @@ class _Edit extends State<Edit> {
                 //  measure edit text field
                 Container(
                   margin: EdgeInsets.all(2),
-                  color: sectionColor,
+                  color: _sectionColor,
                   child: _editTextField,
                 ),
                 if (_measureEntryCorrection != null)
@@ -2729,7 +2752,7 @@ class _Edit extends State<Edit> {
   EdgeInsets _marginInsets = EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
-  Color sectionColor = _defaultColor;
+  Color _sectionColor = _defaultColor;
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 

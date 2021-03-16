@@ -4,13 +4,11 @@ import 'dart:ui';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
-import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -181,11 +179,14 @@ class LyricsTable {
               margin: marginInsets,
               padding: textPadding,
               color: color,
-              child: textWidget(lyricSection, 0,  //  fixme: offset of lyrics lines within lyrics section
+              child: textWidget(
+                  lyricSection,
+                  0, //  fixme: offset of lyrics lines within lyrics section
                   rowLyrics.trimLeft())));
 
           //  add row to table
-          rows.add(TableRow(//key: ValueKey(r),
+          rows.add(TableRow(
+              //key: ValueKey(r),
               children: children));
         } else {
           //  short lyrics
@@ -218,10 +219,18 @@ class LyricsTable {
       children = [];
     }
 
+    // //  compute the flex for the columns
+    // var columnWidths = <int, TableColumnWidth>{};
+    // for (var i = 0; i < maxCols; i++) {
+    //   columnWidths[i] = IntrinsicColumnWidth();
+    // }
+    // columnWidths[maxCols] = IntrinsicColumnWidth();//FlexColumnWidth();
+
     _table = Table(
       defaultColumnWidth: IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
+      // columnWidths: columnWidths,
     );
     return _table;
   }

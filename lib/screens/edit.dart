@@ -62,6 +62,8 @@ const Color _lyricsEditAreaBackgroundColor = Color(0xFFFFFFFF); //  var c = Colo
 final Section _defaultSection = Section.get(SectionEnum.chorus);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
+_LyricsTextField? _selectedLyricsTextField;
+
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
   _AppContainedButton(
@@ -230,8 +232,8 @@ class _Edit extends State<Edit> {
             //     logger.i('   missing endOfRow: $loc');
             //
             //     MeasureNode? mn = _song.findMeasureNodeByGrid(GridCoordinate(r, c));
-            //     logger.i('   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toString()}');
-            //     Measure? m = _song.findMeasureByChordSectionLocation(loc);
+            //     logger.i('   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toS:q
+
             //     if (m != null //&& m.endOfRow != true
             //     ) {
             //       logger.i('   missing endOfRow: $loc: ${m.getMeasureNodeType()} $m');
@@ -515,12 +517,11 @@ class _Edit extends State<Edit> {
     }
 
     //  push the lyrics into the song if they have changed
-    if (_lyricsAreDirty)
-    {
+    if (_lyricsAreDirty) {
       String s = _songLyricsEntry();
       if (_lyricsAreDirty || s.compareTo(_song.rawLyrics) != 0) {
         //  a change of lyrics that can be undone.
-        logger.i('new lyrics: <$s>\n');
+        logger.v('new lyrics: <$s>\n');
         _song.setRawLyrics(s);
         _undoStackPush();
         _lyricsEntries = _LyricsEntries._fromSong(_song);
@@ -1169,8 +1170,9 @@ class _Edit extends State<Edit> {
         }
 
         if (i < lineCount) {
-          var textField = _LyricsTextField(
-            entry.lyricSection,
+          var lyricsTextField = _LyricsTextField(
+            entry,
+            i,
             controller: TextEditingController(text: entry.lines[i]),
             style: _chordBoldTextStyle,
             decoration: InputDecoration(
@@ -1185,7 +1187,7 @@ class _Edit extends State<Edit> {
               }
             },
           );
-          _lyricsTextFields.add(textField);
+          _lyricsTextFields.add(lyricsTextField);
 
           children.add(Row(
             children: [
@@ -1233,7 +1235,7 @@ class _Edit extends State<Edit> {
               ),
               Spacer(),
               Expanded(
-                child: textField.textField,
+                child: lyricsTextField.textField,
                 flex: 30,
               ),
               Spacer(),
@@ -1260,9 +1262,7 @@ class _Edit extends State<Edit> {
         } else if (i == 0 && lineCount == 0) {
           //  placeholder for lyric sections without lyrics
           _lyricsTextFields.add(
-            _LyricsTextField(
-              entry.lyricSection,
-            ),
+            _LyricsTextField(entry, i),
           );
 
           children.add(
@@ -1354,9 +1354,9 @@ class _Edit extends State<Edit> {
     StringBuffer sb = StringBuffer();
     LyricSection? lastLyricSection;
     for (var lf in _lyricsTextFields) {
-      if (!identical(lf.lyricSection, lastLyricSection)) {
-        lastLyricSection = lf.lyricSection;
-        sb.writeln('${lf.lyricSection.sectionVersion}');
+      if (!identical(lf.entry.lyricSection, lastLyricSection)) {
+        lastLyricSection = lf.entry.lyricSection;
+        sb.writeln('${lf.entry.lyricSection.sectionVersion}');
       }
       if (lf.controller != null) {
         sb.writeln('${lf.controller.text}');
@@ -1489,8 +1489,29 @@ class _Edit extends State<Edit> {
       } else if (e.isKeyPressed(LogicalKeyboardKey.backspace) &&
               _selectedEditDataPoint == null //  fixme: bad test for lyrics editing!
           ) {
-        logger.i('backspace: <${_editTextController.text}>  ${_editTextFieldFocusNode?.debugLabel}');
-      } else if (e.isKeyPressed(LogicalKeyboardKey.space) && _selectedEditDataPoint != null ) {
+        BuildContext? context = _editTextFieldFocusNode?.context;
+        var w = context?.widget;
+
+        logger.i('backspace: _selectedLyricsTextField: $_selectedLyricsTextField' );
+        if (w != null) {
+          var editableText = w as EditableText;
+          logger.i('backspace: '
+              'editableText: $editableText');
+          var controller = editableText.controller;
+          logger.i('backspace:'
+              ' controller: $controller');
+          logger.i('backspace:'
+              ' text: ${controller.text}'
+              ', baseOffset: ${controller.selection.baseOffset}'
+              ', extentOffset: ${controller.selection.extentOffset}');
+          // logger.i('backspace: <${_editTextController.text}>'
+          //     ' context: ${_editTextFieldFocusNode?.context.toString()}'
+          //     ' w: $w'
+          //   // ', enclosingScope: ${_editTextFieldFocusNode?.enclosingScope}'
+          //     // ', toStringShort: ${_editTextFieldFocusNode?.toStringShort()}'
+          // );
+        }
+      } else if (e.isKeyPressed(LogicalKeyboardKey.space) && _selectedEditDataPoint != null) {
         logger.d('main onkey: space: "${_editTextController.text}", ${_editTextController.selection}');
         int extentOffset = _editTextController.selection.extentOffset;
 
@@ -2758,7 +2779,8 @@ class _Edit extends State<Edit> {
 
 class _LyricsTextField {
   _LyricsTextField(
-    this.lyricSection, {
+    this.entry,
+    this.line, {
     controller,
     style,
     decoration,
@@ -2774,11 +2796,21 @@ class _LyricsTextField {
           onSubmitted: onSubmitted,
           onEditingComplete: onEditingComplete,
           onChanged: onChanged,
+          onTap: () {
+            logger.i('onTap(): ${this.toString()}  /// temp only!!!!!');
+            _selectedLyricsTextField = this;
+          },
           maxLines: null);
     }
   }
 
-  final LyricSection lyricSection;
+  @override
+  String toString() {
+    return '_LyricsTextField{entry: $entry, line: $line, _textField: \'${_textField?.controller?.text}\'';
+  }
+
+  final _LyricsDataEntry entry;
+  final int line;
 
   get controller => _textField?.controller;
 
@@ -2836,7 +2868,7 @@ class _LyricsEntries {
 
   _LyricsEntries._fromSong(Song song) {
     for (var lyricSection in song.lyricSections) {
-      _entries.add(_LyricsDataEntry.fromSong(_entries.length, lyricSection));
+      _entries.add(_LyricsDataEntry.fromSong(lyricSection));
     }
     logger.v('_asLyricsEntry():\n<${_asLyricsEntry()}>');
   }
@@ -2889,12 +2921,12 @@ class _LyricsEntries {
   //   }
   // }
 
-  void _moveLyricLine(LyricSection section, int line, {bool isUp = false}) {
-    logger.d('_LyricsEntries._moveLyricLine( $section, line: $line, isUp: $isUp )');
+  void _moveLyricLine(LyricSection lyricSection, int line, {bool isUp = false}) {
+    logger.d('_LyricsEntries._moveLyricLine( $lyricSection, line: $line, isUp: $isUp )');
     if (_entries.length <= 1) {
       return;
     }
-    var chordSectionNumber = section.index;
+    var chordSectionNumber = lyricSection.index;
     if (isUp) {
       //  up
       if (chordSectionNumber <= 0) {
@@ -2952,7 +2984,7 @@ class _LyricsEntries {
 }
 
 class _LyricsDataEntry {
-  _LyricsDataEntry.fromSong(this.index, this.lyricSection) {
+  _LyricsDataEntry.fromSong(this.lyricSection) {
     if (lyricSection.lyricsLines.isNotEmpty && lyricSection.lyricsLines.first.isNotEmpty) {
       lines = List.from(lyricSection.lyricsLines);
 
@@ -2976,10 +3008,9 @@ class _LyricsDataEntry {
 
   @override
   String toString() {
-    return '{ $index: $lyricSection, lines: <${lines.length}> }';
+    return '{ $lyricSection: lines: ${lines.length} }';
   }
 
-  final int index;
   final LyricSection lyricSection;
   int? initialGridRowIndex;
   List<String> lines = [];

@@ -11,6 +11,7 @@ import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -95,7 +96,9 @@ class _Player extends State<Player> {
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
     if (_table == null) {
-      _table = _lyricsTable.lyricsTable(song, key: _displaySongKey);
+      _table = _lyricsTable.lyricsTable(song,
+          key: _displaySongKey,
+          requestedFontSize: screenInfo.widthInLogicalPixels / (screenInfo.isTooNarrow ? 20 : 30));
       _rowLocations = _lyricsTable.rowLocations;
       _screenOffset = _lyricsTable.screenHeight / 2;
     }

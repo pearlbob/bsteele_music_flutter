@@ -61,7 +61,6 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 
 const double defaultFontSize = 14.0; //  borrowed from Text widget
 
-
 //  parameters to be evaluated before use
 ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
 bool isEditReady = false;
@@ -82,6 +81,13 @@ SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 Song _selectedSong = Song.createEmptySong();
 
 final Color _primaryColor = Color(0xFF4FC3F7);
+
+enum _SortType {
+  byTitle,
+  byArtist,
+  byLastModification,
+  byComplexity,
+}
 
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
@@ -140,13 +146,15 @@ class _MyHomePageState extends State<MyHomePage> {
     _appOptionsInit();
     _readExternalSongList();
 
-    //  figure the configuration when the values are established
-    isEditReady = kIsWeb
-        //  if is web, Platform doesn't exist!  not evaluated here in the expression
-        ||
-        Platform.isLinux ||
-        Platform.isMacOS ||
-        Platform.isWindows;
+    //  generate the sort selection
+    for (var e in _SortType.values) {
+      var s = e.toString();
+      //print('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
+      _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
+        value: e,
+        child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))),
+      ));
+    }
   }
 
   /// initialize async options read from shared preferences
@@ -248,6 +256,16 @@ class _MyHomePageState extends State<MyHomePage> {
     bool oddEven = true;
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
+
+    //  figure the configuration when the values are established
+    isEditReady = ((kIsWeb && !screenInfo.isTooNarrow)
+            //  if is web, Platform doesn't exist!  not evaluated here in the expression
+            ||
+            Platform.isLinux ||
+            Platform.isMacOS ||
+            Platform.isWindows) &&
+        !screenInfo.isTooNarrow;
+    logger.v('isEditReady: $isEditReady');
 
     isScreenBig = isEditReady || !screenInfo.isTooNarrow;
     isPhone = !isScreenBig;
@@ -476,43 +494,58 @@ class _MyHomePageState extends State<MyHomePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Row(children: <Widget>[
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 4.0),
-                  width: min(mediaWidth / 2, 20 * fontSize),
-                  //  limit text entry display length
-                  child: TextField(
-                    controller: _searchTextFieldController,
-                    focusNode: _searchFocusNode,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.search),
-                      hintText: "Enter search filter string here.",
-                    ),
-                    autofocus: true,
-                    style: TextStyle(fontSize: fontSize),
-                    onChanged: (text) {
-                      setState(() {
-                        logger.v('search text: "$text"');
-                        _searchSongs(_searchTextFieldController.text);
-                      });
-                    },
+            Flex(direction: Axis.horizontal, children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                width: min(mediaWidth / 2, 20 * fontSize),
+                //  limit text entry display length
+                child: TextField(
+                  controller: _searchTextFieldController,
+                  focusNode: _searchFocusNode,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    hintText: "Enter search filter string here.",
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.clear),
-                  tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                  onPressed: (() {
-                    _searchTextFieldController.clear();
+                  autofocus: true,
+                  style: TextStyle(fontSize: fontSize),
+                  onChanged: (text) {
                     setState(() {
-                      FocusScope.of(context).requestFocus(_searchFocusNode);
-                      _searchSongs(null);
+                      logger.v('search text: "$text"');
+                      _searchSongs(_searchTextFieldController.text);
                     });
-                  }),
+                  },
                 ),
-              ]),
-            ),
+              ),
+              IconButton(
+                icon: Icon(Icons.clear),
+                tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                onPressed: (() {
+                  _searchTextFieldController.clear();
+                  setState(() {
+                    FocusScope.of(context).requestFocus(_searchFocusNode);
+                    _searchSongs(null);
+                  });
+                }),
+              ),
+              DropdownButton<_SortType>(
+                items: _sortTypesDropDownMenuList,
+                onChanged: (value) {
+                  if (_selectedSortType != value) {
+                    setState(() {
+                      _selectedSortType = value ?? _SortType.byTitle;
+                      _searchSongs(_searchTextFieldController.text);
+                    });
+                  }
+                },
+                value: _selectedSortType,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: Colors.black87,
+                  textBaseline: TextBaseline.ideographic,
+                ),
+              ),
+            ]),
+
             // Spacer(),
             // if (_appOptions.holiday)
             //   RaisedButton(
@@ -629,8 +662,46 @@ class _MyHomePageState extends State<MyHomePage> {
 //        allSongsFiltered.add(allSongsFilteredList[i]);
 //    }
 
+    // select order
+    var compare;
+    switch (_selectedSortType) {
+      case _SortType.byArtist:
+        compare = (Song song1, Song song2) {
+          var ret = song1.artist.compareTo(song2.artist);
+          if (ret != 0) {
+            return ret;
+          }
+          return song1.compareTo(song2);
+        };
+        break;
+      case _SortType.byLastModification:
+        compare = (Song song1, Song song2) {
+          var ret = -song1.lastModifiedTime.compareTo(song2.lastModifiedTime);
+          if (ret != 0) {
+            return ret;
+          }
+          return song1.compareTo(song2);
+        };
+        break;
+      case _SortType.byComplexity:
+        compare = (Song song1, Song song2) {
+          var ret = song1.getComplexity().compareTo(song2.getComplexity());
+          if (ret != 0) {
+            return ret;
+          }
+          return song1.compareTo(song2);
+        };
+        break;
+      case _SortType.byTitle:
+      default:
+        compare = (Song song1, Song song2) {
+          return song1.compareTo(song2);
+        };
+        break;
+    }
+
     //  apply search filter
-    _filteredSongs = SplayTreeSet();
+    _filteredSongs = SplayTreeSet(compare);
     for (final Song song in _allSongs) {
       if (search.length == 0 ||
           song.getTitle().toLowerCase().contains(search) ||
@@ -675,7 +746,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
         _itemScrollController.jumpTo(index: _rollIndex);
       }
-    } else if (_filteredSongs.isNotEmpty) {
+    } else if (_filteredSongs.isNotEmpty && _selectedSortType == _SortType.byTitle) {
       _rollUnfilteredSongs();
     }
   }
@@ -774,7 +845,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
   }
 
-  List<DropdownMenuItem<SongIdMetadata>> metadataDropDownMenuList = [];
+  List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
+  var _selectedSortType = _SortType.byTitle;
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   FocusNode _searchFocusNode;

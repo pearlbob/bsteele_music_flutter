@@ -11,7 +11,8 @@ class ScreenInfo {
     _isTooNarrow = _widthInLogicalPixels < minLogicalPixels; //  logical pixels
     _titleScaleFactor = max(1, _widthInLogicalPixels / (1.25 * minLogicalPixels));
     _artistScaleFactor = 0.75 * _titleScaleFactor;
-    logger.v('ScreenInfo: narrow: $_isTooNarrow, title: $_titleScaleFactor');
+    logger.v('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
+        ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
   }
 
   ScreenInfo.defaultValue()

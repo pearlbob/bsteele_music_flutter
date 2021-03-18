@@ -49,8 +49,8 @@ class LyricsTable {
     List<Widget> children = [];
     Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
-    bool showChords = isScreenBig || _appOptions.playerDisplay;
-    bool showFullLyrics = true; //fixme: too rash for a phone?  isScreenBig || !_appOptions.playerDisplay;
+    bool showChords = _appOptions.playerDisplay;
+    bool showFullLyrics = true; //isScreenBig || !_appOptions.playerDisplay;
 
     //  compute transposition offset from base key
     int tranOffset = displaySongKey.getHalfStep() - song.getKey().getHalfStep();
@@ -90,7 +90,9 @@ class LyricsTable {
           firstSongMoment = sm;
           break;
         }
-      if (firstSongMoment == null) continue;
+      if (firstSongMoment == null) {
+        continue;
+      }
 
       GlobalKey? _rowKey = GlobalObjectKey(row);
       _rowLocations[r] = RowLocation(firstSongMoment, r, _rowKey);
@@ -118,6 +120,7 @@ class LyricsTable {
       lastChordSection = chordSection;
       lastSectionCount = sectionCount;
 
+      //  collect lyrics and show chords if asked
       String? momentLocation;
       String rowLyrics = '';
       for (int c = 0; c < row.length; c++) {
@@ -144,19 +147,23 @@ class LyricsTable {
         } else {
           //  moment found
           rowLyrics += ' ' + (sm.lyrics ?? '');
-          children.add(Container(
-              key: _rowKey,
-              margin: marginInsets,
-              padding: textPadding,
-              color: color,
-              child: Text(
-                sm.getMeasure().transpose(displaySongKey, tranOffset),
-                style: _chordTextStyle,
-              )));
+          if (showChords) {
+            children.add(Container(
+                key: _rowKey,
+                margin: marginInsets,
+                padding: textPadding,
+                color: color,
+                child: Text(
+                  sm.getMeasure().transpose(displaySongKey, tranOffset),
+                  style: _chordTextStyle,
+                )));
+          }
           _rowKey = null;
 
           //  use the first non-null location for the table value key
-          if (momentLocation == null) momentLocation = sm.momentNumber.toString();
+          if (momentLocation == null) {
+            momentLocation = sm.momentNumber.toString();
+          }
         }
 
         //  section and lyrics only if on a cell phone
@@ -172,37 +179,35 @@ class LyricsTable {
         }
       }
 
-      if (momentLocation != null || !isScreenBig) {
-        if (showFullLyrics) {
-          //  lyrics
-          children.add(Container(
-              margin: marginInsets,
-              padding: textPadding,
-              color: color,
-              child: textWidget(
-                  lyricSection,
-                  0, //  fixme: offset of lyrics lines within lyrics section
-                  rowLyrics.trimLeft())));
+      if (showFullLyrics) {
+        //  lyrics
+        children.add(Container(
+            margin: marginInsets,
+            padding: textPadding,
+            color: color,
+            child: textWidget(
+                lyricSection,
+                0, //  fixme: offset of lyrics lines within lyrics section
+                rowLyrics.trimLeft())));
 
-          //  add row to table
-          rows.add(TableRow(
-              //key: ValueKey(r),
-              children: children));
-        } else {
-          //  short lyrics
-          children.add(Container(
-              margin: marginInsets,
-              padding: EdgeInsets.all(2),
-              color: color,
-              child: Text(
-                (firstSongMoment.lyrics ?? ''),
-                style: _lyricsTextStyle,
-                overflow: TextOverflow.ellipsis,
-              )));
+        //  add row to table
+        rows.add(TableRow(
+            //key: ValueKey(r),
+            children: children));
+      } else {
+        //  short lyrics
+        children.add(Container(
+            margin: marginInsets,
+            padding: EdgeInsets.all(2),
+            color: color,
+            child: Text(
+              (firstSongMoment.lyrics ?? ''),
+              style: _lyricsTextStyle,
+              overflow: TextOverflow.ellipsis,
+            )));
 
-          //  add row to table
-          rows.add(TableRow(key: ValueKey(r), children: children));
-        }
+        //  add row to table
+        rows.add(TableRow(key: ValueKey(r), children: children));
       }
 
       //  get ready for the next row by clearing the row data
@@ -250,7 +255,7 @@ class LyricsTable {
     _lyricsFontSize = fontSize * 0.75;
 
     fontScale = fontSize / defaultFontSize;
-    logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'
+    logger.v('lyricsTable: ($_screenWidth,$_screenHeight),'
         ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $fontScale');
 
     _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);

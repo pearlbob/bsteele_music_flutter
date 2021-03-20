@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:websocket/websocket.dart';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -31,6 +32,8 @@ import 'util/openLink.dart';
 
 void main() {
   Logger.level = Level.info;
+
+  _webSocketOpen();
 
   runApp(MyApp());
 }
@@ -257,8 +260,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
+    var _titleBarFontSize = defaultFontSize * min(3, max(1, screenInfo.widthInLogicalPixels /350));
+
     //  figure the configuration when the values are established
-    isEditReady = ((kIsWeb && !screenInfo.isTooNarrow)
+    isEditReady = (kIsWeb
             //  if is web, Platform doesn't exist!  not evaluated here in the expression
             ||
             Platform.isLinux ||
@@ -388,7 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(
           widget.title,
-          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
           Tooltip(
@@ -869,5 +874,24 @@ Future<String> fetchString(String uriString) async {
   } else {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $uriString');
+  }
+}
+
+void _webSocketOpen() async {
+  try {
+    var url = 'ws://192.168.0.200:8080/bsteeleMusicApp/bsteeleMusic'; //  fixme
+    if (kIsWeb) {
+      logger.i('kIsWeb');
+    }
+    WebSocket _webSocket = await WebSocket.connect(url);
+    var stream = _webSocket.stream;
+
+    await for (var value in stream) {
+      var s = value.toString();
+
+      logger.i('message: $s');
+    }
+  } catch (e) {
+    logger.w('websocket exception: $e');
   }
 }

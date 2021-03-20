@@ -9,7 +9,7 @@ class ScreenInfo {
         _heightInLogicalPixels = MediaQuery.of(context).size.height,
         _isDefaultValue = false {
     _isTooNarrow = _widthInLogicalPixels < minLogicalPixels; //  logical pixels
-    _titleScaleFactor = max(1, _widthInLogicalPixels / (1.25 * minLogicalPixels));
+    _titleScaleFactor = max(1, _widthInLogicalPixels / (1.5 * minLogicalPixels));
     _artistScaleFactor = 0.75 * _titleScaleFactor;
     logger.v('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');

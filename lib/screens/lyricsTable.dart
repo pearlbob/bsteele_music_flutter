@@ -28,12 +28,11 @@ class LyricsTable {
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
-    double? requestedFontSize,
   }) {
     displaySongKey = key ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
 
-    computeScreenSizes(requestedFontSize: requestedFontSize);
+    computeScreenSizes();
 
     //  build the table from the song moment grid
     Grid<SongMoment> grid = song.songMomentGrid;
@@ -248,10 +247,10 @@ class LyricsTable {
   }
 
   /// compute screen size values used here and on other screens
-  void computeScreenSizes({double? requestedFontSize}) {
+  void computeScreenSizes() {
     _screenWidth = screenInfo.widthInLogicalPixels;
     _screenHeight = screenInfo.heightInLogicalPixels;
-    _fontSize = requestedFontSize ?? (isPhone ? defaultFontSize : defaultFontSize * min(5, max(1, _screenWidth / 650)));
+    _fontSize = defaultFontSize * min(4, max(1, _screenWidth /350));
     _lyricsFontSize = fontSize * 0.75;
 
     fontScale = fontSize / defaultFontSize;

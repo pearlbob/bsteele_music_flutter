@@ -64,6 +64,8 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 _LyricsTextField? _selectedLyricsTextField;
 
+//  fixme: space in title entry jumps to lyrics Section
+
 /// helper class to manage a RaisedButton
 class _AppContainedButton extends RaisedButton {
   _AppContainedButton(
@@ -115,6 +117,12 @@ class _Edit extends State<Edit> {
   _Edit(Song initialSong)
       : _song = initialSong.copySong(),
         _originalSong = initialSong.copySong() {
+    //  stuff the repeat Drop Down Menu List
+    for (var i = 2; i <= 4; i++) {
+      DropdownMenuItem<int> item = DropdownMenuItem(key: ValueKey('repeatX$i'), value: i, child: Text('x$i'));
+      _repeatDropDownMenuList.add(item);
+    }
+
     //  _checkSongStatus();
     _undoStackPush();
   }
@@ -1492,7 +1500,7 @@ class _Edit extends State<Edit> {
         BuildContext? context = _editTextFieldFocusNode?.context;
         var w = context?.widget;
 
-        logger.i('backspace: _selectedLyricsTextField: $_selectedLyricsTextField' );
+        logger.i('backspace: _selectedLyricsTextField: $_selectedLyricsTextField');
         if (w != null) {
           var editableText = w as EditableText;
           logger.i('backspace: '
@@ -1970,6 +1978,25 @@ class _Edit extends State<Edit> {
                         style: _textStyle,
                       ),
                     ),
+                    if (_measureEntryValid)
+                      _editTooltip(
+                        'Add a repeat for this row',
+                        DropdownButton<int>(
+                          hint: Text(
+                            "repeats",
+                          ),
+                          items: _repeatDropDownMenuList,
+                          onChanged: (_value) {
+                            setState(() {
+                              logger.i('repeat at: ${editDataPoint.location}');
+                              _song.setRepeat(editDataPoint.location!, _value ?? 1);
+                              _undoStackPush();
+                              _performMeasureEntryCancel();
+                            });
+                          },
+                          style: _textStyle,
+                        ),
+                      ),
                   ],
                 ),
                 Row(
@@ -2145,9 +2172,9 @@ class _Edit extends State<Edit> {
                                 color: Colors.black,
                               ),
                               onTap: () {
-                                throw 'fix repeat delete';
-                                // _deleteMeasure();
-                                // _clearChordEditing();
+                                _song.setRepeat(editDataPoint.location!, 1);
+                                _undoStackPush();
+                                _performMeasureEntryCancel();
                               },
                             ),
                           ),
@@ -2677,6 +2704,7 @@ class _Edit extends State<Edit> {
     logger.v('_clearMeasureEntry()');
     _editTextField = null;
     _selectedEditDataPoint = null;
+    _selectedLyricsTextField = null;
     _measureEntryIsClear = true;
     _measureEntryCorrection = null;
     _measureEntryValid = false;
@@ -2769,6 +2797,8 @@ class _Edit extends State<Edit> {
   ScaleNote _keyChordNote = songs.Key.getDefault().getKeyScaleNote();
 
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList = [];
+
+  final List<DropdownMenuItem<int>> _repeatDropDownMenuList = [];
 
   List<ChangeNotifier> _disposeList = []; //  fixme: workaround to dispose the text controllers
 

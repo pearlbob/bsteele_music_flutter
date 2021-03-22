@@ -14,6 +14,7 @@ import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
@@ -21,6 +22,7 @@ import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
+import 'package:bsteele_music_flutter/appOptions.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -63,6 +65,8 @@ final Section _defaultSection = Section.get(SectionEnum.chorus);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 _LyricsTextField? _selectedLyricsTextField;
+
+List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 //  fixme: space in title entry jumps to lyrics Section
 
@@ -132,6 +136,9 @@ class _Edit extends State<Edit> {
     super.initState();
 
     _editTextFieldFocusNode = FocusNode();
+    _editTextFieldFocusNode?.addListener(() {
+      logger.i('focusNode.listener()');
+    });
 
     _key = _song.key;
     _keyChordNote = _key.getKeyScaleNote(); //  initial value
@@ -170,6 +177,59 @@ class _Edit extends State<Edit> {
 
       logger.d('chordTextController: "${_editTextController.text}"');
     });
+
+    //  known text updates
+    _titleTextEditingController.text = _song.title;
+    _titleTextEditingController.addListener(() {
+      _song.title = _titleTextEditingController.text;
+      _checkSongStatus();
+    });
+    _artistTextEditingController.text = _song.artist;
+    _artistTextEditingController.addListener(() {
+      _song.artist = _artistTextEditingController.text;
+      _checkSongStatus();
+    });
+    _coverArtistTextEditingController.text = _song.coverArtist;
+    _coverArtistTextEditingController.addListener(() {
+      _song.coverArtist = _coverArtistTextEditingController.text;
+      _checkSongStatus();
+    });
+    _copyrightTextEditingController.text = _song.copyright;
+    _copyrightTextEditingController.addListener(() {
+      _song.copyright = _copyrightTextEditingController.text;
+      _checkSongStatus();
+    });
+    _userTextEditingController.text = _appOptions.user;
+    _userTextEditingController.addListener(() {
+      _song.user = _userTextEditingController.text;
+      if (_userTextEditingController.text.isNotEmpty) {
+        _appOptions.user = _userTextEditingController.text;
+      }
+      _checkSongStatus();
+    });
+
+    _bpmTextEditingController.text = _song.getBeatsPerMinute().toString();
+    _bpmTextEditingController.addListener(() {
+      try {
+        var bpm = int.parse(_bpmTextEditingController.text);
+        if (bpm < MusicConstants.minBpm || bpm > MusicConstants.maxBpm) {
+          _errorMessage('BPM needs to be a number '
+              'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: $bpm');
+        } else {
+          _clearErrorMessage();
+          _song.setDefaultBpm(bpm);
+          _checkSongStatus();
+        }
+      } catch (e) {
+        _errorMessage('caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}');
+      }
+    });
+
+    //  generate time signature drop down items
+    _timeSignatureItems.clear();
+    for (var timeSignature in knownTimeSignatures) {
+      _timeSignatureItems.add(DropdownMenuItem(value: timeSignature, child: Text(timeSignature.toString())));
+    }
   }
 
   @override
@@ -546,7 +606,7 @@ class _Edit extends State<Edit> {
             //  note that return (i.e. enter) is not a keyboard event!
             RawKeyboardListener(
           focusNode: FocusNode(),
-          onKey: _mainOnKey,
+          onKey: _editOnKey,
           child: GestureDetector(
             // fixme: put GestureDetector only on chord table
             child: SingleChildScrollView(
@@ -575,7 +635,7 @@ class _Edit extends State<Edit> {
                             _isDirty ? 'Enter song' : 'Nothing has changed',
                             color: _isDirty ? null : _disabledColor,
                             onPressed: () {
-                              //  fixme enter song
+                              logger.i(' fixme enter song: ${_song.toJson()}'); //  fixme enter song
                             },
                           ),
                           Container(
@@ -641,16 +701,12 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(text: _song.title),
+                              controller: _titleTextEditingController,
                               decoration: InputDecoration(
                                 hintText: 'Enter the song title.',
                               ),
                               maxLength: null,
                               style: TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
-                              onSubmitted: (value) {
-                                _song.setTitle(value);
-                                _checkSongStatus();
-                              },
                             ),
                           ),
                         ]),
@@ -667,7 +723,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(text: _song.artist),
+                              controller: _artistTextEditingController,
                               decoration: InputDecoration(hintText: 'Enter the song\'s artist.'),
                               maxLength: null,
                               style: _boldTextStyle,
@@ -687,7 +743,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(text: _song.coverArtist),
+                              controller: _coverArtistTextEditingController,
                               decoration: InputDecoration(hintText: 'Enter the song\'s cover artist.'),
                               maxLength: null,
                               style: _boldTextStyle,
@@ -707,7 +763,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(text: _song.copyright),
+                              controller: _copyrightTextEditingController,
                               decoration: InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
                               maxLength: null,
                               style: _boldTextStyle,
@@ -739,12 +795,14 @@ class _Edit extends State<Edit> {
                               );
                             }).toList(),
                             onChanged: (_value) {
-                              setState(() {
-                                if (_value != null) {
-                                  _key = _value;
-                                  _keyChordNote = _key.getKeyScaleNote();
+                              if (_value != null && _song.key != _key) {
+                                _song.key = _key;
+                                _key = _value;
+                                _keyChordNote = _key.getKeyScaleNote();
+                                if (!_checkSongStatus()) {
+                                  setState(() {}); //  display the return to original
                                 }
-                              });
+                              }
                             },
                             value: _key,
                             style: TextStyle(
@@ -764,10 +822,13 @@ class _Edit extends State<Edit> {
                         Container(
                           width: 80.0,
                           child: TextField(
-                            controller: TextEditingController(text: _song.getBeatsPerMinute().toString()),
+                            controller: _bpmTextEditingController,
                             decoration: InputDecoration(hintText: 'Enter the song\'s beats per minute.'),
                             maxLength: null,
                             style: _boldTextStyle,
+                            onEditingComplete: () {
+                              logger.i('bpm: onEditingComplete: ${_bpmTextEditingController.text}');
+                            },
                           ),
                         ),
                         Container(
@@ -777,25 +838,38 @@ class _Edit extends State<Edit> {
                             style: _labelTextStyle,
                           ),
                         ),
-                        Container(
-                          padding: EdgeInsets.only(bottom: 24.0),
-                          child: Text(
-                            "${_song.beatsPerBar}/${_song.unitsPerMeasure}",
-                            style: _boldTextStyle,
-                          ),
+                        DropdownButton<TimeSignature>(
+                          items: _timeSignatureItems,
+                          onChanged: (_value) {
+                            if (_value != null && _song.timeSignature != _value) {
+                              _song.timeSignature = _value;
+                              if (!_checkSongStatus()) {
+                                setState(() {}); //  display the return to original
+                              }
+                            }
+                          },
+                          value: _song.timeSignature,
+                          style: TextStyle(
+                              //  size controlled by textScaleFactor above
+                              color: Colors.black87,
+                              textBaseline: TextBaseline.alphabetic,
+                              fontSize: _defaultFontSize,
+                              fontWeight: FontWeight.bold),
                         ),
                         Container(
                           padding: EdgeInsets.only(left: 24, bottom: 24.0),
                           child: Text(
                             "  User: ",
-                            style: _textStyle,
+                            style: _labelTextStyle,
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(bottom: 24.0),
-                          child: Text(
-                            _song.user.toString(),
-                            style: _textStyle,
+                          width: 250.0,
+                          child: TextField(
+                            controller: _userTextEditingController,
+                            decoration: InputDecoration(hintText: 'Enter your user name.'),
+                            maxLength: null,
+                            style: _boldTextStyle,
                           ),
                         ),
                       ],
@@ -1403,13 +1477,24 @@ class _Edit extends State<Edit> {
 
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
-  void _mainOnKey(RawKeyEvent value) {
+  void _editOnKey(RawKeyEvent value) {
+    if (!identical(_focusBuildContext, _focusManager.primaryFocus?.context)) {
+      if (_focusBuildContext != null) {
+        logger.i('did something change?');
+      }
+      _focusBuildContext = _focusManager.primaryFocus?.context;
+    }
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.i('main onkey: ${e.data.logicalKey}'
-          ', ctl: ${e.isControlPressed}'
-          ', shf: ${e.isShiftPressed}'
-          ', alt: ${e.isAltPressed}');
+      logger.i('edit onkey:'
+          //' ${e.data.logicalKey}'
+          //', primaryFocus: ${_focusManager.primaryFocus}'
+          ', context: ${_focusManager.primaryFocus?.context}'
+          // ', ctl: ${e.isControlPressed}'
+          // ', shf: ${e.isShiftPressed}'
+          // ', alt: ${e.isAltPressed}'
+          //
+          );
       if (e.isControlPressed) {
         logger.v('isControlPressed');
         if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
@@ -1494,9 +1579,7 @@ class _Edit extends State<Edit> {
               _editTextController.text.substring(0, loc) + _editTextController.text.substring(loc + 1);
           _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.backspace) &&
-              _selectedEditDataPoint == null //  fixme: bad test for lyrics editing!
-          ) {
+      } else if (e.isKeyPressed(LogicalKeyboardKey.backspace) && _selectedLyricsTextField != null) {
         BuildContext? context = _editTextFieldFocusNode?.context;
         var w = context?.widget;
 
@@ -2710,13 +2793,16 @@ class _Edit extends State<Edit> {
     _measureEntryValid = false;
   }
 
-  _checkSongStatus() {
+  /// returns true if the was a change of dirty status
+  bool _checkSongStatus() {
     bool isDirty = _song != _originalSong;
     if (isDirty != _isDirty) {
       setState(() {
         _isDirty = isDirty;
       });
+      return true;
     }
+    return false;
   }
 
   String _listSections() {
@@ -2782,6 +2868,13 @@ class _Edit extends State<Edit> {
 
   TextField? _editTextField;
 
+  TextEditingController _titleTextEditingController = TextEditingController();
+  TextEditingController _artistTextEditingController = TextEditingController();
+  TextEditingController _coverArtistTextEditingController = TextEditingController();
+  TextEditingController _copyrightTextEditingController = TextEditingController();
+  TextEditingController _bpmTextEditingController = TextEditingController();
+  TextEditingController _userTextEditingController = TextEditingController();
+
   TextEditingController _editTextController = TextEditingController();
   FocusNode? _editTextFieldFocusNode;
   TextSelection? _lastEditTextSelection;
@@ -2804,7 +2897,11 @@ class _Edit extends State<Edit> {
 
   UndoStack<Song> _undoStack = UndoStack();
 
+  FocusManager _focusManager = FocusManager.instance;
+  BuildContext? _focusBuildContext;
+
   static const tooltipColor = Color(0xFFE8F5E9);
+  static final _appOptions = AppOptions();
 }
 
 class _LyricsTextField {

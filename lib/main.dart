@@ -546,7 +546,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(
                   fontSize: fontSize,
                   color: Colors.black87,
-                  textBaseline: TextBaseline.ideographic,
+                  textBaseline: TextBaseline.alphabetic,
                 ),
               ),
             ]),

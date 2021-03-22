@@ -463,7 +463,7 @@ With escape, the app goes back to the play list.''',
                                       style: _lyricsTextStyle,
                                     ),
                                   Text(
-                                    "  Time: ${song.beatsPerBar}/${song.unitsPerMeasure}",
+                                    "  Time: ${song.timeSignature}",
                                     style: _lyricsTextStyle,
                                   ),
                                 ],

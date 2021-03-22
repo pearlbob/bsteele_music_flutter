@@ -24,6 +24,7 @@ class AppOptions {
     _playWithChords = await _readBool('playWithChords');
     _playWithBass = await _readBool('playWithBass');
     _holiday = await _readBool('holiday');
+    _user = await _readString('user');
 
     logger.i('readOptions: playerDisplay: $playerDisplay');
   }
@@ -185,15 +186,26 @@ class AppOptions {
     _saveBool('alwaysUseTheNewestSongOnRead', alwaysUseTheNewestSongOnRead);
   }
 
-  dynamic _readBool(final String key, {defaultValue: false}) async {
+  Future<bool> _readBool(final String key, {defaultValue: false}) async {
     final prefs = await SharedPreferences.getInstance();
-    bool value = prefs.getBool(key) ?? defaultValue;
+    var value = prefs.getBool(key) ?? defaultValue;
+    return value;
+  }
+
+  Future<String> _readString(final String key, {defaultValue: ''}) async {
+    final prefs = await SharedPreferences.getInstance();
+    var value = prefs.getString(key) ?? defaultValue;
     return value;
   }
 
   _saveBool(final String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+  }
+
+  _saveString(final String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
   }
 
   set playWithChords(bool playWithChords) {
@@ -242,4 +254,13 @@ class AppOptions {
 
   bool _debug = false;
   bool alwaysUseTheNewestSongOnRead = false;
+
+  set user(value) {
+    if (_user == value) return;
+
+    _user = value;
+    _saveString('user', value);
+  }
+  get user => _user;
+  String _user = '';
 }

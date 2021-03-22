@@ -1,4 +1,6 @@
 #!/bin/tcsh
+#set echo; set verbose
+
 set debug=0
 set isBeta=1
 set app=bsteeleMusicApp
@@ -47,7 +49,7 @@ cd $git
 flutter clean
 utcDate > lib/assets/utcDate.txt
 #flutter config --enable-web
-flutter build web #	--no-sound-null-safety
+flutter build web --no-sound-null-safety
 
 #flutter build appbundle
 #   aap: build/app/outputs/bundle/release/app-release.aab

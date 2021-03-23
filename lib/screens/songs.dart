@@ -47,7 +47,7 @@ class _Songs extends State<Songs> {
             direction: Axis.vertical, // make sure to set this
             spacing: 36,
             children: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 child: Text(
                   'Read files',
                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
@@ -56,7 +56,7 @@ class _Songs extends State<Songs> {
                   _filePick();
                 },
               ),
-                         RaisedButton(
+              ElevatedButton(
                 child: Text(
                   'Write songs all to $fileLocation',
                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),

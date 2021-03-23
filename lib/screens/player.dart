@@ -94,8 +94,9 @@ class _Player extends State<Player> {
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
     if (_table == null) {
-      _table = _lyricsTable.lyricsTable(song,
-          key: _displaySongKey,
+      _table = _lyricsTable.lyricsTable(
+        song,
+        key: _displaySongKey,
       );
       _rowLocations = _lyricsTable.rowLocations;
       _screenOffset = _lyricsTable.screenHeight / 2;
@@ -335,10 +336,11 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                      FlatButton(
-                                        padding: const EdgeInsets.all(8),
-                                        color: _lightBlue,
-                                        hoverColor: hoverColor,
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          primary: _lightBlue,
+                                          padding: const EdgeInsets.all(8),
+                                        ),
                                         child: Text(
                                           'Hints',
                                           style: _lyricsTextStyle,
@@ -374,10 +376,11 @@ With escape, the app goes back to the play list.''',
                                       ],
                                     ),
                                     if (isEditReady)
-                                      FlatButton.icon(
-                                        padding: const EdgeInsets.all(8),
-                                        color: _lightBlue,
-                                        hoverColor: hoverColor,
+                                      TextButton.icon(
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.all(8),
+                                          primary: _lightBlue,
+                                        ),
                                         icon: Icon(
                                           Icons.edit,
                                           size: _lyricsTable.fontSize,
@@ -396,9 +399,10 @@ With escape, the app goes back to the play list.''',
                                     padding: const EdgeInsets.only(left: 8, right: 24),
                                     child: _playTooltip(
                                       'Tip: use space bar to start playing',
-                                      FlatButton.icon(
-                                        color: _lightBlue,
-                                        hoverColor: hoverColor,
+                                      TextButton.icon(
+                                        style: TextButton.styleFrom(
+                                          primary: _lightBlue,
+                                        ),
                                         icon: Icon(
                                           _playStopIcon,
                                           size: _lyricsTable.fontSize,
@@ -740,12 +744,6 @@ With escape, the app goes back to the play list.''',
       context,
       MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
     );
-  }
-
-  void _setBpm(int bpm) {
-    bpmDropDownMenuList = null;
-    widget.song.setBeatsPerMinute(bpm);
-    setState(() {});
   }
 
   void _forceTableRedisplay() {

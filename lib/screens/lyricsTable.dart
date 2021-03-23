@@ -10,7 +10,6 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteele_music_flutter/gui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -193,21 +192,22 @@ class LyricsTable {
         rows.add(TableRow(
             //key: ValueKey(r),
             children: children));
-      } else {
-        //  short lyrics
-        children.add(Container(
-            margin: marginInsets,
-            padding: EdgeInsets.all(2),
-            color: color,
-            child: Text(
-              (firstSongMoment.lyrics ?? ''),
-              style: _lyricsTextStyle,
-              overflow: TextOverflow.ellipsis,
-            )));
-
-        //  add row to table
-        rows.add(TableRow(key: ValueKey(r), children: children));
       }
+      // else {
+      //   //  short lyrics
+      //   children.add(Container(
+      //       margin: marginInsets,
+      //       padding: EdgeInsets.all(2),
+      //       color: color,
+      //       child: Text(
+      //         (firstSongMoment.lyrics ?? ''),
+      //         style: _lyricsTextStyle,
+      //         overflow: TextOverflow.ellipsis,
+      //       )));
+      //
+      //   //  add row to table
+      //   rows.add(TableRow(key: ValueKey(r), children: children));
+      // }
 
       //  get ready for the next row by clearing the row data
       children = [];

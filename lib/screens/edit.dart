@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
-import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
@@ -14,17 +13,16 @@ import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
-import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
+import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/appOptions.dart';
 import 'package:bsteele_music_flutter/gui.dart';
-import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -57,7 +55,6 @@ const TextStyle _errorTextStyle = const TextStyle(fontSize: _defaultFontSize, co
 const double _entryWidth = 18 * _defaultChordFontSize;
 
 const Color _defaultColor = const Color(0xFFB3E5FC);
-const Color _hoverColor = const Color(0xFF4FC3F7);
 const Color _disabledColor = const Color(0xFFE0E0E0);
 const Color _chordEditAreaBackgroundColor = Color(0xFFFFFFFF); //var c = Colors.white;
 const Color _lyricsEditAreaBackgroundColor = Color(0xFFFFFFFF); //  var c = Colors.white;
@@ -70,22 +67,25 @@ List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 //  fixme: space in title entry jumps to lyrics Section
 
-/// helper class to manage a RaisedButton
-class _AppContainedButton extends RaisedButton {
+/// helper class to manage a ElevatedButton
+class _AppContainedButton extends ElevatedButton {
   _AppContainedButton(
     String text, {
     Color? color,
     VoidCallback? onPressed,
   }) : super(
-          shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
-          ),
-          color: color ?? _defaultColor,
-          textColor: Colors.black,
-          disabledTextColor: Colors.grey[400],
-          disabledColor: Colors.grey[200],
-          padding: const EdgeInsets.symmetric(horizontal: 2.0),
-          hoverColor: _hoverColor,
+          style: ElevatedButton.styleFrom(
+              primary: color ?? _defaultColor,
+              textStyle: TextStyle(
+                color: Colors.black,
+              )),
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
+          // ),
+          // disabledTextColor: Colors.grey[400],
+          // disabledColor: Colors.grey[200],
+          // padding: const EdgeInsets.symmetric(horizontal: 2.0),
+          // hoverColor: _hoverColor,
           child: Text(
             text,
             style: _buttonTextStyle,
@@ -94,21 +94,21 @@ class _AppContainedButton extends RaisedButton {
         );
 }
 
-/// helper class to manage an OutlineButton
-class _AppOutlineButton extends OutlineButton {
+/// helper class to manage an OutlinedButton
+class _AppOutlineButton extends OutlinedButton {
   _AppOutlineButton(
     String _text, {
     VoidCallback? onPressed,
   }) : super(
-          shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(12.0),
+          style: OutlinedButton.styleFrom(
+            primary: _defaultColor,
+            onSurface: Colors.grey[400],
+            textStyle: TextStyle(
+              color: Colors.black87,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            side: BorderSide(width: 1.66, color: Colors.black54),
           ),
-          color: _defaultColor,
-          textColor: Colors.black87,
-          hoverColor: _hoverColor,
-          disabledTextColor: Colors.grey[400],
-          borderSide: BorderSide(width: 1.66, color: Colors.black54),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           child: new Text(
             _text,
             style: _buttonTextStyle,
@@ -179,27 +179,22 @@ class _Edit extends State<Edit> {
     });
 
     //  known text updates
-    _titleTextEditingController.text = _song.title;
     _titleTextEditingController.addListener(() {
       _song.title = _titleTextEditingController.text;
       _checkSongStatus();
     });
-    _artistTextEditingController.text = _song.artist;
     _artistTextEditingController.addListener(() {
       _song.artist = _artistTextEditingController.text;
       _checkSongStatus();
     });
-    _coverArtistTextEditingController.text = _song.coverArtist;
     _coverArtistTextEditingController.addListener(() {
       _song.coverArtist = _coverArtistTextEditingController.text;
       _checkSongStatus();
     });
-    _copyrightTextEditingController.text = _song.copyright;
     _copyrightTextEditingController.addListener(() {
       _song.copyright = _copyrightTextEditingController.text;
       _checkSongStatus();
     });
-    _userTextEditingController.text = _appOptions.user;
     _userTextEditingController.addListener(() {
       _song.user = _userTextEditingController.text;
       if (_userTextEditingController.text.isNotEmpty) {
@@ -208,13 +203,12 @@ class _Edit extends State<Edit> {
       _checkSongStatus();
     });
 
-    _bpmTextEditingController.text = _song.getBeatsPerMinute().toString();
     _bpmTextEditingController.addListener(() {
       try {
         var bpm = int.parse(_bpmTextEditingController.text);
         if (bpm < MusicConstants.minBpm || bpm > MusicConstants.maxBpm) {
           _errorMessage('BPM needs to be a number '
-              'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: $bpm');
+              'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'');
         } else {
           _clearErrorMessage();
           _song.setDefaultBpm(bpm);
@@ -230,6 +224,21 @@ class _Edit extends State<Edit> {
     for (var timeSignature in knownTimeSignatures) {
       _timeSignatureItems.add(DropdownMenuItem(value: timeSignature, child: Text(timeSignature.toString())));
     }
+
+    _loadSong(_song);
+  }
+
+  void _loadSong(Song song) {
+    _song = song;
+
+    _titleTextEditingController.text = _song.title;
+    _artistTextEditingController.text = _song.artist;
+    _coverArtistTextEditingController.text = _song.coverArtist;
+    _copyrightTextEditingController.text = _song.copyright;
+    _userTextEditingController.text = _appOptions.user;
+    _bpmTextEditingController.text = _song.getBeatsPerMinute().toString();
+
+    _lyricsEntries = _LyricsEntries._fromSong(_song);
   }
 
   @override
@@ -647,14 +656,22 @@ class _Edit extends State<Edit> {
                               children: <Widget>[
                                 _AppContainedButton(
                                   'Clear',
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      _song = Song.createEmptySong();
+                                      _loadSong(_song);
+                                      _undoStackPushIfDifferent();
+                                    });
+                                  },
                                 ),
                                 _AppContainedButton(
                                   'Remove',
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    logger.i('fixme: Remove song'); // fixme
+                                  },
                                 ),
                                 Container(
-                                  child: FlatButton.icon(
+                                  child: TextButton.icon(
                                     icon: Icon(
                                       Icons.arrow_left,
                                       size: 48,
@@ -669,7 +686,7 @@ class _Edit extends State<Edit> {
                                   ),
                                 ),
                                 Container(
-                                  child: FlatButton.icon(
+                                  child: TextButton.icon(
                                     icon: Icon(
                                       Icons.arrow_right,
                                       size: 48,
@@ -1478,15 +1495,9 @@ class _Edit extends State<Edit> {
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void _editOnKey(RawKeyEvent value) {
-    if (!identical(_focusBuildContext, _focusManager.primaryFocus?.context)) {
-      if (_focusBuildContext != null) {
-        logger.i('did something change?');
-      }
-      _focusBuildContext = _focusManager.primaryFocus?.context;
-    }
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.i('edit onkey:'
+      logger.d('edit onkey:'
           //' ${e.data.logicalKey}'
           //', primaryFocus: ${_focusManager.primaryFocus}'
           ', context: ${_focusManager.primaryFocus?.context}'
@@ -2211,7 +2222,7 @@ class _Edit extends State<Edit> {
                     'x2',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 2);
-                      _undoStackPush();
+                      _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
                     color: color,
@@ -2220,7 +2231,7 @@ class _Edit extends State<Edit> {
                     'x3',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 3);
-                      _undoStackPush();
+                      _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
                     color: color,
@@ -2229,7 +2240,7 @@ class _Edit extends State<Edit> {
                     'x4',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 4);
-                      _undoStackPush();
+                      _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
                     color: color,
@@ -2898,7 +2909,6 @@ class _Edit extends State<Edit> {
   UndoStack<Song> _undoStack = UndoStack();
 
   FocusManager _focusManager = FocusManager.instance;
-  BuildContext? _focusBuildContext;
 
   static const tooltipColor = Color(0xFFE8F5E9);
   static final _appOptions = AppOptions();

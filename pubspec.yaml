@@ -1,5 +1,6 @@
 name: bsteele_music_flutter
 description: bsteele Music App in Flutter
+publish_to: none
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -26,7 +27,7 @@ dependencies:
   url_launcher: ^6.0.2
   intl: ^0.17.0
   path_provider: ^2.0.1
-  flutter_markdown: ^0.6.0
+  flutter_markdown: ^0.6.1
   scrollable_positioned_list: ^0.2.0-nullsafety.0
   websocket: ^0.0.5   #  not null safe!!!!!
 

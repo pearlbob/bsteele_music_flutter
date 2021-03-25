@@ -72,10 +72,16 @@ bool isPhone = false;
 final Song _emptySong = Song.createEmptySong();
 
 void addSong(Song song) {
-  logger.i('addSong( ${song.toString()} )');
+  logger.d('addSong( ${song.toString()} )');
   _allSongs.add(song);
   _filteredSongs = SplayTreeSet();
   _selectedSong = song;
+}
+
+void removeAllSongs() {
+  _allSongs = SplayTreeSet();
+  _filteredSongs = SplayTreeSet();
+  _selectedSong = Song.createEmptySong();
 }
 
 SplayTreeSet<Song> get allSongs => _allSongs;
@@ -150,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _readExternalSongList();
 
     //  generate the sort selection
-    for (var e in _SortType.values) {
+    for (final e in _SortType.values) {
       var s = e.toString();
       //print('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
       _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
@@ -260,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
-    var _titleBarFontSize = defaultFontSize * min(3, max(1, screenInfo.widthInLogicalPixels /350));
+    var _titleBarFontSize = defaultFontSize * min(3, max(1, screenInfo.widthInLogicalPixels / 350));
 
     //  figure the configuration when the values are established
     isEditReady = (kIsWeb
@@ -781,21 +787,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToSongs(BuildContext context) async {
-    if (_selectedSong.getTitle().isNotEmpty) {
-      Song lastSelectedSong = _selectedSong;
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Songs()),
-      );
-      Navigator.pop(context);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Songs()),
+    );
+    Navigator.pop(context);
 
-      setState(() {
-        //  jump the player screen if a song was read
-        if (lastSelectedSong != _selectedSong) {
-          _navigateToPlayer(context, _selectedSong);
-        }
-      });
-    }
+    setState(() {});
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
@@ -856,12 +854,12 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchTextFieldController = TextEditingController();
   FocusNode _searchFocusNode;
 
-  //ScrollController _scrollController =  ScrollController();
+//ScrollController _scrollController =  ScrollController();
   final ItemScrollController _itemScrollController = ItemScrollController();
   final Duration _itemScrollDuration = Duration(milliseconds: 500);
   int _rollIndex = -1;
 
-  //static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
+//static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final AppOptions _appOptions = AppOptions();
   final _random = Random();
 }
@@ -886,7 +884,7 @@ void _webSocketOpen() async {
     WebSocket _webSocket = await WebSocket.connect(url);
     var stream = _webSocket.stream;
 
-    await for (var value in stream) {
+    await for (final value in stream) {
       var s = value.toString();
 
       logger.i('message: $s');

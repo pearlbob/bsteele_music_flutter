@@ -1,4 +1,3 @@
-
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/main.dart';
@@ -53,7 +52,9 @@ class _Songs extends State<Songs> {
                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
-                  _filePick();
+                  setState(() {
+                    _filePick();
+                  });
                 },
               ),
               ElevatedButton(
@@ -65,8 +66,23 @@ class _Songs extends State<Songs> {
                   _writeAll();
                 },
               ),
+              ElevatedButton(
+                child: Text(
+                  'Remove all songs from the current list',
+                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  setState(() {
+                    removeAllSongs();
+                  });
+                },
+              ),
               Text(
                 _message ?? '',
+                style: TextStyle(fontSize: fontSize),
+              ),
+              Text(
+                'Song count: ${allSongs.length}',
                 style: TextStyle(fontSize: fontSize),
               ),
             ]),

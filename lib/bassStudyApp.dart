@@ -23,44 +23,17 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/status.dart' as web_socket_status;
 
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
-//CjRankingEnum _cjRanking;
-
 void main() {
   Logger.level = Level.info;
 
-  runApp(MyApp());
+  runApp(BassStudyApp());
 }
 
-/*
-websockets/server
-
-C's ipad: model ML0F2LL/A
-
-what is debugPrint
-
-remember keys songs were played in
-remember keys songs were played in for a singer
-remember songs played
-roll list start when returning to song list
-edit: paste from edit buffer
-fix key guess
-wider fade area on player
-edit: slash note pulldown
-
-
-linux notes:
-build release:
-% flutter build linux
-executable (without assets) is in ./build/linux/release/bundle/${project}
-
- */
-
+const _appTitle = 'bsteele Bass Study App';
 const double defaultFontSize = 14.0; //  borrowed from Text widget
 
 //  parameters to be evaluated before use
@@ -98,17 +71,17 @@ enum _SortType {
 }
 
 /// Display the list of songs to choose from.
-class MyApp extends StatelessWidget {
+class BassStudyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'bsteele Music App',
+      title: _appTitle,
       theme: ThemeData(
         primaryColor: _primaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: MyHomePage(title: 'bsteele Music App'),
+      home: BassStudyAppPage(title: _appTitle),
 
       // Start the app with the "/" named route. In this case, the app starts
       // on the FirstScreen widget.
@@ -129,8 +102,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title: 'unknown'}) : super(key: key);
+class BassStudyAppPage extends StatefulWidget {
+  BassStudyAppPage({Key? key, this.title: 'unknown'}) : super(key: key);
 
   // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -141,11 +114,11 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _BassStudyAppPageState createState() => _BassStudyAppPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState() : _searchFocusNode = FocusNode();
+class _BassStudyAppPageState extends State<BassStudyAppPage> {
+  _BassStudyAppPageState() : _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -163,9 +136,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))),
       ));
     }
-
-    _webSocketOpen();
-
   }
 
   /// initialize async options read from shared preferences
@@ -874,21 +844,5 @@ Future<String> fetchString(String uriString) async {
   } else {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $uriString');
-  }
-}
-
-void _webSocketOpen() async {
-  var url = 'ws://192.168.0.200:8080/bsteeleMusicApp/bsteeleMusic'; //  fixme
-  try {
-    var webSocketChannel = IOWebSocketChannel.connect(Uri.parse(url));
-    webSocketChannel.stream.listen((message) {
-      logger.i('received: $message');
-    }, onError: (Object error) {
-      logger.w('webSocketChannel error: $error');
-    }, onDone: () {
-      webSocketChannel.sink.close(web_socket_status.normalClosure);
-    });
-  } catch (e) {
-    logger.w('webSocketChannel Warning: ${e.toString()}');
   }
 }

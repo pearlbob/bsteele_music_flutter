@@ -4,14 +4,18 @@ import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+
+typedef void _LyricsEntriesCallback();
 
 /// used in the edit screen to manage the lyrics entry and its matching to the chord section sequence
-class LyricsEntries {
+class LyricsEntries extends ChangeNotifier {
   LyricsEntries();
 
   LyricsEntries.fromSong(Song song, {TextStyle? textStyle}) : _textStyle = textStyle {
     for (final lyricSection in song.lyricSections) {
-      _entries.add(LyricsDataEntry.fromSong(lyricSection, textStyle: textStyle));
+      _entries.add(
+          _LyricsDataEntry.fromSong(lyricSection, textStyle: textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     }
     logger.v('_asLyricsEntry():\n<${asRawLyrics()}>');
   }
@@ -27,15 +31,15 @@ class LyricsEntries {
     return sb.toString();
   }
 
-  void insertChordSection(LyricsDataEntry entry, ChordSection chordSection) {
+  void insertChordSection(_LyricsDataEntry entry, ChordSection chordSection) {
     var index = _entries.indexOf(entry);
     if (index >= 0) {
-      _entries.insert(index, LyricsDataEntry._fromChordSection(chordSection, index, textStyle: _textStyle));
+      _entries.insert(index, _LyricsDataEntry._fromChordSection(chordSection, index, textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     }
   }
 
   void addChordSection(ChordSection chordSection) {
-    _entries.add(LyricsDataEntry._fromChordSection(chordSection, _entries.length, textStyle: _textStyle));
+    _entries.add(_LyricsDataEntry._fromChordSection(chordSection, _entries.length, textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
   }
 
   // void moveChordSection(_LyricsDataEntry entry, {bool isUp = false}) {
@@ -121,36 +125,42 @@ class LyricsEntries {
     }
   }
 
-  void addBlankLyricsLine(LyricsDataEntry entry) {
+  void addBlankLyricsLine(_LyricsDataEntry entry) {
     logger.d('add lyrics line to $entry');
-    var line = _LyricsLineTextField(entry, entry.length, '', textStyle: _textStyle);
-    entry._lyricsLines.add(line);
-    line.requestFocus();
+    entry.addEmptyLine();
   }
 
   void deleteLyricLine(
-    LyricsDataEntry entry,
+    _LyricsDataEntry entry,
     int i,
   ) {
     logger.d('delete lyrics line at $entry, line $i');
     entry._lyricsLines.removeAt(i);
   }
 
-  void delete(LyricsDataEntry entry) {
+  void delete(_LyricsDataEntry entry) {
     _entries.remove(entry);
   }
 
-  List<LyricsDataEntry> get entries => _entries;
-  List<LyricsDataEntry> _entries = [];
+  void _lyricsEntriesCallback() {
+    logger.i('LyricsEntries._lyricsEntriesCallback()');
+    notifyListeners();
+  }
+
+  List<_LyricsDataEntry> get entries => _entries;
+  List<_LyricsDataEntry> _entries = [];
   TextStyle? _textStyle;
 }
 
-class LyricsDataEntry {
-  LyricsDataEntry.fromSong(this.lyricSection, {TextStyle? textStyle}) {
+typedef void _LyricsLineCallback(_LyricsLine line, List<String> lines);
+
+class _LyricsDataEntry {
+  _LyricsDataEntry.fromSong(this.lyricSection, {TextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
+      : _textStyle = textStyle,
+        _lyricsEntriesCallback = lyricsEntriesCallback {
     if (lyricSection.lyricsLines.isNotEmpty && lyricSection.lyricsLines.first.isNotEmpty) {
-      var i = 0;
       _lyricsLines = List.from(lyricSection.lyricsLines)
-          .map((value) => _LyricsLineTextField(this, i++, value, textStyle: textStyle))
+          .map((value) => _LyricsLine(value, _lyricsLineCallback, textStyle: _textStyle))
           .toList();
 
       //  deal with the last extra line from lyrics
@@ -160,40 +170,68 @@ class LyricsDataEntry {
     }
   }
 
-  LyricsDataEntry._fromChordSection(ChordSection chordSection, int index, {TextStyle? textStyle})
-      : lyricSection = LyricSection(chordSection.sectionVersion, index);
+  _LyricsDataEntry._fromChordSection(ChordSection chordSection, int index,
+      {TextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
+      : lyricSection = LyricSection(chordSection.sectionVersion, index),
+        _textStyle = textStyle,
+        _lyricsEntriesCallback = lyricsEntriesCallback;
 
-  bool wasMultipleLines(int i, String value) {
-    var lines = value.split('\n');
-    logger.i('wasMultipleLines(): $lines');
-    if (lines.length > 1) {
-      //  convert multiple lines in the value to multiple text fields
-
-      return true;
+  void _lyricsLineCallback(_LyricsLine line, List<String> newLines) {
+    var index = _lyricsLines.indexOf(line);
+    if (index >= 0) {
+      logger.i('$this: $index: $line, lines: $newLines)');
+      switch (newLines.length) {
+        case 0:
+        case 1:
+          //  do nothing
+          break;
+        default:
+          _lyricsLines.remove(line);
+          for (var newLine in newLines) {
+            _lyricsLines.insert(index++, _LyricsLine(newLine, _lyricsLineCallback, textStyle: _textStyle));
+          }
+          logger.i('newLines: $_lyricsLines');
+          _lyricsLines.last.requestFocus();
+          if (_lyricsEntriesCallback != null) {
+            _lyricsEntriesCallback!();
+          }
+          break;
+      }
     }
-    return false;
   }
 
   TextField textFieldAt(int i) {
     return _lyricsLines[i].textField;
   }
 
+  void addEmptyLine({TextStyle? textStyle}) {
+    var lyricsLine = _LyricsLine('', _lyricsLineCallback, textStyle: textStyle);
+    _lyricsLines.add(lyricsLine);
+    lyricsLine.requestFocus();
+  }
+
   @override
   String toString() {
-    return '{ $lyricSection: lines: ${_lyricsLines.length} }';
+    return 'LyricsDataEntry{ $lyricSection: lines: ${_lyricsLines.length} }';
   }
 
   final LyricSection lyricSection;
   int? initialGridRowIndex;
+  TextStyle? _textStyle;
+  _LyricsEntriesCallback? _lyricsEntriesCallback;
 
   int get length => _lyricsLines.length;
-  List<_LyricsLineTextField> _lyricsLines = [];
+  List<_LyricsLine> _lyricsLines = [];
 }
 
 // Define a custom text field for lyrics.
-class _LyricsLineTextField {
-  _LyricsLineTextField(LyricsDataEntry entry, int index, String text, {TextStyle? textStyle})
-      : _controller = TextEditingController(text: text) {
+class _LyricsLine {
+  _LyricsLine(
+    String text,
+    _LyricsLineCallback callback, {
+    TextStyle? textStyle,
+  })  : _controller = TextEditingController(text: text),
+        _lyricsLineCallback = callback {
     _textField = TextField(
       controller: _controller,
       focusNode: FocusNode(),
@@ -203,28 +241,40 @@ class _LyricsLineTextField {
         var text = _controller.text;
         List<String> ret = [];
         if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
-          ret.add(text.trim());
+          //  nothing to do... fixme undo push
         } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
           //  newline at the start
           ret.add('');
           ret.add(text.trim());
+          _lyricsLineCallback(this, ret);
         } else {
+          //  split an existing line
           ret.add(text.substring(0, selection.baseOffset).trim());
           ret.add(text.substring(selection.extentOffset).trim());
+          _lyricsLineCallback(this, ret);
         }
-        logger.i('onSubmitted($value): ${text.length}');
-        logger.i('onSubmitted($value): (${selection.baseOffset}, ${selection.extentOffset}): $ret, ${ret.length}');
+        // if (ret.isNotEmpty) {
+        //   logger.i('onSubmitted($value): (${selection.baseOffset}, ${selection.extentOffset}): $ret, ${ret.length}');
+        // }
       },
     );
   }
 
-  requestFocus() => focusNode.requestFocus();
+  @override
+  String toString() {
+    return '\'${_controller.text}\'';
+  }
 
-  FocusNode focusNode = FocusNode();
+  requestFocus() {
+    focusNode.requestFocus();
+  }
+
+  final FocusNode focusNode = FocusNode();
 
   TextField get textField => _textField;
   late final TextField _textField;
+  final _LyricsLineCallback _lyricsLineCallback;
 
   String get text => _controller.text;
-  TextEditingController _controller;
+  final TextEditingController _controller;
 }

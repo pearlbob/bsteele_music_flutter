@@ -235,6 +235,9 @@ class _Edit extends State<Edit> {
     _bpmTextEditingController.text = _song.getBeatsPerMinute().toString();
 
     _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
+    _lyricsEntries.addListener(() {
+      _pushLyricsEntries();//  if low level edits were made by the widget tree
+    });
   }
 
   @override
@@ -1457,7 +1460,7 @@ class _Edit extends State<Edit> {
   /// convenience method to push lyrics changes to the song and the display
   void _pushLyricsEntries() {
     _song.setRawLyrics(_lyricsEntries.asRawLyrics());
-    _undoStackPush();
+    _undoStackPushIfDifferent();
     setState(() {});
   }
 
@@ -1494,7 +1497,7 @@ class _Edit extends State<Edit> {
   void _editOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.i('edit onkey:'
+      logger.d('edit onkey:'
           //' ${e.data.logicalKey}'
           //', primaryFocus: ${_focusManager.primaryFocus}'
           ', context: ${_focusManager.primaryFocus?.context}'
@@ -1541,8 +1544,7 @@ class _Edit extends State<Edit> {
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         /// clear editing with the escape key
         _performMeasureEntryCancel();
-      }
-      else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
+      } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         if (_selectedEditDataPoint != null) //  fixme: this is a poor workaround
         {
           _performEdit(done: false, endOfRow: true);
@@ -2599,8 +2601,7 @@ class _Edit extends State<Edit> {
       if (_undoStack.canUndo) {
         _clearErrorMessage();
         _clearMeasureEntry();
-        _song = _undoStack.undo()?.copySong() ?? Song.createEmptySong();
-        _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
+        _loadSong(_undoStack.undo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
         _checkSongStatus();
       } else {
@@ -2614,8 +2615,7 @@ class _Edit extends State<Edit> {
       if (_undoStack.canRedo) {
         _clearErrorMessage();
         _clearMeasureEntry();
-        _song = _undoStack.redo()?.copySong() ?? Song.createEmptySong();
-        _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
+        _loadSong(_undoStack.redo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
         _checkSongStatus();
       } else {

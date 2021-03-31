@@ -1,10 +1,10 @@
+
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 typedef void _LyricsEntriesCallback();
 
@@ -17,6 +17,7 @@ class LyricsEntries extends ChangeNotifier {
       _entries.add(
           _LyricsDataEntry.fromSong(lyricSection, textStyle: textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     }
+    logger.v('LyricsEntries.fromSong()');
     logger.v('_asLyricsEntry():\n<${asRawLyrics()}>');
   }
 
@@ -34,12 +35,16 @@ class LyricsEntries extends ChangeNotifier {
   void insertChordSection(_LyricsDataEntry entry, ChordSection chordSection) {
     var index = _entries.indexOf(entry);
     if (index >= 0) {
-      _entries.insert(index, _LyricsDataEntry._fromChordSection(chordSection, index, textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
+      _entries.insert(
+          index,
+          _LyricsDataEntry._fromChordSection(chordSection, index,
+              textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     }
   }
 
   void addChordSection(ChordSection chordSection) {
-    _entries.add(_LyricsDataEntry._fromChordSection(chordSection, _entries.length, textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
+    _entries.add(_LyricsDataEntry._fromChordSection(chordSection, _entries.length,
+        textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
   }
 
   // void moveChordSection(_LyricsDataEntry entry, {bool isUp = false}) {
@@ -127,7 +132,7 @@ class LyricsEntries extends ChangeNotifier {
 
   void addBlankLyricsLine(_LyricsDataEntry entry) {
     logger.d('add lyrics line to $entry');
-    entry.addEmptyLine();
+    entry.addEmptyLine(textStyle: _textStyle);
   }
 
   void deleteLyricLine(
@@ -143,7 +148,6 @@ class LyricsEntries extends ChangeNotifier {
   }
 
   void _lyricsEntriesCallback() {
-    logger.i('LyricsEntries._lyricsEntriesCallback()');
     notifyListeners();
   }
 
@@ -179,7 +183,7 @@ class _LyricsDataEntry {
   void _lyricsLineCallback(_LyricsLine line, List<String> newLines) {
     var index = _lyricsLines.indexOf(line);
     if (index >= 0) {
-      logger.i('$this: $index: $line, lines: $newLines)');
+      logger.d('$this: $index: $line, lines: $newLines)');
       switch (newLines.length) {
         case 0:
         case 1:
@@ -187,11 +191,13 @@ class _LyricsDataEntry {
           break;
         default:
           _lyricsLines.remove(line);
+          _LyricsLine? lastNewLyricsLine;
           for (var newLine in newLines) {
-            _lyricsLines.insert(index++, _LyricsLine(newLine, _lyricsLineCallback, textStyle: _textStyle));
+            lastNewLyricsLine = _LyricsLine(newLine, _lyricsLineCallback, textStyle: _textStyle);
+            _lyricsLines.insert(index++, lastNewLyricsLine);
           }
-          logger.i('newLines: $_lyricsLines');
-          _lyricsLines.last.requestFocus();
+          logger.d('newLines: $_lyricsLines');
+          lastNewLyricsLine!.requestFocus();
           if (_lyricsEntriesCallback != null) {
             _lyricsEntriesCallback!();
           }
@@ -234,14 +240,17 @@ class _LyricsLine {
         _lyricsLineCallback = callback {
     _textField = TextField(
       controller: _controller,
-      focusNode: FocusNode(),
+      focusNode: focusNode,
       style: textStyle,
       onSubmitted: (value) {
         var selection = _controller.selection;
         var text = _controller.text;
         List<String> ret = [];
         if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
-          //  nothing to do... fixme undo push
+          //  blank newline at the end
+          ret.add(text.trim());
+          ret.add('');
+          _lyricsLineCallback(this, ret);
         } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
           //  newline at the start
           ret.add('');

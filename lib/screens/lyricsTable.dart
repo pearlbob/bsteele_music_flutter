@@ -250,7 +250,7 @@ class LyricsTable {
   void computeScreenSizes() {
     _screenWidth = screenInfo.widthInLogicalPixels;
     _screenHeight = screenInfo.heightInLogicalPixels;
-    _fontSize = defaultFontSize * min(4, max(1, _screenWidth /350));
+    _fontSize = defaultFontSize * min(4, max(1, _screenWidth /400));
     _lyricsFontSize = fontSize * 0.75;
 
     fontScale = fontSize / defaultFontSize;

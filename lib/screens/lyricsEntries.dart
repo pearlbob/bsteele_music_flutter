@@ -1,4 +1,3 @@
-
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
@@ -180,20 +179,20 @@ class _LyricsDataEntry {
         _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback;
 
-  void _lyricsLineCallback(_LyricsLine line, List<String> newLines) {
-    var index = _lyricsLines.indexOf(line);
+  void _lyricsLineCallback(_LyricsLine oldLyricsLine, List<String> newLyricsLines) {
+    var index = _lyricsLines.indexOf(oldLyricsLine);
     if (index >= 0) {
-      logger.d('$this: $index: $line, lines: $newLines)');
-      switch (newLines.length) {
+      logger.d('$this: $index: $oldLyricsLine, lines: $newLyricsLines)');
+      switch (newLyricsLines.length) {
         case 0:
         case 1:
           //  do nothing
           break;
         default:
-          _lyricsLines.remove(line);
+          _lyricsLines.remove(oldLyricsLine);
           _LyricsLine? lastNewLyricsLine;
-          for (var newLine in newLines) {
-            lastNewLyricsLine = _LyricsLine(newLine, _lyricsLineCallback, textStyle: _textStyle);
+          for (var newLyricsLine in newLyricsLines) {
+            lastNewLyricsLine = _LyricsLine(newLyricsLine, _lyricsLineCallback, textStyle: _textStyle);
             _lyricsLines.insert(index++, lastNewLyricsLine);
           }
           logger.d('newLines: $_lyricsLines');
@@ -233,40 +232,69 @@ class _LyricsDataEntry {
 // Define a custom text field for lyrics.
 class _LyricsLine {
   _LyricsLine(
-    String text,
+    this.originalText,
     _LyricsLineCallback callback, {
     TextStyle? textStyle,
-  })  : _controller = TextEditingController(text: text),
+  })  : _controller = TextEditingController(text: originalText),
         _lyricsLineCallback = callback {
     _textField = TextField(
       controller: _controller,
       focusNode: focusNode,
       style: textStyle,
+      keyboardType: TextInputType.text,
+      minLines: 1,
+      //  arbitrary, large limit:
+      maxLines: 300,
       onSubmitted: (value) {
-        var selection = _controller.selection;
-        var text = _controller.text;
-        List<String> ret = [];
-        if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
-          //  blank newline at the end
-          ret.add(text.trim());
-          ret.add('');
-          _lyricsLineCallback(this, ret);
-        } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
-          //  newline at the start
-          ret.add('');
-          ret.add(text.trim());
-          _lyricsLineCallback(this, ret);
-        } else {
-          //  split an existing line
-          ret.add(text.substring(0, selection.baseOffset).trim());
-          ret.add(text.substring(selection.extentOffset).trim());
-          _lyricsLineCallback(this, ret);
-        }
-        // if (ret.isNotEmpty) {
-        //   logger.i('onSubmitted($value): (${selection.baseOffset}, ${selection.extentOffset}): $ret, ${ret.length}');
-        // }
+        _submit( value );
       },
     );
+    focusNode.addListener(() { _update( _controller.text );});
+  }
+
+
+  void _update(String value ){
+    //  split into lines
+    List<String> ret = _controller.text.split('\n');
+
+    // trim white space
+    ret.forEach((value) {
+      value = value.trim();
+    });
+    if (ret.length > 1 || ret[0] != originalText ) {
+      //  update
+      _lyricsLineCallback(this, ret);
+    }
+  }
+
+  void _submit(String value ){
+      var selection = _controller.selection;
+      var text = _controller.text;
+
+      //  split into lines
+      List<String> ret = text.split('\n');
+
+      // trim white space
+      ret.forEach((value) {
+        value = value.trim();
+      });
+      if (ret.length > 1) {
+        //  split multiple lines
+        _lyricsLineCallback(this, ret);
+      } else if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
+        //  blank newline at the end
+        ret.add('');
+        _lyricsLineCallback(this, ret);
+      } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
+        //  newline at the start
+        ret.insert(0, '');
+        _lyricsLineCallback(this, ret);
+      } else {
+        //  split an existing line
+        ret.add(text.substring(0, selection.baseOffset).trim());
+        ret.add(text.substring(selection.extentOffset).trim());
+        _lyricsLineCallback(this, ret);
+      }
   }
 
   @override
@@ -286,4 +314,5 @@ class _LyricsLine {
 
   String get text => _controller.text;
   final TextEditingController _controller;
+  final String originalText;
 }

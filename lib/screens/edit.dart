@@ -177,7 +177,7 @@ class _Edit extends State<Edit> {
     //  known text updates
     _titleTextEditingController.addListener(() {
       _song.title = _titleTextEditingController.text;
-      logger.i('_titleTextEditingController.addListener: \'${_titleTextEditingController.text}\''
+      logger.d('_titleTextEditingController.addListener: \'${_titleTextEditingController.text}\''
           ', ${_titleTextEditingController.selection}');
       _checkSongStatus();
     });
@@ -1590,29 +1590,31 @@ class _Edit extends State<Edit> {
               _editTextController.text.substring(0, loc) + _editTextController.text.substring(loc + 1);
           _editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.backspace)) {
-        BuildContext? context = _editTextFieldFocusNode?.context;
-        var w = context?.widget;
-
-        if (w != null) {
-          var editableText = w as EditableText;
-          logger.i('backspace: '
-              'editableText: $editableText');
-          var controller = editableText.controller;
-          logger.i('backspace:'
-              ' controller: $controller');
-          logger.i('backspace:'
-              ' text: ${controller.text}'
-              ', baseOffset: ${controller.selection.baseOffset}'
-              ', extentOffset: ${controller.selection.extentOffset}');
-          // logger.i('backspace: <${_editTextController.text}>'
-          //     ' context: ${_editTextFieldFocusNode?.context.toString()}'
-          //     ' w: $w'
-          //   // ', enclosingScope: ${_editTextFieldFocusNode?.enclosingScope}'
-          //     // ', toStringShort: ${_editTextFieldFocusNode?.toStringShort()}'
-          // );
-        }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.space) && _selectedEditDataPoint != null) {
+      }
+      // else if (e.isKeyPressed(LogicalKeyboardKey.backspace)) {
+      //   BuildContext? context = _editTextFieldFocusNode?.context;
+      //   var w = context?.widget;
+      //
+      //   if (w != null) {
+      //     var editableText = w as EditableText;
+      //     logger.i('backspace: '
+      //         'editableText: $editableText');  // fixme
+      //     // var controller = editableText.controller;
+      //     // logger.i('backspace:'
+      //     //     ' controller: $controller');
+      //     // logger.i('backspace:'
+      //     //     ' text: ${controller.text}'
+      //     //     ', baseOffset: ${controller.selection.baseOffset}'
+      //     //     ', extentOffset: ${controller.selection.extentOffset}');
+      //     // logger.i('backspace: <${_editTextController.text}>'
+      //     //     ' context: ${_editTextFieldFocusNode?.context.toString()}'
+      //     //     ' w: $w'
+      //     //   // ', enclosingScope: ${_editTextFieldFocusNode?.enclosingScope}'
+      //     //     // ', toStringShort: ${_editTextFieldFocusNode?.toStringShort()}'
+      //     // );
+      //   }
+      // }
+      else if (e.isKeyPressed(LogicalKeyboardKey.space) && _selectedEditDataPoint != null) {
         logger.d('main onkey: space: "${_editTextController.text}", ${_editTextController.selection}');
         int extentOffset = _editTextController.selection.extentOffset;
 

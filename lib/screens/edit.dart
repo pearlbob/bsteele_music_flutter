@@ -24,6 +24,7 @@ import 'package:bsteele_music_flutter/appOptions.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,8 @@ const TextStyle _buttonTextStyle =
     TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
 const TextStyle _textStyle = const TextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
 const TextStyle _errorTextStyle = const TextStyle(fontSize: _defaultFontSize, color: Colors.red);
+const TextStyle _warningTextStyle = const TextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+
 const double _entryWidth = 18 * _defaultChordFontSize;
 
 const Color _defaultColor = const Color(0xFFB3E5FC);
@@ -179,19 +182,19 @@ class _Edit extends State<Edit> {
       _song.title = _titleTextEditingController.text;
       logger.d('_titleTextEditingController.addListener: \'${_titleTextEditingController.text}\''
           ', ${_titleTextEditingController.selection}');
-      _checkSongStatus();
+      _checkSongChangeStatus();
     });
     _artistTextEditingController.addListener(() {
       _song.artist = _artistTextEditingController.text;
-      _checkSongStatus();
+      _checkSongChangeStatus();
     });
     _coverArtistTextEditingController.addListener(() {
       _song.coverArtist = _coverArtistTextEditingController.text;
-      _checkSongStatus();
+      _checkSongChangeStatus();
     });
     _copyrightTextEditingController.addListener(() {
       _song.copyright = _copyrightTextEditingController.text;
-      _checkSongStatus();
+      _checkSongChangeStatus();
     });
     _userTextEditingController.addListener(() {
       _song.user = _userTextEditingController.text;
@@ -210,7 +213,7 @@ class _Edit extends State<Edit> {
         } else {
           _clearErrorMessage();
           _song.setDefaultBpm(bpm);
-          _checkSongStatus();
+          _checkSongChangeStatus();
         }
       } catch (e) {
         _errorMessage('caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}');
@@ -236,8 +239,20 @@ class _Edit extends State<Edit> {
 
     _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
     _lyricsEntries.addListener(() {
-      _pushLyricsEntries();//  if low level edits were made by the widget tree
+      _pushLyricsEntries(); //  if low level edits were made by the widget tree
     });
+    _checkSong();
+  }
+
+  void _enterSong() {
+    var user = _userTextEditingController.text;
+    _song.setUser(user.isNotEmpty ? user : 'unknown');
+
+    String fileName = _song.title + '.songlyrics';  //  fixme: cover artist?
+    String contents = _song.toJsonAsFile();
+    UtilWorkaround().writeFileContents(fileName, contents);
+
+    setState(() {});
   }
 
   @override
@@ -631,14 +646,15 @@ class _Edit extends State<Edit> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           _AppContainedButton(
-                            _isDirty ? 'Enter song' : 'Nothing has changed',
-                            color: _isDirty ? null : _disabledColor,
+                            _hasChanged ? 'Enter song' : 'Nothing has changed',
+                            color: _hasChanged ? null : _disabledColor,
                             onPressed: () {
-                              logger.i(' fixme enter song: ${_song.toJson()}'); //  fixme enter song
+                              _enterSong();
                             },
                           ),
                           Container(
-                            child: Text(_errorMessageString ?? '', style: _errorTextStyle),
+                            child:
+                                Text(_errorMessageString ?? '', style: _isError ? _errorTextStyle : _warningTextStyle),
                           ),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -805,7 +821,7 @@ class _Edit extends State<Edit> {
                                 _song.key = _key;
                                 _key = _value;
                                 _keyChordNote = _key.getKeyScaleNote();
-                                if (!_checkSongStatus()) {
+                                if (!_checkSongChangeStatus()) {
                                   setState(() {}); //  display the return to original
                                 }
                               }
@@ -849,7 +865,7 @@ class _Edit extends State<Edit> {
                           onChanged: (_value) {
                             if (_value != null && _song.timeSignature != _value) {
                               _song.timeSignature = _value;
-                              if (!_checkSongStatus()) {
+                              if (!_checkSongChangeStatus()) {
                                 setState(() {}); //  display the return to original
                               }
                             }
@@ -1274,13 +1290,13 @@ class _Edit extends State<Edit> {
           if (i < chordRowCount) {
             var row = chordSection?.rowAt(i, expanded: expanded);
             logger.d('row.length: ${row?.length}/$chordMaxColCount');
-            for (final measure in row ?? []) {
+            for (final Measure measure in row ?? []) {
               children.add(Container(
                 margin: _marginInsets,
                 padding: _textPadding,
                 color: _sectionColor,
                 child: Text(
-                  '${measure.toMarkupWithoutEnd()}',
+                  '${measure.transpose(_key, 0)}',
                   style: _chordBoldTextStyle,
                   maxLines: 1,
                 ),
@@ -1519,14 +1535,6 @@ class _Edit extends State<Edit> {
           }
         } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
           logger.d('main onkey: found arrowUp');
-        } else if (e.isKeyPressed(LogicalKeyboardKey.keyV) && e.isShiftPressed) {
-          logger.i('shift ctl V');
-        } else if (e.isKeyPressed(LogicalKeyboardKey.keyV)) {
-          if (e.isShiftPressed) {
-            logger.i('ctl shift V');
-          } else {
-            logger.i('ctl V');
-          }
         } else if (e.data.logicalKey == LogicalKeyboardKey.undo) {
           //  not that likely
           if (e.isShiftPressed) {
@@ -2605,7 +2613,7 @@ class _Edit extends State<Edit> {
         _clearMeasureEntry();
         _loadSong(_undoStack.undo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
-        _checkSongStatus();
+        _checkSongChangeStatus();
       } else {
         _errorMessage('cannot undo any more');
       }
@@ -2619,7 +2627,7 @@ class _Edit extends State<Edit> {
         _clearMeasureEntry();
         _loadSong(_undoStack.redo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
-        _checkSongStatus();
+        _checkSongChangeStatus();
       } else {
         _errorMessage('cannot redo any more');
       }
@@ -2654,7 +2662,13 @@ class _Edit extends State<Edit> {
   }
 
   void _errorMessage(String error) {
+    _isError = true;
     _errorMessageString = error;
+  }
+
+  void _warningMessage(String warning) {
+    _isError = false;
+    _errorMessageString = warning;
   }
 
   void _clearErrorMessage() {
@@ -2747,7 +2761,7 @@ class _Edit extends State<Edit> {
       }
       logger.i('_selectedEditDataPoint: $_selectedEditDataPoint');
 
-      _checkSongStatus();
+      _checkSongChangeStatus();
 
       return true;
     } else {
@@ -2799,15 +2813,28 @@ class _Edit extends State<Edit> {
   }
 
   /// returns true if the was a change of dirty status
-  bool _checkSongStatus() {
-    bool isDirty = _song != _originalSong;
-    if (isDirty != _isDirty) {
+  bool _checkSongChangeStatus() {
+    bool hasChanged = _song != _originalSong;
+    if (hasChanged != _hasChanged) {
+      _checkSong();
       setState(() {
-        _isDirty = isDirty;
+        _hasChanged = hasChanged;
       });
       return true;
     }
+    _checkSong();
     return false;
+  }
+
+  void _checkSong() {
+    setState(() {
+      try {
+        _song.checkSong();
+        _errorMessage('');
+      } catch (e) {
+        _errorMessage(e.toString());
+      }
+    });
   }
 
   String _listSections() {
@@ -2845,7 +2872,7 @@ class _Edit extends State<Edit> {
   ScreenInfo? _screenInfo;
   Song _song;
   Song _originalSong;
-  bool _isDirty = false;
+  bool _hasChanged = false;
   songs.Key _key = songs.Key.getDefault();
   double _appendFontSize = 14;
   double _chordFontSize = 14;
@@ -2857,6 +2884,7 @@ class _Edit extends State<Edit> {
   bool _measureEntryIsClear = true;
   String? _measureEntryCorrection;
   bool _measureEntryValid = false;
+  bool _isError = false;
   String? _errorMessageString;
 
   MeasureNode? _measureEntryNode;

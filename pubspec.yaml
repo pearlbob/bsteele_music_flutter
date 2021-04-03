@@ -15,12 +15,12 @@ publish_to: none
 version: 0.0.1+1
 
 environment:
-  sdk: ">=2.13.0-175.0.dev <3.0.0"
+  sdk: ">=2.13.0-192.0.dev <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  file_picker: ^3.0.0
+  file_picker:
   logger:
   package_info:
   shared_preferences:

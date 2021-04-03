@@ -17,7 +17,7 @@ class UtilLinux implements UtilWorkaround {
     logger.d('path: $path');
 
     File file = File('$path/$fileName');
-    logger.d('file: $file');
+    logger.i('file: $file');
     await file.writeAsString(contents, flush: true);
   }
 

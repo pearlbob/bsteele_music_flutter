@@ -189,7 +189,8 @@ class _LyricsDataEntry {
           //  do nothing
           break;
         default:
-          _lyricsLines.remove(oldLyricsLine);
+         var removed = _lyricsLines.remove(oldLyricsLine);
+         logger.d( 'removed: $removed $oldLyricsLine');
           _LyricsLine? lastNewLyricsLine;
           for (var newLyricsLine in newLyricsLines) {
             lastNewLyricsLine = _LyricsLine(newLyricsLine, _lyricsLineCallback, textStyle: _textStyle);
@@ -233,10 +234,9 @@ class _LyricsDataEntry {
 class _LyricsLine {
   _LyricsLine(
     this.originalText,
-    _LyricsLineCallback callback, {
+    this._lyricsLineCallback, {
     TextStyle? textStyle,
-  })  : _controller = TextEditingController(text: originalText),
-        _lyricsLineCallback = callback {
+  }) : _controller = TextEditingController(text: originalText) {
     _textField = TextField(
       controller: _controller,
       focusNode: focusNode,
@@ -246,14 +246,19 @@ class _LyricsLine {
       //  arbitrary, large limit:
       maxLines: 300,
       onSubmitted: (value) {
-        _submit( value );
+        _submit(value);
+      },
+      onChanged: (value) {
+        // logger.i('onChanged(\'$value\')');
+        _update(_controller.text);
       },
     );
-    focusNode.addListener(() { _update( _controller.text );});
+    focusNode.addListener(() {
+      _update(_controller.text);
+    });
   }
 
-
-  void _update(String value ){
+  void _update(String value) {
     //  split into lines
     List<String> ret = _controller.text.split('\n');
 
@@ -261,40 +266,41 @@ class _LyricsLine {
     ret.forEach((value) {
       value = value.trim();
     });
-    if (ret.length > 1 || ret[0] != originalText ) {
+    if (ret.length > 1 || ret[0] != originalText) {
       //  update
       _lyricsLineCallback(this, ret);
     }
   }
 
-  void _submit(String value ){
-      var selection = _controller.selection;
-      var text = _controller.text;
+  void _submit(String value) {
+    var selection = _controller.selection;
+    var text = _controller.text;
 
-      //  split into lines
-      List<String> ret = text.split('\n');
+    //  split into lines
+    List<String> ret = text.split('\n');
 
-      // trim white space
-      ret.forEach((value) {
-        value = value.trim();
-      });
-      if (ret.length > 1) {
-        //  split multiple lines
-        _lyricsLineCallback(this, ret);
-      } else if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
-        //  blank newline at the end
-        ret.add('');
-        _lyricsLineCallback(this, ret);
-      } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
-        //  newline at the start
-        ret.insert(0, '');
-        _lyricsLineCallback(this, ret);
-      } else {
-        //  split an existing line
-        ret.add(text.substring(0, selection.baseOffset).trim());
-        ret.add(text.substring(selection.extentOffset).trim());
-        _lyricsLineCallback(this, ret);
-      }
+    // trim white space
+    ret.forEach((value) {
+      value = value.trim();
+    });
+    if (ret.length > 1) {
+      //  split multiple lines
+      _lyricsLineCallback(this, ret);
+    } else if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
+      //  blank newline at the end
+      ret.add('');
+      _lyricsLineCallback(this, ret);
+    } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
+      //  newline at the start
+      ret.insert(0, '');
+      _lyricsLineCallback(this, ret);
+    } else {
+      //  split an existing line
+      ret.clear();
+      ret.add(text.substring(0, selection.baseOffset).trim());
+      ret.add(text.substring(selection.extentOffset).trim());
+      _lyricsLineCallback(this, ret);
+    }
   }
 
   @override

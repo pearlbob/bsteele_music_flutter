@@ -37,7 +37,7 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-set dst=/var/www/html/public_html
+set dst=/var/www/html/public_html/$app
 if ( $isBeta != 0 ) then
 	set dst=$dst/$flavor
 endif
@@ -56,18 +56,20 @@ flutter build web #--no-sound-null-safety
 
 #	clear the last one
 mkdir -p $dst
-rm  -rf $dst/$app
+
+rm  -rf $dst/*
 
 #	copy to localhost website
-cp -r build/web $dst/$app
+cp -r build/web/* $dst
 
 #	send to flavor's web location
-set gs=gs://www.bsteele.com/$flavor/$app
+set gs=gs://www.bsteele.com/$app/$flavor
+
 bsteele_auth
-gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/$app/ $gs 	#	source needs the /
+gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs
 
-echo test http://www.bsteele.com/$flavor/bsteeleMusicApp
+echo test http://www.bsteele.com/$app/$flavor
 ls -l lib/assets/utcDate.txt
 cat lib/assets/utcDate.txt

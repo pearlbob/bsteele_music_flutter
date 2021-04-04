@@ -244,13 +244,18 @@ class _Edit extends State<Edit> {
     _checkSong();
   }
 
-  void _enterSong() {
+  void _enterSong() async {
     var user = _userTextEditingController.text;
     _song.setUser(user.isNotEmpty ? user : 'unknown');
 
-    String fileName = _song.title + '.songlyrics';  //  fixme: cover artist?
+    String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = _song.toJsonAsFile();
-    UtilWorkaround().writeFileContents(fileName, contents);
+    String message = await UtilWorkaround().writeFileContents(fileName, contents);
+    if (message.toLowerCase().contains('error')) {
+      _errorMessage(message);
+    } else {
+      _infoMessage(message);
+    }
 
     setState(() {});
   }
@@ -646,10 +651,12 @@ class _Edit extends State<Edit> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           _AppContainedButton(
-                            _hasChanged ? 'Enter song' : 'Nothing has changed',
-                            color: _hasChanged ? null : _disabledColor,
+                            _hasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
+                            color: (_hasChanged && _isValidSong) ? null : _disabledColor,
                             onPressed: () {
-                              _enterSong();
+                              if (_hasChanged && _isValidSong) {
+                                _enterSong();
+                              }
                             },
                           ),
                           Container(
@@ -2666,7 +2673,7 @@ class _Edit extends State<Edit> {
     _errorMessageString = error;
   }
 
-  void _warningMessage(String warning) {
+  void _infoMessage(String warning) {
     _isError = false;
     _errorMessageString = warning;
   }
@@ -2830,8 +2837,10 @@ class _Edit extends State<Edit> {
     setState(() {
       try {
         _song.checkSong();
+        _isValidSong = true;
         _errorMessage('');
       } catch (e) {
+        _isValidSong = false;
         _errorMessage(e.toString());
       }
     });
@@ -2873,6 +2882,8 @@ class _Edit extends State<Edit> {
   Song _song;
   Song _originalSong;
   bool _hasChanged = false;
+  bool _isValidSong = false;
+
   songs.Key _key = songs.Key.getDefault();
   double _appendFontSize = 14;
   double _chordFontSize = 14;

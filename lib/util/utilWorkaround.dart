@@ -9,7 +9,7 @@ if (dart.library.html) 'package:bsteele_music_flutter/util/utilWeb.dart';
 abstract class UtilWorkaround {
 
   /// Workaround to implement functionality that is not generic across all platforms at this point.
-  void writeFileContents(String fileName, String contents);
+  Future<String> writeFileContents(String fileName, String contents);
 
   Future<void> filePick();
 

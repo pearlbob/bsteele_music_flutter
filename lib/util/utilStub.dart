@@ -2,7 +2,8 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 
 class NullWorkaround implements UtilWorkaround {
 
-  void writeFileContents(String fileName, String contents) async {
+  Future<String> writeFileContents(String fileName, String contents) async {
+    throw 'Error writing file to \'$fileName\': not implemented!';
   }
 
   Future<void> filePick() async {

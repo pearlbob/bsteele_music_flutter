@@ -14,7 +14,7 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {
 
-  void writeFileContents(String fileName, String contents) {
+  Future<String> writeFileContents(String fileName, String contents) async {
     //   web stuff
     Blob blob = Blob([contents], 'text/plain', 'native');
 
@@ -23,6 +23,7 @@ class UtilWeb implements UtilWorkaround {
     )
       ..setAttribute("download", fileName)
       ..click();
+    return 'file written: \'$fileName\'';
   }
 
   Future<void> filePick() async {

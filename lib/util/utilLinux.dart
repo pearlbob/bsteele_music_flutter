@@ -9,8 +9,7 @@ class _Picker extends FilePicker {}
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilLinux implements UtilWorkaround {
-
-  void writeFileContents(String fileName, String contents) async {
+  Future<String> writeFileContents(String fileName, String contents) async {
     //  not web stuff
     final directory = await getApplicationDocumentsDirectory();
     String path = directory.path;
@@ -18,7 +17,13 @@ class UtilLinux implements UtilWorkaround {
 
     File file = File('$path/$fileName');
     logger.i('file: $file');
-    await file.writeAsString(contents, flush: true);
+
+    try {
+      await file.writeAsString(contents, flush: true);
+    } catch (e) {
+      return 'Error writing file to \'$file\': $e';
+    }
+    return 'file written to \'$file\'';
   }
 
   Future<void> filePick() async {
@@ -29,6 +34,5 @@ class UtilLinux implements UtilWorkaround {
     }
   }
 }
-
 
 UtilWorkaround getUtilWorkaround() => UtilLinux();

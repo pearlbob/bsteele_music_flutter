@@ -42,5 +42,5 @@ class ScreenInfo {
   bool get isDefaultValue => _isDefaultValue;
   final bool _isDefaultValue;
 
-  static const double minLogicalPixels = 725; //  just enough for a nexus 3 XL to be "big" when horizontal
+  static const double minLogicalPixels = 1023; //  just enough for a nexus 3 XL to be "big" when horizontal
 }

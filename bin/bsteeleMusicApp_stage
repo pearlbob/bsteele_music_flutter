@@ -45,18 +45,14 @@ set git=~/github/bsteele_music_flutter
 set target=$git/build/web
 cd $git
 
-#	build the release version
+##	build the release version
 flutter clean
 utcDate > lib/assets/utcDate.txt
 #flutter config --enable-web
-flutter build web #--no-sound-null-safety
-
-#flutter build appbundle
-#   aap: build/app/outputs/bundle/release/app-release.aab
+flutter build web
 
 #	clear the last one
 mkdir -p $dst
-
 rm  -rf $dst/*
 
 #	copy to localhost website
@@ -73,3 +69,20 @@ gsutil -m -q acl -r ch -u AllUsers:R $gs
 echo test http://www.bsteele.com/$app/$flavor
 ls -l lib/assets/utcDate.txt
 cat lib/assets/utcDate.txt
+
+
+#	incorporate the beta to the legacy .war file
+set war=build/bsteeleMusicApp.war
+set gswar=gs://www.bsteele.com/$app/bsteeleMusicApp.war
+rm -rf $war
+cp ../bsteeleMusicApp/target/bsteeleMusicApp.war $war
+rm -rf build/beta
+mkdir build/beta
+cp -r build/web/* build/beta
+jar -uf $war -C build beta
+rm -rf build/beta
+
+#	ship it to distribution point for raspberry pi's
+#	already done above: bsteele_auth
+gsutil cp $war $gswar
+gsutil -q acl -r ch -u AllUsers:R  $gswar

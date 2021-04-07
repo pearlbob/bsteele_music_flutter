@@ -240,8 +240,11 @@ class _Edit extends State<Edit> {
     _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
     _lyricsEntries.addListener(() {
       _pushLyricsEntries(); //  if low level edits were made by the widget tree
+      _checkSongChangeStatus();
+      logger.i('_lyricsEntries: _checkSongChangeStatus()');
     });
     _checkSong();
+    _checkSongChangeStatus();
   }
 
   void _enterSong() async {
@@ -257,7 +260,7 @@ class _Edit extends State<Edit> {
       _infoMessage(message);
     }
 
-    setState(() {});
+    _checkSongChangeStatus();
   }
 
   @override
@@ -1484,7 +1487,7 @@ class _Edit extends State<Edit> {
   void _pushLyricsEntries() {
     _song.setRawLyrics(_lyricsEntries.asRawLyrics());
     _undoStackPushIfDifferent();
-    setState(() {});
+    _checkSongChangeStatus();
   }
 
   ///  add a row for a plus on the bottom of the section to continue on the next row
@@ -2821,12 +2824,11 @@ class _Edit extends State<Edit> {
 
   /// returns true if the was a change of dirty status
   bool _checkSongChangeStatus() {
-    bool hasChanged = _song != _originalSong;
+    bool hasChanged = !_song.songBaseSameContent(_originalSong);
     if (hasChanged != _hasChanged) {
       _checkSong();
-      setState(() {
-        _hasChanged = hasChanged;
-      });
+      _hasChanged = hasChanged;
+      setState(() {});
       return true;
     }
     _checkSong();

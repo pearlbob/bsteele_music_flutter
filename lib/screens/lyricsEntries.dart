@@ -285,22 +285,19 @@ class _LyricsLine {
     });
     if (ret.length > 1) {
       //  split multiple lines
-      _lyricsLineCallback(this, ret);
     } else if (selection.baseOffset == text.length && selection.extentOffset == text.length) {
       //  blank newline at the end
       ret.add('');
-      _lyricsLineCallback(this, ret);
     } else if (selection.baseOffset == 0 && selection.extentOffset == 0) {
       //  newline at the start
       ret.insert(0, '');
-      _lyricsLineCallback(this, ret);
     } else {
       //  split an existing line
       ret.clear();
       ret.add(text.substring(0, selection.baseOffset).trim());
       ret.add(text.substring(selection.extentOffset).trim());
-      _lyricsLineCallback(this, ret);
     }
+    _lyricsLineCallback(this, ret);
   }
 
   @override

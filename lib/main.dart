@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
@@ -23,7 +24,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as web_socket_status;
 
 import 'appOptions.dart';
@@ -104,6 +105,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    _webSocketOpen( context);
+
     return MaterialApp(
       title: 'bsteele Music App',
       theme: ThemeData(
@@ -165,8 +169,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))),
       ));
     }
-
-    _webSocketOpen();
   }
 
   /// initialize async options read from shared preferences
@@ -878,18 +880,30 @@ Future<String> fetchString(String uriString) async {
   }
 }
 
-void _webSocketOpen() async {
-  var url = 'ws://192.168.0.200:8080/bsteeleMusicApp/bsteeleMusic'; //  fixme
-  try {
-    var webSocketChannel = IOWebSocketChannel.connect(Uri.parse(url));
-    webSocketChannel.stream.listen((message) {
-      logger.i('received: $message');
-    }, onError: (Object error) {
-      logger.w('webSocketChannel error: $error');
-    }, onDone: () {
-      webSocketChannel.sink.close(web_socket_status.normalClosure);
-    });
-  } catch (e) {
-    logger.w('webSocketChannel Warning: ${e.toString()}');
+void _webSocketOpen(BuildContext context) async {
+  //  look back to the server to possibly find a websocket
+  print('Uri.base: ${Uri.base}, ${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}');
+  if ( Uri.base.scheme == 'http' )
+  {
+    var url = 'ws://${Uri.base.authority}/bsteeleMusicApp/bsteeleMusic';
+    print('websocket open? $url');
+    try {
+      var webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
+      webSocketChannel.stream.listen((message) {
+        var m = message as String;
+        print('received: ${m.length} chars');
+       var songUpdate = SongUpdate.fromJson(m);
+       if ( songUpdate != null ) {
+         print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
+       }
+        // Navigator.pushNamedAndRemoveUntil(context, '/edit', (route) => false, arguments: Song.createEmptySong()  );
+      }, onError: (Object error) {
+        print('webSocketChannel error: $error');
+      }, onDone: () {
+        webSocketChannel.sink.close(web_socket_status.normalClosure);
+      });
+    } catch (e) {
+      print('webSocketChannel exception: ${e.toString()}');
+    }
   }
 }

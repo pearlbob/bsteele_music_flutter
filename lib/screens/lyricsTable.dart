@@ -47,8 +47,10 @@ class LyricsTable {
     List<Widget> children = [];
     Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
-    bool showChords = _appOptions.playerDisplay;
-    bool showFullLyrics = true; //isScreenBig || !_appOptions.playerDisplay;
+    bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
+        _appOptions.userDisplayStyle == UserDisplayStyle.both;
+    bool showFullLyrics = _appOptions.userDisplayStyle == UserDisplayStyle.singer ||
+        _appOptions.userDisplayStyle == UserDisplayStyle.both; //isScreenBig || !_appOptions.playerDisplay;
 
     //  compute transposition offset from base key
     int tranOffset = displaySongKey.getHalfStep() - song.getKey().getHalfStep();
@@ -193,21 +195,23 @@ class LyricsTable {
             //key: ValueKey(r),
             children: children));
       }
-      // else {
-      //   //  short lyrics
-      //   children.add(Container(
-      //       margin: marginInsets,
-      //       padding: EdgeInsets.all(2),
-      //       color: color,
-      //       child: Text(
-      //         (firstSongMoment.lyrics ?? ''),
-      //         style: _lyricsTextStyle,
-      //         overflow: TextOverflow.ellipsis,
-      //       )));
-      //
-      //   //  add row to table
-      //   rows.add(TableRow(key: ValueKey(r), children: children));
-      // }
+      else {
+        //  short lyrics
+        children.add(Container(
+            margin: marginInsets,
+            padding: EdgeInsets.all(2),
+            width: _shortLyricsWidth,
+            color: color,
+            child: Text(
+              rowLyrics,
+              style: _lyricsTextStyle,
+              softWrap:false,
+              overflow: TextOverflow.ellipsis,
+            )));
+
+        //  add row to table
+        rows.add(TableRow(key: ValueKey(r), children: children));
+      }
 
       //  get ready for the next row by clearing the row data
       children = [];
@@ -250,8 +254,9 @@ class LyricsTable {
   void computeScreenSizes() {
     _screenWidth = screenInfo.widthInLogicalPixels;
     _screenHeight = screenInfo.heightInLogicalPixels;
-    _fontSize = defaultFontSize * min(4, max(1, _screenWidth /400));
-    _lyricsFontSize = fontSize * 0.75;
+    _fontSize = defaultFontSize * min(4, max(1, _screenWidth / 400));
+    _lyricsFontSize = fontSize * ( _appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1: 0.75);
+    _shortLyricsWidth = _screenWidth * 0.20;
 
     fontScale = fontSize / defaultFontSize;
     logger.v('lyricsTable: ($_screenWidth,$_screenHeight),'
@@ -282,6 +287,8 @@ class LyricsTable {
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = TextStyle();
+
+  double _shortLyricsWidth = 200;
 
   Table get table => _table;
   Table _table = Table();

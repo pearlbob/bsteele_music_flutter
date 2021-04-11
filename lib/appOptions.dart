@@ -1,5 +1,11 @@
-import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+enum UserDisplayStyle {
+  player,
+  singer,
+  both,
+}
 
 class AppOptions {
   static final AppOptions _singleton = AppOptions._internal();
@@ -11,7 +17,11 @@ class AppOptions {
   AppOptions._internal();
 
   Future<void> init() async {
-    _playerDisplay = await _readBool('playerDisplay', defaultValue: true);
+    _userDisplayStyle = Util.enumFromString(
+            await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
+            UserDisplayStyle.values) ??
+        UserDisplayStyle.both;
+    _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     countIn = await _readBool('countIn');
     dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
     dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
@@ -25,8 +35,6 @@ class AppOptions {
     _playWithBass = await _readBool('playWithBass');
     _holiday = await _readBool('holiday');
     _user = await _readString('user');
-
-    logger.i('readOptions: playerDisplay: $playerDisplay');
   }
 
   bool isCountIn() {
@@ -242,25 +250,36 @@ class AppOptions {
   bool get holiday => _holiday;
   bool _holiday = false;
 
-  set playerDisplay(value) {
-    if (_playerDisplay == value) return;
-
-    _playerDisplay = value;
-    _saveBool('playerDisplay', value);
+  set userDisplayStyle(UserDisplayStyle value) {
+    if (_userDisplayStyle != value) {
+      _userDisplayStyle = value;
+      _saveString('userDisplayStyle', Util.enumToString(value));
+    }
   }
 
-  bool get playerDisplay => _playerDisplay;
-  bool _playerDisplay = true;
+  UserDisplayStyle get userDisplayStyle => _userDisplayStyle;
+  UserDisplayStyle _userDisplayStyle = UserDisplayStyle.both;
+
+  set websocketHost(String value) {
+    if (_websocketHost != value) {
+      _websocketHost = value;
+      _saveString('websocketHost', value);
+    }
+  }
+
+  String get websocketHost => _websocketHost;
+  String _websocketHost = '192.168.1.205';
 
   bool _debug = false;
   bool alwaysUseTheNewestSongOnRead = false;
 
   set user(value) {
-    if (_user == value) return;
-
-    _user = value;
-    _saveString('user', value);
+    if (_user != value) {
+      _user = value;
+      _saveString('user', value);
+    }
   }
-  get user => _user;
+
+  String get user => _user;
   String _user = '';
 }

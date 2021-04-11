@@ -9,6 +9,7 @@ import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:logger/logger.dart';
@@ -21,6 +22,8 @@ class Options extends StatefulWidget {
 
   @override
   _Options createState() => _Options();
+
+  static final String routeName = '/options';
 }
 
 class _Options extends State<Options> {
@@ -29,20 +32,12 @@ class _Options extends State<Options> {
     super.initState();
   }
 
-  void onPlayerChanged(bool value) {
-    _appOptions.playerDisplay = value;
-    setState(() {});
-  }
-
-  void onHolidayChanged(bool value) {
-    _appOptions.holiday = value;
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     ScreenInfo screenInfo = ScreenInfo(context);
     double fontSize = screenInfo.isTooNarrow ? 18 : 36;
+
+    _websocketHostEditingController.text = _appOptions.websocketHost;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,23 +67,39 @@ class _Options extends State<Options> {
                     padding: EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
-                        RadioListTile<bool>(
+                        RadioListTile<UserDisplayStyle>(
                           title: Text('Player', style: TextStyle(fontSize: fontSize)),
-                          value: true,
-                          groupValue: _appOptions.playerDisplay,
+                          value: UserDisplayStyle.player,
+                          groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
                             setState(() {
-                              _appOptions.playerDisplay = value;
+                              if (value != null) {
+                                _appOptions.userDisplayStyle = value;
+                              }
                             });
                           },
                         ),
-                        RadioListTile<bool>(
-                          title: Text('Singer', style: TextStyle(fontSize: fontSize)),
-                          value: false,
-                          groupValue: _appOptions.playerDisplay,
+                        RadioListTile<UserDisplayStyle>(
+                          title: Text('Both Player and Singer', style: TextStyle(fontSize: fontSize)),
+                          value: UserDisplayStyle.both,
+                          groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
                             setState(() {
-                              _appOptions.playerDisplay = value;
+                              if (value != null) {
+                                _appOptions.userDisplayStyle = value;
+                              }
+                            });
+                          },
+                        ),
+                        RadioListTile<UserDisplayStyle>(
+                          title: Text('Singer', style: TextStyle(fontSize: fontSize)),
+                          value: UserDisplayStyle.singer,
+                          groupValue: _appOptions.userDisplayStyle,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                _appOptions.userDisplayStyle = value;
+                              }
                             });
                           },
                         ),
@@ -126,6 +137,36 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
+                  if (!kIsWeb)
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                            child: Text(
+                              'Host: ',
+                              style: TextStyle(
+                                fontSize: fontSize,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _websocketHostEditingController,
+                              decoration: InputDecoration(
+                                hintText: 'Enter the websocket host IP address.',
+                              ),
+                              // maxLength: 20,
+                              style: TextStyle(
+                                fontSize: fontSize,
+                              ),
+                              onChanged: (value) {
+                                _appOptions.websocketHost = value;
+                              },
+                            ),
+                          ),
+                        ]),
                   Row(children: <Widget>[
                     Checkbox(
                       value: _appOptions.debug,
@@ -325,6 +366,8 @@ class _Options extends State<Options> {
     _audioPlayer.play(
         'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
   }
+
+  TextEditingController _websocketHostEditingController = TextEditingController();
 
   static final int _testNumber = 3;
   int _test = 0;

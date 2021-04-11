@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
+import 'package:bsteele_music_flutter/screens/bass.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
@@ -24,16 +25,18 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as web_socket_status;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
 //CjRankingEnum _cjRanking;
 
-void main() {
+void main() async {
   Logger.level = Level.info;
+
+  await AppOptions().init();
 
   runApp(
     MyApp(),
@@ -77,37 +80,37 @@ void addSong(Song song) {
   logger.d('addSong( ${song.toString()} )');
   _allSongs.add(song);
   _filteredSongs = SplayTreeSet();
-  _selectedSong = song;
+  selectedSong = song;
 }
 
 void removeAllSongs() {
   _allSongs = SplayTreeSet();
   _filteredSongs = SplayTreeSet();
-  _selectedSong = Song.createEmptySong();
+  selectedSong = Song.createEmptySong();
 }
 
 SplayTreeSet<Song> get allSongs => _allSongs;
 SplayTreeSet<Song> _allSongs = SplayTreeSet();
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
-Song _selectedSong = Song.createEmptySong();
+Song selectedSong = _emptySong;
 
 final Color _primaryColor = Color(0xFF4FC3F7);
 
 enum _SortType {
   byTitle,
   byArtist,
-  byLastModification,
+  byLastChange,
   byComplexity,
 }
+
+final _playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
+final _bassPageRoute = MaterialPageRoute(builder: (BuildContext context) => BassWidget());
 
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-    _webSocketOpen( context);
-
     return MaterialApp(
       title: 'bsteele Music App',
       theme: ThemeData(
@@ -118,18 +121,20 @@ class MyApp extends StatelessWidget {
 
       // Start the app with the "/" named route. In this case, the app starts
       // on the FirstScreen widget.
-      initialRoute: '/',
+      initialRoute: Navigator.defaultRouteName,
       routes: {
         // When navigating to the "/" route, build the FirstScreen widget.
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/player': (context) => Player(song: _selectedSong),
+        Player.routeName: _playerPageRoute.builder,
         '/songs': (context) => Songs(),
         '/options': (context) => Options(),
-        '/edit': (context) => Edit(initialSong: _selectedSong),
+        '/edit': (context) => Edit(initialSong: selectedSong),
         '/privacy': (context) => Privacy(),
         '/documentation': (context) => Documentation(),
         '/about': (context) => About(),
+        '/bass': (context) => BassWidget(),
+        BassWidget.routeName: _bassPageRoute.builder, // a test only
       },
     );
   }
@@ -157,7 +162,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    _appOptionsInit();
     _readExternalSongList();
 
     //  generate the sort selection
@@ -169,11 +173,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))),
       ));
     }
-  }
 
-  /// initialize async options read from shared preferences
-  void _appOptionsInit() async {
-    await AppOptions().init();
+    _webSocketOpen(context);
   }
 
   void _readInternalSongList() async {
@@ -185,9 +186,9 @@ class _MyHomePageState extends State<MyHomePage> {
         _allSongs.addAll(Song.songListFromJson(songListAsString));
         _filteredSongs = _allSongs;
         try {
-          _selectedSong = _filteredSongs.first;
+          selectedSong = _filteredSongs.first;
         } catch (e) {
-          _selectedSong = _emptySong;
+          selectedSong = _emptySong;
         }
         setState(() {});
         print("internal songList used");
@@ -227,9 +228,9 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           _filteredSongs = _allSongs;
           try {
-            _selectedSong = _filteredSongs.first;
+            selectedSong = _filteredSongs.first;
           } catch (e) {
-            _selectedSong = _emptySong;
+            selectedSong = _emptySong;
           }
         });
         print("external songList read from: " + url);
@@ -269,6 +270,16 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     bool oddEven = true;
 
+    print('main build: _requestedSong: $_requestedSong   fixme');
+    if (_requestedSong != null) {
+      var newSong = _requestedSong;
+      _requestedSong = null;
+      Timer(Duration(milliseconds: 2), () {
+        selectedSong = newSong!;
+        Navigator.pushNamedAndRemoveUntil(context, Player.routeName, (route) => route.isFirst);
+      });
+    }
+
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
     var _titleBarFontSize = defaultFontSize * min(3, max(1, screenInfo.widthInLogicalPixels / 350));
@@ -292,7 +303,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final double mediaWidth = screenInfo.widthInLogicalPixels;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
-    final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold);
+    final fontSize = defaultFontSize;
+    logger.v('fontSize: $fontSize in ${screenInfo.widthInLogicalPixels} px with ${screenInfo.titleScaleFactor}');
+    final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
+    final TextStyle artistTextStyle = TextStyle(fontSize: fontSize);
+    final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     //  re-search filtered list on data changes
     if (_filteredSongs.isEmpty) {
@@ -326,12 +341,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           '      ' + song.getArtist(),
                           textScaleFactor: artistScaleFactor,
+                          style: artistTextStyle,
                         ),
                       ],
                     ),
                     Text(
                       '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
                       textScaleFactor: artistScaleFactor,
+                      style: artistTextStyle,
                     ),
                   ],
                 ),
@@ -358,9 +375,6 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ));
     }
-
-    double fontSize = defaultFontSize * max(1, screenInfo.titleScaleFactor);
-    final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     // if (metadataDropDownMenuList == null) {
     //   metadataDropDownMenuList = [
@@ -458,6 +472,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text(
                   "Songs",
                   style: _navTextStyle,
+                  textScaleFactor: titleScaleFactor,
                 ),
                 onTap: () {
                   _navigateToSongs(context);
@@ -467,6 +482,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text(
                 "Options",
                 style: _navTextStyle,
+                textScaleFactor: titleScaleFactor,
               ),
               onTap: () {
                 _navigateToOptions(context);
@@ -476,6 +492,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text(
                 "Docs",
                 style: _navTextStyle,
+                textScaleFactor: titleScaleFactor,
               ),
               onTap: () {
                 _navigateToDocumentation(context);
@@ -483,8 +500,20 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: Text(
+                "Bass",
+                style: _navTextStyle,
+                textScaleFactor: titleScaleFactor,
+              ),
+              onTap: () {
+                _closeDrawer();
+                _navigateToBass(context);
+              },
+            ),
+            ListTile(
+              title: Text(
                 "Privacy",
                 style: _navTextStyle,
+                textScaleFactor: titleScaleFactor,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -495,6 +524,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text(
                 "About",
                 style: _navTextStyle,
+                textScaleFactor: titleScaleFactor,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -513,7 +543,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Flex(direction: Axis.horizontal, children: <Widget>[
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 4.0),
-                width: min(mediaWidth / 2, 20 * fontSize),
+                width: min(mediaWidth / 2, 2 * 20 * fontSize),
                 //  limit text entry display length
                 child: TextField(
                   controller: _searchTextFieldController,
@@ -523,7 +553,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     hintText: "Enter search filter string here.",
                   ),
                   autofocus: true,
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: 2 * fontSize),
                   onChanged: (text) {
                     setState(() {
                       logger.v('search text: "$text"');
@@ -535,6 +565,7 @@ class _MyHomePageState extends State<MyHomePage> {
               IconButton(
                 icon: Icon(Icons.clear),
                 tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                iconSize: fontSize * 2,
                 onPressed: (() {
                   _searchTextFieldController.clear();
                   setState(() {
@@ -555,7 +586,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 value: _selectedSortType,
                 style: TextStyle(
-                  fontSize: fontSize,
+                  fontSize: 1.5 * fontSize,
                   color: Colors.black87,
                   textBaseline: TextBaseline.alphabetic,
                 ),
@@ -647,6 +678,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _closeDrawer() {
+    Navigator.of(context).pop();
+  }
+
   void _searchSongs(String? search) {
     search ??= '';
     search = search.trim();
@@ -690,7 +725,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return song1.compareTo(song2);
         };
         break;
-      case _SortType.byLastModification:
+      case _SortType.byLastChange:
         compare = (Song song1, Song song2) {
           var ret = -song1.lastModifiedTime.compareTo(song2.lastModifiedTime);
           if (ret != 0) {
@@ -791,6 +826,37 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _webSocketOpen(BuildContext context) async {
+    //  look back to the server to possibly find a websocket
+    var authority = '';
+    if (kIsWeb && Uri.base.scheme == 'http') {
+      authority = Uri.base.authority;
+    } else {
+      authority = _appOptions.websocketHost+':8080';
+    }
+    var url = 'ws://$authority/bsteeleMusicApp/bsteeleMusic';
+
+    try {
+      var webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
+      webSocketChannel.stream.listen((message) async {
+        var songUpdate = SongUpdate.fromJson(message as String);
+        if (songUpdate != null) {
+          print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
+          _requestedSong = songUpdate.song;
+          setState(() {});
+          //   Navigator.pushNamedAndRemoveUntil(
+          //       context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
+        }
+      }, onError: (Object error) {
+        print('webSocketChannel error: $error');
+      }, onDone: () {
+        webSocketChannel.sink.close(web_socket_status.normalClosure);
+      });
+    } catch (e) {
+      print('webSocketChannel exception: ${e.toString()}');
+    }
+  }
+
   _navigateToSongs(BuildContext context) async {
     await Navigator.push(
       context,
@@ -802,13 +868,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
-    if (song.getTitle().isEmpty) return;
+    if (song.getTitle().isEmpty) {
+      return;
+    }
 
-    _selectedSong = song;
+    selectedSong = song;
 
-    await Navigator.push(
+    await Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => Player(song: song)),
+      Player.routeName,
     );
 
     //  select all text on a navigation pop
@@ -819,13 +887,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToOptions(BuildContext context) async {
-    await Navigator.push(
+    Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => Options()),
-    );
-    Navigator.pop(context);
-    setState(() {
-      _refilterSongs(); //  force re-filter on possible option changes
+      Options.routeName,
+    ).then((_) {
+      Navigator.pop(context);
+      setState(() {
+        _refilterSongs(); //  force re-filter on possible option changes
+      });
     });
   }
 
@@ -845,6 +914,15 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
   }
 
+  _navigateToBass(BuildContext context) async {
+    Navigator.pushNamed(
+      context,
+      BassWidget.routeName,
+    ).then((_) {
+      Navigator.pop(context);
+    });
+  }
+
   _navigateToPrivacyPolicy(BuildContext context) async {
     await Navigator.push(
       context,
@@ -852,6 +930,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Navigator.pop(context);
   }
+
+  Song? _requestedSong;
 
   List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = _SortType.byTitle;
@@ -877,33 +957,5 @@ Future<String> fetchString(String uriString) async {
   } else {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $uriString');
-  }
-}
-
-void _webSocketOpen(BuildContext context) async {
-  //  look back to the server to possibly find a websocket
-  print('Uri.base: ${Uri.base}, ${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}');
-  if ( Uri.base.scheme == 'http' )
-  {
-    var url = 'ws://${Uri.base.authority}/bsteeleMusicApp/bsteeleMusic';
-    print('websocket open? $url');
-    try {
-      var webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
-      webSocketChannel.stream.listen((message) {
-        var m = message as String;
-        print('received: ${m.length} chars');
-       var songUpdate = SongUpdate.fromJson(m);
-       if ( songUpdate != null ) {
-         print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
-       }
-        // Navigator.pushNamedAndRemoveUntil(context, '/edit', (route) => false, arguments: Song.createEmptySong()  );
-      }, onError: (Object error) {
-        print('webSocketChannel error: $error');
-      }, onDone: () {
-        webSocketChannel.sink.close(web_socket_status.normalClosure);
-      });
-    } catch (e) {
-      print('webSocketChannel exception: ${e.toString()}');
-    }
   }
 }

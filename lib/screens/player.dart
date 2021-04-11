@@ -31,12 +31,14 @@ bool _isCapo = false;
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
-  const Player({Key? key, required this.song}) : super(key: key);
+  const Player(this.song, {Key? key }) : super(key: key);
 
   @override
   _Player createState() => _Player();
 
   final Song song;
+
+  static final String routeName = '/player';
 }
 
 class _Player extends State<Player> {

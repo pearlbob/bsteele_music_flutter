@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -6,6 +7,7 @@ import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -24,24 +26,47 @@ import '../main.dart';
 
  */
 
+final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
+final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
+
 const _lightBlue = const Color(0xFF4FC3F7);
 const _tooltipColor = const Color(0xFFE8F5E9);
 
 bool _isCapo = false;
+bool _playerIsOnTop = false;
+SongUpdate? _songUpdate;
+_Player? _player;
+
+void playerUpdate(BuildContext context, SongUpdate songUpdate) {
+  _songUpdate = songUpdate;
+
+  if (!_playerIsOnTop) {
+    Navigator.pushNamedAndRemoveUntil(
+        context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
+  }
+  Timer(Duration(milliseconds: 2), () {
+    // ignore: invalid_use_of_protected_member
+    _player?.setState(() {});
+  });
+}
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
   const Player(this.song, {Key? key}) : super(key: key);
 
   @override
-  _Player createState() => _Player();
+  State<Player> createState() => _Player();
 
   final Song song;
 
   static final String routeName = '/player';
 }
 
-class _Player extends State<Player> {
+class _Player extends State<Player> with RouteAware {
+  _Player() {
+    _player = this;
+  }
+
   @override
   initState() {
     super.initState();
@@ -83,13 +108,58 @@ class _Player extends State<Player> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    playerRouteObserver.subscribe(this, playerPageRoute);
+  }
+
+  @override
+  void didPush() {
+    _playerIsOnTop = true;
+    super.didPush();
+  }
+
+  @override
+  void didPop() {
+    _playerIsOnTop = false;
+    super.didPop();
+  }
+
+  @override
+  void didPopNext() {
+    // Covering route was popped off the navigator.
+    _playerIsOnTop = false;
+  }
+
+  @override
   void dispose() {
+    _player = null;
+    _playerIsOnTop = false;
+    _songUpdate = null;
+    playerRouteObserver.unsubscribe(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     Song song = widget.song; //  convenience only
+
+    //  deal with song updates
+    if (_songUpdate != null) {
+      if (song != _songUpdate!.song) {
+        song = _songUpdate!.song;
+        _table = null; //  force re-eval
+        _sectionBump(0);
+      }
+      if (_songUpdate!.momentNumber > 0) {
+        _isPaused = false;
+        _isPlaying = true;
+        _sectionByMomentNumber(_songUpdate!.momentNumber);
+      }
+      _displaySongKey = _songUpdate!.currentKey;
+
+      print('player: ${song.title}  ${_songUpdate!.momentNumber}');
+    }
 
     _lyricsTable.computeScreenSizes();
 
@@ -599,6 +669,23 @@ With escape, the app goes back to the play list.''',
     }
   }
 
+  _sectionByMomentNumber(int momentNumber) {
+    var r = 0;
+    for (RowLocation? rowLocation in _rowLocations) {
+      if (rowLocation != null && rowLocation.songMoment.momentNumber >= momentNumber) {
+        break;
+      }
+      r++;
+    }
+    //print('_sectionByMomentNumber($momentNumber), row: $r, _rowLocations.length: ${_rowLocations.length}');
+
+    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
+      double target = _sectionLocations![Util.limit(r, 0, _sectionLocations!.length - 1) as int];
+      _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
+      //print('_sectionSelection: $target');
+    }
+  }
+
   /// bump from one section to the next
   _sectionBump(int bump) {
     if (_rowLocations.isEmpty) {
@@ -666,12 +753,12 @@ With escape, the app goes back to the play list.''',
     if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
       //  find the best location for the current scroll position
       var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort();
-      if ( sortedLocations.isNotEmpty) {
+      if (sortedLocations.isNotEmpty) {
         double? target = sortedLocations.first;
 
         //  bump it by units of section
         target = _sectionLocations![
-        Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
+            Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
 
         _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
         logger.d('_sectionSelection: $target');
@@ -761,10 +848,12 @@ With escape, the app goes back to the play list.''',
   }
 
   _navigateToEdit(BuildContext context, Song song) async {
+    _playerIsOnTop = false;
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
     );
+    _playerIsOnTop = true;
   }
 
   void _forceTableRedisplay() {

@@ -103,7 +103,6 @@ enum _SortType {
   byComplexity,
 }
 
-final _playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
 final _bassPageRoute = MaterialPageRoute(builder: (BuildContext context) => BassWidget());
 
 /// Display the list of songs to choose from.
@@ -118,6 +117,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       home: MyHomePage(title: 'bsteele Music App'),
+      navigatorObservers: [playerRouteObserver],
 
       // Start the app with the "/" named route. In this case, the app starts
       // on the FirstScreen widget.
@@ -126,7 +126,7 @@ class MyApp extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        Player.routeName: _playerPageRoute.builder,
+        Player.routeName: playerPageRoute.builder,
         '/songs': (context) => Songs(),
         '/options': (context) => Options(),
         '/edit': (context) => Edit(initialSong: selectedSong),
@@ -842,8 +842,9 @@ class _MyHomePageState extends State<MyHomePage> {
         var songUpdate = SongUpdate.fromJson(message as String);
         if (songUpdate != null) {
           print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
-          _requestedSong = songUpdate.song;
-          setState(() {});
+          playerUpdate(context , songUpdate);
+          // _requestedSong = songUpdate.song;
+          // setState(() {});
           //   Navigator.pushNamedAndRemoveUntil(
           //       context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
         }

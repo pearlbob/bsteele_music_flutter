@@ -31,7 +31,7 @@ bool _isCapo = false;
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
-  const Player(this.song, {Key? key }) : super(key: key);
+  const Player(this.song, {Key? key}) : super(key: key);
 
   @override
   _Player createState() => _Player();
@@ -624,7 +624,14 @@ With escape, the app goes back to the play list.''',
         sectionCount = _rowLocation.songMoment.sectionCount;
 
         GlobalKey key = _rowLocation.globalKey;
-        double y = (key.currentContext?.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+        double y = _scrollController.offset; //  safety
+        {
+          //  deal with possible missing render objects
+          var renderObject = key.currentContext?.findRenderObject();
+          if (renderObject != null) {
+            y = (renderObject as RenderBox).localToGlobal(Offset.zero).dy;
+          }
+        }
         y0 ??= y;
         y -= y0;
         _sectionLocations!.add(y);
@@ -641,7 +648,14 @@ With escape, the app goes back to the play list.''',
 
         //  average the last with the end of the last
         GlobalKey key = _rowLocations.last!.globalKey;
-        double y = (key.currentContext?.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+        double y = _scrollController.offset; //  safety
+        {
+          //  deal with possible missing render objects
+          var renderObject = key.currentContext?.findRenderObject();
+          if (renderObject != null) {
+            y = (renderObject as RenderBox).localToGlobal(Offset.zero).dy;
+          }
+        }
         y0 ??= y;
         y -= y0;
         tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y + (key.currentContext?.size?.height ?? 0)) / 2);
@@ -649,15 +663,20 @@ With escape, the app goes back to the play list.''',
       }
     }
 
-    //  find the best location for the current scroll position
-    double target = (_sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort()).first;
+    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
+      //  find the best location for the current scroll position
+      var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort();
+      if ( sortedLocations.isNotEmpty) {
+        double? target = sortedLocations.first;
 
-    //  bump it by units of section
-    target = _sectionLocations![
+        //  bump it by units of section
+        target = _sectionLocations![
         Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
 
-    _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
-    logger.d('_sectionSelection: $target');
+        _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
+        logger.d('_sectionSelection: $target');
+      }
+    }
   }
 
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;

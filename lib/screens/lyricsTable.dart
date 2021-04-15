@@ -21,12 +21,15 @@ typedef LyricsSectionHeaderWidget = Widget Function(LyricSection lyricSection);
 typedef LyricsEndWidget = Widget Function();
 
 class LyricsTable {
+  LyricsTable({expandRepeats = false}) : _expandRepeats = expandRepeats;
+
   Table lyricsTable(
     Song song, {
     key,
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
+    expandRepeats,
   }) {
     displaySongKey = key ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
@@ -154,7 +157,9 @@ class LyricsTable {
                 padding: textPadding,
                 color: color,
                 child: Text(
-                  sm.getMeasure().transpose(displaySongKey, tranOffset),
+                  sm.getMeasure().transpose(displaySongKey, tranOffset)
+                 // + ' ${sm.momentNumber}' //  : debug temp
+                  ,
                   style: _chordTextStyle,
                 )));
           }
@@ -194,8 +199,7 @@ class LyricsTable {
         rows.add(TableRow(
             //key: ValueKey(r),
             children: children));
-      }
-      else {
+      } else {
         //  short lyrics
         children.add(Container(
             margin: marginInsets,
@@ -205,7 +209,7 @@ class LyricsTable {
             child: Text(
               rowLyrics,
               style: _lyricsTextStyle,
-              softWrap:false,
+              softWrap: false,
               overflow: TextOverflow.ellipsis,
             )));
 
@@ -255,7 +259,8 @@ class LyricsTable {
     _screenWidth = screenInfo.widthInLogicalPixels;
     _screenHeight = screenInfo.heightInLogicalPixels;
     _fontSize = defaultFontSize * min(4, max(1, _screenWidth / 400));
-    _lyricsFontSize = fontSize * ( _appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1: 0.75);
+    _lyricsFontSize = fontSize * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.75);
+    _fontSize *= (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
     _shortLyricsWidth = _screenWidth * 0.20;
 
     fontScale = fontSize / defaultFontSize;
@@ -265,6 +270,8 @@ class LyricsTable {
     _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
     _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize);
   }
+
+  bool _expandRepeats = false;
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 100;

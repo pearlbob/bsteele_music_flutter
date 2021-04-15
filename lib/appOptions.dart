@@ -24,7 +24,6 @@ class AppOptions {
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     countIn = await _readBool('countIn');
     dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
-    dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
     debug = await _readBool('debug');
     playWithLineIndicator = await _readBool('playWithLineIndicator');
     playWithMeasureIndicator = await _readBool('playWithMeasureIndicator');

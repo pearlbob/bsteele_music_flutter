@@ -11,39 +11,46 @@ class GuiColors {
 
     switch (sectionEnum) {
       case SectionEnum.verse:
-        ret = Colors.grey[300];
+        ret = verseColor;
         break;
       case SectionEnum.intro:
-        ret = Colors.orange[100];
+        ret = introColor;
         break;
       case SectionEnum.preChorus:
-        ret = Colors.blue[100];
+        ret = tagColor;
         break;
       case SectionEnum.chorus:
-        ret = Colors.grey[100];
+        ret = chorusColor;
         break;
       case SectionEnum.tag:
-        ret = Colors.blue[100];
+        ret = tagColor;
         break;
       case SectionEnum.a:
-        ret = Colors.purple[100];
+        ret = verseColor;
         break;
       case SectionEnum.b:
-        ret = Colors.teal[100];
+        ret = bridgeColor;
         break;
       case SectionEnum.bridge:
-        ret = Colors.green[100];
+        ret = bridgeColor;
         break;
       case SectionEnum.coda:
-        ret = Colors.yellow[100];
+        ret = introColor;
         break;
       case SectionEnum.outro:
-        ret = Colors.lightBlue[100];
+        ret = introColor;
         break;
       default:
         ret = Colors.grey[300];
     }
 
-    return ret ?? Color(0xFFE0E0E0); //  safety
+    return ret ?? const Color(0xFFE0E0E0); //  safety
   }
+
+  static const Color verseColor = Color(0xfff5e6b8);
+  static const Color chorusColor = Color(0xffffffff);
+  static const Color bridgeColor = Color(0xffd2f5cd);
+  static const Color introColor = Color(0xFFcdf5e9);
+  static const Color preChorusColor = Color(0xffe8e8e8);
+  static const Color tagColor = Color(0xffcee1f5);
 }

@@ -7,6 +7,7 @@ import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
@@ -48,16 +49,18 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     // ignore: invalid_use_of_protected_member
     _player?.setState(() {});
   });
+
+  //print('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
 /// Display the song moments in sequential order.
 class Player extends StatefulWidget {
-  const Player(this.song, {Key? key}) : super(key: key);
+  Player(this.song, {Key? key}) : super(key: key);
 
   @override
   State<Player> createState() => _Player();
 
-  final Song song;
+  Song song; //  fixme: not const due to song updates!
 
   static final String routeName = '/player';
 }
@@ -140,25 +143,31 @@ class _Player extends State<Player> with RouteAware {
     super.dispose();
   }
 
+  void _positionAfterBuild() {
+    if (_songUpdate != null && _isPlaying) {
+      _scrollToSectionByMoment(_songUpdate!.songMoment);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Song song = widget.song; //  convenience only
+    Song song = widget.song; //  default only
 
     //  deal with song updates
     if (_songUpdate != null) {
-      if (song != _songUpdate!.song) {
+      if (!song.songBaseSameContent(_songUpdate!.song)) {
         song = _songUpdate!.song;
+        widget.song = song;
         _table = null; //  force re-eval
-        _sectionBump(0);
-      }
-      if (_songUpdate!.momentNumber > 0) {
-        _isPaused = false;
-        _isPlaying = true;
-        _sectionByMomentNumber(_songUpdate!.momentNumber);
+        //print('new update song:  ${song.getSongMomentsSize()}');
+        _play();
+      } else {
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
+          // executes after build
+          _positionAfterBuild();
+        });
       }
       _displaySongKey = _songUpdate!.currentKey;
-
-      print('player: ${song.title}  ${_songUpdate!.momentNumber}');
     }
 
     _lyricsTable.computeScreenSizes();
@@ -172,6 +181,7 @@ class _Player extends State<Player> with RouteAware {
       );
       _rowLocations = _lyricsTable.rowLocations;
       _screenOffset = _lyricsTable.screenHeight / 2;
+      _sectionLocations = null; //  clear any previous song cached data
     }
 
     // if (_appOptions.debug && _table != null) {
@@ -323,27 +333,6 @@ class _Player extends State<Player> with RouteAware {
                 ),
               ),
             ),
-            //  put title and artist on top, behind the chords and lyrics
-            // if (_isPlaying && false) //  no longer required
-            //   Positioned(
-            //     top: boxHeight / 3,
-            //     left: _screenWidth / 3, //  fixed position
-            //     child: Row(children: <Widget>[
-            //       Text(
-            //         song.title,
-            //         style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-            //       ),
-            //       Text(
-            //         '  by  ',
-            //       ),
-            //       Text(
-            //         song.artist,
-            //         style: TextStyle(
-            //           fontSize: lyricsFontSize,
-            //         ),
-            //       ),
-            //     ]),
-            //   ),
             //  tiny center marker
             Positioned(
               top: boxCenter,
@@ -628,7 +617,7 @@ With escape, the app goes back to the play list.''',
   void _playerOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.d('_playerOnKey(): ${e.data.logicalKey}'
+      logger.i('_playerOnKey(): ${e.data.logicalKey}'
           ', ctl: ${e.isControlPressed}'
           ', shf: ${e.isShiftPressed}'
           ', alt: ${e.isAltPressed}');
@@ -647,12 +636,12 @@ With escape, the app goes back to the play list.''',
       } else if (_isPlaying &&
           !_isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
-        logger.d('arrowDown @ $_rowLocationIndex');
+        logger.d('arrowDown');
         _sectionBump(1);
       } else if (_isPlaying &&
           !_isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
-        logger.d('arrowUp @ $_rowLocationIndex');
+        logger.d('arrowUp');
         _sectionBump(-1);
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         if (_isPlaying) {
@@ -669,20 +658,20 @@ With escape, the app goes back to the play list.''',
     }
   }
 
-  _sectionByMomentNumber(int momentNumber) {
-    var r = 0;
-    for (RowLocation? rowLocation in _rowLocations) {
-      if (rowLocation != null && rowLocation.songMoment.momentNumber >= momentNumber) {
-        break;
-      }
-      r++;
+  _scrollToSectionByMoment(SongMoment? songMoment) {
+    if (songMoment == null) {
+      return;
     }
-    //print('_sectionByMomentNumber($momentNumber), row: $r, _rowLocations.length: ${_rowLocations.length}');
+
+    _updateSectionLocations();
 
     if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
-      double target = _sectionLocations![Util.limit(r, 0, _sectionLocations!.length - 1) as int];
-      _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
-      //print('_sectionSelection: $target');
+      double target =
+          _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
+      if (_scrollController.offset != target) {
+        _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
+        //print('_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
+      }
     }
   }
 
@@ -693,8 +682,31 @@ With escape, the app goes back to the play list.''',
       return;
     }
 
+    if (!_scrollController.hasClients) {
+      return; //  safety during initial configuration
+    }
+
+    _updateSectionLocations();
+
+    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
+      //  find the best location for the current scroll position
+      var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort();
+      if (sortedLocations.isNotEmpty) {
+        double? target = sortedLocations.first;
+
+        //  bump it by units of section
+        int r = Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int;
+        target = _sectionLocations![r];
+
+        _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
+        print('_sectionBump: bump: $bump, $r => $target');
+      }
+    }
+  }
+
+  _updateSectionLocations() {
     //  lazy update
-    if (_sectionLocations == null && _rowLocations.isNotEmpty) {
+    if (_scrollController.hasClients && _sectionLocations == null && _rowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
       double? y0;
       ChordSection chordSection = _rowLocations[0]!.songMoment.chordSection;
@@ -702,7 +714,9 @@ With escape, the app goes back to the play list.''',
 
       _sectionLocations = [];
       for (RowLocation? _rowLocation in _rowLocations) {
-        if (_rowLocation == null) continue;
+        if (_rowLocation == null) {
+          continue;
+        }
         if (chordSection == _rowLocation.songMoment.chordSection &&
             sectionCount == _rowLocation.songMoment.sectionCount) {
           continue; //  same section, no entry
@@ -715,8 +729,11 @@ With escape, the app goes back to the play list.''',
         {
           //  deal with possible missing render objects
           var renderObject = key.currentContext?.findRenderObject();
-          if (renderObject != null) {
-            y = (renderObject as RenderBox).localToGlobal(Offset.zero).dy;
+          if (renderObject != null && renderObject is RenderBox) {
+            y = renderObject.localToGlobal(Offset.zero).dy;
+          } else {
+            _sectionLocations = null;
+            return;
           }
         }
         y0 ??= y;
@@ -730,7 +747,9 @@ With escape, the app goes back to the play list.''',
       {
         List<double> tmp = [];
         for (int i = 0; i < _sectionLocations!.length - 1; i++) {
-          tmp.add((_sectionLocations![i] + _sectionLocations![i + 1]) / 2);
+          tmp.add(_sectionLocations![i + 1] //  start of the next section
+              //  fixme when only flutter: (_sectionLocations![i] + _sectionLocations![i + 1]) / 2
+          );
         }
 
         //  average the last with the end of the last
@@ -739,29 +758,17 @@ With escape, the app goes back to the play list.''',
         {
           //  deal with possible missing render objects
           var renderObject = key.currentContext?.findRenderObject();
-          if (renderObject != null) {
-            y = (renderObject as RenderBox).localToGlobal(Offset.zero).dy;
+          if (renderObject != null && renderObject is RenderBox) {
+            y = renderObject.localToGlobal(Offset.zero).dy;
+          } else {
+            _sectionLocations = null;
+            return;
           }
         }
         y0 ??= y;
         y -= y0;
         tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y + (key.currentContext?.size?.height ?? 0)) / 2);
-        _sectionLocations = tmp;
-      }
-    }
-
-    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
-      //  find the best location for the current scroll position
-      var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort();
-      if (sortedLocations.isNotEmpty) {
-        double? target = sortedLocations.first;
-
-        //  bump it by units of section
-        target = _sectionLocations![
-            Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int];
-
-        _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
-        logger.d('_sectionSelection: $target');
+        _sectionLocations = tmp;  //  last location
       }
     }
   }
@@ -771,8 +778,7 @@ With escape, the app goes back to the play list.''',
   _play() {
     setState(() {
       _sectionBump(0);
-      _rowLocationIndex = 0;
-      logger.d('play');
+      logger.d('play:');
       _isPaused = false;
       _isPlaying = true;
       songMaster.playSong(widget.song);
@@ -868,7 +874,6 @@ With escape, the app goes back to the play list.''',
 
   double _screenOffset = 0;
   List<RowLocation?> _rowLocations = [];
-  int _rowLocationIndex = 0;
 
   Table? _table;
   LyricsTable _lyricsTable = LyricsTable();

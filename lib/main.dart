@@ -270,16 +270,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     bool oddEven = true;
 
-    print('main build: _requestedSong: $_requestedSong   fixme');
-    if (_requestedSong != null) {
-      var newSong = _requestedSong;
-      _requestedSong = null;
-      Timer(Duration(milliseconds: 2), () {
-        selectedSong = newSong!;
-        Navigator.pushNamedAndRemoveUntil(context, Player.routeName, (route) => route.isFirst);
-      });
-    }
-
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
     var _titleBarFontSize = defaultFontSize * min(3, max(1, screenInfo.widthInLogicalPixels / 350));
@@ -841,16 +831,13 @@ class _MyHomePageState extends State<MyHomePage> {
       webSocketChannel.stream.listen((message) async {
         var songUpdate = SongUpdate.fromJson(message as String);
         if (songUpdate != null) {
-          print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
+          //print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
           playerUpdate(context , songUpdate);
-          // _requestedSong = songUpdate.song;
-          // setState(() {});
-          //   Navigator.pushNamedAndRemoveUntil(
-          //       context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
         }
       }, onError: (Object error) {
         print('webSocketChannel error: $error');
       }, onDone: () {
+        print('webSocketChannel done');
         webSocketChannel.sink.close(web_socket_status.normalClosure);
       });
     } catch (e) {
@@ -931,8 +918,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Navigator.pop(context);
   }
-
-  Song? _requestedSong;
 
   List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = _SortType.byTitle;

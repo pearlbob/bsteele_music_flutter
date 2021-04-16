@@ -83,6 +83,12 @@ void addSong(Song song) {
   selectedSong = song;
 }
 
+void addSongs(List<Song> songs) {
+  for (var song in songs) {
+    _allSongs.add(song);
+  }
+}
+
 void removeAllSongs() {
   _allSongs = SplayTreeSet();
   _filteredSongs = SplayTreeSet();
@@ -822,7 +828,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (kIsWeb && Uri.base.scheme == 'http') {
       authority = Uri.base.authority;
     } else {
-      authority = _appOptions.websocketHost+':8080';
+      authority = _appOptions.websocketHost + ':8080';
     }
     var url = 'ws://$authority/bsteeleMusicApp/bsteeleMusic';
 
@@ -832,7 +838,7 @@ class _MyHomePageState extends State<MyHomePage> {
         var songUpdate = SongUpdate.fromJson(message as String);
         if (songUpdate != null) {
           //print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
-          playerUpdate(context , songUpdate);
+          playerUpdate(context, songUpdate);
         }
       }, onError: (Object error) {
         print('webSocketChannel error: $error');

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/main.dart';
@@ -6,6 +8,7 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:intl/intl.dart';
 
 /// Display the song moments in sequential order.
 class Songs extends StatefulWidget {
@@ -50,10 +53,12 @@ class _Songs extends State<Songs> {
                 child: Text(
                   'Read files',
                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+
                 ),
                 onPressed: () {
                   setState(() {
-                    _filePick();
+                    _filePick( context);
+                    // fixme: on linux: Unhandled Exception: UnimplementedError: pickFiles() has not been implemented.
                   });
                 },
               ),
@@ -82,12 +87,29 @@ class _Songs extends State<Songs> {
                 style: TextStyle(fontSize: fontSize),
               ),
               Text(
-                'Song count: ${allSongs.length}',
+                'Song count:  ${allSongs.length}',
+                style: TextStyle(fontSize: fontSize),
+              ),
+              Text(
+                'Most recent: ${_mostRecent()}',
                 style: TextStyle(fontSize: fontSize),
               ),
             ]),
       ),
     );
+  }
+
+  String _mostRecent() {
+    if ( allSongs.isEmpty ){
+      return 'empty list';
+    }
+
+    var lastModifiedTime = 0;
+    for (var song in allSongs) {
+      lastModifiedTime = max(lastModifiedTime, song.lastModifiedTime);
+    }
+
+    return DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(lastModifiedTime));
   }
 
   /// write all songs to the standard location
@@ -101,8 +123,8 @@ class _Songs extends State<Songs> {
     });
   }
 
-  void _filePick() async {
-    await UtilWorkaround().filePick();
+  void _filePick(BuildContext context) async {
+    await UtilWorkaround().filePick( context);
     Navigator.pop(context);
   }
 

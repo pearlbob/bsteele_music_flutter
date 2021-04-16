@@ -9,6 +9,7 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
+import 'package:flutter/widgets.dart';
 
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
@@ -26,7 +27,7 @@ class UtilWeb implements UtilWorkaround {
     return 'file written: \'$fileName\'';
   }
 
-  Future<void> filePick() async {
+  Future<void> filePick(BuildContext context) async {
     List<Song> songs = await getSongsAsync();
     for (final Song song in songs) {
       addSong(song);

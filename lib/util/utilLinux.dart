@@ -1,11 +1,18 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
-class _Picker extends FilePicker {}
+import '../main.dart';
+
+
+Directory _rootDirectory = Directory(Util.homePath());
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilLinux implements UtilWorkaround {
@@ -26,13 +33,31 @@ class UtilLinux implements UtilWorkaround {
     return 'file written to \'$file\'';
   }
 
-  Future<void> filePick() async {
-    _Picker picker = _Picker();
-    FilePickerResult? result = await picker.pickFiles(allowedExtensions: ['.songlyrics']);
-    for (final PlatformFile file in result?.files ?? []) {
-      logger.i('file: ${file.name}');
+  Future<void> filePick(BuildContext context) async {
+    String? path = await FilesystemPicker.open(
+      title: 'Open file',
+      context: context,
+      rootDirectory: _rootDirectory,
+      fsType: FilesystemType.file,
+      allowedExtensions: ['.songlyrics'],
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+    );
+    if (path != null) {
+      var file = File(path);
+      if (file.existsSync()) {
+        String s = utf8.decode(file.readAsBytesSync());
+        List<Song> songs = Song.songListFromJson(s);
+        addSongs(songs);
+        //  fixme: limits subsequent opens to the selected directory
+        _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
+      }
+    } else {
+      //  reset the root
+      _rootDirectory = Directory(Util.homePath());
     }
+    //  fixme: FilesystemPicker.open() in linux needs big help
   }
+
 }
 
 UtilWorkaround getUtilWorkaround() => UtilLinux();

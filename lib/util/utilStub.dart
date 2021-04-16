@@ -1,4 +1,5 @@
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
+import 'package:flutter/widgets.dart';
 
 class NullWorkaround implements UtilWorkaround {
 
@@ -6,7 +7,7 @@ class NullWorkaround implements UtilWorkaround {
     throw 'Error writing file to \'$fileName\': not implemented!';
   }
 
-  Future<void> filePick() async {
+  Future<void> filePick(BuildContext context) async {
     return Future<void>((){});
   }
 }

@@ -7,7 +7,7 @@ import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as songs;
+import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
@@ -815,9 +815,9 @@ class _Edit extends State<Edit> {
                         ),
                         Container(
                           padding: EdgeInsets.only(bottom: 24.0),
-                          child: DropdownButton<songs.Key>(
-                            items: songs.Key.values.toList().reversed.map((songs.Key value) {
-                              return new DropdownMenuItem<songs.Key>(
+                          child: DropdownButton<musicKey.Key>(
+                            items: musicKey.Key.values.toList().reversed.map((musicKey.Key value) {
+                              return new DropdownMenuItem<musicKey.Key>(
                                 key: ValueKey('half' + value.getHalfStep().toString()),
                                 value: value,
                                 child: new Text(
@@ -2886,7 +2886,7 @@ class _Edit extends State<Edit> {
   bool _hasChanged = false;
   bool _isValidSong = false;
 
-  songs.Key _key = songs.Key.getDefault();
+  musicKey.Key _key = musicKey.Key.getDefault();
   double _appendFontSize = 14;
   double _chordFontSize = 14;
 
@@ -2933,7 +2933,7 @@ class _Edit extends State<Edit> {
   bool _showHints = false;
 
   SectionVersion _sectionVersion = SectionVersion.getDefault();
-  ScaleNote _keyChordNote = songs.Key.getDefault().getKeyScaleNote();
+  ScaleNote _keyChordNote = musicKey.Key.getDefault().getKeyScaleNote();
 
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList = [];
 

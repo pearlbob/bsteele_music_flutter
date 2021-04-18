@@ -76,6 +76,9 @@ bool isScreenBig = true;
 bool isPhone = false;
 final Song _emptySong = Song.createEmptySong();
 
+late WebSocketChannel _webSocketChannel;
+late WebSocketSink _webSocketSink;
+
 void addSong(Song song) {
   logger.d('addSong( ${song.toString()} )');
   _allSongs.add(song);
@@ -95,6 +98,10 @@ void removeAllSongs() {
   selectedSong = Song.createEmptySong();
 }
 
+void playerLeaderSongUpdate(SongUpdate songUpdate) {
+  _webSocketSink.add(songUpdate.toJson());
+}
+
 SplayTreeSet<Song> get allSongs => _allSongs;
 SplayTreeSet<Song> _allSongs = SplayTreeSet();
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
@@ -108,8 +115,6 @@ enum _SortType {
   byLastChange,
   byComplexity,
 }
-
-final _bassPageRoute = MaterialPageRoute(builder: (BuildContext context) => BassWidget());
 
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
@@ -140,7 +145,6 @@ class MyApp extends StatelessWidget {
         '/documentation': (context) => Documentation(),
         '/about': (context) => About(),
         '/bass': (context) => BassWidget(),
-        BassWidget.routeName: _bassPageRoute.builder, // a test only
       },
     );
   }
@@ -501,7 +505,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 textScaleFactor: titleScaleFactor,
               ),
               onTap: () {
-                _closeDrawer();
                 _navigateToBass(context);
               },
             ),
@@ -833,8 +836,11 @@ class _MyHomePageState extends State<MyHomePage> {
     var url = 'ws://$authority/bsteeleMusicApp/bsteeleMusic';
 
     try {
-      var webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
-      webSocketChannel.stream.listen((message) async {
+      _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
+
+      _webSocketSink = _webSocketChannel.sink;
+
+      _webSocketChannel.stream.listen((message) async {
         var songUpdate = SongUpdate.fromJson(message as String);
         if (songUpdate != null) {
           //print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
@@ -844,7 +850,7 @@ class _MyHomePageState extends State<MyHomePage> {
         print('webSocketChannel error: $error');
       }, onDone: () {
         print('webSocketChannel done');
-        webSocketChannel.sink.close(web_socket_status.normalClosure);
+        _webSocketChannel.sink.close(web_socket_status.normalClosure);
       });
     } catch (e) {
       print('webSocketChannel exception: ${e.toString()}');
@@ -909,12 +915,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToBass(BuildContext context) async {
-    Navigator.pushNamed(
+    await Navigator.push(
       context,
-      BassWidget.routeName,
-    ).then((_) {
-      Navigator.pop(context);
-    });
+      MaterialPageRoute(builder: (context) => BassWidget()),
+    );
+    Navigator.pop(context);
   }
 
   _navigateToPrivacyPolicy(BuildContext context) async {
@@ -931,12 +936,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchTextFieldController = TextEditingController();
   FocusNode _searchFocusNode;
 
-//ScrollController _scrollController =  ScrollController();
   final ItemScrollController _itemScrollController = ItemScrollController();
   final Duration _itemScrollDuration = Duration(milliseconds: 500);
   int _rollIndex = -1;
 
-//static const double floatingActionSize = 50; //  inside the prescribed 56 pixel size
   final AppOptions _appOptions = AppOptions();
   final _random = Random();
 }

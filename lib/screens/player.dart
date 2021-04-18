@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
+import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -22,10 +22,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../main.dart';
-
-/*
-
- */
 
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
@@ -211,11 +207,11 @@ class _Player extends State<Player> with RouteAware {
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
-        List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
+        List<musicKey.Key?> rolledKeyList = List.generate(steps, (i) {
           return null;
         });
 
-        List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
+        List<musicKey.Key> list = musicKey.Key.keysByHalfStepFrom(song.key); //temp loc
         for (int i = 0; i <= halfOctave; i++) {
           rolledKeyList[i] = list[halfOctave - i];
         }
@@ -229,7 +225,7 @@ class _Player extends State<Player> with RouteAware {
         final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
         for (int i = 0; i < steps; i++) {
-          music_key.Key value = rolledKeyList[i]!;
+          musicKey.Key value = rolledKeyList[i]!;
 
           int relativeOffset = halfOctave - i;
           String valueString =
@@ -241,7 +237,7 @@ class _Player extends State<Player> with RouteAware {
             offsetString = '${relativeOffset.toString()}';
           }
 
-          keyDropDownMenuList!.add(DropdownMenuItem<music_key.Key>(
+          keyDropDownMenuList!.add(DropdownMenuItem<musicKey.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -479,7 +475,7 @@ With escape, the app goes back to the play list.''',
                                     'Key: ',
                                     style: _lyricsTextStyle,
                                   ),
-                                  DropdownButton<music_key.Key>(
+                                  DropdownButton<musicKey.Key>(
                                     items: keyDropDownMenuList,
                                     onChanged: (value) {
                                       setState(() {
@@ -813,7 +809,7 @@ With escape, the app goes back to the play list.''',
     });
   }
 
-  _setSelectedSongKey(music_key.Key key) {
+  _setSelectedSongKey(musicKey.Key key) {
     _selectedSongKey = key;
 
     if (_isCapo) {
@@ -877,11 +873,11 @@ With escape, the app goes back to the play list.''',
 
   Table? _table;
   LyricsTable _lyricsTable = LyricsTable();
-  music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
-  music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
+  musicKey.Key _selectedSongKey = musicKey.Key.get(musicKey.KeyEnum.C);
+  musicKey.Key _displaySongKey = musicKey.Key.get(musicKey.KeyEnum.C);
 
   int _capoLocation = 0;
-  List<DropdownMenuItem<music_key.Key>>? keyDropDownMenuList;
+  List<DropdownMenuItem<musicKey.Key>>? keyDropDownMenuList;
   List<DropdownMenuItem<int>>? bpmDropDownMenuList;
 
   SongMaster songMaster = SongMaster();

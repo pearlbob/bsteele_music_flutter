@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
+import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -300,7 +300,7 @@ class LyricsTable {
   Table get table => _table;
   Table _table = Table();
 
-  music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
+  musicKey.Key displaySongKey = musicKey.Key.get(musicKey.KeyEnum.C);
   AppOptions _appOptions = AppOptions();
 }
 

@@ -50,6 +50,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 }
 
 /// Display the song moments in sequential order.
+// ignore: must_be_immutable
 class Player extends StatefulWidget {
   Player(this.song, {Key? key}) : super(key: key);
 
@@ -173,7 +174,7 @@ class _Player extends State<Player> with RouteAware {
     if (_table == null) {
       _table = _lyricsTable.lyricsTable(
         song,
-        key: _displaySongKey,
+        musicKey: _displaySongKey,
       );
       _rowLocations = _lyricsTable.rowLocations;
       _screenOffset = _lyricsTable.screenHeight / 2;
@@ -613,7 +614,7 @@ With escape, the app goes back to the play list.''',
   void _playerOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.i('_playerOnKey(): ${e.data.logicalKey}'
+      logger.d('_playerOnKey(): ${e.data.logicalKey}'
           ', ctl: ${e.isControlPressed}'
           ', shf: ${e.isShiftPressed}'
           ', alt: ${e.isAltPressed}');
@@ -695,7 +696,7 @@ With escape, the app goes back to the play list.''',
         target = _sectionLocations![r];
 
         _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
-        print('_sectionBump: bump: $bump, $r => $target');
+        // print('_sectionBump: bump: $bump, $r => $target');
       }
     }
   }

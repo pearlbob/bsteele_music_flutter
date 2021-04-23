@@ -25,13 +25,13 @@ class LyricsTable {
 
   Table lyricsTable(
     Song song, {
-    key,
+    musicKey,
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
     expandRepeats,
   }) {
-    displaySongKey = key ?? song.key;
+    displaySongKey = musicKey ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
 
     computeScreenSizes();
@@ -50,10 +50,11 @@ class LyricsTable {
     List<Widget> children = [];
     Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
+    //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
         _appOptions.userDisplayStyle == UserDisplayStyle.both;
     bool showFullLyrics = _appOptions.userDisplayStyle == UserDisplayStyle.singer ||
-        _appOptions.userDisplayStyle == UserDisplayStyle.both; //isScreenBig || !_appOptions.playerDisplay;
+        _appOptions.userDisplayStyle == UserDisplayStyle.both;
 
     //  compute transposition offset from base key
     int tranOffset = displaySongKey.getHalfStep() - song.getKey().getHalfStep();
@@ -104,7 +105,7 @@ class LyricsTable {
       LyricSection lyricSection = firstSongMoment.lyricSection;
       int sectionCount = firstSongMoment.sectionCount;
       String? columnFiller;
-      EdgeInsets marginInsets = EdgeInsets.all(fontScale);
+      EdgeInsets marginInsets = EdgeInsets.all(_fontScale);
       EdgeInsets textPadding = EdgeInsets.all(6);
       if (chordSection != lastChordSection || sectionCount != lastSectionCount) {
         //  add the section heading
@@ -263,11 +264,12 @@ class LyricsTable {
     _fontSize *= (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
     _shortLyricsWidth = _screenWidth * 0.20;
 
-    fontScale = fontSize / defaultFontSize;
+    _fontScale = fontSize / defaultFontSize;
     logger.v('lyricsTable: ($_screenWidth,$_screenHeight),'
-        ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $fontScale');
+        ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
 
-    _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
+    //  text styles
+    _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
     _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize);
   }
 
@@ -287,9 +289,9 @@ class LyricsTable {
 
   double get fontSize => _fontSize;
   double _fontSize = 10;
-  double fontScale = 1;
+  double _fontScale = 1;
 
-  TextStyle get chordTextStyle => _chordTextStyle;
+  //TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = TextStyle();
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;

@@ -1,15 +1,12 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
-import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songUpdate.dart';
-import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +18,20 @@ final _blackOutline = Paint()
   ..color = Colors.black
   ..style = PaintingStyle.stroke
   ..strokeWidth = 1;
+final _scaleBlackOutline = Paint()
+  ..color = Colors.black38
+  ..style = PaintingStyle.stroke
+  ..strokeWidth = 1;
 final _grey = Paint()..color = Colors.grey;
 final _dotColor = Paint()..color = Colors.blue[100] ?? Colors.blue;
 final _rootColor = Paint()..color = Colors.red;
-final _3Color = Paint()..color = Color(0xffffb28f);
-final _5Color = Paint()..color = Color(0xffffa500);
-final _7Color = Paint()..color = Color(0xffffff00);
+final _thirdColor = Paint()..color = Color(0xffffb390);
+final _fifthColor = Paint()..color = Color(0xffffa500);
+final _seventhColor = Paint()..color = Color(0xffffff00);
+final _scaleColor = Paint()..color = Color(0x80ffffff);
+double _fontSize = 24;
 
+musicKey.Key _key = musicKey.Key.getDefault();
 
 /// the bass study tool
 class BassWidget extends StatefulWidget {
@@ -46,16 +50,16 @@ class _State extends State<BassWidget> {
   @override
   Widget build(BuildContext context) {
     ScreenInfo screenInfo = ScreenInfo(context);
-    final double fontSize = screenInfo.isTooNarrow ? 16 : 24;
+    _fontSize = screenInfo.isTooNarrow ? 16 : 24;
 
-    _style = TextStyle(color: Colors.black87, fontSize: fontSize);
+    _style = TextStyle(color: Colors.black87, fontSize: _fontSize);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           'bsteele Bass Study Tool',
-          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -160,7 +164,7 @@ class _State extends State<BassWidget> {
           SizedBox(
             height: 10,
           ),
-                 ],
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -178,6 +182,8 @@ class _State extends State<BassWidget> {
     const halfSteps = MusicConstants.halfStepsPerOctave;
 
     List<Widget> row = [];
+
+    //  halfsteps
     row.add(Container(
       padding: padding,
       alignment: Alignment.centerRight,
@@ -197,6 +203,7 @@ class _State extends State<BassWidget> {
     }
     children.add(TableRow(children: row));
 
+    //  structure
     row = [];
     row.add(Container(
       padding: padding,
@@ -217,6 +224,13 @@ class _State extends State<BassWidget> {
     }
     children.add(TableRow(children: row));
 
+    //  compute scale notes
+    var scaleNotes = <ScaleNote>[];
+    for (int n = 0; n < MusicConstants.notesPerScale; n++) {
+      scaleNotes.add(_key.getMajorScaleByNote(n));
+    }
+
+    //  display scale notes
     row = [];
     row.add(Container(
       padding: padding,
@@ -226,11 +240,6 @@ class _State extends State<BassWidget> {
         style: _style,
       ),
     ));
-    var scaleNotes = <ScaleNote>[];
-    for (int n = 0; n < MusicConstants.notesPerScale; n++) {
-      scaleNotes.add(_key.getMajorScaleByNote(n));
-    }
-
     for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
       var scaleNote = _key.getKeyScaleNoteByHalfStep(halfStep);
       row.add(Container(
@@ -303,7 +312,6 @@ class _State extends State<BassWidget> {
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   TextStyle _style = TextStyle();
-  musicKey.Key _key = musicKey.Key.getDefault();
 }
 
 class _FretBoardPainter extends CustomPainter {
@@ -378,33 +386,58 @@ class _FretBoardPainter extends CustomPainter {
           _dotColor);
     }
 
-    //  temp
     {
-      final paints = <Paint>[_rootColor, _3Color, _5Color, _7Color];
-      var paintIndex = 0;
+      //  compute scale notes
+      var scaleNotes = <ScaleNote>[];
+      for (int n = 0; n < MusicConstants.notesPerScale; n++) {
+        scaleNotes.add(_key.getMajorScaleByNote(n));
+      }
+
       for (var fret = 0; fret <= 12; fret++) {
         for (var bassString = 0; bassString < 4; bassString++) {
-          press(paints[paintIndex], bassString, fret);
-          paintIndex = (paintIndex + 1) % paints.length;
+          var halfStep = (bassString * 5 + fret) % MusicConstants.halfStepsPerOctave;
+          var scaleNote = keyE.getKeyScaleNoteByHalfStep(halfStep);
+
+          if (scaleNotes.contains(scaleNote)) {
+            var halfStepOff = (scaleNote.halfStep - _key.halfStep) % MusicConstants.halfStepsPerOctave;
+            var chordComponent = ChordComponent.values[halfStepOff];
+            Paint paint;
+            if (chordComponent == ChordComponent.root) {
+              paint = _rootColor;
+            } else if (chordComponent == ChordComponent.minorThird || chordComponent == ChordComponent.third) {
+              paint = _thirdColor;
+            } else if (chordComponent == ChordComponent.flatFifth || chordComponent == ChordComponent.fifth) {
+              paint = _fifthColor;
+            } else if (chordComponent == ChordComponent.minorSeventh || chordComponent == ChordComponent.seventh) {
+              paint = _seventhColor;
+            } else {
+              paint = _scaleColor;
+            }
+            press(paint, bassString, fret, chordComponent.shortName);
+          }
         }
       }
     }
   }
 
-  void press(Paint paint, int bassString, int fret) {
+  void press(Paint paint, int bassString, int fret, String noteChar) {
     fret = max(0, min(12, fret));
     bassString = max(0, min(3, bassString));
     final double pressRadius = 15;
-    canvas.drawCircle(
-        Offset(fretLoc(fret) - pressRadius - 4,
-            bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8),
-        pressRadius,
-        paint);
-    canvas.drawCircle(
-        Offset(fretLoc(fret) - pressRadius - 4,
-            bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8),
-        pressRadius,
-        _blackOutline);
+    var offset = Offset(fretLoc(fret) - pressRadius - 4,
+        bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8);
+    canvas.drawCircle(offset, pressRadius, paint);
+    canvas.drawCircle(offset, pressRadius, _blackOutline);
+    if (noteChar.isNotEmpty) {
+      // To create a paragraph of text, we use ParagraphBuilder.
+      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
+        ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
+      )
+        ..pushStyle(ui.TextStyle(color: Colors.black, fontSize: _fontSize, fontWeight: FontWeight.bold))
+        ..addText(noteChar);
+      var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
+      canvas.drawParagraph(paragraph, Offset(offset.dx - paragraph.maxIntrinsicWidth / 2, offset.dy - pressRadius));
+    }
   }
 
   @override
@@ -434,6 +467,8 @@ class _FretBoardPainter extends CustomPainter {
     }
     return fretWidths[n];
   }
+
+  final musicKey.Key keyE = musicKey.Key.get(musicKey.KeyEnum.E);
 
   late Canvas canvas;
   final List<double> fretLocs = [];

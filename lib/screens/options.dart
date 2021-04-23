@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/bass.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,12 +31,25 @@ class _Options extends State<Options> {
   @override
   initState() {
     super.initState();
+
+    _userTextEditingController.text = _appOptions.user;
+    _userTextEditingController.addListener(() {
+      if (_userTextEditingController.text.isNotEmpty) {
+        _appOptions.user = _userTextEditingController.text;
+      }
+    });
+
+    _songUpdateService.addListener(_songUpdateServiceCallback);
+  }
+
+  void _songUpdateServiceCallback() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     ScreenInfo screenInfo = ScreenInfo(context);
-    double fontSize = screenInfo.isTooNarrow ? 18 : 36;
+    double fontSize = screenInfo.isTooNarrow ? 18 : 30;
 
     _websocketHostEditingController.text = _appOptions.websocketHost;
 
@@ -137,36 +151,88 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
-                  if (!kIsWeb)
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: Text(
-                              'Host: ',
-                              style: TextStyle(
-                                fontSize: fontSize,
-                              ),
+                  Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                          child: Text(
+                            'User name: ',
+                            style: TextStyle(
+                              fontSize: fontSize,
                             ),
                           ),
-                          Expanded(
-                            child: TextField(
-                              controller: _websocketHostEditingController,
-                              decoration: InputDecoration(
-                                hintText: 'Enter the websocket host IP address.',
-                              ),
-                              // maxLength: 20,
-                              style: TextStyle(
-                                fontSize: fontSize,
-                              ),
-                              onChanged: (value) {
-                                _appOptions.websocketHost = value;
-                              },
+                        ),
+                        Expanded(
+                          child: TextField(
+                            controller: _userTextEditingController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter your user name.',
+                            ),
+                            // maxLength: 20,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                            ),
+                            onChanged: (value) {
+                              if (value.isNotEmpty) {
+                                _appOptions.user = value;
+                              }
+                            },
+                          ),
+                        ),
+                      ]),
+                  Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                          child: Text(
+                            'Host IP: ',
+                            style: TextStyle(
+                              fontSize: fontSize,
                             ),
                           ),
-                        ]),
+                        ),
+                        Expanded(
+                          child: TextField(
+                            controller: _websocketHostEditingController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter the websocket host IP address.',
+                            ),
+                            // maxLength: 20,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                            ),
+                            onChanged: (value) {
+                              _appOptions.websocketHost = value;
+                            },
+                          ),
+                        ),
+                      ]),
+                  Row(children: <Widget>[
+                    Text(
+                      'Song Update: ',
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                    ElevatedButton(
+                      child: Text(
+                        (_songUpdateService.isOpen
+                            ? (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader')
+                            : 'Server not found, retry'),
+                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        if (_songUpdateService.isOpen) {
+                          _songUpdateService.isLeader = !_songUpdateService.isLeader;
+                        } else {
+                          _songUpdateService.open(context);
+                        }
+                        setState(() {});
+                      },
+                    ),
+                  ]),
                   Row(children: <Widget>[
                     Checkbox(
                       value: _appOptions.debug,
@@ -253,6 +319,7 @@ class _Options extends State<Options> {
 
   @override
   void dispose() {
+    _songUpdateService.removeListener(_songUpdateServiceCallback);
     _timer?.cancel();
     _timer = null;
     super.dispose();
@@ -367,6 +434,7 @@ class _Options extends State<Options> {
         'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
   }
 
+  TextEditingController _userTextEditingController = TextEditingController();
   TextEditingController _websocketHostEditingController = TextEditingController();
 
   static final int _testNumber = 3;
@@ -378,6 +446,7 @@ class _Options extends State<Options> {
 
   Timer? _timer;
   double _timerT = 0;
+  final SongUpdateService _songUpdateService = SongUpdateService();
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
 }

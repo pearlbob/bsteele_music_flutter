@@ -7,7 +7,6 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
-import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/bass.dart';
@@ -18,6 +17,7 @@ import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,8 +25,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:web_socket_channel/status.dart' as web_socket_status;
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'appOptions.dart';
 import 'util/openLink.dart';
@@ -76,9 +74,6 @@ bool isScreenBig = true;
 bool isPhone = false;
 final Song _emptySong = Song.createEmptySong();
 
-late WebSocketChannel _webSocketChannel;
-late WebSocketSink _webSocketSink;
-
 void addSong(Song song) {
   logger.d('addSong( ${song.toString()} )');
   _allSongs.add(song);
@@ -96,10 +91,6 @@ void removeAllSongs() {
   _allSongs = SplayTreeSet();
   _filteredSongs = SplayTreeSet();
   selectedSong = Song.createEmptySong();
-}
-
-void playerLeaderSongUpdate(SongUpdate songUpdate) {
-  _webSocketSink.add(songUpdate.toJson());
 }
 
 SplayTreeSet<Song> get allSongs => _allSongs;
@@ -184,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
-    _webSocketOpen(context);
+    SongUpdateService.open(context);
   }
 
   void _readInternalSongList() async {
@@ -677,10 +668,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _closeDrawer() {
-    Navigator.of(context).pop();
-  }
-
   void _searchSongs(String? search) {
     search ??= '';
     search = search.trim();
@@ -822,38 +809,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
-    }
-  }
-
-  void _webSocketOpen(BuildContext context) async {
-    //  look back to the server to possibly find a websocket
-    var authority = '';
-    if (kIsWeb && Uri.base.scheme == 'http') {
-      authority = Uri.base.authority;
-    } else {
-      authority = _appOptions.websocketHost + ':8080';
-    }
-    var url = 'ws://$authority/bsteeleMusicApp/bsteeleMusic';
-
-    try {
-      _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
-
-      _webSocketSink = _webSocketChannel.sink;
-
-      _webSocketChannel.stream.listen((message) async {
-        var songUpdate = SongUpdate.fromJson(message as String);
-        if (songUpdate != null) {
-          //print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
-          playerUpdate(context, songUpdate);
-        }
-      }, onError: (Object error) {
-        print('webSocketChannel error: $error');
-      }, onDone: () {
-        print('webSocketChannel done');
-        _webSocketChannel.sink.close(web_socket_status.normalClosure);
-      });
-    } catch (e) {
-      print('webSocketChannel exception: ${e.toString()}');
     }
   }
 

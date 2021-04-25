@@ -246,10 +246,12 @@ class _LyricsLine {
       //  arbitrary, large limit:
       maxLines: 300,
       onSubmitted: (value) {
+        // print('onSubmitted(\'$value\')');
         _submit(value);
       },
       onChanged: (value) {
         // logger.i('onChanged(\'$value\')');
+        // print('onChanged(\'$value\')');
         _update(_controller.text);
       },
     );

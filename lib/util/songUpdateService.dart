@@ -40,7 +40,7 @@ class SongUpdateService extends ChangeNotifier {
       }
 
       var url = 'ws://$authority/bsteeleMusicApp/bsteeleMusic';
-      print('trying: $url');
+      logger.d('trying: $url');
 
       try {
         _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
@@ -50,9 +50,10 @@ class SongUpdateService extends ChangeNotifier {
         _subscription = _webSocketChannel!.stream.listen((message) {
           var songUpdate = SongUpdate.fromJson(message as String);
           if (songUpdate != null) {
-            //print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
+            // print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
             playerUpdate(context, songUpdate); //  fixme:  exposure to UI internals
             delaySeconds = 0;
+            songUpdateCount++;
           }
         }, onError: (Object error) {
           // print('webSocketChannel error: $error at $authority'); //  fixme: retry later
@@ -74,8 +75,7 @@ class SongUpdateService extends ChangeNotifier {
             break;
           }
           if (!isOpen) {
-            // print('close: $lastAuthority');
-            _closeWebSocketChannel();
+            // print('on close: $lastAuthority');
             break;
           }
           // print('webSocketChannel idle: $_webSocketChannel');
@@ -85,10 +85,11 @@ class SongUpdateService extends ChangeNotifier {
         _closeWebSocketChannel();
       }
 
-      notifyListeners();
+      //  backoff bothering the server with repeated failures
       if (delaySeconds < 60) {
         delaySeconds += 5;
       }
+      //  wait a while
       await Future.delayed(Duration(seconds: delaySeconds));
     }
   }
@@ -108,7 +109,9 @@ class SongUpdateService extends ChangeNotifier {
     _webSocketChannel?.sink.close(web_socket_status.normalClosure);
     _webSocketChannel = null;
     await _subscription?.cancel();
+    _subscription = null;
     _isLeader = false;
+    songUpdateCount=0;
     notifyListeners();
   }
 
@@ -126,7 +129,9 @@ class SongUpdateService extends ChangeNotifier {
     }
   }
 
-  bool get isOpen => _webSocketChannel != null;
+  bool get isOpen => _webSocketChannel != null
+      //&& songUpdateCount > 0    //  fixme: needs connection confirmation from server without a song update
+  ;
 
   set isLeader(bool value) {
     if (value == _isLeader) {
@@ -139,6 +144,7 @@ class SongUpdateService extends ChangeNotifier {
   bool get isLeader => _isLeader;
   bool _isLeader = false;
   WebSocketChannel? _webSocketChannel;
+  int songUpdateCount=0;
   WebSocketSink? _webSocketSink;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();

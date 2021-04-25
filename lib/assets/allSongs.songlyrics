@@ -31994,6 +31994,88 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1619164391958, "song": 
+{
+"title": "Free Bird",
+"artist": "Lynyrd Skynyrd",
+"user": "Shari",
+"lastModifiedDate": 1619164391958,
+"copyright": "1973 MCA",
+"key": "G",
+"defaultBpm": 117,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"G D/G♭ Em Em |",
+	"F C Dsus4 Dsus4 | x4",
+	"I2:",
+	"G D/G♭ Em Em |",
+	"F C Dsus4 Dsus4 | x2",
+	"V:",
+	"G D Em Em |",
+	"F C Dsus4 Dsus4 | x2",
+	"C:",
+	"F C Dsus4 Dsus4 x3",
+	"C2:",
+	"F C Dsus4 Dsus4 x4",
+	"Br:",
+	"G B♭ C C x2",
+	"O:",
+	"G B♭ C C x37"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"If I leave here tomorrow",
+	"Would you still remember me?",
+	"For I must be traveling on now",
+	"'Cause there's too many places I've got to see",
+	"",
+	"V:",
+	"But if I stayed here with you, girl",
+	"Things just couldn't be the same",
+	"'Cause I'm as free as a bird now",
+	"And this bird you cannot change",
+	"",
+	"C:",
+	"And this bird you cannot change",
+	"And this bird you cannot change",
+	"Lord knows I can't change",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Bye bye baby it's been a sweet love, yeah",
+	"Though this feeling I can't change",
+	"But please don't take it so badly",
+	"'Cause Lord knows I'm to blame",
+	"",
+	"V:",
+	"If I stayed here with you, girl",
+	"Things just couldn't be the same",
+	"'Cause I'm as free as a bird now",
+	"And this bird you cannot change, ooh",
+	"",
+	"C2:",
+	"And the bird you cannot change",
+	"And this bird you cannot change",
+	"Lord knows I can't change",
+	"Lord help me, I can't change",
+	"",
+	"BR:",
+	"Lord, I can't change, won't you",
+	"Fly high, free bird, yeah",
+	"",
+	"O:",
+	"(instrumental)"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1612153820903, "song": 
 {
 "title": "Free Fallin'",
@@ -35523,21 +35605,20 @@
     ]
 }
 },
-{ "file": "Good Riddance.songlyrics", "lastModifiedDate": 1533180253796, "song": 
+{ "file": "", "lastModifiedDate": 1619141152749, "song": 
 {
 "title": "Good Riddance",
 "artist": "Green Day",
-"user": "Unknown",
-"lastModifiedDate": 1533180253796,
-"copyright": "Green Day",
-"key": "C",
-"defaultBpm": 106,
-"timeSignature": "4/4",
+"user": "Shari",
+"lastModifiedDate": 1619141152749,
+"copyright": "1997 Reprise",
+"key": "G",
+"defaultBpm": 97,
+"timeSignature": "2/4",
 "chords": 
     [
 	"I:",
-	"G G C D",
-	"G G C D",
+	"G G C D x2",
 	"V:",
 	"G G C D",
 	"G G C D",
@@ -35546,37 +35627,49 @@
 	"C:",
 	"Em G Em G",
 	"Em D",
-	"C1:",
-	"Em G Em G",
-	"Em D G G"
+	"O:",
+	"G G C D x2",
+	"G"
     ],
 "lyrics": 
     [
 	"i:",
+	"",
 	"v:",
 	"Another turning point, a fork stuck in the road",
 	"Time grabs you by the wrist, directs you where to go",
 	"So make the best of this test, and don't ask why",
 	"It's not a question, but a lesson learned in time",
-	"ch:",
-	"It's something unpredictable, but in the end is right,",
-	"I hope you had the time of your life.",
+	"",
+	"c:",
+	"It's something unpredictable, but in the end is right",
+	"I hope you had the time of your life",
+	"",
 	"i:",
+	"",
 	"v:",
 	"So take the photographs, and still frames in your mind",
 	"Hang it on a shelf in good health and good time",
 	"Tattoos of memories and dead skin on trial",
 	"For what it's worth it was worth all the while",
-	"ch:",
-	"It's something unpredictable, but in the end is right,",
-	"I hope you had the time of your life.",
+	"",
+	"c:",
+	"It's something unpredictable, but in the end is right",
+	"I hope you had the time of your life",
+	"",
 	"v: (instrumental)",
-	"ch1:",
-	"It's something unpredictable, but in the end is right,",
-	"I hope you had the time of your life.",
-	"ch1:",
-	"It's something unpredictable, but in the end is right,",
-	"I hope you had the time of your life."
+	"",
+	"c:",
+	"It's something unpredictable, but in the end is right",
+	"I hope you had the time of your life",
+	"",
+	"I:",
+	"",
+	"c:",
+	"It's something unpredictable, but in the end is right",
+	"I hope you had the time of your life",
+	"",
+	"O:"
     ]
 }
 },
@@ -56438,15 +56531,15 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1599030204147, "song": 
+{ "file": "", "lastModifiedDate": 1619164777168, "song": 
 {
 "title": "Light My Fire",
 "artist": "Doors, The",
 "user": "Shari",
-"lastModifiedDate": 1599030204147,
+"lastModifiedDate": 1619164777168,
 "copyright": "1967 Elektra",
-"key": "C",
-"defaultBpm": 100,
+"key": "Ab",
+"defaultBpm": 126,
 "timeSignature": "4/4",
 "chords": 
     [
@@ -69630,14 +69723,14 @@
     ]
 }
 },
-{ "file": "Only Happy When It Rains (2).songlyrics", "lastModifiedDate": 1541383605874, "song": 
+{ "file": "", "lastModifiedDate": 1619141192707, "song": 
 {
 "title": "Only Happy When It Rains",
 "artist": "Garbage",
-"user": "Unknown",
-"lastModifiedDate": 1541383605874,
+"user": "Shari",
+"lastModifiedDate": 1619141192707,
 "copyright": "1995 Almo Sounds",
-"key": "E",
+"key": "B",
 "defaultBpm": 121,
 "timeSignature": "4/4",
 "chords": 
@@ -79305,12 +79398,12 @@
     ]
 }
 },
-{ "file": "Scientist, The.songlyrics", "lastModifiedDate": 1598290390733, "song": 
+{ "file": "", "lastModifiedDate": 1619166690448, "song": 
 {
 "title": "Scientist, The",
 "artist": "Coldplay",
 "user": "Shari",
-"lastModifiedDate": 1598290390733,
+"lastModifiedDate": 1619166690448,
 "copyright": "2003 Capitol",
 "key": "F",
 "defaultBpm": 75,
@@ -79318,25 +79411,17 @@
 "chords": 
     [
 	"I:",
-	"F6/D B♭ F/C FAm/E",
-	"F6/D B♭ F/C F/E",
+	"Dm7 B♭ F/C Fsus2/E x2",
 	"I2:",
-	"F6/D B♭ F/C FAm/E",
-	"F6/D B♭ F/C F/E",
+	"Dm7 B♭ F F x5",
 	"V1:",
-	"F6/D B♭ F FAm/E x4",
+	"Dm7 B♭ F/C Fsus2/E x4",
 	"C:",
-	"B♭ B♭ F/C F/E",
-	"B♭ B♭ F Fsus2/C",
-	"C C7X",
-	"C2:",
-	"B♭ B♭ F/C F/E",
-	"B♭ B♭ F Fsus2/C",
-	"C C7X",
-	"F6/D B♭ F F",
+	"B♭ B♭ F/C Fsus2/E",
+	"B♭ B♭ Fsus2 AmFsus2/E",
+	"C/G C7/GX",
 	"O:",
-	"F6/D B♭ F/C FAm/E x4",
-	"F6/D B♭ F"
+	"Dm7 B♭ F"
     ],
 "lyrics": 
     [
@@ -79360,7 +79445,7 @@
 	"No one ever said it would be this hard",
 	"Oh, take me back to the start",
 	"",
-	"i2:",
+	"i:",
 	"(instrumental)",
 	"",
 	"V1:",
@@ -79373,16 +79458,19 @@
 	"Running in circles, chasing our tails",
 	"Coming back as we are",
 	"",
-	"C2:",
+	"C:",
 	"Nobody said it was easy",
 	"Oh, it's such a shame for us to part",
 	"Nobody said it was easy",
 	"No one ever said it would be so hard",
 	"I'm going back to the start",
 	"",
-	"O:",
+	"i2:",
 	"(instrumental)",
-	"Ohh"
+	"Ooh",
+	"",
+	"O:",
+	"Ooh"
     ]
 }
 },
@@ -89417,12 +89505,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1618848932843, "song": 
+{ "file": "", "lastModifiedDate": 1619141247695, "song": 
 {
 "title": "Sultans of Swing",
 "artist": "Dire Straits",
 "user": "Shari",
-"lastModifiedDate": 1618848932843,
+"lastModifiedDate": 1619141247695,
 "copyright": "1978 Warner Bros",
 "key": "F",
 "defaultBpm": 110,
@@ -89445,7 +89533,8 @@
 	"F F C C",
 	"B♭ B♭",
 	"B:",
-	"Dm DmB♭ C CB♭ C C",
+	"Dm DmB♭",
+	"C CB♭ C C",
 	"B1:",
 	"Dm DmB♭ C C",
 	"O:",

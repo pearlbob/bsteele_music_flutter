@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -5,6 +6,7 @@ import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -28,10 +30,12 @@ final _rootColor = Paint()..color = Colors.red;
 final _thirdColor = Paint()..color = Color(0xffffb390);
 final _fifthColor = Paint()..color = Color(0xffffa500);
 final _seventhColor = Paint()..color = Color(0xffffff00);
+final _otherColor = Paint()..color = Color(0x80A3FF69);
 final _scaleColor = Paint()..color = Color(0x80ffffff);
 double _fontSize = 24;
 
 musicKey.Key _key = musicKey.Key.getDefault();
+ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 
 /// the bass study tool
 class BassWidget extends StatefulWidget {
@@ -50,9 +54,11 @@ class _State extends State<BassWidget> {
   @override
   Widget build(BuildContext context) {
     ScreenInfo screenInfo = ScreenInfo(context);
-    _fontSize = screenInfo.isTooNarrow ? 16 : 24;
+    _fontSize = screenInfo.isTooNarrow ? 16 : (screenInfo.widthInLogicalPixels / 100);
 
     _style = TextStyle(color: Colors.black87, fontSize: _fontSize);
+
+    _scaleChord = ScaleChord(_key.getKeyScaleNote(), chordDescriptor);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -282,8 +288,8 @@ class _State extends State<BassWidget> {
         style: _style,
       ),
     ));
-    var scaleChord = ScaleChord(_key.getKeyScaleNote(), chordDescriptor);
-    var chordHalfSteps = scaleChord.getChordComponents().map((chordComponent) {
+
+    var chordHalfSteps = _scaleChord.getChordComponents().map((chordComponent) {
       return chordComponent.halfSteps;
     }).toList();
     for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
@@ -386,22 +392,29 @@ class _FretBoardPainter extends CustomPainter {
           _dotColor);
     }
 
-    {
-      //  compute scale notes
-      var scaleNotes = <ScaleNote>[];
-      for (int n = 0; n < MusicConstants.notesPerScale; n++) {
-        scaleNotes.add(_key.getMajorScaleByNote(n));
-      }
+    //  compute scale notes
+    var fretBoardNotes = SplayTreeSet<ScaleNote>();
+    for (int n = 0; n < MusicConstants.notesPerScale; n++) {
+      fretBoardNotes
+          .add(_scaleChord.chordDescriptor.isMajor() ? _key.getMajorScaleByNote(n) : _key.getMinorScaleByNote(n));
+    }
 
-      for (var fret = 0; fret <= 12; fret++) {
-        for (var bassString = 0; bassString < 4; bassString++) {
-          var halfStep = (bassString * 5 + fret) % MusicConstants.halfStepsPerOctave;
-          var scaleNote = keyE.getKeyScaleNoteByHalfStep(halfStep);
+    fretBoardNotes.addAll(_scaleChord.chordNotes(_key));
 
-          if (scaleNotes.contains(scaleNote)) {
-            var halfStepOff = (scaleNote.halfStep - _key.halfStep) % MusicConstants.halfStepsPerOctave;
-            var chordComponent = ChordComponent.values[halfStepOff];
-            Paint paint;
+    var chordComponents = _scaleChord.getChordComponents();
+    var bassHalfStepOffset = Pitch.get(PitchEnum.E1).scaleNote.halfStep;
+
+    for (var fret = 0; fret <= 12; fret++) {
+      for (var bassString = 0; bassString < 4; bassString++) {
+        var halfStep = (bassString * 5 + fret) % MusicConstants.halfStepsPerOctave;
+        var scaleNote = _key.getKeyScaleNoteByHalfStep(bassHalfStepOffset - _key.getHalfStep()+ halfStep);
+
+        if (fretBoardNotes.contains(scaleNote)||fretBoardNotes.contains(scaleNote.alias)) {
+          var halfStepOff = (scaleNote.halfStep - _key.halfStep) % MusicConstants.halfStepsPerOctave;
+          var chordComponent = ChordComponent.values[halfStepOff];
+
+          Paint paint = _scaleColor;
+          if (chordComponents.contains(chordComponent)) {
             if (chordComponent == ChordComponent.root) {
               paint = _rootColor;
             } else if (chordComponent == ChordComponent.minorThird || chordComponent == ChordComponent.third) {
@@ -411,24 +424,25 @@ class _FretBoardPainter extends CustomPainter {
             } else if (chordComponent == ChordComponent.minorSeventh || chordComponent == ChordComponent.seventh) {
               paint = _seventhColor;
             } else {
-              paint = _scaleColor;
+              //  ninth   eleventh  thirteenth
+              paint = _otherColor;
             }
-            press(paint, bassString, fret, chordComponent.shortName);
           }
+          press(paint, bassString, fret, scaleNote.toString(), chordComponent.shortName);
         }
       }
     }
   }
 
-  void press(Paint paint, int bassString, int fret, String noteChar) {
+  void press(Paint paint, int bassString, int fret, String? noteChar, String? scaleChar) {
     fret = max(0, min(12, fret));
     bassString = max(0, min(3, bassString));
-    final double pressRadius = 15;
+    final double pressRadius = 20;
     var offset = Offset(fretLoc(fret) - pressRadius - 4,
         bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8);
     canvas.drawCircle(offset, pressRadius, paint);
     canvas.drawCircle(offset, pressRadius, _blackOutline);
-    if (noteChar.isNotEmpty) {
+    if (noteChar != null) {
       // To create a paragraph of text, we use ParagraphBuilder.
       final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
@@ -436,7 +450,19 @@ class _FretBoardPainter extends CustomPainter {
         ..pushStyle(ui.TextStyle(color: Colors.black, fontSize: _fontSize, fontWeight: FontWeight.bold))
         ..addText(noteChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
-      canvas.drawParagraph(paragraph, Offset(offset.dx - paragraph.maxIntrinsicWidth / 2, offset.dy - pressRadius));
+      canvas.drawParagraph(
+          paragraph, Offset(offset.dx - paragraph.maxIntrinsicWidth / 2, offset.dy - paragraph.height / 2));
+    }
+    if (scaleChar != null) {
+      // To create a paragraph of text, we use ParagraphBuilder.
+      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
+        ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
+      )
+        ..pushStyle(ui.TextStyle(color: Colors.black, fontSize: _fontSize, fontWeight: FontWeight.bold))
+        ..addText(scaleChar);
+      var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
+      canvas.drawParagraph(paragraph,
+          Offset(offset.dx - 2 * pressRadius - paragraph.maxIntrinsicWidth / 2, offset.dy - paragraph.height / 2));
     }
   }
 

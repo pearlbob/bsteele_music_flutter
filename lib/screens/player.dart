@@ -740,33 +740,35 @@ With escape, the app goes back to the play list.''',
         logger.d('${key.toString()}: $y');
       }
 
-      //  add half of the deltas to center each selection
-      {
-        List<double> tmp = [];
-        for (int i = 0; i < _sectionLocations!.length - 1; i++) {
-          tmp.add(_sectionLocations![i + 1] //  start of the next section
-              //  fixme when only flutter: (_sectionLocations![i] + _sectionLocations![i + 1]) / 2
-          );
-        }
-
-        //  average the last with the end of the last
-        GlobalKey key = _rowLocations.last!.globalKey;
-        double y = _scrollController.offset; //  safety
-        {
-          //  deal with possible missing render objects
-          var renderObject = key.currentContext?.findRenderObject();
-          if (renderObject != null && renderObject is RenderBox) {
-            y = renderObject.localToGlobal(Offset.zero).dy;
-          } else {
-            _sectionLocations = null;
-            return;
-          }
-        }
-        y0 ??= y;
-        y -= y0;
-        tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y + (key.currentContext?.size?.height ?? 0)) / 2);
-        _sectionLocations = tmp;  //  last location
-      }
+      //  add half of the deltas to center each selection    fixme: add later!
+      // {
+      //   List<double> tmp = [];
+      //   for (int i = 0; i < _sectionLocations!.length - 1; i++) {
+      //     tmp.add(_sectionLocations![i] //  start of the this section
+      //         //  fixme when only flutter: (_sectionLocations![i] + _sectionLocations![i + 1]) / 2
+      //     );
+      //   }
+      //
+      //   //  average the last with the end of the last
+      //   GlobalKey key = _rowLocations.last!.globalKey;
+      //   double y = _scrollController.offset; //  safety
+      //   {
+      //     //  deal with possible missing render objects
+      //     var renderObject = key.currentContext?.findRenderObject();
+      //     if (renderObject != null && renderObject is RenderBox) {
+      //       y = renderObject.localToGlobal(Offset.zero).dy;
+      //     } else {
+      //       _sectionLocations = null;
+      //       return;
+      //     }
+      //   }
+      //   y0 ??= y;
+      //   y -= y0;
+      //   tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y
+      //       + (key.currentContext?.size?.height ?? 0)) / 2
+      //   );
+      //   _sectionLocations = tmp;  //  last location
+      // }
     }
   }
 

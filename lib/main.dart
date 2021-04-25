@@ -422,8 +422,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Image(
                   image: AssetImage('lib/assets/runningMan.png'),
-                  width: fontSize,
-                  height: fontSize,
+                  width: _titleBarFontSize,
+                  height: _titleBarFontSize,
                   semanticLabel: "bsteele.com website",
                 ),
               ),
@@ -440,8 +440,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
                   child: Image(
                     image: AssetImage('lib/assets/cjLogo.png'),
-                    width: fontSize,
-                    height: fontSize,
+                    width: _titleBarFontSize,
+                    height: _titleBarFontSize,
                     semanticLabel: "community jams",
                   ),
                 ),

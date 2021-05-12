@@ -733,6 +733,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
+                              key: ValueKey('title'),
                               controller: _titleTextEditingController,
                               decoration: InputDecoration(
                                 hintText: 'Enter the song title.',
@@ -1195,7 +1196,7 @@ class _Edit extends State<Edit> {
     logger.v('chordMaxColCount: $chordMaxColCount');
     chordMaxColCount = _song.chordRowMaxLength();
 
-    //  generate the section pulldown data if required
+    //  generate the section pull down data if required
     List<DropdownMenuItem<ChordSection>> sectionItems =
         SplayTreeSet<ChordSection>.from(_song.getChordSections()).map((chordSection) {
       return DropdownMenuItem(
@@ -1287,7 +1288,7 @@ class _Edit extends State<Edit> {
       }
 
       //  chord rows and lyrics lines
-      const expanded = true;
+      final expanded = !_appOptions.compressRepeats;
       var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);

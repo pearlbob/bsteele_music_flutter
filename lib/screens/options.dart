@@ -121,7 +121,7 @@ class _Options extends State<Options> {
                     ),
                   ),
                   Text(
-                    'Holliday choice: ',
+                    'Holiday choice: ',
                     style: TextStyle(fontSize: fontSize),
                   ),
                   Container(
@@ -145,6 +145,37 @@ class _Options extends State<Options> {
                           onChanged: (value) {
                             setState(() {
                               _appOptions.holiday = value ?? true;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    'Repeat display choice: ',
+                    style: TextStyle(fontSize: fontSize),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 30.0),
+                    child: Column(
+                      children: <Widget>[
+                        RadioListTile<bool>(
+                          title: Text('Compress all repeats (for example: x4)', style: TextStyle(fontSize: fontSize)),
+                          value: true,
+                          groupValue: _appOptions.compressRepeats,
+                          onChanged: (value) {
+                            setState(() {
+                              _appOptions.compressRepeats = value ?? true;
+                            });
+                          },
+                        ),
+                        RadioListTile<bool>(
+                          title: Text('Expand all repeat repetitions', style: TextStyle(fontSize: fontSize)),
+                          value: false,
+                          groupValue: _appOptions.compressRepeats,
+                          onChanged: (value) {
+                            setState(() {
+                              _appOptions.compressRepeats = value ?? false;
                             });
                           },
                         ),

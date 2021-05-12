@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
+import '../appOptions.dart';
 import '../main.dart';
 
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
@@ -172,10 +173,7 @@ class _Player extends State<Player> with RouteAware {
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
     if (_table == null) {
-      _table = _lyricsTable.lyricsTable(
-        song,
-        musicKey: _displaySongKey,
-      );
+      _table = _lyricsTable.lyricsTable2(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
       _rowLocations = _lyricsTable.rowLocations;
       _screenOffset = _lyricsTable.screenHeight / 2;
       _sectionLocations = null; //  clear any previous song cached data
@@ -894,4 +892,5 @@ With escape, the app goes back to the play list.''',
 
   final FocusNode _focusNode = FocusNode();
   List<double>? _sectionLocations;
+  static final _appOptions = AppOptions();
 }

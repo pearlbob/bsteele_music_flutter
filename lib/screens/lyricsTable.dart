@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
+import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
@@ -21,15 +22,13 @@ typedef LyricsSectionHeaderWidget = Widget Function(LyricSection lyricSection);
 typedef LyricsEndWidget = Widget Function();
 
 class LyricsTable {
-  LyricsTable({expandRepeats = false}) : _expandRepeats = expandRepeats;
-
   Table lyricsTable(
     Song song, {
     musicKey,
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
-    expandRepeats,
+    expandRepeats = false,
   }) {
     displaySongKey = musicKey ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
@@ -159,7 +158,7 @@ class LyricsTable {
                 color: color,
                 child: Text(
                   sm.getMeasure().transpose(displaySongKey, tranOffset)
-                 // + ' ${sm.momentNumber}' //  : debug temp
+                  // + ' ${sm.momentNumber}' //  : debug temp
                   ,
                   style: _chordTextStyle,
                 )));
@@ -248,6 +247,191 @@ class LyricsTable {
     return _table;
   }
 
+  Table lyricsTable2(
+    Song song, {
+    musicKey,
+    LyricsSectionHeaderWidget? sectionHeaderWidget,
+    LyricsTextWidget? textWidget,
+    LyricsEndWidget? lyricEndWidget,
+    expandRepeats = false,
+  }) {
+    displaySongKey = musicKey ?? song.key;
+    textWidget = textWidget ?? _defaultTextWidget;
+
+    computeScreenSizes();
+
+    final EdgeInsets marginInsets = EdgeInsets.all(_fontScale);
+    final EdgeInsets textPadding = EdgeInsets.all(6);
+
+    //  build the table from the song lyrics and chords
+    if (song.lyricSections.isEmpty) {
+      _table = Table();
+      return _table;
+    }
+
+    List<TableRow> rows = [];
+    List<Widget> children = [];
+    Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+
+    //  display style booleans
+    bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
+        _appOptions.userDisplayStyle == UserDisplayStyle.both;
+    bool showFullLyrics = _appOptions.userDisplayStyle == UserDisplayStyle.singer ||
+        _appOptions.userDisplayStyle == UserDisplayStyle.both;
+
+    //  compute transposition offset from base key
+    int tranOffset = displaySongKey.getHalfStep() - song.getKey().getHalfStep();
+
+    //  compute max row length
+    int maxCols = song.chordRowMaxLength();
+
+    //  map the song moment grid to a flutter table, one row at a time
+    for (var lyricSection in song.lyricSections) {
+      ChordSection? chordSection = song.findChordSectionByLyricSection(lyricSection);
+      if (chordSection == null) {
+        assert(false); //  should never happen
+        continue;
+      }
+
+      //  add the section heading
+      color = GuiColors.getColorForSection(chordSection.getSection());
+      if (sectionHeaderWidget != null) {
+        children.add(sectionHeaderWidget(lyricSection));
+      } else {
+        children.add(Container(
+            margin: marginInsets,
+            padding: textPadding,
+            color: color,
+            child: Text(
+              chordSection.sectionVersion.toString(),
+              style: _chordTextStyle,
+            )));
+      }
+      //  row length - 1 + 1 for missing lyrics
+      for (int c = 0; c < maxCols; c++) {
+        children.add(Text(''));
+      }
+      rows.add(TableRow(children: children));
+      children = [];
+
+      GlobalKey? _rowKey = GlobalObjectKey(lyricSection);
+
+      var expandedRowLimit = chordSection.rowCount(expanded: true);
+      //var chordRowLimit = chordSection.rowCount(expanded: expandRepeats);
+      for (var row = 0; row < expandedRowLimit; row++) {
+        var measures = chordSection.rowAt(row, expanded: expandRepeats);
+
+        //  collect lyrics and show chords if asked
+        String rowLyrics = '';
+        for (int c = 0; c < maxCols; c++) {
+          Measure? measure;
+          if (c < measures.length) {
+            measure = measures[c];
+          }
+
+          if (measure == null) {
+            //  empty cell
+            children.add(Container(
+                margin: marginInsets,
+                child: Text(
+                  ' ',
+                )));
+          } else {
+            //  moment found
+            rowLyrics += ' lyrics ?? ';
+            if (showChords) {
+              children.add(Container(
+                  key: _rowKey,
+                  margin: marginInsets,
+                  padding: textPadding,
+                  color: color,
+                  child: Text(
+                    measure.transpose(displaySongKey, tranOffset)
+                    // + ' ${sm.momentNumber}' //  : debug temp
+                    ,
+                    style: _chordTextStyle,
+                  )));
+            }
+            _rowKey = null;
+          }
+
+          // //  section and lyrics only if on a cell phone
+          // if (!showChords) {
+          //   //  collect the rest of the lyrics
+          //   for (; c < row.length; c++) {
+          //     SongMoment? sm = row[c];
+          //     if (sm != null) {
+          //       rowLyrics += ' ' + (sm.lyrics ?? '');
+          //     }
+          //   }
+          //   break;
+          // }
+        }
+
+        if (showFullLyrics) {
+          //  lyrics
+          children.add(Container(
+              margin: marginInsets,
+              padding: textPadding,
+              color: color,
+              child: textWidget(
+                  lyricSection,
+                  0, //  fixme: offset of lyrics lines within lyrics section
+                  rowLyrics.trimLeft())));
+
+          //  add row to table
+          rows.add(TableRow(
+              //key: ValueKey(r),
+              children: children));
+        } else {
+          //  short lyrics
+          children.add(Container(
+              margin: marginInsets,
+              padding: EdgeInsets.all(2),
+              width: _shortLyricsWidth,
+              color: color,
+              child: Text(
+                rowLyrics,
+                style: _lyricsTextStyle,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+              )));
+
+          //  add row to table
+          rows.add(TableRow(children: children));
+        }
+
+        //  get ready for the next row by clearing the row data
+        children = [];
+      }
+    }
+
+    if (lyricEndWidget != null) {
+      children.add(lyricEndWidget());
+      //  row length - 1 + 1 for missing lyrics
+      for (int c = 0; c < maxCols; c++) {
+        children.add(Text(''));
+      }
+      rows.add(TableRow(children: children));
+      children = [];
+    }
+
+    // //  compute the flex for the columns
+    // var columnWidths = <int, TableColumnWidth>{};
+    // for (var i = 0; i < maxCols; i++) {
+    //   columnWidths[i] = IntrinsicColumnWidth();
+    // }
+    // columnWidths[maxCols] = IntrinsicColumnWidth();//FlexColumnWidth();
+
+    _table = Table(
+      defaultColumnWidth: IntrinsicColumnWidth(),
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: rows,
+      // columnWidths: columnWidths,
+    );
+    return _table;
+  }
+
   Widget _defaultTextWidget(LyricSection lyricSection, int lineNumber, String s) {
     return Text(
       s,
@@ -272,8 +456,6 @@ class LyricsTable {
     _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
     _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize);
   }
-
-  bool _expandRepeats = false;
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 100;

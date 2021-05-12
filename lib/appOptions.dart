@@ -34,6 +34,7 @@ class AppOptions {
     _playWithChords = await _readBool('playWithChords');
     _playWithBass = await _readBool('playWithBass');
     _holiday = await _readBool('holiday');
+    _compressRepeats = await _readBool('compressRepeats');
     _user = await _readString('user');
   }
 
@@ -256,6 +257,15 @@ class AppOptions {
       _saveString('userDisplayStyle', Util.enumToString(value));
     }
   }
+
+  set compressRepeats(bool value) {
+    if (this._compressRepeats == value) return;
+    this._compressRepeats = value;
+    _saveBool('compressRepeats', value);
+  }
+  bool get compressRepeats => _compressRepeats;
+  bool _compressRepeats = false;
+
 
   UserDisplayStyle get userDisplayStyle => _userDisplayStyle;
   UserDisplayStyle _userDisplayStyle = UserDisplayStyle.both;

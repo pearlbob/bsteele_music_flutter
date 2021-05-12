@@ -32,8 +32,6 @@ import 'util/openLink.dart';
 //CjRankingEnum _cjRanking;
 
 void main() async {
-  Logger.level = Level.info;
-
   await AppOptions().init();
 
   runApp(
@@ -107,8 +105,15 @@ enum _SortType {
   byComplexity,
 }
 
+const _environmentDefault = 'main';
+const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
+
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
+  MyApp() {
+    Logger.level = Level.info;
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -163,8 +168,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    _readExternalSongList();
-
     //  generate the sort selection
     for (final e in _SortType.values) {
       var s = e.toString();
@@ -175,7 +178,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
-    SongUpdateService.open(context);
+    if (_environment == _environmentDefault) {
+      _readExternalSongList();
+      SongUpdateService.open(context);
+    } else {
+      //  testing
+      _readInternalSongList();
+    }
   }
 
   void _readInternalSongList() async {
@@ -908,4 +917,10 @@ Future<String> fetchString(String uriString) async {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $uriString');
   }
+}
+
+void foo()
+{
+  var v = 3.bitLength;
+  v = v.bitLength;
 }

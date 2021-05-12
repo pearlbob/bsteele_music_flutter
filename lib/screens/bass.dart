@@ -35,6 +35,7 @@ final _scaleColor = Paint()..color = Color(0x80ffffff);
 double _fontSize = 24;
 
 musicKey.Key _key = musicKey.Key.getDefault();
+ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 
 /// the bass study tool
@@ -54,11 +55,19 @@ class _State extends State<BassWidget> {
   @override
   Widget build(BuildContext context) {
     ScreenInfo screenInfo = ScreenInfo(context);
-    _fontSize = screenInfo.isTooNarrow ? 16 : (screenInfo.widthInLogicalPixels / 100);
+    _fontSize = screenInfo.isTooNarrow ? 16 : max(24, screenInfo.widthInLogicalPixels / 100);
 
     _style = TextStyle(color: Colors.black87, fontSize: _fontSize);
 
-    _scaleChord = ScaleChord(_key.getKeyScaleNote(), chordDescriptor);
+    _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
+    List<ScaleNote> scaleNoteValues = [];
+    {
+      var scaleNoteSet = SplayTreeSet<ScaleNote>();
+      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+        scaleNoteSet.add(_key.getKeyScaleNoteByHalfStep(i));
+      }
+      scaleNoteValues = scaleNoteSet.toList(growable: false);
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -129,13 +138,45 @@ class _State extends State<BassWidget> {
                   Row(
                     children: [
                       Text(
-                        'Chord: ',
+                        'Chord root: ',
+                        style: _style,
+                      ),
+                      DropdownButton<ScaleNote>(
+                        items: scaleNoteValues.map((ScaleNote value) {
+                          return new DropdownMenuItem<ScaleNote>(
+                            key: ValueKey('root' + value.halfStep.toString()),
+                            value: value,
+                            child: new Text(
+                              '${_key.inKey(value).toMarkup()}',
+                              style: _style,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (_value) {
+                          if (_value != null && _value != _chordRoot) {
+                            setState(() {
+                              _chordRoot = _value;
+                            });
+                          }
+                        },
+                        value: _chordRoot,
+                        style: TextStyle(
+                          //  size controlled by textScaleFactor above
+                          color: Colors.black,
+                          textBaseline: TextBaseline.ideographic,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Chord type: ',
                         style: _style,
                       ),
                       DropdownButton<ChordDescriptor>(
                         items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
                           return new DropdownMenuItem<ChordDescriptor>(
-                            //key: ValueKey('half' + value.getHalfStep().toString()),
                             value: value,
                             child: new Text(
                               '${value.toString().padRight(3)} (${value.name})',
@@ -185,7 +226,7 @@ class _State extends State<BassWidget> {
   Table _keyTable() {
     final children = <TableRow>[];
     final padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
-    const halfSteps = MusicConstants.halfStepsPerOctave;
+    const halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
 
     List<Widget> row = [];
 
@@ -198,7 +239,7 @@ class _State extends State<BassWidget> {
         style: _style,
       ),
     ));
-    for (var i = 0; i < halfSteps; i++) {
+    for (var i = 0; i < halfStepsPerOctave; i++) {
       row.add(Container(
           padding: padding,
           alignment: Alignment.center,
@@ -230,10 +271,12 @@ class _State extends State<BassWidget> {
     }
     children.add(TableRow(children: row));
 
+    musicKey.Key rootKey = musicKey.Key.getKeyByHalfStep(_chordRoot.halfStep);
+
     //  compute scale notes
     var scaleNotes = <ScaleNote>[];
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
-      scaleNotes.add(_key.getMajorScaleByNote(n));
+      scaleNotes.add(_key.inKey(rootKey.getMajorScaleByNote(n)));
     }
 
     //  display scale notes
@@ -246,8 +289,8 @@ class _State extends State<BassWidget> {
         style: _style,
       ),
     ));
-    for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
-      var scaleNote = _key.getKeyScaleNoteByHalfStep(halfStep);
+    for (var halfStep = 0; halfStep < halfStepsPerOctave; halfStep++) {
+      var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
           alignment: Alignment.center,
@@ -267,8 +310,8 @@ class _State extends State<BassWidget> {
         style: _style,
       ),
     ));
-    for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
-      var scaleNote = _key.getKeyScaleNoteByHalfStep(halfStep);
+    for (var halfStep = 0; halfStep < halfStepsPerOctave; halfStep++) {
+      var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
           alignment: Alignment.center,
@@ -292,8 +335,8 @@ class _State extends State<BassWidget> {
     var chordHalfSteps = _scaleChord.getChordComponents().map((chordComponent) {
       return chordComponent.halfSteps;
     }).toList();
-    for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
-      var scaleNote = _key.getKeyScaleNoteByHalfStep(halfStep);
+    for (var halfStep = 0; halfStep < halfStepsPerOctave; halfStep++) {
+      var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
           alignment: Alignment.center,
@@ -305,7 +348,7 @@ class _State extends State<BassWidget> {
     children.add(TableRow(children: row));
 
     Map<int, TableColumnWidth> widths = {};
-    for (var i = 0; i < halfSteps + 1; i++) {
+    for (var i = 0; i < halfStepsPerOctave + 1; i++) {
       widths[i] = IntrinsicColumnWidth(flex: 1);
     }
 
@@ -393,13 +436,14 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  compute scale notes
+    musicKey.Key rootKey = musicKey.Key.getKeyByHalfStep(_chordRoot.halfStep);
     var fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
-      fretBoardNotes
-          .add(_scaleChord.chordDescriptor.isMajor() ? _key.getMajorScaleByNote(n) : _key.getMinorScaleByNote(n));
+      fretBoardNotes.add(_key.inKey(
+          _scaleChord.chordDescriptor.isMajor() ? rootKey.getMajorScaleByNote(n) : rootKey.getMinorScaleByNote(n)));
     }
 
-    fretBoardNotes.addAll(_scaleChord.chordNotes(_key));
+    fretBoardNotes.addAll(_scaleChord.chordNotes(rootKey));
 
     var chordComponents = _scaleChord.getChordComponents();
     var bassHalfStepOffset = Pitch.get(PitchEnum.E1).scaleNote.halfStep;
@@ -407,10 +451,11 @@ class _FretBoardPainter extends CustomPainter {
     for (var fret = 0; fret <= 12; fret++) {
       for (var bassString = 0; bassString < 4; bassString++) {
         var halfStep = (bassString * 5 + fret) % MusicConstants.halfStepsPerOctave;
-        var scaleNote = _key.getKeyScaleNoteByHalfStep(bassHalfStepOffset - _key.getHalfStep()+ halfStep);
+        var scaleNote =
+            _key.inKey(rootKey.getKeyScaleNoteByHalfStep(bassHalfStepOffset - rootKey.getHalfStep() + halfStep));
 
-        if (fretBoardNotes.contains(scaleNote)||fretBoardNotes.contains(scaleNote.alias)) {
-          var halfStepOff = (scaleNote.halfStep - _key.halfStep) % MusicConstants.halfStepsPerOctave;
+        if (fretBoardNotes.contains(scaleNote) || fretBoardNotes.contains(scaleNote.alias)) {
+          var halfStepOff = (scaleNote.halfStep - rootKey.halfStep) % MusicConstants.halfStepsPerOctave;
           var chordComponent = ChordComponent.values[halfStepOff];
 
           Paint paint = _scaleColor;
@@ -462,7 +507,7 @@ class _FretBoardPainter extends CustomPainter {
         ..addText(scaleChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
       canvas.drawParagraph(paragraph,
-          Offset(offset.dx - 2 * pressRadius - paragraph.maxIntrinsicWidth / 2, offset.dy - paragraph.height / 2));
+          Offset(offset.dx - pressRadius * 3 / 2 - paragraph.maxIntrinsicWidth, offset.dy - paragraph.height / 2));
     }
   }
 

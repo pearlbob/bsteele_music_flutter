@@ -5,24 +5,29 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:bsteele_music_flutter/appOptions.dart';
 import 'package:bsteele_music_flutter/main.dart';
+import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:logger/logger.dart';
 
-void main() {
+void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
+  await AppOptions().init();
+  Logger.level = Level.info;
 
-  testWidgets('Search for song test', (WidgetTester tester) async {
+  testWidgets('edit test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-      await tester.pumpWidget(MyApp());
+      await tester.pumpWidget(
+          MaterialApp(
+            title: 'Edit Screen',
+            home: Edit(initialSong: Song.createEmptySong(),)),
+          );
 
-      await tester.pump(new Duration(seconds: 5));
-
-     print('allSongs.length: ${allSongs.length}');
-
-     // Verify that our counter starts at 0.
-      var searchFinder = find.byIcon(Icons.search);
+         // Verify that our counter starts at 0.
+      var searchFinder = find.byKey(ValueKey('title'));
       // print( 'searchFinder: ${searchFinder.description}');
 
      expect(searchFinder, findsOneWidget);

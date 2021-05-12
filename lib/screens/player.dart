@@ -173,26 +173,11 @@ class _Player extends State<Player> with RouteAware {
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
     if (_table == null) {
-      _table = _lyricsTable.lyricsTable2(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
+      _table = _lyricsTable.lyricsTable(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
       _rowLocations = _lyricsTable.rowLocations;
       _screenOffset = _lyricsTable.screenHeight / 2;
       _sectionLocations = null; //  clear any previous song cached data
     }
-
-    // if (_appOptions.debug && _table != null) {
-    //   int i = 0;
-    //   for (final TableRow tableRow in _table!.children) {
-    //     logger.v('rowkey:  ${tableRow.key.toString()}');
-    //     int j = 0;
-    //     for (final Widget widget in tableRow.children ?? []) {
-    //       if (widget.key != null) {
-    //         logger.i('\t\($i\,$j\)');
-    //       }
-    //       j++;
-    //     }
-    //     i++;
-    //   }
-    // }
 
     {
       //  generate the rolled key list

@@ -1,3 +1,4 @@
+// ignore: file_names
 
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -180,8 +181,8 @@ class AppOptions {
   bool get playWithMeasureLabel => _playWithMeasureLabel;
 
   void setPlayWithMeasureLabel(bool playWithMeasureLabel) {
-    if (this._playWithMeasureLabel == playWithMeasureLabel) return;
-    this._playWithMeasureLabel = playWithMeasureLabel;
+    if (_playWithMeasureLabel == playWithMeasureLabel) return;
+    _playWithMeasureLabel = playWithMeasureLabel;
     _saveBool('playWithMeasureLabel', playWithMeasureLabel);
   }
 
@@ -195,13 +196,13 @@ class AppOptions {
     _saveBool('alwaysUseTheNewestSongOnRead', alwaysUseTheNewestSongOnRead);
   }
 
-  Future<bool> _readBool(final String key, {defaultValue: false}) async {
+  Future<bool> _readBool(final String key, {defaultValue= false}) async {
     final prefs = await SharedPreferences.getInstance();
     var value = prefs.getBool(key) ?? defaultValue;
     return value;
   }
 
-  Future<String> _readString(final String key, {defaultValue: ''}) async {
+  Future<String> _readString(final String key, {defaultValue= ''}) async {
     final prefs = await SharedPreferences.getInstance();
     var value = prefs.getString(key) ?? defaultValue;
     return value;
@@ -218,14 +219,14 @@ class AppOptions {
   }
 
   set playWithChords(bool playWithChords) {
-    if (this._playWithChords == playWithChords) return;
-    this._playWithChords = playWithChords;
+    if (_playWithChords == playWithChords) return;
+    _playWithChords = playWithChords;
     _saveBool('playWithChords', playWithChords);
   }
 
   set playWithBass(bool playWithBass) {
-    if (this._playWithBass == playWithBass) return;
-    this._playWithBass = playWithBass;
+    if (_playWithBass == playWithBass) return;
+    _playWithBass = playWithBass;
     _saveBool('playWithBass', playWithBass);
   }
 
@@ -243,8 +244,8 @@ class AppOptions {
   bool _playWithBass = false;
 
   set holiday(bool value) {
-    if (this._holiday == value) return;
-    this._holiday = value;
+    if (_holiday == value) return;
+    _holiday = value;
     _saveBool('holiday', value);
   }
 
@@ -259,8 +260,8 @@ class AppOptions {
   }
 
   set compressRepeats(bool value) {
-    if (this._compressRepeats == value) return;
-    this._compressRepeats = value;
+    if (_compressRepeats == value) return;
+    _compressRepeats = value;
     _saveBool('compressRepeats', value);
   }
   bool get compressRepeats => _compressRepeats;

@@ -5,12 +5,11 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/appOptions.dart';
-import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:logger/logger.dart';
 
 void main() async {
@@ -27,7 +26,7 @@ void main() async {
           );
 
          // Verify that our counter starts at 0.
-      var searchFinder = find.byKey(ValueKey('title'));
+      var searchFinder = find.byKey(const ValueKey('title'));
       // print( 'searchFinder: ${searchFinder.description}');
 
      expect(searchFinder, findsOneWidget);

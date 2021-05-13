@@ -15,6 +15,7 @@ import 'package:flutter/widgets.dart';
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {
 
+  @override
   Future<String> writeFileContents(String fileName, String contents) async {
     //   web stuff
     Blob blob = Blob([contents], 'text/plain', 'native');
@@ -27,6 +28,7 @@ class UtilWeb implements UtilWorkaround {
     return 'file written: \'$fileName\'';
   }
 
+  @override
   Future<void> filePick(BuildContext context) async {
     List<Song> songs = await getSongsAsync();
     for (final Song song in songs) {
@@ -37,10 +39,10 @@ class UtilWeb implements UtilWorkaround {
 
   Future<List<Song>> getSongsAsync() async {
     List<String> files = await getFiles();
-    print("files.length: ${files.length}");
+    logger.i("files.length: ${files.length}");
     List<Song> ret = [];
     for (final String data64 in files) {
-      Uint8List data = Base64Decoder().convert(data64.split(",").last);
+      Uint8List data = const Base64Decoder().convert(data64.split(",").last);
       String s = utf8.decode(data);
       List<Song> addSongs = Song.songListFromJson(s);
       for (final Song song in addSongs) {
@@ -52,7 +54,7 @@ class UtilWeb implements UtilWorkaround {
   }
 
   Future<List<String>> getFiles() {
-    final completer = new Completer<List<String>>();
+    final completer = Completer<List<String>>();
     final InputElement input = document.createElement('input') as InputElement;
     input
       ..type = 'file'
@@ -62,7 +64,7 @@ class UtilWeb implements UtilWorkaround {
       final List<File>? files = input.files;
       if ( files != null ) {
         Iterable<Future<String>> resultsFutures = files.map((file) {
-          final reader = new FileReader();
+          final reader = FileReader();
           reader.readAsDataUrl(file);
           reader.onError.listen((error) => completer.completeError(error));
           return reader.onLoad.first.then((_) => reader.result as String);

@@ -16,6 +16,7 @@ Directory _rootDirectory = Directory(Util.homePath());
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilLinux implements UtilWorkaround {
+  @override
   Future<String> writeFileContents(String fileName, String contents) async {
     //  not web stuff
     final directory = await getApplicationDocumentsDirectory();
@@ -33,6 +34,7 @@ class UtilLinux implements UtilWorkaround {
     return 'file written to \'$file\'';
   }
 
+  @override
   Future<void> filePick(BuildContext context) async {
     String? path = await FilesystemPicker.open(
       title: 'Open file',

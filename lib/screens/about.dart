@@ -42,18 +42,18 @@ class _About extends State<About> {
       body: DefaultTextStyle(
         style: TextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                Text(
+                const Text(
                   'The bsteele Music App has been written by bob.',
                   // textScaleFactor: textScaleFactor,
                 ),
                 Row(children: <Widget>[
-                  Text(
+                  const Text(
                     'See ',
                     // textScaleFactor: textScaleFactor,
                   ),
@@ -61,7 +61,7 @@ class _About extends State<About> {
                     onTap: () {
                       openLink('http://www.bsteele.com');
                     },
-                    child: Text(
+                    child: const Text(
                       'bsteele.com',
                       style: TextStyle(color: Colors.blue),
                     ),
@@ -82,7 +82,7 @@ class _About extends State<About> {
                 Text(
                   'utcDate: ${_utcDateAsString ?? 'unknown'}',
                 ),
-                Text(''),
+                const Text(''),
                 Text(
                   'screen: (${screenInfo.widthInLogicalPixels.toStringAsFixed(0)}'
                   ',${screenInfo.heightInLogicalPixels.toStringAsFixed(0)})',
@@ -101,7 +101,7 @@ class _About extends State<About> {
           Navigator.pop(context);
         },
         tooltip: 'Back',
-        child: Icon(Icons.arrow_back),
+        child: const Icon(Icons.arrow_back),
       ),
     );
   }

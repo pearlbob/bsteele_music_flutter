@@ -35,7 +35,7 @@ class SongUpdateService extends ChangeNotifier {
 
       //  there is never a websocket on the web
       if (authority.contains('bsteele.com')) {
-        print('webSocketChannel exception: never going to be at: $authority');
+        logger.i('webSocketChannel exception: never going to be at: $authority');
         return;
       }
 
@@ -66,7 +66,7 @@ class SongUpdateService extends ChangeNotifier {
         notifyListeners();
         var lastAuthority = authority;
         for (;;) {
-          await Future.delayed(Duration(seconds: 5));
+          await Future.delayed(const Duration(seconds: 5));
 
           if (lastAuthority != _findTheAuthority()) {
             // print('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');

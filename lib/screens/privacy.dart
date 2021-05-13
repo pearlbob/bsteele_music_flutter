@@ -34,7 +34,7 @@ class _Privacy extends State<Privacy> {
       ),
       body: DefaultTextStyle(
         style: style,
-        child: SingleChildScrollView(
+        child: const SingleChildScrollView(
           scrollDirection: Axis.vertical,
           padding: EdgeInsets.all(8.0),
           child: Text('The bsteele Music App is a client side application.'
@@ -64,7 +64,7 @@ class _Privacy extends State<Privacy> {
           Navigator.pop(context);
         },
         tooltip: 'Back',
-        child: Icon(Icons.arrow_back),
+        child: const Icon(Icons.arrow_back),
       ),
     );
   }

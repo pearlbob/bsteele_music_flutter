@@ -6,7 +6,7 @@ import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/bass.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
-import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
+import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +24,7 @@ class Options extends StatefulWidget {
   @override
   _Options createState() => _Options();
 
-  static final String routeName = '/options';
+  static const String routeName = '/options';
 }
 
 class _Options extends State<Options> {
@@ -67,7 +67,7 @@ class _Options extends State<Options> {
         child: SingleChildScrollView(
           //  for phones when horizontal
           child: Container(
-            padding: EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +78,7 @@ class _Options extends State<Options> {
                     style: TextStyle(fontSize: fontSize),
                   ),
                   Container(
-                    padding: EdgeInsets.only(left: 30.0),
+                    padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<UserDisplayStyle>(
@@ -125,7 +125,7 @@ class _Options extends State<Options> {
                     style: TextStyle(fontSize: fontSize),
                   ),
                   Container(
-                    padding: EdgeInsets.only(left: 30.0),
+                    padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
@@ -156,7 +156,7 @@ class _Options extends State<Options> {
                     style: TextStyle(fontSize: fontSize),
                   ),
                   Container(
-                    padding: EdgeInsets.only(left: 30.0),
+                    padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
@@ -187,7 +187,7 @@ class _Options extends State<Options> {
                       textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
                         Container(
-                          padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'User name: ',
                             style: TextStyle(
@@ -198,7 +198,7 @@ class _Options extends State<Options> {
                         Expanded(
                           child: TextField(
                             controller: _userTextEditingController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Enter your user name.',
                             ),
                             // maxLength: 20,
@@ -218,7 +218,7 @@ class _Options extends State<Options> {
                       textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
                         Container(
-                          padding: EdgeInsets.only(right: 24, bottom: 24.0),
+                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'Host IP: ',
                             style: TextStyle(
@@ -229,7 +229,7 @@ class _Options extends State<Options> {
                         Expanded(
                           child: TextField(
                             controller: _websocketHostEditingController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Enter the websocket host IP address.',
                             ),
                             // maxLength: 20,
@@ -343,7 +343,7 @@ class _Options extends State<Options> {
           Navigator.pop(context);
         },
         tooltip: 'Back',
-        child: Icon(Icons.arrow_back),
+        child: const Icon(Icons.arrow_back),
       ),
     );
   }
@@ -375,7 +375,7 @@ class _Options extends State<Options> {
     logger.d('timerPeriod: ${timerPeriod.toString()}');
     _timerT = _audioPlayer.getCurrentTime() + 2;
     _testType = 'bass';
-    final double gap = 0.25;
+    const double gap = 0.25;
     _timer = Timer.periodic(Duration(microseconds: periodMs), (timer) {
       try {
         logger.d('_audioTest() ${_testNumber.toString()}.${_test.toString()}');
@@ -465,10 +465,10 @@ class _Options extends State<Options> {
         'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
   }
 
-  TextEditingController _userTextEditingController = TextEditingController();
-  TextEditingController _websocketHostEditingController = TextEditingController();
+  final TextEditingController _userTextEditingController = TextEditingController();
+  final TextEditingController _websocketHostEditingController = TextEditingController();
 
-  static final int _testNumber = 3;
+  static const int _testNumber = 3;
   int _test = 0;
 
   String _testType = 'unknown';

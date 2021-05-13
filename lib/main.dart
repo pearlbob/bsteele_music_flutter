@@ -96,7 +96,7 @@ SplayTreeSet<Song> _allSongs = SplayTreeSet();
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 Song selectedSong = _emptySong;
 
-final Color _primaryColor = Color(0xFF4FC3F7);
+const Color _primaryColor = Color(0xFF4FC3F7);
 
 enum _SortType {
   byTitle,
@@ -110,7 +110,7 @@ const _environment = String.fromEnvironment('environment', defaultValue: _enviro
 
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
-  MyApp() {
+  MyApp({ Key? key }) : super(key: key) {
     Logger.level = Level.info;
   }
 
@@ -123,7 +123,7 @@ class MyApp extends StatelessWidget {
         primaryColor: _primaryColor,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: MyHomePage(title: 'bsteele Music App'),
+      home: const MyHomePage(title: 'bsteele Music App'),
       navigatorObservers: [playerRouteObserver],
 
       // Start the app with the "/" named route. In this case, the app starts
@@ -134,20 +134,20 @@ class MyApp extends StatelessWidget {
         //'/': (context) => MyApp(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         Player.routeName: playerPageRoute.builder,
-        '/songs': (context) => Songs(),
-        '/options': (context) => Options(),
+        '/songs': (context) => const Songs(),
+        '/options': (context) => const Options(),
         '/edit': (context) => Edit(initialSong: selectedSong),
-        '/privacy': (context) => Privacy(),
-        '/documentation': (context) => Documentation(),
-        '/about': (context) => About(),
-        '/bass': (context) => BassWidget(),
+        '/privacy': (context) => const Privacy(),
+        '/documentation': (context) => const Documentation(),
+        '/about': (context) => const About(),
+        '/bass': (context) => const BassWidget(),
       },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title: 'unknown'}) : super(key: key);
+  const MyHomePage({Key? key, this.title= 'unknown'}) : super(key: key);
 
   // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -201,9 +201,9 @@ class _MyHomePageState extends State<MyHomePage> {
           selectedSong = _emptySong;
         }
         setState(() {});
-        print("internal songList used");
+        logger.i("internal songList used");
       } catch (fe) {
-        print("internal songList parse error: " + fe.toString());
+        logger.i("internal songList parse error: " + fe.toString());
       }
     }
     {
@@ -212,9 +212,9 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         SongMetadata.clear();
         SongMetadata.fromJson(songMetadataAsString);
-        print("internal song metadata used");
+        logger.i("internal song metadata used");
       } catch (fe) {
-        print("internal song metadata parse error: " + fe.toString());
+        logger.i("internal song metadata parse error: " + fe.toString());
       }
     }
   }
@@ -227,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         allSongsAsString = await fetchString(url);
       } catch (e) {
-        print("read of url: '$url' failed: ${e.toString()}");
+        logger.i("read of url: '$url' failed: ${e.toString()}");
         _readInternalSongList();
         return;
       }
@@ -243,9 +243,9 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedSong = _emptySong;
           }
         });
-        print("external songList read from: " + url);
+        logger.i("external songList read from: " + url);
       } catch (fe) {
-        print("external songList parse error: " + fe.toString());
+        logger.i("external songList parse error: " + fe.toString());
         _readInternalSongList();
       }
     }
@@ -256,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         metadataAsString = await fetchString(url);
       } catch (e) {
-        print("read of url: '$url' failed: ${e.toString()}");
+        logger.i("read of url: '$url' failed: ${e.toString()}");
         _readInternalSongList();
         return;
       }
@@ -264,9 +264,9 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         SongMetadata.clear();
         SongMetadata.fromJson(metadataAsString);
-        print("external song metadata read from: " + url);
+        logger.i("external song metadata read from: " + url);
       } catch (fe) {
-        print("external song metadata parse error: " + fe.toString());
+        logger.i("external song metadata parse error: " + fe.toString());
       }
     }
   }
@@ -303,10 +303,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final double mediaWidth = screenInfo.widthInLogicalPixels;
     final double titleScaleFactor = screenInfo.titleScaleFactor;
     final double artistScaleFactor = screenInfo.artistScaleFactor;
-    final fontSize = defaultFontSize;
+    const fontSize = defaultFontSize;
     logger.v('fontSize: $fontSize in ${screenInfo.widthInLogicalPixels} px with ${screenInfo.titleScaleFactor}');
-    final TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
-    final TextStyle artistTextStyle = TextStyle(fontSize: fontSize);
+    const TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
+    const TextStyle artistTextStyle = TextStyle(fontSize: fontSize);
     final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     //  re-search filtered list on data changes
@@ -320,38 +320,36 @@ class _MyHomePageState extends State<MyHomePage> {
       listViewChildren.add(GestureDetector(
         child: Container(
           color: oddEven ? Colors.white : Colors.grey[100],
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
             if (isScreenBig)
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: <Widget>[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
-                        Text(
-                          song.getTitle(),
-                          textScaleFactor: titleScaleFactor,
-                          style: titleTextStyle,
-                        ),
-                        Text(
-                          '      ' + song.getArtist(),
-                          textScaleFactor: artistScaleFactor,
-                          style: artistTextStyle,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                      textScaleFactor: artistScaleFactor,
-                      style: artistTextStyle,
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: <Widget>[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: <Widget>[
+                      Text(
+                        song.getTitle(),
+                        textScaleFactor: titleScaleFactor,
+                        style: titleTextStyle,
+                      ),
+                      Text(
+                        '      ' + song.getArtist(),
+                        textScaleFactor: artistScaleFactor,
+                        style: artistTextStyle,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                    textScaleFactor: artistScaleFactor,
+                    style: artistTextStyle,
+                  ),
+                ],
               ),
             if (isPhone)
               Column(
@@ -428,9 +426,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 openLink('http://www.bsteele.com');
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Image(
-                  image: AssetImage('lib/assets/runningMan.png'),
+                  image: const AssetImage('lib/assets/runningMan.png'),
                   width: _titleBarFontSize,
                   height: _titleBarFontSize,
                   semanticLabel: "bsteele.com website",
@@ -446,9 +444,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   openLink('http://communityjams.org');
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Image(
-                    image: AssetImage('lib/assets/cjLogo.png'),
+                    image: const AssetImage('lib/assets/cjLogo.png'),
                     width: _titleBarFontSize,
                     height: _titleBarFontSize,
                     semanticLabel: "community jams",
@@ -462,7 +460,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(4.0),
           children: <Widget>[
             Container(
               height: 50,
@@ -541,18 +539,18 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Flex(direction: Axis.horizontal, children: <Widget>[
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 width: min(mediaWidth / 2, 2 * 20 * fontSize),
                 //  limit text entry display length
                 child: TextField(
                   controller: _searchTextFieldController,
                   focusNode: _searchFocusNode,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.search),
                     hintText: "Enter search filter string here.",
                   ),
                   autofocus: true,
-                  style: TextStyle(fontSize: 2 * fontSize),
+                  style: const TextStyle(fontSize: 2 * fontSize),
                   onChanged: (text) {
                     setState(() {
                       logger.v('search text: "$text"');
@@ -562,7 +560,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.clear),
+                icon: const Icon(Icons.clear),
                 tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
                 iconSize: fontSize * 2,
                 onPressed: (() {
@@ -584,7 +582,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
                 value: _selectedSortType,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 1.5 * fontSize,
                   color: Colors.black87,
                   textBaseline: TextBaseline.alphabetic,
@@ -709,7 +707,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //    }
 
     // select order
-    var compare;
+    int Function(Song key1, Song key2)? compare;
     switch (_selectedSortType) {
       case _SortType.byArtist:
         compare = (Song song1, Song song2) {
@@ -749,7 +747,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
     for (final Song song in _allSongs) {
-      if (search.length == 0 ||
+      if (search.isEmpty ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
         //  if holiday and song is holiday, we're good
@@ -824,7 +822,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToSongs(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Songs()),
+      MaterialPageRoute(builder: (context) => const Songs()),
     );
     Navigator.pop(context);
 
@@ -865,7 +863,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToAbout(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => About()),
+      MaterialPageRoute(builder: (context) => const About()),
     );
     Navigator.pop(context);
   }
@@ -873,7 +871,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToDocumentation(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Documentation()),
+      MaterialPageRoute(builder: (context) => const Documentation()),
     );
     Navigator.pop(context);
   }
@@ -881,7 +879,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToBass(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => BassWidget()),
+      MaterialPageRoute(builder: (context) => const BassWidget()),
     );
     Navigator.pop(context);
   }
@@ -889,19 +887,19 @@ class _MyHomePageState extends State<MyHomePage> {
   _navigateToPrivacyPolicy(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Privacy()),
+      MaterialPageRoute(builder: (context) => const Privacy()),
     );
     Navigator.pop(context);
   }
 
-  List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
+  final List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = _SortType.byTitle;
 
   final TextEditingController _searchTextFieldController = TextEditingController();
-  FocusNode _searchFocusNode;
+  final FocusNode _searchFocusNode;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
-  final Duration _itemScrollDuration = Duration(milliseconds: 500);
+  final Duration _itemScrollDuration = const Duration(milliseconds: 500);
   int _rollIndex = -1;
 
   final AppOptions _appOptions = AppOptions();

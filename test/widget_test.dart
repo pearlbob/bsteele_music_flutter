@@ -5,10 +5,10 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -17,9 +17,9 @@ void main() {
     // Build our app and trigger a frame.
       await tester.pumpWidget(MyApp());
 
-      await tester.pump(new Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 5));
 
-     print('allSongs.length: ${allSongs.length}');
+      logger.i('allSongs.length: ${allSongs.length}');
 
      // Verify that our counter starts at 0.
       var searchFinder = find.byIcon(Icons.search);

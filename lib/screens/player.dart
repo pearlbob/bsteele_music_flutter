@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -27,8 +26,8 @@ import '../main.dart';
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
-const _lightBlue = const Color(0xFF4FC3F7);
-const _tooltipColor = const Color(0xFFE8F5E9);
+const _lightBlue = Color(0xFF4FC3F7);
+const _tooltipColor = Color(0xFFE8F5E9);
 
 bool _isCapo = false;
 bool _playerIsOnTop = false;
@@ -42,7 +41,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     Navigator.pushNamedAndRemoveUntil(
         context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
   }
-  Timer(Duration(milliseconds: 2), () {
+  Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
     _player?.setState(() {});
   });
@@ -60,7 +59,7 @@ class Player extends StatefulWidget {
 
   Song song; //  fixme: not const due to song updates!
 
-  static final String routeName = '/player';
+  static const String routeName = '/player';
 }
 
 class _Player extends State<Player> with RouteAware {
@@ -191,11 +190,11 @@ class _Player extends State<Player> with RouteAware {
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
-        List<musicKey.Key?> rolledKeyList = List.generate(steps, (i) {
+        List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
           return null;
         });
 
-        List<musicKey.Key> list = musicKey.Key.keysByHalfStepFrom(song.key); //temp loc
+        List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
         for (int i = 0; i <= halfOctave; i++) {
           rolledKeyList[i] = list[halfOctave - i];
         }
@@ -205,11 +204,11 @@ class _Player extends State<Player> with RouteAware {
 
         keyDropDownMenuList = [];
         final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, 'G'); //  something sane
-        final String onString = '(on ';
+        const String onString = '(on ';
         final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
         for (int i = 0; i < steps; i++) {
-          musicKey.Key value = rolledKeyList[i]!;
+          music_key.Key value = rolledKeyList[i]!;
 
           int relativeOffset = halfOctave - i;
           String valueString =
@@ -218,10 +217,10 @@ class _Player extends State<Player> with RouteAware {
           if (relativeOffset > 0) {
             offsetString = '+${relativeOffset.toString()}';
           } else if (relativeOffset < 0) {
-            offsetString = '${relativeOffset.toString()}';
+            offsetString = relativeOffset.toString();
           }
 
-          keyDropDownMenuList!.add(DropdownMenuItem<musicKey.Key>(
+          keyDropDownMenuList!.add(DropdownMenuItem<music_key.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -272,9 +271,9 @@ class _Player extends State<Player> with RouteAware {
               ),
             ),
           );
-          if (i < -30 || i > 30)
-            i += 10 - 1; //  in addition to increment above
-          else if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
+          if (i < -30 || i > 30) {
+            i += 10 - 1;
+          } else if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
         }
       }
     }
@@ -299,7 +298,7 @@ class _Player extends State<Player> with RouteAware {
               top: boxCenter - boxOffset,
               child: Container(
                 constraints: BoxConstraints.loose(Size(_lyricsTable.screenWidth, boxHeight)),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -317,8 +316,8 @@ class _Player extends State<Player> with RouteAware {
             Positioned(
               top: boxCenter,
               child: Container(
-                constraints: BoxConstraints.loose(Size(10, 4)),
-                decoration: BoxDecoration(
+                constraints: BoxConstraints.loose(const Size(10, 4)),
+                decoration: const BoxDecoration(
                   color: Colors.black,
                 ),
               ),
@@ -344,7 +343,7 @@ class _Player extends State<Player> with RouteAware {
                                     openLink(_titleAnchor());
                                   },
                                   child: Text(
-                                    '${song.title}',
+                                    song.title,
                                     style: TextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
                                   ),
                                   hoverColor: hoverColor,
@@ -426,7 +425,7 @@ With escape, the app goes back to the play list.''',
                                           Icons.edit,
                                           size: _lyricsTable.fontSize,
                                         ),
-                                        label: Text(''),
+                                        label: const Text(''),
                                         onPressed: () {
                                           _navigateToEdit(context, song);
                                         },
@@ -448,7 +447,7 @@ With escape, the app goes back to the play list.''',
                                           _playStopIcon,
                                           size: _lyricsTable.fontSize,
                                         ),
-                                        label: Text(''),
+                                        label: const Text(''),
                                         onPressed: () {
                                           _play();
                                         },
@@ -459,7 +458,7 @@ With escape, the app goes back to the play list.''',
                                     'Key: ',
                                     style: _lyricsTextStyle,
                                   ),
-                                  DropdownButton<musicKey.Key>(
+                                  DropdownButton<music_key.Key>(
                                     items: keyDropDownMenuList,
                                     onChanged: (value) {
                                       setState(() {
@@ -469,7 +468,7 @@ With escape, the app goes back to the play list.''',
                                       });
                                     },
                                     value: _selectedSongKey,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       //  size controlled by textScaleFactor above
                                       color: Colors.black87,
                                       textBaseline: TextBaseline.ideographic,
@@ -494,7 +493,7 @@ With escape, the app goes back to the play list.''',
                                         });
                                       },
                                       value: song.getBeatsPerMinute(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         //  size controlled by textScaleFactor above
                                         color: Colors.black87,
                                         textBaseline: TextBaseline.ideographic,
@@ -550,7 +549,7 @@ With escape, the app goes back to the play list.''',
                     _pauseToggle();
                   },
                   tooltip: 'Stop.  Space bar will continue the play.',
-                  child: Icon(
+                  child: const Icon(
                     Icons.play_arrow,
                   ),
                 )
@@ -561,7 +560,7 @@ With escape, the app goes back to the play list.''',
                   },
                   child: _playTooltip(
                     'Escape to stop the play\nor space to next section',
-                    Icon(
+                    const Icon(
                       Icons.stop,
                     ),
                   ),
@@ -571,13 +570,13 @@ With escape, the app goes back to the play list.''',
                   mini: !isScreenBig,
                   onPressed: () {
                     _stop();
-                    _scrollController.animateTo(0, duration: Duration(milliseconds: 333), curve: Curves.ease).then((_) {
+                    _scrollController.animateTo(0, duration: const Duration(milliseconds: 333), curve: Curves.ease).then((_) {
                       logger.d('_scrollAnimationFuture complete');
                       setState(() {});
                     });
                   },
                   tooltip: 'Top',
-                  child: Icon(
+                  child: const Icon(
                     Icons.arrow_upward,
                   ),
                 )
@@ -587,7 +586,7 @@ With escape, the app goes back to the play list.''',
                     Navigator.pop(context);
                   },
                   tooltip: 'Back',
-                  child: Icon(
+                  child: const Icon(
                     Icons.arrow_back,
                   ),
                 )),
@@ -608,9 +607,9 @@ With escape, the app goes back to the play list.''',
       if (e.isKeyPressed(LogicalKeyboardKey.space) ||
               e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
           ) {
-        if (!_isPlaying)
+        if (!_isPlaying) {
           _play();
-        else {
+        } else {
           _sectionBump(1);
         }
       } else if (_isPlaying &&
@@ -649,7 +648,7 @@ With escape, the app goes back to the play list.''',
       double target =
           _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
       if (_scrollController.offset != target) {
-        _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
+        _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
         //print('_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
       }
     }
@@ -678,7 +677,7 @@ With escape, the app goes back to the play list.''',
         int r = Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int;
         target = _sectionLocations![r];
 
-        _scrollController.animateTo(target, duration: Duration(milliseconds: 550), curve: Curves.ease);
+        _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
         // print('_sectionBump: bump: $bump, $r => $target');
       }
     }
@@ -689,7 +688,6 @@ With escape, the app goes back to the play list.''',
     if (_scrollController.hasClients && _sectionLocations == null && _rowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
       double? y0;
-      ChordSection chordSection = _rowLocations[0]!.songMoment.chordSection;
       int sectionCount = 0;
 
       _sectionLocations = [];
@@ -697,12 +695,10 @@ With escape, the app goes back to the play list.''',
         if (_rowLocation == null) {
           continue;
         }
-        if (chordSection == _rowLocation.songMoment.chordSection &&
-            sectionCount == _rowLocation.songMoment.sectionCount) {
+        if (sectionCount == _rowLocation.sectionCount) {
           continue; //  same section, no entry
         }
-        chordSection = _rowLocation.songMoment.chordSection;
-        sectionCount = _rowLocation.songMoment.sectionCount;
+        sectionCount = _rowLocation.sectionCount;
 
         GlobalKey key = _rowLocation.globalKey;
         double y = _scrollController.offset; //  safety
@@ -795,7 +791,7 @@ With escape, the app goes back to the play list.''',
     });
   }
 
-  _setSelectedSongKey(musicKey.Key key) {
+  _setSelectedSongKey(music_key.Key key) {
     _selectedSongKey = key;
 
     if (_isCapo) {
@@ -824,7 +820,7 @@ With escape, the app goes back to the play list.''',
             border: Border.all(),
             borderRadius: const BorderRadius.all(Radius.circular(12)),
             boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
-        padding: EdgeInsets.all(8));
+        padding: const EdgeInsets.all(8));
   }
 
   String _titleAnchor() {
@@ -832,7 +828,7 @@ With escape, the app goes back to the play list.''',
   }
 
   String _artistAnchor() {
-    return anchorUrlStart + Uri.encodeFull('${widget.song.artist}');
+    return anchorUrlStart + Uri.encodeFull(widget.song.artist);
   }
 
   _navigateToEdit(BuildContext context, Song song) async {
@@ -849,7 +845,7 @@ With escape, the app goes back to the play list.''',
     _table = null;
   }
 
-  static final String anchorUrlStart = "https://www.youtube.com/results?search_query=";
+  static const String anchorUrlStart = "https://www.youtube.com/results?search_query=";
 
   bool _isPlaying = false;
   bool _isPaused = false;
@@ -858,17 +854,17 @@ With escape, the app goes back to the play list.''',
   List<RowLocation?> _rowLocations = [];
 
   Table? _table;
-  LyricsTable _lyricsTable = LyricsTable();
-  musicKey.Key _selectedSongKey = musicKey.Key.get(musicKey.KeyEnum.C);
-  musicKey.Key _displaySongKey = musicKey.Key.get(musicKey.KeyEnum.C);
+  final LyricsTable _lyricsTable = LyricsTable();
+  music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
+  music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
 
   int _capoLocation = 0;
-  List<DropdownMenuItem<musicKey.Key>>? keyDropDownMenuList;
+  List<DropdownMenuItem<music_key.Key>>? keyDropDownMenuList;
   List<DropdownMenuItem<int>>? bpmDropDownMenuList;
 
   SongMaster songMaster = SongMaster();
 
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   //AppOptions _appOptions = AppOptions();
 

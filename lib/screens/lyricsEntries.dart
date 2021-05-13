@@ -5,7 +5,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-typedef void _LyricsEntriesCallback();
+typedef _LyricsEntriesCallback = void Function();
 
 /// used in the edit screen to manage the lyrics entry and its matching to the chord section sequence
 class LyricsEntries extends ChangeNotifier {
@@ -151,11 +151,11 @@ class LyricsEntries extends ChangeNotifier {
   }
 
   List<_LyricsDataEntry> get entries => _entries;
-  List<_LyricsDataEntry> _entries = [];
+  final List<_LyricsDataEntry> _entries = [];
   TextStyle? _textStyle;
 }
 
-typedef void _LyricsLineCallback(_LyricsLine line, List<String> lines);
+typedef _LyricsLineCallback = void Function(_LyricsLine line, List<String> lines);
 
 class _LyricsDataEntry {
   _LyricsDataEntry.fromSong(this.lyricSection, {TextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
@@ -223,8 +223,8 @@ class _LyricsDataEntry {
 
   final LyricSection lyricSection;
   int? initialGridRowIndex;
-  TextStyle? _textStyle;
-  _LyricsEntriesCallback? _lyricsEntriesCallback;
+  final TextStyle? _textStyle;
+  final _LyricsEntriesCallback? _lyricsEntriesCallback;
 
   int get length => _lyricsLines.length;
   List<_LyricsLine> _lyricsLines = [];
@@ -265,9 +265,9 @@ class _LyricsLine {
     List<String> ret = _controller.text.split('\n');
 
     // trim white space
-    ret.forEach((value) {
+    for (var value in ret) {
       value = value.trim();
-    });
+    }
     if (ret.length > 1 || ret[0] != originalText) {
       //  update
       _lyricsLineCallback(this, ret);
@@ -282,9 +282,9 @@ class _LyricsLine {
     List<String> ret = text.split('\n');
 
     // trim white space
-    ret.forEach((value) {
+    for (var value in ret) {
       value = value.trim();
-    });
+    }
     if (ret.length > 1) {
       //  split multiple lines
     } else if (selection.baseOffset == text.length && selection.extentOffset == text.length) {

@@ -3,10 +3,12 @@ import 'package:flutter/widgets.dart';
 
 class NullWorkaround implements UtilWorkaround {
 
+  @override
   Future<String> writeFileContents(String fileName, String contents) async {
     throw 'Error writing file to \'$fileName\': not implemented!';
   }
 
+  @override
   Future<void> filePick(BuildContext context) async {
     return Future<void>((){});
   }

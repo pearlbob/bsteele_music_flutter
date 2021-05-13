@@ -44,7 +44,7 @@ class _Songs extends State<Songs> {
         centerTitle: true,
       ),
       body: Container(
-        padding: EdgeInsets.all(36.0),
+        padding: const EdgeInsets.all(36.0),
         child: Wrap(
             direction: Axis.vertical, // make sure to set this
             spacing: 36,

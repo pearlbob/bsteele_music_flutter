@@ -37,7 +37,7 @@ class _State extends State<Documentation> {
         'All songs are stored in files with the ".songlyrics" file name extension.\n'
         'The file format is compliant with JSON (https://www.json.org/). \n'
         'Note that this includes escaping all appropriate characters. \n'
-        'This includes characters like \'\"\', \'\\\\\',  \'\'\', and other special characters.\n'
+        'This includes characters like \'"\', \'\\\\\',  \'\'\', and other special characters.\n'
         '\n'
         'Multiple songs can be written in a single file as a JSON array of songs.\n'
         '\n'
@@ -233,7 +233,7 @@ class _State extends State<Documentation> {
         'and retired in favor of the bracketed format.\n'
         '\n'
         'Lyric Markup Language\n'
-        'The lyric markup language is of the form\:'
+        'The lyric markup language is of the form:'
         '\n\n'
         '        sectionVersion: lyrics'
         '\n\n'
@@ -273,7 +273,7 @@ class _State extends State<Documentation> {
         style: style,
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +289,7 @@ class _State extends State<Documentation> {
           Navigator.pop(context);
         },
         tooltip: 'Back',
-        child: Icon(Icons.arrow_back),
+        child: const Icon(Icons.arrow_back),
       ),
     );
   }

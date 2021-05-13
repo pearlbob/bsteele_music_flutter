@@ -45,20 +45,20 @@ class Edit extends StatefulWidget {
 const double _defaultChordFontSize = 28;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
-const _titleTextStyle = const TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-const TextStyle _boldTextStyle = const TextStyle(
+const _titleTextStyle = TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
+const TextStyle _boldTextStyle = TextStyle(
     fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Color(0xFFF5F5F5));
-const TextStyle _labelTextStyle = const TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+const TextStyle _labelTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
 const TextStyle _buttonTextStyle =
     TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
-const TextStyle _textStyle = const TextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
-const TextStyle _errorTextStyle = const TextStyle(fontSize: _defaultFontSize, color: Colors.red);
-const TextStyle _warningTextStyle = const TextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+const TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
+const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
+const TextStyle _warningTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.blue);
 
 const double _entryWidth = 18 * _defaultChordFontSize;
 
-const Color _defaultColor = const Color(0xFFB3E5FC);
-const Color _disabledColor = const Color(0xFFE0E0E0);
+const Color _defaultColor = Color(0xFFB3E5FC);
+const Color _disabledColor = Color(0xFFE0E0E0);
 const Color _chordEditAreaBackgroundColor = Color(0xFFFFFFFF); //var c = Colors.white;
 const Color _lyricsEditAreaBackgroundColor = Color(0xFFFFFFFF); //  var c = Colors.white;
 final Section _defaultSection = Section.get(SectionEnum.chorus);
@@ -77,7 +77,7 @@ class _AppContainedButton extends ElevatedButton {
   }) : super(
           style: ElevatedButton.styleFrom(
               primary: color ?? _defaultColor,
-              textStyle: TextStyle(
+              textStyle: const TextStyle(
                 color: Colors.black,
               )),
           // shape: RoundedRectangleBorder(
@@ -104,13 +104,13 @@ class _AppOutlineButton extends OutlinedButton {
           style: OutlinedButton.styleFrom(
             primary: _defaultColor,
             onSurface: Colors.grey[400],
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               color: Colors.black87,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            side: BorderSide(width: 1.66, color: Colors.black54),
+            side: const BorderSide(width: 1.66, color: Colors.black54),
           ),
-          child: new Text(
+          child: Text(
             _text,
             style: _buttonTextStyle,
           ),
@@ -372,9 +372,9 @@ class _Edit extends State<Edit> {
           //  use its section version for the row
           {
             for (final ChordSectionLocation? loc in row) {
-              if (loc == null)
+              if (loc == null) {
                 continue;
-              else {
+              } else {
                 firstChordSectionLocation = loc;
                 break;
               }
@@ -481,7 +481,7 @@ class _Edit extends State<Edit> {
             child = Container(
                 margin: _marginInsets,
                 padding: _textPadding,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: _addColor,
                 ),
@@ -515,7 +515,7 @@ class _Edit extends State<Edit> {
         }
 
         _chordTable = Table(
-          defaultColumnWidth: IntrinsicColumnWidth(),
+          defaultColumnWidth: const IntrinsicColumnWidth(),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: rows,
         );
@@ -537,7 +537,7 @@ class _Edit extends State<Edit> {
     //       sectionVersion = chordSection.sectionVersion;
     //     }
     //
-    //     var gridCoordinate =  _song.getChordSectionGridCoorinateMap()[sectionVersion];
+    //     var gridCoordinate =  _song.getChordSectionGridCoordinateMap()[sectionVersion];
     //     var gridRow = gridCoordinate?.row ?? 0;
     //
     //     for (int rowNumber = 0; rowNumber < 200; rowNumber++) {
@@ -634,7 +634,7 @@ class _Edit extends State<Edit> {
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -642,7 +642,7 @@ class _Edit extends State<Edit> {
                   children: <Widget>[
                     AppBar(
                       //  let the app bar scroll off the screen for more room for the song
-                      title: Text(
+                      title: const Text(
                         'Edit',
                         style: _titleTextStyle,
                       ),
@@ -662,10 +662,7 @@ class _Edit extends State<Edit> {
                               }
                             },
                           ),
-                          Container(
-                            child:
-                                Text(_errorMessageString ?? '', style: _isError ? _errorTextStyle : _warningTextStyle),
-                          ),
+                          Text(_errorMessageString ?? '', style: _isError ? _errorTextStyle : _warningTextStyle),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -680,7 +677,7 @@ class _Edit extends State<Edit> {
                                     });
                                   },
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 _AppContainedButton(
@@ -722,8 +719,8 @@ class _Edit extends State<Edit> {
                         textBaseline: TextBaseline.alphabetic,
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: Text(
+                            padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                            child: const Text(
                               'Title: ',
                               style: TextStyle(
                                 fontSize: _defaultChordFontSize,
@@ -733,13 +730,13 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
-                              key: ValueKey('title'),
+                              key: const ValueKey('title'),
                               controller: _titleTextEditingController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Enter the song title.',
                               ),
                               maxLength: null,
-                              style: TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ]),
@@ -748,8 +745,8 @@ class _Edit extends State<Edit> {
                         textBaseline: TextBaseline.alphabetic,
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: Text(
+                            padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                            child: const Text(
                               'Artist: ',
                               style: _labelTextStyle,
                             ),
@@ -757,7 +754,7 @@ class _Edit extends State<Edit> {
                           Expanded(
                             child: TextField(
                               controller: _artistTextEditingController,
-                              decoration: InputDecoration(hintText: 'Enter the song\'s artist.'),
+                              decoration: const InputDecoration(hintText: 'Enter the song\'s artist.'),
                               maxLength: null,
                               style: _boldTextStyle,
                             ),
@@ -768,8 +765,8 @@ class _Edit extends State<Edit> {
                         textBaseline: TextBaseline.alphabetic,
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: Text(
+                            padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                            child: const Text(
                               'Cover Artist:',
                               style: _labelTextStyle,
                             ),
@@ -777,7 +774,7 @@ class _Edit extends State<Edit> {
                           Expanded(
                             child: TextField(
                               controller: _coverArtistTextEditingController,
-                              decoration: InputDecoration(hintText: 'Enter the song\'s cover artist.'),
+                              decoration: const InputDecoration(hintText: 'Enter the song\'s cover artist.'),
                               maxLength: null,
                               style: _boldTextStyle,
                             ),
@@ -788,8 +785,8 @@ class _Edit extends State<Edit> {
                         textBaseline: TextBaseline.alphabetic,
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: Text(
+                            padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                            child: const Text(
                               'Copyright:',
                               style: _labelTextStyle,
                             ),
@@ -797,7 +794,7 @@ class _Edit extends State<Edit> {
                           Expanded(
                             child: TextField(
                               controller: _copyrightTextEditingController,
-                              decoration: InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
+                              decoration: const InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
                               maxLength: null,
                               style: _boldTextStyle,
                             ),
@@ -808,20 +805,20 @@ class _Edit extends State<Edit> {
                       textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
                         Container(
-                          padding: EdgeInsets.only(bottom: 24.0),
-                          child: Text(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: const Text(
                             "Key: ",
                             style: _labelTextStyle,
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(bottom: 24.0),
+                          padding: const EdgeInsets.only(bottom: 24.0),
                           child: DropdownButton<musicKey.Key>(
                             items: musicKey.Key.values.toList().reversed.map((musicKey.Key value) {
-                              return new DropdownMenuItem<musicKey.Key>(
+                              return DropdownMenuItem<musicKey.Key>(
                                 key: ValueKey('half' + value.getHalfStep().toString()),
                                 value: value,
-                                child: new Text(
+                                child: Text(
                                   '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
                                   style: _boldTextStyle,
                                 ),
@@ -838,7 +835,7 @@ class _Edit extends State<Edit> {
                               }
                             },
                             value: _key,
-                            style: TextStyle(
+                            style: const TextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black87,
                               textBaseline: TextBaseline.ideographic,
@@ -846,17 +843,17 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(bottom: 24.0),
-                          child: Text(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: const Text(
                             "   BPM: ",
                             style: _labelTextStyle,
                           ),
                         ),
-                        Container(
+                        SizedBox(
                           width: 80.0,
                           child: TextField(
                             controller: _bpmTextEditingController,
-                            decoration: InputDecoration(hintText: 'Enter the song\'s beats per minute.'),
+                            decoration: const InputDecoration(hintText: 'Enter the song\'s beats per minute.'),
                             maxLength: null,
                             style: _boldTextStyle,
                             onEditingComplete: () {
@@ -865,8 +862,8 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(bottom: 24.0),
-                          child: Text(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: const Text(
                             "Time: ",
                             style: _labelTextStyle,
                           ),
@@ -882,7 +879,7 @@ class _Edit extends State<Edit> {
                             }
                           },
                           value: _song.timeSignature,
-                          style: TextStyle(
+                          style: const TextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black87,
                               textBaseline: TextBaseline.alphabetic,
@@ -890,17 +887,17 @@ class _Edit extends State<Edit> {
                               fontWeight: FontWeight.bold),
                         ),
                         Container(
-                          padding: EdgeInsets.only(left: 24, bottom: 24.0),
-                          child: Text(
+                          padding: const EdgeInsets.only(left: 24, bottom: 24.0),
+                          child: const Text(
                             "  User: ",
                             style: _labelTextStyle,
                           ),
                         ),
-                        Container(
+                        SizedBox(
                           width: 250.0,
                           child: TextField(
                             controller: _userTextEditingController,
-                            decoration: InputDecoration(hintText: 'Enter your user name.'),
+                            decoration: const InputDecoration(hintText: 'Enter your user name.'),
                             maxLength: null,
                             style: _boldTextStyle,
                           ),
@@ -911,7 +908,7 @@ class _Edit extends State<Edit> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          Flexible(
+                          const Flexible(
                             flex: 1,
                             child: Text(
                               "Chords:",
@@ -955,9 +952,9 @@ class _Edit extends State<Edit> {
                           ),
                         ],
                       ),
-                      margin: EdgeInsets.all(4),
+                      margin: const EdgeInsets.all(4),
                     ),
-                    Divider(
+                    const Divider(
                       thickness: 8,
                     ),
                     if (_chordTable != null)
@@ -966,14 +963,14 @@ class _Edit extends State<Edit> {
                           //  pre-configured table of edit widgets
                           _chordTable,
                         ]),
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         color: _chordEditAreaBackgroundColor,
                       ),
                     if (_showHints)
                       RichText(
                         text: TextSpan(
                           children: <InlineSpan>[
-                            TextSpan(
+                            const TextSpan(
                               text: '\n'
                                   'Section types are followed by a colon (:).'
                                   ' Sections can be entered abbreviated and in lower case.'
@@ -987,7 +984,7 @@ class _Edit extends State<Edit> {
                                   _listSections(),
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: '\n'
                                   'Their abbreviations are: ',
                               style: _textStyle,
@@ -996,7 +993,7 @@ class _Edit extends State<Edit> {
                               text: _listSectionAbbreviations(),
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: '.\n\n'
                                   'Sections with the same content will automatically be placed in the same declaration.'
                                   ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
@@ -1010,16 +1007,16 @@ class _Edit extends State<Edit> {
                                   '\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: '''A capital X is used to indicate no chord.\n\n''',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   //  todo: fix the font, ♭ is not represented properly
                                   'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
@@ -1028,7 +1025,7 @@ class _Edit extends State<Edit> {
                                   '',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Limited set of case sensitive chord modifiers can be used: 7sus4,'
                                   ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
                                   ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
@@ -1039,24 +1036,24 @@ class _Edit extends State<Edit> {
                                   ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
                                   ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
                                   ' The bass note is a single note, not a chord.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
-                                  'Periods (.) can be used to repeat chords on another beat within the same meausure. For'
+                                  'Periods (.) can be used to repeat chords on another beat within the same measure. For'
                                   ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: '''Sample measures to use:
       A B C G
       A# C# Bb Db
@@ -1064,44 +1061,44 @@ class _Edit extends State<Edit> {
       DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Commas (,) between measures can be used to indicate the end of a row of measures.'
                                   ' The maximum number of measures allowed within a single row is 8.'
                                   ' If there are no commas within a phrase of 8 or more measures, the phrase will'
                                   ' automatically be split into rows of 4 measures.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Minus signs (-) can be used to indicate a repeated measure.'
                                   ' There must be a space before and after it.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Row repeats are indicated by a lower case x followed by a number 2 or more.'
                                   ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
                                   ' first measure of the first row and a closing square bracket (]) after the last'
                                   ' measure before the x and the digits.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Comments are not allowed in the chord section.'
                                   ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Since you can enter the return key to create a new row for your entry,'
                                   ' you must us the exit to stop editing.  Clicking outside the entry'
                                   ' box or typing escape will work as well.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'The red bar or measure highlight indicate where entry text will be entered.'
                                   ' The radio buttons control the fine position of this indicator for inserting, replacing,'
                                   ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
                                   ' to delete it. Note that the delete key will always apply to text entry.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Double click a measure to select it for replacement or deletion.'
                                   ' Note that if you double click the section type, the entire section will be'
                                   ' available on the entry line for modification.'
@@ -1110,37 +1107,37 @@ class _Edit extends State<Edit> {
                                   ' and it will be separated from the others.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'In the lyrics section, anything else not recognized as a section identifier is'
                                   ' considered lyrics to the end of the line.'
                                   ' I suggest comments go into parenthesis.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'A trick: Select a section similar to a new section you are about to enter.'
-                                  ' Copy the text from the entery area. Delete the entry line. Enter the new section identifier'
+                                  ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
                                   ' (I suggest the section buttons on the right).'
                                   ' Paste the old text after the new section. Make edit adjustments in the entry text'
                                   ' and press the keyboard enter button.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
                                   ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
                               style: _textStyle,
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text:
                                   'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
                               style: _textStyle,
@@ -1149,18 +1146,18 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                     Container(
-                      child: Text(
+                      child: const Text(
                         "Lyrics:",
                         style: _titleTextStyle,
                       ),
-                      margin: EdgeInsets.all(4),
+                      margin: const EdgeInsets.all(4),
                     ),
-                    Divider(
+                    const Divider(
                       thickness: 8,
                     ),
                     Container(
                       child: _lyricsEntryWidget(),
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       color: _lyricsEditAreaBackgroundColor,
                     ),
                     // Container(
@@ -1224,7 +1221,7 @@ class _Edit extends State<Edit> {
                 hint: Container(
                   margin: _marginInsets,
                   padding: _textPadding,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     // shape: BoxShape.circle,
                     color: _addColor,
                   ),
@@ -1246,7 +1243,7 @@ class _Edit extends State<Edit> {
           ],
         ));
         for (var c = 0; c < chordMaxColCount - 1 + 1; c++) {
-          children.add(Text(''));
+          children.add(const Text(''));
         }
         rows.add(TableRow(children: children));
       }
@@ -1267,12 +1264,12 @@ class _Edit extends State<Edit> {
         ));
 
         for (var c = 0; c < chordMaxColCount - 1; c++) {
-          children.add(Text(''));
+          children.add(const Text(''));
         }
         children.add(_editTooltip(
           'Delete this lyric section',
           InkWell(
-            child: Icon(
+            child: const Icon(
               Icons.delete,
               size: _defaultChordFontSize,
               color: Colors.black,
@@ -1307,7 +1304,7 @@ class _Edit extends State<Edit> {
                 padding: _textPadding,
                 color: _sectionColor,
                 child: Text(
-                  '${measure.transpose(_key, 0)}',
+                  measure.transpose(_key, 0),
                   style: _chordBoldTextStyle,
                   maxLines: 1,
                 ),
@@ -1316,7 +1313,7 @@ class _Edit extends State<Edit> {
             }
           }
           for (; c < chordMaxColCount; c++) {
-            children.add(Text(''));
+            children.add(const Text(''));
           }
         }
 
@@ -1329,7 +1326,7 @@ class _Edit extends State<Edit> {
                 child: Container(
                     margin: appendInsets,
                     padding: _textPadding,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: _addColor,
                     ),
@@ -1349,7 +1346,7 @@ class _Edit extends State<Edit> {
                 child: Container(
                     margin: appendInsets,
                     padding: _textPadding,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: _addColor,
                     ),
@@ -1365,16 +1362,16 @@ class _Edit extends State<Edit> {
                   _pushLyricsEntries();
                 },
               ),
-              Spacer(),
+              const Spacer(),
               Expanded(
                 child: lyricsTextField,
                 flex: 30,
               ),
-              Spacer(),
+              const Spacer(),
               _editTooltip(
                 'Delete this lyric line',
                 InkWell(
-                  child: Icon(
+                  child: const Icon(
                     Icons.delete,
                     size: _defaultChordFontSize,
                     color: Colors.black,
@@ -1398,7 +1395,7 @@ class _Edit extends State<Edit> {
                   child: Container(
                       margin: appendInsets,
                       padding: _textPadding,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: _addColor,
                       ),
@@ -1418,7 +1415,7 @@ class _Edit extends State<Edit> {
             ),
           );
         } else {
-          children.add(Text(''));
+          children.add(const Text(''));
         }
         rows.add(TableRow(children: children));
       }
@@ -1436,7 +1433,7 @@ class _Edit extends State<Edit> {
             hint: Container(
               margin: _marginInsets,
               padding: _textPadding,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 // shape: BoxShape.circle,
                 color: _addColor,
               ),
@@ -1457,7 +1454,7 @@ class _Edit extends State<Edit> {
       );
 
       for (var c = 0; c < chordMaxColCount; c++) {
-        children.add(Text(''));
+        children.add(const Text(''));
       }
       rows.add(TableRow(children: children));
     }
@@ -1465,13 +1462,13 @@ class _Edit extends State<Edit> {
     //  compute the flex for the columns
     var columnWidths = <int, TableColumnWidth>{};
     for (var i = 0; i < chordMaxColCount; i++) {
-      columnWidths[i] = IntrinsicColumnWidth();
+      columnWidths[i] = const IntrinsicColumnWidth();
     }
-    columnWidths[chordMaxColCount] = FlexColumnWidth(3);
+    columnWidths[chordMaxColCount] = const FlexColumnWidth(3);
 
     return Table(
       children: rows,
-      defaultColumnWidth: IntrinsicColumnWidth(),
+      defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       columnWidths: columnWidths,
       // border: TableBorder(
@@ -1660,7 +1657,7 @@ class _Edit extends State<Edit> {
   }
 
   Widget _nullEditGridDisplayWidget() {
-    return Text(
+    return const Text(
       '',
       //' null',  //  diagnostic
     );
@@ -1670,10 +1667,12 @@ class _Edit extends State<Edit> {
     MeasureNode? measureNode =
         _song.findMeasureNodeByLocation(editDataPoint.location) ?? editDataPoint.measureNode; //  for new sections
     if (measureNode == null) {
-      return Text('null');
+      return const Text('null');
     }
 
-    if (measureNode.getMeasureNodeType() != MeasureNodeType.section) return Text('not_section');
+    if (measureNode.getMeasureNodeType() != MeasureNodeType.section) {
+      return const Text('not_section');
+    }
 
     ChordSection chordSection = measureNode as ChordSection;
     if (_selectedEditDataPoint == editDataPoint) {
@@ -1687,7 +1686,7 @@ class _Edit extends State<Edit> {
           focusNode: _editTextFieldFocusNode,
           maxLength: null,
           style: _chordBoldTextStyle,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
@@ -1771,7 +1770,7 @@ class _Edit extends State<Edit> {
                   _editTooltip(
                     'Delete this section',
                     InkWell(
-                      child: Icon(
+                      child: const Icon(
                         Icons.delete,
                         size: _defaultChordFontSize,
                         color: Colors.black,
@@ -1785,7 +1784,7 @@ class _Edit extends State<Edit> {
                     _editTooltip(
                       'Accept the modification and add measures to the section.',
                       InkWell(
-                        child: Icon(
+                        child: const Icon(
                           Icons.arrow_forward,
                           size: _defaultChordFontSize,
                         ),
@@ -1799,7 +1798,7 @@ class _Edit extends State<Edit> {
                     _editTooltip(
                       'Accept the modification',
                       InkWell(
-                        child: Icon(
+                        child: const Icon(
                           Icons.check,
                           size: _defaultChordFontSize,
                         ),
@@ -1860,7 +1859,7 @@ class _Edit extends State<Edit> {
   Widget _measureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
     MeasureNode? measureNode = _song.findMeasureNodeByLocation(editDataPoint.location);
     if (measureNode == null) {
-      return Text('null');
+      return const Text('null');
     }
     Measure? measure;
     if (measureNode.getMeasureNodeType() == MeasureNodeType.measure) {
@@ -1885,7 +1884,7 @@ class _Edit extends State<Edit> {
           maxLength: null,
           style: _chordBoldTextStyle,
           decoration: InputDecoration(
-            border: OutlineInputBorder(
+            border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
             hintText: (_editTextController.text.isEmpty &&
@@ -1893,7 +1892,7 @@ class _Edit extends State<Edit> {
                 //  fixme: delete of last measure in section should warn about second delete
                 ? 'Second delete will delete this measure'
                 : 'Enter the measure.',
-            contentPadding: EdgeInsets.all(_defaultFontSize / 2),
+            contentPadding: const EdgeInsets.all(_defaultFontSize / 2),
           ),
           autofocus: true,
           enabled: true,
@@ -2014,7 +2013,7 @@ class _Edit extends State<Edit> {
               children: <Widget>[
                 //  measure edit text field
                 Container(
-                  margin: EdgeInsets.all(2),
+                  margin: const EdgeInsets.all(2),
                   color: _sectionColor,
                   child: _editTextField,
                 ),
@@ -2067,7 +2066,7 @@ class _Edit extends State<Edit> {
                     _editTooltip(
                       'Select from other chord descriptors.',
                       DropdownButton<ScaleChord>(
-                        hint: Text('Other chords'),
+                        hint: const Text('Other chords'),
                         items: _otherChordDropDownMenuList,
                         onChanged: (_value) {
                           setState(() {
@@ -2080,7 +2079,7 @@ class _Edit extends State<Edit> {
                     _editTooltip(
                       'Select a slash note',
                       DropdownButton<ScaleNote>(
-                        hint: Text(
+                        hint: const Text(
                           "/note",
                         ),
                         items: _slashNoteDropDownMenuList,
@@ -2096,7 +2095,7 @@ class _Edit extends State<Edit> {
                       _editTooltip(
                         'Add a repeat for this row',
                         DropdownButton<int>(
-                          hint: Text(
+                          hint: const Text(
                             "repeats",
                           ),
                           items: _repeatDropDownMenuList,
@@ -2121,7 +2120,7 @@ class _Edit extends State<Edit> {
                         _editTooltip(
                           'Delete this measure',
                           InkWell(
-                            child: Icon(
+                            child: const Icon(
                               Icons.delete,
                               size: _defaultChordFontSize,
                               color: Colors.black,
@@ -2135,7 +2134,7 @@ class _Edit extends State<Edit> {
                         _editTooltip(
                           'Accept the modification and extend the row.',
                           InkWell(
-                            child: Icon(
+                            child: const Icon(
                               Icons.arrow_forward,
                               size: _defaultChordFontSize,
                             ),
@@ -2148,7 +2147,7 @@ class _Edit extends State<Edit> {
                         _editTooltip(
                           'Accept the modification, end the row, and continue editing.',
                           InkWell(
-                            child: Icon(
+                            child: const Icon(
                               Icons.call_received,
                               size: _defaultChordFontSize,
                             ),
@@ -2161,7 +2160,7 @@ class _Edit extends State<Edit> {
                         _editTooltip(
                           'Accept the modification.\nFinished adding measures.',
                           InkWell(
-                            child: Icon(
+                            child: const Icon(
                               Icons.check,
                               size: _defaultChordFontSize,
                             ),
@@ -2206,7 +2205,7 @@ class _Edit extends State<Edit> {
           child: _editTooltip(
               'modify or delete the measure',
               Text(
-                '${measure?.transpose(_key, _transpositionOffset) ?? ' '}',
+                measure?.transpose(_key, _transpositionOffset) ?? ' ',
                 style: _chordBoldTextStyle,
               ))),
     );
@@ -2234,7 +2233,7 @@ class _Edit extends State<Edit> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                  Text(
+                  const Text(
                     'Repeat: ',
                     style: _textStyle,
                   ),
@@ -2280,7 +2279,7 @@ class _Edit extends State<Edit> {
                           _editTooltip(
                             'Delete this repeat',
                             InkWell(
-                              child: Icon(
+                              child: const Icon(
                                 Icons.delete,
                                 size: _defaultChordFontSize,
                                 color: Colors.black,
@@ -2398,7 +2397,7 @@ class _Edit extends State<Edit> {
 
     MeasureNode? measureNode = _song.findMeasureNodeByLocation(editDataPoint.location);
     if (measureNode == null) {
-      return Text('null');
+      return const Text('null');
     }
 
     return InkWell(
@@ -2408,7 +2407,7 @@ class _Edit extends State<Edit> {
         child: Container(
             margin: appendInsets,
             padding: appendPadding,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: _addColor,
             ),
@@ -2466,7 +2465,7 @@ class _Edit extends State<Edit> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${sectionVersion.toString()}',
+                sectionVersion.toString(),
                 style: _chordTextStyle,
               ),
               Text(
@@ -2514,8 +2513,9 @@ class _Edit extends State<Edit> {
     if (entry == null || entry.length < 2) return null;
     try {
       return SectionVersion.parseString(entry);
-    } catch (exception) {}
-    return null;
+    } catch (exception) {
+      return null;
+    }
   }
 
   ///  speed entry enhancement and validate the entry
@@ -2600,7 +2600,7 @@ class _Edit extends State<Edit> {
         // message: message + debug,
         message: message,
         child: child,
-        textStyle: TextStyle(
+        textStyle: const TextStyle(
           backgroundColor: tooltipColor,
           fontSize: _defaultChordFontSize / 2,
         ),
@@ -2612,9 +2612,9 @@ class _Edit extends State<Edit> {
         decoration: BoxDecoration(
             color: tooltipColor,
             border: Border.all(),
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            boxShadow: [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
-        padding: EdgeInsets.all(8));
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
+        padding: const EdgeInsets.all(8));
   }
 
   void _undo() {
@@ -2686,7 +2686,7 @@ class _Edit extends State<Edit> {
     _errorMessageString = null;
   }
 
-  void _performEdit({bool done: false, bool endOfRow: false}) {
+  void _performEdit({bool done = false, bool endOfRow = false}) {
     setState(() {
       _edit(done: done, endOfRow: endOfRow);
       logger.i('_performEdit() done');
@@ -2694,7 +2694,7 @@ class _Edit extends State<Edit> {
   }
 
   /// perform the actual edit to the song
-  bool _edit({bool done: false, bool endOfRow: false}) {
+  bool _edit({bool done = false, bool endOfRow = false}) {
     if (!_measureEntryValid) {
       return false;
     }
@@ -2883,7 +2883,7 @@ class _Edit extends State<Edit> {
 
   ScreenInfo? _screenInfo;
   Song _song;
-  Song _originalSong;
+  final Song _originalSong;
   bool _hasChanged = false;
   bool _isValidSong = false;
 
@@ -2903,28 +2903,28 @@ class _Edit extends State<Edit> {
 
   MeasureNode? _measureEntryNode;
 
-  TextStyle _chordBoldTextStyle = TextStyle();
-  TextStyle _chordTextStyle = TextStyle();
-  TextStyle _lyricsTextStyle = TextStyle();
-  EdgeInsets _marginInsets = EdgeInsets.all(4);
-  EdgeInsets _doubleMarginInsets = EdgeInsets.all(8);
+  TextStyle _chordBoldTextStyle = const TextStyle();
+  TextStyle _chordTextStyle = const TextStyle();
+  TextStyle _lyricsTextStyle = const TextStyle();
+  EdgeInsets _marginInsets = const EdgeInsets.all(4);
+  EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
   Color _sectionColor = _defaultColor;
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 
-  TextStyle _chordBadTextStyle = TextStyle();
+  TextStyle _chordBadTextStyle = const TextStyle();
 
   TextField? _editTextField;
 
-  TextEditingController _titleTextEditingController = TextEditingController();
-  TextEditingController _artistTextEditingController = TextEditingController();
-  TextEditingController _coverArtistTextEditingController = TextEditingController();
-  TextEditingController _copyrightTextEditingController = TextEditingController();
-  TextEditingController _bpmTextEditingController = TextEditingController();
-  TextEditingController _userTextEditingController = TextEditingController();
+  final TextEditingController _titleTextEditingController = TextEditingController();
+  final TextEditingController _artistTextEditingController = TextEditingController();
+  final TextEditingController _coverArtistTextEditingController = TextEditingController();
+  final TextEditingController _copyrightTextEditingController = TextEditingController();
+  final TextEditingController _bpmTextEditingController = TextEditingController();
+  final TextEditingController _userTextEditingController = TextEditingController();
 
-  TextEditingController _editTextController = TextEditingController();
+  final TextEditingController _editTextController = TextEditingController();
   FocusNode? _editTextFieldFocusNode;
   TextSelection? _lastEditTextSelection;
   int _tableKeyId = 0;
@@ -2940,12 +2940,12 @@ class _Edit extends State<Edit> {
 
   final List<DropdownMenuItem<int>> _repeatDropDownMenuList = [];
 
-  List<ChangeNotifier> _disposeList = []; //  fixme: workaround to dispose the text controllers
+  final List<ChangeNotifier> _disposeList = []; //  fixme: workaround to dispose the text controllers
 
-  UndoStack<Song> _undoStack = UndoStack();
+  final UndoStack<Song> _undoStack = UndoStack();
 
-  FocusManager _focusManager = FocusManager.instance;
-  FocusNode _focusNode = FocusNode();
+  final FocusManager _focusManager = FocusManager.instance;
+  final FocusNode _focusNode = FocusNode();
 
   static const tooltipColor = Color(0xFFE8F5E9);
   static final _appOptions = AppOptions();
@@ -2994,9 +2994,9 @@ class _Edit extends State<Edit> {
 
 //  internal class to hold handy data for each point in the chord section edit display
 class _EditDataPoint {
-  _EditDataPoint(this.location, {this.onEndOfRow: false});
+  _EditDataPoint(this.location, {this.onEndOfRow = false});
 
-  _EditDataPoint.byMeasureNode(final Song song, this.measureNode, {this.onEndOfRow: false}) {
+  _EditDataPoint.byMeasureNode(final Song song, this.measureNode, {this.onEndOfRow = false}) {
     location = song.findChordSectionLocation(measureNode);
   }
 
@@ -3016,7 +3016,7 @@ class _EditDataPoint {
       return true;
     }
 
-    if (!(other is _EditDataPoint)) {
+    if (other is! _EditDataPoint) {
       return false;
     }
     _EditDataPoint o = other;

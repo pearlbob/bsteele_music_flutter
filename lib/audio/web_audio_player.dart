@@ -2,7 +2,7 @@
 import 'dart:html';
 import 'package:bsteeleMusicLib/appLogger.dart';
 //import 'package:bsteeleMusicLib/songs/pitch.dart';
-import 'package:bsteele_music_flutter/audio/appAudioPlayer.dart';
+import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
 
 class WebAudioPlayer implements AppAudioPlayer {
@@ -62,7 +62,7 @@ class WebAudioPlayer implements AppAudioPlayer {
   }
 
   static final WebAudioPlayer _instance = WebAudioPlayer._privateConstructor();
-  JsAudioFilePlayer _audioFilePlayer = JsAudioFilePlayer();
+  final JsAudioFilePlayer _audioFilePlayer = JsAudioFilePlayer();
 
   //  fixme: bogus use of dart html to keep android studio happy with conditional compile workaround
   final File? file = null;

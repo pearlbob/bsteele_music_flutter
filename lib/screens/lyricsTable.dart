@@ -2,15 +2,13 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
-import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -19,7 +17,7 @@ import '../appOptions.dart';
 import '../main.dart';
 
 typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, int lineNumber, String s);
-typedef LyricsSectionHeaderWidget = Widget Function(LyricSection lyricSection);
+typedef LyricsSectionHeaderWidget = Widget Function(Key key, LyricSection lyricSection);
 typedef LyricsEndWidget = Widget Function();
 
 class LyricsTable {
@@ -31,20 +29,22 @@ class LyricsTable {
     LyricsEndWidget? lyricEndWidget,
     expandRepeats = false,
   }) {
-    displaySongKey = musicKey ?? song.key;
+    displayMusicKey = musicKey ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
 
     computeScreenSizes();
 
     final EdgeInsets marginInsets = EdgeInsets.all(_fontScale);
-    final EdgeInsets textPadding = EdgeInsets.all(6);
+    const EdgeInsets textPadding = EdgeInsets.all(6);
 
     //  build the table from the song lyrics and chords
-    if (song.lyricSections.isEmpty) {
+    if (song.lyricSections.isEmpty)
+    {
       _table = Table();
       return _table;
     }
 
+    _rowLocations = [];
     List<TableRow> rows = [];
     List<Widget> children = [];
     Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
@@ -56,7 +56,7 @@ class LyricsTable {
         _appOptions.userDisplayStyle == UserDisplayStyle.both;
 
     //  compute transposition offset from base key
-    int tranOffset = displaySongKey.getHalfStep() - song.getKey().getHalfStep();
+    int tranOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
 
     //  compute max row length
     int maxCols = song.chordRowMaxLength();
@@ -75,10 +75,12 @@ class LyricsTable {
       //  add the section heading
       color = GuiColors.getColorForSection(chordSection.getSection());
       {
+        var globalKey = GlobalKey();
         if (sectionHeaderWidget != null) {
-          children.add(sectionHeaderWidget(lyricSection));
+          children.add(sectionHeaderWidget(globalKey, lyricSection));
         } else {
           children.add(Container(
+              key: globalKey,
               margin: marginInsets,
               padding: textPadding,
               color: color,
@@ -89,10 +91,11 @@ class LyricsTable {
         }
         //  row length - 1 + 1 for missing lyrics
         for (int c = children.length; c < maxDisplayCols; c++) {
-          children.add(Text(''));
+          children.add(const Text(''));
         }
         rows.add(TableRow(children: children));
         children = [];
+        //_rowLocations.add( RowLocation(lyricSection, rows.length, globalKey));
       }
 
       GlobalKey? _rowKey = GlobalObjectKey(lyricSection);
@@ -120,7 +123,7 @@ class LyricsTable {
               //  empty cell
               children.add(Container(
                   margin: marginInsets,
-                  child: Text(
+                  child: const Text(
                     ' ',
                   )));
             } else {
@@ -130,7 +133,7 @@ class LyricsTable {
                   padding: textPadding,
                   color: color,
                   child: Text(
-                    measure.transpose(displaySongKey, tranOffset)
+                    measure.transpose(displayMusicKey, tranOffset)
                     // + ' ${sm.momentNumber}' //  : debug temp
                     ,
                     style: _chordTextStyle,
@@ -154,7 +157,7 @@ class LyricsTable {
 
           //  add row to table
           for (int c = children.length; c < maxDisplayCols; c++) {
-            children.add(Text(''));
+            children.add(const Text(''));
           }
           rows.add(TableRow(
               //key: ValueKey(r),
@@ -163,7 +166,7 @@ class LyricsTable {
           //  short lyrics
           children.add(Container(
               margin: marginInsets,
-              padding: EdgeInsets.all(2),
+              padding: const EdgeInsets.all(2),
               width: _shortLyricsWidth,
               color: color,
               child: Text(
@@ -175,7 +178,7 @@ class LyricsTable {
 
           //  add row to table
           for (int c = children.length; c < maxDisplayCols; c++) {
-            children.add(Text(''));
+            children.add(const Text(''));
           }
           rows.add(TableRow(children: children));
         }
@@ -189,7 +192,7 @@ class LyricsTable {
       children.add(lyricEndWidget());
       //  row length - 1 + 1 for missing lyrics
       for (int c = children.length; c < maxCols; c++) {
-        children.add(Text(''));
+        children.add(const Text(''));
       }
       rows.add(TableRow(children: children));
       children = [];
@@ -203,7 +206,7 @@ class LyricsTable {
     // columnWidths[maxCols] = IntrinsicColumnWidth();//FlexColumnWidth();
 
     _table = Table(
-      defaultColumnWidth: IntrinsicColumnWidth(),
+      defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
       // columnWidths: columnWidths,
@@ -253,31 +256,33 @@ class LyricsTable {
   double _fontScale = 1;
 
   //TextStyle get chordTextStyle => _chordTextStyle;
-  TextStyle _chordTextStyle = TextStyle();
+  TextStyle _chordTextStyle = const TextStyle();
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
-  TextStyle _lyricsTextStyle = TextStyle();
+  TextStyle _lyricsTextStyle = const TextStyle();
 
-  double _shortLyricsWidth = 200;
+  double _shortLyricsWidth = 200; //  default value
 
   Table get table => _table;
   Table _table = Table();
 
-  musicKey.Key displaySongKey = musicKey.Key.get(musicKey.KeyEnum.C);
-  AppOptions _appOptions = AppOptions();
+  music_key.Key displayMusicKey = music_key.Key.get(music_key.KeyEnum.C);
+  final AppOptions _appOptions = AppOptions();
 }
 
 /// helper class to help manage a song display
 class RowLocation {
-  RowLocation(this.songMoment, this.row, this.globalKey);
+  RowLocation(this._lyricSection, this._row, this.globalKey);
 
   @override
   String toString() {
-    return ('${row.toString()} ${globalKey.toString()}'
-        ', ${songMoment.toString()}');
+    return ('${_row.toString()} ${globalKey.toString()}'
+        ', ${_lyricSection.toString()}');
   }
 
-  final SongMoment songMoment;
+  get sectionCount => _lyricSection.index;
+
+  final LyricSection _lyricSection;
   final GlobalKey globalKey;
-  final int row;
+  final int _row;
 }

@@ -65,6 +65,10 @@ class Player extends StatefulWidget {
 class _Player extends State<Player> with RouteAware {
   _Player() {
     _player = this;
+
+    // _scrollController.addListener(() {
+    //   logger.d('_scrollController.position: ${_scrollController.position.pixels}');
+    // });
   }
 
   @override
@@ -75,7 +79,7 @@ class _Player extends State<Player> with RouteAware {
     // if (kIsWeb) {
     //   html.window.onMouseWheel.listen((event) {
     //     if (event.ctrlKey) {
-    //       logger.i('event type: ${event.runtimeType.toString()},'
+    //       logger.d('event type: ${event.runtimeType.toString()},'
     //           ' d: ${event.deltaMode.toString()}'
     //           ' x: ${event.deltaX.toString()}'
     //           ' y: ${event.deltaY.toString()}'
@@ -570,7 +574,9 @@ With escape, the app goes back to the play list.''',
                   mini: !isScreenBig,
                   onPressed: () {
                     _stop();
-                    _scrollController.animateTo(0, duration: const Duration(milliseconds: 333), curve: Curves.ease).then((_) {
+                    _scrollController
+                        .animateTo(0, duration: const Duration(milliseconds: 333), curve: Curves.ease)
+                        .then((_) {
                       logger.d('_scrollAnimationFuture complete');
                       setState(() {});
                     });
@@ -626,7 +632,7 @@ With escape, the app goes back to the play list.''',
         if (_isPlaying) {
           _stop();
         } else {
-          logger.i('pop the navigator');
+          logger.d('pop the navigator');
           Navigator.pop(context);
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
@@ -638,6 +644,7 @@ With escape, the app goes back to the play list.''',
   }
 
   _scrollToSectionByMoment(SongMoment? songMoment) {
+    logger.d('_scrollToSectionByMoment( $songMoment )');
     if (songMoment == null) {
       return;
     }
@@ -649,7 +656,7 @@ With escape, the app goes back to the play list.''',
           _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
       if (_scrollController.offset != target) {
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
-        //print('_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
+        logger.d('_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
       }
     }
   }
@@ -678,7 +685,7 @@ With escape, the app goes back to the play list.''',
         target = _sectionLocations![r];
 
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
-        // print('_sectionBump: bump: $bump, $r => $target');
+        logger.d('_sectionBump: bump: $bump, $r => $target');
       }
     }
   }
@@ -688,13 +695,14 @@ With escape, the app goes back to the play list.''',
     if (_scrollController.hasClients && _sectionLocations == null && _rowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
       double? y0;
-      int sectionCount = 0;
+      int sectionCount = -1; //  will never match the original, as intended
 
       _sectionLocations = [];
       for (RowLocation? _rowLocation in _rowLocations) {
         if (_rowLocation == null) {
           continue;
         }
+        assert(sectionCount != _rowLocation.sectionCount);
         if (sectionCount == _rowLocation.sectionCount) {
           continue; //  same section, no entry
         }
@@ -712,42 +720,40 @@ With escape, the app goes back to the play list.''',
             return;
           }
         }
-        y0 ??= y;
+        y0 ??= y; //  initialize y0 to first y
         y -= y0;
         _sectionLocations!.add(y);
-
-        logger.d('${key.toString()}: $y');
       }
+      logger.d('raw _sectionLocations: $_sectionLocations');
 
       //  add half of the deltas to center each selection    fixme: add later!
-      // {
-      //   List<double> tmp = [];
-      //   for (int i = 0; i < _sectionLocations!.length - 1; i++) {
-      //     tmp.add(_sectionLocations![i] //  start of the this section
-      //         //  fixme when only flutter: (_sectionLocations![i] + _sectionLocations![i + 1]) / 2
-      //     );
-      //   }
-      //
-      //   //  average the last with the end of the last
-      //   GlobalKey key = _rowLocations.last!.globalKey;
-      //   double y = _scrollController.offset; //  safety
-      //   {
-      //     //  deal with possible missing render objects
-      //     var renderObject = key.currentContext?.findRenderObject();
-      //     if (renderObject != null && renderObject is RenderBox) {
-      //       y = renderObject.localToGlobal(Offset.zero).dy;
-      //     } else {
-      //       _sectionLocations = null;
-      //       return;
-      //     }
-      //   }
-      //   y0 ??= y;
-      //   y -= y0;
-      //   tmp.add((_sectionLocations![_sectionLocations!.length - 1] + y
-      //       + (key.currentContext?.size?.height ?? 0)) / 2
-      //   );
-      //   _sectionLocations = tmp;  //  last location
-      // }
+      {
+        List<double> tmp = [];
+        for (int i = 0; i < _sectionLocations!.length - 1; i++) {
+          tmp.add((_sectionLocations![i] + _sectionLocations![i + 1]) / 2);
+        }
+
+        //  average the last with the end of the last
+        GlobalKey key = _rowLocations.last!.globalKey;
+        double y = _scrollController.offset; //  safety
+        {
+          //  deal with possible missing render objects
+          var renderObject = key.currentContext?.findRenderObject();
+          if (renderObject != null && renderObject is RenderBox) {
+            y = renderObject.size.height;
+          } else {
+            _sectionLocations = null;
+            return;
+          }
+        }
+        logger.d('_table height: ${(_table?.key as GlobalKey).currentContext?.findRenderObject()?.paintBounds.height}');
+        var tableHeight = (_table?.key as GlobalKey).currentContext?.findRenderObject()?.paintBounds.height ?? y;
+        tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
+
+        _sectionLocations = tmp;
+      }
+
+      logger.d('_sectionLocations: $_sectionLocations');
     }
   }
 

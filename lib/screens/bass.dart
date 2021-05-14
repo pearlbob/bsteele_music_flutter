@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
@@ -34,7 +34,7 @@ final _otherColor = Paint()..color = const Color(0x80A3FF69);
 final _scaleColor = Paint()..color = const Color(0x80ffffff);
 double _fontSize = 24;
 
-musicKey.Key _key = musicKey.Key.getDefault();
+music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 
@@ -108,9 +108,9 @@ class _State extends State<BassWidget> {
                         'Key: ',
                         style: _style,
                       ),
-                      DropdownButton<musicKey.Key>(
-                        items: musicKey.Key.values.toList().reversed.map((musicKey.Key value) {
-                          return  DropdownMenuItem<musicKey.Key>(
+                      DropdownButton<music_key.Key>(
+                        items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                          return  DropdownMenuItem<music_key.Key>(
                             key: ValueKey('half' + value.getHalfStep().toString()),
                             value: value,
                             child: Text(
@@ -271,7 +271,7 @@ class _State extends State<BassWidget> {
     }
     children.add(TableRow(children: row));
 
-    musicKey.Key rootKey = musicKey.Key.getKeyByHalfStep(_chordRoot.halfStep);
+    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(_chordRoot.halfStep);
 
     //  compute scale notes
     var scaleNotes = <ScaleNote>[];
@@ -436,7 +436,7 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  compute scale notes
-    musicKey.Key rootKey = musicKey.Key.getKeyByHalfStep(_chordRoot.halfStep);
+    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(_chordRoot.halfStep);
     var fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
       fretBoardNotes.add(_key.inKey(
@@ -539,7 +539,7 @@ class _FretBoardPainter extends CustomPainter {
     return fretWidths[n];
   }
 
-  final musicKey.Key keyE = musicKey.Key.get(musicKey.KeyEnum.E);
+  final music_key.Key keyE = music_key.Key.get(music_key.KeyEnum.E);
 
   late Canvas canvas;
   final List<double> fretLocs = [];

@@ -95,7 +95,7 @@ class LyricsTable {
         }
         rows.add(TableRow(children: children));
         children = [];
-        //_rowLocations.add( RowLocation(lyricSection, rows.length, globalKey));
+        _rowLocations.add( RowLocation(lyricSection, rows.length, globalKey));
       }
 
       GlobalKey? _rowKey = GlobalObjectKey(lyricSection);
@@ -206,6 +206,7 @@ class LyricsTable {
     // columnWidths[maxCols] = IntrinsicColumnWidth();//FlexColumnWidth();
 
     _table = Table(
+      key: GlobalKey(),
       defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,

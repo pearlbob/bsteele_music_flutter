@@ -15889,6 +15889,81 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1620968772210, "song": 
+{
+"title": "Chasing Cars",
+"artist": "Snow Patrol",
+"user": "Shari",
+"lastModifiedDate": 1620968772210,
+"copyright": "2005 Interscope",
+"key": "A",
+"defaultBpm": 105,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I1:",
+	"A A",
+	"V1:",
+	"A A E/G♯ E/G♯ |",
+	"D D A A | x2",
+	"C1:",
+	"A A E/G♯ E/G♯",
+	"D D A A",
+	"C2:",
+	"A A E/G♯ E/G♯ |",
+	"D D A A | x2"
+    ],
+"lyrics": 
+    [
+	"I1:",
+	"Instrumental",
+	"",
+	"V1:",
+	"We'll do it all ",
+	"Everything on our own",
+	"We don't need anything",
+	"Or anyone",
+	"",
+	"C1:",
+	"(If I lay) here, if I just lay here, would you lie",
+	"With me and just forget the world?",
+	"",
+	"V1:",
+	"I don't quite know how to ",
+	"Say how I feel",
+	"Those three words are said too much",
+	"They're not enough",
+	"",
+	"C2:",
+	"(If I lay) here, if I just lay here, would you lie",
+	"With me and just forget the world? Forget what we're",
+	"Told, before we get too old, show me a",
+	"Garden that's bursting into life",
+	"",
+	"V1:",
+	"Let's waste time, chasing cars",
+	"Around our heads",
+	"I need your grace, to remind me",
+	"To find my own",
+	"",
+	"C2:",
+	"(If I lay) here, if I just lay here, would you lie",
+	"With me and just forget the world? Forget what we're",
+	"Told, before we get too old, show me a",
+	"Garden that's bursting into life",
+	"",
+	"C2:",
+	"(All that I) am, all that I ever was, is here in your ",
+	"Perfect eyes they're all I can see, I don't know",
+	"Where, confused about how as well, just know that these ",
+	"Things will never change for us at all",
+	"",
+	"C1:",
+	"(If I lay) here, if I just lay here, would you lie",
+	"With me and just forget the world?"
+    ]
+}
+},
 { "file": "Cheap Thrills (4).songlyrics", "lastModifiedDate": 1580683882795, "song": 
 {
 "title": "Cheap Thrills",
@@ -57898,14 +57973,14 @@
     ]
 }
 },
-{ "file": "Locomotion, The.songlyrics", "lastModifiedDate": 1552867821491, "song": 
+{ "file": "", "lastModifiedDate": 1620954428526, "song": 
 {
 "title": "Locomotion, The",
 "artist": "Little Eva",
-"user": "Unknown",
-"lastModifiedDate": 1552867821491,
-"copyright": "?",
-"key": "C",
+"user": "Shari",
+"lastModifiedDate": 1620954428526,
+"copyright": "1962 Gerry Goffin, Carole King",
+"key": "D",
 "defaultBpm": 106,
 "timeSignature": "4/4",
 "chords": 
@@ -57930,53 +58005,53 @@
 "lyrics": 
     [
 	"V:",
-	"Everybody's doin a brand new dance now. (Come on baby, do the locomotion.)",
-	"I know you'll get to like it if you give it a chance now.(Come on baby, do the locomotion.)",
+	"Everybody's doin a brand new dance now (Come on baby, do the locomotion)",
+	"I know you'll get to like it if you give it a chance now (Come on baby, do the locomotion)",
 	"V1:",
-	"My little baby sister can do it with ease.",
-	"It's easier than learnin your ABC's.",
-	"So come on, come on, do the locomotion with me.",
+	"My little baby sister can do it with ease",
+	"It's easier than learnin your ABC's",
+	"So come on, come on, do the locomotion with me",
 	"C:",
 	"You gotta swing your hips now, come on baby, ",
-	"Jump up,mmm, jump back, well I think you got the knack.ouoo",
+	"Jump up,mmm, jump back, well I think you got the knack, ouoo",
 	"V:",
-	"Now that you can do it, let's make a chain now.(Come on baby, do the locomotion.)",
-	"Chug a chug a motion like a railway train now.(Come on baby, do the locomotion.)",
+	"Now that you can do it, let's make a chain now(Come on baby, do the locomotion.)",
+	"Chug a chug a motion like a railway train now(Come on baby, do the locomotion)",
 	"V1:",
-	"Do it nice and easy now, don't lose control.",
+	"Do it nice and easy now, don't lose control",
 	"A little bit of rhythm and a lot of soul",
-	"So come on, come on, do the locomotion with me.",
+	"So come on, come on, do the locomotion with me",
 	"C:",
-	"The locomotion,come on come on,",
 	"The locomotion,come on come on",
-	"The locomotion,come on come on,",
-	"come on, come on,come on,",
+	"The locomotion,come on come on",
+	"The locomotion,come on come on",
+	"come on, come on,come on",
 	"",
 	"V:",
-	"Move around the floor in a locomotion, yaah.(Come on baby, do the locomotion.)",
-	"Do it holdin hands if you get the notion.(Come on baby, do the locomotion.)",
+	"Move around the floor in a locomotion, yaah.(Come on baby, do the locomotion)",
+	"Do it holdin hands if you get the notion.(Come on baby, do the locomotion)",
 	"V1:",
-	"There's never been a dance that's so easy to do.",
-	"It even makes you happy when you're feelin blue.",
-	"So come on, come on, do the locomotion with me.",
+	"There's never been a dance that's so easy to do",
+	"It even makes you happy when you're feelin blue",
+	"So come on, come on, do the locomotion with me",
 	"C:",
-	"You gotta swing your hips now, come on baby, ",
+	"You gotta swing your hips now, come on baby ",
 	"Jump up, mmm, jump back, well I think you got the knack, ouou",
 	"V: ",
-	"Do the loco the loco, the locolocomotion,(Come on baby, do the locomotion.)",
-	"Do the loco the loco the locolocomotion, (Come on baby, do the locomotion.)",
+	"Do the loco the loco, the locolocomotion,(Come on baby, do the locomotion)",
+	"Do the loco the loco the locolocomotion, (Come on baby, do the locomotion)",
 	"O:",
-	"Do it nice and easy now, don't lose control.",
+	"Do it nice and easy now, don't lose control",
 	"A little bit of rhythm and a lot of soul",
 	"So come on, come on, do the locomotion",
 	"Come on come on do the locomotion,",
-	"Come on come on do the locomotion, with me.",
-	"The locomotion, Come on come on, ",
-	"the locomotion, Come on come on, ",
-	"the locomotion, Come on come on,",
-	"the locomotion, Come on come on,",
-	"the locomotion, Come on, come on, ",
-	"come on, come on, come on, Come on."
+	"Come on come on do the locomotion, with me",
+	"The locomotion, Come on come on",
+	"the locomotion, Come on come on",
+	"the locomotion, Come on come on",
+	"the locomotion, Come on come on",
+	"the locomotion, Come on, come on",
+	"come on, come on, come on, Come on"
     ]
 }
 },
@@ -58492,12 +58567,12 @@
     ]
 }
 },
-{ "file": "Long Cool Woman (1).songlyrics", "lastModifiedDate": 1534127110483, "song": 
+{ "file": "", "lastModifiedDate": 1620949853599, "song": 
 {
 "title": "Long Cool Woman",
 "artist": "Hollies, The",
-"user": "Unknown",
-"lastModifiedDate": 1534127110483,
+"user": "Shari",
+"lastModifiedDate": 1620949853599,
 "copyright": "1971 Epic",
 "key": "E",
 "defaultBpm": 137,
@@ -58522,6 +58597,7 @@
 "lyrics": 
     [
 	"I: (Instrumental)",
+	"NOTE V2 LATER IN SONG",
 	"",
 	"V1:",
 	"Saturday night I was downtown",
@@ -64934,12 +65010,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1613962944686, "song": 
+{ "file": "", "lastModifiedDate": 1620950556958, "song": 
 {
 "title": "More Than Words",
 "artist": "Extreme",
 "user": "Shari",
-"lastModifiedDate": 1613962944686,
+"lastModifiedDate": 1620950556958,
 "copyright": "1991 A&M",
 "key": "Fs",
 "defaultBpm": 92,
@@ -64995,8 +65071,8 @@
 	"Two, more than words to show you ",
 	"Feel that your love for me is ",
 	"Real - what would you ",
-	"Say if I took those words a-",
-	"Way, then you couldn't make things ",
+	"Say if I took those words away",
+	"Then you couldn't make things ",
 	"New just by saying \"I love you\"",
 	"",
 	"I2:",
@@ -65004,8 +65080,8 @@
 	"Words, la di da, da di da",
 	"V:",
 	"Now that I've tried to ",
-	"Talk to you and make you under-",
-	"Stand, all you have to do is ",
+	"Talk to you and make you understand",
+	"All you have to do is ",
 	"Close your eyes and just reach out your ",
 	"Hands and touch me",
 	"Hold me close don't ever let me go, more than",
@@ -86019,12 +86095,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1615193609996, "song": 
+{ "file": "", "lastModifiedDate": 1620954302447, "song": 
 {
 "title": "Songbird, cover by Eva Cassidy",
-"artist": "Eva Cassidy",
+"artist": "Fleetwood Mac",
 "user": "Shari",
-"lastModifiedDate": 1615193609996,
+"lastModifiedDate": 1620954302447,
 "copyright": "1977 Warner Bros, written by Christine McVie",
 "key": "C",
 "defaultBpm": 77,

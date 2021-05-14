@@ -1,5 +1,3 @@
-// ignore: file_names
-
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -7,7 +7,7 @@ import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as musicKey;
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
@@ -32,14 +32,16 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
+late final Song _initialSong;
+
 ///   screen to edit a song
 class Edit extends StatefulWidget {
-  const Edit({Key? key, required this.initialSong}) : super(key: key);
+  Edit({Key? key, required initialSong}) : super(key: key) {
+    _initialSong = initialSong;
+  }
 
   @override
-  _Edit createState() => _Edit(initialSong);
-
-  final Song initialSong;
+  _Edit createState() => _Edit();
 }
 
 const double _defaultChordFontSize = 28;
@@ -119,9 +121,9 @@ class _AppOutlineButton extends OutlinedButton {
 }
 
 class _Edit extends State<Edit> {
-  _Edit(Song initialSong)
-      : _song = initialSong.copySong(),
-        _originalSong = initialSong.copySong() {
+  _Edit()
+      : _song = _initialSong.copySong(),
+        _originalSong = _initialSong.copySong() {
     //  stuff the repeat Drop Down Menu List
     for (var i = 2; i <= 4; i++) {
       DropdownMenuItem<int> item = DropdownMenuItem(key: ValueKey('repeatX$i'), value: i, child: Text('x$i'));
@@ -813,9 +815,9 @@ class _Edit extends State<Edit> {
                         ),
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
-                          child: DropdownButton<musicKey.Key>(
-                            items: musicKey.Key.values.toList().reversed.map((musicKey.Key value) {
-                              return DropdownMenuItem<musicKey.Key>(
+                          child: DropdownButton<music_key.Key>(
+                            items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                              return DropdownMenuItem<music_key.Key>(
                                 key: ValueKey('half' + value.getHalfStep().toString()),
                                 value: value,
                                 child: Text(
@@ -2887,7 +2889,7 @@ class _Edit extends State<Edit> {
   bool _hasChanged = false;
   bool _isValidSong = false;
 
-  musicKey.Key _key = musicKey.Key.getDefault();
+  music_key.Key _key = music_key.Key.getDefault();
   double _appendFontSize = 14;
   double _chordFontSize = 14;
 
@@ -2934,7 +2936,7 @@ class _Edit extends State<Edit> {
   bool _showHints = false;
 
   SectionVersion _sectionVersion = SectionVersion.getDefault();
-  ScaleNote _keyChordNote = musicKey.Key.getDefault().getKeyScaleNote();
+  ScaleNote _keyChordNote = music_key.Key.getDefault().getKeyScaleNote();
 
   List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList = [];
 

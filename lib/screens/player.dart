@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
+import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -13,6 +15,7 @@ import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
+import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -33,6 +36,7 @@ bool _isCapo = false;
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
 _Player? _player;
+const _centerSelections = false; //fixme: add later!
 
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   _songUpdate = songUpdate;
@@ -43,7 +47,9 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   }
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
-    _player?.setState(() {});
+    _player?.setState(() {
+      _player?._setPlayMode();
+    });
   });
 
   //print('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
@@ -66,9 +72,20 @@ class _Player extends State<Player> with RouteAware {
   _Player() {
     _player = this;
 
-    // _scrollController.addListener(() {
-    //   logger.d('_scrollController.position: ${_scrollController.position.pixels}');
-    // });
+    _scrollController.addListener(() {
+      if (_songUpdateService.isLeader) {
+        var sectionTarget = _sectionIndexAtScrollOffset();
+        if (sectionTarget != null) {
+          LyricSection lyricSection = _lyricSectionRowLocations[sectionTarget]?.lyricSection;
+          for (var songMoment in widget.song.songMoments) {
+            if (songMoment.lyricSection == lyricSection) {
+              _leadSongUpdate(songMoment.momentNumber);
+              break;
+            }
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -107,6 +124,8 @@ class _Player extends State<Player> with RouteAware {
     // }
 
     _setSelectedSongKey(widget.song.key);
+
+    _leadSongUpdate(0);
 
     WidgetsBinding.instance?.scheduleWarmUpFrame();
   }
@@ -177,8 +196,8 @@ class _Player extends State<Player> with RouteAware {
 
     if (_table == null) {
       _table = _lyricsTable.lyricsTable(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
-      _rowLocations = _lyricsTable.rowLocations;
-      _screenOffset = _lyricsTable.screenHeight / 2;
+      _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
+      _screenOffset = _centerSelections ? _lyricsTable.screenHeight / 2 : 0;
       _sectionLocations = null; //  clear any previous song cached data
     }
 
@@ -187,7 +206,7 @@ class _Player extends State<Player> with RouteAware {
       //  higher pitch on top
       //  lower pit on bottom
 
-      if (keyDropDownMenuList == null) {
+      if (_keyDropDownMenuList == null) {
         const int steps = MusicConstants.halfStepsPerOctave;
         const int halfOctave = steps ~/ 2;
         ScaleNote? firstScaleNote = song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
@@ -206,7 +225,7 @@ class _Player extends State<Player> with RouteAware {
           rolledKeyList[i] = list[steps - i + halfOctave];
         }
 
-        keyDropDownMenuList = [];
+        _keyDropDownMenuList = [];
         final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, 'G'); //  something sane
         const String onString = '(on ';
         final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
@@ -224,7 +243,7 @@ class _Player extends State<Player> with RouteAware {
             offsetString = relativeOffset.toString();
           }
 
-          keyDropDownMenuList!.add(DropdownMenuItem<music_key.Key>(
+          _keyDropDownMenuList!.add(DropdownMenuItem<music_key.Key>(
               key: ValueKey(value.getHalfStep()),
               value: value,
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -258,14 +277,27 @@ class _Player extends State<Player> with RouteAware {
         }
       }
 
-      if (bpmDropDownMenuList == null) {
+      if (_bpmDropDownMenuList == null) {
         final int bpm = song.getBeatsPerMinute();
 
-        bpmDropDownMenuList = [];
+        //  assure entries are unique
+        SplayTreeSet<int> set = SplayTreeSet();
         for (int i = -60; i < 60; i++) {
           int value = bpm + i;
-          if (value < 40) continue;
-          bpmDropDownMenuList!.add(
+          if (value < 40) {
+            continue;
+          }
+          set.add(value);
+          if (i < -30 || i > 30) {
+            i += 10 - 1;
+          } else if (i < -5 || i > 5) {
+            i += 5 - 1;
+          } //  in addition to increment above
+        }
+
+        List<DropdownMenuItem<int>> bpmList = [];
+        for (var value in set) {
+          bpmList.add(
             DropdownMenuItem<int>(
               key: ValueKey(value),
               value: value,
@@ -275,15 +307,14 @@ class _Player extends State<Player> with RouteAware {
               ),
             ),
           );
-          if (i < -30 || i > 30) {
-            i += 10 - 1;
-          } else if (i < -5 || i > 5) i += 5 - 1; //  in addition to increment above
         }
+
+        _bpmDropDownMenuList = bpmList;
       }
     }
 
-    final double boxCenter = _screenOffset;
-    final double boxHeight = _screenOffset;
+    final double boxCenter = screenInfo.heightInLogicalPixels / 2;
+    final double boxHeight = screenInfo.heightInLogicalPixels / 2;
     final double boxOffset = boxHeight / 2;
 
     final hoverColor = Colors.blue[700];
@@ -317,21 +348,21 @@ class _Player extends State<Player> with RouteAware {
               ),
             ),
             //  tiny center marker
-            Positioned(
-              top: boxCenter,
-              child: Container(
-                constraints: BoxConstraints.loose(const Size(10, 4)),
-                decoration: const BoxDecoration(
-                  color: Colors.black,
+            if (_centerSelections)
+              Positioned(
+                top: boxCenter,
+                child: Container(
+                  constraints: BoxConstraints.loose(const Size(10, 4)),
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                  ),
                 ),
               ),
-            ),
             GestureDetector(
               child: SingleChildScrollView(
                 controller: _scrollController,
                 scrollDirection: Axis.vertical,
                 child: SizedBox(
-                  //width: _screenWidth*3/4,//  fixme: temp!!!!!!!!!!!!!!!!!
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,7 +494,7 @@ With escape, the app goes back to the play list.''',
                                     style: _lyricsTextStyle,
                                   ),
                                   DropdownButton<music_key.Key>(
-                                    items: keyDropDownMenuList,
+                                    items: _keyDropDownMenuList,
                                     onChanged: (value) {
                                       setState(() {
                                         if (value != null) {
@@ -472,36 +503,28 @@ With escape, the app goes back to the play list.''',
                                       });
                                     },
                                     value: _selectedSongKey,
-                                    style: const TextStyle(
-                                      //  size controlled by textScaleFactor above
-                                      color: Colors.black87,
-                                      textBaseline: TextBaseline.ideographic,
-                                    ),
+                                    style: _lyricsTextStyle,
                                     iconSize: _lyricsTable.fontSize,
                                     itemHeight: 1.2 * kMinInteractiveDimension,
                                   ),
                                   Text(
-                                    "   BPM: ",
+                                    '   BPM: ',
                                     style: _lyricsTextStyle,
                                   ),
                                   if (isScreenBig)
                                     DropdownButton<int>(
-                                      items: bpmDropDownMenuList,
+                                      items: _bpmDropDownMenuList,
                                       onChanged: (value) {
                                         setState(() {
                                           if (value != null) {
                                             song.setBeatsPerMinute(value);
-                                            bpmDropDownMenuList = null; //  refresh to new value
+                                            _bpmDropDownMenuList = null; //  refresh to new value
                                             setState(() {});
                                           }
                                         });
                                       },
                                       value: song.getBeatsPerMinute(),
-                                      style: const TextStyle(
-                                        //  size controlled by textScaleFactor above
-                                        color: Colors.black87,
-                                        textBaseline: TextBaseline.ideographic,
-                                      ),
+                                      style: _lyricsTextStyle,
                                       iconSize: _lyricsTable.fontSize,
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
@@ -511,7 +534,19 @@ With escape, the app goes back to the play list.''',
                                       style: _lyricsTextStyle,
                                     ),
                                   Text(
-                                    "  Time: ${song.timeSignature}",
+                                    '  Time: ${song.timeSignature}',
+                                    style: _lyricsTextStyle,
+                                  ),
+                                  Text(
+                                    '  Time: ${song.timeSignature}  ',
+                                    style: _lyricsTextStyle,
+                                  ),
+                                  Text(
+                                    _songUpdateService.isOpen
+                                        ? (_songUpdateService.isLeader
+                                            ? 'I\'m the leader'
+                                            : 'following ${_songUpdateService.leaderName}')
+                                        : '',
                                     style: _lyricsTextStyle,
                                   ),
                                 ],
@@ -524,7 +559,7 @@ With escape, the app goes back to the play list.''',
                           ),
                         Center(child: _table),
                         Text(
-                          "Copyright: ${song.getCopyright()}",
+                          'Copyright: ${song.getCopyright()}',
                           style: _lyricsTextStyle,
                         ),
                         if (_isPlaying)
@@ -655,6 +690,7 @@ With escape, the app goes back to the play list.''',
       double target =
           _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
       if (_scrollController.offset != target) {
+        _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
         logger.d('_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
       }
@@ -663,7 +699,7 @@ With escape, the app goes back to the play list.''',
 
   /// bump from one section to the next
   _sectionBump(int bump) {
-    if (_rowLocations.isEmpty) {
+    if (_lyricSectionRowLocations.isEmpty) {
       _sectionLocations = null;
       return;
     }
@@ -672,33 +708,46 @@ With escape, the app goes back to the play list.''',
       return; //  safety during initial configuration
     }
 
-    _updateSectionLocations();
+    //  bump it by units of section
+    var index = _sectionIndexAtScrollOffset();
+    if (index != null) {
+      var target = _sectionLocations![Util.limit(index + bump, 0, _sectionLocations!.length - 1) as int];
 
-    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
-      //  find the best location for the current scroll position
-      var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()..sort();
-      if (sortedLocations.isNotEmpty) {
-        double? target = sortedLocations.first;
-
-        //  bump it by units of section
-        int r = Util.limit(_sectionLocations!.indexOf(target) + bump, 0, _sectionLocations!.length - 1) as int;
-        target = _sectionLocations![r];
-
+      if (_sectionTarget != target) {
+        _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
-        logger.d('_sectionBump: bump: $bump, $r => $target');
+        logger.i('_sectionBump: bump: $bump, $index => $target px, section: ${widget.song.lyricSections[index]}');
       }
     }
   }
 
+  int? _sectionIndexAtScrollOffset() {
+    _updateSectionLocations();
+
+    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
+      //  find the best location for the current scroll position
+      var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()
+        ..sort(); //  fixme: improve efficiency
+      if (sortedLocations.isNotEmpty) {
+        double target = sortedLocations.first;
+
+        //  bump it by units of section
+        return Util.limit(_sectionLocations!.indexOf(target), 0, _sectionLocations!.length - 1) as int;
+      }
+    }
+
+    return null;
+  }
+
   _updateSectionLocations() {
     //  lazy update
-    if (_scrollController.hasClients && _sectionLocations == null && _rowLocations.isNotEmpty) {
+    if (_scrollController.hasClients && _sectionLocations == null && _lyricSectionRowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
       double? y0;
       int sectionCount = -1; //  will never match the original, as intended
 
       _sectionLocations = [];
-      for (RowLocation? _rowLocation in _rowLocations) {
+      for (LyricSectionRowLocation? _rowLocation in _lyricSectionRowLocations) {
         if (_rowLocation == null) {
           continue;
         }
@@ -708,7 +757,7 @@ With escape, the app goes back to the play list.''',
         }
         sectionCount = _rowLocation.sectionCount;
 
-        GlobalKey key = _rowLocation.globalKey;
+        GlobalKey key = _rowLocation.key;
         double y = _scrollController.offset; //  safety
         {
           //  deal with possible missing render objects
@@ -726,15 +775,19 @@ With escape, the app goes back to the play list.''',
       }
       logger.d('raw _sectionLocations: $_sectionLocations');
 
-      //  add half of the deltas to center each selection    fixme: add later!
+      //  add half of the deltas to center each selection
       {
         List<double> tmp = [];
         for (int i = 0; i < _sectionLocations!.length - 1; i++) {
-          tmp.add((_sectionLocations![i] + _sectionLocations![i + 1]) / 2);
+          if (_centerSelections) {
+            tmp.add((_sectionLocations![i] + _sectionLocations![i + 1]) / 2);
+          } else {
+            tmp.add(_sectionLocations![i]);
+          }
         }
 
         //  average the last with the end of the last
-        GlobalKey key = _rowLocations.last!.globalKey;
+        GlobalKey key = _lyricSectionRowLocations.last!.key;
         double y = _scrollController.offset; //  safety
         {
           //  deal with possible missing render objects
@@ -757,16 +810,32 @@ With escape, the app goes back to the play list.''',
     }
   }
 
+  void _leadSongUpdate(int momentNumber) {
+    if (!_songUpdateService.isLeader) {
+      return;
+    }
+
+    SongUpdate songUpdate = SongUpdate.createSongUpdate(widget.song.copySong()); //  fixme: copy  required?
+    songUpdate.momentNumber = momentNumber;
+    songUpdate.user = _appOptions.user;
+    _songUpdateService.issueSongUpdate(songUpdate);
+    logger.d('_leadSongUpdate: momentNumber: $momentNumber');
+  }
+
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
 
   _play() {
     setState(() {
       _sectionBump(0);
       logger.d('play:');
-      _isPaused = false;
-      _isPlaying = true;
+      _setPlayMode();
       songMaster.playSong(widget.song);
     });
+  }
+
+  _setPlayMode() {
+    _isPaused = false;
+    _isPlaying = true;
   }
 
   _stop() {
@@ -851,13 +920,13 @@ With escape, the app goes back to the play list.''',
     _table = null;
   }
 
-  static const String anchorUrlStart = "https://www.youtube.com/results?search_query=";
+  static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
   bool _isPlaying = false;
   bool _isPaused = false;
 
   double _screenOffset = 0;
-  List<RowLocation?> _rowLocations = [];
+  List<LyricSectionRowLocation?> _lyricSectionRowLocations = [];
 
   Table? _table;
   final LyricsTable _lyricsTable = LyricsTable();
@@ -865,8 +934,8 @@ With escape, the app goes back to the play list.''',
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
 
   int _capoLocation = 0;
-  List<DropdownMenuItem<music_key.Key>>? keyDropDownMenuList;
-  List<DropdownMenuItem<int>>? bpmDropDownMenuList;
+  List<DropdownMenuItem<music_key.Key>>? _keyDropDownMenuList;
+  List<DropdownMenuItem<int>>? _bpmDropDownMenuList;
 
   SongMaster songMaster = SongMaster();
 
@@ -878,6 +947,8 @@ With escape, the app goes back to the play list.''',
   // static const double _defaultFontSizeMax = defaultFontSize + 5;
 
   final FocusNode _focusNode = FocusNode();
+  double _sectionTarget = 0;
   List<double>? _sectionLocations;
   static final _appOptions = AppOptions();
+  final SongUpdateService _songUpdateService = SongUpdateService();
 }

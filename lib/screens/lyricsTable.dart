@@ -44,7 +44,7 @@ class LyricsTable {
       return _table;
     }
 
-    _rowLocations = [];
+    _lyricSectionRowLocations = [];
     List<TableRow> rows = [];
     List<Widget> children = [];
     Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
@@ -75,7 +75,7 @@ class LyricsTable {
       //  add the section heading
       color = GuiColors.getColorForSection(chordSection.getSection());
       {
-        var globalKey = GlobalKey();
+        var globalKey = GlobalObjectKey(lyricSection);
         if (sectionHeaderWidget != null) {
           children.add(sectionHeaderWidget(globalKey, lyricSection));
         } else {
@@ -95,10 +95,10 @@ class LyricsTable {
         }
         rows.add(TableRow(children: children));
         children = [];
-        _rowLocations.add( RowLocation(lyricSection, rows.length, globalKey));
+        _lyricSectionRowLocations.add( LyricSectionRowLocation(lyricSection, rows.length, globalKey));
       }
 
-      GlobalKey? _rowKey = GlobalObjectKey(lyricSection);
+      Key? _rowKey = UniqueKey();
 
       var expandedRowCount = chordSection.rowCount(expanded: true);
       var chordRowLimit = chordSection.rowCount(expanded: expandRepeats);
@@ -237,7 +237,7 @@ class LyricsTable {
 
     //  text styles
     _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
-    _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize);
+    _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize, color: Colors.black87,);
   }
 
   double get screenWidth => _screenWidth;
@@ -246,8 +246,8 @@ class LyricsTable {
   double get screenHeight => _screenHeight;
   double _screenHeight = 50;
 
-  List<RowLocation?> get rowLocations => _rowLocations;
-  List<RowLocation?> _rowLocations = [];
+  List<LyricSectionRowLocation?> get lyricSectionRowLocations => _lyricSectionRowLocations;
+  List<LyricSectionRowLocation?> _lyricSectionRowLocations = [];
 
   double get lyricsFontSize => _lyricsFontSize;
   double _lyricsFontSize = 18;
@@ -272,18 +272,18 @@ class LyricsTable {
 }
 
 /// helper class to help manage a song display
-class RowLocation {
-  RowLocation(this._lyricSection, this._row, this.globalKey);
+class LyricSectionRowLocation {
+  LyricSectionRowLocation(this._lyricSection, this._row, this.key);
 
   @override
   String toString() {
-    return ('${_row.toString()} ${globalKey.toString()}'
+    return ('${_row.toString()} ${key.toString()}'
         ', ${_lyricSection.toString()}');
   }
 
   get sectionCount => _lyricSection.index;
-
+  get lyricSection => _lyricSection;
   final LyricSection _lyricSection;
-  final GlobalKey globalKey;
   final int _row;
+  final GlobalKey key;
 }

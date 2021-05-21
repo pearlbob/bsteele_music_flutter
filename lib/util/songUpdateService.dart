@@ -40,7 +40,7 @@ class SongUpdateService extends ChangeNotifier {
       }
 
       var url = 'ws://$authority/bsteeleMusicApp/bsteeleMusic';
-      logger.d('trying: $url');
+      logger.i('trying: $url');
 
       try {
         _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
@@ -48,18 +48,18 @@ class SongUpdateService extends ChangeNotifier {
         _webSocketSink = _webSocketChannel!.sink;
 
         _subscription = _webSocketChannel!.stream.listen((message) {
-          var songUpdate = SongUpdate.fromJson(message as String);
-          if (songUpdate != null) {
+          _songUpdate = SongUpdate.fromJson(message as String);
+          if (_songUpdate != null) {
             // print('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
-            playerUpdate(context, songUpdate); //  fixme:  exposure to UI internals
+            playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
             delaySeconds = 0;
             songUpdateCount++;
           }
         }, onError: (Object error) {
-          // print('webSocketChannel error: $error at $authority'); //  fixme: retry later
+          logger.i('webSocketChannel error: $error at $authority'); //  fixme: retry later
           _closeWebSocketChannel();
         }, onDone: () {
-          // print('webSocketChannel onDone: at $authority');
+          logger.i('webSocketChannel onDone: at $authority');
           _closeWebSocketChannel();
         });
 
@@ -69,19 +69,19 @@ class SongUpdateService extends ChangeNotifier {
           await Future.delayed(const Duration(seconds: 5));
 
           if (lastAuthority != _findTheAuthority()) {
-            // print('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
+            logger.i('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
             _closeWebSocketChannel();
             delaySeconds = 0;
             break;
           }
           if (!isOpen) {
-            // print('on close: $lastAuthority');
+            logger.i('on close: $lastAuthority');
             break;
           }
-          // print('webSocketChannel idle: $_webSocketChannel');
+          logger.d('webSocketChannel idle: $isOpen');
         }
       } catch (e) {
-        // print('webSocketChannel exception: ${e.toString()}');
+        logger.i('webSocketChannel exception: ${e.toString()}');
         _closeWebSocketChannel();
       }
 
@@ -111,7 +111,7 @@ class SongUpdateService extends ChangeNotifier {
     await _subscription?.cancel();
     _subscription = null;
     _isLeader = false;
-    songUpdateCount=0;
+    songUpdateCount = 0;
     notifyListeners();
   }
 
@@ -119,19 +119,14 @@ class SongUpdateService extends ChangeNotifier {
     if (_isLeader) {
       songUpdate.setUser(_appOptions.user);
       _webSocketSink?.add(songUpdate.toJson());
+      songUpdateCount++;
       logger.v("leader " + songUpdate.getUser() + " issueSongUpdate: " + songUpdate.toString());
-    }
-  }
-
-  void playerLeaderSongUpdate(SongUpdate songUpdate) {
-    if (_isLeader) {
-      _webSocketSink?.add(songUpdate.toJson());
     }
   }
 
   bool get isOpen => _webSocketChannel != null
       //&& songUpdateCount > 0    //  fixme: needs connection confirmation from server without a song update
-  ;
+      ;
 
   set isLeader(bool value) {
     if (value == _isLeader) {
@@ -141,10 +136,14 @@ class SongUpdateService extends ChangeNotifier {
     notifyListeners();
   }
 
+  SongUpdate? _songUpdate;
+
   bool get isLeader => _isLeader;
   bool _isLeader = false;
+
+  String get leaderName => (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : 'unknown'));
   WebSocketChannel? _webSocketChannel;
-  int songUpdateCount=0;
+  int songUpdateCount = 0;
   WebSocketSink? _webSocketSink;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();

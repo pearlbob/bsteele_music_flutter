@@ -290,5 +290,5 @@ class AppOptions {
   }
 
   String get user => _user;
-  String _user = '';
+  String _user = 'unknown';
 }

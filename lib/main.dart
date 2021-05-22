@@ -16,6 +16,7 @@ import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
+import 'package:bsteele_music_flutter/screens/theory.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
@@ -141,6 +142,7 @@ class MyApp extends StatelessWidget {
         '/documentation': (context) => const Documentation(),
         '/about': (context) => const About(),
         '/bass': (context) => const BassWidget(),
+        '/theory': (context) => const TheoryWidget(),
       },
     );
   }
@@ -504,6 +506,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               onTap: () {
                 _navigateToBass(context);
+              },
+            ),
+            ListTile(
+              title: Text(
+                "Theory",
+                style: _navTextStyle,
+                textScaleFactor: titleScaleFactor,
+              ),
+              onTap: () {
+                _navigateToTheory(context);
               },
             ),
             ListTile(
@@ -880,6 +892,14 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const BassWidget()),
+    );
+    Navigator.pop(context);
+  }
+
+  _navigateToTheory(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TheoryWidget()),
     );
     Navigator.pop(context);
   }

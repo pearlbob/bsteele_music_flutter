@@ -26,6 +26,9 @@ import 'package:flutter/services.dart';
 import '../appOptions.dart';
 import '../main.dart';
 
+//  fixme: shapes in chromium?  circles become stop signs
+//  fixme: compile to armv71
+
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
@@ -35,11 +38,13 @@ const _tooltipColor = Color(0xFFE8F5E9);
 bool _isCapo = false;
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
+music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
 const _centerSelections = false; //fixme: add later!
 
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   _songUpdate = songUpdate;
+  _player?._setSelectedSongKey(songUpdate.currentKey);
 
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
@@ -79,7 +84,7 @@ class _Player extends State<Player> with RouteAware {
           LyricSection lyricSection = _lyricSectionRowLocations[sectionTarget]?.lyricSection;
           for (var songMoment in widget.song.songMoments) {
             if (songMoment.lyricSection == lyricSection) {
-              _leadSongUpdate(songMoment.momentNumber);
+              _leaderSongUpdate(songMoment.momentNumber);
               break;
             }
           }
@@ -125,7 +130,7 @@ class _Player extends State<Player> with RouteAware {
 
     _setSelectedSongKey(widget.song.key);
 
-    _leadSongUpdate(0);
+    _leaderSongUpdate(0);
 
     WidgetsBinding.instance?.scheduleWarmUpFrame();
   }
@@ -231,7 +236,14 @@ class _Player extends State<Player> with RouteAware {
         final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
         for (int i = 0; i < steps; i++) {
-          music_key.Key value = rolledKeyList[i]!;
+          music_key.Key value = rolledKeyList[i] ?? _selectedSongKey;
+
+          //  deal with the Gb/F# duplicate issue
+          if( value.halfStep == _selectedSongKey.halfStep ){
+            value=_selectedSongKey;
+          }
+
+          logger.d('key value: $value');
 
           int relativeOffset = halfOctave - i;
           String valueString =
@@ -716,7 +728,7 @@ With escape, the app goes back to the play list.''',
       if (_sectionTarget != target) {
         _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
-        logger.i('_sectionBump: bump: $bump, $index => $target px, section: ${widget.song.lyricSections[index]}');
+        logger.d('_sectionBump: bump: $bump, $index => $target px, section: ${widget.song.lyricSections[index]}');
       }
     }
   }
@@ -799,9 +811,12 @@ With escape, the app goes back to the play list.''',
             return;
           }
         }
-        logger.d('_table height: ${(_table?.key as GlobalKey).currentContext?.findRenderObject()?.paintBounds.height}');
-        var tableHeight = (_table?.key as GlobalKey).currentContext?.findRenderObject()?.paintBounds.height ?? y;
-        tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
+        if (_table != null && _table?.key != null) {
+          var globalKey = _table!.key as GlobalKey;
+          logger.d('_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
+          var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
+          tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
+        }
 
         _sectionLocations = tmp;
       }
@@ -810,12 +825,13 @@ With escape, the app goes back to the play list.''',
     }
   }
 
-  void _leadSongUpdate(int momentNumber) {
+  void _leaderSongUpdate(int momentNumber) {
     if (!_songUpdateService.isLeader) {
       return;
     }
 
     SongUpdate songUpdate = SongUpdate.createSongUpdate(widget.song.copySong()); //  fixme: copy  required?
+    songUpdate.currentKey = _selectedSongKey;
     songUpdate.momentNumber = momentNumber;
     songUpdate.user = _appOptions.user;
     _songUpdateService.issueSongUpdate(songUpdate);
@@ -877,6 +893,8 @@ With escape, the app goes back to the play list.''',
     }
 
     _forceTableRedisplay();
+
+    _leaderSongUpdate(0);
   }
 
   /// helper function to generate tool tips
@@ -930,7 +948,7 @@ With escape, the app goes back to the play list.''',
 
   Table? _table;
   final LyricsTable _lyricsTable = LyricsTable();
-  music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
+
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
 
   int _capoLocation = 0;

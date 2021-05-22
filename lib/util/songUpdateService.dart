@@ -43,6 +43,7 @@ class SongUpdateService extends ChangeNotifier {
       logger.i('trying: $url');
 
       try {
+        //  or re-try
         _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
 
         _webSocketSink = _webSocketChannel!.sink;
@@ -65,7 +66,7 @@ class SongUpdateService extends ChangeNotifier {
 
         notifyListeners();
         var lastAuthority = authority;
-        for (;;) {
+        for (var count = 0;; count++) {
           await Future.delayed(const Duration(seconds: 5));
 
           if (lastAuthority != _findTheAuthority()) {
@@ -76,21 +77,26 @@ class SongUpdateService extends ChangeNotifier {
           }
           if (!isOpen) {
             logger.i('on close: $lastAuthority');
+            delaySeconds = 0;
             break;
           }
-          logger.d('webSocketChannel idle: $isOpen');
+          logger.i('webSocketChannel idle: $isOpen, count: $count');
         }
       } catch (e) {
         logger.i('webSocketChannel exception: ${e.toString()}');
         _closeWebSocketChannel();
       }
 
+      if (delaySeconds > 0) {
+        //  wait a while
+        logger.i('wait a while!... before closing');
+        await Future.delayed(Duration(seconds: delaySeconds));
+      }
+
       //  backoff bothering the server with repeated failures
       if (delaySeconds < 60) {
         delaySeconds += 5;
       }
-      //  wait a while
-      await Future.delayed(Duration(seconds: delaySeconds));
     }
   }
 
@@ -110,7 +116,7 @@ class SongUpdateService extends ChangeNotifier {
     _webSocketChannel = null;
     await _subscription?.cancel();
     _subscription = null;
-    _isLeader = false;
+    //fixme: make sticky across retries:   _isLeader = false;
     songUpdateCount = 0;
     notifyListeners();
   }

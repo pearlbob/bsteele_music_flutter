@@ -66,8 +66,9 @@ class SongUpdateService extends ChangeNotifier {
 
         notifyListeners();
         var lastAuthority = authority;
-        for (var count = 0;; count++) {
+        for ( _idleCount = 0;; _idleCount++) {
           await Future.delayed(const Duration(seconds: 5));
+          notifyListeners();
 
           if (lastAuthority != _findTheAuthority()) {
             logger.i('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
@@ -75,12 +76,12 @@ class SongUpdateService extends ChangeNotifier {
             delaySeconds = 0;
             break;
           }
-          if (!isOpen) {
+          if (!_isOpen) {
             logger.i('on close: $lastAuthority');
             delaySeconds = 0;
             break;
           }
-          logger.i('webSocketChannel idle: $isOpen, count: $count');
+          logger.v('webSocketChannel idle: $_isOpen, count: $_idleCount');
         }
       } catch (e) {
         logger.i('webSocketChannel exception: ${e.toString()}');
@@ -130,8 +131,10 @@ class SongUpdateService extends ChangeNotifier {
     }
   }
 
-  bool get isOpen => _webSocketChannel != null
-      //&& songUpdateCount > 0    //  fixme: needs connection confirmation from server without a song update
+  bool get _isOpen => _webSocketChannel != null;
+
+  bool get isConnected =>
+      _isOpen && _idleCount > 0 //  fixme: needs connection confirmation from server without a song update
       ;
 
   set isLeader(bool value) {
@@ -150,6 +153,7 @@ class SongUpdateService extends ChangeNotifier {
   String get leaderName => (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : 'unknown'));
   WebSocketChannel? _webSocketChannel;
   int songUpdateCount = 0;
+  int _idleCount = 0;
   WebSocketSink? _webSocketSink;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();

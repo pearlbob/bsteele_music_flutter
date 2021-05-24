@@ -43,13 +43,14 @@ _Player? _player;
 const _centerSelections = false; //fixme: add later!
 
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
-  _songUpdate = songUpdate;
-  _player?._setSelectedSongKey(songUpdate.currentKey);
-
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
         context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
   }
+  _songUpdate = songUpdate;
+  _player?._bpmDropDownMenuList = null; //  fixme!!!!!!!!
+  _player?._setSelectedSongKey(songUpdate.currentKey);
+
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
     _player?.setState(() {
@@ -192,7 +193,7 @@ class _Player extends State<Player> with RouteAware {
           _positionAfterBuild();
         });
       }
-      _displaySongKey = _songUpdate!.currentKey;
+      _setSelectedSongKey(_songUpdate!.currentKey);
     }
 
     _lyricsTable.computeScreenSizes();
@@ -239,8 +240,8 @@ class _Player extends State<Player> with RouteAware {
           music_key.Key value = rolledKeyList[i] ?? _selectedSongKey;
 
           //  deal with the Gb/F# duplicate issue
-          if( value.halfStep == _selectedSongKey.halfStep ){
-            value=_selectedSongKey;
+          if (value.halfStep == _selectedSongKey.halfStep) {
+            value = _selectedSongKey;
           }
 
           logger.d('key value: $value');
@@ -331,6 +332,8 @@ class _Player extends State<Player> with RouteAware {
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
+    final showTopOfDisplay = !(_isPlaying && (_songUpdate?.momentNumber ?? 0) > 0);
+    logger.v('showTopOfDisplay: $showTopOfDisplay, _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -380,7 +383,7 @@ class _Player extends State<Player> with RouteAware {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       textDirection: TextDirection.ltr,
                       children: <Widget>[
-                        if (!_isPlaying)
+                        if (showTopOfDisplay)
                           Column(
                             children: <Widget>[
                               AppBar(
@@ -554,7 +557,7 @@ With escape, the app goes back to the play list.''',
                                     style: _lyricsTextStyle,
                                   ),
                                   Text(
-                                    _songUpdateService.isOpen
+                                    _songUpdateService.isConnected
                                         ? (_songUpdateService.isLeader
                                             ? 'I\'m the leader'
                                             : 'following ${_songUpdateService.leaderName}')
@@ -565,7 +568,7 @@ With escape, the app goes back to the play list.''',
                               ),
                             ],
                           ),
-                        if (_isPlaying)
+                        if (!showTopOfDisplay)
                           SizedBox(
                             height: _screenOffset,
                           ),
@@ -883,14 +886,18 @@ With escape, the app goes back to the play list.''',
   }
 
   _setSelectedSongKey(music_key.Key key) {
-    _selectedSongKey = key;
-
+    music_key.Key newDisplayKey = key;
     if (_isCapo) {
-      _displaySongKey = key.capoKey;
+      newDisplayKey = key.capoKey;
       _capoLocation = key.capoLocation;
-    } else {
-      _displaySongKey = key;
     }
+    if (_selectedSongKey == key && _displaySongKey == newDisplayKey) {
+      return; //  no change required
+    }
+
+    _selectedSongKey = key;
+    _displaySongKey = newDisplayKey;
+    logger.v('_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
 
     _forceTableRedisplay();
 

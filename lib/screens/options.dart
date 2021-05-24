@@ -39,10 +39,14 @@ class _Options extends State<Options> {
       }
     });
 
+
+    _websocketHostEditingController.text = _appOptions.websocketHost;
+
     _songUpdateService.addListener(_songUpdateServiceCallback);
   }
 
   void _songUpdateServiceCallback() {
+    logger.v('_songUpdateServiceCallback()');
     setState(() {});
   }
 
@@ -51,7 +55,7 @@ class _Options extends State<Options> {
     ScreenInfo screenInfo = ScreenInfo(context);
     double fontSize = screenInfo.isTooNarrow ? 18 : 30;
 
-    _websocketHostEditingController.text = _appOptions.websocketHost;
+    logger.v('options build: ${_songUpdateService.isConnected}');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -236,8 +240,9 @@ class _Options extends State<Options> {
                             style: TextStyle(
                               fontSize: fontSize,
                             ),
-                            onChanged: (value) {
+                            onSubmitted: (value) {
                               _appOptions.websocketHost = value;
+                              logger.i('onSubmitted: $value');
                             },
                           ),
                         ),
@@ -249,13 +254,13 @@ class _Options extends State<Options> {
                     ),
                     ElevatedButton(
                       child: Text(
-                        (_songUpdateService.isOpen
+                        (_songUpdateService.isConnected
                             ? (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader')
-                            : 'Server not found, retry'),
+                            : 'Server not found, retrying'),
                         style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
-                        if (_songUpdateService.isOpen) {
+                        if (_songUpdateService.isConnected) {
                           _songUpdateService.isLeader = !_songUpdateService.isLeader;
                         } else {
                           _songUpdateService.open(context);

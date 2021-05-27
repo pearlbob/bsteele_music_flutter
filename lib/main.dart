@@ -17,6 +17,7 @@ import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
@@ -307,9 +308,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final double artistScaleFactor = screenInfo.artistScaleFactor;
     const fontSize = defaultFontSize;
     logger.v('fontSize: $fontSize in ${screenInfo.widthInLogicalPixels} px with ${screenInfo.titleScaleFactor}');
-    const TextStyle titleTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
-    const TextStyle artistTextStyle = TextStyle(fontSize: fontSize);
-    final TextStyle _navTextStyle = TextStyle(fontSize: fontSize, color: Colors.grey[800]);
+    const AppTextStyle titleTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
+    const AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
+    final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
     //  re-search filtered list on data changes
     if (_filteredSongs.isEmpty) {
@@ -418,7 +419,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(
           widget.title,
-          style: TextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
           Tooltip(
@@ -562,7 +563,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     hintText: "Enter search filter string here.",
                   ),
                   autofocus: true,
-                  style: const TextStyle(fontSize: 2 * fontSize),
+                  style: const AppTextStyle(fontSize: 2 * fontSize),
                   onChanged: (text) {
                     setState(() {
                       logger.v('search text: "$text"');
@@ -594,7 +595,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
                 value: _selectedSortType,
-                style: const TextStyle(
+                style: const AppTextStyle(
                   fontSize: 1.5 * fontSize,
                   color: Colors.black87,
                   textBaseline: TextBaseline.alphabetic,
@@ -642,7 +643,7 @@ class _MyHomePageState extends State<MyHomePage> {
             //   hint: Text(
             //     'Filters',
             //     textScaleFactor: artistScaleFactor,
-            //     style: TextStyle(backgroundColor: Colors.lightBlue[300], color: Colors.black),
+            //     style: AppTextStyle(backgroundColor: Colors.lightBlue[300], color: Colors.black),
             //   ),
             //   items: metadataDropDownMenuList,
             //   onChanged: (songIdMetadata) {},

@@ -9,6 +9,7 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ final _dotColor = Paint()..color = Colors.blue[100] ?? Colors.blue;
 final _rootColor = Paint()..color = Colors.red;
 final _thirdColor = Paint()..color = const Color(0xffffb390);
 final _fifthColor = Paint()..color = const Color(0xffffa500);
-final _seventhColor = Paint()..color =const  Color(0xffffff00);
+final _seventhColor = Paint()..color = const Color(0xffffff00);
 final _otherColor = Paint()..color = const Color(0x80A3FF69);
 final _scaleColor = Paint()..color = const Color(0x80ffffff);
 double _fontSize = 24;
@@ -57,7 +58,7 @@ class _State extends State<BassWidget> {
     ScreenInfo screenInfo = ScreenInfo(context);
     _fontSize = screenInfo.isTooNarrow ? 16 : max(24, screenInfo.widthInLogicalPixels / 100);
 
-    _style = TextStyle(color: Colors.black87, fontSize: _fontSize);
+    _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
     List<ScaleNote> scaleNoteValues = [];
@@ -74,7 +75,7 @@ class _State extends State<BassWidget> {
       appBar: AppBar(
         title: Text(
           'bsteele Bass Study Tool',
-          style: TextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -110,7 +111,7 @@ class _State extends State<BassWidget> {
                       ),
                       DropdownButton<music_key.Key>(
                         items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                          return  DropdownMenuItem<music_key.Key>(
+                          return DropdownMenuItem<music_key.Key>(
                             key: ValueKey('half' + value.getHalfStep().toString()),
                             value: value,
                             child: Text(
@@ -127,7 +128,7 @@ class _State extends State<BassWidget> {
                           }
                         },
                         value: _key,
-                        style: const TextStyle(
+                        style: const AppTextStyle(
                           //  size controlled by textScaleFactor above
                           color: Colors.black,
                           textBaseline: TextBaseline.ideographic,
@@ -143,10 +144,10 @@ class _State extends State<BassWidget> {
                       ),
                       DropdownButton<ScaleNote>(
                         items: scaleNoteValues.map((ScaleNote value) {
-                          return  DropdownMenuItem<ScaleNote>(
+                          return DropdownMenuItem<ScaleNote>(
                             key: ValueKey('root' + value.halfStep.toString()),
                             value: value,
-                            child:  Text(
+                            child: Text(
                               _key.inKey(value).toMarkup(),
                               style: _style,
                             ),
@@ -160,7 +161,7 @@ class _State extends State<BassWidget> {
                           }
                         },
                         value: _chordRoot,
-                        style: const TextStyle(
+                        style: const AppTextStyle(
                           //  size controlled by textScaleFactor above
                           color: Colors.black,
                           textBaseline: TextBaseline.ideographic,
@@ -176,9 +177,9 @@ class _State extends State<BassWidget> {
                       ),
                       DropdownButton<ChordDescriptor>(
                         items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
-                          return  DropdownMenuItem<ChordDescriptor>(
+                          return DropdownMenuItem<ChordDescriptor>(
                             value: value,
-                            child:  Text(
+                            child: Text(
                               '${value.toString().padRight(3)} (${value.name})',
                               style: _style,
                             ),
@@ -192,7 +193,7 @@ class _State extends State<BassWidget> {
                           }
                         },
                         value: chordDescriptor,
-                        style: const TextStyle(
+                        style: const AppTextStyle(
                           //  size controlled by textScaleFactor above
                           color: Colors.black,
                           textBaseline: TextBaseline.ideographic,
@@ -210,6 +211,28 @@ class _State extends State<BassWidget> {
           const SizedBox(
             height: 10,
           ),
+          const Text(
+            'test font: '
+            '${MusicConstants.bassClef} A${MusicConstants.flatChar}'
+            ' B${MusicConstants.sharpChar} C${MusicConstants.naturalChar}',
+            style: AppTextStyle(
+              fontSize: 48,
+            ),
+          ),
+          const Text(
+            'test font: '
+            '${MusicConstants.bassClef} A${MusicConstants.flatChar}'
+            ' B${MusicConstants.sharpChar} C${MusicConstants.naturalChar}',
+            style: TextStyle(
+              fontSize: 48,
+            ),
+          ),
+          Text(
+            'test fontfamily: ${const AppTextStyle().fontFamilyFallback}  ${const AppTextStyle().fontFamilyFallback}',
+            style: const AppTextStyle(
+              fontSize: 48,
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -223,7 +246,7 @@ class _State extends State<BassWidget> {
   }
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
-  TextStyle _style = const TextStyle();
+  AppTextStyle _style = const AppTextStyle();
 }
 
 class _FretBoardPainter extends CustomPainter {
@@ -355,7 +378,11 @@ class _FretBoardPainter extends CustomPainter {
       final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
       )
-        ..pushStyle(ui.TextStyle(color: Colors.black, fontSize: _fontSize, fontWeight: FontWeight.bold))
+        ..pushStyle(ui.TextStyle(
+            color: Colors.black,
+            fontSize: _fontSize,
+            fontWeight: FontWeight.bold,
+            fontFamilyFallback: appFontFamilyFallback))
         ..addText(noteChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
       canvas.drawParagraph(
@@ -366,7 +393,11 @@ class _FretBoardPainter extends CustomPainter {
       final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
       )
-        ..pushStyle(ui.TextStyle(color: Colors.black, fontSize: _fontSize, fontWeight: FontWeight.bold))
+        ..pushStyle(ui.TextStyle(
+            color: Colors.black,
+            fontSize: _fontSize,
+            fontWeight: FontWeight.bold,
+            fontFamilyFallback: appFontFamilyFallback))
         ..addText(scaleChar);
       var paragraph = builder.build()..layout(ui.ParagraphConstraints(width: 4 * _fontSize));
       canvas.drawParagraph(paragraph,

@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/bass.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
-import 'package:bsteeleMusicLib/songs/bass.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,12 +63,12 @@ class _Options extends State<Options> {
       appBar: AppBar(
         title: Text(
           'bsteele Music App Options',
-          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: DefaultTextStyle(
-        style: TextStyle(color: Colors.black87, fontSize: fontSize),
+        style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: SingleChildScrollView(
           //  for phones when horizontal
           child: Container(
@@ -79,14 +80,14 @@ class _Options extends State<Options> {
                 children: <Widget>[
                   Text(
                     'User style: ',
-                    style: TextStyle(fontSize: fontSize),
+                    style: AppTextStyle(fontSize: fontSize),
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<UserDisplayStyle>(
-                          title: Text('Player', style: TextStyle(fontSize: fontSize)),
+                          title: Text('Player', style: AppTextStyle(fontSize: fontSize)),
                           value: UserDisplayStyle.player,
                           groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
@@ -98,7 +99,7 @@ class _Options extends State<Options> {
                           },
                         ),
                         RadioListTile<UserDisplayStyle>(
-                          title: Text('Both Player and Singer', style: TextStyle(fontSize: fontSize)),
+                          title: Text('Both Player and Singer', style: AppTextStyle(fontSize: fontSize)),
                           value: UserDisplayStyle.both,
                           groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
@@ -110,7 +111,7 @@ class _Options extends State<Options> {
                           },
                         ),
                         RadioListTile<UserDisplayStyle>(
-                          title: Text('Singer', style: TextStyle(fontSize: fontSize)),
+                          title: Text('Singer', style: AppTextStyle(fontSize: fontSize)),
                           value: UserDisplayStyle.singer,
                           groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
@@ -126,14 +127,14 @@ class _Options extends State<Options> {
                   ),
                   Text(
                     'Holiday choice: ',
-                    style: TextStyle(fontSize: fontSize),
+                    style: AppTextStyle(fontSize: fontSize),
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
-                          title: Text('Not in a holiday mood', style: TextStyle(fontSize: fontSize)),
+                          title: Text('Not in a holiday mood', style: AppTextStyle(fontSize: fontSize)),
                           value: false,
                           groupValue: _appOptions.holiday,
                           onChanged: (value) {
@@ -143,7 +144,7 @@ class _Options extends State<Options> {
                           },
                         ),
                         RadioListTile<bool>(
-                          title: Text('All holiday, all the time!', style: TextStyle(fontSize: fontSize)),
+                          title: Text('All holiday, all the time!', style: AppTextStyle(fontSize: fontSize)),
                           value: true,
                           groupValue: _appOptions.holiday,
                           onChanged: (value) {
@@ -157,14 +158,14 @@ class _Options extends State<Options> {
                   ),
                   Text(
                     'Repeat display choice: ',
-                    style: TextStyle(fontSize: fontSize),
+                    style: AppTextStyle(fontSize: fontSize),
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
-                          title: Text('Compress all repeats (for example: x4)', style: TextStyle(fontSize: fontSize)),
+                          title: Text('Compress all repeats (for example: x4)', style: AppTextStyle(fontSize: fontSize)),
                           value: true,
                           groupValue: _appOptions.compressRepeats,
                           onChanged: (value) {
@@ -174,7 +175,7 @@ class _Options extends State<Options> {
                           },
                         ),
                         RadioListTile<bool>(
-                          title: Text('Expand all repeat repetitions', style: TextStyle(fontSize: fontSize)),
+                          title: Text('Expand all repeat repetitions', style: AppTextStyle(fontSize: fontSize)),
                           value: false,
                           groupValue: _appOptions.compressRepeats,
                           onChanged: (value) {
@@ -194,7 +195,7 @@ class _Options extends State<Options> {
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'User name: ',
-                            style: TextStyle(
+                            style: AppTextStyle(
                               fontSize: fontSize,
                             ),
                           ),
@@ -206,7 +207,7 @@ class _Options extends State<Options> {
                               hintText: 'Enter your user name.',
                             ),
                             // maxLength: 20,
-                            style: TextStyle(
+                            style: AppTextStyle(
                               fontSize: fontSize,
                             ),
                             onChanged: (value) {
@@ -225,7 +226,7 @@ class _Options extends State<Options> {
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'Host IP: ',
-                            style: TextStyle(
+                            style: AppTextStyle(
                               fontSize: fontSize,
                             ),
                           ),
@@ -237,7 +238,7 @@ class _Options extends State<Options> {
                               hintText: 'Enter the websocket host IP address.',
                             ),
                             // maxLength: 20,
-                            style: TextStyle(
+                            style: AppTextStyle(
                               fontSize: fontSize,
                             ),
                             onSubmitted: (value) {
@@ -250,14 +251,14 @@ class _Options extends State<Options> {
                   Row(children: <Widget>[
                     Text(
                       'Song Update: ',
-                      style: TextStyle(fontSize: fontSize),
+                      style: AppTextStyle(fontSize: fontSize),
                     ),
                     ElevatedButton(
                       child: Text(
                         (_songUpdateService.isConnected
                             ? (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader')
                             : 'Server not found, retrying'),
-                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                        style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
                         if (_songUpdateService.isConnected) {
@@ -280,7 +281,7 @@ class _Options extends State<Options> {
                     ),
                     Text(
                       'debug: ',
-                      style: TextStyle(fontSize: fontSize),
+                      style: AppTextStyle(fontSize: fontSize),
                     ),
                   ]),
                   Row(children: <Widget>[
@@ -294,7 +295,7 @@ class _Options extends State<Options> {
                     ),
                     Text(
                       'Playback with chords',
-                      style: TextStyle(fontSize: fontSize),
+                      style: AppTextStyle(fontSize: fontSize),
                     ),
                   ]),
                   Row(children: <Widget>[
@@ -308,13 +309,13 @@ class _Options extends State<Options> {
                     ),
                     Text(
                       'Playback with bass',
-                      style: TextStyle(fontSize: fontSize),
+                      style: AppTextStyle(fontSize: fontSize),
                     ),
                   ]),
                   Row(children: <Widget>[
                     Text(
                       'audio test: ',
-                      style: TextStyle(fontSize: fontSize),
+                      style: AppTextStyle(fontSize: fontSize),
                     ),
                     InkWell(
                       onTap: () {

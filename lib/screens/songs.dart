@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/main.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
@@ -39,7 +40,7 @@ class _Songs extends State<Songs> {
       appBar: AppBar(
         title: Text(
           'bsteele Music App Songs',
-          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -52,7 +53,7 @@ class _Songs extends State<Songs> {
               ElevatedButton(
                 child: Text(
                   'Read files',
-                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
 
                 ),
                 onPressed: () {
@@ -65,7 +66,7 @@ class _Songs extends State<Songs> {
               ElevatedButton(
                 child: Text(
                   'Write songs all to $fileLocation',
-                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   _writeAll();
@@ -74,7 +75,7 @@ class _Songs extends State<Songs> {
               ElevatedButton(
                 child: Text(
                   'Remove all songs from the current list',
-                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   setState(() {
@@ -84,15 +85,15 @@ class _Songs extends State<Songs> {
               ),
               Text(
                 _message ?? '',
-                style: TextStyle(fontSize: fontSize),
+                style: AppTextStyle(fontSize: fontSize),
               ),
               Text(
                 'Song count:  ${allSongs.length}',
-                style: TextStyle(fontSize: fontSize),
+                style: AppTextStyle(fontSize: fontSize),
               ),
               Text(
                 'Most recent: ${_mostRecent()}',
-                style: TextStyle(fontSize: fontSize),
+                style: AppTextStyle(fontSize: fontSize),
               ),
             ]),
       ),

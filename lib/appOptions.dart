@@ -194,13 +194,13 @@ class AppOptions {
     _saveBool('alwaysUseTheNewestSongOnRead', alwaysUseTheNewestSongOnRead);
   }
 
-  Future<bool> _readBool(final String key, {defaultValue= false}) async {
+  Future<bool> _readBool(final String key, {defaultValue = false}) async {
     final prefs = await SharedPreferences.getInstance();
     var value = prefs.getBool(key) ?? defaultValue;
     return value;
   }
 
-  Future<String> _readString(final String key, {defaultValue= ''}) async {
+  Future<String> _readString(final String key, {defaultValue = ''}) async {
     final prefs = await SharedPreferences.getInstance();
     var value = prefs.getString(key) ?? defaultValue;
     return value;
@@ -262,9 +262,9 @@ class AppOptions {
     _compressRepeats = value;
     _saveBool('compressRepeats', value);
   }
+
   bool get compressRepeats => _compressRepeats;
   bool _compressRepeats = false;
-
 
   UserDisplayStyle get userDisplayStyle => _userDisplayStyle;
   UserDisplayStyle _userDisplayStyle = UserDisplayStyle.both;

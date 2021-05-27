@@ -23,6 +23,7 @@ import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/appOptions.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,15 +48,15 @@ class Edit extends StatefulWidget {
 const double _defaultChordFontSize = 28;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
-const _titleTextStyle = TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-const TextStyle _boldTextStyle = TextStyle(
+const _titleTextStyle = AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
+const AppTextStyle _boldTextStyle = AppTextStyle(
     fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Color(0xFFF5F5F5));
-const TextStyle _labelTextStyle = TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
-const TextStyle _buttonTextStyle =
-    TextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
-const TextStyle _textStyle = TextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
-const TextStyle _errorTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.red);
-const TextStyle _warningTextStyle = TextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+const AppTextStyle _labelTextStyle = AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+const AppTextStyle _buttonTextStyle =
+    AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
+const AppTextStyle _textStyle = AppTextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
+const AppTextStyle _errorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
+const AppTextStyle _warningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
 
 const double _entryWidth = 18 * _defaultChordFontSize;
 
@@ -79,7 +80,7 @@ class _AppContainedButton extends ElevatedButton {
   }) : super(
           style: ElevatedButton.styleFrom(
               primary: color ?? _defaultColor,
-              textStyle: const TextStyle(
+              textStyle: const AppTextStyle(
                 color: Colors.black,
               )),
           // shape: RoundedRectangleBorder(
@@ -106,7 +107,7 @@ class _AppOutlineButton extends OutlinedButton {
           style: OutlinedButton.styleFrom(
             primary: _defaultColor,
             onSurface: Colors.grey[400],
-            textStyle: const TextStyle(
+            textStyle: const AppTextStyle(
               color: Colors.black87,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
@@ -279,7 +280,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('edit build: "${_editTextController.text.toString()}"');
+    logger.i('edit build: "${_editTextController.text.toString()}"');
 
     if (_screenInfo == null) {
       _screenInfo = ScreenInfo(context);
@@ -289,21 +290,21 @@ class _Edit extends State<Edit> {
       _chordFontSize = min(_defaultChordFontSize, max(12, _chordFontSize));
       _appendFontSize = _chordFontSize * 0.75;
 
-      _chordBoldTextStyle = TextStyle(
+      _chordBoldTextStyle = AppTextStyle(
         fontWeight: FontWeight.bold,
         fontSize: _chordFontSize,
       );
-      _chordTextStyle = TextStyle(
+      _chordTextStyle = AppTextStyle(
         fontSize: _appendFontSize,
         color: Colors.black87,
       );
-      _lyricsTextStyle = TextStyle(
+      _lyricsTextStyle = AppTextStyle(
         fontWeight: FontWeight.normal,
         fontSize: _chordFontSize,
         color: Colors.black87,
       );
 
-      _chordBadTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
+      _chordBadTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
 
       //  don't load the song until we know its font sizes
       _loadSong(_song);
@@ -526,75 +527,6 @@ class _Edit extends State<Edit> {
       }
     }
 
-    // Table _lyricsTable = Table();
-    // {
-    //   List<TableRow> rows = [];
-    //   List<Widget> children;
-    //
-    //   sectionColor = GuiColors.getColorForSection(SectionVersion.getDefault().section);
-    //   for (final lyricSection in _song.lyricSections) {
-    //     ChordSection? chordSection = _song.findChordSectionByLyricSection(lyricSection);
-    //     SectionVersion? sectionVersion;
-    //     if (chordSection != null) {
-    //       sectionVersion = chordSection.sectionVersion;
-    //     }
-    //
-    //     var gridCoordinate =  _song.getChordSectionGridCoordinateMap()[sectionVersion];
-    //     var gridRow = gridCoordinate?.row ?? 0;
-    //
-    //     for (int rowNumber = 0; rowNumber < 200; rowNumber++) {
-    //       if (rowNumber > lyricSection.lyricsLines.length) {
-    //         break;
-    //       }
-    //       children = [];
-    //       if (sectionVersion != null) {
-    //         sectionColor = GuiColors.getColorForSection(sectionVersion.section);
-    //         children.add(Container(
-    //             margin: _marginInsets,
-    //             padding: textPadding,
-    //             color: sectionColor,
-    //             child: _editTooltip(
-    //                 'modify or delete the section',
-    //                 Text(
-    //                   sectionVersion.toString(),
-    //                   style: _chordBoldTextStyle,
-    //                 ))));
-    //         sectionVersion = null;
-    //       } else {
-    //         children.add(_nullEditGridDisplayWidget());
-    //       }
-    //
-    //       children.add(Text(
-    //         gridRow.toString() + ' row',
-    //         style: _chordBoldTextStyle,
-    //       ));
-    //
-    //       //  fill the columns so they are all the same length
-    //       while ( children.length < maxCols) {
-    //         children.add(_nullEditGridDisplayWidget());
-    //       }
-    //
-    //       if (rowNumber < lyricSection.lyricsLines.length) {
-    //         children.add(Text(
-    //           lyricSection.lyricsLines[rowNumber],
-    //           style: _textStyle,
-    //         ));
-    //       } else {
-    //         children.add(_nullEditGridDisplayWidget());
-    //       }
-    //
-    //       rows.add(TableRow(key: ValueKey('table${_tableKeyId++}'), children: children));
-    //       gridRow++;
-    //     }
-    //   }
-    //
-    //   _lyricsTable = Table(
-    //     defaultColumnWidth: IntrinsicColumnWidth(),
-    //     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-    //     children: rows,
-    //   );
-    // }
-
     {
       //  list the notes required
       List<ScaleNote> scaleNotes = [];
@@ -664,7 +596,9 @@ class _Edit extends State<Edit> {
                               }
                             },
                           ),
-                          Text(_errorMessageString ?? '', style: _isError ? _errorTextStyle : _warningTextStyle),
+                          Text(_errorMessageString ?? '',
+                              style: _isError ? _errorTextStyle : _warningTextStyle,
+                              key: const ValueKey('errorMessage')),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -724,7 +658,7 @@ class _Edit extends State<Edit> {
                             padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                             child: const Text(
                               'Title: ',
-                              style: TextStyle(
+                              style: AppTextStyle(
                                 fontSize: _defaultChordFontSize,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -738,7 +672,7 @@ class _Edit extends State<Edit> {
                                 hintText: 'Enter the song title.',
                               ),
                               maxLength: null,
-                              style: const TextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
+                              style: const AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ]),
@@ -755,6 +689,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
+                              key: const ValueKey('artist'),
                               controller: _artistTextEditingController,
                               decoration: const InputDecoration(hintText: 'Enter the song\'s artist.'),
                               maxLength: null,
@@ -775,6 +710,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
+                              key: const ValueKey('coverArtist'),
                               controller: _coverArtistTextEditingController,
                               decoration: const InputDecoration(hintText: 'Enter the song\'s cover artist.'),
                               maxLength: null,
@@ -795,6 +731,7 @@ class _Edit extends State<Edit> {
                           ),
                           Expanded(
                             child: TextField(
+                              key: const ValueKey('copyright'),
                               controller: _copyrightTextEditingController,
                               decoration: const InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
                               maxLength: null,
@@ -816,9 +753,10 @@ class _Edit extends State<Edit> {
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
                           child: DropdownButton<music_key.Key>(
+                            key: const ValueKey('keyDropdown'),
                             items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
                               return DropdownMenuItem<music_key.Key>(
-                                key: ValueKey('half' + value.getHalfStep().toString()),
+                                key: ValueKey('key_' + value.toMarkup()),
                                 value: value,
                                 child: Text(
                                   '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
@@ -827,6 +765,7 @@ class _Edit extends State<Edit> {
                               );
                             }).toList(),
                             onChanged: (_value) {
+                              logger.i('onChanged: $_value');
                               if (_value != null && _song.key != _key) {
                                 _song.key = _key;
                                 _key = _value;
@@ -837,7 +776,7 @@ class _Edit extends State<Edit> {
                               }
                             },
                             value: _key,
-                            style: const TextStyle(
+                            style: const AppTextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black87,
                               textBaseline: TextBaseline.ideographic,
@@ -881,7 +820,7 @@ class _Edit extends State<Edit> {
                             }
                           },
                           value: _song.timeSignature,
-                          style: const TextStyle(
+                          style: const AppTextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black87,
                               textBaseline: TextBaseline.alphabetic,
@@ -1202,7 +1141,7 @@ class _Edit extends State<Edit> {
         value: chordSection,
         child: Text(
           '${chordSection.sectionVersion}',
-          style: TextStyle(
+          style: AppTextStyle(
               fontSize: _chordFontSize,
               fontWeight: FontWeight.bold,
               backgroundColor: GuiColors.getColorForSection(chordSection.sectionVersion.section)),
@@ -2495,7 +2434,7 @@ class _Edit extends State<Edit> {
           }
         });
       },
-      style: TextStyle(
+      style: AppTextStyle(
         color: GuiColors.getColorForSection(selectedSectionVersion.section),
         textBaseline: TextBaseline.alphabetic,
       ),
@@ -2602,7 +2541,7 @@ class _Edit extends State<Edit> {
         // message: message + debug,
         message: message,
         child: child,
-        textStyle: const TextStyle(
+        textStyle: const AppTextStyle(
           backgroundColor: tooltipColor,
           fontSize: _defaultChordFontSize / 2,
         ),
@@ -2889,6 +2828,7 @@ class _Edit extends State<Edit> {
   bool _hasChanged = false;
   bool _isValidSong = false;
 
+  music_key.Key get musicKey => _key; //  for testing
   music_key.Key _key = music_key.Key.getDefault();
   double _appendFontSize = 14;
   double _chordFontSize = 14;
@@ -2905,9 +2845,9 @@ class _Edit extends State<Edit> {
 
   MeasureNode? _measureEntryNode;
 
-  TextStyle _chordBoldTextStyle = const TextStyle();
-  TextStyle _chordTextStyle = const TextStyle();
-  TextStyle _lyricsTextStyle = const TextStyle();
+  AppTextStyle _chordBoldTextStyle = const AppTextStyle();
+  AppTextStyle _chordTextStyle = const AppTextStyle();
+  AppTextStyle _lyricsTextStyle = const AppTextStyle();
   EdgeInsets _marginInsets = const EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
@@ -2915,7 +2855,7 @@ class _Edit extends State<Edit> {
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 
-  TextStyle _chordBadTextStyle = const TextStyle();
+  AppTextStyle _chordBadTextStyle = const AppTextStyle();
 
   TextField? _editTextField;
 

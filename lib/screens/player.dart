@@ -14,6 +14,7 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
@@ -394,7 +395,7 @@ class _Player extends State<Player> with RouteAware {
                                   },
                                   child: Text(
                                     song.title,
-                                    style: TextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
+                                    style: AppTextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
                                   ),
                                   hoverColor: hoverColor,
                                 ),
@@ -552,9 +553,8 @@ With escape, the app goes back to the play list.''',
                                     '  Time: ${song.timeSignature}',
                                     style: _lyricsTextStyle,
                                   ),
-                                  Text(
-                                    '  Time: ${song.timeSignature}  ',
-                                    style: _lyricsTextStyle,
+                                  const SizedBox(
+                                    width: 20,
                                   ),
                                   Text(
                                     _songUpdateService.isConnected

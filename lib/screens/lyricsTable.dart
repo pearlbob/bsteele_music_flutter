@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteele_music_flutter/gui.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -236,8 +237,8 @@ class LyricsTable {
         ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
 
     //  text styles
-    _chordTextStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
-    _lyricsTextStyle = TextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize, color: Colors.black87,);
+    _chordTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
+    _lyricsTextStyle = AppTextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize, color: Colors.black87,);
   }
 
   double get screenWidth => _screenWidth;
@@ -256,11 +257,11 @@ class LyricsTable {
   double _fontSize = 10;
   double _fontScale = 1;
 
-  //TextStyle get chordTextStyle => _chordTextStyle;
-  TextStyle _chordTextStyle = const TextStyle();
+  //AppTextStyle get chordTextStyle => _chordTextStyle;
+  AppTextStyle _chordTextStyle = const AppTextStyle();
 
-  TextStyle get lyricsTextStyle => _lyricsTextStyle;
-  TextStyle _lyricsTextStyle = const TextStyle();
+  AppTextStyle get lyricsTextStyle => _lyricsTextStyle;
+  AppTextStyle _lyricsTextStyle = const AppTextStyle();
 
   double _shortLyricsWidth = 200; //  default value
 

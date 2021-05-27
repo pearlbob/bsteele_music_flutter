@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class _State extends State<TheoryWidget> {
     ScreenInfo screenInfo = ScreenInfo(context);
     _fontSize = screenInfo.isTooNarrow ? 16 : max(24, screenInfo.widthInLogicalPixels / 100);
 
-    _style = TextStyle(color: Colors.black87, fontSize: _fontSize);
+    _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
     List<ScaleNote> scaleNoteValues = [];
@@ -66,7 +67,7 @@ class _State extends State<TheoryWidget> {
       appBar: AppBar(
         title: Text(
           'music theory',
-          style: TextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -110,7 +111,7 @@ class _State extends State<TheoryWidget> {
                           }
                         },
                         value: _key,
-                        style: const TextStyle(
+                        style: const AppTextStyle(
                           //  size controlled by textScaleFactor above
                           color: Colors.black,
                           textBaseline: TextBaseline.ideographic,
@@ -143,7 +144,7 @@ class _State extends State<TheoryWidget> {
                           }
                         },
                         value: _chordRoot,
-                        style: const TextStyle(
+                        style: const AppTextStyle(
                           //  size controlled by textScaleFactor above
                           color: Colors.black,
                           textBaseline: TextBaseline.ideographic,
@@ -175,7 +176,7 @@ class _State extends State<TheoryWidget> {
                           }
                         },
                         value: chordDescriptor,
-                        style: const TextStyle(
+                        style: const AppTextStyle(
                           //  size controlled by textScaleFactor above
                           color: Colors.black,
                           textBaseline: TextBaseline.ideographic,
@@ -743,5 +744,5 @@ class _State extends State<TheoryWidget> {
   }
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
-  TextStyle _style = const TextStyle();
+  AppTextStyle _style = const AppTextStyle();
 }

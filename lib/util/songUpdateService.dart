@@ -57,10 +57,10 @@ class SongUpdateService extends ChangeNotifier {
             songUpdateCount++;
           }
         }, onError: (Object error) {
-          logger.i('webSocketChannel error: $error at $authority'); //  fixme: retry later
+          logger.d('webSocketChannel error: $error at $authority'); //  fixme: retry later
           _closeWebSocketChannel();
         }, onDone: () {
-          logger.i('webSocketChannel onDone: at $authority');
+          logger.d('webSocketChannel onDone: at $authority');
           _closeWebSocketChannel();
         });
 
@@ -71,13 +71,13 @@ class SongUpdateService extends ChangeNotifier {
           notifyListeners();
 
           if (lastAuthority != _findTheAuthority()) {
-            logger.i('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
+            logger.d('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
             _closeWebSocketChannel();
             delaySeconds = 0;
             break;
           }
           if (!_isOpen) {
-            logger.i('on close: $lastAuthority');
+            logger.d('on close: $lastAuthority');
             delaySeconds = 0;
             break;
           }

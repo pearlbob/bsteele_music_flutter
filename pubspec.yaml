@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.1+1
 
 environment:
-  sdk: ^2.14.0-145.0.dev
+  sdk: ^2.14.0-153.0.dev
 
 dependencies:
   flutter:
@@ -90,6 +90,9 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
     - family: Bravura
       fonts:
         - asset: fonts/Bravura.otf

@@ -1,3 +1,4 @@
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -21,14 +22,14 @@ class _Privacy extends State<Privacy> {
     ScreenInfo screenInfo = ScreenInfo(context);
     final double fontSize = screenInfo.isTooNarrow ? 16 : 24;
 
-    TextStyle style = TextStyle(color: Colors.black87, fontSize: fontSize);
+    AppTextStyle style = AppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           'bsteele Music App Privacy Policy',
-          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

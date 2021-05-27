@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,12 +36,12 @@ class _About extends State<About> {
       appBar: AppBar(
         title: Text(
           'About the bsteele Music App',
-          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: DefaultTextStyle(
-        style: TextStyle(color: Colors.black87, fontSize: fontSize),
+        style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -63,7 +64,7 @@ class _About extends State<About> {
                     },
                     child: const Text(
                       'bsteele.com',
-                      style: TextStyle(color: Colors.blue),
+                      style: AppTextStyle(color: Colors.blue),
                     ),
                   ),
                 ]),

@@ -1,5 +1,6 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _State extends State<Documentation> {
     ScreenInfo screenInfo = ScreenInfo(context);
     final double fontSize = screenInfo.isTooNarrow ? 16 : 24;
 
-    TextStyle style = TextStyle(color: Colors.black87, fontSize: fontSize);
+    AppTextStyle style = AppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     StringBuffer desc = StringBuffer();
     desc.write(
@@ -265,7 +266,7 @@ class _State extends State<Documentation> {
       appBar: AppBar(
         title: Text(
           'bsteele Music App Documentation',
-          style: TextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

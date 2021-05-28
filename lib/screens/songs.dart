@@ -54,12 +54,10 @@ class _Songs extends State<Songs> {
                 child: Text(
                   'Read files',
                   style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-
                 ),
                 onPressed: () {
                   setState(() {
-                    _filePick( context);
-                    // fixme: on linux: Unhandled Exception: UnimplementedError: pickFiles() has not been implemented.
+                    _filePick(context);
                   });
                 },
               ),
@@ -101,7 +99,7 @@ class _Songs extends State<Songs> {
   }
 
   String _mostRecent() {
-    if ( allSongs.isEmpty ){
+    if (allSongs.isEmpty) {
       return 'empty list';
     }
 
@@ -125,7 +123,7 @@ class _Songs extends State<Songs> {
   }
 
   void _filePick(BuildContext context) async {
-    await UtilWorkaround().filePick( context);
+    await UtilWorkaround().filePick(context);
     Navigator.pop(context);
   }
 

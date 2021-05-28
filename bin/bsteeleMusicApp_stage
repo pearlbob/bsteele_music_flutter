@@ -81,6 +81,8 @@ rm -rf build/beta
 mkdir build/beta
 cp -r build/web/* build/beta
 jar -uf $war -C build beta
+#	update the local allSongs to the latest
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
 rm -rf build/beta
 
 #	ship it to distribution point for raspberry pi's

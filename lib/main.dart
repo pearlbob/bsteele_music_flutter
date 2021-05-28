@@ -75,7 +75,8 @@ bool isPhone = false;
 final Song _emptySong = Song.createEmptySong();
 
 void addSong(Song song) {
-  logger.d('addSong( ${song.toString()} )');
+  logger.i('addSong( ${song.toString()} )');
+  _allSongs.remove(song); // any prior version of same song
   _allSongs.add(song);
   _filteredSongs = SplayTreeSet();
   selectedSong = song;
@@ -83,14 +84,14 @@ void addSong(Song song) {
 
 void addSongs(List<Song> songs) {
   for (var song in songs) {
-    _allSongs.add(song);
+    addSong(song);
   }
 }
 
 void removeAllSongs() {
   _allSongs = SplayTreeSet();
   _filteredSongs = SplayTreeSet();
-  selectedSong = Song.createEmptySong();
+  selectedSong = _emptySong;
 }
 
 SplayTreeSet<Song> get allSongs => _allSongs;
@@ -112,7 +113,7 @@ const _environment = String.fromEnvironment('environment', defaultValue: _enviro
 
 /// Display the list of songs to choose from.
 class MyApp extends StatelessWidget {
-  MyApp({ Key? key }) : super(key: key) {
+  MyApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
   }
 
@@ -150,7 +151,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, this.title= 'unknown'}) : super(key: key);
+  const MyHomePage({Key? key, this.title = 'unknown'}) : super(key: key);
 
   // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -281,6 +282,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    logger.i('main build: $selectedSong');
+
     bool oddEven = true;
 
     screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
@@ -839,7 +842,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Navigator.pop(context);
 
-    setState(() {});
+    setState(() {
+      _searchTextFieldController.selection =
+          TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
+      _searchSongs(selectedSong.title);
+    }); //  refresh the display
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
@@ -938,8 +945,7 @@ Future<String> fetchString(String uriString) async {
   }
 }
 
-void foo()
-{
+void foo() {
   var v = 3.bitLength;
   v = v.bitLength;
 }

@@ -33,6 +33,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
+import '../main.dart';
+
 late final Song _initialSong;
 
 ///   screen to edit a song
@@ -253,6 +255,8 @@ class _Edit extends State<Edit> {
   void _enterSong() async {
     var user = _userTextEditingController.text;
     _song.setUser(user.isNotEmpty ? user : 'unknown');
+
+    addSong( _song);
 
     String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = _song.toJsonAsFile();
@@ -753,7 +757,7 @@ class _Edit extends State<Edit> {
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
                           child: DropdownButton<music_key.Key>(
-                            key: const ValueKey('keyDropdown'),
+                            key: const ValueKey('editKeyDropdown'),
                             items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
                               return DropdownMenuItem<music_key.Key>(
                                 key: ValueKey('key_' + value.toMarkup()),
@@ -762,18 +766,20 @@ class _Edit extends State<Edit> {
                                   '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
                                   style: _boldTextStyle,
                                 ),
+                                onTap: () {
+                                  logger.i('item onTap: ${value.runtimeType} $value');
+                                  if ( _song.key != value) {
+                                    _song.key = value;
+                                    _key = value;
+                                    _keyChordNote = _key.getKeyScaleNote();
+                                      setState(() {}); //  display the return to original
+                                  }
+                                },
                               );
                             }).toList(),
                             onChanged: (_value) {
-                              logger.i('onChanged: $_value');
-                              if (_value != null && _song.key != _key) {
-                                _song.key = _key;
-                                _key = _value;
-                                _keyChordNote = _key.getKeyScaleNote();
-                                if (!_checkSongChangeStatus()) {
-                                  setState(() {}); //  display the return to original
-                                }
-                              }
+                              logger.i('DropdownButton onChanged: $_value');
+
                             },
                             value: _key,
                             style: const AppTextStyle(

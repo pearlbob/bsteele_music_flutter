@@ -938,6 +938,10 @@ With escape, the app goes back to the play list.''',
       MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
     );
     _playerIsOnTop = true;
+    setState(() {
+      _table = null;
+      widget.song = selectedSong;
+    });
   }
 
   void _forceTableRedisplay() {

@@ -24,18 +24,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
+import '../app.dart';
 import '../appOptions.dart';
-import '../main.dart';
 
 //  fixme: shapes in chromium?  circles become stop signs
 //  fixme: compile to armv71
 
-final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(selectedSong));
+final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
 const _lightBlue = Color(0xFF4FC3F7);
 const _tooltipColor = Color(0xFFE8F5E9);
 
+App _app = App();
 bool _isCapo = false;
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
@@ -296,6 +297,7 @@ class _Player extends State<Player> with RouteAware {
 
         //  assure entries are unique
         SplayTreeSet<int> set = SplayTreeSet();
+        set.add(bpm);
         for (int i = -60; i < 60; i++) {
           int value = bpm + i;
           if (value < 40) {
@@ -327,8 +329,8 @@ class _Player extends State<Player> with RouteAware {
       }
     }
 
-    final double boxCenter = screenInfo.heightInLogicalPixels / 2;
-    final double boxHeight = screenInfo.heightInLogicalPixels / 2;
+    final double boxCenter = _app.screenInfo.heightInLogicalPixels / 2;
+    final double boxHeight = _app.screenInfo.heightInLogicalPixels / 2;
     final double boxOffset = boxHeight / 2;
 
     final hoverColor = Colors.blue[700];
@@ -466,7 +468,7 @@ With escape, the app goes back to the play list.''',
                                           ),
                                       ],
                                     ),
-                                    if (isEditReady)
+                                    if (_app.isEditReady)
                                       TextButton.icon(
                                         style: TextButton.styleFrom(
                                           padding: const EdgeInsets.all(8),
@@ -527,7 +529,7 @@ With escape, the app goes back to the play list.''',
                                     '   BPM: ',
                                     style: _lyricsTextStyle,
                                   ),
-                                  if (isScreenBig)
+                                  if (_app.isScreenBig)
                                     DropdownButton<int>(
                                       items: _bpmDropDownMenuList,
                                       onChanged: (value) {
@@ -560,7 +562,9 @@ With escape, the app goes back to the play list.''',
                                     _songUpdateService.isConnected
                                         ? (_songUpdateService.isLeader
                                             ? 'I\'m the leader'
-                                            : 'following ${_songUpdateService.leaderName}')
+                                            : (_songUpdateService.leaderName == AppOptions.unknownUser
+                                                ? ''
+                                                : 'following ${_songUpdateService.leaderName}'))
                                         : '',
                                     style: _lyricsTextStyle,
                                   ),
@@ -598,7 +602,7 @@ With escape, the app goes back to the play list.''',
       floatingActionButton: _isPlaying
           ? (_isPaused
               ? FloatingActionButton(
-                  mini: !isScreenBig,
+                  mini: !_app.isScreenBig,
                   onPressed: () {
                     _pauseToggle();
                   },
@@ -608,7 +612,7 @@ With escape, the app goes back to the play list.''',
                   ),
                 )
               : FloatingActionButton(
-                  mini: !isScreenBig,
+                  mini: !_app.isScreenBig,
                   onPressed: () {
                     _stop();
                   },
@@ -621,7 +625,7 @@ With escape, the app goes back to the play list.''',
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? FloatingActionButton(
-                  mini: !isScreenBig,
+                  mini: !_app.isScreenBig,
                   onPressed: () {
                     _stop();
                     _scrollController
@@ -637,7 +641,7 @@ With escape, the app goes back to the play list.''',
                   ),
                 )
               : FloatingActionButton(
-                  mini: !isScreenBig,
+                  mini: !_app.isScreenBig,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -940,7 +944,7 @@ With escape, the app goes back to the play list.''',
     _playerIsOnTop = true;
     setState(() {
       _table = null;
-      widget.song = selectedSong;
+      widget.song = App().selectedSong;
     });
   }
 
@@ -969,11 +973,6 @@ With escape, the app goes back to the play list.''',
   SongMaster songMaster = SongMaster();
 
   final ScrollController _scrollController = ScrollController();
-
-  //AppOptions _appOptions = AppOptions();
-
-  // static const double _defaultFontSizeMin = defaultFontSize - 5;
-  // static const double _defaultFontSizeMax = defaultFontSize + 5;
 
   final FocusNode _focusNode = FocusNode();
   double _sectionTarget = 0;

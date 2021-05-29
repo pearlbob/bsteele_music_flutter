@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -9,7 +9,7 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../main.dart';
+import '../app.dart';
 
 
 Directory _rootDirectory = Directory(Util.homePath());
@@ -49,7 +49,7 @@ class UtilLinux implements UtilWorkaround {
       if (file.existsSync()) {
         String s = utf8.decode(file.readAsBytesSync());
         List<Song> songs = Song.songListFromJson(s);
-        addSongs(songs);
+        App().addSongs(songs);
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
       }

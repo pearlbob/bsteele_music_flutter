@@ -28,6 +28,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import 'app.dart';
 import 'appOptions.dart';
 import 'util/openLink.dart';
 
@@ -65,39 +66,14 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 
  */
 
+
+final App _app = App();
 const double defaultFontSize = 14.0; //  borrowed from Text widget
 
-//  parameters to be evaluated before use
-ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
-bool isEditReady = false;
-bool isScreenBig = true;
-bool isPhone = false;
-final Song _emptySong = Song.createEmptySong();
 
-void addSong(Song song) {
-  logger.i('addSong( ${song.toString()} )');
-  _allSongs.remove(song); // any prior version of same song
-  _allSongs.add(song);
-  _filteredSongs = SplayTreeSet();
-  selectedSong = song;
-}
 
-void addSongs(List<Song> songs) {
-  for (var song in songs) {
-    addSong(song);
-  }
-}
 
-void removeAllSongs() {
-  _allSongs = SplayTreeSet();
-  _filteredSongs = SplayTreeSet();
-  selectedSong = _emptySong;
-}
-
-SplayTreeSet<Song> get allSongs => _allSongs;
-SplayTreeSet<Song> _allSongs = SplayTreeSet();
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
-Song selectedSong = _emptySong;
 
 const Color _primaryColor = Color(0xFF4FC3F7);
 
@@ -139,7 +115,7 @@ class MyApp extends StatelessWidget {
         Player.routeName: playerPageRoute.builder,
         '/songs': (context) => const Songs(),
         '/options': (context) => const Options(),
-        '/edit': (context) => Edit(initialSong: selectedSong),
+        '/edit': (context) => Edit(initialSong: _app.selectedSong),
         '/privacy': (context) => const Privacy(),
         '/documentation': (context) => const Documentation(),
         '/about': (context) => const About(),
@@ -196,13 +172,13 @@ class _MyHomePageState extends State<MyHomePage> {
       String songListAsString = await rootBundle.loadString('lib/assets/allSongs.songlyrics');
 
       try {
-        _allSongs = SplayTreeSet();
-        _allSongs.addAll(Song.songListFromJson(songListAsString));
-        _filteredSongs = _allSongs;
+        _app.removeAllSongs();
+        _app.addSongs(Song.songListFromJson(songListAsString));
+        _filteredSongs = _app.allSongs;
         try {
-          selectedSong = _filteredSongs.first;
+          _app.selectedSong = _filteredSongs.first;
         } catch (e) {
-          selectedSong = _emptySong;
+          _app.selectedSong = _app.emptySong;
         }
         setState(() {});
         logger.i("internal songList used");
@@ -237,14 +213,15 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        _allSongs = SplayTreeSet();
-        _allSongs.addAll(Song.songListFromJson(allSongsAsString));
+        _app.removeAllSongs();
+        _app.addSongs(Song.songListFromJson(allSongsAsString));
+        _filteredSongs = _app.allSongs;
         setState(() {
-          _filteredSongs = _allSongs;
+          _filteredSongs = _app.allSongs;
           try {
-            selectedSong = _filteredSongs.first;
+            _app.selectedSong = _filteredSongs.first;
           } catch (e) {
-            selectedSong = _emptySong;
+            _app.selectedSong = _app.emptySong;
           }
         });
         logger.i("external songList read from: " + url);
@@ -282,35 +259,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('main build: $selectedSong');
+    logger.v('main build: ${_app.selectedSong}');
 
     bool oddEven = true;
 
-    screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
+    _app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
-    var _titleBarFontSize = defaultFontSize * min(3, max(1, screenInfo.widthInLogicalPixels / 350));
+    var _titleBarFontSize = defaultFontSize * min(3, max(1, _app.screenInfo.widthInLogicalPixels / 350));
 
     //  figure the configuration when the values are established
-    isEditReady = (kIsWeb
+    _app.isEditReady = (kIsWeb
             //  if is web, Platform doesn't exist!  not evaluated here in the expression
             ||
             Platform.isLinux ||
             Platform.isMacOS ||
             Platform.isWindows) &&
-        !screenInfo.isTooNarrow;
-    logger.v('isEditReady: $isEditReady');
+        !_app.screenInfo.isTooNarrow;
+    logger.v('isEditReady: $_app.isEditReady');
 
-    isScreenBig = isEditReady || !screenInfo.isTooNarrow;
-    isPhone = !isScreenBig;
+    _app.isScreenBig = _app.isEditReady || !_app.screenInfo.isTooNarrow;
+    _app.isPhone = !_app.isScreenBig;
 
-    logger.v('screen: logical: (${screenInfo.widthInLogicalPixels},${screenInfo.heightInLogicalPixels})');
-    logger.v('isScreenBig: $isScreenBig, isPhone: $isPhone');
+    logger.v('screen: logical: (${_app.screenInfo.widthInLogicalPixels},${_app.screenInfo.heightInLogicalPixels})');
+    logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
 
-    final double mediaWidth = screenInfo.widthInLogicalPixels;
-    final double titleScaleFactor = screenInfo.titleScaleFactor;
-    final double artistScaleFactor = screenInfo.artistScaleFactor;
+    final double mediaWidth = _app.screenInfo.widthInLogicalPixels;
+    final double titleScaleFactor = _app.screenInfo.titleScaleFactor;
+    final double artistScaleFactor = _app.screenInfo.artistScaleFactor;
     const fontSize = defaultFontSize;
-    logger.v('fontSize: $fontSize in ${screenInfo.widthInLogicalPixels} px with ${screenInfo.titleScaleFactor}');
+    logger.v('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
     const AppTextStyle titleTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
     const AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
     final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
@@ -328,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: oddEven ? Colors.white : Colors.grey[100],
           padding: const EdgeInsets.all(8.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-            if (isScreenBig)
+            if (_app.isScreenBig)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -357,7 +334,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
-            if (isPhone)
+            if (_app.isPhone)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -442,7 +419,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          if (isScreenBig) //  sorry CJ
+          if (_app.isScreenBig) //  sorry CJ
             Tooltip(
               message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
@@ -471,7 +448,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: 50,
             ), //  filler for notched phones
-            if (isEditReady) //  no files on phones!
+            if (_app.isEditReady) //  no files on phones!
               ListTile(
                 title: Text(
                   "Songs",
@@ -673,7 +650,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ]),
 
       floatingActionButton: FloatingActionButton(
-        mini: !isScreenBig,
+        mini: !_app.isScreenBig,
         onPressed: () {
           if (_itemScrollController.isAttached) {
             _itemScrollController.scrollTo(
@@ -762,7 +739,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
-    for (final Song song in _allSongs) {
+    for (final Song song in _app.allSongs) {
       if (search.isEmpty ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
@@ -845,7 +822,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _searchTextFieldController.selection =
           TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-      _searchSongs(selectedSong.title);
+      _searchSongs(_app.selectedSong.title);
     }); //  refresh the display
   }
 
@@ -854,7 +831,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    selectedSong = song;
+    _app.selectedSong = song;
 
     await Navigator.pushNamed(
       context,

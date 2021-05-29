@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' as md;
 
-import '../main.dart';
+import '../app.dart';
 
 /// Display the application's privacy policy
 class Documentation extends StatefulWidget {
@@ -281,7 +281,7 @@ class _State extends State<Documentation> {
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 md.MarkdownBody(
-                    styleSheet: md.MarkdownStyleSheet(textScaleFactor: isScreenBig ? 2 : 1), data: desc.toString())
+                    styleSheet: md.MarkdownStyleSheet(textScaleFactor: App().isScreenBig ? 2 : 1), data: desc.toString())
               ]),
         ),
       ),

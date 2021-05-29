@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.1+1
 
 environment:
-  sdk: ^2.14.0-153.0.dev
+  sdk: ^2.14.0-165.0.dev
 
 dependencies:
   flutter:
@@ -93,6 +93,9 @@ flutter:
     - family: Roboto
       fonts:
         - asset: fonts/Roboto-Regular.ttf
+    - family: DejaVu
+      fonts:
+        - asset: fonts/DejaVuSans.ttf
     - family: Bravura
       fonts:
         - asset: fonts/Bravura.otf

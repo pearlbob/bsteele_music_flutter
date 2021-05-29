@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteele_music_flutter/app.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +20,7 @@ void main() {
 
       await tester.pump(const Duration(seconds: 5));
 
-      logger.i('allSongs.length: ${allSongs.length}');
+      logger.i('allSongs.length: ${App().allSongs.length}');
 
      // Verify that our counter starts at 0.
       var searchFinder = find.byIcon(Icons.search);

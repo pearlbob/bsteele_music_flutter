@@ -150,7 +150,7 @@ class SongUpdateService extends ChangeNotifier {
   bool get isLeader => _isLeader;
   bool _isLeader = false;
 
-  String get leaderName => (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : 'unknown'));
+  String get leaderName => (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
   WebSocketChannel? _webSocketChannel;
   int songUpdateCount = 0;
   int _idleCount = 0;

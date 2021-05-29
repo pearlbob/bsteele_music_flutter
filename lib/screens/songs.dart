@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
@@ -10,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:intl/intl.dart';
+
+import '../app.dart';
 
 /// Display the song moments in sequential order.
 class Songs extends StatefulWidget {
@@ -77,7 +78,7 @@ class _Songs extends State<Songs> {
                 ),
                 onPressed: () {
                   setState(() {
-                    removeAllSongs();
+                    App().removeAllSongs();
                   });
                 },
               ),
@@ -86,7 +87,7 @@ class _Songs extends State<Songs> {
                 style: AppTextStyle(fontSize: fontSize),
               ),
               Text(
-                'Song count:  ${allSongs.length}',
+                'Song count:  ${App().allSongs.length}',
                 style: AppTextStyle(fontSize: fontSize),
               ),
               Text(
@@ -99,12 +100,13 @@ class _Songs extends State<Songs> {
   }
 
   String _mostRecent() {
-    if (allSongs.isEmpty) {
+    App app = App();
+    if (app.allSongs.isEmpty) {
       return 'empty list';
     }
 
     var lastModifiedTime = 0;
-    for (var song in allSongs) {
+    for (var song in app.allSongs) {
       lastModifiedTime = max(lastModifiedTime, song.lastModifiedTime);
     }
 
@@ -114,7 +116,7 @@ class _Songs extends State<Songs> {
   /// write all songs to the standard location
   void _writeAll() async {
     String fileName = 'allSongs_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songlyrics';
-    String contents = Song.listToJson(allSongs.toList());
+    String contents = Song.listToJson(App().allSongs.toList());
     UtilWorkaround().writeFileContents(fileName, contents);
 
     setState(() {

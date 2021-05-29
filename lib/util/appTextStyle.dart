@@ -11,8 +11,9 @@ import 'dart:ui' as ui
         TextLeadingDistribution;
 
 const List<String> appFontFamilyFallback=  [
-  'Roboto',
-  'Bravura',
+  //'Roboto',
+  'DejaVu'
+  //'Bravura',  // music symbols are over sized in the vertical
 ];
 
 @immutable

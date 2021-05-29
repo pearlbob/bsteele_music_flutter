@@ -14,6 +14,7 @@ import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../app.dart';
 import '../appOptions.dart';
 import '../main.dart';
 
@@ -39,8 +40,7 @@ class LyricsTable {
     const EdgeInsets textPadding = EdgeInsets.all(6);
 
     //  build the table from the song lyrics and chords
-    if (song.lyricSections.isEmpty)
-    {
+    if (song.lyricSections.isEmpty) {
       _table = Table();
       return _table;
     }
@@ -96,7 +96,7 @@ class LyricsTable {
         }
         rows.add(TableRow(children: children));
         children = [];
-        _lyricSectionRowLocations.add( LyricSectionRowLocation(lyricSection, rows.length, globalKey));
+        _lyricSectionRowLocations.add(LyricSectionRowLocation(lyricSection, rows.length, globalKey));
       }
 
       Key? _rowKey = UniqueKey();
@@ -225,8 +225,9 @@ class LyricsTable {
 
   /// compute screen size values used here and on other screens
   void computeScreenSizes() {
-    _screenWidth = screenInfo.widthInLogicalPixels;
-    _screenHeight = screenInfo.heightInLogicalPixels;
+    App _app = App();
+    _screenWidth = _app.screenInfo.widthInLogicalPixels;
+    _screenHeight = _app.screenInfo.heightInLogicalPixels;
     _fontSize = defaultFontSize * min(4, max(1, _screenWidth / 400));
     _lyricsFontSize = fontSize * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.75);
     _fontSize *= (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
@@ -238,7 +239,11 @@ class LyricsTable {
 
     //  text styles
     _chordTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
-    _lyricsTextStyle = AppTextStyle(fontWeight: FontWeight.normal, fontSize: _lyricsFontSize, color: Colors.black87,);
+    _lyricsTextStyle = AppTextStyle(
+      fontWeight: FontWeight.normal,
+      fontSize: _lyricsFontSize,
+      color: Colors.black87,
+    );
   }
 
   double get screenWidth => _screenWidth;
@@ -283,6 +288,7 @@ class LyricSectionRowLocation {
   }
 
   get sectionCount => _lyricSection.index;
+
   get lyricSection => _lyricSection;
   final LyricSection _lyricSection;
   final int _row;

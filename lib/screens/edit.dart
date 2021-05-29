@@ -33,7 +33,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
-import '../main.dart';
+import '../app.dart';
+
+//  fixme: add undo/redo to chord entry
 
 late final Song _initialSong;
 
@@ -256,7 +258,7 @@ class _Edit extends State<Edit> {
     var user = _userTextEditingController.text;
     _song.setUser(user.isNotEmpty ? user : 'unknown');
 
-    addSong( _song);
+    App().addSong(_song);
 
     String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = _song.toJsonAsFile();
@@ -600,8 +602,8 @@ class _Edit extends State<Edit> {
                               }
                             },
                           ),
-                          Text(_errorMessageString ?? '',
-                              style: _isError ? _errorTextStyle : _warningTextStyle,
+                          Text(_app.message,
+                              style: _app.messageType == MessageType.error ? _errorTextStyle : _warningTextStyle,
                               key: const ValueKey('errorMessage')),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -768,18 +770,17 @@ class _Edit extends State<Edit> {
                                 ),
                                 onTap: () {
                                   logger.i('item onTap: ${value.runtimeType} $value');
-                                  if ( _song.key != value) {
+                                  if (_song.key != value) {
                                     _song.key = value;
                                     _key = value;
                                     _keyChordNote = _key.getKeyScaleNote();
-                                      setState(() {}); //  display the return to original
+                                    setState(() {}); //  display the return to original
                                   }
                                 },
                               );
                             }).toList(),
                             onChanged: (_value) {
                               logger.i('DropdownButton onChanged: $_value');
-
                             },
                             value: _key,
                             style: const AppTextStyle(
@@ -2306,35 +2307,43 @@ class _Edit extends State<Edit> {
   void _updateChordText(final String? s) {
     logger.d('_updateChordText(${s.toString()})');
 
-    if (s == null) return;
+    if (s == null) {
+      return;
+    }
     String text = _editTextController.text;
     _editTextFieldFocusNode?.requestFocus();
 
     if (_lastEditTextSelection == null) {
       //  append the string
       _editTextController.text = text + s;
+      logger.i('_updateChordText: _lastEditTextSelection is null: '
+          '"$text"+"$s"');
+
       return;
     }
-    logger.d('_updateChordText: (${_lastEditTextSelection!.baseOffset.toString()},'
-        '${_lastEditTextSelection!.extentOffset.toString()}): "$text"');
+    //  fixme: i'm confused as to why selection extentOffset can be less than baseOffset
+    var minOffset = min(_lastEditTextSelection!.baseOffset, _lastEditTextSelection!.extentOffset);
+    var maxOffset = max(_lastEditTextSelection!.baseOffset, _lastEditTextSelection!.extentOffset);
 
-    if (_lastEditTextSelection!.baseOffset < 0) {
+    logger.i('_updateChordText: ($minOffset, $maxOffset): "$text"');
+
+    if (minOffset < 0) {
       //  append the string
       _editTextController.text = text + s;
       int len = text.length + s.length;
       _editTextController.selection = _lastEditTextSelection!.copyWith(baseOffset: len, extentOffset: len);
       return;
-    } else {
-      logger.d('>=0: "${text.substring(0, _lastEditTextSelection!.baseOffset)}"'
-          '+"$s"'
-          '+"${text.substring(_lastEditTextSelection!.extentOffset)}"');
-
-      _editTextController.text = text.substring(0, _lastEditTextSelection!.baseOffset) +
-          s +
-          text.substring(_lastEditTextSelection!.extentOffset);
-      int len = _lastEditTextSelection!.baseOffset + s.length;
-      _editTextController.selection = _lastEditTextSelection!.copyWith(baseOffset: len, extentOffset: len);
     }
+
+    logger.i('>=0: "${text.substring(0,minOffset)}"'
+        '+"$s"'
+        '+"${text.substring(maxOffset)}"');
+
+    _editTextController.text = text.substring(0, minOffset) +
+        s +
+        text.substring(maxOffset);
+    int len = minOffset + s.length;
+    _editTextController.selection = _lastEditTextSelection!.copyWith(baseOffset: len, extentOffset: len);
   }
 
   Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint, {String? tooltip}) {
@@ -2620,17 +2629,15 @@ class _Edit extends State<Edit> {
   }
 
   void _errorMessage(String error) {
-    _isError = true;
-    _errorMessageString = error;
+    _app.error = error;
   }
 
   void _infoMessage(String warning) {
-    _isError = false;
-    _errorMessageString = warning;
+    _app.warning = warning;
   }
 
   void _clearErrorMessage() {
-    _errorMessageString = null;
+    _app.messageClear();
   }
 
   void _performEdit({bool done = false, bool endOfRow = false}) {
@@ -2846,8 +2853,7 @@ class _Edit extends State<Edit> {
   bool _measureEntryIsClear = true;
   String? _measureEntryCorrection;
   bool _measureEntryValid = false;
-  bool _isError = false;
-  String? _errorMessageString;
+  final App _app = App();
 
   MeasureNode? _measureEntryNode;
 

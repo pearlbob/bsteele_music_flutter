@@ -290,5 +290,6 @@ class AppOptions {
   }
 
   String get user => _user;
-  String _user = 'unknown';
+  static const String unknownUser = 'unknown';
+  String _user = unknownUser;
 }

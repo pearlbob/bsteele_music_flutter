@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../main.dart';
+import '../app.dart';
 
 /*
 _blank - specifies a new window
@@ -18,7 +18,7 @@ void openLink(String url) async {
     } else {
       throw 'Could not launch $url';
     }
-  } else if (!isPhone) {
+  } else if (!App().isPhone) {
     if (await canLaunch(url)) {
       launch(url);
     }

@@ -32,12 +32,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 import '../app.dart';
 
 //  fixme: add undo/redo to chord entry
 
-late final Song _initialSong;
+late Song _initialSong;
 
 ///   screen to edit a song
 class Edit extends StatefulWidget {
@@ -287,6 +288,8 @@ class _Edit extends State<Edit> {
   @override
   Widget build(BuildContext context) {
     logger.i('edit build: "${_editTextController.text.toString()}"');
+
+    _appOptions = Provider.of<AppOptions>(context);
 
     if (_screenInfo == null) {
       _screenInfo = ScreenInfo(context);
@@ -1431,7 +1434,7 @@ class _Edit extends State<Edit> {
 
   /// convenience method to push lyrics changes to the song and the display
   void _pushLyricsEntries() {
-    _song.setRawLyrics(_lyricsEntries.asRawLyrics());
+    _song.rawLyrics = _lyricsEntries.asRawLyrics();
     _undoStackPushIfDifferent();
     _checkSongChangeStatus();
   }
@@ -2335,13 +2338,11 @@ class _Edit extends State<Edit> {
       return;
     }
 
-    logger.i('>=0: "${text.substring(0,minOffset)}"'
+    logger.i('>=0: "${text.substring(0, minOffset)}"'
         '+"$s"'
         '+"${text.substring(maxOffset)}"');
 
-    _editTextController.text = text.substring(0, minOffset) +
-        s +
-        text.substring(maxOffset);
+    _editTextController.text = text.substring(0, minOffset) + s + text.substring(maxOffset);
     int len = minOffset + s.length;
     _editTextController.selection = _lastEditTextSelection!.copyWith(baseOffset: len, extentOffset: len);
   }
@@ -2902,7 +2903,7 @@ class _Edit extends State<Edit> {
   final FocusNode _focusNode = FocusNode();
 
   static const tooltipColor = Color(0xFFE8F5E9);
-  static final _appOptions = AppOptions();
+  late AppOptions _appOptions;
 }
 
 // class _LyricsTextField {

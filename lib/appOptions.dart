@@ -1,4 +1,5 @@
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum UserDisplayStyle {
@@ -7,7 +8,7 @@ enum UserDisplayStyle {
   both,
 }
 
-class AppOptions {
+class AppOptions extends ChangeNotifier {
   static final AppOptions _singleton = AppOptions._internal();
 
   factory AppOptions() {
@@ -35,6 +36,7 @@ class AppOptions {
     _holiday = await _readBool('holiday');
     _compressRepeats = await _readBool('compressRepeats');
     _user = await _readString('user');
+    notifyListeners();
   }
 
   bool isCountIn() {
@@ -197,23 +199,27 @@ class AppOptions {
   Future<bool> _readBool(final String key, {defaultValue = false}) async {
     final prefs = await SharedPreferences.getInstance();
     var value = prefs.getBool(key) ?? defaultValue;
+    notifyListeners();
     return value;
   }
 
   Future<String> _readString(final String key, {defaultValue = ''}) async {
     final prefs = await SharedPreferences.getInstance();
     var value = prefs.getString(key) ?? defaultValue;
+    notifyListeners();
     return value;
   }
 
   _saveBool(final String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+    notifyListeners();
   }
 
   _saveString(final String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(key, value);
+    notifyListeners();
   }
 
   set playWithChords(bool playWithChords) {

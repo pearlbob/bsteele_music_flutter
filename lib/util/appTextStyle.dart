@@ -16,6 +16,7 @@ const List<String> appFontFamilyFallback=  [
   //'Bravura',  // music symbols are over sized in the vertical
 ];
 
+/// style used to get DejaVu as a fallback family for musical shaarps and flats
 @immutable
 class AppTextStyle extends TextStyle {
   /// Creates the app's text style.

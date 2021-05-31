@@ -113,7 +113,7 @@ class LyricsTable {
 
         //  collect lyrics and show chords if asked
         String rowLyrics = SongBase.shareLinesToRow(expandedRowCount, measureCount++, lyricSection.lyricsLines);
-
+        rowLyrics = rowLyrics.replaceAll(verticalBarAndSpacesRegExp, ' ');
         for (int c = 0; c < maxCols; c++) {
           Measure? measure;
           if (c < measures.length) {
@@ -275,6 +275,7 @@ class LyricsTable {
 
   music_key.Key displayMusicKey = music_key.Key.get(music_key.KeyEnum.C);
   final AppOptions _appOptions = AppOptions();
+  final RegExp verticalBarAndSpacesRegExp = RegExp(r'\s*\|\s*');
 }
 
 /// helper class to help manage a song display

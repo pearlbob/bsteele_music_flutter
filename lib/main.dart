@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'app.dart';
@@ -35,8 +36,6 @@ import 'util/openLink.dart';
 //CjRankingEnum _cjRanking;
 
 void main() async {
-  await AppOptions().init();
-
   runApp(
     MyApp(),
   );
@@ -66,12 +65,8 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 
  */
 
-
 final App _app = App();
 const double defaultFontSize = 14.0; //  borrowed from Text widget
-
-
-
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
@@ -91,38 +86,41 @@ const _environment = String.fromEnvironment('environment', defaultValue: _enviro
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
+    AppOptions().init();
   }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'bsteele Music App',
-      theme: ThemeData(
-        primaryColor: _primaryColor,
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      home: const MyHomePage(title: 'bsteele Music App'),
-      navigatorObservers: [playerRouteObserver],
+    return ChangeNotifierProvider<AppOptions>(
+        create: (_) => AppOptions(),
+        builder: (context, _) => MaterialApp(
+              title: 'bsteele Music App',
+              theme: ThemeData(
+                primaryColor: _primaryColor,
+                scaffoldBackgroundColor: Colors.white,
+              ),
+              home: const MyHomePage(title: 'bsteele Music App'),
+              navigatorObservers: [playerRouteObserver],
 
-      // Start the app with the "/" named route. In this case, the app starts
-      // on the FirstScreen widget.
-      initialRoute: Navigator.defaultRouteName,
-      routes: {
-        // When navigating to the "/" route, build the FirstScreen widget.
-        //'/': (context) => MyApp(),
-        // When navigating to the "/second" route, build the SecondScreen widget.
-        Player.routeName: playerPageRoute.builder,
-        '/songs': (context) => const Songs(),
-        '/options': (context) => const Options(),
-        '/edit': (context) => Edit(initialSong: _app.selectedSong),
-        '/privacy': (context) => const Privacy(),
-        '/documentation': (context) => const Documentation(),
-        '/about': (context) => const About(),
-        '/bass': (context) => const BassWidget(),
-        '/theory': (context) => const TheoryWidget(),
-      },
-    );
+              // Start the app with the "/" named route. In this case, the app starts
+              // on the FirstScreen widget.
+              initialRoute: Navigator.defaultRouteName,
+              routes: {
+                // When navigating to the "/" route, build the FirstScreen widget.
+                //'/': (context) => MyApp(),
+                // When navigating to the "/second" route, build the SecondScreen widget.
+                Player.routeName: playerPageRoute.builder,
+                '/songs': (context) => const Songs(),
+                '/options': (context) => const Options(),
+                '/edit': (context) => Edit(initialSong: _app.selectedSong),
+                '/privacy': (context) => const Privacy(),
+                '/documentation': (context) => const Documentation(),
+                '/about': (context) => const About(),
+                '/bass': (context) => const BassWidget(),
+                '/theory': (context) => const TheoryWidget(),
+              },
+            ));
   }
 }
 
@@ -165,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //  testing
       _readInternalSongList();
     }
+    _refilterSongs();
   }
 
   void _readInternalSongList() async {
@@ -174,13 +173,14 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         _app.removeAllSongs();
         _app.addSongs(Song.songListFromJson(songListAsString));
-        _filteredSongs = _app.allSongs;
         try {
           _app.selectedSong = _filteredSongs.first;
         } catch (e) {
           _app.selectedSong = _app.emptySong;
         }
-        setState(() {});
+        setState(() {
+          _refilterSongs();
+        });
         logger.i("internal songList used");
       } catch (fe) {
         logger.i("internal songList parse error: " + fe.toString());
@@ -215,14 +215,8 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         _app.removeAllSongs();
         _app.addSongs(Song.songListFromJson(allSongsAsString));
-        _filteredSongs = _app.allSongs;
         setState(() {
-          _filteredSongs = _app.allSongs;
-          try {
-            _app.selectedSong = _filteredSongs.first;
-          } catch (e) {
-            _app.selectedSong = _app.emptySong;
-          }
+          _refilterSongs();
         });
         logger.i("external songList read from: " + url);
       } catch (fe) {
@@ -254,12 +248,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _refilterSongs() {
     //  or at least induce the re-filtering
-    _filteredSongs = SplayTreeSet();
+    _filteredSongs.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     logger.v('main build: ${_app.selectedSong}');
+
+    _appOptions = Provider.of<AppOptions>(context);
 
     bool oddEven = true;
 
@@ -287,8 +283,20 @@ class _MyHomePageState extends State<MyHomePage> {
     final double titleScaleFactor = _app.screenInfo.titleScaleFactor;
     final double artistScaleFactor = _app.screenInfo.artistScaleFactor;
     const fontSize = defaultFontSize;
-    logger.v('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
-    const AppTextStyle titleTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: fontSize);
+    logger.v(
+        'fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
+    const AppTextStyle searchTextStyle = AppTextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 1.5 * fontSize,
+      color: Colors.black87,
+      textBaseline: TextBaseline.alphabetic,
+    );
+    const AppTextStyle titleTextStyle = AppTextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: fontSize,
+      color: Colors.black87,
+      textBaseline: TextBaseline.alphabetic,
+    );
     const AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
     final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
@@ -533,7 +541,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Flex(direction: Axis.horizontal, children: <Widget>[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                width: min(mediaWidth / 2, 2 * 20 * fontSize),
+                width: min(mediaWidth / 2, 2 * 18 * fontSize),
                 //  limit text entry display length
                 child: TextField(
                   controller: _searchTextFieldController,
@@ -543,7 +551,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     hintText: "Enter search filter string here.",
                   ),
                   autofocus: true,
-                  style: const AppTextStyle(fontSize: 2 * fontSize),
+                  style: searchTextStyle,
                   onChanged: (text) {
                     setState(() {
                       logger.v('search text: "$text"');
@@ -575,15 +583,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
                 value: _selectedSortType,
-                style: const AppTextStyle(
-                  fontSize: 1.5 * fontSize,
-                  color: Colors.black87,
-                  textBaseline: TextBaseline.alphabetic,
-                ),
+                style: titleTextStyle,
               ),
             ]),
 
-            // Spacer(),
+            const Spacer(),
             // if (_appOptions.holiday)
             //   RaisedButton(
             //     child: Text(
@@ -907,7 +911,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final Duration _itemScrollDuration = const Duration(milliseconds: 500);
   int _rollIndex = -1;
 
-  final AppOptions _appOptions = AppOptions();
+  late AppOptions _appOptions;
+
   final _random = Random();
 }
 

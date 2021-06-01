@@ -15593,14 +15593,14 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1621479341772, "song": 
+{ "file": "", "lastModifiedDate": 1622442782172, "song": 
 {
 "title": "Caught on the Inside",
 "artist": "Ten Fé",
 "user": "Shari",
-"lastModifiedDate": 1621479341772,
+"lastModifiedDate": 1622442782172,
 "copyright": "2019 Pias America",
-"key": "E",
+"key": "A",
 "defaultBpm": 115,
 "timeSignature": "4/4",
 "chords": 
@@ -15634,7 +15634,7 @@
 	"All the same, all the same",
 	"",
 	"C:",
-	"As hard as I try, you still can’t look me in the eyes",
+	"As hard as I try, you still can’t look me in the eye",
 	"After all this time, only you know the reason why",
 	"Well they say you’re shy and you get caught on the inside",
 	"Come on, come out, there’s so much light, but there ain’t much time",
@@ -15653,8 +15653,8 @@
 	"Day, last the day",
 	"",
 	"C:",
-	"As hard as I try, you still can’t look me in the eyes",
-	"After all this time, only you know the reason why",
+	"As hard as I try, you still can’t look me in the eye",
+	"After all this time, only you know why",
 	"Well they say you’re shy and you get caught on the inside",
 	"Come on, come out, there’s so much light, but there ain’t much",
 	"",
@@ -15668,7 +15668,7 @@
 	"But you gotta do what you wanna do, ooh",
 	"",
 	"C:",
-	"As hard as I try, you still can’t look me in the eyes",
+	"As hard as I try, you still can’t look me in the eye",
 	"After all this time, after all this time",
 	"They say you’re shy and you get caught on the inside",
 	"Come on, come out, there’s so much light, but there ain’t much ",
@@ -17795,30 +17795,32 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "", "lastModifiedDate": 1622452178431, "song": 
 {
 "title": "Come Together",
 "artist": "Beatles, The",
-"user": "Unknown",
-"lastModifiedDate": 0,
-"copyright": "Sony/ATV Music Publishing LLC",
-"key": "C",
-"defaultBpm": 100,
+"user": "Shari",
+"lastModifiedDate": 1622452178431,
+"copyright": "1969 Apple",
+"key": "F",
+"defaultBpm": 164,
 "timeSignature": "4/4",
 "chords": 
     [
 	"I:",
 	"Dm Dm Dm Dm",
+	"I2:",
+	"Dm Dm Dm Dm x2",
+	"A A A A",
+	"A A A A",
 	"V:",
 	"Dm Dm Dm Dm x2",
 	"A A A A",
 	"G G G G",
 	"C:",
 	"Bm Bm G A",
-	"Br:",
-	"Dm Dm Dm Dm x2",
-	"A A A A",
-	"Dm Dm Dm Dm"
+	"O:",
+	"Dm Dm Dm Dm x8"
     ],
 "lyrics": 
     [
@@ -17848,8 +17850,8 @@
 	"c:",
 	"Come Together right now over me ",
 	"i:",
+	"i2:",
 	"i:",
-	"br:",
 	"v:",
 	"He roller-coaster he got early warning ",
 	"He got muddy water he one mo jo filter ",
@@ -17858,14 +17860,12 @@
 	"c:",
 	"Come Together right now over me                 ",
 	"i:",
-	"c:",
-	"Come Together right now over me ",
 	"i:",
-	"Come Together ",
-	"Come Together ",
-	"i:",
-	"Come Together ",
-	"Come Together"
+	"O:",
+	"Come together ",
+	"Come together ",
+	"Come together ",
+	"Come together"
     ]
 }
 },
@@ -26962,12 +26962,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1621830631710, "song": 
+{ "file": "", "lastModifiedDate": 1622440716053, "song": 
 {
 "title": "End Of The Line",
 "artist": "Travelling Wilburys",
 "user": "Shari",
-"lastModifiedDate": 1621830631710,
+"lastModifiedDate": 1622440716053,
 "copyright": "1989 Wilbury",
 "key": "D",
 "defaultBpm": 83,
@@ -26986,7 +26986,9 @@
 	"D D DA G",
 	"D D DA D D",
 	"C2:",
-	"D D DA G x3",
+	"D D DA G",
+	"D D DA D",
+	"D D DA G",
 	"D D DA D",
 	"O:",
 	"G D G AD",
@@ -76566,12 +76568,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1621998254503, "song": 
+{ "file": "", "lastModifiedDate": 1622440758193, "song": 
 {
 "title": "Right Down the Line",
 "artist": "Gerry Rafferty",
 "user": "Shari",
-"lastModifiedDate": 1621998254503,
+"lastModifiedDate": 1622440758193,
 "copyright": "1978 United Artists",
 "key": "F",
 "defaultBpm": 126,
@@ -76581,7 +76583,7 @@
 	"V:",
 	"Dm C Am F x3",
 	"C G AmG F F",
-	"Br:",
+	"C:",
 	"D Bm G E/A♭",
 	"A F Dm Dm",
 	"Bm G E/A♭ A F",
@@ -76606,7 +76608,7 @@
 	"You've been as constant as a Northern Star, the brightest light that shines",
 	"It's been you, woman, right down the line",
 	"",
-	"br:",
+	"C:",
 	"I just want to say this is my way of tellin' you ",
 	"Everything I could never say before",
 	"Yeah, this is my way of tellin' you that every day ",
@@ -76619,7 +76621,8 @@
 	"And it was you, woman, right down the line",
 	"",
 	"v: (solo)",
-	"br:",
+	"",
+	"C:",
 	"I just want to say this is my way of tellin' you ",
 	"Everything I could never say before",
 	"Yeah, this is my way of tellin' you that every day ",

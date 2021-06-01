@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/chordPro.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../app.dart';
-
 
 Directory _rootDirectory = Directory(Util.homePath());
 
@@ -41,15 +41,22 @@ class UtilLinux implements UtilWorkaround {
       context: context,
       rootDirectory: _rootDirectory,
       fsType: FilesystemType.file,
-      allowedExtensions: ['.songlyrics'],
+      allowedExtensions: ['.songlyrics', '.pro', '.chordpro'],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
     if (path != null) {
       var file = File(path);
       if (file.existsSync()) {
         String s = utf8.decode(file.readAsBytesSync());
-        List<Song> songs = Song.songListFromJson(s);
-        App().addSongs(songs);
+        if (chordProRegExp.hasMatch(path)) {
+          //  chordpro
+          var song = ChordPro().parse(s);
+          App().addSongs([song]);
+        } else {
+          //  .songlyrics
+          List<Song> songs = Song.songListFromJson(s);
+          App().addSongs(songs);
+        }
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
       }
@@ -60,6 +67,7 @@ class UtilLinux implements UtilWorkaround {
     //  fixme: FilesystemPicker.open() in linux needs big help
   }
 
+  final RegExp chordProRegExp = RegExp(r'pro$');
 }
 
 UtilWorkaround getUtilWorkaround() => UtilLinux();

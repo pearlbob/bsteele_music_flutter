@@ -37,6 +37,8 @@ import 'package:provider/provider.dart';
 import '../app.dart';
 
 //  fixme: add undo/redo to chord entry
+//  fixme: modification date on written files
+//  fixme: modification date on modified songs
 
 late Song _initialSong;
 
@@ -55,7 +57,10 @@ const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
 const _titleTextStyle = AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
 const AppTextStyle _boldTextStyle = AppTextStyle(
-    fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black87, backgroundColor: Color(0xFFF5F5F5));
+  fontSize: _defaultFontSize,
+  fontWeight: FontWeight.bold,
+  color: Colors.black87,
+);
 const AppTextStyle _labelTextStyle = AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
 const AppTextStyle _buttonTextStyle =
     AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
@@ -602,6 +607,7 @@ class _Edit extends State<Edit> {
                             onPressed: () {
                               if (_hasChanged && _isValidSong) {
                                 _enterSong();
+                                Navigator.pop(context);
                               }
                             },
                           ),
@@ -2630,7 +2636,11 @@ class _Edit extends State<Edit> {
   }
 
   void _errorMessage(String error) {
-    _app.error = error;
+    if (_app.error != error) {
+      setState(() {
+        _app.error = error;
+      });
+    }
   }
 
   void _infoMessage(String warning) {
@@ -2792,16 +2802,14 @@ class _Edit extends State<Edit> {
   }
 
   void _checkSong() {
-    setState(() {
-      try {
-        _song.checkSong();
-        _isValidSong = true;
-        _errorMessage('');
-      } catch (e) {
-        _isValidSong = false;
-        _errorMessage(e.toString());
-      }
-    });
+    try {
+      _song.checkSong();
+      _isValidSong = true;
+      _errorMessage('');
+    } catch (e) {
+      _isValidSong = false;
+      _errorMessage(e.toString());
+    }
   }
 
   String _listSections() {

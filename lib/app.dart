@@ -58,9 +58,10 @@ class App {
     _message = message;
   }
 
-  set error(String message) {
+  String? get error => (_messageType == MessageType.error ? _message : null );
+  set error(String? message) {
     _messageType = MessageType.error;
-    _message = message;
+    _message = message ?? '';
   }
 
   String get message => _message;

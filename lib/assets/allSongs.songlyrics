@@ -27865,6 +27865,84 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1622603311018, "song": 
+{
+"title": "Everyday",
+"artist": "Buddy Holly",
+"user": "Shari",
+"lastModifiedDate": 1622603311018,
+"copyright": "1957 Coral",
+"key": "D",
+"defaultBpm": 138,
+"timeSignature": "2/4",
+"chords": 
+    [
+	"I:",
+	"D D",
+	"I2:",
+	"D D G A7",
+	"V:",
+	"D Bm Em7 A7 x3",
+	"D G D A7",
+	"V2:",
+	"D D G A7 x3",
+	"D G D A7",
+	"C:",
+	"G G G G",
+	"C C C C",
+	"F F F F",
+	"A♯ A♯ A7 A7",
+	"T:",
+	"D G D A7"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Everyday, it's a-gettin' closer",
+	"Goin' faster than a roller coaster",
+	"Love like yours will surely come my way",
+	"A-hey, a-hey hey",
+	"",
+	"V2:",
+	"Everyday, it's a-gettin' faster",
+	"Everyone said, \"Go ahead and ask her\"",
+	"Love like yours will surely come my way",
+	"A-hey, a-hey hey",
+	"",
+	"C:",
+	"Everyday seems a little longer",
+	"Every way, love's a little stronger",
+	"Come what may, do you ever long for",
+	"True love from me?",
+	"",
+	"V2:",
+	"Everyday, it's a-gettin' closer",
+	"Goin' faster than a roller coaster",
+	"Love like yours will surely come my way",
+	"A-hey, a-hey hey",
+	"",
+	"I2:",
+	"",
+	"C:",
+	"Everyday seems a little longer",
+	"Every way, love's a little stronger",
+	"Come what may, do you ever long for",
+	"True love from me?",
+	"",
+	"V2:",
+	"Everyday, it's a-gettin' closer",
+	"Goin' faster than a roller coaster",
+	"Love like yours will surely come my way",
+	"A-hey, a-hey hey",
+	"",
+	"T:",
+	"Love like yours will surely come my way"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1615839277886, "song": 
 {
 "title": "Everything She Wants",
@@ -41942,12 +42020,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1605232902120, "song": 
+{ "file": "", "lastModifiedDate": 1622603246936, "song": 
 {
 "title": "Homeward Bound",
 "artist": "Simon & Garfunkel",
 "user": "Shari",
-"lastModifiedDate": 1605232902120,
+"lastModifiedDate": 1622603246936,
 "copyright": "1966 Columbia",
 "key": "Ab",
 "defaultBpm": 80,
@@ -41958,15 +42036,14 @@
 	"B♭ B♭",
 	"V:",
 	"B♭ B♭/A B♭/A♭ G",
-	"Cm A♭ B♭ F7",
+	"Cm A♭ B♭ F7 B♭",
 	"C:",
-	"B♭ E♭ B♭ E♭",
-	"B♭ B♭ B♭ F.",
-	"B♭",
+	"E♭ B♭ E♭",
+	"B♭ B♭ B♭ F. B♭",
 	"C2:",
 	"B♭ E♭ B♭ E♭",
-	"B♭ B♭ B♭ F.",
-	"B♭ B♭/A B♭/A♭ B♭"
+	"B♭ B♭ B♭ F. B♭",
+	"B♭/A B♭/A♭ B♭"
     ],
 "lyrics": 
     [

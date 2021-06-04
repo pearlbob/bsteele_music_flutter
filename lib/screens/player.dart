@@ -293,7 +293,7 @@ class _Player extends State<Player> with RouteAware {
       }
 
       if (_bpmDropDownMenuList == null) {
-        final int bpm = song.getBeatsPerMinute();
+        final int bpm = song.beatsPerMinute;
 
         //  assure entries are unique
         SplayTreeSet<int> set = SplayTreeSet();
@@ -541,14 +541,14 @@ With escape, the app goes back to the play list.''',
                                           }
                                         });
                                       },
-                                      value: song.getBeatsPerMinute(),
+                                      value: song.beatsPerMinute,
                                       style: _lyricsTextStyle,
                                       iconSize: _lyricsTable.fontSize,
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
                                   else
                                     Text(
-                                      song.getBeatsPerMinute().toString(),
+                                      song.beatsPerMinute.toString(),
                                       style: _lyricsTextStyle,
                                     ),
                                   Text(

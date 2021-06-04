@@ -225,7 +225,7 @@ class _Edit extends State<Edit> {
               'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'');
         } else {
           _clearErrorMessage();
-          _song.setDefaultBpm(bpm);
+          _song.beatsPerMinute = bpm;
           _checkSongChangeStatus();
         }
       } catch (e) {
@@ -245,10 +245,10 @@ class _Edit extends State<Edit> {
 
     _titleTextEditingController.text = _song.title;
     _artistTextEditingController.text = _song.artist;
-    _coverArtistTextEditingController.text = _song.coverArtist;
+    _coverArtistTextEditingController.text = _song.coverArtist??'';
     _copyrightTextEditingController.text = _song.copyright;
     _userTextEditingController.text = _appOptions.user;
-    _bpmTextEditingController.text = _song.getBeatsPerMinute().toString();
+    _bpmTextEditingController.text = _song.beatsPerMinute.toString();
 
     _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
     _lyricsEntries.addListener(() {
@@ -2742,7 +2742,7 @@ class _Edit extends State<Edit> {
       return true;
     } else {
       logger.i('_editMeasure(): failed');
-      _errorMessage('edit failed: ${_song.getMessage()}');
+      _errorMessage('edit failed: ${_song.message}');
     }
 
     return false;

@@ -37,8 +37,7 @@ import 'package:provider/provider.dart';
 import '../app.dart';
 
 //  fixme: add undo/redo to chord entry
-//  fixme: modification date on written files
-//  fixme: modification date on modified songs
+//  fixme: don't allow unkown user on entry
 
 late Song _initialSong;
 
@@ -214,6 +213,8 @@ class _Edit extends State<Edit> {
       if (_userTextEditingController.text.isNotEmpty) {
         _appOptions.user = _userTextEditingController.text;
       }
+      _song.user = _userTextEditingController.text;
+      _checkSongChangeStatus();
       // user  will often be different  _checkSongStatus();
     });
 
@@ -261,9 +262,6 @@ class _Edit extends State<Edit> {
   }
 
   void _enterSong() async {
-    var user = _userTextEditingController.text;
-    _song.setUser(user.isNotEmpty ? user : 'unknown');
-
     App().addSong(_song);
 
     String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?

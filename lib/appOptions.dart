@@ -1,3 +1,4 @@
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,8 +20,8 @@ class AppOptions extends ChangeNotifier {
 
   Future<void> init() async {
     _userDisplayStyle = Util.enumFromString(
-            await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
-            UserDisplayStyle.values) ??
+        await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
+        UserDisplayStyle.values) ??
         UserDisplayStyle.both;
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     countIn = await _readBool('countIn');
@@ -295,7 +296,7 @@ class AppOptions extends ChangeNotifier {
     }
   }
 
+  static const String unknownUser = Song.unknownUser;
   String get user => _user;
-  static const String unknownUser = 'unknown';
   String _user = unknownUser;
 }

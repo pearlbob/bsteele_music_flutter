@@ -4,6 +4,7 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/bass.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
+import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:logger/logger.dart';
 
+import '../app.dart';
 import '../appOptions.dart';
 
 /// Display the song moments in sequential order.
@@ -39,7 +41,6 @@ class _Options extends State<Options> {
         _appOptions.user = _userTextEditingController.text;
       }
     });
-
 
     _websocketHostEditingController.text = _appOptions.websocketHost;
 
@@ -165,7 +166,8 @@ class _Options extends State<Options> {
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
-                          title: Text('Compress all repeats (for example: x4)', style: AppTextStyle(fontSize: fontSize)),
+                          title:
+                              Text('Compress all repeats (for example: x4)', style: AppTextStyle(fontSize: fontSize)),
                           value: true,
                           groupValue: _appOptions.compressRepeats,
                           onChanged: (value) {
@@ -187,6 +189,33 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
+                  Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                          child: Text(
+                            'Display key offset: ',
+                            style: AppTextStyle(
+                              fontSize: fontSize,
+                            ),
+                          ),
+                        ),
+                        DropdownButton<int>(
+                          items: _keyOffsetItems,
+                          onChanged: (_value) {
+                            if (_value != null) {
+                              setState(() {
+                                _app.displayKeyOffset = _value;
+                                logger.i('key offset: $_value');
+                              });
+                            }
+                          },
+                          style: AppTextStyle(fontSize: fontSize, color: const Color(0xFF424242)),
+                          value: _app.displayKeyOffset,
+                        ),
+                      ]),
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -471,6 +500,26 @@ class _Options extends State<Options> {
         'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
   }
 
+  final List<DropdownMenuItem<int>> _keyOffsetItems = [
+    const DropdownMenuItem(key: ValueKey('keyOffset0'), value: 0, child: Text('normal: (no key offset)')),
+    const DropdownMenuItem(
+        key: ValueKey('keyOffset1'), value: 1, child: Text('+1   (-11) halfsteps: ${MusicConstants.flatChar}2')),
+    const DropdownMenuItem(key: ValueKey('keyOffset2'), value: 2, child: Text('+2   (-10) halfsteps:  2')),
+    const DropdownMenuItem(
+        key: ValueKey('keyOffset3'), value: 3, child: Text('+3   (-9)   halfsteps: ${MusicConstants.flatChar}3')),
+    const DropdownMenuItem(key: ValueKey('keyOffset4'), value: 4, child: Text('+4   (-8)   halfsteps:  3')),
+    const DropdownMenuItem(key: ValueKey('keyOffset5'), value: 5, child: Text('+5   (-7)   halfsteps:  4')),
+    const DropdownMenuItem(
+        key: ValueKey('keyOffset6'), value: 6, child: Text('+6   (-6)   halfsteps: ${MusicConstants.flatChar}5')),
+    const DropdownMenuItem(key: ValueKey('keyOffset7'), value: 7, child: Text('+7   (-5)   halfsteps:  5')),
+    const DropdownMenuItem(
+        key: ValueKey('keyOffset8'), value: 8, child: Text('+8   (-4)   halfsteps: ${MusicConstants.flatChar}6')),
+    const DropdownMenuItem(key: ValueKey('keyOffset9'), value: 9, child: Text('+9   (-3)   halfsteps:  6')),
+    const DropdownMenuItem(
+        key: ValueKey('keyOffset10'), value: 10, child: Text('+10 (-2)   halfsteps: ${MusicConstants.flatChar}7')),
+    const DropdownMenuItem(key: ValueKey('keyOffset10'), value: 10, child: Text('+11 (-1)   halfsteps:  7')),
+  ];
+
   final TextEditingController _userTextEditingController = TextEditingController();
   final TextEditingController _websocketHostEditingController = TextEditingController();
 
@@ -486,4 +535,5 @@ class _Options extends State<Options> {
   final SongUpdateService _songUpdateService = SongUpdateService();
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
+  final App _app = App();
 }

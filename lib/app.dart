@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 
@@ -58,7 +59,8 @@ class App {
     _message = message;
   }
 
-  String? get error => (_messageType == MessageType.error ? _message : null );
+  String? get error => (_messageType == MessageType.error ? _message : null);
+
   set error(String? message) {
     _messageType = MessageType.error;
     _message = message ?? '';
@@ -80,6 +82,13 @@ class App {
 
   Song get emptySong => _emptySong;
   static final Song _emptySong = Song.createEmptySong();
+
+  set displayKeyOffset(int offset) {
+    _displayKeyOffset = offset % MusicConstants.halfStepsPerOctave;
+  }
+
+  int get displayKeyOffset => _displayKeyOffset;
+  static int _displayKeyOffset = 0;
 
   static final App _singleton = App._internal();
 }

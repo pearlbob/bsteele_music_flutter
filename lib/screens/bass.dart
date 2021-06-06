@@ -1,7 +1,9 @@
 import 'dart:collection';
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'dart:ui';
 
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
@@ -9,6 +11,8 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
+import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
+import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +21,7 @@ import 'package:flutter/rendering.dart';
 
 final _white = Paint()..color = Colors.white;
 final _black = Paint()..color = Colors.black;
+final _blue = Paint()..color = Colors.lightBlue.shade200;
 final _blackOutline = Paint()
   ..color = Colors.black
   ..style = PaintingStyle.stroke
@@ -206,32 +211,127 @@ class _State extends State<BassWidget> {
               Container(
                 width: 10,
               ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _noteButton(
+                        noteWhole.character,
+                        onPressed: () {
+                          logger.i('noteWhole pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _noteButton(
+                        noteHalfUp.character,
+                        onPressed: () {
+                          logger.i('noteHalfUp pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _noteButton(
+                        noteQuarterUp.character,
+                        onPressed: () {
+                          logger.i('noteQuarterUp pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _noteButton(
+                        note8thUp.character,
+                        onPressed: () {
+                          logger.i('note8thUp pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _noteButton(
+                        note16thUp.character,
+                        onPressed: () {
+                          logger.i('note16thUp pressed');
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      _restButton(
+                        restWhole.character,
+                        onPressed: () {
+                          logger.i('restWhole pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _restButton(
+                        restHalf.character,
+                        onPressed: () {
+                          logger.i('restHalf pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _restButton(
+                        restQuarter.character,
+                        onPressed: () {
+                          logger.i('restQuarter pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _restButton(
+                        rest8th.character,
+                        onPressed: () {
+                          logger.i('rest8th pressed');
+                        },
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      _restButton(
+                        rest16th.character,
+                        onPressed: () {
+                          logger.i('rest16th pressed');
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(
             height: 10,
           ),
-          const Text(
-            'test font: '
-            '${MusicConstants.bassClef} A${MusicConstants.flatChar}'
-            ' B${MusicConstants.sharpChar} C${MusicConstants.naturalChar}',
-            style: AppTextStyle(
-              fontSize: 48,
-            ),
-          ),
-          const Text(
-            'test font: '
-            '${MusicConstants.bassClef} A${MusicConstants.flatChar}'
-            ' B${MusicConstants.sharpChar} C${MusicConstants.naturalChar}',
-            style: TextStyle(
-              fontSize: 48,
-            ),
-          ),
-          Text(
-            'test fontfamily: ${const AppTextStyle().fontFamilyFallback}  ${const AppTextStyle().fontFamilyFallback}',
-            style: const AppTextStyle(
-              fontSize: 48,
-            ),
+          Stack(
+            fit: StackFit.passthrough,
+            children: [
+              RepaintBoundary(
+                child: CustomPaint(
+                  painter: SheetMusicPainter(),
+                  isComplex: true,
+                  willChange: false,
+                  child: const SizedBox(
+                    width: double.infinity,
+                    height: 400.0,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -442,4 +542,40 @@ class _FretBoardPainter extends CustomPainter {
   double bassFretY = 0;
   double bassFretX = 63;
   double bassScale = 2000;
+}
+
+ElevatedButton _restButton(
+  String character, {
+  required VoidCallback? onPressed,
+}) {
+  return _noteButton(
+       character,  onPressed:onPressed,
+     height: 1,
+  );
+}
+
+ElevatedButton _noteButton(
+  String character, {
+  required VoidCallback? onPressed,
+      double height = 2,
+}) {
+  return ElevatedButton(
+    child: Text(
+      character,
+      style: TextStyle(
+        fontFamily: 'Bravura',
+        fontSize: 50,
+        foreground: _black,
+        background: _blue,
+        height: height,
+        fontFeatures: const [FontFeature.stylisticAlternates()],
+      ),
+    ),
+    clipBehavior: Clip.hardEdge,
+    onPressed: onPressed,
+    style: ButtonStyle(
+      fixedSize: MaterialStateProperty.all(const Size(40, 60)),
+      backgroundColor: MaterialStateProperty.all(_blue.color),
+    ),
+  );
 }

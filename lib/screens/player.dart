@@ -50,7 +50,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
         context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
   }
   _songUpdate = songUpdate;
-  _player?._bpmDropDownMenuList = null; //  fixme!!!!!!!!
+  _player?._bpmDropDownMenuList = null; //  fixme!!!!!!!!  used to ensure the new value is in the list
   _player?._setSelectedSongKey(songUpdate.currentKey);
 
   Timer(const Duration(milliseconds: 2), () {
@@ -131,6 +131,7 @@ class _Player extends State<Player> with RouteAware {
     //   });
     // }
 
+    _displayKeyOffset = _app.displayKeyOffset;
     _setSelectedSongKey(widget.song.key);
 
     _leaderSongUpdate(0);
@@ -183,7 +184,7 @@ class _Player extends State<Player> with RouteAware {
 
     //  deal with song updates
     if (_songUpdate != null) {
-      if (!song.songBaseSameContent(_songUpdate!.song)) {
+      if (!song.songBaseSameContent(_songUpdate!.song) || _displayKeyOffset != _app.displayKeyOffset) {
         song = _songUpdate!.song;
         widget.song = song;
         _table = null; //  force re-eval
@@ -197,6 +198,7 @@ class _Player extends State<Player> with RouteAware {
       }
       _setSelectedSongKey(_songUpdate!.currentKey);
     }
+    _displayKeyOffset = _app.displayKeyOffset;
 
     _lyricsTable.computeScreenSizes();
 
@@ -250,7 +252,7 @@ class _Player extends State<Player> with RouteAware {
 
           int relativeOffset = halfOctave - i;
           String valueString =
-              value.toMarkup().padRight(2); //  fixme: required by pulldown list font bug!  (see the "on ..." below)
+              value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
           String offsetString = '';
           if (relativeOffset > 0) {
             offsetString = '+${relativeOffset.toString()}';
@@ -525,8 +527,25 @@ With escape, the app goes back to the play list.''',
                                     iconSize: _lyricsTable.fontSize,
                                     itemHeight: 1.2 * kMinInteractiveDimension,
                                   ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
+                                    Text(
+                                      '($_selectedSongKey' +
+                                          (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
+                                          (_isCapo && _capoLocation > 0
+                                              ? '-$_capoLocation'
+                                              : '') //  indicate: "maps to"
+                                          +
+                                          '=$_displaySongKey)',
+                                      style: _lyricsTextStyle,
+                                    ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
                                   Text(
-                                    '   BPM: ',
+                                    'BPM: ',
                                     style: _lyricsTextStyle,
                                   ),
                                   if (_app.isScreenBig)
@@ -832,6 +851,7 @@ With escape, the app goes back to the play list.''',
     }
   }
 
+  /// send a song update to the followers
   void _leaderSongUpdate(int momentNumber) {
     if (!_songUpdateService.isLeader) {
       return;
@@ -890,15 +910,23 @@ With escape, the app goes back to the play list.''',
   }
 
   _setSelectedSongKey(music_key.Key key) {
-    music_key.Key newDisplayKey = key;
+    logger.i('key: $key');
+
+    //  add any offset
+    music_key.Key newDisplayKey = music_key.Key.getKeyByHalfStep(key.halfStep + _displayKeyOffset);
+    logger.i('offsetKey: $newDisplayKey');
+
+    //  deal with capo
     if (_isCapo) {
-      newDisplayKey = key.capoKey;
-      _capoLocation = key.capoLocation;
+      _capoLocation = newDisplayKey.capoLocation;
+      newDisplayKey = newDisplayKey.capoKey;
+      logger.i('capo: $newDisplayKey + $_capoLocation');
     }
+
+    //  don't process unless there was a change
     if (_selectedSongKey == key && _displaySongKey == newDisplayKey) {
       return; //  no change required
     }
-
     _selectedSongKey = key;
     _displaySongKey = newDisplayKey;
     logger.v('_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
@@ -965,6 +993,7 @@ With escape, the app goes back to the play list.''',
   final LyricsTable _lyricsTable = LyricsTable();
 
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
+  int _displayKeyOffset = 0;
 
   int _capoLocation = 0;
   List<DropdownMenuItem<music_key.Key>>? _keyDropDownMenuList;

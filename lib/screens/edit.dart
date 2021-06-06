@@ -37,7 +37,8 @@ import 'package:provider/provider.dart';
 import '../app.dart';
 
 //  fixme: add undo/redo to chord entry
-//  fixme: don't allow unkown user on entry
+//  fixme: after an edit change, don't allow navigator pop without admission that edits will be lost
+//  fixme: song diff page
 
 late Song _initialSong;
 

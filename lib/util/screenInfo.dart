@@ -10,12 +10,12 @@ class ScreenInfo {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
 
     double devicePixelRatio = mediaQueryData.devicePixelRatio;
-    _widthInLogicalPixels = max(415,mediaQueryData.size.width);
+    _widthInLogicalPixels = mediaQueryData.size.width;
     _heightInLogicalPixels = mediaQueryData.size.height;
 
-
     //  fixme: an attempt to improve the logical pixel stuff
-    if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
+     if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS)
+    {
       _widthInLogicalPixels *= devicePixelRatio;
       _heightInLogicalPixels *= devicePixelRatio;
     }

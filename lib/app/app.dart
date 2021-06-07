@@ -4,6 +4,9 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:flutter/material.dart';
+
+const Color appDefaultColor = Color(0xFF4FC3F7);//Color(0xFFB3E5FC);
 
 enum MessageType {
   message,

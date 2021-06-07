@@ -548,7 +548,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           AppElevatedButton(
                             _hasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                            color: (_hasChanged && _isValidSong) ? null : _disabledColor,
+                            color: (_hasChanged && _isValidSong) ? appDefaultColor : _disabledColor,
                             onPressed: () {
                               if (_hasChanged && _isValidSong) {
                                 _enterSong();
@@ -1488,7 +1488,7 @@ class _Edit extends State<Edit> {
           }
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.delete)) {
-        logger.i('main onkey: delete: "${_editTextController.text}", ${_editTextController.selection}');
+        logger.d('main onkey: delete: "${_editTextController.text}", ${_editTextController.selection}');
         if (_editTextController.text.isEmpty) {
           if (_selectedEditDataPoint?._measureEditType == MeasureEditType.replace) {
             _performDelete();
@@ -2739,7 +2739,13 @@ class _Edit extends State<Edit> {
   /// returns true if the was a change of dirty status
   bool _checkSongChangeStatus() {
     bool hasChanged = !_song.songBaseSameContent(_originalSong);
+    logger.d('hasChanged: $hasChanged');
     if (hasChanged != _hasChanged) {
+      if ( hasChanged ){
+        _song.resetLastModifiedDateToNow();
+      } else {
+        _song.lastModifiedTime = _originalSong.lastModifiedTime;
+      }
       _checkSong();
       _hasChanged = hasChanged;
       setState(() {});

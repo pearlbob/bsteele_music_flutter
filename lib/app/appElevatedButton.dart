@@ -1,7 +1,9 @@
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/material.dart';
 
-const Color appDefaultColor = Color(0xFFB3E5FC);
+import 'app.dart';
+
+
 const double _defaultFontSize = 22;
 const AppTextStyle appButtonTextStyle =
     AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);

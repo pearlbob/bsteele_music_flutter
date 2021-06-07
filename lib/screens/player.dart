@@ -914,11 +914,11 @@ With escape, the app goes back to the play list.''',
   }
 
   _setSelectedSongKey(music_key.Key key) {
-    logger.i('key: $key');
+    logger.d('key: $key');
 
     //  add any offset
     music_key.Key newDisplayKey = music_key.Key.getKeyByHalfStep(key.halfStep + _displayKeyOffset);
-    logger.i('offsetKey: $newDisplayKey');
+    logger.d('offsetKey: $newDisplayKey');
 
     //  deal with capo
     if (_isCapo) {

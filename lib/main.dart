@@ -69,11 +69,9 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
  */
 
 final App _app = App();
-const double defaultFontSize = 14.0; //  borrowed from Text widget
+const double defaultFontSize = 10.0; //  based on phone
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
-
-const Color _primaryColor = Color(0xFF4FC3F7);
 
 enum _SortType {
   byTitle,
@@ -100,8 +98,8 @@ class MyApp extends StatelessWidget {
         builder: (context, _) => MaterialApp(
               title: 'bsteele Music App',
               theme: ThemeData(
-                primaryColor: _primaryColor,
-                scaffoldBackgroundColor: Colors.white,
+                 primaryColor: appDefaultColor,
+                // scaffoldBackgroundColor: Colors.white,
               ),
               home: const MyHomePage(title: 'bsteele Music App'),
               navigatorObservers: [playerRouteObserver],
@@ -148,16 +146,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-
-    //  generate the sort selection
-    for (final e in _SortType.values) {
-      var s = e.toString();
-      //print('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
-      _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
-        value: e,
-        child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))),
-      ));
-    }
 
     if (_environment == _environmentDefault) {
       _readExternalSongList();
@@ -286,11 +274,17 @@ class _MyHomePageState extends State<MyHomePage> {
     final double titleScaleFactor = _app.screenInfo.titleScaleFactor;
     final double artistScaleFactor = _app.screenInfo.artistScaleFactor;
     const fontSize = defaultFontSize;
-    logger.v(
+    logger.d(
         'fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
-    const AppTextStyle searchTextStyle = AppTextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 1.5 * fontSize,
+     AppTextStyle searchTextStyle = AppTextStyle(
+      fontWeight: FontWeight.normal,
+      fontSize: fontSize * artistScaleFactor,
+      color: Colors.black38,
+      textBaseline: TextBaseline.alphabetic,
+    );
+    AppTextStyle searchDropDownStyle = AppTextStyle(
+      fontWeight: FontWeight.normal,
+      fontSize: fontSize * artistScaleFactor,
       color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
@@ -302,6 +296,19 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     const AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
     final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
+
+
+    //  generate the sort selection
+    _sortTypesDropDownMenuList.clear();
+    for (final e in _SortType.values) {
+      var s = e.toString();
+      //print('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
+      _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
+        value: e,
+        child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
+        style: searchDropDownStyle,),
+      ));
+    }
 
     //  re-search filtered list on data changes
     if (_filteredSongs.isEmpty) {
@@ -543,17 +550,18 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                width: min(mediaWidth / 2, 2 * 18 * fontSize),
+                width: min(mediaWidth / 2, 10 * fontSize * artistScaleFactor),
                 //  limit text entry display length
                 child: TextField(
                   controller: _searchTextFieldController,
                   focusNode: _searchFocusNode,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                     prefixIcon: Icon(Icons.search),
-                    hintText: "Enter search filter string here.",
+                    hintText: "search text",
+                    hintStyle: searchTextStyle,
                   ),
                   autofocus: true,
-                  style: searchTextStyle,
+                  style: searchDropDownStyle,
                   onChanged: (text) {
                     setState(() {
                       logger.v('search text: "$text"');
@@ -565,7 +573,7 @@ class _MyHomePageState extends State<MyHomePage> {
               IconButton(
                 icon: const Icon(Icons.clear),
                 tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                iconSize: fontSize * 2,
+                iconSize: titleScaleFactor * fontSize ,
                 onPressed: (() {
                   _searchTextFieldController.clear();
                   setState(() {

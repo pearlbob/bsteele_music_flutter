@@ -20,7 +20,8 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
-import 'package:bsteele_music_flutter/appOptions.dart';
+import 'package:bsteele_music_flutter/app/appElevatedButton.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
@@ -34,11 +35,9 @@ import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-import '../app.dart';
+import '../app/app.dart';
 
-//  fixme: add undo/redo to chord entry
-//  fixme: after an edit change, don't allow navigator pop without admission that edits will be lost
-//  fixme: song diff page
+
 
 late Song _initialSong;
 
@@ -62,15 +61,12 @@ const AppTextStyle _boldTextStyle = AppTextStyle(
   color: Colors.black87,
 );
 const AppTextStyle _labelTextStyle = AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
-const AppTextStyle _buttonTextStyle =
-    AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
 const AppTextStyle _textStyle = AppTextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
 const AppTextStyle _errorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
 const AppTextStyle _warningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
 
 const double _entryWidth = 18 * _defaultChordFontSize;
 
-const Color _defaultColor = Color(0xFFB3E5FC);
 const Color _disabledColor = Color(0xFFE0E0E0);
 const Color _chordEditAreaBackgroundColor = Color(0xFFFFFFFF); //var c = Colors.white;
 const Color _lyricsEditAreaBackgroundColor = Color(0xFFFFFFFF); //  var c = Colors.white;
@@ -79,57 +75,7 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
-//  fixme: space in title entry jumps to lyrics Section
 
-/// helper class to manage a ElevatedButton
-class _AppContainedButton extends ElevatedButton {
-  _AppContainedButton(
-    String text, {
-    Color? color,
-    VoidCallback? onPressed,
-  }) : super(
-          style: ElevatedButton.styleFrom(
-              primary: color ?? _defaultColor,
-              textStyle: const AppTextStyle(
-                color: Colors.black,
-              )),
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
-          // ),
-          // disabledTextColor: Colors.grey[400],
-          // disabledColor: Colors.grey[200],
-          // padding: const EdgeInsets.symmetric(horizontal: 2.0),
-          // hoverColor: _hoverColor,
-          child: Text(
-            text,
-            style: _buttonTextStyle,
-          ),
-          onPressed: onPressed,
-        );
-}
-
-/// helper class to manage an OutlinedButton
-class _AppOutlineButton extends OutlinedButton {
-  _AppOutlineButton(
-    String _text, {
-    VoidCallback? onPressed,
-  }) : super(
-          style: OutlinedButton.styleFrom(
-            primary: _defaultColor,
-            onSurface: Colors.grey[400],
-            textStyle: const AppTextStyle(
-              color: Colors.black87,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            side: const BorderSide(width: 1.66, color: Colors.black54),
-          ),
-          child: Text(
-            _text,
-            style: _buttonTextStyle,
-          ),
-          onPressed: onPressed,
-        );
-}
 
 class _Edit extends State<Edit> {
   _Edit()
@@ -600,7 +546,7 @@ class _Edit extends State<Edit> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          _AppContainedButton(
+                          AppElevatedButton(
                             _hasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
                             color: (_hasChanged && _isValidSong) ? null : _disabledColor,
                             onPressed: () {
@@ -617,7 +563,7 @@ class _Edit extends State<Edit> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
-                                _AppContainedButton(
+                                AppElevatedButton(
                                   'Clear',
                                   onPressed: () {
                                     setState(() {
@@ -630,7 +576,7 @@ class _Edit extends State<Edit> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                _AppContainedButton(
+                                AppElevatedButton(
                                   'Remove',
                                   onPressed: () {
                                     logger.i('fixme: Remove song'); // fixme
@@ -876,7 +822,7 @@ class _Edit extends State<Edit> {
                             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                               _editTooltip(
                                 _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                _AppOutlineButton(
+                                AppElevatedButton(
                                   'Undo',
                                   onPressed: () {
                                     _undo();
@@ -885,20 +831,23 @@ class _Edit extends State<Edit> {
                               ),
                               _editTooltip(
                                 _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
-                                _AppOutlineButton(
+                                AppElevatedButton(
                                   'Redo',
                                   onPressed: () {
                                     _redo();
                                   },
                                 ),
                               ),
-                              _AppOutlineButton(
+                              AppElevatedButton(
                                 '4/Row',
+                                onPressed: () {
+                                  logger.w('implement 4/row');  //  fixme
+                                },
                               ),
                               _editTooltip(
                                 (_selectedEditDataPoint != null ? 'Click outside the chords to cancel editing\n' : '') +
                                     (_showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                                _AppOutlineButton('Hints', onPressed: () {
+                                AppElevatedButton('Hints', onPressed: () {
                                   setState(() {
                                     _showHints = !_showHints;
                                   });
@@ -1878,7 +1827,7 @@ class _Edit extends State<Edit> {
 
       Widget _majorChordButton = _editTooltip(
           'Enter the major chord.',
-          _AppContainedButton(
+          AppElevatedButton(
             _keyChordNote.toString(),
             onPressed: () {
               setState(() {
@@ -1894,7 +1843,7 @@ class _Edit extends State<Edit> {
         );
         minorChordButton = _editTooltip(
             'Enter the minor chord.',
-            _AppContainedButton(
+            AppElevatedButton(
               sc.toString(),
               onPressed: () {
                 setState(() {
@@ -1908,7 +1857,7 @@ class _Edit extends State<Edit> {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
         dominant7ChordButton = _editTooltip(
             'Enter the dominant7 chord.',
-            _AppContainedButton(
+            AppElevatedButton(
               sc.toString(),
               onPressed: () {
                 setState(() {
@@ -1997,7 +1946,7 @@ class _Edit extends State<Edit> {
                         });
                       },
                       value: _keyChordNote,
-                      style: _buttonTextStyle,
+                      style: appButtonTextStyle,
                     ),
                   ),
                   _majorChordButton,
@@ -2005,7 +1954,7 @@ class _Edit extends State<Edit> {
                   dominant7ChordButton,
                   _editTooltip(
                     'Enter a silent chord.',
-                    _AppContainedButton(
+                    AppElevatedButton(
                       'X',
                       onPressed: () {
                         setState(() {
@@ -2193,7 +2142,7 @@ class _Edit extends State<Edit> {
                     'Repeat: ',
                     style: _textStyle,
                   ),
-                  _AppContainedButton(
+                  AppElevatedButton(
                     'x2',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 2);
@@ -2202,7 +2151,7 @@ class _Edit extends State<Edit> {
                     },
                     color: color,
                   ),
-                  _AppContainedButton(
+                  AppElevatedButton(
                     'x3',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 3);
@@ -2211,7 +2160,7 @@ class _Edit extends State<Edit> {
                     },
                     color: color,
                   ),
-                  _AppContainedButton(
+                  AppElevatedButton(
                     'x4',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 4);
@@ -2871,7 +2820,7 @@ class _Edit extends State<Edit> {
   EdgeInsets _marginInsets = const EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
-  Color _sectionColor = _defaultColor;
+  Color _sectionColor = appDefaultColor;
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 

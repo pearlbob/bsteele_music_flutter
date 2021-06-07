@@ -7,7 +7,7 @@
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteele_music_flutter/appOptions.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:flutter/material.dart';

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' as md;
 
-import '../app.dart';
+import '../app/app.dart';
 
 /// Display the application's privacy policy
 class Documentation extends StatefulWidget {

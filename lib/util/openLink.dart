@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../app.dart';
+import '../app/app.dart';
 
 /*
 _blank - specifies a new window

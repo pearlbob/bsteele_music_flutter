@@ -11,7 +11,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/widgets.dart';
 
-import '../app.dart';
+import '../app/app.dart';
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {

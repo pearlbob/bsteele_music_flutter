@@ -56,6 +56,10 @@ class _State extends State<BassWidget> {
   @override
   initState() {
     super.initState();
+
+    _lyricsTextEditingController.addListener(() {
+      logger.i('lyrics: <${_lyricsTextEditingController.text}>');
+    });
   }
 
   @override
@@ -312,6 +316,81 @@ class _State extends State<BassWidget> {
                   ),
                 ],
               ),
+              Container(
+                width: 10,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Checkbox(
+                        checkColor: Colors.white,
+                        fillColor: MaterialStateProperty.all(_blue.color),
+                        value: _isDot,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            setState(() {
+                              _isDot = value;
+                              logger.i('isDot: $_isDot');
+                            });
+                          }
+                        },
+                      ),
+                      Text(
+                        '+dot',
+                        style: _style,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Checkbox(
+                          checkColor: Colors.white,
+                          fillColor: MaterialStateProperty.all(_blue.color),
+                          value: _isTie,
+                          onChanged: (bool? value) {
+                            if (value != null) {
+                              setState(() {
+                                _isTie = value;
+                                logger.i('_isTie: $_isTie');
+                              });
+                            }
+                          }),
+                      Text(
+                        '+tie',
+                        style: _style,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Lyrics:',
+                        style: _style,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      SizedBox(
+                        width:250,
+                        height: 70,
+                        child: TextField(
+                          //    key: const ValueKey('lyrics'),
+                          controller: _lyricsTextEditingController,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter lyrics',
+                          ),
+                          maxLength: null,
+                             style: _style,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(
@@ -345,6 +424,16 @@ class _State extends State<BassWidget> {
     );
   }
 
+  @override
+  void dispose() {
+    _lyricsTextEditingController.dispose();
+    super.dispose();
+    logger.d('bass dispose()');
+  }
+
+  bool _isDot = false;
+  bool _isTie = false;
+  final TextEditingController _lyricsTextEditingController = TextEditingController();
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
 }
@@ -549,15 +638,16 @@ ElevatedButton _restButton(
   required VoidCallback? onPressed,
 }) {
   return _noteButton(
-       character,  onPressed:onPressed,
-     height: 1,
+    character,
+    onPressed: onPressed,
+    height: 1,
   );
 }
 
 ElevatedButton _noteButton(
   String character, {
   required VoidCallback? onPressed,
-      double height = 2,
+  double height = 2,
 }) {
   return ElevatedButton(
     child: Text(

@@ -29,11 +29,9 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'app.dart';
-import 'appOptions.dart';
+import 'app/app.dart';
+import 'app/appOptions.dart';
 import 'util/openLink.dart';
-
-//CjRankingEnum _cjRanking;
 
 void main() async {
   runApp(
@@ -42,7 +40,12 @@ void main() async {
 }
 
 /*
-websockets/server
+//  fixme: add undo/redo to chord entry
+//  fixme: after an edit change, don't allow navigator pop without admission that edits will be lost
+//  fixme: song diff page
+//  fixme: import lyrics
+//  fixme: surrender leadership when leader song update appears
+//  fixme: space in title entry jumps to lyrics Section
 
 C's ipad: model ML0F2LL/A
 
@@ -55,7 +58,7 @@ roll list start when returning to song list
 edit: paste from edit buffer
 fix key guess
 wider fade area on player
-edit: slash note pulldown
+edit: slash note dropdown: make smarter
 
 
 linux notes:
@@ -536,9 +539,8 @@ class _MyHomePageState extends State<MyHomePage> {
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Flex(direction: Axis.horizontal, children: <Widget>[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 width: min(mediaWidth / 2, 2 * 18 * fontSize),
@@ -586,54 +588,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: titleTextStyle,
               ),
             ]),
-
-            const Spacer(),
-            // if (_appOptions.holiday)
-            //   RaisedButton(
-            //     child: Text(
-            //       'holiday',
-            //       textScaleFactor: artistScaleFactor,
-            //     ),
-            //     onPressed: () {
-            //       _setHoliday(null);
-            //     },
-            //   ),
-            // if (!_appOptions.holiday)
-            //   RaisedButton(
-            //     child: Text(
-            //       'not holiday',
-            //       textScaleFactor: artistScaleFactor,
-            //     ),
-            //     onPressed: () {
-            //       _setHoliday(null);
-            //     },
-            //   ),
-            // Spacer(),
-            // if (_cjRanking != null)
-            //   RaisedButton(
-            //     child: Text(
-            //       'CJ Ranking: ${_cjRanking.toString().split('.').last}',
-            //       textScaleFactor: artistScaleFactor,
-            //     ),
-            //     onPressed: () {
-            //       setState(() {
-            //         _cjRanking = null;
-            //         _refilterSongs();
-            //       });
-            //     },
-            //   ),
-            // Spacer(flex: 10),
-            // DropdownButton<SongIdMetadata>(
-            //   hint: Text(
-            //     'Filters',
-            //     textScaleFactor: artistScaleFactor,
-            //     style: AppTextStyle(backgroundColor: Colors.lightBlue[300], color: Colors.black),
-            //   ),
-            //   items: metadataDropDownMenuList,
-            //   onChanged: (songIdMetadata) {},
-            // )
-          ],
-        ),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(
               child: ScrollablePositionedList.builder(

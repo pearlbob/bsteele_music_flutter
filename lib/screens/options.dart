@@ -17,8 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:logger/logger.dart';
 
-import '../app.dart';
-import '../appOptions.dart';
+import '../app/app.dart';
+import '../app/appOptions.dart';
 
 /// Display the song moments in sequential order.
 class Options extends StatefulWidget {

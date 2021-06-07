@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/status.dart' as web_socket_status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../appOptions.dart';
+import '../app/appOptions.dart';
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
@@ -66,7 +66,7 @@ class SongUpdateService extends ChangeNotifier {
 
         notifyListeners();
         var lastAuthority = authority;
-        for ( _idleCount = 0;; _idleCount++) {
+        for (_idleCount = 0;; _idleCount++) {
           await Future.delayed(const Duration(seconds: 5));
           notifyListeners();
 
@@ -145,12 +145,13 @@ class SongUpdateService extends ChangeNotifier {
     notifyListeners();
   }
 
-  SongUpdate? _songUpdate;
-
   bool get isLeader => _isLeader;
   bool _isLeader = false;
 
-  String get leaderName => (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
+  SongUpdate? _songUpdate;
+
+  String get leaderName =>
+      (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
   WebSocketChannel? _webSocketChannel;
   int songUpdateCount = 0;
   int _idleCount = 0;

@@ -10,7 +10,7 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../app.dart';
+import '../app/app.dart';
 
 Directory _rootDirectory = Directory(Util.homePath());
 

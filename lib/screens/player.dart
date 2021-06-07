@@ -24,8 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import '../app.dart';
-import '../appOptions.dart';
+import '../app/app.dart';
+import '../app/appOptions.dart';
 
 //  fixme: shapes in chromium?  circles become stop signs
 //  fixme: compile to armv71
@@ -49,6 +49,10 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     Navigator.pushNamedAndRemoveUntil(
         context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
   }
+
+  //  listen if anyone else is talking
+  _player?._songUpdateService.isLeader = false;
+
   _songUpdate = songUpdate;
   _player?._bpmDropDownMenuList = null; //  fixme!!!!!!!!  used to ensure the new value is in the list
   _player?._setSelectedSongKey(songUpdate.currentKey);

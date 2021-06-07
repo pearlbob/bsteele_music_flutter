@@ -14,8 +14,8 @@ import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../app.dart';
-import '../appOptions.dart';
+import '../app/app.dart';
+import '../app/appOptions.dart';
 import '../main.dart';
 
 typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, int lineNumber, String s);

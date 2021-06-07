@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:intl/intl.dart';
 
-import '../app.dart';
+import '../app/app.dart';
 
 /// Display the song moments in sequential order.
 class Songs extends StatefulWidget {

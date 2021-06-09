@@ -16,12 +16,15 @@ class AppOptions extends ChangeNotifier {
     return _singleton;
   }
 
-  AppOptions._internal();
+  AppOptions._internal() {
+    init();
+  }
 
   Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
     _userDisplayStyle = Util.enumFromString(
-        await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
-        UserDisplayStyle.values) ??
+            await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
+            UserDisplayStyle.values) ??
         UserDisplayStyle.both;
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     countIn = await _readBool('countIn');
@@ -55,7 +58,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   void setDashAllMeasureRepetitions(bool dashAllMeasureRepetitions) {
-    if (this.dashAllMeasureRepetitions == dashAllMeasureRepetitions) return;
+    if (this.dashAllMeasureRepetitions == dashAllMeasureRepetitions) {
+      return;
+    }
     this.dashAllMeasureRepetitions = dashAllMeasureRepetitions;
     _saveBool('dashAllMeasureRepetitions', dashAllMeasureRepetitions);
   }
@@ -72,7 +77,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   void setPlayWithLineIndicator(bool playWithLineIndicator) {
-    if (this.playWithLineIndicator == playWithLineIndicator) return;
+    if (this.playWithLineIndicator == playWithLineIndicator) {
+      return;
+    }
     this.playWithLineIndicator = playWithLineIndicator;
     _saveBool('playWithLineIndicator', playWithLineIndicator);
   }
@@ -82,7 +89,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   void setPlayWithMeasureIndicator(bool playWithMeasureIndicator) {
-    if (this.playWithMeasureIndicator == playWithMeasureIndicator) return;
+    if (this.playWithMeasureIndicator == playWithMeasureIndicator) {
+      return;
+    }
     this.playWithMeasureIndicator = playWithMeasureIndicator;
     _saveBool('playWithMeasureIndicator', playWithMeasureIndicator);
   }
@@ -174,7 +183,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   void setPlayWithBouncingBall(bool playWithBouncingBall) {
-    if (this.playWithBouncingBall == playWithBouncingBall) return;
+    if (this.playWithBouncingBall == playWithBouncingBall) {
+      return;
+    }
     this.playWithBouncingBall = playWithBouncingBall;
     _saveBool('playWithBouncingBall', playWithBouncingBall);
   }
@@ -182,7 +193,9 @@ class AppOptions extends ChangeNotifier {
   bool get playWithMeasureLabel => _playWithMeasureLabel;
 
   void setPlayWithMeasureLabel(bool playWithMeasureLabel) {
-    if (_playWithMeasureLabel == playWithMeasureLabel) return;
+    if (_playWithMeasureLabel == playWithMeasureLabel) {
+      return;
+    }
     _playWithMeasureLabel = playWithMeasureLabel;
     _saveBool('playWithMeasureLabel', playWithMeasureLabel);
   }
@@ -192,45 +205,47 @@ class AppOptions extends ChangeNotifier {
   }
 
   void setAlwaysUseTheNewestSongOnRead(bool alwaysUseTheNewestSongOnRead) {
-    if (this.alwaysUseTheNewestSongOnRead == alwaysUseTheNewestSongOnRead) return;
+    if (this.alwaysUseTheNewestSongOnRead == alwaysUseTheNewestSongOnRead) {
+      return;
+    }
     this.alwaysUseTheNewestSongOnRead = alwaysUseTheNewestSongOnRead;
     _saveBool('alwaysUseTheNewestSongOnRead', alwaysUseTheNewestSongOnRead);
   }
 
   Future<bool> _readBool(final String key, {defaultValue = false}) async {
-    final prefs = await SharedPreferences.getInstance();
-    var value = prefs.getBool(key) ?? defaultValue;
+    var value = _prefs.getBool(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
   Future<String> _readString(final String key, {defaultValue = ''}) async {
-    final prefs = await SharedPreferences.getInstance();
-    var value = prefs.getString(key) ?? defaultValue;
+    var value = _prefs.getString(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
   _saveBool(final String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
+    await _prefs.setBool(key, value);
     notifyListeners();
   }
 
   _saveString(final String key, String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
+    await _prefs.setString(key, value);
     notifyListeners();
   }
 
   set playWithChords(bool playWithChords) {
-    if (_playWithChords == playWithChords) return;
+    if (_playWithChords == playWithChords) {
+      return;
+    }
     _playWithChords = playWithChords;
     _saveBool('playWithChords', playWithChords);
   }
 
   set playWithBass(bool playWithBass) {
-    if (_playWithBass == playWithBass) return;
+    if (_playWithBass == playWithBass) {
+      return;
+    }
     _playWithBass = playWithBass;
     _saveBool('playWithBass', playWithBass);
   }
@@ -265,7 +280,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   set compressRepeats(bool value) {
-    if (_compressRepeats == value) return;
+    if (_compressRepeats == value) {
+      return;
+    }
     _compressRepeats = value;
     _saveBool('compressRepeats', value);
   }
@@ -284,7 +301,7 @@ class AppOptions extends ChangeNotifier {
   }
 
   String get websocketHost => _websocketHost;
-  String _websocketHost = '192.168.1.205';
+  String _websocketHost = 'bobspi.local';
 
   bool _debug = false;
   bool alwaysUseTheNewestSongOnRead = false;
@@ -297,6 +314,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   static const String unknownUser = Song.unknownUser;
+
   String get user => _user;
   String _user = unknownUser;
+
+  late final SharedPreferences _prefs;
 }

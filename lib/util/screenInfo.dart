@@ -28,8 +28,8 @@ class ScreenInfo {
 
     double textScaleFactor = mediaQueryData.textScaleFactor;
 
-    logger.v('textScaleFactor: $textScaleFactor');
-    logger.v(
+    logger.i('textScaleFactor: $textScaleFactor');
+    logger.i(
         'devicePixelRatio: $devicePixelRatio, (${_widthInLogicalPixels * devicePixelRatio},${_heightInLogicalPixels * devicePixelRatio})');
   }
 

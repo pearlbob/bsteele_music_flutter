@@ -35,9 +35,9 @@ class UtilLinux implements UtilWorkaround {
   }
 
   @override
-  Future<void> filePick(BuildContext context) async {
+  Future<void> songFilePick(BuildContext context) async {
     String? path = await FilesystemPicker.open(
-      title: 'Open file',
+      title: 'Open song file',
       context: context,
       rootDirectory: _rootDirectory,
       fsType: FilesystemType.file,
@@ -68,6 +68,31 @@ class UtilLinux implements UtilWorkaround {
   }
 
   final RegExp chordProRegExp = RegExp(r'pro$');
+
+  @override
+  Future<List<String>> textFilePickAndRead(BuildContext context) async {
+    String? path = await FilesystemPicker.open(
+      title: 'Open file',
+      context: context,
+      rootDirectory: _rootDirectory,
+      fsType: FilesystemType.file,
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+    );
+    if (path != null) {
+      var file = File(path);
+      if (file.existsSync()) {
+        String s = utf8.decode(file.readAsBytesSync());
+        //  fixme: limits subsequent opens to the selected directory
+        _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
+        return [s];
+      }
+    } else {
+      //  reset the root
+      _rootDirectory = Directory(Util.homePath());
+    }
+    //  fixme: FilesystemPicker.open() in linux needs big help
+    return [''];
+  }
 }
 
 UtilWorkaround getUtilWorkaround() => UtilLinux();

@@ -38,8 +38,6 @@ void main() async {
   Logger.level = Level.info;
   logger.d('main()');
   TestWidgetsFlutterBinding.ensureInitialized();
-  await AppOptions().init();
-
 
   testWidgets('about test', (WidgetTester tester) async {
    // tester.binding.window.physicalSizeTestValue = const Size(1920, 1080);

@@ -12,7 +12,9 @@ abstract class UtilWorkaround {
   /// Workaround to implement functionality that is not generic across all platforms at this point.
   Future<String> writeFileContents(String fileName, String contents);
 
-  Future<void> filePick(BuildContext context);
+  Future<void> songFilePick(BuildContext context);
+
+  Future<List<String>> textFilePickAndRead(BuildContext context);
 
   /// factory constructor to return the correct implementation.
   factory UtilWorkaround() => getUtilWorkaround();

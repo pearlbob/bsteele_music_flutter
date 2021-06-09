@@ -1,6 +1,7 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:convert';
+
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:typed_data';
@@ -29,7 +30,7 @@ class UtilWeb implements UtilWorkaround {
   }
 
   @override
-  Future<void> filePick(BuildContext context) async {
+  Future<void> songFilePick(BuildContext context) async {
     List<Song> songs = await getSongsAsync();
     for (final Song song in songs) {
       App().addSong(song);
@@ -38,7 +39,7 @@ class UtilWeb implements UtilWorkaround {
   }
 
   Future<List<Song>> getSongsAsync() async {
-    List<String> fileData = await getFiles();
+    List<String> fileData = await getFiles('.songlyrics');
     logger.i("files.length: ${fileData.length}");
     List<Song> ret = [];
     for (var i = 0; i < fileData.length; i++) {
@@ -64,17 +65,20 @@ class UtilWeb implements UtilWorkaround {
     return ret;
   }
 
-  Future<List<String>> getFiles() {
+  Future<List<String>> getFiles(String? accept) {
     final completer = Completer<List<String>>();
     final InputElement input = document.createElement('input') as InputElement;
     input
       ..type = 'file'
-      ..multiple = true
-      ..accept = '.songlyrics';
+      ..multiple = true;
+    if (accept != null) {
+      input.accept = accept;
+    }
     input.onChange.listen((e) async {
       files = input.files;
       if (files != null) {
         Iterable<Future<String>> resultsFutures = files!.map((file) {
+          logger.d('file: ${file.name}');
           final reader = FileReader();
           reader.readAsDataUrl(file);
           reader.onError.listen((error) => completer.completeError(error));
@@ -86,6 +90,22 @@ class UtilWeb implements UtilWorkaround {
     });
     input.click();
     return completer.future;
+  }
+
+  @override
+  Future<List<String>> textFilePickAndRead(BuildContext context) async {
+    List<String> fileData = await getFiles(null);
+    logger.d("files.length: ${fileData.length}");
+    List<String> ret = [];
+    for (var i = 0; i < fileData.length; i++) {
+      File file = files![i];
+      final String data64 = fileData[i];
+
+      Uint8List data = const Base64Decoder().convert(data64.split(",").last);
+
+      ret.add(utf8.decode(data));
+    }
+    return ret;
   }
 
   List<File>? files;

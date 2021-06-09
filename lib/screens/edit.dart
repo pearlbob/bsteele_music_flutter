@@ -37,8 +37,6 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 
-
-
 late Song _initialSong;
 
 ///   screen to edit a song
@@ -74,8 +72,6 @@ final Section _defaultSection = Section.get(SectionEnum.chorus);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
-
-
 
 class _Edit extends State<Edit> {
   _Edit()
@@ -193,7 +189,7 @@ class _Edit extends State<Edit> {
 
     _titleTextEditingController.text = _song.title;
     _artistTextEditingController.text = _song.artist;
-    _coverArtistTextEditingController.text = _song.coverArtist??'';
+    _coverArtistTextEditingController.text = _song.coverArtist ?? '';
     _copyrightTextEditingController.text = _song.copyright;
     _userTextEditingController.text = _appOptions.user;
     _bpmTextEditingController.text = _song.beatsPerMinute.toString();
@@ -237,7 +233,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('edit build: "${_editTextController.text.toString()}"');
+    logger.i('edit build: "${_song.rawLyrics}"');
 
     _appOptions = Provider.of<AppOptions>(context);
 
@@ -547,10 +543,12 @@ class _Edit extends State<Edit> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           AppElevatedButton(
-                            _hasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                            color: (_hasChanged && _isValidSong) ? appDefaultColor : _disabledColor,
+                            _hasChangedFromOriginal
+                                ? (_isValidSong ? 'Enter song' : 'Fix the song')
+                                : 'Nothing has changed',
+                            color: (_hasChangedFromOriginal && _isValidSong) ? appDefaultColor : _disabledColor,
                             onPressed: () {
-                              if (_hasChanged && _isValidSong) {
+                              if (_hasChangedFromOriginal && _isValidSong) {
                                 _enterSong();
                                 Navigator.pop(context);
                               }
@@ -841,7 +839,7 @@ class _Edit extends State<Edit> {
                               AppElevatedButton(
                                 '4/Row',
                                 onPressed: () {
-                                  logger.w('implement 4/row');  //  fixme
+                                  logger.w('implement 4/row'); //  fixme
                                 },
                               ),
                               _editTooltip(
@@ -1051,11 +1049,28 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                     Container(
-                      child: const Text(
-                        "Lyrics:",
-                        style: _titleTextStyle,
-                      ),
                       margin: const EdgeInsets.all(4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          const Text(
+                            "Lyrics:",
+                            style: _titleTextStyle,
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: _editTooltip(
+                              'Import lyrics from a text file',
+                              AppElevatedButton(
+                                'Import',
+                                onPressed: () {
+                                  _import();
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const Divider(
                       thickness: 8,
@@ -1114,6 +1129,7 @@ class _Edit extends State<Edit> {
     }).toList();
 
     //  main entries
+    logger.d('_lyricsEntries: ${_lyricsEntries.entries.length}');
     for (final entry in _lyricsEntries.entries) {
       //  insert new section above
       {
@@ -1194,6 +1210,7 @@ class _Edit extends State<Edit> {
       var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
+      logger.i('$chordSection: chord/lyrics limit: $limit');
       for (var i = 0; i < limit; i++) {
         var children = <Widget>[];
 
@@ -1388,7 +1405,12 @@ class _Edit extends State<Edit> {
 
   /// convenience method to push lyrics changes to the song and the display
   void _pushLyricsEntries() {
-    _song.rawLyrics = _lyricsEntries.asRawLyrics();
+    _updateRawLyrics(_lyricsEntries.asRawLyrics());
+  }
+
+  void _updateRawLyrics(String rawLyrics) {
+    _song.rawLyrics = rawLyrics;
+    _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
     _undoStackPushIfDifferent();
     _checkSongChangeStatus();
   }
@@ -2738,20 +2760,16 @@ class _Edit extends State<Edit> {
 
   /// returns true if the was a change of dirty status
   bool _checkSongChangeStatus() {
-    bool hasChanged = !_song.songBaseSameContent(_originalSong);
-    logger.d('hasChanged: $hasChanged');
-    if (hasChanged != _hasChanged) {
-      if ( hasChanged ){
-        _song.resetLastModifiedDateToNow();
-      } else {
-        _song.lastModifiedTime = _originalSong.lastModifiedTime;
-      }
+    _hasChangedFromOriginal = !_song.songBaseSameContent(_originalSong);
+    if (_hasChangedFromOriginal) {
+      _song.resetLastModifiedDateToNow();
       _checkSong();
-      _hasChanged = hasChanged;
       setState(() {});
       return true;
     }
+    _song.lastModifiedTime = _originalSong.lastModifiedTime;
     _checkSong();
+    setState(() {});
     return false;
   }
 
@@ -2798,10 +2816,17 @@ class _Edit extends State<Edit> {
     return sb.toString();
   }
 
+  void _import() async {
+    List<String> lyricStrings = await UtilWorkaround().textFilePickAndRead(context);
+    for (var s in lyricStrings) {
+      _updateRawLyrics(_song.rawLyrics + s);
+    }
+  }
+
   ScreenInfo? _screenInfo;
   Song _song;
   final Song _originalSong;
-  bool _hasChanged = false;
+  bool _hasChangedFromOriginal = false;
   bool _isValidSong = false;
 
   music_key.Key get musicKey => _key; //  for testing

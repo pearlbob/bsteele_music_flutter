@@ -87,7 +87,6 @@ const _environment = String.fromEnvironment('environment', defaultValue: _enviro
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
-    AppOptions().init();
   }
 
   // This widget is the root of your application.

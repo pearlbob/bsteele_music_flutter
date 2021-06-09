@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 
-
 const double _defaultFontSize = 22;
 const AppTextStyle appButtonTextStyle =
     AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold, color: Colors.black);
@@ -18,16 +17,19 @@ class AppElevatedButton extends ElevatedButton {
   }) : super(
           key: key,
           style: ElevatedButton.styleFrom(
-              primary: color ?? appDefaultColor,
-              textStyle: const AppTextStyle(
-                color: Colors.black,
-              )),
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: new BorderRadius.circular(_defaultChordFontSize / 3),
-          // ),
+            primary: color ?? appDefaultColor,
+            textStyle: const AppTextStyle(
+              color: Colors.black,
+            ),
+            padding: const EdgeInsets.all(12.0),
+
+          shape: RoundedRectangleBorder(
+            borderRadius:  BorderRadius.circular(10),
+          ),
           // disabledTextColor: Colors.grey[400],
           // disabledColor: Colors.grey[200],
-          // padding: const EdgeInsets.symmetric(horizontal: 2.0),
+          ),
+
           // hoverColor: _hoverColor,
           child: Text(
             text,

@@ -297,7 +297,7 @@ class _Options extends State<Options> {
                         (_songUpdateService.isConnected
                             ? (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader')
                             : (_songUpdateService.authority.isNotEmpty
-                                ? 'Server not found, retrying ${_songUpdateService.authority}'
+                                ? 'Retrying ${_songUpdateService.authority}'
                                 : 'Idle')),
                         style: AppTextStyle(
                           fontSize: fontSize,

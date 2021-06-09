@@ -73,6 +73,8 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
+const Level _editLog = Level.debug;
+
 class _Edit extends State<Edit> {
   _Edit()
       : _song = _initialSong.copySong(),
@@ -93,7 +95,7 @@ class _Edit extends State<Edit> {
 
     _editTextFieldFocusNode = FocusNode();
     _editTextFieldFocusNode?.addListener(() {
-      logger.i('focusNode.listener()');
+      logger.log(_editLog, 'focusNode.listener()');
     });
 
     _key = _song.key;
@@ -123,7 +125,7 @@ class _Edit extends State<Edit> {
 
             break;
           case '\n':
-            logger.i('newline: should _editMeasure() called here?');
+            logger.log(_editLog, 'newline: should _editMeasure() called here?');
             break;
           //  look for TextField.onEditingComplete() for end of entry... but it happens too often!
         }
@@ -198,7 +200,7 @@ class _Edit extends State<Edit> {
     _lyricsEntries.addListener(() {
       _pushLyricsEntries(); //  if low level edits were made by the widget tree
       _checkSongChangeStatus();
-      logger.i('_lyricsEntries: _checkSongChangeStatus()');
+      logger.log(_editLog, '_lyricsEntries: _checkSongChangeStatus()');
     });
     _checkSong();
     _checkSongChangeStatus();
@@ -233,7 +235,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('edit build: "${_song.rawLyrics}"');
+    logger.d('edit build: "${_song.rawLyrics}"');
 
     _appOptions = Provider.of<AppOptions>(context);
 
@@ -296,14 +298,14 @@ class _Edit extends State<Edit> {
             //   for (int c = 0; c < row.length; c++) {
             //     ChordSectionLocation? loc = row[c];
             //     // ChordSectionLocation? loc = row.last;
-            //     logger.i('   missing endOfRow: $loc');
+            //     logger.log(_editLog,'   missing endOfRow: $loc');
             //
             //     MeasureNode? mn = _song.findMeasureNodeByGrid(GridCoordinate(r, c));
-            //     logger.i('   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toS:q
+            //     logger.log(_editLog,'   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toS:q
 
             //     if (m != null //&& m.endOfRow != true
             //     ) {
-            //       logger.i('   missing endOfRow: $loc: ${m.getMeasureNodeType()} $m');
+            //       logger.log(_editLog,'   missing endOfRow: $loc: ${m.getMeasureNodeType()} $m');
             //     }
             //   }
             // }
@@ -577,7 +579,7 @@ class _Edit extends State<Edit> {
                                 AppElevatedButton(
                                   'Remove',
                                   onPressed: () {
-                                    logger.i('fixme: Remove song'); // fixme
+                                    logger.log(_editLog, 'fixme: Remove song'); // fixme
                                   },
                                 ),
                                 // TextButton.icon(
@@ -721,7 +723,7 @@ class _Edit extends State<Edit> {
                                   style: _boldTextStyle,
                                 ),
                                 onTap: () {
-                                  logger.i('item onTap: ${value.runtimeType} $value');
+                                  logger.log(_editLog, 'item onTap: ${value.runtimeType} $value');
                                   if (_song.key != value) {
                                     _song.key = value;
                                     _key = value;
@@ -732,7 +734,7 @@ class _Edit extends State<Edit> {
                               );
                             }).toList(),
                             onChanged: (_value) {
-                              logger.i('DropdownButton onChanged: $_value');
+                              logger.log(_editLog, 'DropdownButton onChanged: $_value');
                             },
                             value: _key,
                             style: const AppTextStyle(
@@ -757,7 +759,7 @@ class _Edit extends State<Edit> {
                             maxLength: null,
                             style: _boldTextStyle,
                             onEditingComplete: () {
-                              logger.i('bpm: onEditingComplete: ${_bpmTextEditingController.text}');
+                              logger.log(_editLog, 'bpm: onEditingComplete: ${_bpmTextEditingController.text}');
                             },
                           ),
                         ),
@@ -836,12 +838,12 @@ class _Edit extends State<Edit> {
                                   },
                                 ),
                               ),
-                              AppElevatedButton(
-                                '4/Row',
-                                onPressed: () {
-                                  logger.w('implement 4/row'); //  fixme
-                                },
-                              ),
+                              // AppElevatedButton(
+                              //   '4/Row',
+                              //   onPressed: () {
+                              //     logger.w('implement 4/row'); //  fixme
+                              //   },
+                              // ),
                               _editTooltip(
                                 (_selectedEditDataPoint != null ? 'Click outside the chords to cancel editing\n' : '') +
                                     (_showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
@@ -1154,7 +1156,7 @@ class _Edit extends State<Edit> {
                 items: sectionItems,
                 onChanged: (value) {
                   if (value != null) {
-                    logger.i('addChordSection(${entry.lyricSection.index}, ${value.sectionVersion});');
+                    logger.log(_editLog, 'addChordSection(${entry.lyricSection.index}, ${value.sectionVersion});');
                     _lyricsEntries.insertChordSection(entry, value);
                     _pushLyricsEntries();
                   }
@@ -1540,16 +1542,16 @@ class _Edit extends State<Edit> {
       //
       //   if (w != null) {
       //     var editableText = w as EditableText;
-      //     logger.i('backspace: '
+      //     logger.log(_editLog,'backspace: '
       //         'editableText: $editableText');  // fixme
       //     // var controller = editableText.controller;
-      //     // logger.i('backspace:'
+      //     // logger.log(_editLog,'backspace:'
       //     //     ' controller: $controller');
-      //     // logger.i('backspace:'
+      //     // logger.log(_editLog,'backspace:'
       //     //     ' text: ${controller.text}'
       //     //     ', baseOffset: ${controller.selection.baseOffset}'
       //     //     ', extentOffset: ${controller.selection.extentOffset}');
-      //     // logger.i('backspace: <${_editTextController.text}>'
+      //     // logger.log(_editLog,'backspace: <${_editTextController.text}>'
       //     //     ' context: ${_editTextFieldFocusNode?.context.toString()}'
       //     //     ' w: $w'
       //     //   // ', enclosingScope: ${_editTextFieldFocusNode?.enclosingScope}'
@@ -2028,7 +2030,7 @@ class _Edit extends State<Edit> {
                           items: _repeatDropDownMenuList,
                           onChanged: (_value) {
                             setState(() {
-                              logger.i('repeat at: ${editDataPoint.location}');
+                              logger.log(_editLog, 'repeat at: ${editDataPoint.location}');
                               _song.setRepeat(editDataPoint.location!, _value ?? 1);
                               _undoStackPush();
                               _performMeasureEntryCancel();
@@ -2295,7 +2297,9 @@ class _Edit extends State<Edit> {
     if (_lastEditTextSelection == null) {
       //  append the string
       _editTextController.text = text + s;
-      logger.i('_updateChordText: _lastEditTextSelection is null: '
+      logger.log(
+          _editLog,
+          '_updateChordText: _lastEditTextSelection is null: '
           '"$text"+"$s"');
 
       return;
@@ -2304,7 +2308,7 @@ class _Edit extends State<Edit> {
     var minOffset = min(_lastEditTextSelection!.baseOffset, _lastEditTextSelection!.extentOffset);
     var maxOffset = max(_lastEditTextSelection!.baseOffset, _lastEditTextSelection!.extentOffset);
 
-    logger.i('_updateChordText: ($minOffset, $maxOffset): "$text"');
+    logger.log(_editLog, '_updateChordText: ($minOffset, $maxOffset): "$text"');
 
     if (minOffset < 0) {
       //  append the string
@@ -2314,7 +2318,9 @@ class _Edit extends State<Edit> {
       return;
     }
 
-    logger.i('>=0: "${text.substring(0, minOffset)}"'
+    logger.log(
+        _editLog,
+        '>=0: "${text.substring(0, minOffset)}"'
         '+"$s"'
         '+"${text.substring(maxOffset)}"');
 
@@ -2624,7 +2630,7 @@ class _Edit extends State<Edit> {
   void _performEdit({bool done = false, bool endOfRow = false}) {
     setState(() {
       _edit(done: done, endOfRow: endOfRow);
-      logger.i('_performEdit() done');
+      logger.log(_editLog, '_performEdit() done');
     });
   }
 
@@ -2644,7 +2650,9 @@ class _Edit extends State<Edit> {
 
     //  setup for prior end of row after the edit
     ChordSectionLocation? priorLocation = _song.getCurrentChordSectionLocation();
-    logger.i('pre edit: prior: $priorLocation'
+    logger.log(
+        _editLog,
+        'pre edit: prior: $priorLocation'
         ' "${_song.findMeasureByChordSectionLocation(priorLocation)}"'
         ', done: $done'
         ', endOfRow: $endOfRow'
@@ -2652,17 +2660,23 @@ class _Edit extends State<Edit> {
 
     //  do the edit
     if (_song.editMeasureNode(_measureEntryNode)) {
-      logger.i('post edit: location: ${_song.getCurrentChordSectionLocation()} '
+      MeasureEditType measureEditType = _selectedEditDataPoint!._measureEditType;
+      Measure? priorMeasure = _song.findMeasureByChordSectionLocation(priorLocation);
+      logger.log(
+          _editLog,
+          'post edit: location: ${_song.getCurrentChordSectionLocation()} '
           '"${_song.findMeasureByChordSectionLocation(_song.getCurrentChordSectionLocation())}"'
-          ', prior: $priorLocation "${_song.findMeasureByChordSectionLocation(priorLocation)}"'
+          ', prior: $priorLocation "${priorMeasure}"'
           ', endOfRow: $endOfRow'
           ', selectedEditDataPoint: $_selectedEditDataPoint');
 
       //  clean up after edit
       ChordSectionLocation? loc = _song.getCurrentChordSectionLocation();
-      switch (_selectedEditDataPoint!._measureEditType) {
+      switch (measureEditType) {
         case MeasureEditType.append:
-          logger.i('post append: location: ${_song.getCurrentChordSectionLocation()} '
+          logger.log(
+              _editLog,
+              'post append: location: ${_song.getCurrentChordSectionLocation()} '
               '"${_song.findMeasureByChordSectionLocation(_song.getCurrentChordSectionLocation())}"'
               ', prior: $priorLocation "${_song.findMeasureByChordSectionLocation(priorLocation)}"'
               ', selectedEditDataPoint: $_selectedEditDataPoint'
@@ -2693,9 +2707,15 @@ class _Edit extends State<Edit> {
         ChordSectionLocation? loc = _song.getCurrentChordSectionLocation();
         if (loc != null) {
           if (endOfRow) {
-            loc = loc.nextMeasureIndexLocation();
-            _selectedEditDataPoint = _EditDataPoint(loc);
-            _selectedEditDataPoint!._measureEditType = MeasureEditType.insert;
+            if (priorMeasure != null) {
+              _selectedEditDataPoint = _EditDataPoint(loc, onEndOfRow : true);
+              _selectedEditDataPoint!._measureEditType = MeasureEditType.append;
+              logger.log(_editLog, '$_selectedEditDataPoint $priorMeasure   append at end of section?');
+            } else {
+              loc = loc.nextMeasureIndexLocation();
+              _selectedEditDataPoint = _EditDataPoint(loc);
+              _selectedEditDataPoint!._measureEditType = MeasureEditType.insert;
+            }
           } else if (_lastEditDataPoint!._measureEditType == MeasureEditType.insert ||
               _lastEditDataPoint._measureEditType == MeasureEditType.append) {
             _selectedEditDataPoint = _EditDataPoint(loc, onEndOfRow: endOfRow);
@@ -2705,13 +2725,13 @@ class _Edit extends State<Edit> {
           }
         }
       }
-      logger.i('_selectedEditDataPoint: $_selectedEditDataPoint');
+      logger.log(_editLog, '_selectedEditDataPoint: $_selectedEditDataPoint');
 
       _checkSongChangeStatus();
 
       return true;
     } else {
-      logger.i('_editMeasure(): failed');
+      logger.log(_editLog, '_editMeasure(): failed');
       _errorMessage('edit failed: ${_song.message}');
     }
 
@@ -2913,7 +2933,7 @@ class _Edit extends State<Edit> {
 //           onEditingComplete: onEditingComplete,
 //           onChanged: onChanged,
 //           onTap: () {
-//             logger.i('onTap(): ${this.toString()}  /// temp only!!!!!');
+//             logger.log(_editLog,'onTap(): ${this.toString()}  /// temp only!!!!!');
 //             _selectedLyricsTextField = this;
 //           },
 //           maxLines: null);

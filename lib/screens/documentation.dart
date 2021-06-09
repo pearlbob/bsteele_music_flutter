@@ -25,8 +25,7 @@ class _State extends State<Documentation> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenInfo screenInfo = ScreenInfo(context);
-    final double fontSize = screenInfo.isTooNarrow ? 16 : 24;
+    final double fontSize = ScreenInfo(context).fontSize;
 
     AppTextStyle style = AppTextStyle(color: Colors.black87, fontSize: fontSize);
 

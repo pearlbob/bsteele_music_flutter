@@ -16,7 +16,6 @@ import 'package:flutter/rendering.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
-import '../main.dart';
 
 typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, int lineNumber, String s);
 typedef LyricsSectionHeaderWidget = Widget Function(Key key, LyricSection lyricSection);
@@ -228,14 +227,14 @@ class LyricsTable {
     App _app = App();
     _screenWidth = _app.screenInfo.widthInLogicalPixels;
     _screenHeight = _app.screenInfo.heightInLogicalPixels;
-    _fontSize = defaultFontSize * min(4, max(1, _screenWidth / 400));
+    _fontSize = appDefaultFontSize * min(4, max(1, _screenWidth / 400));
     _lyricsFontSize = fontSize * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.75);
     _fontSize *= (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
     _shortLyricsWidth = _screenWidth * 0.20;
 
-    _fontScale = fontSize / defaultFontSize;
+    _fontScale = fontSize / appDefaultFontSize;
     logger.v('lyricsTable: ($_screenWidth,$_screenHeight),'
-        ' default:$defaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
+        ' default:$appDefaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
 
     //  text styles
     _chordTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);

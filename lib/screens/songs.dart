@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +29,7 @@ class _Songs extends State<Songs> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenInfo screenInfo = ScreenInfo(context);
-    final bool _isTooNarrow = screenInfo.isTooNarrow;
-
-    const double defaultFontSize = 24;
-    final double fontSize = defaultFontSize / (_isTooNarrow ? 2 : 1);
+    final double fontSize = _app.screenInfo.fontSize;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -78,7 +73,7 @@ class _Songs extends State<Songs> {
                 ),
                 onPressed: () {
                   setState(() {
-                    App().removeAllSongs();
+                    _app.removeAllSongs();
                   });
                 },
               ),
@@ -87,7 +82,7 @@ class _Songs extends State<Songs> {
                 style: AppTextStyle(fontSize: fontSize),
               ),
               Text(
-                'Song count:  ${App().allSongs.length}',
+                'Song count:  ${_app.allSongs.length}',
                 style: AppTextStyle(fontSize: fontSize),
               ),
               Text(
@@ -100,13 +95,12 @@ class _Songs extends State<Songs> {
   }
 
   String _mostRecent() {
-    App app = App();
-    if (app.allSongs.isEmpty) {
+    if (_app.allSongs.isEmpty) {
       return 'empty list';
     }
 
     var lastModifiedTime = 0;
-    for (var song in app.allSongs) {
+    for (var song in _app.allSongs) {
       lastModifiedTime = max(lastModifiedTime, song.lastModifiedTime);
     }
 
@@ -116,7 +110,7 @@ class _Songs extends State<Songs> {
   /// write all songs to the standard location
   void _writeAll() async {
     String fileName = 'allSongs_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songlyrics';
-    String contents = Song.listToJson(App().allSongs.toList());
+    String contents = Song.listToJson(_app.allSongs.toList());
     UtilWorkaround().writeFileContents(fileName, contents);
 
     setState(() {
@@ -131,4 +125,5 @@ class _Songs extends State<Songs> {
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
   String? _message;
+  final  App _app = App();
 }

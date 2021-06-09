@@ -601,7 +601,11 @@ With escape, the app goes back to the play list.''',
                           ),
                         Center(child: _table),
                         Text(
-                          'Copyright: ${song.getCopyright()}',
+                          'Copyright: ${song.copyright}',
+                          style: _lyricsTextStyle,
+                        ),
+                        Text(
+                          'Last edit by: ${song.user}',
                           style: _lyricsTextStyle,
                         ),
                         if (_isPlaying)
@@ -976,7 +980,7 @@ With escape, the app goes back to the play list.''',
     _playerIsOnTop = true;
     setState(() {
       _table = null;
-      widget.song = App().selectedSong;
+      widget.song = _app.selectedSong;
     });
   }
 

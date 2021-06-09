@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -28,8 +29,8 @@ class _About extends State<About> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenInfo screenInfo = ScreenInfo(context);
-    double fontSize = screenInfo.isTooNarrow ? 18 : 36;
+    ScreenInfo screenInfo = App().screenInfo;
+    final double fontSize = screenInfo.fontSize;
 
     return Scaffold(
       backgroundColor: Colors.white,

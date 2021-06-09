@@ -20,7 +20,7 @@ void main() {
 
       await tester.pump(const Duration(seconds: 5));
 
-      logger.i('allSongs.length: ${App().allSongs.length}');
+      logger.d('allSongs.length: ${App().allSongs.length}');
 
      // Verify that our counter starts at 0.
       var searchFinder = find.byIcon(Icons.search);

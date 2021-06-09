@@ -69,7 +69,6 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
  */
 
 final App _app = App();
-const double defaultFontSize = 10.0; //  based on phone
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
@@ -97,7 +96,7 @@ class MyApp extends StatelessWidget {
         builder: (context, _) => MaterialApp(
               title: 'bsteele Music App',
               theme: ThemeData(
-                 primaryColor: appDefaultColor,
+                primaryColor: appDefaultColor,
                 // scaffoldBackgroundColor: Colors.white,
               ),
               home: const MyHomePage(title: 'bsteele Music App'),
@@ -251,7 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
-    var _titleBarFontSize = defaultFontSize * min(3, max(1, _app.screenInfo.widthInLogicalPixels / 350));
+    final _titleBarFontSize = _app.screenInfo.fontSize;
 
     //  figure the configuration when the values are established
     _app.isEditReady = (kIsWeb
@@ -270,32 +269,29 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
 
     final double mediaWidth = _app.screenInfo.widthInLogicalPixels;
-    final double titleScaleFactor = _app.screenInfo.titleScaleFactor;
-    final double artistScaleFactor = _app.screenInfo.artistScaleFactor;
-    const fontSize = defaultFontSize;
+    final fontSize = _app.screenInfo.fontSize;
     logger.d(
         'fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
-     AppTextStyle searchTextStyle = AppTextStyle(
+    final AppTextStyle searchTextStyle = AppTextStyle(
       fontWeight: FontWeight.normal,
-      fontSize: fontSize * artistScaleFactor,
+      fontSize: fontSize,
       color: Colors.black38,
       textBaseline: TextBaseline.alphabetic,
     );
-    AppTextStyle searchDropDownStyle = AppTextStyle(
+    final AppTextStyle searchDropDownStyle = AppTextStyle(
       fontWeight: FontWeight.normal,
-      fontSize: fontSize * artistScaleFactor,
+      fontSize: fontSize,
       color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
-    const AppTextStyle titleTextStyle = AppTextStyle(
+    final AppTextStyle titleTextStyle = AppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
       color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
-    const AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
+    final AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
     final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
-
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
@@ -304,8 +300,10 @@ class _MyHomePageState extends State<MyHomePage> {
       //print('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
       _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
         value: e,
-        child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
-        style: searchDropDownStyle,),
+        child: Text(
+          Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
+          style: searchDropDownStyle,
+        ),
       ));
     }
 
@@ -334,19 +332,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: <Widget>[
                       Text(
                         song.getTitle(),
-                        textScaleFactor: titleScaleFactor,
                         style: titleTextStyle,
                       ),
                       Text(
                         '      ' + song.getArtist(),
-                        textScaleFactor: artistScaleFactor,
                         style: artistTextStyle,
                       ),
                     ],
                   ),
                   Text(
                     '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                    textScaleFactor: artistScaleFactor,
                     style: artistTextStyle,
                   ),
                 ],
@@ -357,12 +352,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: <Widget>[
                   Text(
                     song.getTitle(),
-                    textScaleFactor: titleScaleFactor,
                     style: titleTextStyle,
                   ),
                   Text(
                     '      ' + song.getArtist(),
-                    textScaleFactor: artistScaleFactor,
                   ),
                 ],
               ),
@@ -470,7 +463,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text(
                   "Songs",
                   style: _navTextStyle,
-                  textScaleFactor: titleScaleFactor,
                 ),
                 onTap: () {
                   _navigateToSongs(context);
@@ -480,47 +472,36 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text(
                 "Options",
                 style: _navTextStyle,
-                textScaleFactor: titleScaleFactor,
               ),
               onTap: () {
                 _navigateToOptions(context);
               },
             ),
-            ListTile(
-              title: Text(
-                "Docs",
-                style: _navTextStyle,
-                textScaleFactor: titleScaleFactor,
+
+            if (!_app.screenInfo.isTooNarrow)
+              ListTile(
+                title: Text(
+                  "Bass",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToBass(context);
+                },
               ),
-              onTap: () {
-                _navigateToDocumentation(context);
-              },
-            ),
-            ListTile(
-              title: Text(
-                "Bass",
-                style: _navTextStyle,
-                textScaleFactor: titleScaleFactor,
+            if (!_app.screenInfo.isTooNarrow)
+              ListTile(
+                title: Text(
+                  "Theory",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToTheory(context);
+                },
               ),
-              onTap: () {
-                _navigateToBass(context);
-              },
-            ),
-            ListTile(
-              title: Text(
-                "Theory",
-                style: _navTextStyle,
-                textScaleFactor: titleScaleFactor,
-              ),
-              onTap: () {
-                _navigateToTheory(context);
-              },
-            ),
             ListTile(
               title: Text(
                 "Privacy",
                 style: _navTextStyle,
-                textScaleFactor: titleScaleFactor,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -529,9 +510,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: Text(
+                "Docs",
+                style: _navTextStyle,
+              ),
+              onTap: () {
+                _navigateToDocumentation(context);
+              },
+            ),
+            ListTile(
+              title: Text(
                 "About",
                 style: _navTextStyle,
-                textScaleFactor: titleScaleFactor,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
@@ -544,57 +533,58 @@ class _MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                width: min(mediaWidth / 2, 10 * fontSize * artistScaleFactor),
-                //  limit text entry display length
-                child: TextField(
-                  controller: _searchTextFieldController,
-                  focusNode: _searchFocusNode,
-                  decoration:  InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: "search text",
-                    hintStyle: searchTextStyle,
-                  ),
-                  autofocus: true,
-                  style: searchDropDownStyle,
-                  onChanged: (text) {
-                    setState(() {
-                      logger.v('search text: "$text"');
-                      _searchSongs(_searchTextFieldController.text);
-                    });
-                  },
-                ),
+        Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            width: min(mediaWidth / 2, 15 * fontSize),
+            //  limit text entry display length
+            child: TextField(
+              controller: _searchTextFieldController,
+              focusNode: _searchFocusNode,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: "search text",
+                hintStyle: searchTextStyle,
               ),
-              IconButton(
-                icon: const Icon(Icons.clear),
-                tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                iconSize: titleScaleFactor * fontSize ,
-                onPressed: (() {
-                  _searchTextFieldController.clear();
-                  setState(() {
-                    FocusScope.of(context).requestFocus(_searchFocusNode);
-                    _searchSongs(null);
-                  });
-                }),
-              ),
-              DropdownButton<_SortType>(
-                items: _sortTypesDropDownMenuList,
-                onChanged: (value) {
-                  if (_selectedSortType != value) {
-                    setState(() {
-                      _selectedSortType = value ?? _SortType.byTitle;
-                      _searchSongs(_searchTextFieldController.text);
-                    });
-                  }
-                },
-                value: _selectedSortType,
-                style: titleTextStyle,
-              ),
-            ]),
+              autofocus: true,
+              style: searchDropDownStyle,
+              onChanged: (text) {
+                setState(() {
+                  logger.v('search text: "$text"');
+                  _searchSongs(_searchTextFieldController.text);
+                });
+              },
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.clear),
+            tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+            iconSize: 1.5 * fontSize,
+            onPressed: (() {
+              _searchTextFieldController.clear();
+              setState(() {
+                FocusScope.of(context).requestFocus(_searchFocusNode);
+                _searchSongs(null);
+              });
+            }),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          DropdownButton<_SortType>(
+            items: _sortTypesDropDownMenuList,
+            onChanged: (value) {
+              if (_selectedSortType != value) {
+                setState(() {
+                  _selectedSortType = value ?? _SortType.byTitle;
+                  _searchSongs(_searchTextFieldController.text);
+                });
+              }
+            },
+            value: _selectedSortType,
+            style: titleTextStyle,
+          ),
+        ]),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(
               child: ScrollablePositionedList.builder(

@@ -98,7 +98,6 @@ class UtilWeb implements UtilWorkaround {
     logger.d("files.length: ${fileData.length}");
     List<String> ret = [];
     for (var i = 0; i < fileData.length; i++) {
-      File file = files![i];
       final String data64 = fileData[i];
 
       Uint8List data = const Base64Decoder().convert(data64.split(",").last);

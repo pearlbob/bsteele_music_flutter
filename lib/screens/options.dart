@@ -9,7 +9,6 @@ import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -54,9 +53,7 @@ class _Options extends State<Options> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenInfo screenInfo = ScreenInfo(context);
-    double fontSize = screenInfo.isTooNarrow ? 18 : 30;
-
+    final double fontSize = _app.screenInfo.fontSize;
     logger.v('options build: ${_songUpdateService.isConnected}');
 
     return Scaffold(
@@ -98,6 +95,8 @@ class _Options extends State<Options> {
                               }
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<UserDisplayStyle>(
                           title: Text('Both Player and Singer', style: AppTextStyle(fontSize: fontSize)),
@@ -110,6 +109,8 @@ class _Options extends State<Options> {
                               }
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<UserDisplayStyle>(
                           title: Text('Singer', style: AppTextStyle(fontSize: fontSize)),
@@ -122,6 +123,8 @@ class _Options extends State<Options> {
                               }
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                       ],
                     ),
@@ -143,6 +146,8 @@ class _Options extends State<Options> {
                               _appOptions.holiday = value ?? false;
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<bool>(
                           title: Text('All holiday, all the time!', style: AppTextStyle(fontSize: fontSize)),
@@ -153,6 +158,8 @@ class _Options extends State<Options> {
                               _appOptions.holiday = value ?? true;
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                       ],
                     ),
@@ -175,6 +182,8 @@ class _Options extends State<Options> {
                               _appOptions.compressRepeats = value ?? true;
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<bool>(
                           title: Text('Expand all repeat repetitions', style: AppTextStyle(fontSize: fontSize)),
@@ -185,6 +194,8 @@ class _Options extends State<Options> {
                               _appOptions.compressRepeats = value ?? false;
                             });
                           },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
                       ],
                     ),
@@ -270,9 +281,8 @@ class _Options extends State<Options> {
                             style: AppTextStyle(
                               fontSize: fontSize,
                             ),
-                            onSubmitted: (value) {
+                            onChanged: (value) {
                               _appOptions.websocketHost = value;
-                              logger.i('onSubmitted: $value');
                             },
                           ),
                         ),
@@ -286,8 +296,16 @@ class _Options extends State<Options> {
                       child: Text(
                         (_songUpdateService.isConnected
                             ? (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader')
-                            : 'Server not found, retrying'),
-                        style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                            : (_songUpdateService.authority.isNotEmpty
+                                ? 'Server not found, retrying ${_songUpdateService.authority}'
+                                : 'Idle')),
+                        style: AppTextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          backgroundColor: _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
+                              ? appDefaultColor
+                              : Colors.red,
+                        ),
                       ),
                       onPressed: () {
                         if (_songUpdateService.isConnected) {
@@ -297,6 +315,12 @@ class _Options extends State<Options> {
                         }
                         setState(() {});
                       },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
+                                ? appDefaultColor
+                                : Colors.red),
+                      ),
                     ),
                   ]),
                   Row(children: <Widget>[

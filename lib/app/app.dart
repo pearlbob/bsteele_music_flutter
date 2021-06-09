@@ -7,6 +7,7 @@ import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/material.dart';
 
 const Color appDefaultColor = Color(0xFF4FC3F7);//Color(0xFFB3E5FC);
+const double appDefaultFontSize = 10.0; //  based on phone
 
 enum MessageType {
   message,

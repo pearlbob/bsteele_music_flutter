@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:math';
 
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
@@ -8,8 +7,8 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -47,9 +46,7 @@ class _State extends State<TheoryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenInfo screenInfo = ScreenInfo(context);
-    _fontSize = screenInfo.isTooNarrow ? 16 : max(24, screenInfo.widthInLogicalPixels / 100);
-
+    _fontSize = App().screenInfo.fontSize;
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);

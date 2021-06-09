@@ -46,16 +46,17 @@ class UtilLinux implements UtilWorkaround {
     );
     if (path != null) {
       var file = File(path);
+      final app = App();
       if (file.existsSync()) {
         String s = utf8.decode(file.readAsBytesSync());
         if (chordProRegExp.hasMatch(path)) {
           //  chordpro
           var song = ChordPro().parse(s);
-          App().addSongs([song]);
+          app.addSongs([song]);
         } else {
           //  .songlyrics
           List<Song> songs = Song.songListFromJson(s);
-          App().addSongs(songs);
+          app.addSongs(songs);
         }
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));

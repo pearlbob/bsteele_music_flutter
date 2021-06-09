@@ -6,7 +6,6 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

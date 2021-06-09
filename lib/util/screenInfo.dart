@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -20,16 +21,17 @@ class ScreenInfo {
       _heightInLogicalPixels *= devicePixelRatio;
     }
 
-    _isTooNarrow = _widthInLogicalPixels < minLogicalPixels; //  logical pixels
+     _fontSize = 2*appDefaultFontSize * min(3.5, max(0.5, _widthInLogicalPixels / minLogicalPixels));
+    _isTooNarrow = _widthInLogicalPixels <= minLogicalPixels; //  logical pixels
     _titleScaleFactor = 1.5 * max(1, _widthInLogicalPixels / minLogicalPixels);
     _artistScaleFactor = 0.75 * _titleScaleFactor;
-    logger.v('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
+    logger.d('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
     double textScaleFactor = mediaQueryData.textScaleFactor;
 
-    logger.i('textScaleFactor: $textScaleFactor');
-    logger.i(
+    logger.d('textScaleFactor: $textScaleFactor');
+    logger.d(
         'devicePixelRatio: $devicePixelRatio, (${_widthInLogicalPixels * devicePixelRatio},${_heightInLogicalPixels * devicePixelRatio})');
   }
 
@@ -41,6 +43,9 @@ class ScreenInfo {
     _titleScaleFactor = 1;
     _artistScaleFactor = 0.75;
   }
+
+  double get fontSize => _fontSize;
+  late double _fontSize;
 
   double get widthInLogicalPixels => _widthInLogicalPixels;
   late double _widthInLogicalPixels;
@@ -60,5 +65,5 @@ class ScreenInfo {
   bool get isDefaultValue => _isDefaultValue;
   final bool _isDefaultValue;
 
-  static const double minLogicalPixels = 1023; //  just enough for a nexus 3 XL to be "big" when horizontal
+  static const double minLogicalPixels = 1024; //  just enough for a nexus 3 XL to be "big" when horizontal
 }

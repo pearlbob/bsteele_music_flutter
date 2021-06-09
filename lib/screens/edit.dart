@@ -205,7 +205,7 @@ class _Edit extends State<Edit> {
   }
 
   void _enterSong() async {
-    App().addSong(_song);
+    _app.addSong(_song);
 
     String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = _song.toJsonAsFile();
@@ -1210,7 +1210,7 @@ class _Edit extends State<Edit> {
       var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
-      logger.i('$chordSection: chord/lyrics limit: $limit');
+      logger.d('$chordSection: chord/lyrics limit: $limit');
       for (var i = 0; i < limit; i++) {
         var children = <Widget>[];
 

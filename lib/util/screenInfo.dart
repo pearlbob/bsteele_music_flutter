@@ -15,15 +15,14 @@ class ScreenInfo {
     _heightInLogicalPixels = mediaQueryData.size.height;
 
     //  fixme: an attempt to improve the logical pixel stuff
-     if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS)
-    {
+    if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
       _widthInLogicalPixels *= devicePixelRatio;
       _heightInLogicalPixels *= devicePixelRatio;
     }
 
-     _fontSize = 2*appDefaultFontSize * min(3.5, max(0.5, _widthInLogicalPixels / minLogicalPixels));
+    _fontSize = 2 * appDefaultFontSize * min(2.5, max(0.5, _widthInLogicalPixels / minLogicalPixels));
     _isTooNarrow = _widthInLogicalPixels <= minLogicalPixels; //  logical pixels
-    _titleScaleFactor = 1.5 * max(1, _widthInLogicalPixels / minLogicalPixels);
+    _titleScaleFactor = 1.25 * max(1, _widthInLogicalPixels / minLogicalPixels);
     _artistScaleFactor = 0.75 * _titleScaleFactor;
     logger.d('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
@@ -31,8 +30,8 @@ class ScreenInfo {
     double textScaleFactor = mediaQueryData.textScaleFactor;
 
     logger.d('textScaleFactor: $textScaleFactor');
-    logger.d(
-        'devicePixelRatio: $devicePixelRatio, (${_widthInLogicalPixels * devicePixelRatio},${_heightInLogicalPixels * devicePixelRatio})');
+    logger.d('devicePixelRatio: $devicePixelRatio,'
+        ' (${_widthInLogicalPixels * devicePixelRatio},${_heightInLogicalPixels * devicePixelRatio})');
   }
 
   ScreenInfo.defaultValue()

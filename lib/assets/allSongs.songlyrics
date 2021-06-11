@@ -27865,35 +27865,34 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1622603311018, "song": 
+{ "file": "", "lastModifiedDate": 1623175838958, "song": 
 {
 "title": "Everyday",
 "artist": "Buddy Holly",
 "user": "Shari",
-"lastModifiedDate": 1622603311018,
+"lastModifiedDate": 1623175838958,
 "copyright": "1957 Coral",
 "key": "D",
-"defaultBpm": 138,
+"defaultBpm": 66,
 "timeSignature": "2/4",
 "chords": 
     [
 	"I:",
 	"D D",
 	"I2:",
-	"D D G A7",
+	"DD/B Em7A DD/B Em7A |",
+	"DD/B Em7A DG DA7 | x2",
 	"V:",
-	"D Bm Em7 A7 x3",
-	"D G D A7",
+	"DD/B Em7A DD/B Em7A",
+	"DD/B Em7A DG DA7",
 	"V2:",
-	"D D G A7 x3",
-	"D G D A7",
+	"DD/B Em7A DD/B Em7A",
+	"DD/B Em7A DG DD7",
 	"C:",
-	"G G G G",
-	"C C C C",
-	"F F F F",
-	"A♯ A♯ A7 A7",
+	"G G C C",
+	"F F A♯ A7",
 	"T:",
-	"D G D A7"
+	"DD/B Em7A DG D"
     ],
 "lyrics": 
     [
@@ -27918,13 +27917,14 @@
 	"Come what may, do you ever long for",
 	"True love from me?",
 	"",
-	"V2:",
+	"V:",
 	"Everyday, it's a-gettin' closer",
 	"Goin' faster than a roller coaster",
 	"Love like yours will surely come my way",
 	"A-hey, a-hey hey",
 	"",
 	"I2:",
+	"(instrumental)",
 	"",
 	"C:",
 	"Everyday seems a little longer",
@@ -27932,7 +27932,7 @@
 	"Come what may, do you ever long for",
 	"True love from me?",
 	"",
-	"V2:",
+	"V:",
 	"Everyday, it's a-gettin' closer",
 	"Goin' faster than a roller coaster",
 	"Love like yours will surely come my way",
@@ -56896,12 +56896,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1618809828386, "song": 
+{ "file": "", "lastModifiedDate": 1623176336553, "song": 
 {
 "title": "Lie Awake",
 "artist": "Alison Krauss & Union Station",
 "user": "Shari",
-"lastModifiedDate": 1618809828386,
+"lastModifiedDate": 1623176336553,
 "copyright": "2011 Rounder",
 "key": "Db",
 "defaultBpm": 107,
@@ -56909,13 +56909,13 @@
 "chords": 
     [
 	"I:",
-	"A♯m A♯mD♯m C♯ D♯ x2",
+	"B♭m B♭m/E♭ D♭ E♭ x2",
 	"V:",
-	"A♯m A♯mD♯m C♯ D♯ x2",
+	"B♭m B♭m/E♭ D♭ E♭ x2",
 	"C:",
-	"A♯m A♯mD♯m C♯ D♯ x2",
+	"B♭m B♭m/E♭ D♭ E♭ x2",
 	"O:",
-	"B♭m B♭mE♭m D♭ E♭ x4"
+	"B♭m B♭m/E♭ D♭ E♭ x4"
     ],
 "lyrics": 
     [
@@ -57952,12 +57952,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1593742895012, "song": 
+{ "file": "", "lastModifiedDate": 1623176381182, "song": 
 {
 "title": "Listen to the Music",
 "artist": "Doobie Brothers, The",
 "user": "Shari",
-"lastModifiedDate": 1593742895012,
+"lastModifiedDate": 1623176381182,
 "copyright": "1972 Warner Bros",
 "key": "E",
 "defaultBpm": 106,
@@ -57970,8 +57970,8 @@
 	"E EA E EA",
 	"V:",
 	"E EA E C♯m",
-	"B A A E",
-	"EA",
+	"B A A",
+	"E EA",
 	"E EA E C♯m",
 	"B A A E",
 	"C:",
@@ -110243,6 +110243,80 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1623364035490, "song": 
+{
+"title": "You're Still the One",
+"artist": "Shania Twain",
+"user": "Shari",
+"lastModifiedDate": 1623364035490,
+"copyright": "1998 Mercury Nashville",
+"key": "D",
+"defaultBpm": 133,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"V:",
+	"D D/F♯ G A x2",
+	"PC:",
+	"D D/F♯ G A",
+	"D G A A",
+	"D G A GA",
+	"C:",
+	"D G Em A |",
+	"D G A GA | x2",
+	"O:",
+	"D D G A"
+    ],
+"lyrics": 
+    [
+	"v: (intro)",
+	"V:",
+	"Looks like we made it",
+	"Look how far we've come my baby",
+	"We mighta took the long way ",
+	"We knew we'd get there some day",
+	"PC:",
+	"They said, I bet, they'll never make it",
+	"But just look at us holdin on",
+	"We're still together, still goin strong",
+	"C:",
+	"You're still the one I run to ",
+	"The one that I belong to",
+	"You're still the one I want for life",
+	"You're still the one that I love",
+	"The only one I dream of",
+	"You're still the one I kiss good night",
+	"V:",
+	"Aint nothin better",
+	"we beat the odds together",
+	"I'm glad we didn't listen",
+	"Look at what we would be missin",
+	"PC:",
+	"They said, I bet, they'll never make it",
+	"But just look at us holding on",
+	"We're still together, still goin strong",
+	"C:",
+	"You're still the one I run to",
+	"The one that I belong to",
+	"You're still the one I want for life",
+	"You're still the one that I love",
+	"The only one I dream of",
+	"You're still the one I kiss good night",
+	"v: (instrumental)",
+	"You still the one",
+	"C:",
+	"You're still the one I run to ",
+	"The one that I belong to",
+	"You're still the one I want for life",
+	"You're still the one that I love",
+	"The only one I dream of",
+	"You're still the one I kiss good night",
+	"O:",
+	"I'm so glad we made it",
+	"Look how far we've come my baby"
+    ]
+}
+},
 { "file": "You're The One.songlyrics", "lastModifiedDate": 1580196760000, "song": 
 {
 "title": "You're The One",
@@ -110328,77 +110402,6 @@
 	"Baby, you're the one that I really miss (yeah, yeah, yeah)",
 	"You're the one that I'm dreamin' of",
 	"Baby, you're the one that I love."
-    ]
-}
-},
-{ "file": "You're still the one (6).songlyrics", "lastModifiedDate": 1534128490231, "song": 
-{
-"title": "You're still the one",
-"artist": "Shania Twain",
-"user": "Unknown",
-"lastModifiedDate": 1534128490231,
-"copyright": "twain",
-"key": "C",
-"defaultBpm": 106,
-"timeSignature": "4/4",
-"chords": 
-    [
-	"V:",
-	"D D/F♯ G A x2",
-	"PC:",
-	"D D/F♯ G A",
-	"D G A A",
-	"D G A GA",
-	"C:",
-	"D G Em A",
-	"D G A GA x2"
-    ],
-"lyrics": 
-    [
-	"v: (intro)",
-	"V:",
-	"Looks like we made it. ",
-	"Look how far we've come my baby.",
-	"We mighta took the long way.  ",
-	"We knew we'd get there some day.",
-	"PC:",
-	"They said, I bet, they'll never make it.",
-	"But just look at us holdin on.",
-	"We're still together, still goin strong",
-	"C:",
-	"You're still the one I run to, ",
-	"The one that I belong to",
-	"You're still the one I want for life",
-	"You're still the one that I love",
-	"The only one I dream of",
-	"You're still the one I kiss good night",
-	"V:",
-	"Aint nothin better, ",
-	"we beat the odds together",
-	"I'm glad we didn't listen",
-	"Look at what we would be missin",
-	"PC:",
-	"They said, I bet, they'll never make it.",
-	"But just look at us holdin on.",
-	"We're still together, still goin strong",
-	"C:",
-	"You're still the one I run to, ",
-	"The one that I belong to",
-	"You're still the one I want for life",
-	"You're still the one that I love",
-	"The only one I dream of",
-	"You're still the one I kiss good night",
-	"v: (instrumental)",
-	"You still the one",
-	"C:",
-	"You're still the one I run to, ",
-	"The one that I belong to",
-	"You're still the one I want for life",
-	"You're still the one that I love",
-	"The only one I dream of",
-	"You're still the one I kiss good night",
-	"V:",
-	"I'm so glad we made it. Look how far we've come my baby."
     ]
 }
 },

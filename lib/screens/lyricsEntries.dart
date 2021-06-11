@@ -148,6 +148,7 @@ class LyricsEntries extends ChangeNotifier {
   }
 
   void _lyricsEntriesCallback() {
+    logger.v('_lyricsEntriesCallback.notifyListeners()');
     notifyListeners();
   }
 
@@ -162,7 +163,9 @@ class _LyricsDataEntry {
   _LyricsDataEntry.fromSong(this.lyricSection, {AppTextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
       : _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback {
-    if (lyricSection.lyricsLines.isNotEmpty && lyricSection.lyricsLines.first.isNotEmpty) {
+    if (lyricSection.lyricsLines.isNotEmpty
+        //  note: allow empty (blank) lines, i.e. lyricSection.lyricsLines.first can be empty
+        ) {
       _lyricsLines = List.from(lyricSection.lyricsLines)
           .map((value) => _LyricsLine(value, _lyricsLineCallback, textStyle: _textStyle))
           .toList();
@@ -183,23 +186,25 @@ class _LyricsDataEntry {
   void _lyricsLineCallback(_LyricsLine oldLyricsLine, List<String> newLyricsLines) {
     var index = _lyricsLines.indexOf(oldLyricsLine);
     if (index >= 0) {
-      logger.d('$this: $index: $oldLyricsLine, lines: $newLyricsLines)');
+      logger.v('$this: $index: $oldLyricsLine, lines: $newLyricsLines)');
       switch (newLyricsLines.length) {
         case 0:
         case 1:
           //  do nothing
           break;
         default:
-         var removed = _lyricsLines.remove(oldLyricsLine);
-         logger.d( 'removed: $removed $oldLyricsLine');
+          var removed = _lyricsLines.remove(oldLyricsLine);
+          logger.v('removed: $removed $oldLyricsLine');
           _LyricsLine? lastNewLyricsLine;
           for (var newLyricsLine in newLyricsLines) {
             lastNewLyricsLine = _LyricsLine(newLyricsLine, _lyricsLineCallback, textStyle: _textStyle);
             _lyricsLines.insert(index++, lastNewLyricsLine);
           }
-          logger.d('newLines: $_lyricsLines');
+          logger.v('newLines: $_lyricsLines');
+          logger.v('lastNewLyricsLine: <$lastNewLyricsLine> requestFocus()' );
           lastNewLyricsLine!.requestFocus();
           if (_lyricsEntriesCallback != null) {
+            logger.v('newLines: _lyricsEntriesCallback()');
             _lyricsEntriesCallback!();
           }
           break;
@@ -286,6 +291,7 @@ class _LyricsLine {
     for (var value in ret) {
       value = value.trim();
     }
+
     if (ret.length > 1) {
       //  split multiple lines
     } else if (selection.baseOffset == text.length && selection.extentOffset == text.length) {

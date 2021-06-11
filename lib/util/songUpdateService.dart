@@ -93,12 +93,14 @@ class SongUpdateService extends ChangeNotifier {
 
       if (delaySeconds > 0) {
         //  wait a while
-        logger.i('wait a while... before retrying websocket: $delaySeconds s');
+        if (delaySeconds < maxDelaySeconds) {
+          logger.i('wait a while... before retrying websocket: $delaySeconds s');
+        }
         await Future.delayed(Duration(seconds: delaySeconds));
       }
 
       //  backoff bothering the server with repeated failures
-      if (delaySeconds < 60) {
+      if (delaySeconds < maxDelaySeconds) {
         delaySeconds += 5;
       }
     }
@@ -163,6 +165,7 @@ class SongUpdateService extends ChangeNotifier {
   int _songUpdateCount = 0;
   int _idleCount = 0;
   WebSocketSink? _webSocketSink;
+  static const int maxDelaySeconds = 60;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();
 }

@@ -73,7 +73,8 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
-const Level _editLog = Level.debug;
+const Level _editLog = Level.info;
+const Level _editEntry = Level.verbose;
 
 class _Edit extends State<Edit> {
   _Edit()
@@ -196,12 +197,8 @@ class _Edit extends State<Edit> {
     _userTextEditingController.text = _appOptions.user;
     _bpmTextEditingController.text = _song.beatsPerMinute.toString();
 
-    _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
-    _lyricsEntries.addListener(() {
-      _pushLyricsEntries(); //  if low level edits were made by the widget tree
-      _checkSongChangeStatus();
-      logger.log(_editLog, '_lyricsEntries: _checkSongChangeStatus()');
-    });
+    _lyricsEntries = _lyricsEntriesFromSong(_song);
+
     _checkSong();
     _checkSongChangeStatus();
   }
@@ -1131,7 +1128,7 @@ class _Edit extends State<Edit> {
     }).toList();
 
     //  main entries
-    logger.d('_lyricsEntries: ${_lyricsEntries.entries.length}');
+    logger.log(_editLog, '_lyricsEntries: ${_lyricsEntries.entries.length}');
     for (final entry in _lyricsEntries.entries) {
       //  insert new section above
       {
@@ -1212,7 +1209,7 @@ class _Edit extends State<Edit> {
       var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
-      logger.d('$chordSection: chord/lyrics limit: $limit');
+      logger.log(_editLog, '$chordSection: chord/lyrics limit: $limit = max($chordRowCount,$lineCount)');
       for (var i = 0; i < limit; i++) {
         var children = <Widget>[];
 
@@ -1332,6 +1329,7 @@ class _Edit extends State<Edit> {
                       )),
                   onTap: () {
                     _lyricsEntries.addBlankLyricsLine(entry);
+                    logger.log(_editLog, 'addBlankLyricsLine: $entry');
                     _pushLyricsEntries();
                   },
                 ),
@@ -1407,14 +1405,26 @@ class _Edit extends State<Edit> {
 
   /// convenience method to push lyrics changes to the song and the display
   void _pushLyricsEntries() {
+    logger.log(_editEntry, '_pushLyricsEntries(): _lyricsEntries.asRawLyrics(): <${_lyricsEntries.asRawLyrics()}>');
     _updateRawLyrics(_lyricsEntries.asRawLyrics());
+    logger.log(_editEntry, 'rawLyrics: ${_song.rawLyrics}');
   }
 
   void _updateRawLyrics(String rawLyrics) {
     _song.rawLyrics = rawLyrics;
-    _lyricsEntries = LyricsEntries.fromSong(_song, textStyle: _lyricsTextStyle);
+    _lyricsEntries = _lyricsEntriesFromSong(_song);
     _undoStackPushIfDifferent();
     _checkSongChangeStatus();
+  }
+
+  LyricsEntries _lyricsEntriesFromSong(Song song) {
+    LyricsEntries ret = LyricsEntries.fromSong(song, textStyle: _lyricsTextStyle);
+    ret.addListener(() {
+      _pushLyricsEntries(); //  if low level edits were made by the widget tree
+      _checkSongChangeStatus();
+      logger.log(_editEntry, '_lyricsEntries: _checkSongChangeStatus()');
+    });
+    return ret;
   }
 
   ///  add a row for a plus on the bottom of the section to continue on the next row
@@ -2708,7 +2718,7 @@ class _Edit extends State<Edit> {
         if (loc != null) {
           if (endOfRow) {
             if (priorMeasure != null) {
-              _selectedEditDataPoint = _EditDataPoint(loc, onEndOfRow : true);
+              _selectedEditDataPoint = _EditDataPoint(loc, onEndOfRow: true);
               _selectedEditDataPoint!._measureEditType = MeasureEditType.append;
               logger.log(_editLog, '$_selectedEditDataPoint $priorMeasure   append at end of section?');
             } else {

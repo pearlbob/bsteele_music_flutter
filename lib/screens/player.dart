@@ -23,6 +23,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
@@ -42,7 +43,12 @@ bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
 music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
-const _centerSelections = false; //fixme: add later!
+const _centerSelections = true; //fixme: add later!
+
+const Level _playerLogScroll = Level.debug;
+const Level _playerLogMode = Level.debug;
+const Level _playerLogKeyboard = Level.debug;
+const Level _playerLogMusicKey = Level.debug;
 
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   if (!_playerIsOnTop) {
@@ -252,7 +258,7 @@ class _Player extends State<Player> with RouteAware {
             value = _selectedSongKey;
           }
 
-          logger.d('key value: $value');
+          logger.log(_playerLogMusicKey,'key value: $value');
 
           int relativeOffset = halfOctave - i;
           String valueString =
@@ -341,13 +347,18 @@ class _Player extends State<Player> with RouteAware {
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
-    final showTopOfDisplay = !(_isPlaying && (_songUpdate?.momentNumber ?? 0) > 0);
-    logger.v('showTopOfDisplay: $showTopOfDisplay, _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+    final showTopOfDisplay = !(_isPlaying && ((_songUpdate?.momentNumber ?? 0) > 0 || _sectionTarget > 0));
+    logger.log(
+        _playerLogScroll,
+        'showTopOfDisplay: $showTopOfDisplay,'
+        ' sectionTarget: $_sectionTarget, '
+        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+    logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $_isPaused');
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: RawKeyboardListener(
-        focusNode: _focusNode,
+        focusNode: FocusNode(),
         onKey: _playerOnKey,
         autofocus: true,
         child: Stack(
@@ -633,9 +644,11 @@ With escape, the app goes back to the play list.''',
                   onPressed: () {
                     _pauseToggle();
                   },
-                  tooltip: 'Stop.  Space bar will continue the play.',
-                  child: const Icon(
-                    Icons.play_arrow,
+                  child: _playTooltip(
+                    'Stop.  Space bar will continue the play.',
+                    const Icon(
+                      Icons.play_arrow,
+                    ),
                   ),
                 )
               : FloatingActionButton(
@@ -654,17 +667,15 @@ With escape, the app goes back to the play list.''',
               ? FloatingActionButton(
                   mini: !_app.isScreenBig,
                   onPressed: () {
-                    _stop();
-                    _scrollController
-                        .animateTo(0, duration: const Duration(milliseconds: 333), curve: Curves.ease)
-                        .then((_) {
-                      logger.d('_scrollAnimationFuture complete');
-                      setState(() {});
-                    });
+                    if (_isPlaying) {
+                      _stop();
+                    }
                   },
-                  tooltip: 'Top',
-                  child: const Icon(
-                    Icons.arrow_upward,
+                  child: _playTooltip(
+                    'Top of song',
+                    const Icon(
+                      Icons.arrow_upward,
+                    ),
                   ),
                 )
               : FloatingActionButton(
@@ -672,24 +683,25 @@ With escape, the app goes back to the play list.''',
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  tooltip: 'Back',
-                  child: const Icon(
-                    Icons.arrow_back,
-                  ),
-                )),
+                  child: _playTooltip(
+                    'Back to song list',
+                    const Icon(
+                      Icons.arrow_back,
+                    ),
+                  ))),
     );
   }
 
   void _playerOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.d('_playerOnKey(): ${e.data.logicalKey}'
+      logger.log(
+          _playerLogKeyboard,
+          '_playerOnKey(): ${e.data.logicalKey}'
           ', ctl: ${e.isControlPressed}'
           ', shf: ${e.isShiftPressed}'
           ', alt: ${e.isAltPressed}');
       //  only deal with new key down events
-
-      logger.d('key: ${e.data.logicalKey.toString()}');
 
       if (e.isKeyPressed(LogicalKeyboardKey.space) ||
               e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
@@ -725,7 +737,7 @@ With escape, the app goes back to the play list.''',
   }
 
   _scrollToSectionByMoment(SongMoment? songMoment) {
-    logger.d('_scrollToSectionByMoment( $songMoment )');
+    logger.log(_playerLogScroll, '_scrollToSectionByMoment( $songMoment )');
     if (songMoment == null) {
       return;
     }
@@ -738,7 +750,8 @@ With escape, the app goes back to the play list.''',
       if (_scrollController.offset != target) {
         _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
-        logger.d('_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
+        logger.log(_playerLogScroll,
+            '_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
       }
     }
   }
@@ -757,12 +770,16 @@ With escape, the app goes back to the play list.''',
     //  bump it by units of section
     var index = _sectionIndexAtScrollOffset();
     if (index != null) {
-      var target = _sectionLocations![Util.limit(index + bump, 0, _sectionLocations!.length - 1) as int];
+      index = Util.limit(index + bump, 0, _sectionLocations!.length - 1) as int;
+      var target = _sectionLocations![index];
 
       if (_sectionTarget != target) {
         _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
-        logger.d('_sectionBump: bump: $bump, $index => $target px, section: ${widget.song.lyricSections[index]}');
+        logger.log(
+            _playerLogScroll,
+            '_sectionBump: bump: $bump, $index ( $_sectionTarget px)'
+            ', section: ${widget.song.lyricSections[index]}');
       }
     }
   }
@@ -819,7 +836,7 @@ With escape, the app goes back to the play list.''',
         y -= y0;
         _sectionLocations!.add(y);
       }
-      logger.d('raw _sectionLocations: $_sectionLocations');
+      logger.log(_playerLogScroll, 'raw _sectionLocations: $_sectionLocations');
 
       //  add half of the deltas to center each selection
       {
@@ -847,7 +864,8 @@ With escape, the app goes back to the play list.''',
         }
         if (_table != null && _table?.key != null) {
           var globalKey = _table!.key as GlobalKey;
-          logger.d('_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
+          logger.log(
+              _playerLogScroll, '_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
           var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
           tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
         }
@@ -855,7 +873,7 @@ With escape, the app goes back to the play list.''',
         _sectionLocations = tmp;
       }
 
-      logger.d('_sectionLocations: $_sectionLocations');
+      logger.log(_playerLogScroll, '_sectionLocations: $_sectionLocations');
     }
   }
 
@@ -870,16 +888,16 @@ With escape, the app goes back to the play list.''',
     songUpdate.momentNumber = momentNumber;
     songUpdate.user = _appOptions.user;
     _songUpdateService.issueSongUpdate(songUpdate);
-    logger.d('_leadSongUpdate: momentNumber: $momentNumber');
+    logger.log(_playerLogScroll, '_leadSongUpdate: momentNumber: $momentNumber');
   }
 
   IconData get _playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
 
   _play() {
     setState(() {
-      _sectionBump(0);
-      logger.d('play:');
       _setPlayMode();
+      _sectionBump(0);
+      logger.log(_playerLogMode, 'play:');
       songMaster.playSong(widget.song);
     });
   }
@@ -895,11 +913,12 @@ With escape, the app goes back to the play list.''',
       _isPaused = true;
       _scrollController.jumpTo(0);
       songMaster.stop();
-      logger.d('stop()');
+      logger.log(_playerLogMode, 'stop()');
     });
   }
 
   void _pauseToggle() {
+    logger.log(_playerLogMode, '_pauseToggle():  pre: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
     setState(() {
       if (_isPlaying) {
         _isPaused = !_isPaused;
@@ -915,20 +934,21 @@ With escape, the app goes back to the play list.''',
         _isPaused = false;
       }
     });
+    logger.log(_playerLogMode, '_pauseToggle(): post: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
   }
 
   _setSelectedSongKey(music_key.Key key) {
-    logger.d('key: $key');
+    logger.log(_playerLogMusicKey,'key: $key');
 
     //  add any offset
     music_key.Key newDisplayKey = music_key.Key.getKeyByHalfStep(key.halfStep + _displayKeyOffset);
-    logger.d('offsetKey: $newDisplayKey');
+    logger.log(_playerLogMusicKey,'offsetKey: $newDisplayKey');
 
     //  deal with capo
     if (_isCapo) {
       _capoLocation = newDisplayKey.capoLocation;
       newDisplayKey = newDisplayKey.capoKey;
-      logger.d('capo: $newDisplayKey + $_capoLocation');
+      logger.log(_playerLogMusicKey,'capo: $newDisplayKey + $_capoLocation');
     }
 
     //  don't process unless there was a change
@@ -1011,7 +1031,6 @@ With escape, the app goes back to the play list.''',
 
   final ScrollController _scrollController = ScrollController();
 
-  final FocusNode _focusNode = FocusNode();
   double _sectionTarget = 0;
   List<double>? _sectionLocations;
   static final _appOptions = AppOptions();

@@ -268,12 +268,11 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.v('screen: logical: (${_app.screenInfo.widthInLogicalPixels},${_app.screenInfo.heightInLogicalPixels})');
     logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
 
-    final double mediaWidth = _app.screenInfo.widthInLogicalPixels;
     final fontSize = _app.screenInfo.fontSize;
     logger.d(
         'fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
     final AppTextStyle searchTextStyle = AppTextStyle(
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.bold,
       fontSize: fontSize,
       color: Colors.black38,
       textBaseline: TextBaseline.alphabetic,
@@ -411,6 +410,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(
           widget.title,
           style: AppTextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
+
         ),
         actions: <Widget>[
           Tooltip(
@@ -449,7 +449,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
         ],
-        toolbarHeight: kToolbarHeight * 0.9, //  trim for cell phone overrun
+        toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.5), //  trim for cell phone overrun
       ),
 
       drawer: Drawer(
@@ -545,9 +545,8 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             }),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            width: min(mediaWidth / 2, 15 * fontSize),
+          Expanded(
+            flex: 1,
             //  limit text entry display length
             child: TextField(
               controller: _searchTextFieldController,
@@ -557,7 +556,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 hintStyle: searchTextStyle,
               ),
               autofocus: true,
-              style: searchTextStyle,
+              style: titleTextStyle,
               onChanged: (text) {
                 setState(() {
                   logger.v('search text: "$text"');
@@ -581,6 +580,7 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(
             width: 5,
           ),
+          Expanded(flex: 1, child:
           DropdownButton<_SortType>(
             items: _sortTypesDropDownMenuList,
             onChanged: (value) {
@@ -593,7 +593,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             value: _selectedSortType,
             style: titleTextStyle,
-          ),
+          ),),
         ]),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(

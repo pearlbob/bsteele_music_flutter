@@ -356,6 +356,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Text(
                     '      ' + song.getArtist(),
+                    style: artistTextStyle,
                   ),
                 ],
               ),
@@ -534,6 +535,16 @@ class _MyHomePageState extends State<MyHomePage> {
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
         Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'search',
+            iconSize: fontSize,
+            onPressed: (() {
+              setState(() {
+                _searchSongs(_searchTextFieldController.text);
+              });
+            }),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             width: min(mediaWidth / 2, 15 * fontSize),
@@ -542,12 +553,11 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: _searchTextFieldController,
               focusNode: _searchFocusNode,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: "search text",
+                hintText: "enter search text",
                 hintStyle: searchTextStyle,
               ),
               autofocus: true,
-              style: searchDropDownStyle,
+              style: searchTextStyle,
               onChanged: (text) {
                 setState(() {
                   logger.v('search text: "$text"');

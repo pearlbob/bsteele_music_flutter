@@ -73,8 +73,9 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
-const Level _editLog = Level.info;
-const Level _editEntry = Level.verbose;
+const Level _editLog = Level.debug;
+const Level _editEntry = Level.debug;
+const Level _editKeyboard = Level.debug;
 
 class _Edit extends State<Edit> {
   _Edit()
@@ -1405,14 +1406,15 @@ class _Edit extends State<Edit> {
 
   /// convenience method to push lyrics changes to the song and the display
   void _pushLyricsEntries() {
-    logger.log(_editEntry, '_pushLyricsEntries(): _lyricsEntries.asRawLyrics(): <${_lyricsEntries.asRawLyrics()}>');
+    logger.log(_editEntry, '_pushLyricsEntries(): _lyricsEntries.asRawLyrics():'
+        ' <${_lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>');
     _updateRawLyrics(_lyricsEntries.asRawLyrics());
-    logger.log(_editEntry, 'rawLyrics: ${_song.rawLyrics}');
+    logger.log(_editEntry, '_pushLyricsEntries: rawLyrics: ${_song.rawLyrics.replaceAll('\n', '\\n')}');
   }
 
   void _updateRawLyrics(String rawLyrics) {
     _song.rawLyrics = rawLyrics;
-    _lyricsEntries = _lyricsEntriesFromSong(_song);
+    _lyricsEntries.updateEntriesFromSong();
     _undoStackPushIfDifferent();
     _checkSongChangeStatus();
   }
@@ -1460,7 +1462,7 @@ class _Edit extends State<Edit> {
   void _editOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.d('edit onkey:'
+      logger.log(_editKeyboard,'edit onkey:'
           //' ${e.data.logicalKey}'
           //', primaryFocus: ${_focusManager.primaryFocus}'
           ', context: ${_focusManager.primaryFocus?.context}'
@@ -2676,7 +2678,7 @@ class _Edit extends State<Edit> {
           _editLog,
           'post edit: location: ${_song.getCurrentChordSectionLocation()} '
           '"${_song.findMeasureByChordSectionLocation(_song.getCurrentChordSectionLocation())}"'
-          ', prior: $priorLocation "${priorMeasure}"'
+          ', prior: $priorLocation "$priorMeasure"'
           ', endOfRow: $endOfRow'
           ', selectedEditDataPoint: $_selectedEditDataPoint');
 

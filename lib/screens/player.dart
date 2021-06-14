@@ -928,7 +928,7 @@ With escape, the app goes back to the play list.''',
     if (_isCapo) {
       _capoLocation = newDisplayKey.capoLocation;
       newDisplayKey = newDisplayKey.capoKey;
-      logger.i('capo: $newDisplayKey + $_capoLocation');
+      logger.d('capo: $newDisplayKey + $_capoLocation');
     }
 
     //  don't process unless there was a change

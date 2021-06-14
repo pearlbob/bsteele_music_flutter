@@ -40,7 +40,7 @@ class UtilWeb implements UtilWorkaround {
 
   Future<List<Song>> getSongsAsync() async {
     List<String> fileData = await getFiles('.songlyrics');
-    logger.i("files.length: ${fileData.length}");
+    logger.d("files.length: ${fileData.length}");
     List<Song> ret = [];
     for (var i = 0; i < fileData.length; i++) {
       File file = files![i];

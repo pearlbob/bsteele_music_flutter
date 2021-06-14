@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
@@ -8,14 +10,27 @@ import 'package:flutter/widgets.dart';
 
 typedef _LyricsEntriesCallback = void Function();
 
+LyricSection? _focusLyricSection;
+int _focusLyricsLineIndex = 0;
+
 /// used in the edit screen to manage the lyrics entry and its matching to the chord section sequence
 class LyricsEntries extends ChangeNotifier {
-  LyricsEntries();
+  LyricsEntries() : _song = Song.createEmptySong() {
+    _focusLyricSection = null;
+  }
 
-  LyricsEntries.fromSong(Song song, {AppTextStyle? textStyle}) : _textStyle = textStyle {
-    for (final lyricSection in song.lyricSections) {
-      _entries.add(
-          _LyricsDataEntry.fromSong(lyricSection, textStyle: textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
+  LyricsEntries.fromSong(this._song, {AppTextStyle? textStyle}) : _textStyle = textStyle {
+    _focusLyricSection = null;
+    updateEntriesFromSong();
+    logger.v('LyricsEntries.fromSong: lyrics: ${_song.lyricsAsString().replaceAll('\n', '\\n')}');
+    logger.v('LyricsEntries.fromSong: rawLyrics: ${_song.rawLyrics.replaceAll('\n', '\\n')}');
+  }
+
+  void updateEntriesFromSong() {
+    _entries.clear();
+    for (final lyricSection in _song.lyricSections) {
+      _entries.add(_LyricsDataEntry.fromSong(lyricSection,
+          textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     }
     logger.v('LyricsEntries.fromSong()');
     logger.v('_asLyricsEntry():\n<${asRawLyrics()}>');
@@ -26,7 +41,15 @@ class LyricsEntries extends ChangeNotifier {
     for (final entry in _entries) {
       sb.writeln(entry.lyricSection.sectionVersion.toString());
       for (final line in entry._lyricsLines) {
-        sb.writeln(line.text);
+        if (line.text.isEmpty) {
+          sb.write('\n'); //  avoid double newline
+          if (identical(line, entry._lyricsLines.last)) {
+            //  avoid the last empty line being consumed by the lyrics parser at the end of a section
+            sb.write('\n');
+          }
+        } else {
+          sb.writeln(line.text);
+        }
       }
     }
     return sb.toString();
@@ -152,6 +175,8 @@ class LyricsEntries extends ChangeNotifier {
     notifyListeners();
   }
 
+  final Song _song;
+
   List<_LyricsDataEntry> get entries => _entries;
   final List<_LyricsDataEntry> _entries = [];
   AppTextStyle? _textStyle;
@@ -167,12 +192,14 @@ class _LyricsDataEntry {
         //  note: allow empty (blank) lines, i.e. lyricSection.lyricsLines.first can be empty
         ) {
       _lyricsLines = List.from(lyricSection.lyricsLines)
-          .map((value) => _LyricsLine(value, _lyricsLineCallback, textStyle: _textStyle))
+          .map((line) => _LyricsLine(line, _lyricsLineCallback, textStyle: _textStyle))
           .toList();
 
-      //  deal with the last extra line from lyrics
-      if (_lyricsLines.last.text.isEmpty) {
-        _lyricsLines.removeAt(_lyricsLines.length - 1);
+      //  copy the focus
+      if (_focusLyricSection?.sectionVersion == lyricSection.sectionVersion &&
+          _focusLyricSection?.index == lyricSection.index &&
+          _lyricsLines.isNotEmpty) {
+        _lyricsLines[min(_focusLyricsLineIndex, _lyricsLines.length - 1)].requestFocus();
       }
     }
   }
@@ -183,32 +210,32 @@ class _LyricsDataEntry {
         _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback;
 
-  void _lyricsLineCallback(_LyricsLine oldLyricsLine, List<String> newLyricsLines) {
+  ///
+  void _lyricsLineCallback(_LyricsLine oldLyricsLine, final List<String> newLyricsLines) {
     var index = _lyricsLines.indexOf(oldLyricsLine);
-    if (index >= 0) {
-      logger.v('$this: $index: $oldLyricsLine, lines: $newLyricsLines)');
-      switch (newLyricsLines.length) {
-        case 0:
-        case 1:
-          //  do nothing
-          break;
-        default:
-          var removed = _lyricsLines.remove(oldLyricsLine);
-          logger.v('removed: $removed $oldLyricsLine');
-          _LyricsLine? lastNewLyricsLine;
-          for (var newLyricsLine in newLyricsLines) {
-            lastNewLyricsLine = _LyricsLine(newLyricsLine, _lyricsLineCallback, textStyle: _textStyle);
-            _lyricsLines.insert(index++, lastNewLyricsLine);
-          }
-          logger.v('newLines: $_lyricsLines');
-          logger.v('lastNewLyricsLine: <$lastNewLyricsLine> requestFocus()' );
-          lastNewLyricsLine!.requestFocus();
-          if (_lyricsEntriesCallback != null) {
-            logger.v('newLines: _lyricsEntriesCallback()');
-            _lyricsEntriesCallback!();
-          }
-          break;
+    if (index < 0) {
+      throw 'cannot find: <oldLyricsLine> in $_lyricsLines';
+    }
+    if ( newLyricsLines.length > 1 ) {
+      logger.d('_lyricsLineCallback: $this: $index: $oldLyricsLine, lines: $newLyricsLines)');
+      var removed = _lyricsLines.remove(oldLyricsLine);
+      logger.d('removed: $removed $oldLyricsLine');
+      _LyricsLine? lastNewLyricsLine;
+      var newIndex = index;
+      for (var newLyricsLine in newLyricsLines) {
+        lastNewLyricsLine = _LyricsLine(newLyricsLine, _lyricsLineCallback, textStyle: _textStyle);
+        _lyricsLines.insert(newIndex++, lastNewLyricsLine);
       }
+      logger.d('newLines: $_lyricsLines');
+      logger.d('lastNewLyricsLine: <$lastNewLyricsLine> requestFocus():'
+          ' $lyricSection $index+${newLyricsLines.length - 1}');
+      lastNewLyricsLine!.requestFocus();
+    }
+    _focusLyricSection = lyricSection;
+    _focusLyricsLineIndex = index + newLyricsLines.length - 1;
+    if (_lyricsEntriesCallback != null) {
+      logger.v('newLines: _lyricsEntriesCallback()');
+      _lyricsEntriesCallback!();
     }
   }
 
@@ -219,6 +246,8 @@ class _LyricsDataEntry {
   void addEmptyLine({AppTextStyle? textStyle}) {
     var lyricsLine = _LyricsLine('', _lyricsLineCallback, textStyle: textStyle);
     _lyricsLines.add(lyricsLine);
+    _focusLyricSection = lyricSection;
+    _focusLyricsLineIndex = _lyricsLines.length - 1;
     lyricsLine.requestFocus();
   }
 
@@ -239,10 +268,12 @@ class _LyricsDataEntry {
 // Define a custom text field for lyrics.
 class _LyricsLine {
   _LyricsLine(
-    this.originalText,
+    lineText,
     this._lyricsLineCallback, {
     AppTextStyle? textStyle,
-  }) : _controller = TextEditingController(text: originalText) {
+  }) {
+    _originalText = lineText.replaceAll('\n', '');
+    _controller = TextEditingController(text: _originalText);
     _textField = TextField(
       controller: _controller,
       focusNode: focusNode,
@@ -252,45 +283,33 @@ class _LyricsLine {
       //  arbitrary, large limit:
       maxLines: 300,
       onSubmitted: (value) {
-        // print('onSubmitted(\'$value\')');
-        _submit(value);
+        logger.d('onSubmitted(\'$value\')');
+        _submitLine();
       },
       onChanged: (value) {
-        // logger.i('onChanged(\'$value\')');
+        logger.i('onChanged(\'$value\')');
         // print('onChanged(\'$value\')');
-        _update(_controller.text);
+        _updateFromController();
       },
     );
-    focusNode.addListener(() {
-      _update(_controller.text);
-    });
   }
 
-  void _update(String value) {
+  void _updateFromController() {
     //  split into lines
-    List<String> ret = _controller.text.split('\n');
+    logger.i('_updateFromController(): <${_controller.text}>');
 
-    // trim white space
-    for (var value in ret) {
-      value = value.trim();
-    }
-    if (ret.length > 1 || ret[0] != originalText) {
+      List<String> ret = [];
+      ret.add(_controller.text);
       //  update
       _lyricsLineCallback(this, ret);
-    }
   }
 
-  void _submit(String value) {
+  void _submitLine() {
     var selection = _controller.selection;
     var text = _controller.text;
 
     //  split into lines
     List<String> ret = text.split('\n');
-
-    // trim white space
-    for (var value in ret) {
-      value = value.trim();
-    }
 
     if (ret.length > 1) {
       //  split multiple lines
@@ -325,6 +344,6 @@ class _LyricsLine {
   final _LyricsLineCallback _lyricsLineCallback;
 
   String get text => _controller.text;
-  final TextEditingController _controller;
-  final String originalText;
+  late final TextEditingController _controller;
+  late final String _originalText;
 }

@@ -219,7 +219,7 @@ class _Options extends State<Options> {
                             if (_value != null) {
                               setState(() {
                                 _app.displayKeyOffset = _value;
-                                logger.i('key offset: $_value');
+                                logger.d('key offset: $_value');
                               });
                             }
                           },
@@ -514,7 +514,7 @@ class _Options extends State<Options> {
         }
         _timerT += periodMs / microsecondsPerSecond;
       } catch (e) {
-        logger.i('_audioTest() error: ${e.toString()}');
+        logger.d('_audioTest() error: ${e.toString()}');
       }
     });
   }

@@ -12,7 +12,7 @@ import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
 
 const double staffSpace = 16;
 
-const bool _debug = false; //  true false
+const bool _debug = true; //  true false
 
 class SheetMusicPainter extends CustomPainter {
   @override
@@ -21,11 +21,12 @@ class SheetMusicPainter extends CustomPainter {
 
     //  clear the plot
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _white);
+    _reset();
 
     //  initialize staff locations
-    _yOff = 2 * staffSpace;
+    _yOff = 3 * staffSpace;
     _yOffTreble = _yOff + staffMargin * staffSpace;
-    _yOffBass = _yOffTreble + (staffGaps + 2 * staffMargin) * staffSpace;
+    _yOffBass = _yOffTreble + (staffGaps + staffMargin) * staffSpace;
     _xSpaceAll(10);
 
     _renderSheetFixedYSymbol(Clef.treble, brace);
@@ -292,8 +293,12 @@ class SheetMusicPainter extends CustomPainter {
   }
 
   void _renderSheetFixedY(SheetNote rest) {
-    _renderSheetNoteSymbol(rest.symbol, rest.symbol.fixedYOff, isStave: false);
+    var rect = _renderSheetNoteSymbol(rest.symbol, rest.symbol.fixedYOff, isStave: false);
     _endClef();
+
+    if (_debug) {
+      _canvas.drawRect(rect, _transGrey);
+    }
   }
 
   // Accidental _accidentalFromPitch(Pitch pitch) {
@@ -309,7 +314,7 @@ class SheetMusicPainter extends CustomPainter {
   ///
   void _renderSheetNote(SheetNote sn) {
     Pitch? pitch = _key?.mappedPitch(sn.pitch);
-    if ( pitch == null ){
+    if (pitch == null) {
       throw 'pitch not found: $sn';
     }
     double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
@@ -326,24 +331,25 @@ class SheetMusicPainter extends CustomPainter {
           : pitch.accidental; //  insist on the pitch's accidental being shown
     } else {
       //  give the key an opportunity to call for an accidental if the pitch doesn't match the key's scale
-        accidental = _key?.accidental(pitch); //  this will be null on a pitch match to the key scale
+      accidental = _key?.accidental(pitch); //  this will be null on a pitch match to the key scale
     }
 
     logger.v('sn.pitch: ${sn.pitch.toString().padLeft(3)}, pitch: ${pitch.toString().padLeft(3)}'
         ', key: $_key'
         ', accidental: $accidental');
+    Rect? accidentalRect;
     if (accidental != null) {
       switch (accidental) {
         case Accidental.sharp:
-          _renderSheetNoteSymbol(accidentalSharp, staffPosition);
+          accidentalRect = _renderSheetNoteSymbol(accidentalSharp, staffPosition);
           _xSpace(_accidentalStaffSpace * staffSpace);
           break;
         case Accidental.flat:
-          _renderSheetNoteSymbol(accidentalFlat, staffPosition);
+          accidentalRect = _renderSheetNoteSymbol(accidentalFlat, staffPosition);
           _xSpace(_accidentalStaffSpace * staffSpace);
           break;
         case Accidental.natural:
-          _renderSheetNoteSymbol(accidentalNatural, staffPosition);
+          accidentalRect = _renderSheetNoteSymbol(accidentalNatural, staffPosition);
           _xSpace(_accidentalStaffSpace * staffSpace);
           break;
       }
@@ -354,7 +360,14 @@ class SheetMusicPainter extends CustomPainter {
 
     logger.d('_measureAccidentals[  $staffPosition  ] = ${_measureAccidentals[staffPosition]} ');
 
-    _renderSheetNoteSymbol(sn.symbol, staffPosition);
+    var rect = _renderSheetNoteSymbol(sn.symbol, staffPosition);
+    if (accidentalRect != null) {
+      rect = rect.expandToInclude(accidentalRect);
+    }
+
+    if (_debug) {
+      _canvas.drawRect(rect, _transGrey);
+    }
   }
 
   void _startClef(Clef clef) {
@@ -380,7 +393,7 @@ class SheetMusicPainter extends CustomPainter {
   }
 
   void _endClef() {
-      switch (_clef) {
+    switch (_clef) {
       case Clef.treble:
         _xOffTreble = _xOff;
         _yOffTreble = _yOff;
@@ -398,19 +411,22 @@ class SheetMusicPainter extends CustomPainter {
     _endClef();
   }
 
-  void _renderSheetNoteSymbol(SheetNoteSymbol symbol, double staffPosition, {bool isStave= true}) {
+  Rect _renderSheetNoteSymbol(SheetNoteSymbol symbol, double staffPosition, {bool isStave = true}) {
     double w = symbol.fontSizeStaffs * staffSpace;
 
-    if (_debug) {
-      _canvas.drawRect(
-          Rect.fromLTRB(
-              _xOff + symbol.bounds.left * staffSpace,
-              _yOff + (-symbol.bounds.top + staffPosition) * staffSpace,
-              _xOff + symbol.bounds.right * staffSpace,
-              _yOff + (-symbol.bounds.bottom + staffPosition) * staffSpace),
-          _grey);
-    }
+    Rect ret = Rect.fromLTRB(
+        _xOff + symbol.bounds.left * staffSpace,
+        _yOff + (-symbol.bounds.top + staffPosition) * staffSpace,
+        _xOff + symbol.bounds.right * staffSpace,
+        _yOff + (-symbol.bounds.bottom + staffPosition) * staffSpace);
 
+    // if (_debug) {
+    //   _canvas.drawRect(
+    //       ret,
+    //       _grey);
+    // }
+
+    Offset offset = Offset(_xOff + symbol.bounds.left, (_yOff) + -2 * w + (staffPosition - 0.05) * staffSpace);
     TextPainter(
       text: TextSpan(
         text: symbol.character,
@@ -426,13 +442,23 @@ class SheetMusicPainter extends CustomPainter {
         minWidth: 0,
         maxWidth: w,
       )
-      ..paint(_canvas, Offset(_xOff + symbol.bounds.left, (_yOff) + -2 * w + (staffPosition - 0.05) * staffSpace));
+      ..paint(_canvas, offset);
 
     if (isStave) {
       renderStaves(symbol, staffPosition);
     }
 
     _xSpace(symbol.bounds.width * staffSpace);
+    return ret;
+  }
+
+  //
+  void _reset() {
+    _clef = Clef.treble;
+    _xOff = 0;
+    _yOff = 0;
+    _xOffTreble = 0;
+    _xOffBass = 0;
   }
 
   /// align all clefs and add a space
@@ -523,7 +549,7 @@ class SheetMusicPainter extends CustomPainter {
     """;
     logger.d('debugging:');
     List<SheetNote>? sheetNotes = BassStudyTool.parseJsonBsstVersion0_0(songAsJsonString);
-    if ( sheetNotes == null ){
+    if (sheetNotes == null) {
       throw 'missing sheetNotes';
     }
 
@@ -594,7 +620,8 @@ class SheetMusicPainter extends CustomPainter {
 }
 
 final _white = Paint()..color = Colors.white;
-final _grey = Paint()..color = Colors.grey;
+//final _grey = Paint()..color = Colors.grey;
+final _transGrey = Paint()..color = Colors.grey.withAlpha(80);
 final _black = Paint()..color = Colors.black;
 //final _blackFill = Paint()
 //  ..color = Colors.black

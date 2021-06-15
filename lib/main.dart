@@ -269,8 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
 
     final fontSize = _app.screenInfo.fontSize;
-    logger.d(
-        'fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px with ${_app.screenInfo.titleScaleFactor}');
+    logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
     final AppTextStyle searchTextStyle = AppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
@@ -410,7 +409,6 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(
           widget.title,
           style: AppTextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
-
         ),
         actions: <Widget>[
           Tooltip(
@@ -580,20 +578,22 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(
             width: 5,
           ),
-          Expanded(flex: 1, child:
-          DropdownButton<_SortType>(
-            items: _sortTypesDropDownMenuList,
-            onChanged: (value) {
-              if (_selectedSortType != value) {
-                setState(() {
-                  _selectedSortType = value ?? _SortType.byTitle;
-                  _searchSongs(_searchTextFieldController.text);
-                });
-              }
-            },
-            value: _selectedSortType,
-            style: titleTextStyle,
-          ),),
+          Expanded(
+            flex: 1,
+            child: DropdownButton<_SortType>(
+              items: _sortTypesDropDownMenuList,
+              onChanged: (value) {
+                if (_selectedSortType != value) {
+                  setState(() {
+                    _selectedSortType = value ?? _SortType.byTitle;
+                    _searchSongs(_searchTextFieldController.text);
+                  });
+                }
+              },
+              value: _selectedSortType,
+              style: titleTextStyle,
+            ),
+          ),
         ]),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(

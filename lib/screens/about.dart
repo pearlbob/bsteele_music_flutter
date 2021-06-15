@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Display the song moments in sequential order.
 class About extends StatefulWidget {
@@ -70,16 +70,20 @@ class _About extends State<About> {
                   ),
                 ]),
                 Text(
-                  'appName: ${_packageInfo?.appName ?? 'unknown'}',
+                  'appName: ${_packageInfo.appName}',
                 ),
                 Text(
-                  'version: ${_packageInfo?.version ?? 'unknown'}',
+                  'version: ${_packageInfo.version}',
                 ),
                 Text(
-                  'packageName: ${_packageInfo?.packageName ?? 'unknown'}',
+                  'packageName: ${_packageInfo.packageName}',
                 ),
                 Text(
-                  'buildNumber: ${_packageInfo?.buildNumber ?? 'unknown'}',
+                  'buildNumber: ${_packageInfo.buildNumber}',
+                ),
+
+                const Text(
+                  'Mode: ${kReleaseMode ? 'release' : 'debug'}',
                 ),
                 Text(
                   'utcDate: ${_utcDateAsString ?? 'unknown'}',
@@ -109,28 +113,33 @@ class _About extends State<About> {
   }
 
   void _readPackageInfo() async {
-    if (kIsWeb) {
-      _packageInfo = PackageInfo(
-          appName: 'bsteele Music App',
-          version: 'unknown, web workaround', // fixme
-          packageName: 'unknown',
-          buildNumber: '0');
-    } else {
-      if (Platform.isAndroid || Platform.isIOS) {
-        PackageInfo.fromPlatform().then((value) {
-          setState(() {
-            _packageInfo = value;
-          });
-        });
-      } else {
-        //  fixme: have to fake PackageInfo for other platforms
-        _packageInfo = PackageInfo(
-            appName: 'bsteele Music App',
-            version: 'unknown from platform', // fixme
-            packageName: 'unknown',
-            buildNumber: '0');
-      }
-    }
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+
+    // if (kIsWeb) {
+    //   _packageInfo = PackageInfo(
+    //       appName: 'bsteele Music App',
+    //       version: 'unknown, web workaround', // fixme
+    //       packageName: 'unknown',
+    //       buildNumber: '0');
+    // } else {
+    //   if (Platform.isAndroid || Platform.isIOS) {
+    //     PackageInfo.fromPlatform().then((value) {
+    //       setState(() {
+    //         _packageInfo = value;
+    //       });
+    //     });
+    //   } else {
+    //     //  fixme: have to fake PackageInfo for other platforms
+    //     _packageInfo = PackageInfo(
+    //         appName: 'bsteele Music App',
+    //         version: 'unknown from platform', // fixme
+    //         packageName: 'unknown',
+    //         buildNumber: '0');
+    //   }
+    // }
 
     rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
       setState(() {
@@ -140,5 +149,10 @@ class _About extends State<About> {
   }
 
   String? _utcDateAsString;
-  PackageInfo? _packageInfo;
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+  );
 }

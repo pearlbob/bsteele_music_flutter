@@ -55,10 +55,10 @@ class ScreenInfo {
   bool get isTooNarrow => _isTooNarrow;
   late bool _isTooNarrow;
 
-  double get titleScaleFactor => _titleScaleFactor;
+  // double get titleScaleFactor => _titleScaleFactor;
   late double _titleScaleFactor;
 
-  double get artistScaleFactor => _artistScaleFactor;
+  // double get artistScaleFactor => _artistScaleFactor;
   late double _artistScaleFactor;
 
   bool get isDefaultValue => _isDefaultValue;

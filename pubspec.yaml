@@ -22,7 +22,7 @@ dependencies:
     sdk: flutter
   filesystem_picker: ^2.0.0-nullsafety.0
   logger:
-  package_info:
+  package_info_plus:
   shared_preferences:
   url_launcher:
   intl:

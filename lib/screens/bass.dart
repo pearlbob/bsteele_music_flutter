@@ -11,6 +11,7 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
+import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
@@ -30,7 +31,7 @@ final _blackOutline = Paint()
 //   ..color = Colors.black38
 //   ..style = PaintingStyle.stroke
 //   ..strokeWidth = 1;
-final _grey = Paint()..color = Colors.grey;
+final _stringGrey = Paint()..color = Colors.grey[400] ?? Colors.grey;
 final _dotColor = Paint()..color = Colors.blue[100] ?? Colors.blue;
 final _rootColor = Paint()..color = Colors.red;
 final _thirdColor = Paint()..color = const Color(0xffffb390);
@@ -39,10 +40,18 @@ final _seventhColor = Paint()..color = const Color(0xffffff00);
 final _otherColor = Paint()..color = const Color(0x80A3FF69);
 final _scaleColor = Paint()..color = const Color(0x80ffffff);
 double _fontSize = 24;
+Offset? _dragStart;
+Offset? _dragEnd;
 
 music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
+
+bool _isShowScaleNumbers = true;
+bool _isShowScaleNotes = true;
+bool _isSwing = true;
+TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
+int _bpm = 106;
 
 /// the bass study tool
 class BassWidget extends StatefulWidget {
@@ -64,7 +73,7 @@ class _State extends State<BassWidget> {
 
   @override
   Widget build(BuildContext context) {
-     _fontSize = App().screenInfo.fontSize;
+    _fontSize = App().screenInfo.fontSize * 2 / 3;
 
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
@@ -77,6 +86,13 @@ class _State extends State<BassWidget> {
       }
       scaleNoteValues = scaleNoteSet.toList(growable: false);
     }
+
+    _bpmTextEditingController.text = _bpm.toString();
+
+    const sheetMusicSizedBox = SizedBox(
+      width: double.infinity,
+      height: 400.0,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -108,6 +124,7 @@ class _State extends State<BassWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // key, chords
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -214,6 +231,7 @@ class _State extends State<BassWidget> {
               Container(
                 width: 10,
               ),
+              //  notes and rests
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -318,6 +336,7 @@ class _State extends State<BassWidget> {
               Container(
                 width: 10,
               ),
+              //  entry details
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -374,7 +393,7 @@ class _State extends State<BassWidget> {
                         width: 10,
                       ),
                       SizedBox(
-                        width:250,
+                        width: 250,
                         height: 70,
                         child: TextField(
                           //    key: const ValueKey('lyrics'),
@@ -383,8 +402,147 @@ class _State extends State<BassWidget> {
                             hintText: 'Enter lyrics',
                           ),
                           maxLength: null,
-                             style: _style,
+                          style: _style,
                         ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                width: 10,
+              ),
+              // timing and display options
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Time:',
+                        style: _style,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      DropdownButton<TimeSignature>(
+                        items: knownTimeSignatures.map((TimeSignature value) {
+                          return DropdownMenuItem<TimeSignature>(
+                            key: ValueKey('timeSignature_${value.beatsPerBar}_${value.unitsPerMeasure}'),
+                            value: value,
+                            child: Text(
+                              value.toString(),
+                              style: _style,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (_value) {
+                          if (_value != null && _value != _timeSignature) {
+                            setState(() {
+                              _timeSignature = _value;
+                            });
+                          }
+                        },
+                        value: _timeSignature,
+                        style: const AppTextStyle(
+                          //  size controlled by textScaleFactor above
+                          color: Colors.black,
+                          textBaseline: TextBaseline.ideographic,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        'BPM:',
+                        style: _style,
+                      ),
+                      SizedBox(
+                        width: _fontSize * 2,
+                        child: TextField(
+                          //    key: const ValueKey('lyrics'),
+                          controller: _bpmTextEditingController,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter BPM',
+                          ),
+                          maxLength: null,
+                          style: _style,
+                          onChanged: (value) {
+                            try {
+                              var tmpBPM = int.parse(value);
+                              if (tmpBPM >= MusicConstants.minBpm && tmpBPM <= MusicConstants.maxBpm) {
+                                setState(() {
+                                  _bpm = tmpBPM;
+                                });
+                              } else {
+                                logger.i('not a valid BPM: $tmpBPM');
+                              }
+                            } catch (e) {
+                              logger.i('not a valid BPM: $value');
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Checkbox(
+                        checkColor: Colors.white,
+                        fillColor: MaterialStateProperty.all(_blue.color),
+                        value: _isSwing,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            setState(() {
+                              _isSwing = value;
+                              logger.i('_isSwing: $_isSwing');
+                            });
+                          }
+                        },
+                      ),
+                      Text(
+                        'Swing',
+                        style: _style,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                        checkColor: Colors.white,
+                        fillColor: MaterialStateProperty.all(_blue.color),
+                        value: _isShowScaleNumbers,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            setState(() {
+                              _isShowScaleNumbers = value;
+                              logger.i('_isShowScaleNumbers: $_isShowScaleNumbers');
+                            });
+                          }
+                        },
+                      ),
+                      Text(
+                        'scale #\'s',
+                        style: _style,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Checkbox(
+                        checkColor: Colors.white,
+                        fillColor: MaterialStateProperty.all(_blue.color),
+                        value: _isShowScaleNotes,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            setState(() {
+                              _isShowScaleNotes = value;
+                              logger.i('_isShowScaleNotes: $_isShowScaleNotes');
+                            });
+                          }
+                        },
+                      ),
+                      Text(
+                        'scale notes',
+                        style: _style,
                       ),
                     ],
                   ),
@@ -395,6 +553,22 @@ class _State extends State<BassWidget> {
           const SizedBox(
             height: 10,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _commandButton('Loop 1', onPressed: () {}),
+              _commandButton('Loop 2', onPressed: () {}),
+              _commandButton('Loop 4', onPressed: () {}),
+              _commandButton('Loop selected', onPressed: () {}),
+              _commandButton('Loop', onPressed: () {}),
+              _commandButton('Play', onPressed: () {}),
+              _commandButton('Stop', onPressed: () {}),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+
           Stack(
             fit: StackFit.passthrough,
             children: [
@@ -403,11 +577,48 @@ class _State extends State<BassWidget> {
                   painter: SheetMusicPainter(),
                   isComplex: true,
                   willChange: false,
-                  child: const SizedBox(
-                    width: double.infinity,
-                    height: 400.0,
+                  child: sheetMusicSizedBox,
+                ),
+              ),
+              GestureDetector(
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: _SheetMusicDragger(),
+                    isComplex: true,
+                    willChange: false,
+                    child: sheetMusicSizedBox,
                   ),
                 ),
+                onHorizontalDragStart: (details) {
+                  dragStart(details.localPosition);
+                },
+                onHorizontalDragDown: (dragDownDetails) {
+                  dragUpdate(dragDownDetails.localPosition);
+                },
+                onHorizontalDragUpdate: (dragUpdateDetails) {
+                  dragUpdate(dragUpdateDetails.localPosition);
+                },
+                onHorizontalDragCancel: () {
+                  dragStop();
+                },
+                onHorizontalDragEnd: (details) {
+                  dragStop();
+                },
+                onVerticalDragStart: (details) {
+                  dragStart(details.localPosition);
+                },
+                onVerticalDragDown: (dragDownDetails) {
+                  dragUpdate(dragDownDetails.localPosition);
+                },
+                onVerticalDragUpdate: (dragUpdateDetails) {
+                  dragUpdate(dragUpdateDetails.localPosition);
+                },
+                onVerticalDragCancel: () {
+                  dragStop();
+                },
+                onVerticalDragEnd: (details) {
+                  dragStop();
+                },
               ),
             ],
           ),
@@ -423,9 +634,27 @@ class _State extends State<BassWidget> {
     );
   }
 
+  void dragStart(Offset start) {
+    _dragStart = start;
+    _dragEnd = null;
+    setState(() {});
+  }
+
+  void dragUpdate(Offset end) {
+    _dragEnd = end;
+    setState(() {});
+  }
+
+  void dragStop() {
+    _dragStart = null;
+    _dragEnd = null;
+    setState(() {});
+  }
+
   @override
   void dispose() {
     _lyricsTextEditingController.dispose();
+    _bpmTextEditingController.dispose();
     super.dispose();
     logger.d('bass dispose()');
   }
@@ -433,6 +662,8 @@ class _State extends State<BassWidget> {
   bool _isDot = false;
   bool _isTie = false;
   final TextEditingController _lyricsTextEditingController = TextEditingController();
+  final TextEditingController _bpmTextEditingController = TextEditingController();
+
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
 }
@@ -443,6 +674,12 @@ class _FretBoardPainter extends CustomPainter {
     canvas = aCanvas;
     var width = size.width;
     var height = size.height;
+
+    if (_lastWidth != width) {
+      //  lazy eval
+      _lastWidth = width;
+      fretLocs.clear();
+    }
 
     var margin = width * 0.1;
     bassFretX = margin;
@@ -467,10 +704,10 @@ class _FretBoardPainter extends CustomPainter {
 
     //  strings
     for (var s = 0; s < 4; s++) {
-      _grey.strokeWidth = (4 - s) * 2;
+      _stringGrey.strokeWidth = (4 - s) * 2;
 
       var y = bassFretY + bassFretHeight - bassFretHeight * s / 4 - bassFretHeight / 8;
-      canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + bassScale, y), _grey);
+      canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + bassScale, y), _stringGrey);
     }
 
     //  dots on frets 3, 5, 7, 9
@@ -561,7 +798,7 @@ class _FretBoardPainter extends CustomPainter {
         bassFretY + bassFretHeight - bassFretHeight * bassString / 4 - bassFretHeight / 8);
     canvas.drawCircle(offset, pressRadius, paint);
     canvas.drawCircle(offset, pressRadius, _blackOutline);
-    if (noteChar != null) {
+    if (noteChar != null && _isShowScaleNotes) {
       // To create a paragraph of text, we use ParagraphBuilder.
       final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
@@ -576,7 +813,7 @@ class _FretBoardPainter extends CustomPainter {
       canvas.drawParagraph(
           paragraph, Offset(offset.dx - paragraph.maxIntrinsicWidth / 2, offset.dy - paragraph.height / 2));
     }
-    if (scaleChar != null) {
+    if (scaleChar != null && _isShowScaleNumbers) {
       // To create a paragraph of text, we use ParagraphBuilder.
       final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
@@ -630,6 +867,7 @@ class _FretBoardPainter extends CustomPainter {
   double bassFretY = 0;
   double bassFretX = 63;
   double bassScale = 2000;
+  double _lastWidth = 0;
 }
 
 ElevatedButton _restButton(
@@ -665,6 +903,57 @@ ElevatedButton _noteButton(
     style: ButtonStyle(
       fixedSize: MaterialStateProperty.all(const Size(40, 60)),
       backgroundColor: MaterialStateProperty.all(_blue.color),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_fontSize / 4), side: const BorderSide(color: Colors.grey))),
+      elevation: MaterialStateProperty.all<double>(6),
     ),
   );
+}
+
+ElevatedButton _commandButton(
+  String commandName, {
+  required VoidCallback? onPressed,
+  double height = 1.5,
+}) {
+  return ElevatedButton(
+    child: Text(
+      commandName,
+      style: TextStyle(
+        fontSize: _fontSize,
+        foreground: _black,
+        background: _blue,
+        height: height,
+      ),
+    ),
+    clipBehavior: Clip.hardEdge,
+    onPressed: onPressed,
+    style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.all(_blue.color),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_fontSize), side: const BorderSide(color: Colors.grey))),
+      elevation: MaterialStateProperty.all<double>(6),
+    ),
+  );
+}
+
+class _SheetMusicDragger extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    //  clear the plot
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _transClear);
+
+    if (_dragStart != null) {
+      _dragEnd ??= _dragStart;
+      Rect selectRect = Rect.fromPoints(_dragStart!, _dragEnd!);
+      canvas.drawRect(selectRect, _transBlue);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+
+  final _transBlue = Paint()..color = Colors.lightBlueAccent.withAlpha(40);
+  final _transClear = Paint()..color = Colors.white.withAlpha(0);
 }

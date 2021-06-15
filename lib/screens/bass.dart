@@ -568,13 +568,12 @@ class _State extends State<BassWidget> {
           const SizedBox(
             height: 10,
           ),
-
           Stack(
             fit: StackFit.passthrough,
             children: [
               RepaintBoundary(
                 child: CustomPaint(
-                  painter: SheetMusicPainter(),
+                  painter: _sheetMusicPainter,
                   isComplex: true,
                   willChange: false,
                   child: sheetMusicSizedBox,
@@ -583,7 +582,7 @@ class _State extends State<BassWidget> {
               GestureDetector(
                 child: RepaintBoundary(
                   child: CustomPaint(
-                    painter: _SheetMusicDragger(),
+                    painter: _SheetMusicDragger(_sheetMusicPainter),
                     isComplex: true,
                     willChange: false,
                     child: sheetMusicSizedBox,
@@ -666,6 +665,8 @@ class _State extends State<BassWidget> {
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
+
+  final SheetMusicPainter _sheetMusicPainter = SheetMusicPainter();
 }
 
 class _FretBoardPainter extends CustomPainter {
@@ -937,15 +938,25 @@ ElevatedButton _commandButton(
 }
 
 class _SheetMusicDragger extends CustomPainter {
+  _SheetMusicDragger(this.sheetMusicPainter);
+
   @override
   void paint(Canvas canvas, Size size) {
     //  clear the plot
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _transClear);
 
-    if (_dragStart != null) {
-      _dragEnd ??= _dragStart;
-      Rect selectRect = Rect.fromPoints(_dragStart!, _dragEnd!);
-      canvas.drawRect(selectRect, _transBlue);
+    if (_dragStart == null) {
+      return;
+    }
+
+    _dragEnd ??= _dragStart;
+    Rect selectRect = Rect.fromPoints(_dragStart!, _dragEnd!);
+    canvas.drawRect(selectRect, _transBlue);
+
+    for ( var locs in sheetMusicPainter.sheetNoteLocations){
+      if( selectRect.overlaps(locs.location)){
+        canvas.drawRect(locs.location, _transRed);
+      }
     }
   }
 
@@ -954,6 +965,8 @@ class _SheetMusicDragger extends CustomPainter {
     return true;
   }
 
-  final _transBlue = Paint()..color = Colors.lightBlueAccent.withAlpha(40);
+  final SheetMusicPainter sheetMusicPainter;
+  final _transBlue = Paint()..color = Colors.lightBlueAccent.withAlpha(30);
+  final _transRed = Paint()..color = Colors.redAccent.withAlpha(80);
   final _transClear = Paint()..color = Colors.white.withAlpha(0);
 }

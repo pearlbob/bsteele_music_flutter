@@ -20,6 +20,7 @@ class SheetMusicPainter extends CustomPainter {
     _canvas = canvas;
 
     //  clear the plot
+    _sheetNoteLocations.clear();
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _white);
     _reset();
 
@@ -204,7 +205,8 @@ class SheetMusicPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+    logger.i('shouldRepaint( ${oldDelegate.runtimeType} )');
+    return false;
   }
 
   /// render the key symbols (sharps or flats)
@@ -368,6 +370,8 @@ class SheetMusicPainter extends CustomPainter {
     if (_debug) {
       _canvas.drawRect(rect, _transGrey);
     }
+
+    _sheetNoteLocations.add(SheetNoteLocation(sn, rect));
   }
 
   void _startClef(Clef clef) {
@@ -605,7 +609,9 @@ class SheetMusicPainter extends CustomPainter {
     _measureAccidentals.clear();
   }
 
-  final Map<double, Accidental> _measureAccidentals = {};
+  List<SheetNoteLocation> get sheetNoteLocations => _sheetNoteLocations;
+  final List<SheetNoteLocation> _sheetNoteLocations = [];
+  final Map<double, Accidental> _measureAccidentals = {}; // cache for a single measure
   late Canvas _canvas;
   static const double _staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  style basis only
   static const double _accidentalStaffSpace = 0.25;
@@ -617,6 +623,13 @@ class SheetMusicPainter extends CustomPainter {
   double _xOffBass = 0;
   double _yOffTreble = 0;
   double _yOffBass = 0;
+}
+
+class SheetNoteLocation {
+  SheetNoteLocation(this.sheetNote, this.location);
+
+  SheetNote sheetNote;
+  Rect location;
 }
 
 final _white = Paint()..color = Colors.white;

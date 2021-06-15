@@ -45,7 +45,7 @@ music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
 const _centerSelections = true; //fixme: add later!
 
-const Level _playerLogScroll = Level.debug;
+const Level _playerLogScroll = Level.info;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
@@ -350,7 +350,7 @@ class _Player extends State<Player> with RouteAware {
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
-    final showTopOfDisplay = !(_isPlaying && ((_songUpdate?.momentNumber ?? 0) > 0 || _sectionTarget > 0));
+    final showTopOfDisplay = !_isPlaying || (_songUpdate?.momentNumber ?? 0) <= 0;
     logger.log(
         _playerLogScroll,
         'showTopOfDisplay: $showTopOfDisplay,'
@@ -883,6 +883,10 @@ With escape, the app goes back to the play list.''',
               ?.paintBounds
               .height ?? y;
           tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
+        }
+
+        if ( tmp.isNotEmpty ){
+          tmp.first = 0;  //  special for first song moment so it can show the header data
         }
 
         _sectionLocations = tmp;

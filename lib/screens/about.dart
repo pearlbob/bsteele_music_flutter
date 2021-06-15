@@ -76,12 +76,11 @@ class _About extends State<About> {
                   'version: ${_packageInfo.version}',
                 ),
                 Text(
-                  'packageName: ${_packageInfo.packageName}',
-                ),
-                Text(
                   'buildNumber: ${_packageInfo.buildNumber}',
                 ),
-
+                // Text(
+                //   'packageName: ${_packageInfo.packageName}',
+                // ),
                 const Text(
                   'Mode: ${kReleaseMode ? 'release' : 'debug'}',
                 ),
@@ -117,29 +116,6 @@ class _About extends State<About> {
     setState(() {
       _packageInfo = info;
     });
-
-    // if (kIsWeb) {
-    //   _packageInfo = PackageInfo(
-    //       appName: 'bsteele Music App',
-    //       version: 'unknown, web workaround', // fixme
-    //       packageName: 'unknown',
-    //       buildNumber: '0');
-    // } else {
-    //   if (Platform.isAndroid || Platform.isIOS) {
-    //     PackageInfo.fromPlatform().then((value) {
-    //       setState(() {
-    //         _packageInfo = value;
-    //       });
-    //     });
-    //   } else {
-    //     //  fixme: have to fake PackageInfo for other platforms
-    //     _packageInfo = PackageInfo(
-    //         appName: 'bsteele Music App',
-    //         version: 'unknown from platform', // fixme
-    //         packageName: 'unknown',
-    //         buildNumber: '0');
-    //   }
-    // }
 
     rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
       setState(() {

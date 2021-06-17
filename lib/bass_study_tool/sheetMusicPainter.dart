@@ -12,7 +12,7 @@ import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
 
 const double staffSpace = 16;
 
-const bool _debug = true; //  true false
+const bool _debug = false; //  true false
 
 class SheetMusicPainter extends CustomPainter {
   @override
@@ -301,6 +301,7 @@ class SheetMusicPainter extends CustomPainter {
     if (_debug) {
       _canvas.drawRect(rect, _transGrey);
     }
+    _sheetNoteLocations.add(SheetNoteLocation(rest, rect));
   }
 
   // Accidental _accidentalFromPitch(Pitch pitch) {

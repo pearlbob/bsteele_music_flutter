@@ -103,525 +103,527 @@ class _State extends State<BassWidget> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          CustomPaint(
-            painter: _FretBoardPainter(),
-            isComplex: true,
-            willChange: false,
-            child: const SizedBox(
-              width: double.infinity,
-              height: 200.0,
+      body: SingleChildScrollView(  //  fixme: how can i get this to work on the canvas stack?
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 10,
             ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // key, chords
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Key: ',
-                        style: _style,
-                      ),
-                      DropdownButton<music_key.Key>(
-                        items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                          return DropdownMenuItem<music_key.Key>(
-                            key: ValueKey('half' + value.getHalfStep().toString()),
-                            value: value,
-                            child: Text(
-                              '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != _key) {
-                            setState(() {
-                              _key = _value;
-                            });
-                          }
-                        },
-                        value: _key,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
+            CustomPaint(
+              painter: _FretBoardPainter(),
+              isComplex: true,
+              willChange: false,
+              child: const SizedBox(
+                width: double.infinity,
+                height: 200.0,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // key, chords
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Key: ',
+                          style: _style,
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Chord root: ',
-                        style: _style,
-                      ),
-                      DropdownButton<ScaleNote>(
-                        items: scaleNoteValues.map((ScaleNote value) {
-                          return DropdownMenuItem<ScaleNote>(
-                            key: ValueKey('root' + value.halfStep.toString()),
-                            value: value,
-                            child: Text(
-                              _key.inKey(value).toMarkup(),
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != _chordRoot) {
-                            setState(() {
-                              _chordRoot = _value;
-                            });
-                          }
-                        },
-                        value: _chordRoot,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
+                        DropdownButton<music_key.Key>(
+                          items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                            return DropdownMenuItem<music_key.Key>(
+                              key: ValueKey('half' + value.getHalfStep().toString()),
+                              value: value,
+                              child: Text(
+                                '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != _key) {
+                              setState(() {
+                                _key = _value;
+                              });
+                            }
+                          },
+                          value: _key,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Chord type: ',
-                        style: _style,
-                      ),
-                      DropdownButton<ChordDescriptor>(
-                        items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
-                          return DropdownMenuItem<ChordDescriptor>(
-                            value: value,
-                            child: Text(
-                              '${value.toString().padRight(3)} (${value.name})',
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != chordDescriptor) {
-                            setState(() {
-                              chordDescriptor = _value;
-                            });
-                          }
-                        },
-                        value: chordDescriptor,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Chord root: ',
+                          style: _style,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                width: 10,
-              ),
-              //  notes and rests
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _noteButton(
-                        noteWhole.character,
-                        onPressed: () {
-                          logger.i('noteWhole pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _noteButton(
-                        noteHalfUp.character,
-                        onPressed: () {
-                          logger.i('noteHalfUp pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _noteButton(
-                        noteQuarterUp.character,
-                        onPressed: () {
-                          logger.i('noteQuarterUp pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _noteButton(
-                        note8thUp.character,
-                        onPressed: () {
-                          logger.i('note8thUp pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _noteButton(
-                        note16thUp.character,
-                        onPressed: () {
-                          logger.i('note16thUp pressed');
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      _restButton(
-                        restWhole.character,
-                        onPressed: () {
-                          logger.i('restWhole pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _restButton(
-                        restHalf.character,
-                        onPressed: () {
-                          logger.i('restHalf pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _restButton(
-                        restQuarter.character,
-                        onPressed: () {
-                          logger.i('restQuarter pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _restButton(
-                        rest8th.character,
-                        onPressed: () {
-                          logger.i('rest8th pressed');
-                        },
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _restButton(
-                        rest16th.character,
-                        onPressed: () {
-                          logger.i('rest16th pressed');
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                width: 10,
-              ),
-              //  entry details
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        checkColor: Colors.white,
-                        fillColor: MaterialStateProperty.all(_blue.color),
-                        value: _isDot,
-                        onChanged: (bool? value) {
-                          if (value != null) {
-                            setState(() {
-                              _isDot = value;
-                              logger.i('isDot: $_isDot');
-                            });
-                          }
-                        },
-                      ),
-                      Text(
-                        '+dot',
-                        style: _style,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Checkbox(
+                        DropdownButton<ScaleNote>(
+                          items: scaleNoteValues.map((ScaleNote value) {
+                            return DropdownMenuItem<ScaleNote>(
+                              key: ValueKey('root' + value.halfStep.toString()),
+                              value: value,
+                              child: Text(
+                                _key.inKey(value).toMarkup(),
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != _chordRoot) {
+                              setState(() {
+                                _chordRoot = _value;
+                              });
+                            }
+                          },
+                          value: _chordRoot,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Chord type: ',
+                          style: _style,
+                        ),
+                        DropdownButton<ChordDescriptor>(
+                          items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
+                            return DropdownMenuItem<ChordDescriptor>(
+                              value: value,
+                              child: Text(
+                                '${value.toString().padRight(3)} (${value.name})',
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != chordDescriptor) {
+                              setState(() {
+                                chordDescriptor = _value;
+                              });
+                            }
+                          },
+                          value: chordDescriptor,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 10,
+                ),
+                //  notes and rests
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _noteButton(
+                          noteWhole.character,
+                          onPressed: () {
+                            logger.i('noteWhole pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _noteButton(
+                          noteHalfUp.character,
+                          onPressed: () {
+                            logger.i('noteHalfUp pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _noteButton(
+                          noteQuarterUp.character,
+                          onPressed: () {
+                            logger.i('noteQuarterUp pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _noteButton(
+                          note8thUp.character,
+                          onPressed: () {
+                            logger.i('note8thUp pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _noteButton(
+                          note16thUp.character,
+                          onPressed: () {
+                            logger.i('note16thUp pressed');
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        _restButton(
+                          restWhole.character,
+                          onPressed: () {
+                            logger.i('restWhole pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _restButton(
+                          restHalf.character,
+                          onPressed: () {
+                            logger.i('restHalf pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _restButton(
+                          restQuarter.character,
+                          onPressed: () {
+                            logger.i('restQuarter pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _restButton(
+                          rest8th.character,
+                          onPressed: () {
+                            logger.i('rest8th pressed');
+                          },
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _restButton(
+                          rest16th.character,
+                          onPressed: () {
+                            logger.i('rest16th pressed');
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 10,
+                ),
+                //  entry details
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Checkbox(
                           checkColor: Colors.white,
                           fillColor: MaterialStateProperty.all(_blue.color),
-                          value: _isTie,
+                          value: _isDot,
                           onChanged: (bool? value) {
                             if (value != null) {
                               setState(() {
-                                _isTie = value;
-                                logger.i('_isTie: $_isTie');
+                                _isDot = value;
+                                logger.i('isDot: $_isDot');
                               });
-                            }
-                          }),
-                      Text(
-                        '+tie',
-                        style: _style,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Lyrics:',
-                        style: _style,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      SizedBox(
-                        width: 250,
-                        height: 70,
-                        child: TextField(
-                          //    key: const ValueKey('lyrics'),
-                          controller: _lyricsTextEditingController,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter lyrics',
-                          ),
-                          maxLength: null,
-                          style: _style,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                width: 10,
-              ),
-              // timing and display options
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Time:',
-                        style: _style,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      DropdownButton<TimeSignature>(
-                        items: knownTimeSignatures.map((TimeSignature value) {
-                          return DropdownMenuItem<TimeSignature>(
-                            key: ValueKey('timeSignature_${value.beatsPerBar}_${value.unitsPerMeasure}'),
-                            value: value,
-                            child: Text(
-                              value.toString(),
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != _timeSignature) {
-                            setState(() {
-                              _timeSignature = _value;
-                            });
-                          }
-                        },
-                        value: _timeSignature,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        'BPM:',
-                        style: _style,
-                      ),
-                      SizedBox(
-                        width: _fontSize * 2,
-                        child: TextField(
-                          //    key: const ValueKey('lyrics'),
-                          controller: _bpmTextEditingController,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter BPM',
-                          ),
-                          maxLength: null,
-                          style: _style,
-                          onChanged: (value) {
-                            try {
-                              var tmpBPM = int.parse(value);
-                              if (tmpBPM >= MusicConstants.minBpm && tmpBPM <= MusicConstants.maxBpm) {
-                                setState(() {
-                                  _bpm = tmpBPM;
-                                });
-                              } else {
-                                logger.i('not a valid BPM: $tmpBPM');
-                              }
-                            } catch (e) {
-                              logger.i('not a valid BPM: $value');
                             }
                           },
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Checkbox(
-                        checkColor: Colors.white,
-                        fillColor: MaterialStateProperty.all(_blue.color),
-                        value: _isSwing,
-                        onChanged: (bool? value) {
-                          if (value != null) {
-                            setState(() {
-                              _isSwing = value;
-                              logger.i('_isSwing: $_isSwing');
-                            });
-                          }
-                        },
-                      ),
-                      Text(
-                        'Swing',
-                        style: _style,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Checkbox(
-                        checkColor: Colors.white,
-                        fillColor: MaterialStateProperty.all(_blue.color),
-                        value: _isShowScaleNumbers,
-                        onChanged: (bool? value) {
-                          if (value != null) {
-                            setState(() {
-                              _isShowScaleNumbers = value;
-                              logger.i('_isShowScaleNumbers: $_isShowScaleNumbers');
-                            });
-                          }
-                        },
-                      ),
-                      Text(
-                        'scale #\'s',
-                        style: _style,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Checkbox(
-                        checkColor: Colors.white,
-                        fillColor: MaterialStateProperty.all(_blue.color),
-                        value: _isShowScaleNotes,
-                        onChanged: (bool? value) {
-                          if (value != null) {
-                            setState(() {
-                              _isShowScaleNotes = value;
-                              logger.i('_isShowScaleNotes: $_isShowScaleNotes');
-                            });
-                          }
-                        },
-                      ),
-                      Text(
-                        'scale notes',
-                        style: _style,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _commandButton('Loop 1', onPressed: () {}),
-              _commandButton('Loop 2', onPressed: () {}),
-              _commandButton('Loop 4', onPressed: () {}),
-              _commandButton('Loop selected', onPressed: () {}),
-              _commandButton('Loop', onPressed: () {}),
-              _commandButton('Play', onPressed: () {}),
-              _commandButton('Stop', onPressed: () {}),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Stack(
-            fit: StackFit.passthrough,
-            children: [
-              RepaintBoundary(
-                child: CustomPaint(
-                  painter: _sheetMusicPainter,
-                  isComplex: true,
-                  willChange: false,
-                  child: sheetMusicSizedBox,
+                        Text(
+                          '+dot',
+                          style: _style,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Checkbox(
+                            checkColor: Colors.white,
+                            fillColor: MaterialStateProperty.all(_blue.color),
+                            value: _isTie,
+                            onChanged: (bool? value) {
+                              if (value != null) {
+                                setState(() {
+                                  _isTie = value;
+                                  logger.i('_isTie: $_isTie');
+                                });
+                              }
+                            }),
+                        Text(
+                          '+tie',
+                          style: _style,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Lyrics:',
+                          style: _style,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        SizedBox(
+                          width: 250,
+                          height: 70,
+                          child: TextField(
+                            //    key: const ValueKey('lyrics'),
+                            controller: _lyricsTextEditingController,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter lyrics',
+                            ),
+                            maxLength: null,
+                            style: _style,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-              GestureDetector(
-                child: RepaintBoundary(
+                Container(
+                  width: 10,
+                ),
+                // timing and display options
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Time:',
+                          style: _style,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        DropdownButton<TimeSignature>(
+                          items: knownTimeSignatures.map((TimeSignature value) {
+                            return DropdownMenuItem<TimeSignature>(
+                              key: ValueKey('timeSignature_${value.beatsPerBar}_${value.unitsPerMeasure}'),
+                              value: value,
+                              child: Text(
+                                value.toString(),
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != _timeSignature) {
+                              setState(() {
+                                _timeSignature = _value;
+                              });
+                            }
+                          },
+                          value: _timeSignature,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          'BPM:',
+                          style: _style,
+                        ),
+                        SizedBox(
+                          width: _fontSize * 2,
+                          child: TextField(
+                            //    key: const ValueKey('lyrics'),
+                            controller: _bpmTextEditingController,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter BPM',
+                            ),
+                            maxLength: null,
+                            style: _style,
+                            onChanged: (value) {
+                              try {
+                                var tmpBPM = int.parse(value);
+                                if (tmpBPM >= MusicConstants.minBpm && tmpBPM <= MusicConstants.maxBpm) {
+                                  setState(() {
+                                    _bpm = tmpBPM;
+                                  });
+                                } else {
+                                  logger.i('not a valid BPM: $tmpBPM');
+                                }
+                              } catch (e) {
+                                logger.i('not a valid BPM: $value');
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Checkbox(
+                          checkColor: Colors.white,
+                          fillColor: MaterialStateProperty.all(_blue.color),
+                          value: _isSwing,
+                          onChanged: (bool? value) {
+                            if (value != null) {
+                              setState(() {
+                                _isSwing = value;
+                                logger.i('_isSwing: $_isSwing');
+                              });
+                            }
+                          },
+                        ),
+                        Text(
+                          'Swing',
+                          style: _style,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Checkbox(
+                          checkColor: Colors.white,
+                          fillColor: MaterialStateProperty.all(_blue.color),
+                          value: _isShowScaleNumbers,
+                          onChanged: (bool? value) {
+                            if (value != null) {
+                              setState(() {
+                                _isShowScaleNumbers = value;
+                                logger.i('_isShowScaleNumbers: $_isShowScaleNumbers');
+                              });
+                            }
+                          },
+                        ),
+                        Text(
+                          'scale #\'s',
+                          style: _style,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Checkbox(
+                          checkColor: Colors.white,
+                          fillColor: MaterialStateProperty.all(_blue.color),
+                          value: _isShowScaleNotes,
+                          onChanged: (bool? value) {
+                            if (value != null) {
+                              setState(() {
+                                _isShowScaleNotes = value;
+                                logger.i('_isShowScaleNotes: $_isShowScaleNotes');
+                              });
+                            }
+                          },
+                        ),
+                        Text(
+                          'scale notes',
+                          style: _style,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _commandButton('Loop 1', onPressed: () {}),
+                _commandButton('Loop 2', onPressed: () {}),
+                _commandButton('Loop 4', onPressed: () {}),
+                _commandButton('Loop selected', onPressed: () {}),
+                _commandButton('Loop', onPressed: () {}),
+                _commandButton('Play', onPressed: () {}),
+                _commandButton('Stop', onPressed: () {}),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Stack(
+              fit: StackFit.passthrough,
+              children: [
+                RepaintBoundary(
                   child: CustomPaint(
-                    painter: _SheetMusicDragger(_sheetMusicPainter),
+                    painter: _sheetMusicPainter,
                     isComplex: true,
                     willChange: false,
                     child: sheetMusicSizedBox,
                   ),
                 ),
-                onHorizontalDragStart: (details) {
-                  dragStart(details.localPosition);
-                },
-                onHorizontalDragDown: (dragDownDetails) {
-                  dragUpdate(dragDownDetails.localPosition);
-                },
-                onHorizontalDragUpdate: (dragUpdateDetails) {
-                  dragUpdate(dragUpdateDetails.localPosition);
-                },
-                onHorizontalDragCancel: () {
-                  dragStop();
-                },
-                onHorizontalDragEnd: (details) {
-                  dragStop();
-                },
-                onVerticalDragStart: (details) {
-                  dragStart(details.localPosition);
-                },
-                onVerticalDragDown: (dragDownDetails) {
-                  dragUpdate(dragDownDetails.localPosition);
-                },
-                onVerticalDragUpdate: (dragUpdateDetails) {
-                  dragUpdate(dragUpdateDetails.localPosition);
-                },
-                onVerticalDragCancel: () {
-                  dragStop();
-                },
-                onVerticalDragEnd: (details) {
-                  dragStop();
-                },
-              ),
-            ],
-          ),
-        ],
+                GestureDetector(
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      painter: _SheetMusicDragger(_sheetMusicPainter),
+                      isComplex: true,
+                      willChange: false,
+                      child: sheetMusicSizedBox,
+                    ),
+                  ),
+                  onHorizontalDragStart: (details) {
+                    dragStart(details.localPosition);
+                  },
+                  onHorizontalDragDown: (dragDownDetails) {
+                    dragUpdate(dragDownDetails.localPosition);
+                  },
+                  onHorizontalDragUpdate: (dragUpdateDetails) {
+                    dragUpdate(dragUpdateDetails.localPosition);
+                  },
+                  onHorizontalDragCancel: () {
+                    dragStop();
+                  },
+                  onHorizontalDragEnd: (details) {
+                    dragStop();
+                  },
+                  onVerticalDragStart: (details) {
+                    dragStart(details.localPosition);
+                  },
+                  onVerticalDragDown: (dragDownDetails) {
+                    dragUpdate(dragDownDetails.localPosition);
+                  },
+                  onVerticalDragUpdate: (dragUpdateDetails) {
+                    dragUpdate(dragUpdateDetails.localPosition);
+                  },
+                  onVerticalDragCancel: () {
+                    dragStop();
+                  },
+                  onVerticalDragEnd: (details) {
+                    dragStop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -951,13 +953,16 @@ class _SheetMusicDragger extends CustomPainter {
 
     _dragEnd ??= _dragStart;
     Rect selectRect = Rect.fromPoints(_dragStart!, _dragEnd!);
-    canvas.drawRect(selectRect, _transBlue);
 
-    for ( var locs in sheetMusicPainter.sheetNoteLocations){
-      if( selectRect.overlaps(locs.location)){
-        canvas.drawRect(locs.location, _transRed);
+    for (var sheetNoteLocation in sheetMusicPainter.sheetNoteLocations) {
+      if (selectRect.overlaps(sheetNoteLocation.location)) {
+        var noteRect = sheetNoteLocation.location.inflate(_selectStrokeWidth);
+        canvas.drawRect(noteRect, _transBlueOutline);
+        selectRect = selectRect.expandToInclude(noteRect);
       }
     }
+
+    canvas.drawRect(selectRect.inflate(2 * _selectStrokeWidth), _transBlueOutline);
   }
 
   @override
@@ -966,7 +971,12 @@ class _SheetMusicDragger extends CustomPainter {
   }
 
   final SheetMusicPainter sheetMusicPainter;
-  final _transBlue = Paint()..color = Colors.lightBlueAccent.withAlpha(30);
-  final _transRed = Paint()..color = Colors.redAccent.withAlpha(80);
+  static const _selectStrokeWidth = 3.0;
+  final _transBlueOutline = Paint()
+    ..color = Colors.lightBlueAccent.withAlpha(200)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = _selectStrokeWidth;
+
+  // final _transRed = Paint()..color = Colors.redAccent.withAlpha(80);
   final _transClear = Paint()..color = Colors.white.withAlpha(0);
 }

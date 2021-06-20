@@ -5,10 +5,13 @@ import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:web_socket_channel/status.dart' as web_socket_status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
+
+const Level _log = Level.debug;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
@@ -35,14 +38,10 @@ class SongUpdateService extends ChangeNotifier {
 
       if (_authority.isEmpty) {
         // do nothing
-      } else if (_authority.contains('bsteele.com')) {
-        //  there is never a websocket on the web
-        logger.i('webSocketChannel exception: never going to be at: "$_authority"');
-        //  do nothing
       } else {
         //  assume that the authority is good, or at least worth trying
         var url = 'ws://$_authority$_port/bsteeleMusicApp/bsteeleMusic';
-        logger.i('trying: $url');
+        logger.log(_log, 'trying: $url');
 
         try {
           //  or re-try
@@ -59,10 +58,10 @@ class SongUpdateService extends ChangeNotifier {
               _songUpdateCount++;
             }
           }, onError: (Object error) {
-            logger.d('webSocketChannel error: $error at $_authority'); //  fixme: retry later
+            logger.log(_log, 'webSocketChannel error: $error at $_authority'); //  fixme: retry later
             _closeWebSocketChannel();
           }, onDone: () {
-            logger.d('webSocketChannel onDone: at $_authority');
+            logger.log(_log, 'webSocketChannel onDone: at $_authority');
             _closeWebSocketChannel();
           });
 
@@ -73,20 +72,20 @@ class SongUpdateService extends ChangeNotifier {
             notifyListeners();
 
             if (lastAuthority != _findTheAuthority()) {
-              logger.d('lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
+              logger.log(_log, 'lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
               _closeWebSocketChannel();
               delaySeconds = 0;
               break;
             }
             if (!_isOpen) {
-              logger.d('on close: $lastAuthority');
+              logger.log(_log, 'on close: $lastAuthority');
               delaySeconds = 0;
               break;
             }
             logger.v('webSocketChannel idle: $_isOpen, count: $_idleCount');
           }
         } catch (e) {
-          logger.i('webSocketChannel exception: ${e.toString()}');
+          logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
           _closeWebSocketChannel();
         }
       }
@@ -94,7 +93,7 @@ class SongUpdateService extends ChangeNotifier {
       if (delaySeconds > 0) {
         //  wait a while
         if (delaySeconds < maxDelaySeconds) {
-          logger.i('wait a while... before retrying websocket: $delaySeconds s');
+          logger.log(_log, 'wait a while... before retrying websocket: $delaySeconds s');
         }
         await Future.delayed(Duration(seconds: delaySeconds));
       }
@@ -112,7 +111,14 @@ class SongUpdateService extends ChangeNotifier {
       authority = _appOptions.websocketHost;
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       authority = Uri.base.authority;
+      if (authority.contains('bsteele.com')) {
+        //  there is never a websocket on the web
+        logger.log(_log, 'webSocketChannel exception: never going to be at: "$_authority"');
+        //  do nothing
+        authority = '';
+      }
     }
+    logger.log(_log, 'authority: $authority');
     return authority;
   }
 

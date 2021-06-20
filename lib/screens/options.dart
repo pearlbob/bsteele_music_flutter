@@ -7,6 +7,7 @@ import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
+import 'package:bsteele_music_flutter/app/appElevatedButton.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
@@ -261,6 +262,7 @@ class _Options extends State<Options> {
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
@@ -272,6 +274,7 @@ class _Options extends State<Options> {
                           ),
                         ),
                         Expanded(
+                          flex: 16,
                           child: TextField(
                             controller: _websocketHostEditingController,
                             decoration: const InputDecoration(
@@ -286,6 +289,21 @@ class _Options extends State<Options> {
                             },
                           ),
                         ),
+                        const Spacer(),
+                        AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
+                          _appOptions.websocketHost = '';
+                          _websocketHostEditingController.text =  _appOptions.websocketHost;
+                        }),
+                        const Spacer(),
+                        AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
+                          _appOptions.websocketHost = 'cj.local';
+                          _websocketHostEditingController.text =  _appOptions.websocketHost;
+                        }),
+                        const Spacer(),
+                        AppFlexButton('Park', flex: 4, fontSize: fontSize, onPressed: () {
+                          _appOptions.websocketHost = '192.168.1.205';
+                          _websocketHostEditingController.text =  _appOptions.websocketHost;
+                        }),
                       ]),
                   Row(children: <Widget>[
                     Text(
@@ -316,7 +334,7 @@ class _Options extends State<Options> {
                           style: AppTextStyle(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
-                            backgroundColor:  appDefaultColor ,
+                            backgroundColor: appDefaultColor,
                           ),
                         ),
                         onPressed: () {

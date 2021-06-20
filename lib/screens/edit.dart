@@ -2002,7 +2002,7 @@ class _Edit extends State<Edit> {
                         });
                       },
                       value: _keyChordNote,
-                      style: appButtonTextStyle,
+                      style: appButtonTextStyle(fontSize: _defaultFontSize),
                     ),
                   ),
                   _majorChordButton,

@@ -292,36 +292,48 @@ class _Options extends State<Options> {
                       'Song Update: ',
                       style: AppTextStyle(fontSize: fontSize),
                     ),
-                    ElevatedButton(
-                      child: Text(
-                        (_songUpdateService.isConnected
-                            ? (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader')
-                            : (_songUpdateService.authority.isNotEmpty
-                                ? 'Retrying ${_songUpdateService.authority}'
-                                : 'Idle')),
-                        style: AppTextStyle(
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.bold,
-                          backgroundColor: _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
-                              ? appDefaultColor
-                              : Colors.red,
-                        ),
-                      ),
-                      onPressed: () {
-                        if (_songUpdateService.isConnected) {
-                          _songUpdateService.isLeader = !_songUpdateService.isLeader;
-                        } else {
-                          _songUpdateService.open(context);
-                        }
-                        setState(() {});
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
-                                ? appDefaultColor
-                                : Colors.red),
+                    Text(
+                      (_songUpdateService.isConnected
+                          ? 'Connected'
+                          : (_songUpdateService.authority.isNotEmpty
+                              ? 'Retrying ${_songUpdateService.authority}'
+                              : 'Idle')),
+                      style: AppTextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        backgroundColor: _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
+                            ? Colors.green
+                            : Colors.red,
                       ),
                     ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    if (_songUpdateService.isConnected)
+                      ElevatedButton(
+                        child: Text(
+                          _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
+                          style: AppTextStyle(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            backgroundColor:  appDefaultColor ,
+                          ),
+                        ),
+                        onPressed: () {
+                          if (_songUpdateService.isConnected) {
+                            _songUpdateService.isLeader = !_songUpdateService.isLeader;
+                          } else {
+                            _songUpdateService.open(context);
+                          }
+                          setState(() {});
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
+                                  ? appDefaultColor
+                                  : Colors.red),
+                        ),
+                      ),
                   ]),
                   Row(children: <Widget>[
                     Checkbox(

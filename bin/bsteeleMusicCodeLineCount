@@ -1,0 +1,45 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+set flutterAppDir=$home/github/bsteele_music_flutter
+set flutterAppCodeDir=$flutterAppDir
+
+set flutterLibDir=$home/github/bsteeleMusicLib
+set flutterLibCodeDir=$flutterLibDir/bsteele_music_lib
+
+
+#	find and compensate for a non-representative source file
+set j=`find $flutterAppCodeDir/lib -iname "sheetMusicFontParameters.dart" -print`
+set j=`wc -l $j`
+set j=`echo $j | sed -e 's/ .*//;' -`
+@ ignoreCount = $j
+echo ignoreCount: $ignoreCount
+echo
+
+echo code
+@ sum = 0
+foreach dir ( $flutterAppCodeDir $flutterLibCodeDir )
+	set j=`find $dir/lib -iname "*.dart" -print `
+	set j=`wc -l $j | tail -1 | sed -e 's/^ *//; s/ .*//;' - `
+	echo $j $dir
+	@ sum = $sum + $j
+end
+echo $sum total
+echo
+
+@ grandTotal = $sum
+
+echo test
+@ sum = 0
+foreach dir ( $flutterAppCodeDir $flutterLibCodeDir )
+	set j=`find $dir/test -iname "*.dart" -print `
+	set j=`wc -l $j | tail -1 | sed -e 's/^ *//; s/ .*//;' - `
+	echo $j $dir
+	@ sum = $sum + $j
+end
+echo $sum total
+echo
+
+@ grandTotal = $grandTotal + $sum
+echo $grandTotal grandTotal
+echo

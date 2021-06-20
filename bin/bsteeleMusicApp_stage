@@ -89,3 +89,6 @@ rm -rf build/beta
 #	already done above: bsteele_auth
 gsutil cp $war $gswar
 gsutil -q acl -r ch -u AllUsers:R  $gswar
+
+# print some facts
+bin/bsteeleMusicCodeLineCount

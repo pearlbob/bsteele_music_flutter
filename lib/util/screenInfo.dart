@@ -23,7 +23,6 @@ class ScreenInfo {
     _fontSize = 2 * appDefaultFontSize * min(2.5, max(0.5, _widthInLogicalPixels / minLogicalPixels));
     _isTooNarrow = _widthInLogicalPixels <= minLogicalPixels; //  logical pixels
     _titleScaleFactor = 1.25 * max(1, _widthInLogicalPixels / minLogicalPixels);
-    _artistScaleFactor = 0.75 * _titleScaleFactor;
     logger.d('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
@@ -40,7 +39,6 @@ class ScreenInfo {
         _isDefaultValue = true {
     _isTooNarrow = false; //  logical pixels
     _titleScaleFactor = 1;
-    _artistScaleFactor = 0.75;
   }
 
   double get fontSize => _fontSize;
@@ -57,9 +55,6 @@ class ScreenInfo {
 
   // double get titleScaleFactor => _titleScaleFactor;
   late double _titleScaleFactor;
-
-  // double get artistScaleFactor => _artistScaleFactor;
-  late double _artistScaleFactor;
 
   bool get isDefaultValue => _isDefaultValue;
   final bool _isDefaultValue;

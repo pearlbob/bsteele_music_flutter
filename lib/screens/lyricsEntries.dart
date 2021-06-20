@@ -8,7 +8,8 @@ import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-typedef _LyricsEntriesCallback = void Function();
+typedef _LyricsEntriesCallback = void Function(); //  structural change
+typedef OnLyricsLineChangedCallback = void Function(); //  text content change
 
 LyricSection? _focusLyricSection;
 int _focusLyricsLineIndex = 0;
@@ -19,7 +20,10 @@ class LyricsEntries extends ChangeNotifier {
     _focusLyricSection = null;
   }
 
-  LyricsEntries.fromSong(this._song, {AppTextStyle? textStyle}) : _textStyle = textStyle {
+  LyricsEntries.fromSong(this._song,
+      {OnLyricsLineChangedCallback? onLyricsLineChangedCallback, AppTextStyle? textStyle})
+      : _onLyricsLineChangedCallback = onLyricsLineChangedCallback,
+        _textStyle = textStyle {
     _focusLyricSection = null;
     updateEntriesFromSong();
     logger.v('LyricsEntries.fromSong: lyrics: ${_song.lyricsAsString().replaceAll('\n', '\\n')}');
@@ -29,8 +33,12 @@ class LyricsEntries extends ChangeNotifier {
   void updateEntriesFromSong() {
     _entries.clear();
     for (final lyricSection in _song.lyricSections) {
-      _entries.add(_LyricsDataEntry.fromSong(lyricSection,
-          textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
+      _entries.add(_LyricsDataEntry.fromSong(
+        lyricSection,
+        _lyricsEntriesCallback,
+        onLyricsLineChangedCallback: _onLyricsLineChangedCallback,
+        textStyle: _textStyle,
+      ));
     }
     logger.v('LyricsEntries.fromSong()');
     logger.v('_asLyricsEntry():\n<${asRawLyrics()}>');
@@ -175,7 +183,23 @@ class LyricsEntries extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool hasChangedLines() {
+    for (var entry in _entries) {
+      if (entry._hasChangedLines()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void dispose() {
+    assert(hasListeners == false);
+    super.dispose();
+  }
+
   final Song _song;
+  OnLyricsLineChangedCallback? _onLyricsLineChangedCallback;
 
   List<_LyricsDataEntry> get entries => _entries;
   final List<_LyricsDataEntry> _entries = [];
@@ -185,14 +209,19 @@ class LyricsEntries extends ChangeNotifier {
 typedef _LyricsLineCallback = void Function(_LyricsLine line, List<String> lines);
 
 class _LyricsDataEntry {
-  _LyricsDataEntry.fromSong(this.lyricSection, {AppTextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
-      : _textStyle = textStyle,
+  _LyricsDataEntry.fromSong(
+    this.lyricSection,
+    _LyricsEntriesCallback? lyricsEntriesCallback, {
+    OnLyricsLineChangedCallback? onLyricsLineChangedCallback,
+    AppTextStyle? textStyle,
+  })  : _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback {
     if (lyricSection.lyricsLines.isNotEmpty
         //  note: allow empty (blank) lines, i.e. lyricSection.lyricsLines.first can be empty
         ) {
       _lyricsLines = List.from(lyricSection.lyricsLines)
-          .map((line) => _LyricsLine(line, _lyricsLineCallback, textStyle: _textStyle))
+          .map((line) =>
+              _LyricsLine(line, _lyricsLineCallback, onLyricsLineChangedCallback: onLyricsLineChangedCallback, textStyle: _textStyle))
           .toList();
 
       //  copy the focus
@@ -216,7 +245,7 @@ class _LyricsDataEntry {
     if (index < 0) {
       throw 'cannot find: <oldLyricsLine> in $_lyricsLines';
     }
-    if ( newLyricsLines.length > 1 ) {
+    if (newLyricsLines.length > 1) {
       logger.d('_lyricsLineCallback: $this: $index: $oldLyricsLine, lines: $newLyricsLines)');
       var removed = _lyricsLines.remove(oldLyricsLine);
       logger.d('removed: $removed $oldLyricsLine');
@@ -251,6 +280,15 @@ class _LyricsDataEntry {
     lyricsLine.requestFocus();
   }
 
+  bool _hasChangedLines() {
+    for (var line in _lyricsLines) {
+      if (line._hasChanged()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @override
   String toString() {
     return 'LyricsDataEntry{ $lyricSection: lines: ${_lyricsLines.length} }';
@@ -270,39 +308,47 @@ class _LyricsLine {
   _LyricsLine(
     lineText,
     this._lyricsLineCallback, {
+    OnLyricsLineChangedCallback? onLyricsLineChangedCallback,
     AppTextStyle? textStyle,
-  }) {
+  }) : _onLyricsLineChangedCallback = onLyricsLineChangedCallback {
     _originalText = lineText.replaceAll('\n', '');
     _controller = TextEditingController(text: _originalText);
     _textField = TextField(
       controller: _controller,
-      focusNode: focusNode,
+      focusNode: _focusNode,
       style: textStyle,
       keyboardType: TextInputType.text,
       minLines: 1,
       //  arbitrary, large limit:
       maxLines: 300,
       onSubmitted: (value) {
+        //  deal with newlines
         logger.d('onSubmitted(\'$value\')');
         _submitLine();
       },
       onChanged: (value) {
-        logger.i('onChanged(\'$value\')');
-        // print('onChanged(\'$value\')');
-        _updateFromController();
+        logger.d('onChanged(\'$value\'), ${_focusNode.hasFocus}');
+        if (_onLyricsLineChangedCallback != null) {
+          _onLyricsLineChangedCallback!();
+        }
+        // _updateFromController();
       },
+      // onEditingComplete: () {
+      //   logger.d('onEditingComplete(\'${_controller.text}\')');
+      // },
     );
   }
 
-  void _updateFromController() {
-    //  split into lines
-    logger.i('_updateFromController(): <${_controller.text}>');
-
-      List<String> ret = [];
-      ret.add(_controller.text);
-      //  update
-      _lyricsLineCallback(this, ret);
-  }
+  /// bad idea
+  // void _updateFromController() {
+  //   //  split into lines
+  //   logger.i('_updateFromController(): <${_controller.text}>');
+  //
+  //   List<String> ret = [];
+  //   ret.add(_controller.text);
+  //   //  update
+  //   _lyricsLineCallback(this, ret);
+  // }
 
   void _submitLine() {
     var selection = _controller.selection;
@@ -328,20 +374,34 @@ class _LyricsLine {
     _lyricsLineCallback(this, ret);
   }
 
+  bool _hasChanged() {
+    return _originalText != _controller.text;
+  }
+
   @override
   String toString() {
     return '\'${_controller.text}\'';
   }
 
   requestFocus() {
-    focusNode.requestFocus();
+    _focusNode.requestFocus();
   }
 
-  final FocusNode focusNode = FocusNode();
+  ///
+  ///   @override
+  ///   void dispose() {
+  ///     _node.removeListener(_handleFocusChange);
+  ///     // The attachment will automatically be detached in dispose().
+  ///     _node.dispose();
+  ///     super.dispose();
+  ///   }
+
+  final FocusNode _focusNode = FocusNode();
 
   TextField get textField => _textField;
   late final TextField _textField;
   final _LyricsLineCallback _lyricsLineCallback;
+  final OnLyricsLineChangedCallback? _onLyricsLineChangedCallback;
 
   String get text => _controller.text;
   late final TextEditingController _controller;

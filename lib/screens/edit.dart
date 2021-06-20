@@ -39,16 +39,6 @@ import '../app/app.dart';
 
 late Song _initialSong;
 
-///   screen to edit a song
-class Edit extends StatefulWidget {
-  Edit({Key? key, required initialSong}) : super(key: key) {
-    _initialSong = initialSong;
-  }
-
-  @override
-  _Edit createState() => _Edit();
-}
-
 const double _defaultChordFontSize = 28;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
@@ -74,8 +64,18 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 const Level _editLog = Level.debug;
-const Level _editEntry = Level.debug;
+const Level _editEntry = Level.info;
 const Level _editKeyboard = Level.debug;
+
+///   screen to edit a song
+class Edit extends StatefulWidget {
+  Edit({Key? key, required initialSong}) : super(key: key) {
+    _initialSong = initialSong;
+  }
+
+  @override
+  _Edit createState() => _Edit();
+}
 
 class _Edit extends State<Edit> {
   _Edit()
@@ -198,6 +198,7 @@ class _Edit extends State<Edit> {
     _userTextEditingController.text = _appOptions.user;
     _bpmTextEditingController.text = _song.beatsPerMinute.toString();
 
+    _lyricsEntries.removeListener(_lyricsEntriesListener);
     _lyricsEntries = _lyricsEntriesFromSong(_song);
 
     _checkSong();
@@ -510,6 +511,8 @@ class _Edit extends State<Edit> {
       }
     }
 
+    bool songHasChanged = hasChangedFromOriginal || _lyricsEntries.hasChangedLines();
+
     return Scaffold(
         backgroundColor: Colors.white,
         body:
@@ -543,12 +546,10 @@ class _Edit extends State<Edit> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           AppElevatedButton(
-                            _hasChangedFromOriginal
-                                ? (_isValidSong ? 'Enter song' : 'Fix the song')
-                                : 'Nothing has changed',
-                            color: (_hasChangedFromOriginal && _isValidSong) ? appDefaultColor : _disabledColor,
+                            songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
+                            color: (songHasChanged && _isValidSong) ? appDefaultColor : _disabledColor,
                             onPressed: () {
-                              if (_hasChangedFromOriginal && _isValidSong) {
+                              if (songHasChanged && _isValidSong) {
                                 _enterSong();
                                 Navigator.pop(context);
                               }
@@ -794,7 +795,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                         SizedBox(
-                          width: 250.0,
+                          width: 150.0,
                           child: TextField(
                             controller: _userTextEditingController,
                             decoration: const InputDecoration(hintText: 'Enter your user name.'),
@@ -802,6 +803,14 @@ class _Edit extends State<Edit> {
                             style: _boldTextStyle,
                           ),
                         ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        if (_originalSong.user != _userTextEditingController.text)
+                          Text(
+                            '(was ${_originalSong.user})',
+                            style: _labelTextStyle,
+                          ),
                       ],
                     ),
                     Container(
@@ -1406,7 +1415,9 @@ class _Edit extends State<Edit> {
 
   /// convenience method to push lyrics changes to the song and the display
   void _pushLyricsEntries() {
-    logger.log(_editEntry, '_pushLyricsEntries(): _lyricsEntries.asRawLyrics():'
+    logger.log(
+        _editEntry,
+        '_pushLyricsEntries(): _lyricsEntries.asRawLyrics():'
         ' <${_lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>');
     _updateRawLyrics(_lyricsEntries.asRawLyrics());
     logger.log(_editEntry, '_pushLyricsEntries: rawLyrics: ${_song.rawLyrics.replaceAll('\n', '\\n')}');
@@ -1420,13 +1431,20 @@ class _Edit extends State<Edit> {
   }
 
   LyricsEntries _lyricsEntriesFromSong(Song song) {
-    LyricsEntries ret = LyricsEntries.fromSong(song, textStyle: _lyricsTextStyle);
-    ret.addListener(() {
-      _pushLyricsEntries(); //  if low level edits were made by the widget tree
-      _checkSongChangeStatus();
-      logger.log(_editEntry, '_lyricsEntries: _checkSongChangeStatus()');
-    });
+    LyricsEntries ret = LyricsEntries.fromSong(song,
+        onLyricsLineChangedCallback: _onLyricsLineChangedCallback, textStyle: _lyricsTextStyle);
+    ret.addListener(_lyricsEntriesListener);
     return ret;
+  }
+
+  void _onLyricsLineChangedCallback() {
+    logger.i('_onLyricsLineChangedCallback():  ${_lyricsEntries.hasChangedLines()}');
+  }
+
+  void _lyricsEntriesListener() {
+    _pushLyricsEntries(); //  if low level edits were made by the widget tree
+    _checkSongChangeStatus();
+    logger.log(_editEntry, '_lyricsEntries: _checkSongChangeStatus()');
   }
 
   ///  add a row for a plus on the bottom of the section to continue on the next row
@@ -1462,7 +1480,9 @@ class _Edit extends State<Edit> {
   void _editOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.log(_editKeyboard,'edit onkey:'
+      logger.log(
+          _editKeyboard,
+          'edit onkey:'
           //' ${e.data.logicalKey}'
           //', primaryFocus: ${_focusManager.primaryFocus}'
           ', context: ${_focusManager.primaryFocus?.context}'
@@ -2792,8 +2812,7 @@ class _Edit extends State<Edit> {
 
   /// returns true if the was a change of dirty status
   bool _checkSongChangeStatus() {
-    _hasChangedFromOriginal = !_song.songBaseSameContent(_originalSong);
-    if (_hasChangedFromOriginal) {
+    if (hasChangedFromOriginal) {
       _song.resetLastModifiedDateToNow();
       _checkSong();
       setState(() {});
@@ -2858,6 +2877,9 @@ class _Edit extends State<Edit> {
   ScreenInfo? _screenInfo;
   Song _song;
   final Song _originalSong;
+
+  bool get hasChangedFromOriginal =>
+      _hasChangedFromOriginal = !_song.songBaseSameContent(_originalSong); //  fixme: too fine a line
   bool _hasChangedFromOriginal = false;
   bool _isValidSong = false;
 

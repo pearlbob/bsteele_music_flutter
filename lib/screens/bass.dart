@@ -12,6 +12,7 @@ import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
@@ -47,8 +48,9 @@ music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 
-bool _isShowScaleNumbers = true;
-bool _isShowScaleNotes = true;
+bool get _isShowScaleNumbers => sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index];
+
+bool get _isShowScaleNotes => sheetDisplayEnables[SheetDisplay.bassNotes.index];
 bool _isSwing = true;
 TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
 int _bpm = 106;
@@ -69,6 +71,22 @@ class _State extends State<BassWidget> {
     _lyricsTextEditingController.addListener(() {
       logger.i('lyrics: <${_lyricsTextEditingController.text}>');
     });
+
+    //  initialize at least a minimum sheet display
+    {
+      var hasSomeDisplay = false;
+      for (var displayEnable in sheetDisplayEnables) {
+        hasSomeDisplay |= displayEnable;
+      }
+      if (!hasSomeDisplay) {
+        sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
+        //sheetDisplayEnables[SheetDisplay.treble.index]=true;
+        sheetDisplayEnables[SheetDisplay.chords.index] = true;
+        sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index] = true;
+        sheetDisplayEnables[SheetDisplay.bassNotes.index] = true;
+        sheetDisplayEnables[SheetDisplay.bass.index] = true;
+      }
+    }
   }
 
   @override
@@ -89,6 +107,64 @@ class _State extends State<BassWidget> {
 
     _bpmTextEditingController.text = _bpm.toString();
 
+    //  sheet display enables
+    Widget _sheetDisplayEnableOptionsWidget = const SizedBox(
+      height: 0,
+    );
+    if (_options) {
+      List<Widget> children = [];
+      for (var display in SheetDisplay.values) {
+        var name = Util.enumToString(display);
+        children.add(Row(
+          children: [
+            Checkbox(
+              checkColor: Colors.white,
+              fillColor: MaterialStateProperty.all(_blue.color),
+              value: sheetDisplayEnables[display.index],
+              onChanged: (bool? value) {
+                if (value != null) {
+                  setState(() {
+                    sheetDisplayEnables[display.index] = value;
+                    logger.i('$name: ${sheetDisplayEnables[display.index]}');
+                  });
+                }
+              },
+            ),
+            TextButton(
+              child: Text(
+                name,
+                style: _style,
+              ),
+              onPressed: () {
+                setState(() {
+                  sheetDisplayEnables[display.index] = !sheetDisplayEnables[display.index];
+                  logger.i('TextButton $name: ${sheetDisplayEnables[display.index]}');
+                });
+              },
+            ),
+          ],
+        ));
+      }
+
+      children.add(const SizedBox(
+        height: 10,
+      ));
+      children.add(_commandButton('Close the options', onPressed: () {
+        setState(() {
+          _options = false;
+        });
+      }));
+
+      _sheetDisplayEnableOptionsWidget = Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        ),
+      );
+    }
+
     const sheetMusicSizedBox = SizedBox(
       width: double.infinity,
       height: 400.0,
@@ -103,21 +179,23 @@ class _State extends State<BassWidget> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(  //  fixme: how can i get this to work on the canvas stack?
+      body: SingleChildScrollView(
+        //  fixme: how can i get this to work on the canvas stack?
         child: Column(
           children: [
             const SizedBox(
               height: 10,
             ),
-            CustomPaint(
-              painter: _FretBoardPainter(),
-              isComplex: true,
-              willChange: false,
-              child: const SizedBox(
-                width: double.infinity,
-                height: 200.0,
+            if (hasDisplay(SheetDisplay.bass))
+              CustomPaint(
+                painter: _FretBoardPainter(),
+                isComplex: true,
+                willChange: false,
+                child: const SizedBox(
+                  width: double.infinity,
+                  height: 200.0,
+                ),
               ),
-            ),
             const SizedBox(
               height: 10,
             ),
@@ -351,14 +429,20 @@ class _State extends State<BassWidget> {
                             if (value != null) {
                               setState(() {
                                 _isDot = value;
-                                logger.i('isDot: $_isDot');
                               });
                             }
                           },
                         ),
-                        Text(
-                          '+dot',
-                          style: _style,
+                        TextButton(
+                          child: Text(
+                            '+dot',
+                            style: _style,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isDot = !_isDot;
+                            });
+                          },
                         ),
                         const SizedBox(
                           width: 10,
@@ -375,9 +459,17 @@ class _State extends State<BassWidget> {
                                 });
                               }
                             }),
-                        Text(
-                          '+tie',
-                          style: _style,
+                        TextButton(
+                          child: Text(
+                            '+tie',
+                            style: _style,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isTie = !_isTie;
+                              logger.i('_isTie: $_isTie');
+                            });
+                          },
                         ),
                       ],
                     ),
@@ -413,7 +505,7 @@ class _State extends State<BassWidget> {
                 Container(
                   width: 10,
                 ),
-                // timing and display options
+                // timing
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -495,55 +587,20 @@ class _State extends State<BassWidget> {
                             if (value != null) {
                               setState(() {
                                 _isSwing = value;
-                                logger.i('_isSwing: $_isSwing');
                               });
                             }
                           },
                         ),
-                        Text(
-                          'Swing',
-                          style: _style,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          checkColor: Colors.white,
-                          fillColor: MaterialStateProperty.all(_blue.color),
-                          value: _isShowScaleNumbers,
-                          onChanged: (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                _isShowScaleNumbers = value;
-                                logger.i('_isShowScaleNumbers: $_isShowScaleNumbers');
-                              });
-                            }
+                        TextButton(
+                          child: Text(
+                            'Swing',
+                            style: _style,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isSwing = !_isSwing;
+                            });
                           },
-                        ),
-                        Text(
-                          'scale #\'s',
-                          style: _style,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Checkbox(
-                          checkColor: Colors.white,
-                          fillColor: MaterialStateProperty.all(_blue.color),
-                          value: _isShowScaleNotes,
-                          onChanged: (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                _isShowScaleNotes = value;
-                                logger.i('_isShowScaleNotes: $_isShowScaleNotes');
-                              });
-                            }
-                          },
-                        ),
-                        Text(
-                          'scale notes',
-                          style: _style,
                         ),
                       ],
                     ),
@@ -564,11 +621,17 @@ class _State extends State<BassWidget> {
                 _commandButton('Loop', onPressed: () {}),
                 _commandButton('Play', onPressed: () {}),
                 _commandButton('Stop', onPressed: () {}),
+                _commandButton('Options', onPressed: () {
+                  setState(() {
+                    _options = !_options;
+                  });
+                }),
               ],
             ),
             const SizedBox(
               height: 10,
             ),
+            _sheetDisplayEnableOptionsWidget,
             Stack(
               fit: StackFit.passthrough,
               children: [
@@ -659,6 +722,8 @@ class _State extends State<BassWidget> {
     super.dispose();
     logger.d('bass dispose()');
   }
+
+  bool _options = false;
 
   bool _isDot = false;
   bool _isTie = false;

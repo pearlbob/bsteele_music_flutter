@@ -419,33 +419,32 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Image(
-                  image: const AssetImage('lib/assets/runningMan.png'),
-                  width: _titleBarFontSize,
-                  height: _titleBarFontSize,
+                child: const Image(
+                  image: AssetImage('lib/assets/runningMan.png'),
+                  width: kToolbarHeight,
+                  height: kToolbarHeight,
                   semanticLabel: "bsteele.com website",
                 ),
               ),
             ),
           ),
-          if (_app.isScreenBig) //  sorry CJ
-            Tooltip(
-              message: "Visit Community Jams, the motivation and main user for this app.",
-              child: InkWell(
-                onTap: () {
-                  openLink('http://communityjams.org');
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Image(
-                    image: const AssetImage('lib/assets/cjLogo.png'),
-                    width: _titleBarFontSize,
-                    height: _titleBarFontSize,
-                    semanticLabel: "community jams",
-                  ),
+          Tooltip(
+            message: "Visit Community Jams, the motivation and main user for this app.",
+            child: InkWell(
+              onTap: () {
+                openLink('http://communityjams.org');
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: const Image(
+                  image: AssetImage('lib/assets/cjLogo.png'),
+                  width: kToolbarHeight,
+                  height: kToolbarHeight,
+                  semanticLabel: "community jams",
                 ),
               ),
             ),
+          ),
         ],
         toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.5), //  trim for cell phone overrun
       ),

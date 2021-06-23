@@ -3,8 +3,10 @@ import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
-import 'package:bsteeleMusicLib/songs/pitch.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
+import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/pitch.dart';
 
 import 'sheetMusicFontParameters.dart';
 
@@ -14,6 +16,24 @@ const double staffMargin = 3;
 //final String noteheadBlack = '\uE0A4';
 //final String stem = '\uE210';
 //final String repeat1Bar = '\uE500';
+
+enum SheetDisplay {
+  //  in order:
+  lyrics,
+  chords,
+  guitarFingerings,
+  treble,   //  piano, guitar
+  pianoBass, //  piano left hand
+  bassNoteNumbers,
+  bassNotes,
+  bass, //  bass guitar
+}
+List<bool> sheetDisplayEnables = List.filled(SheetDisplay.values.length, false);
+
+
+bool hasDisplay(SheetDisplay display){
+  return sheetDisplayEnables[display.index];
+}
 
 class SheetNoteSymbol {
   SheetNoteSymbol.glyphBBoxes(this._name, this._character, Point<double> bBoxNE, Point<double> bBoxSW)
@@ -188,11 +208,11 @@ class SheetNote {
   String toString() {
     if (_isNote) {
       return 'note: $pitch for ${(_noteDuration ?? 0).toStringAsFixed(4)}'
-          ' ${_symbol?._name??'?'} on $clef';
+          ' ${_symbol?._name ?? '?'} on $clef';
     }
     //  is rest
     return 'rest: for ${(_noteDuration ?? 0).toStringAsFixed(4)} m'
-        ' ${_symbol?._name??'?'} on $clef';
+        ' ${_symbol?._name ?? '?'} on $clef';
   }
 
   bool isUpNote() {
@@ -240,4 +260,25 @@ class SheetNote {
 
   get symbol => _symbol;
   SheetNoteSymbol? _symbol;
+}
+
+/// deal with accidentals
+class SheetChord {
+  SheetChord(this._key, this._chord);
+  final musical_key.Key _key;
+  final Chord _chord;
+}
+
+/// deal with accidentals
+class SheetMeasure {
+  SheetMeasure(this._key, this._measure) {
+    for (var chord in _measure.chords) {
+      var sheetChord = SheetChord(_key, chord);
+      _sheetChords.add( sheetChord );
+    }
+  }
+
+  final musical_key.Key _key;
+  final Measure _measure;
+  final List<SheetChord> _sheetChords = [];
 }

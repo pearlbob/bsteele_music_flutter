@@ -1,8 +1,12 @@
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/chordAnticipationOrDelay.dart';
+import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
+import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/bassStudyTool.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicFontParameters.dart';
@@ -13,18 +17,52 @@ import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
 const double staffSpace = 16;
 
 const bool _debug = false; //  true false
+const double _fontSize = 14;
+
+// For piano chords, try:  https://www.scales-chords.com/chord/piano
+
+List<double?> _sheetYOffsets = List.filled(SheetDisplay.values.length, null);
+
+final List<double> _sheetHeights = List.generate(SheetDisplay.values.length, (index) {
+  switch (SheetDisplay.values[index]) {
+    case SheetDisplay.lyrics:
+      return _fontSize;
+    case SheetDisplay.guitarFingerings:
+      return staffMargin * staffSpace;
+    case SheetDisplay.chords:
+    case SheetDisplay.treble:
+    case SheetDisplay.pianoBass: //  piano left hand
+      return staffMargin * staffSpace;
+    case SheetDisplay.bassNoteNumbers:
+    case SheetDisplay.bassNotes:
+      return _fontSize;
+    case SheetDisplay.bass:
+      return staffMargin * staffSpace;
+    default:
+      return 10;
+  }
+});
 
 class SheetMusicPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _canvas = canvas;
 
+    computeTheYOffsets();
+
     //  clear the plot
     _sheetNoteLocations.clear();
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _white);
     _reset();
 
-    //  initialize staff locations
+    //  initialize display locations
+    {
+      double y = 0;
+      for (var display in SheetDisplay.values) {
+        _sheetYOffsets[display.index] = null;
+      }
+    }
+
     _yOff = 3 * staffSpace;
     _yOffTreble = _yOff + staffMargin * staffSpace;
     _yOffBass = _yOffTreble + (staffGaps + staffMargin) * staffSpace;
@@ -49,7 +87,8 @@ class SheetMusicPainter extends CustomPainter {
 
     _xSpaceAll(1 * staffSpace);
 
-    _testSong();
+    // _testSong();
+    _testChords();
 //    {
 //      //  hand rendering
 //      _yOff = _yOffTreble;
@@ -209,6 +248,15 @@ class SheetMusicPainter extends CustomPainter {
     return false;
   }
 
+  void computeTheYOffsets(){
+    double y = 0;
+    for ( var display in SheetDisplay.values){
+      _sheetYOffsets[display.index ] = y;
+      if ( sheetDisplayEnables[display.index ]){
+        y += _sheetHeights[display.index ];
+      }
+    }
+  }
   /// render the key symbols (sharps or flats)
   void _renderKeyStaffSymbols(Clef clef) {
     if (_key == null || _key == musical_key.Key.getDefault()) {
@@ -315,7 +363,11 @@ class SheetMusicPainter extends CustomPainter {
   // }
 
   ///
-  void _renderSheetNote(SheetNote sn) {
+  void _renderSheetNote(
+    SheetNote sn, {
+    bool renderForward = true,
+    double scale = 1.0,
+  }) {
     Pitch? pitch = _key?.mappedPitch(sn.pitch);
     if (pitch == null) {
       throw 'pitch not found: $sn';
@@ -344,15 +396,15 @@ class SheetMusicPainter extends CustomPainter {
     if (accidental != null) {
       switch (accidental) {
         case Accidental.sharp:
-          accidentalRect = _renderSheetNoteSymbol(accidentalSharp, staffPosition);
+          accidentalRect = _renderSheetNoteSymbol(accidentalSharp, staffPosition, scale: scale);
           _xSpace(_accidentalStaffSpace * staffSpace);
           break;
         case Accidental.flat:
-          accidentalRect = _renderSheetNoteSymbol(accidentalFlat, staffPosition);
+          accidentalRect = _renderSheetNoteSymbol(accidentalFlat, staffPosition, scale: scale);
           _xSpace(_accidentalStaffSpace * staffSpace);
           break;
         case Accidental.natural:
-          accidentalRect = _renderSheetNoteSymbol(accidentalNatural, staffPosition);
+          accidentalRect = _renderSheetNoteSymbol(accidentalNatural, staffPosition, scale: scale);
           _xSpace(_accidentalStaffSpace * staffSpace);
           break;
       }
@@ -363,7 +415,7 @@ class SheetMusicPainter extends CustomPainter {
 
     logger.d('_measureAccidentals[  $staffPosition  ] = ${_measureAccidentals[staffPosition]} ');
 
-    var rect = _renderSheetNoteSymbol(sn.symbol, staffPosition);
+    var rect = _renderSheetNoteSymbol(sn.symbol, staffPosition, renderForward: renderForward);
     if (accidentalRect != null) {
       rect = rect.expandToInclude(accidentalRect);
     }
@@ -372,7 +424,9 @@ class SheetMusicPainter extends CustomPainter {
       _canvas.drawRect(rect, _transGrey);
     }
 
-    _sheetNoteLocations.add(SheetNoteLocation(sn, rect));
+    if (renderForward) {
+      _sheetNoteLocations.add(SheetNoteLocation(sn, rect));
+    }
   }
 
   void _startClef(Clef clef) {
@@ -416,14 +470,21 @@ class SheetMusicPainter extends CustomPainter {
     _endClef();
   }
 
-  Rect _renderSheetNoteSymbol(SheetNoteSymbol symbol, double staffPosition, {bool isStave = true}) {
-    double w = symbol.fontSizeStaffs * staffSpace;
+  Rect _renderSheetNoteSymbol(
+    SheetNoteSymbol symbol,
+    double staffPosition, {
+    bool isStave = true,
+    bool renderForward = true,
+    double scale = 1.0,
+  }) {
+    double scaledStaffSpace = staffSpace * scale;
+    double w = symbol.fontSizeStaffs * scaledStaffSpace;
 
     Rect ret = Rect.fromLTRB(
-        _xOff + symbol.bounds.left * staffSpace,
-        _yOff + (-symbol.bounds.top + staffPosition) * staffSpace,
-        _xOff + symbol.bounds.right * staffSpace,
-        _yOff + (-symbol.bounds.bottom + staffPosition) * staffSpace);
+        _xOff + symbol.bounds.left * scaledStaffSpace,
+        _yOff + (-symbol.bounds.top + staffPosition) * scaledStaffSpace,
+        _xOff + symbol.bounds.right * scaledStaffSpace * scale,
+        _yOff + (-symbol.bounds.bottom + staffPosition) * scaledStaffSpace);
 
     // if (_debug) {
     //   _canvas.drawRect(
@@ -453,7 +514,9 @@ class SheetMusicPainter extends CustomPainter {
       renderStaves(symbol, staffPosition);
     }
 
-    _xSpace(symbol.bounds.width * staffSpace);
+    if (renderForward) {
+      _xSpace(symbol.bounds.width * staffSpace);
+    }
     return ret;
   }
 
@@ -483,6 +546,71 @@ class SheetMusicPainter extends CustomPainter {
   void _xAlign() {
     _xOff = max(_xOffTreble, _xOffBass);
     _xOffBass = _xOffTreble = _xOff;
+  }
+
+  /// only test chords
+  void _testChords() {
+    const int beats = 4;
+    const int beatsPerBar = 4;
+
+    _key = musical_key.Key.get(musical_key.KeyEnum.C);
+
+    _xAlign();
+    _renderKeyStaffSymbols(Clef.treble);
+    _renderKeyStaffSymbols(Clef.bass);
+    _xSpaceAll(1 * staffSpace);
+
+    //  fill in the time signature
+    _xAlign();
+    _startClef(Clef.treble);
+    _renderSheetNoteSymbol(
+        timeSigCommon, 2); //  fixme: fill in the time signature with something other than common time
+    _endClef();
+    _xAlign();
+
+    List<ScaleNoteEnum> scaleNoteEnums = [
+      ScaleNoteEnum.D,
+      ScaleNoteEnum.C,
+      ScaleNoteEnum.G,
+      ScaleNoteEnum.G,
+    ];
+
+    double duration = 0;
+    _clearMeasureAccidentals();
+    _xSpace(1.25 * staffSpace);
+    for (var scaleNoteEnum in scaleNoteEnums) {
+      ScaleChord scaleChord = ScaleChord(ScaleNote.get(scaleNoteEnum), ChordDescriptor.major);
+      Chord chord = Chord(scaleChord, beats, beatsPerBar, null, ChordAnticipationOrDelay.defaultValue, false);
+
+      //  chord declaration over treble staff
+
+      List<Pitch> pitches = chord.pianoChordPitches();
+      logger.i('${chord.scaleChord}: $pitches');
+      for (var pitch in pitches) {
+        logger.i('    pitch: $pitch');
+        SheetNote sheetNote = SheetNote.note(
+          pitch,
+          beats / beatsPerBar,
+        );
+        _startClef(sheetNote.clef);
+        if (!identical(pitch, pitches.last)) {
+          _renderSheetNote(sheetNote, renderForward: false, scale: 0.75);
+        } else {
+          _renderSheetNote(sheetNote, renderForward: true);
+          duration += sheetNote.noteDuration;
+        }
+
+        if (duration >= 1) {
+          _xSpace(1.25 * staffSpace);
+          _renderBarlineSingle();
+          duration = 0;
+          _xSpace(1.25 * staffSpace);
+          _clearMeasureAccidentals();
+        }
+      }
+
+      _xSpace(1.25 * staffSpace);
+    }
   }
 
   /// only a test song

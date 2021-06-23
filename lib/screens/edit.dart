@@ -193,7 +193,7 @@ class _Edit extends State<Edit> {
 
     _titleTextEditingController.text = _song.title;
     _artistTextEditingController.text = _song.artist;
-    _coverArtistTextEditingController.text = _song.coverArtist ?? '';
+    _coverArtistTextEditingController.text = _song.coverArtist;
     _copyrightTextEditingController.text = _song.copyright;
     _userTextEditingController.text = _appOptions.user;
     _bpmTextEditingController.text = _song.beatsPerMinute.toString();

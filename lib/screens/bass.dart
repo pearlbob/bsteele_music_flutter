@@ -80,7 +80,9 @@ class _State extends State<BassWidget> {
       }
       if (!hasSomeDisplay) {
         sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
-        //sheetDisplayEnables[SheetDisplay.treble.index]=true;
+        sheetDisplayEnables[SheetDisplay.pianoChords.index] = true;
+        // sheetDisplayEnables[SheetDisplay.pianoTreble.index]=true;
+        // sheetDisplayEnables[SheetDisplay.pianoBass.index]=true;
         sheetDisplayEnables[SheetDisplay.chords.index] = true;
         sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index] = true;
         sheetDisplayEnables[SheetDisplay.bassNotes.index] = true;
@@ -92,6 +94,8 @@ class _State extends State<BassWidget> {
   @override
   Widget build(BuildContext context) {
     _fontSize = App().screenInfo.fontSize * 2 / 3;
+
+    logger.i('bassClef.bounds: ${bassClef.bounds}');
 
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
@@ -114,7 +118,7 @@ class _State extends State<BassWidget> {
     if (_options) {
       List<Widget> children = [];
       for (var display in SheetDisplay.values) {
-        var name = Util.enumToString(display);
+        var name = Util.firstToUpper(Util.camelCaseToLowercaseSpace(Util.enumToString(display)));
         children.add(Row(
           children: [
             Checkbox(
@@ -167,8 +171,10 @@ class _State extends State<BassWidget> {
 
     const sheetMusicSizedBox = SizedBox(
       width: double.infinity,
-      height: 400.0,
+      height: 1000.0,
     );
+
+    SheetMusicPainter _sheetMusicPainter = SheetMusicPainter();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -683,6 +689,18 @@ class _State extends State<BassWidget> {
                     dragStop();
                   },
                 ),
+
+                // Positioned(
+                //     top: 225 - (bassClef.bounds.top - bassClef.bounds.bottom)/2 * staffSpace * 5,
+                //     left: 75,
+                //     child: Text(
+                //       bassClef.character,
+                //       style: const TextStyle(
+                //         fontFamily: 'Bravura',
+                //         color: Colors.black,
+                //         fontSize: staffSpace * 5,
+                //       ),
+                //     )),
               ],
             ),
           ],
@@ -732,8 +750,6 @@ class _State extends State<BassWidget> {
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
-
-  final SheetMusicPainter _sheetMusicPainter = SheetMusicPainter();
 }
 
 class _FretBoardPainter extends CustomPainter {

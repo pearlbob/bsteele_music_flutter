@@ -292,18 +292,24 @@ class _Options extends State<Options> {
                         const Spacer(),
                         AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
                           _appOptions.websocketHost = '';
-                          _websocketHostEditingController.text =  _appOptions.websocketHost;
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
                         const Spacer(),
                         AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
                           _appOptions.websocketHost = 'cj.local';
-                          _websocketHostEditingController.text =  _appOptions.websocketHost;
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
                         const Spacer(),
                         AppFlexButton('Park', flex: 4, fontSize: fontSize, onPressed: () {
                           _appOptions.websocketHost = '192.168.1.205';
-                          _websocketHostEditingController.text =  _appOptions.websocketHost;
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
+                        if (kDebugMode) const Spacer(),
+                        if (kDebugMode)
+                          AppFlexButton('bobspi.local', flex: 8, fontSize: fontSize, onPressed: () {
+                            _appOptions.websocketHost = 'bobspi.local';
+                            _websocketHostEditingController.text = _appOptions.websocketHost;
+                          }),
                       ]),
                   Row(children: <Widget>[
                     Text(

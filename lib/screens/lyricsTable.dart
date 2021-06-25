@@ -287,9 +287,9 @@ class LyricSectionRowLocation {
         ', ${_lyricSection.toString()}');
   }
 
-  get sectionCount => _lyricSection.index;
+  int get sectionCount => _lyricSection.index;
 
-  get lyricSection => _lyricSection;
+  LyricSection get lyricSection => _lyricSection;
   final LyricSection _lyricSection;
   final int _row;
   final GlobalKey key;

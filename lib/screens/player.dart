@@ -94,11 +94,13 @@ class _Player extends State<Player> with RouteAware {
       if (_songUpdateService.isLeader) {
         var sectionTarget = _sectionIndexAtScrollOffset();
         if (sectionTarget != null) {
-          LyricSection lyricSection = _lyricSectionRowLocations[sectionTarget]?.lyricSection;
-          for (var songMoment in widget.song.songMoments) {
-            if (songMoment.lyricSection == lyricSection) {
-              _leaderSongUpdate(songMoment.momentNumber);
-              break;
+          LyricSection? lyricSection = _lyricSectionRowLocations[sectionTarget]?.lyricSection;
+          if (lyricSection != null) {
+            for (var songMoment in widget.song.songMoments) {
+              if (songMoment.lyricSection == lyricSection) {
+                _leaderSongUpdate(songMoment.momentNumber);
+                break;
+              }
             }
           }
         }
@@ -229,10 +231,7 @@ class _Player extends State<Player> with RouteAware {
       if (_keyDropDownMenuList == null) {
         const int steps = MusicConstants.halfStepsPerOctave;
         const int halfOctave = steps ~/ 2;
-        ScaleNote? firstScaleNote = song
-            .getSongMoment(0)
-            ?.measure
-            .chords[0].scaleChord.scaleNote;
+        ScaleNote? firstScaleNote = song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
         if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
           firstScaleNote = null; //  not needed
         }
@@ -265,7 +264,7 @@ class _Player extends State<Player> with RouteAware {
 
           int relativeOffset = halfOctave - i;
           String valueString =
-          value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+              value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
           String offsetString = '';
           if (relativeOffset > 0) {
             offsetString = '+${relativeOffset.toString()}';
@@ -354,8 +353,8 @@ class _Player extends State<Player> with RouteAware {
     logger.log(
         _playerLogScroll,
         'showTopOfDisplay: $showTopOfDisplay,'
-            ' sectionTarget: $_sectionTarget, '
-            ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+        ' sectionTarget: $_sectionTarget, '
+        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $_isPaused');
 
     return Scaffold(
@@ -517,8 +516,8 @@ With escape, the app goes back to the play list.''',
                                           primary: _lightBlue,
                                         ),
                                         icon: Icon(
-                                            _playStopIcon,
-                                            size: 2*_lyricsTable.fontSize,
+                                          _playStopIcon,
+                                          size: 2 * _lyricsTable.fontSize,
                                         ),
                                         label: const Text(''),
                                         onPressed: () {
@@ -598,10 +597,10 @@ With escape, the app goes back to the play list.''',
                                   Text(
                                     _songUpdateService.isConnected
                                         ? (_songUpdateService.isLeader
-                                        ? 'I\'m the leader'
-                                        : (_songUpdateService.leaderName == AppOptions.unknownUser
-                                        ? ''
-                                        : 'following ${_songUpdateService.leaderName}'))
+                                            ? 'I\'m the leader'
+                                            : (_songUpdateService.leaderName == AppOptions.unknownUser
+                                                ? ''
+                                                : 'following ${_songUpdateService.leaderName}'))
                                         : '',
                                     style: _lyricsTextStyle,
                                   ),
@@ -642,60 +641,60 @@ With escape, the app goes back to the play list.''',
       ),
       floatingActionButton: _isPlaying
           ? (_isPaused
-          ? FloatingActionButton(
-        mini: !_app.isScreenBig,
-        onPressed: () {
-          _pauseToggle();
-        },
-        child: _playTooltip(
-          'Stop.  Space bar will continue the play.',
-          Icon(
-            Icons.play_arrow,
-            size: _lyricsTable.fontSize,
-          ),
-        ),
-      )
-          : FloatingActionButton(
-        mini: !_app.isScreenBig,
-        onPressed: () {
-          _stop();
-        },
-        child: _playTooltip(
-          'Escape to stop the play\nor space to next section',
-          Icon(
-            Icons.stop,
-            size: _lyricsTable.fontSize,
-          ),
-        ),
-      ))
+              ? FloatingActionButton(
+                  mini: !_app.isScreenBig,
+                  onPressed: () {
+                    _pauseToggle();
+                  },
+                  child: _playTooltip(
+                    'Stop.  Space bar will continue the play.',
+                    Icon(
+                      Icons.play_arrow,
+                      size: _lyricsTable.fontSize,
+                    ),
+                  ),
+                )
+              : FloatingActionButton(
+                  mini: !_app.isScreenBig,
+                  onPressed: () {
+                    _stop();
+                  },
+                  child: _playTooltip(
+                    'Escape to stop the play\nor space to next section',
+                    Icon(
+                      Icons.stop,
+                      size: _lyricsTable.fontSize,
+                    ),
+                  ),
+                ))
           : (_scrollController.hasClients && _scrollController.offset > 0
-          ? FloatingActionButton(
-        mini: !_app.isScreenBig,
-        onPressed: () {
-          if (_isPlaying) {
-            _stop();
-          }
-        },
-        child: _playTooltip(
-          'Top of song',
-          Icon(
-            Icons.arrow_upward,
-            size: _lyricsTable.fontSize,
-          ),
-        ),
-      )
-          : FloatingActionButton(
-          mini: !_app.isScreenBig,
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: _playTooltip(
-            'Back to song list',
-            Icon(
-              Icons.arrow_back,
-              size: _lyricsTable.fontSize,
-            ),
-          ))),
+              ? FloatingActionButton(
+                  mini: !_app.isScreenBig,
+                  onPressed: () {
+                    if (_isPlaying) {
+                      _stop();
+                    }
+                  },
+                  child: _playTooltip(
+                    'Top of song',
+                    Icon(
+                      Icons.arrow_upward,
+                      size: _lyricsTable.fontSize,
+                    ),
+                  ),
+                )
+              : FloatingActionButton(
+                  mini: !_app.isScreenBig,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: _playTooltip(
+                    'Back to song list',
+                    Icon(
+                      Icons.arrow_back,
+                      size: _lyricsTable.fontSize,
+                    ),
+                  ))),
     );
   }
 
@@ -705,14 +704,14 @@ With escape, the app goes back to the play list.''',
       logger.log(
           _playerLogKeyboard,
           '_playerOnKey(): ${e.data.logicalKey}'
-              ', ctl: ${e.isControlPressed}'
-              ', shf: ${e.isShiftPressed}'
-              ', alt: ${e.isAltPressed}');
+          ', ctl: ${e.isControlPressed}'
+          ', shf: ${e.isShiftPressed}'
+          ', alt: ${e.isAltPressed}');
       //  only deal with new key down events
 
       if (e.isKeyPressed(LogicalKeyboardKey.space) ||
-          e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
-      ) {
+              e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
+          ) {
         if (!_isPlaying) {
           _play();
         } else {
@@ -753,7 +752,7 @@ With escape, the app goes back to the play list.''',
 
     if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
       double target =
-      _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
+          _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
       if (_scrollController.offset != target) {
         _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
@@ -786,7 +785,7 @@ With escape, the app goes back to the play list.''',
         logger.log(
             _playerLogScroll,
             '_sectionBump: bump: $bump, $index ( $_sectionTarget px)'
-                ', section: ${widget.song.lyricSections[index]}');
+            ', section: ${widget.song.lyricSections[index]}');
       }
     }
   }
@@ -829,13 +828,11 @@ With escape, the app goes back to the play list.''',
 
         GlobalKey key = _rowLocation.key;
         double y = _scrollController.offset; //  safety
-            {
+        {
           //  deal with possible missing render objects
           var renderObject = key.currentContext?.findRenderObject();
           if (renderObject != null && renderObject is RenderBox) {
-            y = renderObject
-                .localToGlobal(Offset.zero)
-                .dy;
+            y = renderObject.localToGlobal(Offset.zero).dy;
           } else {
             _sectionLocations = null;
             return;
@@ -848,7 +845,7 @@ With escape, the app goes back to the play list.''',
       logger.log(_playerLogScroll, 'raw _sectionLocations: $_sectionLocations');
 
       //  add half of the deltas to center each selection
-          {
+      {
         List<double> tmp = [];
         for (int i = 0; i < _sectionLocations!.length - 1; i++) {
           if (_centerSelections) {
@@ -861,7 +858,7 @@ With escape, the app goes back to the play list.''',
         //  average the last with the end of the last
         GlobalKey key = _lyricSectionRowLocations.last!.key;
         double y = _scrollController.offset; //  safety
-            {
+        {
           //  deal with possible missing render objects
           var renderObject = key.currentContext?.findRenderObject();
           if (renderObject != null && renderObject is RenderBox) {
@@ -874,19 +871,13 @@ With escape, the app goes back to the play list.''',
         if (_table != null && _table?.key != null) {
           var globalKey = _table!.key as GlobalKey;
           logger.log(
-              _playerLogScroll, '_table height: ${globalKey.currentContext
-              ?.findRenderObject()
-              ?.paintBounds
-              .height}');
-          var tableHeight = globalKey.currentContext
-              ?.findRenderObject()
-              ?.paintBounds
-              .height ?? y;
+              _playerLogScroll, '_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
+          var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
           tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
         }
 
-        if ( tmp.isNotEmpty ){
-          tmp.first = 0;  //  special for first song moment so it can show the header data
+        if (tmp.isNotEmpty) {
+          tmp.first = 0; //  special for first song moment so it can show the header data
         }
 
         _sectionLocations = tmp;

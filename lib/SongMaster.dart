@@ -60,10 +60,10 @@ class SongMaster {
 
   //AppAudioPlayer appAudioPlayer = AppAudioPlayer();
 
-  get isPlaying => _isPlaying;
+  bool get isPlaying => _isPlaying;
   bool _isPlaying = false;
 
-  get isPaused => _isPaused;
+  bool get isPaused => _isPaused;
   bool _isPaused = false;
 // Song _song;
 // double _songStart;

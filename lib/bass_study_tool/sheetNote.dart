@@ -22,8 +22,9 @@ enum SheetDisplay {
   lyrics,
   chords,
   guitarFingerings,
-  treble,   //  piano, guitar
-  pianoBass, //  piano left hand
+  pianoChords,
+  pianoTreble,   //  + guitar
+  pianoBass, //  i.e. piano left hand
   bassNoteNumbers,
   bassNotes,
   bass, //  bass guitar
@@ -111,7 +112,7 @@ final SheetNoteSymbol brace = SheetNoteSymbol.glyphBBoxesFixed(
 //    'barlineSingle', '\uE030', GlyphBBoxesBarlineSingle.bBoxNE, GlyphBBoxesBarlineSingle.bBoxSW);
 final SheetNoteSymbol trebleClef //  i.e. gClef
     = SheetNoteSymbol.glyphBBoxesFixed('trebleClef', '\uE050', GlyphBBoxesGClef.bBoxNE, GlyphBBoxesGClef.bBoxSW, 3);
-final SheetNoteSymbol bassClef //  i.e. fClef
+final  bassClef //  i.e. fClef
     = SheetNoteSymbol.glyphBBoxesFixed('bassClef', '\uE062', GlyphBBoxesFClef.bBoxNE, GlyphBBoxesFClef.bBoxSW, 1.1);
 
 //  accidentals
@@ -156,7 +157,7 @@ class SheetNote {
         _dotted = dotted ?? false,
         _chord = chord,
         _tied = tied {
-    _clef ??= pitch.compareTo(Pitch.get(PitchEnum.C3)) < 0 ? Clef.bass : Clef.treble;
+    _clef ??= (pitch?.compareTo(Pitch.get(PitchEnum.C3)) ?? -1) < 0 ? Clef.bass : Clef.treble;
 
     //  find note symbol by value, in units of measure
     if (_noteDuration == 1) {
@@ -179,6 +180,7 @@ class SheetNote {
     } else if (_noteDuration == 1 / 16) {
       _symbol = isUpNote() ? note16thUp : note16thDown;
     } else {
+      _symbol = restWhole;//  fixme!
       logger.w('note duration is not legal: $_noteDuration');
     }
   }
@@ -200,6 +202,7 @@ class SheetNote {
     } else if (_noteDuration == 1 / 16) {
       _symbol = rest16th;
     } else {
+      _symbol = restWhole;//  fixme!
       logger.w('rest duration is not legal: $_noteDuration');
     }
   }
@@ -208,11 +211,11 @@ class SheetNote {
   String toString() {
     if (_isNote) {
       return 'note: $pitch for ${(_noteDuration ?? 0).toStringAsFixed(4)}'
-          ' ${_symbol?._name ?? '?'} on $clef';
+          ' ${_symbol._name ?? '?'} on $clef';
     }
     //  is rest
     return 'rest: for ${(_noteDuration ?? 0).toStringAsFixed(4)} m'
-        ' ${_symbol?._name ?? '?'} on $clef';
+        ' ${_symbol._name ?? '?'} on $clef';
   }
 
   bool isUpNote() {
@@ -230,36 +233,36 @@ class SheetNote {
   static final trebleUpNumber = Pitch.get(PitchEnum.B4).number;
   static final bassUpNumber = Pitch.get(PitchEnum.D2).number;
 
-  get isNote => _isNote;
+  bool get isNote => _isNote;
   final bool _isNote; //  otherwise a rest
   bool get isRest => !isNote;
 
-  get clef => _clef;
+  Clef? get clef => _clef;
   Clef? _clef;
 
-  get pitch => _pitch;
+  Pitch? get pitch => _pitch;
   Pitch? _pitch;
 
-  get noteDuration => _noteDuration;
+  double? get noteDuration => _noteDuration;
   final double? _noteDuration;
 
-  get dotted => _dotted;
+  bool get dotted => _dotted;
   late bool _dotted = false;
 
-  get tied => _tied;
+  bool? get tied => _tied;
   bool? _tied = false;
 
-  get chord => _chord;
+  Chord?  get chord => _chord;
   Chord? _chord; //  member of
 
-  get lyrics => _lyrics;
+  String? get lyrics => _lyrics;
   final String? _lyrics;
 
   int? line;
   int? measure; //  ????
 
-  get symbol => _symbol;
-  SheetNoteSymbol? _symbol;
+  SheetNoteSymbol get symbol => _symbol;
+ late SheetNoteSymbol _symbol;
 }
 
 /// deal with accidentals

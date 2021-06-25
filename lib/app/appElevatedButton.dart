@@ -39,9 +39,7 @@ class AppElevatedButton extends ElevatedButton {
             style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           onPressed: onPressed,
-        ) {
-    logger.i('AppElevatedButton fontSize: $fontSize');
-  }
+        );
 }
 
 class AppFlexButton extends Expanded {

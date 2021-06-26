@@ -12,40 +12,45 @@ import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/bassStudyTool.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicFontParameters.dart';
+import 'package:bsteele_music_flutter/bass_study_tool/sheetNotation.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
 
 const double staffLineCount = 5;
 const double staffSpace = 16;
+const double staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  style basis only
 
 const bool _debug = false; //  true false
 const double _fontSize = 15;
 
 // For piano chords, try:  https://www.scales-chords.com/chord/piano
 
-List<double> _sheetXOffsets = List.filled(SheetDisplay.values.length, 0);
-List<double> _sheetYOffsets = List.filled(SheetDisplay.values.length, 0);
+List<SheetNotation> _sheetNotations = List.generate(SheetDisplay.values.length, (index) {
+  const staffHeight = staffLineCount * staffSpace;
+  const staffMarginHeight = staffMargin * staffSpace;
+  SheetDisplay display = SheetDisplay.values[index];
 
-final List<double> _sheetHeights = List.generate(SheetDisplay.values.length, (index) {
-  final staffHeight = (staffLineCount + 2 * staffMargin /* top and bottom */) * staffSpace;
-  switch (SheetDisplay.values[index]) {
+  switch (display) {
     case SheetDisplay.lyrics:
     case SheetDisplay.chords:
-      return _fontSize * 2;
+      return SheetNotation(display, activeHeight: _fontSize * 2);
     case SheetDisplay.guitarFingerings:
-      return staffHeight;
+      return SheetNotation(display, activeHeight: _fontSize * 4);
     case SheetDisplay.pianoChords:
     case SheetDisplay.pianoTreble:
+      return SheetStaffNotation(display,
+          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
     case SheetDisplay.pianoBass: //  piano left hand
-      return staffHeight;
+      return SheetStaffNotation(display,
+          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight, clef: bassClef);
     case SheetDisplay.bassNoteNumbers:
     case SheetDisplay.bassNotes:
-      return _fontSize * 3;
+      return SheetNotation(display, activeHeight: _fontSize * 2);
     case SheetDisplay.bass:
-      return staffHeight;
-    default:
-      return 0;
+      return SheetStaffNotation(display,
+          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight, clef: bassClef);
   }
 }, growable: false);
 
@@ -63,16 +68,15 @@ class SheetMusicPainter extends CustomPainter {
     _xSpaceAll(10);
 
     //  debug: mark the bottom
-    canvas.drawRect(Rect.fromLTWH(0, _sheetYOffsets.last + _sheetHeights.last, size.width, 4), _black);
-
-
+    canvas.drawRect(
+        Rect.fromLTWH(0, _sheetNotations.last.dy + _sheetNotations.last.totalHeight, size.width, 4), _black);
 
     for (var display in SheetDisplay.values) {
       if (hasDisplay(display)) {
         _startDisplay(display);
         switch (display) {
           default:
-            _renderText(Util.enumToString(display), xOff: 25);
+            _renderText(Util.enumToString(display), xOff: 45);
             break;
         }
         _endDisplay();
@@ -88,16 +92,27 @@ class SheetMusicPainter extends CustomPainter {
       _endDisplay();
     }
 
+    if (kDebugMode) {
+      for (var display in SheetDisplay.values) {
+        if (hasDisplay(display)) {
+          var sn = _sheetNotations[display.index];
+          canvas.drawRect(Rect.fromLTWH(display.index * 30, sn.dy, 10, sn.totalHeight), _transGrey);
+          canvas.drawRect(Rect.fromLTWH(display.index * 30 - 5, sn.dy, 10, sn.preHeight), _transBlue);
+          canvas.drawRect(
+              Rect.fromLTWH(display.index * 30 + 5, sn.dy + sn.preHeight + sn.activeHeight, 10, sn.postHeight),
+              _transBlue);
+        }
+      }
+    }
+
     //  staffs
-    for (var display in [
-      SheetDisplay.pianoChords,
-      SheetDisplay.pianoTreble,
-      SheetDisplay.pianoBass,
-      SheetDisplay.bass
-    ]) {
+    for (var display in SheetDisplay.values) {
       if (hasDisplay(display)) {
         _startDisplay(display);
-        renderStaff(size.width - _xOff - 10, _yOff + staffMargin * staffSpace);
+        _sheetNotations[display.index].renderStaff(
+          canvas,
+          size.width - _xOff - 10,
+        );
         _endDisplay();
       }
     }
@@ -107,21 +122,10 @@ class SheetMusicPainter extends CustomPainter {
     _xSpaceAll(0.5 * staffSpace);
 
     //  treble Clefs
-    for (var display in [
-      SheetDisplay.pianoChords,
-      SheetDisplay.pianoTreble,
-    ]) {
+    for (var display in SheetDisplay.values) {
       if (hasDisplay(display)) {
-        _startDisplay(display);
-        _renderSheetFixedYSymbol(display, trebleClef);
-        _endDisplay();
-      }
-    }
-
-    //  bass Clefs
-    for (var display in [SheetDisplay.pianoBass, SheetDisplay.bass]) {
-      if (hasDisplay(display)) {
-        _renderSheetFixedYSymbol(display, bassClef);
+        var sn = _sheetNotations[display.index];
+        sn.renderClef(canvas);
       }
     }
 
@@ -297,9 +301,10 @@ class SheetMusicPainter extends CustomPainter {
       double y = 0;
       var lastDisplay = SheetDisplay.values.last; //  won't match the first time
       for (var display in SheetDisplay.values) {
-        _sheetYOffsets[display.index] = y;
+        var sn = _sheetNotations[display.index];
+        sn.dy = y;
         if (hasDisplay(display)) {
-          y += _sheetHeights[display.index];
+          y += sn.totalHeight;
 
           switch (display) {
             case SheetDisplay.pianoBass:
@@ -320,8 +325,8 @@ class SheetMusicPainter extends CustomPainter {
     }
 
     for (var display in SheetDisplay.values) {
-      logger.i('$display: ${hasDisplay(display)}: ${_sheetYOffsets[display.index]}'
-          ', height: ${_sheetHeights[display.index]}');
+      logger.i('$display: ${hasDisplay(display)}: ${_sheetNotations[display.index]}'
+          ', height: ${_sheetNotations[display.index].totalHeight}');
     }
   }
 
@@ -366,17 +371,6 @@ class SheetMusicPainter extends CustomPainter {
   //  at bass locations
   List<double> keySharpLocations = /**/ [0, 1, 2.5, 0.5, 2, 3.5, 1.5, 3];
 
-  void renderStaff(double width, double y) {
-    final black = Paint();
-    black.color = Colors.black;
-    black.style = PaintingStyle.stroke;
-    black.strokeWidth = _staffLineThickness * staffSpace;
-
-    for (int line = 0; line < 5; line++) {
-      _canvas.drawLine(Offset(_xOff, y + line * staffSpace), Offset(_xOff + width, y + line * staffSpace), black);
-    }
-  }
-
   void renderStaves(SheetNoteSymbol symbol, double staffPosition) {
     //  truncate to staff line height
     staffPosition = staffPosition.toInt().toDouble();
@@ -388,7 +382,7 @@ class SheetMusicPainter extends CustomPainter {
     final black = Paint();
     black.color = Colors.black;
     black.style = PaintingStyle.stroke;
-    black.strokeWidth = _staffLineThickness * staffSpace;
+    black.strokeWidth = staffLineThickness * staffSpace;
 
     while (staffPosition < 0) {
       _canvas.drawLine(Offset(_xOff + (symbol.bounds.left - 0.5) * staffSpace, _yOff + staffPosition * staffSpace),
@@ -414,7 +408,7 @@ class SheetMusicPainter extends CustomPainter {
           case SheetDisplay.pianoTreble:
           case SheetDisplay.pianoBass:
           case SheetDisplay.bass:
-            firstYOff = _sheetYOffsets[display.index];
+            firstYOff = _sheetNotations[display.index].dy;
             break;
           default:
             break;
@@ -435,7 +429,7 @@ class SheetMusicPainter extends CustomPainter {
           case SheetDisplay.pianoTreble:
           case SheetDisplay.pianoBass:
           case SheetDisplay.bass:
-            lastYOff = _sheetYOffsets[display.index];
+            lastYOff = _sheetNotations[display.index].dy;
             break;
           default:
             break;
@@ -611,7 +605,7 @@ class SheetMusicPainter extends CustomPainter {
     final double scaledStaffSpace = staffSpace * scale;
     final double w = symbol.fontSizeStaffs * scaledStaffSpace;
 
-    logger.w( '${symbol.name} w: $w');
+    logger.w('${symbol.name} w: $w');
 
     Rect ret = Rect.fromLTRB(
         _xOff + symbol.bounds.left * scaledStaffSpace,
@@ -659,7 +653,8 @@ class SheetMusicPainter extends CustomPainter {
     _xOff = 0;
     _yOff = 0;
     for (var display in SheetDisplay.values) {
-      _sheetXOffsets[display.index] = 0;
+      var sn = _sheetNotations[display.index];
+      sn.dx = 0;
     }
   }
 
@@ -668,11 +663,12 @@ class SheetMusicPainter extends CustomPainter {
     _endDisplay();
     double maxX = 0;
     for (var display in SheetDisplay.values) {
-      maxX = max(maxX, _sheetXOffsets[display.index]);
+      maxX = max(maxX, _sheetNotations[display.index].dx);
     }
-    _xOff += space;
+    _xOff = maxX + space;
     for (var display in SheetDisplay.values) {
-      _sheetXOffsets[display.index] = _xOff;
+      var sn = _sheetNotations[display.index];
+      sn.dx = _xOff;
     }
   }
 
@@ -896,18 +892,17 @@ class SheetMusicPainter extends CustomPainter {
 
   double get _xOffDisplay => _getXOffDisplay(_display);
 
-  double get _yOffDisplay => _getYOffDisplay(_display);
-
   double _getXOffDisplay(SheetDisplay display) {
-    return _sheetXOffsets[display.index];
+    return _sheetNotations[display.index].dx;
   }
 
   double _getYOffDisplay(SheetDisplay display) {
-    return _sheetYOffsets[display.index];
+    return _sheetNotations[display.index].dy;
   }
 
   void _setXOffDisplay(SheetDisplay display, double value) {
-    _sheetXOffsets[display.index] = value;
+    var sn = _sheetNotations[display.index];
+    sn.dx = value;
   }
 
 // void _setYOffDisplay(SheetDisplay display, double value) {
@@ -918,7 +913,6 @@ class SheetMusicPainter extends CustomPainter {
   final List<SheetNoteLocation> _sheetNoteLocations = [];
   final Map<double, Accidental> _measureAccidentals = {}; // cache for a single measure
   late Canvas _canvas;
-  static const double _staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  style basis only
   static const double _accidentalStaffSpace = 0.25;
   musical_key.Key? _key = musical_key.Key.get(musical_key.KeyEnum.C);
   Clef _clef = Clef.treble; //  current clef
@@ -937,6 +931,7 @@ class SheetNoteLocation {
 final _white = Paint()..color = Colors.white;
 //final _grey = Paint()..color = Colors.grey;
 final _transGrey = Paint()..color = Colors.grey.withAlpha(80);
+final _transBlue = Paint()..color = Colors.blue.withAlpha(80);
 final _black = Paint()..color = Colors.black;
 //final _blackFill = Paint()
 //  ..color = Colors.black

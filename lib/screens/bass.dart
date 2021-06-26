@@ -95,8 +95,6 @@ class _State extends State<BassWidget> {
   Widget build(BuildContext context) {
     _fontSize = App().screenInfo.fontSize * 2 / 3;
 
-    logger.i('bassClef.bounds: ${bassClef.bounds}');
-
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
@@ -1035,13 +1033,13 @@ class _SheetMusicDragger extends CustomPainter {
     _dragEnd ??= _dragStart;
     Rect selectRect = Rect.fromPoints(_dragStart!, _dragEnd!);
 
-    for (var sheetNoteLocation in sheetMusicPainter.sheetNoteLocations) {
-      if (selectRect.overlaps(sheetNoteLocation.location)) {
-        var noteRect = sheetNoteLocation.location.inflate(_selectStrokeWidth);
-        canvas.drawRect(noteRect, _transBlueOutline);
-        selectRect = selectRect.expandToInclude(noteRect);
-      }
-    }
+    // for (var sheetNoteLocation in sheetMusicPainter.sheetNoteLocations) {  fixme now
+    //   if (selectRect.overlaps(sheetNoteLocation.location)) {
+    //     var noteRect = sheetNoteLocation.location.inflate(_selectStrokeWidth);
+    //     canvas.drawRect(noteRect, _transBlueOutline);
+    //     selectRect = selectRect.expandToInclude(noteRect);
+    //   }
+    // }
 
     canvas.drawRect(selectRect.inflate(2 * _selectStrokeWidth), _transBlueOutline);
   }

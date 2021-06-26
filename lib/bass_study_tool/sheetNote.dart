@@ -10,7 +10,7 @@ import 'package:bsteeleMusicLib/songs/pitch.dart';
 
 import 'sheetMusicFontParameters.dart';
 
-const double staffGaps = 4; //  always!
+const double staffVerticalGaps = 4; //  always!
 const double staffMargin = 3;
 
 //final String noteheadBlack = '\uE0A4';

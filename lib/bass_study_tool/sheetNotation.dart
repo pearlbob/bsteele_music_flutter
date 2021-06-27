@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 
 import 'bassStudyTool.dart';
 
-const bool _debug = false; //  true false
+const bool _debug = kDebugMode;
 
 class SheetNotation {
   SheetNotation._(this.sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
@@ -30,12 +30,6 @@ class SheetNotation {
     assert(this.activeHeight > 0);
     assert(this.postHeight >= 0);
     dy = 0 + this.preHeight;
-  }
-
-  @override
-  String toString() {
-    return 'SheetNotation{$sheetDisplay'
-        ', offset: ($dx, $dy), heights: $preHeight + $activeHeight + $postHeight = $totalHeight }';
   }
 
   void render(Canvas canvas, Size size) {
@@ -75,6 +69,12 @@ class SheetNotation {
         maxWidth: max(w, 40),
       )
       ..paint(_canvas, Offset(xOff ?? dx, yOff ?? dy));
+  }
+
+  @override
+  String toString() {
+    return 'SheetNotation{$sheetDisplay'
+        ', offset: ($dx, $dy), heights: $preHeight + $activeHeight + $postHeight = $totalHeight }';
   }
 
   double dx = 0;
@@ -124,7 +124,7 @@ class _SheetStaffNotation extends SheetNotation {
 
   void _renderStaff() {
     final black = Paint();
-    black.color = Colors.black;
+    black.color = _lineColor;
     black.style = PaintingStyle.stroke;
     black.strokeWidth = staffLineThickness * staffSpace;
 
@@ -144,6 +144,7 @@ class _SheetStaffNotation extends SheetNotation {
     if (sn.pitch == null) {
       throw 'pitch not found: ${sn.pitch}';
     }
+    //  accidental
     Pitch? pitch = _key?.mappedPitch(sn.pitch!);
     if (pitch == null) {
       throw 'pitch not found: $sn';
@@ -185,6 +186,10 @@ class _SheetStaffNotation extends SheetNotation {
           break;
       }
 
+      if (_debug) {
+        _canvas.drawRect(accidentalRect, _transGrey);
+      }
+
       //  remember the prior accidental for this staff position for this measure
       _measureAccidentals[staffPosition] = accidental;
     }
@@ -196,17 +201,13 @@ class _SheetStaffNotation extends SheetNotation {
       rect = rect.expandToInclude(accidentalRect);
     }
 
-    if (_debug) {
-      _canvas.drawRect(rect, _transGrey);
-    }
-
     if (renderForward) {
       _sheetNoteLocations.add(SheetNoteLocation(sn, rect));
     }
   }
 
-  void _renderSheetFixedYSymbol(SheetNoteSymbol symbol) {
-    _renderSheetNoteSymbol(symbol, symbol.fixedYOff + staffMargin, isStave: false);
+  void _renderSheetFixedYSymbol(SheetNoteSymbolFixed symbol) {
+    _renderSheetNoteSymbol(symbol, symbol.staffPosition, isStave: false);
   }
 
   Rect _renderSheetNoteSymbol(
@@ -217,23 +218,21 @@ class _SheetStaffNotation extends SheetNotation {
     double scale = 1.0,
   }) {
     final double scaledStaffSpace = staffSpace * scale;
-    final double w = symbol.fontSizeStaffs * scaledStaffSpace;
+    final double w = symbol.fontSizeOnStaffs * scaledStaffSpace;
 
-    logger.v('${symbol.name} w: $w');
-
+    var y = dy + preHeight;
+    var yOff = symbol.fixedYOff * scaledStaffSpace;
+    var yPos = activeHeight-staffPosition * scaledStaffSpace;
     Rect ret = Rect.fromLTRB(
         dx + symbol.bounds.left * scaledStaffSpace,
-        dy + (-symbol.bounds.top + staffPosition) * scaledStaffSpace,
-        dx + symbol.bounds.right * scaledStaffSpace * scale,
-        dy + (-symbol.bounds.bottom + staffPosition) * scaledStaffSpace);
+        y + yOff - yPos + symbol.bounds.top * scaledStaffSpace,
+        dx + symbol.bounds.right * scaledStaffSpace,
+        y + yOff - yPos + symbol.bounds.bottom * scaledStaffSpace);
 
-    // if (_debug) {
-    //   _canvas.drawRect(
-    //       ret,
-    //       _grey);
-    // }
+    logger.i('${symbol.name} $staffPosition = $yPos'
+        ', ${symbol.bounds.top} to ${symbol.bounds.bottom}, fixedYOff: ${symbol.fixedYOff}');
 
-    Offset offset = Offset(dx + symbol.bounds.left, dy + -2 * w + (staffPosition - 0.05) * staffSpace);
+    Offset offset = Offset(ret.left, y - yOff - yPos);
     TextPainter(
       text: TextSpan(
         text: symbol.character,
@@ -258,6 +257,11 @@ class _SheetStaffNotation extends SheetNotation {
     if (renderForward) {
       _xSpace(symbol.bounds.width * staffSpace);
     }
+
+    if (_debug) {
+      _canvas.drawRect(ret, _transGrey);
+      _canvas.drawRect(Rect.fromLTRB(ret.left, y + yOff- yPos - 1, ret.right, y + yOff- yPos + 1), _red);
+    }
     return ret;
   }
 
@@ -279,7 +283,7 @@ class _SheetStaffNotation extends SheetNotation {
     }
 
     final black = Paint();
-    black.color = Colors.black;
+    black.color = _lineColor;
     black.style = PaintingStyle.stroke;
     black.strokeWidth = staffLineThickness * staffSpace;
 
@@ -335,9 +339,6 @@ class _SheetStaffNotation extends SheetNotation {
   //  at bass locations
   List<double> keySharpLocations = /**/ [0, 1, 2.5, 0.5, 2, 3.5, 1.5, 3];
 
-
-
-
   void _xSpace(double space) {
     dx += space;
   }
@@ -349,16 +350,16 @@ class _SheetStaffNotation extends SheetNotation {
   _renderBarlineSingle() {
     //  fixme
     final black = Paint();
-    black.color = Colors.black;
+    black.color = _lineColor;
     black.style = PaintingStyle.stroke;
     final width = (GlyphBBoxesBarlineSingle.bBoxNE.x - GlyphBBoxesBarlineSingle.bBoxSW.x) * staffSpace;
     black.strokeWidth = width;
 
-    _canvas.drawLine(Offset(dx, dy), Offset(dx, dy + activeHeight), black);
+    _canvas.drawLine(Offset(dx, dy + preHeight), Offset(dx, dy + preHeight + (staffLineCount - 1) * staffSpace), black);
   }
 
   late final Clef _clef;
-  late final SheetNoteSymbol _clefSymbol;
+  late final SheetNoteSymbolFixed _clefSymbol;
 
   final List<SheetNoteLocation> _sheetNoteLocations = [];
   final Map<double, Accidental> _measureAccidentals = {};
@@ -458,8 +459,8 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
     _xSpace(1 * staffSpace);
 
     //  fill in the time signature
-    _renderSheetNoteSymbol(
-        timeSigCommon, 2); //  fixme: fill in the time signature with something other than common time
+    _renderSheetNoteSymbol(timeSigCommon, 0,
+        isStave: false); //  fixme: fill in the time signature with something other than common time
 
     double duration = 0;
     _clearMeasureAccidentals();
@@ -514,61 +515,57 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
     _xSpace(1 * staffSpace);
 
     //  fill in the time signature
-    _renderSheetNoteSymbol(
-        timeSigCommon, 2); //  fixme: fill in the time signature with something other than common time
+    _renderSheetFixedYSymbol(timeSigCommon); //  fixme: fill in the time signature with something other than common time
 
     List<ScaleNoteEnum> scaleNoteEnums = [
-      ScaleNoteEnum.D,
       ScaleNoteEnum.C,
+      ScaleNoteEnum.D,
+      ScaleNoteEnum.E,
+      ScaleNoteEnum.F,
       ScaleNoteEnum.G,
       ScaleNoteEnum.G,
     ];
 
-    for (var display in SheetDisplay.values) {
-      if (!hasDisplay(display)) {
-        continue;
-      }
-      switch (display) {
-        case SheetDisplay.chords:
-          double duration = 0;
-          _clearMeasureAccidentals();
-          _xSpace(1.25 * staffSpace);
-          for (var scaleNoteEnum in scaleNoteEnums) {
-            ScaleChord scaleChord = ScaleChord(ScaleNote.get(scaleNoteEnum), ChordDescriptor.major);
-            Chord chord = Chord(scaleChord, beats, beatsPerBar, null, ChordAnticipationOrDelay.defaultValue, false);
+    {
+      double duration = 0;
+      _clearMeasureAccidentals();
+      _xSpace(1.25 * staffSpace);
+      for (var scaleNoteEnum in scaleNoteEnums) {
+        ScaleChord scaleChord = ScaleChord(ScaleNote.get(scaleNoteEnum), ChordDescriptor.major);
+        Chord chord = Chord(scaleChord, beats, beatsPerBar, null, ChordAnticipationOrDelay.defaultValue, false);
 
-            //  chord declaration over treble staff
+        //  chord declaration over treble staff
 
-            List<Pitch> pitches = chord.pianoChordPitches();
-            logger.d('${chord.scaleChord}: $pitches');
-            for (var pitch in pitches) {
-              logger.d('    pitch: $pitch');
-              SheetNote sheetNote = SheetNote.note(
-                pitch,
-                beats / beatsPerBar,
-              );
-              // _startDisplay(sheetNote.clef);// fixme?????
-              if (!identical(pitch, pitches.last)) {
-                _renderSheetNote(sheetNote, renderForward: false, scale: 0.75);
-              } else {
-                _renderSheetNote(sheetNote, renderForward: true);
-                duration += sheetNote.noteDuration ?? 0;
-              }
-
-              if (duration >= 1) {
-                _xSpace(1.25 * staffSpace);
-                _renderBarlineSingle();
-                duration = 0;
-                _xSpace(1.25 * staffSpace);
-                _clearMeasureAccidentals();
-              }
-            }
-
-            _xSpace(1.25 * staffSpace);
+        List<Pitch> pitches = chord.pianoChordPitches();
+        logger.d('${chord.scaleChord}: $pitches');
+        for (var pitch in pitches) {
+          logger.d('    pitch: $pitch');
+          SheetNote sheetNote = SheetNote.note(
+            pitch,
+            beats / beatsPerBar,
+          );
+          if (!identical(pitch, pitches.last)) {
+            _renderSheetNote(
+              sheetNote,
+              renderForward: true //fixme
+              ,
+              // scale: 0.75
+            );
+          } else {
+            _renderSheetNote(sheetNote, renderForward: true);
+            duration += sheetNote.noteDuration ?? 0;
           }
-          break;
-        default:
-          break;
+
+          if (duration >= 1) {
+            _xSpace(1.25 * staffSpace);
+            _renderBarlineSingle();
+            duration = 0;
+            _xSpace(1.25 * staffSpace);
+            _clearMeasureAccidentals();
+          }
+        }
+
+        _xSpace(1.25 * staffSpace);
       }
     }
   }
@@ -577,8 +574,64 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
 class SheetBassStaffNotation extends _SheetStaffNotation {
   SheetBassStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
       : super(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight, clef: Clef.bass);
+
+  @override
+  void drawNotations() {
+    super.drawNotations();
+    _testBassNotes();
+  }
+
+  /// only test chords
+  void _testBassNotes() {
+    const int beats = 1;
+    const int beatsPerBar = 4;
+
+    _key = musical_key.Key.get(musical_key.KeyEnum.C);
+
+    // _renderKeyStaffSymbols(Clef.treble); fixme
+    // _renderKeyStaffSymbols(Clef.bass);
+    _xSpace(1 * staffSpace);
+
+    {
+      double duration = 0;
+      _clearMeasureAccidentals();
+      _xSpace(1.25 * staffSpace);
+      for (var pitch in _bassPitches) {
+        logger.i('    _bassPitch: $pitch');
+        SheetNote sheetNote = SheetNote.note(
+          pitch,
+          beats / beatsPerBar,
+        );
+        _renderSheetNote(sheetNote);
+        duration += sheetNote.noteDuration ?? 0;
+
+        if (duration >= 1) {
+          _xSpace(1.25 * staffSpace);
+          _renderBarlineSingle();
+          duration = 0;
+          _xSpace(1.25 * staffSpace);
+          _clearMeasureAccidentals();
+        }
+      }
+
+      _xSpace(1.25 * staffSpace);
+    }
+  }
+
+  final List<Pitch> _bassPitches = [
+    Pitch.get(PitchEnum.E1),
+    Pitch.get(PitchEnum.F1),
+    Pitch.get(PitchEnum.G1),
+    Pitch.get(PitchEnum.A1),
+    Pitch.get(PitchEnum.B1),
+    Pitch.get(PitchEnum.C2),
+    Pitch.get(PitchEnum.C2),
+    Pitch.get(PitchEnum.C2),
+  ];
 }
 
 final _black = Paint()..color = Colors.black;
+const _lineColor = Colors.black54;
+final _red = Paint()..color = Colors.red;
 final _transGrey = Paint()..color = Colors.grey.withAlpha(80);
 final _transBlue = Paint()..color = Colors.blue.withAlpha(80);

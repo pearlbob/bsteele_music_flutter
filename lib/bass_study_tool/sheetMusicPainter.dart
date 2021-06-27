@@ -14,7 +14,7 @@ const double staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  
 // For piano chords, try:  https://www.scales-chords.com/chord/piano
 
 List<SheetNotation> _sheetNotations = List.generate(SheetDisplay.values.length, (index) {
-  const staffHeight = staffLineCount * staffSpace;
+  const staffHeight = (staffLineCount-1) * staffSpace;
   const staffMarginHeight = staffMargin * staffSpace;
   SheetDisplay display = SheetDisplay.values[index];
 
@@ -322,7 +322,7 @@ class SheetMusicPainter extends CustomPainter {
 
     //  bail if no staffs
     final black = Paint();
-    black.color = Colors.black;
+    black.color = Colors.black54;
     black.style = PaintingStyle.stroke;
     final width = (GlyphBBoxesBarlineSingle.bBoxNE.x - GlyphBBoxesBarlineSingle.bBoxSW.x) * staffSpace;
     black.strokeWidth = width;

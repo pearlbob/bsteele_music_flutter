@@ -39,8 +39,8 @@ List<SheetNotation> _sheetNotations = List.generate(SheetDisplay.values.length, 
       return SheetTextNotation(display, activeHeight: _fontSize * 2);
     case SheetDisplay.bassNotes:
       return SheetTextNotation(display, activeHeight: _fontSize * 2);
-    case SheetDisplay.bass:
-      return SheetBassStaffNotation(display,
+    case SheetDisplay.bass8vb:
+      return SheetBass8vbStaffNotation(display,
           preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
   }
 }, growable: false);
@@ -56,10 +56,6 @@ class SheetMusicPainter extends CustomPainter {
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _white);
     _reset();
     _xSpaceAll(staffMargin*staffSpace);
-
-    //  debug: mark the bottom
-    canvas.drawRect(
-        Rect.fromLTWH(0, _sheetNotations.last.dy + _sheetNotations.last.totalHeight, size.width, 4), _black);
 
     _reset();
     _xSpaceAll(10);
@@ -284,7 +280,7 @@ class SheetMusicPainter extends CustomPainter {
           case SheetDisplay.pianoChords:
           case SheetDisplay.pianoTreble:
           case SheetDisplay.pianoBass:
-          case SheetDisplay.bass:
+          case SheetDisplay.bass8vb:
             firstYOff = _sheetNotations[display.index].dy;
             break;
           default:
@@ -305,7 +301,7 @@ class SheetMusicPainter extends CustomPainter {
           case SheetDisplay.pianoChords:
           case SheetDisplay.pianoTreble:
           case SheetDisplay.pianoBass:
-          case SheetDisplay.bass:
+          case SheetDisplay.bass8vb:
             lastYOff = _sheetNotations[display.index].dy;
             break;
           default:
@@ -388,7 +384,6 @@ class SheetNoteLocation {
 final _white = Paint()..color = Colors.white;
 //final _grey = Paint()..color = Colors.grey;
 
-final _black = Paint()..color = Colors.black;
 //final _blackFill = Paint()
 //  ..color = Colors.black
 //  ..style = PaintingStyle.fill;

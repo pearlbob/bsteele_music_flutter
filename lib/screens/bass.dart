@@ -80,13 +80,13 @@ class _State extends State<BassWidget> {
       }
       if (!hasSomeDisplay) {
         sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
+        // sheetDisplayEnables[SheetDisplay.chords.index] = true;
         sheetDisplayEnables[SheetDisplay.pianoChords.index] = true;
         //  sheetDisplayEnables[SheetDisplay.pianoTreble.index]=true;
         // sheetDisplayEnables[SheetDisplay.pianoBass.index]=true;
-        // sheetDisplayEnables[SheetDisplay.chords.index] = true;
         //sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index] = true;
         //sheetDisplayEnables[SheetDisplay.bassNotes.index] = true;
-        sheetDisplayEnables[SheetDisplay.bass.index] = true;
+        sheetDisplayEnables[SheetDisplay.bass8vb.index] = true;
       }
     }
   }
@@ -190,7 +190,7 @@ class _State extends State<BassWidget> {
             const SizedBox(
               height: 10,
             ),
-            if (hasDisplay(SheetDisplay.bass))
+            if (hasDisplay(SheetDisplay.bass8vb))
               CustomPaint(
                 painter: _FretBoardPainter(),
                 isComplex: true,

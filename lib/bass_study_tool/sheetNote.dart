@@ -13,10 +13,6 @@ import 'sheetMusicFontParameters.dart';
 const double staffVerticalGaps = 4; //  always!
 const double staffMargin = 3;
 
-//final String noteheadBlack = '\uE0A4';
-//final String stem = '\uE210';
-//final String repeat1Bar = '\uE500';
-
 enum SheetDisplay {
   //  in order:
   lyrics,
@@ -27,7 +23,7 @@ enum SheetDisplay {
   pianoBass, //  i.e. piano left hand
   bassNoteNumbers,
   bassNotes,
-  bass, //  bass guitar
+  bass8vb, //  bass guitar
 }
 
 List<bool> sheetDisplayEnables = List.filled(SheetDisplay.values.length, false);
@@ -35,6 +31,26 @@ List<bool> sheetDisplayEnables = List.filled(SheetDisplay.values.length, false);
 bool hasDisplay(SheetDisplay display) {
   return sheetDisplayEnables[display.index];
 }
+
+
+bool isUpNote(Clef clef, Pitch pitch) {
+
+  var pitchUpNumber = 0;
+  switch (clef ){
+    case Clef.treble:
+      pitchUpNumber = Pitch.get(PitchEnum.B4).number;
+      break;
+    case Clef.bass:
+      pitchUpNumber = Pitch.get(PitchEnum.D3).number;
+      break;
+    case Clef.bass8vb:
+      pitchUpNumber = Pitch.get(PitchEnum.D2).number;
+      break;
+  }
+  return pitch.number < pitchUpNumber;
+}
+
+
 
 class SheetNoteSymbol {
   SheetNoteSymbol.glyphBBoxes(this._name, this._character, Point<double> bBoxNE, Point<double> bBoxSW,
@@ -72,133 +88,129 @@ class SheetNoteSymbol {
 }
 
 class SheetNoteSymbolFixed extends SheetNoteSymbol {
-  SheetNoteSymbolFixed(
-      String name, String character, Point<double> bBoxNE, Point<double> bBoxSW, double staffPosition)
-      : super.glyphBBoxes( name, character, bBoxNE, bBoxSW, staffPosition: staffPosition);
+  SheetNoteSymbolFixed(String name, String character, Point<double> bBoxNE, Point<double> bBoxSW, double staffPosition)
+      : super.glyphBBoxes(name, character, bBoxNE, bBoxSW, staffPosition: staffPosition);
 }
 
 //  notes
-final SheetNoteSymbol noteWhole =
+final noteWhole =
     SheetNoteSymbol.glyphBBoxes('noteWhole', '\uE1D2', GlyphBBoxesNoteWhole.bBoxNE, GlyphBBoxesNoteWhole.bBoxSW);
-final SheetNoteSymbol noteHalfUp =
+final noteHalfUp =
     SheetNoteSymbol.glyphBBoxes('noteHalfUp', '\uE1D3', GlyphBBoxesNoteHalfUp.bBoxNE, GlyphBBoxesNoteHalfUp.bBoxSW);
-final SheetNoteSymbol noteHalfDown = SheetNoteSymbol.glyphBBoxes(
+final noteHalfDown = SheetNoteSymbol.glyphBBoxes(
     'noteHalfDown', '\uE1D4', GlyphBBoxesNoteHalfDown.bBoxNE, GlyphBBoxesNoteHalfDown.bBoxSW)
   .._isUp = false;
-final SheetNoteSymbol noteQuarterUp = SheetNoteSymbol.glyphBBoxes(
+final  noteQuarterUp = SheetNoteSymbol.glyphBBoxes(
     'noteQuarterUp', '\uE1D5', GlyphBBoxesNoteQuarterUp.bBoxNE, GlyphBBoxesNoteQuarterUp.bBoxSW);
-final SheetNoteSymbol noteQuarterDown = SheetNoteSymbol.glyphBBoxes(
+final noteQuarterDown = SheetNoteSymbol.glyphBBoxes(
     'noteQuarterDown', '\uE1D6', GlyphBBoxesNoteQuarterDown.bBoxNE, GlyphBBoxesNoteQuarterDown.bBoxSW)
   .._isUp = false;
-final SheetNoteSymbol note8thUp =
+final note8thUp =
     SheetNoteSymbol.glyphBBoxes('note8thUp', '\uE1D7', GlyphBBoxesNote8thUp.bBoxNE, GlyphBBoxesNote8thUp.bBoxSW);
-final SheetNoteSymbol note8thDown =
+final note8thDown =
     SheetNoteSymbol.glyphBBoxes('note8thDown', '\uE1D8', GlyphBBoxesNote8thDown.bBoxNE, GlyphBBoxesNote8thDown.bBoxSW)
       .._isUp = false;
-final SheetNoteSymbol note16thUp =
+final note16thUp =
     SheetNoteSymbol.glyphBBoxes('note16thUp', '\uE1D9', GlyphBBoxesNote16thUp.bBoxNE, GlyphBBoxesNote16thUp.bBoxSW);
-final SheetNoteSymbol note16thDown = SheetNoteSymbol.glyphBBoxes(
+final note16thDown = SheetNoteSymbol.glyphBBoxes(
     'note16thDown', '\uE1DA', GlyphBBoxesNote16thDown.bBoxNE, GlyphBBoxesNote16thDown.bBoxSW)
   .._isUp = false;
 
 //  rests
-final  restWhole = SheetNoteSymbolFixed(
-    'restWhole', '\uE4E3', GlyphBBoxesRestWhole.bBoxNE, GlyphBBoxesRestWhole.bBoxSW, 1);
-final  restHalf =
-    SheetNoteSymbolFixed('restHalf', '\uE4E4', GlyphBBoxesRestHalf.bBoxNE, GlyphBBoxesRestHalf.bBoxSW, 2);
-final  restQuarter = SheetNoteSymbolFixed(
-    'restQuarter', '\uE4E5', GlyphBBoxesRestQuarter.bBoxNE, GlyphBBoxesRestQuarter.bBoxSW, 2);
-final  rest8th =
-    SheetNoteSymbolFixed('rest8th', '\uE4E6', GlyphBBoxesRest8th.bBoxNE, GlyphBBoxesRest8th.bBoxSW, 2);
-final  rest16th =
-    SheetNoteSymbolFixed('rest16th', '\uE4E7', GlyphBBoxesRest16th.bBoxNE, GlyphBBoxesRest16th.bBoxSW, 2);
+final restWhole =
+    SheetNoteSymbolFixed('restWhole', '\uE4E3', GlyphBBoxesRestWhole.bBoxNE, GlyphBBoxesRestWhole.bBoxSW, 1);
+final restHalf = SheetNoteSymbolFixed('restHalf', '\uE4E4', GlyphBBoxesRestHalf.bBoxNE, GlyphBBoxesRestHalf.bBoxSW, 2);
+final restQuarter =
+    SheetNoteSymbolFixed('restQuarter', '\uE4E5', GlyphBBoxesRestQuarter.bBoxNE, GlyphBBoxesRestQuarter.bBoxSW, 2);
+final rest8th = SheetNoteSymbolFixed('rest8th', '\uE4E6', GlyphBBoxesRest8th.bBoxNE, GlyphBBoxesRest8th.bBoxSW, 2);
+final rest16th = SheetNoteSymbolFixed('rest16th', '\uE4E7', GlyphBBoxesRest16th.bBoxNE, GlyphBBoxesRest16th.bBoxSW, 2);
 
 //  markers
-final  brace = SheetNoteSymbolFixed(
-    'brace', '\uE000', GlyphBBoxesBrace.bBoxNE, GlyphBBoxesBrace.bBoxSW, 2 * 4 + 2 * staffMargin)
-  .._fontSizeStaffs = 2 * 4 + 2 * staffMargin;
-//final SheetNoteSymbol barlineSingle = SheetNoteSymbol.glyphBBoxes(
+final brace =
+    SheetNoteSymbolFixed('brace', '\uE000', GlyphBBoxesBrace.bBoxNE, GlyphBBoxesBrace.bBoxSW, 2 * 4 + 2 * staffMargin)
+      .._fontSizeStaffs = 2 * 4 + 2 * staffMargin;
+//final barlineSingle = SheetNoteSymbol.glyphBBoxes(
 //    'barlineSingle', '\uE030', GlyphBBoxesBarlineSingle.bBoxNE, GlyphBBoxesBarlineSingle.bBoxSW);
 final trebleClef //  i.e. gClef
     = SheetNoteSymbolFixed('trebleClef', '\uE050', GlyphBBoxesGClef.bBoxNE, GlyphBBoxesGClef.bBoxSW, 4 - 1);
 final bassClef //  i.e. fClef
     = SheetNoteSymbolFixed('bassClef', '\uE062', GlyphBBoxesFClef.bBoxNE, GlyphBBoxesFClef.bBoxSW, 1.25);
+final bass8vbClef //  i.e. bass guitar fClef, F clef ottava bassa, fClef8vb
+    = SheetNoteSymbolFixed('bassClef', '\uE064', GlyphBBoxesFClef8vb.bBoxNE, GlyphBBoxesFClef8vb.bBoxSW, 1);
 
 //  accidentals
-final SheetNoteSymbol accidentalFlat = SheetNoteSymbol.glyphBBoxes(
+final accidentalFlat = SheetNoteSymbol.glyphBBoxes(
     'accidentalFlat', '\uE260', GlyphBBoxesAccidentalFlat.bBoxNE, GlyphBBoxesAccidentalFlat.bBoxSW);
-final SheetNoteSymbol accidentalNatural = SheetNoteSymbol.glyphBBoxes(
+final accidentalNatural = SheetNoteSymbol.glyphBBoxes(
     'accidentalNatural', '\uE261', GlyphBBoxesAccidentalNatural.bBoxNE, GlyphBBoxesAccidentalNatural.bBoxSW);
-final SheetNoteSymbol accidentalSharp = SheetNoteSymbol.glyphBBoxes(
+final accidentalSharp = SheetNoteSymbol.glyphBBoxes(
     'accidentalSharp', '\uE262', GlyphBBoxesAccidentalSharp.bBoxNE, GlyphBBoxesAccidentalSharp.bBoxSW);
-final SheetNoteSymbol augmentationDot = SheetNoteSymbol.glyphBBoxes(
+final augmentationDot = SheetNoteSymbol.glyphBBoxes(
     'augmentationDot', '\uE1E7', GlyphBBoxesAugmentationDot.bBoxNE, GlyphBBoxesAugmentationDot.bBoxSW);
 
 //  time signatures
-final SheetNoteSymbol timeSig0 =
+final timeSig0 =
     SheetNoteSymbol.glyphBBoxes('timeSig0', '\uE080', GlyphBBoxesTimeSig0.bBoxNE, GlyphBBoxesTimeSig0.bBoxSW);
-final SheetNoteSymbol timeSig1 =
+final timeSig1 =
     SheetNoteSymbol.glyphBBoxes('timeSig1', '\uE081', GlyphBBoxesTimeSig1.bBoxNE, GlyphBBoxesTimeSig1.bBoxSW);
-final SheetNoteSymbol timeSig2 =
+final timeSig2 =
     SheetNoteSymbol.glyphBBoxes('timeSig2', '\uE082', GlyphBBoxesTimeSig2.bBoxNE, GlyphBBoxesTimeSig2.bBoxSW);
-final SheetNoteSymbol timeSig3 =
+final timeSig3 =
     SheetNoteSymbol.glyphBBoxes('timeSig3', '\uE083', GlyphBBoxesTimeSig3.bBoxNE, GlyphBBoxesTimeSig3.bBoxSW);
-final SheetNoteSymbol timeSig4 =
+final timeSig4 =
     SheetNoteSymbol.glyphBBoxes('timeSig4', '\uE084', GlyphBBoxesTimeSig4.bBoxNE, GlyphBBoxesTimeSig4.bBoxSW);
-final SheetNoteSymbol timeSig5 =
+final timeSig5 =
     SheetNoteSymbol.glyphBBoxes('timeSig5', '\uE085', GlyphBBoxesTimeSig5.bBoxNE, GlyphBBoxesTimeSig5.bBoxSW);
-final SheetNoteSymbol timeSig6 =
+final timeSig6 =
     SheetNoteSymbol.glyphBBoxes('timeSig6', '\uE086', GlyphBBoxesTimeSig6.bBoxNE, GlyphBBoxesTimeSig6.bBoxSW);
-final SheetNoteSymbol timeSig7 =
+final timeSig7 =
     SheetNoteSymbol.glyphBBoxes('timeSig7', '\uE087', GlyphBBoxesTimeSig7.bBoxNE, GlyphBBoxesTimeSig7.bBoxSW);
-final SheetNoteSymbol timeSig8 =
+final timeSig8 =
     SheetNoteSymbol.glyphBBoxes('timeSig8', '\uE088', GlyphBBoxesTimeSig8.bBoxNE, GlyphBBoxesTimeSig8.bBoxSW);
-final SheetNoteSymbol timeSig9 =
+final timeSig9 =
     SheetNoteSymbol.glyphBBoxes('timeSig9', '\uE089', GlyphBBoxesTimeSig9.bBoxNE, GlyphBBoxesTimeSig9.bBoxSW);
 final timeSigCommon = SheetNoteSymbolFixed(
     'timeSigCommon', '\uE08A', GlyphBBoxesTimeSigCommon.bBoxNE, GlyphBBoxesTimeSigCommon.bBoxSW, 2);
 
 class SheetNote {
-  SheetNote.note(this._pitch, this._noteDuration, {bool? dotted, bool? tied, Chord? chord, String? lyrics, Clef? clef})
+  SheetNote.note(this._clef, this._pitch, this._noteDuration,
+      {bool? dotted, bool? tied, Chord? chord, String? lyrics, bool? makeUpNote})
       : _isNote = true,
         _lyrics = lyrics,
-        _clef = clef,
         _dotted = dotted ?? false,
         _chord = chord,
         _tied = tied {
-    _clef ??= (pitch?.compareTo(Pitch.get(PitchEnum.C3)) ?? -1) < 0 ? Clef.bass : Clef.treble;
 
     //  find note symbol by value, in units of measure
+    bool upNote = makeUpNote ?? isUpNote(_clef, _pitch!);
     if (_noteDuration == 1) {
       _symbol = noteWhole;
     } else if (_noteDuration == 1 / 2 + 1 / 4) {
-      _symbol = isUpNote() ? noteHalfUp : noteHalfDown;
+      _symbol = upNote ? noteHalfUp : noteHalfDown;
       _dotted = true;
     } else if (_noteDuration == 1 / 2) {
-      _symbol = isUpNote() ? noteHalfUp : noteHalfDown;
+      _symbol = upNote ? noteHalfUp : noteHalfDown;
     } else if (_noteDuration == 1 / 4 + 1 / 8) {
-      _symbol = isUpNote() ? noteQuarterUp : noteQuarterDown;
+      _symbol = upNote ? noteQuarterUp : noteQuarterDown;
       _dotted = true;
     } else if (_noteDuration == 1 / 4) {
-      _symbol = isUpNote() ? noteQuarterUp : noteQuarterDown;
+      _symbol = upNote ? noteQuarterUp : noteQuarterDown;
     } else if (_noteDuration == 1 / 8 + 1 / 16) {
-      _symbol = isUpNote() ? note8thUp : note8thDown;
+      _symbol = upNote ? note8thUp : note8thDown;
       _dotted = true;
     } else if (_noteDuration == 1 / 8) {
-      _symbol = isUpNote() ? note8thUp : note8thDown;
+      _symbol = upNote ? note8thUp : note8thDown;
     } else if (_noteDuration == 1 / 16) {
-      _symbol = isUpNote() ? note16thUp : note16thDown;
+      _symbol = upNote ? note16thUp : note16thDown;
     } else {
       _symbol = restWhole; //  fixme!
       logger.w('note duration is not legal: $_noteDuration');
     }
   }
 
-  SheetNote.rest(this._noteDuration, {String? lyrics, Clef? clef})
+  SheetNote.rest(this._clef, this._noteDuration, {String? lyrics, Clef? clef})
       : _isNote = false,
-        _lyrics = lyrics,
-        _clef = clef {
-    _clef ??= Clef.bass;
+        _lyrics = lyrics {
     //  find rest symbol by value, in units of measure
     if (_noteDuration == 1) {
       _symbol = restWhole;
@@ -227,27 +239,12 @@ class SheetNote {
         ' ${_symbol._name ?? '?'} on $clef';
   }
 
-  bool isUpNote() {
-    if (isRest) {
-      return true;
-    }
-    if (_pitch == null) {
-      return true;
-    }
-    if (_clef == Clef.treble) return _pitch!.number < trebleUpNumber;
-    //  else bassClef
-    return _pitch!.number < bassUpNumber;
-  }
-
-  static final trebleUpNumber = Pitch.get(PitchEnum.B4).number;
-  static final bassUpNumber = Pitch.get(PitchEnum.D2).number;
-
   bool get isNote => _isNote;
   final bool _isNote; //  otherwise a rest
   bool get isRest => !isNote;
 
-  Clef? get clef => _clef;
-  Clef? _clef;
+  Clef get clef => _clef;
+  final Clef _clef;
 
   Pitch? get pitch => _pitch;
   Pitch? _pitch;

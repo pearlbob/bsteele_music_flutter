@@ -211,15 +211,14 @@ class BassStudyTool {
                       Pitch? pitch = Pitch.get(PitchEnum.E1).offsetByHalfSteps(string * 5 + fret);
                       logger.v('    Pitch: $pitch  (string: $string, fret: $fret), $chordDescriptor');
                       if (pitch != null) {
-                        SheetNote sn = SheetNote.note(pitch, _noteDuration.duration,
+                        SheetNote sn = SheetNote.note(Clef.bass8vb, pitch, _noteDuration.duration,
                             // lyrics: lyrics,
-                            tied: tied,
-                            clef: Clef.bass);
+                            tied: tied, );
                         sheetNotes.add(sn);
                       }
                     } else {
                       //  rest
-                      SheetNote sn = SheetNote.rest(
+                      SheetNote sn = SheetNote.rest(Clef.bass8vb,
                         _noteDuration.duration,
                         //lyrics: lyrics,
                       );

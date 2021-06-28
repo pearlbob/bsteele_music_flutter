@@ -14,18 +14,18 @@ const double staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  
 // For piano chords, try:  https://www.scales-chords.com/chord/piano
 
 List<SheetNotation> _sheetNotations = List.generate(SheetDisplay.values.length, (index) {
-  const staffHeight = (staffLineCount-1) * staffSpace;
+  const staffHeight = (staffLineCount - 1) * staffSpace;
   const staffMarginHeight = staffMargin * staffSpace;
   SheetDisplay display = SheetDisplay.values[index];
 
-  const double _fontSize = 15;//  fixme
+  const double _fontSize = 15; //  fixme
   switch (display) {
-    case SheetDisplay.lyrics:
-      return SheetTextNotation(display, activeHeight: _fontSize * 2);
     case SheetDisplay.chords:
-      return SheetTextNotation(display, activeHeight: _fontSize * 2);
+      return SheetChordTextNotation(display);
+    case SheetDisplay.lyrics:
+      return SheetLyricsTextNotation(display);
     case SheetDisplay.guitarFingerings:
-      return SheetTextNotation(display, activeHeight: _fontSize * 4);// fixme temp
+      return SheetTextNotation(display, activeHeight: _fontSize * 4); // fixme temp
     case SheetDisplay.pianoChords:
       return SheetChordStaffNotation(display,
           preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
@@ -55,7 +55,7 @@ class SheetMusicPainter extends CustomPainter {
     //  clear the plot
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _white);
     _reset();
-    _xSpaceAll(staffMargin*staffSpace);
+    _xSpaceAll(staffMargin * staffSpace);
 
     _reset();
     _xSpaceAll(10);
@@ -269,7 +269,6 @@ class SheetMusicPainter extends CustomPainter {
     }
   }
 
-
   void _renderBarlineSingle() {
     //  find first staff
     double firstYOff = -1;
@@ -333,7 +332,6 @@ class SheetMusicPainter extends CustomPainter {
     _xSpaceAll(width);
   }
 
-
 // Accidental _accidentalFromPitch(Pitch pitch) {
 //   if (pitch.isSharp) {
 //     return Accidental.sharp;
@@ -343,7 +341,6 @@ class SheetMusicPainter extends CustomPainter {
 //   }
 //   return Accidental.natural;
 // }
-
 
   void _reset() {
     for (var display in SheetDisplay.values) {
@@ -370,7 +367,7 @@ class SheetMusicPainter extends CustomPainter {
     _xSpaceAll(0);
   }
 
- // cache for a single measure
+  // cache for a single measure
   late Canvas _canvas;
 }
 

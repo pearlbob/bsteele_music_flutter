@@ -5,34 +5,40 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+const _environmentDefault = 'main';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Search for song test', (WidgetTester tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(
+        4 * 1920, //  fixme: why is such a width needed?
+        4 * 1080);
+
     // Build our app and trigger a frame.
-      await tester.pumpWidget(MyApp());
+    //   await tester.pumpWidget(MyApp());
+    //
+    //   await tester.pump(const Duration(seconds: 5));
+    //
+    //   logger.d('allSongs.length: ${App().allSongs.length}');
+    //
+    //  // Verify that our counter starts at 0.
+    //   var searchFinder = find.byIcon(Icons.search);
+    //   // print( 'searchFinder: ${searchFinder.description}');
+    //
+    //  expect(searchFinder, findsOneWidget);
 
-      await tester.pump(const Duration(seconds: 5));
+    await tester.pumpWidget(MyApp());
+    await tester.pumpAndSettle(const Duration(seconds: 1));
 
-      logger.d('allSongs.length: ${App().allSongs.length}');
-
-     // Verify that our counter starts at 0.
-      var searchFinder = find.byIcon(Icons.search);
-      // print( 'searchFinder: ${searchFinder.description}');
-
-     expect(searchFinder, findsOneWidget);
-
-
-      // var testValue = 'love';
-      // await tester.enterText(textField, testValue);
-      // expect(find.text(testValue), findsOneWidget);
-      // print(testValue);
+    // var testValue = 'love';
+    // await tester.enterText(textField, testValue);
+    // expect(find.text(testValue), findsOneWidget);
+    // print(testValue);
     // expect(find.text('1'), findsNothing);
     //
     // // Tap the '+' icon and trigger a frame.

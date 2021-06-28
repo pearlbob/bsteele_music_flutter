@@ -22,7 +22,7 @@ class _RegexpTextFinder extends MatchFinder {
     if (candidate.widget is Text) {
       var text = (candidate.widget as Text).data ?? '';
       RegExpMatch? m = _regExp.firstMatch(text);
-      if (  m != null){
+      if (m != null) {
         logger.d(' matching: <$text>');
         return true;
       }
@@ -39,17 +39,20 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('about test', (WidgetTester tester) async {
-   // tester.binding.window.physicalSizeTestValue = const Size(1920, 1080);
+    // tester.binding.window.physicalSizeTestValue = const Size(1920, 1080);
 
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MaterialApp(
-      title: 'Edit Screen',
-      // home: Edit(initialSong: Song.createEmptySong(),)),
-      home: About(),
-    ));
+    await tester.runAsync(() async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(const MaterialApp(
+        title: 'Edit Screen',
+        // home: Edit(initialSong: Song.createEmptySong(),)),
+        home: About(),
+      ));
 
-    await tester.pump();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
-    expect(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d\n$'), findsOneWidget);
+      //   print(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d').toString());
+      expect(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d\n$'), findsOneWidget);
+    });
   });
 }

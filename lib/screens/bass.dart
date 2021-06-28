@@ -80,9 +80,9 @@ class _State extends State<BassWidget> {
       }
       if (!hasSomeDisplay) {
         sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
-        // sheetDisplayEnables[SheetDisplay.chords.index] = true;
+        sheetDisplayEnables[SheetDisplay.chords.index] = true;
         sheetDisplayEnables[SheetDisplay.pianoChords.index] = true;
-        //  sheetDisplayEnables[SheetDisplay.pianoTreble.index]=true;
+         sheetDisplayEnables[SheetDisplay.pianoTreble.index]=true;
         // sheetDisplayEnables[SheetDisplay.pianoBass.index]=true;
         //sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index] = true;
         //sheetDisplayEnables[SheetDisplay.bassNotes.index] = true;

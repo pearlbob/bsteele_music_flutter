@@ -445,7 +445,7 @@ class _Edit extends State<Edit> {
                   color: _addColor,
                 ),
                 child: _editTooltip(
-                    'add new section here',
+                    'add new chord section here',
                     InkWell(
                       onTap: () {
                         setState(() {
@@ -460,7 +460,7 @@ class _Edit extends State<Edit> {
                         Icons.add,
                         size: _chordFontSize,
                       ),
-                    )));
+                    ), key: const ValueKey('newChordSection')));
           }
           children.add(child);
 
@@ -524,6 +524,7 @@ class _Edit extends State<Edit> {
           child: GestureDetector(
             // fixme: put GestureDetector only on chord table
             child: SingleChildScrollView(
+              key: const ValueKey('singleChildScrollView'),
               scrollDirection: Axis.vertical,
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -724,10 +725,11 @@ class _Edit extends State<Edit> {
                                 onTap: () {
                                   logger.log(_editLog, 'item onTap: ${value.runtimeType} $value');
                                   if (_song.key != value) {
-                                    _song.key = value;
-                                    _key = value;
-                                    _keyChordNote = _key.getKeyScaleNote();
-                                    setState(() {}); //  display the return to original
+                                    setState(() {
+                                      _song.key = value;
+                                      _key = value;
+                                      _keyChordNote = _key.getKeyScaleNote();
+                                    }); //  display the return to original
                                   }
                                 },
                               );
@@ -743,6 +745,9 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         ),
+                        SizedBox.shrink(
+                          key: ValueKey('keyTally_' + _key.toMarkup()),
+                        ), //  tally for testing only
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
                           child: const Text(
@@ -751,7 +756,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                         SizedBox(
-                          width: 80.0,
+                          width: 2 * _defaultFontSize,
                           child: TextField(
                             controller: _bpmTextEditingController,
                             decoration: const InputDecoration(hintText: 'Enter the song\'s beats per minute.'),
@@ -787,10 +792,11 @@ class _Edit extends State<Edit> {
                               fontSize: _defaultFontSize,
                               fontWeight: FontWeight.bold),
                         ),
+
                         Container(
                           padding: const EdgeInsets.only(left: 24, bottom: 24.0),
                           child: const Text(
-                            "  User: ",
+                            "User: ",
                             style: _labelTextStyle,
                           ),
                         ),
@@ -1138,6 +1144,7 @@ class _Edit extends State<Edit> {
     }).toList();
 
     //  main entries
+    var addSection = 0;
     logger.log(_editLog, '_lyricsEntries: ${_lyricsEntries.entries.length}');
     for (final entry in _lyricsEntries.entries) {
       //  insert new section above
@@ -1146,8 +1153,9 @@ class _Edit extends State<Edit> {
         children.add(Row(
           children: [
             _editTooltip(
-              'Add new section here',
+              'Add new lyrics section here',
               DropdownButton<ChordSection>(
+                key: ValueKey('addLyricsSection${addSection++}'),
                 hint: Container(
                   margin: _marginInsets,
                   padding: _textPadding,
@@ -1360,7 +1368,7 @@ class _Edit extends State<Edit> {
         _editTooltip(
           _song.getChordSections().isEmpty
               ? 'No lyric section to add!  Add at least one chord section above.'
-              : 'Add new section here at the end',
+              : 'Add new lyric section here at the end',
           DropdownButton<ChordSection>(
             hint: Container(
               margin: _marginInsets,
@@ -1467,7 +1475,7 @@ class _Edit extends State<Edit> {
 
       //  add children to max columns to keep the table class happy
       while (children.length < maxCols) {
-        children.add(Container());
+        children.add(const Text(''));
       }
 
       //  add row to table
@@ -2562,13 +2570,18 @@ class _Edit extends State<Edit> {
   }
 
   /// helper function to generate tool tips
-  Widget _editTooltip(String message, Widget child) {
+  Widget _editTooltip(
+    String message,
+    Widget child, {
+    Key? key,
+  }) {
     // String debug = '';
     // if (Logger.level.index <= Level.debug.index && _selectedEditDataPoint != null) {
     //   debug = '  edit: ${_selectedEditDataPoint.toString()}}';
     // }
     return Tooltip(
         // message: message + debug,
+        key: key,
         message: message,
         child: child,
         textStyle: const AppTextStyle(

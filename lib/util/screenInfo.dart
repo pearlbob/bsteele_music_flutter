@@ -39,6 +39,7 @@ class ScreenInfo {
         _isDefaultValue = true {
     _isTooNarrow = false; //  logical pixels
     _titleScaleFactor = 1;
+    _fontSize = 16;
   }
 
   double get fontSize => _fontSize;

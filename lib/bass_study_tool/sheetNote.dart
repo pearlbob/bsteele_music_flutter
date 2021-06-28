@@ -15,8 +15,8 @@ const double staffMargin = 3;
 
 enum SheetDisplay {
   //  in order:
-  lyrics,
   chords,
+  lyrics,
   guitarFingerings,
   pianoChords,
   pianoTreble, //  + guitar
@@ -32,11 +32,9 @@ bool hasDisplay(SheetDisplay display) {
   return sheetDisplayEnables[display.index];
 }
 
-
 bool isUpNote(Clef clef, Pitch pitch) {
-
   var pitchUpNumber = 0;
-  switch (clef ){
+  switch (clef) {
     case Clef.treble:
       pitchUpNumber = Pitch.get(PitchEnum.B4).number;
       break;
@@ -49,8 +47,6 @@ bool isUpNote(Clef clef, Pitch pitch) {
   }
   return pitch.number < pitchUpNumber;
 }
-
-
 
 class SheetNoteSymbol {
   SheetNoteSymbol.glyphBBoxes(this._name, this._character, Point<double> bBoxNE, Point<double> bBoxSW,
@@ -100,7 +96,7 @@ final noteHalfUp =
 final noteHalfDown = SheetNoteSymbol.glyphBBoxes(
     'noteHalfDown', '\uE1D4', GlyphBBoxesNoteHalfDown.bBoxNE, GlyphBBoxesNoteHalfDown.bBoxSW)
   .._isUp = false;
-final  noteQuarterUp = SheetNoteSymbol.glyphBBoxes(
+final noteQuarterUp = SheetNoteSymbol.glyphBBoxes(
     'noteQuarterUp', '\uE1D5', GlyphBBoxesNoteQuarterUp.bBoxNE, GlyphBBoxesNoteQuarterUp.bBoxSW);
 final noteQuarterDown = SheetNoteSymbol.glyphBBoxes(
     'noteQuarterDown', '\uE1D6', GlyphBBoxesNoteQuarterDown.bBoxNE, GlyphBBoxesNoteQuarterDown.bBoxSW)
@@ -180,7 +176,6 @@ class SheetNote {
         _dotted = dotted ?? false,
         _chord = chord,
         _tied = tied {
-
     //  find note symbol by value, in units of measure
     bool upNote = makeUpNote ?? isUpNote(_clef, _pitch!);
     if (_noteDuration == 1) {

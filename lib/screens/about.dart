@@ -25,6 +25,7 @@ class _About extends State<About> {
     super.initState();
 
     _readPackageInfo();
+    _readUtcDate();
   }
 
   @override
@@ -116,7 +117,9 @@ class _About extends State<About> {
     setState(() {
       _packageInfo = info;
     });
+  }
 
+  void _readUtcDate() async {
     rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
       setState(() {
         _utcDateAsString = value;

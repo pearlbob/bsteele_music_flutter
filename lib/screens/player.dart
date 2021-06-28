@@ -45,7 +45,7 @@ music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
 const _centerSelections = true; //fixme: add later!
 
-const Level _playerLogScroll = Level.info;
+const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;

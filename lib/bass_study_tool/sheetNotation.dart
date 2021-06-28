@@ -13,13 +13,15 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicFontParameters.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
+import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/material.dart';
 
 import 'bassStudyTool.dart';
 
 const bool _debug = false; // kDebugMode false
+const double _chordFontSize = 24;
 
-class SheetNotation {
+abstract class SheetNotation {
   SheetNotation._(this.sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
       : preHeight = preHeight ?? 0,
         activeHeight = activeHeight ?? 0,
@@ -50,24 +52,39 @@ class SheetNotation {
 
   void drawNotations() {}
 
-  void _renderText(String text, {Color? color, double? xOff, double? yOff}) {
-    final double w = 2 * staffSpace * text.length;
-    TextPainter(
+  /// render text and return the pixels used
+  double _renderText(String text, {Color? color, double? xOff, double? yOff, double? fontSize, FontWeight? fontWeight}) {
+    //   final double w = 2 * staffSpace * text.length;
+    var textPainter = TextPainter(
       text: TextSpan(
         text: text,
         style: TextStyle(
           fontFamily: 'Bravura',
           color: color ?? _black.color,
-          fontSize: _fontSize,
+          fontSize: fontSize ?? _fontSize,
+          fontWeight: fontWeight ?? FontWeight.normal,
         ),
       ),
       textDirection: TextDirection.ltr,
-    )
-      ..layout(
-        minWidth: 10,
-        maxWidth: max(w, 40),
-      )
-      ..paint(_canvas, Offset(xOff ?? dx, yOff ?? dy));
+    )..layout(
+        // minWidth: 10,
+        // maxWidth: max(w, 40),
+        );
+    textPainter.paint(_canvas, Offset(xOff ?? dx, yOff ?? dy));
+
+    return textPainter.minIntrinsicWidth;
+  }
+
+  _renderBarlineSingle() {
+    //  fixme
+    final black = Paint();
+    black.color = _lineColor;
+    black.style = PaintingStyle.stroke;
+    final width = (GlyphBBoxesBarlineSingle.bBoxNE.x - GlyphBBoxesBarlineSingle.bBoxSW.x) * staffSpace;
+    black.strokeWidth = width;
+
+    _canvas.drawLine(Offset(dx, dy + preHeight),
+        Offset(dx, dy + preHeight + min(activeHeight, (staffLineCount - 1) * staffSpace)), black);
   }
 
   @override
@@ -102,6 +119,52 @@ class SheetTextNotation extends SheetNotation {
   void drawNotations() {
     dx += 200;
     _renderText('some text here:');
+  }
+}
+
+class SheetChordTextNotation extends SheetTextNotation {
+  SheetChordTextNotation(SheetDisplay sheetDisplay,
+      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
+      : super(sheetDisplay,
+            preHeight: preHeight, activeHeight: activeHeight ?? 2 * _chordFontSize, postHeight: postHeight);
+
+  @override
+  void drawNotations() {
+    dx += 200;
+    int beats = 0;
+    for (var chord in _getChords()) {
+      dx += _renderText(chord.scaleChord.toMarkup(), fontSize: _chordFontSize, fontWeight: FontWeight.bold);
+      dx += staffSpace;
+      beats += chord.beats;
+      if (beats >= chord.beatsPerBar) {
+        _renderBarlineSingle();
+        dx += staffSpace;
+        beats = 0;
+      }
+    }
+  }
+}
+
+class SheetLyricsTextNotation extends SheetTextNotation {
+  SheetLyricsTextNotation(SheetDisplay sheetDisplay,
+      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
+      : super(sheetDisplay,
+            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+
+  @override
+  void drawNotations() {
+    dx += 200;
+    int beats = 0;
+    for (var chord in _getChords()) {
+      dx += _renderText('foo', fontSize: _chordFontSize);
+      dx += staffSpace;
+      beats += chord.beats;
+      if (beats >= chord.beatsPerBar) {
+        _renderBarlineSingle();
+        dx += staffSpace;
+        beats = 0;
+      }
+    }
   }
 }
 
@@ -353,17 +416,6 @@ class _SheetStaffNotation extends SheetNotation {
     _measureAccidentals.clear();
   }
 
-  _renderBarlineSingle() {
-    //  fixme
-    final black = Paint();
-    black.color = _lineColor;
-    black.style = PaintingStyle.stroke;
-    final width = (GlyphBBoxesBarlineSingle.bBoxNE.x - GlyphBBoxesBarlineSingle.bBoxSW.x) * staffSpace;
-    black.strokeWidth = width;
-
-    _canvas.drawLine(Offset(dx, dy + preHeight), Offset(dx, dy + preHeight + (staffLineCount - 1) * staffSpace), black);
-  }
-
   late final Clef _clef;
   late final SheetNoteSymbolFixed _clefSymbol;
 
@@ -375,7 +427,8 @@ class _SheetStaffNotation extends SheetNotation {
 
 class SheetTrebleStaffNotation extends _SheetStaffNotation {
   SheetTrebleStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
-      : super(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight);
+      : super(sheetDisplay,
+            preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight, clef: Clef.treble);
 
   @override
   void drawNotations() {
@@ -461,7 +514,6 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
     //  fixme: fill in the key accidentals
     //  hand rendering
     _renderKeyStaffSymbols(SheetDisplay.pianoTreble);
-    _renderKeyStaffSymbols(SheetDisplay.pianoBass);
     _xSpace(1 * staffSpace);
 
     //  fill in the time signature
@@ -482,6 +534,7 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
         //  fixme: align notes with their durations
         //  fixme: control line overflow
         //  fixme: staff selection (e.g. bass only, treble + bass, etc)
+        //  fixme: multiple accidentals on one chord
         sn = SheetNote.note(
             _clef, sn.pitch?.offsetByHalfSteps(3 * MusicConstants.halfStepsPerOctave) ?? sn.pitch, sn.noteDuration);
         _renderSheetNote(sn);
@@ -531,24 +584,11 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
     //  fill in the time signature
     _renderSheetFixedYSymbol(timeSigCommon); //  fixme: fill in the time signature with something other than common time
 
-    List<Chord> chords = [];
+    List<Chord> chords = _getChords();
     {
-      List<ScaleNoteEnum> scaleNoteEnums = [
-        ScaleNoteEnum.C,
-        ScaleNoteEnum.D,
-        ScaleNoteEnum.E,
-        ScaleNoteEnum.F,
-        ScaleNoteEnum.G,
-        ScaleNoteEnum.G,
-      ];
-
       double duration = 0;
       final Map<double, Accidental> _chordMeasureAccidentals = {};
       _xSpace(1.25 * staffSpace);
-      for (var scaleNoteEnum in scaleNoteEnums) {
-        ScaleChord scaleChord = ScaleChord(ScaleNote.get(scaleNoteEnum), ChordDescriptor.major);
-        chords.add(Chord(scaleChord, beats, beatsPerBar, null, ChordAnticipationOrDelay.defaultValue, false));
-      }
 
       //  chord declaration over treble staff
       for (var chord in chords) {
@@ -614,7 +654,9 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
             _renderBarlineSingle();
             duration = 0;
             _xSpace(1.25 * staffSpace);
-            _chordMeasureAccidentals.clear(); //  start afresh on new measure
+            //  start afresh on new measure
+            _chordMeasureAccidentals.clear();
+            _measureAccidentals.clear();
             logger.i('measure cleared');
           }
 
@@ -700,6 +742,30 @@ class SheetBass8vbStaffNotation extends _SheetStaffNotation {
     Pitch.get(PitchEnum.C2),
     Pitch.get(PitchEnum.C2),
   ];
+}
+
+List<Chord> _chords = [];
+
+List<Chord> _getChords() {
+  if (_chords.isEmpty) {
+    const beats = 1;
+    const beatsPerBar = 4;
+    const List<ScaleNoteEnum> scaleNoteEnums = [
+      ScaleNoteEnum.C,
+      ScaleNoteEnum.D,
+      ScaleNoteEnum.E,
+      ScaleNoteEnum.F,
+      ScaleNoteEnum.G,
+      ScaleNoteEnum.A,
+      ScaleNoteEnum.Bb,
+      ScaleNoteEnum.C,
+    ];
+    for (var scaleNoteEnum in scaleNoteEnums) {
+      ScaleChord scaleChord = ScaleChord(ScaleNote.get(scaleNoteEnum), ChordDescriptor.major);
+      _chords.add(Chord(scaleChord, beats, beatsPerBar, null, ChordAnticipationOrDelay.defaultValue, false));
+    }
+  }
+  return _chords;
 }
 
 final _black = Paint()..color = Colors.black;

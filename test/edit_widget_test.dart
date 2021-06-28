@@ -13,6 +13,7 @@ import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 class _TextFieldFinder extends MatchFinder {
   _TextFieldFinder(this._valueKeyString);
@@ -22,9 +23,11 @@ class _TextFieldFinder extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
-    return (candidate.widget is TextField &&
-        candidate.widget.key is ValueKey &&
-        (candidate.widget.key as ValueKey).value == _valueKeyString);
+    logger.v('candidate: ${candidate.widget.runtimeType} ${candidate.widget.key}');
+    if (candidate.widget is TextField) {
+      return (candidate.widget.key is ValueKey && (candidate.widget.key as ValueKey).value == _valueKeyString);
+    }
+    return false;
   }
 
   final String _valueKeyString;
@@ -107,35 +110,54 @@ class _Find {
 // }
 }
 
+// Widget appOptionsChangeNotifierProvider(BuildContext context, Widget? child) {
+//   return ChangeNotifierProvider<AppOptions>(
+//       create: (_) => AppOptions(),
+//       builder: (BuildContext context, Widget? child) {
+//         return child ?? const Text('no child');
+//       });
+// }
+
 void main() async {
   Logger.level = Level.info;
 
   TestWidgetsFlutterBinding.ensureInitialized();
-  await AppOptions().init();
 
   testWidgets('edit test', (WidgetTester tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(
-        2 * 1920, //  fixme: why is such a width needed?
-        2 * 1080);
+        4 * 1920, //  fixme: why is such a width needed?
+        4 * 1080);
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MaterialApp(
-      title: 'Edit Screen',
-      home: Edit(
-        initialSong: Song.createEmptySong(),
-      ),
-    ));
+    // await tester.pumpWidget(MaterialApp(
+    //   title: 'Edit Screen',
+    //   home: Edit(
+    //     initialSong: Song.createEmptySong(),
+    //   ),
+    //   builder: _appOptionsChangeNotifierProvider,
+    // ));
+    await tester.pumpWidget(
+      MaterialApp(
+          title: 'Edit Screen',
+          home: ChangeNotifierProvider<AppOptions>(
+              create: (_) => AppOptions(),
+              builder: (BuildContext context, Widget? child) {
+                return Edit(
+                  initialSong: Song.createEmptySong(),
+                );
+              })),
+    );
 
-    await tester.pump();
+    await tester.pumpAndSettle(const Duration(seconds: 1));
 
     var testTitle = '000 test edit widget song';
     var testArtist = 'original bob';
     var coverArtist = 'bob again';
     var copyright = '2021 pearlbob';
 
-    var errorMessage = _Find.findText('errorMessage');
-    logger.i('errorMessage: "${errorMessage.data}"');
-    expect(errorMessage.data, contains('title'));
+    Text errorMessage; // = _Find.findText('errorMessage');
+    // logger.i('errorMessage: "${errorMessage.data}"');
+    // expect(errorMessage.data, contains('title'));
 
     var titleTextField = _Find.findTextField('title');
     expect(titleTextField.controller!.text, isEmpty);
@@ -192,43 +214,38 @@ void main() async {
     logger.i('keyDropdown.value.runtimeType: ${keyDropdownButton.value.runtimeType}');
 
     {
-      //  work around some type issues
-      var itemsToString = keyDropdownButton.items!.map((item) => item.value.toString());
-
-      // var keyDropdownFinder = _DropDownFinder('keyDropdown');
+      var keyDropdownFinder = _DropDownFinder('editKeyDropdown');
+      expect(keyDropdownFinder, findsOneWidget);
       for (var musicKey in music_key.Key.values) {
         logger.i('   musicKey: ${musicKey.halfStep} ${musicKey.toMarkup()}');
 
-        // await tester.tap(keyDropdownFinder, warnIfMissed: false);
-        // await tester.pump();
-        // // await tester.pump(const Duration(seconds: 1));
-        // await tester.pumpAndSettle( );
-        // // await tester.pumpAndSettle(
-        // //     const Duration(milliseconds: 100), EnginePhase.sendSemanticsUpdate, const Duration(seconds: 10));
+        await tester.tap(keyDropdownFinder.first, warnIfMissed: false);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
 
         final keySelection = find.byKey(ValueKey('key_' + musicKey.toMarkup()));
-        //fixme:      expect(keySelection, findsOneWidget);
-        logger.i('   keySelection: ${keySelection.first}');
+        // expect(keySelection, findsOneWidget);  //  fixme: why 2?
+        logger.d('keySelection: ${keySelection}');
 
-        await tester.tap(keySelection.first, warnIfMissed: false);
-        await tester.pump();
-        await tester.pumpAndSettle();
-        // await tester.pump(const Duration(seconds: 1));
+        await tester.tap(keySelection.last, warnIfMissed: false);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
 
-        // await tester.pumpAndSettle(
-        //     const Duration(milliseconds: 100), EnginePhase.sendSemanticsUpdate, const Duration(seconds: 10));
         errorMessage = _Find.findText('errorMessage');
-        logger.i('errorMessage.data: ${errorMessage.data}');
+        logger.d('errorMessage.data: ${errorMessage.data}');
         expect(errorMessage.data, contains('chords'));
 
-        //    keyDropdownButton = _Find.findDropDown('keyDropdown');
-
-        logger.i('keyDropdownButton.value: ${keyDropdownButton.value}');
-
-        var containsKey = itemsToString.contains(musicKey.toString());
-        expect(containsKey, isTrue);
+        expect(find.byKey(ValueKey('keyTally_' + musicKey.toMarkup()), skipOffstage: false), findsOneWidget);
       }
     }
+
+    var newChordSection = find.byKey(const ValueKey('newChordSection'));
+    expect(newChordSection, findsOneWidget);
+    await tester.dragUntilVisible(
+      newChordSection, // what you want to find
+      find.byKey(const ValueKey('singleChildScrollView')), // widget you want to scroll
+      const Offset(0, 200), // delta to move
+    );
+    // await tester.tap(newChordSection.last);
+    //await tester.pumpAndSettle(const Duration(seconds: 1));   //  fixme:  A RenderFlex overflowed by 132 pixels on the right.
 
 //  wait a while
 //     await tester.pump(new Duration(milliseconds: 50));

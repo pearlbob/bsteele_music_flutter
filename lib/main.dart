@@ -886,8 +886,3 @@ Future<String> fetchString(String uriString) async {
     throw Exception('Failed to load url: $uriString');
   }
 }
-
-void foo() {
-  var v = 3.bitLength;
-  v = v.bitLength;
-}

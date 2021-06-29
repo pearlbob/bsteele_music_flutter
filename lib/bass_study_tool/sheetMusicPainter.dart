@@ -2,6 +2,8 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicFontParameters.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNotation.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
@@ -20,6 +22,8 @@ List<SheetNotation> _sheetNotations = List.generate(SheetDisplay.values.length, 
 
   const double _fontSize = 15; //  fixme
   switch (display) {
+    case SheetDisplay.measureCount:
+      return SheetMeasureCountTextNotation(display, activeHeight: _fontSize,);
     case SheetDisplay.chords:
       return SheetChordTextNotation(display);
     case SheetDisplay.lyrics:
@@ -54,8 +58,6 @@ class SheetMusicPainter extends CustomPainter {
 
     //  clear the plot
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _white);
-    _reset();
-    _xSpaceAll(staffMargin * staffSpace);
 
     _reset();
     _xSpaceAll(10);
@@ -76,6 +78,28 @@ class SheetMusicPainter extends CustomPainter {
     }
 
     _xSpaceAll(0.5 * staffSpace);
+
+    //  display each beat
+    Song song = _app.selectedSong;
+    momentLoop:
+    for ( var sm in song.songMoments ){
+      if ( _app.selectedMomentNumber > sm.momentNumber){
+        continue; //  fixme: optimization?
+      }
+      for ( int beat = 0; beat < sm.measure.beatCount; beat++){
+        for (var display in SheetDisplay.values) {
+          if (hasDisplay(display)) {
+            _sheetNotations[display.index].drawBeat(sm, beat);
+          }
+        }
+
+        if ( _xSpaceAll(0.5 * staffSpace) >= size.width ){
+          logger.i('last moment: ${sm.momentNumber}');
+          break momentLoop;
+        }
+      }
+      _renderBarlineSingle();
+    }
 
     // _testSong();
     // if (hasDisplay(SheetDisplay.pianoChords)) {
@@ -350,7 +374,7 @@ class SheetMusicPainter extends CustomPainter {
   }
 
   /// align all clefs and add a space
-  void _xSpaceAll(double space) {
+  double _xSpaceAll(double space) {
     double maxX = 0;
     for (var display in SheetDisplay.values) {
       maxX = max(maxX, _sheetNotations[display.index].dx);
@@ -360,6 +384,7 @@ class SheetMusicPainter extends CustomPainter {
       var sn = _sheetNotations[display.index];
       sn.dx = x;
     }
+    return maxX;
   }
 
   /// align all clefs to the current maximum of the clefs
@@ -369,6 +394,8 @@ class SheetMusicPainter extends CustomPainter {
 
   // cache for a single measure
   late Canvas _canvas;
+
+  final  App _app = App();
 }
 
 class SheetNoteLocation {

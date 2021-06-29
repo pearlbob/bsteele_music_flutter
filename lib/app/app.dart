@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
@@ -6,7 +7,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/material.dart';
 
-const Color appDefaultColor = Color(0xFF4FC3F7);//Color(0xFFB3E5FC);
+const Color appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
 const double appDefaultFontSize = 10.0; //  based on phone
 
 enum MessageType {
@@ -82,7 +83,25 @@ class App {
   SplayTreeSet<Song> get filteredSongs => _filteredSongs;
   final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
-  Song selectedSong = _emptySong;
+  Song _selectedSong = _emptySong;
+
+  set selectedSong(Song value) {
+    if (value.songBaseSameContent(_selectedSong)) {
+      return;
+    }
+    _selectedSong = value;
+    _selectedMomentNumber = 0;
+  }
+
+  Song get selectedSong => _selectedSong;
+
+  int _selectedMomentNumber = 0;
+
+  int get selectedMomentNumber => _selectedMomentNumber;
+
+  set selectedMomentNumber(int value) {
+    _selectedMomentNumber = max(0, min(value, _selectedSong.songMoments.length - 1));
+  }
 
   Song get emptySong => _emptySong;
   static final Song _emptySong = Song.createEmptySong();

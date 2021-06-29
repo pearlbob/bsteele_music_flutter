@@ -3,8 +3,6 @@ import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
-import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 
@@ -15,6 +13,7 @@ const double staffMargin = 3;
 
 enum SheetDisplay {
   //  in order:
+  measureCount,
   chords,
   lyrics,
   guitarFingerings,
@@ -264,26 +263,4 @@ class SheetNote {
 
   SheetNoteSymbol get symbol => _symbol;
   late SheetNoteSymbol _symbol;
-}
-
-/// deal with accidentals
-class SheetChord {
-  SheetChord(this._key, this._chord);
-
-  final musical_key.Key _key;
-  final Chord _chord;
-}
-
-/// deal with accidentals
-class SheetMeasure {
-  SheetMeasure(this._key, this._measure) {
-    for (var chord in _measure.chords) {
-      var sheetChord = SheetChord(_key, chord);
-      _sheetChords.add(sheetChord);
-    }
-  }
-
-  final musical_key.Key _key;
-  final Measure _measure;
-  final List<SheetChord> _sheetChords = [];
 }

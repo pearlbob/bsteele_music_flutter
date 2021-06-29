@@ -9,8 +9,6 @@ import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _environmentDefault = 'main';
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

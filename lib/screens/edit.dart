@@ -2891,9 +2891,7 @@ class _Edit extends State<Edit> {
   Song _song;
   final Song _originalSong;
 
-  bool get hasChangedFromOriginal =>
-      _hasChangedFromOriginal = !_song.songBaseSameContent(_originalSong); //  fixme: too fine a line
-  bool _hasChangedFromOriginal = false;
+  bool get hasChangedFromOriginal => !_song.songBaseSameContent(_originalSong); //  fixme: too fine a line
   bool _isValidSong = false;
 
   music_key.Key get musicKey => _key; //  for testing

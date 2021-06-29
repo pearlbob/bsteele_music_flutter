@@ -20,6 +20,7 @@ import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 final _white = Paint()..color = Colors.white;
 final _black = Paint()..color = Colors.black;
@@ -79,10 +80,11 @@ class _State extends State<BassWidget> {
         hasSomeDisplay |= displayEnable;
       }
       if (!hasSomeDisplay) {
+        sheetDisplayEnables[SheetDisplay.measureCount.index] = true;
         sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
         sheetDisplayEnables[SheetDisplay.chords.index] = true;
         sheetDisplayEnables[SheetDisplay.pianoChords.index] = true;
-         sheetDisplayEnables[SheetDisplay.pianoTreble.index]=true;
+        // sheetDisplayEnables[SheetDisplay.pianoTreble.index]=true;
         // sheetDisplayEnables[SheetDisplay.pianoBass.index]=true;
         //sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index] = true;
         //sheetDisplayEnables[SheetDisplay.bassNotes.index] = true;
@@ -277,6 +279,7 @@ class _State extends State<BassWidget> {
                         ),
                       ],
                     ),
+                    //  chord type
                     Row(
                       children: [
                         Text(
@@ -615,6 +618,7 @@ class _State extends State<BassWidget> {
             const SizedBox(
               height: 10,
             ),
+            //  run controls
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -636,70 +640,76 @@ class _State extends State<BassWidget> {
               height: 10,
             ),
             _sheetDisplayEnableOptionsWidget,
-            Stack(
-              fit: StackFit.passthrough,
-              children: [
-                RepaintBoundary(
-                  child: CustomPaint(
-                    painter: _sheetMusicPainter,
-                    isComplex: true,
-                    willChange: false,
-                    child: sheetMusicSizedBox,
-                  ),
-                ),
-                GestureDetector(
-                  child: RepaintBoundary(
+            //  sheet music
+            RawKeyboardListener(
+              focusNode: FocusNode(),
+              onKey: _bassOnKey,
+              autofocus: true,
+              child: Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  RepaintBoundary(
                     child: CustomPaint(
-                      painter: _SheetMusicDragger(_sheetMusicPainter),
+                      painter: _sheetMusicPainter,
                       isComplex: true,
                       willChange: false,
                       child: sheetMusicSizedBox,
                     ),
                   ),
-                  onHorizontalDragStart: (details) {
-                    dragStart(details.localPosition);
-                  },
-                  onHorizontalDragDown: (dragDownDetails) {
-                    dragUpdate(dragDownDetails.localPosition);
-                  },
-                  onHorizontalDragUpdate: (dragUpdateDetails) {
-                    dragUpdate(dragUpdateDetails.localPosition);
-                  },
-                  onHorizontalDragCancel: () {
-                    dragStop();
-                  },
-                  onHorizontalDragEnd: (details) {
-                    dragStop();
-                  },
-                  onVerticalDragStart: (details) {
-                    dragStart(details.localPosition);
-                  },
-                  onVerticalDragDown: (dragDownDetails) {
-                    dragUpdate(dragDownDetails.localPosition);
-                  },
-                  onVerticalDragUpdate: (dragUpdateDetails) {
-                    dragUpdate(dragUpdateDetails.localPosition);
-                  },
-                  onVerticalDragCancel: () {
-                    dragStop();
-                  },
-                  onVerticalDragEnd: (details) {
-                    dragStop();
-                  },
-                ),
+                  GestureDetector(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        painter: _SheetMusicDragger(_sheetMusicPainter),
+                        isComplex: true,
+                        willChange: false,
+                        child: sheetMusicSizedBox,
+                      ),
+                    ),
+                    onHorizontalDragStart: (details) {
+                      dragStart(details.localPosition);
+                    },
+                    onHorizontalDragDown: (dragDownDetails) {
+                      dragUpdate(dragDownDetails.localPosition);
+                    },
+                    onHorizontalDragUpdate: (dragUpdateDetails) {
+                      dragUpdate(dragUpdateDetails.localPosition);
+                    },
+                    onHorizontalDragCancel: () {
+                      dragStop();
+                    },
+                    onHorizontalDragEnd: (details) {
+                      dragStop();
+                    },
+                    onVerticalDragStart: (details) {
+                      dragStart(details.localPosition);
+                    },
+                    onVerticalDragDown: (dragDownDetails) {
+                      dragUpdate(dragDownDetails.localPosition);
+                    },
+                    onVerticalDragUpdate: (dragUpdateDetails) {
+                      dragUpdate(dragUpdateDetails.localPosition);
+                    },
+                    onVerticalDragCancel: () {
+                      dragStop();
+                    },
+                    onVerticalDragEnd: (details) {
+                      dragStop();
+                    },
+                  ),
 
-                // Positioned(
-                //     top: 225 - (bassClef.bounds.top - bassClef.bounds.bottom)/2 * staffSpace * 5,
-                //     left: 75,
-                //     child: Text(
-                //       bassClef.character,
-                //       style: const TextStyle(
-                //         fontFamily: 'Bravura',
-                //         color: Colors.black,
-                //         fontSize: staffSpace * 5,
-                //       ),
-                //     )),
-              ],
+                  // Positioned(
+                  //     top: 225 - (bassClef.bounds.top - bassClef.bounds.bottom)/2 * staffSpace * 5,
+                  //     left: 75,
+                  //     child: Text(
+                  //       bassClef.character,
+                  //       style: const TextStyle(
+                  //         fontFamily: 'Bravura',
+                  //         color: Colors.black,
+                  //         fontSize: staffSpace * 5,
+                  //       ),
+                  //     )),
+                ],
+              ),
             ),
           ],
         ),
@@ -731,6 +741,23 @@ class _State extends State<BassWidget> {
     setState(() {});
   }
 
+  void _bassOnKey(RawKeyEvent value) {
+    if (value.runtimeType == RawKeyDownEvent) {
+      RawKeyDownEvent e = value as RawKeyDownEvent;
+      //  only deal with new key down events
+
+      if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+        setState(() {
+          _app.selectedMomentNumber -= 1;
+        });
+      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        setState(() {
+          _app.selectedMomentNumber += 1;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _lyricsTextEditingController.dispose();
@@ -748,6 +775,8 @@ class _State extends State<BassWidget> {
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
+
+  final App _app = App();
 }
 
 class _FretBoardPainter extends CustomPainter {

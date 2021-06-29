@@ -224,7 +224,7 @@ void main() async {
 
         final keySelection = find.byKey(ValueKey('key_' + musicKey.toMarkup()));
         // expect(keySelection, findsOneWidget);  //  fixme: why 2?
-        logger.d('keySelection: ${keySelection}');
+        logger.d('keySelection: $keySelection');
 
         await tester.tap(keySelection.last, warnIfMissed: false);
         await tester.pumpAndSettle(const Duration(seconds: 1));

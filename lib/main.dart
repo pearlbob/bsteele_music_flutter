@@ -145,20 +145,30 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    //  normally read external (web) songlist and setup the websocket
     if (_environment == _environmentDefault) {
       _readExternalSongList();
       SongUpdateService.open(context);
     } else {
-      //  testing
+      //  testing:  read the internal list
       _readInternalSongList();
     }
     _refilterSongs();
   }
 
+  /// workaround for rootBundle.loadString() failures in flutter test
+  Future<String> _loadString(String assetPath) async {
+    //return rootBundle.loadString(assetPath, cache: false);
+    ByteData data = await rootBundle.load(assetPath);
+    logger.v('data.lengthInBytes: ${data.lengthInBytes}');
+    final buffer = data.buffer;
+    var list = buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    return utf8.decode(list);
+  }
+
   void _readInternalSongList() async {
     {
-      String songListAsString = await rootBundle.loadString('lib/assets/allSongs.songlyrics');
-
+      String songListAsString = await _loadString('lib/assets/allSongs.songlyrics');
       try {
         _app.removeAllSongs();
         _app.addSongs(Song.songListFromJson(songListAsString));
@@ -176,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     {
-      String songMetadataAsString = await rootBundle.loadString('lib/assets/allSongs.songmetadata');
+      String songMetadataAsString = await _loadString('lib/assets/allSongs.songmetadata');
 
       try {
         SongMetadata.clear();
@@ -311,10 +321,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     List<StatelessWidget> listViewChildren = [];
+
+    logger.d('_filteredSongs.length: ${_filteredSongs.length}');
     for (final Song song in (_filteredSongs)) {
       oddEven = !oddEven;
+      logger.v('song.songId: ${song.songId}');
       listViewChildren.add(GestureDetector(
         child: Container(
+          key: ValueKey(song.songId.toString()),
           color: oddEven ? Colors.white : Colors.grey[100],
           padding: const EdgeInsets.all(8.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
@@ -546,6 +560,8 @@ class _MyHomePageState extends State<MyHomePage> {
             flex: 1,
             //  limit text entry display length
             child: TextField(
+              key: const ValueKey('searchText'),
+              //  for testing
               controller: _searchTextFieldController,
               focusNode: _searchFocusNode,
               decoration: InputDecoration(
@@ -709,13 +725,13 @@ class _MyHomePageState extends State<MyHomePage> {
           song.getArtist().toLowerCase().contains(search)) {
         //  if holiday and song is holiday, we're good
         if (_appOptions.holiday) {
-          if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
+          if (isHoliday(song)) {
             _filteredSongs.add(song);
           }
           continue; //  toss the others
         } else
         //  if song is holiday and we're not, nope
-        if (SongMetadata.songMetadataAt(song.songId.songId, 'christmas') != null) {
+        if (isHoliday(song)) {
           continue;
         }
 
@@ -750,6 +766,12 @@ class _MyHomePageState extends State<MyHomePage> {
     } else if (_filteredSongs.isNotEmpty && _selectedSortType == _SortType.byTitle) {
       _rollUnfilteredSongs();
     }
+  }
+
+  bool isHoliday(Song song) {
+    return holidayRexExp.hasMatch(song.title) ||
+        holidayRexExp.hasMatch(song.artist) ||
+        holidayRexExp.hasMatch(song.coverArtist);
   }
 
   void _rollUnfilteredSongs() {
@@ -874,6 +896,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late AppOptions _appOptions;
 
   final _random = Random();
+  static final RegExp holidayRexExp = RegExp('christmas', caseSensitive: false);
 }
 
 Future<String> fetchString(String uriString) async {

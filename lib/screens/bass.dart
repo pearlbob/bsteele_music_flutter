@@ -18,6 +18,7 @@ import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -185,534 +186,544 @@ class _State extends State<BassWidget> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        //  fixme: how can i get this to work on the canvas stack?
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
-            if (hasDisplay(SheetDisplay.bass8vb))
-              CustomPaint(
-                painter: _FretBoardPainter(),
-                isComplex: true,
-                willChange: false,
-                child: const SizedBox(
-                  width: double.infinity,
-                  height: 200.0,
-                ),
+      body: Wrap(
+        children: <Widget>[
+          Column(
+            children: [
+              const SizedBox(
+                height: 10,
               ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // key, chords
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Key: ',
-                          style: _style,
-                        ),
-                        DropdownButton<music_key.Key>(
-                          items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                            return DropdownMenuItem<music_key.Key>(
-                              key: ValueKey('half' + value.getHalfStep().toString()),
-                              value: value,
-                              child: Text(
-                                '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != _key) {
-                              setState(() {
-                                _key = _value;
-                              });
-                            }
-                          },
-                          value: _key,
-                          style: const AppTextStyle(
-                            //  size controlled by textScaleFactor above
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Chord root: ',
-                          style: _style,
-                        ),
-                        DropdownButton<ScaleNote>(
-                          items: scaleNoteValues.map((ScaleNote value) {
-                            return DropdownMenuItem<ScaleNote>(
-                              key: ValueKey('root' + value.halfStep.toString()),
-                              value: value,
-                              child: Text(
-                                _key.inKey(value).toMarkup(),
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != _chordRoot) {
-                              setState(() {
-                                _chordRoot = _value;
-                              });
-                            }
-                          },
-                          value: _chordRoot,
-                          style: const AppTextStyle(
-                            //  size controlled by textScaleFactor above
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                        ),
-                      ],
-                    ),
-                    //  chord type
-                    Row(
-                      children: [
-                        Text(
-                          'Chord type: ',
-                          style: _style,
-                        ),
-                        DropdownButton<ChordDescriptor>(
-                          items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
-                            return DropdownMenuItem<ChordDescriptor>(
-                              value: value,
-                              child: Text(
-                                '${value.toString().padRight(3)} (${value.name})',
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != chordDescriptor) {
-                              setState(() {
-                                chordDescriptor = _value;
-                              });
-                            }
-                          },
-                          value: chordDescriptor,
-                          style: const AppTextStyle(
-                            //  size controlled by textScaleFactor above
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+              if (hasDisplay(SheetDisplay.bass8vb))
+                CustomPaint(
+                  painter: _FretBoardPainter(),
+                  isComplex: true,
+                  willChange: false,
+                  child: const SizedBox(
+                    width: double.infinity,
+                    height: 200.0,
+                  ),
                 ),
-                Container(
-                  width: 10,
-                ),
-                //  notes and rests
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _noteButton(
-                          noteWhole.character,
-                          onPressed: () {
-                            logger.i('noteWhole pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _noteButton(
-                          noteHalfUp.character,
-                          onPressed: () {
-                            logger.i('noteHalfUp pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _noteButton(
-                          noteQuarterUp.character,
-                          onPressed: () {
-                            logger.i('noteQuarterUp pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _noteButton(
-                          note8thUp.character,
-                          onPressed: () {
-                            logger.i('note8thUp pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _noteButton(
-                          note16thUp.character,
-                          onPressed: () {
-                            logger.i('note16thUp pressed');
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        _restButton(
-                          restWhole.character,
-                          onPressed: () {
-                            logger.i('restWhole pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _restButton(
-                          restHalf.character,
-                          onPressed: () {
-                            logger.i('restHalf pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _restButton(
-                          restQuarter.character,
-                          onPressed: () {
-                            logger.i('restQuarter pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _restButton(
-                          rest8th.character,
-                          onPressed: () {
-                            logger.i('rest8th pressed');
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        _restButton(
-                          rest16th.character,
-                          onPressed: () {
-                            logger.i('rest16th pressed');
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 10,
-                ),
-                //  entry details
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                          checkColor: Colors.white,
-                          fillColor: MaterialStateProperty.all(_blue.color),
-                          value: _isDot,
-                          onChanged: (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                _isDot = value;
-                              });
-                            }
-                          },
-                        ),
-                        TextButton(
-                          child: Text(
-                            '+dot',
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // key, chords
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Key: ',
                             style: _style,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _isDot = !_isDot;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Checkbox(
+                          DropdownButton<music_key.Key>(
+                            items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                              return DropdownMenuItem<music_key.Key>(
+                                key: ValueKey('half' + value.getHalfStep().toString()),
+                                value: value,
+                                child: Text(
+                                  '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                                  style: _style,
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (_value) {
+                              if (_value != null && _value != _key) {
+                                setState(() {
+                                  _key = _value;
+                                });
+                              }
+                            },
+                            value: _key,
+                            style: const AppTextStyle(
+                              //  size controlled by textScaleFactor above
+                              color: Colors.black,
+                              textBaseline: TextBaseline.ideographic,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            'Chord root: ',
+                            style: _style,
+                          ),
+                          DropdownButton<ScaleNote>(
+                            items: scaleNoteValues.map((ScaleNote value) {
+                              return DropdownMenuItem<ScaleNote>(
+                                key: ValueKey('root' + value.halfStep.toString()),
+                                value: value,
+                                child: Text(
+                                  _key.inKey(value).toMarkup(),
+                                  style: _style,
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (_value) {
+                              if (_value != null && _value != _chordRoot) {
+                                setState(() {
+                                  _chordRoot = _value;
+                                });
+                              }
+                            },
+                            value: _chordRoot,
+                            style: const AppTextStyle(
+                              //  size controlled by textScaleFactor above
+                              color: Colors.black,
+                              textBaseline: TextBaseline.ideographic,
+                            ),
+                          ),
+                        ],
+                      ),
+                      //  chord type
+                      Row(
+                        children: [
+                          Text(
+                            'Chord type: ',
+                            style: _style,
+                          ),
+                          DropdownButton<ChordDescriptor>(
+                            items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
+                              return DropdownMenuItem<ChordDescriptor>(
+                                value: value,
+                                child: Text(
+                                  '${value.toString().padRight(3)} (${value.name})',
+                                  style: _style,
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (_value) {
+                              if (_value != null && _value != chordDescriptor) {
+                                setState(() {
+                                  chordDescriptor = _value;
+                                });
+                              }
+                            },
+                            value: chordDescriptor,
+                            style: const AppTextStyle(
+                              //  size controlled by textScaleFactor above
+                              color: Colors.black,
+                              textBaseline: TextBaseline.ideographic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 10,
+                  ),
+                  //  notes and rests
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _noteButton(
+                            noteWhole.character,
+                            onPressed: () {
+                              logger.i('noteWhole pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _noteButton(
+                            noteHalfUp.character,
+                            onPressed: () {
+                              logger.i('noteHalfUp pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _noteButton(
+                            noteQuarterUp.character,
+                            onPressed: () {
+                              logger.i('noteQuarterUp pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _noteButton(
+                            note8thUp.character,
+                            onPressed: () {
+                              logger.i('note8thUp pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _noteButton(
+                            note16thUp.character,
+                            onPressed: () {
+                              logger.i('note16thUp pressed');
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          _restButton(
+                            restWhole.character,
+                            onPressed: () {
+                              logger.i('restWhole pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _restButton(
+                            restHalf.character,
+                            onPressed: () {
+                              logger.i('restHalf pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _restButton(
+                            restQuarter.character,
+                            onPressed: () {
+                              logger.i('restQuarter pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _restButton(
+                            rest8th.character,
+                            onPressed: () {
+                              logger.i('rest8th pressed');
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _restButton(
+                            rest16th.character,
+                            onPressed: () {
+                              logger.i('rest16th pressed');
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 10,
+                  ),
+                  //  entry details
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(
                             checkColor: Colors.white,
                             fillColor: MaterialStateProperty.all(_blue.color),
-                            value: _isTie,
+                            value: _isDot,
                             onChanged: (bool? value) {
                               if (value != null) {
                                 setState(() {
-                                  _isTie = value;
-                                  logger.i('_isTie: $_isTie');
+                                  _isDot = value;
                                 });
-                              }
-                            }),
-                        TextButton(
-                          child: Text(
-                            '+tie',
-                            style: _style,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isTie = !_isTie;
-                              logger.i('_isTie: $_isTie');
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Lyrics:',
-                          style: _style,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        SizedBox(
-                          width: 250,
-                          height: 70,
-                          child: TextField(
-                            //    key: const ValueKey('lyrics'),
-                            controller: _lyricsTextEditingController,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter lyrics',
-                            ),
-                            maxLength: null,
-                            style: _style,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 10,
-                ),
-                // timing
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Time:',
-                          style: _style,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        DropdownButton<TimeSignature>(
-                          items: knownTimeSignatures.map((TimeSignature value) {
-                            return DropdownMenuItem<TimeSignature>(
-                              key: ValueKey('timeSignature_${value.beatsPerBar}_${value.unitsPerMeasure}'),
-                              value: value,
-                              child: Text(
-                                value.toString(),
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != _timeSignature) {
-                              setState(() {
-                                _timeSignature = _value;
-                              });
-                            }
-                          },
-                          value: _timeSignature,
-                          style: const AppTextStyle(
-                            //  size controlled by textScaleFactor above
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          'BPM:',
-                          style: _style,
-                        ),
-                        SizedBox(
-                          width: _fontSize * 2,
-                          child: TextField(
-                            //    key: const ValueKey('lyrics'),
-                            controller: _bpmTextEditingController,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter BPM',
-                            ),
-                            maxLength: null,
-                            style: _style,
-                            onChanged: (value) {
-                              try {
-                                var tmpBPM = int.parse(value);
-                                if (tmpBPM >= MusicConstants.minBpm && tmpBPM <= MusicConstants.maxBpm) {
-                                  setState(() {
-                                    _bpm = tmpBPM;
-                                  });
-                                } else {
-                                  logger.i('not a valid BPM: $tmpBPM');
-                                }
-                              } catch (e) {
-                                logger.i('not a valid BPM: $value');
                               }
                             },
                           ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Checkbox(
-                          checkColor: Colors.white,
-                          fillColor: MaterialStateProperty.all(_blue.color),
-                          value: _isSwing,
-                          onChanged: (bool? value) {
-                            if (value != null) {
+                          TextButton(
+                            child: Text(
+                              '+dot',
+                              style: _style,
+                            ),
+                            onPressed: () {
                               setState(() {
-                                _isSwing = value;
+                                _isDot = !_isDot;
                               });
-                            }
-                          },
-                        ),
-                        TextButton(
-                          child: Text(
-                            'Swing',
+                            },
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Checkbox(
+                              checkColor: Colors.white,
+                              fillColor: MaterialStateProperty.all(_blue.color),
+                              value: _isTie,
+                              onChanged: (bool? value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _isTie = value;
+                                    logger.i('_isTie: $_isTie');
+                                  });
+                                }
+                              }),
+                          TextButton(
+                            child: Text(
+                              '+tie',
+                              style: _style,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isTie = !_isTie;
+                                logger.i('_isTie: $_isTie');
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            'Lyrics:',
                             style: _style,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _isSwing = !_isSwing;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            //  run controls
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _commandButton('Loop 1', onPressed: () {}),
-                _commandButton('Loop 2', onPressed: () {}),
-                _commandButton('Loop 4', onPressed: () {}),
-                _commandButton('Loop selected', onPressed: () {}),
-                _commandButton('Loop', onPressed: () {}),
-                _commandButton('Play', onPressed: () {}),
-                _commandButton('Stop', onPressed: () {}),
-                _commandButton('Options', onPressed: () {
-                  setState(() {
-                    _options = !_options;
-                  });
-                }),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            _sheetDisplayEnableOptionsWidget,
-            //  sheet music
-            RawKeyboardListener(
-              focusNode: FocusNode(),
-              onKey: _bassOnKey,
-              autofocus: true,
-              child: Stack(
-                fit: StackFit.passthrough,
-                children: [
-                  RepaintBoundary(
-                    child: CustomPaint(
-                      painter: _sheetMusicPainter,
-                      isComplex: true,
-                      willChange: false,
-                      child: sheetMusicSizedBox,
-                    ),
-                  ),
-                  GestureDetector(
-                    child: RepaintBoundary(
-                      child: CustomPaint(
-                        painter: _SheetMusicDragger(_sheetMusicPainter),
-                        isComplex: true,
-                        willChange: false,
-                        child: sheetMusicSizedBox,
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          SizedBox(
+                            width: 250,
+                            height: 70,
+                            child: TextField(
+                              //    key: const ValueKey('lyrics'),
+                              controller: _lyricsTextEditingController,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter lyrics',
+                              ),
+                              maxLength: null,
+                              style: _style,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    onHorizontalDragStart: (details) {
-                      dragStart(details.localPosition);
-                    },
-                    onHorizontalDragDown: (dragDownDetails) {
-                      dragUpdate(dragDownDetails.localPosition);
-                    },
-                    onHorizontalDragUpdate: (dragUpdateDetails) {
-                      dragUpdate(dragUpdateDetails.localPosition);
-                    },
-                    onHorizontalDragCancel: () {
-                      dragStop();
-                    },
-                    onHorizontalDragEnd: (details) {
-                      dragStop();
-                    },
-                    onVerticalDragStart: (details) {
-                      dragStart(details.localPosition);
-                    },
-                    onVerticalDragDown: (dragDownDetails) {
-                      dragUpdate(dragDownDetails.localPosition);
-                    },
-                    onVerticalDragUpdate: (dragUpdateDetails) {
-                      dragUpdate(dragUpdateDetails.localPosition);
-                    },
-                    onVerticalDragCancel: () {
-                      dragStop();
-                    },
-                    onVerticalDragEnd: (details) {
-                      dragStop();
-                    },
+                    ],
                   ),
-
-                  // Positioned(
-                  //     top: 225 - (bassClef.bounds.top - bassClef.bounds.bottom)/2 * staffSpace * 5,
-                  //     left: 75,
-                  //     child: Text(
-                  //       bassClef.character,
-                  //       style: const TextStyle(
-                  //         fontFamily: 'Bravura',
-                  //         color: Colors.black,
-                  //         fontSize: staffSpace * 5,
-                  //       ),
-                  //     )),
+                  Container(
+                    width: 10,
+                  ),
+                  // timing
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Time:',
+                            style: _style,
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          DropdownButton<TimeSignature>(
+                            items: knownTimeSignatures.map((TimeSignature value) {
+                              return DropdownMenuItem<TimeSignature>(
+                                key: ValueKey('timeSignature_${value.beatsPerBar}_${value.unitsPerMeasure}'),
+                                value: value,
+                                child: Text(
+                                  value.toString(),
+                                  style: _style,
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (_value) {
+                              if (_value != null && _value != _timeSignature) {
+                                setState(() {
+                                  _timeSignature = _value;
+                                });
+                              }
+                            },
+                            value: _timeSignature,
+                            style: const AppTextStyle(
+                              //  size controlled by textScaleFactor above
+                              color: Colors.black,
+                              textBaseline: TextBaseline.ideographic,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'BPM:',
+                            style: _style,
+                          ),
+                          SizedBox(
+                            width: _fontSize * 2,
+                            child: TextField(
+                              //    key: const ValueKey('lyrics'),
+                              controller: _bpmTextEditingController,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter BPM',
+                              ),
+                              maxLength: null,
+                              style: _style,
+                              onChanged: (value) {
+                                try {
+                                  var tmpBPM = int.parse(value);
+                                  if (tmpBPM >= MusicConstants.minBpm && tmpBPM <= MusicConstants.maxBpm) {
+                                    setState(() {
+                                      _bpm = tmpBPM;
+                                    });
+                                  } else {
+                                    logger.i('not a valid BPM: $tmpBPM');
+                                  }
+                                } catch (e) {
+                                  logger.i('not a valid BPM: $value');
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Checkbox(
+                            checkColor: Colors.white,
+                            fillColor: MaterialStateProperty.all(_blue.color),
+                            value: _isSwing,
+                            onChanged: (bool? value) {
+                              if (value != null) {
+                                setState(() {
+                                  _isSwing = value;
+                                });
+                              }
+                            },
+                          ),
+                          TextButton(
+                            child: Text(
+                              'Swing',
+                              style: _style,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isSwing = !_isSwing;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
+              const SizedBox(
+                height: 10,
+              ),
+              //  run controls
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _commandButton('Loop 1', onPressed: () {}),
+                  _commandButton('Loop 2', onPressed: () {}),
+                  _commandButton('Loop 4', onPressed: () {}),
+                  _commandButton('Loop selected', onPressed: () {}),
+                  _commandButton('Loop', onPressed: () {}),
+                  _commandButton('Play', onPressed: () {}),
+                  _commandButton('Stop', onPressed: () {}),
+                  _commandButton('Options', onPressed: () {
+                    setState(() {
+                      _options = !_options;
+                    });
+                  }),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              _sheetDisplayEnableOptionsWidget,
+              //  sheet music
+              Listener(
+                onPointerSignal: (pointerSignal) {
+                  if (pointerSignal is PointerScrollEvent) {
+                    setState(() {
+                      _app.selectedMomentNumber -= pointerSignal.scrollDelta.dy > 0 ? -1 : 1;
+                    });
+                  }
+                },
+                child: RawKeyboardListener(
+                  focusNode: FocusNode(),
+                  onKey: _bassOnKey,
+                  autofocus: true,
+                  child: Stack(
+                    fit: StackFit.passthrough,
+                    children: [
+                      RepaintBoundary(
+                        child: CustomPaint(
+                          painter: _sheetMusicPainter,
+                          isComplex: true,
+                          willChange: false,
+                          child: sheetMusicSizedBox,
+                        ),
+                      ),
+                      GestureDetector(
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            painter: _SheetMusicDragger(_sheetMusicPainter),
+                            isComplex: true,
+                            willChange: false,
+                            child: sheetMusicSizedBox,
+                          ),
+                        ),
+                        onHorizontalDragStart: (details) {
+                          dragStart(details.localPosition);
+                        },
+                        onHorizontalDragDown: (dragDownDetails) {
+                          dragUpdate(dragDownDetails.localPosition);
+                        },
+                        onHorizontalDragUpdate: (dragUpdateDetails) {
+                          dragUpdate(dragUpdateDetails.localPosition);
+                        },
+                        onHorizontalDragCancel: () {
+                          dragStop();
+                        },
+                        onHorizontalDragEnd: (details) {
+                          dragStop();
+                        },
+                        onVerticalDragStart: (details) {
+                          dragStart(details.localPosition);
+                        },
+                        onVerticalDragDown: (dragDownDetails) {
+                          dragUpdate(dragDownDetails.localPosition);
+                        },
+                        onVerticalDragUpdate: (dragUpdateDetails) {
+                          dragUpdate(dragUpdateDetails.localPosition);
+                        },
+                        onVerticalDragCancel: () {
+                          dragStop();
+                        },
+                        onVerticalDragEnd: (details) {
+                          dragStop();
+                        },
+                      ),
+
+                      // Positioned(
+                      //     top: 225 - (bassClef.bounds.top - bassClef.bounds.bottom)/2 * staffSpace * 5,
+                      //     left: 75,
+                      //     child: Text(
+                      //       bassClef.character,
+                      //       style: const TextStyle(
+                      //         fontFamily: 'Bravura',
+                      //         color: Colors.black,
+                      //         fontSize: staffSpace * 5,
+                      //       ),
+                      //     )),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

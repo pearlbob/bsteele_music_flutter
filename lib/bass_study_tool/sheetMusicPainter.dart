@@ -15,44 +15,47 @@ const double staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  
 
 // For piano chords, try:  https://www.scales-chords.com/chord/piano
 
-List<SheetNotation> _sheetNotations = List.generate(SheetDisplay.values.length, (index) {
-  const staffHeight = (staffLineCount - 1) * staffSpace;
-  const staffMarginHeight = staffMargin * staffSpace;
-  SheetDisplay display = SheetDisplay.values[index];
-
-  const double _fontSize = 15; //  fixme
-  switch (display) {
-    case SheetDisplay.measureCount:
-      return SheetMeasureCountTextNotation(display, activeHeight: _fontSize,);
-    case SheetDisplay.chords:
-      return SheetChordTextNotation(display);
-    case SheetDisplay.lyrics:
-      return SheetLyricsTextNotation(display);
-    case SheetDisplay.guitarFingerings:
-      return SheetTextNotation(display, activeHeight: _fontSize * 4); // fixme temp
-    case SheetDisplay.pianoChords:
-      return SheetChordStaffNotation(display,
-          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-    case SheetDisplay.pianoTreble:
-      return SheetTrebleStaffNotation(display,
-          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-    case SheetDisplay.pianoBass: //  piano left hand
-      return SheetBassStaffNotation(display,
-          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-    case SheetDisplay.bassNoteNumbers:
-      return SheetTextNotation(display, activeHeight: _fontSize * 2);
-    case SheetDisplay.bassNotes:
-      return SheetTextNotation(display, activeHeight: _fontSize * 2);
-    case SheetDisplay.bass8vb:
-      return SheetBass8vbStaffNotation(display,
-          preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
-  }
-}, growable: false);
 
 class SheetMusicPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _canvas = canvas;
+
+    _sheetNotations = List.generate(SheetDisplay.values.length, (index) {
+      const staffHeight = (staffLineCount - 1) * staffSpace;
+      const staffMarginHeight = staffMargin * staffSpace;
+      SheetDisplay display = SheetDisplay.values[index];
+
+      const double _fontSize = 15; //  fixme
+      switch (display) {
+        case SheetDisplay.section:
+          return SheetSectionTextNotation(display, );
+        case SheetDisplay.measureCount:
+          return SheetMeasureCountTextNotation(display, activeHeight: _fontSize,);
+        case SheetDisplay.chords:
+          return SheetChordTextNotation(display);
+        case SheetDisplay.lyrics:
+          return SheetLyricsTextNotation(display);
+        case SheetDisplay.guitarFingerings:
+          return SheetTextNotation(display, activeHeight: _fontSize * 4); // fixme temp
+        case SheetDisplay.pianoChords:
+          return SheetChordStaffNotation(display,
+              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+        case SheetDisplay.pianoTreble:
+          return SheetTrebleStaffNotation(display,
+              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+        case SheetDisplay.pianoBass: //  piano left hand
+          return SheetBassStaffNotation(display,
+              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+        case SheetDisplay.bassNoteNumbers:
+          return SheetTextNotation(display, activeHeight: _fontSize * 2);
+        case SheetDisplay.bassNotes:
+          return SheetTextNotation(display, activeHeight: _fontSize * 2);
+        case SheetDisplay.bass8vb:
+          return SheetBass8vbStaffNotation(display,
+              preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
+      }
+    }, growable: false);
 
     _computeTheYOffsets();
 
@@ -94,7 +97,7 @@ class SheetMusicPainter extends CustomPainter {
         }
 
         if ( _xSpaceAll(0.5 * staffSpace) >= size.width ){
-          logger.i('last moment: ${sm.momentNumber}');
+          logger.d('last moment: ${sm.momentNumber}');
           break momentLoop;
         }
       }
@@ -394,6 +397,8 @@ class SheetMusicPainter extends CustomPainter {
 
   // cache for a single measure
   late Canvas _canvas;
+
+  late List<SheetNotation> _sheetNotations;
 
   final  App _app = App();
 }

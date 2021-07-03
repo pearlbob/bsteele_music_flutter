@@ -9,7 +9,6 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
-import 'package:bsteele_music_flutter/screens/bass.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
@@ -116,7 +115,7 @@ class MyApp extends StatelessWidget {
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
                 '/about': (context) => const About(),
-                '/bass': (context) => const BassWidget(),
+                // '/bass': (context) => const BassWidget(),
                 '/theory': (context) => const TheoryWidget(),
               },
             ));
@@ -490,17 +489,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
 
-            if (!_app.screenInfo.isTooNarrow)
-              ListTile(
-                title: Text(
-                  "Bass",
-                  style: _navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToBass(context);
-                },
-              ),
-            if (!_app.screenInfo.isTooNarrow)
+             if (!_app.screenInfo.isTooNarrow)
               ListTile(
                 title: Text(
                   "Theory",
@@ -803,13 +792,16 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const Songs()),
     );
-    Navigator.pop(context);
 
-    setState(() {
-      _searchTextFieldController.selection =
-          TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-      _searchSongs(_app.selectedSong.title);
-    }); //  refresh the display
+    Navigator.pop(context);
+    _selectSearchText(context);
+    _searchSongs(_app.selectedSong.title);
+  }
+
+  void _selectSearchText(BuildContext context) {
+    _searchTextFieldController.selection =
+        TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
+    FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {
@@ -825,22 +817,18 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     //  select all text on a navigation pop
-    _searchTextFieldController.selection =
-        TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-    FocusScope.of(context).requestFocus(_searchFocusNode);
+    _selectSearchText(context);
     _rollUnfilteredSongs();
   }
 
   _navigateToOptions(BuildContext context) async {
-    Navigator.pushNamed(
+    await Navigator.pushNamed(
       context,
       Options.routeName,
-    ).then((_) {
-      Navigator.pop(context);
-      setState(() {
-        _refilterSongs(); //  force re-filter on possible option changes
-      });
-    });
+    );
+    Navigator.pop(context);
+    _selectSearchText(context);
+    _refilterSongs(); //  force re-filter on possible option changes
   }
 
   _navigateToAbout(BuildContext context) async {
@@ -849,6 +837,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const About()),
     );
     Navigator.pop(context);
+    _selectSearchText(context);
   }
 
   _navigateToDocumentation(BuildContext context) async {
@@ -857,14 +846,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const Documentation()),
     );
     Navigator.pop(context);
-  }
-
-  _navigateToBass(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const BassWidget()),
-    );
-    Navigator.pop(context);
+    _selectSearchText(context);
   }
 
   _navigateToTheory(BuildContext context) async {
@@ -873,6 +855,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const TheoryWidget()),
     );
     Navigator.pop(context);
+    _selectSearchText(context);
   }
 
   _navigateToPrivacyPolicy(BuildContext context) async {
@@ -881,6 +864,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const Privacy()),
     );
     Navigator.pop(context);
+    _selectSearchText(context);
   }
 
   final List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];

@@ -1,7 +1,7 @@
-
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
+import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
@@ -57,7 +57,6 @@ abstract class SheetNotation {
       text: TextSpan(
         text: text,
         style: TextStyle(
-          fontFamily: 'Bravura',
           color: color ?? _black.color,
           fontSize: fontSize ?? _fontSize,
           fontWeight: fontWeight ?? FontWeight.normal,
@@ -66,8 +65,10 @@ abstract class SheetNotation {
       textDirection: TextDirection.ltr,
     )..layout(
         minWidth: 10,
-        maxWidth: 4000,
+        maxWidth: 400,
       );
+    // _canvas.drawRect(
+    //     Rect.fromLTWH(xOff ?? dx, yOff ?? dy, textPainter.size.width, textPainter.size.height), _transGrey);
     textPainter.paint(_canvas, Offset(xOff ?? dx, yOff ?? dy));
 
     return textPainter.size.width;
@@ -112,6 +113,38 @@ class SheetTextNotation extends SheetNotation {
   SheetTextNotation(SheetDisplay sheetDisplay,
       {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
       : super._(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight);
+}
+
+class SheetSectionTextNotation extends SheetTextNotation {
+  SheetSectionTextNotation(SheetDisplay sheetDisplay,
+      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
+      : super(sheetDisplay,
+            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+
+  @override
+  void drawNotationStart() {
+    dx += _renderText('Section:');
+  }
+
+  @override
+  void drawBeat(SongMoment songMoment, int beat) {
+    LyricSection lyricSection = songMoment.lyricSection;
+    if (beat == 0 &&
+        (lastLyricSection == null //  first lyric section shown
+            ||
+            _app.selectedMomentNumber == songMoment.momentNumber //  first lyric section in the display
+            ||
+            lastLyricSection != lyricSection //  different from last lyric section shown
+        )) {
+      dx += _renderText(
+        lyricSection.toString(),
+        fontSize: _chordFontSize,
+      );
+      lastLyricSection = lyricSection;
+    }
+  }
+
+  LyricSection? lastLyricSection;
 }
 
 class SheetMeasureCountTextNotation extends SheetTextNotation {
@@ -167,7 +200,7 @@ class SheetLyricsTextNotation extends SheetTextNotation {
   void drawBeat(SongMoment songMoment, int beat) {
     if (beat == 0) {
       dx += staffSpace;
-      String lyrics = (songMoment.lyrics ?? '').replaceAll('\n', ' ');
+      String lyrics = (songMoment.lyrics ?? '').replaceAll('\n', ' ').trim();
       double width = _renderText(lyrics, fontSize: _chordFontSize);
       dx += width;
       logger.d('"$lyrics": width: $width');
@@ -185,9 +218,19 @@ class _SheetStaffNotation extends SheetNotation {
 
   @override
   void drawNotationStart() {
+    super.drawNotationStart();
+
     _renderStaff();
     dx += 10; //fixme
     _renderSheetFixedYSymbol(_clefSymbol);
+
+    dx += staffSpace;
+
+    _renderKeyStaffSymbols();
+    dx += staffSpace;
+
+    //  fill in the time signature
+    _renderSheetFixedYSymbol(timeSigCommon);
   }
 
   void _renderStaff() {
@@ -376,43 +419,41 @@ class _SheetStaffNotation extends SheetNotation {
   }
 
   /// render the key symbols (sharps or flats)
-  void _renderKeyStaffSymbols(SheetDisplay display) {
+  void _renderKeyStaffSymbols() {
     if (_key == musical_key.Key.getDefault()) {
       return;
     }
 
-    int clefYOff = 0;
-    switch (display) {
-      case SheetDisplay.pianoBass:
-      case SheetDisplay.bass8vb:
-        clefYOff = -1; //  fixme
+    List<double> locations;
+    switch (_clef) {
+      case Clef.treble:
+        locations = (_key.isSharp
+            //	treble sharps:  F♯,C♯,  G♯, D♯, A♯,  E♯,  B♯
+            ? const <double>[0, 0, 1.5, -0.5, 1, 2.5, 0.5, 2] //  down from the top
+            //  treble flats:     B♭,E♭,  A♭, D♭, G♭,C♭,  F♭
+            : const <double>[0, 2, 0.5, 2.5, 1, 3, 1.5, 3.5]);
         break;
       default:
+        locations = (_key.isSharp
+            //	bass sharps:    F♯,C♯,  G♯, D♯, A♯,  E♯,  B♯
+            ? const <double>[0, 1, 2.5, 0.5, 2, 3.5, 1.5, 3] //  down from the top
+            //  bass flats:     B♭,E♭,  A♭, D♭, G♭,C♭,  F♭
+            : const <double>[0, 3, 1.5, 3.5, 2, 4, 2.5, 4.5]);
         break;
     }
 
-    //  key
-    List<double> locations = (_key.isSharp ? keySharpLocations : keyFlatLocations);
     SheetNoteSymbol symbol = (_key.isSharp ? accidentalSharp : accidentalFlat);
     int limit = _key.getKeyValue().abs();
     for (int i = 1; i <= limit; i++) {
       //  compute height of sharp/flat from note
       //if (doRender)
-      _renderSheetNoteSymbol(symbol, locations[i] + clefYOff);
+      _renderSheetNoteSymbol(symbol, locations[i]);
       _xSpace(symbol.width / 2);
     }
 
     //  end at the end of the last character
     _xSpace(symbol.width / 2);
   }
-
-  //  flats:                                B♭,E♭,A♭,D♭, G♭,  C♭,F♭
-  //  at bass locations
-  List<double> keyFlatLocations = /* */ [0, 3, 1.5, 3.5, 2, 4, 2.5, 4.5];
-
-  //	sharps:                               F♯,C♯, G♯, D♯, A♯,  E♯,  B♯
-  //  at bass locations
-  List<double> keySharpLocations = /**/ [0, 1, 2.5, 0.5, 2, 3.5, 1.5, 3];
 
   void _xSpace(double space) {
     dx += space;
@@ -446,124 +487,19 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
       priorBeats += chord.beats;
     }
   }
-//
-//   /// only a test song
-//   void _testSong() {
-//     //  sample song.... temp!
-//     String songAsJsonString = """
-// {"warning":"File generated by Robert Steele's Bass Study Tool.  Any modifications by hand are likely to be wrong.","version":"0.0","keyN":0,"beatsPerBar":4,"notesPerBar":4,"bpm":80,"isSwing8":false,"hiHatRhythm":"X   x x   x X   x x   x","swingType":3,"sheetNotes":[
-// {"isNote":true,"string":0,"fret":5,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"verse","tied":false},
-// {"isNote":true,"string":0,"fret":7,"noteDuration":4,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":7,"noteDuration":4,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":5,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":1},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":7,"noteDuration":4,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":7,"noteDuration":4,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":4,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":1},
-// {"isNote":true,"string":0,"fret":5,"noteDuration":2,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"chorus","tied":false},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":4},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":4,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":2,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-4,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":4},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":4,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-7,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-4,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":4,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":7,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":5,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":4},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":4,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":7,"noteDuration":3,"chordN":0,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":6,"noteDuration":3,"chordN":0,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":4,"noteDuration":3,"chordN":0,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":5,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":3},
-// {"isNote":true,"string":1,"fret":0,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":1,"noteDuration":3,"chordN":6,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":2,"noteDuration":3,"chordN":7,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":3,"noteDuration":3,"chordN":8,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":3,"chordN":9,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":3,"chordN":10,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":6,"noteDuration":3,"chordN":11,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":7,"noteDuration":3,"chordN":12,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":0,"noteDuration":3,"chordN":0,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":1,"noteDuration":3,"chordN":1,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":2,"noteDuration":3,"chordN":1,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":3,"noteDuration":3,"chordN":1,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":4,"noteDuration":3,"chordN":4,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":5,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":6,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":0,"fret":7,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":3,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":4,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":3,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":5,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-4,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":6,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":1,"fret":7,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":5,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":3,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":4,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-6,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":0,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":6,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-7,"lyrics":"","tied":false},
-// {"isNote":true,"string":2,"fret":7,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":1,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":3,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":4,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":5,"noteDuration":3,"chordN":5,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":6,"noteDuration":3,"chordN":8,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":0,"lyrics":"","tied":false},
-// {"isNote":true,"string":3,"fret":7,"noteDuration":3,"chordN":8,"chordModifier":"","minorMajor":"major","minorMajorSelectIndex":0,"scaleN":-2,"lyrics":"","tied":false},
-// {"isNote":false,"noteDuration":3}]}
-//     """;
-//     logger.d('debugging:');
-//     List<SheetNote>? sheetNotes = BassStudyTool.parseJsonBsstVersion0_0(songAsJsonString);
-//     if (sheetNotes == null) {
-//       throw 'missing sheetNotes';
-//     }
-//
-//     _key = musical_key.Key.get(musical_key.KeyEnum.A);
-//
-//     //  fixme: fill in the key accidentals
-//     //  hand rendering
-//     _renderKeyStaffSymbols(SheetDisplay.pianoTreble);
-//     _xSpace(1 * staffSpace);
-//
-//     //  fill in the time signature
-//     _renderSheetNoteSymbol(timeSigCommon, timeSigCommon.staffPosition,
-//         isStave: false); //  fixme: fill in the time signature with something other than common time
-//     _xSpace(1 * staffSpace);
-//
-//     double duration = 0;
-//     _clearMeasureAccidentals();
-//     for (SheetNote sn in sheetNotes) {
-//       if (sn.isNote) {
-//         //  fixme: pitch to trebleClef location
-//         //  fixme: dotted
-//         //  fixme: tied
-//         //  fixme: beamed
-//         //  fixme: align treble and bass measures
-//         //  fixme: even measure widths
-//         //  fixme: align notes with their durations
-//         //  fixme: control line overflow
-//         //  fixme: staff selection (e.g. bass only, treble + bass, etc)
-//         //  fixme: multiple accidentals on one chord
-//         sn = SheetNote.note(
-//             _clef, sn.pitch?.offsetByHalfSteps(3 * MusicConstants.halfStepsPerOctave) ?? sn.pitch, sn.noteDuration);
-//         _renderSheetNote(sn);
-//       } else {
-//         _renderSheetFixedY(sn);
-//       }
-//
-//       _xSpace(1.25 * staffSpace);
-//
-//       duration += sn.noteDuration ?? 0;
-//       if (duration >= 1) {
-//         _renderBarlineSingle();
-//         duration = 0;
-//         _xSpace(2 * staffSpace);
-//         _clearMeasureAccidentals();
-//       }
-//     }
-//   }
+
+//  fixme: fill in the time signature with something other than common time
+//  fixme: pitch to trebleClef location
+//  fixme: dotted
+//  fixme: tied
+//  fixme: beamed
+//  fixme: align treble and bass measures
+//  fixme: even measure widths
+//  fixme: align notes with their durations
+//  fixme: control line overflow
+//  fixme: staff selection (e.g. bass only, treble + bass, etc)
+//  fixme: multiple accidentals on one chord
+
 }
 
 class SheetBassStaffNotation extends _SheetStaffNotation {
@@ -574,16 +510,6 @@ class SheetBassStaffNotation extends _SheetStaffNotation {
 class SheetChordStaffNotation extends _SheetStaffNotation {
   SheetChordStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
       : super(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight);
-
-  @override
-  void drawNotationStart() {
-    super.drawNotationStart();
-
-    dx += staffSpace;
-
-    //  fill in the time signature
-    _renderSheetFixedYSymbol(timeSigCommon);
-  }
 
   @override
   void drawBeat(SongMoment songMoment, int beat) {
@@ -701,69 +627,6 @@ class SheetBass8vbStaffNotation extends _SheetStaffNotation {
       priorBeats += chord.beats;
     }
   }
-
-  // /// only test chords
-  // void _testBassNotes() {
-  //   const int beats = 1;
-  //   const int beatsPerBar = 4;
-  //
-  //   _key = musical_key.Key.get(musical_key.KeyEnum.C);
-  //
-  //   // _renderKeyStaffSymbols(Clef.treble); fixme
-  //   // _renderKeyStaffSymbols(Clef.bass);
-  //   _xSpace(1 * staffSpace);
-  //
-  //   {
-  //     double duration = 0;
-  //     _clearMeasureAccidentals();
-  //     _xSpace(1.25 * staffSpace);
-  //     for (var pitch in _bassPitches) {
-  //       logger.i('    _bassPitch: $pitch');
-  //       SheetNote sheetNote = SheetNote.note(
-  //         _clef,
-  //         pitch,
-  //         beats / beatsPerBar,
-  //       );
-  //       _renderSheetNote(sheetNote);
-  //       duration += sheetNote.noteDuration ?? 0;
-  //
-  //       if (duration >= 1) {
-  //         _xSpace(1.25 * staffSpace);
-  //         _renderBarlineSingle();
-  //         duration = 0;
-  //         _xSpace(1.25 * staffSpace);
-  //         _clearMeasureAccidentals();
-  //       } else {
-  //         _xSpace(1.25 * staffSpace);
-  //       }
-  //     }
-  //
-  //     _xSpace(1.25 * staffSpace);
-  //   }
-  //
-  //   _renderSheetFixedYSymbol(restWhole);
-  //   _xSpace(1.25 * staffSpace);
-  //   _renderSheetFixedYSymbol(restHalf);
-  //   _xSpace(1.25 * staffSpace);
-  //   _renderSheetFixedYSymbol(restQuarter);
-  //   _xSpace(1.25 * staffSpace);
-  //   _renderSheetFixedYSymbol(rest8th);
-  //   _xSpace(1.25 * staffSpace);
-  //   _renderSheetFixedYSymbol(rest16th);
-  // }
-  //
-  // final List<Pitch> _bassPitches = [
-  //   Pitch.get(PitchEnum.E1),
-  //   Pitch.get(PitchEnum.E1),
-  //   Pitch.get(PitchEnum.E1),
-  //   Pitch.get(PitchEnum.F1),
-  //   Pitch.get(PitchEnum.G1),
-  //   Pitch.get(PitchEnum.A1),
-  //   Pitch.get(PitchEnum.B1),
-  //   Pitch.get(PitchEnum.C2),
-  //   Pitch.get(PitchEnum.C2),
-  //   Pitch.get(PitchEnum.C2),
-  // ];
 }
 
 final _black = Paint()..color = Colors.black;

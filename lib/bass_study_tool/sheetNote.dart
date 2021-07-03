@@ -13,6 +13,7 @@ const double staffMargin = 3;
 
 enum SheetDisplay {
   //  in order:
+  section,
   measureCount,
   chords,
   lyrics,

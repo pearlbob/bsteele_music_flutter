@@ -1,13 +1,12 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
+import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/util/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' as md;
-
-import '../app/app.dart';
 
 /// Display the application's privacy policy
 class Documentation extends StatefulWidget {
@@ -167,7 +166,7 @@ class _State extends State<Documentation> {
       //  find all the chord descriptors
       bool first = true;
       ChordDescriptor last = ChordDescriptor.values.last;
-      logger.i(' ChordDescriptor.values: ${ChordDescriptor.values.length}');
+      logger.d(' ChordDescriptor.values: ${ChordDescriptor.values.length}');
       for (ChordDescriptor cd in ChordDescriptor.values) {
         if (first) {
           first = false;
@@ -181,7 +180,7 @@ class _State extends State<Documentation> {
           desc.write('and ');
         }
         desc.write(cd.toString());
-        logger.i('cd: $cd');
+        logger.d('cd: $cd');
       }
     }
     desc.write('.  A missing chord descriptor will be understood to be a major chord.'

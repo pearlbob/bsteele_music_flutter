@@ -58,14 +58,14 @@ TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
 int _bpm = 106;
 
 /// the bass study tool
-class BassWidget extends StatefulWidget {
-  const BassWidget({Key? key}) : super(key: key);
+class Detail extends StatefulWidget {
+  const Detail({Key? key}) : super(key: key);
 
   @override
   _State createState() => _State();
 }
 
-class _State extends State<BassWidget> {
+class _State extends State<Detail> {
   @override
   initState() {
     super.initState();
@@ -74,6 +74,9 @@ class _State extends State<BassWidget> {
       logger.i('lyrics: <${_lyricsTextEditingController.text}>');
     });
 
+    _key = _app.selectedSong.key;
+    logger.i('key: $_key');
+
     //  initialize at least a minimum sheet display
     {
       var hasSomeDisplay = false;
@@ -81,6 +84,7 @@ class _State extends State<BassWidget> {
         hasSomeDisplay |= displayEnable;
       }
       if (!hasSomeDisplay) {
+        sheetDisplayEnables[SheetDisplay.section.index] = true;
         sheetDisplayEnables[SheetDisplay.measureCount.index] = true;
         sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
         sheetDisplayEnables[SheetDisplay.chords.index] = true;
@@ -98,14 +102,16 @@ class _State extends State<BassWidget> {
   Widget build(BuildContext context) {
     _fontSize = App().screenInfo.fontSize * 2 / 3;
 
+   // logger.i('WidgetsBinding.instance: ${WidgetsBinding.instance?.runtimeType}');
+
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
-    _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
+    _scaleChord = ScaleChord(_chordRoot, _chordDescriptor);
     List<ScaleNote> scaleNoteValues = [];
     {
       var scaleNoteSet = SplayTreeSet<ScaleNote>();
       for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-        scaleNoteSet.add(_key.getKeyScaleNoteByHalfStep(i));
+        scaleNoteSet.add(_key.getScaleNoteByHalfStep(i));
       }
       scaleNoteValues = scaleNoteSet.toList(growable: false);
     }
@@ -181,7 +187,7 @@ class _State extends State<BassWidget> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'bsteele Bass Study Tool',
+          '${_app.selectedSong.title} (detail)',
           style: AppTextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -256,7 +262,7 @@ class _State extends State<BassWidget> {
                           DropdownButton<ScaleNote>(
                             items: scaleNoteValues.map((ScaleNote value) {
                               return DropdownMenuItem<ScaleNote>(
-                                key: ValueKey('root' + value.halfStep.toString()),
+                                key: ValueKey('root' + _key.inKey(value).toString()),
                                 value: value,
                                 child: Text(
                                   _key.inKey(value).toMarkup(),
@@ -271,7 +277,7 @@ class _State extends State<BassWidget> {
                                 });
                               }
                             },
-                            value: _chordRoot,
+                            value: _key.inKey(_chordRoot),
                             style: const AppTextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black,
@@ -298,13 +304,13 @@ class _State extends State<BassWidget> {
                               );
                             }).toList(),
                             onChanged: (_value) {
-                              if (_value != null && _value != chordDescriptor) {
+                              if (_value != null && _value != _chordDescriptor) {
                                 setState(() {
-                                  chordDescriptor = _value;
+                                  _chordDescriptor = _value;
                                 });
                               }
                             },
-                            value: chordDescriptor,
+                            value: _chordDescriptor,
                             style: const AppTextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black,
@@ -646,7 +652,7 @@ class _State extends State<BassWidget> {
                 onPointerSignal: (pointerSignal) {
                   if (pointerSignal is PointerScrollEvent) {
                     setState(() {
-                      _app.selectedMomentNumber -= pointerSignal.scrollDelta.dy > 0 ? -1 : 1;
+                      bumpMeasureSelection(pointerSignal.scrollDelta.dy > 0 ? 1 : -1);
                     });
                   }
                 },
@@ -735,6 +741,20 @@ class _State extends State<BassWidget> {
     );
   }
 
+  void bumpMeasureSelection(int bump) {
+    _app.selectedMomentNumber += bump;
+    if (_app.selectedSong.songMoments.isNotEmpty) {
+      var songMoment = _app.selectedSong.songMoments[_app.selectedMomentNumber];
+      logger.d('bumpNoteSelection: $songMoment');
+      var m = songMoment.measure;
+      if (m.chords.isNotEmpty) {
+        var chord = m.chords[0];
+        _chordRoot = chord.scaleChord.scaleNote;
+        _chordDescriptor = chord.scaleChord.chordDescriptor;
+      }
+    }
+  }
+
   void dragStart(Offset start) {
     _dragStart = start;
     _dragEnd = null;
@@ -759,14 +779,80 @@ class _State extends State<BassWidget> {
 
       if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
         setState(() {
-          _app.selectedMomentNumber -= 1;
+          bumpMeasureSelection(-1);
         });
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
         setState(() {
-          _app.selectedMomentNumber += 1;
+          bumpMeasureSelection(1);
         });
       }
     }
+  }
+
+  ElevatedButton _restButton(
+    String character, {
+    required VoidCallback? onPressed,
+  }) {
+    return _noteButton(
+      character,
+      onPressed: onPressed,
+      height: 1,
+    );
+  }
+
+  ElevatedButton _noteButton(
+    String character, {
+    required VoidCallback? onPressed,
+    double height = 2,
+  }) {
+    return ElevatedButton(
+      child: Text(
+        character,
+        style: TextStyle(
+          fontFamily: 'Bravura',
+          fontSize: 50,
+          foreground: _black,
+          background: _blue,
+          height: height,
+          fontFeatures: const [FontFeature.stylisticAlternates()],
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      onPressed: onPressed,
+      style: ButtonStyle(
+        fixedSize: MaterialStateProperty.all(const Size(40, 60)),
+        backgroundColor: MaterialStateProperty.all(_blue.color),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_fontSize / 4), side: const BorderSide(color: Colors.grey))),
+        elevation: MaterialStateProperty.all<double>(6),
+      ),
+    );
+  }
+
+  ElevatedButton _commandButton(
+    String commandName, {
+    required VoidCallback? onPressed,
+    double height = 1.5,
+  }) {
+    return ElevatedButton(
+      child: Text(
+        commandName,
+        style: TextStyle(
+          fontSize: _fontSize,
+          foreground: _black,
+          background: _blue,
+          height: height,
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      onPressed: onPressed,
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(_blue.color),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_fontSize), side: const BorderSide(color: Colors.grey))),
+        elevation: MaterialStateProperty.all<double>(6),
+      ),
+    );
   }
 
   @override
@@ -784,7 +870,7 @@ class _State extends State<BassWidget> {
   final TextEditingController _lyricsTextEditingController = TextEditingController();
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
-  ChordDescriptor chordDescriptor = ChordDescriptor.major;
+  ChordDescriptor _chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
 
   final App _app = App();
@@ -990,72 +1076,6 @@ class _FretBoardPainter extends CustomPainter {
   double bassFretX = 63;
   double bassScale = 2000;
   double _lastWidth = 0;
-}
-
-ElevatedButton _restButton(
-  String character, {
-  required VoidCallback? onPressed,
-}) {
-  return _noteButton(
-    character,
-    onPressed: onPressed,
-    height: 1,
-  );
-}
-
-ElevatedButton _noteButton(
-  String character, {
-  required VoidCallback? onPressed,
-  double height = 2,
-}) {
-  return ElevatedButton(
-    child: Text(
-      character,
-      style: TextStyle(
-        fontFamily: 'Bravura',
-        fontSize: 50,
-        foreground: _black,
-        background: _blue,
-        height: height,
-        fontFeatures: const [FontFeature.stylisticAlternates()],
-      ),
-    ),
-    clipBehavior: Clip.hardEdge,
-    onPressed: onPressed,
-    style: ButtonStyle(
-      fixedSize: MaterialStateProperty.all(const Size(40, 60)),
-      backgroundColor: MaterialStateProperty.all(_blue.color),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_fontSize / 4), side: const BorderSide(color: Colors.grey))),
-      elevation: MaterialStateProperty.all<double>(6),
-    ),
-  );
-}
-
-ElevatedButton _commandButton(
-  String commandName, {
-  required VoidCallback? onPressed,
-  double height = 1.5,
-}) {
-  return ElevatedButton(
-    child: Text(
-      commandName,
-      style: TextStyle(
-        fontSize: _fontSize,
-        foreground: _black,
-        background: _blue,
-        height: height,
-      ),
-    ),
-    clipBehavior: Clip.hardEdge,
-    onPressed: onPressed,
-    style: ButtonStyle(
-      backgroundColor: MaterialStateProperty.all(_blue.color),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_fontSize), side: const BorderSide(color: Colors.grey))),
-      elevation: MaterialStateProperty.all<double>(6),
-    ),
-  );
 }
 
 class _SheetMusicDragger extends CustomPainter {

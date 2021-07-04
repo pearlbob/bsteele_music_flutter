@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/util/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';

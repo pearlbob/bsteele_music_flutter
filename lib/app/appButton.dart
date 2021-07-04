@@ -1,7 +1,11 @@
-import 'package:bsteele_music_flutter/util/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+
+const double _defaultFontSize = 24;
+final Paint _black = Paint()..color = Colors.black;
+final Paint _blue = Paint()..color = Colors.lightBlue.shade200;
 
 AppTextStyle appButtonTextStyle({double? fontSize}) {
   return AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
@@ -41,6 +45,36 @@ class AppElevatedButton extends ElevatedButton {
         );
 }
 
+ElevatedButton appButton(
+  String commandName, {
+  Key? key,
+  Color? color,
+  double? fontSize,
+  required VoidCallback? onPressed,
+  double height = 1.5,
+}) {
+  Paint background = Paint()..color = color ?? _blue.color;
+  return ElevatedButton(
+    child: Text(
+      commandName,
+      style: TextStyle(
+        fontSize: fontSize ?? _defaultFontSize,
+        foreground: _black,
+        background: background,
+        height: height,
+      ),
+    ),
+    clipBehavior: Clip.hardEdge,
+    onPressed: onPressed,
+    style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.all(color ?? _blue.color),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(fontSize ?? 14), side: const BorderSide(color: Colors.grey))),
+      elevation: MaterialStateProperty.all<double>(6),
+    ),
+  );
+}
+
 class AppFlexButton extends Expanded {
   AppFlexButton(
     String text, {
@@ -52,7 +86,7 @@ class AppFlexButton extends Expanded {
   }) : super(
           key: key,
           flex: flex,
-          child: AppElevatedButton(
+          child: appButton(
             text,
             color: color,
             fontSize: fontSize,

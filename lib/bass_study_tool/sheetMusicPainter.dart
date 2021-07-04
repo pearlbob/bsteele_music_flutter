@@ -15,7 +15,6 @@ const double staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  
 
 // For piano chords, try:  https://www.scales-chords.com/chord/piano
 
-
 class SheetMusicPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -29,9 +28,14 @@ class SheetMusicPainter extends CustomPainter {
       const double _fontSize = 15; //  fixme
       switch (display) {
         case SheetDisplay.section:
-          return SheetSectionTextNotation(display, );
+          return SheetSectionTextNotation(
+            display,
+          );
         case SheetDisplay.measureCount:
-          return SheetMeasureCountTextNotation(display, activeHeight: _fontSize,);
+          return SheetMeasureCountTextNotation(
+            display,
+            activeHeight: _fontSize,
+          );
         case SheetDisplay.chords:
           return SheetChordTextNotation(display);
         case SheetDisplay.lyrics:
@@ -85,18 +89,18 @@ class SheetMusicPainter extends CustomPainter {
     //  display each beat
     Song song = _app.selectedSong;
     momentLoop:
-    for ( var sm in song.songMoments ){
-      if ( _app.selectedMomentNumber > sm.momentNumber){
+    for (var sm in song.songMoments) {
+      if (_app.selectedMomentNumber > sm.momentNumber) {
         continue; //  fixme: optimization?
       }
-      for ( int beat = 0; beat < sm.measure.beatCount; beat++){
+      for (int beat = 0; beat < sm.measure.beatCount; beat++) {
         for (var display in SheetDisplay.values) {
           if (hasDisplay(display)) {
             _sheetNotations[display.index].drawBeat(sm, beat);
           }
         }
 
-        if ( _xSpaceAll(0.5 * staffSpace) >= size.width ){
+        if (_xSpaceAll(0.5 * staffSpace) >= size.width) {
           logger.d('last moment: ${sm.momentNumber}');
           break momentLoop;
         }
@@ -371,8 +375,7 @@ class SheetMusicPainter extends CustomPainter {
 
   void _reset() {
     for (var display in SheetDisplay.values) {
-      var sn = _sheetNotations[display.index];
-      sn.dx = 0;
+      _sheetNotations[display.index].reset();
     }
   }
 
@@ -400,7 +403,7 @@ class SheetMusicPainter extends CustomPainter {
 
   late List<SheetNotation> _sheetNotations;
 
-  final  App _app = App();
+  final App _app = App();
 }
 
 class SheetNoteLocation {

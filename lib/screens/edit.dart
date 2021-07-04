@@ -20,11 +20,11 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
-import 'package:bsteele_music_flutter/app/appElevatedButton.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
-import 'package:bsteele_music_flutter/util/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,6 +36,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app.dart';
+import 'detail.dart';
 
 late Song _initialSong;
 
@@ -546,7 +547,7 @@ class _Edit extends State<Edit> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          AppElevatedButton(
+                          appButton(
                             songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
                             color: (songHasChanged && _isValidSong) ? appDefaultColor : _disabledColor,
                             onPressed: () {
@@ -563,7 +564,20 @@ class _Edit extends State<Edit> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
-                                AppElevatedButton(
+
+                                appButton(
+                                  'Details',
+                                  key: const ValueKey('screenDetail'),
+                                  onPressed: () {
+                                    setState(() {
+                                      _navigateToDetail(context);
+                                    });
+                                  },
+                                ),
+                                const SizedBox(
+                                  width: 50,
+                                ),
+                                appButton(
                                   'Clear',
                                   onPressed: () {
                                     setState(() {
@@ -576,7 +590,7 @@ class _Edit extends State<Edit> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                AppElevatedButton(
+                                appButton(
                                   'Remove',
                                   onPressed: () {
                                     logger.log(_editLog, 'fixme: Remove song'); // fixme
@@ -835,7 +849,7 @@ class _Edit extends State<Edit> {
                             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                               _editTooltip(
                                 _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                AppElevatedButton(
+                                appButton(
                                   'Undo',
                                   onPressed: () {
                                     _undo();
@@ -844,23 +858,17 @@ class _Edit extends State<Edit> {
                               ),
                               _editTooltip(
                                 _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
-                                AppElevatedButton(
+                                appButton(
                                   'Redo',
                                   onPressed: () {
                                     _redo();
                                   },
                                 ),
                               ),
-                              // AppElevatedButton(
-                              //   '4/Row',
-                              //   onPressed: () {
-                              //     logger.w('implement 4/row'); //  fixme
-                              //   },
-                              // ),
                               _editTooltip(
                                 (_selectedEditDataPoint != null ? 'Click outside the chords to cancel editing\n' : '') +
                                     (_showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                                AppElevatedButton('Hints', onPressed: () {
+                                appButton('Hints', onPressed: () {
                                   setState(() {
                                     _showHints = !_showHints;
                                   });
@@ -1076,7 +1084,7 @@ class _Edit extends State<Edit> {
                             flex: 1,
                             child: _editTooltip(
                               'Import lyrics from a text file',
-                              AppElevatedButton(
+                              appButton(
                                 'Import',
                                 onPressed: () {
                                   _import();
@@ -1891,7 +1899,7 @@ class _Edit extends State<Edit> {
 
       Widget _majorChordButton = _editTooltip(
           'Enter the major chord.',
-          AppElevatedButton(
+          appButton(
             _keyChordNote.toString(),
             onPressed: () {
               setState(() {
@@ -1907,7 +1915,7 @@ class _Edit extends State<Edit> {
         );
         minorChordButton = _editTooltip(
             'Enter the minor chord.',
-            AppElevatedButton(
+            appButton(
               sc.toString(),
               onPressed: () {
                 setState(() {
@@ -1921,7 +1929,7 @@ class _Edit extends State<Edit> {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
         dominant7ChordButton = _editTooltip(
             'Enter the dominant7 chord.',
-            AppElevatedButton(
+            appButton(
               sc.toString(),
               onPressed: () {
                 setState(() {
@@ -2018,7 +2026,7 @@ class _Edit extends State<Edit> {
                   dominant7ChordButton,
                   _editTooltip(
                     'Enter a silent chord.',
-                    AppElevatedButton(
+                    appButton(
                       'X',
                       onPressed: () {
                         setState(() {
@@ -2206,7 +2214,7 @@ class _Edit extends State<Edit> {
                     'Repeat: ',
                     style: _textStyle,
                   ),
-                  AppElevatedButton(
+                  appButton(
                     'x2',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 2);
@@ -2215,7 +2223,7 @@ class _Edit extends State<Edit> {
                     },
                     color: color,
                   ),
-                  AppElevatedButton(
+                  appButton(
                     'x3',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 3);
@@ -2224,7 +2232,7 @@ class _Edit extends State<Edit> {
                     },
                     color: color,
                   ),
-                  AppElevatedButton(
+                  appButton(
                     'x4',
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 4);
@@ -2885,6 +2893,14 @@ class _Edit extends State<Edit> {
     for (var s in lyricStrings) {
       _updateRawLyrics(_song.rawLyrics + s);
     }
+  }
+
+
+  _navigateToDetail(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Detail()),
+    );
   }
 
   ScreenInfo? _screenInfo;

@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/chordAnticipationOrDelay.dart';
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
@@ -14,9 +16,10 @@ import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
-import 'package:bsteele_music_flutter/util/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +50,6 @@ Offset? _dragStart;
 Offset? _dragEnd;
 
 music_key.Key _key = music_key.Key.getDefault();
-ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 
 bool get _isShowScaleNumbers => sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index];
@@ -56,6 +58,22 @@ bool get _isShowScaleNotes => sheetDisplayEnables[SheetDisplay.bassNotes.index];
 bool _isSwing = true;
 TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
 int _bpm = 106;
+
+final App _app = App();
+
+final _defaultChord = Chord(ScaleChord(ScaleNote.get(ScaleNoteEnum.C), ChordDescriptor.defaultChordDescriptor()), 4, 4,
+    null, ChordAnticipationOrDelay.defaultValue, false);
+
+Chord _getChord() {
+  if (_app.selectedSong.songMoments.isNotEmpty) {
+    var songMoment = _app.selectedSong.songMoments[_app.selectedMomentNumber];
+    var m = songMoment.measure;
+    if (m.chords.isNotEmpty) {
+      return m.chords[0].transpose(_key, 0); // fixme!!!!!!!!!!!
+    }
+  }
+  return _defaultChord;
+}
 
 /// the bass study tool
 class Detail extends StatefulWidget {
@@ -102,19 +120,9 @@ class _State extends State<Detail> {
   Widget build(BuildContext context) {
     _fontSize = App().screenInfo.fontSize * 2 / 3;
 
-   // logger.i('WidgetsBinding.instance: ${WidgetsBinding.instance?.runtimeType}');
+    // logger.i('WidgetsBinding.instance: ${WidgetsBinding.instance?.runtimeType}');
 
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
-
-    _scaleChord = ScaleChord(_chordRoot, _chordDescriptor);
-    List<ScaleNote> scaleNoteValues = [];
-    {
-      var scaleNoteSet = SplayTreeSet<ScaleNote>();
-      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-        scaleNoteSet.add(_key.getScaleNoteByHalfStep(i));
-      }
-      scaleNoteValues = scaleNoteSet.toList(growable: false);
-    }
 
     _bpmTextEditingController.text = _bpm.toString();
 
@@ -160,11 +168,11 @@ class _State extends State<Detail> {
       children.add(const SizedBox(
         height: 10,
       ));
-      children.add(_commandButton('Close the options', onPressed: () {
+      children.add(appButton('Close the options', onPressed: () {
         setState(() {
           _options = false;
         });
-      }));
+      }, fontSize: _fontSize));
 
       _sheetDisplayEnableOptionsWidget = Padding(
         padding: const EdgeInsets.all(16.0),
@@ -223,105 +231,25 @@ class _State extends State<Detail> {
                       Row(
                         children: [
                           Text(
-                            'Key: ',
+                            'Key: $_key',
                             style: _style,
-                          ),
-                          DropdownButton<music_key.Key>(
-                            items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                              return DropdownMenuItem<music_key.Key>(
-                                key: ValueKey('half' + value.getHalfStep().toString()),
-                                value: value,
-                                child: Text(
-                                  '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                                  style: _style,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (_value) {
-                              if (_value != null && _value != _key) {
-                                setState(() {
-                                  _key = _value;
-                                });
-                              }
-                            },
-                            value: _key,
-                            style: const AppTextStyle(
-                              //  size controlled by textScaleFactor above
-                              color: Colors.black,
-                              textBaseline: TextBaseline.ideographic,
-                            ),
                           ),
                         ],
                       ),
                       Row(
                         children: [
+                          Container(
+                            width: 12*_fontSize,
+                       child:
                           Text(
-                            'Chord root: ',
+                            'Chord: ${_getChord()}',
                             style: _style,
-                          ),
-                          DropdownButton<ScaleNote>(
-                            items: scaleNoteValues.map((ScaleNote value) {
-                              return DropdownMenuItem<ScaleNote>(
-                                key: ValueKey('root' + _key.inKey(value).toString()),
-                                value: value,
-                                child: Text(
-                                  _key.inKey(value).toMarkup(),
-                                  style: _style,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (_value) {
-                              if (_value != null && _value != _chordRoot) {
-                                setState(() {
-                                  _chordRoot = _value;
-                                });
-                              }
-                            },
-                            value: _key.inKey(_chordRoot),
-                            style: const AppTextStyle(
-                              //  size controlled by textScaleFactor above
-                              color: Colors.black,
-                              textBaseline: TextBaseline.ideographic,
-                            ),
-                          ),
-                        ],
-                      ),
-                      //  chord type
-                      Row(
-                        children: [
-                          Text(
-                            'Chord type: ',
-                            style: _style,
-                          ),
-                          DropdownButton<ChordDescriptor>(
-                            items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
-                              return DropdownMenuItem<ChordDescriptor>(
-                                value: value,
-                                child: Text(
-                                  '${value.toString().padRight(3)} (${value.name})',
-                                  style: _style,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (_value) {
-                              if (_value != null && _value != _chordDescriptor) {
-                                setState(() {
-                                  _chordDescriptor = _value;
-                                });
-                              }
-                            },
-                            value: _chordDescriptor,
-                            style: const AppTextStyle(
-                              //  size controlled by textScaleFactor above
-                              color: Colors.black,
-                              textBaseline: TextBaseline.ideographic,
-                            ),
-                          ),
+                          ),   ),
                         ],
                       ),
                     ],
                   ),
-                  Container(
+                  const SizedBox(
                     width: 10,
                   ),
                   //  notes and rests
@@ -557,10 +485,11 @@ class _State extends State<Detail> {
                               textBaseline: TextBaseline.ideographic,
                             ),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
+                        ],
+                      ),
+                      Row(
+                        children: [
+                           Text(
                             'BPM:',
                             style: _style,
                           ),
@@ -590,9 +519,10 @@ class _State extends State<Detail> {
                               },
                             ),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
                           Checkbox(
                             checkColor: Colors.white,
                             fillColor: MaterialStateProperty.all(_blue.color),
@@ -629,18 +559,18 @@ class _State extends State<Detail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _commandButton('Loop 1', onPressed: () {}),
-                  _commandButton('Loop 2', onPressed: () {}),
-                  _commandButton('Loop 4', onPressed: () {}),
-                  _commandButton('Loop selected', onPressed: () {}),
-                  _commandButton('Loop', onPressed: () {}),
-                  _commandButton('Play', onPressed: () {}),
-                  _commandButton('Stop', onPressed: () {}),
-                  _commandButton('Options', onPressed: () {
+                  appButton('Loop 1', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 2', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 4', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop selected', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Play', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Stop', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Options', onPressed: () {
                     setState(() {
                       _options = !_options;
                     });
-                  }),
+                  }, fontSize: _fontSize),
                 ],
               ),
               const SizedBox(
@@ -648,18 +578,18 @@ class _State extends State<Detail> {
               ),
               _sheetDisplayEnableOptionsWidget,
               //  sheet music
-              Listener(
-                onPointerSignal: (pointerSignal) {
-                  if (pointerSignal is PointerScrollEvent) {
-                    setState(() {
-                      bumpMeasureSelection(pointerSignal.scrollDelta.dy > 0 ? 1 : -1);
-                    });
-                  }
-                },
-                child: RawKeyboardListener(
-                  focusNode: FocusNode(),
-                  onKey: _bassOnKey,
-                  autofocus: true,
+              RawKeyboardListener(
+                focusNode: FocusNode(),
+                onKey: _detailOnKey,
+                autofocus: true,
+                child: Listener(
+                  onPointerSignal: (pointerSignal) {
+                    if (pointerSignal is PointerScrollEvent) {
+                      setState(() {
+                        bumpMeasureSelection(pointerSignal.scrollDelta.dy > 0 ? 1 : -1);
+                      });
+                    }
+                  },
                   child: Stack(
                     fit: StackFit.passthrough,
                     children: [
@@ -743,16 +673,6 @@ class _State extends State<Detail> {
 
   void bumpMeasureSelection(int bump) {
     _app.selectedMomentNumber += bump;
-    if (_app.selectedSong.songMoments.isNotEmpty) {
-      var songMoment = _app.selectedSong.songMoments[_app.selectedMomentNumber];
-      logger.d('bumpNoteSelection: $songMoment');
-      var m = songMoment.measure;
-      if (m.chords.isNotEmpty) {
-        var chord = m.chords[0];
-        _chordRoot = chord.scaleChord.scaleNote;
-        _chordDescriptor = chord.scaleChord.chordDescriptor;
-      }
-    }
   }
 
   void dragStart(Offset start) {
@@ -772,10 +692,11 @@ class _State extends State<Detail> {
     setState(() {});
   }
 
-  void _bassOnKey(RawKeyEvent value) {
+  void _detailOnKey(RawKeyEvent value) {
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
       //  only deal with new key down events
+      logger.i('_detailOnKey($e)');
 
       if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
         setState(() {
@@ -829,31 +750,31 @@ class _State extends State<Detail> {
     );
   }
 
-  ElevatedButton _commandButton(
-    String commandName, {
-    required VoidCallback? onPressed,
-    double height = 1.5,
-  }) {
-    return ElevatedButton(
-      child: Text(
-        commandName,
-        style: TextStyle(
-          fontSize: _fontSize,
-          foreground: _black,
-          background: _blue,
-          height: height,
-        ),
-      ),
-      clipBehavior: Clip.hardEdge,
-      onPressed: onPressed,
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(_blue.color),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_fontSize), side: const BorderSide(color: Colors.grey))),
-        elevation: MaterialStateProperty.all<double>(6),
-      ),
-    );
-  }
+  // ElevatedButton _commandButton(
+  //   String commandName, {
+  //   required VoidCallback? onPressed,
+  //   double height = 1.5,
+  // }) {
+  //   return ElevatedButton(
+  //     child: Text(
+  //       commandName,
+  //       style: TextStyle(
+  //         fontSize: _fontSize,
+  //         foreground: _black,
+  //         background: _blue,
+  //         height: height,
+  //       ),
+  //     ),
+  //     clipBehavior: Clip.hardEdge,
+  //     onPressed: onPressed,
+  //     style: ButtonStyle(
+  //       backgroundColor: MaterialStateProperty.all(_blue.color),
+  //       shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(_fontSize), side: const BorderSide(color: Colors.grey))),
+  //       elevation: MaterialStateProperty.all<double>(6),
+  //     ),
+  //   );
+  // }
 
   @override
   void dispose() {
@@ -870,10 +791,7 @@ class _State extends State<Detail> {
   final TextEditingController _lyricsTextEditingController = TextEditingController();
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
-  ChordDescriptor _chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();
-
-  final App _app = App();
 }
 
 class _FretBoardPainter extends CustomPainter {
@@ -955,7 +873,7 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  compute scale notes
-    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(_chordRoot.halfStep);
+    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(_getChord().scaleChord.scaleNote.halfStep);
     var fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
       fretBoardNotes.add(_key.inKey(

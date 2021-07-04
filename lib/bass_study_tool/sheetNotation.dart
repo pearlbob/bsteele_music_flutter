@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
+import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
@@ -74,17 +75,10 @@ abstract class SheetNotation {
     return textPainter.size.width;
   }
 
-  // _renderBarlineSingle() {
-  //   //  fixme
-  //   final black = Paint();
-  //   black.color = _lineColor;
-  //   black.style = PaintingStyle.stroke;
-  //   final width = (GlyphBBoxesBarlineSingle.bBoxNE.x - GlyphBBoxesBarlineSingle.bBoxSW.x) * staffSpace;
-  //   black.strokeWidth = width;
-  //
-  //   _canvas.drawLine(Offset(dx, dy + preHeight),
-  //       Offset(dx, dy + preHeight + min(activeHeight, (staffLineCount - 1) * staffSpace)), black);
-  // }
+  reset() {
+    dx = 0;
+    _timeSignatureShown = false;
+  }
 
   @override
   String toString() {
@@ -106,6 +100,7 @@ abstract class SheetNotation {
   late Canvas _canvas;
   late Size _size;
 
+  static bool _timeSignatureShown = false;
   static const double _fontSize = 15; //  fixme
 }
 
@@ -170,7 +165,7 @@ class SheetChordTextNotation extends SheetTextNotation {
   SheetChordTextNotation(SheetDisplay sheetDisplay,
       {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
       : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 2 * _chordFontSize, postHeight: postHeight);
+            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
 
   @override
   void drawBeat(SongMoment songMoment, int beat) {
@@ -181,7 +176,7 @@ class SheetChordTextNotation extends SheetTextNotation {
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
-        dx += _renderText(chord.toMarkup(), fontSize: _chordFontSize, fontWeight: FontWeight.bold);
+        dx += _renderText(chord.transpose(_key, 0 ).toMarkup(), fontSize: _chordFontSize, fontWeight: FontWeight.bold);
         dx += staffSpace;
         break;
       }
@@ -230,7 +225,16 @@ class _SheetStaffNotation extends SheetNotation {
     dx += staffSpace;
 
     //  fill in the time signature
-    _renderSheetFixedYSymbol(timeSigCommon);
+    if (!SheetNotation._timeSignatureShown) {
+      TimeSignature timeSignature = _app.selectedSong.timeSignature;
+      if (timeSignature == TimeSignature.commonTimeSignature) {
+        _renderSheetFixedYSymbol(timeSigCommon);
+      } else {
+        _renderSheetNoteSymbol(timeSigs[timeSignature.beatsPerBar % timeSigs.length], 1, renderForward: false);
+        _renderSheetNoteSymbol(timeSigs[timeSignature.unitsPerMeasure % timeSigs.length], 3);
+      }
+    }
+    SheetNotation._timeSignatureShown = true;
   }
 
   void _renderStaff() {
@@ -379,15 +383,6 @@ class _SheetStaffNotation extends SheetNotation {
       _canvas.drawRect(Rect.fromLTRB(ret.left, y + yOff - yPos - 1, ret.right, y + yOff - yPos + 1), _red);
     }
     return ret;
-  }
-
-  void _renderSheetFixedY(SheetNote rest) {
-    var rect = _renderSheetNoteSymbol(rest.symbol, rest.symbol.fixedYOff, isStave: false);
-
-    if (_debug) {
-      _canvas.drawRect(rect, _transGrey);
-    }
-    _sheetNoteLocations.add(SheetNoteLocation(rest, rect));
   }
 
   void _renderStaves(SheetNoteSymbol symbol, double staffPosition) {

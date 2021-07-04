@@ -12,10 +12,9 @@ import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
-import 'package:bsteele_music_flutter/app/appElevatedButton.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
-import 'package:bsteele_music_flutter/util/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
@@ -28,7 +27,6 @@ import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
-import 'detail.dart';
 
 //  fixme: shapes in chromium?  circles become stop signs
 //  fixme: compile to armv71
@@ -462,16 +460,6 @@ With escape, the app goes back to the play list.''',
                                         onPressed: () {},
                                       ),
                                     ),
-                                    if (_app.isScreenBig)
-                                      AppElevatedButton(
-                                        'Details',
-                                        key: const ValueKey('screenDetail'),
-                                        onPressed: () {
-                                          setState(() {
-                                            _navigateToDetail(context);
-                                          });
-                                        },
-                                      ),
                                     Row(
                                       children: [
                                         Text(
@@ -1018,19 +1006,6 @@ With escape, the app goes back to the play list.''',
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
-    );
-    _playerIsOnTop = true;
-    setState(() {
-      _table = null;
-      widget.song = _app.selectedSong;
-    });
-  }
-
-  _navigateToDetail(BuildContext context) async {
-    _playerIsOnTop = false;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Detail()),
     );
     _playerIsOnTop = true;
     setState(() {

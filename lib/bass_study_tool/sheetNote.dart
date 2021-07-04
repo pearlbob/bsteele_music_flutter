@@ -49,10 +49,12 @@ bool isUpNote(Clef clef, Pitch pitch) {
 }
 
 class SheetNoteSymbol {
-  SheetNoteSymbol.glyphBBoxes(this._name, this._character, Point<double> bBoxNE, Point<double> bBoxSW,
-      {double? staffPosition})
-      : _bounds = Rect.fromLTRB(bBoxSW.x, -bBoxNE.y, bBoxNE.x, -bBoxSW.y),
-        _staffPosition = staffPosition ?? 0;
+  SheetNoteSymbol.glyphBBoxes(
+      final this._name, final this._character, final Point<double> bBoxNE, final Point<double> bBoxSW,
+      {double? staffPosition, this.isUp = true, double? fontSizeOnStaffs})
+      : bounds = Rect.fromLTRB(bBoxSW.x, -bBoxNE.y, bBoxNE.x, -bBoxSW.y),
+        staffPosition = staffPosition ?? 0,
+        fontSizeOnStaffs = fontSizeOnStaffs ?? 4;
 
   String? get name => _name;
   final String? _name;
@@ -60,22 +62,18 @@ class SheetNoteSymbol {
   String get character => _character;
   final String _character;
 
-  double get fontSizeOnStaffs => _fontSizeStaffs;
-  double _fontSizeStaffs = 4;
+  final double fontSizeOnStaffs;
 
-  double get width => _bounds.width;
+  double get width => bounds.width;
 
-  Rect get bounds => _bounds;
-  final Rect _bounds;
+  final Rect bounds;
 
-  bool get isUp => _isUp;
-  bool _isUp = true;
+  final bool isUp;
 
   Point<double> get focusPoint => _focusPoint;
   final Point<double> _focusPoint = const Point(0, 0);
 
-  double get staffPosition => _staffPosition;
-  final double _staffPosition;
+  final double staffPosition;
 
   double get fixedYOff => _fixedYOff;
   static const double _fixedYOff = 4;
@@ -84,8 +82,10 @@ class SheetNoteSymbol {
 }
 
 class SheetNoteSymbolFixed extends SheetNoteSymbol {
-  SheetNoteSymbolFixed(String name, String character, Point<double> bBoxNE, Point<double> bBoxSW, double staffPosition)
-      : super.glyphBBoxes(name, character, bBoxNE, bBoxSW, staffPosition: staffPosition);
+  SheetNoteSymbolFixed(String name, String character, Point<double> bBoxNE, Point<double> bBoxSW, double staffPosition,
+      {double? fontSizeStaffs})
+      : super.glyphBBoxes(name, character, bBoxNE, bBoxSW,
+            staffPosition: staffPosition, fontSizeOnStaffs: fontSizeStaffs);
 }
 
 //  notes
@@ -94,23 +94,26 @@ final noteWhole =
 final noteHalfUp =
     SheetNoteSymbol.glyphBBoxes('noteHalfUp', '\uE1D3', GlyphBBoxesNoteHalfUp.bBoxNE, GlyphBBoxesNoteHalfUp.bBoxSW);
 final noteHalfDown = SheetNoteSymbol.glyphBBoxes(
-    'noteHalfDown', '\uE1D4', GlyphBBoxesNoteHalfDown.bBoxNE, GlyphBBoxesNoteHalfDown.bBoxSW)
-  .._isUp = false;
+    'noteHalfDown', '\uE1D4', GlyphBBoxesNoteHalfDown.bBoxNE, GlyphBBoxesNoteHalfDown.bBoxSW,
+    isUp: false);
+
 final noteQuarterUp = SheetNoteSymbol.glyphBBoxes(
     'noteQuarterUp', '\uE1D5', GlyphBBoxesNoteQuarterUp.bBoxNE, GlyphBBoxesNoteQuarterUp.bBoxSW);
 final noteQuarterDown = SheetNoteSymbol.glyphBBoxes(
-    'noteQuarterDown', '\uE1D6', GlyphBBoxesNoteQuarterDown.bBoxNE, GlyphBBoxesNoteQuarterDown.bBoxSW)
-  .._isUp = false;
+    'noteQuarterDown', '\uE1D6', GlyphBBoxesNoteQuarterDown.bBoxNE, GlyphBBoxesNoteQuarterDown.bBoxSW,
+    isUp: false);
+
 final note8thUp =
     SheetNoteSymbol.glyphBBoxes('note8thUp', '\uE1D7', GlyphBBoxesNote8thUp.bBoxNE, GlyphBBoxesNote8thUp.bBoxSW);
-final note8thDown =
-    SheetNoteSymbol.glyphBBoxes('note8thDown', '\uE1D8', GlyphBBoxesNote8thDown.bBoxNE, GlyphBBoxesNote8thDown.bBoxSW)
-      .._isUp = false;
+final note8thDown = SheetNoteSymbol.glyphBBoxes(
+    'note8thDown', '\uE1D8', GlyphBBoxesNote8thDown.bBoxNE, GlyphBBoxesNote8thDown.bBoxSW,
+    isUp: false);
+
 final note16thUp =
     SheetNoteSymbol.glyphBBoxes('note16thUp', '\uE1D9', GlyphBBoxesNote16thUp.bBoxNE, GlyphBBoxesNote16thUp.bBoxSW);
 final note16thDown = SheetNoteSymbol.glyphBBoxes(
-    'note16thDown', '\uE1DA', GlyphBBoxesNote16thDown.bBoxNE, GlyphBBoxesNote16thDown.bBoxSW)
-  .._isUp = false;
+    'note16thDown', '\uE1DA', GlyphBBoxesNote16thDown.bBoxNE, GlyphBBoxesNote16thDown.bBoxSW,
+    isUp: false);
 
 //  rests
 final restWhole =
@@ -122,9 +125,9 @@ final rest8th = SheetNoteSymbolFixed('rest8th', '\uE4E6', GlyphBBoxesRest8th.bBo
 final rest16th = SheetNoteSymbolFixed('rest16th', '\uE4E7', GlyphBBoxesRest16th.bBoxNE, GlyphBBoxesRest16th.bBoxSW, 2);
 
 //  markers
-final brace =
-    SheetNoteSymbolFixed('brace', '\uE000', GlyphBBoxesBrace.bBoxNE, GlyphBBoxesBrace.bBoxSW, 2 * 4 + 2 * staffMargin)
-      .._fontSizeStaffs = 2 * 4 + 2 * staffMargin;
+final brace = SheetNoteSymbolFixed(
+    'brace', '\uE000', GlyphBBoxesBrace.bBoxNE, GlyphBBoxesBrace.bBoxSW, 2 * 4 + 2 * staffMargin,
+    fontSizeStaffs: 2 * 4 + 2 * staffMargin);
 //final barlineSingle = SheetNoteSymbol.glyphBBoxes(
 //    'barlineSingle', '\uE030', GlyphBBoxesBarlineSingle.bBoxNE, GlyphBBoxesBarlineSingle.bBoxSW);
 final trebleClef //  i.e. gClef
@@ -165,6 +168,20 @@ final timeSig8 =
     SheetNoteSymbol.glyphBBoxes('timeSig8', '\uE088', GlyphBBoxesTimeSig8.bBoxNE, GlyphBBoxesTimeSig8.bBoxSW);
 final timeSig9 =
     SheetNoteSymbol.glyphBBoxes('timeSig9', '\uE089', GlyphBBoxesTimeSig9.bBoxNE, GlyphBBoxesTimeSig9.bBoxSW);
+
+final List<SheetNoteSymbol> timeSigs = [
+  timeSig0,
+  timeSig1,
+  timeSig2,
+  timeSig3,
+  timeSig4,
+  timeSig5,
+  timeSig6,
+  timeSig7,
+  timeSig8,
+  timeSig9,
+];
+
 final timeSigCommon = SheetNoteSymbolFixed(
     'timeSigCommon', '\uE08A', GlyphBBoxesTimeSigCommon.bBoxNE, GlyphBBoxesTimeSigCommon.bBoxSW, 2);
 

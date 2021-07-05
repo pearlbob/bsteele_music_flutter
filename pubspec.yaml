@@ -30,8 +30,10 @@ dependencies:
   flutter_markdown:
   scrollable_positioned_list: ^0.2.0-nullsafety.0
   web_socket_channel:
+  enum_to_string:
   provider:
   flutter_lints:  #not ready yet: info: Name source files using `lowercase_with_underscores`.
+
 
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib

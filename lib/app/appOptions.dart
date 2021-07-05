@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +43,7 @@ class AppOptions extends ChangeNotifier {
     _holiday = await _readBool('holiday');
     _compressRepeats = await _readBool('compressRepeats');
     _user = await _readString('user');
+    _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays'));
     notifyListeners();
   }
 
@@ -312,6 +316,15 @@ class AppOptions extends ChangeNotifier {
       _saveString('user', value);
     }
   }
+
+  set sheetDisplays(HashSet<SheetDisplay> values) {
+    if (_sheetDisplays != values) {
+      _sheetDisplays = values;
+      _saveString('sheetDisplays', sheetDisplaySetEncode(values));
+    }
+  }
+  HashSet<SheetDisplay> get sheetDisplays => _sheetDisplays;
+  HashSet<SheetDisplay> _sheetDisplays = HashSet();
 
   static const String unknownUser = Song.unknownUser;
 

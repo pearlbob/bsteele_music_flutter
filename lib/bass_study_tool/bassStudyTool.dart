@@ -220,7 +220,6 @@ class BassStudyTool {
                       //  rest
                       SheetNote sn = SheetNote.rest(Clef.bass8vb,
                         _noteDuration.duration,
-                        //lyrics: lyrics,
                       );
                       sheetNotes.add(sn);
                     }

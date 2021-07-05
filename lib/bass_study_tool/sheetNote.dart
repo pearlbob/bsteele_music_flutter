@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
@@ -5,6 +6,7 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 
 import 'sheetMusicFontParameters.dart';
 
@@ -24,6 +26,37 @@ enum SheetDisplay {
   bassNoteNumbers,
   bassNotes,
   bass8vb, //  bass guitar
+}
+
+extension SheetDisplayExtension on SheetDisplay {
+  String get name {
+    return EnumToString.convertToString(this);
+  }
+}
+
+String sheetDisplaySetEncode(Set<SheetDisplay> set) {
+  StringBuffer ret = StringBuffer();
+  var first = true;
+  for (var sheetDisplay in set) {
+    if (first) {
+      first = false;
+    } else {
+      ret.write(', ');
+    }
+    ret.write(sheetDisplay.name);
+  }
+  return ret.toString();
+}
+
+HashSet<SheetDisplay> sheetDisplaySetDecode(String all) {
+  HashSet<SheetDisplay> ret = HashSet();
+  for (var name in all.split(', ')) {
+    var value = EnumToString.fromString(SheetDisplay.values, name);
+    if (value != null) {
+      ret.add(value);
+    }
+  }
+  return ret;
 }
 
 List<bool> sheetDisplayEnables = List.filled(SheetDisplay.values.length, false);
@@ -184,6 +217,26 @@ final List<SheetNoteSymbol> timeSigs = [
 
 final timeSigCommon = SheetNoteSymbolFixed(
     'timeSigCommon', '\uE08A', GlyphBBoxesTimeSigCommon.bBoxNE, GlyphBBoxesTimeSigCommon.bBoxSW, 2);
+
+SheetNoteSymbolFixed sheetNoteRest(double _noteDuration) {
+  SheetNoteSymbolFixed symbol = restWhole; //  fixme!
+//  find rest symbol by value, in units of measure
+  if (_noteDuration == 1) {
+    symbol = restWhole;
+  } else if (_noteDuration == 1 / 2) {
+    symbol = restHalf;
+  } else if (_noteDuration == 1 / 4) {
+    symbol = restQuarter;
+  } else if (_noteDuration == 1 / 8) {
+    symbol = rest8th;
+  } else if (_noteDuration == 1 / 16) {
+    symbol = rest16th;
+  } else {
+    symbol = restWhole; //  fixme!
+    logger.w('rest duration is not legal: $_noteDuration');
+  }
+  return symbol;
+}
 
 class SheetNote {
   SheetNote.note(this._clef, this._pitch, this._noteDuration,

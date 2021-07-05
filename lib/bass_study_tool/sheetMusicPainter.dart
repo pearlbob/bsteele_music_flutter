@@ -52,9 +52,9 @@ class SheetMusicPainter extends CustomPainter {
           return SheetBassStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
         case SheetDisplay.bassNoteNumbers:
-          return SheetTextNotation(display, activeHeight: _fontSize * 2);
+          return SheetBassNoteNumbersTextNotation(display, activeHeight: _fontSize * 2);
         case SheetDisplay.bassNotes:
-          return SheetTextNotation(display, activeHeight: _fontSize * 2);
+          return SheetBassNotesTextNotation(display, activeHeight: _fontSize * 2);
         case SheetDisplay.bass8vb:
           return SheetBass8vbStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);

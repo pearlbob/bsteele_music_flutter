@@ -17,6 +17,7 @@ import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
@@ -95,12 +96,17 @@ class _State extends State<Detail> {
     _key = _app.selectedSong.key;
     logger.i('key: $_key');
 
+    for (var sheetDisplay in _appOptions.sheetDisplays) {
+      sheetDisplayEnables[sheetDisplay.index] = true;
+    }
+
     //  initialize at least a minimum sheet display
     {
       var hasSomeDisplay = false;
       for (var displayEnable in sheetDisplayEnables) {
         hasSomeDisplay |= displayEnable;
       }
+
       if (!hasSomeDisplay) {
         sheetDisplayEnables[SheetDisplay.section.index] = true;
         sheetDisplayEnables[SheetDisplay.measureCount.index] = true;
@@ -112,6 +118,7 @@ class _State extends State<Detail> {
         //sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index] = true;
         //sheetDisplayEnables[SheetDisplay.bassNotes.index] = true;
         sheetDisplayEnables[SheetDisplay.bass8vb.index] = true;
+        storeSheetDisplayEnables();
       }
     }
   }
@@ -144,6 +151,7 @@ class _State extends State<Detail> {
                 if (value != null) {
                   setState(() {
                     sheetDisplayEnables[display.index] = value;
+                    storeSheetDisplayEnables();
                     logger.i('$name: ${sheetDisplayEnables[display.index]}');
                   });
                 }
@@ -157,6 +165,7 @@ class _State extends State<Detail> {
               onPressed: () {
                 setState(() {
                   sheetDisplayEnables[display.index] = !sheetDisplayEnables[display.index];
+                  storeSheetDisplayEnables();
                   logger.i('TextButton $name: ${sheetDisplayEnables[display.index]}');
                 });
               },
@@ -239,12 +248,12 @@ class _State extends State<Detail> {
                       Row(
                         children: [
                           Container(
-                            width: 12*_fontSize,
-                       child:
-                          Text(
-                            'Chord: ${_getChord()}',
-                            style: _style,
-                          ),   ),
+                            width: 12 * _fontSize,
+                            child: Text(
+                              'Chord: ${_getChord()}',
+                              style: _style,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -489,7 +498,7 @@ class _State extends State<Detail> {
                       ),
                       Row(
                         children: [
-                           Text(
+                          Text(
                             'BPM:',
                             style: _style,
                           ),
@@ -750,38 +759,22 @@ class _State extends State<Detail> {
     );
   }
 
-  // ElevatedButton _commandButton(
-  //   String commandName, {
-  //   required VoidCallback? onPressed,
-  //   double height = 1.5,
-  // }) {
-  //   return ElevatedButton(
-  //     child: Text(
-  //       commandName,
-  //       style: TextStyle(
-  //         fontSize: _fontSize,
-  //         foreground: _black,
-  //         background: _blue,
-  //         height: height,
-  //       ),
-  //     ),
-  //     clipBehavior: Clip.hardEdge,
-  //     onPressed: onPressed,
-  //     style: ButtonStyle(
-  //       backgroundColor: MaterialStateProperty.all(_blue.color),
-  //       shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(_fontSize), side: const BorderSide(color: Colors.grey))),
-  //       elevation: MaterialStateProperty.all<double>(6),
-  //     ),
-  //   );
-  // }
-
   @override
   void dispose() {
     _lyricsTextEditingController.dispose();
     _bpmTextEditingController.dispose();
     super.dispose();
     logger.d('bass dispose()');
+  }
+
+  void storeSheetDisplayEnables() {
+    HashSet<SheetDisplay> store = HashSet();
+    for (var sheetDisplay in SheetDisplay.values) {
+      if (sheetDisplayEnables[sheetDisplay.index]) {
+        store.add(sheetDisplay);
+      }
+    }
+    _appOptions.sheetDisplays = store;
   }
 
   bool _options = false;
@@ -792,6 +785,7 @@ class _State extends State<Detail> {
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   AppTextStyle _style = const AppTextStyle();
+  final AppOptions _appOptions = AppOptions();
 }
 
 class _FretBoardPainter extends CustomPainter {

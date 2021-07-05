@@ -1,5 +1,6 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
@@ -176,7 +177,7 @@ class SheetChordTextNotation extends SheetTextNotation {
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
-        dx += _renderText(chord.transpose(_key, 0 ).toMarkup(), fontSize: _chordFontSize, fontWeight: FontWeight.bold);
+        dx += _renderText(chord.transpose(_key, 0).toMarkup(), fontSize: _chordFontSize, fontWeight: FontWeight.bold);
         dx += staffSpace;
         break;
       }
@@ -199,6 +200,55 @@ class SheetLyricsTextNotation extends SheetTextNotation {
       double width = _renderText(lyrics, fontSize: _chordFontSize);
       dx += width;
       logger.d('"$lyrics": width: $width');
+    }
+  }
+}
+
+class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
+  SheetBassNoteNumbersTextNotation(SheetDisplay sheetDisplay,
+      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
+      : super(sheetDisplay,
+            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+
+  @override
+  void drawBeat(SongMoment songMoment, int beat) {
+    if (beat == 0) {
+      dx += staffSpace;
+    }
+    int priorBeats = 0;
+    for (var chord in songMoment.measure.chords) {
+      if (priorBeats == beat) {
+        _renderText(ChordComponent.values[(chord.slashScaleNote ?? chord.scaleChord.scaleNote).halfStep].toString(),
+            fontSize: _chordFontSize);
+        dx += staffSpace;
+        break;
+      }
+      priorBeats += chord.beats;
+    }
+  }
+}
+
+class SheetBassNotesTextNotation extends SheetTextNotation {
+  SheetBassNotesTextNotation(SheetDisplay sheetDisplay,
+      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
+      : super(sheetDisplay,
+            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+
+  @override
+  void drawBeat(SongMoment songMoment, int beat) {
+    if (beat == 0) {
+      dx += staffSpace;
+    }
+    int priorBeats = 0;
+    for (var chord in songMoment.measure.chords) {
+      if (priorBeats == beat) {
+        _renderText(
+            Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch).toString(),
+            fontSize: _chordFontSize);
+        dx += staffSpace;
+        break;
+      }
+      priorBeats += chord.beats;
     }
   }
 }
@@ -528,72 +578,73 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
     int beats = chord.beats;
     int beatsPerBar = chord.beatsPerBar;
 
-    //  fixme: fill in the time signature with something other than common time
+    _xSpace(1.25 * staffSpace);
 
-    {
-      _xSpace(1.25 * staffSpace);
-
+    if (chord.scaleChord.scaleNote.isSilent) {
+      //  render the rest
+      _renderSheetFixedYSymbol(sheetNoteRest(
+        beats / beatsPerBar,
+      ));
+    } else {
       //  chord declaration over treble staff
-      {
-        List<Pitch> pitches = chord.pianoChordPitches();
-        List<bool> chordAccidentals = [];
-        bool hasAccidentals = false;
-        int upCount = 0;
-        int downCount = 0;
-        for (var pitch in pitches) {
-          //  find if this staff position has had an accidental in this measure
-          double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
-          Accidental? accidental = _chordMeasureAccidentals[staffPosition]; // prior notes in the measure
-          if (accidental != null) {
-            //  there was a prior note at this staff position
-            accidental = (pitch.accidental == accidental)
-                ? null //               do/show nothing if it's the same as a prior note
-                : pitch.accidental; //  insist on the pitch's accidental being shown
-          } else {
-            //  give the key an opportunity to call for an accidental if the pitch doesn't match the key's scale
-            accidental = _key.accidental(pitch); //  this will be null on a pitch match to the key scale
-          }
-          if (accidental != null) {
-            //  remember the prior accidental for this staff position for this measure
-            _chordMeasureAccidentals[staffPosition] = accidental;
-            hasAccidentals = true;
-          }
-          chordAccidentals.add((accidental != null));
-
-          //  vote for up/down direction
-          if (isUpNote(_clef, pitch)) {
-            upCount++;
-          } else {
-            downCount++;
-          }
+      List<Pitch> pitches = chord.pianoChordPitches();
+      List<bool> chordAccidentals = [];
+      bool hasAccidentals = false;
+      int upCount = 0;
+      int downCount = 0;
+      for (var pitch in pitches) {
+        //  find if this staff position has had an accidental in this measure
+        double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
+        Accidental? accidental = _chordMeasureAccidentals[staffPosition]; // prior notes in the measure
+        if (accidental != null) {
+          //  there was a prior note at this staff position
+          accidental = (pitch.accidental == accidental)
+              ? null //               do/show nothing if it's the same as a prior note
+              : pitch.accidental; //  insist on the pitch's accidental being shown
+        } else {
+          //  give the key an opportunity to call for an accidental if the pitch doesn't match the key's scale
+          accidental = _key.accidental(pitch); //  this will be null on a pitch match to the key scale
         }
-        bool isUpChord = (upCount > downCount);
-        double originalDx = dx;
-        double rootDx = dx + (hasAccidentals ? (1 + _SheetStaffNotation._accidentalStaffSpace) * staffSpace : 0);
-        logger.d('${chord.scaleChord}: $pitches, acc?: $hasAccidentals');
-        int chordPitchIndex = 0;
-        for (var pitch in pitches) {
-          logger.d('    pitch: $pitch');
-          SheetNote sheetNote = SheetNote.note(
-            _clef,
-            pitch,
-            beats / beatsPerBar,
-            makeUpNote: isUpChord,
-          );
-          dx = chordAccidentals[chordPitchIndex] ? originalDx : rootDx;
-          if (!identical(pitch, pitches.last)) {
-            _renderSheetNote(
-              sheetNote,
-              renderForward: false,
-            );
-          } else {
-            _renderSheetNote(sheetNote, renderForward: true);
-          }
-          chordPitchIndex++;
+        if (accidental != null) {
+          //  remember the prior accidental for this staff position for this measure
+          _chordMeasureAccidentals[staffPosition] = accidental;
+          hasAccidentals = true;
         }
+        chordAccidentals.add((accidental != null));
 
-        _xSpace(1.25 * staffSpace);
+        //  vote for up/down direction
+        if (isUpNote(_clef, pitch)) {
+          upCount++;
+        } else {
+          downCount++;
+        }
       }
+      bool isUpChord = (upCount > downCount);
+      double originalDx = dx;
+      double rootDx = dx + (hasAccidentals ? (1 + _SheetStaffNotation._accidentalStaffSpace) * staffSpace : 0);
+      logger.d('${chord.scaleChord}: $pitches, acc?: $hasAccidentals');
+      int chordPitchIndex = 0;
+      for (var pitch in pitches) {
+        logger.d('    pitch: $pitch');
+        SheetNote sheetNote = SheetNote.note(
+          _clef,
+          pitch,
+          beats / beatsPerBar,
+          makeUpNote: isUpChord,
+        );
+        dx = chordAccidentals[chordPitchIndex] ? originalDx : rootDx;
+        if (!identical(pitch, pitches.last)) {
+          _renderSheetNote(
+            sheetNote,
+            renderForward: false,
+          );
+        } else {
+          _renderSheetNote(sheetNote, renderForward: true);
+        }
+        chordPitchIndex++;
+      }
+
+      _xSpace(1.25 * staffSpace);
     }
   }
 }
@@ -611,12 +662,19 @@ class SheetBass8vbStaffNotation extends _SheetStaffNotation {
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
-        SheetNote sn = SheetNote.note(
-            _clef,
-            Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch),
-            chord.beats / chord.beatsPerBar);
-        _renderSheetNote(sn);
-        dx += staffSpace;
+        if (chord.scaleChord.scaleNote.isSilent) {
+          //  render the rest
+          _renderSheetFixedYSymbol(sheetNoteRest(
+            chord.beats / chord.beatsPerBar,
+          ));
+        } else {
+          SheetNote sn = SheetNote.note(
+              _clef,
+              Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch),
+              chord.beats / chord.beatsPerBar);
+          _renderSheetNote(sn);
+          dx += staffSpace;
+        }
         break;
       }
       priorBeats += chord.beats;

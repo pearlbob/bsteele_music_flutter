@@ -94,7 +94,7 @@ class _State extends State<Detail> {
     });
 
     _key = _app.selectedSong.key;
-    logger.i('key: $_key');
+    logger.d('key: $_key');
 
     for (var sheetDisplay in _appOptions.sheetDisplays) {
       sheetDisplayEnables[sheetDisplay.index] = true;

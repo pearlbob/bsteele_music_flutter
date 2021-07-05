@@ -222,9 +222,8 @@ class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
           //  do nothing
         } else {
           ScaleNote sn = chord.slashScaleNote ?? chord.scaleChord.scaleNote;
-          var halfStep = ( sn.halfStep - chord.scaleChord.scaleNote.halfStep ) % MusicConstants.halfStepsPerOctave;
-          _renderText(ChordComponent.values[halfStep].toString(),
-              fontSize: _chordFontSize);
+          var halfStep = (sn.halfStep - chord.scaleChord.scaleNote.halfStep) % MusicConstants.halfStepsPerOctave;
+          _renderText(ChordComponent.values[halfStep].toString(), fontSize: _chordFontSize);
           dx += staffSpace;
         }
         break;
@@ -339,13 +338,18 @@ class _SheetStaffNotation extends SheetNotation {
     SheetNote sn, {
     bool renderForward = true,
     double scale = 1.0,
+    double? accidentalDx,
+    double? rootDx,
   }) {
     if (sn.pitch == null) {
       throw 'pitch not found: ${sn.pitch}';
     }
-    //  accidental
+
     Pitch? pitch = _key.mappedPitch(sn.pitch!);
     double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
+
+    double _accidentalDx = accidentalDx ?? dx;
+    double _rootDx = rootDx ?? dx;
 
     logger.v('_measureAccidentals[$staffPosition]: ${_measureAccidentals[staffPosition]}');
     logger.v('_key.getMajorScaleByNote(${pitch.scaleNumber}): ${_key.getMajorScaleByNote(pitch.scaleNumber)}');
@@ -368,8 +372,10 @@ class _SheetStaffNotation extends SheetNotation {
     Rect? accidentalRect;
     if (accidental != null) {
       accidentalRect = _renderSheetNoteSymbol(_accidentalSheetNoteSymbol(accidental), staffPosition,
-          scale: scale, renderForward: false);
-      _xSpace((1 + _accidentalStaffSpace) * staffSpace * scale);
+          scale: scale, renderForward: false, x: _accidentalDx);
+      if( rootDx == null ) {
+        _rootDx +=   _accidentalStaffSpace * staffSpace * scale;
+      }
       if (_debug) {
         _canvas.drawRect(accidentalRect, _transGrey);
       }
@@ -380,7 +386,7 @@ class _SheetStaffNotation extends SheetNotation {
 
     logger.d('_measureAccidentals[  $staffPosition  ] = ${_measureAccidentals[staffPosition]} ');
 
-    var rect = _renderSheetNoteSymbol(sn.symbol, staffPosition, renderForward: renderForward, scale: scale);
+    var rect = _renderSheetNoteSymbol(sn.symbol, staffPosition, renderForward: renderForward, scale: scale, x: _rootDx);
     if (accidentalRect != null) {
       rect = rect.expandToInclude(accidentalRect);
     }
@@ -398,17 +404,20 @@ class _SheetStaffNotation extends SheetNotation {
     bool isStave = true,
     bool renderForward = true,
     double scale = 1.0,
+    double? x,
   }) {
     final double scaledStaffSpace = staffSpace * scale;
     final double w = symbol.fontSizeOnStaffs * scaledStaffSpace;
+
+    double _x = x ?? dx;
 
     var y = dy + preHeight;
     var yOff = symbol.fixedYOff * scaledStaffSpace;
     var yPos = activeHeight - staffPosition * scaledStaffSpace;
     Rect ret = Rect.fromLTRB(
-        dx + symbol.bounds.left * scaledStaffSpace,
+        _x + symbol.bounds.left * scaledStaffSpace,
         y + yOff - yPos + symbol.bounds.top * scaledStaffSpace,
-        dx + symbol.bounds.right * scaledStaffSpace,
+        _x + symbol.bounds.right * scaledStaffSpace,
         y + yOff - yPos + symbol.bounds.bottom * scaledStaffSpace);
 
     logger.d('${symbol.name} $staffPosition = $yPos'
@@ -531,7 +540,7 @@ class _SheetStaffNotation extends SheetNotation {
   final Map<double, Accidental> _chordMeasureAccidentals =
       {}; //  fixme: eliminate in favor of the above, _measureAccidentals
 
-  static const double _accidentalStaffSpace = 0.25;
+  static const double _accidentalStaffSpace = 1;
 }
 
 class SheetTrebleStaffNotation extends _SheetStaffNotation {
@@ -617,7 +626,7 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
       //  chord declaration over treble staff
       List<Pitch> pitches = chord.pianoChordPitches();
       List<bool> chordAccidentals = [];
-      bool hasAccidentals = false;
+      int accidentalCount = 0;
       int upCount = 0;
       int downCount = 0;
       for (var pitch in pitches) {
@@ -636,7 +645,7 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
         if (accidental != null) {
           //  remember the prior accidental for this staff position for this measure
           _chordMeasureAccidentals[staffPosition] = accidental;
-          hasAccidentals = true;
+          accidentalCount++;
         }
         chordAccidentals.add((accidental != null));
 
@@ -649,9 +658,10 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
       }
       bool isUpChord = (upCount > downCount);
       double originalDx = dx;
-      double rootDx = dx + (hasAccidentals ? (1 + _SheetStaffNotation._accidentalStaffSpace) * staffSpace : 0);
-      logger.d('${chord.scaleChord}: $pitches, acc?: $hasAccidentals');
+      double rootDx = dx + accidentalCount * _SheetStaffNotation._accidentalStaffSpace * staffSpace;
+      logger.d('${chord.scaleChord}: $pitches, acc?: $accidentalCount');
       int chordPitchIndex = 0;
+      int accidentalIndex = 0;
       for (var pitch in pitches) {
         logger.d('    pitch: $pitch');
         SheetNote sheetNote = SheetNote.note(
@@ -660,14 +670,29 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
           beats / beatsPerBar,
           makeUpNote: isUpChord,
         );
-        dx = chordAccidentals[chordPitchIndex] ? originalDx : rootDx;
+
+        logger.d('$chord: chordPitchIndex: $chordPitchIndex, acc: ${chordAccidentals[chordPitchIndex]}'
+            ', accidentalIndex: $accidentalIndex/$accidentalCount');
+        double accidentalDx = originalDx + accidentalIndex * _SheetStaffNotation._accidentalStaffSpace * staffSpace;
+        logger.d('   accidentalDx: $accidentalDx');
+        if (chordAccidentals[chordPitchIndex]) {
+          accidentalIndex++; //  for next time
+        }
+
         if (!identical(pitch, pitches.last)) {
           _renderSheetNote(
             sheetNote,
             renderForward: false,
+            accidentalDx: accidentalDx,
+            rootDx: rootDx,
           );
         } else {
-          _renderSheetNote(sheetNote, renderForward: true);
+          _renderSheetNote(
+            sheetNote,
+            renderForward: true,
+            accidentalDx: accidentalDx,
+            rootDx: rootDx,
+          );
         }
         chordPitchIndex++;
       }

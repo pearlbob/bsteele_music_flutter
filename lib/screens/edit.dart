@@ -2903,6 +2903,8 @@ class _Edit extends State<Edit> {
 
 
   _navigateToDetail(BuildContext context) async {
+    _app.selectedSong = _song;
+    _app.selectedMomentNumber = 0;
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Detail()),

@@ -306,7 +306,7 @@ class _Player extends State<Player> with RouteAware {
         }
       }
 
-      if (_bpmDropDownMenuList == null) {
+      {
         final int bpm = song.beatsPerMinute;
 
         //  assure entries are unique

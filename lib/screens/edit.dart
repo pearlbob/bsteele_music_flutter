@@ -66,7 +66,7 @@ List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 const Level _editLog = Level.debug;
 const Level _editEntry = Level.info;
-const Level _editKeyboard = Level.debug;
+const Level _editKeyboard = Level.info;
 
 ///   screen to edit a song
 class Edit extends StatefulWidget {
@@ -1494,6 +1494,8 @@ class _Edit extends State<Edit> {
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void _editOnKey(RawKeyEvent value) {
+
+    //  fixme: edit screen does not respond to escape after the detail screen
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
       logger.log(
@@ -1536,7 +1538,11 @@ class _Edit extends State<Edit> {
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         /// clear editing with the escape key
-        _performMeasureEntryCancel();
+        if (  _measureEntryIsClear && !(hasChangedFromOriginal || _lyricsEntries.hasChangedLines()) ){
+          Navigator.pop(context);
+        } else {
+          _performMeasureEntryCancel();
+        }
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         if (_selectedEditDataPoint != null) //  fixme: this is a poor workaround
         {

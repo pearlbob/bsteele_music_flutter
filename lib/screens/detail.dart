@@ -715,6 +715,8 @@ class _State extends State<Detail> {
         setState(() {
           bumpMeasureSelection(1);
         });
+      } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
+        Navigator.pop(context);
       }
     }
   }
@@ -867,16 +869,18 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  compute scale notes
-    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(_getChord().scaleChord.scaleNote.halfStep);
+    Chord chord = _getChord();//  fixme!!!!!!!!!!!!!!!!!!!
+    ScaleChord scaleChord = chord.scaleChord;
+    music_key.Key rootKey = music_key.Key.getKeyByHalfStep(chord.scaleChord.scaleNote.halfStep);
     var fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
       fretBoardNotes.add(_key.inKey(
-          _scaleChord.chordDescriptor.isMajor() ? rootKey.getMajorScaleByNote(n) : rootKey.getMinorScaleByNote(n)));
+          scaleChord.chordDescriptor.isMajor() ? rootKey.getMajorScaleByNote(n) : rootKey.getMinorScaleByNote(n)));
     }
 
-    fretBoardNotes.addAll(_scaleChord.chordNotes(rootKey));
+    fretBoardNotes.addAll(scaleChord.chordNotes(rootKey));
 
-    var chordComponents = _scaleChord.getChordComponents();
+    var chordComponents = scaleChord.getChordComponents();
     var bassHalfStepOffset = Pitch.get(PitchEnum.E1).scaleNote.halfStep;
 
     for (var fret = 0; fret <= 12; fret++) {

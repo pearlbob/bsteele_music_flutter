@@ -218,9 +218,15 @@ class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
-        _renderText(ChordComponent.values[(chord.slashScaleNote ?? chord.scaleChord.scaleNote).halfStep].toString(),
-            fontSize: _chordFontSize);
-        dx += staffSpace;
+        if (chord.scaleChord.scaleNote.isSilent) {
+          //  do nothing
+        } else {
+          ScaleNote sn = chord.slashScaleNote ?? chord.scaleChord.scaleNote;
+          var halfStep = ( sn.halfStep - chord.scaleChord.scaleNote.halfStep ) % MusicConstants.halfStepsPerOctave;
+          _renderText(ChordComponent.values[halfStep].toString(),
+              fontSize: _chordFontSize);
+          dx += staffSpace;
+        }
         break;
       }
       priorBeats += chord.beats;
@@ -242,10 +248,14 @@ class SheetBassNotesTextNotation extends SheetTextNotation {
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
-        _renderText(
-            Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch).toString(),
-            fontSize: _chordFontSize);
-        dx += staffSpace;
+        if (chord.scaleChord.scaleNote.isSilent) {
+          //  do nothing
+        } else {
+          Pitch p = Pitch.findPitch(chord.slashScaleNote ?? chord.scaleChord.scaleNote, Chord.minimumBassSlashPitch);
+          p = _key.isSharp ? p.asSharp() : p.asFlat();
+          _renderText(p.toString(), fontSize: _chordFontSize);
+          dx += staffSpace;
+        }
         break;
       }
       priorBeats += chord.beats;
@@ -264,6 +274,8 @@ class _SheetStaffNotation extends SheetNotation {
   @override
   void drawNotationStart() {
     super.drawNotationStart();
+
+    _clearAccidentals();
 
     _renderStaff();
     dx += 10; //fixme
@@ -509,6 +521,12 @@ class _SheetStaffNotation extends SheetNotation {
 
   final List<SheetNoteLocation> _sheetNoteLocations = [];
 
+  void _clearAccidentals() {
+    //  reset the accidental processing
+    _chordMeasureAccidentals.clear();
+    _measureAccidentals.clear();
+  }
+
   final Map<double, Accidental> _measureAccidentals = {};
   final Map<double, Accidental> _chordMeasureAccidentals =
       {}; //  fixme: eliminate in favor of the above, _measureAccidentals
@@ -523,6 +541,10 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
 
   @override
   void drawBeat(SongMoment songMoment, int beat) {
+    if (beat == 0) {
+      _clearAccidentals();
+    }
+
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
       if (priorBeats == beat) {
@@ -550,6 +572,14 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
 class SheetBassStaffNotation extends _SheetStaffNotation {
   SheetBassStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
       : super(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight, clef: Clef.bass);
+
+  @override
+  void drawBeat(SongMoment songMoment, int beat) {
+    if (beat == 0) {
+      _clearAccidentals();
+    }
+    // fixme: SheetBassStaffNotation
+  }
 }
 
 class SheetChordStaffNotation extends _SheetStaffNotation {
@@ -559,9 +589,7 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
   @override
   void drawBeat(SongMoment songMoment, int beat) {
     if (beat == 0) {
-      //  reset the accidental processing
-      _chordMeasureAccidentals.clear();
-      _measureAccidentals.clear();
+      _clearAccidentals();
     }
     int priorBeats = 0;
     for (var chord in songMoment.measure.chords) {
@@ -657,6 +685,7 @@ class SheetBass8vbStaffNotation extends _SheetStaffNotation {
   @override
   void drawBeat(SongMoment songMoment, int beat) {
     if (beat == 0) {
+      _clearAccidentals();
       dx += staffSpace;
     }
     int priorBeats = 0;

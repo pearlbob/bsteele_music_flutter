@@ -38,7 +38,7 @@ final _blackOutline = Paint()
 //   ..color = Colors.black38
 //   ..style = PaintingStyle.stroke
 //   ..strokeWidth = 1;
-final _stringGrey = Paint()..color = Colors.grey[400] ?? Colors.grey;
+
 final _dotColor = Paint()..color = Colors.blue[100] ?? Colors.blue;
 final _rootColor = Paint()..color = Colors.red;
 final _thirdColor = Paint()..color = const Color(0xffffb390);
@@ -51,7 +51,6 @@ Offset? _dragStart;
 Offset? _dragEnd;
 
 music_key.Key _key = music_key.Key.getDefault();
-ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
 
 bool get _isShowScaleNumbers => sheetDisplayEnables[SheetDisplay.bassNoteNumbers.index];
 
@@ -108,6 +107,7 @@ class _State extends State<Detail> {
       }
 
       if (!hasSomeDisplay) {
+        //  initial defaults only
         sheetDisplayEnables[SheetDisplay.section.index] = true;
         sheetDisplayEnables[SheetDisplay.measureCount.index] = true;
         sheetDisplayEnables[SheetDisplay.lyrics.index] = true;
@@ -247,7 +247,7 @@ class _State extends State<Detail> {
                       ),
                       Row(
                         children: [
-                          Container(
+                          SizedBox(
                             width: 12 * _fontSize,
                             child: Text(
                               'Chord: ${_getChord()}',
@@ -818,15 +818,16 @@ class _FretBoardPainter extends CustomPainter {
       var fretYmin = bassFretY + bassFretHeight / 16;
       var fretYmax = bassFretY + bassFretHeight - bassFretHeight / 16;
       for (var fret = 0; fret <= 12; fret++) {
-        _black.strokeWidth = fret == 0 ? 6 : 2;
+        _black.strokeWidth = fret == 0 ? 6.0 : 2.0;
         var x = fretLoc(fret);
         canvas.drawLine(Offset(x, fretYmin), Offset(x, fretYmax), _black);
       }
     }
 
     //  strings
+    final _stringGrey = Paint()..color = Colors.grey[400] ?? Colors.grey;
     for (var s = 0; s < 4; s++) {
-      _stringGrey.strokeWidth = (4 - s) * 2;
+      _stringGrey.strokeWidth = (4.0 - s) * 3.0;
 
       var y = bassFretY + bassFretHeight - bassFretHeight * s / 4 - bassFretHeight / 8;
       canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + bassScale, y), _stringGrey);
@@ -1009,13 +1010,13 @@ class _SheetMusicDragger extends CustomPainter {
     _dragEnd ??= _dragStart;
     Rect selectRect = Rect.fromPoints(_dragStart!, _dragEnd!);
 
-    // for (var sheetNoteLocation in sheetMusicPainter.sheetNoteLocations) {  fixme now
-    //   if (selectRect.overlaps(sheetNoteLocation.location)) {
-    //     var noteRect = sheetNoteLocation.location.inflate(_selectStrokeWidth);
-    //     canvas.drawRect(noteRect, _transBlueOutline);
-    //     selectRect = selectRect.expandToInclude(noteRect);
-    //   }
-    // }
+    for (var sheetNoteLocation in SheetNotationList.sheetNoteLocations) {
+      if (selectRect.overlaps(sheetNoteLocation.location)) {
+        var noteRect = sheetNoteLocation.location.inflate(_selectStrokeWidth);
+        canvas.drawRect(noteRect, _transBlueOutline);
+        selectRect = selectRect.expandToInclude(noteRect);
+      }
+    }
 
     canvas.drawRect(selectRect.inflate(2 * _selectStrokeWidth), _transBlueOutline);
   }

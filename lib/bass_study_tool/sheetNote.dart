@@ -89,6 +89,13 @@ class SheetNoteSymbol {
         staffPosition = staffPosition ?? 0,
         fontSizeOnStaffs = fontSizeOnStaffs ?? 4;
 
+  SheetNoteSymbol.fixed(final this._name, final this._character, final Point<double> bBoxNE, final Point<double> bBoxSW,
+      {double? staffPosition, double? fontSizeOnStaffs})
+      : bounds = Rect.fromLTRB(bBoxSW.x, -bBoxNE.y, bBoxNE.x, -bBoxSW.y),
+        staffPosition = staffPosition ?? 0,
+        fontSizeOnStaffs = fontSizeOnStaffs ?? 4,
+        isUp = false;
+
   String? get name => _name;
   final String? _name;
 
@@ -112,13 +119,6 @@ class SheetNoteSymbol {
   static const double _fixedYOff = 4;
 
   double get height => bounds.height;
-}
-
-class SheetNoteSymbolFixed extends SheetNoteSymbol {
-  SheetNoteSymbolFixed(String name, String character, Point<double> bBoxNE, Point<double> bBoxSW, double staffPosition,
-      {double? fontSizeStaffs})
-      : super.glyphBBoxes(name, character, bBoxNE, bBoxSW,
-            staffPosition: staffPosition, fontSizeOnStaffs: fontSizeStaffs);
 }
 
 //  notes
@@ -149,26 +149,32 @@ final note16thDown = SheetNoteSymbol.glyphBBoxes(
     isUp: false);
 
 //  rests
-final restWhole =
-    SheetNoteSymbolFixed('restWhole', '\uE4E3', GlyphBBoxesRestWhole.bBoxNE, GlyphBBoxesRestWhole.bBoxSW, 1);
-final restHalf = SheetNoteSymbolFixed('restHalf', '\uE4E4', GlyphBBoxesRestHalf.bBoxNE, GlyphBBoxesRestHalf.bBoxSW, 2);
-final restQuarter =
-    SheetNoteSymbolFixed('restQuarter', '\uE4E5', GlyphBBoxesRestQuarter.bBoxNE, GlyphBBoxesRestQuarter.bBoxSW, 2);
-final rest8th = SheetNoteSymbolFixed('rest8th', '\uE4E6', GlyphBBoxesRest8th.bBoxNE, GlyphBBoxesRest8th.bBoxSW, 2);
-final rest16th = SheetNoteSymbolFixed('rest16th', '\uE4E7', GlyphBBoxesRest16th.bBoxNE, GlyphBBoxesRest16th.bBoxSW, 2);
+final restWhole = SheetNoteSymbol.fixed('restWhole', '\uE4E3', GlyphBBoxesRestWhole.bBoxNE, GlyphBBoxesRestWhole.bBoxSW,
+    staffPosition: 1);
+final restHalf = SheetNoteSymbol.fixed('restHalf', '\uE4E4', GlyphBBoxesRestHalf.bBoxNE, GlyphBBoxesRestHalf.bBoxSW,
+    staffPosition: 2);
+final restQuarter = SheetNoteSymbol.fixed(
+    'restQuarter', '\uE4E5', GlyphBBoxesRestQuarter.bBoxNE, GlyphBBoxesRestQuarter.bBoxSW,
+    staffPosition: 2);
+final rest8th =
+    SheetNoteSymbol.fixed('rest8th', '\uE4E6', GlyphBBoxesRest8th.bBoxNE, GlyphBBoxesRest8th.bBoxSW, staffPosition: 2);
+final rest16th = SheetNoteSymbol.fixed('rest16th', '\uE4E7', GlyphBBoxesRest16th.bBoxNE, GlyphBBoxesRest16th.bBoxSW,
+    staffPosition: 2);
 
 //  markers
-final brace = SheetNoteSymbolFixed(
-    'brace', '\uE000', GlyphBBoxesBrace.bBoxNE, GlyphBBoxesBrace.bBoxSW, 2 * 4 + 2 * staffMargin,
-    fontSizeStaffs: 2 * 4 + 2 * staffMargin);
+final brace = SheetNoteSymbol.fixed('brace', '\uE000', GlyphBBoxesBrace.bBoxNE, GlyphBBoxesBrace.bBoxSW,
+    staffPosition: 2 * 4 + 2 * staffMargin, fontSizeOnStaffs: 2 * 4 + 2 * staffMargin);
 //final barlineSingle = SheetNoteSymbol.glyphBBoxes(
 //    'barlineSingle', '\uE030', GlyphBBoxesBarlineSingle.bBoxNE, GlyphBBoxesBarlineSingle.bBoxSW);
 final trebleClef //  i.e. gClef
-    = SheetNoteSymbolFixed('trebleClef', '\uE050', GlyphBBoxesGClef.bBoxNE, GlyphBBoxesGClef.bBoxSW, 4 - 1);
+    = SheetNoteSymbol.fixed('trebleClef', '\uE050', GlyphBBoxesGClef.bBoxNE, GlyphBBoxesGClef.bBoxSW,
+        staffPosition: 4 - 1);
 final bassClef //  i.e. fClef
-    = SheetNoteSymbolFixed('bassClef', '\uE062', GlyphBBoxesFClef.bBoxNE, GlyphBBoxesFClef.bBoxSW, 1.25);
+    =
+    SheetNoteSymbol.fixed('bassClef', '\uE062', GlyphBBoxesFClef.bBoxNE, GlyphBBoxesFClef.bBoxSW, staffPosition: 1.25);
 final bass8vbClef //  i.e. bass guitar fClef, F clef ottava bassa, fClef8vb
-    = SheetNoteSymbolFixed('bassClef', '\uE064', GlyphBBoxesFClef8vb.bBoxNE, GlyphBBoxesFClef8vb.bBoxSW, 1);
+    = SheetNoteSymbol.fixed('bassClef', '\uE064', GlyphBBoxesFClef8vb.bBoxNE, GlyphBBoxesFClef8vb.bBoxSW,
+        staffPosition: 1);
 
 //  accidentals
 final accidentalFlat = SheetNoteSymbol.glyphBBoxes(
@@ -215,28 +221,29 @@ final List<SheetNoteSymbol> timeSigs = [
   timeSig9,
 ];
 
-final timeSigCommon = SheetNoteSymbolFixed(
-    'timeSigCommon', '\uE08A', GlyphBBoxesTimeSigCommon.bBoxNE, GlyphBBoxesTimeSigCommon.bBoxSW, 2);
+final timeSigCommon = SheetNoteSymbol.fixed(
+    'timeSigCommon', '\uE08A', GlyphBBoxesTimeSigCommon.bBoxNE, GlyphBBoxesTimeSigCommon.bBoxSW,
+    staffPosition: 2);
 
-SheetNoteSymbolFixed sheetNoteRest(double _noteDuration) {
-  SheetNoteSymbolFixed symbol = restWhole; //  fixme!
-//  find rest symbol by value, in units of measure
-  if (_noteDuration == 1) {
-    symbol = restWhole;
-  } else if (_noteDuration == 1 / 2) {
-    symbol = restHalf;
-  } else if (_noteDuration == 1 / 4) {
-    symbol = restQuarter;
-  } else if (_noteDuration == 1 / 8) {
-    symbol = rest8th;
-  } else if (_noteDuration == 1 / 16) {
-    symbol = rest16th;
-  } else {
-    symbol = restWhole; //  fixme!
-    logger.w('rest duration is not legal: $_noteDuration');
-  }
-  return symbol;
-}
+// SheetNoteSymbol.fixed sheetNoteRest(double _noteDuration) {
+//   SheetNoteSymbol.fixed symbol = restWhole; //  fixme!
+// //  find rest symbol by value, in units of measure
+//   if (_noteDuration == 1) {
+//     symbol = restWhole;
+//   } else if (_noteDuration == 1 / 2) {
+//     symbol = restHalf;
+//   } else if (_noteDuration == 1 / 4) {
+//     symbol = restQuarter;
+//   } else if (_noteDuration == 1 / 8) {
+//     symbol = rest8th;
+//   } else if (_noteDuration == 1 / 16) {
+//     symbol = rest16th;
+//   } else {
+//     symbol = restWhole; //  fixme!
+//     logger.w('rest duration is not legal: $_noteDuration');
+//   }
+//   return symbol;
+// }
 
 class SheetNote {
   SheetNote.note(this._clef, this._pitch, this._noteDuration,
@@ -273,7 +280,7 @@ class SheetNote {
     }
   }
 
-  SheetNote.rest(this._clef, this._noteDuration, {String? lyrics, Clef? clef})
+  SheetNote.rest(this._clef, this._noteDuration, {String? lyrics})
       : _isNote = false,
         _lyrics = lyrics {
     //  find rest symbol by value, in units of measure

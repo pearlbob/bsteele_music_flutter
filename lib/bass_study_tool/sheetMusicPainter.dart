@@ -15,12 +15,9 @@ const double staffLineThickness = EngravingDefaults.staffLineThickness / 2; //  
 
 // For piano chords, try:  https://www.scales-chords.com/chord/piano
 
-class SheetMusicPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    _canvas = canvas;
-
-    _sheetNotations = List.generate(SheetDisplay.values.length, (index) {
+class SheetNotationList {
+  static List<SheetNotation> get sheetNotations {
+    _sheetNotations ??= List.generate(SheetDisplay.values.length, (index) {
       const staffHeight = (staffLineCount - 1) * staffSpace;
       const staffMarginHeight = staffMargin * staffSpace;
       SheetDisplay display = SheetDisplay.values[index];
@@ -60,6 +57,30 @@ class SheetMusicPainter extends CustomPainter {
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
       }
     }, growable: false);
+
+    return _sheetNotations!;
+  }
+
+  static List<SheetNoteLocation> get sheetNoteLocations {
+    List<SheetNoteLocation> ret = [];
+    if (hasDisplay(SheetDisplay.bass8vb)) {
+      List<SheetNoteLocation> sheetNoteLocations = sheetNotations[SheetDisplay.bass8vb.index].sheetNoteLocations;
+      if (sheetNoteLocations.isNotEmpty) {
+        ret.addAll(sheetNoteLocations);
+      }
+    }
+    return ret;
+  }
+
+  static List<SheetNotation>? _sheetNotations;
+}
+
+class SheetMusicPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    _canvas = canvas;
+
+    _sheetNotations = SheetNotationList.sheetNotations;
 
     _computeTheYOffsets();
 
@@ -107,162 +128,6 @@ class SheetMusicPainter extends CustomPainter {
       }
       _renderBarlineSingle();
     }
-
-    // _testSong();
-    // if (hasDisplay(SheetDisplay.pianoChords)) {
-    //   _testChords();
-    // }
-//    {
-//      //  hand rendering
-//      _yOff = _yOffTreble;
-//      renderSheetNoteSymbol(accidentalSharp, 0);
-//      _yOff = _yOffBass;
-//      _xOff += renderSheetNoteSymbol(accidentalSharp, 1);
-//
-//      _xOff += 1 * staffSpace;
-//      _yOff = _yOffBass;
-//
-//      double staffPosition = staffGaps;
-//      renderSheetNoteSymbol(timeSig4, staffPosition - 3);
-//      renderSheetNoteSymbol(timeSig4, staffPosition - 1);
-//
-//      _yOff = _yOffTreble;
-//      renderSheetNoteSymbol(timeSigCommon, 2);
-//      _yOff = _yOffBass;
-//
-//      _xOff += 3 * staffSpace;
-//
-//      double xOffBass = _xOff;
-//      double xOffTreble = _xOff;
-//
-//      //  treble note samples
-//      _yOff = _yOffTreble;
-//
-//      //  beat 1
-//      renderSheetNoteSymbol(noteQuarterUp, 4);
-//      renderSheetNoteSymbol(noteQuarterUp, 3);
-//      _xOff += renderSheetNoteSymbol(noteQuarterUp, 2);
-//      _xOff += 3 * staffSpace;
-//
-//      //  beat 2
-//      {
-//        double firstChordRoot = 2;
-//        double secondChordRoot = 2.5;
-//
-//        //  barred note sample
-//        double firstX = _xOff + (noteQuarterUp.bounds.right - EngravingDefaults.stemThickness) * staffSpace;
-//        double secondX = _xOff + (noteQuarterUp.bounds.width + 1 + noteQuarterUp.bounds.right) * staffSpace;
-//        double firstY = _yOff + (firstChordRoot - GlyphBBoxesStem.bBoxNE.y) * staffSpace;
-//        double secondY = _yOff + (secondChordRoot - GlyphBBoxesStem.bBoxNE.y) * staffSpace;
-//
-//        Path path = Path();
-//        path.moveTo(firstX, firstY);
-//        path.lineTo(firstX, firstY + EngravingDefaults.beamThickness * staffSpace);
-//        path.lineTo(secondX, secondY + EngravingDefaults.beamThickness * staffSpace);
-//        path.lineTo(secondX, secondY);
-//        path.lineTo(firstX, firstY);
-//
-//        canvas.drawPath(path, _blackFill);
-//
-//        renderSheetNoteSymbol(noteQuarterUp, firstChordRoot + 2);
-//        renderSheetNoteSymbol(noteQuarterUp, firstChordRoot + 1);
-//        _xOff += renderSheetNoteSymbol(noteQuarterUp, firstChordRoot);
-//        _xOff += 1 * staffSpace;
-//
-//        renderSheetNoteSymbol(noteQuarterUp, secondChordRoot + 2);
-//        renderSheetNoteSymbol(noteQuarterUp, secondChordRoot + 1);
-//        _xOff += renderSheetNoteSymbol(noteQuarterUp, secondChordRoot);
-//        _xOff += 3 * staffSpace;
-//      }
-//
-//      //  beat 3
-//      renderSheetNoteSymbol(noteQuarterUp, 4.5);
-//      renderSheetNoteSymbol(noteQuarterUp, 3.5);
-//      _xOff += renderSheetNoteSymbol(note8thUp, 2.5);
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderSheetFixedYSymbol(rest8th);
-//      _xOff += 3 * staffSpace;
-//
-//      //  beat 4
-//      _xOff += renderSheetFixedYSymbol(restQuarter);
-//      _xOff += 3 * staffSpace;
-//
-//      xOffTreble = _xOff;
-//
-//      //  bass note samples
-//      _xOff = xOffBass;
-//      _yOff = _yOffBass;
-//
-//      {
-//        //  barred note sample
-//        double minX = _xOff + (noteQuarterUp.bounds.right - EngravingDefaults.stemThickness) * staffSpace;
-//        double maxX = _xOff + (noteQuarterUp.bounds.width + 1 + noteQuarterUp.bounds.right) * staffSpace;
-//        double minY = _yOff + (staffPosition - GlyphBBoxesStem.bBoxNE.y - EngravingDefaults.stemThickness) * staffSpace;
-//        double maxY = _yOff +
-//            (staffPosition -
-//                    GlyphBBoxesStem.bBoxNE.y -
-//                    EngravingDefaults.stemThickness +
-//                    EngravingDefaults.beamThickness) *
-//                staffSpace;
-//
-//        Path path = Path();
-//        path.moveTo(minX, minY);
-//        path.lineTo(maxX, minY - 1 * staffSpace);
-//        path.lineTo(maxX, maxY - 1 * staffSpace);
-//        path.lineTo(minX, maxY);
-//        path.lineTo(minX, minY);
-//
-//        canvas.drawPath(path, _blackFill);
-//
-//        _xOff += renderSheetNoteSymbol(noteQuarterUp, staffPosition);
-//        _xOff += 1 * staffSpace;
-//
-//        _xOff += renderSheetNoteSymbol(noteQuarterUp, staffPosition - 1);
-//        _xOff += 1 * staffSpace;
-//      }
-//
-//      staffPosition = 0.0;
-//
-//      _xOff += renderSheetNoteSymbol(noteQuarterDown, staffPosition - 1.5);
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderSheetNoteSymbol(noteHalfDown, staffPosition + 1);
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff = max(_xOff, xOffTreble);
-//
-//      _xOff += renderBarlineSingle();
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderSheetNoteSymbol(noteWhole, staffPosition + 4);
-//      _xOff += 1 * staffSpace;
-//      _xOff += renderBarlineSingle();
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderSheetNoteSymbol(noteWhole, staffPosition + 5);
-//
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderBarlineSingle();
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderSheetNoteSymbol(noteHalfUp, staffPosition + 2.5);
-//      _xOff += 1 * staffSpace;
-//      _xOff += renderSheetNoteSymbol(noteQuarterUp, staffPosition + 2);
-//      _xOff += 0.25 * staffSpace;
-//      _xOff += renderSheetNoteSymbol(augmentationDot, staffPosition + 2);
-//
-//      _xOff += 1 * staffSpace;
-//      _xOff += renderSheetNoteSymbol(note8thDown, staffPosition);
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderBarlineSingle();
-//      _xOff += 1 * staffSpace;
-//
-//      _xOff += renderSheetFixedYSymbol(restQuarter);
-//      _xOff += 1 * staffSpace;
-//
   }
 
   @override
@@ -363,16 +228,6 @@ class SheetMusicPainter extends CustomPainter {
     _xSpaceAll(width);
   }
 
-// Accidental _accidentalFromPitch(Pitch pitch) {
-//   if (pitch.isSharp) {
-//     return Accidental.sharp;
-//   }
-//   if (pitch.isFlat) {
-//     return Accidental.flat;
-//   }
-//   return Accidental.natural;
-// }
-
   void _reset() {
     for (var display in SheetDisplay.values) {
       _sheetNotations[display.index].reset();
@@ -401,16 +256,9 @@ class SheetMusicPainter extends CustomPainter {
   // cache for a single measure
   late Canvas _canvas;
 
-  late List<SheetNotation> _sheetNotations;
+  List<SheetNotation> _sheetNotations = [];
 
   final App _app = App();
-}
-
-class SheetNoteLocation {
-  SheetNoteLocation(this.sheetNote, this.location);
-
-  SheetNote sheetNote;
-  Rect location;
 }
 
 final _white = Paint()..color = Colors.white;

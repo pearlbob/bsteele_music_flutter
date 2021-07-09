@@ -191,6 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
         SongMetadata.clear();
         SongMetadata.fromJson(songMetadataAsString);
         logger.i("internal song metadata used");
+        setState(() {});
       } catch (fe) {
         logger.i("internal song metadata parse error: " + fe.toString());
       }
@@ -238,6 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
         SongMetadata.clear();
         SongMetadata.fromJson(metadataAsString);
         logger.i("external song metadata read from: " + url);
+        setState(() {});
       } catch (fe) {
         logger.i("external song metadata parse error: " + fe.toString());
       }
@@ -324,10 +326,11 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.d('_filteredSongs.length: ${_filteredSongs.length}');
     for (final Song song in (_filteredSongs)) {
       oddEven = !oddEven;
+      var key = ValueKey<String>(song.songId.toString());
       logger.v('song.songId: ${song.songId}');
       listViewChildren.add(GestureDetector(
+        key: key,
         child: Container(
-          key: ValueKey(song.songId.toString()),
           color: oddEven ? Colors.white : Colors.grey[100],
           padding: const EdgeInsets.all(8.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
@@ -374,51 +377,44 @@ class _MyHomePageState extends State<MyHomePage> {
           ]),
         ),
         onTap: () {
+          widgetLog(key);
           _navigateToPlayer(context, song);
         },
       ));
     }
 
-    // if (metadataDropDownMenuList == null) {
-    //   metadataDropDownMenuList = [
-    //     DropdownMenuItem<SongIdMetadata>(
-    //       value: SongIdMetadata('CJ Ranking: best'),
-    //       child: Text('CJ Ranking: best'),
-    //       onTap: () {
-    //         logger.d('choose best');
-    //         setState(() {
-    //           _cjRanking = CjRankingEnum.best;
-    //           _refilterSongs();
-    //         });
-    //       },
-    //     ),
-    //     DropdownMenuItem<SongIdMetadata>(
-    //       value: SongIdMetadata('CJ Ranking: good'),
-    //       child: Text('CJ Ranking: good'),
-    //       onTap: () {
-    //         logger.d('choose good');
-    //         setState(() {
-    //           _cjRanking = CjRankingEnum.good;
-    //           _refilterSongs();
-    //         });
-    //       },
-    //     ),
-    //     DropdownMenuItem<SongIdMetadata>(
-    //       value: SongIdMetadata('CJ Ranking: all'),
-    //       child: Text('CJ Ranking: all'),
-    //       onTap: () {
-    //         logger.d('choose all');
-    //         setState(() {
-    //           _cjRanking = null;
-    //           _refilterSongs();
-    //         });
-    //       },
-    //     ),
-    //   ];
-    // }
+    List<DropdownMenuItem<NameValue>> _metadataDropDownMenuList = [];
+    {
+      SplayTreeSet<NameValue> nameValues = SplayTreeSet();
+      nameValues.add(_allSongsNameValue);
+      for (var songIdMetadata in SongMetadata.idMetadata) {
+        for (var nameValue in songIdMetadata.nameValues) {
+          nameValues.add(nameValue);
+        }
+      }
+      for (var nameValue in nameValues) {
+        if ( nameValue.name == 'christmas'){
+          continue;
+        }
+        _metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
+          value: nameValue,
+          child: Text('${nameValue.name}: ${nameValue.value}'),
+          onTap: () {
+            setState(() {
+              _selectedListNameValue = nameValue;
+              _refilterSongs();
+            });
+          },
+        ));
+      }
+    }
+
+    var _aboutKey = const ValueKey<String>('About');
+    var _clearSearchKey = const ValueKey<String>('clearSearch');
 
     return Scaffold(
       appBar: AppBar(
+        key: const ValueKey('hamburger'),
         title: Text(
           widget.title,
           style: AppTextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
@@ -459,7 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ],
-        toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.5), //  trim for cell phone overrun
+        toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
       ),
 
       drawer: Drawer(
@@ -489,7 +485,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
 
-             if (!_app.screenInfo.isTooNarrow)
+            if (!_app.screenInfo.isTooNarrow)
               ListTile(
                 title: Text(
                   "Theory",
@@ -519,12 +515,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
+              key: _aboutKey,
               title: Text(
-                "About",
+                _aboutKey.value,
                 style: _navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
+                widgetLog(_aboutKey);
                 _navigateToAbout(context);
               },
             ),
@@ -545,8 +543,8 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             }),
           ),
-          Expanded(
-            flex: 1,
+          SizedBox(
+            width: 15 * _titleBarFontSize,
             //  limit text entry display length
             child: TextField(
               key: const ValueKey('searchText'),
@@ -568,10 +566,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           IconButton(
+            key: _clearSearchKey,
             icon: const Icon(Icons.clear),
             tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
             iconSize: 1.5 * fontSize,
             onPressed: (() {
+              widgetLog(_clearSearchKey);
               _searchTextFieldController.clear();
               setState(() {
                 FocusScope.of(context).requestFocus(_searchFocusNode);
@@ -582,21 +582,37 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(
             width: 5,
           ),
-          Expanded(
-            flex: 1,
-            child: DropdownButton<_SortType>(
-              items: _sortTypesDropDownMenuList,
-              onChanged: (value) {
-                if (_selectedSortType != value) {
-                  setState(() {
-                    _selectedSortType = value ?? _SortType.byTitle;
-                    _searchSongs(_searchTextFieldController.text);
-                  });
-                }
-              },
-              value: _selectedSortType,
-              style: titleTextStyle,
-            ),
+          Text(
+            'Order ',
+            style: searchDropDownStyle,
+          ),
+          DropdownButton<_SortType>(
+            items: _sortTypesDropDownMenuList,
+            onChanged: (value) {
+              if (_selectedSortType != value) {
+                setState(() {
+                  _selectedSortType = value ?? _SortType.byTitle;
+                  _searchSongs(_searchTextFieldController.text);
+                });
+              }
+            },
+            value: _selectedSortType,
+            style: titleTextStyle,
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Text(
+            'List ',
+            style: searchDropDownStyle,
+          ),
+          DropdownButton<NameValue>(
+            items: _metadataDropDownMenuList,
+            onChanged: (value) {
+              logger.i('metadataDropDownMenuList selection: $value');
+            },
+            value: _selectedListNameValue ?? _allSongsNameValue,
+            style: searchDropDownStyle,
           ),
         ]),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
@@ -724,22 +740,15 @@ class _MyHomePageState extends State<MyHomePage> {
           continue;
         }
 
-        // //  otherwise try some other qualification
-        // if (_cjRanking != null) {
-        //   //  insist on a cj ranking
-        //   NameValue nv = SongMetadata.songMetadataAt(song.songId.songId, 'cj');
-        //   if (nv == null) {
-        //     //  toss if not found
-        //     continue;
-        //   }
-        //   CjRankingEnum ranking = nv.value.toCjRankingEnum();
-        //   if (ranking != null && ranking.index >= _cjRanking.index)
-        //     //  ranking is good
-        //     _filteredSongs.add(song);
-        //
-        //   //  toss if not good enough for cj
-        //   continue;
-        // }
+        //  otherwise try some other qualification
+        if (_selectedListNameValue != null && _selectedListNameValue != _allSongsNameValue) {
+          //  insist on a ranking
+          NameValue? nv = SongMetadata.songMetadataAt(song.songId.songId, _selectedListNameValue!.name);
+          if (nv == null || nv.value != _selectedListNameValue!.value) {
+            //  toss if not found
+            continue;
+          }
+        }
 
         //  not filtered
         _filteredSongs.add(song);
@@ -867,17 +876,48 @@ class _MyHomePageState extends State<MyHomePage> {
     _selectSearchText(context);
   }
 
+  // void _listMetadata() {
+  //   logger.i('_listMetadata():');
+  //   SplayTreeSet<String> names = SplayTreeSet();
+  //   for (var songIdMetadata in SongMetadata.idMetadata) {
+  //     for (var nameValue in songIdMetadata.nameValues) {
+  //       names.add(nameValue.name);
+  //     }
+  //   }
+  //   for (var name in names) {
+  //     logger.i('   $name:');
+  //     SplayTreeSet<String> values = SplayTreeSet();
+  //
+  //     for (var songIdMetadata in SongMetadata.where(nameIsLike: name)) {
+  //       for (var nameValue in songIdMetadata.where((nv) {
+  //         return nv.name == name;
+  //       })) {
+  //         values.add(nameValue.value);
+  //       }
+  //     }
+  //     for (var value in values) {
+  //       logger.i('     $value');
+  //       for (var songIdMetadata in SongMetadata.where(nameIsLike: name, valueIsLike: value)) {
+  //         logger.i('          ${songIdMetadata.id}');
+  //       }
+  //     }
+  //   }
+  // }
+
   final List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = _SortType.byTitle;
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode;
+  NameValue? _selectedListNameValue;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   final Duration _itemScrollDuration = const Duration(milliseconds: 500);
   int _rollIndex = -1;
 
   late AppOptions _appOptions;
+
+  static const NameValue _allSongsNameValue = NameValue('all', '');
 
   final _random = Random();
   static final RegExp holidayRexExp = RegExp('christmas', caseSensitive: false);

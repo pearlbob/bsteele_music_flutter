@@ -114,14 +114,17 @@ class SheetMusicPainter extends CustomPainter {
       if (_app.selectedMomentNumber > sm.momentNumber) {
         continue; //  fixme: optimization?
       }
-      for (int beat = 0; beat < sm.measure.beatCount; beat++) {
+      const beatResolution = 1/16;  //  fixme: is this the best way to do this?
+      for (double beat = 0; beat < sm.measure.beatCount; beat+= beatResolution) {
         for (var display in SheetDisplay.values) {
           if (hasDisplay(display)) {
             _sheetNotations[display.index].drawBeat(sm, beat);
           }
         }
 
-        if (_xSpaceAll(0.5 * staffSpace) >= size.width) {
+        //  align all displays
+        if (_xAlign() >= size.width) {
+          //  don't bother if we're past the end of the window
           logger.d('last moment: ${sm.momentNumber}');
           break momentLoop;
         }
@@ -249,8 +252,8 @@ class SheetMusicPainter extends CustomPainter {
   }
 
   /// align all clefs to the current maximum of the clefs
-  void _xAlign() {
-    _xSpaceAll(0);
+  double _xAlign() {
+    return _xSpaceAll(0);
   }
 
   // cache for a single measure

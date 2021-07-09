@@ -40,11 +40,11 @@ class _Songs extends State<Songs> {
         ),
         centerTitle: true,
       ),
-      body: Container(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
-        child: Wrap(
-            direction: Axis.vertical, // make sure to set this
-            spacing: 36,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               ElevatedButton(
                 child: Text(
@@ -57,6 +57,9 @@ class _Songs extends State<Songs> {
                   });
                 },
               ),
+              const SizedBox(
+                height: 20,
+              ),
               ElevatedButton(
                 child: Text(
                   'Write songs all to $fileLocation',
@@ -65,6 +68,9 @@ class _Songs extends State<Songs> {
                 onPressed: () {
                   _writeAll();
                 },
+              ),
+              const SizedBox(
+                height: 20,
               ),
               ElevatedButton(
                 child: Text(
@@ -125,5 +131,5 @@ class _Songs extends State<Songs> {
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
   String? _message;
-  final  App _app = App();
+  final App _app = App();
 }

@@ -41,6 +41,7 @@ App _app = App();
 bool _isCapo = false;
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
+SongUpdate? _lastSongUpdate;
 music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
 const _centerSelections = true; //fixme: add later!
@@ -60,6 +61,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   _player?._songUpdateService.isLeader = false;
 
   _songUpdate = songUpdate;
+  _lastSongUpdate = null;
   _player?._bpmDropDownMenuList = null; //  fixme!!!!!!!!  used to ensure the new value is in the list
   _player?._setSelectedSongKey(songUpdate.currentKey);
 
@@ -349,7 +351,7 @@ class _Player extends State<Player> with RouteAware {
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
-    final showTopOfDisplay = !_isPlaying || (_songUpdate?.momentNumber ?? 0) <= 0;
+    final showTopOfDisplay = !_isPlaying; // || _sectionTarget == 0 || (_songUpdate?.momentNumber ?? 1) <= 0;
     logger.log(
         _playerLogScroll,
         'showTopOfDisplay: $showTopOfDisplay,'
@@ -636,6 +638,11 @@ With escape, the app goes back to the play list.''',
                 }
               },
             ),
+            if (_isPlaying && _isCapo)
+              Text(
+                'Capo ${_capoLocation == 0 ? 'off' : 'on $_capoLocation'}',
+                style: _lyricsTextStyle,
+              ),
           ],
         ),
       ),
@@ -753,9 +760,7 @@ With escape, the app goes back to the play list.''',
     if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
       double target =
           _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
-      if (_scrollController.offset != target) {
-        _sectionTarget = target;
-        _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
+      if (_targetSection(target)) {
         logger.log(_playerLogScroll,
             '_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
       }
@@ -779,15 +784,24 @@ With escape, the app goes back to the play list.''',
       index = Util.limit(index + bump, 0, _sectionLocations!.length - 1) as int;
       var target = _sectionLocations![index];
 
-      if (_sectionTarget != target) {
-        _sectionTarget = target;
-        _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
+      if (_targetSection(target)) {
         logger.log(
             _playerLogScroll,
             '_sectionBump: bump: $bump, $index ( $_sectionTarget px)'
             ', section: ${widget.song.lyricSections[index]}');
       }
     }
+  }
+
+  bool _targetSection(double target) {
+    if (_sectionTarget != target) {
+      setState(() {
+        _sectionTarget = target;
+        _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
+      });
+      return true;
+    }
+    return false;
   }
 
   int? _sectionIndexAtScrollOffset() {
@@ -890,14 +904,20 @@ With escape, the app goes back to the play list.''',
   /// send a song update to the followers
   void _leaderSongUpdate(int momentNumber) {
     if (!_songUpdateService.isLeader) {
+      _lastSongUpdate = null;
       return;
     }
+    if (_lastSongUpdate != null) {
+      if (_lastSongUpdate!.momentNumber == momentNumber && _lastSongUpdate!.currentKey == _selectedSongKey) {
+        return;
+      }
+    }
 
-    SongUpdate songUpdate = SongUpdate.createSongUpdate(widget.song.copySong()); //  fixme: copy  required?
-    songUpdate.currentKey = _selectedSongKey;
-    songUpdate.momentNumber = momentNumber;
-    songUpdate.user = _appOptions.user;
-    _songUpdateService.issueSongUpdate(songUpdate);
+    _lastSongUpdate = SongUpdate.createSongUpdate(widget.song.copySong()); //  fixme: copy  required?
+    _lastSongUpdate!.currentKey = _selectedSongKey;
+    _lastSongUpdate!.momentNumber = momentNumber;
+    _lastSongUpdate!.user = _appOptions.user;
+    _songUpdateService.issueSongUpdate(_lastSongUpdate!);
     logger.log(_playerLogScroll, '_leadSongUpdate: momentNumber: $momentNumber');
   }
 

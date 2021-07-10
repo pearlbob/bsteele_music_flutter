@@ -218,11 +218,14 @@ class _Player extends State<Player> with RouteAware {
 
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
+
+    const sectionCenterLocationFraction = 1.0/2;
+
     if (_table == null) {
       _table = _lyricsTable.lyricsTable(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
       _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
-      _screenOffset = _centerSelections ? _lyricsTable.screenHeight / 2 : 0;
-      _sectionLocations = null; //  clear any previous song cached data
+      _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction: 0;
+      _sectionLocations.clear(); //  clear any previous song cached data
     }
 
     {
@@ -345,13 +348,13 @@ class _Player extends State<Player> with RouteAware {
       }
     }
 
-    final double boxCenter = _app.screenInfo.heightInLogicalPixels / 2;
-    final double boxHeight = _app.screenInfo.heightInLogicalPixels * 3 / 4;
-    final double boxOffset = boxHeight / 2;
+    final double boxCenter = _app.screenInfo.heightInLogicalPixels * sectionCenterLocationFraction;
+    final double boxHeight = boxCenter * 2;
+    final double boxOffset = boxCenter;
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
-    final showTopOfDisplay = !_isPlaying; // || _sectionTarget == 0 || (_songUpdate?.momentNumber ?? 1) <= 0;
+    final showTopOfDisplay = !_isPlaying || (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
     logger.log(
         _playerLogScroll,
         'showTopOfDisplay: $showTopOfDisplay,'
@@ -609,8 +612,8 @@ With escape, the app goes back to the play list.''',
                                 ],
                               ),
                             ],
-                          ),
-                        if (!showTopOfDisplay)
+                          )
+                        else
                           SizedBox(
                             height: _screenOffset,
                           ),
@@ -757,9 +760,9 @@ With escape, the app goes back to the play list.''',
 
     _updateSectionLocations();
 
-    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
+    if (_sectionLocations.isNotEmpty) {
       double target =
-          _sectionLocations![Util.limit(songMoment.lyricSection.index, 0, _sectionLocations!.length - 1) as int];
+          _sectionLocations[Util.limit(songMoment.lyricSection.index, 0, _sectionLocations.length - 1) as int];
       if (_targetSection(target)) {
         logger.log(_playerLogScroll,
             '_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
@@ -770,7 +773,7 @@ With escape, the app goes back to the play list.''',
   /// bump from one section to the next
   _sectionBump(int bump) {
     if (_lyricSectionRowLocations.isEmpty) {
-      _sectionLocations = null;
+      _sectionLocations.clear();
       return;
     }
 
@@ -781,8 +784,8 @@ With escape, the app goes back to the play list.''',
     //  bump it by units of section
     var index = _sectionIndexAtScrollOffset();
     if (index != null) {
-      index = Util.limit(index + bump, 0, _sectionLocations!.length - 1) as int;
-      var target = _sectionLocations![index];
+      index = Util.limit(index + bump, 0, _sectionLocations.length - 1) as int;
+      var target = _sectionLocations[index];
 
       if (_targetSection(target)) {
         logger.log(
@@ -807,15 +810,15 @@ With escape, the app goes back to the play list.''',
   int? _sectionIndexAtScrollOffset() {
     _updateSectionLocations();
 
-    if (_sectionLocations != null && _sectionLocations!.isNotEmpty) {
+    if (_sectionLocations.isNotEmpty) {
       //  find the best location for the current scroll position
-      var sortedLocations = _sectionLocations!.where((e) => e >= _scrollController.offset).toList()
+      var sortedLocations = _sectionLocations.where((e) => e >= _scrollController.offset).toList()
         ..sort(); //  fixme: improve efficiency
       if (sortedLocations.isNotEmpty) {
         double target = sortedLocations.first;
 
         //  bump it by units of section
-        return Util.limit(_sectionLocations!.indexOf(target), 0, _sectionLocations!.length - 1) as int;
+        return Util.limit(_sectionLocations.indexOf(target), 0, _sectionLocations.length - 1) as int;
       }
     }
 
@@ -824,7 +827,7 @@ With escape, the app goes back to the play list.''',
 
   _updateSectionLocations() {
     //  lazy update
-    if (_scrollController.hasClients && _sectionLocations == null && _lyricSectionRowLocations.isNotEmpty) {
+    if (_scrollController.hasClients && _sectionLocations.isEmpty && _lyricSectionRowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
       double? y0;
       int sectionCount = -1; //  will never match the original, as intended
@@ -848,24 +851,24 @@ With escape, the app goes back to the play list.''',
           if (renderObject != null && renderObject is RenderBox) {
             y = renderObject.localToGlobal(Offset.zero).dy;
           } else {
-            _sectionLocations = null;
+            _sectionLocations.clear();
             return;
           }
         }
         y0 ??= y; //  initialize y0 to first y
         y -= y0;
-        _sectionLocations!.add(y);
+        _sectionLocations.add(y);
       }
       logger.log(_playerLogScroll, 'raw _sectionLocations: $_sectionLocations');
 
       //  add half of the deltas to center each selection
       {
         List<double> tmp = [];
-        for (int i = 0; i < _sectionLocations!.length - 1; i++) {
+        for (int i = 0; i < _sectionLocations.length - 1; i++) {
           if (_centerSelections) {
-            tmp.add((_sectionLocations![i] + _sectionLocations![i + 1]) / 2);
+            tmp.add((_sectionLocations[i] + _sectionLocations[i + 1]) / 2);
           } else {
-            tmp.add(_sectionLocations![i]);
+            tmp.add(_sectionLocations[i]);
           }
         }
 
@@ -878,7 +881,7 @@ With escape, the app goes back to the play list.''',
           if (renderObject != null && renderObject is RenderBox) {
             y = renderObject.size.height;
           } else {
-            _sectionLocations = null;
+            _sectionLocations.clear();
             return;
           }
         }
@@ -887,12 +890,13 @@ With escape, the app goes back to the play list.''',
           logger.log(
               _playerLogScroll, '_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
           var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
-          tmp.add((_sectionLocations![_sectionLocations!.length - 1] + tableHeight) / 2);
+          tmp.add((_sectionLocations[_sectionLocations.length - 1] + tableHeight) / 2);
         }
 
-        if (tmp.isNotEmpty) {
-          tmp.first = 0; //  special for first song moment so it can show the header data
-        }
+        //  not really required:
+        // if (tmp.isNotEmpty) {
+        //   tmp.first = 0; //  special for first song moment so it can show the header data
+        // }
 
         _sectionLocations = tmp;
       }
@@ -1035,8 +1039,9 @@ With escape, the app goes back to the play list.''',
   }
 
   void _forceTableRedisplay() {
-    _sectionLocations = null;
+    _sectionLocations.clear();
     _table = null;
+    setState(() {});
   }
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
@@ -1062,7 +1067,7 @@ With escape, the app goes back to the play list.''',
   final ScrollController _scrollController = ScrollController();
 
   double _sectionTarget = 0;
-  List<double>? _sectionLocations;
+  List<double> _sectionLocations = [];
   static final _appOptions = AppOptions();
   final SongUpdateService _songUpdateService = SongUpdateService();
 }

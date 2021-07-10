@@ -23,6 +23,13 @@ enum MessageType {
   error,
 }
 
+enum CommunityJamsSongList {
+  all,
+  best,
+  ninjam,
+  ok,
+}
+
 /// application shared values
 class App {
   factory App() {

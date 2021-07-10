@@ -393,7 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
       for (var nameValue in nameValues) {
-        if ( nameValue.name == 'christmas'){
+        if (nameValue.name == 'christmas') {
           continue;
         }
         _metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
@@ -742,10 +742,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
         //  otherwise try some other qualification
         if (_selectedListNameValue != null && _selectedListNameValue != _allSongsNameValue) {
+          // CommunityJamsSongList? communityJamsSongList =
+          //     Util.enumFromString<CommunityJamsSongList>(_selectedListNameValue!.value, CommunityJamsSongList.values);
+
           //  insist on a ranking
           NameValue? nv = SongMetadata.songMetadataAt(song.songId.songId, _selectedListNameValue!.name);
-          if (nv == null || nv.value != _selectedListNameValue!.value) {
-            //  toss if not found
+          if (nv == null) {
+            //  toss if name not found
+            continue;
+          }
+          if (nv.value != _selectedListNameValue!.value) {
+            //  later if not too confusing
+            // if (nv.name == 'cj') {
+            //   //  specials for cj
+            //   CommunityJamsSongList? songList =
+            //       Util.enumFromString<CommunityJamsSongList>(nv.value, CommunityJamsSongList.values);
+            //   if (songList == null) {
+            //     continue;
+            //   }
+            //   if (songList.index <= (communityJamsSongList?.index ?? -1)) {
+            //     _filteredSongs.add(song);
+            //   }
+            // }
             continue;
           }
         }

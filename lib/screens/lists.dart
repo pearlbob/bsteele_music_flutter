@@ -22,6 +22,8 @@ class Lists extends StatefulWidget {
   _State createState() => _State();
 }
 
+late AppTextStyle metadataStyle ;
+
 class _State extends State<Lists> {
   _State() : _searchFocusNode = FocusNode();
 
@@ -33,11 +35,13 @@ class _State extends State<Lists> {
   }
 
   bool _hasSelectedMetadata(Song song) {
-    for (var nameValue in _selectedNameValues) {
-      if (SongMetadata.where(idIsLike: song.songId.toString(), nameIsLike: nameValue.name, valueIsLike: nameValue.value)
-          .isNotEmpty) {
-        return true;
-      }
+    if (_selectedNameValue.name.isNotEmpty &&
+        SongMetadata.where(
+                idIs: song.songId.toString(),
+                nameIs: _selectedNameValue.name,
+                valueIs: _selectedNameValue.value)
+            .isNotEmpty) {
+      return true;
     }
     return false;
   }
@@ -45,126 +49,14 @@ class _State extends State<Lists> {
   @override
   Widget build(BuildContext context) {
     final double fontSize = _app.screenInfo.fontSize;
-    final metadataStyle = AppTextStyle(
+     metadataStyle = AppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
     );
-
-    List<Widget> _metadataWidgets = [];
-    {
-      SplayTreeSet<NameValue> nameValues = SplayTreeSet();
-      for (var songIdMetadata in SongMetadata.idMetadata) {
-        for (var nameValue in songIdMetadata.nameValues) {
-          nameValues.add(nameValue);
-        }
-      }
-      {
-        //  clear the selected of old values
-        List<NameValue> removal = [];
-        for (var nameValue in _selectedNameValues) {
-          if (!nameValues.contains(nameValue)) {
-            removal.add(nameValue);
-          }
-        }
-        _selectedNameValues.removeAll(removal);
-      }
-
-      for (var nameValue in nameValues) {
-        _metadataWidgets.add(//Text()
-            appWrap(
-          [
-            Checkbox(
-              checkColor: Colors.white,
-              fillColor: MaterialStateProperty.all(_blue.color),
-              value: _selectedNameValues.contains(nameValue),
-              onChanged: (bool? value) {
-                if (value != null) {
-                  setState(() {
-                    if (value) {
-                      _selectedNameValues.add(nameValue);
-                    } else {
-                      _selectedNameValues.remove(nameValue);
-                    }
-                  });
-                }
-              },
-            ),
-            TextButton(
-              child: Text(
-                '${nameValue.name}:${nameValue.value}',
-                style: metadataStyle,
-              ),
-              onPressed: () {
-                setState(() {
-                  if (_selectedNameValues.contains(nameValue)) {
-                    _selectedNameValues.remove(nameValue);
-                  } else {
-                    _selectedNameValues.add(nameValue);
-                  }
-                });
-              },
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-          ],
-        ));
-      }
-    }
-
-    List<Widget> songWidgetList = [];
-    {
-      SplayTreeSet<Song> _metadataSongs = SplayTreeSet();
-      for (var nameValue in _selectedNameValues) {
-        var songIdMetadataSet = SongMetadata.where(nameIsLike: nameValue.name, valueIsLike: nameValue.value);
-        for (var song in _app.allSongs) {
-          for (var songIdMetadata in songIdMetadataSet) {
-            if (songIdMetadata.id == song.songId.toString()) {
-              _metadataSongs.add(song);
-            }
-          }
-        }
-      }
-      if (_isSearchActive) {
-        _metadataSongs.addAll(_filteredSongs);
-      }
-      songWidgetList = _metadataSongs.map((song) {
-        return Row(
-          children: [
-            Checkbox(
-                checkColor: Colors.white,
-                fillColor: MaterialStateProperty.all(_blue.color),
-                value: _hasSelectedMetadata(song),
-                onChanged: (bool? value) {
-                  if (value != null) {
-                    setState(() {
-                      if (value) {
-                        SongMetadata.add(SongIdMetadata(song.songId.toString(),
-                            metadata: _selectedNameValues.toList(growable: false)));
-                      } else {
-                        for (var nameValue in _selectedNameValues) {
-                          for (var songIdMetadata in SongMetadata.where(
-                              idIsLike: song.songId.toString(),
-                              nameIsLike: nameValue.name,
-                              valueIsLike: nameValue.value)) {
-                            logger.i('remove: $songIdMetadata');
-                            SongMetadata.remove(songIdMetadata);
-                          }
-                        }
-                      }
-                    });
-                  }
-                }),
-            Text(
-              '${song.title} by ${song.artist}'
-              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}',
-              style: metadataStyle,
-            )
-          ],
-        );
-      }).toList(growable: false);
-    }
-
+    final metadataEntryStyle = AppTextStyle(
+      color: Colors.black38,
+      fontSize: fontSize,
+    );
     final AppTextStyle searchTextStyle = AppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
@@ -179,6 +71,156 @@ class _State extends State<Lists> {
     );
     var _clearSearchKey = const ValueKey<String>('clearSearch');
 
+    logger.v('_selectedNameValue: $_selectedNameValue');
+
+    List<Widget> _metadataWidgets = [];
+    {
+      //  find all name/values in use
+      SplayTreeSet<NameValue> nameValues = SplayTreeSet();
+      for (var songIdMetadata in SongMetadata.idMetadata) {
+        for (var nameValue in songIdMetadata.nameValues) {
+          nameValues.add(nameValue);
+        }
+      }
+      {
+        //  clear the selected of old values
+        List<NameValue> removal = [];
+        if (!nameValues.contains(_selectedNameValue)) {
+          removal.add(_selectedNameValue);
+        }
+      }
+
+      for (var nameValue in nameValues) {
+        if (nameValue.name.isEmpty) {
+          continue;
+        }
+        _metadataWidgets.add(appWrap(
+          [
+            Radio(
+              value: nameValue,
+              groupValue: _selectedNameValue,
+              onChanged: (NameValue? value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedNameValue = nameValue;
+                  });
+                }
+              },
+            ),
+            TextButton(
+              child: Text(
+                '${nameValue.name}:${nameValue.value}',
+                style: metadataStyle,
+              ),
+              onPressed: () {
+                setState(() {
+                  _selectedNameValue = nameValue;
+                });
+              },
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+          ],
+        ));
+      }
+
+      _metadataWidgets.add(appWrap(
+        [
+          const SizedBox(
+            width: 20,
+          ),
+          Radio(
+            value: NameValue(_nameTextFieldController.text, _valueTextFieldController.text),
+            groupValue: _selectedNameValue,
+            onChanged: (NameValue? value) {
+              if (value != null) {
+                setState(() {
+                  _selectedNameValue = value;
+                });
+              }
+            },
+          ),
+          SizedBox(
+            width: 5 * _app.screenInfo.fontSize,
+            //  limit text entry display length
+            child: TextField(
+              key: const ValueKey('nameText') /*  for testing*/,
+              controller: _nameTextFieldController,
+              // focusNode: _searchFocusNode,
+              decoration: InputDecoration(
+                hintText: "name...",
+                hintStyle: metadataEntryStyle,
+              ),
+              autofocus: true,
+              style: metadataStyle,
+              onChanged: (text) {
+                setState(() {
+                  if (_nameTextFieldController.text.isNotEmpty) {
+                    _selectedNameValue = NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                  }
+                });
+              },
+            ),
+          ),
+          Text(
+            ':',
+            style: metadataStyle,
+          ),
+          SizedBox(
+            width: 5 * _app.screenInfo.fontSize,
+            //  limit text entry display length
+            child: TextField(
+              key: const ValueKey('valueText') /*  for testing*/,
+              controller: _valueTextFieldController,
+              // focusNode: _searchFocusNode,
+              decoration: InputDecoration(
+                hintText: "value...",
+                hintStyle: metadataEntryStyle,
+              ),
+              autofocus: true,
+              style: metadataStyle,
+              onChanged: (text) {
+                setState(() {
+                  if (_nameTextFieldController.text.isNotEmpty) {
+                    _selectedNameValue = NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                  }
+                });
+              },
+            ),
+          ),
+        ],
+      ));
+    }
+
+    List<Widget> songWidgetList = [];
+    {
+      SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
+      var songIdMetadataSet =
+          SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
+      for (var song in _app.allSongs) {
+        for (var songIdMetadata in songIdMetadataSet) {
+          if (songIdMetadata.id == song.songId.toString()) {
+            _metadataSongSet.add(song);
+          }
+        }
+      }
+      List<Song> _metadataSongs = [];
+      //  search songs on top
+      if (_isSearchActive) {
+        songWidgetList.addAll( _filteredSongs.map(mapSongToWidget).toList());
+        songWidgetList.add( const Divider( thickness: 10,));
+        _metadataSongs.addAll(_filteredSongs);
+      }
+      //  list songs later
+      for (var song in _metadataSongSet) {
+        //  avoid repeats
+        if (!_metadataSongs.contains(song)) {
+          songWidgetList.add(mapSongToWidget(song));
+        }
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -189,7 +231,7 @@ class _State extends State<Lists> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +287,7 @@ class _State extends State<Lists> {
                       controller: _searchTextFieldController,
                       focusNode: _searchFocusNode,
                       decoration: InputDecoration(
-                        hintText: "enter search text",
+                        hintText: _isSearchActive ? "enter search text" : "\u2190 activate search",
                         hintStyle: searchTextStyle,
                       ),
                       autofocus: true,
@@ -293,6 +335,53 @@ class _State extends State<Lists> {
               ),
             ]),
       ),
+    );
+  }
+  
+  Widget mapSongToWidget(Song song){
+    return Row(
+      children: [
+        Checkbox(
+            checkColor: Colors.white,
+            fillColor: MaterialStateProperty.all(_blue.color),
+            value: _hasSelectedMetadata(song),
+            onChanged: (bool? value) {
+              if (value != null) {
+                setState(() {
+                  if (value) {
+                    if (_selectedNameValue.name.isNotEmpty) {
+                      SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
+                    }
+                  } else {
+                    for (var songIdMetadata in SongMetadata.where(
+                        idIs: song.songId.toString(),
+                        nameIs: _selectedNameValue.name,
+                        valueIs: _selectedNameValue.value)) {
+                      logger.d('remove: $songIdMetadata');
+                      SongMetadata.remove(songIdMetadata);
+                    }
+                  }
+                });
+              }
+            }),
+        const SizedBox(
+          width: 12,
+        ),
+        TextButton(
+          child: Text(
+            '${song.title} by ${song.artist}'
+                '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}',
+            style: metadataStyle,
+          ),
+          onPressed: () {
+            setState(() {
+              if (_selectedNameValue.name.isNotEmpty) {
+                SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
+              }
+            });
+          },
+        )
+      ],
     );
   }
 
@@ -343,8 +432,12 @@ class _State extends State<Lists> {
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
 
-  final SplayTreeSet<NameValue> _selectedNameValues = SplayTreeSet();
+  static const NameValue _emptySelectedNameValue = NameValue('', '');
+  NameValue _selectedNameValue = _emptySelectedNameValue;
   final TextEditingController _searchTextFieldController = TextEditingController();
+
+  final TextEditingController _nameTextFieldController = TextEditingController();
+  final TextEditingController _valueTextFieldController = TextEditingController();
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
   final App _app = App();

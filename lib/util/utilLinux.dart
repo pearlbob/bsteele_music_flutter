@@ -108,7 +108,6 @@ class UtilLinux implements UtilWorkaround {
     );
     if (path != null) {
       var file = File(path);
-      final app = App();
       if (file.existsSync()) {
         String s = utf8.decode(file.readAsBytesSync());
 

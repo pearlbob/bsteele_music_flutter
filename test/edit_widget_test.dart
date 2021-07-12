@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -86,7 +87,7 @@ void main() async {
 
     logger.i('title: "${titleTextField.controller!.text}"');
     logger.i('errorMessage: "${errorMessage.data}"');
-    expect(errorMessage.data, contains('artist'));
+    expect(errorMessage.data?.toLowerCase(), contains('artist'));
 
     var artistTextField = Find.findTextField('artist');
     expect(artistTextField.controller!.text, isEmpty);
@@ -126,7 +127,7 @@ void main() async {
 
     DropdownButton<music_key.Key> keyDropdownButton = Find.findDropDown('editKeyDropdown');
     expect(keyDropdownButton.items, isNotEmpty);
-    expect(keyDropdownButton.items!.length, 12 + 1);
+    expect(keyDropdownButton.items!.length, MusicConstants.halfStepsPerOctave + 1);
     expect(keyDropdownButton.value, music_key.Key.getDefault());
     logger.i('keyDropdown: ${keyDropdownButton.items!.length}');
     logger.i('keyDropdown.value.runtimeType: ${keyDropdownButton.value.runtimeType}');
@@ -151,6 +152,7 @@ void main() async {
         logger.d('errorMessage.data: ${errorMessage.data}');
         expect(errorMessage.data, contains('chords'));
 
+        //  expect that the key has been selected
         expect(find.byKey(ValueKey('keyTally_' + musicKey.toMarkup()), skipOffstage: false), findsOneWidget);
       }
     }

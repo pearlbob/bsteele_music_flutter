@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
@@ -12,6 +11,7 @@ import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
@@ -62,7 +62,6 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 
   _songUpdate = songUpdate;
   _lastSongUpdate = null;
-  _player?._bpmDropDownMenuList = null; //  fixme!!!!!!!!  used to ensure the new value is in the list
   _player?._setSelectedSongKey(songUpdate.currentKey);
 
   Timer(const Duration(milliseconds: 2), () {
@@ -217,14 +216,15 @@ class _Player extends State<Player> with RouteAware {
     _lyricsTable.computeScreenSizes();
 
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
+    var _chordTextStyle = _lyricsTable.chordTextStyle;
+    logger.i('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
-
-    const sectionCenterLocationFraction = 1.0/2;
+    const sectionCenterLocationFraction = 1.0 / 2;
 
     if (_table == null) {
       _table = _lyricsTable.lyricsTable(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
       _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
-      _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction: 0;
+      _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction : 0;
       _sectionLocations.clear(); //  clear any previous song cached data
     }
 
@@ -232,120 +232,118 @@ class _Player extends State<Player> with RouteAware {
       //  generate the rolled key list
       //  higher pitch on top
       //  lower pit on bottom
+      const int steps = MusicConstants.halfStepsPerOctave;
+      const int halfOctave = steps ~/ 2;
+      ScaleNote? firstScaleNote = song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
+      if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
+        firstScaleNote = null; //  not needed
+      }
+      List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
+        return null;
+      });
 
-      if (_keyDropDownMenuList == null) {
-        const int steps = MusicConstants.halfStepsPerOctave;
-        const int halfOctave = steps ~/ 2;
-        ScaleNote? firstScaleNote = song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
-        if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
-          firstScaleNote = null; //  not needed
+      List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
+      for (int i = 0; i <= halfOctave; i++) {
+        rolledKeyList[i] = list[halfOctave - i];
+      }
+      for (int i = halfOctave + 1; i < steps; i++) {
+        rolledKeyList[i] = list[steps - i + halfOctave];
+      }
+
+      _keyDropDownMenuList.clear();
+      final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, 'G'); //  something sane
+      const String onString = '(on ';
+      final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
+
+      for (int i = 0; i < steps; i++) {
+        music_key.Key value = rolledKeyList[i] ?? _selectedSongKey;
+
+        //  deal with the Gb/F# duplicate issue
+        if (value.halfStep == _selectedSongKey.halfStep) {
+          value = _selectedSongKey;
         }
-        List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
-          return null;
-        });
 
-        List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
-        for (int i = 0; i <= halfOctave; i++) {
-          rolledKeyList[i] = list[halfOctave - i];
+        logger.log(_playerLogMusicKey, 'key value: $value');
+
+        int relativeOffset = halfOctave - i;
+        String valueString =
+            value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+        String offsetString = '';
+        if (relativeOffset > 0) {
+          offsetString = '+${relativeOffset.toString()}';
+        } else if (relativeOffset < 0) {
+          offsetString = relativeOffset.toString();
         }
-        for (int i = halfOctave + 1; i < steps; i++) {
-          rolledKeyList[i] = list[steps - i + halfOctave];
-        }
 
-        _keyDropDownMenuList = [];
-        final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, 'G'); //  something sane
-        const String onString = '(on ';
-        final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
-
-        for (int i = 0; i < steps; i++) {
-          music_key.Key value = rolledKeyList[i] ?? _selectedSongKey;
-
-          //  deal with the Gb/F# duplicate issue
-          if (value.halfStep == _selectedSongKey.halfStep) {
-            value = _selectedSongKey;
-          }
-
-          logger.log(_playerLogMusicKey, 'key value: $value');
-
-          int relativeOffset = halfOctave - i;
-          String valueString =
-              value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
-          String offsetString = '';
-          if (relativeOffset > 0) {
-            offsetString = '+${relativeOffset.toString()}';
-          } else if (relativeOffset < 0) {
-            offsetString = relativeOffset.toString();
-          }
-
-          _keyDropDownMenuList!.add(DropdownMenuItem<music_key.Key>(
-              key: ValueKey(value.getHalfStep()),
-              value: value,
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                SizedBox(
-                  width: 2 * lyricsTextWidth, //  max width of chars expected
-                  child: Text(
-                    valueString,
-                    style: _lyricsTextStyle,
-                    textAlign: TextAlign.left,
-                  ),
+        _keyDropDownMenuList.add(DropdownMenuItem<music_key.Key>(
+            key: ValueKey(value.getHalfStep()),
+            value: value,
+            child: appWrap([
+              SizedBox(
+                width: 2 * lyricsTextWidth, //  max width of chars expected
+                child: Text(
+                  valueString,
+                  style: _chordTextStyle,
+                  textAlign: TextAlign.left,
                 ),
+              ),
+              SizedBox(
+                width: 2 * lyricsTextWidth, //  max width of chars expected
+                child: Text(
+                  offsetString,
+                  style: _chordTextStyle,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+              //  show the first note if it's not the same as the key
+              if (firstScaleNote != null)
                 SizedBox(
-                  width: 2 * lyricsTextWidth, //  max width of chars expected
+                  width: onStringWidth + 3 * lyricsTextWidth, //  max width of chars expected
                   child: Text(
-                    offsetString,
-                    style: _lyricsTextStyle,
+                    onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
+                    style: _chordTextStyle,
                     textAlign: TextAlign.right,
                   ),
-                ),
-                //  show the first note if it's not the same as the key
-                if (firstScaleNote != null)
-                  SizedBox(
-                    width: onStringWidth + 3 * lyricsTextWidth, //  max width of chars expected
-                    child: Text(
-                      onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
-                      style: _lyricsTextStyle,
-                      textAlign: TextAlign.right,
-                    ),
-                  )
-              ])));
+                )
+            ])));
+      }
+    }
+
+    List<DropdownMenuItem<int>> _bpmDropDownMenuList = [];
+    {
+      final int bpm = song.beatsPerMinute;
+
+      //  assure entries are unique
+      SplayTreeSet<int> set = SplayTreeSet();
+      set.add(bpm);
+      for (int i = -60; i < 60; i++) {
+        int value = bpm + i;
+        if (value < 40) {
+          continue;
         }
+        set.add(value);
+        if (i < -30 || i > 30) {
+          i += 10 - 1;
+        } else if (i < -5 || i > 5) {
+          i += 5 - 1;
+        } //  in addition to increment above
       }
 
-      {
-        final int bpm = song.beatsPerMinute;
-
-        //  assure entries are unique
-        SplayTreeSet<int> set = SplayTreeSet();
-        set.add(bpm);
-        for (int i = -60; i < 60; i++) {
-          int value = bpm + i;
-          if (value < 40) {
-            continue;
-          }
-          set.add(value);
-          if (i < -30 || i > 30) {
-            i += 10 - 1;
-          } else if (i < -5 || i > 5) {
-            i += 5 - 1;
-          } //  in addition to increment above
-        }
-
-        List<DropdownMenuItem<int>> bpmList = [];
-        for (var value in set) {
-          bpmList.add(
-            DropdownMenuItem<int>(
-              key: ValueKey(value),
-              value: value,
-              child: Text(
-                value.toString().padLeft(3),
-                style: _lyricsTextStyle,
-              ),
+      List<DropdownMenuItem<int>> bpmList = [];
+      for (var value in set) {
+        bpmList.add(
+          DropdownMenuItem<int>(
+            key: ValueKey(value),
+            value: value,
+            child: Text(
+              value.toString().padLeft(3),
+              style: _lyricsTextStyle,
             ),
-          );
-        }
-
-        _bpmDropDownMenuList = bpmList;
+          ),
+        );
       }
+
+      _bpmDropDownMenuList = bpmList;
     }
 
     final double boxCenter = _app.screenInfo.heightInLogicalPixels * sectionCenterLocationFraction;
@@ -429,21 +427,19 @@ class _Player extends State<Player> with RouteAware {
                               ),
                               Container(
                                 padding: const EdgeInsets.only(top: 16, right: 12),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    InkWell(
-                                      onTap: () {
-                                        openLink(_artistAnchor());
-                                      },
-                                      child: Text(
-                                        ' by  ${song.artist}',
-                                        style: _lyricsTextStyle,
-                                      ),
-                                      hoverColor: hoverColor,
+                                child: appWrapFullWidth([
+                                  InkWell(
+                                    onTap: () {
+                                      openLink(_artistAnchor());
+                                    },
+                                    child: Text(
+                                      ' by  ${song.artist}',
+                                      style: _chordTextStyle,
                                     ),
-                                    _playTooltip(
-                                      '''
+                                    hoverColor: hoverColor,
+                                  ),
+                                  _playTooltip(
+                                    '''
 Space bar or clicking the song area starts "play" mode.
     First section is in the middle of the display.
     Display items on the top will be missing.
@@ -453,119 +449,114 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          primary: _lightBlue,
-                                          padding: const EdgeInsets.all(8),
-                                        ),
-                                        child: Text(
-                                          'Hints',
-                                          style: _lyricsTextStyle,
-                                        ),
-                                        onPressed: () {},
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        primary: _lightBlue,
+                                        padding: const EdgeInsets.all(8),
                                       ),
+                                      child: Text(
+                                        'Hints',
+                                        style: _lyricsTextStyle,
+                                      ),
+                                      onPressed: () {},
                                     ),
-                                    Row(
-                                      children: [
+                                  ),
+                                  appWrap(
+                                    [
+                                      Text(
+                                        'Capo',
+                                        style: _chordTextStyle,
+                                      ),
+                                      Switch(
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _isCapo = !_isCapo;
+                                            _setSelectedSongKey(_selectedSongKey);
+                                          });
+                                        },
+                                        value: _isCapo,
+                                      ),
+                                      if (_isCapo && _capoLocation > 0)
                                         Text(
-                                          'Capo',
-                                          style: _lyricsTextStyle,
+                                          'on $_capoLocation',
+                                          style: _chordTextStyle,
                                         ),
-                                        Switch(
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _isCapo = !_isCapo;
-                                              _setSelectedSongKey(_selectedSongKey);
-                                            });
-                                          },
-                                          value: _isCapo,
+                                      if (_isCapo && _capoLocation == 0)
+                                        Text(
+                                          'no capo needed',
+                                          style: _chordTextStyle,
                                         ),
-                                        if (_isCapo && _capoLocation > 0)
-                                          Text(
-                                            'on $_capoLocation',
-                                            style: _lyricsTextStyle,
-                                          ),
-                                        if (_isCapo && _capoLocation == 0)
-                                          Text(
-                                            'no capo needed',
-                                            style: _lyricsTextStyle,
-                                          ),
-                                      ],
-                                    ),
-                                    if (_app.isEditReady)
-                                      TextButton.icon(
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.all(8),
-                                          primary: _lightBlue,
-                                        ),
-                                        icon: Icon(
-                                          Icons.edit,
-                                          size: _lyricsTable.fontSize,
-                                        ),
-                                        label: const Text(''),
-                                        onPressed: () {
-                                          _navigateToEdit(context, song);
-                                        },
+                                    ],
+                                  ),
+                                  if (_app.isEditReady)
+                                    TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.all(8),
+                                        primary: Colors.green,
                                       ),
-                                  ],
-                                ),
+                                      icon: Icon(
+                                        Icons.edit,
+                                        size: _lyricsTable.fontSize,
+                                      ),
+                                      label: const Text(''),
+                                      onPressed: () {
+                                        _navigateToEdit(context, song);
+                                      },
+                                    ),
+                                ], alignment: WrapAlignment.spaceBetween),
                               ),
-                              Row(
-                                children: <Widget>[
-                                  Container(
-                                    padding: const EdgeInsets.only(left: 8, right: 24),
-                                    child: _playTooltip(
-                                      'Tip: use space bar to start playing',
-                                      TextButton.icon(
-                                        style: TextButton.styleFrom(
-                                          primary: _lightBlue,
-                                        ),
-                                        icon: Icon(
-                                          _playStopIcon,
-                                          size: 2 * _lyricsTable.fontSize,
-                                        ),
-                                        label: const Text(''),
-                                        onPressed: () {
-                                          _play();
-                                        },
+                              appWrapFullWidth([
+                                Container(
+                                  padding: const EdgeInsets.only(left: 8, right: 8),
+                                  child: _playTooltip(
+                                    'Tip: use space bar to start playing',
+                                    TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        primary: _isPlaying ? Colors.red : Colors.green,
                                       ),
+                                      icon: Icon(
+                                        _playStopIcon,
+                                        size: 2 * _lyricsTable.fontSize,
+                                      ),
+                                      label: const Text(''),
+                                      onPressed: () {
+                                        _isPlaying ? _stop() : _play();
+                                      },
                                     ),
                                   ),
+                                ),
+                                appWrap([
+                                Text(
+                                  'Key: ',
+                                  style: _chordTextStyle,
+                                ),
+                                DropdownButton<music_key.Key>(
+                                  items: _keyDropDownMenuList,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        _setSelectedSongKey(value);
+                                      }
+                                    });
+                                  },
+                                  value: _selectedSongKey,
+                                  style: _chordTextStyle,
+                                  iconSize: _lyricsTable.fontSize,
+                                  itemHeight: 1.2 * kMinInteractiveDimension,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
                                   Text(
-                                    'Key: ',
+                                    '($_selectedSongKey' +
+                                        (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
+                                        (_isCapo && _capoLocation > 0 ? '-$_capoLocation' : '') //  indicate: "maps to"
+                                        +
+                                        '=$_displaySongKey)',
                                     style: _lyricsTextStyle,
-                                  ),
-                                  DropdownButton<music_key.Key>(
-                                    items: _keyDropDownMenuList,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        if (value != null) {
-                                          _setSelectedSongKey(value);
-                                        }
-                                      });
-                                    },
-                                    value: _selectedSongKey,
-                                    style: _lyricsTextStyle,
-                                    iconSize: _lyricsTable.fontSize,
-                                    itemHeight: 1.2 * kMinInteractiveDimension,
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
-                                    Text(
-                                      '($_selectedSongKey' +
-                                          (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
-                                          (_isCapo && _capoLocation > 0
-                                              ? '-$_capoLocation'
-                                              : '') //  indicate: "maps to"
-                                          +
-                                          '=$_displaySongKey)',
-                                      style: _lyricsTextStyle,
-                                    ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
+                                  ),], alignment: WrapAlignment.spaceBetween),
+                                appWrap([
                                   Text(
                                     'BPM: ',
                                     style: _lyricsTextStyle,
@@ -577,13 +568,12 @@ With escape, the app goes back to the play list.''',
                                         setState(() {
                                           if (value != null) {
                                             song.setBeatsPerMinute(value);
-                                            _bpmDropDownMenuList = null; //  refresh to new value
                                             setState(() {});
                                           }
                                         });
                                       },
                                       value: song.beatsPerMinute,
-                                      style: _lyricsTextStyle,
+                                      style: _chordTextStyle,
                                       iconSize: _lyricsTable.fontSize,
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
@@ -592,25 +582,22 @@ With escape, the app goes back to the play list.''',
                                       song.beatsPerMinute.toString(),
                                       style: _lyricsTextStyle,
                                     ),
+                                ]),
+                                Text(
+                                  '  Time: ${song.timeSignature}',
+                                  style: _chordTextStyle,
+                                ),
                                   Text(
-                                    '  Time: ${song.timeSignature}',
-                                    style: _lyricsTextStyle,
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  Text(
-                                    _songUpdateService.isConnected
-                                        ? (_songUpdateService.isLeader
-                                            ? 'I\'m the leader'
-                                            : (_songUpdateService.leaderName == AppOptions.unknownUser
-                                                ? ''
-                                                : 'following ${_songUpdateService.leaderName}'))
-                                        : '',
-                                    style: _lyricsTextStyle,
-                                  ),
-                                ],
-                              ),
+                                  _songUpdateService.isConnected
+                                      ? (_songUpdateService.isLeader
+                                          ? 'I\'m the leader'
+                                          : (_songUpdateService.leaderName == AppOptions.unknownUser
+                                              ? ''
+                                              : 'following ${_songUpdateService.leaderName}'))
+                                      : '',
+                                  style: _lyricsTextStyle,
+                                ),
+                              ], alignment: WrapAlignment.spaceAround),
                             ],
                           )
                         else
@@ -1059,8 +1046,7 @@ With escape, the app goes back to the play list.''',
   int _displayKeyOffset = 0;
 
   int _capoLocation = 0;
-  List<DropdownMenuItem<music_key.Key>>? _keyDropDownMenuList;
-  List<DropdownMenuItem<int>>? _bpmDropDownMenuList;
+  final List<DropdownMenuItem<music_key.Key>> _keyDropDownMenuList = [];
 
   SongMaster songMaster = SongMaster();
 

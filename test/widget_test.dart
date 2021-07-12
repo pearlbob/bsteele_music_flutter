@@ -77,9 +77,18 @@ void main() {
       var song25Or6To4ByChicago = find.byKey(const ValueKey<String>('Song_25_or_6_to_4_by_Chicago'));
       expect(song25Or6To4ByChicago,findsOneWidget);
       await tester.tap(song25Or6To4ByChicago);
-      //await tester.pumpAndSettle(); //  fixme: error here.  why?
+     // await tester.pumpAndSettle(); //  fixme: error here.  why?
     }
-
+    // {
+    //   var clearSearch = find.byKey(const ValueKey<String>('clearSearch'));
+    //   expect(clearSearch,findsOneWidget);
+    //   await tester.tap(clearSearch);
+    //   await tester.pumpAndSettle();
+    // }
+    // {
+    //   widgets = Find.findValueKeyContains('Song_', findSome: false);
+    //   expect(widgets, isNotEmpty);
+    // }
     // var hamburger = find.byKey(const ValueKey<String>('hamburger'));
     // expect(hamburger,findsOneWidget);
     // await tester.tap(hamburger);

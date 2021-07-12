@@ -1,14 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui
-    show
-        // ParagraphStyle,
-        // TextStyle,
-        // StrutStyle,
-        // lerpDouble,
-        Shadow,
-        FontFeature,
-        //   TextHeightBehavior,
-        TextLeadingDistribution;
 
 const List<String> appFontFamilyFallback=  [
   //'Roboto',
@@ -35,12 +25,12 @@ class AppTextStyle extends TextStyle {
     double? wordSpacing,
     TextBaseline? textBaseline,
     double? height,
-    ui.TextLeadingDistribution? leadingDistribution,
+    TextLeadingDistribution? leadingDistribution,
     Locale? locale,
     Paint? foreground,
     Paint? background,
-    List<ui.Shadow>? shadows,
-    List<ui.FontFeature>? fontFeatures,
+    List<Shadow>? shadows,
+    //List<FontFeature>? fontFeatures,
     TextDecoration? decoration,
     Color? decorationColor,
     TextDecorationStyle? decorationStyle,
@@ -66,7 +56,7 @@ class AppTextStyle extends TextStyle {
           foreground: foreground,
           background: background,
           shadows: shadows,
-          fontFeatures: fontFeatures,
+          //fontFeatures: fontFeatures,
           decoration: decoration,
           decorationColor: decorationColor,
           decorationStyle: decorationStyle,

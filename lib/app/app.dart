@@ -4,18 +4,23 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-const bool _widgetLog = false;
+const bool _widgetLog = false; //  true false
 
 const _environmentDefault = 'main'; //  fixme: duplicate
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
 const Color appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
 const double appDefaultFontSize = 10.0; //  based on phone
+
+
+ const NameValue allSongsMetadataNameValue = NameValue('all', '');
+const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 
 enum MessageType {
   message,
@@ -130,19 +135,27 @@ class App {
   static final App _singleton = App._internal();
 }
 
-void widgetLog(ValueKey<String> key) {
-  if (kDebugMode && _widgetLog ) {
-    if (_environment == _environmentDefault) {
-      var varName = Util.firstToLower(Util.underScoresToCamelCase(key.value));
-      logger.i( '''{
+extension WidgetLogExtension on Widget {
+ void testWidgetLog(){
+   logger.i( 'WidgetLogExtension: $key');
+ }
+}
+
+class WidgetLog {
+  static void tap(ValueKey<String> key) {
+    if (kDebugMode && _widgetLog) {
+      if (_environment == _environmentDefault) {
+        var varName = Util.firstToLower(Util.underScoresToCamelCase(key.value));
+        logger.i('''{
     var $varName = find.byKey(const ValueKey<String>('${key.value}'));
     expect($varName,findsOneWidget);
     await tester.tap($varName);
     await tester.pumpAndSettle();
     }
     ''');
-    } else {
-      logger.i( 'tester.tap(${key.value})');
+      } else {
+        logger.i('tester.tap(${key.value})');
+      }
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
@@ -746,7 +745,7 @@ class _State extends State<Detail> {
           foreground: _black,
           background: _blue,
           height: height,
-          fontFeatures: const [FontFeature.stylisticAlternates()],
+          fontFeatures: const [ui.FontFeature.stylisticAlternates()],
         ),
       ),
       clipBehavior: Clip.hardEdge,

@@ -11,6 +11,7 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/lists.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
@@ -23,12 +24,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'app/app.dart';
+import 'app/appButton.dart';
 import 'app/appOptions.dart';
 import 'util/openLink.dart';
 
@@ -109,8 +111,9 @@ class MyApp extends StatelessWidget {
                 //'/': (context) => MyApp(),
                 // When navigating to the "/second" route, build the SecondScreen widget.
                 Player.routeName: playerPageRoute.builder,
-                '/songs': (context) => const Songs(),
                 '/options': (context) => const Options(),
+                '/songs': (context) => const Songs(),
+                '/lists': (context) => const Lists(),
                 '/edit': (context) => Edit(initialSong: _app.selectedSong),
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
@@ -153,6 +156,8 @@ class _MyHomePageState extends State<MyHomePage> {
       _readInternalSongList();
     }
     _refilterSongs();
+
+    //logger.i('uri: ${Uri.base}, ${Uri.base.queryParameters.keys.contains('follow')}');
   }
 
   /// workaround for rootBundle.loadString() failures in flutter test
@@ -299,6 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
+
     final AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
     final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
 
@@ -321,7 +327,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _searchSongs(_searchTextFieldController.text);
     }
 
-    List<StatelessWidget> listViewChildren = [];
+    List<Widget> listViewChildren = [];
 
     logger.d('_filteredSongs.length: ${_filteredSongs.length}');
     for (final Song song in (_filteredSongs)) {
@@ -355,7 +361,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   Text(
-                    '   ' + DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                    '   ' + intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
                     style: artistTextStyle,
                   ),
                 ],
@@ -377,23 +383,30 @@ class _MyHomePageState extends State<MyHomePage> {
           ]),
         ),
         onTap: () {
-          widgetLog(key);
+          WidgetLog.tap(key);
           _navigateToPlayer(context, song);
         },
       ));
     }
+    listViewChildren.add(const SizedBox(
+      height: 20,
+    ));
+    listViewChildren.add(Text(
+      'Count: ${_filteredSongs.length}',
+      style: artistTextStyle,
+    ));
 
     List<DropdownMenuItem<NameValue>> _metadataDropDownMenuList = [];
     {
       SplayTreeSet<NameValue> nameValues = SplayTreeSet();
-      nameValues.add(_allSongsNameValue);
+      nameValues.add(allSongsMetadataNameValue); // default all value
       for (var songIdMetadata in SongMetadata.idMetadata) {
         for (var nameValue in songIdMetadata.nameValues) {
           nameValues.add(nameValue);
         }
       }
       for (var nameValue in nameValues) {
-        if (nameValue.name == 'christmas') {
+        if (nameValue.name == holidayMetadataNameValue.name) {
           continue;
         }
         _metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
@@ -465,6 +478,15 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: 50,
             ), //  filler for notched phones
+            ListTile(
+              title: Text(
+                "Options",
+                style: _navTextStyle,
+              ),
+              onTap: () {
+                _navigateToOptions(context);
+              },
+            ),
             if (_app.isEditReady) //  no files on phones!
               ListTile(
                 title: Text(
@@ -475,16 +497,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToSongs(context);
                 },
               ),
-            ListTile(
-              title: Text(
-                "Options",
-                style: _navTextStyle,
+            if (_app.isEditReady)
+              ListTile(
+                title: Text(
+                  "Lists",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToLists(context);
+                },
               ),
-              onTap: () {
-                _navigateToOptions(context);
-              },
-            ),
-
             if (!_app.screenInfo.isTooNarrow)
               ListTile(
                 title: Text(
@@ -522,7 +544,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
-                widgetLog(_aboutKey);
+                WidgetLog.tap(_aboutKey);
                 _navigateToAbout(context);
               },
             ),
@@ -532,89 +554,98 @@ class _MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(children: <Widget>[
-        Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: 'search',
-            iconSize: fontSize,
-            onPressed: (() {
-              setState(() {
-                _searchSongs(_searchTextFieldController.text);
-              });
-            }),
-          ),
-          SizedBox(
-            width: 15 * _titleBarFontSize,
-            //  limit text entry display length
-            child: TextField(
-              key: const ValueKey('searchText'),
-              //  for testing
-              controller: _searchTextFieldController,
-              focusNode: _searchFocusNode,
-              decoration: InputDecoration(
-                hintText: "enter search text",
-                hintStyle: searchTextStyle,
-              ),
-              autofocus: true,
-              style: titleTextStyle,
-              onChanged: (text) {
+        appWrapFullWidth([
+          appWrap([
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: 'search',
+              iconSize: fontSize,
+              onPressed: (() {
                 setState(() {
-                  logger.v('search text: "$text"');
                   _searchSongs(_searchTextFieldController.text);
                 });
-              },
+              }),
             ),
-          ),
-          IconButton(
-            key: _clearSearchKey,
-            icon: const Icon(Icons.clear),
-            tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-            iconSize: 1.5 * fontSize,
-            onPressed: (() {
-              widgetLog(_clearSearchKey);
-              _searchTextFieldController.clear();
-              setState(() {
-                FocusScope.of(context).requestFocus(_searchFocusNode);
-                _searchSongs(null);
-              });
-            }),
-          ),
-          const SizedBox(
-            width: 5,
-          ),
-          Text(
-            'Order ',
-            style: searchDropDownStyle,
-          ),
-          DropdownButton<_SortType>(
-            items: _sortTypesDropDownMenuList,
-            onChanged: (value) {
-              if (_selectedSortType != value) {
+            SizedBox(
+              width: 10 * _titleBarFontSize,
+              //  limit text entry display length
+              child: TextField(
+                key: const ValueKey('searchText'),
+                //  for testing
+                controller: _searchTextFieldController,
+                focusNode: _searchFocusNode,
+                decoration: InputDecoration(
+                  hintText: "enter search text",
+                  hintStyle: searchTextStyle,
+                ),
+                autofocus: true,
+                style: titleTextStyle,
+                onChanged: (text) {
+                  setState(() {
+                    logger.v('search text: "$text"');
+                    _searchSongs(_searchTextFieldController.text);
+                  });
+                },
+              ),
+            ),
+            IconButton(
+              key: _clearSearchKey,
+              icon: const Icon(Icons.clear),
+              tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+              iconSize: 1.5 * fontSize,
+              onPressed: (() {
+                WidgetLog.tap(_clearSearchKey);
+                _searchTextFieldController.clear();
                 setState(() {
-                  _selectedSortType = value ?? _SortType.byTitle;
-                  _searchSongs(_searchTextFieldController.text);
+                  FocusScope.of(context).requestFocus(_searchFocusNode);
+                  _searchSongs(null);
                 });
-              }
-            },
-            value: _selectedSortType,
-            style: titleTextStyle,
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          Text(
-            'List ',
-            style: searchDropDownStyle,
-          ),
-          DropdownButton<NameValue>(
-            items: _metadataDropDownMenuList,
-            onChanged: (value) {
-              logger.i('metadataDropDownMenuList selection: $value');
-            },
-            value: _selectedListNameValue ?? _allSongsNameValue,
-            style: searchDropDownStyle,
-          ),
-        ]),
+              }),
+            ),
+          ]),
+          appWrap([
+            Text(
+              'Order ',
+              style: searchDropDownStyle,
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            DropdownButton<_SortType>(
+              items: _sortTypesDropDownMenuList,
+              onChanged: (value) {
+                if (_selectedSortType != value) {
+                  setState(() {
+                    _selectedSortType = value ?? _SortType.byTitle;
+                    _searchSongs(_searchTextFieldController.text);
+                  });
+                }
+              },
+              value: _selectedSortType,
+              style: titleTextStyle,
+              alignment: Alignment.topLeft,
+              elevation: 8,
+            ),
+          ]),
+          appWrap([
+            Text(
+              'List ',
+              style: searchDropDownStyle,
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            DropdownButton<NameValue>(
+              items: _metadataDropDownMenuList,
+              onChanged: (value) {
+                logger.v('metadataDropDownMenuList selection: $value');
+              },
+              value: _selectedListNameValue ?? allSongsMetadataNameValue,
+              style: searchDropDownStyle,
+              elevation: 8,
+            ),
+          ]),
+        ], alignment: WrapAlignment.spaceBetween),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(
               child: ScrollablePositionedList.builder(
@@ -624,14 +655,6 @@ class _MyHomePageState extends State<MyHomePage> {
               return listViewChildren[Util.limit(index, 0, listViewChildren.length) as int];
             },
           )),
-        // Expanded(
-        //   child: Scrollbar(
-        //     child: ListView(
-        //       controller: _scrollController,
-        //       children: listViewChildren,
-        //     ),
-        //   ),
-        // ),
       ]),
 
       floatingActionButton: FloatingActionButton(
@@ -741,7 +764,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
 
         //  otherwise try some other qualification
-        if (_selectedListNameValue != null && _selectedListNameValue != _allSongsNameValue) {
+        if (_selectedListNameValue != null && _selectedListNameValue != allSongsMetadataNameValue) {
           // CommunityJamsSongList? communityJamsSongList =
           //     Util.enumFromString<CommunityJamsSongList>(_selectedListNameValue!.value, CommunityJamsSongList.values);
 
@@ -814,10 +837,21 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  _navigateToSongs(BuildContext context) async {
+  void _navigateToSongs(BuildContext context) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Songs()),
+    );
+
+    Navigator.pop(context);
+    _selectSearchText(context);
+    _searchSongs(_app.selectedSong.title);
+  }
+
+  void _navigateToLists(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Lists()),
     );
 
     Navigator.pop(context);
@@ -935,10 +969,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late AppOptions _appOptions;
 
-  static const NameValue _allSongsNameValue = NameValue('all', '');
-
   final _random = Random();
-  static final RegExp holidayRexExp = RegExp('christmas', caseSensitive: false);
+  static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
 }
 
 Future<String> fetchString(String uriString) async {

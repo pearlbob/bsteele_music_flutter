@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
@@ -234,10 +233,15 @@ class LyricsTable {
 
     _fontScale = fontSize / appDefaultFontSize;
     logger.v('lyricsTable: ($_screenWidth,$_screenHeight),'
-        ' default:$appDefaultFontSize  => fontSize: $fontSize, _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
+        ' default:$appDefaultFontSize  => fontSize: $fontSize'
+        ', _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
 
     //  text styles
-    _chordTextStyle = AppTextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize);
+    _chordTextStyle = AppTextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: _fontSize,
+      color: Colors.black87,
+    );
     _lyricsTextStyle = AppTextStyle(
       fontWeight: FontWeight.normal,
       fontSize: _lyricsFontSize,
@@ -261,7 +265,7 @@ class LyricsTable {
   double _fontSize = 10;
   double _fontScale = 1;
 
-  //AppTextStyle get chordTextStyle => _chordTextStyle;
+  AppTextStyle get chordTextStyle => _chordTextStyle;
   AppTextStyle _chordTextStyle = const AppTextStyle();
 
   AppTextStyle get lyricsTextStyle => _lyricsTextStyle;

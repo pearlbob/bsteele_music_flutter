@@ -1,48 +1,12 @@
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
 
-import 'app.dart';
-
 const double _defaultFontSize = 24;
 final Paint _black = Paint()..color = Colors.black;
 final Paint _blue = Paint()..color = Colors.lightBlue.shade200;
 
 AppTextStyle appButtonTextStyle({double? fontSize}) {
   return AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
-}
-
-/// helper class to manage a ElevatedButton
-class AppElevatedButton extends ElevatedButton {
-  AppElevatedButton(
-    String text, {
-    Key? key,
-    Color? color,
-    double? fontSize,
-    required VoidCallback? onPressed,
-  }) : super(
-          key: key,
-          style: ElevatedButton.styleFrom(
-            primary: color ?? appDefaultColor,
-            textStyle: AppTextStyle(
-              color: Colors.black,
-              fontSize: fontSize,
-            ),
-            padding: const EdgeInsets.all(12.0),
-
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            // disabledTextColor: Colors.grey[400],
-            // disabledColor: Colors.grey[200],
-          ),
-
-          // hoverColor: _hoverColor,
-          child: Text(
-            text,
-            style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          onPressed: onPressed,
-        );
 }
 
 ElevatedButton appButton(
@@ -93,4 +57,19 @@ class AppFlexButton extends Expanded {
             onPressed: onPressed,
           ),
         );
+}
+
+Wrap appWrap(List<Widget> children, {WrapAlignment? alignment}) {
+  return Wrap(
+    children: children,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    alignment: alignment ?? WrapAlignment.start,
+  );
+}
+
+Widget appWrapFullWidth(List<Widget> children, {WrapAlignment? alignment}) {
+  return SizedBox(
+    width: double.infinity,
+    child: appWrap(children, alignment: alignment),
+  );
 }

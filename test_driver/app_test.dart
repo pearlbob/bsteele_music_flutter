@@ -1,33 +1,33 @@
-// Imports the Flutter Driver API.
-// import 'package:flutter/material.dart';
-// import 'package:flutter_driver/flutter_driver.dart';
+import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
+
+import 'app.dart' as app;
 
 void main() {
   group('bsteele Music App', () {
     // First, define the Finders and use them to locate widgets from the
     // test suite. Note: the Strings provided to the `byValueKey` method must
     // be the same as the Strings we used for the Keys in step 1.
-    // final searchTextFieldFinder = find.byType('TextField');
-    //
-    //
-    // late FlutterDriver driver;
-    //
-    // // Connect to the Flutter driver before running any tests.
-    // setUpAll(() async {
-    //   driver = await FlutterDriver.connect();
-    //   print('driver here');
-    // });
-    //
-    // // Close the connection to the driver after the tests have completed.
-    // tearDownAll(() async {
-    //     driver.close();
-    // });
-    //
-    // test('starts at 0', () async {
-    //   // Use the `driver.getText` method to verify the counter starts at 0.
-    //   expect(await driver.getText(searchTextFieldFinder), "0");
-    // });
+    // final searchTextFieldFinder = find.byValueKey('searchText');
+
+   // late FlutterDriver driver;
+
+    // Connect to the Flutter driver before running any tests.
+    setUpAll(() async {
+     // driver = await FlutterDriver.connect();
+      // print('driver here');
+    });
+
+    // Close the connection to the driver after the tests have completed.
+    tearDownAll(() async {
+      // driver.close();
+    });
+
+    test('starts with search text empty', () async {
+      app.main();
+      // Use the `driver.getText` method to verify the counter starts at 0.
+      // expect(await driver.getText(searchTextFieldFinder), '');
+    });
     //
     // // test('increments the counter', () async {
     // //   // First, tap the button.

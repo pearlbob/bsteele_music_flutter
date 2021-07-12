@@ -65,7 +65,7 @@ void main() {
       logger.i('allSongsSongIds.length: ${allSongsSongIds.length}');
 
       var notHoliday = SplayTreeSet<String>();
-      var holidayRexExp = RegExp('christmas', caseSensitive: false);
+      var holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
       notHoliday.addAll(allSongsSongIds.where((e) {
         return !holidayRexExp.hasMatch(e);
       }));

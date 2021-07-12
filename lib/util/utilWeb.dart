@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordPro.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/widgets.dart';
 
@@ -109,6 +110,18 @@ class UtilWeb implements UtilWorkaround {
 
   List<File>? files;
   final RegExp chordProRegExp = RegExp(r'pro$');
+
+  @override
+  Future<void> songMetadataFilePick(BuildContext context) async {
+    List<String> fileData = await getFiles('.songmetadata');
+    logger.d("files.length: ${fileData.length}");
+    for (var i = 0; i < fileData.length; i++) {
+      final String data64 = fileData[i];
+      Uint8List data = const Base64Decoder().convert(data64.split(",").last);
+      String s = utf8.decode(data);
+      SongMetadata.fromJson(s);
+    }
+  }
 }
 
 UtilWorkaround getUtilWorkaround() => UtilWeb();

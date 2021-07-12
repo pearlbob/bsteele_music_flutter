@@ -63,7 +63,7 @@ cp -r build/web/* $dst
 set gs=gs://www.bsteele.com/$app/$flavor
 
 bsteele_auth
-gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' $dst/ $gs 	#	source needs the /
+gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $dst/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs
 
@@ -83,6 +83,7 @@ cp -r build/web/* build/beta
 jar -uf $war -C build beta
 #	update the local allSongs to the latest
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
+jar -uf $war -C ~/github/allSongs.songmetadata allSongs.songmetadata
 rm -rf build/beta
 
 #	ship it to distribution point for raspberry pi's

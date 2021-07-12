@@ -7,7 +7,6 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:intl/intl.dart';
 
 import '../app/app.dart';
 
@@ -62,7 +61,7 @@ class _Songs extends State<Songs> {
               ),
               ElevatedButton(
                 child: Text(
-                  'Write songs all to $fileLocation',
+                  'Write all songs to $fileLocation',
                   style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
@@ -110,7 +109,7 @@ class _Songs extends State<Songs> {
       lastModifiedTime = max(lastModifiedTime, song.lastModifiedTime);
     }
 
-    return DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(lastModifiedTime));
+    return intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(lastModifiedTime));
   }
 
   /// write all songs to the standard location

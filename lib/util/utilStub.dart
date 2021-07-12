@@ -18,6 +18,12 @@ class NullWorkaround implements UtilWorkaround {
       return [''];
     });
   }
+
+  @override
+  Future<void> songMetadataFilePick(BuildContext context) {
+    // TODO: implement songMetadataFilePick
+    throw UnimplementedError();
+  }
 }
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.

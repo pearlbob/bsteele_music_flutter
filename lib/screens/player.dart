@@ -352,7 +352,7 @@ class _Player extends State<Player> with RouteAware {
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
-    final showTopOfDisplay = !_isPlaying || (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
+    final showTopOfDisplay = !_isPlaying;//|| (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
     logger.log(
         _playerLogScroll,
         'showTopOfDisplay: $showTopOfDisplay,'
@@ -630,7 +630,7 @@ With escape, the app goes back to the play list.''',
             ),
             if (_isPlaying && _isCapo)
               Text(
-                'Capo ${_capoLocation == 0 ? 'off' : 'on $_capoLocation'}',
+                'Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
                 style: _lyricsTextStyle,
               ),
           ],

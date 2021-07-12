@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordPro.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -93,6 +94,34 @@ class UtilLinux implements UtilWorkaround {
     }
     //  fixme: FilesystemPicker.open() in linux needs big help
     return [''];
+  }
+
+  @override
+  Future<void> songMetadataFilePick(BuildContext context) async {
+    String? path = await FilesystemPicker.open(
+      title: 'Open metadata file',
+      context: context,
+      rootDirectory: _rootDirectory,
+      fsType: FilesystemType.file,
+      allowedExtensions: ['.songmetadata', ],
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+    );
+    if (path != null) {
+      var file = File(path);
+      final app = App();
+      if (file.existsSync()) {
+        String s = utf8.decode(file.readAsBytesSync());
+
+        SongMetadata.fromJson(s);
+
+        //  fixme: limits subsequent opens to the selected directory
+        _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
+      }
+    } else {
+      //  reset the root
+      _rootDirectory = Directory(Util.homePath());
+    }
+    //  fixme: FilesystemPicker.open() in linux needs big help
   }
 }
 

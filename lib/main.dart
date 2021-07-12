@@ -928,34 +928,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _selectSearchText(context);
   }
 
-  // void _listMetadata() {
-  //   logger.i('_listMetadata():');
-  //   SplayTreeSet<String> names = SplayTreeSet();
-  //   for (var songIdMetadata in SongMetadata.idMetadata) {
-  //     for (var nameValue in songIdMetadata.nameValues) {
-  //       names.add(nameValue.name);
-  //     }
-  //   }
-  //   for (var name in names) {
-  //     logger.i('   $name:');
-  //     SplayTreeSet<String> values = SplayTreeSet();
-  //
-  //     for (var songIdMetadata in SongMetadata.where(nameIsLike: name)) {
-  //       for (var nameValue in songIdMetadata.where((nv) {
-  //         return nv.name == name;
-  //       })) {
-  //         values.add(nameValue.value);
-  //       }
-  //     }
-  //     for (var value in values) {
-  //       logger.i('     $value');
-  //       for (var songIdMetadata in SongMetadata.where(nameIsLike: name, valueIsLike: value)) {
-  //         logger.i('          ${songIdMetadata.id}');
-  //       }
-  //     }
-  //   }
-  // }
-
   final List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = _SortType.byTitle;
 

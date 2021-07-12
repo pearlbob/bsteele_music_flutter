@@ -216,8 +216,8 @@ class _Player extends State<Player> with RouteAware {
     _lyricsTable.computeScreenSizes();
 
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
-    var _chordTextStyle = _lyricsTable.chordTextStyle;
-    logger.i('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
+    var _chordsTextStyle = _lyricsTable.chordTextStyle;
+    logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
     const sectionCenterLocationFraction = 1.0 / 2;
 
@@ -251,7 +251,7 @@ class _Player extends State<Player> with RouteAware {
       }
 
       _keyDropDownMenuList.clear();
-      final double lyricsTextWidth = textWidth(context, _lyricsTextStyle, 'G'); //  something sane
+      final double chordsTextWidth = textWidth(context, _chordsTextStyle, 'G'); //  something sane
       const String onString = '(on ';
       final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
@@ -280,28 +280,28 @@ class _Player extends State<Player> with RouteAware {
             value: value,
             child: appWrap([
               SizedBox(
-                width: 2 * lyricsTextWidth, //  max width of chars expected
+                width: 3 * chordsTextWidth, //  max width of chars expected
                 child: Text(
                   valueString,
-                  style: _chordTextStyle,
+                  style: _chordsTextStyle,
                   textAlign: TextAlign.left,
                 ),
               ),
               SizedBox(
-                width: 2 * lyricsTextWidth, //  max width of chars expected
+                width: 2 * chordsTextWidth, //  max width of chars expected
                 child: Text(
                   offsetString,
-                  style: _chordTextStyle,
+                  style: _chordsTextStyle,
                   textAlign: TextAlign.right,
                 ),
               ),
               //  show the first note if it's not the same as the key
               if (firstScaleNote != null)
                 SizedBox(
-                  width: onStringWidth + 3 * lyricsTextWidth, //  max width of chars expected
+                  width: onStringWidth + 4 * chordsTextWidth, //  max width of chars expected
                   child: Text(
                     onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
-                    style: _chordTextStyle,
+                    style: _chordsTextStyle,
                     textAlign: TextAlign.right,
                   ),
                 )
@@ -434,7 +434,7 @@ class _Player extends State<Player> with RouteAware {
                                     },
                                     child: Text(
                                       ' by  ${song.artist}',
-                                      style: _chordTextStyle,
+                                      style: _chordsTextStyle,
                                     ),
                                     hoverColor: hoverColor,
                                   ),
@@ -465,7 +465,7 @@ With escape, the app goes back to the play list.''',
                                     [
                                       Text(
                                         'Capo',
-                                        style: _chordTextStyle,
+                                        style: _chordsTextStyle,
                                       ),
                                       Switch(
                                         onChanged: (value) {
@@ -479,12 +479,12 @@ With escape, the app goes back to the play list.''',
                                       if (_isCapo && _capoLocation > 0)
                                         Text(
                                           'on $_capoLocation',
-                                          style: _chordTextStyle,
+                                          style: _chordsTextStyle,
                                         ),
                                       if (_isCapo && _capoLocation == 0)
                                         Text(
                                           'no capo needed',
-                                          style: _chordTextStyle,
+                                          style: _chordsTextStyle,
                                         ),
                                     ],
                                   ),
@@ -528,7 +528,7 @@ With escape, the app goes back to the play list.''',
                                 appWrap([
                                 Text(
                                   'Key: ',
-                                  style: _chordTextStyle,
+                                  style: _chordsTextStyle,
                                 ),
                                 DropdownButton<music_key.Key>(
                                   items: _keyDropDownMenuList,
@@ -540,12 +540,12 @@ With escape, the app goes back to the play list.''',
                                     });
                                   },
                                   value: _selectedSongKey,
-                                  style: _chordTextStyle,
+                                  style: _chordsTextStyle,
                                   iconSize: _lyricsTable.fontSize,
                                   itemHeight: 1.2 * kMinInteractiveDimension,
                                 ),
                                 const SizedBox(
-                                  width: 10,
+                                  width: 5,
                                 ),
                                 if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
                                   Text(
@@ -573,7 +573,7 @@ With escape, the app goes back to the play list.''',
                                         });
                                       },
                                       value: song.beatsPerMinute,
-                                      style: _chordTextStyle,
+                                      style: _chordsTextStyle,
                                       iconSize: _lyricsTable.fontSize,
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
@@ -585,7 +585,7 @@ With escape, the app goes back to the play list.''',
                                 ]),
                                 Text(
                                   '  Time: ${song.timeSignature}',
-                                  style: _chordTextStyle,
+                                  style: _chordsTextStyle,
                                 ),
                                   Text(
                                   _songUpdateService.isConnected

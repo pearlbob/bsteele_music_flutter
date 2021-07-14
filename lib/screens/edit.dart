@@ -461,7 +461,8 @@ class _Edit extends State<Edit> {
                         Icons.add,
                         size: _chordFontSize,
                       ),
-                    ), key: const ValueKey('newChordSection')));
+                    ),
+                    key: const ValueKey('newChordSection')));
           }
           children.add(child);
 
@@ -510,6 +511,30 @@ class _Edit extends State<Edit> {
             DropdownMenuItem(key: ValueKey('scaleNote' + scaleNote.toMarkup()), value: scaleNote, child: Text(label));
         _keyChordDropDownMenuList.add(item);
       }
+    }
+
+    List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
+    {
+      keySelectDropdownMenuItems.addAll(music_key.Key.values.toList().reversed.map((music_key.Key value) {
+        return DropdownMenuItem<music_key.Key>(
+          key: ValueKey('key_' + value.toMarkup()),
+          value: value,
+          child: Text(
+            '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+            style: _boldTextStyle,
+          ),
+          onTap: () {
+            logger.log(_editLog, 'item onTap: ${value.runtimeType} $value');
+            if (_song.key != value) {
+              setState(() {
+                _song.key = value;
+                _key = value;
+                _keyChordNote = _key.getKeyScaleNote();
+              }); //  display the return to original
+            }
+          },
+        );
+      }));
     }
 
     bool songHasChanged = hasChangedFromOriginal || _lyricsEntries.hasChangedLines();
@@ -564,7 +589,6 @@ class _Edit extends State<Edit> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
-
                                 appButton(
                                   'Details',
                                   key: const ValueKey('screenDetail'),
@@ -728,26 +752,7 @@ class _Edit extends State<Edit> {
                           padding: const EdgeInsets.only(bottom: 24.0),
                           child: DropdownButton<music_key.Key>(
                             key: const ValueKey('editKeyDropdown'),
-                            items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                              return DropdownMenuItem<music_key.Key>(
-                                key: ValueKey('key_' + value.toMarkup()),
-                                value: value,
-                                child: Text(
-                                  '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                                  style: _boldTextStyle,
-                                ),
-                                onTap: () {
-                                  logger.log(_editLog, 'item onTap: ${value.runtimeType} $value');
-                                  if (_song.key != value) {
-                                    setState(() {
-                                      _song.key = value;
-                                      _key = value;
-                                      _keyChordNote = _key.getKeyScaleNote();
-                                    }); //  display the return to original
-                                  }
-                                },
-                              );
-                            }).toList(),
+                            items: keySelectDropdownMenuItems,
                             onChanged: (_value) {
                               logger.log(_editLog, 'DropdownButton onChanged: $_value');
                             },
@@ -1494,7 +1499,6 @@ class _Edit extends State<Edit> {
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void _editOnKey(RawKeyEvent value) {
-
     //  fixme: edit screen does not respond to escape after the detail screen
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
@@ -1538,7 +1542,7 @@ class _Edit extends State<Edit> {
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         /// clear editing with the escape key
-        if (  _measureEntryIsClear && !(hasChangedFromOriginal || _lyricsEntries.hasChangedLines()) ){
+        if (_measureEntryIsClear && !(hasChangedFromOriginal || _lyricsEntries.hasChangedLines())) {
           Navigator.pop(context);
         } else {
           _performMeasureEntryCancel();
@@ -2900,7 +2904,6 @@ class _Edit extends State<Edit> {
       _updateRawLyrics(_song.rawLyrics + s);
     }
   }
-
 
   _navigateToDetail(BuildContext context) async {
     _app.selectedSong = _song;

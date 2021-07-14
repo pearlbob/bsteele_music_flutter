@@ -64,7 +64,7 @@ class _State extends State<TheoryWidget> {
       appBar: AppBar(
         title: Text(
           'music theory',
-          style: AppTextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle( fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

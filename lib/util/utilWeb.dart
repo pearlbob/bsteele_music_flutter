@@ -112,7 +112,7 @@ class UtilWeb implements UtilWorkaround {
   final RegExp chordProRegExp = RegExp(r'pro$');
 
   @override
-  Future<void> songMetadataFilePick(BuildContext context) async {
+  Future<bool> songMetadataFilePick(BuildContext context) async {
     List<String> fileData = await getFiles('.songmetadata');
     logger.d("files.length: ${fileData.length}");
     for (var i = 0; i < fileData.length; i++) {
@@ -121,6 +121,7 @@ class UtilWeb implements UtilWorkaround {
       String s = utf8.decode(data);
       SongMetadata.fromJson(s);
     }
+    return fileData.isNotEmpty;
   }
 }
 

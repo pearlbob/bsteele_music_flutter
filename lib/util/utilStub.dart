@@ -20,7 +20,7 @@ class NullWorkaround implements UtilWorkaround {
   }
 
   @override
-  Future<void> songMetadataFilePick(BuildContext context) {
+  Future<bool> songMetadataFilePick(BuildContext context) {
     // TODO: implement songMetadataFilePick
     throw UnimplementedError();
   }

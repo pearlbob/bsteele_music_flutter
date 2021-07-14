@@ -204,7 +204,7 @@ class _State extends State<Detail> {
       appBar: AppBar(
         title: Text(
           '${_app.selectedSong.title} (detail)',
-          style: AppTextStyle(color: Colors.black87, fontSize: _fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -824,12 +824,12 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  strings
-    final _stringGrey = Paint()..color = Colors.grey[400] ?? Colors.grey;
+    final _stringGrey = Paint()..color = appDisabledColor;
     for (var s = 0; s < 4; s++) {
       _stringGrey.strokeWidth = (4.0 - s) * 3.0;
 
       var y = bassFretY + bassFretHeight - bassFretHeight * s / 4 - bassFretHeight / 8;
-      canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + bassScale, y), _stringGrey);
+      canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + 1.05 * bassScale /* over-run */, y), _stringGrey);
     }
 
     //  dots on frets 3, 5, 7, 9
@@ -869,7 +869,7 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  compute scale notes
-    Chord chord = _getChord();//  fixme!!!!!!!!!!!!!!!!!!!
+    Chord chord = _getChord(); //  fixme!!!!!!!!!!!!!!!!!!!
     ScaleChord scaleChord = chord.scaleChord;
     music_key.Key rootKey = music_key.Key.getKeyByHalfStep(chord.scaleChord.scaleNote.halfStep);
     var fretBoardNotes = SplayTreeSet<ScaleNote>();
@@ -970,17 +970,17 @@ class _FretBoardPainter extends CustomPainter {
     return fretLocs[n];
   }
 
-  double fretWidth(int n) {
-    n = max(0, min(12, n));
-
-    if (fretWidths.isEmpty) {
-      fretWidths.add(fretLoc(1) - fretLoc(0)); //  at 0
-      for (var i = 0; i < 12; i++) {
-        fretWidths.add(fretLoc(i + 1) - fretLoc(i));
-      }
-    }
-    return fretWidths[n];
-  }
+  // double _fretWidth(int n) {
+  //   n = max(0, min(12, n));
+  //
+  //   if (fretWidths.isEmpty) {
+  //     fretWidths.add(fretLoc(1) - fretLoc(0)); //  at 0
+  //     for (var i = 0; i < 12; i++) {
+  //       fretWidths.add(fretLoc(i + 1) - fretLoc(i));
+  //     }
+  //   }
+  //   return fretWidths[n];
+  // }
 
   final music_key.Key keyE = music_key.Key.get(music_key.KeyEnum.E);
 

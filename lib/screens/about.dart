@@ -38,7 +38,7 @@ class _About extends State<About> {
       appBar: AppBar(
         title: Text(
           'About the bsteele Music App',
-          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

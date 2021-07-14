@@ -745,6 +745,8 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
     }
 
+    logger.d('_selectedListNameValue: $_selectedListNameValue');
+
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
     for (final Song song in _app.allSongs) {
@@ -765,29 +767,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
         //  otherwise try some other qualification
         if (_selectedListNameValue != null && _selectedListNameValue != allSongsMetadataNameValue) {
-          // CommunityJamsSongList? communityJamsSongList =
-          //     Util.enumFromString<CommunityJamsSongList>(_selectedListNameValue!.value, CommunityJamsSongList.values);
-
-          //  insist on a ranking
-          NameValue? nv = SongMetadata.songMetadataAt(song.songId.songId, _selectedListNameValue!.name);
-          if (nv == null) {
-            //  toss if name not found
-            continue;
-          }
-          if (nv.value != _selectedListNameValue!.value) {
-            //  later if not too confusing
-            // if (nv.name == 'cj') {
-            //   //  specials for cj
-            //   CommunityJamsSongList? songList =
-            //       Util.enumFromString<CommunityJamsSongList>(nv.value, CommunityJamsSongList.values);
-            //   if (songList == null) {
-            //     continue;
-            //   }
-            //   if (songList.index <= (communityJamsSongList?.index ?? -1)) {
-            //     _filteredSongs.add(song);
-            //   }
-            // }
-            continue;
+          {
+            var found = SongMetadata.where(idIs: song.songId.songId, nameValue: _selectedListNameValue);
+            if (found.isNotEmpty) {
+              logger.d('found: ${song.songId.songId}: $found');
+            }
+            if (found.isEmpty) {
+              continue; //  not a match
+            }
           }
         }
 

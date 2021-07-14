@@ -97,7 +97,7 @@ class UtilLinux implements UtilWorkaround {
   }
 
   @override
-  Future<void> songMetadataFilePick(BuildContext context) async {
+  Future<bool> songMetadataFilePick(BuildContext context) async {
     String? path = await FilesystemPicker.open(
       title: 'Open metadata file',
       context: context,
@@ -116,9 +116,11 @@ class UtilLinux implements UtilWorkaround {
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
       }
+      return true;
     } else {
       //  reset the root
       _rootDirectory = Directory(Util.homePath());
+      return false;
     }
     //  fixme: FilesystemPicker.open() in linux needs big help
   }

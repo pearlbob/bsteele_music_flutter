@@ -28,7 +28,7 @@ class _Privacy extends State<Privacy> {
       appBar: AppBar(
         title: Text(
           'bsteele Music App Privacy Policy',
-          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

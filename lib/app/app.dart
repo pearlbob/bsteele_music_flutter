@@ -16,6 +16,7 @@ const _environmentDefault = 'main'; //  fixme: duplicate
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
 const Color appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
+final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone
 
 

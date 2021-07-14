@@ -14,7 +14,7 @@ abstract class UtilWorkaround {
 
   Future<void> songFilePick(BuildContext context);
 
-  Future<void> songMetadataFilePick(BuildContext context);
+  Future<bool> songMetadataFilePick(BuildContext context);
 
   Future<List<String>> textFilePickAndRead(BuildContext context);
 

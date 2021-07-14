@@ -94,7 +94,7 @@ void main() {
         logger.i('missingWidgetSongIds: $id');
       }
 
-      //  assure tha the start of the elements found match the not holiday list
+      //  assure that the start of the elements found match the not holiday list
       for (var i = 0; i < widgetSongIds.length; i++) {
         expect(widgetSongIds.elementAt(i), notHoliday.elementAt(i));
       }

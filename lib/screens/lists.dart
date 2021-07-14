@@ -14,6 +14,8 @@ import '../app/app.dart';
 
 final _blue = Paint()..color = Colors.lightBlue.shade200;
 
+int _dirtyCount = 0;
+
 /// Display the song moments in sequential order.
 class Lists extends StatefulWidget {
   const Lists({Key? key}) : super(key: key);
@@ -22,7 +24,7 @@ class Lists extends StatefulWidget {
   _State createState() => _State();
 }
 
-late AppTextStyle metadataStyle ;
+late AppTextStyle metadataStyle;
 
 class _State extends State<Lists> {
   _State() : _searchFocusNode = FocusNode();
@@ -37,9 +39,7 @@ class _State extends State<Lists> {
   bool _hasSelectedMetadata(Song song) {
     if (_selectedNameValue.name.isNotEmpty &&
         SongMetadata.where(
-                idIs: song.songId.toString(),
-                nameIs: _selectedNameValue.name,
-                valueIs: _selectedNameValue.value)
+                idIs: song.songId.toString(), nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value)
             .isNotEmpty) {
       return true;
     }
@@ -49,7 +49,7 @@ class _State extends State<Lists> {
   @override
   Widget build(BuildContext context) {
     final double fontSize = _app.screenInfo.fontSize;
-     metadataStyle = AppTextStyle(
+    metadataStyle = AppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
     );
@@ -196,8 +196,7 @@ class _State extends State<Lists> {
     List<Widget> songWidgetList = [];
     {
       SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
-      var songIdMetadataSet =
-          SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
+      var songIdMetadataSet = SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
       for (var song in _app.allSongs) {
         for (var songIdMetadata in songIdMetadataSet) {
           if (songIdMetadata.id == song.songId.toString()) {
@@ -208,8 +207,10 @@ class _State extends State<Lists> {
       List<Song> _metadataSongs = [];
       //  search songs on top
       if (_isSearchActive) {
-        songWidgetList.addAll( _filteredSongs.map(mapSongToWidget).toList());
-        songWidgetList.add( const Divider( thickness: 10,));
+        songWidgetList.addAll(_filteredSongs.map(mapSongToWidget).toList());
+        songWidgetList.add(const Divider(
+          thickness: 10,
+        ));
         _metadataSongs.addAll(_filteredSongs);
       }
       //  list songs later
@@ -226,7 +227,7 @@ class _State extends State<Lists> {
       appBar: AppBar(
         title: Text(
           'bsteele Music App Lists',
-          style: AppTextStyle(color: Colors.black87, fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -245,9 +246,10 @@ class _State extends State<Lists> {
                   onPressed: () {
                     _saveSongMetadata();
                   },
+                  color: _dirtyCount == 0  ? appDisabledColor : null,
                 ),
                 appButton(
-                  'Read files',
+                  'Read lists from file',
                   onPressed: () {
                     setState(() {
                       _filePick(context);
@@ -255,7 +257,15 @@ class _State extends State<Lists> {
                   },
                 ),
               ], alignment: WrapAlignment.spaceBetween),
+              const SizedBox(
+                height: 20,
+              ),
+              appWrap(
+                _metadataWidgets,
+                alignment: WrapAlignment.spaceEvenly,
+              ),
               appWrapFullWidth([
+                //  search line
                 appWrap([
                   Checkbox(
                       checkColor: Colors.white,
@@ -318,11 +328,11 @@ class _State extends State<Lists> {
                 ]),
               ], alignment: WrapAlignment.spaceBetween),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
-              appWrap(
-                _metadataWidgets,
-                alignment: WrapAlignment.spaceEvenly,
+              Divider(
+                thickness: 10,
+                color: _blue.color,
               ),
               const SizedBox(
                 height: 10,
@@ -337,8 +347,8 @@ class _State extends State<Lists> {
       ),
     );
   }
-  
-  Widget mapSongToWidget(Song song){
+
+  Widget mapSongToWidget(Song song) {
     return Row(
       children: [
         Checkbox(
@@ -348,6 +358,7 @@ class _State extends State<Lists> {
             onChanged: (bool? value) {
               if (value != null) {
                 setState(() {
+                  _dirtyCount++;
                   if (value) {
                     if (_selectedNameValue.name.isNotEmpty) {
                       SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
@@ -370,7 +381,7 @@ class _State extends State<Lists> {
         TextButton(
           child: Text(
             '${song.title} by ${song.artist}'
-                '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}',
+            '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}',
             style: metadataStyle,
           ),
           onPressed: () {
@@ -421,10 +432,13 @@ class _State extends State<Lists> {
     String contents = SongMetadata.toJson();
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     logger.i('_saveSongMetadata message: $message');
+    _dirtyCount = 0;
   }
 
   void _filePick(BuildContext context) async {
-    await UtilWorkaround().songMetadataFilePick(context);
+    if (await UtilWorkaround().songMetadataFilePick(context)) {
+      _dirtyCount = 0;
+    }
     setState(() {});
   }
 

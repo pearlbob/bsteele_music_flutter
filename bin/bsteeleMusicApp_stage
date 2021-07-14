@@ -83,7 +83,7 @@ cp -r build/web/* build/beta
 jar -uf $war -C build beta
 #	update the local allSongs to the latest
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
-jar -uf $war -C ~/github/allSongs.songmetadata allSongs.songmetadata
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
 rm -rf build/beta
 
 #	ship it to distribution point for raspberry pi's

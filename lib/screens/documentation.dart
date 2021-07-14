@@ -248,15 +248,12 @@ class _State extends State<Documentation> {
         'This restriction will likely be lifted in the future. '
         '\n\n'
         '# Suggestions\n'
-        'Writing all songs will provide a sample file format for examination. To write all songs, '
-        'choose Options, Write All Songs. See the button below.'
+        'Writing all the songs will provide a sample file format for examination. To write all songs, '
+        'choose hamburger (☰), Songs, Write All Songs. See the button below.'
         '\n\n'
         '# Notes\n'
         'Any sequence of measures can be bracketed, if it\'s a repeat or not. '
-        'That is started with \'[\' and ended with \']\'. In the near future, '
-        'these brackeded sequences will be prefixed with indicators controlling '
-        'the number of columns to be used in their display representation '
-        'and other preferences.\n'
+        'That is started with \'[\' and ended with \']\'.'
         '\n');
 
     return Scaffold(

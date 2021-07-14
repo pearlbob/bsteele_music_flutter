@@ -38,14 +38,11 @@ class _Privacy extends State<Privacy> {
           scrollDirection: Axis.vertical,
           padding: EdgeInsets.all(8.0),
           child: Text('The bsteele Music App is a client side application.  '
-              'Neither the phone app nor the web application has '
+              'In normal circumstances, neither the phone app nor the web application has '
               'any contact with the server after initialization.  '
-              'If used in a local display sharing mode, no data '
+              'If used in a local display sharing mode (leader/follower), no data '
               'other than the distribution of local song information '
-              'is sent.'
-              '\n\n'
-              'Even as a webpage, the app is loaded from static pages '
-              'on the server at the initialization.  No other communication occurs. '
+              'is sent.  This can be diabled by placing the host IP to "None".'
               '\n\n'
               'No personal data is collected in any fashion at any server.  '
               'Data unique to your use, such as your user name or an entered song, '
@@ -56,7 +53,8 @@ class _Privacy extends State<Privacy> {
               'in their .songlyrics file.  '
               '\n\n'
               'Note that the app will try on initialization to access the internet '
-              'to download the latest song list from www.bsteele.com.'),
+              'to download the latest song list from www.bsteele.com.  '
+              'Should this fail, a local copy will be used.'),
         ),
       ),
       floatingActionButton: FloatingActionButton(

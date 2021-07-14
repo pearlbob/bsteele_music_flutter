@@ -433,7 +433,7 @@ class _MyHomePageState extends State<MyHomePage> {
           style: AppTextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
-          Tooltip(
+          appTooltip(
             message: "Visit bsteele.com, the provider of this app.",
             child: InkWell(
               onTap: () {
@@ -450,7 +450,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          Tooltip(
+          appTooltip(
             message: "Visit Community Jams, the motivation and main user for this app.",
             child: InkWell(
               onTap: () {
@@ -556,15 +556,17 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(children: <Widget>[
         appWrapFullWidth([
           appWrap([
-            IconButton(
-              icon: const Icon(Icons.search),
-              tooltip: 'search',
-              iconSize: fontSize,
-              onPressed: (() {
-                setState(() {
-                  _searchSongs(_searchTextFieldController.text);
-                });
-              }),
+            appTooltip(
+              message: 'Enter search text here.\n Title, artist and cover artist will be searched.',
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                iconSize: fontSize,
+                onPressed: (() {
+                  setState(() {
+                    _searchSongs(_searchTextFieldController.text);
+                  });
+                }),
+              ),
             ),
             SizedBox(
               width: 10 * _titleBarFontSize,
@@ -588,28 +590,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
-            IconButton(
-              key: _clearSearchKey,
-              icon: const Icon(Icons.clear),
-              tooltip: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-              iconSize: 1.5 * fontSize,
-              onPressed: (() {
-                WidgetLog.tap(_clearSearchKey);
-                _searchTextFieldController.clear();
-                setState(() {
-                  FocusScope.of(context).requestFocus(_searchFocusNode);
-                  _searchSongs(null);
-                });
-              }),
-            ),
+            appTooltip(
+                message: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                child: IconButton(
+                  key: _clearSearchKey,
+                  icon: const Icon(Icons.clear),
+                  iconSize: 1.5 * fontSize,
+                  onPressed: (() {
+                    WidgetLog.tap(_clearSearchKey);
+                    _searchTextFieldController.clear();
+                    setState(() {
+                      FocusScope.of(context).requestFocus(_searchFocusNode);
+                      _searchSongs(null);
+                    });
+                  }),
+                )),
           ]),
           appWrap([
-            Text(
-              'Order ',
-              style: searchDropDownStyle,
+            appTooltip(
+              message: 'Select the order of the song list.',
+              child: Text(
+                'Order',
+                style: searchDropDownStyle,
+              ),
             ),
             const SizedBox(
-              width: 5,
+              width: 10,
             ),
             DropdownButton<_SortType>(
               items: _sortTypesDropDownMenuList,
@@ -628,12 +634,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ]),
           appWrap([
-            Text(
-              'List ',
-              style: searchDropDownStyle,
+            appTooltip(
+              message: 'Select which song list to show.',
+              child: Text(
+                'List',
+                style: searchDropDownStyle,
+              ),
             ),
             const SizedBox(
-              width: 5,
+              width: 10,
             ),
             DropdownButton<NameValue>(
               items: _metadataDropDownMenuList,
@@ -657,20 +666,22 @@ class _MyHomePageState extends State<MyHomePage> {
           )),
       ]),
 
-      floatingActionButton: FloatingActionButton(
-        mini: !_app.isScreenBig,
-        onPressed: () {
-          if (_itemScrollController.isAttached) {
-            _itemScrollController.scrollTo(
-              index: 0,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 500),
-            );
-          }
-        },
-        tooltip: 'Back to the list top',
-        child: const Icon(
-          Icons.arrow_upward,
+      floatingActionButton: appTooltip(
+        message: 'Back to the list top',
+        child: FloatingActionButton(
+          mini: !_app.isScreenBig,
+          onPressed: () {
+            if (_itemScrollController.isAttached) {
+              _itemScrollController.scrollTo(
+                index: 0,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 500),
+              );
+            }
+          },
+          child: const Icon(
+            Icons.arrow_upward,
+          ),
         ),
       ),
     );
@@ -842,8 +853,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     Navigator.pop(context);
-    _selectSearchText(context);
-    _searchSongs(_app.selectedSong.title);
+    setState(() {
+      _selectSearchText(context);
+      _refilterSongs();
+    });
+
   }
 
   void _selectSearchText(BuildContext context) {

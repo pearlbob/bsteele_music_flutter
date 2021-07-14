@@ -590,7 +590,7 @@ class _Edit extends State<Edit> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 appButton(
-                                  'Details',
+                                  'Sheet music',
                                   key: const ValueKey('screenDetail'),
                                   onPressed: () {
                                     setState(() {
@@ -601,7 +601,8 @@ class _Edit extends State<Edit> {
                                 const SizedBox(
                                   width: 50,
                                 ),
-                                appButton(
+                               appTooltip(message: 'Clear all song values to\n'
+                                 'start entering a new song.', child: appButton(
                                   'Clear',
                                   onPressed: () {
                                     setState(() {
@@ -610,16 +611,16 @@ class _Edit extends State<Edit> {
                                       _undoStackPushIfDifferent();
                                     });
                                   },
-                                ),
+                                ),),
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                appButton(
-                                  'Remove',
-                                  onPressed: () {
-                                    logger.log(_editLog, 'fixme: Remove song'); // fixme
-                                  },
-                                ),
+                                // appButton(
+                                //   'Remove',
+                                //   onPressed: () {
+                                //     logger.log(_editLog, 'fixme: Remove song'); // fixme
+                                //   },
+                                // ),
                                 // TextButton.icon(
                                 //        icon: Icon(
                                 //          Icons.arrow_left,

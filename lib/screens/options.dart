@@ -60,7 +60,7 @@ class _Options extends State<Options> {
       appBar: AppBar(
         title: Text(
           'bsteele Music App Options',
-          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
+          style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -287,28 +287,32 @@ class _Options extends State<Options> {
                             },
                           ),
                         ),
-                        const Spacer(),
-                        AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
-                          _appOptions.websocketHost = '';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        }),
-                        const Spacer(),
-                        AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
-                          _appOptions.websocketHost = 'cj.local';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        }),
-                        const Spacer(),
-                        AppFlexButton('Park', flex: 4, fontSize: fontSize, onPressed: () {
-                          _appOptions.websocketHost = '192.168.1.205';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        }),
-                        if (kDebugMode) const Spacer(),
-                        if (kDebugMode)
-                          AppFlexButton('bobspi.local', flex: 8, fontSize: fontSize, onPressed: () {
-                            _appOptions.websocketHost = 'bobspi.local';
-                            _websocketHostEditingController.text = _appOptions.websocketHost;
-                          }),
                       ]),
+                  appWrapFullWidth([
+                    AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
+                      _appOptions.websocketHost = '';
+                      _websocketHostEditingController.text = _appOptions.websocketHost;
+                    }, tooltip: 'No leader/follower',),
+                    const Spacer(),
+                    AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
+                      _appOptions.websocketHost = 'cj.local';
+                      _websocketHostEditingController.text = _appOptions.websocketHost;
+                    }, tooltip: 'You are in the Community Jams studio.'),
+                    const Spacer(),
+                    AppFlexButton('Park', flex: 4, fontSize: fontSize, onPressed: () {
+                      _appOptions.websocketHost = '192.168.1.205';
+                      _websocketHostEditingController.text = _appOptions.websocketHost;
+                    }, tooltip: 'You are in the park.'),
+                    if (kDebugMode) const Spacer(),
+                    if (kDebugMode)
+                      AppFlexButton('bobspi.local', flex: 8, fontSize: fontSize, onPressed: () {
+                        _appOptions.websocketHost = 'bobspi.local';
+                        _websocketHostEditingController.text = _appOptions.websocketHost;
+                      }),
+                  ], alignment: WrapAlignment.start, spacing: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(children: <Widget>[
                     Text(
                       'Song Update: ',

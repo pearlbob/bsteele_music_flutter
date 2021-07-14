@@ -35,7 +35,6 @@ final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Pla
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
 const _lightBlue = Color(0xFF4FC3F7);
-const _tooltipColor = Color(0xFFE8F5E9);
 
 App _app = App();
 bool _isCapo = false;
@@ -352,7 +351,7 @@ class _Player extends State<Player> with RouteAware {
 
     final hoverColor = Colors.blue[700];
     const Color blue300 = Color(0xFF64B5F6);
-    final showTopOfDisplay = !_isPlaying;//|| (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
+    final showTopOfDisplay = !_isPlaying; //|| (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
     logger.log(
         _playerLogScroll,
         'showTopOfDisplay: $showTopOfDisplay,'
@@ -398,6 +397,11 @@ class _Player extends State<Player> with RouteAware {
                   ),
                 ),
               ),
+            if (_isPlaying && _isCapo)
+              Text(
+                'Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
+                style: _chordsTextStyle,
+              ),
             GestureDetector(
               child: SingleChildScrollView(
                 controller: _scrollController,
@@ -413,33 +417,39 @@ class _Player extends State<Player> with RouteAware {
                             children: <Widget>[
                               AppBar(
                                 //  let the app bar scroll off the screen for more room for the song
-                                title: InkWell(
-                                  onTap: () {
-                                    openLink(_titleAnchor());
-                                  },
-                                  child: Text(
-                                    song.title,
-                                    style: AppTextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
+                                title: appTooltip(
+                                  message: 'Click to hear the song on youtube.com',
+                                  child: InkWell(
+                                    onTap: () {
+                                      openLink(_titleAnchor());
+                                    },
+                                    child: Text(
+                                      song.title,
+                                      style: AppTextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
+                                    ),
+                                    hoverColor: hoverColor,
                                   ),
-                                  hoverColor: hoverColor,
                                 ),
                                 centerTitle: true,
                               ),
                               Container(
                                 padding: const EdgeInsets.only(top: 16, right: 12),
                                 child: appWrapFullWidth([
-                                  InkWell(
-                                    onTap: () {
-                                      openLink(_artistAnchor());
-                                    },
-                                    child: Text(
-                                      ' by  ${song.artist}',
-                                      style: _chordsTextStyle,
+                                  appTooltip(
+                                    message: 'Click to hear the artist on youtube.com',
+                                    child: InkWell(
+                                      onTap: () {
+                                        openLink(_artistAnchor());
+                                      },
+                                      child: Text(
+                                        ' by  ${song.artist}',
+                                        style: _chordsTextStyle,
+                                      ),
+                                      hoverColor: hoverColor,
                                     ),
-                                    hoverColor: hoverColor,
                                   ),
-                                  _playTooltip(
-                                    '''
+                                  appTooltip(
+                                    message: '''
 Space bar or clicking the song area starts "play" mode.
     First section is in the middle of the display.
     Display items on the top will be missing.
@@ -449,7 +459,7 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                    TextButton(
+                                    child: TextButton(
                                       style: TextButton.styleFrom(
                                         primary: _lightBlue,
                                         padding: const EdgeInsets.all(8),
@@ -463,9 +473,13 @@ With escape, the app goes back to the play list.''',
                                   ),
                                   appWrap(
                                     [
-                                      Text(
-                                        'Capo',
-                                        style: _chordsTextStyle,
+                                      appTooltip(
+                                        message: 'For a guitar, show the capo location and\n'
+                                            'chords to match the current key.',
+                                        child: Text(
+                                          'Capo',
+                                          style: _chordsTextStyle,
+                                        ),
                                       ),
                                       Switch(
                                         onChanged: (value) {
@@ -489,6 +503,7 @@ With escape, the app goes back to the play list.''',
                                     ],
                                   ),
                                   if (_app.isEditReady)
+                                    appTooltip(message: 'Edit the song', child:
                                     TextButton.icon(
                                       style: TextButton.styleFrom(
                                         padding: const EdgeInsets.all(8),
@@ -502,15 +517,16 @@ With escape, the app goes back to the play list.''',
                                       onPressed: () {
                                         _navigateToEdit(context, song);
                                       },
-                                    ),
+                                    ),),
                                 ], alignment: WrapAlignment.spaceBetween),
                               ),
                               appWrapFullWidth([
                                 Container(
                                   padding: const EdgeInsets.only(left: 8, right: 8),
-                                  child: _playTooltip(
-                                    'Tip: use space bar to start playing',
-                                    TextButton.icon(
+                                  child: appTooltip(
+                                    message: 'Tip: Use the space bar to start playing.\n'
+                                        'Use the space bar to advance the section while playing.',
+                                    child: TextButton.icon(
                                       style: TextButton.styleFrom(
                                         primary: _isPlaying ? Colors.red : Colors.green,
                                       ),
@@ -526,41 +542,48 @@ With escape, the app goes back to the play list.''',
                                   ),
                                 ),
                                 appWrap([
-                                Text(
-                                  'Key: ',
-                                  style: _chordsTextStyle,
-                                ),
-                                DropdownButton<music_key.Key>(
-                                  items: _keyDropDownMenuList,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _setSelectedSongKey(value);
-                                      }
-                                    });
-                                  },
-                                  value: _selectedSongKey,
-                                  style: _chordsTextStyle,
-                                  iconSize: _lyricsTable.fontSize,
-                                  itemHeight: 1.2 * kMinInteractiveDimension,
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
-                                  Text(
-                                    '($_selectedSongKey' +
-                                        (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
-                                        (_isCapo && _capoLocation > 0 ? '-$_capoLocation' : '') //  indicate: "maps to"
-                                        +
-                                        '=$_displaySongKey)',
-                                    style: _lyricsTextStyle,
-                                  ),], alignment: WrapAlignment.spaceBetween),
+                                  appTooltip(
+                                    message: 'Transcribe the song to the selected key.',
+                                    child: Text(
+                                      'Key: ',
+                                      style: _chordsTextStyle,
+                                    ),
+                                  ),
+                                  DropdownButton<music_key.Key>(
+                                    items: _keyDropDownMenuList,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        if (value != null) {
+                                          _setSelectedSongKey(value);
+                                        }
+                                      });
+                                    },
+                                    value: _selectedSongKey,
+                                    style: _chordsTextStyle,
+                                    iconSize: _lyricsTable.fontSize,
+                                    itemHeight: 1.2 * kMinInteractiveDimension,
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
+                                    Text(
+                                      '($_selectedSongKey' +
+                                          (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
+                                          (_isCapo && _capoLocation > 0
+                                              ? '-$_capoLocation'
+                                              : '') //  indicate: "maps to"
+                                          +
+                                          '=$_displaySongKey)',
+                                      style: _lyricsTextStyle,
+                                    ),
+                                ], alignment: WrapAlignment.spaceBetween),
                                 appWrap([
+                                  appTooltip(message: 'Beats per minute', child:
                                   Text(
                                     'BPM: ',
                                     style: _lyricsTextStyle,
-                                  ),
+                                  ),),
                                   if (_app.isScreenBig)
                                     DropdownButton<int>(
                                       items: _bpmDropDownMenuList,
@@ -583,11 +606,12 @@ With escape, the app goes back to the play list.''',
                                       style: _lyricsTextStyle,
                                     ),
                                 ]),
+                                appTooltip(message: 'time signature', child:
                                 Text(
                                   '  Time: ${song.timeSignature}',
                                   style: _chordsTextStyle,
-                                ),
-                                  Text(
+                                ), ),
+                                Text(
                                   _songUpdateService.isConnected
                                       ? (_songUpdateService.isLeader
                                           ? 'I\'m the leader'
@@ -628,11 +652,6 @@ With escape, the app goes back to the play list.''',
                 }
               },
             ),
-            if (_isPlaying && _isCapo)
-              Text(
-                'Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
-                style: _lyricsTextStyle,
-              ),
           ],
         ),
       ),
@@ -643,9 +662,9 @@ With escape, the app goes back to the play list.''',
                   onPressed: () {
                     _pauseToggle();
                   },
-                  child: _playTooltip(
-                    'Stop.  Space bar will continue the play.',
-                    Icon(
+                  child: appTooltip(
+                    message: 'Stop.  Space bar will continue the play.',
+                    child: Icon(
                       Icons.play_arrow,
                       size: _lyricsTable.fontSize,
                     ),
@@ -656,9 +675,9 @@ With escape, the app goes back to the play list.''',
                   onPressed: () {
                     _stop();
                   },
-                  child: _playTooltip(
-                    'Escape to stop the play\nor space to next section',
-                    Icon(
+                  child: appTooltip(
+                    message: 'Escape to stop the play\nor space to next section',
+                    child: Icon(
                       Icons.stop,
                       size: _lyricsTable.fontSize,
                     ),
@@ -672,9 +691,9 @@ With escape, the app goes back to the play list.''',
                       _stop();
                     }
                   },
-                  child: _playTooltip(
-                    'Top of song',
-                    Icon(
+                  child: appTooltip(
+                    message: 'Top of song',
+                    child: Icon(
                       Icons.arrow_upward,
                       size: _lyricsTable.fontSize,
                     ),
@@ -685,9 +704,9 @@ With escape, the app goes back to the play list.''',
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: _playTooltip(
-                    'Back to song list',
-                    Icon(
+                  child: appTooltip(
+                    message: 'Back to song list',
+                    child: Icon(
                       Icons.arrow_back,
                       size: _lyricsTable.fontSize,
                     ),
@@ -983,25 +1002,6 @@ With escape, the app goes back to the play list.''',
     _forceTableRedisplay();
 
     _leaderSongUpdate(0);
-  }
-
-  /// helper function to generate tool tips
-  Widget _playTooltip(String message, Widget child) {
-    return Tooltip(
-        message: message,
-        child: child,
-        textStyle: _lyricsTable.lyricsTextStyle,
-
-        //  fixme: why is this broken on web?
-        //waitDuration: Duration(seconds: 1, milliseconds: 200),
-
-        verticalOffset: 50,
-        decoration: BoxDecoration(
-            color: _tooltipColor,
-            border: Border.all(),
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
-        padding: const EdgeInsets.all(8));
   }
 
   String _titleAnchor() {

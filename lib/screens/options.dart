@@ -57,13 +57,7 @@ class _Options extends State<Options> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'bsteele Music App Options',
-          style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('bsteele Music App Options', context),
       body: DefaultTextStyle(
         style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: SingleChildScrollView(
@@ -288,7 +282,7 @@ class _Options extends State<Options> {
                           ),
                         ),
                       ]),
-                  appWrapFullWidth([
+                  Row(children:[
                     AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
                       _appOptions.websocketHost = '';
                       _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -305,11 +299,11 @@ class _Options extends State<Options> {
                     }, tooltip: 'You are in the park.'),
                     if (kDebugMode) const Spacer(),
                     if (kDebugMode)
-                      AppFlexButton('bobspi.local', flex: 8, fontSize: fontSize, onPressed: () {
+                      AppFlexButton('bob\'s place', flex: 8, fontSize: fontSize, onPressed: () {
                         _appOptions.websocketHost = 'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
-                  ], alignment: WrapAlignment.start, spacing: 10),
+                  ]),
                   const SizedBox(
                     height: 10,
                   ),
@@ -435,13 +429,7 @@ class _Options extends State<Options> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: const Icon(Icons.arrow_back),
-      ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 

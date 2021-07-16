@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,154 +62,143 @@ class _State extends State<TheoryWidget> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'music theory',
-          style: AppTextStyle( fontSize: _fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('Music Theory', context),
       body: SingleChildScrollView(
-    //controller: _scrollController,
-    scrollDirection: Axis.vertical,
-    child: Column(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Key: ',
-                        style: _style,
-                      ),
-                      DropdownButton<music_key.Key>(
-                        items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                          return DropdownMenuItem<music_key.Key>(
-                            key: ValueKey('half' + value.getHalfStep().toString()),
-                            value: value,
-                            child: Text(
-                              '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != _key) {
-                            setState(() {
-                              _key = _value;
-                            });
-                          }
-                        },
-                        value: _key,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
+        //controller: _scrollController,
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Key: ',
+                          style: _style,
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Chord root: ',
-                        style: _style,
-                      ),
-                      DropdownButton<ScaleNote>(
-                        items: scaleNoteValues.map((ScaleNote value) {
-                          return DropdownMenuItem<ScaleNote>(
-                            key: ValueKey('root' + value.halfStep.toString()),
-                            value: value,
-                            child: Text(
-                              _key.inKey(value).toMarkup(),
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != _chordRoot) {
-                            setState(() {
-                              _chordRoot = _value;
-                            });
-                          }
-                        },
-                        value: _chordRoot,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
+                        DropdownButton<music_key.Key>(
+                          items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                            return DropdownMenuItem<music_key.Key>(
+                              key: ValueKey('half' + value.getHalfStep().toString()),
+                              value: value,
+                              child: Text(
+                                '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != _key) {
+                              setState(() {
+                                _key = _value;
+                              });
+                            }
+                          },
+                          value: _key,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Chord type: ',
-                        style: _style,
-                      ),
-                      DropdownButton<ChordDescriptor>(
-                        items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
-                          return DropdownMenuItem<ChordDescriptor>(
-                            value: value,
-                            child: Text(
-                              '${value.toString().padRight(3)} (${value.name})',
-                              style: _style,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (_value) {
-                          if (_value != null && _value != chordDescriptor) {
-                            setState(() {
-                              chordDescriptor = _value;
-                            });
-                          }
-                        },
-                        value: chordDescriptor,
-                        style: const AppTextStyle(
-                          //  size controlled by textScaleFactor above
-                          color: Colors.black,
-                          textBaseline: TextBaseline.ideographic,
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Chord root: ',
+                          style: _style,
                         ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    height: 10,
-                  ),
-                  _keyTable(),
-                  Container(
-                    height: 20,
-                  ),
-                  _majorDiatonicsTable(),
-                  Container(
-                    height: 20,
-                  ),
-                  _minorDiatonicsTable()
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-        ],
-      ),),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: const Icon(Icons.arrow_back),
+                        DropdownButton<ScaleNote>(
+                          items: scaleNoteValues.map((ScaleNote value) {
+                            return DropdownMenuItem<ScaleNote>(
+                              key: ValueKey('root' + value.halfStep.toString()),
+                              value: value,
+                              child: Text(
+                                _key.inKey(value).toMarkup(),
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != _chordRoot) {
+                              setState(() {
+                                _chordRoot = _value;
+                              });
+                            }
+                          },
+                          value: _chordRoot,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Chord type: ',
+                          style: _style,
+                        ),
+                        DropdownButton<ChordDescriptor>(
+                          items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
+                            return DropdownMenuItem<ChordDescriptor>(
+                              value: value,
+                              child: Text(
+                                '${value.toString().padRight(3)} (${value.name})',
+                                style: _style,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_value) {
+                            if (_value != null && _value != chordDescriptor) {
+                              setState(() {
+                                chordDescriptor = _value;
+                              });
+                            }
+                          },
+                          value: chordDescriptor,
+                          style: const AppTextStyle(
+                            //  size controlled by textScaleFactor above
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      height: 10,
+                    ),
+                    _keyTable(),
+                    Container(
+                      height: 20,
+                    ),
+                    _majorDiatonicsTable(),
+                    Container(
+                      height: 20,
+                    ),
+                    _minorDiatonicsTable()
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
       ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 
@@ -352,7 +342,7 @@ class _State extends State<TheoryWidget> {
     final tableRows = <TableRow>[];
 
     //  major diatonic names
-        {
+    {
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
@@ -543,12 +533,13 @@ class _State extends State<TheoryWidget> {
       border: TableBorder.all(),
     );
   }
+
   Table _minorDiatonicsTable() {
     const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
     final tableRows = <TableRow>[];
 
     //  major diatonic names
-        {
+    {
       List<Widget> row = [];
       row.add(Container(
         padding: padding,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -35,13 +36,7 @@ class _About extends State<About> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'About the bsteele Music App',
-          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('About the bsteele Music App', context),
       body: DefaultTextStyle(
         style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
@@ -102,13 +97,7 @@ class _About extends State<About> {
               ]),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: const Icon(Icons.arrow_back),
-      ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 
@@ -133,5 +122,6 @@ class _About extends State<About> {
     packageName: 'Unknown',
     version: 'Unknown',
     buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
   );
 }

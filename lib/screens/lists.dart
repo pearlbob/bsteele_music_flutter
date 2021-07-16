@@ -224,13 +224,7 @@ class _State extends State<Lists> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'bsteele Music App Lists',
-          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('bsteele Music App Song Lists', context),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -345,6 +339,7 @@ class _State extends State<Lists> {
               ),
             ]),
       ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 

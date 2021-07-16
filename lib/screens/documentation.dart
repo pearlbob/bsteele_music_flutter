@@ -1,6 +1,7 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
@@ -258,13 +259,7 @@ class _State extends State<Documentation> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'bsteele Music App Documentation',
-          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('bsteele Music App Documentation', context),
       body: DefaultTextStyle(
         style: style,
         child: SingleChildScrollView(
@@ -276,17 +271,12 @@ class _State extends State<Documentation> {
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 md.MarkdownBody(
-                    styleSheet: md.MarkdownStyleSheet(textScaleFactor: App().isScreenBig ? 2 : 1), data: desc.toString())
+                    styleSheet: md.MarkdownStyleSheet(textScaleFactor: App().isScreenBig ? 2 : 1),
+                    data: desc.toString())
               ]),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: const Icon(Icons.arrow_back),
-      ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 }

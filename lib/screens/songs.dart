@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
@@ -32,13 +33,7 @@ class _Songs extends State<Songs> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'bsteele Music App Songs',
-          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('bsteele Music App Song Management', context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(
@@ -96,6 +91,7 @@ class _Songs extends State<Songs> {
               ),
             ]),
       ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 

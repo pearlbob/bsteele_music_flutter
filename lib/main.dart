@@ -426,11 +426,17 @@ class _MyHomePageState extends State<MyHomePage> {
     var _clearSearchKey = const ValueKey<String>('clearSearch');
 
     return Scaffold(
-      appBar: AppBar(
+      key: _scaffoldKey,
+      appBar: appBar(
+        widget.title,
         key: const ValueKey('hamburger'),
-        title: Text(
-          widget.title,
-          style: AppTextStyle(fontSize: _titleBarFontSize, fontWeight: FontWeight.bold),
+        leading: appTooltip(
+          message: MaterialLocalizations.of(context).openAppDrawerTooltip,
+          child: TextButton(
+              onPressed: () {
+                _openDrawer();
+              },
+              child: const Icon(Icons.menu, color: Colors.white)),
         ),
         actions: <Widget>[
           appTooltip(
@@ -468,8 +474,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ],
-        toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
       ),
+
+      //   toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
+      // ),
 
       drawer: Drawer(
         child: ListView(
@@ -687,6 +695,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+   void _openDrawer() {
+     _scaffoldKey.currentState?.openDrawer();
+   }
+
+   // void _closeDrawer() {
+   //   Navigator.of(context).pop();
+   // }
+
   void _searchSongs(String? search) {
     search ??= '';
     search = search.trim();
@@ -857,7 +875,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectSearchText(context);
       _refilterSongs();
     });
-
   }
 
   void _selectSearchText(BuildContext context) {

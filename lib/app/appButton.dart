@@ -1,10 +1,14 @@
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
 
+import 'app.dart';
+
 const double _defaultFontSize = 24;
 final Paint _black = Paint()..color = Colors.black;
 final Paint _blue = Paint()..color = Colors.lightBlue.shade200;
 const _tooltipColor = Color(0xFFE8F5E9);
+
+final App _app = App();
 
 AppTextStyle appButtonTextStyle({double? fontSize}) {
   return AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
@@ -106,5 +110,49 @@ Widget appWrapFullWidth(List<Widget> children, {WrapAlignment? alignment, double
   return SizedBox(
     width: double.infinity,
     child: appWrap(children, alignment: alignment, spacing: spacing),
+  );
+}
+
+Widget appBack(BuildContext context) {
+  return appTooltip(
+    message: 'Back',
+    child: TextButton(
+      onPressed: () {
+        Navigator.pop(context);
+      },
+      child: const Icon(Icons.arrow_back, color: Colors.white),
+    ),
+  );
+}
+
+Widget appFloatingBack(BuildContext context) {
+  return appTooltip(
+    message: 'Back',
+    child: FloatingActionButton(
+      onPressed: () {
+        Navigator.pop(context);
+      },
+      child: const Icon(Icons.arrow_back, color: Colors.white),
+    ),
+  );
+}
+
+AppBar appBackBar(String title, BuildContext context, {double? fontSize}) {
+  return appBar(title, leading: appBack(context), fontSize: fontSize);
+}
+
+
+
+AppBar appBar(String title, {Key? key, Widget? leading, List<Widget>? actions, double? fontSize}) {
+  return AppBar(
+    key: key ?? const ValueKey('appBar'),
+    title: Text(
+      title,
+      style: AppTextStyle(fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
+    ),
+    leading: leading,
+    centerTitle: false,
+    actions: actions,
+
   );
 }

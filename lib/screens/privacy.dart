@@ -1,4 +1,5 @@
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -25,13 +26,7 @@ class _Privacy extends State<Privacy> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'bsteele Music App Privacy Policy',
-          style: AppTextStyle( fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBackBar('bsteele Music App Privacy Policy', context),
       body: DefaultTextStyle(
         style: style,
         child: const SingleChildScrollView(
@@ -57,13 +52,7 @@ class _Privacy extends State<Privacy> {
               'Should this fail, a local copy will be used.'),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: const Icon(Icons.arrow_back),
-      ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 }

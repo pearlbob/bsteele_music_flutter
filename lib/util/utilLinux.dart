@@ -32,7 +32,7 @@ class UtilLinux implements UtilWorkaround {
     } catch (e) {
       return 'Error writing file to \'$file\': $e';
     }
-    return 'file written to \'$file\'';
+    return 'file written to \'${file.path}\'';
   }
 
   @override
@@ -72,7 +72,7 @@ class UtilLinux implements UtilWorkaround {
   final RegExp chordProRegExp = RegExp(r'pro$');
 
   @override
-  Future<List<String>> textFilePickAndRead(BuildContext context) async {
+  Future<List<NameValue>> textFilePickAndRead(BuildContext context) async {
     String? path = await FilesystemPicker.open(
       title: 'Open file',
       context: context,
@@ -86,18 +86,18 @@ class UtilLinux implements UtilWorkaround {
         String s = utf8.decode(file.readAsBytesSync());
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
-        return [s];
+        return [NameValue(path,s)];
       }
     } else {
       //  reset the root
       _rootDirectory = Directory(Util.homePath());
     }
     //  fixme: FilesystemPicker.open() in linux needs big help
-    return [''];
+    return [];
   }
 
   @override
-  Future<bool> songMetadataFilePick(BuildContext context) async {
+  Future<String> songMetadataFilePick(BuildContext context) async {
     String? path = await FilesystemPicker.open(
       title: 'Open metadata file',
       context: context,
@@ -116,11 +116,11 @@ class UtilLinux implements UtilWorkaround {
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
       }
-      return true;
+      return 'Song metadata read from $path';
     } else {
       //  reset the root
       _rootDirectory = Directory(Util.homePath());
-      return false;
+      return '';
     }
     //  fixme: FilesystemPicker.open() in linux needs big help
   }

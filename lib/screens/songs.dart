@@ -24,6 +24,7 @@ class _Songs extends State<Songs> {
   initState() {
     super.initState();
 
+    _app.clearMessage();
     logger.d("_Songs.initState()");
   }
 
@@ -66,20 +67,26 @@ class _Songs extends State<Songs> {
               const SizedBox(
                 height: 20,
               ),
-              ElevatedButton(
-                child: Text(
-                  'Remove all songs from the current list',
-                  style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+              appTooltip(
+                message: 'A reload of the application will return them all.',
+                child: ElevatedButton(
+                  child: Text(
+                    'Remove all songs from the current list',
+                    style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _app.removeAllSongs();
+                    });
+                  },
                 ),
-                onPressed: () {
-                  setState(() {
-                    _app.removeAllSongs();
-                  });
-                },
               ),
-              Text(
-                _message ?? '',
-                style: AppTextStyle(fontSize: fontSize),
+              const SizedBox(
+                height: 20,
+              ),
+              _app.messageTextWidget(),
+              const SizedBox(
+                height: 20,
               ),
               Text(
                 'Song count:  ${_app.allSongs.length}',
@@ -115,7 +122,7 @@ class _Songs extends State<Songs> {
     UtilWorkaround().writeFileContents(fileName, contents);
 
     setState(() {
-      _message = 'wrote file: $fileName to $fileLocation';
+      _app.infoMessage('wrote file: $fileName to $fileLocation folder');
     });
   }
 
@@ -125,6 +132,5 @@ class _Songs extends State<Songs> {
   }
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
-  String? _message;
   final App _app = App();
 }

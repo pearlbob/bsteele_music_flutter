@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/utilStub.dart'
 // ignore: uri_does_not_exist
 if (dart.library.io) 'package:bsteele_music_flutter/util/utilLinux.dart'
@@ -14,9 +15,9 @@ abstract class UtilWorkaround {
 
   Future<void> songFilePick(BuildContext context);
 
-  Future<bool> songMetadataFilePick(BuildContext context);
+  Future<String> songMetadataFilePick(BuildContext context);
 
-  Future<List<String>> textFilePickAndRead(BuildContext context);
+  Future<List<NameValue>> textFilePickAndRead(BuildContext context);
 
   /// factory constructor to return the correct implementation.
   factory UtilWorkaround() => getUtilWorkaround();

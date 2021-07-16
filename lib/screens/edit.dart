@@ -18,6 +18,7 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
@@ -50,9 +51,6 @@ const AppTextStyle _boldTextStyle = AppTextStyle(
   color: Colors.black87,
 );
 const AppTextStyle _labelTextStyle = AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
-const AppTextStyle _textStyle = AppTextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
-const AppTextStyle _errorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
-const AppTextStyle _warningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
 
 const double _entryWidth = 18 * _defaultChordFontSize;
 
@@ -170,15 +168,22 @@ class _Edit extends State<Edit> {
       try {
         var bpm = int.parse(_bpmTextEditingController.text);
         if (bpm < MusicConstants.minBpm || bpm > MusicConstants.maxBpm) {
-          _errorMessage('BPM needs to be a number '
-              'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'');
+          setState(() {
+            _app.errorMessage('BPM needs to be a number '
+                'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'');
+          });
         } else {
-          _clearErrorMessage();
-          _song.beatsPerMinute = bpm;
-          _checkSongChangeStatus();
+          setState(() {
+            _app.clearMessage();
+            _song.beatsPerMinute = bpm;
+            _checkSongChangeStatus();
+          });
         }
       } catch (e) {
-        _errorMessage('caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}');
+        setState(() {
+          _app.errorMessage(
+              'caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}');
+        });
       }
     });
 
@@ -212,11 +217,13 @@ class _Edit extends State<Edit> {
     String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = _song.toJsonAsFile();
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
-    if (message.toLowerCase().contains('error')) {
-      _errorMessage(message);
-    } else {
-      _infoMessage(message);
-    }
+    setState(() {
+      if (message.toLowerCase().contains('error')) {
+        _app.errorMessage(message);
+      } else {
+        _app.infoMessage(message);
+      }
+    });
 
     _checkSongChangeStatus();
   }
@@ -582,9 +589,7 @@ class _Edit extends State<Edit> {
                               }
                             },
                           ),
-                          Text(_app.message,
-                              style: _app.messageType == MessageType.error ? _errorTextStyle : _warningTextStyle,
-                              key: const ValueKey('errorMessage')),
+                          _app.messageTextWidget(),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -601,17 +606,20 @@ class _Edit extends State<Edit> {
                                 const SizedBox(
                                   width: 50,
                                 ),
-                               appTooltip(message: 'Clear all song values to\n'
-                                 'start entering a new song.', child: appButton(
-                                  'Clear',
-                                  onPressed: () {
-                                    setState(() {
-                                      _song = Song.createEmptySong();
-                                      _loadSong(_song);
-                                      _undoStackPushIfDifferent();
-                                    });
-                                  },
-                                ),),
+                                appTooltip(
+                                  message: 'Clear all song values to\n'
+                                      'start entering a new song.',
+                                  child: appButton(
+                                    'Clear',
+                                    onPressed: () {
+                                      setState(() {
+                                        _song = Song.createEmptySong();
+                                        _loadSong(_song);
+                                        _undoStackPushIfDifferent();
+                                      });
+                                    },
+                                  ),
+                                ),
                                 const SizedBox(
                                   width: 10,
                                 ),
@@ -908,22 +916,22 @@ class _Edit extends State<Edit> {
                                   ' Sections can be entered abbreviated and in lower case.'
                                   ' The available section buttons will enter the correct abbreviation.'
                                   ' Section types can be followed with a digit to indicate a variation.\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             TextSpan(
                               text: '\n\n'
                                       'The sections are: ' +
                                   _listSections(),
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: '\n'
                                   'Their abbreviations are: ',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             TextSpan(
                               text: _listSectionAbbreviations(),
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: '.\n\n'
@@ -937,16 +945,16 @@ class _Edit extends State<Edit> {
                                   ' When the chord entry is correct, the characters will be removed from the comment and will be'
                                   ' returned to their correct position in the entry.'
                                   '\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: '''A capital X is used to indicate no chord.\n\n''',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
@@ -955,7 +963,7 @@ class _Edit extends State<Edit> {
                                   ' be a B♭m7 or the chord B followed by a Bm7?'
                                   ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
                                   '',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Limited set of case sensitive chord modifiers can be used: 7sus4,'
@@ -966,24 +974,24 @@ class _Edit extends State<Edit> {
                                   ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
                                   ' And of course the major chord is assumed if there is no modifier!'
                                   ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
                                   ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
                                   ' The bass note is a single note, not a chord.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   'Periods (.) can be used to repeat chords on another beat within the same measure. For'
                                   ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: '''Sample measures to use:
@@ -991,44 +999,44 @@ class _Edit extends State<Edit> {
       A# C# Bb Db
       C7 D7 Dbm Dm Em Dm7 F#m7 A#maj7 Gsus9
       DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Commas (,) between measures can be used to indicate the end of a row of measures.'
                                   ' The maximum number of measures allowed within a single row is 8.'
                                   ' If there are no commas within a phrase of 8 or more measures, the phrase will'
                                   ' automatically be split into rows of 4 measures.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Minus signs (-) can be used to indicate a repeated measure.'
                                   ' There must be a space before and after it.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Row repeats are indicated by a lower case x followed by a number 2 or more.'
                                   ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
                                   ' first measure of the first row and a closing square bracket (]) after the last'
                                   ' measure before the x and the digits.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Comments are not allowed in the chord section.'
                                   ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Since you can enter the return key to create a new row for your entry,'
                                   ' you must us the exit to stop editing.  Clicking outside the entry'
                                   ' box or typing escape will work as well.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'The red bar or measure highlight indicate where entry text will be entered.'
                                   ' The radio buttons control the fine position of this indicator for inserting, replacing,'
                                   ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
                                   ' to delete it. Note that the delete key will always apply to text entry.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'Double click a measure to select it for replacement or deletion.'
@@ -1037,23 +1045,23 @@ class _Edit extends State<Edit> {
                                   ' If two sections have identical content, they will appear as multiple types for the'
                                   ' single content. Define a different section content for one of the multiple sections'
                                   ' and it will be separated from the others.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'In the lyrics section, anything else not recognized as a section identifier is'
                                   ' considered lyrics to the end of the line.'
                                   ' I suggest comments go into parenthesis.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text: 'A trick: Select a section similar to a new section you are about to enter.'
@@ -1061,18 +1069,18 @@ class _Edit extends State<Edit> {
                                   ' (I suggest the section buttons on the right).'
                                   ' Paste the old text after the new section. Make edit adjustments in the entry text'
                                   ' and press the keyboard enter button.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
                                   ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                             const TextSpan(
                               text:
                                   'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
-                              style: _textStyle,
+                              style: appTextStyle,
                             ),
                           ],
                         ),
@@ -1962,7 +1970,7 @@ class _Edit extends State<Edit> {
               children: <Widget>[
                 Text(
                   sc.toMarkup(),
-                  style: _textStyle,
+                  style: appTextStyle,
                 ),
               ],
             ),
@@ -1982,7 +1990,7 @@ class _Edit extends State<Edit> {
               children: <Widget>[
                 Text(
                   sc.toMarkup(),
-                  style: _textStyle,
+                  style: appTextStyle,
                 ),
               ],
             ),
@@ -2061,7 +2069,7 @@ class _Edit extends State<Edit> {
                             _updateChordText(_value?.toMarkup());
                           });
                         },
-                        style: _textStyle,
+                        style: appTextStyle,
                       ),
                     ),
                     _editTooltip(
@@ -2076,7 +2084,7 @@ class _Edit extends State<Edit> {
                             _updateChordText('/' + (_value?.toMarkup() ?? ''));
                           });
                         },
-                        style: _textStyle,
+                        style: appTextStyle,
                       ),
                     ),
                     if (_measureEntryValid)
@@ -2095,7 +2103,7 @@ class _Edit extends State<Edit> {
                               _performMeasureEntryCancel();
                             });
                           },
-                          style: _textStyle,
+                          style: appTextStyle,
                         ),
                       ),
                   ],
@@ -2223,7 +2231,7 @@ class _Edit extends State<Edit> {
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                   const Text(
                     'Repeat: ',
-                    style: _textStyle,
+                    style: appTextStyle,
                   ),
                   appButton(
                     'x2',
@@ -2623,13 +2631,13 @@ class _Edit extends State<Edit> {
   void _undo() {
     setState(() {
       if (_undoStack.canUndo) {
-        _clearErrorMessage();
+        _app.clearMessage();
         _clearMeasureEntry();
         _loadSong(_undoStack.undo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
         _checkSongChangeStatus();
       } else {
-        _errorMessage('cannot undo any more');
+        _app. errorMessage('cannot undo any more');
       }
     });
   }
@@ -2637,13 +2645,13 @@ class _Edit extends State<Edit> {
   void _redo() {
     setState(() {
       if (_undoStack.canRedo) {
-        _clearErrorMessage();
+        _app.clearMessage();
         _clearMeasureEntry();
         _loadSong(_undoStack.redo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
         _checkSongChangeStatus();
       } else {
-        _errorMessage('cannot redo any more');
+        _app. errorMessage('cannot redo any more');
       }
     });
   }
@@ -2673,22 +2681,6 @@ class _Edit extends State<Edit> {
     } else {
       logger.d('undo ${_undoStack.pointer}: "${_undoStack.top?.toMarkup()}"');
     }
-  }
-
-  void _errorMessage(String error) {
-    if (_app.error != error) {
-      setState(() {
-        _app.error = error;
-      });
-    }
-  }
-
-  void _infoMessage(String warning) {
-    _app.warning = warning;
-  }
-
-  void _clearErrorMessage() {
-    _app.messageClear();
   }
 
   void _performEdit({bool done = false, bool endOfRow = false}) {
@@ -2796,7 +2788,7 @@ class _Edit extends State<Edit> {
       return true;
     } else {
       logger.log(_editLog, '_editMeasure(): failed');
-      _errorMessage('edit failed: ${_song.message}');
+      _app.errorMessage('edit failed: ${_song.message}');
     }
 
     return false;
@@ -2821,7 +2813,7 @@ class _Edit extends State<Edit> {
   void _setEditDataPoint(_EditDataPoint editDataPoint) {
     setState(() {
       _clearMeasureEntry();
-      _clearErrorMessage();
+      _app.clearMessage();
       _selectedEditDataPoint = editDataPoint;
       logger.d('_setEditDataPoint(${editDataPoint.toString()})');
     });
@@ -2860,10 +2852,10 @@ class _Edit extends State<Edit> {
     try {
       _song.checkSong();
       _isValidSong = true;
-      _errorMessage('');
+      _app.clearMessage();
     } catch (e) {
       _isValidSong = false;
-      _errorMessage(e.toString());
+      _app.errorMessage(e.toString());
     }
   }
 
@@ -2900,9 +2892,9 @@ class _Edit extends State<Edit> {
   }
 
   void _import() async {
-    List<String> lyricStrings = await UtilWorkaround().textFilePickAndRead(context);
-    for (var s in lyricStrings) {
-      _updateRawLyrics(_song.rawLyrics + s);
+    List<NameValue> lyricStrings = await UtilWorkaround().textFilePickAndRead(context);
+    for (var nameValue in lyricStrings) {
+      _updateRawLyrics(_song.rawLyrics + nameValue.value);
     }
   }
 

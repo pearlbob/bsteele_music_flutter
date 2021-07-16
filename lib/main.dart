@@ -860,8 +860,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     Navigator.pop(context);
-    _selectSearchText(context);
-    _searchSongs(_app.selectedSong.title);
+    _reApplySearch();
   }
 
   void _navigateToLists(BuildContext context) async {
@@ -871,8 +870,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     Navigator.pop(context);
+    _reApplySearch();
+  }
+
+  void _reApplySearch(){
     setState(() {
-      _selectSearchText(context);
+      _selectSearchText(context);//  select all text on a navigation pop
       _refilterSongs();
     });
   }
@@ -895,9 +898,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Player.routeName,
     );
 
-    //  select all text on a navigation pop
-    _selectSearchText(context);
-    _rollUnfilteredSongs();
+    _reApplySearch();
   }
 
   _navigateToOptions(BuildContext context) async {
@@ -906,8 +907,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Options.routeName,
     );
     Navigator.pop(context);
-    _selectSearchText(context);
-    _refilterSongs(); //  force re-filter on possible option changes
+    _reApplySearch();
   }
 
   _navigateToAbout(BuildContext context) async {
@@ -916,7 +916,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const About()),
     );
     Navigator.pop(context);
-    _selectSearchText(context);
+    _reApplySearch();
   }
 
   _navigateToDocumentation(BuildContext context) async {
@@ -925,7 +925,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const Documentation()),
     );
     Navigator.pop(context);
-    _selectSearchText(context);
+    _reApplySearch();
   }
 
   _navigateToTheory(BuildContext context) async {
@@ -934,7 +934,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const TheoryWidget()),
     );
     Navigator.pop(context);
-    _selectSearchText(context);
+    _reApplySearch();
   }
 
   _navigateToPrivacyPolicy(BuildContext context) async {
@@ -943,7 +943,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => const Privacy()),
     );
     Navigator.pop(context);
-    _selectSearchText(context);
+    _reApplySearch();
   }
 
   final List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];

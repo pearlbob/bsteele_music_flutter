@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 
+const AppTextStyle appTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
+const AppTextStyle appWarningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+const AppTextStyle appErrorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
+
 const double _defaultFontSize = 24;
 final Paint _black = Paint()..color = Colors.black;
 final Paint _blue = Paint()..color = Colors.lightBlue.shade200;

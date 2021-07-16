@@ -33,6 +33,7 @@ class _State extends State<Lists> {
   initState() {
     super.initState();
 
+    _app.clearMessage();
     logger.d("_Songs.initState()");
   }
 
@@ -234,13 +235,19 @@ class _State extends State<Lists> {
               const SizedBox(
                 height: 10,
               ),
+              Text(_app.message,
+                  style: _app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                  key: const ValueKey('errorMessage')),
+              const SizedBox(
+                height: 10,
+              ),
               appWrapFullWidth([
                 appButton(
                   'Save',
                   onPressed: () {
                     _saveSongMetadata();
                   },
-                  color: _dirtyCount == 0  ? appDisabledColor : null,
+                  color: _dirtyCount == 0 ? appDisabledColor : null,
                 ),
                 appButton(
                   'Read lists from file',
@@ -382,6 +389,7 @@ class _State extends State<Lists> {
           onPressed: () {
             setState(() {
               if (_selectedNameValue.name.isNotEmpty) {
+                _dirtyCount++;
                 SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
               }
             });
@@ -428,13 +436,22 @@ class _State extends State<Lists> {
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     logger.i('_saveSongMetadata message: $message');
     _dirtyCount = 0;
+    setState(() {
+      _app.infoMessage('.songmetadata $message');
+    });
+
   }
 
   void _filePick(BuildContext context) async {
-    if (await UtilWorkaround().songMetadataFilePick(context)) {
-      _dirtyCount = 0;
-    }
-    setState(() {});
+    var message = await UtilWorkaround().songMetadataFilePick(context);
+
+    setState(() {
+      if (message.isEmpty) {
+        _app.infoMessage('No metatdata read');
+      } else {
+        _app.infoMessage(message);
+      }
+    });
   }
 
   bool _isSearchActive = false;

@@ -40,18 +40,15 @@ class UtilWeb implements UtilWorkaround {
   }
 
   Future<List<Song>> getSongsAsync() async {
-    List<String> fileData = await getFiles('.songlyrics');
+    List<NameValue> fileData = await getFiles('.songlyrics');
     logger.d("files.length: ${fileData.length}");
     List<Song> ret = [];
-    for (var i = 0; i < fileData.length; i++) {
-      File file = files![i];
-      final String data64 = fileData[i];
-
-      Uint8List data = const Base64Decoder().convert(data64.split(",").last);
+    for (var nameValue in fileData) {
+      Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
 
       String s = utf8.decode(data);
       //print('data: ${s.substring(0, min(200, s.length))}');
-      if (chordProRegExp.hasMatch(file.name)) {
+      if (chordProRegExp.hasMatch(nameValue.name)) {
         //  chordpro encoded songs
         ret.add(ChordPro().parse(s));
       } else {
@@ -66,8 +63,8 @@ class UtilWeb implements UtilWorkaround {
     return ret;
   }
 
-  Future<List<String>> getFiles(String? accept) {
-    final completer = Completer<List<String>>();
+  Future<List<NameValue>> getFiles(String? accept) {
+    final completer = Completer<List<NameValue>>();
     final InputElement input = document.createElement('input') as InputElement;
     input
       ..type = 'file'
@@ -78,12 +75,12 @@ class UtilWeb implements UtilWorkaround {
     input.onChange.listen((e) async {
       files = input.files;
       if (files != null) {
-        Iterable<Future<String>> resultsFutures = files!.map((file) {
+        Iterable<Future<NameValue>> resultsFutures = files!.map((file) {
           logger.d('file: ${file.name}');
           final reader = FileReader();
           reader.readAsDataUrl(file);
           reader.onError.listen((error) => completer.completeError(error));
-          return reader.onLoad.first.then((_) => reader.result as String);
+          return reader.onLoad.first.then((_) => NameValue(file.name, reader.result as String));
         });
         final results = await Future.wait(resultsFutures);
         completer.complete(results);
@@ -94,16 +91,16 @@ class UtilWeb implements UtilWorkaround {
   }
 
   @override
-  Future<List<String>> textFilePickAndRead(BuildContext context) async {
-    List<String> fileData = await getFiles(null);
+  Future<List<NameValue>> textFilePickAndRead(BuildContext context) async {
+    List<NameValue> fileData = await getFiles(null);
     logger.d("files.length: ${fileData.length}");
-    List<String> ret = [];
-    for (var i = 0; i < fileData.length; i++) {
-      final String data64 = fileData[i];
+    List<NameValue> ret = [];
+    for (var nameValue in fileData) {
+      final String data64 = nameValue.value;
 
       Uint8List data = const Base64Decoder().convert(data64.split(",").last);
 
-      ret.add(utf8.decode(data));
+      ret.add(NameValue(nameValue.name, utf8.decode(data)));
     }
     return ret;
   }
@@ -112,16 +109,14 @@ class UtilWeb implements UtilWorkaround {
   final RegExp chordProRegExp = RegExp(r'pro$');
 
   @override
-  Future<bool> songMetadataFilePick(BuildContext context) async {
-    List<String> fileData = await getFiles('.songmetadata');
-    logger.d("files.length: ${fileData.length}");
-    for (var i = 0; i < fileData.length; i++) {
-      final String data64 = fileData[i];
-      Uint8List data = const Base64Decoder().convert(data64.split(",").last);
+  Future<String> songMetadataFilePick(BuildContext context) async {
+    for (NameValue nameValue in await getFiles('.songmetadata')) {
+      Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
       String s = utf8.decode(data);
       SongMetadata.fromJson(s);
+      return 'Song metadata read from ${nameValue.name}';
     }
-    return fileData.isNotEmpty;
+    return '';
   }
 }
 

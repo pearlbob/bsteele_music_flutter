@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,7 @@ const Color appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
 final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone
 
-
- const NameValue allSongsMetadataNameValue = NameValue('all', '');
+const NameValue allSongsMetadataNameValue = NameValue('all', '');
 const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 
 enum MessageType {
@@ -70,7 +70,20 @@ class App {
     selectedSong = _emptySong;
   }
 
-  void messageClear() {
+  bool errorMessage(String error) {
+    if (this.error != error) {
+      this.error = error;
+      return true;
+    }
+    return false;
+  }
+
+  void infoMessage(String warning) {
+    _messageType = MessageType.warning;
+    _message = warning;
+  }
+
+  void clearMessage() {
     message = '';
   }
 
@@ -79,7 +92,7 @@ class App {
     _message = message;
   }
 
-  set warning(String message) {
+  set warningMessage(String message) {
     _messageType = MessageType.warning;
     _message = message;
   }
@@ -89,6 +102,12 @@ class App {
   set error(String? message) {
     _messageType = MessageType.error;
     _message = message ?? '';
+  }
+
+  Widget messageTextWidget() {
+    return Text(message,
+        style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
+        key: const ValueKey('errorMessage'));
   }
 
   String get message => _message;
@@ -137,9 +156,9 @@ class App {
 }
 
 extension WidgetLogExtension on Widget {
- void testWidgetLog(){
-   logger.i( 'WidgetLogExtension: $key');
- }
+  void testWidgetLog() {
+    logger.i('WidgetLogExtension: $key');
+  }
 }
 
 class WidgetLog {

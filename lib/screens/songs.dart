@@ -52,8 +52,8 @@ class _Songs extends State<Songs> {
                   });
                 },
               ),
-              const SizedBox(
-                height: 20,
+              appSpace(
+                space: 20,
               ),
               ElevatedButton(
                 child: Text(
@@ -64,8 +64,8 @@ class _Songs extends State<Songs> {
                   _writeAll();
                 },
               ),
-              const SizedBox(
-                height: 20,
+              appSpace(
+                space: 20,
               ),
               appTooltip(
                 message: 'A reload of the application will return them all.',
@@ -81,12 +81,12 @@ class _Songs extends State<Songs> {
                   },
                 ),
               ),
-              const SizedBox(
-                height: 20,
+              appSpace(
+                space: 20,
               ),
               _app.messageTextWidget(),
-              const SizedBox(
-                height: 20,
+              appSpace(
+                space: 20,
               ),
               Text(
                 'Song count:  ${_app.allSongs.length}',

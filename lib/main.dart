@@ -388,8 +388,8 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ));
     }
-    listViewChildren.add(const SizedBox(
-      height: 20,
+    listViewChildren.add(appSpace(
+      space: 20,
     ));
     listViewChildren.add(Text(
       'Count: ${_filteredSongs.length}',
@@ -622,9 +622,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: searchDropDownStyle,
               ),
             ),
-            const SizedBox(
-              width: 10,
-            ),
+            appSpace(),
             DropdownButton<_SortType>(
               items: _sortTypesDropDownMenuList,
               onChanged: (value) {
@@ -649,9 +647,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: searchDropDownStyle,
               ),
             ),
-            const SizedBox(
-              width: 10,
-            ),
+    appSpace(),
             DropdownButton<NameValue>(
               items: _metadataDropDownMenuList,
               onChanged: (value) {

@@ -173,9 +173,7 @@ class _State extends State<Detail> {
         ));
       }
 
-      children.add(const SizedBox(
-        height: 10,
-      ));
+      children.add(appSpace());
       children.add(appButton('Close the options', onPressed: () {
         setState(() {
           _options = false;
@@ -203,18 +201,15 @@ class _State extends State<Detail> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          '${_app.selectedSong.title} (detail)',
+          '${_app.selectedSong.title} (sheet music)',
           style: AppTextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
       ),
       body: Wrap(
         children: <Widget>[
           Column(
             children: [
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               if (hasDisplay(SheetDisplay.bass8vb))
                 CustomPaint(
                   painter: _FretBoardPainter(),
@@ -225,9 +220,7 @@ class _State extends State<Detail> {
                     height: 200.0,
                   ),
                 ),
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -257,9 +250,7 @@ class _State extends State<Detail> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  appSpace(),
                   //  notes and rests
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,36 +263,28 @@ class _State extends State<Detail> {
                               logger.i('noteWhole pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _noteButton(
                             noteHalfUp.character,
                             onPressed: () {
                               logger.i('noteHalfUp pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _noteButton(
                             noteQuarterUp.character,
                             onPressed: () {
                               logger.i('noteQuarterUp pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _noteButton(
                             note8thUp.character,
                             onPressed: () {
                               logger.i('note8thUp pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _noteButton(
                             note16thUp.character,
                             onPressed: () {
@@ -310,9 +293,7 @@ class _State extends State<Detail> {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      appSpace(),
                       Row(
                         textBaseline: TextBaseline.alphabetic,
                         children: [
@@ -322,36 +303,28 @@ class _State extends State<Detail> {
                               logger.i('restWhole pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _restButton(
                             restHalf.character,
                             onPressed: () {
                               logger.i('restHalf pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _restButton(
                             restQuarter.character,
                             onPressed: () {
                               logger.i('restQuarter pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _restButton(
                             rest8th.character,
                             onPressed: () {
                               logger.i('rest8th pressed');
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           _restButton(
                             rest16th.character,
                             onPressed: () {
@@ -362,9 +335,7 @@ class _State extends State<Detail> {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 10,
-                  ),
+                  appSpace(),
                   //  entry details
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,9 +365,7 @@ class _State extends State<Detail> {
                               });
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           Checkbox(
                               checkColor: Colors.white,
                               fillColor: MaterialStateProperty.all(_blue.color),
@@ -423,18 +392,14 @@ class _State extends State<Detail> {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      appSpace(),
                       Row(
                         children: [
                           Text(
                             'Lyrics:',
                             style: _style,
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           SizedBox(
                             width: 250,
                             height: 70,
@@ -465,9 +430,7 @@ class _State extends State<Detail> {
                             'Time:',
                             style: _style,
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          appSpace(),
                           DropdownButton<TimeSignature>(
                             items: knownTimeSignatures.map((TimeSignature value) {
                               return DropdownMenuItem<TimeSignature>(
@@ -560,9 +523,7 @@ class _State extends State<Detail> {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               //  run controls
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -581,9 +542,7 @@ class _State extends State<Detail> {
                   }, fontSize: _fontSize),
                 ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               _sheetDisplayEnableOptionsWidget,
               //  sheet music
               RawKeyboardListener(

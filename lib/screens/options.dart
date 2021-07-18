@@ -193,33 +193,7 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
-                  Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                          child: Text(
-                            'Display key offset: ',
-                            style: AppTextStyle(
-                              fontSize: fontSize,
-                            ),
-                          ),
-                        ),
-                        DropdownButton<int>(
-                          items: _keyOffsetItems,
-                          onChanged: (_value) {
-                            if (_value != null) {
-                              setState(() {
-                                _app.displayKeyOffset = _value;
-                                logger.d('key offset: $_value');
-                              });
-                            }
-                          },
-                          style: AppTextStyle(fontSize: fontSize, color: const Color(0xFF424242)),
-                          value: _app.displayKeyOffset,
-                        ),
-                      ]),
+
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -283,6 +257,8 @@ class _Options extends State<Options> {
                         ),
                       ]),
                   Row(children:[
+                    const Text('Hosts:'),
+                    appSpace(),
                     AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
                       _appOptions.websocketHost = '';
                       _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -304,9 +280,7 @@ class _Options extends State<Options> {
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
                   ]),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  appSpace(),
                   Row(children: <Widget>[
                     Text(
                       'Song Update: ',
@@ -326,9 +300,7 @@ class _Options extends State<Options> {
                             : Colors.red,
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    appSpace(),
                     if (_songUpdateService.isConnected)
                       ElevatedButton(
                         child: Text(
@@ -355,6 +327,34 @@ class _Options extends State<Options> {
                         ),
                       ),
                   ]),
+                  appSpace(space: 30),
+                  Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                          child: Text(
+                            'Display key offset: ',
+                            style: AppTextStyle(
+                              fontSize: fontSize,
+                            ),
+                          ),
+                        ),
+                        DropdownButton<int>(
+                          items: _keyOffsetItems,
+                          onChanged: (_value) {
+                            if (_value != null) {
+                              setState(() {
+                                _app.displayKeyOffset = _value;
+                                logger.d('key offset: $_value');
+                              });
+                            }
+                          },
+                          style: AppTextStyle(fontSize: fontSize, color: const Color(0xFF424242)),
+                          value: _app.displayKeyOffset,
+                        ),
+                      ]),
                   Row(children: <Widget>[
                     Checkbox(
                       value: _appOptions.debug,

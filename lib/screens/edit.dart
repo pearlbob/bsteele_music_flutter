@@ -572,9 +572,8 @@ class _Edit extends State<Edit> {
                         'Edit',
                         style: _titleTextStyle,
                       ),
-                      centerTitle: true,
                     ),
-                    const SizedBox(height: 10),
+                    appSpace(),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -603,8 +602,8 @@ class _Edit extends State<Edit> {
                                     });
                                   },
                                 ),
-                                const SizedBox(
-                                  width: 50,
+                                appSpace(
+                                  space: 50,
                                 ),
                                 appTooltip(
                                   message: 'Clear all song values to\n'
@@ -620,9 +619,7 @@ class _Edit extends State<Edit> {
                                     },
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
+                                appSpace(),
                                 // appButton(
                                 //   'Remove',
                                 //   onPressed: () {
@@ -837,9 +834,7 @@ class _Edit extends State<Edit> {
                             style: _boldTextStyle,
                           ),
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
+                        appSpace(),
                         if (_originalSong.user != _userTextEditingController.text)
                           Text(
                             '(was ${_originalSong.user})',

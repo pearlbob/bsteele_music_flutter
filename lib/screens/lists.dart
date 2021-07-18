@@ -119,18 +119,14 @@ class _State extends State<Lists> {
                 });
               },
             ),
-            const SizedBox(
-              width: 10,
-            ),
+            appSpace(),
           ],
         ));
       }
 
       _metadataWidgets.add(appWrap(
         [
-          const SizedBox(
-            width: 20,
-          ),
+          appSpace(space: 20),
           Radio(
             value: NameValue(_nameTextFieldController.text, _valueTextFieldController.text),
             groupValue: _selectedNameValue,
@@ -232,9 +228,7 @@ class _State extends State<Lists> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               Text(_app.message,
                   style: _app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                   key: const ValueKey('errorMessage')),
@@ -258,8 +252,8 @@ class _State extends State<Lists> {
                   },
                 ),
               ], alignment: WrapAlignment.spaceBetween),
-              const SizedBox(
-                height: 20,
+              appSpace(
+                space: 20,
               ),
               appWrap(
                 _metadataWidgets,
@@ -328,16 +322,12 @@ class _State extends State<Lists> {
                   ),
                 ]),
               ], alignment: WrapAlignment.spaceBetween),
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               Divider(
                 thickness: 10,
                 color: _blue.color,
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              appSpace(),
               Expanded(
                 child: ListView(
                   children: songWidgetList,
@@ -377,9 +367,7 @@ class _State extends State<Lists> {
                 });
               }
             }),
-        const SizedBox(
-          width: 12,
-        ),
+        appSpace(space: 12),
         TextButton(
           child: Text(
             '${song.title} by ${song.artist}'
@@ -439,7 +427,6 @@ class _State extends State<Lists> {
     setState(() {
       _app.infoMessage('.songmetadata $message');
     });
-
   }
 
   void _filePick(BuildContext context) async {

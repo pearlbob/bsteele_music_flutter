@@ -430,7 +430,6 @@ class _Player extends State<Player> with RouteAware {
                                     hoverColor: hoverColor,
                                   ),
                                 ),
-                                centerTitle: true,
                               ),
                               Container(
                                 padding: const EdgeInsets.only(top: 16, right: 12),
@@ -503,21 +502,23 @@ With escape, the app goes back to the play list.''',
                                     ],
                                   ),
                                   if (_app.isEditReady)
-                                    appTooltip(message: 'Edit the song', child:
-                                    TextButton.icon(
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.all(8),
-                                        primary: Colors.green,
+                                    appTooltip(
+                                      message: 'Edit the song',
+                                      child: TextButton.icon(
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.all(8),
+                                          primary: Colors.green,
+                                        ),
+                                        icon: Icon(
+                                          Icons.edit,
+                                          size: _lyricsTable.fontSize,
+                                        ),
+                                        label: const Text(''),
+                                        onPressed: () {
+                                          _navigateToEdit(context, song);
+                                        },
                                       ),
-                                      icon: Icon(
-                                        Icons.edit,
-                                        size: _lyricsTable.fontSize,
-                                      ),
-                                      label: const Text(''),
-                                      onPressed: () {
-                                        _navigateToEdit(context, song);
-                                      },
-                                    ),),
+                                    ),
                                 ], alignment: WrapAlignment.spaceBetween),
                               ),
                               appWrapFullWidth([
@@ -563,8 +564,8 @@ With escape, the app goes back to the play list.''',
                                     iconSize: _lyricsTable.fontSize,
                                     itemHeight: 1.2 * kMinInteractiveDimension,
                                   ),
-                                  const SizedBox(
-                                    width: 5,
+                                  appSpace(
+                                    space: 5,
                                   ),
                                   if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
                                     Text(
@@ -579,11 +580,13 @@ With escape, the app goes back to the play list.''',
                                     ),
                                 ], alignment: WrapAlignment.spaceBetween),
                                 appWrap([
-                                  appTooltip(message: 'Beats per minute', child:
-                                  Text(
-                                    'BPM: ',
-                                    style: _lyricsTextStyle,
-                                  ),),
+                                  appTooltip(
+                                    message: 'Beats per minute',
+                                    child: Text(
+                                      'BPM: ',
+                                      style: _lyricsTextStyle,
+                                    ),
+                                  ),
                                   if (_app.isScreenBig)
                                     DropdownButton<int>(
                                       items: _bpmDropDownMenuList,
@@ -606,11 +609,13 @@ With escape, the app goes back to the play list.''',
                                       style: _lyricsTextStyle,
                                     ),
                                 ]),
-                                appTooltip(message: 'time signature', child:
-                                Text(
-                                  '  Time: ${song.timeSignature}',
-                                  style: _chordsTextStyle,
-                                ), ),
+                                appTooltip(
+                                  message: 'time signature',
+                                  child: Text(
+                                    '  Time: ${song.timeSignature}',
+                                    style: _chordsTextStyle,
+                                  ),
+                                ),
                                 Text(
                                   _songUpdateService.isConnected
                                       ? (_songUpdateService.isLeader

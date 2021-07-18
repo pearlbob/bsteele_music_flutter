@@ -18,6 +18,19 @@ AppTextStyle appButtonTextStyle({double? fontSize}) {
   return AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
 }
 
+Widget appSpace({double? space}) {
+  if (space == null) {
+    return const SizedBox(
+      height: 10,
+      width: 10,
+    );
+  }
+  return SizedBox(
+    height: space,
+    width: space,
+  );
+}
+
 ElevatedButton appButton(
   String commandName, {
   Key? key,
@@ -145,8 +158,6 @@ AppBar appBackBar(String title, BuildContext context, {double? fontSize}) {
   return appBar(title, leading: appBack(context), fontSize: fontSize);
 }
 
-
-
 AppBar appBar(String title, {Key? key, Widget? leading, List<Widget>? actions, double? fontSize}) {
   return AppBar(
     key: key ?? const ValueKey('appBar'),
@@ -157,6 +168,5 @@ AppBar appBar(String title, {Key? key, Widget? leading, List<Widget>? actions, d
     leading: leading,
     centerTitle: false,
     actions: actions,
-
   );
 }

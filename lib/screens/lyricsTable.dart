@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
+import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, int lineNu
 typedef LyricsSectionHeaderWidget = Widget Function(Key key, LyricSection lyricSection);
 typedef LyricsEndWidget = Widget Function();
 
+/// compute a lyrics table
 class LyricsTable {
   Table lyricsTable(
     Song song, {
@@ -45,7 +47,7 @@ class LyricsTable {
 
     _lyricSectionRowLocations = [];
     List<TableRow> rows = [];
-    List<Widget> children = [];
+    List<Widget> children = []; //  items for the current row
     Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
 
     //  display style booleans
@@ -79,14 +81,16 @@ class LyricsTable {
           children.add(sectionHeaderWidget(globalKey, lyricSection));
         } else {
           children.add(Container(
-              key: globalKey,
-              margin: marginInsets,
-              padding: textPadding,
-              color: color,
-              child: Text(
-                chordSection.sectionVersion.toString(),
-                style: _chordTextStyle,
-              )));
+            key: globalKey,
+            margin: marginInsets,
+            padding: textPadding,
+            color: color,
+            child: Text(
+              chordSection.sectionVersion.toString(),
+              style: _chordTextStyle,
+              softWrap: false,
+            ),
+          ));
         }
         //  row length - 1 + 1 for missing lyrics
         for (int c = children.length; c < maxDisplayCols; c++) {
@@ -123,7 +127,7 @@ class LyricsTable {
               children.add(Container(
                   margin: marginInsets,
                   child: const Text(
-                    ' ',
+                    '',
                   )));
             } else {
               children.add(Container(
@@ -131,12 +135,13 @@ class LyricsTable {
                   margin: marginInsets,
                   padding: textPadding,
                   color: color,
-                  child: Text(
-                    measure.transpose(displayMusicKey, tranOffset)
-                    // + ' ${sm.momentNumber}' //  : debug temp
-                    ,
-                    style: _chordTextStyle,
-                  )));
+                  child: appTranspose(measure, displayMusicKey, tranOffset, style: _chordTextStyle, )
+                  // Text(
+                  //   measure.transpose(displayMusicKey, tranOffset),
+                  //   style: _chordTextStyle,
+                  //   softWrap: false,
+                  // )
+              ));
 
               _rowKey = null;
             }

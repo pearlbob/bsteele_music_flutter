@@ -283,6 +283,7 @@ class _Player extends State<Player> with RouteAware {
                 child: Text(
                   valueString,
                   style: _chordsTextStyle,
+                  softWrap: false,
                   textAlign: TextAlign.left,
                 ),
               ),
@@ -291,6 +292,7 @@ class _Player extends State<Player> with RouteAware {
                 child: Text(
                   offsetString,
                   style: _chordsTextStyle,
+                  softWrap: false,
                   textAlign: TextAlign.right,
                 ),
               ),
@@ -301,6 +303,7 @@ class _Player extends State<Player> with RouteAware {
                   child: Text(
                     onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
                     style: _chordsTextStyle,
+                    softWrap: false,
                     textAlign: TextAlign.right,
                   ),
                 )
@@ -401,6 +404,7 @@ class _Player extends State<Player> with RouteAware {
               Text(
                 'Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
                 style: _chordsTextStyle,
+                softWrap: false,
               ),
             GestureDetector(
               child: SingleChildScrollView(
@@ -416,6 +420,7 @@ class _Player extends State<Player> with RouteAware {
                           Column(
                             children: <Widget>[
                               AppBar(
+                                leading: appBack(context),
                                 //  let the app bar scroll off the screen for more room for the song
                                 title: appTooltip(
                                   message: 'Click to hear the song on youtube.com',
@@ -425,7 +430,8 @@ class _Player extends State<Player> with RouteAware {
                                     },
                                     child: Text(
                                       song.title,
-                                      style: AppTextStyle(fontSize: _lyricsTable.fontSize, fontWeight: FontWeight.bold),
+                                      style:
+                                          AppTextStyle(fontSize: _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
                                     ),
                                     hoverColor: hoverColor,
                                   ),
@@ -443,6 +449,7 @@ class _Player extends State<Player> with RouteAware {
                                       child: Text(
                                         ' by  ${song.artist}',
                                         style: _chordsTextStyle,
+                                        softWrap: false,
                                       ),
                                       hoverColor: hoverColor,
                                     ),
@@ -478,6 +485,7 @@ With escape, the app goes back to the play list.''',
                                         child: Text(
                                           'Capo',
                                           style: _chordsTextStyle,
+                                          softWrap: false,
                                         ),
                                       ),
                                       Switch(
@@ -493,11 +501,13 @@ With escape, the app goes back to the play list.''',
                                         Text(
                                           'on $_capoLocation',
                                           style: _chordsTextStyle,
+                                          softWrap: false,
                                         ),
                                       if (_isCapo && _capoLocation == 0)
                                         Text(
                                           'no capo needed',
                                           style: _chordsTextStyle,
+                                          softWrap: false,
                                         ),
                                     ],
                                   ),
@@ -548,6 +558,7 @@ With escape, the app goes back to the play list.''',
                                     child: Text(
                                       'Key: ',
                                       style: _chordsTextStyle,
+                                      softWrap: false,
                                     ),
                                   ),
                                   DropdownButton<music_key.Key>(
@@ -614,6 +625,7 @@ With escape, the app goes back to the play list.''',
                                   child: Text(
                                     '  Time: ${song.timeSignature}',
                                     style: _chordsTextStyle,
+                                    softWrap: false,
                                   ),
                                 ),
                                 Text(

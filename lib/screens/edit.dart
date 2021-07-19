@@ -567,6 +567,7 @@ class _Edit extends State<Edit> {
                   textDirection: TextDirection.ltr,
                   children: <Widget>[
                     AppBar(
+                      leading: appBack(context),
                       //  let the app bar scroll off the screen for more room for the song
                       title: const Text(
                         'Edit',

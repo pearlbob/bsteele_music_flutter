@@ -639,25 +639,26 @@ class _MyHomePageState extends State<MyHomePage> {
               elevation: 8,
             ),
           ]),
-          appWrap([
-            appTooltip(
-              message: 'Select which song list to show.',
-              child: Text(
-                'List',
-                style: searchDropDownStyle,
+          if (!_appOptions.holiday)
+            appWrap([
+              appTooltip(
+                message: 'Select which song list to show.',
+                child: Text(
+                  'List',
+                  style: searchDropDownStyle,
+                ),
               ),
-            ),
-    appSpace(),
-            DropdownButton<NameValue>(
-              items: _metadataDropDownMenuList,
-              onChanged: (value) {
-                logger.v('metadataDropDownMenuList selection: $value');
-              },
-              value: _selectedListNameValue ?? allSongsMetadataNameValue,
-              style: searchDropDownStyle,
-              elevation: 8,
-            ),
-          ]),
+              appSpace(),
+              DropdownButton<NameValue>(
+                items: _metadataDropDownMenuList,
+                onChanged: (value) {
+                  logger.v('metadataDropDownMenuList selection: $value');
+                },
+                value: _selectedListNameValue ?? allSongsMetadataNameValue,
+                style: searchDropDownStyle,
+                elevation: 8,
+              ),
+            ]),
         ], alignment: WrapAlignment.spaceBetween),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(
@@ -691,15 +692,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-   void _openDrawer() {
-     _scaffoldKey.currentState?.openDrawer();
-   }
+  void _openDrawer() {
+    _scaffoldKey.currentState?.openDrawer();
+  }
 
-   // void _closeDrawer() {
-   //   Navigator.of(context).pop();
-   // }
+  // void _closeDrawer() {
+  //   Navigator.of(context).pop();
+  // }
 
   void _searchSongs(String? search) {
     search ??= '';
@@ -869,9 +870,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _reApplySearch();
   }
 
-  void _reApplySearch(){
+  void _reApplySearch() {
     setState(() {
-      _selectSearchText(context);//  select all text on a navigation pop
+      _selectSearchText(context); //  select all text on a navigation pop
       _refilterSongs();
     });
   }

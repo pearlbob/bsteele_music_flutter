@@ -199,12 +199,7 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          '${_app.selectedSong.title} (sheet music)',
-          style: AppTextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold),
-        ),
-      ),
+      appBar: appBackBar( '${_app.selectedSong.title} (sheet music)', context ),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -628,13 +623,7 @@ class _State extends State<Detail> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        tooltip: 'Back',
-        child: const Icon(Icons.arrow_back),
-      ),
+      floatingActionButton: appFloatingBack(context),
     );
   }
 

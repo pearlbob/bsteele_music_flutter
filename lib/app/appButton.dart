@@ -1,5 +1,8 @@
+import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 
 import 'app.dart';
 
@@ -169,4 +172,39 @@ AppBar appBar(String title, {Key? key, Widget? leading, List<Widget>? actions, d
     centerTitle: false,
     actions: actions,
   );
+}
+
+Widget appTranspose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
+  TextStyle slashStyle = AppTextStyle(
+    fontSize: style?.fontSize,
+    fontWeight: FontWeight.bold,
+    color: Colors.indigo,
+  );
+  if (measure.chords.isNotEmpty) {
+    List<Widget> children = [];
+    for (Chord chord in measure.chords) {
+      var transposedChord = chord.transpose(key, halfSteps);
+      var isSlash = transposedChord.slashScaleNote != null;
+      children.add(Text(
+          transposedChord.scaleChord.toString() +
+              transposedChord.anticipationOrDelay.toString() +
+              transposedChord.beatsToString(),
+          style: style,
+          softWrap: false));
+      if (isSlash) {
+        children.add(Text('/' + transposedChord.slashScaleNote.toString() + ' ', style: slashStyle, softWrap: false));
+      }
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      // crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: children,
+    );
+  }
+  return Text(
+    measure.toString(),
+    style: style,
+    softWrap: false,
+  ); // no chords
 }

@@ -20,13 +20,14 @@ class _Privacy extends State<Privacy> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
     final double fontSize = App().screenInfo.fontSize;
 
     AppTextStyle style = AppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar('bsteele Music App Privacy Policy', context),
+      appBar: appWidget.backBar('bsteele Music App Privacy Policy'),
       body: DefaultTextStyle(
         style: style,
         child: const SingleChildScrollView(
@@ -52,7 +53,9 @@ class _Privacy extends State<Privacy> {
               'Should this fail, a local copy will be used.'),
         ),
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
+
+  final AppWidget appWidget = AppWidget();
 }

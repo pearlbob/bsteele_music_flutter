@@ -24,13 +24,14 @@ typedef LyricsEndWidget = Widget Function();
 /// compute a lyrics table
 class LyricsTable {
   Table lyricsTable(
-    Song song, {
+    Song song, BuildContext context , {
     musicKey,
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
     expandRepeats = false,
   }) {
+    appWidget.context = context; //	required on every build
     displayMusicKey = musicKey ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
 
@@ -135,7 +136,7 @@ class LyricsTable {
                   margin: marginInsets,
                   padding: textPadding,
                   color: color,
-                  child: appTranspose(measure, displayMusicKey, tranOffset, style: _chordTextStyle, )
+                  child: appWidget.transpose(measure, displayMusicKey, tranOffset, style: _chordTextStyle, )
               ));
 
               _rowKey = null;
@@ -275,6 +276,8 @@ class LyricsTable {
 
   Table get table => _table;
   Table _table = Table();
+
+  final AppWidget appWidget = AppWidget();
 
   music_key.Key displayMusicKey = music_key.Key.get(music_key.KeyEnum.C);
   final AppOptions _appOptions = AppOptions();

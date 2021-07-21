@@ -133,123 +133,130 @@ Widget appWrapFullWidth(List<Widget> children, {WrapAlignment? alignment, double
   );
 }
 
-Widget appBack(BuildContext context) {
-  return appTooltip(
-    message: 'Back',
-    child: TextButton(
-      onPressed: () {
-        Navigator.pop(context);
-      },
-      child: const Icon(Icons.arrow_back, color: Colors.white),
-    ),
-  );
-}
+///  A collection of methods that generate application styled widgets.
+///  It also provides a handy place to hold the build context should it be needed.
+class AppWidget {
+  Widget back() {
+    return appTooltip(
+      message: 'Back',
+      child: TextButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: const Icon(Icons.arrow_back, color: Colors.white),
+      ),
+    );
+  }
 
-Widget appFloatingBack(BuildContext context) {
-  return appTooltip(
-    message: 'Back',
-    child: FloatingActionButton(
-      onPressed: () {
-        Navigator.pop(context);
-      },
-      child: const Icon(Icons.arrow_back, color: Colors.white),
-    ),
-  );
-}
+  Widget floatingBack() {
+    ThemeData themeData = Theme.of(context);
+    return appTooltip(
+      message: 'Back',
+      child: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: const Icon(Icons.arrow_back, color: Colors.white),
+      ),
+    );
+  }
 
-AppBar appBackBar(String title, BuildContext context, {double? fontSize}) {
-  return appBar(title, leading: appBack(context), fontSize: fontSize);
-}
+  AppBar backBar(String title, {double? fontSize}) {
+    return appBar(title: title, leading: back(), fontSize: fontSize);
+  }
 
-AppBar appBar(String title, {Key? key, Widget? leading, List<Widget>? actions, double? fontSize}) {
-  return AppBar(
-    key: key ?? const ValueKey('appBar'),
-    title: Text(
-      title,
-      style: AppTextStyle(fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
-    ),
-    leading: leading,
-    centerTitle: false,
-    actions: actions,
-    toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
-  );
-}
+  AppBar appBar({Key? key, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions, double? fontSize}) {
+    return AppBar(
+      key: key ?? const ValueKey('appBar'),
+      title: titleWidget ??
+          Text(
+            title ?? 'unknown',
+            style: AppTextStyle(fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
+          ),
+      leading: leading,
+      centerTitle: false,
+      actions: actions,
+      toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
+    );
+  }
 
-Widget appTranspose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
-  TextStyle slashStyle = AppTextStyle(
-    fontSize: style?.fontSize,
-    fontWeight: FontWeight.bold,
-    fontStyle: FontStyle.italic,
-    color: const Color(0xFF7D0707),
-  );
-  TextStyle chordDescriptorStyle = AppTextStyle(
-    fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
-    fontWeight: FontWeight.normal,
-  );
+  Widget checkbox({required bool? value, ValueChanged<bool?>? onChanged, double? fontSize}) {
+    ThemeData themeData = Theme.of(context);
+    return Transform.scale(
+      scale: 0.7 * (fontSize ?? _defaultFontSize) / Checkbox.width,
+      child: Checkbox(
+          checkColor: Colors.white, fillColor: themeData.checkboxTheme.fillColor, value: value, onChanged: onChanged),
+    );
+  }
 
-  if (measure.chords.isNotEmpty) {
-    List<Widget> children = [];
-    for (Chord chord in measure.chords) {
-      var transposedChord = chord.transpose(key, halfSteps);
-      var isSlash = transposedChord.slashScaleNote != null;
+  Widget transpose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
+    TextStyle slashStyle = AppTextStyle(
+      fontSize: style?.fontSize,
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.italic,
+      color: const Color(0xFF7D0707),
+    );
+    TextStyle chordDescriptorStyle = AppTextStyle(
+      fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
+      fontWeight: FontWeight.normal,
+    );
 
-      //  chord note
-      children.add(Text(
-        transposedChord.scaleChord.scaleNote.toString(),
-        style: style,
-        softWrap: false,
-        maxLines: 1,
-      ));
-      {
-        //  chord descriptor
-        var name = transposedChord.scaleChord.chordDescriptor.shortName;
-        if (name.isNotEmpty) {
+    if (measure.chords.isNotEmpty) {
+      List<Widget> children = [];
+      for (Chord chord in measure.chords) {
+        var transposedChord = chord.transpose(key, halfSteps);
+        var isSlash = transposedChord.slashScaleNote != null;
+
+        //  chord note
+        children.add(Text(
+          transposedChord.scaleChord.scaleNote.toString(),
+          style: style,
+          softWrap: false,
+          maxLines: 1,
+        ));
+        {
+          //  chord descriptor
+          var name = transposedChord.scaleChord.chordDescriptor.shortName;
+          if (name.isNotEmpty) {
+            children.add(Baseline(
+              baseline: (style?.fontSize ?? _defaultFontSize),
+              baselineType: TextBaseline.alphabetic,
+              child: Text(
+                name,
+                style: chordDescriptorStyle,
+                softWrap: false,
+                maxLines: 1,
+              ),
+            ));
+          }
+        }
+
+        //  other stuff
+        children.add(Text(
+          transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
+          style: style,
+          softWrap: false,
+          maxLines: 1,
+        ));
+        if (isSlash) {
           children.add(Baseline(
-            baseline: (style?.fontSize ?? _defaultFontSize),
+            baseline: 1.6 * (style?.fontSize ?? _defaultFontSize),
             baselineType: TextBaseline.alphabetic,
-            child: Text(
-              name,
-              style: chordDescriptorStyle,
-              softWrap: false,
-              maxLines: 1,
-            ),
+            child: Text('/' + transposedChord.slashScaleNote.toString() + ' ', style: slashStyle, softWrap: false),
           ));
         }
       }
-
-      //  other stuff
-      children.add(Text(
-        transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
-        style: style,
-        softWrap: false,
-        maxLines: 1,
-      ));
-      if (isSlash) {
-        children.add(Baseline(
-          baseline: 1.6 * (style?.fontSize ?? _defaultFontSize),
-          baselineType: TextBaseline.alphabetic,
-          child: Text('/' + transposedChord.slashScaleNote.toString() + ' ', style: slashStyle, softWrap: false),
-        ));
-      }
+      return appWrap(
+        children,
+      );
     }
-    return appWrap(
-      children,
-    );
+    return Text(
+      measure.toString(),
+      style: style,
+      softWrap: false,
+    ); // no chords
   }
-  return Text(
-    measure.toString(),
-    style: style,
-    softWrap: false,
-  ); // no chords
-}
 
-Widget appCheckbox({required bool? value, ValueChanged<bool?>? onChanged, TextStyle? style}) {
-  return Transform.scale(
-    scale: 0.7 * (style?.fontSize ?? _defaultFontSize) / Checkbox.width,
-    child: Checkbox(
-        checkColor: Colors.white,
-        fillColor: MaterialStateProperty.all(_blue.color),
-        value: value,
-        onChanged: onChanged),
-  );
+  ///  should be set on every build!
+  late BuildContext context;
 }

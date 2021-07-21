@@ -34,6 +34,7 @@ import '../app/appOptions.dart';
 
 /// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
+
 /// An observer used to respond to a song update server request.
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
@@ -207,6 +208,7 @@ class _Player extends State<Player> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
     Song song = widget.song; //  default only
 
     //  deal with song updates
@@ -236,7 +238,8 @@ class _Player extends State<Player> with RouteAware {
     const sectionCenterLocationFraction = 1.0 / 2;
 
     if (_table == null) {
-      _table = _lyricsTable.lyricsTable(song, musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
+      _table = _lyricsTable.lyricsTable(song, context,
+          musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
       _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
       _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction : 0;
       _sectionLocations.clear(); //  clear any previous song cached data
@@ -434,10 +437,11 @@ class _Player extends State<Player> with RouteAware {
                         if (showTopOfDisplay)
                           Column(
                             children: <Widget>[
-                              AppBar(
-                                leading: appBack(context),
-                                //  let the app bar scroll off the screen for more room for the song
-                                title: appTooltip(
+                              appWidget.appBar
+                                (
+                                leading: appWidget.back(),
+                                //  let the app bar scroll off the screen for more screen for the song
+                                titleWidget: appTooltip(
                                   message: 'Click to hear the song on youtube.com',
                                   child: InkWell(
                                     onTap: () {
@@ -1086,6 +1090,9 @@ With escape, the app goes back to the play list.''',
 
   double _sectionTarget = 0;
   List<double> _sectionLocations = [];
+
+  final AppWidget appWidget = AppWidget();
+
   static final _appOptions = AppOptions();
   final SongUpdateService _songUpdateService = SongUpdateService();
 }

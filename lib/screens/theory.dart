@@ -47,6 +47,7 @@ class _State extends State<TheoryWidget> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
     _fontSize = App().screenInfo.fontSize;
     _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
@@ -62,7 +63,7 @@ class _State extends State<TheoryWidget> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar('Music Theory', context),
+      appBar: appWidget.backBar('Music Theory'),
       body: SingleChildScrollView(
         //controller: _scrollController,
         scrollDirection: Axis.vertical,
@@ -194,7 +195,7 @@ class _State extends State<TheoryWidget> {
           ],
         ),
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
 
@@ -726,6 +727,8 @@ class _State extends State<TheoryWidget> {
       border: TableBorder.all(),
     );
   }
+
+  final AppWidget appWidget = AppWidget();
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
   AppTextStyle _style = const AppTextStyle();

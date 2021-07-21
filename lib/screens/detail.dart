@@ -124,6 +124,8 @@ class _State extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
+
     _fontSize = App().screenInfo.fontSize * 2 / 3;
 
     // logger.i('WidgetsBinding.instance: ${WidgetsBinding.instance?.runtimeType}');
@@ -142,9 +144,7 @@ class _State extends State<Detail> {
         var name = Util.firstToUpper(Util.camelCaseToLowercaseSpace(Util.enumToString(display)));
         children.add(Row(
           children: [
-            Checkbox(
-              checkColor: Colors.white,
-              fillColor: MaterialStateProperty.all(_blue.color),
+            appWidget.checkbox(
               value: sheetDisplayEnables[display.index],
               onChanged: (bool? value) {
                 if (value != null) {
@@ -199,7 +199,7 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar( '${_app.selectedSong.title} (sheet music)', context ),
+      appBar: appWidget.backBar('${_app.selectedSong.title} (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -337,9 +337,7 @@ class _State extends State<Detail> {
                     children: [
                       Row(
                         children: [
-                          Checkbox(
-                            checkColor: Colors.white,
-                            fillColor: MaterialStateProperty.all(_blue.color),
+                          appWidget.checkbox(
                             value: _isDot,
                             onChanged: (bool? value) {
                               if (value != null) {
@@ -361,9 +359,7 @@ class _State extends State<Detail> {
                             },
                           ),
                           appSpace(),
-                          Checkbox(
-                              checkColor: Colors.white,
-                              fillColor: MaterialStateProperty.all(_blue.color),
+                          appWidget.checkbox(
                               value: _isTie,
                               onChanged: (bool? value) {
                                 if (value != null) {
@@ -489,9 +485,7 @@ class _State extends State<Detail> {
                       ),
                       Row(
                         children: [
-                          Checkbox(
-                            checkColor: Colors.white,
-                            fillColor: MaterialStateProperty.all(_blue.color),
+                          appWidget.checkbox(
                             value: _isSwing,
                             onChanged: (bool? value) {
                               if (value != null) {
@@ -623,7 +617,7 @@ class _State extends State<Detail> {
           ),
         ],
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
 
@@ -732,6 +726,8 @@ class _State extends State<Detail> {
   bool _isTie = false;
   final TextEditingController _lyricsTextEditingController = TextEditingController();
   final TextEditingController _bpmTextEditingController = TextEditingController();
+
+  final AppWidget appWidget = AppWidget();
 
   AppTextStyle _style = const AppTextStyle();
   final AppOptions _appOptions = AppOptions();

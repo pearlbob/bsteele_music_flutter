@@ -52,12 +52,14 @@ class _Options extends State<Options> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
+
     final double fontSize = _app.screenInfo.fontSize;
     logger.v('options build: ${_songUpdateService.isConnected}');
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar('bsteele Music App Options', context),
+      appBar: appWidget.backBar('bsteele Music App Options'),
       body: DefaultTextStyle(
         style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: SingleChildScrollView(
@@ -193,7 +195,6 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
-
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -256,13 +257,19 @@ class _Options extends State<Options> {
                           ),
                         ),
                       ]),
-                  Row(children:[
+                  Row(children: [
                     const Text('Hosts:'),
                     appSpace(),
-                    AppFlexButton('None', flex: 4, fontSize: fontSize, onPressed: () {
-                      _appOptions.websocketHost = '';
-                      _websocketHostEditingController.text = _appOptions.websocketHost;
-                    }, tooltip: 'No leader/follower',),
+                    AppFlexButton(
+                      'None',
+                      flex: 4,
+                      fontSize: fontSize,
+                      onPressed: () {
+                        _appOptions.websocketHost = '';
+                        _websocketHostEditingController.text = _appOptions.websocketHost;
+                      },
+                      tooltip: 'No leader/follower',
+                    ),
                     const Spacer(),
                     AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
                       _appOptions.websocketHost = 'cj.local';
@@ -356,7 +363,7 @@ class _Options extends State<Options> {
                         ),
                       ]),
                   Row(children: <Widget>[
-                    Checkbox(
+                    appWidget.checkbox(
                       value: _appOptions.debug,
                       onChanged: (value) {
                         _appOptions.debug = value;
@@ -370,7 +377,7 @@ class _Options extends State<Options> {
                     ),
                   ]),
                   Row(children: <Widget>[
-                    Checkbox(
+                    appWidget.checkbox(
                       value: _appOptions.playWithChords,
                       onChanged: (value) {
                         setState(() {
@@ -384,7 +391,7 @@ class _Options extends State<Options> {
                     ),
                   ]),
                   Row(children: <Widget>[
-                    Checkbox(
+                    appWidget.checkbox(
                       value: _appOptions.playWithBass,
                       onChanged: (value) {
                         setState(() {
@@ -429,7 +436,7 @@ class _Options extends State<Options> {
           ),
         ),
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
 
@@ -589,6 +596,8 @@ class _Options extends State<Options> {
   String _testType = 'unknown';
   final List<Pitch> _pitches = Pitch.flats;
   static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
+
+  final AppWidget appWidget = AppWidget();
 
   Timer? _timer;
   double _timerT = 0;

@@ -242,6 +242,7 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
     logger.d('edit build: "${_song.rawLyrics}"');
 
     _appOptions = Provider.of<AppOptions>(context);
@@ -566,13 +567,10 @@ class _Edit extends State<Edit> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   textDirection: TextDirection.ltr,
                   children: <Widget>[
-                    AppBar(
-                      leading: appBack(context),
-                      //  let the app bar scroll off the screen for more room for the song
-                      title: const Text(
-                        'Edit',
-                        style: _titleTextStyle,
-                      ),
+                    //  note: let the app bar scroll off the screen for more room for the song
+                    appWidget.appBar(
+                      title: 'Edit',
+                      leading: appWidget.back(),
                     ),
                     appSpace(),
                     Row(
@@ -2633,7 +2631,7 @@ class _Edit extends State<Edit> {
         _undoStackLog();
         _checkSongChangeStatus();
       } else {
-        _app. errorMessage('cannot undo any more');
+        _app.errorMessage('cannot undo any more');
       }
     });
   }
@@ -2647,7 +2645,7 @@ class _Edit extends State<Edit> {
         _undoStackLog();
         _checkSongChangeStatus();
       } else {
-        _app. errorMessage('cannot redo any more');
+        _app.errorMessage('cannot redo any more');
       }
     });
   }
@@ -2969,6 +2967,8 @@ class _Edit extends State<Edit> {
 
   final FocusManager _focusManager = FocusManager.instance;
   final FocusNode _focusNode = FocusNode();
+
+  final AppWidget appWidget = AppWidget();
 
   static const tooltipColor = Color(0xFFE8F5E9);
   late AppOptions _appOptions;

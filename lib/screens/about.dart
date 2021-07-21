@@ -31,12 +31,14 @@ class _About extends State<About> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
+
     ScreenInfo screenInfo = App().screenInfo;
     final double fontSize = screenInfo.fontSize;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar('About the bsteele Music App', context),
+      appBar: appWidget.backBar('About the bsteele Music App'),
       body: DefaultTextStyle(
         style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
@@ -97,7 +99,7 @@ class _About extends State<About> {
               ]),
         ),
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
 
@@ -124,4 +126,6 @@ class _About extends State<About> {
     buildNumber: 'Unknown',
     buildSignature: 'Unknown',
   );
+
+  final AppWidget appWidget = AppWidget();
 }

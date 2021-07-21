@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.2+beta
 
 environment:
-  sdk: ^2.14.0-332.0.dev
+  sdk: ^2.14.0-338.0.dev
 
 dependencies:
   flutter:
@@ -32,6 +32,7 @@ dependencies:
   web_socket_channel:
   enum_to_string:
   provider:
+  dartdoc:
   flutter_lints:  #not ready yet: info: Name source files using `lowercase_with_underscores`.
 
 

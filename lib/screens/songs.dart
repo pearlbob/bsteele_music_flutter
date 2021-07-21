@@ -31,11 +31,13 @@ class _Songs extends State<Songs> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
+
     final double fontSize = _app.screenInfo.fontSize;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar('bsteele Music App Song Management', context),
+      appBar: appWidget.backBar('bsteele Music App Song Management'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(
@@ -99,7 +101,7 @@ class _Songs extends State<Songs> {
               ),
             ]),
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
 
@@ -131,6 +133,8 @@ class _Songs extends State<Songs> {
     await UtilWorkaround().songFilePick(context);
     Navigator.pop(context);
   }
+
+  final AppWidget appWidget = AppWidget();
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
   final App _app = App();

@@ -3,9 +3,9 @@
 /// ## The primary functions for the app:
 ///
 /// * Provide a readable HDMI image (1920x1080) application to allow multiple musicians
-/// to see chords and lyrics on a shared large screen while playing live together.
+/// to see chords and lyrics on a shared large screen while playing live music together.
 /// * Provide a reasonable tablet experience that mimics the HDMI image experience
-/// and allows shared song choice and current play location.
+/// and allows for shared song choice and current play location.
 /// * Allow users to input songs and store them locally.
 /// * Allow user entered songs to migrate to the master list on the web.
 ///
@@ -41,10 +41,10 @@
 /// * Beta written in Google's flutter/dart. See: https://flutter.dev/ and https://dart.dev/
 /// * Beta is currently closed source.  Expect to open source it eventually.
 /// * Beta backend is a separate dart project.
-/// * Both apps are heavy clients from static pages from the cloud.
+/// * Both apps are heavy clients from static pages downloaded from the cloud.
 /// * Both apps use web sockets when on local servers for tablet communication.
 ///
-/// ## Specific UI problems to fix
+/// ## Specific Beta UI problems to fix
 ///
 /// * Overall look
 /// * Graphics on player page in play mode
@@ -52,12 +52,14 @@
 /// * Sublist management page
 /// * Complexity of song editing
 /// * Dynamic font sizing
+/// * Use of Theme vs home grown "app" methods
 ///
 /// ## Personal notes:
 ///
 /// * Retired software developer
 /// * Do this project just for the fun of it... and the use of the app while playing music.
 /// * Fair exposure to HTML/CSS/JavaScript but no customer facing projects during my career.
+/// See http://www.bsteele.com/bass/index.html.
 /// * Big fan of strongly typed languages.
 /// * I've always preferred the backend.  Never was excited about the front end.
 /// * Believe I have artistic talent... it just never extends to a GUI.
@@ -122,7 +124,6 @@ Shari UI stuff:
 // fixme: the back button doesn't take you to where you just were in the list
 // fixme: When one clicks a play button at the top left and then suddenly doesn't see a stop button next to it
 //  fixme: two back buttons
-//  fixme: tiny default radio button or checkbox
 //  fixme: buttons too close
 
 
@@ -151,6 +152,7 @@ final App _app = App();
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
+/// Song list sort types
 enum _SortType {
   byTitle,
   byArtist,
@@ -176,7 +178,6 @@ class BSteeleMusicApp extends StatelessWidget {
               title: 'bsteele Music App',
               theme: ThemeData(
                 primaryColor: appDefaultColor,
-                // scaffoldBackgroundColor: Colors.white,
               ),
               home: const MyHomePage(title: 'bsteele Music App'),
               navigatorObservers: [playerRouteObserver],
@@ -514,8 +515,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: appBar(
-        widget.title,
+      appBar: appWidget.appBar(
+        title: widget.title,
         key: const ValueKey('hamburger'),
         leading: appTooltip(
           message: MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -1042,6 +1043,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late AppOptions _appOptions;
   Song? _lastSelectedSong;
+
+  final AppWidget appWidget = AppWidget();
 
   final _random = Random();
   static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);

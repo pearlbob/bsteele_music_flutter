@@ -56,6 +56,8 @@ class _State extends State<Lists> {
 
   @override
   Widget build(BuildContext context) {
+    appWidget.context = context; //	required on every build
+
     final double fontSize = _app.screenInfo.fontSize;
     metadataStyle = AppTextStyle(
       color: Colors.black87,
@@ -228,7 +230,7 @@ class _State extends State<Lists> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appBackBar('bsteele Music App Song Lists', context),
+      appBar: appWidget.backBar('bsteele Music App Song Lists'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -269,7 +271,7 @@ class _State extends State<Lists> {
               appWrapFullWidth([
                 //  search line
                 appWrap([
-                  appCheckbox(
+                  appWidget.checkbox(
                       value: _isSearchActive,
                       onChanged: (bool? value) {
                         if (value != null) {
@@ -278,7 +280,7 @@ class _State extends State<Lists> {
                           });
                         }
                       },
-                      style: metadataStyle),
+                      fontSize: metadataStyle.fontSize),
                   appTooltip(
                     message: 'search',
                     child: IconButton(
@@ -346,14 +348,14 @@ class _State extends State<Lists> {
               ),
             ]),
       ),
-      floatingActionButton: appFloatingBack(context),
+      floatingActionButton: appWidget.floatingBack(),
     );
   }
 
   Widget mapSongToWidget(Song song) {
     return Row(
       children: [
-        appCheckbox(
+        appWidget.checkbox(
           value: _hasSelectedMetadata(song),
           onChanged: (bool? value) {
             if (value != null) {
@@ -375,7 +377,7 @@ class _State extends State<Lists> {
               });
             }
           },
-          style: metadataStyle,
+          fontSize: metadataStyle.fontSize,
         ),
         appSpace(space: 12),
         TextButton(
@@ -461,6 +463,8 @@ class _State extends State<Lists> {
 
   final TextEditingController _nameTextFieldController = TextEditingController();
   final TextEditingController _valueTextFieldController = TextEditingController();
+
+  final AppWidget appWidget = AppWidget();
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
   final App _app = App();

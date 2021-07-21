@@ -12,7 +12,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-/// Display the song moments in sequential order.
+/// Show some data about the app and it's environment.
 class About extends StatefulWidget {
   const About({Key? key}) : super(key: key);
 

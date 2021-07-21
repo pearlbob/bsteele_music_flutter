@@ -29,9 +29,9 @@ double _fontSize = 24;
 music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
-const halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
+const _halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
 
-/// the bass study tool
+/// A screen used to explore music theory including scales, chords, major and minor keys.
 class TheoryWidget extends StatefulWidget {
   const TheoryWidget({Key? key}) : super(key: key);
 
@@ -213,7 +213,7 @@ class _State extends State<TheoryWidget> {
         style: _style,
       ),
     ));
-    for (var i = 0; i < halfStepsPerOctave; i++) {
+    for (var i = 0; i < _halfStepsPerOctave; i++) {
       row.add(Container(
           padding: padding,
           alignment: Alignment.center,
@@ -263,7 +263,7 @@ class _State extends State<TheoryWidget> {
         style: _style,
       ),
     ));
-    for (var halfStep = 0; halfStep < halfStepsPerOctave; halfStep++) {
+    for (var halfStep = 0; halfStep < _halfStepsPerOctave; halfStep++) {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
@@ -284,7 +284,7 @@ class _State extends State<TheoryWidget> {
         style: _style,
       ),
     ));
-    for (var halfStep = 0; halfStep < halfStepsPerOctave; halfStep++) {
+    for (var halfStep = 0; halfStep < _halfStepsPerOctave; halfStep++) {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
@@ -309,7 +309,7 @@ class _State extends State<TheoryWidget> {
     var chordHalfSteps = _scaleChord.getChordComponents().map((chordComponent) {
       return chordComponent.halfSteps;
     }).toList();
-    for (var halfStep = 0; halfStep < halfStepsPerOctave; halfStep++) {
+    for (var halfStep = 0; halfStep < _halfStepsPerOctave; halfStep++) {
       var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
       row.add(Container(
           padding: padding,
@@ -322,7 +322,7 @@ class _State extends State<TheoryWidget> {
     children.add(TableRow(children: row));
 
     Map<int, TableColumnWidth> widths = {};
-    for (var i = 0; i < halfStepsPerOctave + 1; i++) {
+    for (var i = 0; i < _halfStepsPerOctave + 1; i++) {
       widths[i] = const IntrinsicColumnWidth(flex: 1);
     }
 

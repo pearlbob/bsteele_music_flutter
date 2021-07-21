@@ -16,7 +16,14 @@ final _blue = Paint()..color = Colors.lightBlue.shade200;
 
 int _dirtyCount = 0;
 
-/// Display the song moments in sequential order.
+/// Allow the user to manage sub-lists from all available songs.
+/// Name and value pairs are assigned to songs identified by their song id.
+/// The value portion may be empty.
+/// The names 'cj' and 'holiday' should remain reserved.
+///
+/// Note that the lists will not persist unless written to a file.
+/// At the next app invocation, the file will have to read.
+/// Export of this file to the master release will make it the app's default set of sub-lists.
 class Lists extends StatefulWidget {
   const Lists({Key? key}) : super(key: key);
 
@@ -262,9 +269,7 @@ class _State extends State<Lists> {
               appWrapFullWidth([
                 //  search line
                 appWrap([
-                  Checkbox(
-                      checkColor: Colors.white,
-                      fillColor: MaterialStateProperty.all(_blue.color),
+                  appCheckbox(
                       value: _isSearchActive,
                       onChanged: (bool? value) {
                         if (value != null) {
@@ -272,16 +277,19 @@ class _State extends State<Lists> {
                             _isSearchActive = value;
                           });
                         }
+                      },
+                      style: metadataStyle),
+                  appTooltip(
+                    message: 'search',
+                    child: IconButton(
+                      icon: const Icon(Icons.search),
+                      iconSize: fontSize,
+                      onPressed: (() {
+                        setState(() {
+                          _searchSongs(_searchTextFieldController.text);
+                        });
                       }),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    tooltip: 'search',
-                    iconSize: fontSize,
-                    onPressed: (() {
-                      setState(() {
-                        _searchSongs(_searchTextFieldController.text);
-                      });
-                    }),
+                    ),
                   ),
                   SizedBox(
                     width: 10 * _app.screenInfo.fontSize,
@@ -305,20 +313,22 @@ class _State extends State<Lists> {
                       },
                     ),
                   ),
-                  IconButton(
-                    key: _clearSearchKey,
-                    icon: const Icon(Icons.clear),
-                    tooltip:
+                  appTooltip(
+                    message:
                         _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                    iconSize: 1.5 * fontSize,
-                    onPressed: (() {
-                      WidgetLog.tap(_clearSearchKey);
-                      _searchTextFieldController.clear();
-                      setState(() {
-                        FocusScope.of(context).requestFocus(_searchFocusNode);
-                        _searchSongs(null);
-                      });
-                    }),
+                    child: IconButton(
+                      key: _clearSearchKey,
+                      icon: const Icon(Icons.clear),
+                      iconSize: 1.5 * fontSize,
+                      onPressed: (() {
+                        WidgetLog.tap(_clearSearchKey);
+                        _searchTextFieldController.clear();
+                        setState(() {
+                          FocusScope.of(context).requestFocus(_searchFocusNode);
+                          _searchSongs(null);
+                        });
+                      }),
+                    ),
                   ),
                 ]),
               ], alignment: WrapAlignment.spaceBetween),
@@ -343,30 +353,30 @@ class _State extends State<Lists> {
   Widget mapSongToWidget(Song song) {
     return Row(
       children: [
-        Checkbox(
-            checkColor: Colors.white,
-            fillColor: MaterialStateProperty.all(_blue.color),
-            value: _hasSelectedMetadata(song),
-            onChanged: (bool? value) {
-              if (value != null) {
-                setState(() {
-                  _dirtyCount++;
-                  if (value) {
-                    if (_selectedNameValue.name.isNotEmpty) {
-                      SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
-                    }
-                  } else {
-                    for (var songIdMetadata in SongMetadata.where(
-                        idIs: song.songId.toString(),
-                        nameIs: _selectedNameValue.name,
-                        valueIs: _selectedNameValue.value)) {
-                      logger.d('remove: $songIdMetadata');
-                      SongMetadata.remove(songIdMetadata);
-                    }
+        appCheckbox(
+          value: _hasSelectedMetadata(song),
+          onChanged: (bool? value) {
+            if (value != null) {
+              setState(() {
+                _dirtyCount++;
+                if (value) {
+                  if (_selectedNameValue.name.isNotEmpty) {
+                    SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
                   }
-                });
-              }
-            }),
+                } else {
+                  for (var songIdMetadata in SongMetadata.where(
+                      idIs: song.songId.toString(),
+                      nameIs: _selectedNameValue.name,
+                      valueIs: _selectedNameValue.value)) {
+                    logger.d('remove: $songIdMetadata');
+                    SongMetadata.remove(songIdMetadata);
+                  }
+                }
+              });
+            }
+          },
+          style: metadataStyle,
+        ),
         appSpace(space: 12),
         TextButton(
           child: Text(

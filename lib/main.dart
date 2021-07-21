@@ -1,3 +1,69 @@
+/// # The bSteele Music App.
+///
+/// ## The primary functions for the app:
+///
+/// * Provide a readable HDMI image (1920x1080) application to allow multiple musicians
+/// to see chords and lyrics on a shared large screen while playing live together.
+/// * Provide a reasonable tablet experience that mimics the HDMI image experience
+/// and allows shared song choice and current play location.
+/// * Allow users to input songs and store them locally.
+/// * Allow user entered songs to migrate to the master list on the web.
+///
+/// ## Metrics for the application
+///
+/// * Ease of use
+/// * Clarity of the musical presentation
+/// * Performance
+/// * Reliability
+/// * Platform agnostics
+/// * Maintainability
+/// * Documentation
+///
+/// ## Secondary features for the app:
+///
+/// * Musical key transposition
+/// * Minimize overhead on the musical leader
+/// * Reasonable operation on smart phones
+/// * Enforce musical rules on song entry
+/// * Ease the import of song lyrics from other sources
+/// * Application customization
+/// * Sub-lists (named subsets of the master song list)
+/// * Guitar capo use calculations
+/// * Sheet music presentation with export to the MuseScore musicxml format.
+/// * iRealPro like practice modes
+/// * Noise to Notes
+///
+/// ## App attributes
+///
+/// * Release at http://www.bsteele.com/bsteeleMusicApp/index.html
+/// * Release app is written in GWT. See http://www.gwtproject.org. Open source at https://github.com/pearlbob/bsteeleMusicApp
+/// * Beta at http://www.bsteele.com/bsteeleMusicApp/beta/index.html
+/// * Beta written in Google's flutter/dart. See: https://flutter.dev/ and https://dart.dev/
+/// * Beta is currently closed source.  Expect to open source it eventually.
+/// * Beta backend is a separate dart project.
+/// * Both apps are heavy clients from static pages from the cloud.
+/// * Both apps use web sockets when on local servers for tablet communication.
+///
+/// ## Specific UI problems to fix
+///
+/// * Overall look
+/// * Graphics on player page in play mode
+/// * Pastel colors for section backgrounds
+/// * Sublist management page
+/// * Complexity of song editing
+/// * Dynamic font sizing
+///
+/// ## Personal notes:
+///
+/// * Retired software developer
+/// * Do this project just for the fun of it... and the use of the app while playing music.
+/// * Fair exposure to HTML/CSS/JavaScript but no customer facing projects during my career.
+/// * Big fan of strongly typed languages.
+/// * I've always preferred the backend.  Never was excited about the front end.
+/// * Believe I have artistic talent... it just never extends to a GUI.
+///
+library main;
+
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
@@ -36,7 +102,7 @@ import 'util/openLink.dart';
 
 void main() async {
   runApp(
-    MyApp(),
+    BSteeleMusicApp(),
   );
 }
 
@@ -47,6 +113,18 @@ void main() async {
 //  fixme: import lyrics
 //  fixme: surrender leadership when leader song update appears
 //  fixme: space in title entry jumps to lyrics Section
+
+Shari UI stuff:
+// fixme: If a chord is the most important thing to play but the slash note shouldn't visually dominates it
+// fixme: easy move from player to singer
+// fixme: ] takes up a measure box
+// fixme: the listed key disappears once you are in play mode
+// fixme: the back button doesn't take you to where you just were in the list
+// fixme: When one clicks a play button at the top left and then suddenly doesn't see a stop button next to it
+//  fixme: two back buttons
+//  fixme: tiny default radio button or checkbox
+//  fixme: buttons too close
+
 
 C's ipad: model ML0F2LL/A
 
@@ -84,8 +162,8 @@ const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
 /// Display the list of songs to choose from.
-class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key) {
+class BSteeleMusicApp extends StatelessWidget {
+  BSteeleMusicApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
   }
 
@@ -328,9 +406,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     List<Widget> listViewChildren = [];
-
     logger.d('_filteredSongs.length: ${_filteredSongs.length}');
-    for (final Song song in (_filteredSongs)) {
+    for (final Song song in _filteredSongs) {
       oddEven = !oddEven;
       var key = ValueKey<String>(song.songId.toString());
       logger.v('song.songId: ${song.songId}');
@@ -422,6 +499,16 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
+    //  find the last selected song
+    if (_filteredSongs.contains(_lastSelectedSong)) {
+      var index = _filteredSongs.toList(growable: false).indexOf(_lastSelectedSong!);
+      _itemScrollController.jumpTo(index: index);
+      _rollIndex = index;
+      logger.d('index $index: $_lastSelectedSong');
+    } else {
+      _lastSelectedSong = null;
+    }
+
     var _aboutKey = const ValueKey<String>('About');
     var _clearSearchKey = const ValueKey<String>('clearSearch');
 
@@ -475,9 +562,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-
-      //   toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
-      // ),
 
       drawer: Drawer(
         child: ListView(
@@ -609,6 +693,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     _searchTextFieldController.clear();
                     setState(() {
                       FocusScope.of(context).requestFocus(_searchFocusNode);
+                      _lastSelectedSong = null;
                       _searchSongs(null);
                     });
                   }),
@@ -889,6 +974,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     _app.selectedSong = song;
+    _lastSelectedSong = song;
 
     await Navigator.pushNamed(
       context,
@@ -955,6 +1041,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _rollIndex = -1;
 
   late AppOptions _appOptions;
+  Song? _lastSelectedSong;
 
   final _random = Random();
   static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);

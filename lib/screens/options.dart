@@ -18,7 +18,7 @@ import 'package:logger/logger.dart';
 import '../app/app.dart';
 import '../app/appOptions.dart';
 
-/// Display the song moments in sequential order.
+/// A screen to display controls for the user to manage some of the app's options.
 class Options extends StatefulWidget {
   const Options({Key? key}) : super(key: key);
 
@@ -270,7 +270,7 @@ class _Options extends State<Options> {
                     }, tooltip: 'You are in the Community Jams studio.'),
                     const Spacer(),
                     AppFlexButton('Park', flex: 4, fontSize: fontSize, onPressed: () {
-                      _appOptions.websocketHost = '192.168.1.205';
+                      _appOptions.websocketHost = parkFixedIpAddress;
                       _websocketHostEditingController.text = _appOptions.websocketHost;
                     }, tooltip: 'You are in the park.'),
                     if (kDebugMode) const Spacer(),

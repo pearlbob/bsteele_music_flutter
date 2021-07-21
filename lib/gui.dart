@@ -1,6 +1,8 @@
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:flutter/material.dart';
 
+/// GUI colors for the song sections.
+/// Note that they are very pastel to allow the font to always be quite visible.
 class GuiColors {
   static Color getColorForSection(Section? section) {
     return getColorForSectionEnum(section?.sectionEnum ?? SectionEnum.chorus);

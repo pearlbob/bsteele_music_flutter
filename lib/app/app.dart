@@ -23,6 +23,8 @@ const double appDefaultFontSize = 10.0; //  based on phone
 const NameValue allSongsMetadataNameValue = NameValue('all', '');
 const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 
+const parkFixedIpAddress = '192.168.1.205';
+
 enum MessageType {
   message,
   warning,
@@ -36,7 +38,7 @@ enum CommunityJamsSongList {
   ok,
 }
 
-/// application shared values
+/// Application level, non-persistent, shared values
 class App {
   factory App() {
     return _singleton;
@@ -45,11 +47,13 @@ class App {
   App._internal();
 
   //  parameters to be evaluated before use
+  /// A single instance of the screen information class for common use.
   ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
   bool isEditReady = false;
   bool isScreenBig = true;
   bool isPhone = false;
 
+  /// Add a song to the master song list
   void addSong(Song song) {
     logger.v('addSong( ${song.toString()} )');
     _allSongs.remove(song); // any prior version of same song
@@ -58,18 +62,21 @@ class App {
     selectedSong = song;
   }
 
+  /// Add a list of songs to the master song list
   void addSongs(List<Song> songs) {
     for (var song in songs) {
       addSong(song);
     }
   }
 
+  /// Remove all songs from the master song list
   void removeAllSongs() {
     _allSongs.clear();
     _filteredSongs.clear();
     selectedSong = _emptySong;
   }
 
+  /// Enter an error message to the user
   bool errorMessage(String error) {
     if (this.error != error) {
       this.error = error;
@@ -78,18 +85,16 @@ class App {
     return false;
   }
 
+  /// Enter an informational message to the user
   void infoMessage(String warning) {
     _messageType = MessageType.warning;
     _message = warning;
   }
 
+  /// Clear all messages to the user
   void clearMessage() {
-    message = '';
-  }
-
-  set message(String message) {
     _messageType = MessageType.message;
-    _message = message;
+    _message = '';
   }
 
   set warningMessage(String message) {
@@ -97,13 +102,16 @@ class App {
     _message = message;
   }
 
+  /// Return the current error message
   String? get error => (_messageType == MessageType.error ? _message : null);
 
+  /// Set an error message
   set error(String? message) {
     _messageType = MessageType.error;
     _message = message ?? '';
   }
 
+  /// Generate a message display widget
   Widget messageTextWidget() {
     return Text(message,
         style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
@@ -155,12 +163,16 @@ class App {
   static final App _singleton = App._internal();
 }
 
+/// An experimental extension intended to easy widget testing.
 extension WidgetLogExtension on Widget {
   void testWidgetLog() {
     logger.i('WidgetLogExtension: $key');
   }
 }
 
+/// An experimental class to generate widget test code while running in debug mode.
+/// The model is to use the app in debug mode and then copy/paste the generated code
+/// into widget tests to replicate the user action with a minimum of coding.
 class WidgetLog {
   static void tap(ValueKey<String> key) {
     if (kDebugMode && _widgetLog) {

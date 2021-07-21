@@ -29,7 +29,7 @@ void main() {
         8 * 1080);
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(BSteeleMusicApp());
     await tester.pumpAndSettle();
 
     for (var searchString in ['love', '25', 'the', 'asdf', '']) {

@@ -6,6 +6,7 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// Gather information on screen size and adapt to it
 class ScreenInfo {
   ScreenInfo(BuildContext context) : _isDefaultValue = false {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
@@ -42,15 +43,20 @@ class ScreenInfo {
     _fontSize = 16;
   }
 
+  /// Computed optimal font size.
   double get fontSize => _fontSize;
   late double _fontSize;
 
+  /// Screen width in logical pixels
   double get widthInLogicalPixels => _widthInLogicalPixels;
   late double _widthInLogicalPixels;
 
+  /// Screen height in logical pixels
   double get heightInLogicalPixels => _heightInLogicalPixels;
   late double _heightInLogicalPixels;
 
+  /// Indicate the screen is too narrow for a number of functions that require a wider screen.
+  /// An example is the edit screen.
   bool get isTooNarrow => _isTooNarrow;
   late bool _isTooNarrow;
 
@@ -60,5 +66,6 @@ class ScreenInfo {
   bool get isDefaultValue => _isDefaultValue;
   final bool _isDefaultValue;
 
+  /// Minimum number of pixels for a "large" or "wide" screen
   static const double minLogicalPixels = 1024; //  just enough for a nexus 3 XL to be "big" when horizontal
 }

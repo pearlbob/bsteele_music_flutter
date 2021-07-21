@@ -27,7 +27,7 @@ void main() {
         8 * 1080);
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(BSteeleMusicApp());
     await tester.pumpAndSettle();
 
     List<Widget> widgets = Find.findValueKeyContains('Song_', findSome: false);

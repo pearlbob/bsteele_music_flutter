@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
@@ -31,7 +32,9 @@ import '../app/appOptions.dart';
 //  fixme: shapes in chromium?  circles become stop signs
 //  fixme: compile to armv71
 
+/// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
+/// An observer used to respond to a song update server request.
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
 const _lightBlue = Color(0xFF4FC3F7);
@@ -50,6 +53,10 @@ const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
 
+/// A global function to be called to move the display to the player route with the correct song.
+/// Typically this is called by the song update service when the application is in follower mode.
+/// Note: This is an awkward move, given that it can happen at any time from any route.
+/// Likely the implementation here will require adjustments.
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
@@ -74,6 +81,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 }
 
 /// Display the song moments in sequential order.
+/// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
 class Player extends StatefulWidget {
   Player(this.song, {Key? key}) : super(key: key);
@@ -147,6 +155,13 @@ class _Player extends State<Player> with RouteAware {
     _setSelectedSongKey(widget.song.key);
 
     _leaderSongUpdate(0);
+
+    // PlatformDispatcher.instance.onMetricsChanged=(){
+    //   setState(() {
+    //     //  deal with window size change
+    //     logger.i('onMetricsChanged: ${DateTime.now()}');
+    //   });
+    // };
 
     WidgetsBinding.instance?.scheduleWarmUpFrame();
   }

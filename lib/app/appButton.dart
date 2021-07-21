@@ -108,7 +108,7 @@ Widget appTooltip({
       //  fixme: why is this broken on web?
       //waitDuration: Duration(seconds: 1, milliseconds: 200),
 
-      verticalOffset: 50,
+      verticalOffset: 75,
       decoration: BoxDecoration(
           color: _tooltipColor,
           border: Border.all(),
@@ -171,6 +171,7 @@ AppBar appBar(String title, {Key? key, Widget? leading, List<Widget>? actions, d
     leading: leading,
     centerTitle: false,
     actions: actions,
+    toolbarHeight: (_app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6), //  trim for cell phone overrun
   );
 }
 
@@ -178,28 +179,61 @@ Widget appTranspose(Measure measure, music_key.Key key, int halfSteps, {TextStyl
   TextStyle slashStyle = AppTextStyle(
     fontSize: style?.fontSize,
     fontWeight: FontWeight.bold,
-    color: Colors.indigo,
+    fontStyle: FontStyle.italic,
+    color: const Color(0xFF7D0707),
   );
+  TextStyle chordDescriptorStyle = AppTextStyle(
+    fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
+    fontWeight: FontWeight.normal,
+  );
+
   if (measure.chords.isNotEmpty) {
     List<Widget> children = [];
     for (Chord chord in measure.chords) {
       var transposedChord = chord.transpose(key, halfSteps);
       var isSlash = transposedChord.slashScaleNote != null;
+
+      //  chord note
       children.add(Text(
-          transposedChord.scaleChord.toString() +
-              transposedChord.anticipationOrDelay.toString() +
-              transposedChord.beatsToString(),
-          style: style,
-          softWrap: false));
+        transposedChord.scaleChord.scaleNote.toString(),
+        style: style,
+        softWrap: false,
+        maxLines: 1,
+      ));
+      {
+        //  chord descriptor
+        var name = transposedChord.scaleChord.chordDescriptor.shortName;
+        if (name.isNotEmpty) {
+          children.add(Baseline(
+            baseline: (style?.fontSize ?? _defaultFontSize),
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              name,
+              style: chordDescriptorStyle,
+              softWrap: false,
+              maxLines: 1,
+            ),
+          ));
+        }
+      }
+
+      //  other stuff
+      children.add(Text(
+        transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
+        style: style,
+        softWrap: false,
+        maxLines: 1,
+      ));
       if (isSlash) {
-        children.add(Text('/' + transposedChord.slashScaleNote.toString() + ' ', style: slashStyle, softWrap: false));
+        children.add(Baseline(
+          baseline: 1.6 * (style?.fontSize ?? _defaultFontSize),
+          baselineType: TextBaseline.alphabetic,
+          child: Text('/' + transposedChord.slashScaleNote.toString() + ' ', style: slashStyle, softWrap: false),
+        ));
       }
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      // crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: children,
+    return appWrap(
+      children,
     );
   }
   return Text(
@@ -207,4 +241,15 @@ Widget appTranspose(Measure measure, music_key.Key key, int halfSteps, {TextStyl
     style: style,
     softWrap: false,
   ); // no chords
+}
+
+Widget appCheckbox({required bool? value, ValueChanged<bool?>? onChanged, TextStyle? style}) {
+  return Transform.scale(
+    scale: 0.7 * (style?.fontSize ?? _defaultFontSize) / Checkbox.width,
+    child: Checkbox(
+        checkColor: Colors.white,
+        fillColor: MaterialStateProperty.all(_blue.color),
+        value: value,
+        onChanged: onChanged),
+  );
 }

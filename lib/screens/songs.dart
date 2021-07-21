@@ -11,7 +11,8 @@ import 'package:intl/intl.dart' as intl;
 
 import '../app/app.dart';
 
-/// Display the song moments in sequential order.
+/// Provide a number of song related actions for the user.
+/// This includes reading song files, clearing all songs from the current song list, and the like.
 class Songs extends StatefulWidget {
   const Songs({Key? key}) : super(key: key);
 

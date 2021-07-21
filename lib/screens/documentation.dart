@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' as md;
 
-/// Display the application's privacy policy
+/// Display the application's songlyrics file specification
 class Documentation extends StatefulWidget {
   const Documentation({Key? key}) : super(key: key);
 

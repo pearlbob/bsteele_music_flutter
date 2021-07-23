@@ -59,6 +59,8 @@ const Level _playerLogMusicKey = Level.debug;
 /// Note: This is an awkward move, given that it can happen at any time from any route.
 /// Likely the implementation here will require adjustments.
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
+  logger.d('playerUpdate');
+
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
         context, Player.routeName, (route) => route.isFirst || route.settings.name == Player.routeName);
@@ -73,6 +75,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
+    logger.d('playerUpdate timer');
     _player?.setState(() {
       _player?._setPlayMode();
     });
@@ -100,6 +103,7 @@ class _Player extends State<Player> with RouteAware {
     _player = this;
 
     _scrollController.addListener(() {
+      logger.d('_scrollController.addListener()');
       if (_songUpdateService.isLeader) {
         var sectionTarget = _sectionIndexAtScrollOffset();
         if (sectionTarget != null) {
@@ -160,7 +164,7 @@ class _Player extends State<Player> with RouteAware {
     // PlatformDispatcher.instance.onMetricsChanged=(){
     //   setState(() {
     //     //  deal with window size change
-    //     logger.i('onMetricsChanged: ${DateTime.now()}');
+    //     logger.d('onMetricsChanged: ${DateTime.now()}');
     //   });
     // };
 
@@ -217,17 +221,22 @@ class _Player extends State<Player> with RouteAware {
               ' factor = $factor');
           if (factor == 1) {
             //  try again on a narrowing window
-            setState(() {
-              _table = null;
-              _textScaleFactor = 1;
-            });
+            if (_textScaleFactor != factor) {
+              setState(() {
+                _table = null;
+                _textScaleFactor = 1;
+              });
+            }
           } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
             // let's tighten this thing up
             factor *= _textScaleFactor;
             factor = factor.clamp(1, _maxTextScaleFactor);
-            setState(() {
-              _textScaleFactor = factor;
-            });
+
+            if (_textScaleFactor != factor) {
+              setState(() {
+                _textScaleFactor = factor;
+              });
+            }
           }
         }
       }
@@ -407,9 +416,8 @@ class _Player extends State<Player> with RouteAware {
         ' sectionTarget: $_sectionTarget, '
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $_isPaused');
-    
+
     var rawKeyboardListenerFocusNode = FocusNode();
-    FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -616,6 +624,7 @@ With escape, the app goes back to the play list.''',
                                       setState(() {
                                         if (value != null) {
                                           _setSelectedSongKey(value);
+                                          FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
                                         }
                                       });
                                     },
@@ -651,12 +660,11 @@ With escape, the app goes back to the play list.''',
                                     DropdownButton<int>(
                                       items: _bpmDropDownMenuList,
                                       onChanged: (value) {
-                                        setState(() {
-                                          if (value != null) {
+                                        if (value != null) {
+                                          setState(() {
                                             song.setBeatsPerMinute(value);
-                                            setState(() {});
-                                          }
-                                        });
+                                          });
+                                        }
                                       },
                                       value: song.beatsPerMinute,
                                       style: _chordsTextStyle,
@@ -876,6 +884,7 @@ With escape, the app goes back to the play list.''',
 
   bool _targetSection(double target) {
     if (_sectionTarget != target) {
+      logger.d('_sectionTarget != target, $_sectionTarget != $target');
       setState(() {
         _sectionTarget = target;
         _scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
@@ -1100,6 +1109,7 @@ With escape, the app goes back to the play list.''',
   void _forceTableRedisplay() {
     _sectionLocations.clear();
     _table = null;
+    logger.d('_forceTableRedisplay');
     setState(() {});
   }
 

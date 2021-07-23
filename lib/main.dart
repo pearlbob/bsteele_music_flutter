@@ -340,7 +340,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.v('main build: ${_app.selectedSong}');
+    logger.d('main build: ${_app.selectedSong}');
 
     _appOptions = Provider.of<AppOptions>(context);
 

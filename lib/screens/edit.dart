@@ -63,8 +63,8 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 const Level _editLog = Level.debug;
-const Level _editEntry = Level.info;
-const Level _editKeyboard = Level.info;
+const Level _editEntry = Level.debug;
+const Level _editKeyboard = Level.debug;
 
 ///   screen to edit a song
 class Edit extends StatefulWidget {
@@ -244,6 +244,7 @@ class _Edit extends State<Edit> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
     logger.d('edit build: "${_song.rawLyrics}"');
+    logger.d('edit build: ');
 
     _appOptions = Provider.of<AppOptions>(context);
 

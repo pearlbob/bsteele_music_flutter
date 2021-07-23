@@ -204,6 +204,34 @@ class _Player extends State<Player> with RouteAware {
     if (_songUpdate != null && _isPlaying) {
       _scrollToSectionByMoment(_songUpdate!.songMoment);
     }
+    {
+      const _minTextScaleFactor = 1.2;
+      const _maxTextScaleFactor = 3.5;
+      RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
+      if (renderObject != null) {
+        var renderBox = renderObject as RenderBox;
+        var width = renderBox.size.width;
+        if (width > 0) {
+          var factor = _app.screenInfo.widthInLogicalPixels / width;
+          logger.d('table width: $width/${_app.screenInfo.widthInLogicalPixels}, _textScaleFactor: $_textScaleFactor, '
+              ' factor = $factor');
+          if (factor == 1) {
+            //  try again on a narrowing window
+            setState(() {
+              _table = null;
+              _textScaleFactor = 1;
+            });
+          } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
+            // let's tighten this thing up
+            factor *= _textScaleFactor;
+            factor = factor.clamp(1, _maxTextScaleFactor);
+            setState(() {
+              _textScaleFactor = factor;
+            });
+          }
+        }
+      }
+    }
   }
 
   @override
@@ -219,14 +247,14 @@ class _Player extends State<Player> with RouteAware {
         _table = null; //  force re-eval
         //print('new update song:  ${song.getSongMomentsSize()}');
         _play();
-      } else {
-        WidgetsBinding.instance?.addPostFrameCallback((_) {
-          // executes after build
-          _positionAfterBuild();
-        });
       }
       _setSelectedSongKey(_songUpdate!.currentKey);
     }
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      // executes after build
+      _positionAfterBuild();
+    });
+
     _displayKeyOffset = _app.displayKeyOffset;
 
     _lyricsTable.computeScreenSizes();
@@ -379,11 +407,14 @@ class _Player extends State<Player> with RouteAware {
         ' sectionTarget: $_sectionTarget, '
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $_isPaused');
+    
+    var rawKeyboardListenerFocusNode = FocusNode();
+    FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: RawKeyboardListener(
-        focusNode: FocusNode(),
+        focusNode: rawKeyboardListenerFocusNode,
         onKey: _playerOnKey,
         autofocus: true,
         child: Stack(
@@ -412,9 +443,9 @@ class _Player extends State<Player> with RouteAware {
               Positioned(
                 top: boxCenter,
                 child: Container(
-                  constraints: BoxConstraints.loose(const Size(10, 4)),
+                  constraints: BoxConstraints.loose(Size(_app.screenInfo.widthInLogicalPixels, 4)),
                   decoration: const BoxDecoration(
-                    color: Colors.black,
+                    color: Colors.black87,
                   ),
                 ),
               ),
@@ -437,8 +468,7 @@ class _Player extends State<Player> with RouteAware {
                         if (showTopOfDisplay)
                           Column(
                             children: <Widget>[
-                              appWidget.appBar
-                                (
+                              appWidget.appBar(
                                 leading: appWidget.back(),
                                 //  let the app bar scroll off the screen for more screen for the song
                                 titleWidget: appTooltip(
@@ -664,7 +694,11 @@ With escape, the app goes back to the play list.''',
                           SizedBox(
                             height: _screenOffset,
                           ),
-                        Center(child: _table),
+                        Center(
+                          child: MediaQuery(
+                              data: MediaQuery.of(context).copyWith(textScaleFactor: _textScaleFactor),
+                              child: _table ?? const Text('_table missing!')),
+                        ),
                         Text(
                           'Copyright: ${song.copyright}',
                           style: _lyricsTextStyle,
@@ -725,6 +759,8 @@ With escape, the app goes back to the play list.''',
                   onPressed: () {
                     if (_isPlaying) {
                       _stop();
+                    } else {
+                      _scrollController.jumpTo(0);
                     }
                   },
                   child: appTooltip(
@@ -1076,6 +1112,7 @@ With escape, the app goes back to the play list.''',
   List<LyricSectionRowLocation?> _lyricSectionRowLocations = [];
 
   Table? _table;
+  double _textScaleFactor = 1;
   final LyricsTable _lyricsTable = LyricsTable();
 
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);

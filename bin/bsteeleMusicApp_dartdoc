@@ -1,0 +1,10 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+set dir=~/github/bsteele_music_flutter
+
+cd $dir
+
+dartdoc
+
+exit $status

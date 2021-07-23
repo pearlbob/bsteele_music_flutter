@@ -115,13 +115,16 @@ void main() async {
 //  fixme: import lyrics
 //  fixme: surrender leadership when leader song update appears
 //  fixme: space in title entry jumps to lyrics Section
+fixme: investigate WidgetsApp class
+
+session stuff:
+//  fixme: in the park: no web list read
+//  fixme: lyrics should correlate to compressed repeats
 
 Shari UI stuff:
-// fixme: If a chord is the most important thing to play but the slash note shouldn't visually dominates it
 // fixme: easy move from player to singer
-// fixme: ] takes up a measure box
 // fixme: the listed key disappears once you are in play mode
-// fixme: the back button doesn't take you to where you just were in the list
+// fixme: the back button doesn't take you to where you just were in the list ( mostly fixed )
 // fixme: When one clicks a play button at the top left and then suddenly doesn't see a stop button next to it
 //  fixme: two back buttons
 //  fixme: buttons too close

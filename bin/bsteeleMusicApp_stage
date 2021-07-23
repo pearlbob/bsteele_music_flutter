@@ -92,5 +92,5 @@ gsutil cp $war $gswar
 gsutil -q acl -r ch -u AllUsers:R  $gswar
 
 # print some facts
-bin/bsteeleMusicCodeLineCount
+bin/bsteeleMusicApp_codeLineCount
 cat lib/assets/utcDate.txt

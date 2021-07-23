@@ -277,6 +277,7 @@ class _State extends State<Lists> {
                         if (value != null) {
                           setState(() {
                             _isSearchActive = value;
+                            _searchSongs(_searchTextFieldController.text);
                           });
                         }
                       },

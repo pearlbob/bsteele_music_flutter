@@ -1,8 +1,8 @@
 import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 
 import 'app.dart';
 
@@ -149,7 +149,6 @@ class AppWidget {
   }
 
   Widget floatingBack() {
-    ThemeData themeData = Theme.of(context);
     return appTooltip(
       message: 'Back',
       child: FloatingActionButton(
@@ -165,7 +164,8 @@ class AppWidget {
     return appBar(title: title, leading: back(), fontSize: fontSize);
   }
 
-  AppBar appBar({Key? key, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions, double? fontSize}) {
+  AppBar appBar(
+      {Key? key, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions, double? fontSize}) {
     return AppBar(
       key: key ?? const ValueKey('appBar'),
       title: titleWidget ??
@@ -191,6 +191,7 @@ class AppWidget {
 
   Widget transpose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
     TextStyle slashStyle = AppTextStyle(
+      fontFamily: 'Roboto',
       fontSize: style?.fontSize,
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.italic,
@@ -213,6 +214,7 @@ class AppWidget {
           style: style,
           softWrap: false,
           maxLines: 1,
+          overflow: TextOverflow.clip,
         ));
         {
           //  chord descriptor
@@ -226,6 +228,7 @@ class AppWidget {
                 style: chordDescriptorStyle,
                 softWrap: false,
                 maxLines: 1,
+                overflow: TextOverflow.clip,
               ),
             ));
           }
@@ -239,10 +242,27 @@ class AppWidget {
           maxLines: 1,
         ));
         if (isSlash) {
-          children.add(Baseline(
-            baseline: 1.6 * (style?.fontSize ?? _defaultFontSize),
-            baselineType: TextBaseline.alphabetic,
-            child: Text('/' + transposedChord.slashScaleNote.toString() + ' ', style: slashStyle, softWrap: false),
+          var s = '/' + transposedChord.slashScaleNote.toString() + ' ';
+          // final Size size = (TextPainter(
+          //         text: TextSpan(text: s, style: slashStyle),
+          //         maxLines: 1,
+          //         textScaleFactor: MediaQuery.of(context).textScaleFactor,
+          //         textDirection: TextDirection.ltr)
+          //       ..layout())
+          //     .size;
+          // logger.i('isSlash height: ${size.height}');
+          children.add(
+              //   Baseline(  fixme: from "top of box" ends up pushing everything up, including the container's center
+              // baseline: 2 * 1.6 * size.height,
+              // baselineType: TextBaseline.alphabetic,
+              // child:
+              Text(
+            s,
+            style: slashStyle,
+            softWrap: false,
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            // ),
           ));
         }
       }
@@ -250,11 +270,15 @@ class AppWidget {
         children,
       );
     }
+
+    //  the usual, no chords
     return Text(
       measure.toString(),
       style: style,
       softWrap: false,
-    ); // no chords
+      maxLines: 1,
+      overflow: TextOverflow.clip,
+    );
   }
 
   ///  should be set on every build!

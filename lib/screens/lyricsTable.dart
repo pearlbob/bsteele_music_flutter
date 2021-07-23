@@ -2,9 +2,11 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
+import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
+import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
@@ -24,7 +26,8 @@ typedef LyricsEndWidget = Widget Function();
 /// compute a lyrics table
 class LyricsTable {
   Table lyricsTable(
-    Song song, BuildContext context , {
+    Song song,
+    BuildContext context, {
     musicKey,
     LyricsSectionHeaderWidget? sectionHeaderWidget,
     LyricsTextWidget? textWidget,
@@ -42,7 +45,9 @@ class LyricsTable {
 
     //  build the table from the song lyrics and chords
     if (song.lyricSections.isEmpty) {
-      _table = Table();
+      _table = Table(
+        key: GlobalKey(),
+      );
       return _table;
     }
 
@@ -123,23 +128,27 @@ class LyricsTable {
             measure = measures[c];
           }
           if (showChords) {
-            if (measure == null) {
+            if (_measureShouldBeVisible(measure)) {
+              children.add(Container(
+                  key: _rowKey,
+                  margin: marginInsets,
+                  padding: textPadding,
+                  color: color,
+                  child: appWidget.transpose(
+                    measure!,
+                    displayMusicKey,
+                    tranOffset,
+                    style: _chordTextStyle,
+                  )));
+
+              _rowKey = null;
+            } else {
               //  empty cell
               children.add(Container(
                   margin: marginInsets,
                   child: const Text(
                     '',
                   )));
-            } else {
-              children.add(Container(
-                  key: _rowKey,
-                  margin: marginInsets,
-                  padding: textPadding,
-                  color: color,
-                  child: appWidget.transpose(measure, displayMusicKey, tranOffset, style: _chordTextStyle, )
-              ));
-
-              _rowKey = null;
             }
           }
         }
@@ -198,19 +207,11 @@ class LyricsTable {
       children = [];
     }
 
-    // //  compute the flex for the columns
-    // var columnWidths = <int, TableColumnWidth>{};
-    // for (var i = 0; i < maxCols; i++) {
-    //   columnWidths[i] = IntrinsicColumnWidth();
-    // }
-    // columnWidths[maxCols] = IntrinsicColumnWidth();//FlexColumnWidth();
-
     _table = Table(
       key: GlobalKey(),
-      defaultColumnWidth: const IntrinsicColumnWidth(),
+      defaultColumnWidth: const IntrinsicColumnWidth(), //  covers all
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
-      // columnWidths: columnWidths,
     );
     return _table;
   }
@@ -248,6 +249,14 @@ class LyricsTable {
       fontSize: _lyricsFontSize,
       color: Colors.black87,
     );
+  }
+
+  bool _measureShouldBeVisible(Measure? measure) {
+    if (measure == null ||
+        (measure is MeasureRepeatExtension && measure.marker == ChordSectionLocationMarker.repeatOnOneLineRight)) {
+      return false;
+    }
+    return true;
   }
 
   double get screenWidth => _screenWidth;

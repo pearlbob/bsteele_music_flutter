@@ -23,7 +23,7 @@ const double appDefaultFontSize = 10.0; //  based on phone
 const NameValue allSongsMetadataNameValue = NameValue('all', '');
 const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 
-const parkFixedIpAddress = '192.168.1.205';
+const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
 enum MessageType {
   message,

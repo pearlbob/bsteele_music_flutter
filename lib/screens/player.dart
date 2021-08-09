@@ -76,9 +76,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
     logger.d('playerUpdate timer');
-    _player?.setState(() {
-      _player?._setPlayMode();
-    });
+    _player?._setPlayState();
   });
 
   //print('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
@@ -208,39 +206,39 @@ class _Player extends State<Player> with RouteAware {
     if (_songUpdate != null && _isPlaying) {
       _scrollToSectionByMoment(_songUpdate!.songMoment);
     }
-    {
-      const _minTextScaleFactor = 1.2;
-      const _maxTextScaleFactor = 3.5;
-      RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
-      if (renderObject != null) {
-        var renderBox = renderObject as RenderBox;
-        var width = renderBox.size.width;
-        if (width > 0) {
-          var factor = _app.screenInfo.widthInLogicalPixels / width;
-          logger.d('table width: $width/${_app.screenInfo.widthInLogicalPixels}, _textScaleFactor: $_textScaleFactor, '
-              ' factor = $factor');
-          if (factor == 1) {
-            //  try again on a narrowing window
-            if (_textScaleFactor != factor) {
-              setState(() {
-                _table = null;
-                _textScaleFactor = 1;
-              });
-            }
-          } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
-            // let's tighten this thing up
-            factor *= _textScaleFactor;
-            factor = factor.clamp(1, _maxTextScaleFactor);
-
-            if (_textScaleFactor != factor) {
-              setState(() {
-                _textScaleFactor = factor;
-              });
-            }
-          }
-        }
-      }
-    }
+    // {
+    //   const _minTextScaleFactor = 1.2;
+    //   const _maxTextScaleFactor = 3.5;
+    //   RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
+    //   if (renderObject != null) {
+    //     var renderBox = renderObject as RenderBox;
+    //     var width = renderBox.size.width;
+    //     if (width > 0) {
+    //       var factor = _app.screenInfo.widthInLogicalPixels / width;
+    //       logger.d('table width: $width/${_app.screenInfo.widthInLogicalPixels}, _textScaleFactor: $_textScaleFactor, '
+    //           ' factor = $factor');
+    //       if (factor == 1) {
+    //         //  try again on a narrowing window
+    //         if (_textScaleFactor != factor) {
+    //           setState(() {
+    //             _table = null;
+    //             _textScaleFactor = 1;
+    //           });
+    //         }
+    //       } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
+    //         // let's tighten this thing up
+    //         factor *= _textScaleFactor;
+    //         factor = factor.clamp(1, _maxTextScaleFactor);
+    //
+    //         if (_textScaleFactor != factor) {
+    //           setState(() {
+    //             _textScaleFactor = factor;
+    //           });
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   @override
@@ -1023,6 +1021,13 @@ With escape, the app goes back to the play list.''',
     });
   }
 
+  /// Workaround to avoid calling setState() outside of the framework classes
+  void _setPlayState() {
+    setState(() {
+      _player?._setPlayMode();
+    });
+  }
+
   _setPlayMode() {
     _isPaused = false;
     _isPlaying = true;
@@ -1122,7 +1127,7 @@ With escape, the app goes back to the play list.''',
   List<LyricSectionRowLocation?> _lyricSectionRowLocations = [];
 
   Table? _table;
-  double _textScaleFactor = 1;
+  final double _textScaleFactor = 1;
   final LyricsTable _lyricsTable = LyricsTable();
 
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);

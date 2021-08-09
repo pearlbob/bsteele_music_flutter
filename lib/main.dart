@@ -223,7 +223,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState() : _searchFocusNode = FocusNode();
+  _MyHomePageState() : _searchFocusNode = FocusNode(), _appOptions = AppOptions();
 
   @override
   void initState() {
@@ -286,6 +286,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readExternalSongList() async {
+    if ( _appOptions.isInThePark()){
+      logger.i('internal songList only in the park');
+      _readInternalSongList();
+      return;
+    }
     {
       const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
 
@@ -1044,7 +1049,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final Duration _itemScrollDuration = const Duration(milliseconds: 500);
   int _rollIndex = -1;
 
-  late AppOptions _appOptions;
+  AppOptions _appOptions;
   Song? _lastSelectedSong;
 
   final AppWidget appWidget = AppWidget();

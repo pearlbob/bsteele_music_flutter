@@ -46,6 +46,7 @@ lib/generated_plugin_registrant.dart
 linux/
 android/
 ios/
+macos/
 .idea/
 
 # See https://www.dartlang.org/guides/libraries/private-files

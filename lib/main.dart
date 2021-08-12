@@ -129,6 +129,17 @@ Shari UI stuff:
 //  fixme: two back buttons
 //  fixme: buttons too close
 
+//  fixme: scroll to chord line on scroll
+//
+//  fixme: aim a little low on a large section 	ie. always show next section first row
+//
+//  fixme: more on follower display when leader is not playing a song
+//
+//  fixme: poor, poor pitiful me:   font too large
+//
+//
+//  fixme: log of songs played
+
 
 C's ipad: model ML0F2LL/A
 

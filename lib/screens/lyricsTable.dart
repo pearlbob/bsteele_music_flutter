@@ -229,7 +229,7 @@ class LyricsTable {
     _screenWidth = _app.screenInfo.widthInLogicalPixels;
     _screenHeight = _app.screenInfo.heightInLogicalPixels;
     _fontSize = appDefaultFontSize * min(4, max(1, _screenWidth / 500));
-    _lyricsFontSize = fontSize * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.75);
+    _lyricsFontSize = fontSize * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.65);
     _fontSize *= (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
     _shortLyricsWidth = _screenWidth * 0.20;
 

@@ -272,7 +272,7 @@ class _Options extends State<Options> {
                     ),
                     const Spacer(),
                     AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
-                      _appOptions.websocketHost = 'cj.local';
+                      _appOptions.websocketHost = 'cj';
                       _websocketHostEditingController.text = _appOptions.websocketHost;
                     }, tooltip: 'You are in the Community Jams studio.'),
                     const Spacer(),

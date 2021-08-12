@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.2+beta
 
 environment:
-  sdk: ^2.14.0-368.0.dev
+  sdk: ^2.15.0-5.0.dev
 
 dependencies:
   flutter:
@@ -37,7 +37,7 @@ dependencies:
 
 
   bsteeleMusicLib:
-    path: ../bsteeleMusicLib
+    path: ../bsteeleMusicLib/bsteele_music_lib
 
 
 

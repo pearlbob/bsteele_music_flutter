@@ -195,6 +195,8 @@ class AppOptions extends ChangeNotifier {
     }
   }
 
+  bool get isSinger => _userDisplayStyle == UserDisplayStyle.singer;
+
   set compressRepeats(bool value) {
     if (_compressRepeats == value) {
       return;

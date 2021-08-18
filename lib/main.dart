@@ -100,6 +100,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'app/app.dart';
 import 'app/appButton.dart';
 import 'app/appOptions.dart';
+import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 void main() async {
@@ -109,13 +110,10 @@ void main() async {
 }
 
 /*
-//  fixme: add undo/redo to chord entry
 //  fixme: after an edit change, don't allow navigator pop without admission that edits will be lost
 //  fixme: song diff page
-//  fixme: import lyrics
 //  fixme: surrender leadership when leader song update appears
 //  fixme: space in title entry jumps to lyrics Section
-fixme: investigate WidgetsApp class
 
 session stuff:
 //  fixme: in the park: no web list read
@@ -131,14 +129,68 @@ Shari UI stuff:
 
 //  fixme: scroll to chord line on scroll
 //
-//  fixme: aim a little low on a large section 	ie. always show next section first row
+//  fixme: aim a little low on a large section 	ie. always show next section first row (approximate)
 //
 //  fixme: more on follower display when leader is not playing a song
 //
-//  fixme: poor, poor pitiful me:   font too large
+//  fixme: poor, poor pitiful me:   font too large  (approximate)
 //
 //
 //  fixme: log of songs played
+
+fixme: I continue to have intermittent trouble if I have to scroll back up during the play mode. Here is the sequence:
+1. First enter play mode, then use space bar to advance
+2. After 1-3 space bar advances, manually scroll up, but not all the way to the top. It doesn't ever glitch if I go all the way back up.
+3. Once I force it to scroll up to the top and play again, it doesn't seem to glitch again until I load another song.
+4. This may take 2-4 attempts to break, not dependent on complexity.
+5. It requires the scroll-up to break - never breaks if I simply play it straight through with the space bar.
+
+
+metadata:
+	fixme: metadata remove old
+	read only from list?
+  write a list from lists menu by musicians
+  fixme: on main: checkbox for lists to show (from diff musicians)
+
+  fixme: metadata save and save all
+
+  fixme: list copy to another list
+
+  personal list from individuals
+
+  fixme: by individuals from emailed lists to jam leader
+
+	fixme: allow the app to override player&singer mode, be aggressive about minimum fontSize
+  fixme:  beta on fullscreen web version
+
+
+min fontSize 25  singer mode?
+max fontSize 36
+
+fixme: singer display no wrapping
+fixme: player or play/singer can wrap
+
+
+fixme: singer mode africa:  font size bounces
+
+
+fixme: singer mode: section title, first 3 measures then ...
+fixme: singer mode: no capo!
+
+
+// Bb trumpet: -2 half steps, that is: D on instrument is an actual C
+// baritone guitar (perfect fourth): -5, that is: F on instrument is an actual C
+//
+// soprano sax:  Eb, +3,   that is: A played on instrument is an actual C
+// alto sax: Eb, +3,   that is: A played on instrument is an actual C
+// tenor sax: Bb, -2 half steps, that is: D on instrument is an actual C
+// clarinet: Bb, -2 half steps, that is: D on instrument is an actual C
+// baritone sax: Eb, +3,   that is: A played on instrument is an actual C
+// bass sax: Bb, -2 half steps, that is: Bb on instrument is an actual C
+//
+// ukulele: soprano, concert, and tenor:  key of C
+// ukulele: baritone:  key of D, -5, that is: F on instrument is a C
+
 
 
 C's ipad: model ML0F2LL/A
@@ -190,9 +242,7 @@ class BSteeleMusicApp extends StatelessWidget {
         create: (_) => AppOptions(),
         builder: (context, _) => MaterialApp(
               title: 'bsteele Music App',
-              theme: ThemeData(
-                primaryColor: appDefaultColor,
-              ),
+              theme: AppTheme().themeData,
               home: const MyHomePage(title: 'bsteele Music App'),
               navigatorObservers: [playerRouteObserver],
 
@@ -253,19 +303,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //logger.i('uri: ${Uri.base}, ${Uri.base.queryParameters.keys.contains('follow')}');
   }
 
-  /// workaround for rootBundle.loadString() failures in flutter test
-  Future<String> _loadString(String assetPath) async {
-    //return rootBundle.loadString(assetPath, cache: false);
-    ByteData data = await rootBundle.load(assetPath);
-    logger.v('data.lengthInBytes: ${data.lengthInBytes}');
-    final buffer = data.buffer;
-    var list = buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    return utf8.decode(list);
-  }
-
   void _readInternalSongList() async {
     {
-      String songListAsString = await _loadString('lib/assets/allSongs.songlyrics');
+      String songListAsString = await loadString('lib/assets/allSongs.songlyrics');
       try {
         _app.removeAllSongs();
         _app.addSongs(Song.songListFromJson(songListAsString));
@@ -283,7 +323,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     {
-      String songMetadataAsString = await _loadString('lib/assets/allSongs.songmetadata');
+      String songMetadataAsString = await loadString('lib/assets/allSongs.songmetadata');
 
       try {
         SongMetadata.clear();
@@ -410,7 +450,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _sortTypesDropDownMenuList.clear();
     for (final e in _SortType.values) {
       var s = e.toString();
-      //print('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
+      //logger.i('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
       _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
         value: e,
         child: Text(

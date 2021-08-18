@@ -23,9 +23,9 @@ import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
+import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/cupertino.dart';
@@ -580,7 +580,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           appButton(
                             songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                            color: (songHasChanged && _isValidSong) ? appDefaultColor : _disabledColor,
+                            color: (songHasChanged && _isValidSong) ? Theme.of(context).primaryColor : _disabledColor,
                             onPressed: () {
                               if (songHasChanged && _isValidSong) {
                                 _enterSong();
@@ -2931,7 +2931,7 @@ class _Edit extends State<Edit> {
   EdgeInsets _marginInsets = const EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
-  Color _sectionColor = appDefaultColor;
+  Color _sectionColor = Colors.blue;
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 

@@ -1,0 +1,27 @@
+body {background-color: coral;}
+
+.foo {
+    color: red;
+    left: 20px;
+    top: 20px;
+    width: 100px;
+    height: 200px;
+}
+
+.cjstyle {
+    font-size: 24px;
+    width: 200px;
+    text-align: center;
+    font-weight: bold;
+    background-color: orange;
+    color: #FFF;
+    padding: 10px;
+    border-style: solid;
+    border-width: 4px;
+    border-color: #666;
+}
+
+#appButton {
+    background-color: orange;
+    color: #FFFFFF;
+}

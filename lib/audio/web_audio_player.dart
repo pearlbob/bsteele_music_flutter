@@ -12,7 +12,7 @@ class WebAudioPlayer implements AppAudioPlayer {
     try {
 //      for (final Pitch pitch in Pitch.flats) {
 //        String s = 'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.getLabelNumber().toString()}.mp3';
-//        print('piano: $s');
+//        logger.i('piano: $s');
 //        _audioFilePlayer.bufferFile(s);
 //      }
       for (int i = 0; i < 40; i++) {

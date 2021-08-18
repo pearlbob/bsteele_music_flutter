@@ -252,6 +252,14 @@ class _State extends State<Lists> {
                   },
                   color: _dirtyCount == 0 ? appDisabledColor : null,
                 ),
+                if (_selectedNameValue != _emptySelectedNameValue)
+                  appButton(
+                    'Save ${_selectedNameValue.name}:${_selectedNameValue.value}',
+                    onPressed: () {
+                      _saveNameValueSongMetadata(_selectedNameValue);
+                      logger.i('save selection: $_selectedNameValue');
+                    },
+                  ),
                 appButton(
                   'Read lists from file',
                   onPressed: () {
@@ -431,12 +439,19 @@ class _State extends State<Lists> {
   }
 
   void _saveSongMetadata() async {
-    String fileName =
-        'allSongs_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songmetadata'; //  fixme: cover artist?
-    String contents = SongMetadata.toJson();
-    String message = await UtilWorkaround().writeFileContents(fileName, contents);
-    logger.i('_saveSongMetadata message: $message');
     _dirtyCount = 0;
+    _saveMetadata('allSongs', SongMetadata.toJson());
+  }
+
+  void _saveNameValueSongMetadata(NameValue nv) async {
+    String contents = SongMetadata.toJson(values: SongMetadata.where(nameValue: _selectedNameValue));
+    _saveMetadata('${_selectedNameValue.name}_${_selectedNameValue.value}', contents);
+  }
+
+  void _saveMetadata(String prefix, String contents) async {
+    String fileName = '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songmetadata';
+    String message = await UtilWorkaround().writeFileContents(fileName, contents);
+    logger.i('_saveMetadata message: $message');
     setState(() {
       _app.infoMessage('.songmetadata $message');
     });

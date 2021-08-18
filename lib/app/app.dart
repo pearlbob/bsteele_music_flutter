@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -10,13 +11,13 @@ import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const bool _widgetLog = false; //  true false
 
 const _environmentDefault = 'main'; //  fixme: duplicate
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
-const Color appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
 final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone
 
@@ -36,6 +37,16 @@ enum CommunityJamsSongList {
   best,
   ninjam,
   ok,
+}
+
+/// workaround for rootBundle.loadString() failures in flutter test
+Future<String> loadString(String assetPath) async {
+  //return rootBundle.loadString(assetPath, cache: false);
+  ByteData data = await rootBundle.load(assetPath);
+  logger.v('data.lengthInBytes: ${data.lengthInBytes}');
+  final buffer = data.buffer;
+  var list = buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  return utf8.decode(list);
 }
 
 /// Application level, non-persistent, shared values

@@ -315,7 +315,7 @@ class _Options extends State<Options> {
                           style: AppTextStyle(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
-                            backgroundColor: appDefaultColor,
+                            backgroundColor: Theme.of(context).primaryColor,
                           ),
                         ),
                         onPressed: () {
@@ -329,7 +329,7 @@ class _Options extends State<Options> {
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
                               _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
-                                  ? appDefaultColor
+                                  ? Theme.of(context).primaryColor
                                   : Colors.red),
                         ),
                       ),
@@ -567,14 +567,16 @@ class _Options extends State<Options> {
     const DropdownMenuItem(
         key: ValueKey('keyOffset3'),
         value: 3,
-        child: Text('+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3')),
+        child:
+            Text('+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3, E${MusicConstants.flatChar} instrument')),
     const DropdownMenuItem(key: ValueKey('keyOffset4'), value: 4, child: Text('+4   (-8)   halfsteps = scale   3')),
     const DropdownMenuItem(key: ValueKey('keyOffset5'), value: 5, child: Text('+5   (-7)   halfsteps = scale   4')),
     const DropdownMenuItem(
         key: ValueKey('keyOffset6'),
         value: 6,
         child: Text('+6   (-6)   halfsteps = scale  ${MusicConstants.flatChar}5')),
-    const DropdownMenuItem(key: ValueKey('keyOffset7'), value: 7, child: Text('+7   (-5)   halfsteps = scale   5')),
+    const DropdownMenuItem(
+        key: ValueKey('keyOffset7'), value: 7, child: Text('+7   (-5)   halfsteps = scale   5, baritone guitar')),
     const DropdownMenuItem(
         key: ValueKey('keyOffset8'),
         value: 8,
@@ -583,7 +585,8 @@ class _Options extends State<Options> {
     const DropdownMenuItem(
         key: ValueKey('keyOffset10'),
         value: 10,
-        child: Text('+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7')),
+        child:
+            Text('+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7, B${MusicConstants.flatChar} instrument')),
     const DropdownMenuItem(key: ValueKey('keyOffset10'), value: 11, child: Text('+11 (-1)   halfsteps = scale   7')),
   ];
 

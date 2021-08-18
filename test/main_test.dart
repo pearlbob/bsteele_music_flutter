@@ -115,7 +115,7 @@ void main() {
     // var testValue = 'love';
     // await tester.enterText(textField, testValue);
     // expect(find.text(testValue), findsOneWidget);
-    // print(testValue);
+    // logger.i(testValue);
     // expect(find.text('1'), findsNothing);
     //
     // // Tap the '+' icon and trigger a frame.

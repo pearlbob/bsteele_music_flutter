@@ -79,7 +79,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     _player?._setPlayState();
   });
 
-  //print('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  //logger.i('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
 /// Display the song moments in sequential order.
@@ -252,7 +252,7 @@ class _Player extends State<Player> with RouteAware {
         song = _songUpdate!.song;
         widget.song = song;
         _table = null; //  force re-eval
-        //print('new update song:  ${song.getSongMomentsSize()}');
+        //logger.i('new update song:  ${song.getSongMomentsSize()}');
         _play();
       }
       _setSelectedSongKey(_songUpdate!.currentKey);
@@ -270,7 +270,7 @@ class _Player extends State<Player> with RouteAware {
     var _chordsTextStyle = _lyricsTable.chordTextStyle;
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
-    const sectionCenterLocationFraction = 1.0 / 2;
+    const sectionCenterLocationFraction = 0.4;
 
     if (_table == null) {
       _table = _lyricsTable.lyricsTable(song, context,
@@ -417,6 +417,8 @@ class _Player extends State<Player> with RouteAware {
 
     var rawKeyboardListenerFocusNode = FocusNode();
 
+    bool showCapo = !_appOptions.isSinger;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: RawKeyboardListener(
@@ -532,40 +534,41 @@ With escape, the app goes back to the play list.''',
                                       onPressed: () {},
                                     ),
                                   ),
-                                  appWrap(
-                                    [
-                                      appTooltip(
-                                        message: 'For a guitar, show the capo location and\n'
-                                            'chords to match the current key.',
-                                        child: Text(
-                                          'Capo',
-                                          style: _chordsTextStyle,
-                                          softWrap: false,
+                                  if (showCapo)
+                                    appWrap(
+                                      [
+                                        appTooltip(
+                                          message: 'For a guitar, show the capo location and\n'
+                                              'chords to match the current key.',
+                                          child: Text(
+                                            'Capo',
+                                            style: _chordsTextStyle,
+                                            softWrap: false,
+                                          ),
                                         ),
-                                      ),
-                                      Switch(
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _isCapo = !_isCapo;
-                                            _setSelectedSongKey(_selectedSongKey);
-                                          });
-                                        },
-                                        value: _isCapo,
-                                      ),
-                                      if (_isCapo && _capoLocation > 0)
-                                        Text(
-                                          'on $_capoLocation',
-                                          style: _chordsTextStyle,
-                                          softWrap: false,
+                                        Switch(
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _isCapo = !_isCapo;
+                                              _setSelectedSongKey(_selectedSongKey);
+                                            });
+                                          },
+                                          value: _isCapo,
                                         ),
-                                      if (_isCapo && _capoLocation == 0)
-                                        Text(
-                                          'no capo needed',
-                                          style: _chordsTextStyle,
-                                          softWrap: false,
-                                        ),
-                                    ],
-                                  ),
+                                        if (_isCapo && _capoLocation > 0)
+                                          Text(
+                                            'on $_capoLocation',
+                                            style: _chordsTextStyle,
+                                            softWrap: false,
+                                          ),
+                                        if (_isCapo && _capoLocation == 0)
+                                          Text(
+                                            'no capo needed',
+                                            style: _chordsTextStyle,
+                                            softWrap: false,
+                                          ),
+                                      ],
+                                    ),
                                   if (_app.isEditReady)
                                     appTooltip(
                                       message: 'Edit the song',
@@ -634,7 +637,7 @@ With escape, the app goes back to the play list.''',
                                   appSpace(
                                     space: 5,
                                   ),
-                                  if (_displayKeyOffset > 0 || (_isCapo && _capoLocation > 0))
+                                  if (_displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
                                     Text(
                                       '($_selectedSongKey' +
                                           (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
@@ -1071,7 +1074,7 @@ With escape, the app goes back to the play list.''',
     logger.log(_playerLogMusicKey, 'offsetKey: $newDisplayKey');
 
     //  deal with capo
-    if (_isCapo) {
+    if (!_appOptions.isSinger && _isCapo) {
       _capoLocation = newDisplayKey.capoLocation;
       newDisplayKey = newDisplayKey.capoKey;
       logger.log(_playerLogMusicKey, 'capo: $newDisplayKey + $_capoLocation');

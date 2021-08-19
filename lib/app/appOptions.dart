@@ -11,8 +11,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum UserDisplayStyle {
   /// For a player, the lyrics can be abbreviated.
   player,
+
   /// For a singer, most if not all chords will not be required.
   singer,
+
   /// For an audience of both singers and players, both chords and lyrics will be fully displayed.
   both,
 }
@@ -226,7 +228,7 @@ class AppOptions extends ChangeNotifier {
   String get websocketHost => _websocketHost;
   String _websocketHost = 'cj.local';
 
-  bool isInThePark(){
+  bool isInThePark() {
     return _websocketHost == parkFixedIpAddress;
   }
 

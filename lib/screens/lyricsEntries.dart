@@ -4,7 +4,7 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -220,8 +220,8 @@ class _LyricsDataEntry {
         //  note: allow empty (blank) lines, i.e. lyricSection.lyricsLines.first can be empty
         ) {
       _lyricsLines = List.from(lyricSection.lyricsLines)
-          .map((line) =>
-              _LyricsLine(line, _lyricsLineCallback, onLyricsLineChangedCallback: onLyricsLineChangedCallback, textStyle: _textStyle))
+          .map((line) => _LyricsLine(line, _lyricsLineCallback,
+              onLyricsLineChangedCallback: onLyricsLineChangedCallback, textStyle: _textStyle))
           .toList();
 
       //  copy the focus

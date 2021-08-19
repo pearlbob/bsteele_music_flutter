@@ -85,7 +85,6 @@ import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
@@ -104,6 +103,13 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 void main() async {
+  Logger.level = Level.info;
+
+  //  read the css theme data prior to the first build
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppTheme().init(); //  init the singleton
+
+  //  run the app
   runApp(
     BSteeleMusicApp(),
   );
@@ -284,7 +290,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState() : _searchFocusNode = FocusNode(), _appOptions = AppOptions();
+  _MyHomePageState()
+      : _searchFocusNode = FocusNode(),
+        _appOptions = AppOptions();
 
   @override
   void initState() {
@@ -337,7 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readExternalSongList() async {
-    if ( _appOptions.isInThePark()){
+    if (_appOptions.isInThePark()) {
       logger.i('internal songList only in the park');
       _readInternalSongList();
       return;
@@ -427,24 +435,21 @@ class _MyHomePageState extends State<MyHomePage> {
     final AppTextStyle searchTextStyle = AppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
-      color: Colors.black38,
       textBaseline: TextBaseline.alphabetic,
     );
     final AppTextStyle searchDropDownStyle = AppTextStyle(
       fontWeight: FontWeight.normal,
       fontSize: fontSize,
-      color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
     final AppTextStyle titleTextStyle = AppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
-      color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
 
     final AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
-    final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize, color: Colors.grey[800]);
+    final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize);
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();

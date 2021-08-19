@@ -17,9 +17,9 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -441,9 +441,8 @@ class _State extends State<Detail> {
                               }
                             },
                             value: _timeSignature,
-                            style: const AppTextStyle(
+                            style: AppTextStyle(
                               //  size controlled by textScaleFactor above
-                              color: Colors.black,
                               textBaseline: TextBaseline.ideographic,
                             ),
                           ),
@@ -729,7 +728,7 @@ class _State extends State<Detail> {
 
   final AppWidget appWidget = AppWidget();
 
-  AppTextStyle _style = const AppTextStyle();
+  AppTextStyle _style = AppTextStyle();
   final AppOptions _appOptions = AppOptions();
 }
 

@@ -114,8 +114,8 @@ class SheetMusicPainter extends CustomPainter {
       if (_app.selectedMomentNumber > sm.momentNumber) {
         continue; //  fixme: optimization?
       }
-      const beatResolution = 1/16;  //  fixme: is this the best way to do this?
-      for (double beat = 0; beat < sm.measure.beatCount; beat+= beatResolution) {
+      const beatResolution = 1 / 16; //  fixme: is this the best way to do this?
+      for (double beat = 0; beat < sm.measure.beatCount; beat += beatResolution) {
         for (var display in SheetDisplay.values) {
           if (hasDisplay(display)) {
             _sheetNotations[display.index].drawBeat(sm, beat);

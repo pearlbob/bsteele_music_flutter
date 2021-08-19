@@ -13,9 +13,9 @@ import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
@@ -420,7 +420,6 @@ class _Player extends State<Player> with RouteAware {
     bool showCapo = !_appOptions.isSinger;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: RawKeyboardListener(
         focusNode: rawKeyboardListenerFocusNode,
         onKey: _playerOnKey,

@@ -5,7 +5,7 @@ import 'package:csslib/visitor.dart' as visitor;
 
 import 'app.dart';
 
-const Color _appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
+//const Color _appDefaultColor = Color(0xFF4FC3F7); //Color(0xFFB3E5FC);
 double _defaultFontSize = 14;
 Color _defaultBackgroundColor = Colors.white;
 Color _defaultForegroundColor = Colors.black;
@@ -29,15 +29,13 @@ class AppTheme {
     return _singleton;
   }
 
-  AppTheme._internal() {
-    init();
-  }
+  AppTheme._internal();
 
-  Future<void> init() async {
-    _defaultFontSize = 24;
-    _defaultBackgroundColor = Colors.orange;
-    _defaultForegroundColor = Colors.purple;
-    _defaultPadding = MaterialStateProperty.all(const EdgeInsets.all(30));
+  Future init() async {
+    // _defaultFontSize = 24;
+    // _defaultBackgroundColor = Colors.orange;
+    // _defaultForegroundColor = Colors.purple;
+    // _defaultPadding = MaterialStateProperty.all(const EdgeInsets.all(30));
 
     String cssAsString = await loadString('lib/assets/app.css');
     List<parser.Message> errors = [];
@@ -147,29 +145,31 @@ class AppTheme {
 //   }
 // }
 
-    var appBarTheme = AppBarTheme(backgroundColor: _defaultBackgroundColor, foregroundColor: _defaultForegroundColor);
-    var iconTheme = IconThemeData(color: _defaultForegroundColor);
-    var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor));
-    var textStyle = TextStyle(backgroundColor: _defaultBackgroundColor, color: _defaultForegroundColor);
-    var textTheme = TextTheme(
-      bodyText1: textStyle,
-      bodyText2: textStyle,
-      caption: textStyle,
-      button: textStyle,
-      overline: textStyle,
-    );
-    themeData = themeData.copyWith(
-      appBarTheme: appBarTheme,
-      backgroundColor: _defaultBackgroundColor,
-      iconTheme: iconTheme,
-      primaryColor: _defaultBackgroundColor,
-      radioTheme: radioTheme,
-      textTheme: textTheme,
-    );
+    if ( false ) {
+      var appBarTheme = AppBarTheme(backgroundColor: _defaultBackgroundColor, foregroundColor: _defaultForegroundColor);
+      var iconTheme = IconThemeData(color: _defaultForegroundColor);
+      var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor));
+      var textStyle = TextStyle(backgroundColor: _defaultBackgroundColor, color: _defaultForegroundColor);
+      var textTheme = TextTheme(
+        bodyText1: textStyle,
+        bodyText2: textStyle,
+        caption: textStyle,
+        button: textStyle,
+        overline: textStyle,
+      );
+      themeData = themeData.copyWith(
+        appBarTheme: appBarTheme,
+        backgroundColor: _defaultBackgroundColor,
+        iconTheme: iconTheme,
+        primaryColor: _defaultBackgroundColor,
+        radioTheme: radioTheme,
+        textTheme: textTheme,
+      );
+    }
   }
 
   ThemeData themeData = ThemeData(
-    primaryColor: _appDefaultColor,
+    //primaryColor: _appDefaultColor,
   );
 
   final RegExp _threeDigitHexRegExp = RegExp(r'^[\da-fA-f]{3}$');
@@ -194,36 +194,35 @@ ElevatedButton _defaultElevatedButton = ElevatedButton(
 ElevatedButton appButton(
   String commandName, {
   Key? key,
-  Color? color,
+  Color? background,
   double? fontSize,
   required VoidCallback? onPressed,
   double height = 1.5,
 }) {
-  var background = Paint()
-    ..color = color ??
+  var backgroundPaint = Paint()
+    ..color = background ??
         _defaultElevatedButton.style?.backgroundColor?.resolve({}) ??
         _defaultElevatedButtonText.style?.backgroundColor ??
         _defaultBackgroundColor;
   var foreground = Paint()
-    ..color = color ??
+    ..color =
         _defaultElevatedButton.style?.foregroundColor?.resolve({}) ??
         _defaultElevatedButtonText.style?.color ??
         _defaultForegroundColor;
+  var textStyle = TextStyle(
+    fontSize: fontSize ?? _defaultElevatedButtonText.style?.fontSize ?? _defaultFontSize,
+    foreground: foreground,
+    background: backgroundPaint,
+    height: height,
+  );
 
   return ElevatedButton(
-    child: Text(
-      commandName,
-    ),
+    child: Text(commandName, style: textStyle),
     clipBehavior: Clip.hardEdge,
     onPressed: onPressed,
     style: ButtonStyle(
-      textStyle: MaterialStateProperty.all(TextStyle(
-        fontSize: fontSize ?? _defaultElevatedButtonText.style?.fontSize ?? _defaultFontSize,
-        foreground: foreground,
-        background: background,
-        height: height,
-      )),
-      backgroundColor: MaterialStateProperty.all(background.color),
+      textStyle: MaterialStateProperty.all(textStyle),
+      backgroundColor: MaterialStateProperty.all(backgroundPaint.color),
       padding: _defaultPadding,
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
           borderRadius: BorderRadius.circular((fontSize ?? _defaultFontSize) / 2),
@@ -240,4 +239,73 @@ class ThemeValue {
 
   Object get value => _value;
   final Object _value;
+}
+
+const List<String> appFontFamilyFallback = [
+  //'Roboto',
+  'DejaVu'
+  //'Bravura',  // music symbols are over sized in the vertical
+];
+
+/// style used to get DejaVu as a fallback family for musical sharps and flats
+@immutable
+class AppTextStyle extends TextStyle {
+  /// Creates the app's text style.
+  ///
+  /// The `package` argument must be non-null if the font family is defined in a
+  /// package. It is combined with the `fontFamily` argument to set the
+  /// [fontFamily] property.
+  AppTextStyle({
+    bool inherit = true,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    TextLeadingDistribution? leadingDistribution,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<Shadow>? shadows,
+    //List<FontFeature>? fontFeatures,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+    String? debugLabel,
+    String? fontFamily,
+    List<String>? fontFamilyFallback = appFontFamilyFallback,
+    String? package,
+    TextOverflow? overflow,
+  }) : super(
+          inherit: inherit,
+          color: color ?? _defaultForegroundColor,
+          backgroundColor: backgroundColor,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          fontStyle: fontStyle,
+          letterSpacing: letterSpacing,
+          wordSpacing: wordSpacing,
+          textBaseline: textBaseline,
+          height: height,
+          leadingDistribution: leadingDistribution,
+          locale: locale,
+          foreground: foreground,
+          background: background,
+          shadows: shadows,
+          //fontFeatures: fontFeatures,
+          decoration: decoration,
+          decorationColor: decorationColor,
+          decorationStyle: decorationStyle,
+          decorationThickness: decorationThickness,
+          debugLabel: debugLabel,
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          package: package,
+          overflow: overflow,
+        );
 }

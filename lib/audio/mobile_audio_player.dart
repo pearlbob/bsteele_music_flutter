@@ -1,8 +1,6 @@
 import 'app_audio_player.dart';
 
-
 class MobileAudioPlayer implements AppAudioPlayer {
-
   @override
   double getCurrentTime() {
     return 0;
@@ -27,7 +25,6 @@ class MobileAudioPlayer implements AppAudioPlayer {
   String test() {
     return 'MobileAudioPlayer fixme';
   }
-  
 }
 
 AppAudioPlayer getAudioPlayer() => MobileAudioPlayer();

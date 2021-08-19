@@ -1,4 +1,6 @@
-body {background-color: coral;}
+body {
+    background-color: coral;
+}
 
 .foo {
     color: red;

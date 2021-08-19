@@ -11,8 +11,9 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/gui.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -276,10 +277,10 @@ class LyricsTable {
   double _fontScale = 1;
 
   AppTextStyle get chordTextStyle => _chordTextStyle;
-  AppTextStyle _chordTextStyle = const AppTextStyle();
+  AppTextStyle _chordTextStyle = AppTextStyle();
 
   AppTextStyle get lyricsTextStyle => _lyricsTextStyle;
-  AppTextStyle _lyricsTextStyle = const AppTextStyle();
+  AppTextStyle _lyricsTextStyle = AppTextStyle();
 
   double _shortLyricsWidth = 200; //  default value
 

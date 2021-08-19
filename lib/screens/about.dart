@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,9 +61,9 @@ class _About extends State<About> {
                     onTap: () {
                       openLink('http://www.bsteele.com');
                     },
-                    child: const Text(
+                    child: Text(
                       'bsteele.com',
-                      style: AppTextStyle(color: Colors.blue),
+                      style: AppTextStyle(),
                     ),
                   ),
                 ]),

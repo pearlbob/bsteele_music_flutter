@@ -9,7 +9,7 @@ import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -102,7 +102,7 @@ class _State extends State<TheoryWidget> {
                             }
                           },
                           value: _key,
-                          style: const AppTextStyle(
+                          style: AppTextStyle(
                             //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
@@ -135,7 +135,7 @@ class _State extends State<TheoryWidget> {
                             }
                           },
                           value: _chordRoot,
-                          style: const AppTextStyle(
+                          style: AppTextStyle(
                             //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
@@ -167,7 +167,7 @@ class _State extends State<TheoryWidget> {
                             }
                           },
                           value: chordDescriptor,
-                          style: const AppTextStyle(
+                          style: AppTextStyle(
                             //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
@@ -731,5 +731,5 @@ class _State extends State<TheoryWidget> {
   final AppWidget appWidget = AppWidget();
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
-  AppTextStyle _style = const AppTextStyle();
+  AppTextStyle _style = AppTextStyle();
 }

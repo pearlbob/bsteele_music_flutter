@@ -86,7 +86,7 @@ class UtilLinux implements UtilWorkaround {
         String s = utf8.decode(file.readAsBytesSync());
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
-        return [NameValue(path,s)];
+        return [NameValue(path, s)];
       }
     } else {
       //  reset the root
@@ -103,7 +103,9 @@ class UtilLinux implements UtilWorkaround {
       context: context,
       rootDirectory: _rootDirectory,
       fsType: FilesystemType.file,
-      allowedExtensions: ['.songmetadata', ],
+      allowedExtensions: [
+        '.songmetadata',
+      ],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
     if (path != null) {

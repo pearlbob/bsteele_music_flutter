@@ -23,7 +23,7 @@ import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -44,13 +44,13 @@ late Song _initialSong;
 const double _defaultChordFontSize = 28;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
-const _titleTextStyle = AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-const AppTextStyle _boldTextStyle = AppTextStyle(
+AppTextStyle _titleTextStyle = AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
+AppTextStyle _boldTextStyle = AppTextStyle(
   fontSize: _defaultFontSize,
   fontWeight: FontWeight.bold,
   color: Colors.black87,
 );
-const AppTextStyle _labelTextStyle = AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+AppTextStyle _labelTextStyle = AppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
 
 const double _entryWidth = 18 * _defaultChordFontSize;
 
@@ -580,7 +580,9 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           appButton(
                             songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                            color: (songHasChanged && _isValidSong) ? Theme.of(context).primaryColor : _disabledColor,
+                            background: (songHasChanged && _isValidSong)
+                                ? Theme.of(context).textTheme.bodyText1?.backgroundColor
+                                : _disabledColor,
                             onPressed: () {
                               if (songHasChanged && _isValidSong) {
                                 _enterSong();
@@ -660,7 +662,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           Container(
                             padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: const Text(
+                            child: Text(
                               'Title: ',
                               style: AppTextStyle(
                                 fontSize: _defaultChordFontSize,
@@ -676,7 +678,7 @@ class _Edit extends State<Edit> {
                                 hintText: 'Enter the song title.',
                               ),
                               maxLength: null,
-                              style: const AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
+                              style: AppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ]),
@@ -686,7 +688,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           Container(
                             padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: const Text(
+                            child: Text(
                               'Artist: ',
                               style: _labelTextStyle,
                             ),
@@ -707,7 +709,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           Container(
                             padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: const Text(
+                            child: Text(
                               'Cover Artist:',
                               style: _labelTextStyle,
                             ),
@@ -728,7 +730,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           Container(
                             padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                            child: const Text(
+                            child: Text(
                               'Copyright:',
                               style: _labelTextStyle,
                             ),
@@ -749,7 +751,7 @@ class _Edit extends State<Edit> {
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
-                          child: const Text(
+                          child: Text(
                             "Key: ",
                             style: _labelTextStyle,
                           ),
@@ -763,9 +765,8 @@ class _Edit extends State<Edit> {
                               logger.log(_editLog, 'DropdownButton onChanged: $_value');
                             },
                             value: _key,
-                            style: const AppTextStyle(
+                            style: AppTextStyle(
                               //  size controlled by textScaleFactor above
-                              color: Colors.black87,
                               textBaseline: TextBaseline.ideographic,
                             ),
                           ),
@@ -775,7 +776,7 @@ class _Edit extends State<Edit> {
                         ), //  tally for testing only
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
-                          child: const Text(
+                          child: Text(
                             "   BPM: ",
                             style: _labelTextStyle,
                           ),
@@ -794,7 +795,7 @@ class _Edit extends State<Edit> {
                         ),
                         Container(
                           padding: const EdgeInsets.only(bottom: 24.0),
-                          child: const Text(
+                          child: Text(
                             "Time: ",
                             style: _labelTextStyle,
                           ),
@@ -810,7 +811,7 @@ class _Edit extends State<Edit> {
                             }
                           },
                           value: _song.timeSignature,
-                          style: const AppTextStyle(
+                          style: AppTextStyle(
                               //  size controlled by textScaleFactor above
                               color: Colors.black87,
                               textBaseline: TextBaseline.alphabetic,
@@ -820,7 +821,7 @@ class _Edit extends State<Edit> {
 
                         Container(
                           padding: const EdgeInsets.only(left: 24, bottom: 24.0),
-                          child: const Text(
+                          child: Text(
                             "User: ",
                             style: _labelTextStyle,
                           ),
@@ -846,7 +847,7 @@ class _Edit extends State<Edit> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          const Flexible(
+                          Flexible(
                             flex: 1,
                             child: Text(
                               "Chords:",
@@ -905,7 +906,7 @@ class _Edit extends State<Edit> {
                       RichText(
                         text: TextSpan(
                           children: <InlineSpan>[
-                            const TextSpan(
+                            TextSpan(
                               text: '\n'
                                   'Section types are followed by a colon (:).'
                                   ' Sections can be entered abbreviated and in lower case.'
@@ -919,7 +920,7 @@ class _Edit extends State<Edit> {
                                   _listSections(),
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: '\n'
                                   'Their abbreviations are: ',
                               style: appTextStyle,
@@ -928,7 +929,7 @@ class _Edit extends State<Edit> {
                               text: _listSectionAbbreviations(),
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: '.\n\n'
                                   'Sections with the same content will automatically be placed in the same declaration.'
                                   ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
@@ -942,16 +943,16 @@ class _Edit extends State<Edit> {
                                   '\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: '''A capital X is used to indicate no chord.\n\n''',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   //  todo: fix the font, ♭ is not represented properly
                                   'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
@@ -960,7 +961,7 @@ class _Edit extends State<Edit> {
                                   '',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Limited set of case sensitive chord modifiers can be used: 7sus4,'
                                   ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
                                   ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
@@ -971,24 +972,24 @@ class _Edit extends State<Edit> {
                                   ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
                                   ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
                                   ' The bass note is a single note, not a chord.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   'Periods (.) can be used to repeat chords on another beat within the same measure. For'
                                   ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: '''Sample measures to use:
       A B C G
       A# C# Bb Db
@@ -996,44 +997,44 @@ class _Edit extends State<Edit> {
       DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Commas (,) between measures can be used to indicate the end of a row of measures.'
                                   ' The maximum number of measures allowed within a single row is 8.'
                                   ' If there are no commas within a phrase of 8 or more measures, the phrase will'
                                   ' automatically be split into rows of 4 measures.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Minus signs (-) can be used to indicate a repeated measure.'
                                   ' There must be a space before and after it.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Row repeats are indicated by a lower case x followed by a number 2 or more.'
                                   ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
                                   ' first measure of the first row and a closing square bracket (]) after the last'
                                   ' measure before the x and the digits.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Comments are not allowed in the chord section.'
                                   ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Since you can enter the return key to create a new row for your entry,'
                                   ' you must us the exit to stop editing.  Clicking outside the entry'
                                   ' box or typing escape will work as well.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'The red bar or measure highlight indicate where entry text will be entered.'
                                   ' The radio buttons control the fine position of this indicator for inserting, replacing,'
                                   ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
                                   ' to delete it. Note that the delete key will always apply to text entry.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'Double click a measure to select it for replacement or deletion.'
                                   ' Note that if you double click the section type, the entire section will be'
                                   ' available on the entry line for modification.'
@@ -1042,23 +1043,23 @@ class _Edit extends State<Edit> {
                                   ' and it will be separated from the others.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'In the lyrics section, anything else not recognized as a section identifier is'
                                   ' considered lyrics to the end of the line.'
                                   ' I suggest comments go into parenthesis.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'A trick: Select a section similar to a new section you are about to enter.'
                                   ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
                                   ' (I suggest the section buttons on the right).'
@@ -1066,13 +1067,13 @@ class _Edit extends State<Edit> {
                                   ' and press the keyboard enter button.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
                                   ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
                               style: appTextStyle,
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text:
                                   'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
                               style: appTextStyle,
@@ -1085,7 +1086,7 @@ class _Edit extends State<Edit> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          const Text(
+                          Text(
                             "Lyrics:",
                             style: _titleTextStyle,
                           ),
@@ -2224,7 +2225,7 @@ class _Edit extends State<Edit> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                  const Text(
+                  Text(
                     'Repeat: ',
                     style: appTextStyle,
                   ),
@@ -2235,7 +2236,7 @@ class _Edit extends State<Edit> {
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    color: color,
+                    background: color,
                   ),
                   appButton(
                     'x3',
@@ -2244,7 +2245,7 @@ class _Edit extends State<Edit> {
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    color: color,
+                    background: color,
                   ),
                   appButton(
                     'x4',
@@ -2253,7 +2254,7 @@ class _Edit extends State<Edit> {
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    color: color,
+                    background: color,
                   ),
                 ]),
               ),
@@ -2606,7 +2607,7 @@ class _Edit extends State<Edit> {
         key: key,
         message: message,
         child: child,
-        textStyle: const AppTextStyle(
+        textStyle: AppTextStyle(
           backgroundColor: tooltipColor,
           fontSize: _defaultChordFontSize / 2,
         ),
@@ -2925,9 +2926,9 @@ class _Edit extends State<Edit> {
 
   MeasureNode? _measureEntryNode;
 
-  AppTextStyle _chordBoldTextStyle = const AppTextStyle();
-  AppTextStyle _chordTextStyle = const AppTextStyle();
-  AppTextStyle _lyricsTextStyle = const AppTextStyle();
+  AppTextStyle _chordBoldTextStyle = AppTextStyle();
+  AppTextStyle _chordTextStyle = AppTextStyle();
+  AppTextStyle _lyricsTextStyle = AppTextStyle();
   EdgeInsets _marginInsets = const EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
@@ -2935,7 +2936,7 @@ class _Edit extends State<Edit> {
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 
-  AppTextStyle _chordBadTextStyle = const AppTextStyle();
+  AppTextStyle _chordBadTextStyle = AppTextStyle();
 
   TextField? _editTextField;
 

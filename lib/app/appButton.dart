@@ -1,18 +1,16 @@
 import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/measure.dart';
-import 'package:bsteele_music_flutter/app/appTextStyle.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'app_theme.dart';
 
-const AppTextStyle appTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Color(0xFF424242));
-const AppTextStyle appWarningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
-const AppTextStyle appErrorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
+AppTextStyle appTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: const Color(0xFF424242));
+AppTextStyle appWarningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+AppTextStyle appErrorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
 
 const double _defaultFontSize = 24;
-final Paint _black = Paint()..color = Colors.black;
-final Paint _blue = Paint()..color = Colors.lightBlue.shade200;
 const _tooltipColor = Color(0xFFE8F5E9);
 
 final App _app = App();
@@ -34,36 +32,6 @@ Widget appSpace({double? space}) {
   );
 }
 
-ElevatedButton appButton(
-  String commandName, {
-  Key? key,
-  Color? color,
-  double? fontSize,
-  required VoidCallback? onPressed,
-  double height = 1.5,
-}) {
-  Paint background = Paint()..color = color ?? _blue.color;
-  return ElevatedButton(
-    child: Text(
-      commandName,
-      style: TextStyle(
-        fontSize: fontSize ?? _defaultFontSize,
-        foreground: _black,
-        background: background,
-        height: height,
-      ),
-    ),
-    clipBehavior: Clip.hardEdge,
-    onPressed: onPressed,
-    style: ButtonStyle(
-      backgroundColor: MaterialStateProperty.all(color ?? _blue.color),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(fontSize ?? 14), side: const BorderSide(color: Colors.grey))),
-      elevation: MaterialStateProperty.all<double>(6),
-    ),
-  );
-}
-
 class AppFlexButton extends Expanded {
   AppFlexButton(
     String text, {
@@ -79,7 +47,7 @@ class AppFlexButton extends Expanded {
           child: tooltip == null
               ? appButton(
                   text,
-                  color: color,
+                  background: color,
                   fontSize: fontSize,
                   onPressed: onPressed,
                 )
@@ -87,7 +55,7 @@ class AppFlexButton extends Expanded {
                   message: tooltip,
                   child: appButton(
                     text,
-                    color: color,
+                    background: color,
                     fontSize: fontSize,
                     onPressed: onPressed,
                   )),
@@ -171,7 +139,7 @@ class AppWidget {
       title: titleWidget ??
           Text(
             title ?? 'unknown',
-            style: AppTextStyle(fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
+            style: AppTextStyle(fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold, color: Colors.white),
           ),
       leading: leading,
       centerTitle: false,

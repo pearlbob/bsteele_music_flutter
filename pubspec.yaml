@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.2+beta
 
 environment:
-  sdk: ^2.15.0-31.0.dev
+  sdk: ^2.14.0-383.0.dev #^2.15.0-39.0.dev
 
 dependencies:
   flutter:
@@ -35,7 +35,6 @@ dependencies:
   provider:
   dartdoc:
   flutter_lints:  #not ready yet: info: Name source files using `lowercase_with_underscores`.
-
 
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib

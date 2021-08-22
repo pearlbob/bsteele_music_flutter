@@ -139,7 +139,9 @@ class AppWidget {
       title: titleWidget ??
           Text(
             title ?? 'unknown',
-            style: AppTextStyle(fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+              fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold,
+            ),
           ),
       leading: leading,
       centerTitle: false,

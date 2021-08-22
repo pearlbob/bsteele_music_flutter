@@ -1,29 +1,28 @@
-body {
-    background-color: coral;
+/*
+  bsteele Music App CSS style commands documentation
+
+  Commands are listed in increasing priority order.
+
+  Sample values used here:
+  sample Color: #2196f3
+  sample LengthTerm: 14px
+
+  Obviously in a real specification, not all values of a given type should be identical!
+*/
+
+
+* {
+    background-color: #2196f3;			/* type is Color, universal background color */
+    color: black;			/* type is Color, universal foreground color */
+    font-size: 24px;			/* type is LengthTerm, universal text font size */
 }
 
-.foo {
-    color: red;
-    left: 20px;
-    top: 20px;
-    width: 100px;
-    height: 200px;
+appbar {
+    background-color: #2196f3;			/* type is Color, app bar background color */
+    color: black;			/* type is Color, app bar foreground color */
 }
 
-.cjstyle {
-    font-size: 24px;
-    width: 200px;
-    text-align: center;
-    font-weight: bold;
-    background-color: orange;
-    color: #FFF;
-    padding: 10px;
-    border-style: solid;
-    border-width: 4px;
-    border-color: #666;
-}
-
-#appButton {
-    background-color: orange;
-    color: #FFFFFF;
+button {
+    background-color: #2196f3;			/* type is Color, universal (elevated) button background color */
+    color: black;			/* type is Color, universal (elevated) button foreground color */
 }

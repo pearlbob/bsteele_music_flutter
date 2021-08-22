@@ -79,19 +79,19 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     _player?._setPlayState();
   });
 
-  //logger.i('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  logger.i('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
 /// Display the song moments in sequential order.
 /// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
 class Player extends StatefulWidget {
-  Player(this.song, {Key? key}) : super(key: key);
+  Player(this._song, {Key? key}) : super(key: key);
 
   @override
   State<Player> createState() => _Player();
 
-  Song song; //  fixme: not const due to song updates!
+  Song _song; //  fixme: not const due to song updates!
 
   static const String routeName = '/player';
 }
@@ -100,6 +100,7 @@ class _Player extends State<Player> with RouteAware {
   _Player() {
     _player = this;
 
+    //  as leader, distribute current location
     _scrollController.addListener(() {
       logger.d('_scrollController.addListener()');
       if (_songUpdateService.isLeader) {
@@ -107,7 +108,7 @@ class _Player extends State<Player> with RouteAware {
         if (sectionTarget != null) {
           LyricSection? lyricSection = _lyricSectionRowLocations[sectionTarget]?.lyricSection;
           if (lyricSection != null) {
-            for (var songMoment in widget.song.songMoments) {
+            for (var songMoment in widget._song.songMoments) {
               if (songMoment.lyricSection == lyricSection) {
                 _leaderSongUpdate(songMoment.momentNumber);
                 break;
@@ -155,7 +156,7 @@ class _Player extends State<Player> with RouteAware {
     // }
 
     _displayKeyOffset = _app.displayKeyOffset;
-    _setSelectedSongKey(widget.song.key);
+    _setSelectedSongKey(widget._song.key);
 
     _leaderSongUpdate(0);
 
@@ -204,9 +205,11 @@ class _Player extends State<Player> with RouteAware {
 
   void _positionAfterBuild() {
     if (_songUpdate != null && _isPlaying) {
+      logger.i('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
       _scrollToSectionByMoment(_songUpdate!.songMoment);
     }
     {
+      const _tolerance = 0.1;
       const _minTextScaleFactor = 1.2;
       const _maxTextScaleFactor = 3.0;
       RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
@@ -215,14 +218,17 @@ class _Player extends State<Player> with RouteAware {
         var width = renderBox.size.width;
         if (width > 0) {
           var factor = _app.screenInfo.widthInLogicalPixels / width;
-          logger.d('table width: $width/${_app.screenInfo.widthInLogicalPixels}, _textScaleFactor: $_textScaleFactor, '
-              ' factor = $factor');
+          logger.i('table width: $width/${_app.screenInfo.widthInLogicalPixels}, _textScaleFactor: $_textScaleFactor, '
+              ', factor = $factor'
+              ', sectionIndex = $_sectionIndex');
           if (factor == 1) {
             //  try again on a narrowing window
-            if (_textScaleFactor != factor) {
+            logger.i('table width: try again, factor = $factor');
+            if (!almostEqual(_textScaleFactor, factor, _tolerance)) {
               setState(() {
                 _table = null;
                 _textScaleFactor = 1;
+                _scrollToSectionIndex(_sectionIndex);
               });
             }
           } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
@@ -230,9 +236,12 @@ class _Player extends State<Player> with RouteAware {
             factor *= _textScaleFactor;
             factor = factor.clamp(1, _maxTextScaleFactor);
 
-            if (_textScaleFactor != factor) {
+            if (!almostEqual(_textScaleFactor, factor, _tolerance)) {
+              logger.i('table width: new factor = $factor');
               setState(() {
+                _table = null;
                 _textScaleFactor = factor;
+                _scrollToSectionIndex(_sectionIndex);
               });
             }
           }
@@ -244,13 +253,13 @@ class _Player extends State<Player> with RouteAware {
   @override
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
-    Song song = widget.song; //  default only
+    Song song = widget._song; //  default only
 
     //  deal with song updates
     if (_songUpdate != null) {
       if (!song.songBaseSameContent(_songUpdate!.song) || _displayKeyOffset != _app.displayKeyOffset) {
         song = _songUpdate!.song;
-        widget.song = song;
+        widget._song = song;
         _table = null; //  force re-eval
         //logger.i('new update song:  ${song.getSongMomentsSize()}');
         _play();
@@ -278,6 +287,7 @@ class _Player extends State<Player> with RouteAware {
       _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
       _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction : 0;
       _sectionLocations.clear(); //  clear any previous song cached data
+      logger.i('_table clear: index: $_sectionIndex');
     }
 
     {
@@ -847,8 +857,8 @@ With escape, the app goes back to the play list.''',
     _updateSectionLocations();
 
     if (_sectionLocations.isNotEmpty) {
-      double target =
-          _sectionLocations[Util.limit(songMoment.lyricSection.index, 0, _sectionLocations.length - 1) as int];
+      _sectionIndex = Util.limit(songMoment.lyricSection.index, 0, _sectionLocations.length - 1) as int;
+      double target = _sectionLocations[_sectionIndex];
       if (_targetSection(target)) {
         logger.log(_playerLogScroll,
             '_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
@@ -871,14 +881,24 @@ With escape, the app goes back to the play list.''',
     var index = _sectionIndexAtScrollOffset();
     if (index != null) {
       index = Util.limit(index + bump, 0, _sectionLocations.length - 1) as int;
-      var target = _sectionLocations[index];
+      _scrollToSectionIndex(index);
+    }
+  }
+  
+  void _scrollToSectionIndex( int index ){
+    _updateSectionLocations();
 
-      if (_targetSection(target)) {
-        logger.log(
-            _playerLogScroll,
-            '_sectionBump: bump: $bump, $index ( $_sectionTarget px)'
-            ', section: ${widget.song.lyricSections[index]}');
-      }
+    _sectionIndex = index;
+    var target = _sectionLocations[index];
+
+
+    if (_targetSection(target)) {
+      logger.log(
+          _playerLogScroll,
+          '_targetSectionIndex: $index ( $_sectionTarget px)'
+              ', section: ${widget._song.lyricSections[index]}'
+              ', sectionIndex: $_sectionIndex'
+      );
     }
   }
 
@@ -913,6 +933,8 @@ With escape, the app goes back to the play list.''',
   }
 
   _updateSectionLocations() {
+    logger.i('_updateSectionLocations(): empty: ${_sectionLocations.isEmpty}');
+
     //  lazy update
     if (_scrollController.hasClients && _sectionLocations.isEmpty && _lyricSectionRowLocations.isNotEmpty) {
       //  initialize the section locations... after the initial rendering
@@ -1004,7 +1026,7 @@ With escape, the app goes back to the play list.''',
       }
     }
 
-    _lastSongUpdate = SongUpdate.createSongUpdate(widget.song.copySong()); //  fixme: copy  required?
+    _lastSongUpdate = SongUpdate.createSongUpdate(widget._song.copySong()); //  fixme: copy  required?
     _lastSongUpdate!.currentKey = _selectedSongKey;
     _lastSongUpdate!.momentNumber = momentNumber;
     _lastSongUpdate!.user = _appOptions.user;
@@ -1019,7 +1041,7 @@ With escape, the app goes back to the play list.''',
       _setPlayMode();
       _sectionBump(0);
       logger.log(_playerLogMode, 'play:');
-      songMaster.playSong(widget.song);
+      songMaster.playSong(widget._song);
     });
   }
 
@@ -1093,11 +1115,11 @@ With escape, the app goes back to the play list.''',
   }
 
   String _titleAnchor() {
-    return anchorUrlStart + Uri.encodeFull('${widget.song.title} ${widget.song.artist}');
+    return anchorUrlStart + Uri.encodeFull('${widget._song.title} ${widget._song.artist}');
   }
 
   String _artistAnchor() {
-    return anchorUrlStart + Uri.encodeFull(widget.song.artist);
+    return anchorUrlStart + Uri.encodeFull(widget._song.artist);
   }
 
   _navigateToEdit(BuildContext context, Song song) async {
@@ -1109,7 +1131,7 @@ With escape, the app goes back to the play list.''',
     _playerIsOnTop = true;
     setState(() {
       _table = null;
-      widget.song = _app.selectedSong;
+      widget._song = _app.selectedSong;
     });
   }
 
@@ -1118,6 +1140,10 @@ With escape, the app goes back to the play list.''',
     _table = null;
     logger.d('_forceTableRedisplay');
     setState(() {});
+  }
+
+  bool almostEqual(double d1, double d2, double tolerance) {
+    return (d1 - d2).abs() <= tolerance;
   }
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
@@ -1142,7 +1168,8 @@ With escape, the app goes back to the play list.''',
 
   final ScrollController _scrollController = ScrollController();
 
-  double _sectionTarget = 0;
+  int _sectionIndex = 0; //  index for current lyric section
+  double _sectionTarget = 0; //  targeted scroll position for lyric section
   List<double> _sectionLocations = [];
 
   final AppWidget appWidget = AppWidget();

@@ -47,7 +47,7 @@ class _Songs extends State<Songs> {
               ElevatedButton(
                 child: Text(
                   'Read files',
-                  style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  style: generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   setState(() {
@@ -61,7 +61,7 @@ class _Songs extends State<Songs> {
               ElevatedButton(
                 child: Text(
                   'Write all songs to $fileLocation',
-                  style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                  style: generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   _writeAll();
@@ -75,7 +75,7 @@ class _Songs extends State<Songs> {
                 child: ElevatedButton(
                   child: Text(
                     'Remove all songs from the current list',
-                    style: AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                    style: generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () {
                     setState(() {
@@ -93,11 +93,11 @@ class _Songs extends State<Songs> {
               ),
               Text(
                 'Song count:  ${_app.allSongs.length}',
-                style: AppTextStyle(fontSize: fontSize),
+                style: generateAppTextStyle(fontSize: fontSize),
               ),
               Text(
                 'Most recent: ${_mostRecent()}',
-                style: AppTextStyle(fontSize: fontSize),
+                style: generateAppTextStyle(fontSize: fontSize),
               ),
             ]),
       ),

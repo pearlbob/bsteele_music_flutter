@@ -5,7 +5,6 @@ import 'package:csslib/visitor.dart' as visitor;
 
 import 'app.dart';
 
-double _defaultFontSize = 14;
 Color? _defaultBackgroundColor = Colors.white;
 Color? _defaultForegroundColor = Colors.black;
 
@@ -166,66 +165,30 @@ const List<String> appFontFamilyFallback = [
 ];
 
 /// style used to get DejaVu as a fallback family for musical sharps and flats
-@immutable
-class AppTextStyle extends TextStyle {
-  /// Creates the app's text style.
-  ///
-  /// The `package` argument must be non-null if the font family is defined in a
-  /// package. It is combined with the `fontFamily` argument to set the
-  /// [fontFamily] property.
-  AppTextStyle({
-    bool inherit = true,
-    Color? color,
-    Color? backgroundColor,
-    double? fontSize,
-    FontWeight? fontWeight,
-    FontStyle? fontStyle,
-    double? letterSpacing,
-    double? wordSpacing,
-    TextBaseline? textBaseline,
-    double? height,
-    TextLeadingDistribution? leadingDistribution,
-    Locale? locale,
-    Paint? foreground,
-    Paint? background,
-    List<Shadow>? shadows,
-    //List<FontFeature>? fontFeatures,
-    TextDecoration? decoration,
-    Color? decorationColor,
-    TextDecorationStyle? decorationStyle,
-    double? decorationThickness,
-    String? debugLabel,
-    String? fontFamily,
-    List<String>? fontFamilyFallback = appFontFamilyFallback,
-    String? package,
-    TextOverflow? overflow,
-  }) : super(
-          inherit: inherit,
-          color: color ?? _defaultForegroundColor,
-          backgroundColor: backgroundColor,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          fontStyle: fontStyle,
-          letterSpacing: letterSpacing,
-          wordSpacing: wordSpacing,
-          textBaseline: textBaseline,
-          height: height,
-          leadingDistribution: leadingDistribution,
-          locale: locale,
-          foreground: foreground,
-          background: background,
-          shadows: shadows,
-          //fontFeatures: fontFeatures,
-          decoration: decoration,
-          decorationColor: decorationColor,
-          decorationStyle: decorationStyle,
-          decorationThickness: decorationThickness,
-          debugLabel: debugLabel,
-          fontFamily: fontFamily,
-          fontFamilyFallback: fontFamilyFallback,
-          package: package,
-          overflow: overflow,
-        );
+/// Creates the app's text style.
+///
+/// The `package` argument must be non-null if the font family is defined in a
+/// package. It is combined with the `fontFamily` argument to set the
+/// [fontFamily] property.
+
+TextStyle generateAppTextStyle({
+  Color? color,
+  Color? backgroundColor,
+  double? fontSize,
+  FontWeight? fontWeight,
+  FontStyle? fontStyle,
+  TextBaseline? textBaseline,
+  String? fontFamily,
+}) {
+  return TextStyle(
+    color: color ?? _themeData.textTheme.bodyText2?.color??_defaultForegroundColor,
+    backgroundColor: backgroundColor,
+    fontSize: fontSize ?? _themeData.textTheme.bodyText2?.fontSize,
+    fontWeight: fontWeight,
+    fontStyle: fontStyle,
+    textBaseline: textBaseline,
+    fontFamily: fontFamily,
+  );
 }
 
 enum CssSelectorType {
@@ -328,7 +291,7 @@ List<CssAction> cssActions = [
         textStyle = textStyle.copyWith(fontSize: double.parse(term.text));
         break;
       default:
-        logger.e( 'ERROR: ${p.toString()} assigned wrong unit type: ${term.unit}, see parser.TokenKind ');
+        logger.e('ERROR: ${p.toString()} assigned wrong unit type: ${term.unit}, see parser.TokenKind ');
         return;
     }
 

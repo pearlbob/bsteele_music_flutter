@@ -40,7 +40,7 @@ class _About extends State<About> {
       backgroundColor: Colors.white,
       appBar: appWidget.backBar('About the bsteele Music App'),
       body: DefaultTextStyle(
-        style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
+        style: generateAppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -63,7 +63,7 @@ class _About extends State<About> {
                     },
                     child: Text(
                       'bsteele.com',
-                      style: AppTextStyle(),
+                      style: generateAppTextStyle(),
                     ),
                   ),
                 ]),

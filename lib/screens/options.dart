@@ -50,12 +50,14 @@ class _Options extends State<Options> {
 
     final double fontSize = _app.screenInfo.fontSize;
     logger.v('options build: ${_songUpdateService.isConnected}');
+    var style = generateAppTextStyle();
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: appWidget.backBar('bsteele Music App Options'),
       body: DefaultTextStyle(
-        style: AppTextStyle(color: Colors.black87, fontSize: fontSize),
+        //  fixme: necessary?
+        style: style,
         child: SingleChildScrollView(
           //  for phones when horizontal
           child: Container(
@@ -67,14 +69,14 @@ class _Options extends State<Options> {
                 children: <Widget>[
                   Text(
                     'User style: ',
-                    style: AppTextStyle(fontSize: fontSize),
+                    style: style,
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<UserDisplayStyle>(
-                          title: Text('Player', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('Player', style: style),
                           value: UserDisplayStyle.player,
                           groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
@@ -88,7 +90,7 @@ class _Options extends State<Options> {
                           contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<UserDisplayStyle>(
-                          title: Text('Both Player and Singer', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('Both Player and Singer', style: style),
                           value: UserDisplayStyle.both,
                           groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
@@ -102,7 +104,7 @@ class _Options extends State<Options> {
                           contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<UserDisplayStyle>(
-                          title: Text('Singer', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('Singer', style: style),
                           value: UserDisplayStyle.singer,
                           groupValue: _appOptions.userDisplayStyle,
                           onChanged: (value) {
@@ -120,14 +122,14 @@ class _Options extends State<Options> {
                   ),
                   Text(
                     'Holiday choice: ',
-                    style: AppTextStyle(fontSize: fontSize),
+                    style: style,
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
-                          title: Text('Not in a holiday mood', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('Not in a holiday mood', style: style),
                           value: false,
                           groupValue: _appOptions.holiday,
                           onChanged: (value) {
@@ -139,7 +141,7 @@ class _Options extends State<Options> {
                           contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<bool>(
-                          title: Text('All holiday, all the time!', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('All holiday, all the time!', style: style),
                           value: true,
                           groupValue: _appOptions.holiday,
                           onChanged: (value) {
@@ -155,15 +157,14 @@ class _Options extends State<Options> {
                   ),
                   Text(
                     'Repeat display choice: ',
-                    style: AppTextStyle(fontSize: fontSize),
+                    style: style,
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: Column(
                       children: <Widget>[
                         RadioListTile<bool>(
-                          title:
-                              Text('Compress all repeats (for example: x4)', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('Compress all repeats (for example: x4)', style: style),
                           value: true,
                           groupValue: _appOptions.compressRepeats,
                           onChanged: (value) {
@@ -175,7 +176,7 @@ class _Options extends State<Options> {
                           contentPadding: EdgeInsets.zero,
                         ),
                         RadioListTile<bool>(
-                          title: Text('Expand all repeat repetitions', style: AppTextStyle(fontSize: fontSize)),
+                          title: Text('Expand all repeat repetitions', style: style),
                           value: false,
                           groupValue: _appOptions.compressRepeats,
                           onChanged: (value) {
@@ -197,9 +198,7 @@ class _Options extends State<Options> {
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'User name: ',
-                            style: AppTextStyle(
-                              fontSize: fontSize,
-                            ),
+                            style: style,
                           ),
                         ),
                         Expanded(
@@ -209,9 +208,7 @@ class _Options extends State<Options> {
                               hintText: 'Enter your user name.',
                             ),
                             // maxLength: 20,
-                            style: AppTextStyle(
-                              fontSize: fontSize,
-                            ),
+                            style: style,
                             onChanged: (value) {
                               if (value.isNotEmpty) {
                                 _appOptions.user = value;
@@ -229,9 +226,7 @@ class _Options extends State<Options> {
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'Host IP: ',
-                            style: AppTextStyle(
-                              fontSize: fontSize,
-                            ),
+                            style: style,
                           ),
                         ),
                         Expanded(
@@ -242,41 +237,54 @@ class _Options extends State<Options> {
                               hintText: 'Enter the websocket host IP address.',
                             ),
                             // maxLength: 20,
-                            style: AppTextStyle(
-                              fontSize: fontSize,
-                            ),
+                            style: style,
                             onChanged: (value) {
                               _appOptions.websocketHost = value;
                             },
                           ),
                         ),
                       ]),
-                  Row(children: [
+                  appWrapFullWidth([
                     const Text('Hosts:'),
                     appSpace(),
-                    AppFlexButton(
-                      'None',
-                      flex: 4,
-                      fontSize: fontSize,
-                      onPressed: () {
-                        _appOptions.websocketHost = '';
-                        _websocketHostEditingController.text = _appOptions.websocketHost;
-                      },
-                      tooltip: 'No leader/follower',
+                    appTooltip(
+                      message: 'No leader/follower',
+                      child: appButton(
+                        'None',
+                        fontSize: fontSize,
+                        onPressed: () {
+                          _appOptions.websocketHost = '';
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                        },
+                      ),
                     ),
-                    const Spacer(),
-                    AppFlexButton('Studio', flex: 4, fontSize: fontSize, onPressed: () {
-                      _appOptions.websocketHost = 'cj';
-                      _websocketHostEditingController.text = _appOptions.websocketHost;
-                    }, tooltip: 'You are in the Community Jams studio.'),
-                    const Spacer(),
-                    AppFlexButton('Park', flex: 4, fontSize: fontSize, onPressed: () {
-                      _appOptions.websocketHost = parkFixedIpAddress;
-                      _websocketHostEditingController.text = _appOptions.websocketHost;
-                    }, tooltip: 'You are in the park.'),
-                    if (kDebugMode) const Spacer(),
+                    appSpace(),
+                    appTooltip(
+                      message: 'You are in the Community Jams studio.',
+                      child: appButton(
+                        'Studio',
+                        fontSize: fontSize,
+                        onPressed: () {
+                          _appOptions.websocketHost = 'cj';
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                        },
+                      ),
+                    ),
+                    appSpace(),
+                    appTooltip(
+                      message: 'You are in the park.',
+                      child: appButton(
+                        'Park',
+                        fontSize: fontSize,
+                        onPressed: () {
+                          _appOptions.websocketHost = parkFixedIpAddress;
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                        },
+                      ),
+                    ),
+                    if (kDebugMode) appSpace(),
                     if (kDebugMode)
-                      AppFlexButton('bob\'s place', flex: 8, fontSize: fontSize, onPressed: () {
+                      appButton('bob\'s place', fontSize: fontSize, onPressed: () {
                         _appOptions.websocketHost = 'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
@@ -285,7 +293,7 @@ class _Options extends State<Options> {
                   Row(children: <Widget>[
                     Text(
                       'Song Update: ',
-                      style: AppTextStyle(fontSize: fontSize),
+                      style: style,
                     ),
                     Text(
                       (_songUpdateService.isConnected
@@ -293,8 +301,7 @@ class _Options extends State<Options> {
                           : (_songUpdateService.authority.isNotEmpty
                               ? 'Retrying ${_songUpdateService.authority}'
                               : 'Idle')),
-                      style: AppTextStyle(
-                        fontSize: fontSize,
+                      style: generateAppTextStyle(
                         fontWeight: FontWeight.bold,
                         backgroundColor: _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
                             ? Colors.green
@@ -306,8 +313,7 @@ class _Options extends State<Options> {
                       ElevatedButton(
                         child: Text(
                           _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
-                          style: AppTextStyle(
-                            fontSize: fontSize,
+                          style: generateAppTextStyle(
                             fontWeight: FontWeight.bold,
                             backgroundColor: Theme.of(context).primaryColor,
                           ),
@@ -337,9 +343,7 @@ class _Options extends State<Options> {
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                           child: Text(
                             'Display key offset: ',
-                            style: AppTextStyle(
-                              fontSize: fontSize,
-                            ),
+                            style: style,
                           ),
                         ),
                         DropdownButton<int>(
@@ -352,7 +356,7 @@ class _Options extends State<Options> {
                               });
                             }
                           },
-                          style: AppTextStyle(fontSize: fontSize, color: const Color(0xFF424242)),
+                          style: generateAppTextStyle(color: const Color(0xFF424242)),
                           value: _app.displayKeyOffset,
                         ),
                       ]),
@@ -367,7 +371,7 @@ class _Options extends State<Options> {
                     ),
                     Text(
                       'debug: ',
-                      style: AppTextStyle(fontSize: fontSize),
+                      style: style,
                     ),
                   ]),
                   //  //  fixme: audio!
@@ -598,8 +602,10 @@ class _Options extends State<Options> {
   final AppWidget appWidget = AppWidget();
 
   Timer? _timer;
+
   //double _timerT = 0;
   final SongUpdateService _songUpdateService = SongUpdateService();
+
   //final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
   final App _app = App();

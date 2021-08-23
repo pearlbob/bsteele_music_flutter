@@ -239,12 +239,12 @@ class LyricsTable {
         ', _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
 
     //  text styles
-    _chordTextStyle = AppTextStyle(
+    _chordTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: _fontSize,
       color: Colors.black87,
     );
-    _lyricsTextStyle = AppTextStyle(
+    _lyricsTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.normal,
       fontSize: _lyricsFontSize,
       color: Colors.black87,
@@ -275,11 +275,11 @@ class LyricsTable {
   double _fontSize = 10;
   double _fontScale = 1;
 
-  AppTextStyle get chordTextStyle => _chordTextStyle;
-  AppTextStyle _chordTextStyle = AppTextStyle();
+  TextStyle get chordTextStyle => _chordTextStyle;
+  TextStyle _chordTextStyle = generateAppTextStyle();
 
-  AppTextStyle get lyricsTextStyle => _lyricsTextStyle;
-  AppTextStyle _lyricsTextStyle = AppTextStyle();
+  TextStyle get lyricsTextStyle => _lyricsTextStyle;
+  TextStyle _lyricsTextStyle = generateAppTextStyle();
 
   double _shortLyricsWidth = 200; //  default value
 

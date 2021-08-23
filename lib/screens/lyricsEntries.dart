@@ -4,7 +4,6 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -21,7 +20,7 @@ class LyricsEntries extends ChangeNotifier {
   }
 
   LyricsEntries.fromSong(this._song,
-      {OnLyricsLineChangedCallback? onLyricsLineChangedCallback, AppTextStyle? textStyle})
+      {OnLyricsLineChangedCallback? onLyricsLineChangedCallback, TextStyle? textStyle})
       : _onLyricsLineChangedCallback = onLyricsLineChangedCallback,
         _textStyle = textStyle {
     _focusLyricSection = null;
@@ -203,7 +202,7 @@ class LyricsEntries extends ChangeNotifier {
 
   List<_LyricsDataEntry> get entries => _entries;
   final List<_LyricsDataEntry> _entries = [];
-  AppTextStyle? _textStyle;
+  TextStyle? _textStyle;
 }
 
 typedef _LyricsLineCallback = void Function(_LyricsLine line, List<String> lines);
@@ -213,7 +212,7 @@ class _LyricsDataEntry {
     this.lyricSection,
     _LyricsEntriesCallback? lyricsEntriesCallback, {
     OnLyricsLineChangedCallback? onLyricsLineChangedCallback,
-    AppTextStyle? textStyle,
+    TextStyle? textStyle,
   })  : _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback {
     if (lyricSection.lyricsLines.isNotEmpty
@@ -234,7 +233,7 @@ class _LyricsDataEntry {
   }
 
   _LyricsDataEntry._fromChordSection(ChordSection chordSection, int index,
-      {AppTextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
+      {TextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
       : lyricSection = LyricSection(chordSection.sectionVersion, index),
         _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback;
@@ -272,7 +271,7 @@ class _LyricsDataEntry {
     return _lyricsLines[i].textField;
   }
 
-  void addEmptyLine({AppTextStyle? textStyle}) {
+  void addEmptyLine({TextStyle? textStyle}) {
     var lyricsLine = _LyricsLine('', _lyricsLineCallback, textStyle: textStyle);
     _lyricsLines.add(lyricsLine);
     _focusLyricSection = lyricSection;
@@ -296,7 +295,7 @@ class _LyricsDataEntry {
 
   final LyricSection lyricSection;
   int? initialGridRowIndex;
-  final AppTextStyle? _textStyle;
+  final TextStyle? _textStyle;
   final _LyricsEntriesCallback? _lyricsEntriesCallback;
 
   int get length => _lyricsLines.length;
@@ -309,7 +308,7 @@ class _LyricsLine {
     lineText,
     this._lyricsLineCallback, {
     OnLyricsLineChangedCallback? onLyricsLineChangedCallback,
-    AppTextStyle? textStyle,
+    TextStyle? textStyle,
   }) : _onLyricsLineChangedCallback = onLyricsLineChangedCallback {
     _originalText = lineText.replaceAll('\n', '');
     _controller = TextEditingController(text: _originalText);

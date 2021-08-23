@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 import 'app_theme.dart';
 
-AppTextStyle appTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: const Color(0xFF424242));
-AppTextStyle appWarningTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
-AppTextStyle appErrorTextStyle = AppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
+TextStyle appTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.black);
+TextStyle appWarningTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+TextStyle appErrorTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
 
 const double _defaultFontSize = 24;
 const _tooltipColor = Color(0xFFE8F5E9);
 
 final App _app = App();
 
-AppTextStyle appButtonTextStyle({double? fontSize}) {
-  return AppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
+TextStyle appButtonTextStyle({double? fontSize}) {
+  return generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
 }
 
 Widget appSpace({double? space}) {
@@ -71,7 +71,7 @@ Widget appTooltip({
   return Tooltip(
       message: message,
       child: child,
-      textStyle: AppTextStyle(fontSize: fontSize ?? _defaultFontSize),
+      textStyle: generateAppTextStyle(fontSize: fontSize ?? _defaultFontSize),
 
       //  fixme: why is this broken on web?
       //waitDuration: Duration(seconds: 1, milliseconds: 200),
@@ -160,14 +160,14 @@ class AppWidget {
   }
 
   Widget transpose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
-    TextStyle slashStyle = AppTextStyle(
+    TextStyle slashStyle = generateAppTextStyle(
       fontFamily: 'Roboto',
       fontSize: style?.fontSize,
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.italic,
       color: const Color(0xFF7D0707),
     );
-    TextStyle chordDescriptorStyle = AppTextStyle(
+    TextStyle chordDescriptorStyle = generateAppTextStyle(
       fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
       fontWeight: FontWeight.normal,
     );

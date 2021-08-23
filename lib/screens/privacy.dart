@@ -23,7 +23,7 @@ class _Privacy extends State<Privacy> {
     appWidget.context = context; //	required on every build
     final double fontSize = App().screenInfo.fontSize;
 
-    AppTextStyle style = AppTextStyle(color: Colors.black87, fontSize: fontSize);
+    TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     return Scaffold(
       backgroundColor: Colors.white,

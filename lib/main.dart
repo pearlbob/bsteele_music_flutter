@@ -432,24 +432,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final fontSize = _app.screenInfo.fontSize;
     logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
-    final AppTextStyle searchTextStyle = AppTextStyle(
+    final TextStyle searchTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
       textBaseline: TextBaseline.alphabetic,
     );
-    final AppTextStyle searchDropDownStyle = AppTextStyle(
+    final TextStyle searchDropDownStyle = generateAppTextStyle(
       fontWeight: FontWeight.normal,
       fontSize: fontSize,
       textBaseline: TextBaseline.alphabetic,
     );
-    final AppTextStyle titleTextStyle = AppTextStyle(
+    final TextStyle titleTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
       textBaseline: TextBaseline.alphabetic,
     );
 
-    final AppTextStyle artistTextStyle = AppTextStyle(fontSize: fontSize);
-    final AppTextStyle _navTextStyle = AppTextStyle(fontSize: fontSize);
+    final TextStyle artistTextStyle = generateAppTextStyle(fontSize: fontSize);
+    final TextStyle _navTextStyle = generateAppTextStyle(fontSize: fontSize);
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();

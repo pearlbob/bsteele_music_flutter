@@ -49,7 +49,7 @@ class _State extends State<TheoryWidget> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
     _fontSize = App().screenInfo.fontSize;
-    _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
+    _style = generateAppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
     List<ScaleNote> scaleNoteValues = [];
@@ -102,7 +102,7 @@ class _State extends State<TheoryWidget> {
                             }
                           },
                           value: _key,
-                          style: AppTextStyle(
+                          style: generateAppTextStyle(
                             //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
@@ -135,7 +135,7 @@ class _State extends State<TheoryWidget> {
                             }
                           },
                           value: _chordRoot,
-                          style: AppTextStyle(
+                          style: generateAppTextStyle(
                             //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
@@ -167,7 +167,7 @@ class _State extends State<TheoryWidget> {
                             }
                           },
                           value: chordDescriptor,
-                          style: AppTextStyle(
+                          style: generateAppTextStyle(
                             //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
@@ -731,5 +731,5 @@ class _State extends State<TheoryWidget> {
   final AppWidget appWidget = AppWidget();
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
-  AppTextStyle _style = AppTextStyle();
+  TextStyle _style = generateAppTextStyle();
 }

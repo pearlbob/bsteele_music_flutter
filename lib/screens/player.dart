@@ -497,7 +497,7 @@ class _Player extends State<Player> with RouteAware {
                                     child: Text(
                                       song.title,
                                       style:
-                                          AppTextStyle(fontSize: _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
+                                          generateAppTextStyle(fontSize: _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
                                     ),
                                     hoverColor: hoverColor,
                                   ),

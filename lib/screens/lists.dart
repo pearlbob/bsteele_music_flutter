@@ -31,7 +31,7 @@ class Lists extends StatefulWidget {
   _State createState() => _State();
 }
 
-late AppTextStyle metadataStyle;
+late TextStyle metadataStyle;
 
 class _State extends State<Lists> {
   _State() : _searchFocusNode = FocusNode();
@@ -59,21 +59,21 @@ class _State extends State<Lists> {
     appWidget.context = context; //	required on every build
 
     final double fontSize = _app.screenInfo.fontSize;
-    metadataStyle = AppTextStyle(
+    metadataStyle = generateAppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
     );
-    final metadataEntryStyle = AppTextStyle(
+    final metadataEntryStyle = generateAppTextStyle(
       color: Colors.black38,
       fontSize: fontSize,
     );
-    final AppTextStyle searchTextStyle = AppTextStyle(
+    final TextStyle searchTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
       color: Colors.black38,
       textBaseline: TextBaseline.alphabetic,
     );
-    final AppTextStyle titleTextStyle = AppTextStyle(
+    final TextStyle titleTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       fontSize: fontSize,
       color: Colors.black87,

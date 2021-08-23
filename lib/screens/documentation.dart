@@ -29,7 +29,7 @@ class _State extends State<Documentation> {
 
     final double fontSize = ScreenInfo(context).fontSize;
 
-    AppTextStyle style = AppTextStyle(color: Colors.black87, fontSize: fontSize);
+    TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     StringBuffer desc = StringBuffer();
     desc.write(

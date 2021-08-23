@@ -130,7 +130,7 @@ class _State extends State<Detail> {
 
     // logger.i('WidgetsBinding.instance: ${WidgetsBinding.instance?.runtimeType}');
 
-    _style = AppTextStyle(color: Colors.black87, fontSize: _fontSize);
+    _style = generateAppTextStyle(color: Colors.black87, fontSize: _fontSize);
 
     _bpmTextEditingController.text = _bpm.toString();
 
@@ -441,7 +441,7 @@ class _State extends State<Detail> {
                               }
                             },
                             value: _timeSignature,
-                            style: AppTextStyle(
+                            style: generateAppTextStyle(
                               //  size controlled by textScaleFactor above
                               textBaseline: TextBaseline.ideographic,
                             ),
@@ -728,7 +728,7 @@ class _State extends State<Detail> {
 
   final AppWidget appWidget = AppWidget();
 
-  AppTextStyle _style = AppTextStyle();
+  TextStyle _style = generateAppTextStyle();
   final AppOptions _appOptions = AppOptions();
 }
 

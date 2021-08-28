@@ -32,36 +32,6 @@ Widget appSpace({double? space}) {
   );
 }
 
-class AppFlexButton extends Expanded {
-  AppFlexButton(
-    String text, {
-    Key? key,
-    Color? color,
-    double? fontSize,
-    required VoidCallback? onPressed,
-    int flex = 1,
-    String? tooltip,
-  }) : super(
-          key: key,
-          flex: flex,
-          child: tooltip == null
-              ? appButton(
-                  text,
-                  background: color,
-                  fontSize: fontSize,
-                  onPressed: onPressed,
-                )
-              : appTooltip(
-                  message: tooltip,
-                  child: appButton(
-                    text,
-                    background: color,
-                    fontSize: fontSize,
-                    onPressed: onPressed,
-                  )),
-        );
-}
-
 /// helper function to generate tool tips
 Widget appTooltip({
   required String message,
@@ -71,7 +41,7 @@ Widget appTooltip({
   return Tooltip(
       message: message,
       child: child,
-      textStyle: generateAppTextStyle(fontSize: fontSize ?? _defaultFontSize),
+      textStyle: generateAppTextStyle(backgroundColor: _tooltipColor),
 
       //  fixme: why is this broken on web?
       //waitDuration: Duration(seconds: 1, milliseconds: 200),
@@ -111,7 +81,7 @@ class AppWidget {
         onPressed: () {
           Navigator.pop(context);
         },
-        child: const Icon(Icons.arrow_back, color: Colors.white),
+        child: appIcon(Icons.arrow_back),
       ),
     );
   }
@@ -128,8 +98,8 @@ class AppWidget {
     );
   }
 
-  AppBar backBar(String title, {double? fontSize}) {
-    return appBar(title: title, leading: back(), fontSize: fontSize);
+  AppBar backBar({Widget? titleWidget, String? title, double? fontSize}) {
+    return appBar(title: title, titleWidget: titleWidget, leading: back(), fontSize: fontSize);
   }
 
   AppBar appBar(
@@ -140,7 +110,9 @@ class AppWidget {
           Text(
             title ?? 'unknown',
             style: TextStyle(
-              fontSize: fontSize ?? _app.screenInfo.fontSize, fontWeight: FontWeight.bold,
+              fontSize: fontSize ?? _app.screenInfo.fontSize,
+              fontWeight: FontWeight.bold,
+              backgroundColor: Colors.transparent,
             ),
           ),
       leading: leading,
@@ -160,14 +132,14 @@ class AppWidget {
   }
 
   Widget transpose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
-    TextStyle slashStyle = generateAppTextStyle(
-      fontFamily: 'Roboto',
-      fontSize: style?.fontSize,
+    TextStyle slashStyle = (style ?? generateAppTextStyle()).copyWith(
+      // fontFamily: 'Roboto',
+      // fontSize: style?.fontSize,
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.italic,
       color: const Color(0xFF7D0707),
     );
-    TextStyle chordDescriptorStyle = generateAppTextStyle(
+    TextStyle chordDescriptorStyle = (style ?? generateAppTextStyle()).copyWith(
       fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
       fontWeight: FontWeight.normal,
     );

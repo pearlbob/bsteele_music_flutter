@@ -230,7 +230,7 @@ class _State extends State<Lists> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('bsteele Music App Song Lists'),
+      appBar: appWidget.backBar(title:'bsteele Music App Song Lists'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(

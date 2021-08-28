@@ -228,7 +228,7 @@ class _Player extends State<Player> with RouteAware {
               setState(() {
                 _table = null;
                 _textScaleFactor = 1;
-                _scrollToSectionIndex(_sectionIndex);
+                // _scrollToSectionIndex(_sectionIndex);   fixme:
               });
             }
           } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
@@ -241,7 +241,7 @@ class _Player extends State<Player> with RouteAware {
               setState(() {
                 _table = null;
                 _textScaleFactor = factor;
-                _scrollToSectionIndex(_sectionIndex);
+                // _scrollToSectionIndex(_sectionIndex); fixme:
               });
             }
           }
@@ -277,6 +277,7 @@ class _Player extends State<Player> with RouteAware {
 
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
     var _chordsTextStyle = _lyricsTable.chordTextStyle;
+    var headerTextStyle = _lyricsTable.chordTextStyle.copyWith(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
     const sectionCenterLocationFraction = 0.4;
@@ -345,7 +346,7 @@ class _Player extends State<Player> with RouteAware {
                 width: 3 * chordsTextWidth, //  max width of chars expected
                 child: Text(
                   valueString,
-                  style: _chordsTextStyle,
+                  style: headerTextStyle,
                   softWrap: false,
                   textAlign: TextAlign.left,
                 ),
@@ -354,7 +355,7 @@ class _Player extends State<Player> with RouteAware {
                 width: 2 * chordsTextWidth, //  max width of chars expected
                 child: Text(
                   offsetString,
-                  style: _chordsTextStyle,
+                  style: headerTextStyle,
                   softWrap: false,
                   textAlign: TextAlign.right,
                 ),
@@ -365,7 +366,7 @@ class _Player extends State<Player> with RouteAware {
                   width: onStringWidth + 4 * chordsTextWidth, //  max width of chars expected
                   child: Text(
                     onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
-                    style: _chordsTextStyle,
+                    style: headerTextStyle,
                     softWrap: false,
                     textAlign: TextAlign.right,
                   ),
@@ -402,7 +403,7 @@ class _Player extends State<Player> with RouteAware {
             value: value,
             child: Text(
               value.toString().padLeft(3),
-              style: _lyricsTextStyle,
+              style: headerTextStyle,
             ),
           ),
         );
@@ -469,7 +470,7 @@ class _Player extends State<Player> with RouteAware {
             if (_isPlaying && _isCapo)
               Text(
                 'Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
-                style: _chordsTextStyle,
+                style: headerTextStyle,
                 softWrap: false,
               ),
             GestureDetector(
@@ -485,8 +486,7 @@ class _Player extends State<Player> with RouteAware {
                         if (showTopOfDisplay)
                           Column(
                             children: <Widget>[
-                              appWidget.appBar(
-                                leading: appWidget.back(),
+                              appWidget.backBar(
                                 //  let the app bar scroll off the screen for more screen for the song
                                 titleWidget: appTooltip(
                                   message: 'Click to hear the song on youtube.com',
@@ -496,8 +496,11 @@ class _Player extends State<Player> with RouteAware {
                                     },
                                     child: Text(
                                       song.title,
-                                      style:
-                                          generateAppTextStyle(fontSize: _app.screenInfo.fontSize, fontWeight: FontWeight.bold),
+                                      style: generateAppTextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: appbarColor(),
+                                        backgroundColor: Colors.transparent,
+                                      ),
                                     ),
                                     hoverColor: hoverColor,
                                   ),
@@ -514,7 +517,7 @@ class _Player extends State<Player> with RouteAware {
                                       },
                                       child: Text(
                                         ' by  ${song.artist}',
-                                        style: _chordsTextStyle,
+                                        style: headerTextStyle,
                                         softWrap: false,
                                       ),
                                       hoverColor: hoverColor,
@@ -538,7 +541,7 @@ With escape, the app goes back to the play list.''',
                                       ),
                                       child: Text(
                                         'Hints',
-                                        style: _lyricsTextStyle,
+                                        style: headerTextStyle,
                                       ),
                                       onPressed: () {},
                                     ),
@@ -551,7 +554,7 @@ With escape, the app goes back to the play list.''',
                                               'chords to match the current key.',
                                           child: Text(
                                             'Capo',
-                                            style: _chordsTextStyle,
+                                            style: headerTextStyle,
                                             softWrap: false,
                                           ),
                                         ),
@@ -567,13 +570,13 @@ With escape, the app goes back to the play list.''',
                                         if (_isCapo && _capoLocation > 0)
                                           Text(
                                             'on $_capoLocation',
-                                            style: _chordsTextStyle,
+                                            style: headerTextStyle,
                                             softWrap: false,
                                           ),
                                         if (_isCapo && _capoLocation == 0)
                                           Text(
                                             'no capo needed',
-                                            style: _chordsTextStyle,
+                                            style: headerTextStyle,
                                             softWrap: false,
                                           ),
                                       ],
@@ -586,9 +589,9 @@ With escape, the app goes back to the play list.''',
                                           padding: const EdgeInsets.all(8),
                                           primary: Colors.green,
                                         ),
-                                        icon: Icon(
+                                        icon: appIcon(
                                           Icons.edit,
-                                          size: _lyricsTable.fontSize,
+                                          color: Colors.green,  //  fixme:
                                         ),
                                         label: const Text(''),
                                         onPressed: () {
@@ -624,7 +627,7 @@ With escape, the app goes back to the play list.''',
                                     message: 'Transcribe the song to the selected key.',
                                     child: Text(
                                       'Key: ',
-                                      style: _chordsTextStyle,
+                                      style: headerTextStyle,
                                       softWrap: false,
                                     ),
                                   ),
@@ -639,7 +642,7 @@ With escape, the app goes back to the play list.''',
                                       });
                                     },
                                     value: _selectedSongKey,
-                                    style: _chordsTextStyle,
+                                    style: headerTextStyle,
                                     iconSize: _lyricsTable.fontSize,
                                     itemHeight: 1.2 * kMinInteractiveDimension,
                                   ),
@@ -663,7 +666,7 @@ With escape, the app goes back to the play list.''',
                                     message: 'Beats per minute',
                                     child: Text(
                                       'BPM: ',
-                                      style: _lyricsTextStyle,
+                                      style: headerTextStyle,
                                     ),
                                   ),
                                   if (_app.isScreenBig)
@@ -677,7 +680,7 @@ With escape, the app goes back to the play list.''',
                                         }
                                       },
                                       value: song.beatsPerMinute,
-                                      style: _chordsTextStyle,
+                                      style: headerTextStyle,
                                       iconSize: _lyricsTable.fontSize,
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
@@ -691,7 +694,7 @@ With escape, the app goes back to the play list.''',
                                   message: 'time signature',
                                   child: Text(
                                     '  Time: ${song.timeSignature}',
-                                    style: _chordsTextStyle,
+                                    style: headerTextStyle,
                                     softWrap: false,
                                   ),
                                 ),
@@ -796,9 +799,8 @@ With escape, the app goes back to the play list.''',
                   },
                   child: appTooltip(
                     message: 'Back to song list',
-                    child: Icon(
+                    child: appIcon(
                       Icons.arrow_back,
-                      size: _lyricsTable.fontSize,
                     ),
                   ))),
     );
@@ -884,21 +886,19 @@ With escape, the app goes back to the play list.''',
       _scrollToSectionIndex(index);
     }
   }
-  
-  void _scrollToSectionIndex( int index ){
+
+  void _scrollToSectionIndex(int index) {
     _updateSectionLocations();
 
     _sectionIndex = index;
     var target = _sectionLocations[index];
 
-
     if (_targetSection(target)) {
       logger.log(
           _playerLogScroll,
           '_targetSectionIndex: $index ( $_sectionTarget px)'
-              ', section: ${widget._song.lyricSections[index]}'
-              ', sectionIndex: $_sectionIndex'
-      );
+          ', section: ${widget._song.lyricSections[index]}'
+          ', sectionIndex: $_sectionIndex');
     }
   }
 

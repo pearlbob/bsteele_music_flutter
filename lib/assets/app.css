@@ -2,27 +2,74 @@
   bsteele Music App CSS style commands documentation
 
   Commands are listed in increasing priority order.
-
-  Sample values used here:
-  sample Color: #2196f3
-  sample LengthTerm: 14px
-
-  Obviously in a real specification, not all values of a given type should be identical!
 */
 
 
 * {
-    background-color: #2196f3;			/* type is Color, universal background color */
-    color: black;			/* type is Color, universal foreground color */
-    font-size: 24px;			/* type is LengthTerm, universal text font size */
+    background-color: white; /* type is Color, universal background color */
+    color: black; /* type is Color, universal foreground color */
+    font-size: 2vw; /* type is LengthTerm, universal text font size */
 }
 
 appbar {
-    background-color: #2196f3;			/* type is Color, app bar background color */
-    color: black;			/* type is Color, app bar foreground color */
+    background-color: #2196f3; /* type is Color, app bar background color */
+    color: white; /* type is Color, app bar foreground color */
 }
 
 button {
-    background-color: #2196f3;			/* type is Color, universal (elevated) button background color */
-    color: black;			/* type is Color, universal (elevated) button foreground color */
+    background-color: #2196f3; /* type is Color, universal (elevated) button background color */
+    color: white; /* type is Color, universal (elevated) button foreground color */
+    font-size: 2vw;
+}
+
+.icon {
+    color: white;
+}
+
+.oddTitleTextStyle {
+    background-color: white;
+}
+
+.evenTitleTextStyle {
+    background-color: #F5F5F5; /*  light grey  */
+}
+
+.sectionIntro {
+    background-color: #cdf5e9;
+}
+
+.sectionVerse {
+    background-color: #f5e6b8;
+}
+
+.sectionPreChorus {
+    background-color: #e8e8e8;
+}
+
+.sectionChorus {
+    background-color: #F5F5F5;
+}
+
+.sectionA {
+    background-color: #f5e6b8;
+}
+
+.sectionB {
+    background-color: #d2f5cd;
+}
+
+.sectionBridge {
+    background-color: #d2f5cd;
+}
+
+.sectionCoda {
+    background-color: #cdf5e9;
+}
+
+.sectionTag {
+    background-color: #cee1f5;
+}
+
+.sectionOutro {
+    background-color: #cdf5e9;
 }

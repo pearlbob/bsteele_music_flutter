@@ -12,7 +12,6 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/gui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -54,7 +53,7 @@ class LyricsTable {
     _lyricSectionRowLocations = [];
     List<TableRow> rows = [];
     List<Widget> children = []; //  items for the current row
-    Color color = GuiColors.getColorForSection(Section.get(SectionEnum.chorus));
+    Color color = getColorForSection(Section.get(SectionEnum.chorus));
 
     //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
@@ -80,7 +79,9 @@ class LyricsTable {
       }
 
       //  add the section heading
-      color = GuiColors.getColorForSection(chordSection.getSection());
+      color = getColorForSection(chordSection.getSection());
+      var coloredChordTextStyle = _chordTextStyle.copyWith(backgroundColor: color);
+       _coloredLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: color);
       {
         var globalKey = GlobalObjectKey(lyricSection);
         if (sectionHeaderWidget != null) {
@@ -93,7 +94,7 @@ class LyricsTable {
             color: color,
             child: Text(
               chordSection.sectionVersion.toString(),
-              style: _chordTextStyle,
+              style: coloredChordTextStyle,
               softWrap: false,
             ),
           ));
@@ -138,7 +139,7 @@ class LyricsTable {
                     measure!,
                     displayMusicKey,
                     tranOffset,
-                    style: _chordTextStyle,
+                    style: coloredChordTextStyle,
                   )));
 
               _rowKey = null;
@@ -180,7 +181,7 @@ class LyricsTable {
               color: color,
               child: Text(
                 rowLyrics,
-                style: _lyricsTextStyle,
+                style: _coloredLyricsTextStyle,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
               )));
@@ -219,7 +220,7 @@ class LyricsTable {
   Widget _defaultTextWidget(LyricSection lyricSection, int lineNumber, String s) {
     return Text(
       s,
-      style: _lyricsTextStyle,
+      style: _coloredLyricsTextStyle,
     );
   }
 
@@ -280,6 +281,7 @@ class LyricsTable {
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateAppTextStyle();
+  TextStyle _coloredLyricsTextStyle = generateAppTextStyle();
 
   double _shortLyricsWidth = 200; //  default value
 

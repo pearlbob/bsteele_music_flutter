@@ -63,7 +63,7 @@ class _State extends State<TheoryWidget> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('Music Theory'),
+      appBar: appWidget.backBar(title: 'Music Theory'),
       body: SingleChildScrollView(
         //controller: _scrollController,
         scrollDirection: Axis.vertical,

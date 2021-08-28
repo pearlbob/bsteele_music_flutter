@@ -199,7 +199,7 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('${_app.selectedSong.title} (sheet music)'),
+      appBar: appWidget.backBar(title:'${_app.selectedSong.title} (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(

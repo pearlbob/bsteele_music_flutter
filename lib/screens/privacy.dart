@@ -27,7 +27,7 @@ class _Privacy extends State<Privacy> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('bsteele Music App Privacy Policy'),
+      appBar: appWidget.backBar(title:'bsteele Music App Privacy Policy'),
       body: DefaultTextStyle(
         style: style,
         child: const SingleChildScrollView(

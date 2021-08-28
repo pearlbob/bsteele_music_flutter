@@ -34,19 +34,10 @@ void generateCssDocumentation() {
   bsteele Music App CSS style commands documentation
   
   Commands are listed in increasing priority order.
-    
-  Sample values used here:
-''');
-  for ( var type in cssSampleValueMap.keys ){
-    sb.writeln('  sample $type: ${cssSampleValueMap[type]}');
-  }
-  sb.writeln('''
-
-  Obviously in a real specification, not all values of a given type should be identical!
 */
 
 ''');
-  CssSelectorType lastSelector = CssSelectorType.id;
+  CssSelectorEnum lastSelector = CssSelectorEnum.id;
   String lastSelectorName = '';
   SplayTreeSet<CssAction> sortedActions = SplayTreeSet();
   sortedActions.addAll(cssActions);

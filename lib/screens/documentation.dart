@@ -1,6 +1,5 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
-import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -261,7 +260,7 @@ class _State extends State<Documentation> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('bsteele Music App Documentation'),
+      appBar: appWidget.backBar(title: 'bsteele Music App Documentation'),
       body: DefaultTextStyle(
         style: style,
         child: SingleChildScrollView(
@@ -272,9 +271,7 @@ class _State extends State<Documentation> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                md.MarkdownBody(
-                    styleSheet: md.MarkdownStyleSheet(textScaleFactor: App().isScreenBig ? 2 : 1),
-                    data: desc.toString())
+                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(Theme.of(context)), data: desc.toString())
               ]),
         ),
       ),

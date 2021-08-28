@@ -24,7 +24,6 @@ import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/gui.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
@@ -290,7 +289,7 @@ class _Edit extends State<Edit> {
       if (grid.isNotEmpty) {
         List<TableRow> rows = [];
         List<Widget> children = [];
-        _sectionColor = GuiColors.getColorForSection(_defaultSection);
+        _sectionColor = getColorForSection(_defaultSection);
 
         //  compute transposition offset from base key
         _transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
@@ -358,7 +357,7 @@ class _Edit extends State<Edit> {
 
               //  add the section heading
               //           columnFiller = sectionVersion.toString();
-              _sectionColor = GuiColors.getColorForSection(sectionVersion?.section);
+              _sectionColor = getColorForSection(sectionVersion?.section);
               lastSectionVersion = sectionVersion;
             }
           }
@@ -1156,7 +1155,7 @@ class _Edit extends State<Edit> {
           style: generateAppTextStyle(
               fontSize: _chordFontSize,
               fontWeight: FontWeight.bold,
-              backgroundColor: GuiColors.getColorForSection(chordSection.sectionVersion.section)),
+              backgroundColor: getColorForSection(chordSection.sectionVersion.section)),
         ),
       );
     }).toList();
@@ -1206,7 +1205,7 @@ class _Edit extends State<Edit> {
 
       //  chord section headers
       var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
-      _sectionColor = GuiColors.getColorForSection(chordSection?.sectionVersion.section);
+      _sectionColor = getColorForSection(chordSection?.sectionVersion.section);
       {
         var children = <Widget>[];
         children.add(Container(
@@ -1698,7 +1697,7 @@ class _Edit extends State<Edit> {
       SectionVersion? entrySectionVersion = _parsedSectionEntry(_editTextController.text);
       bool isValidSectionEntry = (entrySectionVersion != null);
       //Color color = isValidSectionEntry ? Colors.black87 : Colors.red;
-      _sectionColor = GuiColors.getColorForSection(entrySectionVersion?.section ?? _sectionVersion.section);
+      _sectionColor = getColorForSection(entrySectionVersion?.section ?? _sectionVersion.section);
 
       //  build a list of section version numbers
       List<DropdownMenuItem<int>> sectionVersionNumberDropdownMenuList = [];
@@ -1858,7 +1857,7 @@ class _Edit extends State<Edit> {
       measure = measureNode.transposeToKey(_key) as Measure;
     }
 
-    Color color = GuiColors.getColorForSection(editDataPoint.location?.sectionVersion?.section);
+    Color color = getColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     if (_selectedEditDataPoint == editDataPoint) {
       //  editing this measure
@@ -2210,7 +2209,7 @@ class _Edit extends State<Edit> {
     }
     MeasureRepeat repeat = measureNode as MeasureRepeat;
 
-    Color color = GuiColors.getColorForSection(editDataPoint.location?.sectionVersion?.section);
+    Color color = getColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     if (_selectedEditDataPoint == editDataPoint) {
       return Container(
@@ -2328,7 +2327,7 @@ class _Edit extends State<Edit> {
       return Text('is not comment: ${editDataPoint.location}: "$measureNode"');
     }
 
-    Color color = GuiColors.getColorForSection(editDataPoint.location?.sectionVersion?.section);
+    Color color = getColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     //  not editing this measureNode
     return InkWell(
@@ -2462,7 +2461,7 @@ class _Edit extends State<Edit> {
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
         value: sectionVersion,
         child: Container(
-          color: GuiColors.getColorForSection(sectionVersion.section),
+          color: getColorForSection(sectionVersion.section),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -2496,7 +2495,7 @@ class _Edit extends State<Edit> {
         });
       },
       style: generateAppTextStyle(
-        color: GuiColors.getColorForSection(selectedSectionVersion.section),
+        color: getColorForSection(selectedSectionVersion.section),
         textBaseline: TextBaseline.alphabetic,
       ),
     );

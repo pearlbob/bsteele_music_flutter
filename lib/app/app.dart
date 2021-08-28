@@ -13,6 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'app_theme.dart';
+
 const bool _widgetLog = false; //  true false
 
 const _environmentDefault = 'main'; //  fixme: duplicate
@@ -126,7 +128,7 @@ class App {
   Widget messageTextWidget() {
     return Text(message,
         style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
-        key: const ValueKey('errorMessage'));
+        key: AppKey(AppKeyEnum.errorMessage));
   }
 
   String get message => _message;

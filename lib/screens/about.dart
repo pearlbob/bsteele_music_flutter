@@ -38,7 +38,7 @@ class _About extends State<About> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('About the bsteele Music App'),
+      appBar: appWidget.backBar(title:'About the bsteele Music App'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(

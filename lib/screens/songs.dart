@@ -33,22 +33,17 @@ class _Songs extends State<Songs> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
 
-    final double fontSize = _app.screenInfo.fontSize;
-
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('bsteele Music App Song Management'),
+      appBar: appWidget.backBar(title:'bsteele Music App Song Management'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              ElevatedButton(
-                child: Text(
-                  'Read files',
-                  style: generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                ),
+              appButton(
+             'Read files',
                 onPressed: () {
                   setState(() {
                     _filePick(context);
@@ -58,11 +53,8 @@ class _Songs extends State<Songs> {
               appSpace(
                 space: 20,
               ),
-              ElevatedButton(
-                child: Text(
-                  'Write all songs to $fileLocation',
-                  style: generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                ),
+             appButton(
+               'Write all songs to $fileLocation',
                 onPressed: () {
                   _writeAll();
                 },
@@ -72,11 +64,7 @@ class _Songs extends State<Songs> {
               ),
               appTooltip(
                 message: 'A reload of the application will return them all.',
-                child: ElevatedButton(
-                  child: Text(
-                    'Remove all songs from the current list',
-                    style: generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                  ),
+                child: appButton( 'Remove all songs from the current list',
                   onPressed: () {
                     setState(() {
                       _app.removeAllSongs();
@@ -93,11 +81,11 @@ class _Songs extends State<Songs> {
               ),
               Text(
                 'Song count:  ${_app.allSongs.length}',
-                style: generateAppTextStyle(fontSize: fontSize),
+                style: generateAppTextStyle(),
               ),
               Text(
                 'Most recent: ${_mostRecent()}',
-                style: generateAppTextStyle(fontSize: fontSize),
+                style: generateAppTextStyle(),
               ),
             ]),
       ),

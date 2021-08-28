@@ -48,13 +48,12 @@ class _Options extends State<Options> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
 
-    final double fontSize = _app.screenInfo.fontSize;
     logger.v('options build: ${_songUpdateService.isConnected}');
     var style = generateAppTextStyle();
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: appWidget.backBar('bsteele Music App Options'),
+      appBar: appWidget.backBar(title:'bsteele Music App Options'),
       body: DefaultTextStyle(
         //  fixme: necessary?
         style: style,
@@ -67,9 +66,8 @@ class _Options extends State<Options> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 textDirection: TextDirection.ltr,
                 children: <Widget>[
-                  Text(
+                  const Text(
                     'User style: ',
-                    style: style,
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
@@ -120,9 +118,8 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Holiday choice: ',
-                    style: style,
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
@@ -155,9 +152,8 @@ class _Options extends State<Options> {
                       ],
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Repeat display choice: ',
-                    style: style,
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
@@ -196,9 +192,8 @@ class _Options extends State<Options> {
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                          child: Text(
+                          child: const Text(
                             'User name: ',
-                            style: style,
                           ),
                         ),
                         Expanded(
@@ -224,9 +219,8 @@ class _Options extends State<Options> {
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                          child: Text(
+                          child: const Text(
                             'Host IP: ',
-                            style: style,
                           ),
                         ),
                         Expanded(
@@ -251,7 +245,6 @@ class _Options extends State<Options> {
                       message: 'No leader/follower',
                       child: appButton(
                         'None',
-                        fontSize: fontSize,
                         onPressed: () {
                           _appOptions.websocketHost = '';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -263,7 +256,6 @@ class _Options extends State<Options> {
                       message: 'You are in the Community Jams studio.',
                       child: appButton(
                         'Studio',
-                        fontSize: fontSize,
                         onPressed: () {
                           _appOptions.websocketHost = 'cj';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -275,7 +267,6 @@ class _Options extends State<Options> {
                       message: 'You are in the park.',
                       child: appButton(
                         'Park',
-                        fontSize: fontSize,
                         onPressed: () {
                           _appOptions.websocketHost = parkFixedIpAddress;
                           _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -284,16 +275,15 @@ class _Options extends State<Options> {
                     ),
                     if (kDebugMode) appSpace(),
                     if (kDebugMode)
-                      appButton('bob\'s place', fontSize: fontSize, onPressed: () {
+                      appButton('bob\'s place', onPressed: () {
                         _appOptions.websocketHost = 'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
                   ]),
                   appSpace(),
                   Row(children: <Widget>[
-                    Text(
+                    const Text(
                       'Song Update: ',
-                      style: style,
                     ),
                     Text(
                       (_songUpdateService.isConnected
@@ -341,9 +331,8 @@ class _Options extends State<Options> {
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                          child: Text(
+                          child: const Text(
                             'Display key offset: ',
-                            style: style,
                           ),
                         ),
                         DropdownButton<int>(
@@ -356,7 +345,7 @@ class _Options extends State<Options> {
                               });
                             }
                           },
-                          style: generateAppTextStyle(color: const Color(0xFF424242)),
+                          style: style,
                           value: _app.displayKeyOffset,
                         ),
                       ]),
@@ -369,9 +358,8 @@ class _Options extends State<Options> {
                         setState(() {});
                       },
                     ),
-                    Text(
+                    const Text(
                       'debug: ',
-                      style: style,
                     ),
                   ]),
                   //  //  fixme: audio!

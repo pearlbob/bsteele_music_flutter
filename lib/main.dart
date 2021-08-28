@@ -77,6 +77,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
+import 'package:bsteele_music_flutter/screens/cssDemo.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lists.dart';
@@ -267,6 +268,7 @@ class BSteeleMusicApp extends StatelessWidget {
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
                 '/about': (context) => const About(),
+                '/cssDemo': (context) => const CssDemo(),
                 // '/bass': (context) => const BassWidget(),
                 '/theory': (context) => const TheoryWidget(),
               },
@@ -408,8 +410,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _appOptions = Provider.of<AppOptions>(context);
 
-    bool oddEven = true;
-
     _app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
     final _titleBarFontSize = _app.screenInfo.fontSize;
@@ -433,23 +433,22 @@ class _MyHomePageState extends State<MyHomePage> {
     final fontSize = _app.screenInfo.fontSize;
     logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
     final TextStyle searchTextStyle = generateAppTextStyle(
+      color: Colors.black45,
       fontWeight: FontWeight.bold,
-      fontSize: fontSize,
       textBaseline: TextBaseline.alphabetic,
     );
     final TextStyle searchDropDownStyle = generateAppTextStyle(
       fontWeight: FontWeight.normal,
-      fontSize: fontSize,
       textBaseline: TextBaseline.alphabetic,
     );
     final TextStyle titleTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
-      fontSize: fontSize,
       textBaseline: TextBaseline.alphabetic,
+      color: Colors.black,
     );
 
-    final TextStyle artistTextStyle = generateAppTextStyle(fontSize: fontSize);
-    final TextStyle _navTextStyle = generateAppTextStyle(fontSize: fontSize);
+    final TextStyle artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
+    final TextStyle _navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
@@ -471,64 +470,75 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     List<Widget> listViewChildren = [];
-    logger.d('_filteredSongs.length: ${_filteredSongs.length}');
-    for (final Song song in _filteredSongs) {
-      oddEven = !oddEven;
-      var key = ValueKey<String>(song.songId.toString());
-      logger.v('song.songId: ${song.songId}');
-      listViewChildren.add(GestureDetector(
-        key: key,
-        child: Container(
-          color: oddEven ? Colors.white : Colors.grey[100],
-          padding: const EdgeInsets.all(8.0),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-            if (_app.isScreenBig)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: <Widget>[
-                      Text(
-                        song.getTitle(),
-                        style: titleTextStyle,
-                      ),
-                      Text(
-                        '      ' + song.getArtist(),
-                        style: artistTextStyle,
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '   ' + intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                    style: artistTextStyle,
-                  ),
-                ],
-              ),
-            if (_app.isPhone)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    song.getTitle(),
-                    style: titleTextStyle,
-                  ),
-                  Text(
-                    '      ' + song.getArtist(),
-                    style: artistTextStyle,
-                  ),
-                ],
-              ),
-          ]),
-        ),
-        onTap: () {
-          WidgetLog.tap(key);
-          _navigateToPlayer(context, song);
-        },
-      ));
+    {
+      bool oddEven = true;
+      final oddTitle = oddTitleTextStyle(from: titleTextStyle);
+      final evenTitle = evenTitleTextStyle(from: titleTextStyle);
+      final oddTextStyle = oddTitleTextStyle(from: artistTextStyle);
+      final evenTextStyle = evenTitleTextStyle(from: artistTextStyle);
+      logger.d('_filteredSongs.length: ${_filteredSongs.length}');
+
+      for (final Song song in _filteredSongs) {
+        oddEven = !oddEven;
+        var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
+        var oddEvenTextStyle = oddEven ? oddTextStyle : evenTextStyle;
+        var key = ValueKey<String>(song.songId.toString());
+        logger.v('song.songId: ${song.songId}');
+        listViewChildren.add(GestureDetector(
+          key: key,
+          child: Container(
+            color: oddEvenTitleTextStyle.backgroundColor,
+            padding: const EdgeInsets.all(8.0),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+              if (_app.isScreenBig)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Text(
+                          song.title,
+                          style: oddEvenTitleTextStyle,
+                        ),
+                        Text(
+                          '      ' + song.getArtist(),
+                          style: oddEvenTextStyle,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '   ' +
+                          intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                      style: oddEvenTextStyle,
+                    ),
+                  ],
+                ),
+              if (_app.isPhone)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      song.title,
+                      style: oddEvenTitleTextStyle,
+                    ),
+                    Text(
+                      '      ' + song.getArtist(),
+                      style: oddEvenTextStyle,
+                    ),
+                  ],
+                ),
+            ]),
+          ),
+          onTap: () {
+            WidgetLog.tap(key);
+            _navigateToPlayer(context, song);
+          },
+        ));
+      }
     }
     listViewChildren.add(appSpace(
       space: 20,
@@ -588,7 +598,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 _openDrawer();
               },
-              child: const Icon(Icons.menu, color: Colors.white)),
+              child: appIcon(Icons.menu)),
         ),
         actions: <Widget>[
           appTooltip(
@@ -693,6 +703,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToDocumentation(context);
               },
             ),
+            // ListTile(
+            //   title: Text(
+            //     "CSS Demo",
+            //     style: _navTextStyle,
+            //   ),
+            //   onTap: () {
+            //     _navigateToCssDemo(context);
+            //   },
+            // ),
             ListTile(
               key: _aboutKey,
               title: Text(
@@ -834,7 +853,7 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }
           },
-          child: const Icon(
+          child: appIcon(
             Icons.arrow_upward,
           ),
         ),
@@ -1062,6 +1081,15 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const About()),
+    );
+    Navigator.pop(context);
+    _reApplySearch();
+  }
+
+  _navigateToCssDemo(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CssDemo()),
     );
     Navigator.pop(context);
     _reApplySearch();

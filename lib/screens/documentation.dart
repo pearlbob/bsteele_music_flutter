@@ -259,7 +259,7 @@ class _State extends State<Documentation> {
         '\n');
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidget.backBar(title: 'bsteele Music App Documentation'),
       body: DefaultTextStyle(
         style: style,

@@ -10,10 +10,14 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 
 final App _app = App();
+const double _defaultFontSize = 24; // fixme: shouldn't be fixed
 Color? _defaultBackgroundColor = Colors.white;
 Color? _defaultForegroundColor = Colors.black;
 
 ThemeData _themeData = ThemeData(); //  start with the default theme
+
+TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
+    const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: _defaultFontSize);
 
 Map<String, List<String>> _propertyLiterals = {
   'text-align': ['left', 'right', 'center', 'justify', 'initial', 'inherit'],
@@ -53,7 +57,7 @@ enum CssClassEnum {
   icon,
 }
 
-final CssProperty _universalBackgroundColorProperty =
+final CssProperty universalBackgroundColorProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'background-color', Color, 'universal background color');
 final CssProperty _universalForegroundColorProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'color', Color, 'universal foreground color');
@@ -105,11 +109,13 @@ const Color _tagColor = Color(0xffcee1f5);
 /// used to store values, even those not transferable to a flutter theme
 Map<CssProperty, dynamic> _propertyValueLookupMap = {
   //  default values only
-  _universalBackgroundColorProperty: Colors.white,
+  universalBackgroundColorProperty: Colors.white,
   _universalForegroundColorProperty: Colors.black,
+  _universalTooltipBackgroundColorProperty: Colors.green[100],
   _universalFontSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
   _oddTitleTextProperty: Colors.grey[100],
   _evenTitleTextProperty: Colors.white,
+  _iconColorProperty: Colors.white,
 
   _sectionIntroBackgroundProperty: _introColor,
   _sectionVerseBackgroundProperty: _verseColor,
@@ -142,7 +148,7 @@ Color _getColorForSectionEnum(SectionEnum sectionEnum) {
   };
 
   var ret = _propertyValueLookupMap[sectionMap[sectionEnum]];
-  logger.i('_getColorForSectionEnum: $sectionEnum: $ret');
+  logger.d('_getColorForSectionEnum: $sectionEnum: $ret');
   return (ret != null && ret is Color) ? ret : Colors.white;
 }
 
@@ -196,6 +202,10 @@ class AppKey extends ValueKey {
 
 class CssColor extends Color {
   CssColor(int value) : super(0xFF000000 + value);
+
+  String toCss() {
+    return '#${(value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+  }
 }
 
 Icon appIcon(IconData icon, {Key? key, Color? color}) {
@@ -321,9 +331,9 @@ class AppTheme {
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
       _themeData = _themeData.copyWith(
-        backgroundColor: _propertyValueLookupMap[_universalBackgroundColorProperty],
+        backgroundColor: _propertyValueLookupMap[universalBackgroundColorProperty],
         iconTheme: iconTheme,
-        primaryColor: _propertyValueLookupMap[_universalBackgroundColorProperty],
+        primaryColor: _propertyValueLookupMap[universalBackgroundColorProperty],
         radioTheme: radioTheme,
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
       );
@@ -392,7 +402,7 @@ double? _fontSizeLookup(CssProperty property) {
 ElevatedButton appButton(
   String commandName, {
   Key? key,
-  Color? background,
+  Color? backgroundColor,
   double? fontSize,
   required VoidCallback? onPressed,
 }) {
@@ -531,6 +541,55 @@ class _AppliedAction {
   final String? rawValue;
 }
 
+void generateCssDocumentation() {
+  logger.i('CssToCssFile:');
+
+  var sb = StringBuffer('''
+/*
+  bsteele Music App CSS style commands documentation
+  
+  Commands are listed in increasing priority order.
+*/
+
+''');
+  CssSelectorEnum lastSelector = CssSelectorEnum.id;
+  String lastSelectorName = '';
+  SplayTreeSet<CssAction> sortedActions = SplayTreeSet();
+  sortedActions.addAll(cssActions);
+  for (var cssAction in sortedActions) {
+    if (cssAction.cssProperty.selector != lastSelector || cssAction.cssProperty.selectorName != lastSelectorName) {
+      if (lastSelectorName.isNotEmpty) {
+        sb.writeln('}\n');
+      }
+      lastSelector = cssAction.cssProperty.selector;
+      lastSelectorName = cssAction.cssProperty.selectorName;
+      sb.writeln('${cssAction.cssProperty.selectorName} {');
+    }
+    var property = cssAction.cssProperty;
+    var value = _propertyValueLookupMap[property] ?? 'unknown value';
+    String valueString = value.toString();
+    switch (value.runtimeType) {
+      case CssColor:
+        valueString = value.toCss();
+        break;
+    }
+    sb.writeln('  ${property.property}: $valueString;'
+        '\t\t\t/* type is ${property.type}, ${property.description} */');
+
+    switch (value.runtimeType) {
+      case visitor.LengthTerm:
+        sb.writeln('  /* NOTE: the use of non-reactive font sizes is strongly discouraged\n'
+            '     due to the many screen sizes required of the application.\n'
+            '     Try using viewport (vw) instead.  E.g.: 2.2vw  */');
+        break;
+    }
+  }
+  if (lastSelectorName.isNotEmpty) {
+    sb.writeln('}\n');
+  }
+  logger.i(sb.toString());
+}
+
 List<_AppliedAction> _appliedActions = [];
 
 TextStyle? _textStyleActionStyle(CssProperty p, dynamic value, TextStyle? defaultTextStyle) {
@@ -561,7 +620,7 @@ TextStyle? _textStyleActionStyle(CssProperty p, dynamic value, TextStyle? defaul
 
 List<CssAction> cssActions = [
   //  universal
-  CssAction(_universalBackgroundColorProperty, (p, value) {
+  CssAction(universalBackgroundColorProperty, (p, value) {
     assert(value is Color);
     _defaultBackgroundColor = value; //fixme:
     _propertyValueLookupMap[p] = value;

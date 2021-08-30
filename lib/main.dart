@@ -117,6 +117,9 @@ void main() async {
 }
 
 /*
+//  fixme: edit speed issues?
+//  fixme: joy to the world, sheet music, measure size error
+//  fixme: edit screen: section id is inline on chords, but above in lyrics
 //  fixme: after an edit change, don't allow navigator pop without admission that edits will be lost
 //  fixme: song diff page
 //  fixme: surrender leadership when leader song update appears
@@ -588,6 +591,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var _clearSearchKey = const ValueKey<String>('clearSearch');
 
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
       key: _scaffoldKey,
       appBar: appWidget.appBar(
         title: widget.title,

@@ -37,7 +37,7 @@ class _About extends State<About> {
     final double fontSize = screenInfo.fontSize;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidget.backBar(title:'About the bsteele Music App'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: fontSize),

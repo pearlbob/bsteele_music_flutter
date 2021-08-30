@@ -26,7 +26,7 @@ class _Privacy extends State<Privacy> {
     TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidget.backBar(title:'bsteele Music App Privacy Policy'),
       body: DefaultTextStyle(
         style: style,

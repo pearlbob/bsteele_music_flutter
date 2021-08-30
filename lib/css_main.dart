@@ -8,10 +8,6 @@ import 'package:logger/logger.dart';
 
 import 'app/app_theme.dart';
 
-final Map<Type, String> cssSampleValueMap = {
-  Color: '#2196f3',
-  visitor.LengthTerm: '14px',
-};
 final Map<String, String> cssSamplePropertyMap = {
   'color': 'black',
 
@@ -24,43 +20,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppTheme().init(); //  init the singleton
   generateCssDocumentation();
-}
 
-void generateCssDocumentation() {
-  logger.i('CssToCssFile:');
-
-  var sb = StringBuffer('''
-/*
-  bsteele Music App CSS style commands documentation
-  
-  Commands are listed in increasing priority order.
-*/
-
-''');
-  CssSelectorEnum lastSelector = CssSelectorEnum.id;
-  String lastSelectorName = '';
-  SplayTreeSet<CssAction> sortedActions = SplayTreeSet();
-  sortedActions.addAll(cssActions);
-  for (var cssAction in sortedActions) {
-    if (cssAction.cssProperty.selector != lastSelector || cssAction.cssProperty.selectorName != lastSelectorName) {
-      if (lastSelectorName.isNotEmpty) {
-        sb.writeln('}\n');
-      }
-      lastSelector = cssAction.cssProperty.selector;
-      lastSelectorName = cssAction.cssProperty.selectorName;
-      sb.writeln('${cssAction.cssProperty.selectorName} {');
-    }
-    var property = cssAction.cssProperty;
-    var sampleValue = cssSamplePropertyMap[property.property] ?? cssSampleValueMap[property.type] ?? 'unknown property';
-    sb.writeln('  ${property.property}: $sampleValue;'
-        '\t\t\t/* type is ${property.type}, ${property.description} */');
-  }
-  if (lastSelectorName.isNotEmpty) {
-    sb.writeln('}\n');
-  }
-  logger.i(sb.toString());
-
-  Future.delayed(const Duration(milliseconds: 1000), () {
+  Future.delayed(const Duration(milliseconds: 1000), ()
+  {
     SystemChannels.platform.invokeMethod('SystemNavigator.pop');
   });
 }

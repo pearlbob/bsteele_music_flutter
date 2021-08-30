@@ -229,7 +229,7 @@ class _State extends State<Lists> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidget.backBar(title:'bsteele Music App Song Lists'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -250,7 +250,7 @@ class _State extends State<Lists> {
                   onPressed: () {
                     _saveSongMetadata();
                   },
-                  background: _dirtyCount == 0 ? appDisabledColor : null,
+                  backgroundColor: _dirtyCount == 0 ? appDisabledColor : null,
                 ),
                 if (_selectedNameValue != _emptySelectedNameValue)
                   appButton(

@@ -6,70 +6,73 @@
 
 
 * {
-    background-color: white; /* type is Color, universal background color */
-    color: black; /* type is Color, universal foreground color */
-    font-size: 2vw; /* type is LengthTerm, universal text font size */
+    background-color: white;            /* type is Color, universal background color */
+    color: black;                       /* type is Color, universal foreground color */
+    font-size: 2vw;                     /* type is LengthTerm, universal text font size */
+    tooltip-background-color: lightGreen;	/* type is Color, universal tool tip background color */
 }
 
 appbar {
-    background-color: #2196f3; /* type is Color, app bar background color */
-    color: white; /* type is Color, app bar foreground color */
+    background-color: #2196f3;          /* type is Color, app bar background color */
+    color: white;                       /* type is Color, app bar foreground color */
 }
 
 button {
-    background-color: #2196f3; /* type is Color, universal (elevated) button background color */
-    color: white; /* type is Color, universal (elevated) button foreground color */
-    font-size: 2vw;
+    background-color: #2196f3;          /* type is Color, universal (elevated) button background color */
+    color: white;                       /* type is Color, universal (elevated) button foreground color */
+    font-size: 1.25vw;			        /* type is UnitTerm, button text font size */
 }
 
-.icon {
-    color: white;
-}
 
 .oddTitleTextStyle {
-    background-color: white;
+    background-color: white;			/* type is Color, odd row background color */
 }
 
 .evenTitleTextStyle {
-    background-color: #F5F5F5; /*  light grey  */
+  background-color: #f5f5f5;			/* type is Color, even row background color */
 }
 
-.sectionIntro {
-    background-color: #cdf5e9;
+.icon {
+    color: white;			            /* type is Color, icon foreground color */
 }
 
-.sectionVerse {
-    background-color: #f5e6b8;
-}
-
-.sectionPreChorus {
-    background-color: #e8e8e8;
-}
-
-.sectionChorus {
-    background-color: #F5F5F5;
-}
 
 .sectionA {
-    background-color: #f5e6b8;
+  background-color: #f5e6b8;			/* type is Color, A section background color */
 }
 
 .sectionB {
-    background-color: #d2f5cd;
+  background-color: #d2f5cd;			/* type is Color, B section background color */
 }
 
 .sectionBridge {
-    background-color: #d2f5cd;
+  background-color: #d2f5cd;			/* type is Color, Bridge section background color */
+}
+
+.sectionChorus {
+  background-color: #f0f0f0;			/* type is Color, Chorus section background color */
 }
 
 .sectionCoda {
-    background-color: #cdf5e9;
+  background-color: #cdf5e9;			/* type is Color, Coda section background color */
 }
 
-.sectionTag {
-    background-color: #cee1f5;
+.sectionIntro {
+  background-color: #cdf5e9;			/* type is Color, Intro section background color */
 }
 
 .sectionOutro {
-    background-color: #cdf5e9;
+  background-color: #cdf5e9;			/* type is Color, Outro section background color */
+}
+
+.sectionPreChorus {
+  background-color: #e8e8e8;			/* type is Color, PreChorus section background color */
+}
+
+.sectionTag {
+  background-color: #cee1f5;			/* type is Color, Tag section background color */
+}
+
+.sectionVerse {
+  background-color: #f5e6b8;			/* type is Color, Verse section background color */
 }

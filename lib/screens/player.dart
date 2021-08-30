@@ -430,7 +430,10 @@ class _Player extends State<Player> with RouteAware {
 
     bool showCapo = !_appOptions.isSinger;
 
+    var theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.backgroundColor,
       body: RawKeyboardListener(
         focusNode: rawKeyboardListenerFocusNode,
         onKey: _playerOnKey,
@@ -442,15 +445,15 @@ class _Player extends State<Player> with RouteAware {
               top: boxCenter - boxOffset,
               child: Container(
                 constraints: BoxConstraints.loose(Size(_lyricsTable.screenWidth, boxHeight)),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: <Color>[
-                      Colors.white,
+                      theme.backgroundColor,
                       blue300,
                       blue300,
-                      Colors.white,
+                      theme.backgroundColor,
                     ],
                   ),
                 ),

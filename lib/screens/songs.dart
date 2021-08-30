@@ -34,7 +34,7 @@ class _Songs extends State<Songs> {
     appWidget.context = context; //	required on every build
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidget.backBar(title:'bsteele Music App Song Management'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),

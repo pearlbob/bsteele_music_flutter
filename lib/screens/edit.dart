@@ -54,8 +54,6 @@ TextStyle _labelTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, fon
 const double _entryWidth = 18 * _defaultChordFontSize;
 
 const Color _disabledColor = Color(0xFFE0E0E0);
-const Color _chordEditAreaBackgroundColor = Color(0xFFFFFFFF); //var c = Colors.white;
-const Color _lyricsEditAreaBackgroundColor = Color(0xFFFFFFFF); //  var c = Colors.white;
 final Section _defaultSection = Section.get(SectionEnum.chorus);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
@@ -81,7 +79,8 @@ class _Edit extends State<Edit> {
         _originalSong = _initialSong.copySong() {
     //  stuff the repeat Drop Down Menu List
     for (var i = 2; i <= 4; i++) {
-      DropdownMenuItem<int> item = DropdownMenuItem(key: ValueKey('repeatX$i'), value: i, child: Text('x$i'));
+      DropdownMenuItem<int> item = DropdownMenuItem(
+          key: ValueKey('repeatX$i'), value: i, child: Text('x$i', style: appDropdownListItemTextStyle));
       _repeatDropDownMenuList.add(item);
     }
 
@@ -247,6 +246,7 @@ class _Edit extends State<Edit> {
 
     _appOptions = Provider.of<AppOptions>(context);
 
+    //  adjust to screen size
     if (_screenInfo == null) {
       _screenInfo = ScreenInfo(context);
       final double _screenWidth = _screenInfo!.widthInLogicalPixels;
@@ -269,7 +269,8 @@ class _Edit extends State<Edit> {
         color: Colors.black87,
       );
 
-      _chordBadTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
+      _chordBadTextStyle =
+          generateAppTextStyle(fontWeight: FontWeight.bold, fontSize: _chordFontSize, color: Colors.red);
 
       //  don't load the song until we know its font sizes
       _loadSong(_song);
@@ -289,7 +290,6 @@ class _Edit extends State<Edit> {
       if (grid.isNotEmpty) {
         List<TableRow> rows = [];
         List<Widget> children = [];
-        _sectionColor = getColorForSection(_defaultSection);
 
         //  compute transposition offset from base key
         _transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
@@ -357,7 +357,6 @@ class _Edit extends State<Edit> {
 
               //  add the section heading
               //           columnFiller = sectionVersion.toString();
-              _sectionColor = getColorForSection(sectionVersion?.section);
               lastSectionVersion = sectionVersion;
             }
           }
@@ -493,34 +492,6 @@ class _Edit extends State<Edit> {
       }
     }
 
-    {
-      //  list the notes required
-      List<ScaleNote> scaleNotes = [];
-
-      //  scale notes
-      for (int i = 0; i < MusicConstants.notesPerScale; i++) {
-        scaleNotes.add(_key.getMajorScaleByNote(i));
-      }
-
-      //  not scale notes
-      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-        ScaleNote scaleNote = _key.getScaleNoteByHalfStep(i);
-        if (!scaleNotes.contains(scaleNote)) scaleNotes.add(scaleNote);
-      }
-
-      //  make the key selection drop down list
-      _keyChordDropDownMenuList = [];
-      for (final ScaleNote scaleNote in scaleNotes) {
-        String s = scaleNote.toMarkup();
-        String label = s.padRight(2) +
-            " " +
-            ChordComponent.getByHalfStep(scaleNote.halfStep - _key.getHalfStep()).shortName.padLeft(2);
-        DropdownMenuItem<ScaleNote> item =
-            DropdownMenuItem(key: ValueKey('scaleNote' + scaleNote.toMarkup()), value: scaleNote, child: Text(label));
-        _keyChordDropDownMenuList.add(item);
-      }
-    }
-
     List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
     {
       keySelectDropdownMenuItems.addAll(music_key.Key.values.toList().reversed.map((music_key.Key value) {
@@ -546,9 +517,10 @@ class _Edit extends State<Edit> {
     }
 
     bool songHasChanged = hasChangedFromOriginal || _lyricsEntries.hasChangedLines();
+    var theme = Theme.of(context);
 
     return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).backgroundColor,
         body:
             //  deal with keyboard strokes flutter is not usually handling
             //  note that return (i.e. enter) is not a keyboard event!
@@ -579,7 +551,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           appButton(
                             songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                            background: (songHasChanged && _isValidSong)
+                            backgroundColor: (songHasChanged && _isValidSong)
                                 ? Theme.of(context).textTheme.bodyText1?.backgroundColor
                                 : _disabledColor,
                             onPressed: () {
@@ -891,6 +863,7 @@ class _Edit extends State<Edit> {
                     ),
                     const Divider(
                       thickness: 8,
+                      //color: ,  fixme: should be from css!!!
                     ),
                     if (_chordTable != null)
                       Container(
@@ -899,7 +872,7 @@ class _Edit extends State<Edit> {
                           _chordTable,
                         ]),
                         padding: const EdgeInsets.all(16.0),
-                        color: _chordEditAreaBackgroundColor,
+                        color: theme.backgroundColor,
                       ),
                     if (_showHints)
                       RichText(
@@ -1110,7 +1083,7 @@ class _Edit extends State<Edit> {
                     Container(
                       child: _lyricsEntryWidget(),
                       padding: const EdgeInsets.all(16.0),
-                      color: _lyricsEditAreaBackgroundColor,
+                      color: theme.backgroundColor,
                     ),
                     // Container(
                     //   padding: EdgeInsets.all(16.0),
@@ -1205,16 +1178,17 @@ class _Edit extends State<Edit> {
 
       //  chord section headers
       var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
-      _sectionColor = getColorForSection(chordSection?.sectionVersion.section);
+     var sectionColor = getColorForSection(chordSection?.sectionVersion.section);
+  var  sectionChordBoldTextStyle=  _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
       {
         var children = <Widget>[];
         children.add(Container(
           margin: _marginInsets,
           padding: _textPadding,
-          color: _sectionColor,
+          color: sectionColor,
           child: Text(
             entry.lyricSection.sectionVersion.toString(),
-            style: _chordBoldTextStyle,
+            style: sectionChordBoldTextStyle,
           ),
         ));
 
@@ -1258,10 +1232,10 @@ class _Edit extends State<Edit> {
               children.add(Container(
                 margin: _marginInsets,
                 padding: _textPadding,
-                color: _sectionColor,
+                color: sectionColor,
                 child: Text(
                   measure.transpose(_key, 0),
-                  style: _chordBoldTextStyle,
+                  style: sectionChordBoldTextStyle,
                   maxLines: 1,
                 ),
               ));
@@ -1666,6 +1640,9 @@ class _Edit extends State<Edit> {
     }
 
     ChordSection chordSection = measureNode as ChordSection;
+    var sectionColor = getColorForSection(chordSection.sectionVersion.section);
+    var sectionChordTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
+
     if (_selectedEditDataPoint == editDataPoint) {
       //  we're editing the section
       if (_editTextField == null) {
@@ -1676,7 +1653,7 @@ class _Edit extends State<Edit> {
           controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
           maxLength: null,
-          style: _chordBoldTextStyle,
+          style: sectionChordTextStyle,
           decoration: const InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -1696,8 +1673,6 @@ class _Edit extends State<Edit> {
 
       SectionVersion? entrySectionVersion = _parsedSectionEntry(_editTextController.text);
       bool isValidSectionEntry = (entrySectionVersion != null);
-      //Color color = isValidSectionEntry ? Colors.black87 : Colors.red;
-      _sectionColor = getColorForSection(entrySectionVersion?.section ?? _sectionVersion.section);
 
       //  build a list of section version numbers
       List<DropdownMenuItem<int>> sectionVersionNumberDropdownMenuList = [];
@@ -1710,6 +1685,7 @@ class _Edit extends State<Edit> {
               children: <Widget>[
                 Text(
                   (i == 0 ? 'Default' : i.toString()),
+                  style: sectionChordTextStyle,
                 ),
               ],
             ),
@@ -1718,7 +1694,7 @@ class _Edit extends State<Edit> {
       }
 
       return Container(
-        color: _sectionColor,
+        color: sectionColor,
         width: _entryWidth,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1726,7 +1702,7 @@ class _Edit extends State<Edit> {
             textDirection: TextDirection.ltr,
             children: <Widget>[
               //  section entry text field
-              Container(margin: _marginInsets, padding: _textPadding, color: _sectionColor, child: _editTextField),
+              Container(margin: _marginInsets, padding: _textPadding, color: sectionColor, child: _editTextField),
               //  section entry pull downs
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1748,7 +1724,7 @@ class _Edit extends State<Edit> {
                       });
                       logger.v('_sectionVersion = ${_sectionVersion.toString()}');
                     },
-                    style: _chordTextStyle,
+                    style: sectionChordTextStyle,
                   )
                 ],
               ),
@@ -1823,12 +1799,12 @@ class _Edit extends State<Edit> {
       child: Container(
           margin: _marginInsets,
           padding: _textPadding,
-          color: _sectionColor,
+          color: sectionColor,
           child: _editTooltip(
               'modify or delete the section',
               Text(
                 matchingVersionsString,
-                style: _chordBoldTextStyle,
+                style: sectionChordTextStyle,
               ))),
     );
   }
@@ -1857,7 +1833,9 @@ class _Edit extends State<Edit> {
       measure = measureNode.transposeToKey(_key) as Measure;
     }
 
-    Color color = getColorForSection(editDataPoint.location?.sectionVersion?.section);
+    Color sectionColor = getColorForSection(editDataPoint.location?.sectionVersion?.section);
+    var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
+    var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
 
     if (_selectedEditDataPoint == editDataPoint) {
       //  editing this measure
@@ -1873,7 +1851,7 @@ class _Edit extends State<Edit> {
           controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
           maxLength: null,
-          style: _chordBoldTextStyle,
+          style: sectionChordBoldTextStyle,
           decoration: InputDecoration(
             border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -1881,7 +1859,7 @@ class _Edit extends State<Edit> {
             hintText: (_editTextController.text.isEmpty &&
                     (_selectedEditDataPoint?._measureEditType == MeasureEditType.replace))
                 //  fixme: delete of last measure in section should warn about second delete
-                ? 'Second delete will delete this measure'
+                ? 'Second delete will delete this measure' //  fixme: not working?
                 : 'Enter the measure.',
             contentPadding: const EdgeInsets.all(_defaultFontSize / 2),
           ),
@@ -1911,6 +1889,41 @@ class _Edit extends State<Edit> {
             ', ${_song.toMarkup()}');
       }
 
+      //  make the key selection drop down list
+      List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList = [];
+      {
+        //  list the notes required
+        List<ScaleNote> scaleNotes = [];
+        for (int i = 0; i < MusicConstants.notesPerScale; i++) {
+          scaleNotes.add(_key.getMajorScaleByNote(i));
+        }
+
+        //  not scale notes
+        for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+          ScaleNote scaleNote = _key.getScaleNoteByHalfStep(i);
+          if (!scaleNotes.contains(scaleNote)) scaleNotes.add(scaleNote);
+        }
+
+        for (final ScaleNote scaleNote in scaleNotes) {
+          String s = scaleNote.toMarkup();
+          String label = s.padRight(2) +
+              " " +
+              ChordComponent.getByHalfStep(scaleNote.halfStep - _key.getHalfStep()).shortName.padLeft(2);
+          DropdownMenuItem<ScaleNote> item = DropdownMenuItem(
+            key: ValueKey('scaleNote' + scaleNote.toMarkup()),
+            value: scaleNote,
+            child: Text(
+              label,
+              style: sectionAppTextStyle,
+            ),
+          );
+          _keyChordDropDownMenuList.add(item);
+          ButtonTheme(
+            child: item,
+          );
+        }
+      }
+
       Widget _majorChordButton = _editTooltip(
           'Enter the major chord.',
           appButton(
@@ -1920,6 +1933,7 @@ class _Edit extends State<Edit> {
                 _updateChordText(_keyChordNote.toMarkup());
               });
             },
+            // backgroundColor: fixme,
           ));
       Widget minorChordButton;
       {
@@ -1965,7 +1979,7 @@ class _Edit extends State<Edit> {
               children: <Widget>[
                 Text(
                   sc.toMarkup(),
-                  style: appTextStyle,
+                  style: appDropdownListItemTextStyle,
                 ),
               ],
             ),
@@ -1975,7 +1989,7 @@ class _Edit extends State<Edit> {
 
       List<DropdownMenuItem<ScaleNote>> _slashNoteDropDownMenuList = [];
       {
-        // other chords
+        // slash chords
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
           ScaleNote sc = _key.getScaleNoteByHalfStep(i);
           _slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
@@ -1985,7 +1999,7 @@ class _Edit extends State<Edit> {
               children: <Widget>[
                 Text(
                   sc.toMarkup(),
-                  style: appTextStyle,
+                  style: appDropdownListItemTextStyle,
                 ),
               ],
             ),
@@ -1994,7 +2008,7 @@ class _Edit extends State<Edit> {
       }
 
       return Container(
-          color: color,
+          color: sectionColor,
           width: _entryWidth,
           margin: _marginInsets,
           child: Column(
@@ -2005,7 +2019,7 @@ class _Edit extends State<Edit> {
                 //  measure edit text field
                 Container(
                   margin: const EdgeInsets.all(2),
-                  color: _sectionColor,
+                  color: sectionColor,
                   child: _editTextField,
                 ),
                 if (_measureEntryCorrection != null)
@@ -2021,20 +2035,22 @@ class _Edit extends State<Edit> {
                 //  measure edit chord selection
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
                   _editTooltip(
-                    'Select other notes from the key scale.',
-                    DropdownButton<ScaleNote>(
-                      items: _keyChordDropDownMenuList,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value != null) {
-                            _keyChordNote = value;
-                          }
-                        });
-                      },
-                      value: _keyChordNote,
-                      style: appButtonTextStyle(fontSize: _defaultFontSize),
-                    ),
-                  ),
+                      'Select other notes from the key scale.',
+                      ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton<ScaleNote>(
+                          items: _keyChordDropDownMenuList,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                _keyChordNote = value;
+                              }
+                            });
+                          },
+                          value: _keyChordNote,
+                          style: sectionAppTextStyle,
+                        ),
+                      )),
                   _majorChordButton,
                   minorChordButton,
                   dominant7ChordButton,
@@ -2056,49 +2072,62 @@ class _Edit extends State<Edit> {
                   children: <Widget>[
                     _editTooltip(
                       'Select from other chord descriptors.',
-                      DropdownButton<ScaleChord>(
-                        hint: const Text('Other chords'),
-                        items: _otherChordDropDownMenuList,
-                        onChanged: (_value) {
-                          setState(() {
-                            _updateChordText(_value?.toMarkup());
-                          });
-                        },
-                        style: appTextStyle,
+                      ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton<ScaleChord>(
+                          hint: Text(
+                            'Other chords',
+                            style: sectionAppTextStyle,
+                          ),
+                          items: _otherChordDropDownMenuList,
+                          onChanged: (_value) {
+                            setState(() {
+                              _updateChordText(_value?.toMarkup());
+                            });
+                          },
+                          style: sectionAppTextStyle,
+                        ),
                       ),
                     ),
                     _editTooltip(
                       'Select a slash note',
-                      DropdownButton<ScaleNote>(
-                        hint: const Text(
-                          "/note",
+                      ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton<ScaleNote>(
+                          hint: Text(
+                            "/note",
+                            style: sectionAppTextStyle,
+                          ),
+                          items: _slashNoteDropDownMenuList,
+                          onChanged: (_value) {
+                            setState(() {
+                              _updateChordText('/' + (_value?.toMarkup() ?? ''));
+                            });
+                          },
+                          style: sectionAppTextStyle,
                         ),
-                        items: _slashNoteDropDownMenuList,
-                        onChanged: (_value) {
-                          setState(() {
-                            _updateChordText('/' + (_value?.toMarkup() ?? ''));
-                          });
-                        },
-                        style: appTextStyle,
                       ),
                     ),
                     if (_measureEntryValid)
                       _editTooltip(
                         'Add a repeat for this row',
-                        DropdownButton<int>(
-                          hint: const Text(
-                            "repeats",
+                        ButtonTheme(
+                          alignedDropdown: true,
+                          child: DropdownButton<int>(
+                            hint: Text(
+                              "repeats",
+                              style: sectionAppTextStyle,
+                            ),
+                            items: _repeatDropDownMenuList,
+                            onChanged: (_value) {
+                              setState(() {
+                                logger.log(_editLog, 'repeat at: ${editDataPoint.location}');
+                                _song.setRepeat(editDataPoint.location!, _value ?? 1);
+                                _undoStackPush();
+                                _performMeasureEntryCancel();
+                              });
+                            },
                           ),
-                          items: _repeatDropDownMenuList,
-                          onChanged: (_value) {
-                            setState(() {
-                              logger.log(_editLog, 'repeat at: ${editDataPoint.location}');
-                              _song.setRepeat(editDataPoint.location!, _value ?? 1);
-                              _undoStackPush();
-                              _performMeasureEntryCancel();
-                            });
-                          },
-                          style: appTextStyle,
                         ),
                       ),
                   ],
@@ -2192,12 +2221,12 @@ class _Edit extends State<Edit> {
       child: Container(
           margin: _marginInsets,
           padding: _textPadding,
-          color: color,
+          color: sectionColor,
           child: _editTooltip(
               'modify or delete the measure',
               Text(
                 measure?.transpose(_key, _transpositionOffset) ?? ' ',
-                style: _chordBoldTextStyle,
+                style: sectionChordBoldTextStyle,
               ))),
     );
   }
@@ -2209,11 +2238,13 @@ class _Edit extends State<Edit> {
     }
     MeasureRepeat repeat = measureNode as MeasureRepeat;
 
-    Color color = getColorForSection(editDataPoint.location?.sectionVersion?.section);
+    Color sectionColor = getColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     if (_selectedEditDataPoint == editDataPoint) {
+      var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
+
       return Container(
-        color: color,
+        color: sectionColor,
         width: _entryWidth,
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -2226,7 +2257,7 @@ class _Edit extends State<Edit> {
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                   Text(
                     'Repeat: ',
-                    style: appTextStyle,
+                    style: sectionAppTextStyle,
                   ),
                   appButton(
                     'x2',
@@ -2235,7 +2266,7 @@ class _Edit extends State<Edit> {
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    background: color,
+                    backgroundColor: sectionColor,
                   ),
                   appButton(
                     'x3',
@@ -2244,7 +2275,7 @@ class _Edit extends State<Edit> {
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    background: color,
+                    backgroundColor: sectionColor,
                   ),
                   appButton(
                     'x4',
@@ -2253,7 +2284,7 @@ class _Edit extends State<Edit> {
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    background: color,
+                    backgroundColor: sectionColor,
                   ),
                 ]),
               ),
@@ -2303,6 +2334,7 @@ class _Edit extends State<Edit> {
       );
     }
 
+    var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     //  not editing this measureNode
     return InkWell(
       onTap: () {
@@ -2311,12 +2343,12 @@ class _Edit extends State<Edit> {
       child: Container(
           margin: _marginInsets,
           padding: _textPadding,
-          color: color,
+          color: sectionColor,
           child: _editTooltip(
               'modify or delete the measureNode',
               Text(
                 'x${repeat.repeats}',
-                style: _chordBoldTextStyle,
+                style: sectionChordBoldTextStyle,
               ))),
     );
   }
@@ -2457,6 +2489,8 @@ class _Edit extends State<Edit> {
     //  generate the widgets
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
+      var sectionChordTextStyle = _chordTextStyle.copyWith(backgroundColor: getColorForSection(sectionVersion.section));
+
       //fixme: deal with selectedSectionVersion;
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
         value: sectionVersion,
@@ -2467,12 +2501,12 @@ class _Edit extends State<Edit> {
             children: [
               Text(
                 sectionVersion.toString(),
-                style: _chordTextStyle,
+                style: sectionChordTextStyle,
               ),
               Text(
                 '${sectionVersion.section.formalName} '
                 '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
-                style: _chordTextStyle,
+                style: sectionChordTextStyle,
               ),
             ],
           ),
@@ -2925,13 +2959,12 @@ class _Edit extends State<Edit> {
 
   MeasureNode? _measureEntryNode;
 
-  TextStyle _chordBoldTextStyle = generateAppTextStyle();
+  TextStyle _chordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
   TextStyle _chordTextStyle = generateAppTextStyle();
   TextStyle _lyricsTextStyle = generateAppTextStyle();
   EdgeInsets _marginInsets = const EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
-  Color _sectionColor = Colors.blue;
   static const EdgeInsets appendInsets = EdgeInsets.all(0);
   static const EdgeInsets appendPadding = EdgeInsets.all(0);
 
@@ -2957,8 +2990,6 @@ class _Edit extends State<Edit> {
 
   SectionVersion _sectionVersion = SectionVersion.getDefault();
   ScaleNote _keyChordNote = music_key.Key.getDefault().getKeyScaleNote();
-
-  List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList = [];
 
   final List<DropdownMenuItem<int>> _repeatDropDownMenuList = [];
 

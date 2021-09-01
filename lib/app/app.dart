@@ -60,6 +60,8 @@ class App {
   App._internal();
 
   //  parameters to be evaluated before use
+  ThemeData themeData = ThemeData(); //  start with the default theme
+
   /// A single instance of the screen information class for common use.
   ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
   bool isEditReady = false;

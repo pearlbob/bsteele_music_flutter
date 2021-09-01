@@ -252,7 +252,7 @@ class BSteeleMusicApp extends StatelessWidget {
         create: (_) => AppOptions(),
         builder: (context, _) => MaterialApp(
               title: 'bsteele Music App',
-              theme: AppTheme().themeData,
+              theme: _app.themeData,
               home: const MyHomePage(title: 'bsteele Music App'),
               navigatorObservers: [playerRouteObserver],
 

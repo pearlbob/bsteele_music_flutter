@@ -53,7 +53,7 @@ class LyricsTable {
     _lyricSectionRowLocations = [];
     List<TableRow> rows = [];
     List<Widget> children = []; //  items for the current row
-    Color color = getColorForSection(Section.get(SectionEnum.chorus));
+    Color backgroundColor = getColorForSectionBackground(Section.get(SectionEnum.chorus));
 
     //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
@@ -79,9 +79,11 @@ class LyricsTable {
       }
 
       //  add the section heading
-      color = getColorForSection(chordSection.getSection());
-      var coloredChordTextStyle = _chordTextStyle.copyWith(backgroundColor: color);
-       _coloredLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: color);
+      backgroundColor = getColorForSectionBackground(chordSection.getSection());
+      var coloredChordTextStyle = _chordTextStyle.copyWith(
+          backgroundColor: backgroundColor, color: getColorForSection(chordSection.getSection()));
+      _coloredLyricsTextStyle = _lyricsTextStyle.copyWith(
+          backgroundColor: backgroundColor, color: getColorForSection(chordSection.getSection()));
       {
         var globalKey = GlobalObjectKey(lyricSection);
         if (sectionHeaderWidget != null) {
@@ -91,7 +93,7 @@ class LyricsTable {
             key: globalKey,
             margin: marginInsets,
             padding: textPadding,
-            color: color,
+            color: backgroundColor,
             child: Text(
               chordSection.sectionVersion.toString(),
               style: coloredChordTextStyle,
@@ -134,7 +136,7 @@ class LyricsTable {
                   key: _rowKey,
                   margin: marginInsets,
                   padding: textPadding,
-                  color: color,
+                  color: backgroundColor,
                   child: appWidget.transpose(
                     measure!,
                     displayMusicKey,
@@ -159,7 +161,7 @@ class LyricsTable {
           children.add(Container(
               margin: marginInsets,
               padding: textPadding,
-              color: color,
+              color: backgroundColor,
               child: textWidget(
                   lyricSection,
                   0, //  fixme: offset of lyrics lines within lyrics section
@@ -178,7 +180,7 @@ class LyricsTable {
               margin: marginInsets,
               padding: const EdgeInsets.all(2),
               width: _shortLyricsWidth,
-              color: color,
+              color: backgroundColor,
               child: Text(
                 rowLyrics,
                 style: _coloredLyricsTextStyle,

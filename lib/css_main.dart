@@ -1,11 +1,9 @@
-import 'dart:collection';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:csslib/visitor.dart' as visitor;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
+import 'app/app.dart';
 import 'app/app_theme.dart';
 
 final Map<String, String> cssSamplePropertyMap = {
@@ -35,7 +33,7 @@ class CssToCssFileApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'bsteele Music App',
-      theme: AppTheme().themeData,
+      theme: App().themeData,
       routes: const {},
     );
   }

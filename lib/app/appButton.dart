@@ -11,7 +11,6 @@ TextStyle appWarningTextStyle = generateAppTextStyle(fontSize: _defaultFontSize,
 TextStyle appErrorTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
 
 const double _defaultFontSize = 24;
-const _tooltipColor = Color(0xFFE8F5E9);
 
 final App _app = App();
 
@@ -38,17 +37,18 @@ Widget appTooltip({
   required Widget child,
   double? fontSize,
 }) {
+  var backgroundColor = getTooltipBackgroundColor() ?? const Color(0xFFE8F5E9);
   return Tooltip(
       message: message,
       child: child,
-      textStyle: generateAppTextStyle(backgroundColor: _tooltipColor),
+      textStyle: generateAppTextStyle(backgroundColor: backgroundColor),
 
       //  fixme: why is this broken on web?
       //waitDuration: Duration(seconds: 1, milliseconds: 200),
 
       verticalOffset: 75,
       decoration: BoxDecoration(
-          color: _tooltipColor,
+          color: backgroundColor,
           border: Border.all(),
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),

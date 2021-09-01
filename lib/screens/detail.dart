@@ -26,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-final _white = Paint()..color = Colors.white;
 final _black = Paint()..color = Colors.black;
 final _blue = Paint()..color = Colors.lightBlue.shade200;
 final _blackOutline = Paint()
@@ -198,8 +197,8 @@ class _State extends State<Detail> {
     SheetMusicPainter _sheetMusicPainter = SheetMusicPainter();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: appWidget.backBar(title:'${_app.selectedSong.title} (sheet music)'),
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appWidget.backBar(title: '${_app.selectedSong.title} (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -677,14 +676,21 @@ class _State extends State<Detail> {
     required VoidCallback? onPressed,
     double height = 2,
   }) {
+    var backgroundColor =
+        _app.themeData.elevatedButtonTheme.style?.backgroundColor ?? MaterialStateProperty.all(_blue.color);
+    var background = Paint()..color = backgroundColor.resolve({}) ?? _blue.color;
+    var foregroundColor =
+        _app.themeData.elevatedButtonTheme.style?.foregroundColor ?? MaterialStateProperty.all(Colors.black);
+    var foreground = Paint()..color = foregroundColor.resolve({}) ?? Colors.black;
+
     return ElevatedButton(
       child: Text(
         character,
         style: TextStyle(
           fontFamily: 'Bravura',
           fontSize: 50,
-          foreground: _black,
-          background: _blue,
+          background: background,
+          foreground: foreground,
           height: height,
           fontFeatures: const [ui.FontFeature.stylisticAlternates()],
         ),
@@ -693,7 +699,8 @@ class _State extends State<Detail> {
       onPressed: onPressed,
       style: ButtonStyle(
         fixedSize: MaterialStateProperty.all(const Size(40, 60)),
-        backgroundColor: MaterialStateProperty.all(_blue.color),
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_fontSize / 4), side: const BorderSide(color: Colors.grey))),
         elevation: MaterialStateProperty.all<double>(6),
@@ -752,7 +759,7 @@ class _FretBoardPainter extends CustomPainter {
     bassScale = width - 2 * margin;
 
     //  clear the fretboard
-    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), _white);
+    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), Paint()..color = _app.themeData.backgroundColor);
 
     //  frets
     _black.strokeWidth = 2;

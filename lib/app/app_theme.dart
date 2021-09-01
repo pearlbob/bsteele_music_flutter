@@ -14,8 +14,6 @@ const double _defaultFontSize = 24; // fixme: shouldn't be fixed
 Color? _defaultBackgroundColor = Colors.white;
 Color? _defaultForegroundColor = Colors.black;
 
-ThemeData _themeData = ThemeData(); //  start with the default theme
-
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: _defaultFontSize);
 
@@ -44,6 +42,7 @@ typedef CssActionFunction = void Function(CssProperty cssProperty, dynamic value
 enum CssClassEnum {
   oddTitleTextStyle,
   evenTitleTextStyle,
+  section,
   sectionIntro,
   sectionVerse,
   sectionPreChorus,
@@ -72,13 +71,22 @@ final _appbarColorProperty = CssProperty(CssSelectorEnum.element, 'appbar', 'col
 
 final _buttonFontScaleProperty =
     CssProperty(CssSelectorEnum.element, 'button', 'font-size', visitor.UnitTerm, 'button text font size');
-final _oddTitleTextProperty =
+final _oddTitleTextColorProperty =
+    CssProperty.fromCssClass(CssClassEnum.oddTitleTextStyle, 'color', Color, 'odd row foreground color');
+final _oddTitleTextBackgroundProperty =
     CssProperty.fromCssClass(CssClassEnum.oddTitleTextStyle, 'background-color', Color, 'odd row background color');
-final _evenTitleTextProperty =
+final _evenTitleTextColorProperty =
+    CssProperty.fromCssClass(CssClassEnum.evenTitleTextStyle, 'color', Color, 'even row foreground color');
+final _evenTitleTextBackgroundProperty =
     CssProperty.fromCssClass(CssClassEnum.evenTitleTextStyle, 'background-color', Color, 'even row background color');
 
 final _iconColorProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'color', Color, 'icon foreground color');
+final _iconSizeProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'size', visitor.UnitTerm, 'icon size');
 
+final _sectionColorProperty =
+    CssProperty.fromCssClass(CssClassEnum.section, 'color', Color, 'Section foreground color');
+final _sectionBackgroundProperty =
+    CssProperty.fromCssClass(CssClassEnum.section, 'background-color', Color, 'Section background color');
 final _sectionIntroBackgroundProperty =
     CssProperty.fromCssClass(CssClassEnum.sectionIntro, 'background-color', Color, 'Intro section background color');
 final _sectionVerseBackgroundProperty =
@@ -113,10 +121,12 @@ Map<CssProperty, dynamic> _propertyValueLookupMap = {
   _universalForegroundColorProperty: Colors.black,
   _universalTooltipBackgroundColorProperty: Colors.green[100],
   _universalFontSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
-  _oddTitleTextProperty: Colors.grey[100],
-  _evenTitleTextProperty: Colors.white,
+  _oddTitleTextBackgroundProperty: Colors.grey[100],
+  _evenTitleTextBackgroundProperty: Colors.white,
   _iconColorProperty: Colors.white,
+  _iconSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
 
+  _sectionColorProperty: Colors.black,
   _sectionIntroBackgroundProperty: _introColor,
   _sectionVerseBackgroundProperty: _verseColor,
   _sectionPreChorusBackgroundProperty: _preChorusColor,
@@ -130,10 +140,29 @@ Map<CssProperty, dynamic> _propertyValueLookupMap = {
 };
 
 Color getColorForSection(Section? section) {
-  return _getColorForSectionEnum(section?.sectionEnum ?? SectionEnum.chorus);
+  final Map<SectionEnum, CssProperty> sectionMap = {
+    // SectionEnum.intro: _sectionIntroColorProperty,
+    // SectionEnum.verse: _sectionVerseColorProperty,
+    // SectionEnum.preChorus: _sectionPreChorusColorProperty,
+    // SectionEnum.chorus: _sectionChorusColorProperty,
+    // SectionEnum.a: _sectionAColorProperty,
+    // SectionEnum.b: _sectionBColorProperty,
+    // SectionEnum.bridge: _sectionBridgeColorProperty,
+    // SectionEnum.coda: _sectionCodaColorProperty,
+    // SectionEnum.tag: _sectionTagColorProperty,
+    // SectionEnum.outro: _sectionOutroColorProperty,
+  };
+
+  var ret = _propertyValueLookupMap[sectionMap[section?.sectionEnum]];
+  ret ??= _propertyValueLookupMap[_sectionColorProperty]; //  inherited
+  return (ret != null && ret is Color) ? ret : Colors.black;
 }
 
-Color _getColorForSectionEnum(SectionEnum sectionEnum) {
+Color getColorForSectionBackground(Section? section) {
+  return _getColorForSectionBackgroundEnum(section?.sectionEnum ?? SectionEnum.chorus);
+}
+
+Color _getColorForSectionBackgroundEnum(SectionEnum sectionEnum) {
   final Map<SectionEnum, CssProperty> sectionMap = {
     SectionEnum.intro: _sectionIntroBackgroundProperty,
     SectionEnum.verse: _sectionVerseBackgroundProperty,
@@ -148,8 +177,14 @@ Color _getColorForSectionEnum(SectionEnum sectionEnum) {
   };
 
   var ret = _propertyValueLookupMap[sectionMap[sectionEnum]];
-  logger.d('_getColorForSectionEnum: $sectionEnum: $ret');
+  ret ??= _propertyValueLookupMap[_sectionBackgroundProperty]; //  inherited
+  logger.d('_getBackgroundColorForSectionEnum: $sectionEnum: $ret');
   return (ret != null && ret is Color) ? ret : Colors.white;
+}
+
+Color? getTooltipBackgroundColor() {
+  var ret = _propertyValueLookupMap[_universalTooltipBackgroundColorProperty];
+  return (ret != null && ret is Color) ? ret : null;
 }
 
 Color? _getColor(CssProperty property) {
@@ -209,7 +244,7 @@ class CssColor extends Color {
 }
 
 Icon appIcon(IconData icon, {Key? key, Color? color}) {
-  return Icon(icon, key: key, color: color ?? _getColor(_iconColorProperty));
+  return Icon(icon, key: key, color: color ?? _getColor(_iconColorProperty), size: _sizeLookup(_iconSizeProperty));
 }
 
 class AppTheme {
@@ -218,8 +253,6 @@ class AppTheme {
   factory AppTheme() {
     return _singleton;
   }
-
-  ThemeData get themeData => _themeData;
 
   AppTheme._internal();
 
@@ -327,10 +360,10 @@ class AppTheme {
     {
       var iconTheme = IconThemeData(color: _defaultForegroundColor);
       var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor));
-      var elevatedButtonThemeStyle = _themeData.elevatedButtonTheme.style ?? const ButtonStyle();
+      var elevatedButtonThemeStyle = _app.themeData.elevatedButtonTheme.style ?? const ButtonStyle();
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
-      _themeData = _themeData.copyWith(
+      _app.themeData = _app.themeData.copyWith(
         backgroundColor: _propertyValueLookupMap[universalBackgroundColorProperty],
         iconTheme: iconTheme,
         primaryColor: _propertyValueLookupMap[universalBackgroundColorProperty],
@@ -377,7 +410,7 @@ Color? lookupCssClassColor(CssClassEnum e, String propertyName) {
   return ret is Color ? ret : null;
 }
 
-double? _fontSizeLookup(CssProperty property) {
+double? _sizeLookup(CssProperty property) {
   var value = _propertyValueLookupMap[property];
   if (value == null) {
     return null;
@@ -406,14 +439,14 @@ ElevatedButton appButton(
   double? fontSize,
   required VoidCallback? onPressed,
 }) {
-  fontSize ??= _fontSizeLookup(_buttonFontScaleProperty) ?? _fontSizeLookup(_universalFontSizeProperty);
+  fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
   return ElevatedButton(
     key: key,
     child: Text(commandName,
-        style: _themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
+        style: _app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: onPressed,
-    style: _themeData.elevatedButtonTheme.style,
+    style: _app.themeData.elevatedButtonTheme.style,
   );
 }
 
@@ -439,10 +472,10 @@ TextStyle generateAppTextStyle({
   TextBaseline? textBaseline,
   String? fontFamily,
 }) {
-  fontSize ??= _fontSizeLookup(_universalFontSizeProperty) ?? _themeData.textTheme.bodyText2?.fontSize;
+  fontSize ??= _sizeLookup(_universalFontSizeProperty) ?? _app.themeData.textTheme.bodyText2?.fontSize;
   return TextStyle(
-    color: color ?? _themeData.textTheme.bodyText2?.color ?? _defaultForegroundColor,
-    backgroundColor: backgroundColor ?? _themeData.textTheme.bodyText2?.backgroundColor ?? _defaultBackgroundColor,
+    color: color ?? _app.themeData.textTheme.bodyText2?.color ?? _defaultForegroundColor,
+    backgroundColor: backgroundColor ?? _app.themeData.textTheme.bodyText2?.backgroundColor ?? _defaultBackgroundColor,
     fontSize: fontSize,
     fontWeight: fontWeight,
     fontStyle: fontStyle,
@@ -452,11 +485,15 @@ TextStyle generateAppTextStyle({
 }
 
 TextStyle oddTitleTextStyle({TextStyle? from}) {
-  return (from ?? generateAppTextStyle()).copyWith(backgroundColor: _propertyValueLookupMap[_oddTitleTextProperty]);
+  return (from ?? generateAppTextStyle()).copyWith(
+      backgroundColor: _propertyValueLookupMap[_oddTitleTextBackgroundProperty],
+      color: _propertyValueLookupMap[_oddTitleTextColorProperty]);
 }
 
 TextStyle evenTitleTextStyle({TextStyle? from}) {
-  return (from ?? generateAppTextStyle()).copyWith(backgroundColor: _propertyValueLookupMap[_evenTitleTextProperty]);
+  return (from ?? generateAppTextStyle()).copyWith(
+      backgroundColor: _propertyValueLookupMap[_evenTitleTextBackgroundProperty],
+      color: _propertyValueLookupMap[_evenTitleTextColorProperty]);
 }
 
 @immutable
@@ -548,7 +585,7 @@ void generateCssDocumentation() {
 /*
   bsteele Music App CSS style commands documentation
   
-  Commands are listed in increasing priority order.
+  Selectors are listed in increasing priority order.
 */
 
 ''');
@@ -638,13 +675,13 @@ List<CssAction> cssActions = [
     //  fixme: textThemes are not complete
     //  fixme: textThemes are identical!
     TextStyle? textStyle =
-        _textStyleActionStyle(p, value, _themeData.textTheme.bodyText1 ?? _themeData.textTheme.bodyText2);
+        _textStyleActionStyle(p, value, _app.themeData.textTheme.bodyText1 ?? _app.themeData.textTheme.bodyText2);
     var textTheme = TextTheme(
       bodyText1: textStyle,
       bodyText2: textStyle,
-      button: _themeData.textTheme.button,
+      button: _app.themeData.textTheme.button,
     );
-    _themeData = _themeData.copyWith(textTheme: textTheme);
+    _app.themeData = _app.themeData.copyWith(textTheme: textTheme);
     _propertyValueLookupMap[p] = value;
   }),
   CssAction(
@@ -652,57 +689,71 @@ List<CssAction> cssActions = [
           CssSelectorEnum.element, 'button', 'background-color', Color, 'universal (elevated) button background color'),
       (CssProperty p, value) {
     assert(value is Color);
-    _themeData = _themeData.copyWith(
+    _app.themeData = _app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
-            style: (_themeData.elevatedButtonTheme.style == null
+            style: (_app.themeData.elevatedButtonTheme.style == null
                 ? ElevatedButton.styleFrom(primary: value)
-                : _themeData.elevatedButtonTheme.style!.copyWith(backgroundColor: MaterialStateProperty.all(value)))));
+                : _app.themeData.elevatedButtonTheme.style!
+                    .copyWith(backgroundColor: MaterialStateProperty.all(value)))));
     _propertyValueLookupMap[p] = value;
   }),
   CssAction(
       CssProperty(CssSelectorEnum.element, 'button', 'color', Color, 'universal (elevated) button foreground color'),
       (CssProperty p, value) {
     assert(value is Color);
-    _themeData = _themeData.copyWith(
+    _app.themeData = _app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
-            style: (_themeData.elevatedButtonTheme.style == null
+            style: (_app.themeData.elevatedButtonTheme.style == null
                 ? ElevatedButton.styleFrom(onPrimary: value)
-                : _themeData.elevatedButtonTheme.style!.copyWith(foregroundColor: MaterialStateProperty.all(value)))));
+                : _app.themeData.elevatedButtonTheme.style!
+                    .copyWith(foregroundColor: MaterialStateProperty.all(value)))));
     _propertyValueLookupMap[p] = value;
   }),
   CssAction(_buttonFontScaleProperty, (CssProperty p, value) {
     //  fixme: textThemes are not complete
     //  fixme: textThemes are identical!
-    TextStyle? textStyle = _textStyleActionStyle(p, value, _themeData.textTheme.button);
+    TextStyle? textStyle = _textStyleActionStyle(p, value, _app.themeData.textTheme.button);
     var textTheme = TextTheme(
-      bodyText1: _themeData.textTheme.bodyText1,
-      bodyText2: _themeData.textTheme.bodyText2,
+      bodyText1: _app.themeData.textTheme.bodyText1,
+      bodyText2: _app.themeData.textTheme.bodyText2,
       button: textStyle,
     );
-    _themeData = _themeData.copyWith(textTheme: textTheme);
+    _app.themeData = _app.themeData.copyWith(textTheme: textTheme);
     _propertyValueLookupMap[p] = value;
   }),
 
   CssAction(_appbarBackgroundColorProperty, (CssProperty p, value) {
     assert(value is Color);
-    _themeData = _themeData.copyWith(appBarTheme: _themeData.appBarTheme.copyWith(backgroundColor: value));
+    _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(backgroundColor: value));
     _propertyValueLookupMap[p] = value;
   }),
   CssAction(_appbarColorProperty, (CssProperty p, value) {
     assert(value is Color);
-    _themeData = _themeData.copyWith(appBarTheme: _themeData.appBarTheme.copyWith(foregroundColor: value));
+    _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(foregroundColor: value));
     _propertyValueLookupMap[p] = value;
   }),
 
-  CssAction(_oddTitleTextProperty, (CssProperty p, value) {
+  CssAction(_oddTitleTextBackgroundProperty, (CssProperty p, value) {
     assert(value is Color);
     _propertyValueLookupMap[p] = value;
   }),
-  CssAction(_evenTitleTextProperty, (CssProperty p, value) {
+  CssAction(_oddTitleTextColorProperty, (CssProperty p, value) {
     assert(value is Color);
     _propertyValueLookupMap[p] = value;
   }),
-  CssAction(_sectionIntroBackgroundProperty, (CssProperty p, value) {
+  CssAction(_evenTitleTextBackgroundProperty, (CssProperty p, value) {
+    assert(value is Color);
+    _propertyValueLookupMap[p] = value;
+  }),
+  CssAction(_evenTitleTextColorProperty, (CssProperty p, value) {
+    assert(value is Color);
+    _propertyValueLookupMap[p] = value;
+  }),
+  CssAction(_sectionColorProperty, (CssProperty p, value) {
+    assert(value is Color);
+    _propertyValueLookupMap[p] = value;
+  }),
+  CssAction(_sectionBackgroundProperty, (CssProperty p, value) {
     assert(value is Color);
     _propertyValueLookupMap[p] = value;
   }),
@@ -748,6 +799,10 @@ List<CssAction> cssActions = [
   }),
   CssAction(_iconColorProperty, (CssProperty p, value) {
     assert(value is Color);
+    _propertyValueLookupMap[p] = value;
+  }),
+  CssAction(_iconSizeProperty, (CssProperty p, value) {
+    assert(value is visitor.UnitTerm);
     _propertyValueLookupMap[p] = value;
   }),
 ];

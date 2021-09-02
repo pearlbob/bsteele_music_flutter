@@ -6,14 +6,14 @@
 
 
 * {
-    background-color: white; /* type is Color, universal background color */
-    color: black; /* type is Color, universal foreground color */
-    font-size: 2vw; /* type is LengthTerm, universal text font size */
+    background-color: cyan; /* type is Color, universal background color */
+    color: blue; /* type is Color, universal foreground color */
+    font-size: 4vw; /* type is LengthTerm, universal text font size */
 }
 
 appbar {
-    background-color: #2196f3; /* type is Color, app bar background color */
-    color: white; /* type is Color, app bar foreground color */
+    background-color: orange; /* type is Color, app bar background color */
+    color: purple; /* type is Color, app bar foreground color */
 }
 
 button {
@@ -29,8 +29,8 @@ tooltip {
 }
 
 .oddTitleTextStyle, .evenTitleTextStyle {
-    background-color: white; /* type is Color, odd row background color */
-    color: black;
+    background-color: peru; /* type is Color, odd row background color */
+    color: mediumspringgreen;
     /*font-family: sans-serif;*/
     /*font-size: clamp( 12px, 1.5vw, 24px);*/
     /*font-style: normal;*/
@@ -49,16 +49,18 @@ tooltip {
 }
 
 .oddTitleTextStyle {
-    background-color: white; /* type is Color, odd row background color */
+    background-color: orangered; /* type is Color, odd row background color */
+    color: yellow;
 }
 
 .evenTitleTextStyle {
-    background-color: whitesmoke; /* type is Color, even row background color */
+    background-color: peru; /* type is Color, even row background color */
+    color: pink;
 }
 
 .icon {
-    color: white; /* type is Color, icon foreground color */
-    size: 2.25vw;
+    color: deeppink; /* type is Color, icon foreground color */
+    size: 3.25vw;
 }
 
 .section { /*  for all section types   */

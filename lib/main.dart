@@ -103,12 +103,16 @@ import 'app/appOptions.dart';
 import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
+const _environmentDefault = 'main';
+const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
+const _testCss = String.fromEnvironment('css', defaultValue: 'app.css');
+
 void main() async {
   Logger.level = Level.info;
 
   //  read the css theme data prior to the first build
   WidgetsFlutterBinding.ensureInitialized();
-  await AppTheme().init(); //  init the singleton
+  await AppTheme().init(css: _testCss); //  init the singleton
 
   //  run the app
   runApp(
@@ -228,6 +232,8 @@ final App _app = App();
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
+const _searchTextTooltipText ='Enter search text here.\n Title, artist and cover artist will be searched.';
+
 /// Song list sort types
 enum _SortType {
   byTitle,
@@ -235,9 +241,6 @@ enum _SortType {
   byLastChange,
   byComplexity,
 }
-
-const _environmentDefault = 'main';
-const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
 /// Display the list of songs to choose from.
 class BSteeleMusicApp extends StatelessWidget {
@@ -737,7 +740,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appWrapFullWidth([
           appWrap([
             appTooltip(
-              message: 'Enter search text here.\n Title, artist and cover artist will be searched.',
+              message: _searchTextTooltipText,
               child: IconButton(
                 icon: const Icon(Icons.search),
                 iconSize: fontSize,
@@ -748,26 +751,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 }),
               ),
             ),
-            SizedBox(
-              width: 10 * _titleBarFontSize,
-              //  limit text entry display length
-              child: TextField(
-                key: const ValueKey('searchText'),
-                //  for testing
-                controller: _searchTextFieldController,
-                focusNode: _searchFocusNode,
-                decoration: InputDecoration(
-                  hintText: "enter search text",
-                  hintStyle: searchTextStyle,
+            appTooltip(
+              message: _searchTextTooltipText,
+              child: SizedBox(
+                width: 10 * _titleBarFontSize,
+                //  limit text entry display length
+                child: TextField(
+                  key: const ValueKey('searchText'),
+                  //  for testing
+                  controller: _searchTextFieldController,
+                  focusNode: _searchFocusNode,
+                  decoration: InputDecoration(
+                    hintText: "enter search text",
+                    hintStyle: searchTextStyle,
+                  ),
+                  autofocus: true,
+                  style: titleTextStyle,
+                  onChanged: (text) {
+                    setState(() {
+                      logger.v('search text: "$text"');
+                      _searchSongs(_searchTextFieldController.text);
+                    });
+                  },
                 ),
-                autofocus: true,
-                style: titleTextStyle,
-                onChanged: (text) {
-                  setState(() {
-                    logger.v('search text: "$text"');
-                    _searchSongs(_searchTextFieldController.text);
-                  });
-                },
               ),
             ),
             appTooltip(

@@ -873,7 +873,7 @@ class _FretBoardPainter extends CustomPainter {
     canvas.drawCircle(offset, pressRadius, paint);
     canvas.drawCircle(offset, pressRadius, _blackOutline);
     if (noteChar != null && _isShowScaleNotes) {
-      // To create a paragraph of text, we use ParagraphBuilder.
+      // create a paragraph of text using ParagraphBuilder.
       final ui.ParagraphBuilder builder = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
       )

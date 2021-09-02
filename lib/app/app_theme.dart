@@ -10,12 +10,10 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 
 final App _app = App();
-const double _defaultFontSize = 24; // fixme: shouldn't be fixed
-Color? _defaultBackgroundColor = Colors.white;
-Color? _defaultForegroundColor = Colors.black;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
-    const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: _defaultFontSize);
+    const TextStyle(backgroundColor: Colors.white, color: Colors.black,
+        fontSize: 24);// fixme: shouldn't be fixed
 
 Map<String, List<String>> _propertyLiterals = {
   'text-align': ['left', 'right', 'center', 'justify', 'initial', 'inherit'],
@@ -60,8 +58,6 @@ final CssProperty universalBackgroundColorProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'background-color', Color, 'universal background color');
 final CssProperty _universalForegroundColorProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'color', Color, 'universal foreground color');
-final CssProperty _universalTooltipBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.universal, '*', 'tooltip-background-color', Color, 'universal tool tip background color');
 final _universalFontSizeProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'font-size', visitor.UnitTerm, 'universal text font size');
 
@@ -80,17 +76,24 @@ final _evenTitleTextColorProperty =
 final _evenTitleTextBackgroundProperty =
     CssProperty.fromCssClass(CssClassEnum.evenTitleTextStyle, 'background-color', Color, 'even row background color');
 
+final CssProperty _tooltipBackgroundColorProperty = CssProperty(
+    CssSelectorEnum.universal, 'tooltip', 'background-color', CssColor, 'tool tip background color');
+final CssProperty _tooltipColorProperty = CssProperty(
+    CssSelectorEnum.universal, 'tooltip', 'color', CssColor, 'tool tip foreground color');
+final CssProperty _tooltipFontSizeProperty = CssProperty(
+    CssSelectorEnum.universal, 'tooltip', 'font-size', visitor.UnitTerm, 'tool tip text font size');
+
 final _iconColorProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'color', Color, 'icon foreground color');
 final _iconSizeProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'size', visitor.UnitTerm, 'icon size');
 
 final _sectionColorProperty =
     CssProperty.fromCssClass(CssClassEnum.section, 'color', Color, 'Section foreground color');
 final _sectionBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.section, 'background-color', Color, 'Section background color');
+    CssProperty.fromCssClass(CssClassEnum.section, 'background-color', CssColor, 'Section background color');
 final _sectionIntroBackgroundProperty =
     CssProperty.fromCssClass(CssClassEnum.sectionIntro, 'background-color', Color, 'Intro section background color');
 final _sectionVerseBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionVerse, 'background-color', Color, 'Verse section background color');
+    CssProperty.fromCssClass(CssClassEnum.sectionVerse, 'background-color', CssColor, 'Verse section background color');
 final _sectionPreChorusBackgroundProperty = CssProperty.fromCssClass(
     CssClassEnum.sectionPreChorus, 'background-color', Color, 'PreChorus section background color');
 final _sectionChorusBackgroundProperty =
@@ -119,12 +122,16 @@ Map<CssProperty, dynamic> _propertyValueLookupMap = {
   //  default values only
   universalBackgroundColorProperty: Colors.white,
   _universalForegroundColorProperty: Colors.black,
-  _universalTooltipBackgroundColorProperty: Colors.green[100],
+
   _universalFontSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
   _oddTitleTextBackgroundProperty: Colors.grey[100],
   _evenTitleTextBackgroundProperty: Colors.white,
   _iconColorProperty: Colors.white,
   _iconSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
+
+  _tooltipBackgroundColorProperty: Colors.green[100],
+  _tooltipColorProperty: Colors.black,
+  _tooltipFontSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
 
   _sectionColorProperty: Colors.black,
   _sectionIntroBackgroundProperty: _introColor,
@@ -182,10 +189,6 @@ Color _getColorForSectionBackgroundEnum(SectionEnum sectionEnum) {
   return (ret != null && ret is Color) ? ret : Colors.white;
 }
 
-Color? getTooltipBackgroundColor() {
-  var ret = _propertyValueLookupMap[_universalTooltipBackgroundColorProperty];
-  return (ret != null && ret is Color) ? ret : null;
-}
 
 Color? _getColor(CssProperty property) {
   var ret = _propertyValueLookupMap[property];
@@ -256,8 +259,8 @@ class AppTheme {
 
   AppTheme._internal();
 
-  Future init() async {
-    String cssAsString = await loadString('lib/assets/app.css');
+  Future init({String css='app.css'}) async {
+    String cssAsString = await loadString('lib/assets/$css');
     List<parser.Message> errors = [];
     var stylesheet = parser.parse(cssAsString, errors: errors);
     for (var error in errors) {
@@ -358,16 +361,14 @@ class AppTheme {
     _logActions();
 
     {
-      var iconTheme = IconThemeData(color: _defaultForegroundColor);
-      var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor));
+      // var iconTheme = IconThemeData(color: _defaultForegroundColor); fixme
+      // var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor)); fixme
       var elevatedButtonThemeStyle = _app.themeData.elevatedButtonTheme.style ?? const ButtonStyle();
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
       _app.themeData = _app.themeData.copyWith(
         backgroundColor: _propertyValueLookupMap[universalBackgroundColorProperty],
-        iconTheme: iconTheme,
         primaryColor: _propertyValueLookupMap[universalBackgroundColorProperty],
-        radioTheme: radioTheme,
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
       );
     }
@@ -474,13 +475,21 @@ TextStyle generateAppTextStyle({
 }) {
   fontSize ??= _sizeLookup(_universalFontSizeProperty) ?? _app.themeData.textTheme.bodyText2?.fontSize;
   return TextStyle(
-    color: color ?? _app.themeData.textTheme.bodyText2?.color ?? _defaultForegroundColor,
-    backgroundColor: backgroundColor ?? _app.themeData.textTheme.bodyText2?.backgroundColor ?? _defaultBackgroundColor,
+    color: color ?? _app.themeData.textTheme.bodyText2?.color,
+    backgroundColor: backgroundColor ?? _app.themeData.textTheme.bodyText2?.backgroundColor,
     fontSize: fontSize,
     fontWeight: fontWeight,
     fontStyle: fontStyle,
     textBaseline: textBaseline,
     fontFamily: fontFamily,
+  );
+}
+
+
+TextStyle generateTooltipTextStyle() {
+  return generateAppTextStyle(color: _propertyValueLookupMap[_tooltipColorProperty],
+    backgroundColor: _propertyValueLookupMap[_tooltipBackgroundColorProperty],
+    fontSize: _sizeLookup(_tooltipFontSizeProperty),
   );
 }
 
@@ -525,12 +534,31 @@ class CssProperty implements Comparable<CssProperty> {
     if (ret != 0) {
       return ret;
     }
-    ret = type.toString().compareTo(other.type.toString());
-    if (ret != 0) {
-      return ret;
+    if (type != other.type) {
+      ret = type.toString().compareTo(other.type.toString());
+      if (ret != 0) {
+        return ret;
+      }
     }
     return 0;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CssProperty &&
+          runtimeType == other.runtimeType &&
+          selector == other.selector &&
+          selectorName == other.selectorName &&
+          property == other.property
+      // &&
+      // type == other.type
+      ;
+
+  @override
+  int get hashCode => selector.hashCode ^ selectorName.hashCode ^ property.hashCode
+      // ^ type.hashCode
+      ;
 
   @override
   String toString() {
@@ -656,21 +684,6 @@ TextStyle? _textStyleActionStyle(CssProperty p, dynamic value, TextStyle? defaul
 }
 
 List<CssAction> cssActions = [
-  //  universal
-  CssAction(universalBackgroundColorProperty, (p, value) {
-    assert(value is Color);
-    _defaultBackgroundColor = value; //fixme:
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_universalForegroundColorProperty, (p, value) {
-    assert(value is Color);
-    _defaultForegroundColor = value; //fixme:
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_universalTooltipBackgroundColorProperty, (p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
   CssAction(_universalFontSizeProperty, (p, value) {
     //  fixme: textThemes are not complete
     //  fixme: textThemes are identical!
@@ -709,7 +722,7 @@ List<CssAction> cssActions = [
                     .copyWith(foregroundColor: MaterialStateProperty.all(value)))));
     _propertyValueLookupMap[p] = value;
   }),
-  CssAction(_buttonFontScaleProperty, (CssProperty p, value) {
+  CssAction(_buttonFontScaleProperty, (p, value) {
     //  fixme: textThemes are not complete
     //  fixme: textThemes are identical!
     TextStyle? textStyle = _textStyleActionStyle(p, value, _app.themeData.textTheme.button);
@@ -722,87 +735,14 @@ List<CssAction> cssActions = [
     _propertyValueLookupMap[p] = value;
   }),
 
-  CssAction(_appbarBackgroundColorProperty, (CssProperty p, value) {
+  CssAction(_appbarBackgroundColorProperty, (p, value) {
     assert(value is Color);
     _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(backgroundColor: value));
     _propertyValueLookupMap[p] = value;
   }),
-  CssAction(_appbarColorProperty, (CssProperty p, value) {
+  CssAction(_appbarColorProperty, (p, value) {
     assert(value is Color);
     _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(foregroundColor: value));
-    _propertyValueLookupMap[p] = value;
-  }),
-
-  CssAction(_oddTitleTextBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_oddTitleTextColorProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_evenTitleTextBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_evenTitleTextColorProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionColorProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionIntroBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionVerseBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionPreChorusBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionChorusBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionABackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionBBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionBridgeBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionCodaBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionTagBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_sectionOutroBackgroundProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_iconColorProperty, (CssProperty p, value) {
-    assert(value is Color);
-    _propertyValueLookupMap[p] = value;
-  }),
-  CssAction(_iconSizeProperty, (CssProperty p, value) {
-    assert(value is visitor.UnitTerm);
     _propertyValueLookupMap[p] = value;
   }),
 ];
@@ -819,13 +759,15 @@ void applyAction(
       selector == e.cssProperty.selector &&
       selectorName == e.cssProperty.selectorName &&
       property == e.cssProperty.property)) {
+    logger.i('${action.toString()} /*${value.runtimeType}*/ $value;');
     action.cssActionFunction(action.cssProperty, value);
     _appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
-    logger.v('${action.toString()} /*${value.runtimeType}*/ $value;');
+
     applications++;
   }
   if (applications == 0) {
-    logger.e('CSS action not found: '
+    _propertyValueLookupMap[CssProperty(selector, selectorName, property, value.runtimeType, 'unknown')] = value;
+    logger.d('CSS action assumed: '
         '${cssSelectorCharacterMap[selector] ?? ''}$selectorName.$property: $value;');
   }
 }

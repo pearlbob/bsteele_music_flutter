@@ -12,14 +12,56 @@ import 'app.dart';
 final App _app = App();
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
-    const TextStyle(backgroundColor: Colors.white, color: Colors.black,
-        fontSize: 24);// fixme: shouldn't be fixed
+    const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
 
 Map<String, List<String>> _propertyLiterals = {
-  'text-align': ['left', 'right', 'center', 'justify', 'initial', 'inherit'],
-  'font-weight': ['normal', 'bold', 'bolder', 'lighter', 'initial', 'inherit'],
-  'border-style': ['dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset', 'none', 'hidden'],
+  'text-align': [
+    'left',
+    'right',
+    'center',
+    'justify', /*'initial', 'inherit'*/
+  ],
+  'font-weight': [
+    'normal',
+    'bold',
+    'bolder',
+    'lighter', /*'initial', 'inherit'*/
+  ],
+  'font-style': [
+    'normal',
+    'italic', /*'oblique', 'initial', 'inherit'*/
+  ],
+  'border-style': [
+    'none',
+    'solid', /*'dotted', 'dashed', 'double', 'groove', 'ridge', 'inset', 'outset', 'hidden'*/
+  ],
 };
+
+TextAlign? textAlignParse(String value) {
+  return Util.enumFromString(value, TextAlign.values);
+}
+
+FontWeight? _fontWeight(String value) {
+  switch (value) {
+    case 'normal':
+      return FontWeight.normal;
+    case 'bold':
+      return FontWeight.bold;
+    case 'bolder':
+      return FontWeight.w900;
+    case 'lighter':
+      return FontWeight.w100;
+  }
+  return null;
+}
+
+FontStyle? _fontStyle(String value) {
+  return Util.enumFromString(value, FontStyle.values);
+}
+
+BorderStyle? borderStyle(String value) {
+  return Util.enumFromString(value, BorderStyle.values);
+}
 
 enum CssSelectorEnum {
   universal, //  *
@@ -38,8 +80,8 @@ const Map<CssSelectorEnum, String> cssSelectorCharacterMap = {
 typedef CssActionFunction = void Function(CssProperty cssProperty, dynamic value);
 
 enum CssClassEnum {
-  oddTitleTextStyle,
-  evenTitleTextStyle,
+  oddTitleText,
+  evenTitleText,
   section,
   sectionIntro,
   sectionVerse,
@@ -55,61 +97,136 @@ enum CssClassEnum {
 }
 
 final CssProperty universalBackgroundColorProperty =
-    CssProperty(CssSelectorEnum.universal, '*', 'background-color', Color, 'universal background color');
+    CssProperty(CssSelectorEnum.universal, '*', 'background-color', Color, description: 'universal background color');
 final CssProperty _universalForegroundColorProperty =
-    CssProperty(CssSelectorEnum.universal, '*', 'color', Color, 'universal foreground color');
+    CssProperty(CssSelectorEnum.universal, '*', 'color', Color, description: 'universal foreground color');
 final _universalFontSizeProperty =
-    CssProperty(CssSelectorEnum.universal, '*', 'font-size', visitor.UnitTerm, 'universal text font size');
+    CssProperty(CssSelectorEnum.universal, '*', 'font-size', visitor.UnitTerm, description: 'universal text font size');
+final CssProperty _universalFontWeightProperty = CssProperty(
+    CssSelectorEnum.classSelector, '*', 'font-weight', visitor.UnitTerm,
+    description: 'universal text font weight');
+final CssProperty _universalFontStyleProperty = CssProperty(
+    CssSelectorEnum.classSelector, '*', 'font-style', visitor.UnitTerm,
+    description: 'universal text font style, normal or italic');
 
 final _appbarBackgroundColorProperty =
-    CssProperty(CssSelectorEnum.element, 'appbar', 'background-color', Color, 'app bar background color');
-final _appbarColorProperty = CssProperty(CssSelectorEnum.element, 'appbar', 'color', Color, 'app bar foreground color');
+    CssProperty(CssSelectorEnum.element, 'appbar', 'background-color', Color, description: 'app bar background color');
+final _appbarColorProperty =
+    CssProperty(CssSelectorEnum.element, 'appbar', 'color', Color, description: 'app bar foreground color');
 
 final _buttonFontScaleProperty =
-    CssProperty(CssSelectorEnum.element, 'button', 'font-size', visitor.UnitTerm, 'button text font size');
+    CssProperty(CssSelectorEnum.element, 'button', 'font-size', visitor.UnitTerm, description: 'button text font size');
 final _oddTitleTextColorProperty =
-    CssProperty.fromCssClass(CssClassEnum.oddTitleTextStyle, 'color', Color, 'odd row foreground color');
-final _oddTitleTextBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.oddTitleTextStyle, 'background-color', Color, 'odd row background color');
+    CssProperty.fromCssClass(CssClassEnum.oddTitleText, 'color', Color, description: 'odd row foreground color');
+final _oddTitleTextBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.oddTitleText, 'background-color', Color,
+    description: 'odd row background color');
 final _evenTitleTextColorProperty =
-    CssProperty.fromCssClass(CssClassEnum.evenTitleTextStyle, 'color', Color, 'even row foreground color');
-final _evenTitleTextBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.evenTitleTextStyle, 'background-color', Color, 'even row background color');
+    CssProperty.fromCssClass(CssClassEnum.evenTitleText, 'color', Color, description: 'even row foreground color');
+final _evenTitleTextBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.evenTitleText, 'background-color', Color,
+    description: 'even row background color');
 
 final CssProperty _tooltipBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.universal, 'tooltip', 'background-color', CssColor, 'tool tip background color');
-final CssProperty _tooltipColorProperty = CssProperty(
-    CssSelectorEnum.universal, 'tooltip', 'color', CssColor, 'tool tip foreground color');
+    CssSelectorEnum.classSelector, 'tooltip', 'background-color', CssColor,
+    description: 'tool tip background color');
+final CssProperty _tooltipColorProperty =
+    CssProperty(CssSelectorEnum.classSelector, 'tooltip', 'color', CssColor, description: 'tool tip foreground color');
 final CssProperty _tooltipFontSizeProperty = CssProperty(
-    CssSelectorEnum.universal, 'tooltip', 'font-size', visitor.UnitTerm, 'tool tip text font size');
+    CssSelectorEnum.classSelector, 'tooltip', 'font-size', visitor.UnitTerm,
+    description: 'tool tip text font size');
 
-final _iconColorProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'color', Color, 'icon foreground color');
-final _iconSizeProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'size', visitor.UnitTerm, 'icon size');
+final CssProperty _chordNoteColorProperty = CssProperty(CssSelectorEnum.classSelector, 'chordNote', 'color', CssColor,
+    description: 'chord note foreground color');
+final CssProperty _chordNoteBackgroundColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordNote', 'background-color', CssColor,
+    description: 'chord note background color');
+final CssProperty _chordNoteFontSizeProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordNote', 'font-size', visitor.UnitTerm,
+    description: 'chord note text font size');
+final CssProperty _chordNoteFontWeightProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordNote', 'font-weight', visitor.UnitTerm,
+    description: 'chord note text font weight');
+final CssProperty _chordNoteFontStyleProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordNote', 'font-style', visitor.UnitTerm,
+    description: 'chord note text font style, normal or italic');
+
+final CssProperty _chordDescriptorColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'color', CssColor,
+    description: 'chord descriptor foreground color');
+final CssProperty _chordDescriptorBackgroundColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'background-color', CssColor,
+    description: 'chord descriptor background color');
+final CssProperty _chordDescriptorFontSizeProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'font-size', visitor.UnitTerm,
+    description: 'chord descriptor text font size');
+final CssProperty _chordDescriptorFontWeightProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'font-weight', visitor.UnitTerm,
+    description: 'chord descriptor text font weight');
+final CssProperty _chordDescriptorFontStyleProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'font-style', visitor.UnitTerm,
+    description: 'chord descriptor text font style, normal or italic');
+
+final CssProperty _chordSlashNoteColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'color', CssColor,
+    description: 'chord slash note foreground color');
+final CssProperty _chordSlashNoteBackgroundColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'background-color', CssColor,
+    description: 'chord slash note background color');
+final CssProperty _chordSlashNoteFontSizeProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'font-size', visitor.UnitTerm,
+    description: 'chord slash note text font size');
+final CssProperty _chordSlashNoteFontWeightProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'font-weight', visitor.UnitTerm,
+    description: 'chord slash note text font weight');
+final CssProperty _chordSlashNoteFontStyleProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'font-style', visitor.UnitTerm,
+    description: 'chord slash note text font style, normal or italic');
+
+final CssProperty _lyricsColorProperty = CssProperty(CssSelectorEnum.classSelector, 'lyrics', 'color', CssColor,
+    description: 'lyrics foreground color');
+final CssProperty _lyricsBackgroundColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'lyrics', 'background-color', CssColor,
+    description: 'lyrics background color');
+final CssProperty _lyricsFontSizeProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'lyrics', 'font-size', visitor.UnitTerm,
+    description: 'lyrics text font size');
+final CssProperty _lyricsFontWeightProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'lyrics', 'font-weight', visitor.UnitTerm,
+    description: 'lyrics text font weight');
+final CssProperty _lyricsFontStyleProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'lyrics', 'font-style', visitor.UnitTerm,
+    description: 'lyrics text font style, normal or italic');
+
+final _iconColorProperty =
+    CssProperty.fromCssClass(CssClassEnum.icon, 'color', Color, description: 'icon foreground color');
+final _iconSizeProperty =
+    CssProperty.fromCssClass(CssClassEnum.icon, 'size', visitor.UnitTerm, description: 'icon size');
 
 final _sectionColorProperty =
-    CssProperty.fromCssClass(CssClassEnum.section, 'color', Color, 'Section foreground color');
-final _sectionBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.section, 'background-color', CssColor, 'Section background color');
-final _sectionIntroBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionIntro, 'background-color', Color, 'Intro section background color');
-final _sectionVerseBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionVerse, 'background-color', CssColor, 'Verse section background color');
+    CssProperty.fromCssClass(CssClassEnum.section, 'color', Color, description: 'Section foreground color');
+final _sectionBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.section, 'background-color', CssColor,
+    description: 'Section background color');
+final _sectionIntroBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionIntro, 'background-color', Color,
+    description: 'Intro section background color');
+final _sectionVerseBackgroundProperty = CssProperty.fromCssClass(
+    CssClassEnum.sectionVerse, 'background-color', CssColor,
+    description: 'Verse section background color');
 final _sectionPreChorusBackgroundProperty = CssProperty.fromCssClass(
-    CssClassEnum.sectionPreChorus, 'background-color', Color, 'PreChorus section background color');
-final _sectionChorusBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionChorus, 'background-color', Color, 'Chorus section background color');
-final _sectionABackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionA, 'background-color', Color, 'A section background color');
-final _sectionBBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionB, 'background-color', Color, 'B section background color');
-final _sectionBridgeBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionBridge, 'background-color', Color, 'Bridge section background color');
-final _sectionCodaBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionCoda, 'background-color', Color, 'Coda section background color');
-final _sectionTagBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionTag, 'background-color', Color, 'Tag section background color');
-final _sectionOutroBackgroundProperty =
-    CssProperty.fromCssClass(CssClassEnum.sectionOutro, 'background-color', Color, 'Outro section background color');
+    CssClassEnum.sectionPreChorus, 'background-color', Color,
+    description: 'PreChorus section background color');
+final _sectionChorusBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionChorus, 'background-color', Color,
+    description: 'Chorus section background color');
+final _sectionABackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionA, 'background-color', Color,
+    description: 'A section background color');
+final _sectionBBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionB, 'background-color', Color,
+    description: 'B section background color');
+final _sectionBridgeBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionBridge, 'background-color', Color,
+    description: 'Bridge section background color');
+final _sectionCodaBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionCoda, 'background-color', Color,
+    description: 'Coda section background color');
+final _sectionTagBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionTag, 'background-color', Color,
+    description: 'Tag section background color');
+final _sectionOutroBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionOutro, 'background-color', Color,
+    description: 'Outro section background color');
 const Color _verseColor = Color(0xfff5e6b8);
 const Color _chorusColor = Color(0xffffffff);
 const Color _bridgeColor = Color(0xffd2f5cd);
@@ -189,10 +306,21 @@ Color _getColorForSectionBackgroundEnum(SectionEnum sectionEnum) {
   return (ret != null && ret is Color) ? ret : Colors.white;
 }
 
-
 Color? _getColor(CssProperty property) {
   var ret = _propertyValueLookupMap[property];
   return (ret != null && ret is Color) ? ret : null;
+}
+
+EdgeInsetsGeometry? getMeasureMargin() {
+  var property = CssProperty(CssSelectorEnum.classSelector, 'measure', 'margin', visitor.LengthTerm);
+  double? w = _sizeLookup(property);
+  return w == null ? null : EdgeInsets.all(w);
+}
+
+EdgeInsetsGeometry? getMeasurePadding() {
+  var property = CssProperty(CssSelectorEnum.classSelector, 'measure', 'padding', visitor.LengthTerm);
+  double? w = _sizeLookup(property);
+  return w == null ? null : EdgeInsets.all(w);
 }
 
 enum AppKeyEnum {
@@ -259,7 +387,7 @@ class AppTheme {
 
   AppTheme._internal();
 
-  Future init({String css='app.css'}) async {
+  Future init({String css = 'app.css'}) async {
     String cssAsString = await loadString('lib/assets/$css');
     List<parser.Message> errors = [];
     var stylesheet = parser.parse(cssAsString, errors: errors);
@@ -315,8 +443,9 @@ class AppTheme {
                               t.characterAt(2) +
                               t.characterAt(2);
                           int i = int.parse(s.toString(), radix: 16);
-                          applyAction(cssSelector, selector.simpleSelector.name, property, CssColor(i),
-                              rawValue: hexColorTerm.span?.text);
+                          var name = selector.simpleSelector.name;
+                          name = name == '*' ? '' : name;
+                          applyAction(cssSelector, name, property, CssColor(i), rawValue: hexColorTerm.span?.text);
                         } else if (hexColorTerm.value is int) {
                           int i = hexColorTerm.value;
                           applyAction(cssSelector, selector.simpleSelector.name, property, CssColor(i),
@@ -358,7 +487,7 @@ class AppTheme {
       }
     }
 
-    _logActions();
+    //_logActions();
 
     {
       // var iconTheme = IconThemeData(color: _defaultForegroundColor); fixme
@@ -433,6 +562,10 @@ double? _sizeLookup(CssProperty property) {
   }
 }
 
+double lookupIconSize() {
+  return _sizeLookup(_iconSizeProperty) ?? 24; //  fixme
+}
+
 ElevatedButton appButton(
   String commandName, {
   Key? key,
@@ -485,21 +618,81 @@ TextStyle generateAppTextStyle({
   );
 }
 
-
 TextStyle generateTooltipTextStyle() {
-  return generateAppTextStyle(color: _propertyValueLookupMap[_tooltipColorProperty],
+  return generateAppTextStyle(
+    color: _propertyValueLookupMap[_tooltipColorProperty],
     backgroundColor: _propertyValueLookupMap[_tooltipBackgroundColorProperty],
     fontSize: _sizeLookup(_tooltipFontSizeProperty),
   );
 }
 
-TextStyle oddTitleTextStyle({TextStyle? from}) {
+TextStyle generateChordTextStyle({double? fontSize}) {
+  return generateAppTextStyle(
+    color: _propertyValueLookupMap[_chordNoteColorProperty],
+    backgroundColor: _propertyValueLookupMap[_chordNoteBackgroundColorProperty] ??
+        _propertyValueLookupMap[universalBackgroundColorProperty],
+    fontSize: fontSize ?? _sizeLookup(_chordNoteFontSizeProperty),
+    fontWeight: _fontWeight(_propertyValueLookupMap[_chordNoteFontWeightProperty]) ??
+        _fontWeight(_propertyValueLookupMap[_universalFontSizeProperty]),
+    fontStyle: _fontStyle(_propertyValueLookupMap[_chordNoteFontStyleProperty]) ??
+        _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
+  );
+}
+
+TextStyle generateLyricsTextStyle({double? fontSize}) {
+  return generateAppTextStyle(
+    color: _propertyValueLookupMap[_lyricsColorProperty],
+    backgroundColor: _propertyValueLookupMap[_lyricsBackgroundColorProperty] ??
+        _propertyValueLookupMap[universalBackgroundColorProperty],
+    fontSize: fontSize ?? _sizeLookup(_lyricsFontSizeProperty),
+    fontWeight: _fontWeight(_propertyValueLookupMap[_lyricsFontWeightProperty]) ??
+        _fontWeight(_propertyValueLookupMap[_universalFontSizeProperty]),
+    fontStyle: _fontStyle(_propertyValueLookupMap[_lyricsFontStyleProperty]) ??
+        _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
+  );
+}
+
+TextStyle generateChordDescriptorTextStyle({double? fontSize}) {
+  return generateAppTextStyle(
+    color: _propertyValueLookupMap[_chordDescriptorColorProperty] ??
+        _propertyValueLookupMap[_universalForegroundColorProperty],
+    backgroundColor: _propertyValueLookupMap[_chordDescriptorBackgroundColorProperty] ??
+        _propertyValueLookupMap[_chordNoteBackgroundColorProperty] ??
+        _propertyValueLookupMap[universalBackgroundColorProperty],
+    fontSize: fontSize ?? _sizeLookup(_chordDescriptorFontSizeProperty) ?? _sizeLookup(_chordNoteFontSizeProperty),
+    fontWeight: _fontWeight(_propertyValueLookupMap[_chordDescriptorFontWeightProperty]) ??
+        _fontWeight(_propertyValueLookupMap[_chordNoteFontWeightProperty]) ??
+        _fontWeight(_propertyValueLookupMap[_universalFontWeightProperty]),
+    fontStyle: _fontStyle(_propertyValueLookupMap[_chordDescriptorFontStyleProperty]) ??
+        _fontStyle(_propertyValueLookupMap[_chordNoteFontStyleProperty]) ??
+        _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
+  );
+}
+
+TextStyle generateChordSlashNoteTextStyle({double? fontSize}) {
+  return generateAppTextStyle(
+    color: _propertyValueLookupMap[_chordSlashNoteColorProperty] ??
+        _propertyValueLookupMap[_universalForegroundColorProperty],
+    backgroundColor: _propertyValueLookupMap[_chordSlashNoteBackgroundColorProperty] ??
+        _propertyValueLookupMap[_chordNoteBackgroundColorProperty] ??
+        _propertyValueLookupMap[universalBackgroundColorProperty],
+    fontSize: fontSize ?? _sizeLookup(_chordSlashNoteFontSizeProperty) ?? _sizeLookup(_chordNoteFontSizeProperty),
+    fontWeight: _fontWeight(_propertyValueLookupMap[_chordSlashNoteFontWeightProperty]) ??
+        _fontWeight(_propertyValueLookupMap[_chordNoteFontWeightProperty]) ??
+        _fontWeight(_propertyValueLookupMap[_universalFontSizeProperty]),
+    fontStyle: _fontStyle(_propertyValueLookupMap[_chordSlashNoteFontStyleProperty]) ??
+        _fontStyle(_propertyValueLookupMap[_chordNoteFontStyleProperty]) ??
+        _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
+  );
+}
+
+TextStyle oddTitleText({TextStyle? from}) {
   return (from ?? generateAppTextStyle()).copyWith(
       backgroundColor: _propertyValueLookupMap[_oddTitleTextBackgroundProperty],
       color: _propertyValueLookupMap[_oddTitleTextColorProperty]);
 }
 
-TextStyle evenTitleTextStyle({TextStyle? from}) {
+TextStyle evenTitleText({TextStyle? from}) {
   return (from ?? generateAppTextStyle()).copyWith(
       backgroundColor: _propertyValueLookupMap[_evenTitleTextBackgroundProperty],
       color: _propertyValueLookupMap[_evenTitleTextColorProperty]);
@@ -507,15 +700,19 @@ TextStyle evenTitleTextStyle({TextStyle? from}) {
 
 @immutable
 class CssProperty implements Comparable<CssProperty> {
-  CssProperty(this.selector, this.selectorName, this.property, this.type, this.description)
+  CssProperty(this.selector, this.selectorName, this.property, this.type, {this.description})
       : _id = '${cssSelectorCharacterMap[selector] ?? ''}${selector == CssSelectorEnum.universal ? '' : selectorName}'
-            '.$property';
+            '.$property' {
+    allCssProperties.add(this);
+  }
 
-  CssProperty.fromCssClass(CssClassEnum cssClass, this.property, this.type, this.description)
+  CssProperty.fromCssClass(CssClassEnum cssClass, this.property, this.type, {this.description})
       : selector = CssSelectorEnum.classSelector,
         selectorName = Util.enumToString(cssClass),
         _id = '${cssSelectorCharacterMap[cssSelectorCharacterMap[CssSelectorEnum.classSelector]] ?? ''}'
-            '${Util.enumToString(cssClass)}.$property';
+            '${Util.enumToString(cssClass)}.$property' {
+    allCssProperties.add(this);
+  }
 
   @override
   int compareTo(CssProperty other) {
@@ -569,10 +766,12 @@ class CssProperty implements Comparable<CssProperty> {
   final String selectorName;
   final String property;
   final Type type;
-  final String description;
+  final String? description;
 
   String get id => _id;
   final String _id;
+
+  static SplayTreeSet<CssProperty> allCssProperties = SplayTreeSet();
 }
 
 class CssAction implements Comparable<CssAction> {
@@ -698,9 +897,8 @@ List<CssAction> cssActions = [
     _propertyValueLookupMap[p] = value;
   }),
   CssAction(
-      CssProperty(
-          CssSelectorEnum.element, 'button', 'background-color', Color, 'universal (elevated) button background color'),
-      (CssProperty p, value) {
+      CssProperty(CssSelectorEnum.element, 'button', 'background-color', Color,
+          description: 'universal (elevated) button background color'), (CssProperty p, value) {
     assert(value is Color);
     _app.themeData = _app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -711,8 +909,8 @@ List<CssAction> cssActions = [
     _propertyValueLookupMap[p] = value;
   }),
   CssAction(
-      CssProperty(CssSelectorEnum.element, 'button', 'color', Color, 'universal (elevated) button foreground color'),
-      (CssProperty p, value) {
+      CssProperty(CssSelectorEnum.element, 'button', 'color', Color,
+          description: 'universal (elevated) button foreground color'), (CssProperty p, value) {
     assert(value is Color);
     _app.themeData = _app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -734,7 +932,6 @@ List<CssAction> cssActions = [
     _app.themeData = _app.themeData.copyWith(textTheme: textTheme);
     _propertyValueLookupMap[p] = value;
   }),
-
   CssAction(_appbarBackgroundColorProperty, (p, value) {
     assert(value is Color);
     _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(backgroundColor: value));
@@ -759,15 +956,15 @@ void applyAction(
       selector == e.cssProperty.selector &&
       selectorName == e.cssProperty.selectorName &&
       property == e.cssProperty.property)) {
-    logger.i('${action.toString()} /*${value.runtimeType}*/ $value;');
+    logger.d('${action.toString()} /*${value.runtimeType}*/ $value;');
     action.cssActionFunction(action.cssProperty, value);
     _appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
 
     applications++;
   }
   if (applications == 0) {
-    _propertyValueLookupMap[CssProperty(selector, selectorName, property, value.runtimeType, 'unknown')] = value;
-    logger.d('CSS action assumed: '
+    _propertyValueLookupMap[CssProperty(selector, selectorName, property, value.runtimeType)] = value;
+    logger.i('CSS action assumed: '
         '${cssSelectorCharacterMap[selector] ?? ''}$selectorName.$property: $value;');
   }
 }

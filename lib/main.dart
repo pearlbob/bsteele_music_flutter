@@ -232,7 +232,7 @@ final App _app = App();
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
-const _searchTextTooltipText ='Enter search text here.\n Title, artist and cover artist will be searched.';
+const _searchTextTooltipText = 'Enter search text here.\n Title, artist and cover artist will be searched.';
 
 /// Song list sort types
 enum _SortType {
@@ -478,16 +478,16 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> listViewChildren = [];
     {
       bool oddEven = true;
-      final oddTitle = oddTitleTextStyle(from: titleTextStyle);
-      final evenTitle = evenTitleTextStyle(from: titleTextStyle);
-      final oddTextStyle = oddTitleTextStyle(from: artistTextStyle);
-      final evenTextStyle = evenTitleTextStyle(from: artistTextStyle);
+      final oddTitle = oddTitleText(from: titleTextStyle);
+      final evenTitle = evenTitleText(from: titleTextStyle);
+      final oddText = oddTitleText(from: artistTextStyle);
+      final evenText = evenTitleText(from: artistTextStyle);
       logger.d('_filteredSongs.length: ${_filteredSongs.length}');
 
       for (final Song song in _filteredSongs) {
         oddEven = !oddEven;
         var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
-        var oddEvenTextStyle = oddEven ? oddTextStyle : evenTextStyle;
+        var oddEvenTextStyle = oddEven ? oddText : evenText;
         var key = ValueKey<String>(song.songId.toString());
         logger.v('song.songId: ${song.songId}');
         listViewChildren.add(GestureDetector(
@@ -751,29 +751,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 }),
               ),
             ),
-            appTooltip(
-              message: _searchTextTooltipText,
-              child: SizedBox(
-                width: 10 * _titleBarFontSize,
-                //  limit text entry display length
-                child: TextField(
-                  key: const ValueKey('searchText'),
-                  //  for testing
-                  controller: _searchTextFieldController,
-                  focusNode: _searchFocusNode,
-                  decoration: InputDecoration(
-                    hintText: "enter search text",
-                    hintStyle: searchTextStyle,
-                  ),
-                  autofocus: true,
-                  style: titleTextStyle,
-                  onChanged: (text) {
-                    setState(() {
-                      logger.v('search text: "$text"');
-                      _searchSongs(_searchTextFieldController.text);
-                    });
-                  },
+            SizedBox(
+              width: 10 * _titleBarFontSize,
+              //  limit text entry display length
+              child: TextField(
+                key: const ValueKey('searchText'),
+                //  for testing
+                controller: _searchTextFieldController,
+                focusNode: _searchFocusNode,
+                decoration: InputDecoration(
+                  hintText: "enter search text",
+                  hintStyle: searchTextStyle,
                 ),
+                autofocus: true,
+                style: titleTextStyle,
+                onChanged: (text) {
+                  setState(() {
+                    logger.v('search text: "$text"');
+                    _searchSongs(_searchTextFieldController.text);
+                  });
+                },
               ),
             ),
             appTooltip(

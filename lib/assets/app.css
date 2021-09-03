@@ -9,6 +9,8 @@
     background-color: white; /* type is Color, universal background color */
     color: black; /* type is Color, universal foreground color */
     font-size: 2vw; /* type is LengthTerm, universal text font size */
+    font-weight: normal;
+    font-style: normal;
 }
 
 appbar {
@@ -22,7 +24,7 @@ button {
     font-size: 1.25vw; /* type is UnitTerm, button text font size */
 }
 
-tooltip {
+.tooltip {
     background-color: #dcedc8; /* type is Color, (elevated) button background color */
     color: black; /* type is Color, (elevated) button foreground color */
     font-size: 1.25vw; /* type is UnitTerm, button text font size */
@@ -48,17 +50,52 @@ tooltip {
     /*white-space: normal;*/
 }
 
-.oddTitleTextStyle {
+.oddTitleText{
     background-color: white; /* type is Color, odd row background color */
 }
 
-.evenTitleTextStyle {
+.evenTitleText {
     background-color: whitesmoke; /* type is Color, even row background color */
 }
 
 .icon {
     color: white; /* type is Color, icon foreground color */
     size: 2.25vw;
+}
+
+.measure {
+    margin: 0.3vw;
+    padding: 0.5vw;
+}
+
+.chordNote {
+    /*  assumes the background color will come from the section */
+    color: black;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.chordDescriptor {
+    /*  assumes the background color will come from the section */
+    color: black;
+    font-weight: normal;
+    font-style: normal;
+    /*  default font size is 0.8 of the chord note  */
+}
+
+.chordSlashNote {
+    /*  assumes the background color will come from the section */
+    color: darkred;
+    font-weight: bold;
+    font-style: italic;
+    /*  default font size is the same as the chord note  */
+}
+
+.lyrics {
+    color: black;
+    font-weight: normal;
+    font-style: normal;
+    /*  default font size is 0.8 the chord note size  */
 }
 
 .section { /*  for all section types   */

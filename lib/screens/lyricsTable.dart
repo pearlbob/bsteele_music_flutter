@@ -32,15 +32,17 @@ class LyricsTable {
     LyricsTextWidget? textWidget,
     LyricsEndWidget? lyricEndWidget,
     expandRepeats = false,
+    double? chordFontSize,
   }) {
     appWidget.context = context; //	required on every build
     displayMusicKey = musicKey ?? song.key;
     textWidget = textWidget ?? _defaultTextWidget;
+    _chordFontSize = chordFontSize;
 
-    computeScreenSizes();
+    _computeScreenSizes();
 
-    final EdgeInsets marginInsets = EdgeInsets.all(_fontScale);
-    const EdgeInsets textPadding = EdgeInsets.all(6);
+    const EdgeInsets marginInsets = EdgeInsets.all(2);
+    const EdgeInsets textPadding = EdgeInsets.all(4);
 
     //  build the table from the song lyrics and chords
     if (song.lyricSections.isEmpty) {
@@ -134,8 +136,8 @@ class LyricsTable {
             if (_measureShouldBeVisible(measure)) {
               children.add(Container(
                   key: _rowKey,
-                  margin: marginInsets,
-                  padding: textPadding,
+                  margin: getMeasureMargin(),
+                  padding: getMeasurePadding(),
                   color: backgroundColor,
                   child: appWidget.transpose(
                     measure!,
@@ -227,31 +229,23 @@ class LyricsTable {
   }
 
   /// compute screen size values used here and on other screens
-  void computeScreenSizes() {
+  void _computeScreenSizes() {
     App _app = App();
     _screenWidth = _app.screenInfo.widthInLogicalPixels;
     _screenHeight = _app.screenInfo.heightInLogicalPixels;
-    _fontSize = appDefaultFontSize * min(4, max(1, _screenWidth / 500));
-    _lyricsFontSize = fontSize * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.65);
-    _fontSize *= (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
+    _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 800));
+    _lyricsFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.65);
+    _chordFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
     _shortLyricsWidth = _screenWidth * 0.20;
 
-    _fontScale = fontSize / appDefaultFontSize;
-    logger.v('lyricsTable: ($_screenWidth,$_screenHeight),'
-        ' default:$appDefaultFontSize  => fontSize: $fontSize'
-        ', _lyricsFontSize: $_lyricsFontSize, fontScale: $_fontScale');
+    logger.i('lyricsTable: ($_screenWidth,$_screenHeight),'
+        ' default:$appDefaultFontSize  => _chordFontSize: $_chordFontSize'
+        ', _lyricsFontSize: $_lyricsFontSize');
 
     //  text styles
-    _chordTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: _fontSize,
-      color: Colors.black87,
-    );
-    _lyricsTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.normal,
-      fontSize: _lyricsFontSize,
-      color: Colors.black87,
-    );
+    _chordTextStyle = generateChordTextStyle(fontSize: _chordFontSize);
+
+    _lyricsTextStyle = generateLyricsTextStyle(fontSize: _lyricsFontSize);
   }
 
   bool _measureShouldBeVisible(Measure? measure) {
@@ -274,15 +268,14 @@ class LyricsTable {
   double get lyricsFontSize => _lyricsFontSize;
   double _lyricsFontSize = 18;
 
-  double get fontSize => _fontSize;
-  double _fontSize = 10;
-  double _fontScale = 1;
+  double? get chordFontSize => _chordFontSize;
+  double? _chordFontSize;
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
-  TextStyle _lyricsTextStyle = generateAppTextStyle();
+  TextStyle _lyricsTextStyle = generateLyricsTextStyle();
   TextStyle _coloredLyricsTextStyle = generateAppTextStyle();
 
   double _shortLyricsWidth = 200; //  default value

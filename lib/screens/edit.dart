@@ -737,7 +737,6 @@ class _Edit extends State<Edit> {
                                 },
                                 value: _key,
                                 style: generateAppTextStyle(
-                                  //  size controlled by textScaleFactor above
                                   textBaseline: TextBaseline.ideographic,
                                 ),
                               ),
@@ -783,8 +782,6 @@ class _Edit extends State<Edit> {
                               },
                               value: _song.timeSignature,
                               style: generateAppTextStyle(
-                                  //  size controlled by textScaleFactor above
-                                  color: Colors.black87,
                                   textBaseline: TextBaseline.alphabetic,
                                   fontSize: _defaultFontSize,
                                   fontWeight: FontWeight.bold),

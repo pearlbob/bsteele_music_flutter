@@ -96,7 +96,7 @@ class Player extends StatefulWidget {
   static const String routeName = '/player';
 }
 
-class _Player extends State<Player> with RouteAware {
+class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   _Player() {
     _player = this;
 
@@ -124,36 +124,8 @@ class _Player extends State<Player> with RouteAware {
   initState() {
     super.initState();
 
-    // //  control font size with ctl+wheel
-    // if (kIsWeb) {
-    //   html.window.onMouseWheel.listen((event) {
-    //     if (event.ctrlKey) {
-    //       logger.d('event type: ${event.runtimeType.toString()},'
-    //           ' d: ${event.deltaMode.toString()}'
-    //           ' x: ${event.deltaX.toString()}'
-    //           ' y: ${event.deltaY.toString()}'
-    //           ' z: ${event.deltaZ.toString()}'
-    //           //  ' ctl: ${event.ctrlKey.toString()}'
-    //           '');
-    //       event.preventDefault(); //  fixme: doesn't work
-    //
-    //       double newFontSize = defaultFontSize;
-    //       if (event.deltaY < 0) {
-    //         newFontSize++;
-    //       } else if (event.deltaY > 0) {
-    //         newFontSize--;
-    //       }
-    //       newFontSize = max(_defaultFontSizeMin, min(_defaultFontSizeMax, newFontSize));
-    //       if (newFontSize != defaultFontSize) {
-    //         logger.d('newFontSize: $newFontSize');
-    //         setState(() {
-    //           defaultFontSize = newFontSize;
-    //           _forceTableRedisplay();
-    //         });
-    //       }
-    //     }
-    //   });
-    // }
+    _lastSize = WidgetsBinding.instance!.window.physicalSize;
+    WidgetsBinding.instance!.addObserver(this);
 
     _displayKeyOffset = _app.displayKeyOffset;
     _setSelectedSongKey(widget._song.key);
@@ -195,56 +167,55 @@ class _Player extends State<Player> with RouteAware {
   }
 
   @override
+  void didChangeMetrics() {
+    Size size = WidgetsBinding.instance!.window.physicalSize;
+    if (size != _lastSize) {
+      setState(() {
+        _lastSize = size;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _player = null;
     _playerIsOnTop = false;
     _songUpdate = null;
     playerRouteObserver.unsubscribe(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
   void _positionAfterBuild() {
+    logger.i('_positionAfterBuild():');
     if (_songUpdate != null && _isPlaying) {
       logger.i('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
       _scrollToSectionByMoment(_songUpdate!.songMoment);
     }
-    {
-      const _tolerance = 0.1;
-      const _minTextScaleFactor = 1.2;
-      const _maxTextScaleFactor = 3.0;
-      RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
-      if (renderObject != null) {
-        var renderBox = renderObject as RenderBox;
-        var width = renderBox.size.width;
-        if (width > 0) {
-          var factor = _app.screenInfo.widthInLogicalPixels / width;
-          logger.i('table width: $width/${_app.screenInfo.widthInLogicalPixels}, _textScaleFactor: $_textScaleFactor, '
-              ', factor = $factor'
-              ', sectionIndex = $_sectionIndex');
-          if (factor == 1) {
-            //  try again on a narrowing window
-            logger.i('table width: try again, factor = $factor');
-            if (!almostEqual(_textScaleFactor, factor, _tolerance)) {
-              setState(() {
-                _table = null;
-                _textScaleFactor = 1;
-                // _scrollToSectionIndex(_sectionIndex);   fixme:
-              });
-            }
-          } else if (factor > _minTextScaleFactor && _textScaleFactor < _maxTextScaleFactor) {
-            // let's tighten this thing up
-            factor *= _textScaleFactor;
-            factor = factor.clamp(1, _maxTextScaleFactor);
 
-            if (!almostEqual(_textScaleFactor, factor, _tolerance)) {
-              logger.i('table width: new factor = $factor');
-              setState(() {
-                _table = null;
-                _textScaleFactor = factor;
-                // _scrollToSectionIndex(_sectionIndex); fixme:
-              });
-            }
-          }
+    //  look at the rendered table size
+    RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
+    if (renderObject != null) {
+      var renderBox = renderObject as RenderBox;
+      var length = renderBox.size.width;
+      if (length > 0 && _lyricsTable.chordFontSize != null) {
+        var lastChordFontSize = _chordFontSize ?? 0;
+        var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
+        fontSize = Util.limit(fontSize, 8.0, 125.0) as double;
+
+        if ((fontSize - lastChordFontSize).abs() > 1) {
+          _chordFontSize = fontSize;
+
+          setState(() {
+            _table = null; //  rebuild table at new size
+          });
+          logger.i('table length: $length/${_app.screenInfo.widthInLogicalPixels}'
+              ', sectionIndex = $_sectionIndex'
+              ', chord fontSize: ${_lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
+              ', lyrics fontSize: ${_lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
+              ', _lyricsTable.chordFontSize: ${_lyricsTable.chordFontSize?.toStringAsFixed(1)}'
+              ', _chordFontSize: $_chordFontSize ='
+              ' ${(100 * fontSize / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
         }
       }
     }
@@ -261,6 +232,7 @@ class _Player extends State<Player> with RouteAware {
         song = _songUpdate!.song;
         widget._song = song;
         _table = null; //  force re-eval
+        _chordFontSize == null;
         //logger.i('new update song:  ${song.getSongMomentsSize()}');
         _play();
       }
@@ -273,22 +245,20 @@ class _Player extends State<Player> with RouteAware {
 
     _displayKeyOffset = _app.displayKeyOffset;
 
-    _lyricsTable.computeScreenSizes();
-
     var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
     var _chordsTextStyle = _lyricsTable.chordTextStyle;
-    var headerTextStyle = _lyricsTable.chordTextStyle.copyWith(backgroundColor: Colors.transparent);
+    var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
     const sectionCenterLocationFraction = 0.4;
 
-    if (_table == null) {
+    if (_table == null || _chordFontSize != _lyricsTable.chordFontSize) {
       _table = _lyricsTable.lyricsTable(song, context,
-          musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats);
+          musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats, chordFontSize: _chordFontSize);
       _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
       _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction : 0;
       _sectionLocations.clear(); //  clear any previous song cached data
-      logger.i('_table clear: index: $_sectionIndex');
+      logger.d('_table clear: index: $_sectionIndex');
     }
 
     {
@@ -594,7 +564,7 @@ With escape, the app goes back to the play list.''',
                                         ),
                                         icon: appIcon(
                                           Icons.edit,
-                                          color: Colors.green,  //  fixme:
+                                          color: Colors.green, //  fixme:
                                         ),
                                         label: const Text(''),
                                         onPressed: () {
@@ -614,9 +584,9 @@ With escape, the app goes back to the play list.''',
                                       style: TextButton.styleFrom(
                                         primary: _isPlaying ? Colors.red : Colors.green,
                                       ),
-                                      icon: Icon(
+                                      icon: appIcon(
                                         _playStopIcon,
-                                        size: 2 * _lyricsTable.fontSize,
+                                        color: Colors.green, //  fixme:
                                       ),
                                       label: const Text(''),
                                       onPressed: () {
@@ -646,7 +616,7 @@ With escape, the app goes back to the play list.''',
                                     },
                                     value: _selectedSongKey,
                                     style: headerTextStyle,
-                                    iconSize: _lyricsTable.fontSize,
+                                    iconSize: lookupIconSize(),
                                     itemHeight: 1.2 * kMinInteractiveDimension,
                                   ),
                                   appSpace(
@@ -684,7 +654,7 @@ With escape, the app goes back to the play list.''',
                                       },
                                       value: song.beatsPerMinute,
                                       style: headerTextStyle,
-                                      iconSize: _lyricsTable.fontSize,
+                                      iconSize: lookupIconSize(),
                                       itemHeight: 1.2 * kMinInteractiveDimension,
                                     )
                                   else
@@ -719,9 +689,7 @@ With escape, the app goes back to the play list.''',
                             height: _screenOffset,
                           ),
                         Center(
-                          child: MediaQuery(
-                              data: MediaQuery.of(context).copyWith(textScaleFactor: _textScaleFactor),
-                              child: _table ?? const Text('_table missing!')),
+                          child: _table ?? const Text('_table missing!'),
                         ),
                         Text(
                           'Copyright: ${song.copyright}',
@@ -760,7 +728,7 @@ With escape, the app goes back to the play list.''',
                     message: 'Stop.  Space bar will continue the play.',
                     child: Icon(
                       Icons.play_arrow,
-                      size: _lyricsTable.fontSize,
+                      size: _lyricsTable.chordFontSize,
                     ),
                   ),
                 )
@@ -773,7 +741,7 @@ With escape, the app goes back to the play list.''',
                     message: 'Escape to stop the play\nor space to next section',
                     child: Icon(
                       Icons.stop,
-                      size: _lyricsTable.fontSize,
+                      size: _lyricsTable.chordFontSize,
                     ),
                   ),
                 ))
@@ -791,7 +759,7 @@ With escape, the app goes back to the play list.''',
                     message: 'Top of song',
                     child: Icon(
                       Icons.arrow_upward,
-                      size: _lyricsTable.fontSize,
+                      size: _lyricsTable.chordFontSize,
                     ),
                   ),
                 )
@@ -1158,7 +1126,7 @@ With escape, the app goes back to the play list.''',
   List<LyricSectionRowLocation?> _lyricSectionRowLocations = [];
 
   Table? _table;
-  double _textScaleFactor = 1;
+  double? _chordFontSize;
   final LyricsTable _lyricsTable = LyricsTable();
 
   music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
@@ -1174,6 +1142,8 @@ With escape, the app goes back to the play list.''',
   int _sectionIndex = 0; //  index for current lyric section
   double _sectionTarget = 0; //  targeted scroll position for lyric section
   List<double> _sectionLocations = [];
+
+  late Size _lastSize;
 
   final AppWidget appWidget = AppWidget();
 

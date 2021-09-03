@@ -132,88 +132,66 @@ class AppWidget {
   }
 
   Widget transpose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
-    TextStyle slashStyle = (style ?? generateAppTextStyle()).copyWith(
-      // fontFamily: 'Roboto',
-      // fontSize: style?.fontSize,
-      fontWeight: FontWeight.bold,
-      fontStyle: FontStyle.italic,
-      color: const Color(0xFF7D0707),
+    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style?.fontSize).copyWith(
+      // fontFamily: 'Roboto', //  fixme
+      backgroundColor: style?.backgroundColor,
     );
-    TextStyle chordDescriptorStyle = (style ?? generateAppTextStyle()).copyWith(
+    TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
       fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
-      fontWeight: FontWeight.normal,
+    ).copyWith(
+      backgroundColor: style?.backgroundColor,
     );
 
     if (measure.chords.isNotEmpty) {
-      List<Widget> children = [];
+      var needsSpace = false;
+      List<TextSpan> children = [];
       for (Chord chord in measure.chords) {
         var transposedChord = chord.transpose(key, halfSteps);
         var isSlash = transposedChord.slashScaleNote != null;
 
+        if (needsSpace) {
+          children.add(TextSpan(text: ' ', style: slashStyle));
+          needsSpace = false;
+        }
+
         //  chord note
-        children.add(Text(
-          transposedChord.scaleChord.scaleNote.toString(),
+        children.add(TextSpan(
+          text: transposedChord.scaleChord.scaleNote.toString(),
           style: style,
-          softWrap: false,
-          maxLines: 1,
-          overflow: TextOverflow.clip,
         ));
         {
           //  chord descriptor
           var name = transposedChord.scaleChord.chordDescriptor.shortName;
           if (name.isNotEmpty) {
-            children.add(Baseline(
-              baseline: (style?.fontSize ?? _defaultFontSize),
-              baselineType: TextBaseline.alphabetic,
-              child: Text(
-                name,
+            children.add(
+              TextSpan(
+                text: name,
                 style: chordDescriptorStyle,
-                softWrap: false,
-                maxLines: 1,
-                overflow: TextOverflow.clip,
               ),
-            ));
+            );
           }
         }
 
         //  other stuff
-        children.add(Text(
-          transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
+        children.add(TextSpan(
+          text: transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
           style: style,
-          softWrap: false,
-          maxLines: 1,
         ));
         if (isSlash) {
-          var s = '/' + transposedChord.slashScaleNote.toString() + ' ';
-          // final Size size = (TextPainter(
-          //         text: TextSpan(text: s, style: slashStyle),
-          //         maxLines: 1,
-          //         textScaleFactor: MediaQuery.of(context).textScaleFactor,
-          //         textDirection: TextDirection.ltr)
-          //       ..layout())
-          //     .size;
-          // logger.i('isSlash height: ${size.height}');
-          children.add(
-              //   Baseline(  fixme: from "top of box" ends up pushing everything up, including the container's center
-              // baseline: 2 * 1.6 * size.height,
-              // baselineType: TextBaseline.alphabetic,
-              // child:
-              Text(
-            s,
+          var s = '/' + transposedChord.slashScaleNote.toString();
+          children.add(TextSpan(
+            text: s,
             style: slashStyle,
-            softWrap: false,
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            // ),
           ));
+          needsSpace = true;
         }
       }
-      return appWrap(
-        children,
+      return RichText(
+        text: TextSpan(children: children),
       );
     }
 
-    //  the usual, no chords
+    //  no chord measures such as repeats, repeat markers and comments
     return Text(
       measure.toString(),
       style: style,

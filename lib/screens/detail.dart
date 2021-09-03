@@ -441,8 +441,7 @@ class _State extends State<Detail> {
                             },
                             value: _timeSignature,
                             style: generateAppTextStyle(
-                              //  size controlled by textScaleFactor above
-                              textBaseline: TextBaseline.ideographic,
+                              textBaseline: TextBaseline.ideographic, //  fixme: what is this and why?
                             ),
                           ),
                         ],

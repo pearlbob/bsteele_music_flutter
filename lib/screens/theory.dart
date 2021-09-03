@@ -103,7 +103,6 @@ class _State extends State<TheoryWidget> {
                           },
                           value: _key,
                           style: generateAppTextStyle(
-                            //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
                           ),
@@ -136,7 +135,6 @@ class _State extends State<TheoryWidget> {
                           },
                           value: _chordRoot,
                           style: generateAppTextStyle(
-                            //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
                           ),
@@ -168,7 +166,6 @@ class _State extends State<TheoryWidget> {
                           },
                           value: chordDescriptor,
                           style: generateAppTextStyle(
-                            //  size controlled by textScaleFactor above
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
                           ),

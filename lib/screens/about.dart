@@ -50,12 +50,10 @@ class _About extends State<About> {
               children: <Widget>[
                 const Text(
                   'The bsteele Music App has been written by bob.',
-                  // textScaleFactor: textScaleFactor,
                 ),
                 Row(children: <Widget>[
                   const Text(
                     'See ',
-                    // textScaleFactor: textScaleFactor,
                   ),
                   InkWell(
                     onTap: () {

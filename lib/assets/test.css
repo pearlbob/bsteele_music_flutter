@@ -8,7 +8,9 @@
 * {
     background-color: cyan; /* type is Color, universal background color */
     color: blue; /* type is Color, universal foreground color */
-    font-size: 4vw; /* type is LengthTerm, universal text font size */
+    /*font-size: 1vw; !* type is LengthTerm, universal text font size *!*/
+    font-weight: bolder;
+    font-style: italic;
 }
 
 appbar {
@@ -22,9 +24,9 @@ button {
     font-size: 1.25vw; /* type is UnitTerm, button text font size */
 }
 
-tooltip {
+.tooltip {
     background-color: #dcedc8; /* type is Color, (elevated) button background color */
-    color: black; /* type is Color, (elevated) button foreground color */
+    color: deeppink; /* type is Color, (elevated) button foreground color */
     font-size: 1.25vw; /* type is UnitTerm, button text font size */
 }
 
@@ -48,12 +50,12 @@ tooltip {
     /*white-space: normal;*/
 }
 
-.oddTitleTextStyle {
+.oddTitleText {
     background-color: orangered; /* type is Color, odd row background color */
     color: yellow;
 }
 
-.evenTitleTextStyle {
+.evenTitleText {
     background-color: peru; /* type is Color, even row background color */
     color: pink;
 }
@@ -63,9 +65,46 @@ tooltip {
     size: 3.25vw;
 }
 
+.measure {
+    margin: 0.3vw;
+    padding: 0.5vw;
+}
+
+.chordNote {
+    /*  assumes the background color will come from the section */
+    color: purple;
+    font-weight: bolder;
+    font-style: normal;
+}
+
+.chordDescriptor {
+    /*  assumes the background color will come from the section */
+    color: deeppink;
+    font-weight: bolder;
+    font-style: normal;
+    /*  default font size is 0.8 of the chord note  */
+}
+
+.chordSlashNote {
+    /*  assumes the background color will come from the section */
+    color: darkcyan;
+    font-weight: normal;
+    font-style: normal;
+    /*  default font size is the same as the chord note  */
+}
+
+.lyrics {
+    /*  assumes the background color will come from the section */
+    color: green;
+    background-color: darkblue;
+    font-weight: lighter;
+    font-style: italic;
+    /*  default font size is 0.8 the chord note size  */
+}
+
 .section { /*  for all section types   */
     background-color: white; /* type is Color, default section background color */
-    color: black;
+    color: darkgreen;
     /*font-family: sans-serif;*/
     /*font-size: clamp( 12px, 2.25vw, 40px);*/
     /*font-style: normal;*/

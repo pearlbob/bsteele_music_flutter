@@ -27,9 +27,6 @@ class ScreenInfo {
     logger.d('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
-    double textScaleFactor = mediaQueryData.textScaleFactor;
-
-    logger.d('textScaleFactor: $textScaleFactor');
     logger.d('devicePixelRatio: $devicePixelRatio,'
         ' (${_widthInLogicalPixels * devicePixelRatio},${_heightInLogicalPixels * devicePixelRatio})');
   }

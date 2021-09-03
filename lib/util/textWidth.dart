@@ -8,9 +8,21 @@ double textWidth(
   return (TextPainter(
           text: TextSpan(text: text, style: style),
           maxLines: 1,
-          textScaleFactor: MediaQuery.of(context).textScaleFactor,
           textDirection: TextDirection.ltr)
         ..layout())
+      .size
+      .width;
+}
+
+double richTextWidth(
+    BuildContext context,
+    RichText richText,
+    ) {
+  return (TextPainter(
+      text: richText.text,
+      maxLines: 1,
+      textDirection: TextDirection.ltr)
+    ..layout())
       .size
       .width;
 }

@@ -121,6 +121,7 @@ void main() async {
 }
 
 /*
+//   fixme: escape on main page, linux
 //  fixme: edit speed issues?
 //  fixme: joy to the world, sheet music, measure size error
 //  fixme: edit screen: section id is inline on chords, but above in lyrics
@@ -436,8 +437,7 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.v('screen: logical: (${_app.screenInfo.widthInLogicalPixels},${_app.screenInfo.heightInLogicalPixels})');
     logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
 
-    final fontSize = _app.screenInfo.fontSize;
-    logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
+
     final TextStyle searchTextStyle = generateAppTextStyle(
       color: Colors.black45,
       fontWeight: FontWeight.bold,
@@ -452,6 +452,8 @@ class _MyHomePageState extends State<MyHomePage> {
       textBaseline: TextBaseline.alphabetic,
       color: Colors.black,
     );
+    final fontSize = searchTextStyle.fontSize ?? 25;
+    logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
 
     final TextStyle artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle _navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
@@ -847,9 +849,9 @@ class _MyHomePageState extends State<MyHomePage> {
           )),
       ]),
 
-      floatingActionButton: appTooltip(
+    floatingActionButton: appTooltip(
         message: 'Back to the list top',
-        child: FloatingActionButton(
+        child: appFloatingActionButton(
           mini: !_app.isScreenBig,
           onPressed: () {
             if (_itemScrollController.isAttached) {

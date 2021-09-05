@@ -4,6 +4,9 @@
   Selectors are listed in increasing priority order.
 */
 
+:root {
+    --app-background-color: #2196f3;
+}
 
 * {
     background-color: white; /* type is Color, universal background color */
@@ -14,20 +17,20 @@
 }
 
 appbar {
-    background-color: #2196f3; /* type is Color, app bar background color */
+    background-color: var(--app-background-color); /* type is Color, app bar background color */
     color: white; /* type is Color, app bar foreground color */
 }
 
 button {
-    background-color: #2196f3; /* type is Color, (elevated) button background color */
+    background-color: var(--app-background-color); /* type is Color, (elevated) button background color */
     color: white; /* type is Color, (elevated) button foreground color */
-    font-size: 1.25vw; /* type is UnitTerm, button text font size */
+    font-size: 1.5vw; /* type is UnitTerm, button text font size */
 }
 
 .tooltip {
     background-color: #dcedc8; /* type is Color, (elevated) button background color */
     color: black; /* type is Color, (elevated) button foreground color */
-    font-size: 1.25vw; /* type is UnitTerm, button text font size */
+    font-size: 1.85vw; /* type is UnitTerm, button text font size */
 }
 
 .oddTitleTextStyle, .evenTitleTextStyle {
@@ -50,7 +53,7 @@ button {
     /*white-space: normal;*/
 }
 
-.oddTitleText{
+.oddTitleText {
     background-color: white; /* type is Color, odd row background color */
 }
 
@@ -60,12 +63,13 @@ button {
 
 .icon {
     color: white; /* type is Color, icon foreground color */
-    size: 2.25vw;
+    background-color: var(--app-background-color); /* type is Color, icon bar background color */
+    size: 1.5vw;
 }
 
 .measure {
-    margin: 0.3vw;
-    padding: 0.5vw;
+    margin: 0.2vw;
+    padding: 0.35vw;
 }
 
 .chordNote {

@@ -41,9 +41,6 @@ class LyricsTable {
 
     _computeScreenSizes();
 
-    const EdgeInsets marginInsets = EdgeInsets.all(2);
-    const EdgeInsets textPadding = EdgeInsets.all(4);
-
     //  build the table from the song lyrics and chords
     if (song.lyricSections.isEmpty) {
       _table = Table(
@@ -93,8 +90,8 @@ class LyricsTable {
         } else {
           children.add(Container(
             key: globalKey,
-            margin: marginInsets,
-            padding: textPadding,
+            margin: getMeasureMargin(),
+            padding: getMeasurePadding(),
             color: backgroundColor,
             child: Text(
               chordSection.sectionVersion.toString(),
@@ -149,11 +146,9 @@ class LyricsTable {
               _rowKey = null;
             } else {
               //  empty cell
-              children.add(Container(
-                  margin: marginInsets,
-                  child: const Text(
-                    '',
-                  )));
+              children.add(const Text(
+                '',
+              ));
             }
           }
         }
@@ -161,8 +156,8 @@ class LyricsTable {
         if (showFullLyrics) {
           //  lyrics
           children.add(Container(
-              margin: marginInsets,
-              padding: textPadding,
+              margin: getMeasureMargin(),
+              padding: getMeasurePadding(),
               color: backgroundColor,
               child: textWidget(
                   lyricSection,
@@ -179,8 +174,8 @@ class LyricsTable {
         } else {
           //  short lyrics
           children.add(Container(
-              margin: marginInsets,
-              padding: const EdgeInsets.all(2),
+              margin: getMeasureMargin(),
+              padding: getMeasurePadding(),
               width: _shortLyricsWidth,
               color: backgroundColor,
               child: Text(
@@ -218,6 +213,11 @@ class LyricsTable {
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
     );
+
+    logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'
+        ' default:$appDefaultFontSize  => _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)}'
+        ', _lyricsFontSize: ${_lyricsFontSize.toStringAsFixed(1)}');
+
     return _table;
   }
 
@@ -233,14 +233,9 @@ class LyricsTable {
     App _app = App();
     _screenWidth = _app.screenInfo.widthInLogicalPixels;
     _screenHeight = _app.screenInfo.heightInLogicalPixels;
-    _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 800));
+    _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 500));
     _lyricsFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.65);
-    _chordFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.player ? 1.2 : 1);
     _shortLyricsWidth = _screenWidth * 0.20;
-
-    logger.i('lyricsTable: ($_screenWidth,$_screenHeight),'
-        ' default:$appDefaultFontSize  => _chordFontSize: $_chordFontSize'
-        ', _lyricsFontSize: $_lyricsFontSize');
 
     //  text styles
     _chordTextStyle = generateChordTextStyle(fontSize: _chordFontSize);

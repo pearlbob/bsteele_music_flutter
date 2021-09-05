@@ -52,7 +52,7 @@ class SongUpdateService extends ChangeNotifier {
           _subscription = _webSocketChannel!.stream.listen((message) {
             _songUpdate = SongUpdate.fromJson(message as String);
             if (_songUpdate != null) {
-              // logger.i('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
+              // logger.d('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
               playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
               delaySeconds = 0;
               _songUpdateCount++;

@@ -171,6 +171,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     Size size = WidgetsBinding.instance!.window.physicalSize;
     if (size != _lastSize) {
       setState(() {
+        _chordFontSize = null; //  take a shot at adjusting the display of chords and lyrics
         _lastSize = size;
       });
     }
@@ -187,35 +188,38 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void _positionAfterBuild() {
-    logger.i('_positionAfterBuild():');
+    logger.d('_positionAfterBuild():');
     if (_songUpdate != null && _isPlaying) {
-      logger.i('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
+      logger.d('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
       _scrollToSectionByMoment(_songUpdate!.songMoment);
     }
 
     //  look at the rendered table size
-    RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
-    if (renderObject != null) {
-      var renderBox = renderObject as RenderBox;
-      var length = renderBox.size.width;
-      if (length > 0 && _lyricsTable.chordFontSize != null) {
-        var lastChordFontSize = _chordFontSize ?? 0;
-        var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
-        fontSize = Util.limit(fontSize, 8.0, 125.0) as double;
+    if (_chordFontSize == null) {
+      RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
+      if (renderObject != null) {
+        var renderBox = renderObject as RenderBox;
+        var length = renderBox.size.width;
+        if (length > 0 && _lyricsTable.chordFontSize != null) {
+          var lastChordFontSize = _chordFontSize ?? 0;
+          var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
+          fontSize = Util.limit(fontSize, 8.0, 150.0) as double;
 
-        if ((fontSize - lastChordFontSize).abs() > 1) {
-          _chordFontSize = fontSize;
+          if ((fontSize - lastChordFontSize).abs() > 1) {
+            _chordFontSize = fontSize;
 
-          setState(() {
-            _table = null; //  rebuild table at new size
-          });
-          logger.i('table length: $length/${_app.screenInfo.widthInLogicalPixels}'
-              ', sectionIndex = $_sectionIndex'
-              ', chord fontSize: ${_lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
-              ', lyrics fontSize: ${_lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
-              ', _lyricsTable.chordFontSize: ${_lyricsTable.chordFontSize?.toStringAsFixed(1)}'
-              ', _chordFontSize: $_chordFontSize ='
-              ' ${(100 * fontSize / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+            setState(() {
+              _table = null; //  rebuild table at new size
+            });
+            logger.d('table width: ${length.toStringAsFixed(1)}'
+                '/${_app.screenInfo.widthInLogicalPixels.toStringAsFixed(1)}'
+                ', sectionIndex = $_sectionIndex'
+                ', chord fontSize: ${_lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
+                ', lyrics fontSize: ${_lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
+                ', _lyricsTable.chordFontSize: ${_lyricsTable.chordFontSize?.toStringAsFixed(1)}'
+                ', _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
+                ' ${(100 * fontSize / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+          }
         }
       }
     }
@@ -434,7 +438,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               Positioned(
                 top: boxCenter,
                 child: Container(
-                  constraints: BoxConstraints.loose(Size(_app.screenInfo.widthInLogicalPixels, 4)),
+                  constraints: BoxConstraints.loose(Size(_app.screenInfo.widthInLogicalPixels / 16, 4)),
                   decoration: const BoxDecoration(
                     color: Colors.black87,
                   ),
@@ -582,7 +586,7 @@ With escape, the app goes back to the play list.''',
                                         'Use the space bar to advance the section while playing.',
                                     child: TextButton.icon(
                                       style: TextButton.styleFrom(
-                                        primary: _isPlaying ? Colors.red : Colors.green,
+                                        primary: _isPlaying ? Colors.red : Colors.green,//fixme:
                                       ),
                                       icon: appIcon(
                                         _playStopIcon,
@@ -693,11 +697,11 @@ With escape, the app goes back to the play list.''',
                         ),
                         Text(
                           'Copyright: ${song.copyright}',
-                          style: _lyricsTextStyle,
+                          style: headerTextStyle,
                         ),
                         Text(
                           'Last edit by: ${song.user}',
-                          style: _lyricsTextStyle,
+                          style: headerTextStyle,
                         ),
                         if (_isPlaying)
                           SizedBox(
@@ -719,34 +723,34 @@ With escape, the app goes back to the play list.''',
       ),
       floatingActionButton: _isPlaying
           ? (_isPaused
-              ? FloatingActionButton(
+              ? appFloatingActionButton(
                   mini: !_app.isScreenBig,
                   onPressed: () {
                     _pauseToggle();
                   },
                   child: appTooltip(
                     message: 'Stop.  Space bar will continue the play.',
-                    child: Icon(
+                    child: appIcon(
                       Icons.play_arrow,
-                      size: _lyricsTable.chordFontSize,
                     ),
+                    fontSize: headerTextStyle.fontSize,
                   ),
                 )
-              : FloatingActionButton(
+              : appFloatingActionButton(
                   mini: !_app.isScreenBig,
                   onPressed: () {
                     _stop();
                   },
                   child: appTooltip(
                     message: 'Escape to stop the play\nor space to next section',
-                    child: Icon(
+                    child: appIcon(
                       Icons.stop,
-                      size: _lyricsTable.chordFontSize,
                     ),
+                    fontSize: headerTextStyle.fontSize,
                   ),
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
-              ? FloatingActionButton(
+              ? appFloatingActionButton(
                   mini: !_app.isScreenBig,
                   onPressed: () {
                     if (_isPlaying) {
@@ -757,13 +761,13 @@ With escape, the app goes back to the play list.''',
                   },
                   child: appTooltip(
                     message: 'Top of song',
-                    child: Icon(
+                    child: appIcon(
                       Icons.arrow_upward,
-                      size: _lyricsTable.chordFontSize,
                     ),
+                    fontSize: headerTextStyle.fontSize,
                   ),
                 )
-              : FloatingActionButton(
+              : appFloatingActionButton(
                   mini: !_app.isScreenBig,
                   onPressed: () {
                     Navigator.pop(context);
@@ -773,6 +777,7 @@ With escape, the app goes back to the play list.''',
                     child: appIcon(
                       Icons.arrow_back,
                     ),
+                    fontSize: headerTextStyle.fontSize,
                   ))),
     );
   }

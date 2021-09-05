@@ -28,7 +28,7 @@ class ScreenInfo {
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
     logger.d('devicePixelRatio: $devicePixelRatio,'
-        ' (${_widthInLogicalPixels * devicePixelRatio},${_heightInLogicalPixels * devicePixelRatio})');
+        ' ($_widthInLogicalPixels,$_heightInLogicalPixels)');
   }
 
   ScreenInfo.defaultValue()

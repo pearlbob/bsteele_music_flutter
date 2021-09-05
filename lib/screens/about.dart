@@ -20,10 +20,13 @@ class About extends StatefulWidget {
   _About createState() => _About();
 }
 
-class _About extends State<About> {
+class _About extends State<About> with  WidgetsBindingObserver{
   @override
   initState() {
     super.initState();
+
+    _lastSize = WidgetsBinding.instance!.window.physicalSize;
+    WidgetsBinding.instance!.addObserver(this);
 
     _readPackageInfo();
     _readUtcDate();
@@ -124,6 +127,25 @@ class _About extends State<About> {
     buildNumber: 'Unknown',
     buildSignature: 'Unknown',
   );
+
+  @override
+  void didChangeMetrics() {
+    //  used to keep the window size data current
+    Size size = WidgetsBinding.instance!.window.physicalSize;
+    if (size != _lastSize) {
+      setState(() {
+        _lastSize = size;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  late Size _lastSize;
 
   final AppWidget appWidget = AppWidget();
 }

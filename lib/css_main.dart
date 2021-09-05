@@ -19,7 +19,7 @@ void main() async {
   await AppTheme().init(); //  init the singleton
   generateCssDocumentation();
 
-  Future.delayed(const Duration(milliseconds: 1000), ()
+  Future.delayed(const Duration(seconds: 1), ()
   {
     SystemChannels.platform.invokeMethod('SystemNavigator.pop');
   });

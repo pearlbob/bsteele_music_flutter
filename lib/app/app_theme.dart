@@ -68,6 +68,7 @@ enum CssSelectorEnum {
   element,
   classSelector, //  .class
   id, //  #valueKey
+  pseudo, //  css variables
 }
 
 const Map<CssSelectorEnum, String> cssSelectorCharacterMap = {
@@ -96,7 +97,7 @@ enum CssClassEnum {
   icon,
 }
 
-final CssProperty universalBackgroundColorProperty =
+final CssProperty _universalBackgroundColorProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'background-color', Color, description: 'universal background color');
 final CssProperty _universalForegroundColorProperty =
     CssProperty(CssSelectorEnum.universal, '*', 'color', Color, description: 'universal foreground color');
@@ -181,8 +182,8 @@ final CssProperty _chordSlashNoteFontStyleProperty = CssProperty(
     CssSelectorEnum.classSelector, 'chordSlashNote', 'font-style', visitor.UnitTerm,
     description: 'chord slash note text font style, normal or italic');
 
-final CssProperty _lyricsColorProperty = CssProperty(CssSelectorEnum.classSelector, 'lyrics', 'color', CssColor,
-    description: 'lyrics foreground color');
+final CssProperty _lyricsColorProperty =
+    CssProperty(CssSelectorEnum.classSelector, 'lyrics', 'color', CssColor, description: 'lyrics foreground color');
 final CssProperty _lyricsBackgroundColorProperty = CssProperty(
     CssSelectorEnum.classSelector, 'lyrics', 'background-color', CssColor,
     description: 'lyrics background color');
@@ -198,6 +199,8 @@ final CssProperty _lyricsFontStyleProperty = CssProperty(
 
 final _iconColorProperty =
     CssProperty.fromCssClass(CssClassEnum.icon, 'color', Color, description: 'icon foreground color');
+final _iconBackgroundColorProperty =
+    CssProperty.fromCssClass(CssClassEnum.icon, 'background-color', Color, description: 'icon background color');
 final _iconSizeProperty =
     CssProperty.fromCssClass(CssClassEnum.icon, 'size', visitor.UnitTerm, description: 'icon size');
 
@@ -237,7 +240,7 @@ const Color _tagColor = Color(0xffcee1f5);
 /// used to store values, even those not transferable to a flutter theme
 Map<CssProperty, dynamic> _propertyValueLookupMap = {
   //  default values only
-  universalBackgroundColorProperty: Colors.white,
+  _universalBackgroundColorProperty: Colors.white,
   _universalForegroundColorProperty: Colors.black,
 
   _universalFontSizeProperty: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
@@ -375,7 +378,12 @@ class CssColor extends Color {
 }
 
 Icon appIcon(IconData icon, {Key? key, Color? color}) {
-  return Icon(icon, key: key, color: color ?? _getColor(_iconColorProperty), size: _sizeLookup(_iconSizeProperty));
+  return Icon(icon,
+      key: key,
+      color: color ?? _getColor(_iconColorProperty),
+      size: _sizeLookup(_iconSizeProperty) ??
+          _sizeLookup(_buttonFontScaleProperty) ??
+          _sizeLookup(_universalFontSizeProperty));
 }
 
 class AppTheme {
@@ -416,6 +424,11 @@ class AppTheme {
                   cssSelector = CssSelectorEnum.id;
                   break;
 
+                case visitor.PseudoClassSelector:
+                  logger.i('PseudoClassSelector: ${selector.simpleSelector.name}: ${selector.span?.text}');
+                  cssSelector = CssSelectorEnum.pseudo;
+                  break;
+
                 default:
                   cssSelector = CssSelectorEnum.element;
                   logger.e('unknown selector.simpleSelector.runtimeType: ${selector.simpleSelector.runtimeType}');
@@ -430,7 +443,10 @@ class AppTheme {
                   if (expression is visitor.Expressions) {
                     var expressions = expression;
                     for (var exp in expressions.expressions) {
-                      if (exp is visitor.LengthTerm) {
+                      if (exp is visitor.VarUsage) {
+                        logger.i('VarUsage: ${exp.name}: ${cssVariables[exp.name]} ');
+                        applyAction(cssSelector, selector.simpleSelector.name, property, cssVariables[exp.name]);
+                      } else if (exp is visitor.LengthTerm) {
                         applyAction(cssSelector, selector.simpleSelector.name, property, exp);
                       } else if (exp is visitor.HexColorTerm) {
                         var hexColorTerm = exp;
@@ -496,8 +512,8 @@ class AppTheme {
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
       _app.themeData = _app.themeData.copyWith(
-        backgroundColor: _propertyValueLookupMap[universalBackgroundColorProperty],
-        primaryColor: _propertyValueLookupMap[universalBackgroundColorProperty],
+        backgroundColor: _propertyValueLookupMap[_universalBackgroundColorProperty],
+        primaryColor: _propertyValueLookupMap[_universalBackgroundColorProperty],
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
       );
     }
@@ -584,6 +600,21 @@ ElevatedButton appButton(
   );
 }
 
+FloatingActionButton appFloatingActionButton({
+  Key? key,
+  required VoidCallback? onPressed,
+  Widget? child,
+  bool mini = false,
+}) {
+  return FloatingActionButton(
+    key: key,
+    onPressed: onPressed,
+    child: child,
+    mini: mini,
+    backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
+  );
+}
+
 const List<String> appFontFamilyFallback = [
   //'Roboto',
   'DejaVu'
@@ -606,10 +637,11 @@ TextStyle generateAppTextStyle({
   TextBaseline? textBaseline,
   String? fontFamily,
 }) {
-  fontSize ??= _sizeLookup(_universalFontSizeProperty) ?? _app.themeData.textTheme.bodyText2?.fontSize;
+  fontSize ??= _sizeLookup(_universalFontSizeProperty);
+  fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
   return TextStyle(
-    color: color ?? _app.themeData.textTheme.bodyText2?.color,
-    backgroundColor: backgroundColor ?? _app.themeData.textTheme.bodyText2?.backgroundColor,
+    color: color ?? _getColor(_universalForegroundColorProperty),
+    backgroundColor: backgroundColor ?? _getColor(_universalBackgroundColorProperty),
     fontSize: fontSize,
     fontWeight: fontWeight,
     fontStyle: fontStyle,
@@ -630,10 +662,10 @@ TextStyle generateChordTextStyle({double? fontSize}) {
   return generateAppTextStyle(
     color: _propertyValueLookupMap[_chordNoteColorProperty],
     backgroundColor: _propertyValueLookupMap[_chordNoteBackgroundColorProperty] ??
-        _propertyValueLookupMap[universalBackgroundColorProperty],
+        _propertyValueLookupMap[_universalBackgroundColorProperty],
     fontSize: fontSize ?? _sizeLookup(_chordNoteFontSizeProperty),
     fontWeight: _fontWeight(_propertyValueLookupMap[_chordNoteFontWeightProperty]) ??
-        _fontWeight(_propertyValueLookupMap[_universalFontSizeProperty]),
+        _fontWeight(_propertyValueLookupMap[_universalFontWeightProperty]),
     fontStyle: _fontStyle(_propertyValueLookupMap[_chordNoteFontStyleProperty]) ??
         _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
   );
@@ -643,10 +675,10 @@ TextStyle generateLyricsTextStyle({double? fontSize}) {
   return generateAppTextStyle(
     color: _propertyValueLookupMap[_lyricsColorProperty],
     backgroundColor: _propertyValueLookupMap[_lyricsBackgroundColorProperty] ??
-        _propertyValueLookupMap[universalBackgroundColorProperty],
+        _propertyValueLookupMap[_universalBackgroundColorProperty],
     fontSize: fontSize ?? _sizeLookup(_lyricsFontSizeProperty),
     fontWeight: _fontWeight(_propertyValueLookupMap[_lyricsFontWeightProperty]) ??
-        _fontWeight(_propertyValueLookupMap[_universalFontSizeProperty]),
+        _fontWeight(_propertyValueLookupMap[_universalFontWeightProperty]),
     fontStyle: _fontStyle(_propertyValueLookupMap[_lyricsFontStyleProperty]) ??
         _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
   );
@@ -658,7 +690,7 @@ TextStyle generateChordDescriptorTextStyle({double? fontSize}) {
         _propertyValueLookupMap[_universalForegroundColorProperty],
     backgroundColor: _propertyValueLookupMap[_chordDescriptorBackgroundColorProperty] ??
         _propertyValueLookupMap[_chordNoteBackgroundColorProperty] ??
-        _propertyValueLookupMap[universalBackgroundColorProperty],
+        _propertyValueLookupMap[_universalBackgroundColorProperty],
     fontSize: fontSize ?? _sizeLookup(_chordDescriptorFontSizeProperty) ?? _sizeLookup(_chordNoteFontSizeProperty),
     fontWeight: _fontWeight(_propertyValueLookupMap[_chordDescriptorFontWeightProperty]) ??
         _fontWeight(_propertyValueLookupMap[_chordNoteFontWeightProperty]) ??
@@ -675,11 +707,11 @@ TextStyle generateChordSlashNoteTextStyle({double? fontSize}) {
         _propertyValueLookupMap[_universalForegroundColorProperty],
     backgroundColor: _propertyValueLookupMap[_chordSlashNoteBackgroundColorProperty] ??
         _propertyValueLookupMap[_chordNoteBackgroundColorProperty] ??
-        _propertyValueLookupMap[universalBackgroundColorProperty],
+        _propertyValueLookupMap[_universalBackgroundColorProperty],
     fontSize: fontSize ?? _sizeLookup(_chordSlashNoteFontSizeProperty) ?? _sizeLookup(_chordNoteFontSizeProperty),
     fontWeight: _fontWeight(_propertyValueLookupMap[_chordSlashNoteFontWeightProperty]) ??
         _fontWeight(_propertyValueLookupMap[_chordNoteFontWeightProperty]) ??
-        _fontWeight(_propertyValueLookupMap[_universalFontSizeProperty]),
+        _fontWeight(_propertyValueLookupMap[_universalFontWeightProperty]),
     fontStyle: _fontStyle(_propertyValueLookupMap[_chordSlashNoteFontStyleProperty]) ??
         _fontStyle(_propertyValueLookupMap[_chordNoteFontStyleProperty]) ??
         _fontStyle(_propertyValueLookupMap[_universalFontStyleProperty]),
@@ -883,19 +915,6 @@ TextStyle? _textStyleActionStyle(CssProperty p, dynamic value, TextStyle? defaul
 }
 
 List<CssAction> cssActions = [
-  CssAction(_universalFontSizeProperty, (p, value) {
-    //  fixme: textThemes are not complete
-    //  fixme: textThemes are identical!
-    TextStyle? textStyle =
-        _textStyleActionStyle(p, value, _app.themeData.textTheme.bodyText1 ?? _app.themeData.textTheme.bodyText2);
-    var textTheme = TextTheme(
-      bodyText1: textStyle,
-      bodyText2: textStyle,
-      button: _app.themeData.textTheme.button,
-    );
-    _app.themeData = _app.themeData.copyWith(textTheme: textTheme);
-    _propertyValueLookupMap[p] = value;
-  }),
   CssAction(
       CssProperty(CssSelectorEnum.element, 'button', 'background-color', Color,
           description: 'universal (elevated) button background color'), (CssProperty p, value) {
@@ -920,18 +939,6 @@ List<CssAction> cssActions = [
                     .copyWith(foregroundColor: MaterialStateProperty.all(value)))));
     _propertyValueLookupMap[p] = value;
   }),
-  CssAction(_buttonFontScaleProperty, (p, value) {
-    //  fixme: textThemes are not complete
-    //  fixme: textThemes are identical!
-    TextStyle? textStyle = _textStyleActionStyle(p, value, _app.themeData.textTheme.button);
-    var textTheme = TextTheme(
-      bodyText1: _app.themeData.textTheme.bodyText1,
-      bodyText2: _app.themeData.textTheme.bodyText2,
-      button: textStyle,
-    );
-    _app.themeData = _app.themeData.copyWith(textTheme: textTheme);
-    _propertyValueLookupMap[p] = value;
-  }),
   CssAction(_appbarBackgroundColorProperty, (p, value) {
     assert(value is Color);
     _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(backgroundColor: value));
@@ -944,6 +951,8 @@ List<CssAction> cssActions = [
   }),
 ];
 
+Map<String, dynamic> cssVariables = {};
+
 void applyAction(
   CssSelectorEnum selector,
   String selectorName,
@@ -951,20 +960,31 @@ void applyAction(
   dynamic value, {
   String? rawValue,
 }) {
-  var applications = 0;
-  for (var action in cssActions.where((e) =>
-      selector == e.cssProperty.selector &&
-      selectorName == e.cssProperty.selectorName &&
-      property == e.cssProperty.property)) {
-    logger.d('${action.toString()} /*${value.runtimeType}*/ $value;');
-    action.cssActionFunction(action.cssProperty, value);
-    _appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
+  switch (selector) {
+    case CssSelectorEnum.pseudo:
+      if (selectorName == 'root') {
+        cssVariables[property] = value;
+        logger.d('cssVariables[ $property ] = $value;');
+      } else {
+        logger.e('unknown pseudo selector: $selectorName');
+      }
+      break;
+    default:
+      var applications = 0;
+      for (var action in cssActions.where((e) =>
+          selector == e.cssProperty.selector &&
+          selectorName == e.cssProperty.selectorName &&
+          property == e.cssProperty.property)) {
+        logger.d('${action.toString()} /*${value.runtimeType}*/ $value;');
+        action.cssActionFunction(action.cssProperty, value);
+        _appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
 
-    applications++;
-  }
-  if (applications == 0) {
-    _propertyValueLookupMap[CssProperty(selector, selectorName, property, value.runtimeType)] = value;
-    logger.i('CSS action assumed: '
-        '${cssSelectorCharacterMap[selector] ?? ''}$selectorName.$property: $value;');
+        applications++;
+      }
+      if (applications == 0) {
+        _propertyValueLookupMap[CssProperty(selector, selectorName, property, value.runtimeType)] = value;
+        logger.i('CSS action assumed: '
+            '${cssSelectorCharacterMap[selector] ?? ''}$selectorName.$property: $value;');
+      }
   }
 }

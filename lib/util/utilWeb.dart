@@ -35,7 +35,7 @@ class UtilWeb implements UtilWorkaround {
     List<Song> songs = await getSongsAsync();
     for (final Song song in songs) {
       App().addSong(song);
-      //logger.i('song: ${song.title.toString()}');
+      //logger.d('song: ${song.title.toString()}');
     }
   }
 
@@ -47,7 +47,7 @@ class UtilWeb implements UtilWorkaround {
       Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
 
       String s = utf8.decode(data);
-      //logger.i('data: ${s.substring(0, min(200, s.length))}');
+      //logger.d('data: ${s.substring(0, min(200, s.length))}');
       if (chordProRegExp.hasMatch(nameValue.name)) {
         //  chordpro encoded songs
         ret.add(ChordPro().parse(s));

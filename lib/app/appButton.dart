@@ -89,7 +89,7 @@ class AppWidget {
   Widget floatingBack() {
     return appTooltip(
       message: 'Back',
-      child: FloatingActionButton(
+      child: appFloatingActionButton(
         onPressed: () {
           Navigator.pop(context);
         },
@@ -188,6 +188,15 @@ class AppWidget {
       }
       return RichText(
         text: TextSpan(children: children),
+        //  don't allow the rich text to wrap:
+        textWidthBasis: TextWidthBasis.longestLine,
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+        softWrap: false,
+        textDirection: TextDirection.ltr,
+        textScaleFactor: 1.0,
+        textAlign: TextAlign.start,
+        textHeightBehavior: const TextHeightBehavior(),
       );
     }
 

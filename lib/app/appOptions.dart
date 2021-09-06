@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
@@ -38,21 +39,23 @@ class AppOptions extends ChangeNotifier {
             UserDisplayStyle.values) ??
         UserDisplayStyle.both;
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
-    _countIn = await _readBool('countIn');
-    _dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions');
-    _debug = await _readBool('debug');
-    _playWithLineIndicator = await _readBool('playWithLineIndicator');
-    _playWithMeasureIndicator = await _readBool('playWithMeasureIndicator');
-    _playWithBouncingBall = await _readBool('playWithBouncingBall');
-    _playWithMeasureLabel = await _readBool('playWithMeasureLabel');
-    _alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead');
-    _playWithChords = await _readBool('playWithChords');
-    _playWithBass = await _readBool('playWithBass');
-    _holiday = await _readBool('holiday');
-    _compressRepeats = await _readBool('compressRepeats');
+    _countIn = await _readBool('countIn', defaultValue: _countIn);
+    _dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions', defaultValue: _dashAllMeasureRepetitions);
+    _debug = await _readBool('debug', defaultValue: _debug);
+    _playWithLineIndicator = await _readBool('playWithLineIndicator', defaultValue: _playWithLineIndicator);
+    _playWithMeasureIndicator = await _readBool('playWithMeasureIndicator', defaultValue: _playWithMeasureIndicator);
+    _playWithBouncingBall = await _readBool('playWithBouncingBall', defaultValue: _playWithBouncingBall);
+    _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
+    _alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
+    _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
+    _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
+    _holiday = await _readBool('holiday', defaultValue: _holiday);
+    _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _user = await _readString('user');
-    _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays'));
+    _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays'));// fixme: needs defaultValues?
     notifyListeners();
+
+    logger.i('_compressRepeats: $_compressRepeats');
   }
 
   /// A persistent debug flag for internal software development use.

@@ -212,6 +212,7 @@ class LyricsTable {
       defaultColumnWidth: const IntrinsicColumnWidth(), //  covers all
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
+      border: TableBorder.symmetric(),
     );
 
     logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'

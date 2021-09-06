@@ -53,7 +53,7 @@ class _Options extends State<Options> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title:'bsteele Music App Options'),
+      appBar: appWidget.backBar(title: 'bsteele Music App Options'),
       body: DefaultTextStyle(
         //  fixme: necessary?
         style: style,
@@ -300,14 +300,8 @@ class _Options extends State<Options> {
                     ),
                     appSpace(),
                     if (_songUpdateService.isConnected)
-                      ElevatedButton(
-                        child: Text(
-                          _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
-                          style: generateAppTextStyle(
-                            fontWeight: FontWeight.bold,
-                            backgroundColor: Theme.of(context).primaryColor,
-                          ),
-                        ),
+                      appButton(
+                        _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
                         onPressed: () {
                           if (_songUpdateService.isConnected) {
                             _songUpdateService.isLeader = !_songUpdateService.isLeader;
@@ -316,12 +310,6 @@ class _Options extends State<Options> {
                           }
                           setState(() {});
                         },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                              _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.red),
-                        ),
                       ),
                   ]),
                   appSpace(space: 30),

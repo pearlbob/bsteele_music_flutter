@@ -425,7 +425,6 @@ class AppTheme {
                   break;
 
                 case visitor.PseudoClassSelector:
-                  logger.i('PseudoClassSelector: ${selector.simpleSelector.name}: ${selector.span?.text}');
                   cssSelector = CssSelectorEnum.pseudo;
                   break;
 
@@ -444,7 +443,6 @@ class AppTheme {
                     var expressions = expression;
                     for (var exp in expressions.expressions) {
                       if (exp is visitor.VarUsage) {
-                        logger.i('VarUsage: ${exp.name}: ${cssVariables[exp.name]} ');
                         applyAction(cssSelector, selector.simpleSelector.name, property, cssVariables[exp.name]);
                       } else if (exp is visitor.LengthTerm) {
                         applyAction(cssSelector, selector.simpleSelector.name, property, exp);
@@ -530,11 +528,11 @@ class AppTheme {
       var value = _propertyValueLookupMap[property];
       if (value == null) {
         var appliedAction = _appliedActions.firstWhere((e) => identical(property, e.cssAction.cssProperty));
-        logger.i('applied: ${appliedAction.cssAction.cssProperty.id}:'
+        logger.d('applied: ${appliedAction.cssAction.cssProperty.id}:'
             ' ${appliedAction.rawValue ?? appliedAction.value};'
             '    /* ${appliedAction.cssAction.cssProperty.type} */');
       } else {
-        logger.i('lookup: $property $value;'
+        logger.d('lookup: $property $value;'
             '    /* ${property.type} */');
       }
     }
@@ -615,9 +613,10 @@ FloatingActionButton appFloatingActionButton({
   );
 }
 
+const String _appDefaultFontFamily = 'Roboto';
 const List<String> appFontFamilyFallback = [
-  //'Roboto',
-  'DejaVu'
+  _appDefaultFontFamily,
+  'DejaVu', //  deals with "tofu" for flat and sharp symbols
   //'Bravura',  // music symbols are over sized in the vertical
 ];
 
@@ -635,7 +634,7 @@ TextStyle generateAppTextStyle({
   FontWeight? fontWeight,
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
-  String? fontFamily,
+  String? fontFamily = _appDefaultFontFamily,
 }) {
   fontSize ??= _sizeLookup(_universalFontSizeProperty);
   fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
@@ -647,6 +646,7 @@ TextStyle generateAppTextStyle({
     fontStyle: fontStyle,
     textBaseline: textBaseline,
     fontFamily: fontFamily,
+    fontFamilyFallback: appFontFamilyFallback,
   );
 }
 
@@ -983,7 +983,7 @@ void applyAction(
       }
       if (applications == 0) {
         _propertyValueLookupMap[CssProperty(selector, selectorName, property, value.runtimeType)] = value;
-        logger.i('CSS action assumed: '
+        logger.d('CSS action assumed: '
             '${cssSelectorCharacterMap[selector] ?? ''}$selectorName.$property: $value;');
       }
   }

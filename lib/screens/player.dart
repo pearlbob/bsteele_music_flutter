@@ -70,6 +70,9 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   _player?._songUpdateService.isLeader = false;
 
   _songUpdate = songUpdate;
+  if (!songUpdate.song.songBaseSameContent(_songUpdate?.song)) {
+    _player?._adjustDisplay();
+  }
   _lastSongUpdate = null;
   _player?._setSelectedSongKey(songUpdate.currentKey);
 
@@ -79,7 +82,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     _player?._setPlayState();
   });
 
-  logger.i('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  logger.d('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
 /// Display the song moments in sequential order.
@@ -197,9 +200,9 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     //  look at the rendered table size
     if (_chordFontSize == null) {
       RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
-      if (renderObject != null) {
-        var renderBox = renderObject as RenderBox;
-        var length = renderBox.size.width;
+      if (renderObject != null && renderObject is RenderTable) {
+        RenderTable renderTable = renderObject;
+        var length = renderTable.size.width;
         if (length > 0 && _lyricsTable.chordFontSize != null) {
           var lastChordFontSize = _chordFontSize ?? 0;
           var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
@@ -218,10 +221,13 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 ', lyrics fontSize: ${_lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
                 ', _lyricsTable.chordFontSize: ${_lyricsTable.chordFontSize?.toStringAsFixed(1)}'
                 ', _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
-                ' ${(100 * fontSize / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+                ' ${(100 * _chordFontSize! / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
           }
         }
       }
+    } else {
+      logger.d('_chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
+          ' ${(100 * _chordFontSize! / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
     }
   }
 
@@ -237,7 +243,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         widget._song = song;
         _table = null; //  force re-eval
         _chordFontSize == null;
-        //logger.i('new update song:  ${song.getSongMomentsSize()}');
         _play();
       }
       _setSelectedSongKey(_songUpdate!.currentKey);
@@ -254,7 +259,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
-    const sectionCenterLocationFraction = 0.4;
+    const sectionCenterLocationFraction = 0.35;
 
     if (_table == null || _chordFontSize != _lyricsTable.chordFontSize) {
       _table = _lyricsTable.lyricsTable(song, context,
@@ -433,12 +438,13 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 ),
               ),
             ),
-            //  tiny center marker
+
+            //  center marker
             if (_centerSelections)
               Positioned(
                 top: boxCenter,
                 child: Container(
-                  constraints: BoxConstraints.loose(Size(_app.screenInfo.widthInLogicalPixels / 16, 4)),
+                  constraints: BoxConstraints.loose(Size(_app.screenInfo.widthInLogicalPixels / 8, 6)),
                   decoration: const BoxDecoration(
                     color: Colors.black87,
                   ),
@@ -558,6 +564,12 @@ With escape, the app goes back to the play list.''',
                                           ),
                                       ],
                                     ),
+                                  //  recommend blues harp
+                                  Text(
+                                    'Blues harp: ${_selectedSongKey.nextKeyByFifth()}',
+                                    style: headerTextStyle,
+                                    softWrap: false,
+                                  ),
                                   if (_app.isEditReady)
                                     appTooltip(
                                       message: 'Edit the song',
@@ -586,7 +598,7 @@ With escape, the app goes back to the play list.''',
                                         'Use the space bar to advance the section while playing.',
                                     child: TextButton.icon(
                                       style: TextButton.styleFrom(
-                                        primary: _isPlaying ? Colors.red : Colors.green,//fixme:
+                                        primary: _isPlaying ? Colors.red : Colors.green, //fixme:
                                       ),
                                       icon: appIcon(
                                         _playStopIcon,
@@ -683,7 +695,7 @@ With escape, the app goes back to the play list.''',
                                               ? ''
                                               : 'following ${_songUpdateService.leaderName}'))
                                       : '',
-                                  style: _lyricsTextStyle,
+                                  style: headerTextStyle,
                                 ),
                               ], alignment: WrapAlignment.spaceAround),
                             ],
@@ -718,6 +730,26 @@ With escape, the app goes back to the play list.''',
                 }
               },
             ),
+            //  mask future sections for the leader to force them to stay on the current section
+            //  this minimizes the errors seen by followers with smaller displays.
+            if (_isPlaying && _songUpdateService.isLeader)
+              Positioned(
+                top: boxCenter + boxOffset,
+                child: Container(
+                  constraints: BoxConstraints.loose(
+                      Size(_lyricsTable.screenWidth, _app.screenInfo.heightInLogicalPixels - boxHeight)),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[
+                        Colors.grey.withAlpha(0),
+                        Colors.grey[700] ?? Colors.grey,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -909,7 +941,7 @@ With escape, the app goes back to the play list.''',
   }
 
   _updateSectionLocations() {
-    logger.i('_updateSectionLocations(): empty: ${_sectionLocations.isEmpty}');
+    logger.d('_updateSectionLocations(): empty: ${_sectionLocations.isEmpty}');
 
     //  lazy update
     if (_scrollController.hasClients && _sectionLocations.isEmpty && _lyricSectionRowLocations.isNotEmpty) {
@@ -1116,6 +1148,10 @@ With escape, the app goes back to the play list.''',
     _table = null;
     logger.d('_forceTableRedisplay');
     setState(() {});
+  }
+
+  void _adjustDisplay() {
+    _chordFontSize = null; //  take a shot at adjusting the display of chords and lyrics
   }
 
   bool almostEqual(double d1, double d2, double tolerance) {

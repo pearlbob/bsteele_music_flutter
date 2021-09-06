@@ -4,6 +4,9 @@
   Selectors are listed in increasing priority order.
 */
 
+:root {
+    --app-background-color: #2196f3;
+}
 
 * {
     background-color: cyan; /* type is Color, universal background color */
@@ -27,7 +30,7 @@ button {
 .tooltip {
     background-color: #dcedc8; /* type is Color, (elevated) button background color */
     color: deeppink; /* type is Color, (elevated) button foreground color */
-    font-size: 1.25vw; /* type is UnitTerm, button text font size */
+    font-size: 2.25vw; /* type is UnitTerm, button text font size */
 }
 
 .oddTitleTextStyle, .evenTitleTextStyle {
@@ -66,8 +69,8 @@ button {
 }
 
 .measure {
-    /*margin: 0.3vw;*/
-    /*padding: 0.5vw;*/
+    margin: 0.0vw;
+    padding: 0.8vw;
 }
 
 .chordNote {

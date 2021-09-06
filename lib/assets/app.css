@@ -96,6 +96,7 @@ button {
 }
 
 .lyrics {
+    /*  assumes the background color will come from the section */
     color: black;
     font-weight: normal;
     font-style: normal;

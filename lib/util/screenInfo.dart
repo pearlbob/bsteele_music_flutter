@@ -21,8 +21,9 @@ class ScreenInfo {
       _heightInLogicalPixels *= devicePixelRatio;
     }
 
-    _fontSize = 2 * appDefaultFontSize * min(2.5, max(0.5, _widthInLogicalPixels / minLogicalPixels));
+    _fontSize = 2 * appDefaultFontSize * min(2.25, max(1, _widthInLogicalPixels / minLogicalPixels));
     _isTooNarrow = _widthInLogicalPixels <= minLogicalPixels; //  logical pixels
+    _isWayTooNarrow = _widthInLogicalPixels <= 400;
     _titleScaleFactor = 1.25 * max(1, _widthInLogicalPixels / minLogicalPixels);
     logger.d('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
@@ -56,6 +57,10 @@ class ScreenInfo {
   /// An example is the edit screen.
   bool get isTooNarrow => _isTooNarrow;
   late bool _isTooNarrow;
+
+  /// try to compensate for a truly small screen
+  bool get isWayTooNarrow => _isWayTooNarrow;
+  late bool _isWayTooNarrow;
 
   // double get titleScaleFactor => _titleScaleFactor;
   late double _titleScaleFactor;

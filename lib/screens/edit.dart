@@ -1184,8 +1184,7 @@ class _Edit extends State<Edit> {
       //  chord section headers
       var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
       var sectionBackgroundColor = getColorForSectionBackground(chordSection?.sectionVersion.section);
-      var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(
-          backgroundColor: sectionBackgroundColor, color: getColorForSection(chordSection?.sectionVersion.section));
+      var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
         children.add(Container(
@@ -2497,8 +2496,8 @@ class _Edit extends State<Edit> {
     //  generate the widgets
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
-      var sectionChordTextStyle =
-          _chordTextStyle.copyWith(backgroundColor: getColorForSectionBackground(sectionVersion.section),
+      var sectionChordTextStyle = _chordTextStyle.copyWith(
+          backgroundColor: getColorForSectionBackground(sectionVersion.section),
           color: getColorForSection(sectionVersion.section));
 
       //fixme: deal with selectedSectionVersion;

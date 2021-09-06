@@ -98,19 +98,18 @@ class AppWidget {
     );
   }
 
-  AppBar backBar({Widget? titleWidget, String? title, double? fontSize}) {
-    return appBar(title: title, titleWidget: titleWidget, leading: back(), fontSize: fontSize);
+  AppBar backBar({Widget? titleWidget, String? title}) {
+    return appBar(title: title, titleWidget: titleWidget, leading: back());
   }
 
-  AppBar appBar(
-      {Key? key, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions, double? fontSize}) {
+  AppBar appBar({Key? key, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions}) {
     return AppBar(
       key: key ?? const ValueKey('appBar'),
       title: titleWidget ??
           Text(
             title ?? 'unknown',
             style: TextStyle(
-              fontSize: fontSize ?? _app.screenInfo.fontSize,
+              fontSize: _app.screenInfo.fontSize,
               fontWeight: FontWeight.bold,
               backgroundColor: Colors.transparent,
             ),

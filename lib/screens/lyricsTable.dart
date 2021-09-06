@@ -81,8 +81,7 @@ class LyricsTable {
       backgroundColor = getColorForSectionBackground(chordSection.getSection());
       var coloredChordTextStyle = _chordTextStyle.copyWith(
           backgroundColor: backgroundColor, color: getColorForSection(chordSection.getSection()));
-      _coloredLyricsTextStyle = _lyricsTextStyle.copyWith(
-          backgroundColor: backgroundColor, color: getColorForSection(chordSection.getSection()));
+      _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: backgroundColor);
       {
         var globalKey = GlobalObjectKey(lyricSection);
         if (sectionHeaderWidget != null) {
@@ -180,7 +179,7 @@ class LyricsTable {
               color: backgroundColor,
               child: Text(
                 rowLyrics,
-                style: _coloredLyricsTextStyle,
+                style: _coloredBackgroundLyricsTextStyle,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
               )));
@@ -209,7 +208,8 @@ class LyricsTable {
 
     _table = Table(
       key: GlobalKey(),
-      defaultColumnWidth: const IntrinsicColumnWidth(), //  covers all
+      defaultColumnWidth: const IntrinsicColumnWidth(),
+      //  covers all
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
       border: TableBorder.symmetric(),
@@ -225,7 +225,7 @@ class LyricsTable {
   Widget _defaultTextWidget(LyricSection lyricSection, int lineNumber, String s) {
     return Text(
       s,
-      style: _coloredLyricsTextStyle,
+      style: _coloredBackgroundLyricsTextStyle,
     );
   }
 
@@ -272,7 +272,7 @@ class LyricsTable {
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
-  TextStyle _coloredLyricsTextStyle = generateAppTextStyle();
+  TextStyle _coloredBackgroundLyricsTextStyle = generateLyricsTextStyle();
 
   double _shortLyricsWidth = 200; //  default value
 

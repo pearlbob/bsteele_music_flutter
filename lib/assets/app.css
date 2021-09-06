@@ -11,7 +11,7 @@
 * {
     background-color: white; /* type is Color, universal background color */
     color: black; /* type is Color, universal foreground color */
-    font-size: 2vw; /* type is LengthTerm, universal text font size */
+    font-size: 1.75vw; /* type is LengthTerm, universal text font size */
     font-weight: normal;
     font-style: normal;
 }
@@ -30,10 +30,10 @@ button {
 .tooltip {
     background-color: #dcedc8; /* type is Color, (elevated) button background color */
     color: black; /* type is Color, (elevated) button foreground color */
-    font-size: 1.85vw; /* type is UnitTerm, button text font size */
+    font-size: 1.75vw; /* type is UnitTerm, button text font size */
 }
 
-.oddTitleTextStyle, .evenTitleTextStyle {
+.oddTitleText, .evenTitleText {
     background-color: white; /* type is Color, odd row background color */
     color: black;
     /*font-family: sans-serif;*/
@@ -64,7 +64,7 @@ button {
 .icon {
     color: white; /* type is Color, icon foreground color */
     background-color: var(--app-background-color); /* type is Color, icon bar background color */
-    size: 1.5vw;
+    /*size: 2.5vw;*/ /* allow the dynamic sizing to function by NOT specifying the size */
 }
 
 .measure {
@@ -75,6 +75,7 @@ button {
 .chordNote {
     /*  assumes the background color will come from the section */
     color: black;
+    /*font-size: 10px; !*    app will dynamically override any font size specification *!*/
     font-weight: bold;
     font-style: normal;
 }

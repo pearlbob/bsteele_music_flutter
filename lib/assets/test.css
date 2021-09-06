@@ -11,8 +11,8 @@
 * {
     background-color: cyan; /* type is Color, universal background color */
     color: blue; /* type is Color, universal foreground color */
-    /*font-size: 1vw; !* type is LengthTerm, universal text font size *!*/
-    font-weight: bolder;
+    /*font-size: 5vw;*/ /* type is LengthTerm, universal text font size */
+    font-weight: normal;
     font-style: italic;
 }
 

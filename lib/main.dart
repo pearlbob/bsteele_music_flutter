@@ -437,7 +437,6 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.v('screen: logical: (${_app.screenInfo.widthInLogicalPixels},${_app.screenInfo.heightInLogicalPixels})');
     logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
 
-
     final TextStyle searchTextStyle = generateAppTextStyle(
       color: Colors.black45,
       fontWeight: FontWeight.bold,
@@ -610,40 +609,42 @@ class _MyHomePageState extends State<MyHomePage> {
               child: appIcon(Icons.menu)),
         ),
         actions: <Widget>[
-          appTooltip(
-            message: "Visit bsteele.com, the provider of this app.",
-            child: InkWell(
-              onTap: () {
-                openLink('http://www.bsteele.com');
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: const Image(
-                  image: AssetImage('lib/assets/runningMan.png'),
-                  width: kToolbarHeight,
-                  height: kToolbarHeight,
-                  semanticLabel: "bsteele.com website",
+          if (!_app.screenInfo.isWayTooNarrow)
+            appTooltip(
+              message: "Visit bsteele.com, the provider of this app.",
+              child: InkWell(
+                onTap: () {
+                  openLink('http://www.bsteele.com');
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: const Image(
+                    image: AssetImage('lib/assets/runningMan.png'),
+                    width: kToolbarHeight,
+                    height: kToolbarHeight,
+                    semanticLabel: "bsteele.com website",
+                  ),
                 ),
               ),
             ),
-          ),
-          appTooltip(
-            message: "Visit Community Jams, the motivation and main user for this app.",
-            child: InkWell(
-              onTap: () {
-                openLink('http://communityjams.org');
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: const Image(
-                  image: AssetImage('lib/assets/cjLogo.png'),
-                  width: kToolbarHeight,
-                  height: kToolbarHeight,
-                  semanticLabel: "community jams",
+          if (!_app.screenInfo.isWayTooNarrow)
+            appTooltip(
+              message: "Visit Community Jams, the motivation and main user for this app.",
+              child: InkWell(
+                onTap: () {
+                  openLink('http://communityjams.org');
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: const Image(
+                    image: AssetImage('lib/assets/cjLogo.png'),
+                    width: kToolbarHeight,
+                    height: kToolbarHeight,
+                    semanticLabel: "community jams",
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
 
@@ -849,7 +850,7 @@ class _MyHomePageState extends State<MyHomePage> {
           )),
       ]),
 
-    floatingActionButton: appTooltip(
+      floatingActionButton: appTooltip(
         message: 'Back to the list top',
         child: appFloatingActionButton(
           mini: !_app.isScreenBig,

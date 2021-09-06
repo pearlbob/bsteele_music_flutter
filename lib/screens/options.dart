@@ -337,19 +337,19 @@ class _Options extends State<Options> {
                           value: _app.displayKeyOffset,
                         ),
                       ]),
-                  Row(children: <Widget>[
-                    appWidget.checkbox(
-                      value: _appOptions.debug,
-                      onChanged: (value) {
-                        _appOptions.debug = value;
-                        Logger.level = _appOptions.debug ? Level.debug : Level.info;
-                        setState(() {});
-                      },
-                    ),
-                    const Text(
-                      'debug: ',
-                    ),
-                  ]),
+                  // Row(children: <Widget>[
+                  //   appWidget.checkbox(
+                  //     value: _appOptions.debug,
+                  //     onChanged: (value) {
+                  //       _appOptions.debug = value;
+                  //       Logger.level = _appOptions.debug ? Level.debug : Level.info;
+                  //       setState(() {});
+                  //     },
+                  //   ),
+                  //   const Text(
+                  //     'debug: ',
+                  //   ),
+                  // ]),
                   //  //  fixme: audio!
                   // Row(children: <Widget>[
                   //   appWidget.checkbox(

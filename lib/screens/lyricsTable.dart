@@ -52,7 +52,7 @@ class LyricsTable {
     _lyricSectionRowLocations = [];
     List<TableRow> rows = [];
     List<Widget> children = []; //  items for the current row
-    Color backgroundColor = getColorForSectionBackground(Section.get(SectionEnum.chorus));
+    Color backgroundColor = getBackgroundColorForSection(Section.get(SectionEnum.chorus));
 
     //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
@@ -78,9 +78,9 @@ class LyricsTable {
       }
 
       //  add the section heading
-      backgroundColor = getColorForSectionBackground(chordSection.getSection());
+      backgroundColor = getBackgroundColorForSection(chordSection.getSection());
       var coloredChordTextStyle = _chordTextStyle.copyWith(
-          backgroundColor: backgroundColor, color: getColorForSection(chordSection.getSection()));
+          backgroundColor: backgroundColor, color: getForegroundColorForSection(chordSection.getSection()));
       _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: backgroundColor);
       {
         var globalKey = GlobalObjectKey(lyricSection);

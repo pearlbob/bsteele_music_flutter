@@ -1133,7 +1133,7 @@ class _Edit extends State<Edit> {
           style: generateAppTextStyle(
               fontSize: _chordFontSize,
               fontWeight: FontWeight.bold,
-              backgroundColor: getColorForSectionBackground(chordSection.sectionVersion.section)),
+              backgroundColor: getBackgroundColorForSection(chordSection.sectionVersion.section)),
         ),
       );
     }).toList();
@@ -1183,7 +1183,7 @@ class _Edit extends State<Edit> {
 
       //  chord section headers
       var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
-      var sectionBackgroundColor = getColorForSectionBackground(chordSection?.sectionVersion.section);
+      var sectionBackgroundColor = getBackgroundColorForSection(chordSection?.sectionVersion.section);
       var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
@@ -1645,7 +1645,7 @@ class _Edit extends State<Edit> {
     }
 
     ChordSection chordSection = measureNode as ChordSection;
-    var sectionColor = getColorForSectionBackground(chordSection.sectionVersion.section);
+    var sectionColor = getBackgroundColorForSection(chordSection.sectionVersion.section);
     var sectionChordTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
 
     if (_selectedEditDataPoint == editDataPoint) {
@@ -1838,7 +1838,7 @@ class _Edit extends State<Edit> {
       measure = measureNode.transposeToKey(_key) as Measure;
     }
 
-    Color sectionColor = getColorForSectionBackground(editDataPoint.location?.sectionVersion?.section);
+    Color sectionColor = getBackgroundColorForSection(editDataPoint.location?.sectionVersion?.section);
     var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
 
@@ -2245,7 +2245,7 @@ class _Edit extends State<Edit> {
     }
     MeasureRepeat repeat = measureNode as MeasureRepeat;
 
-    Color sectionColor = getColorForSectionBackground(editDataPoint.location?.sectionVersion?.section);
+    Color sectionColor = getBackgroundColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     if (_selectedEditDataPoint == editDataPoint) {
       var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
@@ -2366,7 +2366,7 @@ class _Edit extends State<Edit> {
       return Text('is not comment: ${editDataPoint.location}: "$measureNode"');
     }
 
-    Color color = getColorForSectionBackground(editDataPoint.location?.sectionVersion?.section);
+    Color color = getBackgroundColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     //  not editing this measureNode
     return InkWell(
@@ -2497,14 +2497,14 @@ class _Edit extends State<Edit> {
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
       var sectionChordTextStyle = _chordTextStyle.copyWith(
-          backgroundColor: getColorForSectionBackground(sectionVersion.section),
-          color: getColorForSection(sectionVersion.section));
+          backgroundColor: getBackgroundColorForSection(sectionVersion.section),
+          color: getForegroundColorForSection(sectionVersion.section));
 
       //fixme: deal with selectedSectionVersion;
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
         value: sectionVersion,
         child: Container(
-          color: getColorForSectionBackground(sectionVersion.section),
+          color: getBackgroundColorForSection(sectionVersion.section),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -2538,7 +2538,7 @@ class _Edit extends State<Edit> {
         });
       },
       style: generateAppTextStyle(
-        color: getColorForSectionBackground(selectedSectionVersion.section),
+        color: getBackgroundColorForSection(selectedSectionVersion.section),
         textBaseline: TextBaseline.alphabetic,
       ),
     );

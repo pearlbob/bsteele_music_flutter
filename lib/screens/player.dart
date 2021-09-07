@@ -603,6 +603,7 @@ With escape, the app goes back to the play list.''',
                                       icon: appIcon(
                                         _playStopIcon,
                                         color: Colors.green, //  fixme:
+                                        size: 2 * _app.screenInfo.fontSize,   //  fixme: why is this required?
                                       ),
                                       label: const Text(''),
                                       onPressed: () {

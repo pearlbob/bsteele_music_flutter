@@ -10,30 +10,30 @@
 
 * {
     background-color: cyan; /* type is Color, universal background color */
-    color: blue; /* type is Color, universal foreground color */
+    /*color: blue; !* type is Color, universal foreground color *!*/
     /*font-size: 5vw;*/ /* type is LengthTerm, universal text font size */
     font-weight: normal;
     font-style: italic;
 }
 
-appbar {
+.appbar {
     background-color: orange; /* type is Color, app bar background color */
     color: purple; /* type is Color, app bar foreground color */
 }
 
-button {
+.button {
     background-color: #2196f3; /* type is Color, (elevated) button background color */
     color: white; /* type is Color, (elevated) button foreground color */
     font-size: 1.25vw; /* type is UnitTerm, button text font size */
 }
 
 .tooltip {
-    background-color: #dcedc8; /* type is Color, (elevated) button background color */
+    background-color: cyan; /* type is Color, (elevated) button background color */
     color: deeppink; /* type is Color, (elevated) button foreground color */
     font-size: 2.25vw; /* type is UnitTerm, button text font size */
 }
 
-.oddTitleTextStyle, .evenTitleTextStyle {
+.oddTitleText, .evenTitleText {
     background-color: peru; /* type is Color, odd row background color */
     color: mediumspringgreen;
     /*font-family: sans-serif;*/
@@ -69,13 +69,13 @@ button {
 }
 
 .measure {
-    margin: 0.0vw;
-    padding: 0.8vw;
+    margin: 1.0vw;
+    padding: 1.8vw;
 }
 
 .chordNote {
     /*  assumes the background color will come from the section */
-    color: purple;
+    /*color: #dd1144;*/
     font-weight: bolder;
     font-style: normal;
 }
@@ -107,7 +107,7 @@ button {
 
 .section { /*  for all section types   */
     background-color: white; /* type is Color, default section background color */
-    color: darkgreen;
+    /*color: burlywood;*/
     /*font-family: sans-serif;*/
     /*font-size: clamp( 12px, 2.25vw, 40px);*/
     /*font-style: normal;*/

@@ -119,6 +119,7 @@ enum CssClassEnum {
   sectionTag,
   sectionOutro,
   icon,
+  docs,
 }
 
 //  universal
@@ -380,6 +381,13 @@ void _initSections() {
   _init(_sectionOutroBackgroundProperty);
 }
 
+final _docFontSizeProperty = CssProperty.fromCssClass(CssClassEnum.docs, 'font-size', visitor.UnitTerm,
+    defaultValue: visitor.LengthTerm(24.0, '24.0', null), description: 'documentation text font size');
+
+void _initDocs() {
+  _init(_docFontSizeProperty);
+}
+
 /// used to store values, even those not transferable to a flutter theme
 Map<CssProperty, dynamic> _propertyValueLookupMap = {};
 SplayTreeSet<CssProperty>? _cssPropertiesSet = SplayTreeSet();
@@ -531,6 +539,7 @@ class AppTheme {
     _initLyrics();
     _initIcons();
     _initSections();
+    _initDocs();
 
     String cssAsString = await loadString('lib/assets/$css');
     List<parser.Message> errors = [];
@@ -678,12 +687,6 @@ class AppTheme {
   final RegExp _threeDigitHexRegExp = RegExp(r'^[\da-fA-f]{3}$');
 }
 
-@Deprecated('bad exposure')
-Color? appbarColor() {
-  // fixme: appbarColor()
-  return _getColor(_appbarColorProperty);
-}
-
 double? _sizeLookup(CssProperty property) {
   var value = _getPropertyValue(property);
   if (value == null) {
@@ -724,7 +727,8 @@ ElevatedButton appButton(
         style: _app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: onPressed,
-    style: _app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+    style:
+        _app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
 }
 
@@ -766,12 +770,14 @@ TextStyle generateAppTextStyle({
   TextBaseline? textBaseline,
   String? fontFamily = _appDefaultFontFamily,
   TextDecoration? decoration,
+  bool nullBackground = false,
 }) {
   fontSize ??= _sizeLookup(_universalFontSizeProperty);
   fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
   return TextStyle(
     color: color ?? _getColor(_universalForegroundColorProperty),
-    backgroundColor: backgroundColor ?? _getColor(_universalBackgroundColorProperty),
+    //  watch out: backgroundColor interferes with mouse text select on textFields!
+    backgroundColor: nullBackground ? null : backgroundColor ?? _getColor(_universalBackgroundColorProperty),
     fontSize: fontSize,
     fontWeight: fontWeight ?? _fontWeightValue(_universalFontWeightProperty),
     fontStyle: fontStyle ?? _fontStyle(_getPropertyValue(_universalFontStyleProperty)),
@@ -779,6 +785,35 @@ TextStyle generateAppTextStyle({
     fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration,
+  );
+}
+
+TextStyle generateAppTextFieldStyle({
+  Color? color,
+  double? fontSize,
+  FontWeight? fontWeight,
+  FontStyle? fontStyle,
+  TextBaseline? textBaseline,
+  String? fontFamily = _appDefaultFontFamily,
+  TextDecoration? decoration,
+}) {
+  return generateAppTextStyle(
+      color: color,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      fontFamily: fontFamily,
+      textBaseline: textBaseline,
+      decoration: decoration,
+      nullBackground: true //  force a null background for mouse text selection
+      );
+}
+
+TextStyle generateAppBarLinkTextStyle() {
+  return generateAppTextStyle(
+    fontWeight: FontWeight.bold,
+    color: _getColor(_appbarColorProperty),
+    backgroundColor: Colors.transparent,
   );
 }
 
@@ -1152,3 +1187,11 @@ void applyAction(
       }
   }
 }
+
+ThemeData generateDocsThemeData() {
+  return ThemeData(
+    textTheme: TextTheme(bodyText2: TextStyle(fontSize: _sizeLookup(_docFontSizeProperty) ?? 24.0)),
+  );
+}
+
+final ThemeData appDocsThemeData = generateDocsThemeData();

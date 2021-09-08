@@ -14,18 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-// final _white = Paint()..color = Colors.white;
-// final _black = Paint()..color = Colors.black;
-// final _blackOutline = Paint()
-//   ..color = Colors.black
-//   ..style = PaintingStyle.stroke
-//   ..strokeWidth = 1;
-// final _scaleBlackOutline = Paint()
-//   ..color = Colors.black38
-//   ..style = PaintingStyle.stroke
-//   ..strokeWidth = 1;
-double _fontSize = 24;
-
 music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());

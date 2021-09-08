@@ -43,13 +43,10 @@ late Song _initialSong;
 const double _defaultChordFontSize = 28;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
-TextStyle _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-TextStyle _boldTextStyle = generateAppTextStyle(
-  fontSize: _defaultFontSize,
-  fontWeight: FontWeight.bold,
-  color: Colors.black87,
-);
-TextStyle _labelTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+TextStyle _titleTextStyle = generateAppTextStyle();
+TextStyle _boldTextStyle = generateAppTextStyle();
+TextStyle _textFieldStyle = generateAppTextStyle();
+TextStyle _labelTextStyle = generateAppTextStyle();
 
 const double _entryWidth = 18 * _defaultChordFontSize;
 
@@ -59,8 +56,8 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
-const Level _editLog = Level.debug;
-const Level _editEntry = Level.debug;
+const Level _editLog = Level.info;
+const Level _editEntry = Level.info;
 const Level _editKeyboard = Level.debug;
 
 ///   screen to edit a song
@@ -272,6 +269,16 @@ class _Edit extends State<Edit> {
       //  don't load the song until we know its font sizes
       _loadSong(_song);
     }
+
+    //  generate edit text styles
+    _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
+    _boldTextStyle = generateAppTextStyle(
+      fontSize: _defaultFontSize,
+      fontWeight: FontWeight.bold,
+      color: Colors.black87,
+    );
+    _textFieldStyle = generateAppTextFieldStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
+    _labelTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
 
     //  build the chords display based on the song chord section grid
     Table? _chordTable;
@@ -646,7 +653,7 @@ class _Edit extends State<Edit> {
                                     hintText: 'Enter the song title.',
                                   ),
                                   maxLength: null,
-                                  style: generateAppTextStyle(
+                                  style: generateAppTextFieldStyle(
                                       fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -659,7 +666,7 @@ class _Edit extends State<Edit> {
                                 padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                                 child: Text(
                                   'Artist: ',
-                                  style: _labelTextStyle,
+                                  style: _titleTextStyle,
                                 ),
                               ),
                               Expanded(
@@ -668,7 +675,7 @@ class _Edit extends State<Edit> {
                                   controller: _artistTextEditingController,
                                   decoration: const InputDecoration(hintText: 'Enter the song\'s artist.'),
                                   maxLength: null,
-                                  style: _boldTextStyle,
+                                  style: _textFieldStyle,
                                 ),
                               ),
                             ]),
@@ -680,7 +687,7 @@ class _Edit extends State<Edit> {
                                 padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                                 child: Text(
                                   'Cover Artist:',
-                                  style: _labelTextStyle,
+                                  style: _textFieldStyle,
                                 ),
                               ),
                               Expanded(
@@ -689,7 +696,7 @@ class _Edit extends State<Edit> {
                                   controller: _coverArtistTextEditingController,
                                   decoration: const InputDecoration(hintText: 'Enter the song\'s cover artist.'),
                                   maxLength: null,
-                                  style: _boldTextStyle,
+                                  style: _textFieldStyle,
                                 ),
                               ),
                             ]),
@@ -701,7 +708,7 @@ class _Edit extends State<Edit> {
                                 padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                                 child: Text(
                                   'Copyright:',
-                                  style: _labelTextStyle,
+                                  style: _textFieldStyle,
                                 ),
                               ),
                               Expanded(
@@ -710,7 +717,7 @@ class _Edit extends State<Edit> {
                                   controller: _copyrightTextEditingController,
                                   decoration: const InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
                                   maxLength: null,
-                                  style: _boldTextStyle,
+                                  style: _textFieldStyle,
                                 ),
                               ),
                             ]),
@@ -756,7 +763,7 @@ class _Edit extends State<Edit> {
                                 controller: _bpmTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter the song\'s beats per minute.'),
                                 maxLength: null,
-                                style: _boldTextStyle,
+                                style: _textFieldStyle,
                                 onEditingComplete: () {
                                   logger.log(_editLog, 'bpm: onEditingComplete: ${_bpmTextEditingController.text}');
                                 },
@@ -800,7 +807,7 @@ class _Edit extends State<Edit> {
                                 controller: _userTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter your user name.'),
                                 maxLength: null,
-                                style: _boldTextStyle,
+                                style: _textFieldStyle,
                               ),
                             ),
                             appSpace(),
@@ -1660,7 +1667,7 @@ class _Edit extends State<Edit> {
           controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
           maxLength: null,
-          style: sectionChordTextStyle,
+          style: _textFieldStyle,
           decoration: const InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -1859,7 +1866,7 @@ class _Edit extends State<Edit> {
           controller: _editTextController,
           focusNode: _editTextFieldFocusNode,
           maxLength: null,
-          style: sectionChordBoldTextStyle,
+          style: _textFieldStyle,
           decoration: InputDecoration(
             border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -1936,6 +1943,7 @@ class _Edit extends State<Edit> {
           'Enter the major chord.',
           appButton(
             _keyChordNote.toString(),
+            fontSize: _defaultChordFontSize,
             onPressed: () {
               setState(() {
                 _updateChordText(_keyChordNote.toMarkup());
@@ -1953,6 +1961,7 @@ class _Edit extends State<Edit> {
             'Enter the minor chord.',
             appButton(
               sc.toString(),
+              fontSize: _defaultChordFontSize,
               onPressed: () {
                 setState(() {
                   _updateChordText(sc.toMarkup());
@@ -1967,6 +1976,7 @@ class _Edit extends State<Edit> {
             'Enter the dominant7 chord.',
             appButton(
               sc.toString(),
+              fontSize: _defaultChordFontSize,
               onPressed: () {
                 setState(() {
                   _updateChordText(sc.toMarkup());
@@ -2069,6 +2079,7 @@ class _Edit extends State<Edit> {
                     'Enter a silent chord.',
                     appButton(
                       'X',
+                      fontSize: _defaultChordFontSize,
                       onPressed: () {
                         setState(() {
                           _updateChordText('X');
@@ -2164,6 +2175,19 @@ class _Edit extends State<Edit> {
                             },
                           ),
                         ),
+                      _editTooltip(
+                        'Cancel the modification.',
+                        InkWell(
+                          child: Icon(
+                            Icons.cancel,
+                            size: _defaultChordFontSize,
+                            color: _measureEntryValid ? Colors.black : Colors.red,
+                          ),
+                          onTap: () {
+                            _performMeasureEntryCancel();
+                          },
+                        ),
+                      ),
                       if (_measureEntryValid)
                         _editTooltip(
                           'Accept the modification and extend the row.',
@@ -2210,19 +2234,6 @@ class _Edit extends State<Edit> {
                             },
                           ),
                         ),
-                      _editTooltip(
-                        'Cancel the modification.',
-                        InkWell(
-                          child: Icon(
-                            Icons.cancel,
-                            size: _defaultChordFontSize,
-                            color: _measureEntryValid ? Colors.black : Colors.red,
-                          ),
-                          onTap: () {
-                            _performMeasureEntryCancel();
-                          },
-                        ),
-                      ),
                     ]),
               ]));
     }
@@ -2275,30 +2286,30 @@ class _Edit extends State<Edit> {
                   ),
                   appButton(
                     'x2',
+                    fontSize: _defaultChordFontSize,
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 2);
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    backgroundColor: sectionColor,
                   ),
                   appButton(
                     'x3',
+                    fontSize: _defaultChordFontSize,
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 3);
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    backgroundColor: sectionColor,
                   ),
                   appButton(
                     'x4',
+                    fontSize: _defaultChordFontSize,
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 4);
                       _undoStackPushIfDifferent();
                       _performMeasureEntryCancel();
                     },
-                    backgroundColor: sectionColor,
                   ),
                 ]),
               ),

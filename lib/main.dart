@@ -121,7 +121,9 @@ void main() async {
 }
 
 /*
-//   fixme: escape on main page, linux
+//  fixme: crash on edit clear
+//  fixme: can't append a phrase (measure) after a repeat in edit
+//  fixme: escape on main page, linux
 //  fixme: edit speed issues?
 //  fixme: joy to the world, sheet music, measure size error
 //  fixme: edit screen: section id is inline on chords, but above in lyrics
@@ -451,6 +453,11 @@ class _MyHomePageState extends State<MyHomePage> {
       textBaseline: TextBaseline.alphabetic,
       color: Colors.black,
     );
+    final TextStyle titleTextFieldStyle = generateAppTextFieldStyle(
+      fontWeight: FontWeight.bold,
+      textBaseline: TextBaseline.alphabetic,
+      color: Colors.black,
+    );
     final fontSize = searchTextStyle.fontSize ?? 25;
     logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
 
@@ -570,7 +577,10 @@ class _MyHomePageState extends State<MyHomePage> {
         }
         _metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
           value: nameValue,
-          child: Text('${nameValue.name}: ${nameValue.value}',  style: searchDropDownStyle,),
+          child: Text(
+            '${nameValue.name}: ${nameValue.value}',
+            style: searchDropDownStyle,
+          ),
           onTap: () {
             setState(() {
               _selectedListNameValue = nameValue;
@@ -767,7 +777,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   hintStyle: searchTextStyle,
                 ),
                 autofocus: true,
-                style: titleTextStyle,
+                style: titleTextFieldStyle,
                 onChanged: (text) {
                   setState(() {
                     logger.v('search text: "$text"');

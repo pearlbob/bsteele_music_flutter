@@ -394,8 +394,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final double boxHeight = boxCenter * 2;
     final double boxOffset = boxCenter;
 
-    final hoverColor = Colors.blue[700];
-    const Color blue300 = Color(0xFF64B5F6);
+    final hoverColor = Colors.blue[700];  //  fixme with css
+    const Color blue300 = Color(0xFF64B5F6);  //  fixme with css
     final showTopOfDisplay = !_isPlaying; //|| (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
     logger.log(
         _playerLogScroll,
@@ -478,11 +478,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                                     },
                                     child: Text(
                                       song.title,
-                                      style: generateAppTextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: appbarColor(),
-                                        backgroundColor: Colors.transparent,
-                                      ),
+                                      style: generateAppBarLinkTextStyle(),
                                     ),
                                     hoverColor: hoverColor,
                                   ),

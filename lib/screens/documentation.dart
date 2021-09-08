@@ -2,7 +2,6 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -269,7 +268,7 @@ class _State extends State<Documentation> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(Theme.of(context)),// fixme in css
+                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(appDocsThemeData),
                     data: desc.toString())
               ]),
         ),

@@ -26,9 +26,7 @@ class _State extends State<Documentation> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
 
-    final double fontSize = ScreenInfo(context).fontSize;
-
-    TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
+    TextStyle style = generateAppTextStyle(color: Colors.black87);
 
     StringBuffer desc = StringBuffer();
     desc.write(
@@ -271,7 +269,8 @@ class _State extends State<Documentation> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(Theme.of(context)), data: desc.toString())
+                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(Theme.of(context)),// fixme in css
+                    data: desc.toString())
               ]),
         ),
       ),

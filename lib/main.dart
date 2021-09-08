@@ -570,7 +570,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
         _metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
           value: nameValue,
-          child: Text('${nameValue.name}: ${nameValue.value}'),
+          child: Text('${nameValue.name}: ${nameValue.value}',  style: searchDropDownStyle,),
           onTap: () {
             setState(() {
               _selectedListNameValue = nameValue;
@@ -763,7 +763,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: _searchTextFieldController,
                 focusNode: _searchFocusNode,
                 decoration: InputDecoration(
-                  hintText: "enter search text",
+                  hintText: 'enter search text',
                   hintStyle: searchTextStyle,
                 ),
                 autofocus: true,
@@ -813,9 +813,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
               value: _selectedSortType,
-              style: titleTextStyle,
+              style: searchDropDownStyle,
               alignment: Alignment.topLeft,
               elevation: 8,
+              itemHeight: null,
             ),
           ]),
           if (!_appOptions.holiday)
@@ -836,6 +837,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 value: _selectedListNameValue ?? allSongsMetadataNameValue,
                 style: searchDropDownStyle,
                 elevation: 8,
+                itemHeight: null,
               ),
             ]),
         ], alignment: WrapAlignment.spaceBetween),
@@ -1060,6 +1062,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _searchTextFieldController.selection =
         TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
     FocusScope.of(context).requestFocus(_searchFocusNode);
+    logger.v('_selectSearchText: ${_searchTextFieldController.selection}');
   }
 
   _navigateToPlayer(BuildContext context, Song song) async {

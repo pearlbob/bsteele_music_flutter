@@ -443,6 +443,7 @@ class _State extends State<Detail> {
                             style: generateAppTextStyle(
                               textBaseline: TextBaseline.ideographic, //  fixme: what is this and why?
                             ),
+                            itemHeight: null,
                           ),
                         ],
                       ),

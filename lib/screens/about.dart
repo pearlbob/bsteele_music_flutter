@@ -64,7 +64,7 @@ class _About extends State<About> with  WidgetsBindingObserver{
                     },
                     child: Text(
                       'bsteele.com',
-                      style: generateAppTextStyle(),
+                      style: generateAppLinkTextStyle(),
                     ),
                   ),
                 ]),

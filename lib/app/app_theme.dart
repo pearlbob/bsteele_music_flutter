@@ -152,9 +152,9 @@ void _initUniversal() {
 }
 
 //  app bar
-final _appbarBackgroundColorProperty = CssProperty.fromCssClass( CssClassEnum.appbar, 'background-color', Color,
+final _appbarBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'background-color', Color,
     defaultValue: _defaultBackgroundColor, description: 'app bar background color');
-final _appbarColorProperty = CssProperty.fromCssClass( CssClassEnum.appbar, 'color', Color,
+final _appbarColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'color', Color,
     defaultValue: _defaultForegroundColor, description: 'app bar foreground color');
 
 void _initAppBar() {
@@ -163,12 +163,12 @@ void _initAppBar() {
 }
 
 //  button
-final _buttonFontScaleProperty = CssProperty.fromCssClass( CssClassEnum.button, 'font-size', visitor.UnitTerm,
+final _buttonFontScaleProperty = CssProperty.fromCssClass(CssClassEnum.button, 'font-size', visitor.UnitTerm,
     defaultValue: visitor.ViewportTerm(2, '2', null, parser.TokenKind.UNIT_VIEWPORT_VW),
     description: 'button text font size');
-final _buttonBackgroundColorProperty = CssProperty.fromCssClass( CssClassEnum.button, 'background-color', Color,
+final _buttonBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.button, 'background-color', Color,
     defaultValue: _defaultBackgroundColor, description: 'button background color');
-final _buttonColorProperty = CssProperty.fromCssClass( CssClassEnum.button, 'color', Color,
+final _buttonColorProperty = CssProperty.fromCssClass(CssClassEnum.button, 'color', Color,
     defaultValue: _defaultForegroundColor, description: 'button foreground color');
 final _oddTitleTextColorProperty = CssProperty.fromCssClass(CssClassEnum.oddTitleText, 'color', Color,
     defaultValue: Colors.black, description: 'odd row foreground color');
@@ -554,7 +554,7 @@ class AppTheme {
                   break;
                 case visitor.ElementSelector:
                   cssSelector =
-                      selector.simpleSelector.name == '*' ? CssSelectorEnum.universal : CssSelectorEnum.id;//fixme
+                      selector.simpleSelector.name == '*' ? CssSelectorEnum.universal : CssSelectorEnum.id; //fixme
                   break;
                 case visitor.IdSelector:
                   cssSelector = CssSelectorEnum.id;
@@ -724,7 +724,7 @@ ElevatedButton appButton(
         style: _app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: onPressed,
-    style: _app.themeData.elevatedButtonTheme.style,
+    style: _app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
 }
 
@@ -765,6 +765,7 @@ TextStyle generateAppTextStyle({
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
   String? fontFamily = _appDefaultFontFamily,
+  TextDecoration? decoration,
 }) {
   fontSize ??= _sizeLookup(_universalFontSizeProperty);
   fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
@@ -777,6 +778,14 @@ TextStyle generateAppTextStyle({
     textBaseline: textBaseline,
     fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback,
+    decoration: decoration,
+  );
+}
+
+TextStyle generateAppLinkTextStyle() {
+  return generateAppTextStyle(
+    color: Colors.blue, //  fixme
+    decoration: TextDecoration.underline,
   );
 }
 
@@ -959,6 +968,7 @@ class CssProperty implements Comparable<CssProperty> {
         }
       }
     }
+    logger.i(_documentCssProperties(_cssPropertiesSet));
 
     //  no longer required
     _cssPropertiesUsed = null;
@@ -1011,30 +1021,39 @@ class _AppliedAction {
 
 void generateCssDocumentation() {
   logger.i('CssToCssFile:');
+  logger.i(_documentCssProperties(cssActions.map((e) => e.cssProperty)));
+}
+
+String _documentCssProperties(final Iterable<CssProperty>? properties) {
+  if (properties == null) {
+    return '';
+  }
 
   var sb = StringBuffer('''
 /*
   bsteele Music App CSS style commands documentation
   
   Selectors are listed in increasing priority order.
+  Note that many, many CSS features are missing in this mapping.
+  The concept is to give basic control of major items.
 */
 
 ''');
   CssSelectorEnum lastSelector = CssSelectorEnum.id;
   String lastSelectorName = '';
-  SplayTreeSet<CssAction> sortedActions = SplayTreeSet();
-  sortedActions.addAll(cssActions);
-  for (var cssAction in sortedActions) {
-    if (cssAction.cssProperty.selector != lastSelector || cssAction.cssProperty.selectorName != lastSelectorName) {
+  SplayTreeSet<CssProperty> sortedProperties = SplayTreeSet();
+  sortedProperties.addAll(properties);
+  for (var property in sortedProperties) {
+    var value = _getPropertyValue(property) ?? 'unknown value';
+    if (property.selector != lastSelector || property.selectorName != lastSelectorName) {
       if (lastSelectorName.isNotEmpty) {
         sb.writeln('}\n');
       }
-      lastSelector = cssAction.cssProperty.selector;
-      lastSelectorName = cssAction.cssProperty.selectorName;
-      sb.writeln('${cssAction.cssProperty.selectorName} {');
+      lastSelector = property.selector;
+      lastSelectorName = property.selectorName;
+      sb.writeln('${cssSelectorCharacterMap[CssSelectorEnum.classSelector] ?? ''}${property.selectorName} {');
     }
-    var property = cssAction.cssProperty;
-    var value = _getPropertyValue(property) ?? 'unknown value';
+
     String valueString = value.toString();
     switch (value.runtimeType) {
       case CssColor:
@@ -1055,7 +1074,7 @@ void generateCssDocumentation() {
   if (lastSelectorName.isNotEmpty) {
     sb.writeln('}\n');
   }
-  logger.i(sb.toString());
+  return sb.toString();
 }
 
 List<_AppliedAction> _appliedActions = [];

@@ -334,6 +334,7 @@ class _Options extends State<Options> {
                           },
                           style: style,
                           value: _app.displayKeyOffset,
+                          itemHeight: null,
                         ),
                       ]),
                   // Row(children: <Widget>[

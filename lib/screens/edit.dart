@@ -550,9 +550,7 @@ class _Edit extends State<Edit> {
                             children: <Widget>[
                               appButton(
                                 songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                                backgroundColor: (songHasChanged && _isValidSong)
-                                    ? Theme.of(context).textTheme.bodyText1?.backgroundColor
-                                    : _disabledColor,
+                                backgroundColor: (songHasChanged && _isValidSong ? null : _disabledColor),
                                 onPressed: () {
                                   if (songHasChanged && _isValidSong) {
                                     _enterSong();
@@ -739,6 +737,7 @@ class _Edit extends State<Edit> {
                                 style: generateAppTextStyle(
                                   textBaseline: TextBaseline.ideographic,
                                 ),
+                                itemHeight: null,
                               ),
                             ),
                             SizedBox.shrink(
@@ -785,6 +784,7 @@ class _Edit extends State<Edit> {
                                   textBaseline: TextBaseline.alphabetic,
                                   fontSize: _defaultFontSize,
                                   fontWeight: FontWeight.bold),
+                              itemHeight: null,
                             ),
 
                             Container(
@@ -1171,6 +1171,7 @@ class _Edit extends State<Edit> {
                     _pushLyricsEntries();
                   }
                 },
+                itemHeight: null,
               ),
             ),
           ],
@@ -1385,6 +1386,7 @@ class _Edit extends State<Edit> {
                 _pushLyricsEntries();
               }
             },
+            itemHeight: null,
           ),
         ),
       );
@@ -1730,6 +1732,7 @@ class _Edit extends State<Edit> {
                       logger.v('_sectionVersion = ${_sectionVersion.toString()}');
                     },
                     style: sectionChordTextStyle,
+                    itemHeight: null,
                   )
                 ],
               ),
@@ -2056,6 +2059,7 @@ class _Edit extends State<Edit> {
                           },
                           value: _keyChordNote,
                           style: sectionAppTextStyle,
+                          itemHeight: null,
                         ),
                       )),
                   _majorChordButton,
@@ -2093,6 +2097,7 @@ class _Edit extends State<Edit> {
                             });
                           },
                           style: sectionAppTextStyle,
+                          itemHeight: null,
                         ),
                       ),
                     ),
@@ -2112,6 +2117,7 @@ class _Edit extends State<Edit> {
                             });
                           },
                           style: sectionAppTextStyle,
+                          itemHeight: null,
                         ),
                       ),
                     ),
@@ -2134,6 +2140,7 @@ class _Edit extends State<Edit> {
                                 _performMeasureEntryCancel();
                               });
                             },
+                            itemHeight: null,
                           ),
                         ),
                       ),
@@ -2541,6 +2548,7 @@ class _Edit extends State<Edit> {
         color: getBackgroundColorForSection(selectedSectionVersion.section),
         textBaseline: TextBaseline.alphabetic,
       ),
+      itemHeight: null,
     );
   }
 

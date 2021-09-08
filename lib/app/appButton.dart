@@ -142,16 +142,10 @@ class AppWidget {
     );
 
     if (measure.chords.isNotEmpty) {
-      var needsSpace = false;
       List<TextSpan> children = [];
       for (Chord chord in measure.chords) {
         var transposedChord = chord.transpose(key, halfSteps);
         var isSlash = transposedChord.slashScaleNote != null;
-
-        if (needsSpace) {
-          children.add(TextSpan(text: ' ', style: slashStyle));
-          needsSpace = false;
-        }
 
         //  chord note
         children.add(TextSpan(
@@ -177,14 +171,14 @@ class AppWidget {
           style: style,
         ));
         if (isSlash) {
-          var s = '/' + transposedChord.slashScaleNote.toString();
+          var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
           children.add(TextSpan(
             text: s,
             style: slashStyle,
           ));
-          needsSpace = true;
         }
       }
+
       return RichText(
         text: TextSpan(children: children),
         //  don't allow the rich text to wrap:

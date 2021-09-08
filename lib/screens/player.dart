@@ -254,9 +254,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     _displayKeyOffset = _app.displayKeyOffset;
 
-    var _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
-    var _chordsTextStyle = _lyricsTable.chordTextStyle;
-    var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
+    final _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
+    final headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
     const sectionCenterLocationFraction = 0.35;
@@ -293,7 +292,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       }
 
       _keyDropDownMenuList.clear();
-      final double chordsTextWidth = textWidth(context, _chordsTextStyle, 'G'); //  something sane
+      final double chordsTextWidth = textWidth(context, headerTextStyle, 'G'); //  something sane
       const String onString = '(on ';
       final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
 
@@ -634,21 +633,21 @@ With escape, the app goes back to the play list.''',
                                     value: _selectedSongKey,
                                     style: headerTextStyle,
                                     iconSize: lookupIconSize(),
-                                    itemHeight: 1.2 * kMinInteractiveDimension,
+                                    itemHeight: null,
                                   ),
                                   appSpace(
                                     space: 5,
                                   ),
                                   if (_displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
                                     Text(
-                                      '($_selectedSongKey' +
+                                      ' ($_selectedSongKey' +
                                           (_displayKeyOffset > 0 ? '+$_displayKeyOffset' : '') +
                                           (_isCapo && _capoLocation > 0
                                               ? '-$_capoLocation'
                                               : '') //  indicate: "maps to"
                                           +
                                           '=$_displaySongKey)',
-                                      style: _lyricsTextStyle,
+                                      style: headerTextStyle,
                                     ),
                                 ], alignment: WrapAlignment.spaceBetween),
                                 appWrap([
@@ -672,7 +671,7 @@ With escape, the app goes back to the play list.''',
                                       value: song.beatsPerMinute,
                                       style: headerTextStyle,
                                       iconSize: lookupIconSize(),
-                                      itemHeight: 1.2 * kMinInteractiveDimension,
+                                      itemHeight: null,
                                     )
                                   else
                                     Text(

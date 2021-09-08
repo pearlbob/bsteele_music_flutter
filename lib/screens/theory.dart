@@ -48,8 +48,7 @@ class _State extends State<TheoryWidget> {
   @override
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
-    _fontSize = App().screenInfo.fontSize;
-    _style = generateAppTextStyle(color: Colors.black87, fontSize: _fontSize);
+    _style = generateAppTextStyle(color: Colors.black87);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
     List<ScaleNote> scaleNoteValues = [];
@@ -106,6 +105,7 @@ class _State extends State<TheoryWidget> {
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
                           ),
+                          itemHeight: null,
                         ),
                       ],
                     ),
@@ -138,6 +138,7 @@ class _State extends State<TheoryWidget> {
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
                           ),
+                          itemHeight: null,
                         ),
                       ],
                     ),
@@ -169,6 +170,7 @@ class _State extends State<TheoryWidget> {
                             color: Colors.black,
                             textBaseline: TextBaseline.ideographic,
                           ),
+                          itemHeight: null,
                         ),
                       ],
                     ),
@@ -728,5 +730,5 @@ class _State extends State<TheoryWidget> {
   final AppWidget appWidget = AppWidget();
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
-  TextStyle _style = generateAppTextStyle();
+  TextStyle _style = generateAppTextStyle();  //  initial default only
 }

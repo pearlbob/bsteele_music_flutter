@@ -1,4 +1,5 @@
-
+import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,8 +25,26 @@ class _CssDemo extends State<CssDemo> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
 
+    Widget sections;
+    {
+      var children = <Widget>[];
+      for (var section in SectionEnum.values) {
+        var backgroundColor = getBackgroundColorForSection(Section.get(section));
+        var coloredChordTextStyle = generateChordTextStyle(fontSize: 40, backgroundColor: backgroundColor);
+        children.add(Container(
+            margin: getMeasureMargin(),
+            padding: getMeasurePadding(),
+            color: backgroundColor,
+            child: Text(
+              Util.enumToString(section),
+              style: coloredChordTextStyle,
+            )));
+      }
+      sections = appWrapFullWidth(children);
+    }
+
     return Scaffold(
-      appBar: appWidget.backBar(title:'bsteele Music App CSS demo'),
+      appBar: appWidget.backBar(title: 'bsteele Music App CSS demo'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87),
         child: Container(
@@ -36,12 +55,13 @@ class _CssDemo extends State<CssDemo> {
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 Text(
-                  'Text',
+                  'Default Text Style',
                   style: generateAppTextStyle(),
                 ),
                 appSpace(),
                 appButton('appButton', onPressed: () {}),
                 appSpace(),
+                sections,
               ]),
         ),
       ),

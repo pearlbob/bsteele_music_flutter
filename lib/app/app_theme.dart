@@ -832,11 +832,12 @@ TextStyle generateTooltipTextStyle() {
   );
 }
 
-TextStyle generateChordTextStyle({double? fontSize}) {
+TextStyle generateChordTextStyle({double? fontSize, Color? backgroundColor}) {
   return generateAppTextStyle(
     color: _getPropertyValue(_chordNoteColorProperty),
-    backgroundColor:
-        _getPropertyValue(_chordNoteBackgroundColorProperty) ?? _getPropertyValue(_universalBackgroundColorProperty),
+    backgroundColor: backgroundColor ??
+        _getPropertyValue(_chordNoteBackgroundColorProperty) ??
+        _getPropertyValue(_universalBackgroundColorProperty),
     fontSize: fontSize ?? _sizeLookup(_chordNoteFontSizeProperty),
     fontWeight: _fontWeight(_getPropertyValue(_chordNoteFontWeightProperty)) ??
         _fontWeight(_getPropertyValue(_universalFontWeightProperty)),

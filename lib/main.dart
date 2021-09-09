@@ -723,15 +723,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToDocumentation(context);
               },
             ),
-            // ListTile(
-            //   title: Text(
-            //     "CSS Demo",
-            //     style: _navTextStyle,
-            //   ),
-            //   onTap: () {
-            //     _navigateToCssDemo(context);
-            //   },
-            // ),
+            if (kDebugMode)
+              ListTile(
+                title: Text(
+                  "CSS Demo",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToCssDemo(context);
+                },
+              ),
             ListTile(
               key: _aboutKey,
               title: Text(

@@ -80,7 +80,8 @@ class LyricsTable {
       //  add the section heading
       backgroundColor = getBackgroundColorForSection(chordSection.getSection());
       var coloredChordTextStyle = _chordTextStyle.copyWith(
-          backgroundColor: backgroundColor, color: getForegroundColorForSection(chordSection.getSection()));
+          backgroundColor: backgroundColor,
+      );
       _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: backgroundColor);
       {
         var globalKey = GlobalObjectKey(lyricSection);

@@ -48,6 +48,7 @@ SongUpdate? _lastSongUpdate;
 music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
 const _centerSelections = true; //fixme: add later!
+const _maxFontSizeFraction = 0.035;
 
 const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
@@ -206,7 +207,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         if (length > 0 && _lyricsTable.chordFontSize != null) {
           var lastChordFontSize = _chordFontSize ?? 0;
           var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
-          fontSize = Util.limit(fontSize, 8.0, 150.0) as double;
+          logger.d('fontSize: $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
+              ' of ${_app.screenInfo.widthInLogicalPixels}');
+          fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * _app.screenInfo.widthInLogicalPixels) as double;
+          logger.d('limited : $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
+              ' of ${_app.screenInfo.widthInLogicalPixels}');
 
           if ((fontSize - lastChordFontSize).abs() > 1) {
             _chordFontSize = fontSize;
@@ -394,8 +399,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final double boxHeight = boxCenter * 2;
     final double boxOffset = boxCenter;
 
-    final hoverColor = Colors.blue[700];  //  fixme with css
-    const Color blue300 = Color(0xFF64B5F6);  //  fixme with css
+    final hoverColor = Colors.blue[700]; //  fixme with css
+    const Color blue300 = Color(0xFF64B5F6); //  fixme with css
     final showTopOfDisplay = !_isPlaying; //|| (_sectionLocations.isNotEmpty && _sectionTarget <= _sectionLocations[0]);
     logger.log(
         _playerLogScroll,
@@ -598,7 +603,7 @@ With escape, the app goes back to the play list.''',
                                       icon: appIcon(
                                         _playStopIcon,
                                         color: Colors.green, //  fixme:
-                                        size: 2 * _app.screenInfo.fontSize,   //  fixme: why is this required?
+                                        size: 2 * _app.screenInfo.fontSize, //  fixme: why is this required?
                                       ),
                                       label: const Text(''),
                                       onPressed: () {

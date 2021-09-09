@@ -758,7 +758,7 @@ class _Edit extends State<Edit> {
                               ),
                             ),
                             SizedBox(
-                              width: 2 * _defaultFontSize,
+                              width: 3 * _defaultFontSize,
                               child: TextField(
                                 controller: _bpmTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter the song\'s beats per minute.'),
@@ -802,7 +802,7 @@ class _Edit extends State<Edit> {
                               ),
                             ),
                             SizedBox(
-                              width: 150.0,
+                              width: 300.0,
                               child: TextField(
                                 controller: _userTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter your user name.'),

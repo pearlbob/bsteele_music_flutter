@@ -860,9 +860,11 @@ With escape, the app goes back to the play list.''',
     }
   }
 
-  double _boxCenter() { return min(_app.screenInfo.heightInLogicalPixels * _sectionCenterLocationFraction,
-  0.6 * 1080 / 2 //  limit leader area to hdtv size
-  );}
+  double _boxCenter() {
+    return min(_app.screenInfo.heightInLogicalPixels * _sectionCenterLocationFraction,
+        0.8 * 1080 / 2 //  limit leader area to hdtv size
+        );
+  }
 
   _scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, '_scrollToSectionByMoment( $songMoment )');

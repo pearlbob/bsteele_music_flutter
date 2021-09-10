@@ -209,7 +209,8 @@ class LyricsTable {
 
     Map<int, TableColumnWidth>? columnWidths = {};
     if (rows.isNotEmpty) {
-      columnWidths[rows[0].children!.length - 1] = const MinColumnWidth(IntrinsicColumnWidth(), FractionColumnWidth(0.43));
+      columnWidths[rows[0].children!.length - 1] =
+          const MinColumnWidth(IntrinsicColumnWidth(), FractionColumnWidth(0.35));
     }
 
     _table = Table(
@@ -242,7 +243,7 @@ class LyricsTable {
     _screenWidth = _app.screenInfo.widthInLogicalPixels;
     _screenHeight = _app.screenInfo.heightInLogicalPixels;
     _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 500));
-    _lyricsFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.65);
+    _lyricsFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.6);
     _shortLyricsWidth = _screenWidth * 0.25;
 
     //  text styles

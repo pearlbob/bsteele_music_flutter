@@ -121,6 +121,11 @@ void main() async {
 }
 
 /*
+//  fixme: can't add repeats
+//  fixme: can't add phrase after a repeat
+//  fixme: edit: recent chords
+//  fixme: edit lyrics entry rows should align to chord rows as they will in the player display
+//  fixme: "I'll Take You There" by "Staple Singers, The": maxLength: 107
 //  fixme: first leader selection not shown
 //  fixme: show header if first section, even in play
 //  fixme: full screen option
@@ -134,6 +139,7 @@ void main() async {
 //  fixme: song diff page
 //  fixme: surrender leadership when leader song update appears
 //  fixme: space in title entry jumps to lyrics Section
+//  fixme: singer mode: first measure after the section
 
 session stuff:
 //  fixme: in the park: no web list read

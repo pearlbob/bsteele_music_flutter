@@ -312,31 +312,28 @@ class _Options extends State<Options> {
                       ),
                   ]),
                   appSpace(space: 30),
-                  Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                          child: const Text(
-                            'Display key offset: ',
-                          ),
-                        ),
-                        DropdownButton<int>(
-                          items: _keyOffsetItems,
-                          onChanged: (_value) {
-                            if (_value != null) {
-                              setState(() {
-                                _app.displayKeyOffset = _value;
-                                logger.d('key offset: $_value');
-                              });
-                            }
-                          },
-                          style: style,
-                          value: _app.displayKeyOffset,
-                          itemHeight: null,
-                        ),
-                      ]),
+                  appWrapFullWidth(<Widget>[
+                    Container(
+                      padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                      child: const Text(
+                        'Display key offset: ',
+                      ),
+                    ),
+                    DropdownButton<int>(
+                      items: _keyOffsetItems,
+                      onChanged: (_value) {
+                        if (_value != null) {
+                          setState(() {
+                            _app.displayKeyOffset = _value;
+                            logger.d('key offset: $_value');
+                          });
+                        }
+                      },
+                      style: style,
+                      value: _app.displayKeyOffset,
+                      itemHeight: null,
+                    ),
+                  ]),
                   // Row(children: <Widget>[
                   //   appWidget.checkbox(
                   //     value: _appOptions.debug,

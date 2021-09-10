@@ -121,6 +121,9 @@ void main() async {
 }
 
 /*
+//  fixme: first leader selection not shown
+//  fixme: show header if first section, even in play
+//  fixme: full screen option
 //  fixme: crash on edit clear
 //  fixme: can't append a phrase (measure) after a repeat in edit
 //  fixme: escape on main page, linux
@@ -505,15 +508,9 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
               if (_app.isScreenBig)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: <Widget>[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
+                appWrapFullWidth(  <Widget>[
+                    appWrap(
+                       <Widget>[
                         Text(
                           song.title,
                           style: oddEvenTitleTextStyle,
@@ -530,6 +527,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: oddEvenTextStyle,
                     ),
                   ],
+                  alignment: WrapAlignment.spaceBetween,
                 ),
               if (_app.isPhone)
                 Column(

@@ -54,8 +54,6 @@ class AppOptions extends ChangeNotifier {
     _user = await _readString('user');
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays'));// fixme: needs defaultValues?
     notifyListeners();
-
-    logger.i('_compressRepeats: $_compressRepeats');
   }
 
   /// A persistent debug flag for internal software development use.

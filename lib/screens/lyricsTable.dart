@@ -80,7 +80,7 @@ class LyricsTable {
       //  add the section heading
       backgroundColor = getBackgroundColorForSection(chordSection.getSection());
       var coloredChordTextStyle = _chordTextStyle.copyWith(
-          backgroundColor: backgroundColor,
+        backgroundColor: backgroundColor,
       );
       _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: backgroundColor);
       {
@@ -207,9 +207,15 @@ class LyricsTable {
       children = [];
     }
 
+    Map<int, TableColumnWidth>? columnWidths = {};
+    if (rows.isNotEmpty) {
+      columnWidths[rows[0].children!.length - 1] = const MinColumnWidth(IntrinsicColumnWidth(), FractionColumnWidth(0.43));
+    }
+
     _table = Table(
       key: GlobalKey(),
       defaultColumnWidth: const IntrinsicColumnWidth(),
+      columnWidths: columnWidths,
       //  covers all
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: rows,
@@ -237,7 +243,7 @@ class LyricsTable {
     _screenHeight = _app.screenInfo.heightInLogicalPixels;
     _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 500));
     _lyricsFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.65);
-    _shortLyricsWidth = _screenWidth * 0.20;
+    _shortLyricsWidth = _screenWidth * 0.25;
 
     //  text styles
     _chordTextStyle = generateChordTextStyle(fontSize: _chordFontSize);
@@ -275,7 +281,7 @@ class LyricsTable {
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
   TextStyle _coloredBackgroundLyricsTextStyle = generateLyricsTextStyle();
 
-  double _shortLyricsWidth = 200; //  default value
+  double _shortLyricsWidth = 200; //  default value only
 
   Table get table => _table;
   Table _table = Table();

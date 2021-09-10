@@ -55,19 +55,21 @@ Widget appTooltip({
       padding: const EdgeInsets.all(8));
 }
 
-Wrap appWrap(List<Widget> children, {WrapAlignment? alignment, double? spacing}) {
+Wrap appWrap(List<Widget> children,
+    {WrapAlignment? alignment, WrapCrossAlignment? crossAxisAlignment, double? spacing}) {
   return Wrap(
     children: children,
-    crossAxisAlignment: WrapCrossAlignment.center,
+    crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
     alignment: alignment ?? WrapAlignment.start,
     spacing: spacing ?? 0.0,
   );
 }
 
-Widget appWrapFullWidth(List<Widget> children, {WrapAlignment? alignment, double? spacing}) {
+Widget appWrapFullWidth(List<Widget> children,
+    {WrapAlignment? alignment, WrapCrossAlignment? crossAxisAlignment, double? spacing}) {
   return SizedBox(
     width: double.infinity,
-    child: appWrap(children, alignment: alignment, spacing: spacing),
+    child: appWrap(children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
   );
 }
 

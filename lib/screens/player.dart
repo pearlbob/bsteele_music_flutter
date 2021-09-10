@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -49,6 +50,7 @@ music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
 _Player? _player;
 const _centerSelections = true; //fixme: add later!
 const _maxFontSizeFraction = 0.035;
+const _sectionCenterLocationFraction = 0.35;
 
 const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
@@ -263,13 +265,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
-    const sectionCenterLocationFraction = 0.35;
-
     if (_table == null || _chordFontSize != _lyricsTable.chordFontSize) {
       _table = _lyricsTable.lyricsTable(song, context,
           musicKey: _displaySongKey, expandRepeats: !_appOptions.compressRepeats, chordFontSize: _chordFontSize);
       _lyricSectionRowLocations = _lyricsTable.lyricSectionRowLocations;
-      _screenOffset = _centerSelections ? _lyricsTable.screenHeight * sectionCenterLocationFraction : 0;
+      _screenOffset = _centerSelections ? _boxCenter() : 0;
       _sectionLocations.clear(); //  clear any previous song cached data
       logger.d('_table clear: index: $_sectionIndex');
     }
@@ -395,7 +395,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       _bpmDropDownMenuList = bpmList;
     }
 
-    final double boxCenter = _app.screenInfo.heightInLogicalPixels * sectionCenterLocationFraction;
+    final double boxCenter = _boxCenter();
     final double boxHeight = boxCenter * 2;
     final double boxOffset = boxCenter;
 
@@ -716,9 +716,10 @@ With escape, the app goes back to the play list.''',
                           'Last edit by: ${song.user}',
                           style: headerTextStyle,
                         ),
+                        //  allow for scrolling to a relatively high box center
                         if (_isPlaying)
                           SizedBox(
-                            height: _screenOffset,
+                            height: _app.screenInfo.heightInLogicalPixels,
                           ),
                       ]),
                 ),
@@ -745,7 +746,7 @@ With escape, the app goes back to the play list.''',
                       end: Alignment.bottomCenter,
                       colors: <Color>[
                         Colors.grey.withAlpha(0),
-                        Colors.grey[700] ?? Colors.grey,
+                        Colors.grey[850] ?? Colors.grey,
                       ],
                     ),
                   ),
@@ -858,6 +859,10 @@ With escape, the app goes back to the play list.''',
       }
     }
   }
+
+  double _boxCenter() { return min(_app.screenInfo.heightInLogicalPixels * _sectionCenterLocationFraction,
+  0.6 * 1080 / 2 //  limit leader area to hdtv size
+  );}
 
   _scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, '_scrollToSectionByMoment( $songMoment )');

@@ -446,13 +446,13 @@ Color? _getColor(CssProperty property) {
 }
 
 EdgeInsetsGeometry? getMeasureMargin() {
-  var property = const CssProperty.temporary(CssSelectorEnum.classSelector, 'measure', 'margin');
+  var property = CssProperty.temporary(CssSelectorEnum.classSelector, 'measure', 'margin');
   double? w = _sizeLookup(property);
   return w == null ? null : EdgeInsets.all(w);
 }
 
 EdgeInsetsGeometry? getMeasurePadding() {
-  var property = const CssProperty.temporary(CssSelectorEnum.classSelector, 'measure', 'padding');
+  var property = CssProperty.temporary(CssSelectorEnum.classSelector, 'measure', 'padding');
   double? w = _sizeLookup(property);
   return w == null ? null : EdgeInsets.all(w);
 }
@@ -923,9 +923,10 @@ class CssProperty implements Comparable<CssProperty> {
     allCssProperties.add(this);
   }
 
-  const CssProperty.temporary(this.selector, this.selectorName, this.property)
+  CssProperty.temporary(this.selector, this.selectorName, this.property)
       : type = Object,
-        _id = 'none',
+        _id = '${cssSelectorCharacterMap[selector] ?? ''}${selector == CssSelectorEnum.universal ? '' : selectorName}'
+            '.$property',
         defaultValue = 'none',
         description = 'none';
 
@@ -979,9 +980,9 @@ class CssProperty implements Comparable<CssProperty> {
 
   static void logCreations() {
     if (kDebugMode) {
-      logger.i('CssProperty.allCssProperties.length: ${CssProperty.allCssProperties.length}');
+      logger.d('CssProperty.allCssProperties.length: ${CssProperty.allCssProperties.length}');
       for (var property in allCssProperties) {
-        logger.i(
+        logger.d(
             'log CssProperty: $property: ${_getPropertyValue(property)}, was ${property.defaultValue}, hash: ${property.hashCode}');
       }
 
@@ -992,21 +993,35 @@ class CssProperty implements Comparable<CssProperty> {
       generateLyricsTextStyle();
       generateChordDescriptorTextStyle();
       generateChordSlashNoteTextStyle();
+      generateAppTextFieldStyle();
+      generateAppBarLinkTextStyle();
+      generateAppLinkTextStyle();
 
-      if (_cssPropertiesUsed != null) {
+      if (_cssPropertiesUsed != null && _cssPropertiesSet != null) {
+        logger.d('_cssPropertiesUsed.length: ${_cssPropertiesUsed!.length}');
+        logger.d('_cssPropertiesSet.length: ${_cssPropertiesSet!.length}');
         for (var property in _cssPropertiesUsed!) {
-          logger.i('used: $property');
+          if (_cssPropertiesUsed!.contains(property)) {
+            if (_cssPropertiesSet!.contains(property)) {
+              logger.v('cssProperty used and set: $property: ${_getPropertyValue(property)}');
+            } else {
+              logger.w('cssProperty used but NOT set: $property');
+            }
+          } else {
+            logger.w('cssProperty NOT used: $property');
+          }
         }
-      }
-      if (_cssPropertiesSet != null) {
         for (var property in _cssPropertiesSet!) {
-          logger.i('set:  $property = ${_getPropertyValue(property)}');
+          if (!_cssPropertiesUsed!.contains(property)) {
+            logger.w('cssProperty set but NOT used: $property: ${_getPropertyValue(property)}');
+          }
         }
       }
     }
-    logger.i(_documentCssProperties(_cssPropertiesSet));
+    // logger.i(_documentCssProperties(_cssPropertiesSet));
 
-    //  no longer required
+    //  values no longer required after initialization
+    allCssProperties.clear();
     _cssPropertiesUsed = null;
     _cssPropertiesSet = null;
   }

@@ -121,6 +121,9 @@ void main() async {
 }
 
 /*
+//  fixme: align all repeats in a single column of the edit screen
+//  fixme: add phrase before first repeat in edit screen section
+//  fixme: add phrase between repeats in edit screen
 //  fixme: can't add repeats
 //  fixme: can't add phrase after a repeat
 //  fixme: edit: recent chords

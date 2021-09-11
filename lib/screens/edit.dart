@@ -56,8 +56,8 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
-const Level _editLog = Level.info;
-const Level _editEntry = Level.info;
+const Level _editLog = Level.debug;
+const Level _editEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
 
 ///   screen to edit a song
@@ -288,10 +288,10 @@ class _Edit extends State<Edit> {
       logger.d('size: ' + MediaQuery.of(context).size.toString());
 
       //  build the table from the song chord section grid
-      Grid<ChordSectionLocation> grid = _song.getChordSectionLocationGrid();
+      Grid<ChordSectionLocation> chordGrid = _song.getChordSectionLocationGrid();
       Grid<_EditDataPoint> editDataPoints = Grid();
 
-      if (grid.isNotEmpty) {
+      if (chordGrid.isNotEmpty) {
         List<TableRow> rows = [];
         List<Widget> children = [];
 
@@ -301,8 +301,8 @@ class _Edit extends State<Edit> {
         //  compute the maximum number of columns to even out the table rows
 
         {
-          for (int r = 0; r < grid.getRowCount(); r++) {
-            List<ChordSectionLocation?>? row = grid.getRow(r);
+          for (int r = 0; r < chordGrid.getRowCount(); r++) {
+            List<ChordSectionLocation?>? row = chordGrid.getRow(r);
             maxCols = max(maxCols, row?.length ?? 0);
 
             // //  test for no end of row
@@ -328,8 +328,8 @@ class _Edit extends State<Edit> {
         SectionVersion? lastSectionVersion;
 
         //  map the song chord section grid to a flutter table, one row at a time
-        for (int r = 0; r < grid.getRowCount(); r++) {
-          List<ChordSectionLocation?>? row = grid.getRow(r);
+        for (int r = 0; r < chordGrid.getRowCount(); r++) {
+          List<ChordSectionLocation?>? row = chordGrid.getRow(r);
           if (row == null) {
             continue;
           }
@@ -354,10 +354,16 @@ class _Edit extends State<Edit> {
             if (firstChordSectionLocation == null) continue;
 
             SectionVersion? sectionVersion = firstChordSectionLocation.sectionVersion;
+            if (sectionVersion == null) {
+              continue;
+            }
 
             if (sectionVersion != lastSectionVersion) {
               //  add a plus for appending a new row to the section
               _addSectionVersionEndToTable(rows, lastSectionVersion, 2 * maxCols /*col+add markers*/);
+
+              var sectionBackgroundColor = getBackgroundColorForSection(sectionVersion.section);
+              _sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
 
               //  add the section heading
               //           columnFiller = sectionVersion.toString();
@@ -1192,7 +1198,7 @@ class _Edit extends State<Edit> {
       //  chord section headers
       var chordSection = _song.getChordSection(entry.lyricSection.sectionVersion);
       var sectionBackgroundColor = getBackgroundColorForSection(chordSection?.sectionVersion.section);
-      var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
+      _sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
         children.add(Container(
@@ -1201,7 +1207,7 @@ class _Edit extends State<Edit> {
           color: sectionBackgroundColor,
           child: Text(
             entry.lyricSection.sectionVersion.toString(),
-            style: sectionChordBoldTextStyle,
+            style: _sectionChordBoldTextStyle,
           ),
         ));
 
@@ -1248,7 +1254,7 @@ class _Edit extends State<Edit> {
                 color: sectionBackgroundColor,
                 child: Text(
                   measure.transpose(_key, 0),
-                  style: sectionChordBoldTextStyle,
+                  style: _sectionChordBoldTextStyle,
                   maxLines: 1,
                 ),
               ));
@@ -1468,12 +1474,12 @@ class _Edit extends State<Edit> {
     ChordSection? chordSection = _song.findChordSectionBySectionVersion(sectionVersion);
     ChordSectionLocation? loc = _song.findLastChordSectionLocation(chordSection);
     if (loc != null) {
+      loc = ChordSectionLocation(loc.sectionVersion, phraseIndex: loc.phraseIndex);
       _EditDataPoint editDataPoint = _EditDataPoint(loc, onEndOfRow: true);
       editDataPoint._measureEditType = MeasureEditType.append;
       Widget w = _plusMeasureEditGridDisplayWidget(editDataPoint,
           tooltip: 'add new measure on a new row'
-              ' loc: ${loc.toString()} ${describeEnum(editDataPoint._measureEditType)}' //
-          );
+              '${kDebugMode ? ' loc: ${loc.toString()} ${describeEnum(editDataPoint._measureEditType)}' : ''}');
       List<Widget> children = [];
       children.add(_nullEditGridDisplayWidget());
       children.add(w);
@@ -1744,7 +1750,7 @@ class _Edit extends State<Edit> {
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: <Widget>[
@@ -1756,6 +1762,19 @@ class _Edit extends State<Edit> {
                         Icons.delete,
                         size: _defaultChordFontSize,
                         color: Colors.black,
+                      ),
+                      onTap: () {
+                        _performMeasureEntryCancel();
+                      },
+                    ),
+                  ),
+                  _editTooltip(
+                    'Cancel the modification.',
+                    InkWell(
+                      child: Icon(
+                        Icons.cancel,
+                        size: _defaultChordFontSize,
+                        color: _measureEntryValid ? Colors.black : Colors.red,
                       ),
                       onTap: () {
                         _performMeasureEntryCancel();
@@ -2399,7 +2418,7 @@ class _Edit extends State<Edit> {
               'modify or delete the measureNode',
               Text(
                 measureNode.toString(),
-                style: _chordBoldTextStyle,
+                style: _sectionChordBoldTextStyle,
               ))),
     );
   }
@@ -2470,7 +2489,9 @@ class _Edit extends State<Edit> {
               color: _addColor,
             ),
             child: _editTooltip(
-              tooltip ?? ('add new measure on this row'),
+              tooltip ??
+                  ('add new measure on this row'
+                      '${kDebugMode ? ' loc: ${editDataPoint.toString()}' : ''}'),
               Icon(
                 Icons.add,
                 size: _appendFontSize,
@@ -2988,6 +3009,7 @@ class _Edit extends State<Edit> {
   MeasureNode? _measureEntryNode;
 
   TextStyle _chordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
+  TextStyle _sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
   TextStyle _chordTextStyle = generateAppTextStyle();
   TextStyle _lyricsTextStyle = generateAppTextStyle();
   EdgeInsets _marginInsets = const EdgeInsets.all(4);

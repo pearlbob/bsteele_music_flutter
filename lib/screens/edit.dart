@@ -53,6 +53,8 @@ const double _entryWidth = 18 * _defaultChordFontSize;
 const Color _disabledColor = Color(0xFFE0E0E0);
 final Section _defaultSection = Section.get(SectionEnum.chorus);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
+const _addRowColor = Color(0xFFDDA0DD); // Plum
+int _maxCols = 0;
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
@@ -283,7 +285,7 @@ class _Edit extends State<Edit> {
     //  build the chords display based on the song chord section grid
     Table? _chordTable;
     _tableKeyId = 0;
-    int maxCols = 0;
+    _maxCols = 0;
     {
       logger.d('size: ' + MediaQuery.of(context).size.toString());
 
@@ -303,7 +305,7 @@ class _Edit extends State<Edit> {
         {
           for (int r = 0; r < chordGrid.getRowCount(); r++) {
             List<ChordSectionLocation?>? row = chordGrid.getRow(r);
-            maxCols = max(maxCols, row?.length ?? 0);
+            _maxCols = max(_maxCols, row?.length ?? 0);
 
             // //  test for no end of row
             // if (row != null && row.isNotEmpty) {
@@ -323,6 +325,9 @@ class _Edit extends State<Edit> {
             // }
           }
         }
+        _maxCols = 2 * _maxCols //  item + the add measure marker plus
+            +
+            1; //  add row plus marker
 
         //  keep track of the section
         SectionVersion? lastSectionVersion;
@@ -360,7 +365,7 @@ class _Edit extends State<Edit> {
 
             if (sectionVersion != lastSectionVersion) {
               //  add a plus for appending a new row to the section
-              _addSectionVersionEndToTable(rows, lastSectionVersion, 2 * maxCols /*col+add markers*/);
+              _addSectionVersionEndToTable(rows, lastSectionVersion, _maxCols /*col+add markers*/);
 
               var sectionBackgroundColor = getBackgroundColorForSection(sectionVersion.section);
               _sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
@@ -396,7 +401,29 @@ class _Edit extends State<Edit> {
               children.add(w);
               editDataPoints.set(r, c * 2, editDataPoint);
 
-              //  + elements
+              //  add a row element
+              if (c == 0) {
+                ChordSectionLocation? loc1;
+                if (row.length > 1) {
+                  loc1 = row[1];
+                  if (loc1 != null) {
+                    var measureNode = _song.findMeasureNodeByLocation(loc1);
+                    if (measureNode != null) {
+                      var measureNode = _song.findMeasureNodeByLocation(
+                          ChordSectionLocation(loc1.sectionVersion, phraseIndex: loc1.phraseIndex));
+                      logger.i('c == 0: $measureNode ${measureNode?.isRepeat()}');
+                      loc1 = (measureNode?.isRepeat() ?? false) ? loc1 : null;
+                    }
+                  }
+                }
+                if (loc1 != null) {
+                  children.add(_plusRowWidget(loc1));
+                } else {
+                  children.add(_nullEditGridDisplayWidget());
+                }
+              }
+
+              //  + measure elements
               editDataPoint = _EditDataPoint(loc);
               editDataPoint._measureEditType = MeasureEditType.append; //  default
               if (loc == null) {
@@ -434,7 +461,7 @@ class _Edit extends State<Edit> {
             }
 
             //  add children to max columns to keep the table class happy
-            while (children.length < 2 * maxCols) {
+            while (children.length < _maxCols) {
               children.add(Container());
             }
 
@@ -447,7 +474,7 @@ class _Edit extends State<Edit> {
         }
 
         //  end for last section
-        _addSectionVersionEndToTable(rows, lastSectionVersion, 2 * maxCols);
+        _addSectionVersionEndToTable(rows, lastSectionVersion, _maxCols);
 
         //  add the append for a new section
         {
@@ -462,9 +489,9 @@ class _Edit extends State<Edit> {
                   shape: BoxShape.circle,
                   color: _addColor,
                 ),
-                child: _editTooltip(
-                    'add new chord section here',
-                    InkWell(
+                child: appTooltip(
+                    message: 'add new chord section here',
+                    child: InkWell(
                       onTap: () {
                         setState(() {
                           _song.setCurrentChordSectionLocation(null);
@@ -484,7 +511,7 @@ class _Edit extends State<Edit> {
           children.add(child);
 
           //  add children to max columns to keep the table class happy
-          while (children.length < 2 * maxCols) {
+          while (children.length < _maxCols) {
             children.add(Container());
           }
 
@@ -503,6 +530,7 @@ class _Edit extends State<Edit> {
     }
 
     List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
+
     {
       keySelectDropdownMenuItems.addAll(music_key.Key.values.toList().reversed.map((music_key.Key value) {
         return DropdownMenuItem<music_key.Key>(
@@ -838,32 +866,33 @@ class _Edit extends State<Edit> {
                               Flexible(
                                 flex: 1,
                                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                  _editTooltip(
-                                    _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                    appButton(
+                                  appTooltip(
+                                    message: _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
+                                    child: appButton(
                                       'Undo',
                                       onPressed: () {
                                         _undo();
                                       },
                                     ),
                                   ),
-                                  _editTooltip(
-                                    _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
-                                    appButton(
+                                  appTooltip(
+                                    message:
+                                        _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
+                                    child: appButton(
                                       'Redo',
                                       onPressed: () {
                                         _redo();
                                       },
                                     ),
                                   ),
-                                  _editTooltip(
-                                    (_selectedEditDataPoint != null
+                                  appTooltip(
+                                    message: (_selectedEditDataPoint != null
                                             ? 'Click outside the chords to cancel editing\n'
                                             : '') +
                                         (_showHints
                                             ? 'Click to hide the editing hints'
                                             : 'Click for hints about editing.'),
-                                    appButton('Hints', onPressed: () {
+                                    child: appButton('Hints', onPressed: () {
                                       setState(() {
                                         _showHints = !_showHints;
                                       });
@@ -1080,9 +1109,9 @@ class _Edit extends State<Edit> {
                               ),
                               Flexible(
                                 flex: 1,
-                                child: _editTooltip(
-                                  'Import lyrics from a text file',
-                                  appButton(
+                                child: appTooltip(
+                                  message: 'Import lyrics from a text file',
+                                  child: appButton(
                                     'Import',
                                     onPressed: () {
                                       _import();
@@ -1160,9 +1189,9 @@ class _Edit extends State<Edit> {
         var children = <Widget>[];
         children.add(Row(
           children: [
-            _editTooltip(
-              'Add new lyrics section here',
-              DropdownButton<ChordSection>(
+            appTooltip(
+              message: 'Add new lyrics section here',
+              child: DropdownButton<ChordSection>(
                 key: ValueKey('addLyricsSection${addSection++}'),
                 hint: Container(
                   margin: _marginInsets,
@@ -1189,9 +1218,10 @@ class _Edit extends State<Edit> {
             ),
           ],
         ));
-        for (var c = 0; c < chordMaxColCount - 1 + 1; c++) {
-          children.add(const Text(''));
+        while (children.length < _maxCols) {
+          children.add(Container());
         }
+
         rows.add(TableRow(children: children));
       }
 
@@ -1214,9 +1244,9 @@ class _Edit extends State<Edit> {
         for (var c = 0; c < chordMaxColCount - 1; c++) {
           children.add(const Text(''));
         }
-        children.add(_editTooltip(
-          'Delete this lyric section',
-          InkWell(
+        children.add(appTooltip(
+          message: 'Delete this lyric section',
+          child: InkWell(
             child: const Icon(
               Icons.delete,
               size: _defaultChordFontSize,
@@ -1229,6 +1259,9 @@ class _Edit extends State<Edit> {
           ),
         ));
 
+        while (children.length < _maxCols) {
+          children.add(Container());
+        }
         rows.add(TableRow(children: children));
       }
 
@@ -1279,9 +1312,9 @@ class _Edit extends State<Edit> {
                       shape: BoxShape.circle,
                       color: _addColor,
                     ),
-                    child: _editTooltip(
-                      'move the lyric line upwards a section',
-                      Icon(
+                    child: appTooltip(
+                      message: 'move the lyric line upwards a section',
+                      child: Icon(
                         Icons.arrow_upward,
                         size: _chordFontSize,
                       ),
@@ -1299,9 +1332,9 @@ class _Edit extends State<Edit> {
                       shape: BoxShape.circle,
                       color: _addColor,
                     ),
-                    child: _editTooltip(
-                      'move the lyric line downwards a section',
-                      Icon(
+                    child: appTooltip(
+                      message: 'move the lyric line downwards a section',
+                      child: Icon(
                         Icons.arrow_downward,
                         size: _chordFontSize,
                       ),
@@ -1317,9 +1350,9 @@ class _Edit extends State<Edit> {
                 flex: 30,
               ),
               const Spacer(),
-              _editTooltip(
-                'Delete this lyric line',
-                InkWell(
+              appTooltip(
+                message: 'Delete this lyric line',
+                child: InkWell(
                   child: const Icon(
                     Icons.delete,
                     size: _defaultChordFontSize,
@@ -1348,9 +1381,9 @@ class _Edit extends State<Edit> {
                         shape: BoxShape.circle,
                         color: _addColor,
                       ),
-                      child: _editTooltip(
-                        'add a lyric line here',
-                        Icon(
+                      child: appTooltip(
+                        message: 'add a lyric line here',
+                        child: Icon(
                           Icons.add,
                           size: _chordFontSize,
                         ),
@@ -1367,6 +1400,10 @@ class _Edit extends State<Edit> {
         } else {
           children.add(const Text(''));
         }
+        while (children.length < _maxCols) {
+          children.add(Container());
+        }
+
         rows.add(TableRow(children: children));
       }
     }
@@ -1375,11 +1412,11 @@ class _Edit extends State<Edit> {
     {
       var children = <Widget>[];
       children.add(
-        _editTooltip(
-          _song.getChordSections().isEmpty
+        appTooltip(
+          message: _song.getChordSections().isEmpty
               ? 'No lyric section to add!  Add at least one chord section above.'
               : 'Add new lyric section here at the end',
-          DropdownButton<ChordSection>(
+          child: DropdownButton<ChordSection>(
             hint: Container(
               margin: _marginInsets,
               padding: _textPadding,
@@ -1404,9 +1441,10 @@ class _Edit extends State<Edit> {
         ),
       );
 
-      for (var c = 0; c < chordMaxColCount; c++) {
-        children.add(const Text(''));
+      while (children.length < _maxCols) {
+        children.add(Container());
       }
+
       rows.add(TableRow(children: children));
     }
 
@@ -1481,7 +1519,8 @@ class _Edit extends State<Edit> {
           tooltip: 'add new measure on a new row'
               '${kDebugMode ? ' loc: ${loc.toString()} ${describeEnum(editDataPoint._measureEditType)}' : ''}');
       List<Widget> children = [];
-      children.add(_nullEditGridDisplayWidget());
+      children.add(_nullEditGridDisplayWidget()); //  section
+      children.add(_nullEditGridDisplayWidget()); //  insert new row before repeat
       children.add(w);
 
       //  add children to max columns to keep the table class happy
@@ -1755,9 +1794,9 @@ class _Edit extends State<Edit> {
                 textBaseline: TextBaseline.alphabetic,
                 children: <Widget>[
                   //  section delete
-                  _editTooltip(
-                    'Delete this section',
-                    InkWell(
+                  appTooltip(
+                    message: 'Delete this section',
+                    child: InkWell(
                       child: const Icon(
                         Icons.delete,
                         size: _defaultChordFontSize,
@@ -1768,9 +1807,9 @@ class _Edit extends State<Edit> {
                       },
                     ),
                   ),
-                  _editTooltip(
-                    'Cancel the modification.',
-                    InkWell(
+                  appTooltip(
+                    message: 'Cancel the modification.',
+                    child: InkWell(
                       child: Icon(
                         Icons.cancel,
                         size: _defaultChordFontSize,
@@ -1782,9 +1821,9 @@ class _Edit extends State<Edit> {
                     ),
                   ),
                   if (isValidSectionEntry)
-                    _editTooltip(
-                      'Accept the modification and add measures to the section.',
-                      InkWell(
+                    appTooltip(
+                      message: 'Accept the modification and add measures to the section.',
+                      child: InkWell(
                         child: const Icon(
                           Icons.arrow_forward,
                           size: _defaultChordFontSize,
@@ -1796,9 +1835,9 @@ class _Edit extends State<Edit> {
                     ),
                   //  section enter
                   if (isValidSectionEntry)
-                    _editTooltip(
-                      'Accept the modification',
-                      InkWell(
+                    appTooltip(
+                      message: 'Accept the modification',
+                      child: InkWell(
                         child: const Icon(
                           Icons.check,
                           size: _defaultChordFontSize,
@@ -1834,9 +1873,9 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: _textPadding,
           color: sectionColor,
-          child: _editTooltip(
-              'modify or delete the section',
-              Text(
+          child: appTooltip(
+              message: 'modify or delete the section',
+              child: Text(
                 matchingVersionsString,
                 style: sectionChordTextStyle,
               ))),
@@ -1958,9 +1997,9 @@ class _Edit extends State<Edit> {
         }
       }
 
-      Widget _majorChordButton = _editTooltip(
-          'Enter the major chord.',
-          appButton(
+      Widget _majorChordButton = appTooltip(
+          message: 'Enter the major chord.',
+          child: appButton(
             _keyChordNote.toString(),
             fontSize: _defaultChordFontSize,
             onPressed: () {
@@ -1976,9 +2015,9 @@ class _Edit extends State<Edit> {
           _keyChordNote,
           ChordDescriptor.minor,
         );
-        minorChordButton = _editTooltip(
-            'Enter the minor chord.',
-            appButton(
+        minorChordButton = appTooltip(
+            message: 'Enter the minor chord.',
+            child: appButton(
               sc.toString(),
               fontSize: _defaultChordFontSize,
               onPressed: () {
@@ -1991,9 +2030,9 @@ class _Edit extends State<Edit> {
       Widget dominant7ChordButton;
       {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
-        dominant7ChordButton = _editTooltip(
-            'Enter the dominant7 chord.',
-            appButton(
+        dominant7ChordButton = appTooltip(
+            message: 'Enter the dominant7 chord.',
+            child: appButton(
               sc.toString(),
               fontSize: _defaultChordFontSize,
               onPressed: () {
@@ -2073,9 +2112,9 @@ class _Edit extends State<Edit> {
                   ),
                 //  measure edit chord selection
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
-                  _editTooltip(
-                      'Select other notes from the key scale.',
-                      ButtonTheme(
+                  appTooltip(
+                      message: 'Select other notes from the key scale.',
+                      child: ButtonTheme(
                         alignedDropdown: true,
                         child: DropdownButton<ScaleNote>(
                           items: _keyChordDropDownMenuList,
@@ -2094,9 +2133,9 @@ class _Edit extends State<Edit> {
                   _majorChordButton,
                   minorChordButton,
                   dominant7ChordButton,
-                  _editTooltip(
-                    'Enter a silent chord.',
-                    appButton(
+                  appTooltip(
+                    message: 'Enter a silent chord.',
+                    child: appButton(
                       'X',
                       fontSize: _defaultChordFontSize,
                       onPressed: () {
@@ -2111,9 +2150,9 @@ class _Edit extends State<Edit> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    _editTooltip(
-                      'Select from other chord descriptors.',
-                      ButtonTheme(
+                    appTooltip(
+                      message: 'Select from other chord descriptors.',
+                      child: ButtonTheme(
                         alignedDropdown: true,
                         child: DropdownButton<ScaleChord>(
                           hint: Text(
@@ -2131,9 +2170,9 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                     ),
-                    _editTooltip(
-                      'Select a slash note',
-                      ButtonTheme(
+                    appTooltip(
+                      message: 'Select a slash note',
+                      child: ButtonTheme(
                         alignedDropdown: true,
                         child: DropdownButton<ScaleNote>(
                           hint: Text(
@@ -2152,9 +2191,9 @@ class _Edit extends State<Edit> {
                       ),
                     ),
                     if (_measureEntryValid)
-                      _editTooltip(
-                        'Add a repeat for this row',
-                        ButtonTheme(
+                      appTooltip(
+                        message: 'Add a repeat for this row',
+                        child: ButtonTheme(
                           alignedDropdown: true,
                           child: DropdownButton<int>(
                             hint: Text(
@@ -2181,9 +2220,9 @@ class _Edit extends State<Edit> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       if (measure != null && editDataPoint._measureEditType == MeasureEditType.replace)
-                        _editTooltip(
-                          'Delete this measure',
-                          InkWell(
+                        appTooltip(
+                          message: 'Delete this measure',
+                          child: InkWell(
                             child: const Icon(
                               Icons.delete,
                               size: _defaultChordFontSize,
@@ -2194,9 +2233,9 @@ class _Edit extends State<Edit> {
                             },
                           ),
                         ),
-                      _editTooltip(
-                        'Cancel the modification.',
-                        InkWell(
+                      appTooltip(
+                        message: 'Cancel the modification.',
+                        child: InkWell(
                           child: Icon(
                             Icons.cancel,
                             size: _defaultChordFontSize,
@@ -2208,9 +2247,9 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                       if (_measureEntryValid)
-                        _editTooltip(
-                          'Accept the modification and extend the row.',
-                          InkWell(
+                        appTooltip(
+                          message: 'Accept the modification and extend the row.',
+                          child: InkWell(
                             child: const Icon(
                               Icons.arrow_forward,
                               size: _defaultChordFontSize,
@@ -2221,9 +2260,9 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                       if (_measureEntryValid)
-                        _editTooltip(
-                          'Accept the modification, end the row, and continue editing.',
-                          InkWell(
+                        appTooltip(
+                          message: 'Accept the modification, end the row, and continue editing.',
+                          child: InkWell(
                             child: const Icon(
                               Icons.call_received,
                               size: _defaultChordFontSize,
@@ -2234,9 +2273,9 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                       if (_measureEntryValid)
-                        _editTooltip(
-                          'Accept the modification.\nFinished adding measures.',
-                          InkWell(
+                        appTooltip(
+                          message: 'Accept the modification.\nFinished adding measures.',
+                          child: InkWell(
                             child: const Icon(
                               Icons.check,
                               size: _defaultChordFontSize,
@@ -2266,9 +2305,9 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: _textPadding,
           color: sectionColor,
-          child: _editTooltip(
-              'modify or delete the measure',
-              Text(
+          child: appTooltip(
+              message: 'modify or delete the measure',
+              child: Text(
                 measure?.transpose(_key, _transpositionOffset) ?? ' ',
                 style: sectionChordBoldTextStyle,
               ))),
@@ -2342,9 +2381,9 @@ class _Edit extends State<Edit> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
-                          _editTooltip(
-                            'Delete this repeat',
-                            InkWell(
+                          appTooltip(
+                            message: 'Delete this repeat',
+                            child: InkWell(
                               child: const Icon(
                                 Icons.delete,
                                 size: _defaultChordFontSize,
@@ -2359,9 +2398,9 @@ class _Edit extends State<Edit> {
                           ),
                         ],
                       ),
-                      _editTooltip(
-                        'Cancel the modification',
-                        InkWell(
+                      appTooltip(
+                        message: 'Cancel the modification',
+                        child: InkWell(
                           child: Icon(
                             Icons.cancel,
                             size: _defaultChordFontSize,
@@ -2388,9 +2427,9 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: _textPadding,
           color: sectionColor,
-          child: _editTooltip(
-              'modify or delete the measureNode',
-              Text(
+          child: appTooltip(
+              message: 'modify or delete the measureNode',
+              child: Text(
                 'x${repeat.repeats}',
                 style: sectionChordBoldTextStyle,
               ))),
@@ -2414,9 +2453,9 @@ class _Edit extends State<Edit> {
           margin: _marginInsets,
           padding: _textPadding,
           color: color,
-          child: _editTooltip(
-              'modify or delete the measureNode',
-              Text(
+          child: appTooltip(
+              message: 'modify or delete the measureNode',
+              child: Text(
                 measureNode.toString(),
                 style: _sectionChordBoldTextStyle,
               ))),
@@ -2467,6 +2506,30 @@ class _Edit extends State<Edit> {
     _editTextController.selection = _lastEditTextSelection!.copyWith(baseOffset: len, extentOffset: len);
   }
 
+  Widget _plusRowWidget(ChordSectionLocation? loc) {
+    return InkWell(
+        onTap: () {
+          if (loc != null) {
+            _song.setCurrentChordSectionLocation(loc);
+            logger.i('insert row at: $loc');
+          }
+        },
+        child: Container(
+            margin: appendInsets,
+            padding: appendPadding,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: _addRowColor,
+            ),
+            child: appTooltip(
+              message: 'insert new row above',
+              child: Icon(
+                Icons.add,
+                size: _appendFontSize,
+              ),
+            )));
+  }
+
   Widget _plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint, {String? tooltip}) {
     if (_selectedEditDataPoint == editDataPoint) {
       return _measureEditGridDisplayWidget(editDataPoint); //  let it do the heavy lifting
@@ -2488,11 +2551,11 @@ class _Edit extends State<Edit> {
               shape: BoxShape.circle,
               color: _addColor,
             ),
-            child: _editTooltip(
-              tooltip ??
+            child: appTooltip(
+              message: tooltip ??
                   ('add new measure on this row'
                       '${kDebugMode ? ' loc: ${editDataPoint.toString()}' : ''}'),
-              Icon(
+              child: Icon(
                 Icons.add,
                 size: _appendFontSize,
               ),
@@ -2672,38 +2735,6 @@ class _Edit extends State<Edit> {
 
     //  punt
     return ChordSection(SectionVersion(_defaultSection, 0), null);
-  }
-
-  /// helper function to generate tool tips
-  Widget _editTooltip(
-    String message,
-    Widget child, {
-    Key? key,
-  }) {
-    // String debug = '';
-    // if (Logger.level.index <= Level.debug.index && _selectedEditDataPoint != null) {
-    //   debug = '  edit: ${_selectedEditDataPoint.toString()}}';
-    // }
-    return Tooltip(
-        // message: message + debug,
-        key: key,
-        message: message,
-        child: child,
-        textStyle: generateAppTextStyle(
-          backgroundColor: tooltipColor,
-          fontSize: _defaultChordFontSize / 2,
-        ),
-
-        //  fixme: why is this broken on web?
-        //waitDuration: Duration(seconds: 1, milliseconds: 200),
-
-        verticalOffset: 50,
-        decoration: BoxDecoration(
-            color: tooltipColor,
-            border: Border.all(),
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
-        padding: const EdgeInsets.all(8));
   }
 
   void _undo() {
@@ -2990,9 +3021,11 @@ class _Edit extends State<Edit> {
   final Song _originalSong;
 
   bool get hasChangedFromOriginal => !_song.songBaseSameContent(_originalSong); //  fixme: too fine a line
+
   bool _isValidSong = false;
 
   music_key.Key get musicKey => _key; //  for testing
+
   music_key.Key _key = music_key.Key.getDefault();
   double _appendFontSize = 14;
   double _chordFontSize = 14;
@@ -3015,8 +3048,8 @@ class _Edit extends State<Edit> {
   EdgeInsets _marginInsets = const EdgeInsets.all(4);
   EdgeInsets _doubleMarginInsets = const EdgeInsets.all(8);
   static const EdgeInsets _textPadding = EdgeInsets.all(6);
-  static const EdgeInsets appendInsets = EdgeInsets.all(0);
-  static const EdgeInsets appendPadding = EdgeInsets.all(0);
+  static const EdgeInsets appendInsets = EdgeInsets.all(3);
+  static const EdgeInsets appendPadding = EdgeInsets.all(3);
 
   TextField? _editTextField;
 
@@ -3050,7 +3083,6 @@ class _Edit extends State<Edit> {
 
   final AppWidget appWidget = AppWidget();
 
-  static const tooltipColor = Color(0xFFE8F5E9);
   late AppOptions _appOptions;
 }
 

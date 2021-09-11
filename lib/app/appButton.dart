@@ -33,12 +33,14 @@ Widget appSpace({double? space}) {
 
 /// helper function to generate tool tips
 Widget appTooltip({
+  Key? key,
   required String message,
   required Widget child,
   double? fontSize,
 }) {
   var textStyle = generateTooltipTextStyle();
   return Tooltip(
+      key: key,
       message: message,
       child: child,
       textStyle: textStyle,

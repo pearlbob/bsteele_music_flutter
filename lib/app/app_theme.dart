@@ -645,7 +645,7 @@ class AppTheme {
       }
     }
 
-    // _logActions();
+    _logActions();
 
     {
       // var iconTheme = IconThemeData(color: _defaultForegroundColor); fixme
@@ -663,26 +663,27 @@ class AppTheme {
     CssProperty.logCreations();
   }
 
-  // void _logActions() {
-  //   SplayTreeSet<CssProperty> properties = SplayTreeSet();
-  //   for (var appliedAction in _appliedActions) {
-  //     properties.add(appliedAction.cssAction.cssProperty);
-  //   }
-  //   properties.addAll(_propertyValueLookupMap.keys);
-  //
-  //   for (var property in properties) {
-  //     var value = _getPropertyValue(property];
-  //     if (value == null) {
-  //       var appliedAction = _appliedActions.firstWhere((e) => identical(property, e.cssAction.cssProperty));
-  //       logger.i('applied: ${appliedAction.cssAction.cssProperty.id}:'
-  //           ' ${appliedAction.rawValue ?? appliedAction.value};'
-  //           '    /* ${appliedAction.cssAction.cssProperty.type} */');
-  //     } else {
-  //       logger.i('lookup: $property $value;'
-  //           '    /* ${property.type} */');
-  //     }
-  //   }
-  // }
+  void _logActions() {
+    SplayTreeSet<CssProperty> properties = SplayTreeSet();
+    for (var appliedAction in _appliedActions) {
+      properties.add(appliedAction.cssAction.cssProperty);
+    }
+    properties.addAll(_propertyValueLookupMap.keys);
+
+    for (var property in properties) {
+      var value = _getPropertyValue(property);
+      if (value == null) {
+        logger.i('fixme here!!!!!!!!!!!!!!!');
+        // var appliedAction = _appliedActions.firstWhere((e) => (property.hashCode == e.cssAction.cssProperty.hashCode));
+        // logger.i('applied: ${appliedAction.cssAction.cssProperty.id}:'
+        //     ' ${appliedAction.rawValue ?? appliedAction.value};'
+        //     '    /* ${appliedAction.cssAction.cssProperty.type} */');
+      } else {
+        logger.i('lookup: $property: $value;'
+            '    /* ${property.type} */');
+      }
+    }
+  }
 
   final RegExp _threeDigitHexRegExp = RegExp(r'^[\da-fA-f]{3}$');
 }

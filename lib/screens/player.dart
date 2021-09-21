@@ -209,11 +209,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         if (length > 0 && _lyricsTable.chordFontSize != null) {
           var lastChordFontSize = _chordFontSize ?? 0;
           var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
-          logger.d('fontSize: $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
+          logger.i('fontSize: $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
               ' of ${_app.screenInfo.widthInLogicalPixels}');
           fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * _app.screenInfo.widthInLogicalPixels) as double;
-          logger.d('limited : $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
+          logger.i('limited : $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
               ' of ${_app.screenInfo.widthInLogicalPixels}');
+          {
+            var width = renderTable.row(0).last.size.width;
+            logger.i('lyrics column width: $width = ${width / _app.screenInfo.widthInLogicalPixels}');
+          }
 
           if ((fontSize - lastChordFontSize).abs() > 1) {
             _chordFontSize = fontSize;

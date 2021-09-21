@@ -28,15 +28,11 @@ class LyricsTable {
     Song song,
     BuildContext context, {
     musicKey,
-    LyricsSectionHeaderWidget? sectionHeaderWidget,
-    LyricsTextWidget? textWidget,
-    LyricsEndWidget? lyricEndWidget,
     expandRepeats = false,
     double? chordFontSize,
   }) {
     appWidget.context = context; //	required on every build
     displayMusicKey = musicKey ?? song.key;
-    textWidget = textWidget ?? _defaultTextWidget;
     _chordFontSize = chordFontSize;
 
     _computeScreenSizes();
@@ -69,7 +65,7 @@ class LyricsTable {
         ) +
         1 /*  lyrics  */;
 
-    //  map the song moment grid to a flutter table, one row at a time
+    //  map the song moments to a flutter table, one row at a time
     for (var lyricSection in song.lyricSections) {
       ChordSection? chordSection = song.findChordSectionByLyricSection(lyricSection);
       if (chordSection == null) {
@@ -85,21 +81,19 @@ class LyricsTable {
       _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: backgroundColor);
       {
         var globalKey = GlobalObjectKey(lyricSection);
-        if (sectionHeaderWidget != null) {
-          children.add(sectionHeaderWidget(globalKey, lyricSection));
-        } else {
-          children.add(Container(
-            key: globalKey,
-            margin: getMeasureMargin(),
-            padding: getMeasurePadding(),
-            color: backgroundColor,
-            child: Text(
-              chordSection.sectionVersion.toString(),
-              style: coloredChordTextStyle,
-              softWrap: false,
-            ),
-          ));
-        }
+
+        children.add(Container(
+          key: globalKey,
+          margin: getMeasureMargin(),
+          padding: getMeasurePadding(),
+          color: backgroundColor,
+          child: Text(
+            chordSection.sectionVersion.toString(),
+            style: coloredChordTextStyle,
+            softWrap: false,
+          ),
+        ));
+
         //  row length - 1 + 1 for missing lyrics
         for (int c = children.length; c < maxDisplayCols; c++) {
           children.add(const Text(''));
@@ -159,7 +153,7 @@ class LyricsTable {
               margin: getMeasureMargin(),
               padding: getMeasurePadding(),
               color: backgroundColor,
-              child: textWidget(
+              child: _defaultTextWidget(
                   lyricSection,
                   0, //  fixme: offset of lyrics lines within lyrics section
                   rowLyrics.trim())));
@@ -195,16 +189,6 @@ class LyricsTable {
         //  get ready for the next row by clearing the row data
         children = [];
       }
-    }
-
-    if (lyricEndWidget != null) {
-      children.add(lyricEndWidget());
-      //  row length - 1 + 1 for missing lyrics
-      for (int c = children.length; c < maxCols; c++) {
-        children.add(const Text(''));
-      }
-      rows.add(TableRow(children: children));
-      children = [];
     }
 
     Map<int, TableColumnWidth>? columnWidths = {};

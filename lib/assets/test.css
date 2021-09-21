@@ -10,8 +10,8 @@
 
 * {
     background-color: cyan; /* type is Color, universal background color */
-    /*color: blue; !* type is Color, universal foreground color *!*/
-    /*font-size: 5vw;*/ /* type is LengthTerm, universal text font size */
+    color: blue; /* type is Color, universal foreground color */
+    font-size: 3vw; /* type is LengthTerm, universal text font size */
     font-weight: normal;
     font-style: italic;
 }
@@ -54,7 +54,7 @@
 }
 
 .oddTitleText {
-    background-color: orangered; /* type is Color, odd row background color */
+    background-color: orange; /* type is Color, odd row background color */
     color: yellow;
 }
 
@@ -75,7 +75,7 @@
 
 .chordNote {
     /*  assumes the background color will come from the section */
-    /*color: #dd1144;*/
+    color: #dd1144;
     font-weight: bolder;
     font-style: normal;
 }
@@ -107,7 +107,7 @@
 
 .section { /*  for all section types   */
     background-color: white; /* type is Color, default section background color */
-    /*color: burlywood;*/
+    color: burlywood;
     /*font-family: sans-serif;*/
     /*font-size: clamp( 12px, 2.25vw, 40px);*/
     /*font-style: normal;*/
@@ -163,4 +163,8 @@
 
 .sectionVerse {
     background-color: #f5e6b8; /* type is Color, Verse section background color */
+}
+
+.docs {
+    font-size: 24px;    /*  font size for the in app documentation  */
 }

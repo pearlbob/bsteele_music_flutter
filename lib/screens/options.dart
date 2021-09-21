@@ -256,7 +256,7 @@ class _Options extends State<Options> {
                       child: appButton(
                         'Studio',
                         onPressed: () {
-                          _appOptions.websocketHost = 'cj';
+                          _appOptions.websocketHost = 'cj.local';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
                         },
                       ),

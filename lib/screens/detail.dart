@@ -20,10 +20,8 @@ import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 final _black = Paint()..color = Colors.black;

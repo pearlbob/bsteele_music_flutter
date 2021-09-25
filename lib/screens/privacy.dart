@@ -2,7 +2,6 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 /// Display the application's privacy policy
 class Privacy extends StatefulWidget {

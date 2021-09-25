@@ -2,10 +2,7 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 /// Show some data about the app and it's environment.
 class CssDemo extends StatefulWidget {

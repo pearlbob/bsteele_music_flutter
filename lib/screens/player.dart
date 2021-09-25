@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
@@ -20,8 +19,6 @@ import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -209,14 +206,14 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         if (length > 0 && _lyricsTable.chordFontSize != null) {
           var lastChordFontSize = _chordFontSize ?? 0;
           var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
-          logger.i('fontSize: $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
+          logger.d('fontSize: $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
               ' of ${_app.screenInfo.widthInLogicalPixels}');
           fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * _app.screenInfo.widthInLogicalPixels) as double;
-          logger.i('limited : $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
+          logger.d('limited : $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
               ' of ${_app.screenInfo.widthInLogicalPixels}');
           {
             var width = renderTable.row(0).last.size.width;
-            logger.i('lyrics column width: $width = ${width / _app.screenInfo.widthInLogicalPixels}');
+            logger.d('lyrics column width: $width = ${width / _app.screenInfo.widthInLogicalPixels}');
           }
 
           if ((fontSize - lastChordFontSize).abs() > 1) {
@@ -821,6 +818,9 @@ With escape, the app goes back to the play list.''',
   }
 
   void _playerOnKey(RawKeyEvent value) {
+    if (!_playerIsOnTop) {
+      return;
+    }
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
       logger.log(
@@ -832,8 +832,8 @@ With escape, the app goes back to the play list.''',
       //  only deal with new key down events
 
       if (e.isKeyPressed(LogicalKeyboardKey.space) ||
-              e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
-          ) {
+          e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
+      ) {
         if (!_isPlaying) {
           _play();
         } else {
@@ -853,7 +853,7 @@ With escape, the app goes back to the play list.''',
         if (_isPlaying) {
           _stop();
         } else {
-          logger.d('pop the navigator');
+          logger.i('player: pop the navigator');
           Navigator.pop(context);
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {

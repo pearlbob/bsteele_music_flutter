@@ -90,7 +90,6 @@ import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
@@ -121,6 +120,15 @@ void main() async {
 }
 
 /*
+//  fixme: verify in studio:  let it be in C, cramped on HDMI on mac,
+//  fixme: on mac + chrome: bold musical flat sign is way ugly
+//  fixme: player chord display elevations trash on mac, b, minor, slash notes
+//  fixme: util: beginner list songlist to google doc format: title, artist, original key
+//  fixme: delete metadata when reading file
+//  fixme: lyrics under chords, css break between chord/lyrics and next chord/lyrics
+//  fixme: Gb argument vs F#   with a disclaimer!!!!
+//  fixme: baseline wrong on chrome on mac
+//  fixme: beta: lyrics in one block area
 //  fixme: align all repeats in a single column of the edit screen
 //  fixme: add phrase before first repeat in edit screen section
 //  fixme: add phrase between repeats in edit screen
@@ -517,9 +525,10 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
               if (_app.isScreenBig)
-                appWrapFullWidth(  <Widget>[
+                appWrapFullWidth(
+                  <Widget>[
                     appWrap(
-                       <Widget>[
+                      <Widget>[
                         Text(
                           song.title,
                           style: oddEvenTitleTextStyle,

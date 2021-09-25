@@ -5,7 +5,6 @@ import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 typedef _LyricsEntriesCallback = void Function(); //  structural change
 typedef OnLyricsLineChangedCallback = void Function(); //  text content change

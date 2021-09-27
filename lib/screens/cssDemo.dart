@@ -22,12 +22,15 @@ class _CssDemo extends State<CssDemo> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
 
+    const fontSize = 40.0;
+    const lyricsFontSize = fontSize * 0.6;
+
     Widget sections;
     {
       var children = <Widget>[];
       for (var section in SectionEnum.values) {
         var backgroundColor = getBackgroundColorForSection(Section.get(section));
-        var coloredChordTextStyle = generateChordTextStyle(fontSize: 40, backgroundColor: backgroundColor);
+        var coloredChordTextStyle = generateChordTextStyle(fontSize: fontSize, backgroundColor: backgroundColor);
         children.add(Container(
             margin: getMeasureMargin(),
             padding: getMeasurePadding(),
@@ -39,6 +42,9 @@ class _CssDemo extends State<CssDemo> {
       }
       sections = appWrapFullWidth(children);
     }
+
+    TextStyle toolTipTextStyle = generateTooltipTextStyle();
+    var verseBackgroundColor = getBackgroundColorForSection(Section.get(SectionEnum.verse));
 
     return Scaffold(
       appBar: appWidget.backBar(title: 'bsteele Music App CSS demo'),
@@ -56,15 +62,55 @@ class _CssDemo extends State<CssDemo> {
                   style: generateAppTextStyle(),
                 ),
                 appSpace(),
-                appButton('appButton', onPressed: () {}),
+                appButton('appButton', key: const ValueKey('appButton'), onPressed: () {}),
                 appSpace(),
                 sections,
+                appSpace(),
+                Container(
+                    margin: getMeasureMargin(),
+                    padding: getMeasurePadding(),
+                    color: verseBackgroundColor,
+                    child: Text(
+                      'Lyrics text style',
+                      style: generateLyricsTextStyle(fontSize: lyricsFontSize, backgroundColor: verseBackgroundColor),
+                    )),
+                appSpace(),
+                TextField(
+                  controller: _textFieldController,
+                  maxLength: null,
+                  style: generateAppTextFieldStyle(),
+                ),
+                appSpace(),
+                Container(
+                  color: Colors.blue,
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    'App Bar Text Style',
+                    style: generateAppBarLinkTextStyle(),
+                  ),
+                ),
+                appSpace(),
+                Text(
+                  'link text style',
+                  style: generateAppLinkTextStyle(),
+                ),
+                appSpace(),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: appTooltipBoxDecoration(toolTipTextStyle.backgroundColor),
+                  child: Text(
+                    'toolTip text style and decoration',
+                    style: toolTipTextStyle,
+                  ),
+                ),
               ]),
         ),
       ),
       floatingActionButton: appWidget.floatingBack(),
     );
   }
+
+  final TextEditingController _textFieldController = TextEditingController(text: 'input text field');
 
   final AppWidget appWidget = AppWidget();
 }

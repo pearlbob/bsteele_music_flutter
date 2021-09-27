@@ -458,31 +458,51 @@ EdgeInsetsGeometry? getMeasurePadding() {
 }
 
 enum AppKeyEnum {
-  errorMessage,
   detailLyrics,
+  editAcceptChordModificationAndContinue,
+  editAcceptChordModificationAndExtendRow,
+  editAcceptChordModificationAndFinish,
   editArtist,
+  editCancelChordModification,
+  editClearSong,
   editCopyright,
   editCoverArtist,
+  editDeleteChordMeasure,
+  editDominant7Chord,
   editEditKeyDropdown,
+  editEnterSong,
+  editHints,
+  editImportLyrics,
+  editMajorChord,
+  editMinorChord,
   editNewChordSection,
+  editRedo,
   editRepeatX2,
   editRepeatX3,
   editRepeatX4,
   editScaleChord,
   editScaleNote,
   editScreenDetail,
+  editSilentChord,
   editSingleChildScrollView,
   editTitle,
+  editUndo,
+  errorMessage,
   listsClearSearch,
   listsErrorMessage,
   listsNameText,
+  listsReadLists,
+  listsSave,
+  listsSaveSelected,
   listsSearchText,
   listsValueText,
   mainClearSearch,
   mainHamburger,
   mainSearchText,
+  optionsFullScreen,
   optionsKeyOffset0,
   optionsKeyOffset1,
+  optionsKeyOffset10,
   optionsKeyOffset2,
   optionsKeyOffset3,
   optionsKeyOffset4,
@@ -491,7 +511,14 @@ enum AppKeyEnum {
   optionsKeyOffset7,
   optionsKeyOffset8,
   optionsKeyOffset9,
-  optionsKeyOffset10,
+  optionsLeadership,
+  optionsWebsocketBob,
+  optionsWebsocketCJ,
+  optionsWebsocketNone,
+  optionsWebsocketPark,
+  songsReadFiles,
+  songsRemoveAll,
+  songsWriteFiles,
   theoryHalf,
   theoryRoot,
 }
@@ -714,23 +741,162 @@ double lookupIconSize() {
   return _sizeLookup(_iconSizeProperty) ?? 24; //  fixme
 }
 
-ElevatedButton appButton(
+void _appLogKeyCallback(Key? key) {
+  assert(key != null);
+
+  logger.i('_appLogKeyCallback( ${key is ValueKey ? key.value : key} )');
+}
+// /// An experimental class to generate widget test code while running in debug mode.
+// /// The model is to use the app in debug mode and then copy/paste the generated code
+// /// into widget tests to replicate the user action with a minimum of coding.
+// class WidgetLog {
+//   static void tap(ValueKey<String> key) {
+//     if (kDebugMode && _widgetLog) {
+//       if (_environment == _environmentDefault) {
+//         var varName = Util.firstToLower(Util.underScoresToCamelCase(key.value));
+//         logger.i('''{
+//     var $varName = find.byKey(const ValueKey<String>('${key.value}'));
+//     expect($varName,findsOneWidget);
+//     await tester.tap($varName);
+//     await tester.pumpAndSettle();
+//     }
+//     ''');
+//       } else {
+//         logger.i('tester.tap(${key.value})');
+//       }
+//     }
+//   }
+// }
+
+typedef KeyCallback = void Function();
+
+ElevatedButton appEnumeratedButton(
   String commandName, {
-  Key? key,
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback onPressed,
   Color? backgroundColor,
   double? fontSize,
-  required VoidCallback? onPressed,
+}) {
+  return appButton(
+    commandName,
+    key: ValueKey<AppKeyEnum>(appKeyEnum),
+    onPressed: onPressed,
+    backgroundColor: backgroundColor,
+    fontSize: fontSize,
+  );
+}
+
+ElevatedButton appButton(
+  String commandName, {
+  required Key key,
+  required VoidCallback onPressed,
+  Color? backgroundColor,
+  double? fontSize,
+  AppKeyEnum? appKeyEnum, // overrides key
 }) {
   fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
+
   return ElevatedButton(
     key: key,
     child: Text(commandName,
         style: _app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
-    onPressed: onPressed,
+    onPressed: () {
+      _appLogKeyCallback(key);
+      onPressed();
+    },
     style:
         _app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
+}
+
+InkWell appInkWell({
+  Key? key,
+  Color? backgroundColor,
+  double? fontSize,
+  GestureTapCallback? onTap,
+  Widget? child,
+  AppKeyEnum? appKeyEnum, // overrides key
+  KeyCallback? keyCallback, // overrides onPressed(), requires key
+}) {
+  fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
+
+  //  need one form of key or the other
+  assert(key != null || appKeyEnum != null);
+
+  //  some form of callback is required, but not two!
+  assert((keyCallback != null && onTap == null) || (keyCallback == null && onTap != null));
+
+  //  form a key from the enumerated types
+  if (appKeyEnum != null) {
+    assert(key == null);
+    key = ValueKey(appKeyEnum);
+  }
+
+  //  supply an on pressed callback with key, if asked
+  if (keyCallback != null) {
+    assert(key != null);
+    onTap = () {
+      _appLogKeyCallback(key);
+      keyCallback();
+    };
+  }
+
+  return InkWell(
+    key: key,
+    onTap: onTap,
+    child: child,
+  );
+}
+
+IconButton appEnumeratedIconButton({
+  required Widget icon,
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback onPressed, //  insist on action
+  Color? color,
+  double? iconSize,
+}) {
+  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  return IconButton(
+    icon: icon,
+    key: key,
+    onPressed: () {
+      _appLogKeyCallback(key);
+      onPressed();
+    },
+    color: color,
+    iconSize: iconSize ?? 24.0, //  demanded by IconButton
+  );
+}
+
+DropdownMenuItem<T> appDropdownMenuItem<T>({
+  Key? key,
+  AppKeyEnum? appKeyEnum, // overrides key
+  required KeyCallback keyCallback,
+  T? value,
+  AlignmentGeometry alignment = AlignmentDirectional.centerStart,
+  required Widget child,
+}) {
+  //  form app key enum key
+  if (appKeyEnum != null) {
+    assert(key == null);
+    key = ValueKey(appKeyEnum);
+  }
+
+  // this.value,
+  // this.enabled = true,
+  // AlignmentGeometry alignment = AlignmentDirectional.centerStart,
+  // required Widget child,
+  return DropdownMenuItem<T>(
+      key: key,
+      onTap: () {
+        _appLogKeyCallback(key);
+        keyCallback();
+      },
+      value: value,
+      // enabled: true,
+      // alignment: AlignmentDirectional.centerStart,
+      child: child);
 }
 
 FloatingActionButton appFloatingActionButton({
@@ -847,11 +1013,12 @@ TextStyle generateChordTextStyle({double? fontSize, Color? backgroundColor}) {
   );
 }
 
-TextStyle generateLyricsTextStyle({double? fontSize}) {
+TextStyle generateLyricsTextStyle({double? fontSize, Color? backgroundColor}) {
   return generateAppTextStyle(
     color: _getPropertyValue(_lyricsColorProperty),
-    backgroundColor:
-        _getPropertyValue(_lyricsBackgroundColorProperty) ?? _getPropertyValue(_universalBackgroundColorProperty),
+    backgroundColor: backgroundColor ??
+        _getPropertyValue(_lyricsBackgroundColorProperty) ??
+        _getPropertyValue(_universalBackgroundColorProperty),
     fontSize: fontSize ?? _sizeLookup(_lyricsFontSizeProperty),
     fontWeight: _fontWeight(_getPropertyValue(_lyricsFontWeightProperty)) ??
         _fontWeight(_getPropertyValue(_universalFontWeightProperty)),

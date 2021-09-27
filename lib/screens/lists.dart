@@ -79,7 +79,6 @@ class _State extends State<Lists> {
       color: Colors.black87,
       textBaseline: TextBaseline.alphabetic,
     );
-    var _clearSearchKey = const ValueKey<String>('clearSearch');
 
     logger.v('_selectedNameValue: $_selectedNameValue');
 
@@ -245,23 +244,26 @@ class _State extends State<Lists> {
                 height: 10,
               ),
               appWrapFullWidth([
-                appButton(
+                appEnumeratedButton(
                   'Save',
+                  appKeyEnum: AppKeyEnum.listsSave,
                   onPressed: () {
                     _saveSongMetadata();
                   },
                   backgroundColor: _dirtyCount == 0 ? appDisabledColor : null,
                 ),
                 if (_selectedNameValue != _emptySelectedNameValue)
-                  appButton(
+                  appEnumeratedButton(
                     'Save ${_selectedNameValue.name}:${_selectedNameValue.value}',
+                    appKeyEnum: AppKeyEnum.listsSaveSelected,
                     onPressed: () {
                       _saveNameValueSongMetadata(_selectedNameValue);
                       logger.i('save selection: $_selectedNameValue');
                     },
                   ),
-                appButton(
+                appEnumeratedButton(
                   'Read lists from file',
+                  appKeyEnum: AppKeyEnum.listsReadLists,
                   onPressed: () {
                     setState(() {
                       _filePick(context);
@@ -327,12 +329,11 @@ class _State extends State<Lists> {
                   appTooltip(
                     message:
                         _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                    child: IconButton(
-                      key: _clearSearchKey,
+                    child: appEnumeratedIconButton(
+                      appKeyEnum: AppKeyEnum.listsClearSearch,
                       icon: const Icon(Icons.clear),
                       iconSize: 1.5 * fontSize,
                       onPressed: (() {
-                        WidgetLog.tap(_clearSearchKey);
                         _searchTextFieldController.clear();
                         setState(() {
                           FocusScope.of(context).requestFocus(_searchFocusNode);

@@ -564,7 +564,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ]),
           ),
           onTap: () {
-            WidgetLog.tap(key);
             _navigateToPlayer(context, song);
           },
         ));
@@ -618,7 +617,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     var _aboutKey = const ValueKey<String>('About');
-    var _clearSearchKey = const ValueKey<String>('clearSearch');
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -757,7 +755,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
-                WidgetLog.tap(_aboutKey);
                 _navigateToAbout(context);
               },
             ),
@@ -782,7 +779,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(
-              width: 10 * _titleBarFontSize,
+              width: 14 * _titleBarFontSize,
               //  limit text entry display length
               child: TextField(
                 key: const ValueKey('searchText'),
@@ -805,12 +802,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             appTooltip(
                 message: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                child: IconButton(
-                  key: _clearSearchKey,
+                child: appEnumeratedIconButton(
                   icon: const Icon(Icons.clear),
+                  appKeyEnum: AppKeyEnum.mainClearSearch,
                   iconSize: 1.5 * fontSize,
                   onPressed: (() {
-                    WidgetLog.tap(_clearSearchKey);
                     _searchTextFieldController.clear();
                     setState(() {
                       FocusScope.of(context).requestFocus(_searchFocusNode);

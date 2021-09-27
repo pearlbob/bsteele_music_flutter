@@ -21,6 +21,7 @@ import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -528,8 +529,9 @@ class _Edit extends State<Edit> {
                 ),
                 child: appTooltip(
                     message: 'add new chord section here',
-                    child: InkWell(
-                      onTap: () {
+                    child: appInkWell(
+                      appKeyEnum: AppKeyEnum.editNewChordSection,
+                      keyCallback: () {
                         setState(() {
                           _song.setCurrentChordSectionLocation(null);
                           _song.setCurrentMeasureEditType(MeasureEditType.append);
@@ -564,15 +566,15 @@ class _Edit extends State<Edit> {
 
     {
       keySelectDropdownMenuItems.addAll(music_key.Key.values.toList().reversed.map((music_key.Key value) {
-        return DropdownMenuItem<music_key.Key>(
+        return appDropdownMenuItem<music_key.Key>(
           key: ValueKey('key_' + value.toMarkup()),
           value: value,
           child: Text(
             '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
             style: _boldTextStyle,
           ),
-          onTap: () {
-            logger.log(_editLog, 'item onTap: ${value.runtimeType} $value');
+          keyCallback: () {
+            logger.log(_editLog, 'item keyCallback: ${value.runtimeType} $value');
             if (_song.key != value) {
               setState(() {
                 _song.key = value;
@@ -620,15 +622,16 @@ class _Edit extends State<Edit> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            appButton(
+                            appEnumeratedButton(
                               songHasChanged ? (_isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
-                              backgroundColor: (songHasChanged && _isValidSong ? null : _disabledColor),
+                              appKeyEnum: AppKeyEnum.editEnterSong,
                               onPressed: () {
                                 if (songHasChanged && _isValidSong) {
                                   _enterSong();
                                   Navigator.pop(context);
                                 }
                               },
+                              backgroundColor: (songHasChanged && _isValidSong ? null : _disabledColor),
                             ),
                             _app.messageTextWidget(),
                             Row(
@@ -650,8 +653,9 @@ class _Edit extends State<Edit> {
                                   appTooltip(
                                     message: 'Clear all song values to\n'
                                         'start entering a new song.',
-                                    child: appButton(
+                                    child: appEnumeratedButton(
                                       'Clear',
+                                      appKeyEnum: AppKeyEnum.editClearSong,
                                       onPressed: () {
                                         setState(() {
                                           _song = Song.createEmptySong();
@@ -899,17 +903,16 @@ class _Edit extends State<Edit> {
                               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                                 appTooltip(
                                   message: _undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                  child: appButton(
-                                    'Undo',
-                                    onPressed: () {
-                                      _undo();
-                                    },
-                                  ),
+                                  child: appEnumeratedButton('Undo', appKeyEnum: AppKeyEnum.editUndo, onPressed: () {
+                                    _undo();
+                                  }),
                                 ),
                                 appTooltip(
-                                  message: _undoStack.canUndo ? 'Reo the last edit undone' : 'There is no edit to redo',
-                                  child: appButton(
+                                  message:
+                                      _undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
+                                  child: appEnumeratedButton(
                                     'Redo',
+                                    appKeyEnum: AppKeyEnum.editRedo,
                                     onPressed: () {
                                       _redo();
                                     },
@@ -922,7 +925,7 @@ class _Edit extends State<Edit> {
                                       (_showHints
                                           ? 'Click to hide the editing hints'
                                           : 'Click for hints about editing.'),
-                                  child: appButton('Hints', onPressed: () {
+                                  child: appEnumeratedButton('Hints', appKeyEnum: AppKeyEnum.editHints, onPressed: () {
                                     setState(() {
                                       _showHints = !_showHints;
                                     });
@@ -1141,8 +1144,9 @@ class _Edit extends State<Edit> {
                               flex: 1,
                               child: appTooltip(
                                 message: 'Import lyrics from a text file',
-                                child: appButton(
+                                child: appEnumeratedButton(
                                   'Import',
+                                  appKeyEnum: AppKeyEnum.editImportLyrics,
                                   onPressed: () {
                                     _import();
                                   },
@@ -1308,16 +1312,17 @@ class _Edit extends State<Edit> {
         }
         children.add(appTooltip(
           message: 'Delete this lyric section',
-          child: InkWell(
+          child: appInkWell(
+            key: entry.deleteKey,
+            keyCallback: () {
+              _lyricsEntries.delete(entry);
+              _pushLyricsEntries();
+            },
             child: const Icon(
               Icons.delete,
               size: _defaultChordFontSize,
               color: Colors.black,
             ),
-            onTap: () {
-              _lyricsEntries.delete(entry);
-              _pushLyricsEntries();
-            },
           ),
         ));
 
@@ -1366,7 +1371,12 @@ class _Edit extends State<Edit> {
 
           children.add(Row(
             children: [
-              InkWell(
+              appInkWell(
+                key: entry.keyForLine(i, 'up'),
+                keyCallback: () {
+                  _lyricsEntries.moveLyricLine(entry.lyricSection, i, isUp: true);
+                  _pushLyricsEntries();
+                },
                 child: Container(
                     margin: appendInsets,
                     padding: _textPadding,
@@ -1381,12 +1391,13 @@ class _Edit extends State<Edit> {
                         size: _chordFontSize,
                       ),
                     )),
-                onTap: () {
-                  _lyricsEntries.moveLyricLine(entry.lyricSection, i, isUp: true);
+              ),
+              appInkWell(
+                key: entry.keyForLine(i, 'down'),
+                keyCallback: () {
+                  _lyricsEntries.moveLyricLine(entry.lyricSection, i, isUp: false);
                   _pushLyricsEntries();
                 },
-              ),
-              InkWell(
                 child: Container(
                     margin: appendInsets,
                     padding: _textPadding,
@@ -1401,10 +1412,6 @@ class _Edit extends State<Edit> {
                         size: _chordFontSize,
                       ),
                     )),
-                onTap: () {
-                  _lyricsEntries.moveLyricLine(entry.lyricSection, i, isUp: false);
-                  _pushLyricsEntries();
-                },
               ),
               const Spacer(),
               Expanded(
@@ -1414,19 +1421,20 @@ class _Edit extends State<Edit> {
               const Spacer(),
               appTooltip(
                 message: 'Delete this lyric line',
-                child: InkWell(
-                  child: const Icon(
-                    Icons.delete,
-                    size: _defaultChordFontSize,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
+                child: appInkWell(
+                  key: entry.key,
+                  keyCallback: () {
                     _lyricsEntries.deleteLyricLine(
                       entry,
                       i,
                     );
                     _pushLyricsEntries();
                   },
+                  child: const Icon(
+                    Icons.delete,
+                    size: _defaultChordFontSize,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ],
@@ -1435,7 +1443,13 @@ class _Edit extends State<Edit> {
           children.add(
             Row(
               children: [
-                InkWell(
+                appInkWell(
+                  key: entry.key,
+                  keyCallback: () {
+                    _lyricsEntries.addBlankLyricsLine(entry);
+                    logger.log(_editLog, 'addBlankLyricsLine: $entry');
+                    _pushLyricsEntries();
+                  },
                   child: Container(
                       margin: appendInsets,
                       padding: _textPadding,
@@ -1450,11 +1464,6 @@ class _Edit extends State<Edit> {
                           size: _chordFontSize,
                         ),
                       )),
-                  onTap: () {
-                    _lyricsEntries.addBlankLyricsLine(entry);
-                    logger.log(_editLog, 'addBlankLyricsLine: $entry');
-                    _pushLyricsEntries();
-                  },
                 ),
               ],
             ),
@@ -1859,57 +1868,61 @@ class _Edit extends State<Edit> {
                   //  section delete
                   appTooltip(
                     message: 'Delete this section',
-                    child: InkWell(
+                    child: appInkWell(
+                      key: _editKeyChordSection(chordSection, 'delete'),
+                      keyCallback: () {
+                        _performMeasureEntryCancel();
+                      },
                       child: const Icon(
                         Icons.delete,
                         size: _defaultChordFontSize,
                         color: Colors.black,
                       ),
-                      onTap: () {
-                        _performMeasureEntryCancel();
-                      },
                     ),
                   ),
                   appTooltip(
                     message: 'Cancel the modification.',
-                    child: InkWell(
+                    child: appInkWell(
+                      key: _editKeyChordSection(chordSection, 'cancel'),
+                      keyCallback: () {
+                        _performMeasureEntryCancel();
+                      },
                       child: Icon(
                         Icons.cancel,
                         size: _defaultChordFontSize,
                         color: _measureEntryValid ? Colors.black : Colors.red,
                       ),
-                      onTap: () {
-                        _performMeasureEntryCancel();
-                      },
                     ),
                   ),
                   if (isValidSectionEntry)
                     appTooltip(
                       message: 'Accept the modification and add measures to the section.',
-                      child: InkWell(
+                      child: appInkWell(
+                        key: _editKeyChordSection(chordSection, 'acceptAndAdd'),
+                        keyCallback: () {
+                          _performEdit(endOfRow: false);
+                        },
                         child: const Icon(
                           Icons.arrow_forward,
                           size: _defaultChordFontSize,
                         ),
-                        onTap: () {
-                          _performEdit(endOfRow: false);
-                        },
                       ),
                     ),
                   //  section enter
                   if (isValidSectionEntry)
                     appTooltip(
                       message: 'Accept the modification',
-                      child: InkWell(
-                        child: const Icon(
-                          Icons.check,
-                          size: _defaultChordFontSize,
-                        ),
-                        onTap: () {
+                      child: appInkWell(
+                        key: _editKeyChordSection(chordSection, 'accept'),
+                        keyCallback: () {
                           logger.d(
                               'sectionVersion measureEditType: ${_selectedEditDataPoint?._measureEditType.toString()}');
                           _performEdit(done: true); //  section enter
                         },
+                        child: const Icon(
+                          Icons.check,
+                          size: _defaultChordFontSize,
+                        ),
                       ),
                     ),
                   //  can't cancel some chordSection that has already been added!
@@ -1926,8 +1939,9 @@ class _Edit extends State<Edit> {
     }
 
     //  the section is not selected for editing, just display
-    return InkWell(
-      onTap: () {
+    return appInkWell(
+      key: _editKeyForChordAt(editDataPoint.location),
+      keyCallback: () {
         _sectionVersion = chordSection.sectionVersion;
         _editTextController.text = _sectionVersion.toString();
         _setEditDataPoint(editDataPoint);
@@ -1943,6 +1957,34 @@ class _Edit extends State<Edit> {
                 style: sectionChordTextStyle,
               ))),
     );
+  }
+
+  Key _editKeyForChordAt(ChordSectionLocation? loc) {
+    return ValueKey('edit_$loc');
+  }
+
+  Key _editKeyForChordPlusAt(_EditDataPoint editDataPoint) {
+    return _editKeyChordAt(editDataPoint, 'plus');
+  }
+
+  Key _editKeyForChordPlusRowAt(_EditDataPoint editDataPoint) {
+    return _editKeyChordAt(editDataPoint, 'plusRow');
+  }
+
+  Key _editKeyDeleteChordAt(_EditDataPoint editDataPoint) {
+    return _editKeyChordAt(editDataPoint, 'delete');
+  }
+
+  Key _editKeyCancelChordAt(_EditDataPoint editDataPoint) {
+    return _editKeyChordAt(editDataPoint, 'cancel');
+  }
+
+  Key _editKeyChordAt(_EditDataPoint editDataPoint, String type) {
+    return ValueKey('edit_${editDataPoint.location}_${Util.enumToString(editDataPoint._measureEditType)}_$type');
+  }
+
+  Key _editKeyChordSection(ChordSection section, String type) {
+    return ValueKey('edit_${section.toString().replaceAll('\n', '')}_$type');
   }
 
 // Measure _getLocationMeasure(ChordSectionLocation location) {
@@ -2064,16 +2106,17 @@ class _Edit extends State<Edit> {
         }
       }
 
-      Widget _majorChordButton = appTooltip(
+      Widget majorChordButton = appTooltip(
           message: 'Enter the major chord.',
-          child: appButton(
+          child: appEnumeratedButton(
             _keyChordNote.toString(),
-            fontSize: _defaultChordFontSize,
+            appKeyEnum: AppKeyEnum.editMajorChord,
             onPressed: () {
               setState(() {
                 _updateChordText(_keyChordNote.toMarkup());
               });
             },
+            fontSize: _defaultChordFontSize,
             // backgroundColor: fixme,
           ));
       Widget minorChordButton;
@@ -2084,14 +2127,15 @@ class _Edit extends State<Edit> {
         );
         minorChordButton = appTooltip(
             message: 'Enter the minor chord.',
-            child: appButton(
+            child: appEnumeratedButton(
               sc.toString(),
-              fontSize: _defaultChordFontSize,
+              appKeyEnum: AppKeyEnum.editMinorChord,
               onPressed: () {
                 setState(() {
                   _updateChordText(sc.toMarkup());
                 });
               },
+              fontSize: _defaultChordFontSize,
             ));
       }
       Widget dominant7ChordButton;
@@ -2099,14 +2143,15 @@ class _Edit extends State<Edit> {
         ScaleChord sc = ScaleChord(_keyChordNote, ChordDescriptor.dominant7);
         dominant7ChordButton = appTooltip(
             message: 'Enter the dominant7 chord.',
-            child: appButton(
+            child: appEnumeratedButton(
               sc.toString(),
-              fontSize: _defaultChordFontSize,
+              appKeyEnum: AppKeyEnum.editDominant7Chord,
               onPressed: () {
                 setState(() {
                   _updateChordText(sc.toMarkup());
                 });
               },
+              fontSize: _defaultChordFontSize,
             ));
       }
 
@@ -2197,19 +2242,20 @@ class _Edit extends State<Edit> {
                           itemHeight: null,
                         ),
                       )),
-                  _majorChordButton,
+                  majorChordButton,
                   minorChordButton,
                   dominant7ChordButton,
                   appTooltip(
                     message: 'Enter a silent chord.',
-                    child: appButton(
+                    child: appEnumeratedButton(
                       'X',
-                      fontSize: _defaultChordFontSize,
+                      appKeyEnum: AppKeyEnum.editSilentChord,
                       onPressed: () {
                         setState(() {
                           _updateChordText('X');
                         });
                       },
+                      fontSize: _defaultChordFontSize,
                     ),
                   ),
                 ]),
@@ -2289,66 +2335,67 @@ class _Edit extends State<Edit> {
                       if (measure != null && editDataPoint._measureEditType == MeasureEditType.replace)
                         appTooltip(
                           message: 'Delete this measure',
-                          child: InkWell(
+                          child: appInkWell(
+                            appKeyEnum: AppKeyEnum.editDeleteChordMeasure,
+                            keyCallback: () {
+                              _performDelete();
+                            },
                             child: const Icon(
                               Icons.delete,
                               size: _defaultChordFontSize,
                               color: Colors.black,
                             ),
-                            onTap: () {
-                              _performDelete();
-                            },
                           ),
                         ),
                       appTooltip(
                         message: 'Cancel the modification.'
                             '${kDebugMode ? ' _selectedEditDataPoint: $_selectedEditDataPoint' : ''}',
-                        child: InkWell(
+                        child: appInkWell(
+                          appKeyEnum: AppKeyEnum.editCancelChordModification,
+                          keyCallback: () {
+                            _performMeasureEntryCancel();
+                          },
                           child: Icon(
                             Icons.cancel,
                             size: _defaultChordFontSize,
                             color: _measureEntryValid ? Colors.black : Colors.red,
                           ),
-                          onTap: () {
-                            _performMeasureEntryCancel();
-                          },
                         ),
                       ),
                       if (_measureEntryValid)
                         appTooltip(
                           message: 'Accept the modification and extend the row.',
-                          child: InkWell(
+                          child: appInkWell(
+                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndExtendRow,
+                            keyCallback: () {
+                              _performEdit(endOfRow: false);
+                            },
                             child: const Icon(
                               Icons.arrow_forward,
                               size: _defaultChordFontSize,
                             ),
-                            onTap: () {
-                              _performEdit(endOfRow: false);
-                            },
                           ),
                         ),
                       if (_measureEntryValid)
                         appTooltip(
                           message: 'Accept the modification, end the row, and continue editing.',
-                          child: InkWell(
+                          child: appInkWell(
+                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndContinue,
+                            keyCallback: () {
+                              _performEdit(done: false, endOfRow: true);
+                            },
                             child: const Icon(
                               Icons.call_received,
                               size: _defaultChordFontSize,
                             ),
-                            onTap: () {
-                              _performEdit(done: false, endOfRow: true);
-                            },
                           ),
                         ),
                       if (_measureEntryValid)
                         appTooltip(
                           message: 'Accept the modification.\nFinished adding measures.',
-                          child: InkWell(
-                            child: const Icon(
-                              Icons.check,
-                              size: _defaultChordFontSize,
-                            ),
-                            onTap: () {
+                          child: appInkWell(
+                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndFinish,
+                            keyCallback: () {
                               logger.v(
                                   'endOfRow?:  ${_song.findMeasureByChordSectionLocation(_selectedEditDataPoint?.location)?.endOfRow} ');
                               _performEdit(
@@ -2358,6 +2405,10 @@ class _Edit extends State<Edit> {
                                           ?.endOfRow ??
                                       false);
                             },
+                            child: const Icon(
+                              Icons.check,
+                              size: _defaultChordFontSize,
+                            ),
                           ),
                         ),
                     ]),
@@ -2365,8 +2416,9 @@ class _Edit extends State<Edit> {
     }
 
     //  not editing this measure
-    return InkWell(
-      onTap: () {
+    return appInkWell(
+      key: _editKeyForChordAt(editDataPoint.location),
+      keyCallback: () {
         _setEditDataPoint(editDataPoint);
       },
       child: Container(
@@ -2412,6 +2464,7 @@ class _Edit extends State<Edit> {
                   ),
                   appButton(
                     'x2',
+                    key: _editKeyChordAt(editDataPoint, 'x2'),
                     fontSize: _defaultChordFontSize,
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 2);
@@ -2421,6 +2474,7 @@ class _Edit extends State<Edit> {
                   ),
                   appButton(
                     'x3',
+                    key: _editKeyChordAt(editDataPoint, 'x3'),
                     fontSize: _defaultChordFontSize,
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 3);
@@ -2430,6 +2484,7 @@ class _Edit extends State<Edit> {
                   ),
                   appButton(
                     'x4',
+                    key: _editKeyChordAt(editDataPoint, 'x4'),
                     fontSize: _defaultChordFontSize,
                     onPressed: () {
                       _song.setRepeat(editDataPoint.location!, 4);
@@ -2451,32 +2506,34 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           appTooltip(
                             message: 'Delete this repeat',
-                            child: InkWell(
+                            child: appInkWell(
+                              key: _editKeyDeleteChordAt(editDataPoint),
+                              keyCallback: () {
+                                _song.setRepeat(editDataPoint.location!, 1);
+                                _undoStackPush();
+                                _performMeasureEntryCancel();
+                              },
                               child: const Icon(
                                 Icons.delete,
                                 size: _defaultChordFontSize,
                                 color: Colors.black,
                               ),
-                              onTap: () {
-                                _song.setRepeat(editDataPoint.location!, 1);
-                                _undoStackPush();
-                                _performMeasureEntryCancel();
-                              },
                             ),
                           ),
                         ],
                       ),
                       appTooltip(
                         message: 'Cancel the modification',
-                        child: InkWell(
+                        child: appInkWell(
+                          key: _editKeyCancelChordAt(editDataPoint),
+                          keyCallback: () {
+                            _performMeasureEntryCancel();
+                          },
                           child: Icon(
                             Icons.cancel,
                             size: _defaultChordFontSize,
                             color: _measureEntryValid ? Colors.black : Colors.red,
                           ),
-                          onTap: () {
-                            _performMeasureEntryCancel();
-                          },
                         ),
                       ),
                     ]),
@@ -2487,8 +2544,9 @@ class _Edit extends State<Edit> {
 
     var sectionChordBoldTextStyle = _chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     //  not editing this measureNode
-    return InkWell(
-      onTap: () {
+    return appInkWell(
+      key: _editKeyForChordAt(editDataPoint.location),
+      keyCallback: () {
         _setEditDataPoint(editDataPoint);
       },
       child: Container(
@@ -2496,7 +2554,7 @@ class _Edit extends State<Edit> {
           padding: _textPadding,
           color: sectionColor,
           child: appTooltip(
-              message: 'modify or delete the measureNode',
+              message: 'modify or delete the measure',
               child: Text(
                 'x${repeat.repeats}',
                 style: sectionChordBoldTextStyle,
@@ -2513,20 +2571,14 @@ class _Edit extends State<Edit> {
     Color color = getBackgroundColorForSection(editDataPoint.location?.sectionVersion?.section);
 
     //  not editing this measureNode
-    return InkWell(
-      onTap: () {
-        _setEditDataPoint(editDataPoint);
-      },
-      child: Container(
-          margin: _marginInsets,
-          padding: _textPadding,
-          color: color,
-          child: appTooltip(
-              message: 'modify or delete the measureNode',
-              child: Text(
-                measureNode.toString(),
-                style: _sectionChordBoldTextStyle,
-              ))),
+    return Container(
+      margin: _marginInsets,
+      padding: _textPadding,
+      color: color,
+      child: Text(
+        measureNode.toString(),
+        style: _sectionChordBoldTextStyle,
+      ),
     );
   }
 
@@ -2576,8 +2628,9 @@ class _Edit extends State<Edit> {
 
   Widget _plusRowWidget(ChordSectionLocation? loc) {
     var editDataPoint = _EditDataPoint(loc?.asPhrase(), measureEditType: MeasureEditType.insert);
-    return InkWell(
-        onTap: () {
+    return appInkWell(
+        key: _editKeyForChordPlusRowAt(editDataPoint),
+        keyCallback: () {
           if (loc != null) {
             _setEditDataPoint(editDataPoint);
             logger.i('insert new row above: $_selectedEditDataPoint');
@@ -2627,8 +2680,9 @@ class _Edit extends State<Edit> {
       return const Text('null');
     }
 
-    return InkWell(
-        onTap: () {
+    return appInkWell(
+        key: _editKeyForChordPlusAt(editDataPoint),
+        keyCallback: () {
           _setEditDataPoint(editDataPoint);
         },
         child: Container(
@@ -2952,7 +3006,7 @@ class _Edit extends State<Edit> {
         case MeasureEditType.replace:
           logger.log(
               _editLog,
-              'post replace: location: ${loc} '
+              'post replace: location: $loc '
               '"${_song.findMeasureByChordSectionLocation(loc)}"'
               ', endOfRow: $endOfRow'
               ', current.endOfRow: '
@@ -3202,7 +3256,7 @@ class _Edit extends State<Edit> {
 //           onSubmitted: onSubmitted,
 //           onEditingComplete: onEditingComplete,
 //           onChanged: onChanged,
-//           onTap: () {
+//           keyCallback: () {
 //             logger.log(_editLog,'onTap(): ${this.toString()}  /// temp only!!!!!');
 //             _selectedLyricsTextField = this;
 //           },
@@ -3241,10 +3295,6 @@ class _EditDataPoint {
         ', onEndOfRow: $onEndOfRow'
         '${(measureNode == null ? '' : ', measureNode: $measureNode')}'
         '}';
-  }
-
-  bool isAt(_EditDataPoint? other) {
-    return other != null && location == other.location && _measureEditType == other._measureEditType;
   }
 
   @override

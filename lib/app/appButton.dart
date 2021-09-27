@@ -44,17 +44,18 @@ Widget appTooltip({
       message: message,
       child: child,
       textStyle: textStyle,
-
-      //  fixme: why is this broken on web?
-      //waitDuration: Duration(seconds: 1, milliseconds: 200),
-
+      waitDuration: const Duration(seconds: 1, milliseconds: 200),
       verticalOffset: 75,
-      decoration: BoxDecoration(
-          color: textStyle.backgroundColor,
-          border: Border.all(),
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]),
+      decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
       padding: const EdgeInsets.all(8));
+}
+
+BoxDecoration appTooltipBoxDecoration(Color? color) {
+  return BoxDecoration(
+      color: color,
+      border: Border.all(),
+      borderRadius: const BorderRadius.all(Radius.circular(12)),
+      boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]);
 }
 
 Wrap appWrap(List<Widget> children,

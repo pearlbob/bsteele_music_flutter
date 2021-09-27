@@ -171,7 +171,7 @@ class _State extends State<Detail> {
       }
 
       children.add(appSpace());
-      children.add(appButton('Close the options', onPressed: () {
+      children.add(appButton('Close the options', key: const ValueKey<String>('Close the options'), onPressed: () {
         setState(() {
           _options = false;
         });
@@ -513,14 +513,15 @@ class _State extends State<Detail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  appButton('Loop 1', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop 2', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop 4', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop selected', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Play', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Stop', onPressed: () {}, fontSize: _fontSize),
-                  appButton('Options', onPressed: () {
+                  appButton('Loop 1', key: const ValueKey<String>('Loop 1'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 2', key: const ValueKey<String>('Loop 2'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 4', key: const ValueKey<String>('Loop 4'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop selected',
+                      key: const ValueKey<String>('Loop selected'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop', key: const ValueKey<String>('Loop'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Play', key: const ValueKey<String>('Play'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Stop', key: const ValueKey<String>('Stop'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Options', key: const ValueKey<String>('Options'), onPressed: () {
                     setState(() {
                       _options = !_options;
                     });

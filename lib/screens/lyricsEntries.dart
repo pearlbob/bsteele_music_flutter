@@ -287,6 +287,14 @@ class _LyricsDataEntry {
     return false;
   }
 
+  Key keyForLine(int line, String id) {
+    return ValueKey('lyrics_$lyricSection:$line:$id');
+  }
+
+  Key get key => ValueKey('lyrics_$lyricSection');
+
+  Key get deleteKey => ValueKey('lyrics_delete_$lyricSection');
+
   @override
   String toString() {
     return 'LyricsDataEntry{ $lyricSection: lines: ${_lyricsLines.length} }';

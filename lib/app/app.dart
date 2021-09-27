@@ -6,19 +6,15 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app_theme.dart';
 
-const bool _widgetLog = false; //  true false
-
-const _environmentDefault = 'main'; //  fixme: duplicate
-const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
+// const _environmentDefault = 'main'; //  fixme: duplicate
+// const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
 final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone
@@ -178,31 +174,3 @@ class App {
   static final App _singleton = App._internal();
 }
 
-/// An experimental extension intended to easy widget testing.
-extension WidgetLogExtension on Widget {
-  void testWidgetLog() {
-    logger.i('WidgetLogExtension: $key');
-  }
-}
-
-/// An experimental class to generate widget test code while running in debug mode.
-/// The model is to use the app in debug mode and then copy/paste the generated code
-/// into widget tests to replicate the user action with a minimum of coding.
-class WidgetLog {
-  static void tap(ValueKey<String> key) {
-    if (kDebugMode && _widgetLog) {
-      if (_environment == _environmentDefault) {
-        var varName = Util.firstToLower(Util.underScoresToCamelCase(key.value));
-        logger.i('''{
-    var $varName = find.byKey(const ValueKey<String>('${key.value}'));
-    expect($varName,findsOneWidget);
-    await tester.tap($varName);
-    await tester.pumpAndSettle();
-    }
-    ''');
-      } else {
-        logger.i('tester.tap(${key.value})');
-      }
-    }
-  }
-}

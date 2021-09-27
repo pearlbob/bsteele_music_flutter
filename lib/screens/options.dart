@@ -7,6 +7,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_html/html.dart' as html;
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
@@ -43,6 +44,17 @@ class _Options extends State<Options> {
     setState(() {});
   }
 
+  //  fixme: apply fullscreen
+  void _requestFullscreen() {
+    html.document.documentElement?.requestFullscreen();
+    _isFullScreen = true;
+  }
+
+  void _exitFullScreen() {
+    html.document.exitFullscreen();
+    _isFullScreen = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
@@ -65,6 +77,20 @@ class _Options extends State<Options> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 textDirection: TextDirection.ltr,
                 children: <Widget>[
+                  if (html.document.fullscreenEnabled == true)
+                    Row(
+                      children: <Widget>[
+                        appEnumeratedButton(_isFullScreen ? 'Exit fullscreen' : 'Enter fullscreen',
+                            appKeyEnum: AppKeyEnum.optionsFullScreen, onPressed: () {
+                          if (_isFullScreen) {
+                            _exitFullScreen();
+                          } else {
+                            _requestFullscreen();
+                          }
+                        }),
+                      ],
+                    ),
+
                   const Text(
                     'User style: ',
                   ),
@@ -242,8 +268,9 @@ class _Options extends State<Options> {
                     appSpace(),
                     appTooltip(
                       message: 'No leader/follower',
-                      child: appButton(
+                      child: appEnumeratedButton(
                         'None',
+                        appKeyEnum: AppKeyEnum.optionsWebsocketNone,
                         onPressed: () {
                           _appOptions.websocketHost = '';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -253,8 +280,9 @@ class _Options extends State<Options> {
                     appSpace(),
                     appTooltip(
                       message: 'You are in the Community Jams studio.',
-                      child: appButton(
+                      child: appEnumeratedButton(
                         'Studio',
+                        appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
                         onPressed: () {
                           _appOptions.websocketHost = 'cj.local';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -264,8 +292,9 @@ class _Options extends State<Options> {
                     appSpace(),
                     appTooltip(
                       message: 'You are in the park.',
-                      child: appButton(
+                      child: appEnumeratedButton(
                         'Park',
+                        appKeyEnum: AppKeyEnum.optionsWebsocketPark,
                         onPressed: () {
                           _appOptions.websocketHost = parkFixedIpAddress;
                           _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -274,7 +303,7 @@ class _Options extends State<Options> {
                     ),
                     if (kDebugMode) appSpace(),
                     if (kDebugMode)
-                      appButton('bob\'s place', onPressed: () {
+                      appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
                         _appOptions.websocketHost = 'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
@@ -299,8 +328,9 @@ class _Options extends State<Options> {
                     ),
                     appSpace(),
                     if (_songUpdateService.isConnected)
-                      appButton(
+                      appEnumeratedButton(
                         _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
+                        appKeyEnum: AppKeyEnum.optionsLeadership,
                         onPressed: () {
                           if (_songUpdateService.isConnected) {
                             _songUpdateService.isLeader = !_songUpdateService.isLeader;
@@ -334,6 +364,7 @@ class _Options extends State<Options> {
                       itemHeight: null,
                     ),
                   ]),
+
                   // Row(children: <Widget>[
                   //   appWidget.checkbox(
                   //     value: _appOptions.debug,
@@ -578,6 +609,8 @@ class _Options extends State<Options> {
 
   //double _timerT = 0;
   final SongUpdateService _songUpdateService = SongUpdateService();
+
+  bool _isFullScreen = false;
 
   //final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();

@@ -35,15 +35,16 @@ class _Songs extends State<Songs> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title:'bsteele Music App Song Management'),
+      appBar: appWidget.backBar(title: 'bsteele Music App Song Management'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              appButton(
-             'Read files',
+              appEnumeratedButton(
+                'Read files',
+                appKeyEnum: AppKeyEnum.songsReadFiles,
                 onPressed: () {
                   setState(() {
                     _filePick(context);
@@ -53,8 +54,9 @@ class _Songs extends State<Songs> {
               appSpace(
                 space: 20,
               ),
-             appButton(
-               'Write all songs to $fileLocation',
+              appEnumeratedButton(
+                'Write all songs to $fileLocation',
+                appKeyEnum: AppKeyEnum.songsWriteFiles,
                 onPressed: () {
                   _writeAll();
                 },
@@ -64,7 +66,9 @@ class _Songs extends State<Songs> {
               ),
               appTooltip(
                 message: 'A reload of the application will return them all.',
-                child: appButton( 'Remove all songs from the current list',
+                child: appEnumeratedButton(
+                  'Remove all songs from the current list',
+                  appKeyEnum: AppKeyEnum.songsRemoveAll,
                   onPressed: () {
                     setState(() {
                       _app.removeAllSongs();

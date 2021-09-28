@@ -266,12 +266,11 @@ class _State extends State<Documentation> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(appDocsThemeData),
-                    data: desc.toString())
+                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(appDocsThemeData), data: desc.toString())
               ]),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.documentationBack),
     );
   }
 

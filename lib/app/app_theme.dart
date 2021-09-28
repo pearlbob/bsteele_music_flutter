@@ -458,11 +458,18 @@ EdgeInsetsGeometry? getMeasurePadding() {
 }
 
 enum AppKeyEnum {
+  aboutBack,
+  appBarBack,
+  appBack, //  screen pop
+  cssDemoBack,
+  detailBack,
   detailLyrics,
+  documentationBack,
   editAcceptChordModificationAndContinue,
   editAcceptChordModificationAndExtendRow,
   editAcceptChordModificationAndFinish,
   editArtist,
+  editBack,
   editCancelChordModification,
   editClearSong,
   editCopyright,
@@ -488,6 +495,7 @@ enum AppKeyEnum {
   editTitle,
   editUndo,
   errorMessage,
+  listsBack,
   listsClearSearch,
   listsErrorMessage,
   listsNameText,
@@ -497,8 +505,18 @@ enum AppKeyEnum {
   listsSearchText,
   listsValueText,
   mainClearSearch,
+  mainDrawerAbout,
+  mainDrawerCssDemo,
+  mainDrawerDocs,
+  mainDrawerLists,
+  mainDrawerOptions,
+  mainDrawerPrivacy,
+  mainDrawerSongs,
+  mainDrawerTheory,
   mainHamburger,
   mainSearchText,
+  mainUp,
+  optionsBack,
   optionsFullScreen,
   optionsKeyOffset0,
   optionsKeyOffset1,
@@ -516,9 +534,17 @@ enum AppKeyEnum {
   optionsWebsocketCJ,
   optionsWebsocketNone,
   optionsWebsocketPark,
+  playerBack,
+  playerCapo,
+  playerFloatingPlay,
+  playerFloatingStop,
+  playerFloatingTop,
+  privacyBack,
+  songsBack,
   songsReadFiles,
   songsRemoveAll,
   songsWriteFiles,
+  theoryBack,
   theoryHalf,
   theoryRoot,
 }
@@ -741,10 +767,14 @@ double lookupIconSize() {
   return _sizeLookup(_iconSizeProperty) ?? 24; //  fixme
 }
 
-void _appLogKeyCallback(Key? key) {
+void appLogAppKey(AppKeyEnum appKeyEnum) {
+  appLogKeyCallback(ValueKey<AppKeyEnum>(appKeyEnum));
+}
+
+void appLogKeyCallback(Key? key) {
   assert(key != null);
 
-  logger.i('_appLogKeyCallback( ${key is ValueKey ? key.value : key} )');
+  logger.i('appLogKeyCallback( ${key is ValueKey ? key.value : key} )');
 }
 // /// An experimental class to generate widget test code while running in debug mode.
 // /// The model is to use the app in debug mode and then copy/paste the generated code
@@ -802,7 +832,7 @@ ElevatedButton appButton(
         style: _app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: () {
-      _appLogKeyCallback(key);
+      appLogKeyCallback(key);
       onPressed();
     },
     style:
@@ -830,14 +860,14 @@ InkWell appInkWell({
   //  form a key from the enumerated types
   if (appKeyEnum != null) {
     assert(key == null);
-    key = ValueKey(appKeyEnum);
+    key = ValueKey<AppKeyEnum>(appKeyEnum);
   }
 
   //  supply an on pressed callback with key, if asked
   if (keyCallback != null) {
     assert(key != null);
     onTap = () {
-      _appLogKeyCallback(key);
+      appLogKeyCallback(key);
       keyCallback();
     };
   }
@@ -861,12 +891,21 @@ IconButton appEnumeratedIconButton({
     icon: icon,
     key: key,
     onPressed: () {
-      _appLogKeyCallback(key);
+      appLogKeyCallback(key);
       onPressed();
     },
     color: color,
     iconSize: iconSize ?? 24.0, //  demanded by IconButton
   );
+}
+
+TextButton appTextButtonIcon({
+  required Widget icon,
+  required Widget label,
+  required VoidCallback onPressed,
+  ButtonStyle? style,
+}) {
+  return TextButton.icon(icon: icon, label: label, onPressed: onPressed, style: style);
 }
 
 DropdownMenuItem<T> appDropdownMenuItem<T>({
@@ -880,7 +919,7 @@ DropdownMenuItem<T> appDropdownMenuItem<T>({
   //  form app key enum key
   if (appKeyEnum != null) {
     assert(key == null);
-    key = ValueKey(appKeyEnum);
+    key = ValueKey<AppKeyEnum>(appKeyEnum);
   }
 
   // this.value,
@@ -890,7 +929,7 @@ DropdownMenuItem<T> appDropdownMenuItem<T>({
   return DropdownMenuItem<T>(
       key: key,
       onTap: () {
-        _appLogKeyCallback(key);
+        appLogKeyCallback(key);
         keyCallback();
       },
       value: value,
@@ -900,17 +939,45 @@ DropdownMenuItem<T> appDropdownMenuItem<T>({
 }
 
 FloatingActionButton appFloatingActionButton({
-  Key? key,
-  required VoidCallback? onPressed,
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback onPressed,
   Widget? child,
   bool mini = false,
 }) {
+  var key = ValueKey<AppKeyEnum>(appKeyEnum);
   return FloatingActionButton(
     key: key,
-    onPressed: onPressed,
+    onPressed: () {
+      appLogKeyCallback(key);
+      onPressed();
+    },
     child: child,
     mini: mini,
     backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
+  );
+}
+
+ListTile appListTile({required AppKeyEnum appKeyEnum, required Widget title, required GestureTapCallback onTap}) {
+  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  return ListTile(
+    key: key,
+    title: title,
+    onTap: () {
+      appLogKeyCallback(key);
+      onTap();
+    },
+  );
+}
+
+Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required ValueChanged<bool> onChanged}) {
+  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  return Switch(
+    key: key,
+    value: value,
+    onChanged: (value) {
+      appLogKeyCallback(key);
+      onChanged(value);
+    },
   );
 }
 

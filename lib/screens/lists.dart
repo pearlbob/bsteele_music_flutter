@@ -308,7 +308,7 @@ class _State extends State<Lists> {
                     width: 10 * _app.screenInfo.fontSize,
                     //  limit text entry display length
                     child: TextField(
-                      key: const ValueKey('searchText') /*  for testing*/,
+                      key: const ValueKey<AppKeyEnum>(AppKeyEnum.listsSearchText),
                       enabled: _isSearchActive,
                       controller: _searchTextFieldController,
                       focusNode: _searchFocusNode,
@@ -358,7 +358,7 @@ class _State extends State<Lists> {
               ),
             ]),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.listsBack),
     );
   }
 

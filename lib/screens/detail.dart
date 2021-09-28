@@ -614,7 +614,7 @@ class _State extends State<Detail> {
           ),
         ],
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.detailBack),
     );
   }
 

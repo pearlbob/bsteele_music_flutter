@@ -74,6 +74,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songId.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
@@ -95,6 +96,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'app/app.dart';
 import 'app/appButton.dart';
@@ -269,6 +271,7 @@ enum _SortType {
 class BSteeleMusicApp extends StatelessWidget {
   BSteeleMusicApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
+    Wakelock.enable(); //  avoid device timeouts!
   }
 
   // This widget is the root of your application.
@@ -564,6 +567,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ]),
           ),
           onTap: () {
+            appLogKeyCallback(key);
             _navigateToPlayer(context, song);
           },
         ));
@@ -616,18 +620,16 @@ class _MyHomePageState extends State<MyHomePage> {
       _lastSelectedSong = null;
     }
 
-    var _aboutKey = const ValueKey<String>('About');
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       key: _scaffoldKey,
       appBar: appWidget.appBar(
         title: widget.title,
-        key: const ValueKey('hamburger'),
         leading: appTooltip(
           message: MaterialLocalizations.of(context).openAppDrawerTooltip,
           child: TextButton(
               onPressed: () {
+                appLogAppKey(AppKeyEnum.mainHamburger);
                 _openDrawer();
               },
               child: appIcon(Icons.menu)),
@@ -679,7 +681,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: 50,
             ), //  filler for notched phones
-            ListTile(
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerOptions,
               title: Text(
                 "Options",
                 style: _navTextStyle,
@@ -689,7 +692,8 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             if (_app.isEditReady) //  no files on phones!
-              ListTile(
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerSongs,
                 title: Text(
                   "Songs",
                   style: _navTextStyle,
@@ -699,7 +703,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             if (_app.isEditReady)
-              ListTile(
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerLists,
                 title: Text(
                   "Lists",
                   style: _navTextStyle,
@@ -709,7 +714,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             if (!_app.screenInfo.isTooNarrow)
-              ListTile(
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerTheory,
                 title: Text(
                   "Theory",
                   style: _navTextStyle,
@@ -718,7 +724,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToTheory(context);
                 },
               ),
-            ListTile(
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerPrivacy,
               title: Text(
                 "Privacy",
                 style: _navTextStyle,
@@ -728,7 +735,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToPrivacyPolicy(context);
               },
             ),
-            ListTile(
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerDocs,
               title: Text(
                 "Docs",
                 style: _navTextStyle,
@@ -738,7 +746,8 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             if (kDebugMode)
-              ListTile(
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
                 title: Text(
                   "CSS Demo",
                   style: _navTextStyle,
@@ -747,10 +756,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToCssDemo(context);
                 },
               ),
-            ListTile(
-              key: _aboutKey,
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: Text(
-                _aboutKey.value,
+                'About',
                 style: _navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
@@ -782,7 +791,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 14 * _titleBarFontSize,
               //  limit text entry display length
               child: TextField(
-                key: const ValueKey('searchText'),
+                key: const ValueKey<AppKeyEnum>(AppKeyEnum.mainSearchText),
                 //  for testing
                 controller: _searchTextFieldController,
                 focusNode: _searchFocusNode,
@@ -878,7 +887,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: appTooltip(
         message: 'Back to the list top',
         child: appFloatingActionButton(
-          mini: !_app.isScreenBig,
+          appKeyEnum: AppKeyEnum.mainUp,
           onPressed: () {
             if (_itemScrollController.isAttached) {
               _itemScrollController.scrollTo(
@@ -891,6 +900,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: appIcon(
             Icons.arrow_upward,
           ),
+          mini: !_app.isScreenBig,
         ),
       ),
     );

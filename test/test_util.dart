@@ -1,4 +1,5 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,6 +23,25 @@ class _TextFieldFinder extends MatchFinder {
   final String _valueKeyString;
 }
 
+class _TextFieldByAppKeyFinder extends MatchFinder {
+  _TextFieldByAppKeyFinder(this._appKey);
+
+  @override
+  String get description => '_TextFieldFinder: $_appKey';
+
+  @override
+  bool matches(Element candidate) {
+    logger.v('candidate: ${candidate.widget.runtimeType} ${candidate.widget.key}');
+    if (candidate.widget is TextField) {
+      return (candidate.widget.key is ValueKey<AppKeyEnum> &&
+          (candidate.widget.key as ValueKey<AppKeyEnum>).value == _appKey);
+    }
+    return false;
+  }
+
+  final AppKeyEnum _appKey;
+}
+
 class _TextValueKeyFinder extends MatchFinder {
   _TextValueKeyFinder(this._valueKeyString);
 
@@ -40,15 +60,14 @@ class _TextValueKeyFinder extends MatchFinder {
 }
 
 class _TextValueKeyContainsFinder extends MatchFinder {
-  _TextValueKeyContainsFinder(this._valueKeyString):super(skipOffstage: false);
+  _TextValueKeyContainsFinder(this._valueKeyString) : super(skipOffstage: false);
 
   @override
   String get description => '_TextValueKeyContainsFinder: $_valueKeyString';
 
   @override
   bool matches(Element candidate) {
-    return (
-        candidate.widget.key is ValueKey<String> &&
+    return (candidate.widget.key is ValueKey<String> &&
         (candidate.widget.key as ValueKey<String>).value.toString().contains(_valueKeyString));
   }
 
@@ -56,7 +75,7 @@ class _TextValueKeyContainsFinder extends MatchFinder {
 }
 
 class _TextContainsFinder extends MatchFinder {
-  _TextContainsFinder(this._value): super(skipOffstage: false);
+  _TextContainsFinder(this._value) : super(skipOffstage: false);
 
   @override
   String get description => '_TextContainsFinder: $_value';
@@ -88,9 +107,16 @@ class DropDownFinder extends MatchFinder {
 }
 
 class Find {
-
   static TextField findTextField(String valueKeyString) {
     var _textFieldFinder = _TextFieldFinder(valueKeyString);
+    expect(_textFieldFinder, findsOneWidget);
+    var ret = _textFieldFinder.evaluate().last.widget as TextField;
+    expect(ret.controller, isNotNull);
+    return ret;
+  }
+
+  static TextField findTextFieldByAppKey(AppKeyEnum appKeyEnum) {
+    var _textFieldFinder = _TextFieldByAppKeyFinder(appKeyEnum);
     expect(_textFieldFinder, findsOneWidget);
     var ret = _textFieldFinder.evaluate().last.widget as TextField;
     expect(ret.controller, isNotNull);
@@ -114,9 +140,9 @@ class Find {
     return ret;
   }
 
-  static List<Widget> findValueKeyContains(String value, {bool findSome = true }) {
+  static List<Widget> findValueKeyContains(String value, {bool findSome = true}) {
     var finder = _TextValueKeyContainsFinder(value);
-    if ( findSome) {
+    if (findSome) {
       expect(finder, findsWidgets);
     }
     List<Widget> ret = [];

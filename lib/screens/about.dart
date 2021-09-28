@@ -98,7 +98,7 @@ class _About extends State<About> with  WidgetsBindingObserver{
               ]),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.aboutBack),
     );
   }
 

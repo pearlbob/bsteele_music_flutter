@@ -7,6 +7,7 @@
 
 import 'dart:ui' as ui hide window;
 
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,12 +31,19 @@ void main() {
     await tester.pumpWidget(BSteeleMusicApp());
     await tester.pumpAndSettle();
 
-    List<Widget> widgets = Find.findValueKeyContains('Song_', findSome: false);
-    expect(widgets, isNotEmpty);
+    List<Widget> widgets;
+
+    {
+      var finder = find.byKey(const ValueKey<String>('Song_12_Bar_Blues_by_All'));
+      expect(finder, findsOneWidget);
+    }
+
+    var mainSearchText = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainSearchText));
+    expect(mainSearchText, findsOneWidget);
 
     {
       var searchString = 'this will not match any song';
-      await tester.enterText(find.byKey(const Key('searchText')), searchString);
+      await tester.enterText(mainSearchText, searchString);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
     }
@@ -44,8 +52,8 @@ void main() {
     expect(widgets, isEmpty);
 
     {
-      var clearSearch = find.byKey(const ValueKey<String>('clearSearch'));
-      expect(clearSearch,findsOneWidget);
+      var clearSearch = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainClearSearch));
+      expect(clearSearch, findsOneWidget);
       await tester.tap(clearSearch);
       await tester.pumpAndSettle();
     }
@@ -55,44 +63,35 @@ void main() {
 
     {
       var searchString = 'this will not match any song';
-      await tester.enterText(find.byKey(const Key('searchText')), searchString);
+      await tester.enterText(mainSearchText, searchString);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-    }
-    {
       widgets = Find.findValueKeyContains('Song_', findSome: false);
       expect(widgets, isEmpty);
     }
     {
       var searchString = 'Chicago';
-      await tester.enterText(find.byKey(const Key('searchText')), searchString);
+      await tester.enterText(mainSearchText, searchString);
       await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      widgets = Find.findValueKeyContains('Song_', findSome: false);
+      expect(widgets, isNotEmpty);
+      var song25Or6To4ByChicago = find.byKey(const ValueKey<String>('Song_25_or_6_to_4_by_Chicago'));
+      expect(song25Or6To4ByChicago, findsOneWidget);
+      // await tester.tap(song25Or6To4ByChicago);
+      // await tester.pumpAndSettle(); //  fixme: error here.  why?  because it transitions to another screen
+    }
+    {
+      var clearSearch = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainClearSearch));
+      expect(clearSearch, findsOneWidget);
+      await tester.tap(clearSearch);
       await tester.pumpAndSettle();
     }
     {
       widgets = Find.findValueKeyContains('Song_', findSome: false);
       expect(widgets, isNotEmpty);
     }
-    {
-      var song25Or6To4ByChicago = find.byKey(const ValueKey<String>('Song_25_or_6_to_4_by_Chicago'));
-      expect(song25Or6To4ByChicago,findsOneWidget);
-      await tester.tap(song25Or6To4ByChicago);
-     // await tester.pumpAndSettle(); //  fixme: error here.  why?
-    }
-    // {
-    //   var clearSearch = find.byKey(const ValueKey<String>('clearSearch'));
-    //   expect(clearSearch,findsOneWidget);
-    //   await tester.tap(clearSearch);
-    //   await tester.pumpAndSettle();
-    // }
-    // {
-    //   widgets = Find.findValueKeyContains('Song_', findSome: false);
-    //   expect(widgets, isNotEmpty);
-    // }
-    // var hamburger = find.byKey(const ValueKey<String>('hamburger'));
+    // var hamburger = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainHamburger));
     // expect(hamburger,findsOneWidget);
-    // await tester.tap(hamburger);
-    // await tester.pumpAndSettle();
-
   });
 }

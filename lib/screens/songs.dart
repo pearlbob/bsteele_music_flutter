@@ -93,7 +93,7 @@ class _Songs extends State<Songs> {
               ),
             ]),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.songsBack),
     );
   }
 

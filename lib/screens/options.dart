@@ -439,7 +439,7 @@ class _Options extends State<Options> {
           ),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.optionsBack),
     );
   }
 

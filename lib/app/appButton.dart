@@ -84,6 +84,7 @@ class AppWidget {
       message: 'Back',
       child: TextButton(
         onPressed: () {
+          appLogAppKey(AppKeyEnum.appBack);
           Navigator.pop(context);
         },
         child: appIcon(Icons.arrow_back),
@@ -91,10 +92,11 @@ class AppWidget {
     );
   }
 
-  Widget floatingBack() {
+  Widget floatingBack(AppKeyEnum appKeyEnum) {
     return appTooltip(
       message: 'Back',
       child: appFloatingActionButton(
+        appKeyEnum: appKeyEnum,
         onPressed: () {
           Navigator.pop(context);
         },
@@ -103,13 +105,14 @@ class AppWidget {
     );
   }
 
-  AppBar backBar({Widget? titleWidget, String? title}) {
-    return appBar(title: title, titleWidget: titleWidget, leading: back());
+  AppBar backBar({AppKeyEnum? appKeyEnum, Widget? titleWidget, String? title}) {
+    return appBar(
+        appKeyEnum: appKeyEnum ?? AppKeyEnum.appBarBack, title: title, titleWidget: titleWidget, leading: back());
   }
 
-  AppBar appBar({Key? key, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions}) {
+  AppBar appBar({AppKeyEnum? appKeyEnum, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions}) {
     return AppBar(
-      key: key ?? const ValueKey('appBar'),
+      key: appKeyEnum != null ? ValueKey<AppKeyEnum>(appKeyEnum) : null,
       title: titleWidget ??
           Text(
             title ?? 'unknown',

@@ -9,6 +9,7 @@ import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,12 +33,15 @@ void main() {
     await tester.pumpWidget(BSteeleMusicApp());
     await tester.pumpAndSettle();
 
+    var mainSearchText = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainSearchText));
+    expect(mainSearchText, findsOneWidget);
+
     for (var searchString in ['love', '25', 'the', 'asdf', '']) {
-      await tester.enterText(find.byKey(const Key('searchText')), searchString);
+      await tester.enterText(mainSearchText, searchString);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
       {
-        final searchTextField = Find.findTextField('searchText');
+        final searchTextField = Find.findTextFieldByAppKey(AppKeyEnum.mainSearchText);
         expect(searchTextField.controller!.text, searchString);
       }
 
@@ -72,7 +76,7 @@ void main() {
       logger.i('notHoliday.length: ${notHoliday.length}');
 
       //  find all
-      await tester.enterText(find.byKey(const Key('searchText')), '');
+      await tester.enterText(mainSearchText, '');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
       List<Widget> widgets = Find.findValueKeyContains('Song_');

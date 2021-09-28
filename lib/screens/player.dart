@@ -191,7 +191,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void _positionAfterBuild() {
-    logger.d('_positionAfterBuild():');
     if (_songUpdate != null && _isPlaying) {
       logger.d('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
       _scrollToSectionByMoment(_songUpdate!.songMoment);
@@ -347,7 +346,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               //  show the first note if it's not the same as the key
               if (firstScaleNote != null)
                 SizedBox(
-                  width: onStringWidth + 4 * chordsTextWidth, //  max width of chars expected
+                  width: onStringWidth + 4 * chordsTextWidth,
+                  //  max width of chars expected
                   child: Text(
                     onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
                     style: headerTextStyle,
@@ -383,7 +383,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       for (var value in set) {
         bpmList.add(
           DropdownMenuItem<int>(
-            key: ValueKey(value),
+            key: ValueKey<int>(value),
             value: value,
             child: Text(
               value.toString().padLeft(3),
@@ -542,7 +542,8 @@ With escape, the app goes back to the play list.''',
                                             softWrap: false,
                                           ),
                                         ),
-                                        Switch(
+                                        appSwitch(
+                                          appKeyEnum: AppKeyEnum.playerCapo,
                                           onChanged: (value) {
                                             setState(() {
                                               _isCapo = !_isCapo;
@@ -577,11 +578,12 @@ With escape, the app goes back to the play list.''',
                                       child: TextButton.icon(
                                         style: TextButton.styleFrom(
                                           padding: const EdgeInsets.all(8),
-                                          primary: Colors.green,
+                                          primary: Colors.white, //  fixme:
+                                          backgroundColor: Colors.blue,
                                         ),
                                         icon: appIcon(
                                           Icons.edit,
-                                          color: Colors.green, //  fixme:
+                                          color: Colors.white, //  fixme:
                                         ),
                                         label: const Text(''),
                                         onPressed: () {
@@ -597,7 +599,7 @@ With escape, the app goes back to the play list.''',
                                   child: appTooltip(
                                     message: 'Tip: Use the space bar to start playing.\n'
                                         'Use the space bar to advance the section while playing.',
-                                    child: TextButton.icon(
+                                    child: appTextButtonIcon(
                                       style: TextButton.styleFrom(
                                         primary: _isPlaying ? Colors.red : Colors.green, //fixme:
                                       ),
@@ -759,7 +761,7 @@ With escape, the app goes back to the play list.''',
       floatingActionButton: _isPlaying
           ? (_isPaused
               ? appFloatingActionButton(
-                  mini: !_app.isScreenBig,
+        appKeyEnum: AppKeyEnum.playerFloatingPlay,
                   onPressed: () {
                     _pauseToggle();
                   },
@@ -770,9 +772,10 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
+                  mini: !_app.isScreenBig,
                 )
               : appFloatingActionButton(
-                  mini: !_app.isScreenBig,
+                  appKeyEnum: AppKeyEnum.playerFloatingStop,
                   onPressed: () {
                     _stop();
                   },
@@ -783,10 +786,11 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
+                  mini: !_app.isScreenBig,
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? appFloatingActionButton(
-                  mini: !_app.isScreenBig,
+        appKeyEnum: AppKeyEnum.playerFloatingTop,
                   onPressed: () {
                     if (_isPlaying) {
                       _stop();
@@ -801,9 +805,10 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
+                  mini: !_app.isScreenBig,
                 )
               : appFloatingActionButton(
-                  mini: !_app.isScreenBig,
+                  appKeyEnum: AppKeyEnum.playerBack,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -813,7 +818,9 @@ With escape, the app goes back to the play list.''',
                       Icons.arrow_back,
                     ),
                     fontSize: headerTextStyle.fontSize,
-                  ))),
+                  ),
+                  mini: !_app.isScreenBig,
+                )),
     );
   }
 
@@ -832,8 +839,8 @@ With escape, the app goes back to the play list.''',
       //  only deal with new key down events
 
       if (e.isKeyPressed(LogicalKeyboardKey.space) ||
-          e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
-      ) {
+              e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
+          ) {
         if (!_isPlaying) {
           _play();
         } else {

@@ -179,7 +179,7 @@ class _State extends State<TheoryWidget> {
           ],
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.theoryBack),
     );
   }
 

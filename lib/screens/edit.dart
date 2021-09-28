@@ -607,6 +607,7 @@ class _Edit extends State<Edit> {
               children: [
                 //  note: let the app bar scroll off the screen for more room for the song
                 appWidget.appBar(
+                  appKeyEnum: AppKeyEnum.appBarBack,
                   title: 'Edit',
                   leading: appWidget.back(),
                 ),
@@ -1190,7 +1191,7 @@ class _Edit extends State<Edit> {
       ),
       floatingActionButton: !songHasChanged
           ? appFloatingActionButton(
-              mini: !_app.isScreenBig,
+              appKeyEnum: AppKeyEnum.editBack,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -1199,7 +1200,9 @@ class _Edit extends State<Edit> {
                 child: appIcon(
                   Icons.arrow_back,
                 ),
-              ))
+              ),
+              mini: !_app.isScreenBig,
+            )
           : const Text(''),
     );
   }

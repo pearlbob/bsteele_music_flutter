@@ -106,7 +106,7 @@ class _CssDemo extends State<CssDemo> {
               ]),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.cssDemoBack),
     );
   }
 

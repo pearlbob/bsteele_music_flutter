@@ -52,7 +52,7 @@ class _Privacy extends State<Privacy> {
               'Should this fail, a local copy will be used.'),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(),
+      floatingActionButton: appWidget.floatingBack(AppKeyEnum.privacyBack),
     );
   }
 

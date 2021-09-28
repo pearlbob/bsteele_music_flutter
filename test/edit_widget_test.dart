@@ -6,11 +6,11 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
@@ -157,13 +157,19 @@ void main() async {
       }
     }
 
-    var newChordSection = find.byKey(const ValueKey('newChordSection'));
-    expect(newChordSection, findsOneWidget);
-    await tester.dragUntilVisible(
-      newChordSection, // what you want to find
-      find.byKey(const ValueKey('singleChildScrollView')), // widget you want to scroll
-      const Offset(0, 200), // delta to move
-    );
+    {
+      var newChordSection = find.byKey(const ValueKey('newChordSection'));
+      expect(newChordSection, findsOneWidget);
+      await tester.dragUntilVisible(
+        newChordSection, // what you want to find
+        find.byKey(const ValueKey('singleChildScrollView')), // widget you want to scroll
+        const Offset(0, 200), // delta to move
+      );
+    }
+    // {
+    //   var newChordSection = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.editNewChordSection));
+    //   expect(newChordSection, findsOneWidget);
+    // }
     // await tester.tap(newChordSection.last);
     //await tester.pumpAndSettle(const Duration(seconds: 1));   //  fixme:  A RenderFlex overflowed by 132 pixels on the right.
 

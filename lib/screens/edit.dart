@@ -22,7 +22,6 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/undoStack.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
@@ -137,7 +136,7 @@ class _Edit extends State<Edit> {
           case '\n':
             logger.log(_editLog, 'newline: should _editMeasure() called here?');
             break;
-          //  look for TextField.onEditingComplete() for end of entry... but it happens too often!
+        //  look for TextField.onEditingComplete() for end of entry... but it happens too often!
         }
       }
 
@@ -146,27 +145,32 @@ class _Edit extends State<Edit> {
 
     //  known text updates
     _titleTextEditingController.addListener(() {
+      appTextFieldListener(AppKeyEnum.editTitle, _titleTextEditingController);
       _song.title = _titleTextEditingController.text;
-      logger.d('_titleTextEditingController.addListener: \'${_titleTextEditingController.text}\''
+      logger.v('_titleTextEditingController listener: \'${_titleTextEditingController.text}\''
           ', ${_titleTextEditingController.selection}');
       _checkSongChangeStatus();
     });
     _artistTextEditingController.addListener(() {
+      appTextFieldListener(AppKeyEnum.editArtist, _artistTextEditingController);
       _song.artist = _artistTextEditingController.text;
       _checkSongChangeStatus();
     });
     _coverArtistTextEditingController.addListener(() {
+      appTextFieldListener(AppKeyEnum.editCoverArtist, _coverArtistTextEditingController);
       _song.coverArtist = _coverArtistTextEditingController.text;
       _checkSongChangeStatus();
     });
     _copyrightTextEditingController.addListener(() {
+      appTextFieldListener(AppKeyEnum.editCopyright, _copyrightTextEditingController);
       _song.copyright = _copyrightTextEditingController.text;
       _checkSongChangeStatus();
     });
     _userTextEditingController.addListener(() {
+      appTextFieldListener(AppKeyEnum.editUserName, _userTextEditingController);
       _song.user = _userTextEditingController.text;
       if (_userTextEditingController.text.isNotEmpty) {
-        _appOptions.user = _userTextEditingController.text;
+        appOptions.user = _userTextEditingController.text;
       }
       _song.user = _userTextEditingController.text;
       _checkSongChangeStatus();
@@ -178,28 +182,33 @@ class _Edit extends State<Edit> {
         var bpm = int.parse(_bpmTextEditingController.text);
         if (bpm < MusicConstants.minBpm || bpm > MusicConstants.maxBpm) {
           setState(() {
-            _app.errorMessage('BPM needs to be a number '
+            app.errorMessage('BPM needs to be a number '
                 'from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}, not: \'$bpm\'');
           });
         } else {
           setState(() {
-            _app.clearMessage();
+            app.clearMessage();
+            appTextFieldListener(AppKeyEnum.editBPM, _bpmTextEditingController);
             _song.beatsPerMinute = bpm;
             _checkSongChangeStatus();
           });
         }
       } catch (e) {
         setState(() {
-          _app.errorMessage(
+          app.errorMessage(
               'caught: BPM needs to be a number from ${MusicConstants.minBpm} to ${MusicConstants.maxBpm}');
         });
       }
     });
 
     //  generate time signature drop down items
-    _timeSignatureItems.clear();
+    _timeSignatureItems = [];
     for (final timeSignature in knownTimeSignatures) {
-      _timeSignatureItems.add(DropdownMenuItem(value: timeSignature, child: Text(timeSignature.toString())));
+      _timeSignatureItems.add(appDropdownMenuItem<TimeSignature>(
+          key: ValueKey('${timeSignature.runtimeType}:$timeSignature'),
+          value: timeSignature,
+          child: Text(timeSignature.toString()),
+          keyCallback: () {}));
     }
   }
 
@@ -210,7 +219,7 @@ class _Edit extends State<Edit> {
     _artistTextEditingController.text = _song.artist;
     _coverArtistTextEditingController.text = _song.coverArtist;
     _copyrightTextEditingController.text = _song.copyright;
-    _userTextEditingController.text = _appOptions.user;
+    _userTextEditingController.text = appOptions.user;
     _bpmTextEditingController.text = _song.beatsPerMinute.toString();
 
     _lyricsEntries.removeListener(_lyricsEntriesListener);
@@ -221,16 +230,16 @@ class _Edit extends State<Edit> {
   }
 
   void _enterSong() async {
-    _app.addSong(_song);
+    app.addSong(_song);
 
     String fileName = _song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = _song.toJsonAsFile();
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     setState(() {
       if (message.toLowerCase().contains('error')) {
-        _app.errorMessage(message);
+        app.errorMessage(message);
       } else {
-        _app.infoMessage(message);
+        app.infoMessage(message);
       }
     });
 
@@ -241,6 +250,13 @@ class _Edit extends State<Edit> {
   void dispose() {
     _editTextController.dispose();
     _editTextFieldFocusNode?.dispose();
+    _titleTextEditingController.dispose();
+    _artistTextEditingController.dispose();
+    _coverArtistTextEditingController.dispose();
+    _copyrightTextEditingController.dispose();
+    _bpmTextEditingController.dispose();
+    _userTextEditingController.dispose();
+
     for (final focusNode in _disposeList) {
       focusNode.dispose();
     }
@@ -256,7 +272,7 @@ class _Edit extends State<Edit> {
     logger.d('edit build: ');
     logger.d('build: _selectedEditDataPoint: $_selectedEditDataPoint');
 
-    _appOptions = Provider.of<AppOptions>(context);
+    appOptions = Provider.of<AppOptions>(context);
 
     //  adjust to screen size
     if (_screenInfo == null) {
@@ -265,14 +281,14 @@ class _Edit extends State<Edit> {
 
       _chordFontSize = _defaultChordFontSize * _screenWidth / 800;
       _chordFontSize = min(_defaultChordFontSize, max(12, _chordFontSize));
-      _appendFontSize = _chordFontSize * 0.75;
+      appendFontSize = _chordFontSize * 0.75;
 
       _chordBoldTextStyle = generateAppTextStyle(
         fontWeight: FontWeight.bold,
         fontSize: _chordFontSize,
       );
       _chordTextStyle = generateAppTextStyle(
-        fontSize: _appendFontSize,
+        fontSize: appendFontSize,
         color: Colors.black87,
       );
       _lyricsTextStyle = generateAppTextStyle(
@@ -314,7 +330,7 @@ class _Edit extends State<Edit> {
 
         //  compute the maximum number of columns to even out the table rows
 
-        {
+            {
           for (int r = 0; r < chordGrid.getRowCount(); r++) {
             List<ChordSectionLocation?>? row = chordGrid.getRow(r);
             _maxCols = max(_maxCols, row?.length ?? 0);
@@ -359,7 +375,7 @@ class _Edit extends State<Edit> {
           //  find the first col with data
           //  should normally be col 1 (i.e. the second col)
           //  use its section version for the row
-          {
+              {
             for (final ChordSectionLocation? loc in row) {
               if (loc == null) {
                 continue;
@@ -466,7 +482,7 @@ class _Edit extends State<Edit> {
               }
 
               //  + measure elements
-              {
+                  {
                 editDataPoint = _EditDataPoint(loc);
                 editDataPoint._measureEditType = MeasureEditType.append; //  default
 
@@ -515,7 +531,7 @@ class _Edit extends State<Edit> {
         _addSectionVersionEndToTable(_chordRows, lastSectionVersion, _maxCols);
 
         //  add the append for a new section
-        {
+            {
           Widget child;
           if (_selectedEditDataPoint?.isSection ?? false) {
             child = _sectionEditGridDisplayWidget(_selectedEditDataPoint!);
@@ -634,7 +650,7 @@ class _Edit extends State<Edit> {
                               },
                               backgroundColor: (songHasChanged && _isValidSong ? null : _disabledColor),
                             ),
-                            _app.messageTextWidget(),
+                            app.messageTextWidget(),
                             Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -717,7 +733,7 @@ class _Edit extends State<Edit> {
                             ),
                             Expanded(
                               child: TextField(
-                                key: const ValueKey('title'),
+                                key: appKey(AppKeyEnum.editTitle),
                                 controller: _titleTextEditingController,
                                 decoration: const InputDecoration(
                                   hintText: 'Enter the song title.',
@@ -741,7 +757,7 @@ class _Edit extends State<Edit> {
                             ),
                             Expanded(
                               child: TextField(
-                                key: const ValueKey('artist'),
+                                key: appKey(AppKeyEnum.editArtist),
                                 controller: _artistTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter the song\'s artist.'),
                                 maxLength: null,
@@ -762,7 +778,7 @@ class _Edit extends State<Edit> {
                             ),
                             Expanded(
                               child: TextField(
-                                key: const ValueKey('coverArtist'),
+                                key: appKey(AppKeyEnum.editCoverArtist),
                                 controller: _coverArtistTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter the song\'s cover artist.'),
                                 maxLength: null,
@@ -783,7 +799,7 @@ class _Edit extends State<Edit> {
                             ),
                             Expanded(
                               child: TextField(
-                                key: const ValueKey('copyright'),
+                                key: appKey(AppKeyEnum.editCopyright),
                                 controller: _copyrightTextEditingController,
                                 decoration: const InputDecoration(hintText: 'Enter the song\'s copyright. Required.'),
                                 maxLength: null,
@@ -805,7 +821,7 @@ class _Edit extends State<Edit> {
                           Container(
                             padding: const EdgeInsets.only(bottom: 24.0),
                             child: DropdownButton<music_key.Key>(
-                              key: const ValueKey('editKeyDropdown'),
+                              key: appKey(AppKeyEnum.editEditKeyDropdown),
                               items: keySelectDropdownMenuItems,
                               onChanged: (_value) {
                                 logger.log(_editLog, 'DropdownButton onChanged: $_value');
@@ -818,8 +834,8 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           SizedBox.shrink(
-                            key: ValueKey('keyTally_' + _key.toMarkup()),
-                          ), //  tally for testing only
+                            key: ValueKey('keyTally_' + _key.toMarkup()), //  tally for testing only
+                          ),
                           Container(
                             padding: const EdgeInsets.only(bottom: 24.0),
                             child: Text(
@@ -847,6 +863,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           DropdownButton<TimeSignature>(
+                            key: appKey(AppKeyEnum.editEditTimeSignatureDropdown),
                             items: _timeSignatureItems,
                             onChanged: (_value) {
                               if (_value != null && _song.timeSignature != _value) {
@@ -874,6 +891,7 @@ class _Edit extends State<Edit> {
                           SizedBox(
                             width: 300.0,
                             child: TextField(
+                              key: appKey(AppKeyEnum.editUserName),
                               controller: _userTextEditingController,
                               decoration: const InputDecoration(hintText: 'Enter your user name.'),
                               maxLength: null,
@@ -1028,14 +1046,14 @@ class _Edit extends State<Edit> {
                               ),
                               TextSpan(
                                 text:
-                                    'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
+                                'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
                                     ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
                                     ' The bass note is a single note, not a chord.\n\n',
                                 style: appTextStyle,
                               ),
                               TextSpan(
                                 text:
-                                    'Periods (.) can be used to repeat chords on another beat within the same measure. For'
+                                'Periods (.) can be used to repeat chords on another beat within the same measure. For'
                                     ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
                                 style: appTextStyle,
                               ),
@@ -1049,7 +1067,7 @@ class _Edit extends State<Edit> {
                               ),
                               TextSpan(
                                 text:
-                                    'Commas (,) between measures can be used to indicate the end of a row of measures.'
+                                'Commas (,) between measures can be used to indicate the end of a row of measures.'
                                     ' The maximum number of measures allowed within a single row is 8.'
                                     ' If there are no commas within a phrase of 8 or more measures, the phrase will'
                                     ' automatically be split into rows of 4 measures.\n\n',
@@ -1120,7 +1138,7 @@ class _Edit extends State<Edit> {
                               ),
                               TextSpan(
                                 text:
-                                    'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
+                                'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
                                     ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
                                 style: appTextStyle,
                               ),
@@ -1201,7 +1219,7 @@ class _Edit extends State<Edit> {
                   Icons.arrow_back,
                 ),
               ),
-              mini: !_app.isScreenBig,
+              mini: !app.isScreenBig,
             )
           : const Text(''),
     );
@@ -1236,7 +1254,7 @@ class _Edit extends State<Edit> {
 
     //  generate the section pull down data if required
     List<DropdownMenuItem<ChordSection>> sectionItems =
-        SplayTreeSet<ChordSection>.from(_song.getChordSections()).map((chordSection) {
+    SplayTreeSet<ChordSection>.from(_song.getChordSections()).map((chordSection) {
       return DropdownMenuItem(
         value: chordSection,
         child: Text(
@@ -1336,7 +1354,7 @@ class _Edit extends State<Edit> {
       }
 
       //  chord rows and lyrics lines
-      final expanded = !_appOptions.compressRepeats;
+      final expanded = !appOptions.compressRepeats;
       var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
@@ -1483,7 +1501,7 @@ class _Edit extends State<Edit> {
     }
 
     //  last append goes here
-    {
+        {
       var children = <Widget>[];
       children.add(
         appTooltip(
@@ -1644,10 +1662,10 @@ class _Edit extends State<Edit> {
             _undo();
           }
         } else if (e.data.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()) //fixme
-        {
+            {
           _redo();
         } else if (e.data.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toLowerCase()) //fixme
-        {
+            {
           _undo();
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
@@ -1661,7 +1679,7 @@ class _Edit extends State<Edit> {
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         if (_selectedEditDataPoint != null) //  fixme: this is a poor workaround
-        {
+            {
           _performEdit(done: false, endOfRow: true);
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
@@ -2383,7 +2401,7 @@ class _Edit extends State<Edit> {
                         appTooltip(
                           message: 'Accept the modification, end the row, and continue editing.',
                           child: appInkWell(
-                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndContinue,
+                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndStartNewRow,
                             keyCallback: () {
                               _performEdit(done: false, endOfRow: true);
                             },
@@ -2651,7 +2669,7 @@ class _Edit extends State<Edit> {
                   '${kDebugMode ? ' $editDataPoint' : ''}',
               child: Icon(
                 Icons.add,
-                size: _appendFontSize,
+                size: appendFontSize,
               ),
             )));
   }
@@ -2701,7 +2719,7 @@ class _Edit extends State<Edit> {
                       '${kDebugMode ? ' loc: $editDataPoint' : ''}'),
               child: Icon(
                 Icons.add,
-                size: _appendFontSize,
+                size: appendFontSize,
               ),
             )));
   }
@@ -2884,13 +2902,13 @@ class _Edit extends State<Edit> {
   void _undo() {
     setState(() {
       if (_undoStack.canUndo) {
-        _app.clearMessage();
+        app.clearMessage();
         _clearMeasureEntry();
         _loadSong(_undoStack.undo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
         _checkSongChangeStatus();
       } else {
-        _app.errorMessage('cannot undo any more');
+        app.errorMessage('cannot undo any more');
       }
     });
   }
@@ -2898,13 +2916,13 @@ class _Edit extends State<Edit> {
   void _redo() {
     setState(() {
       if (_undoStack.canRedo) {
-        _app.clearMessage();
+        app.clearMessage();
         _clearMeasureEntry();
         _loadSong(_undoStack.redo()?.copySong() ?? Song.createEmptySong());
         _undoStackLog();
         _checkSongChangeStatus();
       } else {
-        _app.errorMessage('cannot redo any more');
+        app.errorMessage('cannot redo any more');
       }
     });
   }
@@ -3046,7 +3064,7 @@ class _Edit extends State<Edit> {
       return true;
     } else {
       logger.log(_editLog, '_editMeasure(): failed');
-      _app.errorMessage('edit failed: ${_song.message}');
+      app.errorMessage('edit failed: ${_song.message}');
     }
 
     return false;
@@ -3071,7 +3089,7 @@ class _Edit extends State<Edit> {
   void _setEditDataPoint(_EditDataPoint editDataPoint) {
     setState(() {
       _clearMeasureEntry();
-      _app.clearMessage();
+      app.clearMessage();
       _selectedEditDataPoint = editDataPoint;
       logger.d('_setEditDataPoint(${editDataPoint.toString()})');
     });
@@ -3110,10 +3128,10 @@ class _Edit extends State<Edit> {
     try {
       _song.checkSong();
       _isValidSong = true;
-      _app.clearMessage();
+      app.clearMessage();
     } catch (e) {
       _isValidSong = false;
-      _app.errorMessage(e.toString());
+      app.errorMessage(e.toString());
     }
   }
 
@@ -3157,8 +3175,8 @@ class _Edit extends State<Edit> {
   }
 
   _navigateToDetail(BuildContext context) async {
-    _app.selectedSong = _song;
-    _app.selectedMomentNumber = 0;
+    app.selectedSong = _song;
+    app.selectedMomentNumber = 0;
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Detail()),
@@ -3176,7 +3194,7 @@ class _Edit extends State<Edit> {
   music_key.Key get musicKey => _key; //  for testing
 
   music_key.Key _key = music_key.Key.getDefault();
-  double _appendFontSize = 14;
+  double appendFontSize = 14;
   double _chordFontSize = 14;
 
   _EditDataPoint? _selectedEditDataPoint;
@@ -3186,7 +3204,7 @@ class _Edit extends State<Edit> {
   bool _measureEntryIsClear = true;
   String? _measureEntryCorrection;
   bool _measureEntryValid = false;
-  final App _app = App();
+  final App app = App();
 
   MeasureNode? _measureEntryNode;
 
@@ -3237,7 +3255,7 @@ class _Edit extends State<Edit> {
 
   final AppWidget appWidget = AppWidget();
 
-  late AppOptions _appOptions;
+  late AppOptions appOptions;
 }
 
 // class _LyricsTextField {

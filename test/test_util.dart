@@ -1,9 +1,8 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 
 class _TextFieldFinder extends MatchFinder {
   _TextFieldFinder(this._valueKeyString);
@@ -59,6 +58,23 @@ class _TextValueKeyFinder extends MatchFinder {
   final String _valueKeyString;
 }
 
+class _TextByAppKeyFinder extends MatchFinder {
+  _TextByAppKeyFinder(this._appKey);
+
+  @override
+  String get description => '_TextValueKeyFinder: $_appKey';
+
+  @override
+  bool matches(Element candidate) {
+    return (candidate.widget is Text &&
+        (candidate.widget as Text).data != null &&
+        candidate.widget.key is ValueKey &&
+        (candidate.widget.key as ValueKey).value == _appKey);
+  }
+
+  final AppKeyEnum _appKey;
+}
+
 class _TextValueKeyContainsFinder extends MatchFinder {
   _TextValueKeyContainsFinder(this._valueKeyString) : super(skipOffstage: false);
 
@@ -106,6 +122,22 @@ class DropDownFinder extends MatchFinder {
   final String _valueKeyString;
 }
 
+class DropDownFinderByAppKey extends MatchFinder {
+  DropDownFinderByAppKey(this._appKey);
+
+  @override
+  String get description => 'DropDownFinderByAppKey: $_appKey';
+
+  @override
+  bool matches(Element candidate) {
+    return (candidate.widget is DropdownButton &&
+        candidate.widget.key is ValueKey &&
+        (candidate.widget.key as ValueKey).value == _appKey);
+  }
+
+  final AppKeyEnum _appKey;
+}
+
 class Find {
   static TextField findTextField(String valueKeyString) {
     var _textFieldFinder = _TextFieldFinder(valueKeyString);
@@ -125,6 +157,13 @@ class Find {
 
   static Text findValueKeyText(String valueKeyString) {
     var finder = _TextValueKeyFinder(valueKeyString);
+    expect(finder, findsOneWidget);
+    var ret = finder.evaluate().first.widget as Text;
+    return ret;
+  }
+
+  static Text findTextByAppKey(AppKeyEnum appKeyEnum) {
+    var finder = _TextByAppKeyFinder(appKeyEnum);
     expect(finder, findsOneWidget);
     var ret = finder.evaluate().first.widget as Text;
     return ret;
@@ -154,6 +193,13 @@ class Find {
 
   static DropdownButton<music_key.Key> findDropDown(String valueKeyString) {
     var _textFinder = DropDownFinder(valueKeyString);
+    expect(_textFinder, findsOneWidget);
+    var ret = _textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
+    return ret;
+  }
+
+  static DropdownButton<music_key.Key> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
+    var _textFinder = DropDownFinderByAppKey(appKeyEnum);
     expect(_textFinder, findsOneWidget);
     var ret = _textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
     return ret;

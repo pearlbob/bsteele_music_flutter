@@ -12,7 +12,6 @@ import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/SongMaster.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
@@ -38,7 +37,6 @@ final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
 const _lightBlue = Color(0xFF4FC3F7);
 
-App _app = App();
 bool _isCapo = false;
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
@@ -130,7 +128,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     _lastSize = WidgetsBinding.instance!.window.physicalSize;
     WidgetsBinding.instance!.addObserver(this);
 
-    _displayKeyOffset = _app.displayKeyOffset;
+    _displayKeyOffset = app.displayKeyOffset;
     _setSelectedSongKey(widget._song.key);
 
     _leaderSongUpdate(0);
@@ -204,15 +202,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         var length = renderTable.size.width;
         if (length > 0 && _lyricsTable.chordFontSize != null) {
           var lastChordFontSize = _chordFontSize ?? 0;
-          var fontSize = _lyricsTable.chordFontSize! * _app.screenInfo.widthInLogicalPixels / length;
-          logger.d('fontSize: $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
-              ' of ${_app.screenInfo.widthInLogicalPixels}');
-          fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * _app.screenInfo.widthInLogicalPixels) as double;
-          logger.d('limited : $fontSize = ${fontSize / _app.screenInfo.widthInLogicalPixels}'
-              ' of ${_app.screenInfo.widthInLogicalPixels}');
+          var fontSize = _lyricsTable.chordFontSize! * app.screenInfo.widthInLogicalPixels / length;
+          logger.d('fontSize: $fontSize = ${fontSize / app.screenInfo.widthInLogicalPixels}'
+              ' of ${app.screenInfo.widthInLogicalPixels}');
+          fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * app.screenInfo.widthInLogicalPixels) as double;
+          logger.d('limited : $fontSize = ${fontSize / app.screenInfo.widthInLogicalPixels}'
+              ' of ${app.screenInfo.widthInLogicalPixels}');
           {
             var width = renderTable.row(0).last.size.width;
-            logger.d('lyrics column width: $width = ${width / _app.screenInfo.widthInLogicalPixels}');
+            logger.d('lyrics column width: $width = ${width / app.screenInfo.widthInLogicalPixels}');
           }
 
           if ((fontSize - lastChordFontSize).abs() > 1) {
@@ -222,19 +220,19 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               _table = null; //  rebuild table at new size
             });
             logger.d('table width: ${length.toStringAsFixed(1)}'
-                '/${_app.screenInfo.widthInLogicalPixels.toStringAsFixed(1)}'
+                '/${app.screenInfo.widthInLogicalPixels.toStringAsFixed(1)}'
                 ', sectionIndex = $_sectionIndex'
                 ', chord fontSize: ${_lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
                 ', lyrics fontSize: ${_lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
                 ', _lyricsTable.chordFontSize: ${_lyricsTable.chordFontSize?.toStringAsFixed(1)}'
                 ', _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
-                ' ${(100 * _chordFontSize! / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+                ' ${(100 * _chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
           }
         }
       }
     } else {
       logger.d('_chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
-          ' ${(100 * _chordFontSize! / _app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+          ' ${(100 * _chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
     }
   }
 
@@ -245,7 +243,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     //  deal with song updates
     if (_songUpdate != null) {
-      if (!song.songBaseSameContent(_songUpdate!.song) || _displayKeyOffset != _app.displayKeyOffset) {
+      if (!song.songBaseSameContent(_songUpdate!.song) || _displayKeyOffset != app.displayKeyOffset) {
         song = _songUpdate!.song;
         widget._song = song;
         _table = null; //  force re-eval
@@ -259,7 +257,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       _positionAfterBuild();
     });
 
-    _displayKeyOffset = _app.displayKeyOffset;
+    _displayKeyOffset = app.displayKeyOffset;
 
     final _lyricsTextStyle = _lyricsTable.lyricsTextStyle;
     final headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
@@ -449,7 +447,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               Positioned(
                 top: boxCenter,
                 child: Container(
-                  constraints: BoxConstraints.loose(Size(_app.screenInfo.widthInLogicalPixels / 8, 6)),
+                  constraints: BoxConstraints.loose(Size(app.screenInfo.widthInLogicalPixels / 8, 6)),
                   decoration: const BoxDecoration(
                     color: Colors.black87,
                   ),
@@ -520,7 +518,7 @@ Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
                                     child: TextButton(
                                       style: TextButton.styleFrom(
-                                        primary: _lightBlue,
+                                        primary: _lightBlue, //  fixme
                                         padding: const EdgeInsets.all(8),
                                       ),
                                       child: Text(
@@ -572,7 +570,7 @@ With escape, the app goes back to the play list.''',
                                     style: headerTextStyle,
                                     softWrap: false,
                                   ),
-                                  if (_app.isEditReady)
+                                  if (app.isEditReady)
                                     appTooltip(
                                       message: 'Edit the song',
                                       child: TextButton.icon(
@@ -599,19 +597,19 @@ With escape, the app goes back to the play list.''',
                                   child: appTooltip(
                                     message: 'Tip: Use the space bar to start playing.\n'
                                         'Use the space bar to advance the section while playing.',
-                                    child: appTextButtonIcon(
-                                      style: TextButton.styleFrom(
-                                        primary: _isPlaying ? Colors.red : Colors.green, //fixme:
-                                      ),
+                                    child: appIconButton(
+                                      appKeyEnum: AppKeyEnum.playerPlay,
                                       icon: appIcon(
                                         _playStopIcon,
                                         color: Colors.green, //  fixme:
-                                        size: 2 * _app.screenInfo.fontSize, //  fixme: why is this required?
+                                        size: 2 * app.screenInfo.fontSize, //  fixme: why is this required?
                                       ),
-                                      label: const Text(''),
                                       onPressed: () {
                                         _isPlaying ? _stop() : _play();
                                       },
+                                      style: TextButton.styleFrom(
+                                        primary: _isPlaying ? Colors.red : Colors.green, //fixme:
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -662,7 +660,7 @@ With escape, the app goes back to the play list.''',
                                       style: headerTextStyle,
                                     ),
                                   ),
-                                  if (_app.isScreenBig)
+                                  if (app.isScreenBig)
                                     DropdownButton<int>(
                                       items: _bpmDropDownMenuList,
                                       onChanged: (value) {
@@ -722,7 +720,7 @@ With escape, the app goes back to the play list.''',
                         //  allow for scrolling to a relatively high box center
                         if (_isPlaying)
                           SizedBox(
-                            height: _app.screenInfo.heightInLogicalPixels,
+                            height: app.screenInfo.heightInLogicalPixels,
                           ),
                       ]),
                 ),
@@ -742,7 +740,7 @@ With escape, the app goes back to the play list.''',
                 top: boxCenter + boxOffset,
                 child: Container(
                   constraints: BoxConstraints.loose(
-                      Size(_lyricsTable.screenWidth, _app.screenInfo.heightInLogicalPixels - boxHeight)),
+                      Size(_lyricsTable.screenWidth, app.screenInfo.heightInLogicalPixels - boxHeight)),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -772,7 +770,7 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
-                  mini: !_app.isScreenBig,
+                  mini: !app.isScreenBig,
                 )
               : appFloatingActionButton(
                   appKeyEnum: AppKeyEnum.playerFloatingStop,
@@ -786,7 +784,7 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
-                  mini: !_app.isScreenBig,
+                  mini: !app.isScreenBig,
                 ))
           : (_scrollController.hasClients && _scrollController.offset > 0
               ? appFloatingActionButton(
@@ -805,7 +803,7 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
-                  mini: !_app.isScreenBig,
+                  mini: !app.isScreenBig,
                 )
               : appFloatingActionButton(
                   appKeyEnum: AppKeyEnum.playerBack,
@@ -819,7 +817,7 @@ With escape, the app goes back to the play list.''',
                     ),
                     fontSize: headerTextStyle.fontSize,
                   ),
-                  mini: !_app.isScreenBig,
+                  mini: !app.isScreenBig,
                 )),
     );
   }
@@ -872,7 +870,7 @@ With escape, the app goes back to the play list.''',
   }
 
   double _boxCenter() {
-    return min(_app.screenInfo.heightInLogicalPixels * _sectionCenterLocationFraction,
+    return min(app.screenInfo.heightInLogicalPixels * _sectionCenterLocationFraction,
         0.8 * 1080 / 2 //  limit leader area to hdtv size
         );
   }
@@ -1158,7 +1156,7 @@ With escape, the app goes back to the play list.''',
     _playerIsOnTop = true;
     setState(() {
       _table = null;
-      widget._song = _app.selectedSong;
+      widget._song = app.selectedSong;
     });
   }
 

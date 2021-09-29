@@ -43778,6 +43778,84 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1632854612433, "song": 
+{
+"title": "Hole in the Bottle",
+"artist": "Kelsea Ballerini",
+"user": "Shari",
+"lastModifiedDate": 1632854612433,
+"copyright": "2020 Black River",
+"key": "E",
+"defaultBpm": 105,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"V:",
+	"E A7 E B7",
+	"E A7 EB7 E",
+	"V2:",
+	"E A7 E B7",
+	"E A7 E B7X",
+	"C:",
+	"E A E B7",
+	"E A EB7 E",
+	"Br:",
+	"E A E B7",
+	"O:",
+	"E A EB7 E"
+    ],
+"lyrics": 
+    [
+	"v:",
+	"It ain't my fault",
+	"So don't blame me",
+	"I swear I just came here to unwind and have one drink",
+	"The way it looks",
+	"Ain't what you think",
+	"This Cabernet has a way of vanishin' on me",
+	"c:",
+	"There's a hole in the bottle",
+	"Leakin' all this wine",
+	"It's already empty and it ain't even suppertime",
+	"Honey, no, I don't miss him",
+	"In fact, it slipped my mind",
+	"There's a hole in the bottle of wine",
+	"v2:",
+	"I keep my cool",
+	"Play by all the rules",
+	"I swear ten minutes ago that bottle was full",
+	"I won't cry",
+	"About love gone wrong",
+	"'Cause tears would water down this ruby red I'm sippin' on\\",
+	"c:",
+	"There's a hole in the bottle",
+	"Leakin' all this wine",
+	"It's already empty and it ain't even suppertime",
+	"Honey, no, I don't miss him",
+	"In fact, it slipped my mind",
+	"There's a hole in the bottle of wine",
+	"(Aw, yeah)",
+	"v: (instrumental)",
+	"br:",
+	"I went and got a new one",
+	"'Cause the other one was broken",
+	"Now this one's halfway gone",
+	"And it's barely even open",
+	"c:",
+	"There's a hole in the bottle",
+	"Leakin' all this wine",
+	"It's already empty and it ain't even suppertime",
+	"Honey, no, I don't miss him",
+	"In fact, it slipped my mind",
+	"There's a hole in the bottle of wine",
+	"o:",
+	"You may ask me where it's goin'",
+	"But I can't even find",
+	"The hole in the bottle of wine",
+	"(She has abused her system and she's paying for it.)"
+    ]
+}
+},
 { "file": "Holland 1945 (1).songlyrics", "lastModifiedDate": 1558225833192, "song": 
 {
 "title": "Holland 1945",
@@ -88721,6 +88799,62 @@
 	"Soon it will be Christmas Day",
 	"T1:",
 	"Soon it will be Christmas Day"
+    ]
+}
+},
+{ "file": "", "lastModifiedDate": 1632854534756, "song": 
+{
+"title": "Silver Dagger, cover by Paul Kub and Jennifer Brandlon",
+"artist": "Traditional",
+"user": "Shari",
+"lastModifiedDate": 1632854534756,
+"copyright": "Public Domain, early publications in the US go back to 1849",
+"key": "D",
+"defaultBpm": 154,
+"timeSignature": "6/8",
+"chords": 
+    [
+	"I:",
+	"A7",
+	"Em Em G D",
+	"Em G D D",
+	"V:",
+	"A7 D A7 Bm",
+	"G Em Bm A7",
+	"A7D",
+	"V1:",
+	"A7 D A7 Bm",
+	"G Em Bm A7D"
+    ],
+"lyrics": 
+    [
+	"V1: (instrumental intro)",
+	"V:",
+	"Don't sing me love songs, you'll wake my mother",
+	"She's sleeping here right by my side",
+	"And in her right hand a silver dagger",
+	"She swears that I won’t be a bride",
+	"V:",
+	"All men are false, so says my mother",
+	"They tell such wicked and lovely lies",
+	"And then they’ll go to court another",
+	"Forgetting who they’ve left behind",
+	"V:",
+	"My daddy was a handsome devil",
+	"He had a chain ‘bout five miles long",
+	"And on each link a heart did dangle",
+	"For every maid he loved and wronged",
+	"I: ",
+	"V:",
+	"So go your way, and court another",
+	"And hope that she will be your wife",
+	"For I've been warned, and I've decided",
+	"To sleep alone for all my life",
+	"V:",
+	"I wish I was a tiny sparrow",
+	"And I had wings, and I could fly",
+	"I’d fly away to my own true lover",
+	"And all he’d ask, I would deny"
     ]
 }
 },

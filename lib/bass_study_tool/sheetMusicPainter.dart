@@ -84,7 +84,7 @@ class SheetMusicPainter extends CustomPainter {
     _computeTheYOffsets();
 
     //  clear the plot
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = _app.themeData.backgroundColor);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = app.themeData.backgroundColor);
 
     _reset();
     _xSpaceAll(10);
@@ -107,10 +107,10 @@ class SheetMusicPainter extends CustomPainter {
     _xSpaceAll(0.5 * staffSpace);
 
     //  display each beat
-    Song song = _app.selectedSong;
+    Song song = app.selectedSong;
     momentLoop:
     for (var sm in song.songMoments) {
-      if (_app.selectedMomentNumber > sm.momentNumber) {
+      if (app.selectedMomentNumber > sm.momentNumber) {
         continue; //  fixme: optimization?
       }
       const beatResolution = 1 / 16; //  fixme: is this the best way to do this?
@@ -259,6 +259,4 @@ class SheetMusicPainter extends CustomPainter {
   late Canvas _canvas;
 
   List<SheetNotation> _sheetNotations = [];
-
-  final App _app = App();
 }

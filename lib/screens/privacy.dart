@@ -1,5 +1,4 @@
 import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +25,7 @@ class _Privacy extends State<Privacy> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title:'bsteele Music App Privacy Policy'),
+      appBar: appWidget.backBar(title: 'bsteele Music App Privacy Policy'),
       body: DefaultTextStyle(
         style: style,
         child: const SingleChildScrollView(

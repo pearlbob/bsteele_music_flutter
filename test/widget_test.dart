@@ -38,7 +38,7 @@ void main() {
       expect(finder, findsOneWidget);
     }
 
-    var mainSearchText = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainSearchText));
+    var mainSearchText = find.byKey(appKey(AppKeyEnum.mainSearchText));
     expect(mainSearchText, findsOneWidget);
 
     {
@@ -52,7 +52,7 @@ void main() {
     expect(widgets, isEmpty);
 
     {
-      var clearSearch = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainClearSearch));
+      var clearSearch = find.byKey(appKey(AppKeyEnum.mainClearSearch));
       expect(clearSearch, findsOneWidget);
       await tester.tap(clearSearch);
       await tester.pumpAndSettle();
@@ -82,7 +82,7 @@ void main() {
       // await tester.pumpAndSettle(); //  fixme: error here.  why?  because it transitions to another screen
     }
     {
-      var clearSearch = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainClearSearch));
+      var clearSearch = find.byKey(appKey(AppKeyEnum.mainClearSearch));
       expect(clearSearch, findsOneWidget);
       await tester.tap(clearSearch);
       await tester.pumpAndSettle();
@@ -91,7 +91,7 @@ void main() {
       widgets = Find.findValueKeyContains('Song_', findSome: false);
       expect(widgets, isNotEmpty);
     }
-    // var hamburger = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainHamburger));
+    // var hamburger = find.byKey(const appKey(AppKeyEnum.mainHamburger));
     // expect(hamburger,findsOneWidget);
   });
 }

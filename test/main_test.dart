@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'dart:collection';
+import 'dart:ui' as ui hide window;
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
@@ -13,7 +14,6 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'dart:ui' as ui hide window;
 
 import 'test_util.dart';
 
@@ -33,7 +33,7 @@ void main() {
     await tester.pumpWidget(BSteeleMusicApp());
     await tester.pumpAndSettle();
 
-    var mainSearchText = find.byKey(const ValueKey<AppKeyEnum>(AppKeyEnum.mainSearchText));
+    var mainSearchText = find.byKey(appKey(AppKeyEnum.mainSearchText));
     expect(mainSearchText, findsOneWidget);
 
     for (var searchString in ['love', '25', 'the', 'asdf', '']) {
@@ -59,11 +59,10 @@ void main() {
     }
 
     {
-      App _app = App();
-      logger.i('allSongs.length: ${_app.allSongs.length}');
-      assert(_app.allSongs.length > 1300);
+      logger.i('allSongs.length: ${app.allSongs.length}');
+      assert(app.allSongs.length > 1300);
       var allSongsSongIds = SplayTreeSet<String>();
-      allSongsSongIds.addAll(_app.allSongs.map((song) {
+      allSongsSongIds.addAll(app.allSongs.map((song) {
         return song.songId.toString();
       }));
       logger.i('allSongsSongIds.length: ${allSongsSongIds.length}');

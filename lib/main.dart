@@ -74,7 +74,6 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songId.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
@@ -99,7 +98,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'app/app.dart';
-import 'app/appButton.dart';
 import 'app/appOptions.dart';
 import 'app/app_theme.dart';
 import 'util/openLink.dart';
@@ -122,6 +120,8 @@ void main() async {
 }
 
 /*
+//  fixme: edit: delete section
+//  fixme: edit: measure entry should allow section header declarations
 //  fixme: verify in studio:  let it be in C, cramped on HDMI on mac,
 //  fixme: on mac + chrome: bold musical flat sign is way ugly
 //  fixme: player chord display elevations trash on mac, b, minor, slash notes
@@ -253,8 +253,6 @@ executable (without assets) is in ./build/linux/release/bundle/${project}
 
  */
 
-final App _app = App();
-
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
 const _searchTextTooltipText = 'Enter search text here.\n Title, artist and cover artist will be searched.';
@@ -271,7 +269,9 @@ enum _SortType {
 class BSteeleMusicApp extends StatelessWidget {
   BSteeleMusicApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
-    Wakelock.enable(); //  avoid device timeouts!
+    if (kIsWeb) {
+      Wakelock.enable(); //  avoid device timeouts!
+    }
   }
 
   // This widget is the root of your application.
@@ -280,8 +280,8 @@ class BSteeleMusicApp extends StatelessWidget {
     return ChangeNotifierProvider<AppOptions>(
         create: (_) => AppOptions(),
         builder: (context, _) => MaterialApp(
-              title: 'bsteele Music App',
-              theme: _app.themeData,
+          title: 'bsteele Music App',
+              theme: app.themeData,
               home: const MyHomePage(title: 'bsteele Music App'),
               navigatorObservers: [playerRouteObserver],
 
@@ -296,7 +296,7 @@ class BSteeleMusicApp extends StatelessWidget {
                 '/options': (context) => const Options(),
                 '/songs': (context) => const Songs(),
                 '/lists': (context) => const Lists(),
-                '/edit': (context) => Edit(initialSong: _app.selectedSong),
+                '/edit': (context) => Edit(initialSong: app.selectedSong),
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
                 '/about': (context) => const About(),
@@ -326,7 +326,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState()
       : _searchFocusNode = FocusNode(),
-        _appOptions = AppOptions();
+        appOptions = AppOptions();
 
   @override
   void initState() {
@@ -342,6 +342,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     _refilterSongs();
 
+    _searchTextFieldController.addListener(() {
+      appTextFieldListener(AppKeyEnum.mainSearchText, _searchTextFieldController);
+    });
+
     //logger.i('uri: ${Uri.base}, ${Uri.base.queryParameters.keys.contains('follow')}');
   }
 
@@ -349,12 +353,12 @@ class _MyHomePageState extends State<MyHomePage> {
     {
       String songListAsString = await loadString('lib/assets/allSongs.songlyrics');
       try {
-        _app.removeAllSongs();
-        _app.addSongs(Song.songListFromJson(songListAsString));
+        app.removeAllSongs();
+        app.addSongs(Song.songListFromJson(songListAsString));
         try {
-          _app.selectedSong = _filteredSongs.first;
+          app.selectedSong = _filteredSongs.first;
         } catch (e) {
-          _app.selectedSong = _app.emptySong;
+          app.selectedSong = app.emptySong;
         }
         setState(() {
           _refilterSongs();
@@ -379,7 +383,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readExternalSongList() async {
-    if (_appOptions.isInThePark()) {
+    if (appOptions.isInThePark()) {
       logger.i('internal songList only in the park');
       _readInternalSongList();
       return;
@@ -397,8 +401,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        _app.removeAllSongs();
-        _app.addSongs(Song.songListFromJson(allSongsAsString));
+        app.removeAllSongs();
+        app.addSongs(Song.songListFromJson(allSongsAsString));
         setState(() {
           _refilterSongs();
         });
@@ -438,29 +442,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('main build: ${_app.selectedSong}');
+    logger.d('main build: ${app.selectedSong}');
 
-    _appOptions = Provider.of<AppOptions>(context);
+    appOptions = Provider.of<AppOptions>(context);
 
-    _app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
+    app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
-    final _titleBarFontSize = _app.screenInfo.fontSize;
+    final _titleBarFontSize = app.screenInfo.fontSize;
 
     //  figure the configuration when the values are established
-    _app.isEditReady = (kIsWeb
+    app.isEditReady = (kIsWeb
             //  if is web, Platform doesn't exist!  not evaluated here in the expression
             ||
             Platform.isLinux ||
             Platform.isMacOS ||
             Platform.isWindows) &&
-        !_app.screenInfo.isTooNarrow;
-    logger.v('isEditReady: $_app.isEditReady');
+        !app.screenInfo.isTooNarrow;
+    logger.v('isEditReady: $app.isEditReady');
 
-    _app.isScreenBig = _app.isEditReady || !_app.screenInfo.isTooNarrow;
-    _app.isPhone = !_app.isScreenBig;
+    app.isScreenBig = app.isEditReady || !app.screenInfo.isTooNarrow;
+    app.isPhone = !app.isScreenBig;
 
-    logger.v('screen: logical: (${_app.screenInfo.widthInLogicalPixels},${_app.screenInfo.heightInLogicalPixels})');
-    logger.v('isScreenBig: $_app.isScreenBig, isPhone: $_app.isPhone');
+    logger.v('screen: logical: (${app.screenInfo.widthInLogicalPixels},${app.screenInfo.heightInLogicalPixels})');
+    logger.v('isScreenBig: $app.isScreenBig, isPhone: $app.isPhone');
 
     final TextStyle searchTextStyle = generateAppTextStyle(
       color: Colors.black45,
@@ -482,7 +486,7 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.black,
     );
     final fontSize = searchTextStyle.fontSize ?? 25;
-    logger.d('fontSize: $fontSize in ${_app.screenInfo.widthInLogicalPixels} px');
+    logger.d('fontSize: $fontSize in ${app.screenInfo.widthInLogicalPixels} px');
 
     final TextStyle artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle _navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
@@ -491,14 +495,15 @@ class _MyHomePageState extends State<MyHomePage> {
     _sortTypesDropDownMenuList.clear();
     for (final e in _SortType.values) {
       var s = e.toString();
-      //logger.i('$e: ${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}');
-      _sortTypesDropDownMenuList.add(DropdownMenuItem<_SortType>(
-        value: e,
-        child: Text(
-          Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
-          style: searchDropDownStyle,
-        ),
-      ));
+      // logger.i('$e: \'${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}\'');
+      _sortTypesDropDownMenuList.add(appDropdownMenuItem<_SortType>(
+          key: ValueKey(e),
+          value: e,
+          child: Text(
+            Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
+            style: searchDropDownStyle,
+          ),
+          keyCallback: () {}));
     }
 
     //  re-search filtered list on data changes
@@ -527,7 +532,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: oddEvenTitleTextStyle.backgroundColor,
             padding: const EdgeInsets.all(8.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-              if (_app.isScreenBig)
+              if (app.isScreenBig)
                 appWrapFullWidth(
                   <Widget>[
                     appWrap(
@@ -550,7 +555,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                   alignment: WrapAlignment.spaceBetween,
                 ),
-              if (_app.isPhone)
+              if (app.isPhone)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -627,15 +632,16 @@ class _MyHomePageState extends State<MyHomePage> {
         title: widget.title,
         leading: appTooltip(
           message: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          child: TextButton(
-              onPressed: () {
-                appLogAppKey(AppKeyEnum.mainHamburger);
-                _openDrawer();
-              },
-              child: appIcon(Icons.menu)),
+          child: appIconButton(
+            appKeyEnum: AppKeyEnum.mainHamburger,
+            onPressed: _openDrawer,
+            icon: appIcon(
+              Icons.menu, size: app.screenInfo.fontSize, //  fixme: why is this required?
+            ),
+          ),
         ),
         actions: <Widget>[
-          if (!_app.screenInfo.isWayTooNarrow)
+          if (!app.screenInfo.isWayTooNarrow)
             appTooltip(
               message: "Visit bsteele.com, the provider of this app.",
               child: InkWell(
@@ -653,7 +659,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-          if (!_app.screenInfo.isWayTooNarrow)
+          if (!app.screenInfo.isWayTooNarrow)
             appTooltip(
               message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
@@ -691,7 +697,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToOptions(context);
               },
             ),
-            if (_app.isEditReady) //  no files on phones!
+            if (app.isEditReady) //  no files on phones!
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerSongs,
                 title: Text(
@@ -702,7 +708,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToSongs(context);
                 },
               ),
-            if (_app.isEditReady)
+            if (app.isEditReady)
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerLists,
                 title: Text(
@@ -713,7 +719,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToLists(context);
                 },
               ),
-            if (!_app.screenInfo.isTooNarrow)
+            if (!app.screenInfo.isTooNarrow)
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerTheory,
                 title: Text(
@@ -791,7 +797,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 14 * _titleBarFontSize,
               //  limit text entry display length
               child: TextField(
-                key: const ValueKey<AppKeyEnum>(AppKeyEnum.mainSearchText),
+                key: appKey(AppKeyEnum.mainSearchText),
                 //  for testing
                 controller: _searchTextFieldController,
                 focusNode: _searchFocusNode,
@@ -851,7 +857,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemHeight: null,
             ),
           ]),
-          if (!_appOptions.holiday)
+          if (!appOptions.holiday)
             appWrap([
               appTooltip(
                 message: 'Select which song list to show.',
@@ -900,7 +906,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: appIcon(
             Icons.arrow_upward,
           ),
-          mini: !_app.isScreenBig,
+          mini: !app.isScreenBig,
         ),
       ),
     );
@@ -989,12 +995,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
-    for (final Song song in _app.allSongs) {
+    for (final Song song in app.allSongs) {
       if (search.isEmpty ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
         //  if holiday and song is holiday, we're good
-        if (_appOptions.holiday) {
+        if (appOptions.holiday) {
           if (isHoliday(song)) {
             _filteredSongs.add(song);
           }
@@ -1103,7 +1109,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    _app.selectedSong = song;
+    app.selectedSong = song;
     _lastSelectedSong = song;
 
     await Navigator.pushNamed(
@@ -1179,7 +1185,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final Duration _itemScrollDuration = const Duration(milliseconds: 500);
   int _rollIndex = -1;
 
-  AppOptions _appOptions;
+  AppOptions appOptions;
   Song? _lastSelectedSong;
 
   final AppWidget appWidget = AppWidget();

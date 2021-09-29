@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 
 const bool _debug = false; // kDebugMode false
 const double _chordFontSize = 24;
-final App _app = App();
 
 //  fixme:  B in bass in key of Gb doesn't have a natural, a key.transpose( , 0 ) problem
 //  fixme: fretboard web strings don't vary in size
@@ -100,7 +99,7 @@ abstract class SheetNotation {
   final double postHeight;
   late final double totalHeight;
 
-  final musical_key.Key _key = _app.selectedSong.key;
+  final musical_key.Key _key = app.selectedSong.key;
 
   final SheetDisplay sheetDisplay;
 
@@ -136,7 +135,7 @@ class SheetSectionTextNotation extends SheetTextNotation {
     if (beat == 0 &&
         (lastLyricSection == null //  first lyric section shown
             ||
-            _app.selectedMomentNumber == songMoment.momentNumber //  first lyric section in the display
+            app.selectedMomentNumber == songMoment.momentNumber //  first lyric section in the display
             ||
             lastLyricSection != lyricSection //  different from last lyric section shown
         )) {
@@ -295,7 +294,7 @@ class _SheetStaffNotation extends SheetNotation {
 
     //  fill in the time signature
     if (!SheetNotation._timeSignatureShown) {
-      TimeSignature timeSignature = _app.selectedSong.timeSignature;
+      TimeSignature timeSignature = app.selectedSong.timeSignature;
       if (timeSignature == TimeSignature.commonTimeSignature) {
         _renderSheetFixedYSymbol(timeSigCommon);
       } else {

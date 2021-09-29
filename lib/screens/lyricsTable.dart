@@ -10,7 +10,6 @@ import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -222,9 +221,9 @@ class LyricsTable {
 
   /// compute screen size values used here and on other screens
   void _computeScreenSizes() {
-    App _app = App();
-    _screenWidth = _app.screenInfo.widthInLogicalPixels;
-    _screenHeight = _app.screenInfo.heightInLogicalPixels;
+    App app = App();
+    _screenWidth = app.screenInfo.widthInLogicalPixels;
+    _screenHeight = app.screenInfo.heightInLogicalPixels;
     _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 500));
     _lyricsFontSize = _chordFontSize! * (_appOptions.userDisplayStyle == UserDisplayStyle.singer ? 1 : 0.6);
     _shortLyricsWidth = _screenWidth * 0.25;

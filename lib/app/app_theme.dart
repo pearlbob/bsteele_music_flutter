@@ -13,8 +13,6 @@ import 'app.dart';
 
 const Level _cssLog = Level.debug;
 
-final App _app = App();
-
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
 
@@ -153,14 +151,14 @@ void _initUniversal() {
 }
 
 //  app bar
-final _appbarBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'background-color', Color,
+final appbarBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'background-color', Color,
     defaultValue: _defaultBackgroundColor, description: 'app bar background color');
-final _appbarColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'color', Color,
+final appbarColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'color', Color,
     defaultValue: _defaultForegroundColor, description: 'app bar foreground color');
 
 void _initAppBar() {
-  _init(_appbarBackgroundColorProperty);
-  _init(_appbarColorProperty);
+  _init(appbarBackgroundColorProperty);
+  _init(appbarColorProperty);
 }
 
 //  button
@@ -465,11 +463,12 @@ enum AppKeyEnum {
   detailBack,
   detailLyrics,
   documentationBack,
-  editAcceptChordModificationAndContinue,
+  editAcceptChordModificationAndStartNewRow,
   editAcceptChordModificationAndExtendRow,
   editAcceptChordModificationAndFinish,
   editArtist,
   editBack,
+  editBPM,
   editCancelChordModification,
   editClearSong,
   editCopyright,
@@ -492,8 +491,10 @@ enum AppKeyEnum {
   editScreenDetail,
   editSilentChord,
   editSingleChildScrollView,
+  editEditTimeSignatureDropdown,
   editTitle,
   editUndo,
+  editUserName,
   errorMessage,
   listsBack,
   listsClearSearch,
@@ -539,6 +540,7 @@ enum AppKeyEnum {
   playerFloatingPlay,
   playerFloatingStop,
   playerFloatingTop,
+  playerPlay,
   privacyBack,
   songsBack,
   songsReadFiles,
@@ -549,8 +551,8 @@ enum AppKeyEnum {
   theoryRoot,
 }
 
-class AppKey extends ValueKey {
-  AppKey(AppKeyEnum e) : super(Util.enumToString(e)); //  has to be encoded by graphic designer
+Key appKey(AppKeyEnum e) {
+  return ValueKey<AppKeyEnum>(e);
 }
 
 class CssColor extends Color {
@@ -567,7 +569,7 @@ Icon appIcon(IconData icon, {Key? key, Color? color, double? size}) {
       color: color ?? _getColor(_iconColorProperty),
       size: size ??
           _sizeLookup(_iconSizeProperty) ??
-          _app.screenInfo.fontSize //  let the algorithm figure the size dynamically
+          app.screenInfo.fontSize //  let the algorithm figure the size dynamically
       );
 }
 
@@ -703,10 +705,10 @@ class AppTheme {
     {
       // var iconTheme = IconThemeData(color: _defaultForegroundColor); fixme
       // var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor)); fixme
-      var elevatedButtonThemeStyle = _app.themeData.elevatedButtonTheme.style ?? const ButtonStyle();
+      var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ?? const ButtonStyle();
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
-      _app.themeData = _app.themeData.copyWith(
+      app.themeData = app.themeData.copyWith(
         backgroundColor: _getPropertyValue(_universalBackgroundColorProperty),
         primaryColor: _getPropertyValue(_universalBackgroundColorProperty),
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
@@ -718,7 +720,7 @@ class AppTheme {
 
   void _logActions() {
     SplayTreeSet<CssProperty> properties = SplayTreeSet();
-    for (var appliedAction in _appliedActions) {
+    for (var appliedAction in appliedActions) {
       properties.add(appliedAction.cssAction.cssProperty);
     }
     properties.addAll(_propertyValueLookupMap.keys);
@@ -727,7 +729,7 @@ class AppTheme {
       var value = _getPropertyValue(property);
       if (value == null) {
         logger.i('fixme here!!!!!!!!!!!!!!!');
-        // var appliedAction = _appliedActions.firstWhere((e) => (property.hashCode == e.cssAction.cssProperty.hashCode));
+        // var appliedAction = appliedActions.firstWhere((e) => (property.hashCode == e.cssAction.cssProperty.hashCode));
         // logger.i('applied: ${appliedAction.cssAction.cssProperty.id}:'
         //     ' ${appliedAction.rawValue ?? appliedAction.value};'
         //     '    /* ${appliedAction.cssAction.cssProperty.type} */');
@@ -757,7 +759,7 @@ double? _sizeLookup(CssProperty property) {
       }
     case visitor.ViewportTerm:
       var term = value as visitor.ViewportTerm;
-      return term.value * _app.screenInfo.widthInLogicalPixels / 100; //  ie. dynamically mapped into pixels
+      return term.value * app.screenInfo.widthInLogicalPixels / 100; //  ie. dynamically mapped into pixels
     default:
       return null;
   }
@@ -768,7 +770,7 @@ double lookupIconSize() {
 }
 
 void appLogAppKey(AppKeyEnum appKeyEnum) {
-  appLogKeyCallback(ValueKey<AppKeyEnum>(appKeyEnum));
+  appLogKeyCallback(appKey(appKeyEnum));
 }
 
 void appLogKeyCallback(Key? key) {
@@ -809,7 +811,7 @@ ElevatedButton appEnumeratedButton(
 }) {
   return appButton(
     commandName,
-    key: ValueKey<AppKeyEnum>(appKeyEnum),
+    key: appKey(appKeyEnum),
     onPressed: onPressed,
     backgroundColor: backgroundColor,
     fontSize: fontSize,
@@ -829,14 +831,14 @@ ElevatedButton appButton(
   return ElevatedButton(
     key: key,
     child: Text(commandName,
-        style: _app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
+        style: app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: () {
       appLogKeyCallback(key);
       onPressed();
     },
     style:
-        _app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+        app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
 }
 
@@ -860,7 +862,7 @@ InkWell appInkWell({
   //  form a key from the enumerated types
   if (appKeyEnum != null) {
     assert(key == null);
-    key = ValueKey<AppKeyEnum>(appKeyEnum);
+    key = appKey(appKeyEnum);
   }
 
   //  supply an on pressed callback with key, if asked
@@ -886,7 +888,7 @@ IconButton appEnumeratedIconButton({
   Color? color,
   double? iconSize,
 }) {
-  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  var key = appKey(appKeyEnum);
   return IconButton(
     icon: icon,
     key: key,
@@ -899,33 +901,38 @@ IconButton appEnumeratedIconButton({
   );
 }
 
-TextButton appTextButtonIcon({
+TextButton appIconButton({
+  required AppKeyEnum appKeyEnum,
   required Widget icon,
-  required Widget label,
   required VoidCallback onPressed,
   ButtonStyle? style,
 }) {
-  return TextButton.icon(icon: icon, label: label, onPressed: onPressed, style: style);
+  var key = appKey(appKeyEnum);
+  return TextButton.icon(
+      key: key,
+      icon: icon,
+      label: const Text(''),
+      onPressed: () {
+        appLogKeyCallback(key);
+        onPressed();
+      },
+      style: style);
 }
 
 DropdownMenuItem<T> appDropdownMenuItem<T>({
   Key? key,
   AppKeyEnum? appKeyEnum, // overrides key
-  required KeyCallback keyCallback,
+  required KeyCallback keyCallback, //  fixme: required?  any call back required for an item?
   T? value,
-  AlignmentGeometry alignment = AlignmentDirectional.centerStart,
   required Widget child,
 }) {
   //  form app key enum key
   if (appKeyEnum != null) {
     assert(key == null);
-    key = ValueKey<AppKeyEnum>(appKeyEnum);
+    key = appKey(appKeyEnum);
   }
+  assert(key != null);
 
-  // this.value,
-  // this.enabled = true,
-  // AlignmentGeometry alignment = AlignmentDirectional.centerStart,
-  // required Widget child,
   return DropdownMenuItem<T>(
       key: key,
       onTap: () {
@@ -933,8 +940,8 @@ DropdownMenuItem<T> appDropdownMenuItem<T>({
         keyCallback();
       },
       value: value,
-      // enabled: true,
-      // alignment: AlignmentDirectional.centerStart,
+      enabled: true,
+      alignment: AlignmentDirectional.centerStart,
       child: child);
 }
 
@@ -944,7 +951,7 @@ FloatingActionButton appFloatingActionButton({
   Widget? child,
   bool mini = false,
 }) {
-  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  var key = appKey(appKeyEnum);
   return FloatingActionButton(
     key: key,
     onPressed: () {
@@ -953,12 +960,16 @@ FloatingActionButton appFloatingActionButton({
     },
     child: child,
     mini: mini,
-    backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
+    backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(appbarBackgroundColorProperty),
   );
 }
 
+void appTextFieldListener(AppKeyEnum appKeyEnum, TextEditingController controller) {
+  logger.i('appLogListener( $appKeyEnum:\'${controller.text}\':${controller.selection} )');
+}
+
 ListTile appListTile({required AppKeyEnum appKeyEnum, required Widget title, required GestureTapCallback onTap}) {
-  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  var key = appKey(appKeyEnum);
   return ListTile(
     key: key,
     title: title,
@@ -970,7 +981,7 @@ ListTile appListTile({required AppKeyEnum appKeyEnum, required Widget title, req
 }
 
 Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required ValueChanged<bool> onChanged}) {
-  var key = ValueKey<AppKeyEnum>(appKeyEnum);
+  var key = appKey(appKeyEnum);
   return Switch(
     key: key,
     value: value,
@@ -981,9 +992,9 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
   );
 }
 
-const String _appDefaultFontFamily = 'Roboto';
+const String appDefaultFontFamily = 'Roboto';
 const List<String> appFontFamilyFallback = [
-  _appDefaultFontFamily,
+  appDefaultFontFamily,
   'DejaVu', //  deals with "tofu" for flat and sharp symbols
   //'Bravura',  // music symbols are over sized in the vertical
 ];
@@ -1002,7 +1013,7 @@ TextStyle generateAppTextStyle({
   FontWeight? fontWeight,
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
-  String? fontFamily = _appDefaultFontFamily,
+  String? fontFamily = appDefaultFontFamily,
   TextDecoration? decoration,
   bool nullBackground = false,
 }) {
@@ -1028,7 +1039,7 @@ TextStyle generateAppTextFieldStyle({
   FontWeight? fontWeight,
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
-  String? fontFamily = _appDefaultFontFamily,
+  String? fontFamily = appDefaultFontFamily,
   TextDecoration? decoration,
 }) {
   return generateAppTextStyle(
@@ -1046,7 +1057,7 @@ TextStyle generateAppTextFieldStyle({
 TextStyle generateAppBarLinkTextStyle() {
   return generateAppTextStyle(
     fontWeight: FontWeight.bold,
-    color: _getColor(_appbarColorProperty),
+    color: _getColor(appbarColorProperty),
     backgroundColor: Colors.transparent,
   );
 }
@@ -1363,37 +1374,37 @@ String _documentCssProperties(final Iterable<CssProperty>? properties) {
   return sb.toString();
 }
 
-List<_AppliedAction> _appliedActions = [];
+List<_AppliedAction> appliedActions = [];
 
 List<CssAction> cssActions = [
   CssAction(_buttonBackgroundColorProperty, (CssProperty p, value) {
     assert(value is Color);
-    _app.themeData = _app.themeData.copyWith(
+    app.themeData = app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
-            style: (_app.themeData.elevatedButtonTheme.style == null
+            style: (app.themeData.elevatedButtonTheme.style == null
                 ? ElevatedButton.styleFrom(primary: value)
-                : _app.themeData.elevatedButtonTheme.style!
+                : app.themeData.elevatedButtonTheme.style!
                     .copyWith(backgroundColor: MaterialStateProperty.all(value)))));
     _setPropertyValue(p, value);
   }),
   CssAction(_buttonColorProperty, (CssProperty p, value) {
     assert(value is Color);
-    _app.themeData = _app.themeData.copyWith(
+    app.themeData = app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
-            style: (_app.themeData.elevatedButtonTheme.style == null
+            style: (app.themeData.elevatedButtonTheme.style == null
                 ? ElevatedButton.styleFrom(onPrimary: value)
-                : _app.themeData.elevatedButtonTheme.style!
+                : app.themeData.elevatedButtonTheme.style!
                     .copyWith(foregroundColor: MaterialStateProperty.all(value)))));
     _setPropertyValue(p, value);
   }),
-  CssAction(_appbarBackgroundColorProperty, (p, value) {
+  CssAction(appbarBackgroundColorProperty, (p, value) {
     assert(value is Color);
-    _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(backgroundColor: value));
+    app.themeData = app.themeData.copyWith(appBarTheme: app.themeData.appBarTheme.copyWith(backgroundColor: value));
     _setPropertyValue(p, value);
   }),
-  CssAction(_appbarColorProperty, (p, value) {
+  CssAction(appbarColorProperty, (p, value) {
     assert(value is Color);
-    _app.themeData = _app.themeData.copyWith(appBarTheme: _app.themeData.appBarTheme.copyWith(foregroundColor: value));
+    app.themeData = app.themeData.copyWith(appBarTheme: app.themeData.appBarTheme.copyWith(foregroundColor: value));
     _setPropertyValue(p, value);
   }),
 ];
@@ -1424,7 +1435,7 @@ void applyAction(
           property == e.cssProperty.property)) {
         logger.log(_cssLog, 'CSS action: ${action.toString()} /*${value.runtimeType}*/ $value;');
         action.cssActionFunction(action.cssProperty, value);
-        _appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
+        appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
 
         applications++;
       }

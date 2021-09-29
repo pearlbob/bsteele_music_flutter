@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
@@ -354,13 +353,13 @@ class _Options extends State<Options> {
                       onChanged: (_value) {
                         if (_value != null) {
                           setState(() {
-                            _app.displayKeyOffset = _value;
+                            app.displayKeyOffset = _value;
                             logger.d('key offset: $_value');
                           });
                         }
                       },
                       style: style,
-                      value: _app.displayKeyOffset,
+                      value: app.displayKeyOffset,
                       itemHeight: null,
                     ),
                   ]),
@@ -614,5 +613,5 @@ class _Options extends State<Options> {
 
   //final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
-  final App _app = App();
+  final App app = App();
 }

@@ -15,7 +15,6 @@ import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
@@ -55,14 +54,12 @@ bool _isSwing = true;
 TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
 int _bpm = 106;
 
-final App _app = App();
-
 final _defaultChord = Chord(ScaleChord(ScaleNote.get(ScaleNoteEnum.C), ChordDescriptor.defaultChordDescriptor()), 4, 4,
     null, ChordAnticipationOrDelay.defaultValue, false);
 
 Chord _getChord() {
-  if (_app.selectedSong.songMoments.isNotEmpty) {
-    var songMoment = _app.selectedSong.songMoments[_app.selectedMomentNumber];
+  if (app.selectedSong.songMoments.isNotEmpty) {
+    var songMoment = app.selectedSong.songMoments[app.selectedMomentNumber];
     var m = songMoment.measure;
     if (m.chords.isNotEmpty) {
       return m.chords[0].transpose(_key, 0); // fixme!!!!!!!!!!!
@@ -88,10 +85,10 @@ class _State extends State<Detail> {
       logger.i('lyrics: <${_lyricsTextEditingController.text}>');
     });
 
-    _key = _app.selectedSong.key;
+    _key = app.selectedSong.key;
     logger.d('key: $_key');
 
-    for (var sheetDisplay in _appOptions.sheetDisplays) {
+    for (var sheetDisplay in appOptions.sheetDisplays) {
       sheetDisplayEnables[sheetDisplay.index] = true;
     }
 
@@ -196,7 +193,7 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title: '${_app.selectedSong.title} (sheet music)'),
+      appBar: appWidget.backBar(title: '${app.selectedSong.title} (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -619,7 +616,7 @@ class _State extends State<Detail> {
   }
 
   void bumpMeasureSelection(int bump) {
-    _app.selectedMomentNumber += bump;
+    app.selectedMomentNumber += bump;
   }
 
   void dragStart(Offset start) {
@@ -676,10 +673,10 @@ class _State extends State<Detail> {
     double height = 2,
   }) {
     var backgroundColor =
-        _app.themeData.elevatedButtonTheme.style?.backgroundColor ?? MaterialStateProperty.all(_blue.color);
+        app.themeData.elevatedButtonTheme.style?.backgroundColor ?? MaterialStateProperty.all(_blue.color);
     var background = Paint()..color = backgroundColor.resolve({}) ?? _blue.color;
     var foregroundColor =
-        _app.themeData.elevatedButtonTheme.style?.foregroundColor ?? MaterialStateProperty.all(Colors.black);
+        app.themeData.elevatedButtonTheme.style?.foregroundColor ?? MaterialStateProperty.all(Colors.black);
     var foreground = Paint()..color = foregroundColor.resolve({}) ?? Colors.black;
 
     return ElevatedButton(
@@ -722,7 +719,7 @@ class _State extends State<Detail> {
         store.add(sheetDisplay);
       }
     }
-    _appOptions.sheetDisplays = store;
+    appOptions.sheetDisplays = store;
   }
 
   bool _options = false;
@@ -735,7 +732,7 @@ class _State extends State<Detail> {
   final AppWidget appWidget = AppWidget();
 
   TextStyle _style = generateAppTextStyle();
-  final AppOptions _appOptions = AppOptions();
+  final AppOptions appOptions = AppOptions();
 }
 
 class _FretBoardPainter extends CustomPainter {
@@ -758,7 +755,7 @@ class _FretBoardPainter extends CustomPainter {
     bassScale = width - 2 * margin;
 
     //  clear the fretboard
-    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), Paint()..color = _app.themeData.backgroundColor);
+    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), Paint()..color = app.themeData.backgroundColor);
 
     //  frets
     _black.strokeWidth = 2;

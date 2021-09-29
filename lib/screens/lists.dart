@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
-import 'package:bsteele_music_flutter/app/appButton.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
@@ -40,7 +39,7 @@ class _State extends State<Lists> {
   initState() {
     super.initState();
 
-    _app.clearMessage();
+    app.clearMessage();
     logger.d("_Songs.initState()");
   }
 
@@ -58,7 +57,7 @@ class _State extends State<Lists> {
   Widget build(BuildContext context) {
     appWidget.context = context; //	required on every build
 
-    final double fontSize = _app.screenInfo.fontSize;
+    final double fontSize = app.screenInfo.fontSize;
     metadataStyle = generateAppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
@@ -147,7 +146,7 @@ class _State extends State<Lists> {
             },
           ),
           SizedBox(
-            width: 5 * _app.screenInfo.fontSize,
+            width: 5 * app.screenInfo.fontSize,
             //  limit text entry display length
             child: TextField(
               key: const ValueKey('nameText') /*  for testing*/,
@@ -173,7 +172,7 @@ class _State extends State<Lists> {
             style: metadataStyle,
           ),
           SizedBox(
-            width: 5 * _app.screenInfo.fontSize,
+            width: 5 * app.screenInfo.fontSize,
             //  limit text entry display length
             child: TextField(
               key: const ValueKey('valueText') /*  for testing*/,
@@ -202,7 +201,7 @@ class _State extends State<Lists> {
     {
       SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
       var songIdMetadataSet = SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
-      for (var song in _app.allSongs) {
+      for (var song in app.allSongs) {
         for (var songIdMetadata in songIdMetadataSet) {
           if (songIdMetadata.id == song.songId.toString()) {
             _metadataSongSet.add(song);
@@ -229,7 +228,7 @@ class _State extends State<Lists> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title:'bsteele Music App Song Lists'),
+      appBar: appWidget.backBar(title: 'bsteele Music App Song Lists'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -237,8 +236,8 @@ class _State extends State<Lists> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               appSpace(),
-              Text(_app.message,
-                  style: _app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+              Text(app.message,
+                  style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                   key: const ValueKey('errorMessage')),
               const SizedBox(
                 height: 10,
@@ -305,10 +304,10 @@ class _State extends State<Lists> {
                     ),
                   ),
                   SizedBox(
-                    width: 10 * _app.screenInfo.fontSize,
+                    width: 10 * app.screenInfo.fontSize,
                     //  limit text entry display length
                     child: TextField(
-                      key: const ValueKey<AppKeyEnum>(AppKeyEnum.listsSearchText),
+                      key: appKey(AppKeyEnum.listsSearchText),
                       enabled: _isSearchActive,
                       controller: _searchTextFieldController,
                       focusNode: _searchFocusNode,
@@ -429,7 +428,7 @@ class _State extends State<Lists> {
 
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
-    for (final Song song in _app.allSongs) {
+    for (final Song song in app.allSongs) {
       if (search.isEmpty ||
           song.getTitle().toLowerCase().contains(search) ||
           song.getArtist().toLowerCase().contains(search)) {
@@ -454,7 +453,7 @@ class _State extends State<Lists> {
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     logger.i('_saveMetadata message: $message');
     setState(() {
-      _app.infoMessage('.songmetadata $message');
+      app.infoMessage('.songmetadata $message');
     });
   }
 
@@ -463,9 +462,9 @@ class _State extends State<Lists> {
 
     setState(() {
       if (message.isEmpty) {
-        _app.infoMessage('No metatdata read');
+        app.infoMessage('No metatdata read');
       } else {
-        _app.infoMessage(message);
+        app.infoMessage(message);
       }
     });
   }
@@ -484,5 +483,4 @@ class _State extends State<Lists> {
   final AppWidget appWidget = AppWidget();
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
-  final App _app = App();
 }

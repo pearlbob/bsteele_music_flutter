@@ -120,6 +120,7 @@ void main() async {
 }
 
 /*
+//  fixme: title on player, always
 //  fixme: edit: delete section
 //  fixme: edit: measure entry should allow section header declarations
 //  fixme: verify in studio:  let it be in C, cramped on HDMI on mac,
@@ -497,13 +498,13 @@ class _MyHomePageState extends State<MyHomePage> {
       var s = e.toString();
       // logger.i('$e: \'${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}\'');
       _sortTypesDropDownMenuList.add(appDropdownMenuItem<_SortType>(
-          key: ValueKey(e),
-          value: e,
-          child: Text(
-            Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
-            style: searchDropDownStyle,
-          ),
-          keyCallback: () {}));
+        key: ValueKey(e),
+        value: e,
+        child: Text(
+          Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
+          style: searchDropDownStyle,
+        ),
+      ));
     }
 
     //  re-search filtered list on data changes

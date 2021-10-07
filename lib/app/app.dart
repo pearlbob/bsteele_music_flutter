@@ -275,9 +275,13 @@ class AppWidget {
     );
   }
 
-  AppBar backBar({AppKeyEnum? appKeyEnum, Widget? titleWidget, String? title}) {
+  AppBar backBar({AppKeyEnum? appKeyEnum, Widget? titleWidget, String? title, List<Widget>? actions}) {
     return appBar(
-        appKeyEnum: appKeyEnum ?? AppKeyEnum.appBarBack, title: title, titleWidget: titleWidget, leading: back());
+        appKeyEnum: appKeyEnum ?? AppKeyEnum.appBarBack,
+        title: title,
+        titleWidget: titleWidget,
+        leading: back(),
+        actions: actions);
   }
 
   AppBar appBar({AppKeyEnum? appKeyEnum, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions}) {

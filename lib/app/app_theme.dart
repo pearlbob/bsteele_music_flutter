@@ -775,30 +775,14 @@ void appLogAppKey(AppKeyEnum appKeyEnum) {
 
 void appLogKeyCallback(Key? key) {
   assert(key != null);
-
-  logger.i('appLogKeyCallback( ${key is ValueKey ? key.value : key} )');
+  if (key is ValueKey<AppKeyEnum>) {
+    logger.i('appLogKeyCallback( ${key.value} )');
+  } else if (key is ValueKey) {
+    logger.i('appLogKeyCallback( ${key.value.runtimeType}:${key.value} )');
+  } else {
+    logger.i('appLogKeyCallback( ${key.runtimeType}:$key )');
+  }
 }
-// /// An experimental class to generate widget test code while running in debug mode.
-// /// The model is to use the app in debug mode and then copy/paste the generated code
-// /// into widget tests to replicate the user action with a minimum of coding.
-// class WidgetLog {
-//   static void tap(ValueKey<String> key) {
-//     if (kDebugMode && _widgetLog) {
-//       if (_environment == _environmentDefault) {
-//         var varName = Util.firstToLower(Util.underScoresToCamelCase(key.value));
-//         logger.i('''{
-//     var $varName = find.byKey(const ValueKey<String>('${key.value}'));
-//     expect($varName,findsOneWidget);
-//     await tester.tap($varName);
-//     await tester.pumpAndSettle();
-//     }
-//     ''');
-//       } else {
-//         logger.i('tester.tap(${key.value})');
-//       }
-//     }
-//   }
-// }
 
 typedef KeyCallback = void Function();
 
@@ -922,7 +906,7 @@ TextButton appIconButton({
 DropdownMenuItem<T> appDropdownMenuItem<T>({
   Key? key,
   AppKeyEnum? appKeyEnum, // overrides key
-  required KeyCallback keyCallback, //  fixme: required?  any call back required for an item?
+  KeyCallback? keyCallback,
   T? value,
   required Widget child,
 }) {
@@ -937,7 +921,9 @@ DropdownMenuItem<T> appDropdownMenuItem<T>({
       key: key,
       onTap: () {
         appLogKeyCallback(key);
-        keyCallback();
+        if (keyCallback != null) {
+          keyCallback();
+        }
       },
       value: value,
       enabled: true,

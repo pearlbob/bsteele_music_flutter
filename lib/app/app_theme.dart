@@ -457,11 +457,23 @@ EdgeInsetsGeometry? getMeasurePadding() {
 
 enum AppKeyEnum {
   aboutBack,
+  aboutLog,
+  aboutWriteDiagnosticLogFile,
   appBarBack,
   appBack, //  screen pop
   cssDemoBack,
+  cssDemoButton,
   detailBack,
+  detailCloseOptions,
+  detailLoop,
+  detailLoop1,
+  detailLoop2,
+  detailLoop4,
+  detailLoopSelected,
   detailLyrics,
+  detailOptions,
+  detailPlay,
+  detailStop,
   documentationBack,
   editAcceptChordModificationAndStartNewRow,
   editAcceptChordModificationAndExtendRow,
@@ -537,6 +549,7 @@ enum AppKeyEnum {
   optionsWebsocketPark,
   playerBack,
   playerCapo,
+  playerEdit,
   playerFloatingPlay,
   playerFloatingStop,
   playerFloatingTop,
@@ -728,13 +741,13 @@ class AppTheme {
     for (var property in properties) {
       var value = _getPropertyValue(property);
       if (value == null) {
-        logger.i('fixme here!!!!!!!!!!!!!!!');
+        logger.i('fixme here!!!!! null _getPropertyValue(\'$property\')');
         // var appliedAction = appliedActions.firstWhere((e) => (property.hashCode == e.cssAction.cssProperty.hashCode));
         // logger.i('applied: ${appliedAction.cssAction.cssProperty.id}:'
         //     ' ${appliedAction.rawValue ?? appliedAction.value};'
         //     '    /* ${appliedAction.cssAction.cssProperty.type} */');
       } else {
-        logger.i('lookup: $property: $value;'
+        logger.d('lookup: $property: $value;'
             '    /* ${property.type} */');
       }
     }
@@ -773,14 +786,20 @@ void appLogAppKey(AppKeyEnum appKeyEnum) {
   appLogKeyCallback(appKey(appKeyEnum));
 }
 
+List<String> _appLog = [];
+
+List<String> appLog() {
+  return _appLog;
+}
+
 void appLogKeyCallback(Key? key) {
   assert(key != null);
   if (key is ValueKey<AppKeyEnum>) {
-    logger.i('appLogKeyCallback( ${key.value} )');
+    _appLog.add(key.value.toString());
   } else if (key is ValueKey) {
-    logger.i('appLogKeyCallback( ${key.value.runtimeType}:${key.value} )');
+    _appLog.add('${key.value.runtimeType}.${key.value}');
   } else {
-    logger.i('appLogKeyCallback( ${key.runtimeType}:$key )');
+    _appLog.add('${key.runtimeType}.$key');
   }
 }
 
@@ -795,7 +814,7 @@ ElevatedButton appEnumeratedButton(
 }) {
   return appButton(
     commandName,
-    key: appKey(appKeyEnum),
+    appKeyEnum: appKeyEnum,
     onPressed: onPressed,
     backgroundColor: backgroundColor,
     fontSize: fontSize,
@@ -804,13 +823,15 @@ ElevatedButton appEnumeratedButton(
 
 ElevatedButton appButton(
   String commandName, {
-  required Key key,
+  AppKeyEnum? appKeyEnum,
+  Key? key,
   required VoidCallback onPressed,
   Color? backgroundColor,
   double? fontSize,
-  AppKeyEnum? appKeyEnum, // overrides key
 }) {
   fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
+  assert(key != null || appKeyEnum != null); //  require at least either a key or app key
+  key ??= appKey(appKeyEnum!);
 
   return ElevatedButton(
     key: key,

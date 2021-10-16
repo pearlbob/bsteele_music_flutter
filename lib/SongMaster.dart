@@ -1,5 +1,4 @@
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:flutter/scheduler.dart';
 
 // import 'audio/app_audio_player.dart';
 
@@ -11,26 +10,26 @@ class SongMaster {
   }
 
   SongMaster._internal() {
-    _ticker = Ticker((duration) {
-      // double time = appAudioPlayer.getCurrentTime();
-      // double dt = time - _lastTime;
-      //
-      // if (_song != null) {
-      //   if (_isPlaying) {
-      //     if (_isPaused) {
-      //     } else {
-      //       double songTime = time - _songStart;
-      //       int moment = _song.getSongMomentNumberAtSongTime(songTime);
-      //       logger.v('moment: ${moment.toString()}');
-      //     }
-      //   }
-      // }
-      //
-      // logger.v('dt $_tickerCount: ${dt.toStringAsFixed(3)}');
-      // _lastTime = time;
-      // _tickerCount++;
-    });
-    _ticker.start();
+    // _ticker = Ticker((duration) {
+    //   // double time = appAudioPlayer.getCurrentTime();
+    //   // double dt = time - _lastTime;
+    //   //
+    //   // if (_song != null) {
+    //   //   if (_isPlaying) {
+    //   //     if (_isPaused) {
+    //   //     } else {
+    //   //       double songTime = time - _songStart;
+    //   //       int moment = _song.getSongMomentNumberAtSongTime(songTime);
+    //   //       logger.v('moment: ${moment.toString()}');
+    //   //     }
+    //   //   }
+    //   // }
+    //   //
+    //   // logger.v('dt $_tickerCount: ${dt.toStringAsFixed(3)}');
+    //   // _lastTime = time;
+    //   // _tickerCount++;
+    // });
+    // _ticker.start();
   }
 
   void playSong(Song song) {
@@ -52,7 +51,7 @@ class SongMaster {
     _isPaused = false;
   }
 
-  late Ticker _ticker;
+  //late Ticker _ticker;
 
   // static int _tickerCount = 0;
   // double _lastTime = 0;

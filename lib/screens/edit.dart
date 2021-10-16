@@ -273,7 +273,8 @@ class _Edit extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
+
     logger.d('edit build: "${song.toMarkup()}"');
     logger.d('edit build: "${song.rawLyrics}"');
     logger.d('edit build: ');
@@ -629,10 +630,10 @@ class _Edit extends State<Edit> {
             child: Column(
               children: [
                 //  note: let the app bar scroll off the screen for more room for the song
-                appWidget.appBar(
+                appWidgetHelper.appBar(
                   appKeyEnum: AppKeyEnum.appBarBack,
                   title: 'Edit',
-                  leading: appWidget.back(),
+                  leading: appWidgetHelper.back(),
                 ),
                 appSpace(),
                 Container(
@@ -664,7 +665,7 @@ class _Edit extends State<Edit> {
                                 children: <Widget>[
                                   appButton(
                                     'Sheet music',
-                                    key: const ValueKey('screenDetail'),
+                                    appKeyEnum: AppKeyEnum.editScreenDetail,
                                     onPressed: () {
                                       setState(() {
                                         navigateToDetail(context);
@@ -1836,7 +1837,7 @@ class _Edit extends State<Edit> {
       for (int i = 0; i <= 9; i++) {
         sectionVersionNumberDropdownMenuList.add(
           DropdownMenuItem<int>(
-            key: ValueKey('sectionVersionNumber' + i.toString()),
+            key: ValueKey('sectionVersionNumber.' + i.toString()),
             value: i,
             child: Row(
               children: <Widget>[
@@ -3256,8 +3257,6 @@ class _Edit extends State<Edit> {
 
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();
-
-  final AppWidget appWidget = AppWidget();
 
   late AppOptions appOptions;
 }

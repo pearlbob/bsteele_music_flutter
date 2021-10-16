@@ -20,7 +20,7 @@ class _CssDemo extends State<CssDemo> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     const fontSize = 40.0;
     const lyricsFontSize = fontSize * 0.6;
@@ -47,7 +47,7 @@ class _CssDemo extends State<CssDemo> {
     var verseBackgroundColor = getBackgroundColorForSection(Section.get(SectionEnum.verse));
 
     return Scaffold(
-      appBar: appWidget.backBar(title: 'bsteele Music App CSS demo'),
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App CSS demo'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87),
         child: Container(
@@ -62,7 +62,16 @@ class _CssDemo extends State<CssDemo> {
                   style: generateAppTextStyle(),
                 ),
                 appSpace(),
-                appButton('appButton', key: const ValueKey('appButton'), onPressed: () {}),
+                Container(
+                  color: Colors.blue,
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    'App Bar Text Style',
+                    style: generateAppBarLinkTextStyle(),
+                  ),
+                ),
+                appSpace(),
+                appButton('appButton', appKeyEnum: AppKeyEnum.cssDemoButton, onPressed: () {}),
                 appSpace(),
                 sections,
                 appSpace(),
@@ -81,15 +90,6 @@ class _CssDemo extends State<CssDemo> {
                   style: generateAppTextFieldStyle(),
                 ),
                 appSpace(),
-                Container(
-                  color: Colors.blue,
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    'App Bar Text Style',
-                    style: generateAppBarLinkTextStyle(),
-                  ),
-                ),
-                appSpace(),
                 Text(
                   'link text style',
                   style: generateAppLinkTextStyle(),
@@ -106,11 +106,9 @@ class _CssDemo extends State<CssDemo> {
               ]),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.cssDemoBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.cssDemoBack),
     );
   }
 
   final TextEditingController _textFieldController = TextEditingController(text: 'input text field');
-
-  final AppWidget appWidget = AppWidget();
 }

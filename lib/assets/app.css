@@ -55,10 +55,12 @@
 
 .oddTitleText {
     background-color: white; /* type is Color, odd row background color */
+    color: black;
 }
 
 .evenTitleText {
     background-color: whitesmoke; /* type is Color, even row background color */
+    color: black;
 }
 
 .icon {

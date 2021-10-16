@@ -29,7 +29,7 @@ class LyricsTable {
     expandRepeats = false,
     double? chordFontSize,
   }) {
-    appWidget.context = context; //	required on every build
+    appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
     _chordFontSize = chordFontSize;
 
@@ -128,7 +128,7 @@ class LyricsTable {
                   margin: getMeasureMargin(),
                   padding: getMeasurePadding(),
                   color: backgroundColor,
-                  child: appWidget.transpose(
+                  child: appWidgetHelper.transpose(
                     measure!,
                     displayMusicKey,
                     tranOffset,
@@ -269,7 +269,7 @@ class LyricsTable {
   Table get table => _table;
   Table _table = Table();
 
-  final AppWidget appWidget = AppWidget();
+  late AppWidgetHelper appWidgetHelper;
 
   music_key.Key displayMusicKey = music_key.Key.get(music_key.KeyEnum.C);
   final AppOptions _appOptions = AppOptions();

@@ -4,6 +4,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
+import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -269,7 +270,7 @@ class AppOptions extends ChangeNotifier {
 
   /// The user's application name.
   String get user => _user;
-  String _user = unknownUser;
+  String _user = userName;
 
   late final SharedPreferences _prefs;
 }

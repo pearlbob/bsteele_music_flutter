@@ -21,7 +21,7 @@ class _State extends State<Documentation> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     TextStyle style = generateAppTextStyle(color: Colors.black87);
 
@@ -255,7 +255,7 @@ class _State extends State<Documentation> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title: 'bsteele Music App Documentation'),
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Documentation'),
       body: DefaultTextStyle(
         style: style,
         child: SingleChildScrollView(
@@ -270,9 +270,7 @@ class _State extends State<Documentation> {
               ]),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.documentationBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.documentationBack),
     );
   }
-
-  final AppWidget appWidget = AppWidget();
 }

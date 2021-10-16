@@ -55,7 +55,7 @@ class _State extends State<Lists> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    appWidgetHelper = AppWidgetHelper(context);
 
     final double fontSize = app.screenInfo.fontSize;
     metadataStyle = generateAppTextStyle(
@@ -228,7 +228,7 @@ class _State extends State<Lists> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title: 'bsteele Music App Song Lists'),
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Lists'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -280,7 +280,7 @@ class _State extends State<Lists> {
               appWrapFullWidth([
                 //  search line
                 appWrap([
-                  appWidget.checkbox(
+                  appWidgetHelper.checkbox(
                       value: _isSearchActive,
                       onChanged: (bool? value) {
                         if (value != null) {
@@ -357,14 +357,14 @@ class _State extends State<Lists> {
               ),
             ]),
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.listsBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
     );
   }
 
   Widget mapSongToWidget(Song song) {
     return Row(
       children: [
-        appWidget.checkbox(
+        appWidgetHelper.checkbox(
           value: _hasSelectedMetadata(song),
           onChanged: (bool? value) {
             if (value != null) {
@@ -480,7 +480,7 @@ class _State extends State<Lists> {
   final TextEditingController _nameTextFieldController = TextEditingController();
   final TextEditingController _valueTextFieldController = TextEditingController();
 
-  final AppWidget appWidget = AppWidget();
+  late AppWidgetHelper appWidgetHelper;
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
 }

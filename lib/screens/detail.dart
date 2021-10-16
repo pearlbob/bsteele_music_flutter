@@ -118,7 +118,7 @@ class _State extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     _fontSize = App().screenInfo.fontSize * 2 / 3;
 
@@ -138,7 +138,7 @@ class _State extends State<Detail> {
         var name = Util.firstToUpper(Util.camelCaseToLowercaseSpace(Util.enumToString(display)));
         children.add(Row(
           children: [
-            appWidget.checkbox(
+            appWidgetHelper.checkbox(
               value: sheetDisplayEnables[display.index],
               onChanged: (bool? value) {
                 if (value != null) {
@@ -168,7 +168,7 @@ class _State extends State<Detail> {
       }
 
       children.add(appSpace());
-      children.add(appButton('Close the options', key: const ValueKey<String>('Close the options'), onPressed: () {
+      children.add(appButton('Close the options', appKeyEnum: AppKeyEnum.detailCloseOptions, onPressed: () {
         setState(() {
           _options = false;
         });
@@ -193,7 +193,7 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title: '${app.selectedSong.title} (sheet music)'),
+      appBar: appWidgetHelper.backBar(title: '${app.selectedSong.title} (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -331,7 +331,7 @@ class _State extends State<Detail> {
                     children: [
                       Row(
                         children: [
-                          appWidget.checkbox(
+                          appWidgetHelper.checkbox(
                             value: _isDot,
                             onChanged: (bool? value) {
                               if (value != null) {
@@ -353,7 +353,7 @@ class _State extends State<Detail> {
                             },
                           ),
                           appSpace(),
-                          appWidget.checkbox(
+                          appWidgetHelper.checkbox(
                               value: _isTie,
                               onChanged: (bool? value) {
                                 if (value != null) {
@@ -478,7 +478,7 @@ class _State extends State<Detail> {
                       ),
                       Row(
                         children: [
-                          appWidget.checkbox(
+                          appWidgetHelper.checkbox(
                             value: _isSwing,
                             onChanged: (bool? value) {
                               if (value != null) {
@@ -510,15 +510,15 @@ class _State extends State<Detail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  appButton('Loop 1', key: const ValueKey<String>('Loop 1'), onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop 2', key: const ValueKey<String>('Loop 2'), onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop 4', key: const ValueKey<String>('Loop 4'), onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 1', appKeyEnum: AppKeyEnum.detailLoop1, onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 2', appKeyEnum: AppKeyEnum.detailLoop2, onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 4', appKeyEnum: AppKeyEnum.detailLoop4, onPressed: () {}, fontSize: _fontSize),
                   appButton('Loop selected',
-                      key: const ValueKey<String>('Loop selected'), onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop', key: const ValueKey<String>('Loop'), onPressed: () {}, fontSize: _fontSize),
-                  appButton('Play', key: const ValueKey<String>('Play'), onPressed: () {}, fontSize: _fontSize),
-                  appButton('Stop', key: const ValueKey<String>('Stop'), onPressed: () {}, fontSize: _fontSize),
-                  appButton('Options', key: const ValueKey<String>('Options'), onPressed: () {
+                      appKeyEnum: AppKeyEnum.detailLoopSelected, onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop', appKeyEnum: AppKeyEnum.detailLoop, onPressed: () {}, fontSize: _fontSize),
+                  appButton('Play', appKeyEnum: AppKeyEnum.detailPlay, onPressed: () {}, fontSize: _fontSize),
+                  appButton('Stop', appKeyEnum: AppKeyEnum.detailStop, onPressed: () {}, fontSize: _fontSize),
+                  appButton('Options', appKeyEnum: AppKeyEnum.detailOptions, onPressed: () {
                     setState(() {
                       _options = !_options;
                     });
@@ -611,7 +611,7 @@ class _State extends State<Detail> {
           ),
         ],
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.detailBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.detailBack),
     );
   }
 
@@ -728,8 +728,6 @@ class _State extends State<Detail> {
   bool _isTie = false;
   final TextEditingController _lyricsTextEditingController = TextEditingController();
   final TextEditingController _bpmTextEditingController = TextEditingController();
-
-  final AppWidget appWidget = AppWidget();
 
   TextStyle _style = generateAppTextStyle();
   final AppOptions appOptions = AppOptions();

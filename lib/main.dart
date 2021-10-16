@@ -105,6 +105,7 @@ import 'util/openLink.dart';
 const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 const _testCss = String.fromEnvironment('css', defaultValue: 'app.css');
+final userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? 'unknown';
 
 void main() async {
   Logger.level = Level.info;
@@ -629,7 +630,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       key: _scaffoldKey,
-      appBar: appWidget.appBar(
+      appBar: AppWidgetHelper(context).appBar(
         title: widget.title,
         leading: appTooltip(
           message: MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -1188,8 +1189,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   AppOptions appOptions;
   Song? _lastSelectedSong;
-
-  final AppWidget appWidget = AppWidget();
 
   final _random = Random();
   static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);

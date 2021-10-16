@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
@@ -9,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../main.dart';
+
 /// Show some data about the app and it's environment.
 class About extends StatefulWidget {
   const About({Key? key}) : super(key: key);
@@ -17,7 +22,7 @@ class About extends StatefulWidget {
   _About createState() => _About();
 }
 
-class _About extends State<About> with  WidgetsBindingObserver{
+class _About extends State<About> with WidgetsBindingObserver {
   @override
   initState() {
     super.initState();
@@ -31,14 +36,14 @@ class _About extends State<About> with  WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     ScreenInfo screenInfo = App().screenInfo;
     final double fontSize = screenInfo.fontSize;
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title:'About the bsteele Music App'),
+      appBar: appWidgetHelper.backBar(title: 'About the bsteele Music App'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: fontSize),
         child: Container(
@@ -94,10 +99,15 @@ class _About extends State<About> with  WidgetsBindingObserver{
                 // Text(
                 //   'ver: ${Platform.version}',
                 // ),
+                appSpace(),
+                appButton('Write diagnostic log file', appKeyEnum: AppKeyEnum.aboutWriteDiagnosticLogFile,
+                    onPressed: () {
+                  writeDiagnosticLogFile();
+                }),
               ]),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.aboutBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.aboutBack),
     );
   }
 
@@ -108,10 +118,41 @@ class _About extends State<About> with  WidgetsBindingObserver{
     });
   }
 
+  void writeDiagnosticLogFile() {
+    String utcNow = Util.utcNow();
+    StringBuffer sb = StringBuffer();
+    sb.writeln('''{
+    "fileFormat": "1.0.0",
+    "user": ${jsonEncode(userName)},
+    "version": ${jsonEncode(_packageInfo.version)},
+    "versionUtcDate": ${jsonEncode(_utcDateAsString ?? 'unknown')},
+    "nowUtc": ${jsonEncode(utcNow)},
+    "log":
+    [''');
+
+    bool first = true;
+    for (var s in appLog()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.writeln(',');
+      }
+      sb.write('    ');
+      sb.write(jsonEncode(s));
+    }
+    sb.write('''
+
+    ]
+}
+''');
+    var fileName = 'bsteeleMusicAppLog_$utcNow.json';
+    logger.i('$fileName:${sb.toString()}');
+  }
+
   void _readUtcDate() async {
     rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
       setState(() {
-        _utcDateAsString = value;
+        _utcDateAsString = value.replaceAll('\n', '');
       });
     });
   }
@@ -143,6 +184,4 @@ class _About extends State<About> with  WidgetsBindingObserver{
   }
 
   late Size _lastSize;
-
-  final AppWidget appWidget = AppWidget();
 }

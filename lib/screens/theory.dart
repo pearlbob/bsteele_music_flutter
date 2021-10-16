@@ -32,7 +32,7 @@ class _State extends State<TheoryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    appWidgetHelper = AppWidgetHelper(context);
     _style = generateAppTextStyle(color: Colors.black87);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
@@ -47,7 +47,7 @@ class _State extends State<TheoryWidget> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title: 'Music Theory'),
+      appBar: appWidgetHelper.backBar(title: 'Music Theory'),
       body: SingleChildScrollView(
         //controller: _scrollController,
         scrollDirection: Axis.vertical,
@@ -179,7 +179,7 @@ class _State extends State<TheoryWidget> {
           ],
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.theoryBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.theoryBack),
     );
   }
 
@@ -712,8 +712,8 @@ class _State extends State<TheoryWidget> {
     );
   }
 
-  final AppWidget appWidget = AppWidget();
+  late AppWidgetHelper appWidgetHelper;
 
   ChordDescriptor chordDescriptor = ChordDescriptor.major;
-  TextStyle _style = generateAppTextStyle();  //  initial default only
+  TextStyle _style = generateAppTextStyle(); //  initial default only
 }

@@ -248,11 +248,14 @@ Widget appWrapFullWidth(List<Widget> children,
 
 ///  A collection of methods that generate application styled widgets.
 ///  It also provides a handy place to hold the build context should it be needed.
-class AppWidget {
+class AppWidgetHelper {
+  AppWidgetHelper(this.context);
+
   Widget back() {
     return appTooltip(
       message: 'Back',
       child: TextButton(
+        key: appKey(AppKeyEnum.appBack),
         onPressed: () {
           appLogAppKey(AppKeyEnum.appBack);
           Navigator.pop(context);
@@ -388,5 +391,5 @@ class AppWidget {
   }
 
   ///  should be set on every build!
-  late BuildContext context;
+  final BuildContext context;
 }

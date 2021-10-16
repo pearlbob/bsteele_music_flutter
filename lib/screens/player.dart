@@ -99,7 +99,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     //  as leader, distribute current location
     scrollController.addListener(() {
-      logger.d('scrollController listener: ${scrollController}');
+      logger.d('scrollController listener: $scrollController');
       if (songUpdateService.isLeader) {
         var sectionTarget = sectionIndexAtScrollOffset();
         if (sectionTarget != null) {
@@ -185,6 +185,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void positionAfterBuild() {
+    logger.d('positionAfterBuild():');
     if (_songUpdate != null && isPlaying) {
       logger.d('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
       scrollToSectionByMoment(_songUpdate!.songMoment);
@@ -234,8 +235,10 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    appWidgetHelper = AppWidgetHelper(context);
     Song song = widget._song; //  default only
+
+    logger.d('player build:');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -248,10 +251,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       }
       setSelectedSongKey(_songUpdate!.currentKey);
     }
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      // executes after build
-      positionAfterBuild();
-    });
 
     displayKeyOffset = app.displayKeyOffset;
 
@@ -266,6 +265,10 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       screenOffset = _centerSelections ? boxCenterHeight() : 0;
       sectionLocations.clear(); //  clear any previous song cached data
       logger.d('_table clear: index: $sectionIndex');
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        // executes after build
+        positionAfterBuild();
+      });
     }
 
     {
@@ -415,7 +418,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
-      appBar: appWidget.backBar(
+      appBar: appWidgetHelper.backBar(
         titleWidget: appTooltip(
           message: 'Click to hear the song on youtube.com',
           child: InkWell(
@@ -576,6 +579,7 @@ With escape, the app goes back to the play list.''',
                                     appTooltip(
                                       message: 'Edit the song',
                                       child: TextButton.icon(
+                                        key: appKey(AppKeyEnum.playerEdit),
                                         style: TextButton.styleFrom(
                                           padding: const EdgeInsets.all(8),
                                           primary: Colors.white, //  fixme:
@@ -587,6 +591,7 @@ With escape, the app goes back to the play list.''',
                                         ),
                                         label: const Text(''),
                                         onPressed: () {
+                                          appLogAppKey(AppKeyEnum.playerEdit);
                                           navigateToEdit(context, song);
                                         },
                                       ),
@@ -1230,7 +1235,7 @@ With escape, the app goes back to the play list.''',
   static const _maxFontSizeFraction = 0.035;
   static const _sectionCenterLocationFraction = 0.35;
 
-  final AppWidget appWidget = AppWidget();
+  late AppWidgetHelper appWidgetHelper;
 
   static final appOptions = AppOptions();
   final SongUpdateService songUpdateService = SongUpdateService();

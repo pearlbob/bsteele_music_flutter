@@ -56,14 +56,14 @@ class _Options extends State<Options> {
 
   @override
   Widget build(BuildContext context) {
-    appWidget.context = context; //	required on every build
+    appWidgetHelper = AppWidgetHelper(context);
 
     logger.v('options build: ${_songUpdateService.isConnected}');
     var style = generateAppTextStyle();
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidget.backBar(title: 'bsteele Music App Options'),
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Options'),
       body: DefaultTextStyle(
         //  fixme: necessary?
         style: style,
@@ -438,7 +438,7 @@ class _Options extends State<Options> {
           ),
         ),
       ),
-      floatingActionButton: appWidget.floatingBack(AppKeyEnum.optionsBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.optionsBack),
     );
   }
 
@@ -602,7 +602,7 @@ class _Options extends State<Options> {
   // final List<Pitch> _pitches = Pitch.flats;
   // static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
 
-  final AppWidget appWidget = AppWidget();
+  late AppWidgetHelper appWidgetHelper;
 
   Timer? _timer;
 

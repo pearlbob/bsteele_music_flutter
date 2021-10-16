@@ -65,6 +65,7 @@
 
 .icon {
     color: deeppink; /* type is Color, icon foreground color */
+    background-color: green; /* type is Color, icon bar background color */
     size: 3.25vw;
 }
 
@@ -76,6 +77,7 @@
 .chordNote {
     /*  assumes the background color will come from the section */
     color: #dd1144;
+    font-size: 18px; /*    app will dynamically override any font size specification */
     font-weight: bolder;
     font-style: normal;
 }
@@ -166,5 +168,5 @@
 }
 
 .docs {
-    font-size: 24px;    /*  font size for the in app documentation  */
+    font-size: 16px;    /*  font size for the in app documentation  */
 }

@@ -1,7 +1,13 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/chordSection.dart';
+import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
+import 'package:bsteeleMusicLib/songs/scaleChord.dart';
+import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:csslib/parser.dart' as parser;
 import 'package:csslib/visitor.dart' as visitor;
@@ -9,6 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import '../main.dart';
 import 'app.dart';
 
 const Level _cssLog = Level.debug;
@@ -482,10 +489,22 @@ enum AppKeyEnum {
   editBack,
   editBPM,
   editCancelChordModification,
+  editChordDataPoint,
+  editAddChordRow,
+  editChordPlusInsert,
+  editChordPlusAppend,
+  editChordSectionAccept,
+  editChordSectionAcceptAndAdd,
+  editChordSectionCancel,
+  editChordSectionDelete,
+  editChordSectionLocation,
   editClearSong,
   editCopyright,
   editCoverArtist,
   editDeleteChordMeasure,
+  editDeleteLyricsSection,
+  editRepeatCancel,
+  editDeleteRepeat,
   editDominant7Chord,
   editEditKeyDropdown,
   editEnterSong,
@@ -493,8 +512,10 @@ enum AppKeyEnum {
   editImportLyrics,
   editMajorChord,
   editMinorChord,
+  editMusicKey,
   editNewChordSection,
   editRedo,
+  editRepeat,
   editRepeatX2,
   editRepeatX3,
   editRepeatX4,
@@ -503,6 +524,7 @@ enum AppKeyEnum {
   editScreenDetail,
   editSilentChord,
   editSingleChildScrollView,
+  editEditTimeSignature,
   editEditTimeSignatureDropdown,
   editTitle,
   editUndo,
@@ -517,6 +539,10 @@ enum AppKeyEnum {
   listsSaveSelected,
   listsSearchText,
   listsValueText,
+  lyricsEntryLineAdd,
+  lyricsEntryLineDelete,
+  lyricsEntryLineDown,
+  lyricsEntryLineUp,
   mainClearSearch,
   mainDrawerAbout,
   mainDrawerCssDemo,
@@ -528,6 +554,8 @@ enum AppKeyEnum {
   mainDrawerTheory,
   mainHamburger,
   mainSearchText,
+  mainSong,
+  mainSortTypeSelection,
   mainUp,
   optionsBack,
   optionsFullScreen,
@@ -548,11 +576,13 @@ enum AppKeyEnum {
   optionsWebsocketNone,
   optionsWebsocketPark,
   playerBack,
+  playerBPM,
   playerCapo,
   playerEdit,
   playerFloatingPlay,
   playerFloatingStop,
   playerFloatingTop,
+  playerMusicKey,
   playerPlay,
   privacyBack,
   songsBack,
@@ -564,8 +594,68 @@ enum AppKeyEnum {
   theoryRoot,
 }
 
-Key appKey(AppKeyEnum e) {
-  return ValueKey<AppKeyEnum>(e);
+Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
+  AppKeyEnum.editAddChordRow: ChordSectionLocation,
+  AppKeyEnum.editChordPlusInsert: ChordSectionLocation,
+  AppKeyEnum.editChordPlusAppend: ChordSectionLocation,
+  AppKeyEnum.editChordDataPoint: ChordSectionLocation,
+  AppKeyEnum.editChordSectionAccept: ChordSection,
+  AppKeyEnum.editChordSectionAcceptAndAdd: ChordSection,
+  AppKeyEnum.editChordSectionCancel: ChordSection,
+  AppKeyEnum.editChordSectionDelete: ChordSection,
+  AppKeyEnum.editChordSectionLocation: ChordSectionLocation,
+  AppKeyEnum.editRepeatCancel: ChordSectionLocation,
+  AppKeyEnum.editDeleteRepeat: ChordSectionLocation,
+  AppKeyEnum.editRepeat: ChordSectionLocation,
+  AppKeyEnum.editRepeatX2: ChordSectionLocation,
+  AppKeyEnum.editRepeatX3: ChordSectionLocation,
+  AppKeyEnum.editRepeatX4: ChordSectionLocation,
+  AppKeyEnum.editMusicKey: music_key.Key,
+  AppKeyEnum.editScaleChord: ScaleChord,
+  AppKeyEnum.editScaleNote: ScaleNote,
+  AppKeyEnum.editEditTimeSignature: TimeSignature,
+  AppKeyEnum.lyricsEntryLineAdd: int,
+  AppKeyEnum.lyricsEntryLineDelete: int,
+  AppKeyEnum.lyricsEntryLineDown: int,
+  AppKeyEnum.lyricsEntryLineUp: int,
+  AppKeyEnum.mainSearchText: String,
+  AppKeyEnum.mainSong: Id,
+  AppKeyEnum.mainSortTypeSelection: MainSortType,
+  AppKeyEnum.playerBPM: int,
+  AppKeyEnum.playerMusicKey: music_key.Key,
+};
+
+class Id {
+  Id(this.id);
+
+  @override
+  String toString() {
+    return id;
+  }
+
+  String id;
+}
+
+typedef AppKey = ValueKey<String>;
+
+AppKey appKey(AppKeyEnum e, {dynamic value}) {
+  var type = appKeyEnumTypeMap[e];
+  switch (type) {
+    case null:
+      if (value != null) {
+        logger.i('not null here:');
+      }
+      assert(value == null);
+      return ValueKey<String>(e.name);
+    case String:
+      return ValueKey<String>(e.name);
+    default:
+      if (value.runtimeType != type) {
+        logger.i('not same type here:');
+      }
+      assert(value.runtimeType == type);
+      return ValueKey<String>('${e.name}.${value.toString()}');
+  }
 }
 
 class CssColor extends Color {
@@ -792,15 +882,8 @@ List<String> appLog() {
   return _appLog;
 }
 
-void appLogKeyCallback(Key? key) {
-  assert(key != null);
-  if (key is ValueKey<AppKeyEnum>) {
-    _appLog.add(key.value.toString());
-  } else if (key is ValueKey) {
-    _appLog.add('${key.value.runtimeType}.${key.value}');
-  } else {
-    _appLog.add('${key.runtimeType}.$key');
-  }
+void appLogKeyCallback(ValueKey<String> key) {
+  _appLog.add(key.value);
 }
 
 typedef KeyCallback = void Function();
@@ -823,15 +906,14 @@ ElevatedButton appEnumeratedButton(
 
 ElevatedButton appButton(
   String commandName, {
-  AppKeyEnum? appKeyEnum,
-  Key? key,
+  required AppKeyEnum appKeyEnum,
   required VoidCallback onPressed,
   Color? backgroundColor,
   double? fontSize,
+  dynamic value,
 }) {
   fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
-  assert(key != null || appKeyEnum != null); //  require at least either a key or app key
-  key ??= appKey(appKeyEnum!);
+  var key = appKey(appKeyEnum, value: value);
 
   return ElevatedButton(
     key: key,
@@ -848,31 +930,23 @@ ElevatedButton appButton(
 }
 
 InkWell appInkWell({
-  Key? key,
+  required AppKeyEnum appKeyEnum,
   Color? backgroundColor,
   double? fontSize,
   GestureTapCallback? onTap,
   Widget? child,
-  AppKeyEnum? appKeyEnum, // overrides key
-  KeyCallback? keyCallback, // overrides onPressed(), requires key
+  KeyCallback? keyCallback,
+  dynamic value, // overrides onPressed(), requires key
 }) {
   fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
-
-  //  need one form of key or the other
-  assert(key != null || appKeyEnum != null);
 
   //  some form of callback is required, but not two!
   assert((keyCallback != null && onTap == null) || (keyCallback == null && onTap != null));
 
-  //  form a key from the enumerated types
-  if (appKeyEnum != null) {
-    assert(key == null);
-    key = appKey(appKeyEnum);
-  }
+  var key = appKey(appKeyEnum, value: value);
 
   //  supply an on pressed callback with key, if asked
   if (keyCallback != null) {
-    assert(key != null);
     onTap = () {
       appLogKeyCallback(key);
       keyCallback();
@@ -925,18 +999,12 @@ TextButton appIconButton({
 }
 
 DropdownMenuItem<T> appDropdownMenuItem<T>({
-  Key? key,
-  AppKeyEnum? appKeyEnum, // overrides key
+  required AppKeyEnum appKeyEnum,
   KeyCallback? keyCallback,
   T? value,
   required Widget child,
 }) {
-  //  form app key enum key
-  if (appKeyEnum != null) {
-    assert(key == null);
-    key = appKey(appKeyEnum);
-  }
-  assert(key != null);
+  var key = appKey(appKeyEnum, value: value);
 
   return DropdownMenuItem<T>(
       key: key,

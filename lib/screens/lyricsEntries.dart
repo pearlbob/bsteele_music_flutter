@@ -18,8 +18,7 @@ class LyricsEntries extends ChangeNotifier {
     _focusLyricSection = null;
   }
 
-  LyricsEntries.fromSong(this._song,
-      {OnLyricsLineChangedCallback? onLyricsLineChangedCallback, TextStyle? textStyle})
+  LyricsEntries.fromSong(this._song, {OnLyricsLineChangedCallback? onLyricsLineChangedCallback, TextStyle? textStyle})
       : _onLyricsLineChangedCallback = onLyricsLineChangedCallback,
         _textStyle = textStyle {
     _focusLyricSection = null;
@@ -286,14 +285,6 @@ class _LyricsDataEntry {
     }
     return false;
   }
-
-  Key keyForLine(int line, String id) {
-    return ValueKey('lyrics_$lyricSection:$line:$id');
-  }
-
-  Key get key => ValueKey('lyrics_$lyricSection');
-
-  Key get deleteKey => ValueKey('lyrics_delete_$lyricSection');
 
   @override
   String toString() {

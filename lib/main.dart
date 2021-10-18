@@ -260,7 +260,7 @@ SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 const _searchTextTooltipText = 'Enter search text here.\n Title, artist and cover artist will be searched.';
 
 /// Song list sort types
-enum _SortType {
+enum MainSortType {
   byTitle,
   byArtist,
   byLastChange,
@@ -495,11 +495,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
-    for (final e in _SortType.values) {
+    for (final e in MainSortType.values) {
       var s = e.toString();
-      // logger.i('$e: \'${Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1))}\'');
-      _sortTypesDropDownMenuList.add(appDropdownMenuItem<_SortType>(
-        key: ValueKey(e),
+      _sortTypesDropDownMenuList.add(appDropdownMenuItem<MainSortType>(
+        appKeyEnum: AppKeyEnum.mainSortTypeSelection,
         value: e,
         child: Text(
           Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
@@ -526,7 +525,7 @@ class _MyHomePageState extends State<MyHomePage> {
         oddEven = !oddEven;
         var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
         var oddEvenTextStyle = oddEven ? oddText : evenText;
-        var key = ValueKey<String>(song.songId.toString());
+        var key = appKey(AppKeyEnum.mainSong, value: Id(song.songId.toString()));
         logger.v('song.songId: ${song.songId}');
         listViewChildren.add(GestureDetector(
           key: key,
@@ -842,12 +841,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             appSpace(),
-            DropdownButton<_SortType>(
+            DropdownButton<MainSortType>(
               items: _sortTypesDropDownMenuList,
               onChanged: (value) {
                 if (_selectedSortType != value) {
                   setState(() {
-                    _selectedSortType = value ?? _SortType.byTitle;
+                    _selectedSortType = value ?? MainSortType.byTitle;
                     _searchSongs(_searchTextFieldController.text);
                   });
                 }
@@ -958,7 +957,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // select order
     int Function(Song key1, Song key2)? compare;
     switch (_selectedSortType) {
-      case _SortType.byArtist:
+      case MainSortType.byArtist:
         compare = (Song song1, Song song2) {
           var ret = song1.artist.compareTo(song2.artist);
           if (ret != 0) {
@@ -967,7 +966,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return song1.compareTo(song2);
         };
         break;
-      case _SortType.byLastChange:
+      case MainSortType.byLastChange:
         compare = (Song song1, Song song2) {
           var ret = -song1.lastModifiedTime.compareTo(song2.lastModifiedTime);
           if (ret != 0) {
@@ -976,7 +975,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return song1.compareTo(song2);
         };
         break;
-      case _SortType.byComplexity:
+      case MainSortType.byComplexity:
         compare = (Song song1, Song song2) {
           var ret = song1.getComplexity().compareTo(song2.getComplexity());
           if (ret != 0) {
@@ -985,7 +984,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return song1.compareTo(song2);
         };
         break;
-      case _SortType.byTitle:
+      case MainSortType.byTitle:
       default:
         compare = (Song song1, Song song2) {
           return song1.compareTo(song2);
@@ -1037,7 +1036,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
         _itemScrollController.jumpTo(index: _rollIndex);
       }
-    } else if (_filteredSongs.isNotEmpty && _selectedSortType == _SortType.byTitle) {
+    } else if (_filteredSongs.isNotEmpty && _selectedSortType == MainSortType.byTitle) {
       _rollUnfilteredSongs();
     }
   }
@@ -1176,8 +1175,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _reApplySearch();
   }
 
-  final List<DropdownMenuItem<_SortType>> _sortTypesDropDownMenuList = [];
-  var _selectedSortType = _SortType.byTitle;
+  final List<DropdownMenuItem<MainSortType>> _sortTypesDropDownMenuList = [];
+  var _selectedSortType = MainSortType.byTitle;
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode;

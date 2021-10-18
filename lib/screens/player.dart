@@ -319,7 +319,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         }
 
         keyDropDownMenuList.add(appDropdownMenuItem<music_key.Key>(
-            key: ValueKey<music_key.Key>(value),
+            appKeyEnum: AppKeyEnum.playerMusicKey,
             value: value,
             child: appWrap([
               SizedBox(
@@ -380,7 +380,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       for (var value in set) {
         bpmList.add(
           appDropdownMenuItem<int>(
-            key: ValueKey<int>(value),
+            appKeyEnum: AppKeyEnum.playerBPM,
             value: value,
             child: Text(
               value.toString().padLeft(3),

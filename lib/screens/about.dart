@@ -7,6 +7,7 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +33,7 @@ class _About extends State<About> with WidgetsBindingObserver {
 
     _readPackageInfo();
     _readUtcDate();
+    app.clearMessage();
   }
 
   @override
@@ -104,6 +106,8 @@ class _About extends State<About> with WidgetsBindingObserver {
                     onPressed: () {
                   writeDiagnosticLogFile();
                 }),
+                appSpace(),
+                app.messageTextWidget(),
               ]),
         ),
       ),
@@ -118,7 +122,7 @@ class _About extends State<About> with WidgetsBindingObserver {
     });
   }
 
-  void writeDiagnosticLogFile() {
+  void writeDiagnosticLogFile() async {
     String utcNow = Util.utcNow();
     StringBuffer sb = StringBuffer();
     sb.writeln('''{
@@ -127,8 +131,7 @@ class _About extends State<About> with WidgetsBindingObserver {
     "version": ${jsonEncode(_packageInfo.version)},
     "versionUtcDate": ${jsonEncode(_utcDateAsString ?? 'unknown')},
     "nowUtc": ${jsonEncode(utcNow)},
-    "log":
-    [''');
+    "log": [''');
 
     bool first = true;
     for (var s in appLog()) {
@@ -137,7 +140,7 @@ class _About extends State<About> with WidgetsBindingObserver {
       } else {
         sb.writeln(',');
       }
-      sb.write('    ');
+      sb.write('        ');
       sb.write(jsonEncode(s));
     }
     sb.write('''
@@ -147,6 +150,14 @@ class _About extends State<About> with WidgetsBindingObserver {
 ''');
     var fileName = 'bsteeleMusicAppLog_$utcNow.json';
     logger.i('$fileName:${sb.toString()}');
+    String message = await UtilWorkaround().writeFileContents(fileName, sb.toString(), fileType: 'log');
+    setState(() {
+      if (message.toLowerCase().contains('error')) {
+        app.errorMessage(message);
+      } else {
+        app.infoMessage(message);
+      }
+    });
   }
 
   void _readUtcDate() async {

@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 
 abstract class UtilWorkaround {
   /// Workaround to implement functionality that is not generic across all platforms at this point.
-  Future<String> writeFileContents(String fileName, String contents);
+  Future<String> writeFileContents(String fileName, String contents, {String? fileType});
 
   Future<void> songFilePick(BuildContext context);
 

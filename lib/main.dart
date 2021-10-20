@@ -282,7 +282,7 @@ class BSteeleMusicApp extends StatelessWidget {
     return ChangeNotifierProvider<AppOptions>(
         create: (_) => AppOptions(),
         builder: (context, _) => MaterialApp(
-          title: 'bsteele Music App',
+              title: 'bsteele Music App',
               theme: app.themeData,
               home: const MyHomePage(title: 'bsteele Music App'),
               navigatorObservers: [playerRouteObserver],
@@ -525,10 +525,10 @@ class _MyHomePageState extends State<MyHomePage> {
         oddEven = !oddEven;
         var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
         var oddEvenTextStyle = oddEven ? oddText : evenText;
-        var key = appKey(AppKeyEnum.mainSong, value: Id(song.songId.toString()));
         logger.v('song.songId: ${song.songId}');
-        listViewChildren.add(GestureDetector(
-          key: key,
+        listViewChildren.add(appGestureDetector(
+          appKeyEnum: AppKeyEnum.mainSong,
+          value: Id(song.songId.toString()),
           child: Container(
             color: oddEvenTitleTextStyle.backgroundColor,
             padding: const EdgeInsets.all(8.0),
@@ -573,7 +573,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ]),
           ),
           onTap: () {
-            appLogKeyCallback(key);
             _navigateToPlayer(context, song);
           },
         ));

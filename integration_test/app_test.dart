@@ -6,28 +6,37 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
+import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart' as bsteele_music_app;
+import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 List<String> _testCommands = [
-  "mainSearchText.2",
-  "mainSong.Song_12_Bar_Blues_by_All",
+  "mainSong.Song_25_or_6_to_4_by_Chicago",
   "playerEdit",
-  "editChordSectionLocation.V:0:1",
-  "editDominant7Chord",
-  "editAcceptChordModificationAndFinish",
-  // "editScaleNote.G",
-  // "editScaleChord.C5",
-  // "editMajorChord",
-  // "appBack",
-  // "appBack",
+  "editChordSectionLocation.I:0:3",
+  "editAcceptChordModificationAndStartNewRow",
+  //  //"mainSong.Song_Honky_Tonk_Women_by_Rolling_Stones_The",
+  //  "mainSearchText.2",
+  //  "mainSong.Song_12_Bar_Blues_by_All",
+  //  "playerEdit",
+  //  "editChordSectionLocation.V:0:1",
+  //  "editDominant7Chord",
+  //  // "editScaleNote.G",
+  //  // "editScaleChord.C5",
+  //   "editAcceptChordModificationAndFinish",
+  //  // "editMajorChord",
+  //  "appBack",
+  // // "appBack",
 
   // "mainSong.Song_25_or_6_to_4_by_Chicago",
   // "playerEdit",
@@ -93,8 +102,39 @@ void main() async {
         late Finder finder;
         String? text;
         switch (type) {
+          case ChordSection:
+            assert(parts.length >= 2);
+            finder = find.byKey(appKey(appKeyEnum!, value: ChordSection.parseString(parts[1], 4)), //  fixme!
+                skipOffstage: false);
+            break;
+          case ChordSectionLocation:
+            {
+              var chordSectionLocation = ChordSectionLocation.fromString(parts[1]);
+              if (chordSectionLocation == null) {
+                assert(false);
+              }
+              finder = find.byKey(appKey(appKeyEnum!, value: chordSectionLocation!));
+            }
+            break;
+          case Id:
+            assert(parts.length >= 2);
+            finder = find.byKey(appKey(appKeyEnum!, value: Id(parts[1])), skipOffstage: false);
+            break;
+          case int:
+            assert(parts.length >= 2);
+            finder = find.byKey(appKey(appKeyEnum!, value: int.parse(parts[1])), skipOffstage: false);
+            break;
+          case MainSortType:
+            assert(parts.length >= 2);
+            finder = find.byKey(appKey(appKeyEnum!, value: Util.enumFromString(parts[1], MainSortType.values)),
+                skipOffstage: false);
+            break;
+          case music_key.Key:
+            assert(parts.length >= 2);
+            finder = find.byKey(appKey(appKeyEnum!, value: music_key.Key.parseString(parts[1])), skipOffstage: false);
+            break;
           case null:
-            finder = find.byKey(ValueKey<String>(appKeyEnum!.name), skipOffstage: false);
+            finder = find.byKey(ValueKey<String>(Util.enumToString(appKeyEnum!)), skipOffstage: false);
             break;
           case ScaleChord:
             try {
@@ -112,23 +152,14 @@ void main() async {
               assert(false);
             }
             break;
-          case ChordSectionLocation:
-            {
-              var chordSectionLocation = ChordSectionLocation.fromString(parts[1]);
-              if (chordSectionLocation == null) {
-                assert(false);
-              }
-              finder = find.byKey(appKey(appKeyEnum!, value: chordSectionLocation!));
-            }
-            break;
           case String:
             assert(parts.length == 2);
             text = parts[1];
             finder = find.byKey(appKey(appKeyEnum!), skipOffstage: false);
             break;
-          case Id:
+          case TimeSignature:
             assert(parts.length >= 2);
-            finder = find.byKey(appKey(appKeyEnum!, value: Id(parts[1])), skipOffstage: false);
+            finder = find.byKey(appKey(appKeyEnum!, value: TimeSignature.parse(parts[1])), skipOffstage: false);
             break;
           default:
             logger.i('Unknown command: $cmd');
@@ -137,6 +168,14 @@ void main() async {
         }
 
         expect(finder, findsOneWidget);
+
+        // {
+        //   final scrollablePositionedList = find.byType(ScrollablePositionedList);
+        //   await tester.scrollUntilVisible(finder, 100
+        //       , scrollable: scrollablePositionedList
+        //   );
+        //   await tester.pump();
+        // }
 
         if (text != null) {
           //  input text values
@@ -151,6 +190,9 @@ void main() async {
           EnginePhase.sendSemanticsUpdate,
           const Duration(seconds: 5),
         );
+        //await Future.delayed(const Duration(seconds: 3));
+
+        //expect(find.text('hi'), findsNothing);
       }
 
       await Future.delayed(const Duration(seconds: 7));

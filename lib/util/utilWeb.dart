@@ -1,7 +1,6 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:convert';
-
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:typed_data';
@@ -18,7 +17,7 @@ import '../app/app.dart';
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {
   @override
-  Future<String> writeFileContents(String fileName, String contents) async {
+  Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
     //   web stuff
     Blob blob = Blob([contents], 'text/plain', 'native');
 
@@ -27,7 +26,7 @@ class UtilWeb implements UtilWorkaround {
     )
       ..setAttribute("download", fileName)
       ..click();
-    return 'file written: \'$fileName\'';
+    return '${fileType ?? ''} file written: \'$fileName\'';
   }
 
   @override

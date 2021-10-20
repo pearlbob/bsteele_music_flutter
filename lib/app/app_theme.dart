@@ -197,9 +197,9 @@ void _initButton() {
 
 //  tooltip
 final CssProperty _tooltipBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'tooltip', 'background-color', CssColor,
+    CssSelectorEnum.classSelector, 'tooltip', 'background-color', _CssColor,
     defaultValue: const Color(0xffdcedc8), description: 'tool tip background color');
-final CssProperty _tooltipColorProperty = CssProperty(CssSelectorEnum.classSelector, 'tooltip', 'color', CssColor,
+final CssProperty _tooltipColorProperty = CssProperty(CssSelectorEnum.classSelector, 'tooltip', 'color', _CssColor,
     defaultValue: Colors.black, description: 'tool tip foreground color');
 final CssProperty _tooltipFontSizeProperty = CssProperty(
     CssSelectorEnum.classSelector, 'tooltip', 'font-size', visitor.UnitTerm,
@@ -213,10 +213,10 @@ void _initTooltip() {
 }
 
 //  chord note
-final CssProperty _chordNoteColorProperty = CssProperty(CssSelectorEnum.classSelector, 'chordNote', 'color', CssColor,
+final CssProperty _chordNoteColorProperty = CssProperty(CssSelectorEnum.classSelector, 'chordNote', 'color', _CssColor,
     defaultValue: null, description: 'chord note foreground color');
 final CssProperty _chordNoteBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'chordNote', 'background-color', CssColor,
+    CssSelectorEnum.classSelector, 'chordNote', 'background-color', _CssColor,
     defaultValue: Colors.white, description: 'chord note background color');
 final CssProperty _chordNoteFontSizeProperty =
     CssProperty(CssSelectorEnum.classSelector, 'chordNote', 'font-size', visitor.UnitTerm,
@@ -247,10 +247,10 @@ void _initChord() {
 
 //  chord descriptor
 final CssProperty _chordDescriptorColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'chordDescriptor', 'color', CssColor,
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'color', _CssColor,
     defaultValue: Colors.black, description: 'chord descriptor foreground color');
 final CssProperty _chordDescriptorBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'chordDescriptor', 'background-color', CssColor,
+    CssSelectorEnum.classSelector, 'chordDescriptor', 'background-color', _CssColor,
     defaultValue: Colors.white, description: 'chord descriptor background color');
 final CssProperty _chordDescriptorFontSizeProperty = CssProperty(
     CssSelectorEnum.classSelector, 'chordDescriptor', 'font-size', visitor.UnitTerm,
@@ -273,10 +273,10 @@ void _initChordDescriptor() {
 
 //  slash note
 final CssProperty _chordSlashNoteColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'chordSlashNote', 'color', CssColor,
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'color', _CssColor,
     defaultValue: Colors.black, description: 'chord slash note foreground color');
 final CssProperty _chordSlashNoteBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'chordSlashNote', 'background-color', CssColor,
+    CssSelectorEnum.classSelector, 'chordSlashNote', 'background-color', _CssColor,
     defaultValue: Colors.white, description: 'chord slash note background color');
 final CssProperty _chordSlashNoteFontSizeProperty = CssProperty(
     CssSelectorEnum.classSelector, 'chordSlashNote', 'font-size', visitor.UnitTerm,
@@ -298,10 +298,10 @@ void _initSlashNote() {
 }
 
 //  lyrics
-final CssProperty _lyricsColorProperty = CssProperty(CssSelectorEnum.classSelector, 'lyrics', 'color', CssColor,
+final CssProperty _lyricsColorProperty = CssProperty(CssSelectorEnum.classSelector, 'lyrics', 'color', _CssColor,
     defaultValue: Colors.black, description: 'lyrics foreground color');
 final CssProperty _lyricsBackgroundColorProperty = CssProperty(
-    CssSelectorEnum.classSelector, 'lyrics', 'background-color', CssColor,
+    CssSelectorEnum.classSelector, 'lyrics', 'background-color', _CssColor,
     defaultValue: Colors.white, description: 'lyrics background color');
 final CssProperty _lyricsFontSizeProperty = CssProperty(
     CssSelectorEnum.classSelector, 'lyrics', 'font-size', visitor.UnitTerm,
@@ -346,12 +346,12 @@ const Color _preChorusColor = Color(0xffe8e8e8);
 const Color _tagColor = Color(0xffcee1f5);
 final _sectionColorProperty = CssProperty.fromCssClass(CssClassEnum.section, 'color', Color,
     defaultValue: null, description: 'Section foreground color');
-final _sectionBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.section, 'background-color', CssColor,
+final _sectionBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.section, 'background-color', _CssColor,
     defaultValue: Colors.white, description: 'Section background color');
 final _sectionIntroBackgroundProperty = CssProperty.fromCssClass(CssClassEnum.sectionIntro, 'background-color', Color,
     defaultValue: _introColor, description: 'Intro section background color');
 final _sectionVerseBackgroundProperty = CssProperty.fromCssClass(
-    CssClassEnum.sectionVerse, 'background-color', CssColor,
+    CssClassEnum.sectionVerse, 'background-color', _CssColor,
     defaultValue: _verseColor, description: 'Verse section background color');
 final _sectionPreChorusBackgroundProperty = CssProperty.fromCssClass(
     CssClassEnum.sectionPreChorus, 'background-color', Color,
@@ -462,10 +462,16 @@ EdgeInsetsGeometry? getMeasurePadding() {
   return w == null ? null : EdgeInsets.all(w);
 }
 
+/// Application keys to select all application actions. See [ appKey() ]
 enum AppKeyEnum {
+  ///  Return from the about screen
   aboutBack,
   aboutLog,
+
+  ///  Write the diagnostic file of application actions
   aboutWriteDiagnosticLogFile,
+
+  ///  Return to the screen's parent
   appBarBack,
   appBack, //  screen pop
   cssDemoBack,
@@ -491,6 +497,7 @@ enum AppKeyEnum {
   editCancelChordModification,
   editChordDataPoint,
   editAddChordRow,
+  editAddChordRowRepeat,
   editChordPlusInsert,
   editChordPlusAppend,
   editChordSectionAccept,
@@ -596,6 +603,7 @@ enum AppKeyEnum {
 
 Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.editAddChordRow: ChordSectionLocation,
+  AppKeyEnum.editAddChordRowRepeat: ChordSectionLocation,
   AppKeyEnum.editChordPlusInsert: ChordSectionLocation,
   AppKeyEnum.editChordPlusAppend: ChordSectionLocation,
   AppKeyEnum.editChordDataPoint: ChordSectionLocation,
@@ -638,6 +646,7 @@ class Id {
 
 typedef AppKey = ValueKey<String>;
 
+/// Generate an application key from the enumeration and an optional value
 AppKey appKey(AppKeyEnum e, {dynamic value}) {
   var type = appKeyEnumTypeMap[e];
   switch (type) {
@@ -658,14 +667,15 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
   }
 }
 
-class CssColor extends Color {
-  CssColor(int value) : super(0xFF000000 + value);
+class _CssColor extends Color {
+  _CssColor(int value) : super(0xFF000000 + value);
 
   String toCss() {
     return '#${(value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
   }
 }
 
+/// Icon widget with the application look
 Icon appIcon(IconData icon, {Key? key, Color? color, double? size}) {
   return Icon(icon,
       key: key,
@@ -699,6 +709,7 @@ class AppTheme {
     _initSections();
     _initDocs();
 
+    //  read the css file
     String cssAsString = await loadString('lib/assets/$css');
     List<parser.Message> errors = [];
     var stylesheet = parser.parse(cssAsString, errors: errors);
@@ -708,6 +719,8 @@ class AppTheme {
           ' to ${error.span?.end.line}:${error.span?.end.column})'
           ': ${error.message}');
     }
+
+    //  parse the style sheet
     for (var treeNode in stylesheet.topLevels) {
       if (treeNode is visitor.RuleSet) {
         if (treeNode.selectorGroup != null) {
@@ -761,10 +774,10 @@ class AppTheme {
                               t.characterAt(2);
                           int i = int.parse(s.toString(), radix: 16);
                           var name = selector.simpleSelector.name;
-                          applyAction(cssSelector, name, property, CssColor(i), rawValue: hexColorTerm.span?.text);
+                          applyAction(cssSelector, name, property, _CssColor(i), rawValue: hexColorTerm.span?.text);
                         } else if (hexColorTerm.value is int) {
                           int i = hexColorTerm.value;
-                          applyAction(cssSelector, selector.simpleSelector.name, property, CssColor(i),
+                          applyAction(cssSelector, selector.simpleSelector.name, property, _CssColor(i),
                               rawValue: hexColorTerm.span?.text);
                         } else {
                           logger.e('Not understood: HexColorTerm: '
@@ -1040,7 +1053,7 @@ FloatingActionButton appFloatingActionButton({
 }
 
 void appTextFieldListener(AppKeyEnum appKeyEnum, TextEditingController controller) {
-  logger.i('appLogListener( $appKeyEnum:\'${controller.text}\':${controller.selection} )');
+  logger.d('appLogListener( $appKeyEnum:\'${controller.text}\':${controller.selection} )');
 }
 
 ListTile appListTile({required AppKeyEnum appKeyEnum, required Widget title, required GestureTapCallback onTap}) {
@@ -1063,6 +1076,38 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
     onChanged: (value) {
       appLogKeyCallback(key);
       onChanged(value);
+    },
+  );
+}
+
+TextField appTextField({
+  required AppKeyEnum appKeyEnum,
+  TextEditingController? controller,
+  String? hintText,
+  double? fontSize,
+}) {
+  return TextField(
+    key: appKey(appKeyEnum),
+    controller: controller,
+    decoration: InputDecoration(
+      hintText: hintText,
+    ),
+    style: generateAppTextFieldStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+    maxLength: null,
+  );
+}
+
+GestureDetector appGestureDetector(
+    {required AppKeyEnum appKeyEnum, dynamic value, Widget? child, GestureTapCallback? onTap}) {
+  var key = appKey(appKeyEnum, value: value);
+  return GestureDetector(
+    key: key,
+    child: child,
+    onTap: () {
+      appLogKeyCallback(key);
+      if (onTap != null) {
+        onTap();
+      }
     },
   );
 }
@@ -1428,7 +1473,7 @@ String _documentCssProperties(final Iterable<CssProperty>? properties) {
 
     String valueString = value.toString();
     switch (value.runtimeType) {
-      case CssColor:
+      case _CssColor:
         valueString = value.toCss();
         break;
     }

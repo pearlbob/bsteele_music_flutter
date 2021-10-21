@@ -526,6 +526,8 @@ enum AppKeyEnum {
   editRepeatX2,
   editRepeatX3,
   editRepeatX4,
+  editRowJoin,
+  editRowSplit,
   editScaleChord,
   editScaleNote,
   editScreenDetail,

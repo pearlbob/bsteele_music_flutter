@@ -13,6 +13,7 @@ import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/phrase.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
@@ -2007,13 +2008,22 @@ class _Edit extends State<Edit> {
   }
 
   Widget measureEditGridDisplayWidget(_EditDataPoint editDataPoint) {
-    MeasureNode? measureNode = song.findMeasureNodeByLocation(editDataPoint.location);
-    if (measureNode == null) {
-      return const Text('null');
-    }
     Measure? measure;
-    if (measureNode.getMeasureNodeType() == MeasureNodeType.measure) {
-      measure = measureNode.transposeToKey(key) as Measure;
+    Phrase? phrase;
+    {
+      MeasureNode? measureNode = song.findMeasureNodeByLocation(editDataPoint.location);
+      if (measureNode == null) {
+        return const Text('null');
+      }
+
+      if (measureNode.getMeasureNodeType() == MeasureNodeType.measure) {
+        measure = measureNode.transposeToKey(key) as Measure;
+      }
+
+      measureNode = song.findMeasureNodeByLocation(editDataPoint.location.asPhrase());
+      if (measureNode != null) {
+        phrase = measureNode as Phrase;
+      }
     }
 
     Color sectionColor = getBackgroundColorForSection(editDataPoint.location.sectionVersion?.section);
@@ -2308,6 +2318,44 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                     ),
+                    if (measure != null &&
+                        measure.endOfRow &&
+                        phrase != null &&
+                        editDataPoint.location.measureIndex != phrase.length - 1)
+                      appTooltip(
+                        message: 'Join the row with the row below',
+                        child: appButton(
+                          'Join',
+                          appKeyEnum: AppKeyEnum.editRowJoin,
+                          onPressed: () {
+                            setState(() {
+                              song.setCurrentChordSectionLocation(editDataPoint.location);
+                              song.setCurrentChordSectionLocationMeasureEndOfRow(false);
+                              undoStackPushIfDifferent();
+                            });
+                          },
+                          fontSize: _defaultChordFontSize,
+                        ),
+                      ),
+                    if (measure != null &&
+                        !measure.endOfRow &&
+                        phrase != null &&
+                        editDataPoint.location.measureIndex != phrase.length - 1)
+                      appTooltip(
+                        message: 'Add new chord row after this measure',
+                        child: appButton(
+                          'Split',
+                          appKeyEnum: AppKeyEnum.editRowSplit,
+                          onPressed: () {
+                            setState(() {
+                              song.setCurrentChordSectionLocation(editDataPoint.location);
+                              song.setCurrentChordSectionLocationMeasureEndOfRow(true);
+                              undoStackPushIfDifferent();
+                            });
+                          },
+                          fontSize: _defaultChordFontSize,
+                        ),
+                      ),
                   ],
                 ),
                 Row(

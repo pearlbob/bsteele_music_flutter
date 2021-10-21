@@ -69,7 +69,6 @@ library main;
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -95,6 +94,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:universal_io/io.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'app/app.dart';
@@ -121,7 +121,6 @@ void main() async {
 }
 
 /*
-//  fixme: title on player, always
 //  fixme: edit: delete section
 //  fixme: edit: measure entry should allow section header declarations
 //  fixme: verify in studio:  let it be in C, cramped on HDMI on mac,

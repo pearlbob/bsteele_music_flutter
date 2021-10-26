@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
@@ -317,15 +318,15 @@ class AppWidgetHelper {
     );
   }
 
-  Widget transpose(Measure measure, music_key.Key key, int halfSteps, {TextStyle? style}) {
-    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style?.fontSize).copyWith(
+  Widget transpose(Measure measure, music_key.Key key, int halfSteps, {required TextStyle style}) {
+    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize).copyWith(
       // fontFamily: 'Roboto', //  fixme
-      backgroundColor: style?.backgroundColor,
+      backgroundColor: style.backgroundColor,
     );
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-      fontSize: 0.8 * (style?.fontSize ?? _defaultFontSize),
+      fontSize: 0.8 * (style.fontSize ?? _defaultFontSize),
     ).copyWith(
-      backgroundColor: style?.backgroundColor,
+      backgroundColor: style.backgroundColor,
     );
 
     if (measure.chords.isNotEmpty) {
@@ -381,8 +382,22 @@ class AppWidgetHelper {
     }
 
     //  no chord measures such as repeats, repeat markers and comments
-    return Text(
+    return _text(
       measure.toString(),
+      style,
+    );
+  }
+
+  Widget chordSection(ChordSection chordSection, {required TextStyle style}) {
+    return _text(
+      chordSection.sectionVersion.toString(),
+      style,
+    );
+  }
+
+  Widget _text(String text, TextStyle style) {
+    return Text(
+      text,
       style: style,
       softWrap: false,
       maxLines: 1,

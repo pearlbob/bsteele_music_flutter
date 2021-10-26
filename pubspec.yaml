@@ -15,12 +15,12 @@ publish_to: none
 version: 0.0.2+beta
 
 environment:
-  sdk: ^2.15.0-233.0.dev
+  sdk: ^2.15.0-250.0.dev
 
 dependencies:
   flutter:
     sdk: flutter
-  filesystem_picker: ^2.0.0-nullsafety.0
+  filesystem_picker:
   logger:
   package_info_plus:
   shared_preferences:
@@ -28,7 +28,7 @@ dependencies:
   intl:
   path_provider:
   flutter_markdown:
-  scrollable_positioned_list: ^0.2.0-nullsafety.0
+  scrollable_positioned_list:
   web_socket_channel:
   enum_to_string:
   csslib:

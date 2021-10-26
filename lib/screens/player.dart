@@ -191,11 +191,12 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       scrollToSectionByMoment(_songUpdate!.songMoment);
     }
 
-    //  look at the rendered table size
-    if (chordFontSize == null) {
-      RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-      if (renderObject != null && renderObject is RenderTable) {
-        RenderTable renderTable = renderObject;
+    //  look at the rendered table size, resize if required
+    RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+    assert(renderObject != null && renderObject is RenderTable);
+    if (renderObject != null && renderObject is RenderTable) {
+      RenderTable renderTable = renderObject;
+      if (chordFontSize == null) {
         var length = renderTable.size.width;
         if (length > 0 && lyricsTable.chordFontSize != null) {
           var lastChordFontSize = chordFontSize ?? 0;
@@ -226,10 +227,24 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
           }
         }
+      } else {
+        //  table is final size
+        logger.i('_chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
+            ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+
+        //  for (var r = 0; r < renderTable.rows; r++) {
+        //    var row = renderTable.row(r);
+        //    for (var c = 0; c < row.length; c++) {
+        //      var renderBox = row.elementAt(c);
+        //      logger.i('($r,$c): size: ${renderBox.size} loc: ${renderBox.localToGlobal(Offset.zero)}');
+        //    }
+        //  }
+        //  logger.i('renderTable.paintBounds: ${renderTable.paintBounds}');
+        // for ( var rowLocation in  lyricsTable.lyricSectionRowLocations )
+        //   {
+        //     logger.i('rowLocation: $rowLocation');
+        //   }
       }
-    } else {
-      logger.d('_chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
-          ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
     }
   }
 
@@ -260,7 +275,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
       table = lyricsTable.lyricsTable(song, context,
-          musicKey: displaySongKey, expandRepeats: !appOptions.compressRepeats, chordFontSize: chordFontSize);
+          musicKey: displaySongKey, expanded: !appOptions.compressRepeats, chordFontSize: chordFontSize);
       lyricSectionRowLocations = lyricsTable.lyricSectionRowLocations;
       screenOffset = _centerSelections ? boxCenterHeight() : 0;
       sectionLocations.clear(); //  clear any previous song cached data
@@ -399,10 +414,9 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     final hoverColor = Colors.blue[700]; //  fixme with css
     const Color blue300 = Color(0xFF64B5F6); //  fixme with css
-    final showTopOfDisplay = !isPlaying || _songUpdate?.momentNumber == 0 || _lastSongUpdate?.momentNumber == 0;
+
     logger.log(
         _playerLogScroll,
-        'showTopOfDisplay: $showTopOfDisplay,'
         ' sectionTarget: $sectionTarget, '
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}'
         //', scroll: ${scrollController.offset}'
@@ -504,7 +518,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       textDirection: TextDirection.ltr,
                       children: <Widget>[
-                        if (showTopOfDisplay)
                           Column(
                             children: <Widget>[
                               Container(
@@ -704,13 +717,9 @@ With escape, the app goes back to the play list.''',
                                       : '',
                                   style: headerTextStyle,
                                 ),
-                              ], alignment: WrapAlignment.spaceAround),
-                            ],
-                          )
-                        else
-                          SizedBox(
-                            height: screenOffset,
-                          ),
+                            ], alignment: WrapAlignment.spaceAround),
+                          ],
+                        ),
                         Center(
                           child: table ?? const Text('_table missing!'),
                         ),
@@ -718,10 +727,10 @@ With escape, the app goes back to the play list.''',
                           'Copyright: ${song.copyright}',
                           style: headerTextStyle,
                         ),
-                        Text(
-                          'Last edit by: ${song.user}',
-                          style: headerTextStyle,
-                        ),
+                        // Text(
+                        //   'Last edit by: ${song.user}',
+                        //   style: headerTextStyle,
+                        // ),
                         //  allow for scrolling to a relatively high box center
                         if (isPlaying)
                           SizedBox(

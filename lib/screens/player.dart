@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
@@ -18,6 +19,7 @@ import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -99,20 +101,36 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     //  as leader, distribute current location
     scrollController.addListener(() {
-      logger.d('scrollController listener: $scrollController');
-      if (songUpdateService.isLeader) {
-        var sectionTarget = sectionIndexAtScrollOffset();
-        if (sectionTarget != null) {
-          LyricSection? lyricSection = lyricSectionRowLocations[sectionTarget]?.lyricSection;
-          if (lyricSection != null) {
-            for (var songMoment in widget._song.songMoments) {
-              if (songMoment.lyricSection == lyricSection) {
-                leaderSongUpdate(songMoment.momentNumber);
-                break;
-              }
-            }
+      logger.d('scrollController listener: ${scrollController.offset}'
+          ', top: ${renderTableY0()}'
+          ', section: ${sectionIndexAtScrollOffset()}');
+
+      {
+        RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+        assert(renderObject != null && renderObject is RenderTable);
+        RenderTable renderTable = renderObject as RenderTable;
+
+        BoxHitTestResult result = BoxHitTestResult();
+        Offset position = Offset(20, boxCenter + scrollController.offset);
+        if (renderTable.hitTestChildren(result, position: position)) {
+          logger.d('hitTest $position: ${result.path.last}');
+          assert(songMomentLocations.isNotEmpty);
+          var offset =
+              songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
+          var songMoment = _song.songMoments[songMomentLocations.indexOf(offset)];
+          if (songMoment != selectedSongMoment) {
+            setState(() {
+              selectedSongMoment = songMoment;
+            });
           }
+          logger.d('hitTest $offset: index: ${songMomentLocations.indexOf(offset)}'
+              ': $selectedSongMoment');
         }
+      }
+
+      if (songUpdateService.isLeader) {
+        assert(selectedSongMoment != null);
+        leaderSongUpdate(selectedSongMoment?.momentNumber ?? 0);
       }
     });
   }
@@ -125,7 +143,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     WidgetsBinding.instance!.addObserver(this);
 
     displayKeyOffset = app.displayKeyOffset;
-    setSelectedSongKey(widget._song.key);
+    _song = widget._song;
+    setSelectedSongKey(_song.key);
 
     leaderSongUpdate(0);
 
@@ -185,9 +204,9 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void positionAfterBuild() {
-    logger.d('positionAfterBuild():');
+    logger.i('positionAfterBuild():');
     if (_songUpdate != null && isPlaying) {
-      logger.d('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
+      logger.i('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
       scrollToSectionByMoment(_songUpdate!.songMoment);
     }
 
@@ -228,9 +247,48 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
           }
         }
       } else {
-        //  table is final size
+        //  table is now final size
         logger.i('_chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
-            ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+            ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw'
+            ', table at: ${renderTable.localToGlobal(Offset.zero)}'
+            ', scroll: ${scrollController.offset}');
+
+        {
+          songMomentToGridList = lyricsTable.songMomentToGridList;
+
+          sectionLocations = [];
+          songMomentLocations = [];
+          sectionSongMoments = [];
+
+          LyricSection? lastLyricSection; //  starts as null
+          logger.i('scrollController.offset: ${scrollController.offset}');
+          for (var songMoment in _song.songMoments) {
+            GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
+            var renderBox = renderTable.row(coord.row).elementAt(coord.col);
+            var offset = renderBox.localToGlobal(Offset.zero);
+            var y = offset.dy;
+            songMomentLocations.add(offset);
+
+            if (lastLyricSection == songMoment.lyricSection) {
+              continue; //  not a new lyric section
+            }
+            lastLyricSection = songMoment.lyricSection;
+
+            sectionLocations.add(y);
+            sectionSongMoments.add(songMoment);
+            logger.i('${songMoment.momentNumber}: ${songMoment.lyricSection}, ${sectionLocations.last}'
+                // ', ${renderBox.paintBounds}'
+                ', coord: $coord'
+                ', global: ${renderBox.localToGlobal(Offset.zero)}');
+          }
+        }
+        // logger.log(_playerLogScroll, '_sectionLocations set: $sectionLocations');
+        for (int i = 1; i < sectionLocations.length; i++) {
+          logger.i('$i: ${sectionLocations[i] - sectionLocations[i - 1]}');
+        }
+        // for (int i = 0; i < songMomentLocations.length; i++) {
+        //   logger.i('moment $i: ${songMomentLocations[i]}');
+        // }
 
         //  for (var r = 0; r < renderTable.rows; r++) {
         //    var row = renderTable.row(r);
@@ -251,15 +309,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
-    Song song = widget._song; //  default only
+    _song = widget._song; //  default only
 
     logger.d('player build:');
 
     //  deal with song updates
     if (_songUpdate != null) {
-      if (!song.songBaseSameContent(_songUpdate!.song) || displayKeyOffset != app.displayKeyOffset) {
-        song = _songUpdate!.song;
-        widget._song = song;
+      if (!_song.songBaseSameContent(_songUpdate!.song) || displayKeyOffset != app.displayKeyOffset) {
+        _song = _songUpdate!.song;
+        widget._song = _song;
         table = null; //  force re-eval
         chordFontSize == null;
         performPlay();
@@ -274,10 +332,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
-      table = lyricsTable.lyricsTable(song, context,
+      table = lyricsTable.lyricsTable(_song, context,
           musicKey: displaySongKey, expanded: !appOptions.compressRepeats, chordFontSize: chordFontSize);
-      lyricSectionRowLocations = lyricsTable.lyricSectionRowLocations;
-      screenOffset = _centerSelections ? boxCenterHeight() : 0;
       sectionLocations.clear(); //  clear any previous song cached data
       logger.d('_table clear: index: $sectionIndex');
       WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -292,15 +348,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       //  lower pit on bottom
       const int steps = MusicConstants.halfStepsPerOctave;
       const int halfOctave = steps ~/ 2;
-      ScaleNote? firstScaleNote = song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
-      if (firstScaleNote != null && song.key.getKeyScaleNote() == firstScaleNote) {
+      ScaleNote? firstScaleNote = _song.getSongMoment(0)?.measure.chords[0].scaleChord.scaleNote;
+      if (firstScaleNote != null && _song.key.getKeyScaleNote() == firstScaleNote) {
         firstScaleNote = null; //  not needed
       }
       List<music_key.Key?> rolledKeyList = List.generate(steps, (i) {
         return null;
       });
 
-      List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(song.key); //temp loc
+      List<music_key.Key> list = music_key.Key.keysByHalfStepFrom(_song.key); //temp loc
       for (int i = 0; i <= halfOctave; i++) {
         rolledKeyList[i] = list[halfOctave - i];
       }
@@ -373,7 +429,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     List<DropdownMenuItem<int>> _bpmDropDownMenuList = [];
     {
-      final int bpm = song.beatsPerMinute;
+      final int bpm = _song.beatsPerMinute;
 
       //  assure entries are unique
       SplayTreeSet<int> set = SplayTreeSet();
@@ -408,7 +464,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       _bpmDropDownMenuList = bpmList;
     }
 
-    final double boxCenter = boxCenterHeight();
+    boxCenter = boxCenterHeight();
     final double boxHeight = boxCenter * 2;
     final double boxOffset = boxCenter;
 
@@ -417,7 +473,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     logger.log(
         _playerLogScroll,
-        ' sectionTarget: $sectionTarget, '
+        ' sectionTarget: $scrollTarget, '
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}'
         //', scroll: ${scrollController.offset}'
         );
@@ -440,7 +496,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               openLink(titleAnchor());
             },
             child: Text(
-              song.title,
+              _song.title,
               style: appBarTextStyle,
             ),
             hoverColor: hoverColor,
@@ -454,7 +510,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 openLink(artistAnchor());
               },
               child: Text(
-                ' by  ${song.artist}',
+                ' by  ${_song.artist}',
                 style: appBarTextStyle,
                 softWrap: false,
               ),
@@ -512,19 +568,27 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               child: SingleChildScrollView(
                 controller: scrollController,
                 scrollDirection: Axis.vertical,
-                child: SizedBox(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      textDirection: TextDirection.ltr,
-                      children: <Widget>[
-                          Column(
-                            children: <Widget>[
-                              Container(
-                                padding: const EdgeInsets.only(top: 16, right: 12),
-                                child: appWrapFullWidth([
-                                  appTooltip(
-                                    message: '''
+                child: Stack(
+                  children: [
+                    CustomPaint(
+                      painter: _highLightPainter,
+                      isComplex: true,
+                      willChange: false,
+                      child: const SizedBox(),
+                    ),
+                    SizedBox(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          textDirection: TextDirection.ltr,
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                Container(
+                                  padding: const EdgeInsets.only(top: 16, right: 12),
+                                  child: appWrapFullWidth([
+                                    appTooltip(
+                                      message: '''
 Space bar or clicking the song area starts "play" mode.
     First section is in the middle of the display.
     Display items on the top will be missing.
@@ -534,209 +598,210 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                    child: TextButton(
-                                      style: TextButton.styleFrom(
-                                        primary: _lightBlue, //  fixme
-                                        padding: const EdgeInsets.all(8),
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          primary: _lightBlue, //  fixme
+                                          padding: const EdgeInsets.all(8),
+                                        ),
+                                        child: Text(
+                                          'Hints',
+                                          style: headerTextStyle,
+                                        ),
+                                        onPressed: () {},
                                       ),
+                                    ),
+                                    if (showCapo)
+                                      appWrap(
+                                        [
+                                          appTooltip(
+                                            message: 'For a guitar, show the capo location and\n'
+                                                'chords to match the current key.',
+                                            child: Text(
+                                              'Capo',
+                                              style: headerTextStyle,
+                                              softWrap: false,
+                                            ),
+                                          ),
+                                          appSwitch(
+                                            appKeyEnum: AppKeyEnum.playerCapo,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                isCapo = !isCapo;
+                                                setSelectedSongKey(selectedSongKey);
+                                              });
+                                            },
+                                            value: isCapo,
+                                          ),
+                                          if (isCapo && capoLocation > 0)
+                                            Text(
+                                              'on $capoLocation',
+                                              style: headerTextStyle,
+                                              softWrap: false,
+                                            ),
+                                          if (isCapo && capoLocation == 0)
+                                            Text(
+                                              'no capo needed',
+                                              style: headerTextStyle,
+                                              softWrap: false,
+                                            ),
+                                        ],
+                                      ),
+                                    //  recommend blues harp
+                                    Text(
+                                      'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
+                                      style: headerTextStyle,
+                                      softWrap: false,
+                                    ),
+                                    if (app.isEditReady)
+                                      appTooltip(
+                                        message: 'Edit the song',
+                                        child: TextButton.icon(
+                                          key: appKey(AppKeyEnum.playerEdit),
+                                          style: TextButton.styleFrom(
+                                            padding: const EdgeInsets.all(8),
+                                            primary: Colors.white, //  fixme:
+                                            backgroundColor: Colors.blue,
+                                          ),
+                                          icon: appIcon(
+                                            Icons.edit,
+                                            color: Colors.white, //  fixme:
+                                          ),
+                                          label: const Text(''),
+                                          onPressed: () {
+                                            appLogAppKey(AppKeyEnum.playerEdit);
+                                            navigateToEdit(context, _song);
+                                          },
+                                        ),
+                                      ),
+                                  ], alignment: WrapAlignment.spaceBetween),
+                                ),
+                                appWrapFullWidth([
+                                  Container(
+                                    padding: const EdgeInsets.only(left: 8, right: 8),
+                                    child: appTooltip(
+                                      message: 'Tip: Use the space bar to start playing.\n'
+                                          'Use the space bar to advance the section while playing.',
+                                      child: appIconButton(
+                                        appKeyEnum: AppKeyEnum.playerPlay,
+                                        icon: appIcon(
+                                          playStopIcon,
+                                          color: Colors.green, //  fixme:
+                                          size: 2 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                        ),
+                                        onPressed: () {
+                                          isPlaying ? performStop() : performPlay();
+                                        },
+                                        style: TextButton.styleFrom(
+                                          primary: isPlaying ? Colors.red : Colors.green, //fixme:
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  appWrap([
+                                    appTooltip(
+                                      message: 'Transcribe the song to the selected key.',
                                       child: Text(
-                                        'Hints',
+                                        'Key: ',
+                                        style: headerTextStyle,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                    DropdownButton<music_key.Key>(
+                                      items: keyDropDownMenuList,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          if (value != null) {
+                                            setSelectedSongKey(value);
+                                            FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
+                                          }
+                                        });
+                                      },
+                                      value: selectedSongKey,
+                                      style: headerTextStyle,
+                                      iconSize: lookupIconSize(),
+                                      itemHeight: null,
+                                    ),
+                                    appSpace(
+                                      space: 5,
+                                    ),
+                                    if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
+                                      Text(
+                                        ' ($selectedSongKey' +
+                                            (displayKeyOffset > 0 ? '+$displayKeyOffset' : '') +
+                                            (isCapo && capoLocation > 0 ? '-$capoLocation' : '') //  indicate: "maps to"
+                                            +
+                                            '=$displaySongKey)',
                                         style: headerTextStyle,
                                       ),
-                                      onPressed: () {},
-                                    ),
-                                  ),
-                                  if (showCapo)
-                                    appWrap(
-                                      [
-                                        appTooltip(
-                                          message: 'For a guitar, show the capo location and\n'
-                                              'chords to match the current key.',
-                                          child: Text(
-                                            'Capo',
-                                            style: headerTextStyle,
-                                            softWrap: false,
-                                          ),
-                                        ),
-                                        appSwitch(
-                                          appKeyEnum: AppKeyEnum.playerCapo,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              isCapo = !isCapo;
-                                              setSelectedSongKey(selectedSongKey);
-                                            });
-                                          },
-                                          value: isCapo,
-                                        ),
-                                        if (isCapo && capoLocation > 0)
-                                          Text(
-                                            'on $capoLocation',
-                                            style: headerTextStyle,
-                                            softWrap: false,
-                                          ),
-                                        if (isCapo && capoLocation == 0)
-                                          Text(
-                                            'no capo needed',
-                                            style: headerTextStyle,
-                                            softWrap: false,
-                                          ),
-                                      ],
-                                    ),
-                                  //  recommend blues harp
-                                  Text(
-                                    'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
-                                    style: headerTextStyle,
-                                    softWrap: false,
-                                  ),
-                                  if (app.isEditReady)
+                                  ], alignment: WrapAlignment.spaceBetween),
+                                  appWrap([
                                     appTooltip(
-                                      message: 'Edit the song',
-                                      child: TextButton.icon(
-                                        key: appKey(AppKeyEnum.playerEdit),
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.all(8),
-                                          primary: Colors.white, //  fixme:
-                                          backgroundColor: Colors.blue,
-                                        ),
-                                        icon: appIcon(
-                                          Icons.edit,
-                                          color: Colors.white, //  fixme:
-                                        ),
-                                        label: const Text(''),
-                                        onPressed: () {
-                                          appLogAppKey(AppKeyEnum.playerEdit);
-                                          navigateToEdit(context, song);
+                                      message: 'Beats per minute',
+                                      child: Text(
+                                        'BPM: ',
+                                        style: headerTextStyle,
+                                      ),
+                                    ),
+                                    if (app.isScreenBig)
+                                      DropdownButton<int>(
+                                        items: _bpmDropDownMenuList,
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            setState(() {
+                                              _song.setBeatsPerMinute(value);
+                                            });
+                                          }
                                         },
+                                        value: _song.beatsPerMinute,
+                                        style: headerTextStyle,
+                                        iconSize: lookupIconSize(),
+                                        itemHeight: null,
+                                      )
+                                    else
+                                      Text(
+                                        _song.beatsPerMinute.toString(),
+                                        style: _lyricsTextStyle,
                                       ),
-                                    ),
-                                ], alignment: WrapAlignment.spaceBetween),
-                              ),
-                              appWrapFullWidth([
-                                Container(
-                                  padding: const EdgeInsets.only(left: 8, right: 8),
-                                  child: appTooltip(
-                                    message: 'Tip: Use the space bar to start playing.\n'
-                                        'Use the space bar to advance the section while playing.',
-                                    child: appIconButton(
-                                      appKeyEnum: AppKeyEnum.playerPlay,
-                                      icon: appIcon(
-                                        playStopIcon,
-                                        color: Colors.green, //  fixme:
-                                        size: 2 * app.screenInfo.fontSize, //  fixme: why is this required?
-                                      ),
-                                      onPressed: () {
-                                        isPlaying ? performStop() : performPlay();
-                                      },
-                                      style: TextButton.styleFrom(
-                                        primary: isPlaying ? Colors.red : Colors.green, //fixme:
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                appWrap([
+                                  ]),
                                   appTooltip(
-                                    message: 'Transcribe the song to the selected key.',
+                                    message: 'time signature',
                                     child: Text(
-                                      'Key: ',
+                                      '  Time: ${_song.timeSignature}',
                                       style: headerTextStyle,
                                       softWrap: false,
                                     ),
                                   ),
-                                  DropdownButton<music_key.Key>(
-                                    items: keyDropDownMenuList,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        if (value != null) {
-                                          setSelectedSongKey(value);
-                                          FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
-                                        }
-                                      });
-                                    },
-                                    value: selectedSongKey,
+                                  Text(
+                                    songUpdateService.isConnected
+                                        ? (songUpdateService.isLeader
+                                            ? 'I\'m the leader'
+                                            : (songUpdateService.leaderName == AppOptions.unknownUser
+                                                ? ''
+                                                : 'following ${songUpdateService.leaderName}'))
+                                        : '',
                                     style: headerTextStyle,
-                                    iconSize: lookupIconSize(),
-                                    itemHeight: null,
                                   ),
-                                  appSpace(
-                                    space: 5,
-                                  ),
-                                  if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
-                                    Text(
-                                      ' ($selectedSongKey' +
-                                          (displayKeyOffset > 0 ? '+$displayKeyOffset' : '') +
-                                          (isCapo && capoLocation > 0 ? '-$capoLocation' : '') //  indicate: "maps to"
-                                          +
-                                          '=$displaySongKey)',
-                                      style: headerTextStyle,
-                                    ),
-                                ], alignment: WrapAlignment.spaceBetween),
-                                appWrap([
-                                  appTooltip(
-                                    message: 'Beats per minute',
-                                    child: Text(
-                                      'BPM: ',
-                                      style: headerTextStyle,
-                                    ),
-                                  ),
-                                  if (app.isScreenBig)
-                                    DropdownButton<int>(
-                                      items: _bpmDropDownMenuList,
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          setState(() {
-                                            song.setBeatsPerMinute(value);
-                                          });
-                                        }
-                                      },
-                                      value: song.beatsPerMinute,
-                                      style: headerTextStyle,
-                                      iconSize: lookupIconSize(),
-                                      itemHeight: null,
-                                    )
-                                  else
-                                    Text(
-                                      song.beatsPerMinute.toString(),
-                                      style: _lyricsTextStyle,
-                                    ),
-                                ]),
-                                appTooltip(
-                                  message: 'time signature',
-                                  child: Text(
-                                    '  Time: ${song.timeSignature}',
-                                    style: headerTextStyle,
-                                    softWrap: false,
-                                  ),
-                                ),
-                                Text(
-                                  songUpdateService.isConnected
-                                      ? (songUpdateService.isLeader
-                                          ? 'I\'m the leader'
-                                          : (songUpdateService.leaderName == AppOptions.unknownUser
-                                              ? ''
-                                              : 'following ${songUpdateService.leaderName}'))
-                                      : '',
-                                  style: headerTextStyle,
-                                ),
-                            ], alignment: WrapAlignment.spaceAround),
-                          ],
-                        ),
-                        Center(
-                          child: table ?? const Text('_table missing!'),
-                        ),
-                        Text(
-                          'Copyright: ${song.copyright}',
-                          style: headerTextStyle,
-                        ),
-                        // Text(
-                        //   'Last edit by: ${song.user}',
-                        //   style: headerTextStyle,
-                        // ),
-                        //  allow for scrolling to a relatively high box center
-                        if (isPlaying)
-                          SizedBox(
-                            height: app.screenInfo.heightInLogicalPixels,
-                          ),
-                      ]),
+                                ], alignment: WrapAlignment.spaceAround),
+                              ],
+                            ),
+                            Center(
+                              child: table ?? const Text('_table missing!'),
+                            ),
+                            Text(
+                              'Copyright: ${_song.copyright}',
+                              style: headerTextStyle,
+                            ),
+                            // Text(
+                            //   'Last edit by: ${song.user}',
+                            //   style: headerTextStyle,
+                            // ),
+                            //  allow for scrolling to a relatively high box center
+                            SizedBox(
+                              height: app.screenInfo.heightInLogicalPixels - boxCenter,
+                            ),
+                          ]),
+                    ),
+                  ],
                 ),
               ),
               onTap: () {
@@ -861,12 +926,12 @@ With escape, the app goes back to the play list.''',
       } else if (isPlaying &&
           !isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
-        logger.d('arrowDown');
+        logger.i('arrowDown');
         sectionBump(1);
       } else if (isPlaying &&
           !isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
-        logger.d('arrowUp');
+        logger.i('arrowUp');
         sectionBump(-1);
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         if (isPlaying) {
@@ -889,64 +954,66 @@ With escape, the app goes back to the play list.''',
         );
   }
 
+  double renderTableY0() {
+    RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+    assert(renderObject != null && renderObject is RenderTable);
+    if (renderObject != null && renderObject is RenderTable) {
+      RenderTable renderTable = renderObject;
+      return renderTable.localToGlobal(Offset.zero).dy + scrollController.offset;
+    }
+    return 0;
+  }
+
+  RenderObject renderTableObjectAt(SongMoment songMoment) {
+    RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+    assert(renderObject != null && renderObject is RenderTable);
+    RenderTable renderTable = renderObject as RenderTable;
+
+    GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
+    return renderTable.row(coord.row).elementAt(coord.col);
+  }
+
   scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, 'scrollToSectionByMoment( $songMoment )');
     if (songMoment == null) {
       return;
     }
 
-    updateSectionLocations();
-
-    if (sectionLocations.isNotEmpty) {
-      sectionIndex = Util.limit(songMoment.lyricSection.index, 0, sectionLocations.length - 1) as int;
-      double target = sectionLocations[sectionIndex];
-      if (targetSection(target)) {
-        logger.log(_playerLogScroll,
-            '_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => $target');
-      }
+    if (songMomentLocations.isNotEmpty) {
+      selectedSongMoment = songMoment;
+      Offset offset = songMomentLocations[songMoment.momentNumber];
+      scrollToTarget(offset.dy);
+      logger.log(_playerLogScroll,
+          '_sectionByMomentNumber: $songMoment => section #${songMoment.lyricSection.index} => ${offset.dy}');
     }
   }
 
   /// bump from one section to the next
   sectionBump(int bump) {
-    if (lyricSectionRowLocations.isEmpty) {
-      sectionLocations.clear();
+    if (selectedSongMoment == null) {
+      assert(false);
       return;
     }
 
-    if (!scrollController.hasClients) {
-      return; //  safety during initial configuration
-    }
-
-    //  bump it by units of section
-    var index = sectionIndexAtScrollOffset();
-    if (index != null) {
-      index = Util.limit(index + bump, 0, sectionLocations.length - 1) as int;
-      scrollToSectionIndex(index);
-    }
+    scrollToSectionIndex(selectedSongMoment!.lyricSection.index + bump);
   }
 
   void scrollToSectionIndex(int index) {
-    updateSectionLocations();
-
-    sectionIndex = index;
-    var target = sectionLocations[index];
-
-    if (targetSection(target)) {
-      logger.log(
-          _playerLogScroll,
-          '_targetSectionIndex: $index ( $sectionTarget px)'
-          ', section: ${widget._song.lyricSections[index]}'
-          ', sectionIndex: $sectionIndex');
+    if (sectionSongMoments.isEmpty) {
+      assert(false);
+      return;
     }
+    index = Util.intLimit(index, 0, sectionSongMoments.length - 1);
+    sectionIndex = index;
+    scrollToSectionByMoment(sectionSongMoments[index]);
   }
 
-  bool targetSection(double target) {
-    if (sectionTarget != target) {
-      logger.d('sectionTarget != target, $sectionTarget != $target');
+  bool scrollToTarget(double target) {
+    if (scrollTarget != target) {
+      logger.log(_playerLogScroll, 'scrollTarget != target, $scrollTarget != $target');
       setState(() {
-        sectionTarget = target;
-        scrollController.animateTo(target, duration: const Duration(milliseconds: 550), curve: Curves.ease);
+        scrollTarget = target;
+        scrollController.animateTo(target - boxCenter, duration: const Duration(milliseconds: 550), curve: Curves.ease);
       });
       return true;
     }
@@ -954,104 +1021,116 @@ With escape, the app goes back to the play list.''',
   }
 
   int? sectionIndexAtScrollOffset() {
-    updateSectionLocations();
-
     if (sectionLocations.isNotEmpty) {
       //  find the best location for the current scroll position
-      var sortedLocations = sectionLocations.where((e) => e >= scrollController.offset).toList()
-        ..sort(); //  fixme: improve efficiency
-      if (sortedLocations.isNotEmpty) {
-        double target = sortedLocations.first;
-
-        //  bump it by units of section
-        return Util.limit(sectionLocations.indexOf(target), 0, sectionLocations.length - 1) as int;
+      double offset = scrollController.offset + boxCenter;
+      var index = 0;
+      double error = 10e10;
+      for (int i = 0; i < sectionLocations.length - 1; i++) {
+        double e = (sectionLocations[i] - offset).abs();
+        if (e < error) {
+          error = e;
+          index = i;
+        }
+        if (sectionLocations[i] >= offset) {
+          break;
+        }
       }
+
+      logger.d('sectionIndexAtScrollOffset(): scrollController: ${scrollController.offset}'
+          ', offset: $offset'
+          ', index: $index'
+          ', target: ${sectionLocations[index]}'
+          ' (${offset - sectionLocations[index]})');
+
+      //  bump it by units of section
+      return index;
     }
 
     return null;
   }
 
-  updateSectionLocations() {
-    logger.d('updateSectionLocations(): empty: ${sectionLocations.isEmpty}');
-
-    //  lazy update
-    if (scrollController.hasClients && sectionLocations.isEmpty && lyricSectionRowLocations.isNotEmpty) {
-      //  initialize the section locations... after the initial rendering
-      double? y0;
-      int sectionCount = -1; //  will never match the original, as intended
-
-      sectionLocations = [];
-      for (LyricSectionRowLocation? _rowLocation in lyricSectionRowLocations) {
-        if (_rowLocation == null) {
-          continue;
-        }
-        assert(sectionCount != _rowLocation.sectionCount);
-        if (sectionCount == _rowLocation.sectionCount) {
-          continue; //  same section, no entry
-        }
-        sectionCount = _rowLocation.sectionCount;
-
-        GlobalKey key = _rowLocation.key;
-        double y = scrollController.offset; //  safety
-        {
-          //  deal with possible missing render objects
-          var renderObject = key.currentContext?.findRenderObject();
-          if (renderObject != null && renderObject is RenderBox) {
-            y = renderObject.localToGlobal(Offset.zero).dy;
-          } else {
-            sectionLocations.clear();
-            return;
-          }
-        }
-        y0 ??= y; //  initialize y0 to first y
-        y -= y0;
-        sectionLocations.add(y);
-      }
-      logger.log(_playerLogScroll, 'raw _sectionLocations: $sectionLocations');
-
-      //  add half of the deltas to center each selection
-      {
-        List<double> tmp = [];
-        for (int i = 0; i < sectionLocations.length - 1; i++) {
-          if (_centerSelections) {
-            tmp.add((sectionLocations[i] + sectionLocations[i + 1]) / 2);
-          } else {
-            tmp.add(sectionLocations[i]);
-          }
-        }
-
-        //  average the last with the end of the last
-        GlobalKey key = lyricSectionRowLocations.last!.key;
-        double y = scrollController.offset; //  safety
-        {
-          //  deal with possible missing render objects
-          var renderObject = key.currentContext?.findRenderObject();
-          if (renderObject != null && renderObject is RenderBox) {
-            y = renderObject.size.height;
-          } else {
-            sectionLocations.clear();
-            return;
-          }
-        }
-        if (table != null && table?.key != null) {
-          var globalKey = table!.key as GlobalKey;
-          logger.log(
-              _playerLogScroll, '_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
-          var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
-          tmp.add((sectionLocations[sectionLocations.length - 1] + tableHeight) / 2);
-        }
-
-        //  not really required:
-        // if (tmp.isNotEmpty) {
-        //  tmp.first = 0; //  special for first song moment so it can show the header data
-        // }
-
-        sectionLocations = tmp;
-      }
-
-      logger.log(_playerLogScroll, '_sectionLocations: $sectionLocations');
-    }
-  }
+  // updateSectionLocations() {
+  //   logger.d('updateSectionLocations(): empty: ${sectionLocations.isEmpty}');
+  //
+  //   //  lazy update
+  //   if (scrollController.hasClients && sectionLocations.isEmpty && lyricSectionRowLocations.isNotEmpty) {
+  //     //  initialize the section locations... after the initial rendering
+  //     double? y0;
+  //     int sectionCount = -1; //  will never match the original, as intended
+  //
+  //     sectionLocations = [];
+  //     for (LyricSectionRowLocation? _rowLocation in lyricSectionRowLocations) {
+  //       if (_rowLocation == null) {
+  //         continue;
+  //       }
+  //       assert(sectionCount != _rowLocation.sectionCount);
+  //       if (sectionCount == _rowLocation.sectionCount) {
+  //         continue; //  same section, no entry
+  //       }
+  //       sectionCount = _rowLocation.sectionCount;
+  //
+  //       GlobalKey key = _rowLocation.key;
+  //       double y = scrollController.offset; //  safety
+  //       {
+  //         //  deal with possible missing render objects
+  //         var renderObject = key.currentContext?.findRenderObject();
+  //         if (renderObject != null && renderObject is RenderBox) {
+  //           y = renderObject.localToGlobal(Offset.zero).dy;
+  //         } else {
+  //           sectionLocations.clear();
+  //           return;
+  //         }
+  //       }
+  //       y0 ??= y; //  initialize y0 to first y
+  //       y -= y0;
+  //       sectionLocations.add(y);
+  //     }
+  //     logger.log(_playerLogScroll, 'raw _sectionLocations: $sectionLocations');
+  //
+  //     //  add half of the deltas to center each selection
+  //     {
+  //       List<double> tmp = [];
+  //       for (int i = 0; i < sectionLocations.length - 1; i++) {
+  //         if (_centerSelections) {
+  //           tmp.add((sectionLocations[i] + sectionLocations[i + 1]) / 2);
+  //         } else {
+  //           tmp.add(sectionLocations[i]);
+  //         }
+  //       }
+  //
+  //       //  average the last with the end of the last
+  //       GlobalKey key = lyricSectionRowLocations.last!.key;
+  //       double y = scrollController.offset; //  safety
+  //       {
+  //         //  deal with possible missing render objects
+  //         var renderObject = key.currentContext?.findRenderObject();
+  //         if (renderObject != null && renderObject is RenderBox) {
+  //           y = renderObject.size.height;
+  //         } else {
+  //           sectionLocations.clear();
+  //           return;
+  //         }
+  //       }
+  //       if (table != null && table?.key != null) {
+  //         var globalKey = table!.key as GlobalKey;
+  //         logger.log(
+  //             _playerLogScroll, '_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
+  //         var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
+  //         tmp.add((sectionLocations[sectionLocations.length - 1] + tableHeight) / 2);
+  //       }
+  //
+  //       //  not really required:
+  //       // if (tmp.isNotEmpty) {
+  //       //  tmp.first = 0; //  special for first song moment so it can show the header data
+  //       // }
+  //
+  //       sectionLocations = tmp;
+  //     }
+  //
+  //     logger.log(_playerLogScroll, '_sectionLocations: $sectionLocations');
+  //   }
+  // }
 
   /// send a song update to the followers
   void leaderSongUpdate(int momentNumber) {
@@ -1083,6 +1162,7 @@ With escape, the app goes back to the play list.''',
   void performPlay() {
     setState(() {
       setPlayMode();
+      selectedSongMoment = _song.songMoments.first;
       sectionBump(0);
       leaderSongUpdate(0);
       logger.log(_playerLogMode, 'play:');
@@ -1214,12 +1294,12 @@ With escape, the app goes back to the play list.''',
   bool isPlaying = false;
   bool isPaused = false;
 
-  double screenOffset = 0;
-  List<LyricSectionRowLocation?> lyricSectionRowLocations = [];
-
   Table? table;
   double? chordFontSize;
   final LyricsTable lyricsTable = LyricsTable();
+  List<GridCoordinate> songMomentToGridList = [];
+
+  final _highLightPainter = _HighLightPainter();
 
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
@@ -1228,13 +1308,17 @@ With escape, the app goes back to the play list.''',
   int capoLocation = 0;
   final List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList = [];
 
+  Song _song = Song.createEmptySong();
   SongMaster songMaster = SongMaster();
 
   final ScrollController scrollController = ScrollController();
 
-  int sectionIndex = 0; //  index for current lyric section
-  double sectionTarget = 0; //  targeted scroll position for lyric section
+  SongMoment? selectedSongMoment;
+  int sectionIndex = 0; //  index for current lyric section, fixme temp?
+  List<SongMoment> sectionSongMoments = []; //  fixme temp?
+  double scrollTarget = 0; //  targeted scroll position for lyric section
   List<double> sectionLocations = [];
+  List<Offset> songMomentLocations = [];
 
   late Size lastSize;
 
@@ -1243,9 +1327,64 @@ With escape, the app goes back to the play list.''',
   static const _centerSelections = true; //fixme: add later!
   static const _maxFontSizeFraction = 0.035;
   static const _sectionCenterLocationFraction = 0.35;
+  double boxCenter = 0;
 
   late AppWidgetHelper appWidgetHelper;
 
   static final appOptions = AppOptions();
   final SongUpdateService songUpdateService = SongUpdateService();
+}
+
+class _HighLightPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    logger.d('_HighLightPainter.paint():  $size: ${_player?._song}');
+
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
+
+    _Player player = _player!;
+    var songMoment = player.selectedSongMoment;
+    if (player.songMomentLocations.isNotEmpty) {
+      canvas.drawRect(
+          Rect.fromLTWH(0, player.boxCenter, player.songMomentLocations[0].dx, 3), Paint()..color = Colors.red);
+      canvas.drawCircle(
+          Offset(
+            player.songMomentLocations[0].dx,
+            player.boxCenter + player.scrollController.offset,
+          ),
+          80,
+          Paint()..color = Colors.red);
+    }
+    if (songMoment != null) {
+      logger.i('_HighLightPainter.paint():  songMoment: $songMoment, section: ${songMoment.lyricSection.index}');
+
+      if (player.songMomentLocations.isNotEmpty) {
+        var loc = player.songMomentLocations[songMoment.momentNumber];
+        RenderObject renderObject = player.renderTableObjectAt(songMoment);
+
+        logger.d('_HighLightPainter.paint():  loc.dy: ${loc.dy}, renderObject: ${renderObject.paintBounds}');
+
+        const border = 20.0;
+        if (kIsWeb) {
+          canvas.drawRect(
+              Rect.fromLTWH(loc.dx - border, loc.dy - renderObject.paintBounds.height / 2 - border,
+                  renderObject.paintBounds.width + 2 * border, renderObject.paintBounds.height + 2 * border),
+              Paint()..color = Colors.blue);
+        } else {
+          canvas.drawRect(
+              Rect.fromLTWH(
+                  loc.dx - border,
+                  loc.dy - player.boxCenter + 100, //+ renderObject.paintBounds.height,
+                  renderObject.paintBounds.width + 2 * border,
+                  renderObject.paintBounds.height + 2 * border),
+              Paint()..color = Colors.blue);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
 }

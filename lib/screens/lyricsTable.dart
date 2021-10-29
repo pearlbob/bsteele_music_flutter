@@ -9,8 +9,10 @@ import 'package:bsteeleMusicLib/songs/lyric.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
+import 'package:bsteeleMusicLib/songs/measureRepeatMarker.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -29,10 +31,12 @@ class LyricsTable {
     musicKey,
     expanded = false,
     double? chordFontSize,
+    List<SongMoment>? givenSelectedSongMoments,
   }) {
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
     _chordFontSize = chordFontSize;
+    List<SongMoment> selectedSongMoments = givenSelectedSongMoments ?? [];
 
     _computeScreenSizes();
 
@@ -109,17 +113,32 @@ class LyricsTable {
               break;
             default:
               if (showChords) {
-                if (measureNode is Measure) {
-                  w = _box(appWidgetHelper.transpose(
-                    measureNode,
-                    displayMusicKey,
-                    tranOffset,
+                if (measureNode is MeasureRepeatMarker) {
+                  w = _box(Text(
+                    measureNode.toMarkup(),
                     style: _coloredChordTextStyle,
                   ));
+                } else if (measureNode is Measure) {
+                  TextStyle textStyle;
+                  {
+                    var index = _songMomentToGridList.indexOf(GridCoordinate(r, c));
+                    var songMoment = song.songMoments[index];
+                    bool isSelected = selectedSongMoments.contains(songMoment);
+                    textStyle = isSelected ? _selectedChordTextStyle : _coloredChordTextStyle;
+                    // logger.i('selectedSongMoments: $selectedSongMoments');
+                  }
+                  w = _box(
+                      appWidgetHelper.transpose(
+                        measureNode,
+                        displayMusicKey,
+                        tranOffset,
+                        style: textStyle,
+                      ),
+                      color: textStyle.backgroundColor);
                 } else {
                   w = _box(Text(
                     '($r,$c)',
-                    style: c == columns - 1 ? _lyricsTextStyle : _chordTextStyle,
+                    style: c == columns - 1 ? _lyricsTextStyle : _coloredChordTextStyle,
                   ));
                 }
               } else {
@@ -156,11 +175,11 @@ class LyricsTable {
     return _table;
   }
 
-  Widget _box(Widget w) {
+  Widget _box(Widget w, {Color? color}) {
     return Container(
       margin: getMeasureMargin(),
       padding: getMeasurePadding(),
-      color: _backgroundColor,
+      color: color ?? _backgroundColor,
       child: w,
     );
   }
@@ -169,6 +188,9 @@ class LyricsTable {
     _backgroundColor = getBackgroundColorForSection(chordSection.getSection());
     _coloredChordTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _backgroundColor,
+    );
+    _selectedChordTextStyle = _chordTextStyle.copyWith(
+      backgroundColor: Colors.red, //  fixme: add to css
     );
     _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: _backgroundColor);
   }
@@ -207,6 +229,8 @@ class LyricsTable {
 
   Color _backgroundColor = Colors.white;
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
+  TextStyle _selectedChordTextStyle = generateLyricsTextStyle();
+
   TextStyle _coloredBackgroundLyricsTextStyle = generateLyricsTextStyle();
 
   //Grid<MeasureNode> get grid => _grid;

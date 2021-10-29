@@ -19,7 +19,6 @@ import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -119,12 +118,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
           var songMoment = _song.songMoments[songMomentLocations.indexOf(offset)];
           if (songMoment != selectedSongMoment) {
-            setState(() {
-              selectedSongMoment = songMoment;
-            });
+            selectedSongMoment = songMoment;
+            forceTableRedisplay();
+            logger.i('hitTest $offset: index: ${songMomentLocations.indexOf(offset)}'
+                ': $selectedSongMoment');
           }
-          logger.d('hitTest $offset: index: ${songMomentLocations.indexOf(offset)}'
-              ': $selectedSongMoment');
         }
       }
 
@@ -233,9 +231,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
           if ((fontSize - lastChordFontSize).abs() > 1) {
             chordFontSize = fontSize;
 
-            setState(() {
-              table = null; //  rebuild table at new size
-            });
+            forceTableRedisplay();
             logger.d('table width: ${length.toStringAsFixed(1)}'
                 '/${app.screenInfo.widthInLogicalPixels.toStringAsFixed(1)}'
                 ', sectionIndex = $sectionIndex'
@@ -311,15 +307,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.d('player build:');
+    logger.i('player build:');
 
     //  deal with song updates
     if (_songUpdate != null) {
       if (!_song.songBaseSameContent(_songUpdate!.song) || displayKeyOffset != app.displayKeyOffset) {
         _song = _songUpdate!.song;
         widget._song = _song;
-        table = null; //  force re-eval
         chordFontSize == null;
+        forceTableRedisplay();
         performPlay();
       }
       setSelectedSongKey(_songUpdate!.currentKey);
@@ -331,9 +327,20 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
+    selectedSongMoment ??= _song.songMoments.first;
+
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
+      var selectedSongMoments = <SongMoment>[];
+      if (selectedSongMoment != null) {
+        selectedSongMoments.add(selectedSongMoment!);
+      }
+      logger.i('table rebuild: selectedSongMoment: $selectedSongMoment');
+
       table = lyricsTable.lyricsTable(_song, context,
-          musicKey: displaySongKey, expanded: !appOptions.compressRepeats, chordFontSize: chordFontSize);
+          musicKey: displaySongKey,
+          expanded: !appOptions.compressRepeats,
+          chordFontSize: chordFontSize,
+          givenSelectedSongMoments: selectedSongMoments);
       sectionLocations.clear(); //  clear any previous song cached data
       logger.d('_table clear: index: $sectionIndex');
       WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -568,27 +575,19 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               child: SingleChildScrollView(
                 controller: scrollController,
                 scrollDirection: Axis.vertical,
-                child: Stack(
-                  children: [
-                    CustomPaint(
-                      painter: _highLightPainter,
-                      isComplex: true,
-                      willChange: false,
-                      child: const SizedBox(),
-                    ),
-                    SizedBox(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          textDirection: TextDirection.ltr,
+                child: SizedBox(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      textDirection: TextDirection.ltr,
+                      children: <Widget>[
+                        Column(
                           children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.only(top: 16, right: 12),
-                                  child: appWrapFullWidth([
-                                    appTooltip(
-                                      message: '''
+                            Container(
+                              padding: const EdgeInsets.only(top: 16, right: 12),
+                              child: appWrapFullWidth([
+                                appTooltip(
+                                  message: '''
 Space bar or clicking the song area starts "play" mode.
     First section is in the middle of the display.
     Display items on the top will be missing.
@@ -598,210 +597,208 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                      child: TextButton(
-                                        style: TextButton.styleFrom(
-                                          primary: _lightBlue, //  fixme
-                                          padding: const EdgeInsets.all(8),
-                                        ),
-                                        child: Text(
-                                          'Hints',
-                                          style: headerTextStyle,
-                                        ),
-                                        onPressed: () {},
-                                      ),
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: _lightBlue, //  fixme
+                                      padding: const EdgeInsets.all(8),
                                     ),
-                                    if (showCapo)
-                                      appWrap(
-                                        [
-                                          appTooltip(
-                                            message: 'For a guitar, show the capo location and\n'
-                                                'chords to match the current key.',
-                                            child: Text(
-                                              'Capo',
-                                              style: headerTextStyle,
-                                              softWrap: false,
-                                            ),
-                                          ),
-                                          appSwitch(
-                                            appKeyEnum: AppKeyEnum.playerCapo,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                isCapo = !isCapo;
-                                                setSelectedSongKey(selectedSongKey);
-                                              });
-                                            },
-                                            value: isCapo,
-                                          ),
-                                          if (isCapo && capoLocation > 0)
-                                            Text(
-                                              'on $capoLocation',
-                                              style: headerTextStyle,
-                                              softWrap: false,
-                                            ),
-                                          if (isCapo && capoLocation == 0)
-                                            Text(
-                                              'no capo needed',
-                                              style: headerTextStyle,
-                                              softWrap: false,
-                                            ),
-                                        ],
-                                      ),
-                                    //  recommend blues harp
-                                    Text(
-                                      'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
-                                      style: headerTextStyle,
-                                      softWrap: false,
-                                    ),
-                                    if (app.isEditReady)
-                                      appTooltip(
-                                        message: 'Edit the song',
-                                        child: TextButton.icon(
-                                          key: appKey(AppKeyEnum.playerEdit),
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.all(8),
-                                            primary: Colors.white, //  fixme:
-                                            backgroundColor: Colors.blue,
-                                          ),
-                                          icon: appIcon(
-                                            Icons.edit,
-                                            color: Colors.white, //  fixme:
-                                          ),
-                                          label: const Text(''),
-                                          onPressed: () {
-                                            appLogAppKey(AppKeyEnum.playerEdit);
-                                            navigateToEdit(context, _song);
-                                          },
-                                        ),
-                                      ),
-                                  ], alignment: WrapAlignment.spaceBetween),
-                                ),
-                                appWrapFullWidth([
-                                  Container(
-                                    padding: const EdgeInsets.only(left: 8, right: 8),
-                                    child: appTooltip(
-                                      message: 'Tip: Use the space bar to start playing.\n'
-                                          'Use the space bar to advance the section while playing.',
-                                      child: appIconButton(
-                                        appKeyEnum: AppKeyEnum.playerPlay,
-                                        icon: appIcon(
-                                          playStopIcon,
-                                          color: Colors.green, //  fixme:
-                                          size: 2 * app.screenInfo.fontSize, //  fixme: why is this required?
-                                        ),
-                                        onPressed: () {
-                                          isPlaying ? performStop() : performPlay();
-                                        },
-                                        style: TextButton.styleFrom(
-                                          primary: isPlaying ? Colors.red : Colors.green, //fixme:
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  appWrap([
-                                    appTooltip(
-                                      message: 'Transcribe the song to the selected key.',
-                                      child: Text(
-                                        'Key: ',
-                                        style: headerTextStyle,
-                                        softWrap: false,
-                                      ),
-                                    ),
-                                    DropdownButton<music_key.Key>(
-                                      items: keyDropDownMenuList,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          if (value != null) {
-                                            setSelectedSongKey(value);
-                                            FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
-                                          }
-                                        });
-                                      },
-                                      value: selectedSongKey,
-                                      style: headerTextStyle,
-                                      iconSize: lookupIconSize(),
-                                      itemHeight: null,
-                                    ),
-                                    appSpace(
-                                      space: 5,
-                                    ),
-                                    if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
-                                      Text(
-                                        ' ($selectedSongKey' +
-                                            (displayKeyOffset > 0 ? '+$displayKeyOffset' : '') +
-                                            (isCapo && capoLocation > 0 ? '-$capoLocation' : '') //  indicate: "maps to"
-                                            +
-                                            '=$displaySongKey)',
-                                        style: headerTextStyle,
-                                      ),
-                                  ], alignment: WrapAlignment.spaceBetween),
-                                  appWrap([
-                                    appTooltip(
-                                      message: 'Beats per minute',
-                                      child: Text(
-                                        'BPM: ',
-                                        style: headerTextStyle,
-                                      ),
-                                    ),
-                                    if (app.isScreenBig)
-                                      DropdownButton<int>(
-                                        items: _bpmDropDownMenuList,
-                                        onChanged: (value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              _song.setBeatsPerMinute(value);
-                                            });
-                                          }
-                                        },
-                                        value: _song.beatsPerMinute,
-                                        style: headerTextStyle,
-                                        iconSize: lookupIconSize(),
-                                        itemHeight: null,
-                                      )
-                                    else
-                                      Text(
-                                        _song.beatsPerMinute.toString(),
-                                        style: _lyricsTextStyle,
-                                      ),
-                                  ]),
-                                  appTooltip(
-                                    message: 'time signature',
                                     child: Text(
-                                      '  Time: ${_song.timeSignature}',
+                                      'Hints',
                                       style: headerTextStyle,
-                                      softWrap: false,
+                                    ),
+                                    onPressed: () {},
+                                  ),
+                                ),
+                                if (showCapo)
+                                  appWrap(
+                                    [
+                                      appTooltip(
+                                        message: 'For a guitar, show the capo location and\n'
+                                            'chords to match the current key.',
+                                        child: Text(
+                                          'Capo',
+                                          style: headerTextStyle,
+                                          softWrap: false,
+                                        ),
+                                      ),
+                                      appSwitch(
+                                        appKeyEnum: AppKeyEnum.playerCapo,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            isCapo = !isCapo;
+                                            setSelectedSongKey(selectedSongKey);
+                                          });
+                                        },
+                                        value: isCapo,
+                                      ),
+                                      if (isCapo && capoLocation > 0)
+                                        Text(
+                                          'on $capoLocation',
+                                          style: headerTextStyle,
+                                          softWrap: false,
+                                        ),
+                                      if (isCapo && capoLocation == 0)
+                                        Text(
+                                          'no capo needed',
+                                          style: headerTextStyle,
+                                          softWrap: false,
+                                        ),
+                                    ],
+                                  ),
+                                //  recommend blues harp
+                                Text(
+                                  'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
+                                  style: headerTextStyle,
+                                  softWrap: false,
+                                ),
+                                if (app.isEditReady)
+                                  appTooltip(
+                                    message: 'Edit the song',
+                                    child: TextButton.icon(
+                                      key: appKey(AppKeyEnum.playerEdit),
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.all(8),
+                                        primary: Colors.white, //  fixme:
+                                        backgroundColor: Colors.blue,
+                                      ),
+                                      icon: appIcon(
+                                        Icons.edit,
+                                        color: Colors.white, //  fixme:
+                                      ),
+                                      label: const Text(''),
+                                      onPressed: () {
+                                        appLogAppKey(AppKeyEnum.playerEdit);
+                                        navigateToEdit(context, _song);
+                                      },
                                     ),
                                   ),
+                              ], alignment: WrapAlignment.spaceBetween),
+                            ),
+                            appWrapFullWidth([
+                              Container(
+                                padding: const EdgeInsets.only(left: 8, right: 8),
+                                child: appTooltip(
+                                  message: 'Tip: Use the space bar to start playing.\n'
+                                      'Use the space bar to advance the section while playing.',
+                                  child: appIconButton(
+                                    appKeyEnum: AppKeyEnum.playerPlay,
+                                    icon: appIcon(
+                                      playStopIcon,
+                                      color: Colors.green, //  fixme:
+                                      size: 2 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                    ),
+                                    onPressed: () {
+                                      isPlaying ? performStop() : performPlay();
+                                    },
+                                    style: TextButton.styleFrom(
+                                      primary: isPlaying ? Colors.red : Colors.green, //fixme:
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              appWrap([
+                                appTooltip(
+                                  message: 'Transcribe the song to the selected key.',
+                                  child: Text(
+                                    'Key: ',
+                                    style: headerTextStyle,
+                                    softWrap: false,
+                                  ),
+                                ),
+                                DropdownButton<music_key.Key>(
+                                  items: keyDropDownMenuList,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        setSelectedSongKey(value);
+                                        FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
+                                      }
+                                    });
+                                  },
+                                  value: selectedSongKey,
+                                  style: headerTextStyle,
+                                  iconSize: lookupIconSize(),
+                                  itemHeight: null,
+                                ),
+                                appSpace(
+                                  space: 5,
+                                ),
+                                if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
                                   Text(
-                                    songUpdateService.isConnected
-                                        ? (songUpdateService.isLeader
-                                            ? 'I\'m the leader'
-                                            : (songUpdateService.leaderName == AppOptions.unknownUser
-                                                ? ''
-                                                : 'following ${songUpdateService.leaderName}'))
-                                        : '',
+                                    ' ($selectedSongKey' +
+                                        (displayKeyOffset > 0 ? '+$displayKeyOffset' : '') +
+                                        (isCapo && capoLocation > 0 ? '-$capoLocation' : '') //  indicate: "maps to"
+                                        +
+                                        '=$displaySongKey)',
                                     style: headerTextStyle,
                                   ),
-                                ], alignment: WrapAlignment.spaceAround),
-                              ],
-                            ),
-                            Center(
-                              child: table ?? const Text('_table missing!'),
-                            ),
-                            Text(
-                              'Copyright: ${_song.copyright}',
-                              style: headerTextStyle,
-                            ),
-                            // Text(
-                            //   'Last edit by: ${song.user}',
-                            //   style: headerTextStyle,
-                            // ),
-                            //  allow for scrolling to a relatively high box center
-                            SizedBox(
-                              height: app.screenInfo.heightInLogicalPixels - boxCenter,
-                            ),
-                          ]),
-                    ),
-                  ],
+                              ], alignment: WrapAlignment.spaceBetween),
+                              appWrap([
+                                appTooltip(
+                                  message: 'Beats per minute',
+                                  child: Text(
+                                    'BPM: ',
+                                    style: headerTextStyle,
+                                  ),
+                                ),
+                                if (app.isScreenBig)
+                                  DropdownButton<int>(
+                                    items: _bpmDropDownMenuList,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _song.setBeatsPerMinute(value);
+                                        });
+                                      }
+                                    },
+                                    value: _song.beatsPerMinute,
+                                    style: headerTextStyle,
+                                    iconSize: lookupIconSize(),
+                                    itemHeight: null,
+                                  )
+                                else
+                                  Text(
+                                    _song.beatsPerMinute.toString(),
+                                    style: _lyricsTextStyle,
+                                  ),
+                              ]),
+                              appTooltip(
+                                message: 'time signature',
+                                child: Text(
+                                  '  Time: ${_song.timeSignature}',
+                                  style: headerTextStyle,
+                                  softWrap: false,
+                                ),
+                              ),
+                              Text(
+                                songUpdateService.isConnected
+                                    ? (songUpdateService.isLeader
+                                        ? 'I\'m the leader'
+                                        : (songUpdateService.leaderName == AppOptions.unknownUser
+                                            ? ''
+                                            : 'following ${songUpdateService.leaderName}'))
+                                    : '',
+                                style: headerTextStyle,
+                              ),
+                            ], alignment: WrapAlignment.spaceAround),
+                          ],
+                        ),
+                        Center(
+                          child: table ?? const Text('_table missing!'),
+                        ),
+                        Text(
+                          'Copyright: ${_song.copyright}',
+                          style: headerTextStyle,
+                        ),
+                        // Text(
+                        //   'Last edit by: ${song.user}',
+                        //   style: headerTextStyle,
+                        // ),
+                        //  allow for scrolling to a relatively high box center
+                        SizedBox(
+                          height: app.screenInfo.heightInLogicalPixels - boxCenter,
+                        ),
+                      ]),
                 ),
               ),
               onTap: () {
@@ -1268,10 +1265,8 @@ With escape, the app goes back to the play list.''',
       MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
     );
     _playerIsOnTop = true;
-    setState(() {
-      table = null;
-      widget._song = app.selectedSong;
-    });
+    widget._song = app.selectedSong;
+    forceTableRedisplay();
   }
 
   void forceTableRedisplay() {
@@ -1298,8 +1293,6 @@ With escape, the app goes back to the play list.''',
   double? chordFontSize;
   final LyricsTable lyricsTable = LyricsTable();
   List<GridCoordinate> songMomentToGridList = [];
-
-  final _highLightPainter = _HighLightPainter();
 
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
@@ -1333,58 +1326,4 @@ With escape, the app goes back to the play list.''',
 
   static final appOptions = AppOptions();
   final SongUpdateService songUpdateService = SongUpdateService();
-}
-
-class _HighLightPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    logger.d('_HighLightPainter.paint():  $size: ${_player?._song}');
-
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
-
-    _Player player = _player!;
-    var songMoment = player.selectedSongMoment;
-    if (player.songMomentLocations.isNotEmpty) {
-      canvas.drawRect(
-          Rect.fromLTWH(0, player.boxCenter, player.songMomentLocations[0].dx, 3), Paint()..color = Colors.red);
-      canvas.drawCircle(
-          Offset(
-            player.songMomentLocations[0].dx,
-            player.boxCenter + player.scrollController.offset,
-          ),
-          80,
-          Paint()..color = Colors.red);
-    }
-    if (songMoment != null) {
-      logger.i('_HighLightPainter.paint():  songMoment: $songMoment, section: ${songMoment.lyricSection.index}');
-
-      if (player.songMomentLocations.isNotEmpty) {
-        var loc = player.songMomentLocations[songMoment.momentNumber];
-        RenderObject renderObject = player.renderTableObjectAt(songMoment);
-
-        logger.d('_HighLightPainter.paint():  loc.dy: ${loc.dy}, renderObject: ${renderObject.paintBounds}');
-
-        const border = 20.0;
-        if (kIsWeb) {
-          canvas.drawRect(
-              Rect.fromLTWH(loc.dx - border, loc.dy - renderObject.paintBounds.height / 2 - border,
-                  renderObject.paintBounds.width + 2 * border, renderObject.paintBounds.height + 2 * border),
-              Paint()..color = Colors.blue);
-        } else {
-          canvas.drawRect(
-              Rect.fromLTWH(
-                  loc.dx - border,
-                  loc.dy - player.boxCenter + 100, //+ renderObject.paintBounds.height,
-                  renderObject.paintBounds.width + 2 * border,
-                  renderObject.paintBounds.height + 2 * border),
-              Paint()..color = Colors.blue);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
 }

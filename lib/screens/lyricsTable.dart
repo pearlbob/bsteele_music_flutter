@@ -9,6 +9,7 @@ import 'package:bsteeleMusicLib/songs/lyric.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
+import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatMarker.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -50,7 +51,7 @@ class LyricsTable {
 
     List<TableRow> rows = [];
     List<Widget> children = []; //  items for the current row
-    _backgroundColor = getBackgroundColorForSection(Section.get(SectionEnum.chorus));
+    _sectionBackgroundColor = getBackgroundColorForSection(Section.get(SectionEnum.chorus));
 
     //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
@@ -69,6 +70,7 @@ class LyricsTable {
 
       _colorBySection(ChordSection.getDefault());
 
+      TextStyle textStyle = _coloredChordTextStyle;
       for (int r = 0; r < _grid.getRowCount(); r++) {
         children = [];
         var row = _grid.getRow(r);
@@ -113,33 +115,42 @@ class LyricsTable {
               break;
             default:
               if (showChords) {
-                if (measureNode is MeasureRepeatMarker) {
-                  w = _box(Text(
-                    measureNode.toMarkup(),
-                    style: _coloredChordTextStyle,
-                  ));
-                } else if (measureNode is Measure) {
-                  TextStyle textStyle;
-                  {
-                    var index = _songMomentToGridList.indexOf(GridCoordinate(r, c));
-                    var songMoment = song.songMoments[index];
-                    bool isSelected = selectedSongMoments.contains(songMoment);
-                    textStyle = isSelected ? _selectedChordTextStyle : _coloredChordTextStyle;
-                    // logger.i('selectedSongMoments: $selectedSongMoments');
-                  }
-                  w = _box(
-                      appWidgetHelper.transpose(
-                        measureNode,
-                        displayMusicKey,
-                        tranOffset,
-                        style: textStyle,
-                      ),
-                      color: textStyle.backgroundColor);
-                } else {
-                  w = _box(Text(
-                    '($r,$c)',
-                    style: c == columns - 1 ? _lyricsTextStyle : _coloredChordTextStyle,
-                  ));
+                switch (measureNode.runtimeType) {
+                  case MeasureRepeatMarker:
+                  case MeasureRepeatExtension:
+                    w = _measureBox(
+                        Text(
+                          measureNode.toString(),
+                          style: _coloredChordTextStyle,
+                        ),
+                        selectionColor: textStyle.backgroundColor //  note the trick, uses textStyle from prior measures
+                        );
+                    break;
+                  case Measure:
+                    {
+                      //  setup the text style
+                      var index = _songMomentToGridList.indexOf(GridCoordinate(r, c));
+                      var songMoment = song.songMoments[index];
+                      bool isSelected = selectedSongMoments.contains(songMoment);
+                      textStyle = isSelected ? _selectedChordTextStyle : _coloredChordTextStyle;
+                      // logger.i('selectedSongMoments: $selectedSongMoments');
+                    }
+                    w = _measureBox(
+                        appWidgetHelper.transpose(
+                          measureNode as Measure,
+                          displayMusicKey,
+                          tranOffset,
+                          style: _coloredChordTextStyle,
+                        ),
+                        selectionColor: textStyle.backgroundColor);
+
+                    break;
+                  default:
+                    w = _box(Text(
+                      '($r,$c)',
+                      style: c == columns - 1 ? _lyricsTextStyle : _coloredChordTextStyle,
+                    ));
+                    break;
                 }
               } else {
                 w = const Text('');
@@ -175,24 +186,40 @@ class LyricsTable {
     return _table;
   }
 
-  Widget _box(Widget w, {Color? color}) {
+  Widget _measureBox(Widget w, {Color? selectionColor}) {
+    return Container(
+      //  outline container
+      margin: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(2),
+      child: Container(
+        //  inner container of section color
+        margin: getMeasureMargin(),
+        padding: getMeasurePadding(),
+        color: _sectionBackgroundColor,
+        child: w,
+      ),
+      color: selectionColor ?? _sectionBackgroundColor,
+    );
+  }
+
+  Widget _box(Widget w) {
     return Container(
       margin: getMeasureMargin(),
       padding: getMeasurePadding(),
-      color: color ?? _backgroundColor,
+      color: _sectionBackgroundColor,
       child: w,
     );
   }
 
   void _colorBySection(ChordSection chordSection) {
-    _backgroundColor = getBackgroundColorForSection(chordSection.getSection());
+    _sectionBackgroundColor = getBackgroundColorForSection(chordSection.getSection());
     _coloredChordTextStyle = _chordTextStyle.copyWith(
-      backgroundColor: _backgroundColor,
+      backgroundColor: _sectionBackgroundColor,
     );
     _selectedChordTextStyle = _chordTextStyle.copyWith(
       backgroundColor: Colors.red, //  fixme: add to css
     );
-    _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: _backgroundColor);
+    _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: _sectionBackgroundColor);
   }
 
   /// compute screen size values used here and on other screens
@@ -227,7 +254,7 @@ class LyricsTable {
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
 
-  Color _backgroundColor = Colors.white;
+  Color _sectionBackgroundColor = Colors.white;
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
   TextStyle _selectedChordTextStyle = generateLyricsTextStyle();
 

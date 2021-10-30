@@ -99,38 +99,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     _player = this;
 
     //  as leader, distribute current location
-    scrollController.addListener(() {
-      logger.d('scrollController listener: ${scrollController.offset}'
-          ', top: ${renderTableY0()}'
-          ', section: ${sectionIndexAtScrollOffset()}');
-
-      {
-        RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-        assert(renderObject != null && renderObject is RenderTable);
-        RenderTable renderTable = renderObject as RenderTable;
-
-        BoxHitTestResult result = BoxHitTestResult();
-        Offset position = Offset(20, boxCenter + scrollController.offset);
-        if (renderTable.hitTestChildren(result, position: position)) {
-          logger.d('hitTest $position: ${result.path.last}');
-          assert(songMomentLocations.isNotEmpty);
-          var offset =
-              songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
-          var songMoment = _song.songMoments[songMomentLocations.indexOf(offset)];
-          if (songMoment != selectedSongMoment) {
-            selectedSongMoment = songMoment;
-            forceTableRedisplay();
-            logger.i('hitTest $offset: index: ${songMomentLocations.indexOf(offset)}'
-                ': $selectedSongMoment');
-          }
-        }
-      }
-
-      if (songUpdateService.isLeader) {
-        assert(selectedSongMoment != null);
-        leaderSongUpdate(selectedSongMoment?.momentNumber ?? 0);
-      }
-    });
+    scrollController.addListener(scrollControllerListener);
   }
 
   @override
@@ -201,103 +170,148 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     super.dispose();
   }
 
-  void positionAfterBuild() {
-    logger.i('positionAfterBuild():');
-    if (_songUpdate != null && isPlaying) {
-      logger.i('_positionAfterBuild(): _scrollToSectionByMoment: ${_songUpdate!.songMoment?.momentNumber}');
-      scrollToSectionByMoment(_songUpdate!.songMoment);
+  void scrollControllerListener() {
+    logger.d('scrollControllerListener: ${scrollController.offset}'
+        ', section: ${sectionIndexAtScrollOffset()}');
+
+    if (songMomentLocations.isNotEmpty) {
+      var stopAt = songMomentLocations.last.dy - 2 * boxCenter;
+      if (scrollController.offset > stopAt) {
+        //  cancels any animation
+        //logger.d('scrollController.offset stop at: $stopAt');
+        scrollController.jumpTo(stopAt);
+      }
     }
 
-    //  look at the rendered table size, resize if required
-    RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-    assert(renderObject != null && renderObject is RenderTable);
-    if (renderObject != null && renderObject is RenderTable) {
-      RenderTable renderTable = renderObject;
-      if (chordFontSize == null) {
-        var length = renderTable.size.width;
-        if (length > 0 && lyricsTable.chordFontSize != null) {
-          var lastChordFontSize = chordFontSize ?? 0;
-          var fontSize = lyricsTable.chordFontSize! * app.screenInfo.widthInLogicalPixels / length;
-          logger.d('fontSize: $fontSize = ${fontSize / app.screenInfo.widthInLogicalPixels}'
-              ' of ${app.screenInfo.widthInLogicalPixels}');
-          fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * app.screenInfo.widthInLogicalPixels) as double;
-          logger.d('limited : $fontSize = ${fontSize / app.screenInfo.widthInLogicalPixels}'
-              ' of ${app.screenInfo.widthInLogicalPixels}');
-          {
-            var width = renderTable.row(0).last.size.width;
-            logger.d('lyrics column width: $width = ${width / app.screenInfo.widthInLogicalPixels}');
-          }
+    if (table != null) {
+      RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+      assert(renderObject != null && renderObject is RenderTable);
+      RenderTable renderTable = renderObject as RenderTable;
 
-          if ((fontSize - lastChordFontSize).abs() > 1) {
-            chordFontSize = fontSize;
+      BoxHitTestResult result = BoxHitTestResult();
+      Offset position = Offset(20, boxCenter + scrollController.offset);
+      if (renderTable.hitTestChildren(result, position: position)) {
+        logger.d('hitTest $position: ${result.path.last}');
+        assert(songMomentLocations.isNotEmpty);
+        assert(songMomentLocations.length == _song.songMoments.length);
 
-            forceTableRedisplay();
-            logger.d('table width: ${length.toStringAsFixed(1)}'
-                '/${app.screenInfo.widthInLogicalPixels.toStringAsFixed(1)}'
-                ', sectionIndex = $sectionIndex'
-                ', chord fontSize: ${lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
-                ', lyrics fontSize: ${lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
-                ', _lyricsTable.chordFontSize: ${lyricsTable.chordFontSize?.toStringAsFixed(1)}'
-                ', _chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
-                ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
-          }
-        }
-      } else {
-        //  table is now final size
-        logger.i('_chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
-            ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw'
-            ', table at: ${renderTable.localToGlobal(Offset.zero)}'
-            ', scroll: ${scrollController.offset}');
+        //  find the moment past the marker
+        var offset =
+            songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
+        var index = songMomentLocations.indexOf(offset);
+        selectedSongMoment = _song.songMoments[index];
 
-        {
-          songMomentToGridList = lyricsTable.songMomentToGridList;
-
-          sectionLocations = [];
-          songMomentLocations = [];
-          sectionSongMoments = [];
-
-          LyricSection? lastLyricSection; //  starts as null
-          logger.i('scrollController.offset: ${scrollController.offset}');
-          for (var songMoment in _song.songMoments) {
-            GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
-            var renderBox = renderTable.row(coord.row).elementAt(coord.col);
-            var offset = renderBox.localToGlobal(Offset.zero);
-            var y = offset.dy;
-            songMomentLocations.add(offset);
-
-            if (lastLyricSection == songMoment.lyricSection) {
-              continue; //  not a new lyric section
-            }
-            lastLyricSection = songMoment.lyricSection;
-
-            sectionLocations.add(y);
-            sectionSongMoments.add(songMoment);
-            logger.i('${songMoment.momentNumber}: ${songMoment.lyricSection}, ${sectionLocations.last}'
-                // ', ${renderBox.paintBounds}'
-                ', coord: $coord'
-                ', global: ${renderBox.localToGlobal(Offset.zero)}');
-          }
-        }
-        // logger.log(_playerLogScroll, '_sectionLocations set: $sectionLocations');
-        for (int i = 1; i < sectionLocations.length; i++) {
-          logger.i('$i: ${sectionLocations[i] - sectionLocations[i - 1]}');
-        }
-        // for (int i = 0; i < songMomentLocations.length; i++) {
-        //   logger.i('moment $i: ${songMomentLocations[i]}');
-        // }
-
-        //  for (var r = 0; r < renderTable.rows; r++) {
-        //    var row = renderTable.row(r);
-        //    for (var c = 0; c < row.length; c++) {
-        //      var renderBox = row.elementAt(c);
-        //      logger.i('($r,$c): size: ${renderBox.size} loc: ${renderBox.localToGlobal(Offset.zero)}');
-        //    }
-        //  }
-        //  logger.i('renderTable.paintBounds: ${renderTable.paintBounds}');
-        // for ( var rowLocation in  lyricsTable.lyricSectionRowLocations )
-        //   {
-        //     logger.i('rowLocation: $rowLocation');
+        // //  see if the section above is closer
+        // {
+        //   var sectionLocationIndex = sectionLocationIndexForSongMoment(songMoment);
+        //   if (sectionLocationIndex > 0) {
+        //     var delta1 = sectionLocations[index - 1] - position.dy;
+        //     var delta2 = sectionLocations[index] - position.dy;
+        //     if (delta1.abs() < delta2.abs()) {
+        //       songMoment = _song.songMoments[index - 1];
+        //     }
         //   }
+        // }
+      }
+    }
+  }
+
+  void positionAfterBuild() {
+    logger.d('positionAfterBuild():');
+
+    //  look at the rendered table size, resize if required
+    {
+      RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+      assert(renderObject != null && renderObject is RenderTable);
+      if (renderObject != null && renderObject is RenderTable) {
+        RenderTable renderTable = renderObject;
+        if (chordFontSize == null) {
+          var length = renderTable.size.width;
+          if (length > 0 && lyricsTable.chordFontSize != null) {
+            var lastChordFontSize = chordFontSize ?? 0;
+            var fontSize = lyricsTable.chordFontSize! * app.screenInfo.widthInLogicalPixels / length;
+            logger.d('fontSize: $fontSize = ${fontSize / app.screenInfo.widthInLogicalPixels}'
+                ' of ${app.screenInfo.widthInLogicalPixels}');
+            fontSize = Util.limit(fontSize, 8.0, _maxFontSizeFraction * app.screenInfo.widthInLogicalPixels) as double;
+            logger.d('limited : $fontSize = ${fontSize / app.screenInfo.widthInLogicalPixels}'
+                ' of ${app.screenInfo.widthInLogicalPixels}');
+            {
+              var width = renderTable.row(0).last.size.width;
+              logger.d('lyrics column width: $width = ${width / app.screenInfo.widthInLogicalPixels}');
+            }
+
+            if ((fontSize - lastChordFontSize).abs() > 1) {
+              chordFontSize = fontSize;
+
+              forceTableRedisplay();
+              logger.d('table width: ${length.toStringAsFixed(1)}'
+                  '/${app.screenInfo.widthInLogicalPixels.toStringAsFixed(1)}'
+                  ', sectionIndex = $sectionIndex'
+                  ', chord fontSize: ${lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
+                  ', lyrics fontSize: ${lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
+                  ', _lyricsTable.chordFontSize: ${lyricsTable.chordFontSize?.toStringAsFixed(1)}'
+                  ', _chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
+                  ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw');
+            }
+          }
+        } else {
+          //  table is now final size
+          logger.d('_chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
+              ' ${(100 * chordFontSize! / app.screenInfo.widthInLogicalPixels).toStringAsFixed(1)}vw'
+              ', table at: ${renderTable.localToGlobal(Offset.zero)}'
+              ', scroll: ${scrollController.offset}');
+
+          {
+            songMomentToGridList = lyricsTable.songMomentToGridList;
+
+            sectionLocations = [];
+            songMomentLocations = [];
+            sectionSongMoments = [];
+
+            LyricSection? lastLyricSection; //  starts as null
+            logger.d('scrollController.offset: ${scrollController.offset}');
+            for (var songMoment in _song.songMoments) {
+              GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
+              var renderBox = renderTable.row(coord.row).elementAt(coord.col);
+              var offset = renderBox.localToGlobal(Offset(0, scrollController.offset)); //  compensate for scroll offset
+              var y = offset.dy;
+              songMomentLocations.add(offset);
+
+              if (lastLyricSection == songMoment.lyricSection) {
+                continue; //  not a new lyric section
+              }
+              lastLyricSection = songMoment.lyricSection;
+
+              sectionLocations.add(y);
+              sectionSongMoments.add(songMoment);
+              logger.d(
+                  'positionAfterBuild()#2: ${songMoment.momentNumber}: ${songMoment.lyricSection}, ${sectionLocations.last}'
+                  // ', ${renderBox.paintBounds}'
+                  ', coord: $coord'
+                  ', global: ${renderBox.localToGlobal(Offset.zero)}');
+            }
+          }
+          //  logger.log(_playerLogScroll, '_sectionLocations set: $sectionLocations');
+          // for (int i = 1; i < sectionLocations.length; i++) {
+          //   logger.d('positionAfterBuild(): sectionLocations[$i]: ${sectionLocations[i] - sectionLocations[i - 1]}');
+          // }
+          // for (int i = 0; i < songMomentLocations.length; i++) {
+          //   logger.d('moment $i: ${songMomentLocations[i]}');
+          // }
+
+          //  for (var r = 0; r < renderTable.rows; r++) {
+          //    var row = renderTable.row(r);
+          //    for (var c = 0; c < row.length; c++) {
+          //      var renderBox = row.elementAt(c);
+          //      logger.d('($r,$c): size: ${renderBox.size} loc: ${renderBox.localToGlobal(Offset.zero)}');
+          //    }
+          //  }
+          //  logger.d('renderTable.paintBounds: ${renderTable.paintBounds}');
+          // for ( var rowLocation in  lyricsTable.lyricSectionRowLocations )
+          //   {
+          //     logger.d('rowLocation: $rowLocation');
+          //   }
+        }
       }
     }
   }
@@ -307,7 +321,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.i('player build:');
+    logger.d('player build:');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -327,20 +341,34 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
-    selectedSongMoment ??= _song.songMoments.first;
+    if (_selectedSongMoment == null) {
+      //  fixme
+      selectedSongMoment = _song.songMoments.first;
+    }
 
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
-      var selectedSongMoments = <SongMoment>[];
-      if (selectedSongMoment != null) {
-        selectedSongMoments.add(selectedSongMoment!);
-      }
-      logger.i('table rebuild: selectedSongMoment: $selectedSongMoment');
+      // var selectedSongMoments = <SongMoment>[];
+      // if (_selectedSongMoment != null) {
+      //   if (true) {
+      //     selectedSongMoments.add(_selectedSongMoment!);
+      //   }
+      //   // else {
+      //   //   for (var songMoment in _song.songMoments) {
+      //   //     if (songMoment.lyricSection == _selectedSongMoment!.lyricSection) {
+      //   //       selectedSongMoments.add(songMoment);
+      //   //     }
+      //   //   }
+      //   // }
+      // }
+      logger.d('table rebuild: selectedSongMoment: $_selectedSongMoment');
 
-      table = lyricsTable.lyricsTable(_song, context,
-          musicKey: displaySongKey,
-          expanded: !appOptions.compressRepeats,
-          chordFontSize: chordFontSize,
-          givenSelectedSongMoments: selectedSongMoments);
+      table = lyricsTable.lyricsTable(
+        _song, context,
+        musicKey: displaySongKey,
+        expanded: !appOptions.compressRepeats,
+        chordFontSize: chordFontSize,
+        //  givenSelectedSongMoments: selectedSongMoments
+      );
       sectionLocations.clear(); //  clear any previous song cached data
       logger.d('_table clear: index: $sectionIndex');
       WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -564,7 +592,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               Positioned(
                 top: boxCenter,
                 child: Container(
-                  constraints: BoxConstraints.loose(Size(app.screenInfo.widthInLogicalPixels / 8, 6)),
+                  constraints: BoxConstraints.loose(Size(app.screenInfo.widthInLogicalPixels / 64, 6)),
                   decoration: const BoxDecoration(
                     color: Colors.black87,
                   ),
@@ -951,16 +979,6 @@ With escape, the app goes back to the play list.''',
         );
   }
 
-  double renderTableY0() {
-    RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-    assert(renderObject != null && renderObject is RenderTable);
-    if (renderObject != null && renderObject is RenderTable) {
-      RenderTable renderTable = renderObject;
-      return renderTable.localToGlobal(Offset.zero).dy + scrollController.offset;
-    }
-    return 0;
-  }
-
   RenderObject renderTableObjectAt(SongMoment songMoment) {
     RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
     assert(renderObject != null && renderObject is RenderTable);
@@ -987,12 +1005,12 @@ With escape, the app goes back to the play list.''',
 
   /// bump from one section to the next
   sectionBump(int bump) {
-    if (selectedSongMoment == null) {
+    if (_selectedSongMoment == null) {
       assert(false);
       return;
     }
 
-    scrollToSectionIndex(selectedSongMoment!.lyricSection.index + bump);
+    scrollToSectionIndex(_selectedSongMoment!.lyricSection.index + bump);
   }
 
   void scrollToSectionIndex(int index) {
@@ -1015,6 +1033,11 @@ With escape, the app goes back to the play list.''',
       return true;
     }
     return false;
+  }
+
+  int sectionLocationIndexForSongMoment(SongMoment songMoment) {
+    Offset offset = songMomentLocations[songMoment.momentNumber];
+    return sectionLocations.indexWhere((e) => e >= offset.dy);
   }
 
   int? sectionIndexAtScrollOffset() {
@@ -1178,7 +1201,7 @@ With escape, the app goes back to the play list.''',
           simpleStop();
           break;
       }
-      logger.i('post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $isPlaying'
+      logger.d('post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $isPlaying'
           ', moment: ${_songUpdate?.momentNumber}'
           ', scroll: ${scrollController.offset}');
     });
@@ -1284,6 +1307,20 @@ With escape, the app goes back to the play list.''',
     return (d1 - d2).abs() <= tolerance;
   }
 
+  set selectedSongMoment(SongMoment songMoment) {
+    if (_selectedSongMoment == songMoment) {
+      return;
+    }
+    _selectedSongMoment = songMoment;
+
+    if (songUpdateService.isLeader) {
+      leaderSongUpdate(_selectedSongMoment!.momentNumber);
+    }
+
+    forceTableRedisplay();
+    logger.i('selectedSongMoment: $_selectedSongMoment');
+  }
+
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
   bool isPlaying = false;
@@ -1306,7 +1343,7 @@ With escape, the app goes back to the play list.''',
 
   final ScrollController scrollController = ScrollController();
 
-  SongMoment? selectedSongMoment;
+  SongMoment? _selectedSongMoment;
   int sectionIndex = 0; //  index for current lyric section, fixme temp?
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
   double scrollTarget = 0; //  targeted scroll position for lyric section

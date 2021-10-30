@@ -105,7 +105,7 @@ import 'util/openLink.dart';
 const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 const _testCss = String.fromEnvironment('css', defaultValue: 'app.css');
-final userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? 'unknown';
+final userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? '';
 
 void main() async {
   Logger.level = Level.info;
@@ -114,6 +114,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppTheme().init(css: _testCss); //  init the singleton
 
+  await AppOptions().init(); //  initialize the options from the stored values
+
   //  run the app
   runApp(
     BSteeleMusicApp(),
@@ -121,6 +123,12 @@ void main() async {
 }
 
 /*
+//  fixme: should the leader be able to capo?
+//  fixme: should the leader be able to key offset?
+//  fixme: edit join/split should only do the following measure
+//  fixme: dynamic websocket status
+//  fixme: better websocket response
+//  fixme: player: cancel follow... without losing websocket ip address
 //  fixme: edit: delete section
 //  fixme: edit: measure entry should allow section header declarations
 //  fixme: verify in studio:  let it be in C, cramped on HDMI on mac,
@@ -856,6 +864,16 @@ class _MyHomePageState extends State<MyHomePage> {
               itemHeight: null,
             ),
           ]),
+          if (appOptions.holiday)
+            appWrap([
+              appTooltip(
+                message: 'Change the holiday selection in the general options (☰, Options).',
+                child: Text(
+                  'Happy Holidays!  ',
+                  style: searchDropDownStyle.copyWith(color: Colors.green),
+                ),
+              ),
+            ]),
           if (!appOptions.holiday)
             appWrap([
               appTooltip(

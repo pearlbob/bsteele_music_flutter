@@ -221,13 +221,10 @@ class _Options extends State<Options> {
                           ),
                         ),
                         Expanded(
-                          child: TextField(
+                          child: appTextField(
+                            appKeyEnum: AppKeyEnum.optionsUserName,
                             controller: _userTextEditingController,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter your user name.',
-                            ),
-                            // maxLength: 20,
-                            style: style,
+                            hintText: 'Enter your user name.',
                             onChanged: (value) {
                               if (value.isNotEmpty) {
                                 _appOptions.user = value;
@@ -249,13 +246,10 @@ class _Options extends State<Options> {
                         ),
                         Expanded(
                           flex: 16,
-                          child: TextField(
+                          child: appTextField(
+                            appKeyEnum: AppKeyEnum.optionsWebsocketIP,
                             controller: _websocketHostEditingController,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter the websocket host IP address.',
-                            ),
-                            // maxLength: 20,
-                            style: style,
+                            hintText: 'Enter the websocket host IP address.',
                             onChanged: (value) {
                               _appOptions.websocketHost = value;
                             },
@@ -315,14 +309,11 @@ class _Options extends State<Options> {
                     Text(
                       (_songUpdateService.isConnected
                           ? 'Connected'
-                          : (_songUpdateService.authority.isNotEmpty
-                              ? 'Retrying ${_songUpdateService.authority}'
-                              : 'Idle')),
+                          : (_songUpdateService.isIdle ? 'Idle' : 'Retrying ${_songUpdateService.authority}')),
                       style: generateAppTextStyle(
                         fontWeight: FontWeight.bold,
-                        backgroundColor: _songUpdateService.isConnected || _songUpdateService.authority.isEmpty
-                            ? Colors.green
-                            : Colors.red,
+                        backgroundColor:
+                            _songUpdateService.isConnected || _songUpdateService.isIdle ? Colors.green : Colors.red,
                       ),
                     ),
                     appSpace(),

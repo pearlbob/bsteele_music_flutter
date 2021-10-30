@@ -48,6 +48,7 @@ const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
+const Level _playerLogLeaderFollower = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -73,11 +74,12 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
-    logger.d('playerUpdate timer');
+    logger.log(_playerLogLeaderFollower, 'playerUpdate timer');
     _player?.setPlayState();
   });
 
-  logger.d('playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  logger.log(
+      _playerLogLeaderFollower, 'playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
 /// Display the song moments in sequential order.
@@ -99,7 +101,10 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     _player = this;
 
     //  as leader, distribute current location
-    scrollController.addListener(scrollControllerListener);
+    scrollController.addListener(_scrollControllerListener);
+
+    //  show the update service status
+    songUpdateService.addListener(_songUpdateServiceListener);
   }
 
   @override
@@ -162,58 +167,67 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
   @override
   void dispose() {
+    logger.d('player: dispose()');
     _player = null;
     _playerIsOnTop = false;
     _songUpdate = null;
+    scrollController.removeListener(_scrollControllerListener);
+    songUpdateService.removeListener(_songUpdateServiceListener);
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
-  void scrollControllerListener() {
+  void _scrollControllerListener() {
     logger.d('scrollControllerListener: ${scrollController.offset}'
         ', section: ${sectionIndexAtScrollOffset()}');
 
     if (songMomentLocations.isNotEmpty) {
-      var stopAt = songMomentLocations.last.dy - 2 * boxCenter;
+      double stopAt = max(songMomentLocations.last.dy - 2 * boxCenter, 0);
       if (scrollController.offset > stopAt) {
         //  cancels any animation
-        //logger.d('scrollController.offset stop at: $stopAt');
+        logger.log(_playerLogScroll, 'scrollController.offset stop at: $stopAt');
         scrollController.jumpTo(stopAt);
       }
     }
 
-    if (table != null) {
-      RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-      assert(renderObject != null && renderObject is RenderTable);
-      RenderTable renderTable = renderObject as RenderTable;
+    // if (table != null) {
+    //   RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+    //   assert(renderObject != null && renderObject is RenderTable);
+    //   RenderTable renderTable = renderObject as RenderTable;
+    //
+    //   BoxHitTestResult result = BoxHitTestResult();
+    //   Offset position = Offset(20, boxCenter + scrollController.offset);
+    //   if (renderTable.hitTestChildren(result, position: position)) {
+    //     logger.d('hitTest $position: ${result.path.last}');
+    //     assert(songMomentLocations.isNotEmpty);
+    //     assert(songMomentLocations.length == _song.songMoments.length);
+    //
+    //     //  find the moment past the marker
+    //     var offset =
+    //         songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
+    //     var index = songMomentLocations.indexOf(offset);
+    //  ////////////////////////   selectedSongMoment = _song.songMoments[index];
+    //
+    //     // //  see if the section above is closer
+    //     // {
+    //     //   var sectionLocationIndex = sectionLocationIndexForSongMoment(songMoment);
+    //     //   if (sectionLocationIndex > 0) {
+    //     //     var delta1 = sectionLocations[index - 1] - position.dy;
+    //     //     var delta2 = sectionLocations[index] - position.dy;
+    //     //     if (delta1.abs() < delta2.abs()) {
+    //     //       songMoment = _song.songMoments[index - 1];
+    //     //     }
+    //     //   }
+    //     // }
+    //   }
+    // }
+  }
 
-      BoxHitTestResult result = BoxHitTestResult();
-      Offset position = Offset(20, boxCenter + scrollController.offset);
-      if (renderTable.hitTestChildren(result, position: position)) {
-        logger.d('hitTest $position: ${result.path.last}');
-        assert(songMomentLocations.isNotEmpty);
-        assert(songMomentLocations.length == _song.songMoments.length);
-
-        //  find the moment past the marker
-        var offset =
-            songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
-        var index = songMomentLocations.indexOf(offset);
-        selectedSongMoment = _song.songMoments[index];
-
-        // //  see if the section above is closer
-        // {
-        //   var sectionLocationIndex = sectionLocationIndexForSongMoment(songMoment);
-        //   if (sectionLocationIndex > 0) {
-        //     var delta1 = sectionLocations[index - 1] - position.dy;
-        //     var delta2 = sectionLocations[index] - position.dy;
-        //     if (delta1.abs() < delta2.abs()) {
-        //       songMoment = _song.songMoments[index - 1];
-        //     }
-        //   }
-        // }
-      }
-    }
+  //  update the song update service status
+  void _songUpdateServiceListener() {
+    logger.log(_playerLogLeaderFollower, '_songUpdateServiceListener():');
+    setState(() {});
   }
 
   void positionAfterBuild() {
@@ -321,7 +335,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.d('player build:');
+    logger.d('player build: $_song, selectedSongMoment: $_selectedSongMoment');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -682,18 +696,11 @@ With escape, the app goes back to the play list.''',
                                 if (app.isEditReady)
                                   appTooltip(
                                     message: 'Edit the song',
-                                    child: TextButton.icon(
-                                      key: appKey(AppKeyEnum.playerEdit),
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.all(8),
-                                        primary: Colors.white, //  fixme:
-                                        backgroundColor: Colors.blue,
-                                      ),
+                                    child: appIconButton(
+                                      appKeyEnum: AppKeyEnum.playerEdit,
                                       icon: appIcon(
                                         Icons.edit,
-                                        color: Colors.white, //  fixme:
                                       ),
-                                      label: const Text(''),
                                       onPressed: () {
                                         appLogAppKey(AppKeyEnum.playerEdit);
                                         navigateToEdit(context, _song);
@@ -712,15 +719,11 @@ With escape, the app goes back to the play list.''',
                                     appKeyEnum: AppKeyEnum.playerPlay,
                                     icon: appIcon(
                                       playStopIcon,
-                                      color: Colors.green, //  fixme:
-                                      size: 2 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                      size: 1.75 * app.screenInfo.fontSize, //  fixme: why is this required?
                                     ),
                                     onPressed: () {
                                       isPlaying ? performStop() : performPlay();
                                     },
-                                    style: TextButton.styleFrom(
-                                      primary: isPlaying ? Colors.red : Colors.green, //fixme:
-                                    ),
                                   ),
                                 ),
                               ),
@@ -805,7 +808,7 @@ With escape, the app goes back to the play list.''',
                                         : (songUpdateService.leaderName == AppOptions.unknownUser
                                             ? ''
                                             : 'following ${songUpdateService.leaderName}'))
-                                    : '',
+                                    : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.authority}!'),
                                 style: headerTextStyle,
                               ),
                             ], alignment: WrapAlignment.spaceAround),
@@ -1015,7 +1018,6 @@ With escape, the app goes back to the play list.''',
 
   void scrollToSectionIndex(int index) {
     if (sectionSongMoments.isEmpty) {
-      assert(false);
       return;
     }
     index = Util.intLimit(index, 0, sectionSongMoments.length - 1);
@@ -1154,6 +1156,7 @@ With escape, the app goes back to the play list.''',
 
   /// send a song update to the followers
   void leaderSongUpdate(int momentNumber) {
+    logger.log(_playerLogLeaderFollower, 'leaderSongUpdate($momentNumber):');
     if (!songUpdateService.isLeader) {
       _lastSongUpdate = null;
       return;
@@ -1174,7 +1177,7 @@ With escape, the app goes back to the play list.''',
     update.setState(isPlaying ? SongUpdateState.playing : SongUpdateState.none);
     songUpdateService.issueSongUpdate(update);
 
-    logger.log(_playerLogScroll, 'leadSongUpdate: momentNumber: $momentNumber');
+    logger.log(_playerLogLeaderFollower, 'leadSongUpdate: momentNumber: $momentNumber');
   }
 
   IconData get playStopIcon => isPlaying ? Icons.stop : Icons.play_arrow;
@@ -1192,16 +1195,23 @@ With escape, the app goes back to the play list.''',
 
   /// Workaround to avoid calling setState() outside of the framework classes
   void setPlayState() {
+    if (_songUpdate == null) {
+      return;
+    }
     setState(() {
-      switch (_songUpdate?.state) {
+      switch (_songUpdate!.state) {
         case SongUpdateState.playing:
           setPlayMode();
           break;
         default:
-          simpleStop();
           break;
       }
-      logger.d('post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $isPlaying'
+
+      assert(_songUpdate!.momentNumber < _song.songMoments.length);
+      scrollToSectionByMoment(_song.songMoments[_songUpdate!.momentNumber]);
+      logger.log(
+          _playerLogLeaderFollower,
+          'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $isPlaying'
           ', moment: ${_songUpdate?.momentNumber}'
           ', scroll: ${scrollController.offset}');
     });
@@ -1223,7 +1233,8 @@ With escape, the app goes back to the play list.''',
     isPaused = true;
     scrollController.jumpTo(0);
     songMaster.stop();
-    logger.log(_playerLogMode, 'stop()');
+    logger.log(_playerLogMode, 'simpleStop()');
+    logger.log(_playerLogScroll, 'simpleStop():');
   }
 
   void pauseToggle() {
@@ -1234,6 +1245,7 @@ With escape, the app goes back to the play list.''',
         if (isPaused) {
           songMaster.pause();
           scrollController.jumpTo(scrollController.offset);
+          logger.log(_playerLogScroll, 'pause():');
         } else {
           songMaster.resume();
         }
@@ -1318,7 +1330,7 @@ With escape, the app goes back to the play list.''',
     }
 
     forceTableRedisplay();
-    logger.i('selectedSongMoment: $_selectedSongMoment');
+    logger.log(_playerLogScroll, 'selectedSongMoment: $_selectedSongMoment');
   }
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';

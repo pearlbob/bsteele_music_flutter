@@ -725,7 +725,7 @@ class _Edit extends State<Edit> {
                                   //     logger.log(_editLog, 'fixme: Remove song'); // fixme
                                   //   },
                                   // ),
-                                  // TextButton.icon(
+                                  // appIconButton(
                                   //        icon: Icon(
                                   //          Icons.arrow_left,
                                   //          size: 48,
@@ -738,7 +738,7 @@ class _Edit extends State<Edit> {
                                   //          _errorMessage('bob: fixme: arrow_left');
                                   //        },
                                   //      ),
-                                  // TextButton.icon(
+                                  // appIconButton(
                                   //        icon: Icon(
                                   //          Icons.arrow_right,
                                   //          size: 48,

@@ -28,10 +28,11 @@ class AppOptions extends ChangeNotifier {
     return _singleton;
   }
 
-  AppOptions._internal() {
-    init();
-  }
+  //  private constructor
+  AppOptions._internal();
 
+  /// Must be called and waited for prior to appOptions first use!
+  /// fixme: this arrangement should be improved!
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
     _userDisplayStyle = Util.enumFromString(
@@ -46,13 +47,14 @@ class AppOptions extends ChangeNotifier {
     _playWithMeasureIndicator = await _readBool('playWithMeasureIndicator', defaultValue: _playWithMeasureIndicator);
     _playWithBouncingBall = await _readBool('playWithBouncingBall', defaultValue: _playWithBouncingBall);
     _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
-    _alwaysUseTheNewestSongOnRead = await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
+    _alwaysUseTheNewestSongOnRead =
+        await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
     _holiday = await _readBool('holiday', defaultValue: _holiday);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
-    _user = await _readString('user');
-    _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays'));// fixme: needs defaultValues?
+    _user = await _readString('user', defaultValue: userName);
+    _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     notifyListeners();
   }
 

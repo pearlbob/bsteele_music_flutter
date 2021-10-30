@@ -65,6 +65,7 @@ class LyricsTable {
     _grid = song.toGrid(expanded: expanded);
     _songMomentToGridList = song.songMomentToGrid(expanded: expanded);
 
+    bool hasLyrics = false;
     {
       Widget w;
 
@@ -94,6 +95,7 @@ class LyricsTable {
             case Lyric:
               {
                 var lyric = measureNode as Lyric;
+                hasLyrics = true;
 
                 if (lyric.line.isEmpty) {
                   w = const Text('');
@@ -164,7 +166,7 @@ class LyricsTable {
     }
 
     Map<int, TableColumnWidth>? columnWidths = {};
-    if (rows.isNotEmpty) {
+    if (rows.isNotEmpty && hasLyrics) {
       columnWidths[rows[0].children!.length - 1] =
           MinColumnWidth(const IntrinsicColumnWidth(), FractionColumnWidth(showChords ? 0.35 : 0.95));
     }

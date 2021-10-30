@@ -50,7 +50,7 @@ flutter clean
 utcDate > lib/assets/utcDate.txt
 #flutter config --enable-web
 #	note: use web-render to run on the pi in park mode
-flutter build web --release --web-renderer html
+flutter build web --release
 
 #	clear the last one
 mkdir -p $dst

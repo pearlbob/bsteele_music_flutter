@@ -580,8 +580,10 @@ enum AppKeyEnum {
   optionsKeyOffset8,
   optionsKeyOffset9,
   optionsLeadership,
+  optionsUserName,
   optionsWebsocketBob,
   optionsWebsocketCJ,
+  optionsWebsocketIP,
   optionsWebsocketNone,
   optionsWebsocketPark,
   playerBack,
@@ -631,6 +633,7 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.mainSearchText: String,
   AppKeyEnum.mainSong: Id,
   AppKeyEnum.mainSortTypeSelection: MainSortType,
+  AppKeyEnum.optionsUserName: String,
   AppKeyEnum.playerBPM: int,
   AppKeyEnum.playerMusicKey: music_key.Key,
 };
@@ -944,6 +947,24 @@ ElevatedButton appButton(
   );
 }
 
+TextButton appIconButton({
+  required AppKeyEnum appKeyEnum,
+  required Widget icon,
+  required VoidCallback onPressed,
+}) {
+  var key = appKey(appKeyEnum);
+  return TextButton.icon(
+    key: key,
+    icon: icon,
+    label: const Text(''),
+    onPressed: () {
+      appLogKeyCallback(key);
+      onPressed();
+    },
+    style: app.themeData.elevatedButtonTheme.style,
+  );
+}
+
 InkWell appInkWell({
   required AppKeyEnum appKeyEnum,
   Color? backgroundColor,
@@ -993,24 +1014,6 @@ IconButton appEnumeratedIconButton({
     color: color,
     iconSize: iconSize ?? 24.0, //  demanded by IconButton
   );
-}
-
-TextButton appIconButton({
-  required AppKeyEnum appKeyEnum,
-  required Widget icon,
-  required VoidCallback onPressed,
-  ButtonStyle? style,
-}) {
-  var key = appKey(appKeyEnum);
-  return TextButton.icon(
-      key: key,
-      icon: icon,
-      label: const Text(''),
-      onPressed: () {
-        appLogKeyCallback(key);
-        onPressed();
-      },
-      style: style);
 }
 
 DropdownMenuItem<T> appDropdownMenuItem<T>({
@@ -1085,12 +1088,14 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
 TextField appTextField({
   required AppKeyEnum appKeyEnum,
   TextEditingController? controller,
+  final ValueChanged<String>? onChanged,
   String? hintText,
   double? fontSize,
 }) {
   return TextField(
     key: appKey(appKeyEnum),
     controller: controller,
+    onChanged: onChanged,
     decoration: InputDecoration(
       hintText: hintText,
     ),

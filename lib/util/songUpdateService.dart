@@ -82,7 +82,7 @@ class SongUpdateService extends ChangeNotifier {
               delaySeconds = 0;
               break;
             }
-            logger.v('webSocketChannel idle: $_isOpen, count: $_idleCount');
+            logger.log(_log, 'webSocketChannel idle: $_isOpen, count: $_idleCount');
           }
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
@@ -148,6 +148,8 @@ class SongUpdateService extends ChangeNotifier {
       _isOpen && _idleCount > 0 //  fixme: needs connection confirmation from server without a song update
       ;
 
+  bool get isIdle => authority.isEmpty;
+
   set isLeader(bool value) {
     if (value == _isLeader) {
       return;
@@ -155,6 +157,8 @@ class SongUpdateService extends ChangeNotifier {
     _isLeader = value;
     notifyListeners();
   }
+
+  bool get isFollowing => !_isLeader && !isIdle;
 
   bool get isLeader => _isLeader;
   bool _isLeader = false;

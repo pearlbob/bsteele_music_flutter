@@ -160,7 +160,7 @@ class SongUpdateService extends ChangeNotifier {
 
   bool get isFollowing => !_isLeader && !isIdle;
 
-  bool get isLeader => _isLeader;
+  bool get isLeader => isConnected && _isLeader;
   bool _isLeader = false;
 
   SongUpdate? _songUpdate;

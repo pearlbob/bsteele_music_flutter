@@ -191,37 +191,38 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       }
     }
 
-    // if (table != null) {
-    //   RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-    //   assert(renderObject != null && renderObject is RenderTable);
-    //   RenderTable renderTable = renderObject as RenderTable;
-    //
-    //   BoxHitTestResult result = BoxHitTestResult();
-    //   Offset position = Offset(20, boxCenter + scrollController.offset);
-    //   if (renderTable.hitTestChildren(result, position: position)) {
-    //     logger.d('hitTest $position: ${result.path.last}');
-    //     assert(songMomentLocations.isNotEmpty);
-    //     assert(songMomentLocations.length == _song.songMoments.length);
-    //
-    //     //  find the moment past the marker
-    //     var offset =
-    //         songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
-    //     var index = songMomentLocations.indexOf(offset);
-    //  ////////////////////////   selectedSongMoment = _song.songMoments[index];
-    //
-    //     // //  see if the section above is closer
-    //     // {
-    //     //   var sectionLocationIndex = sectionLocationIndexForSongMoment(songMoment);
-    //     //   if (sectionLocationIndex > 0) {
-    //     //     var delta1 = sectionLocations[index - 1] - position.dy;
-    //     //     var delta2 = sectionLocations[index] - position.dy;
-    //     //     if (delta1.abs() < delta2.abs()) {
-    //     //       songMoment = _song.songMoments[index - 1];
-    //     //     }
-    //     //   }
-    //     // }
-    //   }
-    // }
+    //  follow the leader's scroll
+    if (table != null && songUpdateService.isLeader) {
+      RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+      assert(renderObject != null && renderObject is RenderTable);
+      RenderTable renderTable = renderObject as RenderTable;
+
+      BoxHitTestResult result = BoxHitTestResult();
+      Offset position = Offset(20, boxCenter + scrollController.offset);
+      if (renderTable.hitTestChildren(result, position: position)) {
+        logger.d('hitTest $position: ${result.path.last}');
+        assert(songMomentLocations.isNotEmpty);
+        assert(songMomentLocations.length == _song.songMoments.length);
+
+        //  find the moment past the marker
+        var offset =
+            songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => songMomentLocations.last);
+        var index = songMomentLocations.indexOf(offset);
+        selectedSongMoment = _song.songMoments[index];
+
+        // //  see if the section above is closer
+        // {
+        //   var sectionLocationIndex = sectionLocationIndexForSongMoment(songMoment);
+        //   if (sectionLocationIndex > 0) {
+        //     var delta1 = sectionLocations[index - 1] - position.dy;
+        //     var delta2 = sectionLocations[index] - position.dy;
+        //     if (delta1.abs() < delta2.abs()) {
+        //       songMoment = _song.songMoments[index - 1];
+        //     }
+        //   }
+        // }
+      }
+    }
   }
 
   //  update the song update service status

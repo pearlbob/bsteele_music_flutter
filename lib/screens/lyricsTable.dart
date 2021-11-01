@@ -149,7 +149,7 @@ class LyricsTable {
                     break;
                   default:
                     w = _box(Text(
-                      '($r,$c)',
+                      '($r,$c)', //  diagnostic only!
                       style: c == columns - 1 ? _lyricsTextStyle : _coloredChordTextStyle,
                     ));
                     break;

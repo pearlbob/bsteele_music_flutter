@@ -35,7 +35,6 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app.dart';
-import '../main.dart';
 import 'detail.dart';
 
 late Song _initialSong;

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
@@ -90,6 +91,7 @@ class _State extends State<Lists> {
           nameValues.add(nameValue);
         }
       }
+      logger.v('lists.build: ${SongMetadata.idMetadata}');
       {
         //  clear the selected of old values
         List<NameValue> removal = [];
@@ -244,7 +246,7 @@ class _State extends State<Lists> {
               ),
               appWrapFullWidth([
                 appEnumeratedButton(
-                  'Save',
+                  'Write all to file',
                   appKeyEnum: AppKeyEnum.listsSave,
                   onPressed: () {
                     _saveSongMetadata();
@@ -253,7 +255,7 @@ class _State extends State<Lists> {
                 ),
                 if (_selectedNameValue != _emptySelectedNameValue)
                   appEnumeratedButton(
-                    'Save ${_selectedNameValue.name}:${_selectedNameValue.value}',
+                    'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
                     appKeyEnum: AppKeyEnum.listsSaveSelected,
                     onPressed: () {
                       _saveNameValueSongMetadata(_selectedNameValue);
@@ -380,9 +382,10 @@ class _State extends State<Lists> {
                       nameIs: _selectedNameValue.name,
                       valueIs: _selectedNameValue.value)) {
                     logger.d('remove: $songIdMetadata');
-                    SongMetadata.remove(songIdMetadata);
+                    SongMetadata.remove(songIdMetadata, _selectedNameValue);
                   }
                 }
+                AppOptions().storeSongMetadata();
               });
             }
           },

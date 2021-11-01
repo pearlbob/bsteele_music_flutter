@@ -105,7 +105,6 @@ import 'util/openLink.dart';
 const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 const _testCss = String.fromEnvironment('css', defaultValue: 'app.css');
-final userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? '';
 
 void main() async {
   Logger.level = Level.info;
@@ -126,7 +125,6 @@ void main() async {
 //  fixme: lyrics "instrumental:" blows up
 //  fixme: edit: big blowup if Song.createEmptySong() goes into song on a clear
 //  fixme: edit join/split should only do the following measure
-//  fixme: dynamic websocket status
 //  fixme: better websocket response
 //  fixme: player: cancel follow... without losing websocket ip address
 //  fixme: edit: delete section
@@ -384,7 +382,6 @@ class _MyHomePageState extends State<MyHomePage> {
       String songMetadataAsString = await loadString('lib/assets/allSongs.songmetadata');
 
       try {
-        SongMetadata.clear();
         SongMetadata.fromJson(songMetadataAsString);
         logger.i("internal song metadata used");
         setState(() {});
@@ -437,7 +434,6 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        SongMetadata.clear();
         SongMetadata.fromJson(metadataAsString);
         logger.i("external song metadata read from: " + url);
         setState(() {});

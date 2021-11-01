@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/songs/chordPro.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/widgets.dart';
@@ -114,6 +115,7 @@ class UtilLinux implements UtilWorkaround {
         String s = utf8.decode(file.readAsBytesSync());
 
         SongMetadata.fromJson(s);
+        AppOptions().storeSongMetadata();
 
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));

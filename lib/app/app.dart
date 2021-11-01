@@ -13,6 +13,8 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:universal_io/io.dart';
 
 import 'app_theme.dart';
 
@@ -20,6 +22,8 @@ final App app = App();
 
 // const _environmentDefault = 'main'; //  fixme: duplicate
 // const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
+
+String userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? 'my';
 
 final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone
@@ -41,6 +45,10 @@ enum CommunityJamsSongList {
   ninjam,
   ok,
 }
+
+NameValue get myGoodSongNameValue => NameValue(userName, 'good');
+
+NameValue get myBadSongNameValue => NameValue(userName, 'bad');
 
 /// workaround for rootBundle.loadString() failures in flutter test
 Future<String> loadString(String assetPath) async {
@@ -175,6 +183,26 @@ class App {
 
   int get displayKeyOffset => _displayKeyOffset;
   static int _displayKeyOffset = 0;
+
+  bool get fullscreenEnabled => html.document.fullscreenEnabled ?? false;
+
+  //
+  void requestFullscreen() {
+    if (html.document.fullscreenEnabled == true) {
+      html.document.documentElement?.requestFullscreen();
+      _isFullScreen = true;
+    }
+  }
+
+  void exitFullScreen() {
+    if (html.document.fullscreenEnabled == true) {
+      html.document.exitFullscreen();
+    }
+    _isFullScreen = false;
+  }
+
+  get isFullScreen => _isFullScreen;
+  bool _isFullScreen = false;
 
   static final App _singleton = App._internal();
 }

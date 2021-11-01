@@ -1,10 +1,11 @@
 import 'dart:collection';
 
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
-import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,11 @@ enum UserDisplayStyle {
 
   /// For an audience of both singers and players, both chords and lyrics will be fully displayed.
   both,
+}
+
+enum StorageValue {
+  //  only partial at the moment
+  songMetadata,
 }
 
 /// Application level, persistent, shared values.
@@ -53,8 +59,9 @@ class AppOptions extends ChangeNotifier {
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
     _holiday = await _readBool('holiday', defaultValue: _holiday);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
-    _user = await _readString('user', defaultValue: userName);
+    user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
+    _readSongMetadata();
     notifyListeners();
   }
 
@@ -254,6 +261,7 @@ class AppOptions extends ChangeNotifier {
     if (_user != value) {
       _user = value;
       _saveString('user', value);
+      userName = _user;
     }
   }
 
@@ -262,6 +270,40 @@ class AppOptions extends ChangeNotifier {
       _sheetDisplays = values;
       _saveString('sheetDisplays', sheetDisplaySetEncode(values));
     }
+  }
+
+  void storeSongMetadata() {
+    final storageSongMetadata = <SongIdMetadata>[];
+
+    //  remove the default name values
+    for (var metadata in SongMetadata.idMetadata) {
+      final nameValues = <NameValue>[];
+      for (var nameValue in metadata.nameValues) {
+        switch (nameValue.name) {
+          case 'cj':
+          case 'christmas':
+            break;
+          default:
+            nameValues.add(nameValue);
+        }
+      }
+      if (nameValues.isNotEmpty) {
+        storageSongMetadata.add(SongIdMetadata(metadata.id, metadata: nameValues));
+      }
+    }
+
+    String storage = SongMetadata.toJson(values: storageSongMetadata);
+    logger.d('storeSongMetadata(): ${Util.enumToString(StorageValue.songMetadata)}: $storage');
+    _saveString(Util.enumToString(StorageValue.songMetadata), storage);
+  }
+
+  void _readSongMetadata() async {
+    var jsonString = await _readString(Util.enumToString(StorageValue.songMetadata), defaultValue: '');
+    //logger.d('_readSongMetadata(): ${Util.enumToString(StorageValue.songMetadata)}: $jsonString');
+    if (jsonString.isNotEmpty) {
+      SongMetadata.fromJson(jsonString);
+    }
+    logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
   }
 
   /// A list of the names of sheet music displays that are currently active.

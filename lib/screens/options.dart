@@ -6,7 +6,6 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
@@ -43,17 +42,6 @@ class _Options extends State<Options> {
     setState(() {});
   }
 
-  //  fixme: apply fullscreen
-  void _requestFullscreen() {
-    html.document.documentElement?.requestFullscreen();
-    _isFullScreen = true;
-  }
-
-  void _exitFullScreen() {
-    html.document.exitFullscreen();
-    _isFullScreen = false;
-  }
-
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
@@ -76,16 +64,12 @@ class _Options extends State<Options> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 textDirection: TextDirection.ltr,
                 children: <Widget>[
-                  if (html.document.fullscreenEnabled == true)
+                  if (app.fullscreenEnabled)
                     Row(
                       children: <Widget>[
-                        appEnumeratedButton(_isFullScreen ? 'Exit fullscreen' : 'Enter fullscreen',
-                            appKeyEnum: AppKeyEnum.optionsFullScreen, onPressed: () {
-                          if (_isFullScreen) {
-                            _exitFullScreen();
-                          } else {
-                            _requestFullscreen();
-                          }
+                        appEnumeratedButton('Enter fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
+                            onPressed: () {
+                          app.requestFullscreen();
                         }),
                       ],
                     ),
@@ -599,8 +583,6 @@ class _Options extends State<Options> {
 
   //double _timerT = 0;
   final SongUpdateService _songUpdateService = SongUpdateService();
-
-  bool _isFullScreen = false;
 
   //final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();

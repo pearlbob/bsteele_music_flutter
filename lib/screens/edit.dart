@@ -35,6 +35,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app.dart';
+import '../main.dart';
 import 'detail.dart';
 
 late Song _initialSong;
@@ -210,6 +211,12 @@ class _Edit extends State<Edit> {
   }
 
   void loadSong(Song songToLoad) {
+    selectedEditDataPoint = null;
+    measureEntryIsClear = true;
+    measureEntryCorrection = null;
+    measureEntryValid = false;
+    measureEntryNode = null;
+
     song = songToLoad;
 
     titleTextEditingController.text = song.title;
@@ -316,7 +323,7 @@ class _Edit extends State<Edit> {
 
     //  build the chords display based on the song chord section grid
     tableKeyId = 0;
-    maxCols = 0;
+    int maxCols = 0; //  for chords only due to plus items
     {
       logger.d('size: ' + MediaQuery.of(context).size.toString());
 
@@ -324,7 +331,7 @@ class _Edit extends State<Edit> {
       Grid<ChordSectionLocation> chordGrid = song.getChordSectionLocationGrid();
       Grid<_EditDataPoint> editDataPoints = Grid();
 
-      if (chordGrid.isNotEmpty) {
+      {
         chordRows = [];
         chordRowChildren = [];
 
@@ -356,6 +363,7 @@ class _Edit extends State<Edit> {
             // }
           }
         }
+
         maxCols = 2 * maxCols //  item + the add measure marker plus
             +
             1; //  add row plus marker
@@ -372,6 +380,7 @@ class _Edit extends State<Edit> {
           if (row == null) {
             continue;
           }
+          chordRowChildren = [];
 
           ChordSectionLocation? firstChordSectionLocation;
           marginInsets = EdgeInsets.all(chordFontSize / 4);
@@ -473,7 +482,7 @@ class _Edit extends State<Edit> {
                     chordRowChildren.add(plusRowWidget(repeatLoc));
                   }
 
-                  completeAndAddChordRowChildren();
+                  completeAndAddChordRowChildren(maxCols);
 
                   //  add blank col for the new row
                   chordRowChildren.add(Container());
@@ -492,7 +501,7 @@ class _Edit extends State<Edit> {
                             ? ChordSectionLocationMarker.repeatUpperRight
                             : ChordSectionLocationMarker.repeatMiddleRight)));
                   }
-                  completeAndAddChordRowChildren();
+                  completeAndAddChordRowChildren(maxCols);
                   chordRowChildren.add(Container());
                   chordRowChildren.add(measureEditGridDisplayWidget(newLineEditDataPoint));
                   if (repeatLoc != null && phraseRowCount == 0) {
@@ -552,7 +561,7 @@ class _Edit extends State<Edit> {
               }
             }
 
-            completeAndAddChordRowChildren();
+            completeAndAddChordRowChildren(maxCols);
 
             phraseRowCount++;
 
@@ -565,41 +574,44 @@ class _Edit extends State<Edit> {
 
         //  add the append for a new section
         {
+          chordRowChildren = [];
           Widget child;
           if (selectedEditDataPoint?.isSection ?? false) {
             child = sectionEditGridDisplayWidget(selectedEditDataPoint!);
           } else {
             child = Container(
-                margin: marginInsets,
-                padding: textPadding,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _addColor,
+              margin: marginInsets,
+              padding: textPadding,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: _addColor,
+              ),
+              child: appTooltip(
+                message: 'add new chord section here',
+                child: appInkWell(
+                  appKeyEnum: AppKeyEnum.editNewChordSection,
+                  keyCallback: () {
+                    setState(() {
+                      song.setCurrentChordSectionLocation(null);
+                      song.setCurrentMeasureEditType(MeasureEditType.append);
+                      ChordSection cs = suggestNewSection();
+                      selectedEditDataPoint =
+                          _EditDataPoint.byChordSection(cs, measureEditType: MeasureEditType.append);
+                      logger.d('editNewChordSection: ${song.toMarkup()} + $selectedEditDataPoint');
+                    });
+                  },
+                  child: Icon(
+                    Icons.add,
+                    size: chordFontSize,
+                  ),
                 ),
-                child: appTooltip(
-                    message: 'add new chord section here',
-                    child: appInkWell(
-                      appKeyEnum: AppKeyEnum.editNewChordSection,
-                      keyCallback: () {
-                        setState(() {
-                          song.setCurrentChordSectionLocation(null);
-                          song.setCurrentMeasureEditType(MeasureEditType.append);
-                          ChordSection cs = suggestNewSection();
-                          selectedEditDataPoint =
-                              _EditDataPoint.byChordSection(cs, measureEditType: MeasureEditType.append);
-                          logger.d('editNewChordSection: ${song.toMarkup()} + $selectedEditDataPoint');
-                        });
-                      },
-                      child: Icon(
-                        Icons.add,
-                        size: chordFontSize,
-                      ),
-                    ),
-                    key: const ValueKey('newChordSection')));
+              ),
+            );
           }
+          logger.d('chordRowChildren: $chordRowChildren, child: $child');
           chordRowChildren.add(child);
 
-          completeAndAddChordRowChildren();
+          completeAndAddChordRowChildren(maxCols);
         }
 
         chordTable = Table(
@@ -711,7 +723,8 @@ class _Edit extends State<Edit> {
                                       appKeyEnum: AppKeyEnum.editClearSong,
                                       onPressed: () {
                                         setState(() {
-                                          song = Song.createEmptySong();
+                                          song = Song.createSong('', '', '', music_key.Key.getDefault(), 106, 4, 4,
+                                              userName, 'V: ', 'V: ');
                                           loadSong(song);
                                           undoStackPushIfDifferent();
                                         });
@@ -1248,9 +1261,9 @@ class _Edit extends State<Edit> {
     );
   }
 
-  void completeAndAddChordRowChildren() {
+  void completeAndAddChordRowChildren(int cols) {
     //  add children to max columns to keep the table class happy
-    while (chordRowChildren.length < maxCols) {
+    while (chordRowChildren.length < cols) {
       chordRowChildren.add(Container());
     }
 
@@ -1274,6 +1287,7 @@ class _Edit extends State<Edit> {
     var chordMaxColCount = song.getChordSectionLocationGridMaxColCount();
     logger.v('chordMaxColCount: $chordMaxColCount');
     chordMaxColCount = song.chordRowMaxLength();
+    chordMaxColCount += 2; //fixme: test!!!!!!!!!!!!!!!!!!
 
     //  generate the section pull down data if required
     List<DropdownMenuItem<ChordSection>> sectionItems =
@@ -1296,8 +1310,8 @@ class _Edit extends State<Edit> {
     for (final entry in lyricsEntries.entries) {
       //  insert new section above
       {
-        var lyricsChildren = <Widget>[];
-        lyricsChildren.add(Row(
+        var children = <Widget>[];
+        children.add(Row(
           children: [
             appTooltip(
               message: 'Add new lyrics section here',
@@ -1328,11 +1342,11 @@ class _Edit extends State<Edit> {
             ),
           ],
         ));
-        while (lyricsChildren.length < maxCols) {
-          lyricsChildren.add(Container());
+        while (children.length < chordMaxColCount) {
+          children.add(Container());
         }
 
-        lyricsRows.add(TableRow(children: lyricsChildren));
+        lyricsRows.add(TableRow(children: children));
       }
 
       //  chord section headers
@@ -1351,7 +1365,7 @@ class _Edit extends State<Edit> {
           ),
         ));
 
-        for (var c = 0; c < chordMaxColCount - 1; c++) {
+        while (children.length < chordMaxColCount - 1) {
           children.add(const Text(''));
         }
         children.add(appTooltip(
@@ -1370,7 +1384,7 @@ class _Edit extends State<Edit> {
           ),
         ));
 
-        while (children.length < maxCols) {
+        while (children.length < chordMaxColCount) {
           children.add(Container());
         }
         lyricsRows.add(TableRow(children: children));
@@ -1387,7 +1401,6 @@ class _Edit extends State<Edit> {
 
         //  chord rows
         {
-          var c = 0;
           if (line < chordRowCount) {
             var row = chordSection?.rowAt(line, expanded: expanded);
             logger.d('row.length: ${row?.length}/$chordMaxColCount');
@@ -1402,15 +1415,46 @@ class _Edit extends State<Edit> {
                   maxLines: 1,
                 ),
               ));
-              c++;
             }
           }
-          for (; c < chordMaxColCount; c++) {
-            children.add(const Text(''));
+          while (children.length < chordMaxColCount - 1) {
+            children.add(Container());
           }
         }
 
-        if (line < lineCount) {
+        assert(children.length < chordMaxColCount);
+
+        if (line == 0 && lineCount == 0) {
+          children.add(
+            Row(
+              children: [
+                appInkWell(
+                  appKeyEnum: AppKeyEnum.lyricsEntryLineAdd,
+                  value: line,
+                  keyCallback: () {
+                    lyricsEntries.addBlankLyricsLine(entry);
+                    logger.log(_editLog, 'addBlankLyricsLine: $entry');
+                    pushLyricsEntries();
+                  },
+                  child: Container(
+                      margin: appendInsets,
+                      padding: textPadding,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _addColor,
+                      ),
+                      child: appTooltip(
+                        message: 'add a lyric line here',
+                        child: Icon(
+                          Icons.add,
+                          size: chordFontSize,
+                        ),
+                      )),
+                ),
+              ],
+            ),
+          );
+        } else if (line < lineCount) {
           var lyricsTextField = entry.textFieldAt(line);
 
           children.add(Row(
@@ -1486,40 +1530,8 @@ class _Edit extends State<Edit> {
               ),
             ],
           ));
-        } else if (line == 0 && lineCount == 0) {
-          children.add(
-            Row(
-              children: [
-                appInkWell(
-                  appKeyEnum: AppKeyEnum.lyricsEntryLineAdd,
-                  value: line,
-                  keyCallback: () {
-                    lyricsEntries.addBlankLyricsLine(entry);
-                    logger.log(_editLog, 'addBlankLyricsLine: $entry');
-                    pushLyricsEntries();
-                  },
-                  child: Container(
-                      margin: appendInsets,
-                      padding: textPadding,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _addColor,
-                      ),
-                      child: appTooltip(
-                        message: 'add a lyric line here',
-                        child: Icon(
-                          Icons.add,
-                          size: chordFontSize,
-                        ),
-                      )),
-                ),
-              ],
-            ),
-          );
-        } else {
-          children.add(const Text(''));
         }
-        while (children.length < maxCols) {
+        while (children.length < chordMaxColCount) {
           children.add(Container());
         }
 
@@ -1560,7 +1572,7 @@ class _Edit extends State<Edit> {
         ),
       );
 
-      while (children.length < maxCols) {
+      while (children.length < chordMaxColCount) {
         children.add(Container());
       }
 
@@ -2021,9 +2033,10 @@ class _Edit extends State<Edit> {
       }
 
       measureNode = song.findMeasureNodeByLocation(editDataPoint.location.asPhrase());
-      if (measureNode != null) {
-        phrase = measureNode as Phrase;
+      if (measureNode is Phrase) {
+        phrase = measureNode;
       }
+      //  note: can be a chord section location!
     }
 
     Color sectionColor = getBackgroundColorForSection(editDataPoint.location.sectionVersion?.section);
@@ -3284,7 +3297,6 @@ class _Edit extends State<Edit> {
   TextSelection? lastEditTextSelection;
 
   Table? chordTable;
-  int maxCols = 0; //  same  for chords and lyrics
   List<TableRow> chordRows = [];
   List<Widget> chordRowChildren = [];
   int tableKeyId = 0;

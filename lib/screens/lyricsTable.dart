@@ -6,7 +6,6 @@ import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyric.dart';
-import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
@@ -14,15 +13,14 @@ import 'package:bsteeleMusicLib/songs/measureRepeatMarker.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
 
-typedef LyricsTextWidget = Widget Function(LyricSection lyricSection, int lineNumber, String s);
-typedef LyricsSectionHeaderWidget = Widget Function(Key key, LyricSection lyricSection);
-typedef LyricsEndWidget = Widget Function();
+const double _defaultLyricsFraction = 0.35;
 
 /// compute a lyrics table
 class LyricsTable {
@@ -33,11 +31,13 @@ class LyricsTable {
     expanded = false,
     double? chordFontSize,
     List<SongMoment>? givenSelectedSongMoments,
+    double? lyricsFraction,
   }) {
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
     _chordFontSize = chordFontSize;
     List<SongMoment> selectedSongMoments = givenSelectedSongMoments ?? [];
+    _lyricsFraction = Util.doubleLimit(lyricsFraction ?? _defaultLyricsFraction, 0.15, 0.90);
 
     _computeScreenSizes();
 
@@ -88,7 +88,7 @@ class LyricsTable {
                 _colorBySection(chordSection);
                 w = _box(appWidgetHelper.chordSection(
                   chordSection,
-                  style: _coloredChordTextStyle,
+                  style: _coloredBackgroundLyricsTextStyle,
                 ));
               }
               break;
@@ -168,7 +168,7 @@ class LyricsTable {
     Map<int, TableColumnWidth>? columnWidths = {};
     if (rows.isNotEmpty && hasLyrics) {
       columnWidths[rows[0].children!.length - 1] =
-          MinColumnWidth(const IntrinsicColumnWidth(), FractionColumnWidth(showChords ? 0.35 : 0.95));
+          MinColumnWidth(const IntrinsicColumnWidth(), FractionColumnWidth(showChords ? _lyricsFraction : 0.95));
     }
 
     _table = Table(
@@ -191,8 +191,8 @@ class LyricsTable {
   Widget _measureBox(Widget w, {Color? selectionColor}) {
     return Container(
       //  outline container
-      margin: const EdgeInsets.all(3),
-      padding: const EdgeInsets.all(2),
+      margin: getMeasureMargin(),
+      padding: getMeasurePadding(),
       child: Container(
         //  inner container of section color
         margin: getMeasureMargin(),
@@ -237,6 +237,8 @@ class LyricsTable {
 
     _lyricsTextStyle = generateLyricsTextStyle(fontSize: _lyricsFontSize);
   }
+
+  double _lyricsFraction = 0.35;
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 100;

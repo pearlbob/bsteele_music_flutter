@@ -123,13 +123,18 @@ void main() async {
 }
 
 /*
-//  fixme: should the leader be able to capo?
-//  fixme: should the leader be able to key offset?
+//  fixme: lyrics "instrumental:" blows up
+//  fixme: edit: big blowup if Song.createEmptySong() goes into song on a clear
 //  fixme: edit join/split should only do the following measure
 //  fixme: dynamic websocket status
 //  fixme: better websocket response
 //  fixme: player: cancel follow... without losing websocket ip address
 //  fixme: edit: delete section
+//  fixme: next/previous song in list on player
+//  fixme: singer lists, eg. singer:vicki, select and auto add in player
+//  fixme: map song:singer to key for default key next time
+//  fixme: should the leader be able to capo?
+//  fixme: should the leader be able to key offset?
 //  fixme: edit: measure entry should allow section header declarations
 //  fixme: verify in studio:  let it be in C, cramped on HDMI on mac,
 //  fixme: on mac + chrome: bold musical flat sign is way ugly
@@ -261,8 +266,6 @@ build release:
 executable (without assets) is in ./build/linux/release/bundle/${project}
 
  */
-
-SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
 const _searchTextTooltipText = 'Enter search text here.\n Title, artist and cover artist will be searched.';
 
@@ -1203,7 +1206,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _rollIndex = -1;
 
   AppOptions appOptions;
-  Song? _lastSelectedSong;
 
   final _random = Random();
   static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
@@ -1218,4 +1220,37 @@ Future<String> fetchString(String uriString) async {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $uriString');
   }
+}
+
+SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
+Song? _lastSelectedSong;
+
+Song previousSongInTheList() {
+  if (_filteredSongs.isEmpty) {
+    return Song.createEmptySong();
+  }
+  if (_lastSelectedSong == null) {
+    _lastSelectedSong = _filteredSongs.first;
+    return _lastSelectedSong!;
+  }
+  var list = _filteredSongs.toList(growable: false);
+  var index = list.indexOf(_lastSelectedSong!) - 1; //  will be -2 if not found
+  index = index % list.length;
+  _lastSelectedSong = list[index];
+  return _lastSelectedSong!;
+}
+
+Song nextSongInTheList() {
+  if (_filteredSongs.isEmpty) {
+    return Song.createEmptySong();
+  }
+  if (_lastSelectedSong == null) {
+    _lastSelectedSong = _filteredSongs.first;
+    return _lastSelectedSong!;
+  }
+  var list = _filteredSongs.toList(growable: false);
+  var index = list.indexOf(_lastSelectedSong!) + 1; //  will be zero if not found
+  index = index % list.length;
+  _lastSelectedSong = list[index];
+  return _lastSelectedSong!;
 }

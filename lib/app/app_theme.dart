@@ -497,6 +497,7 @@ enum AppKeyEnum {
   editCancelChordModification,
   editChordDataPoint,
   editAddChordRow,
+  editAddChordRowNew,
   editAddChordRowRepeat,
   editChordPlusInsert,
   editChordPlusAppend,
@@ -613,6 +614,7 @@ enum AppKeyEnum {
 
 Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.editAddChordRow: ChordSectionLocation,
+  AppKeyEnum.editAddChordRowNew: ChordSectionLocation,
   AppKeyEnum.editAddChordRowRepeat: ChordSectionLocation,
   AppKeyEnum.editChordPlusInsert: ChordSectionLocation,
   AppKeyEnum.editChordPlusAppend: ChordSectionLocation,

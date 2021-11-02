@@ -103,7 +103,6 @@ class Player extends StatefulWidget {
 class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   _Player() {
     _player = this;
-    scrollTimeReset();
 
     //  as leader, distribute current location
     scrollController.addListener(_scrollControllerListener);
@@ -1194,7 +1193,7 @@ With escape, the app goes back to the play list.''',
   bool scrollToTarget(double target) {
     //  don't scroll if we're already scrolling
     if (DateTime.now().isBefore(nextScrollTime)) {
-      logger.d('scrollToTarget rejected on time');
+      logger.i('scrollToTarget rejected on time');
       return false;
     }
 
@@ -1202,21 +1201,19 @@ With escape, the app goes back to the play list.''',
       logger.log(_playerLogScroll, 'scrollTarget != target, $scrollTarget != $target');
       setState(() {
         scrollTarget = target;
-        scrollController.animateTo(target - boxCenter, duration: scrollDuration, curve: Curves.ease);
-        nextScrollTime = DateTime.now().add(scrollDuration);
+        double offset = max(0, target - boxCenter);
+        if (scrollController.offset != offset) {
+          scrollController.animateTo(offset, duration: scrollDuration, curve: Curves.ease);
+          scrollTimeReset();
+        }
       });
       return true;
     }
     return false;
   }
 
-  void scrollJumpTo(double value) {
-    scrollController.jumpTo(value);
-    scrollTimeReset(); //  clear timer for next soft scroll
-  }
-
   void scrollTimeReset() {
-    nextScrollTime = DateTime.now().subtract(scrollDuration);
+    nextScrollTime = DateTime.now().add(scrollDuration);
   }
 
   int sectionLocationIndexForSongMoment(SongMoment songMoment) {

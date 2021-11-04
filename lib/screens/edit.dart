@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/grid.dart';
 import 'package:bsteeleMusicLib/songs/chordComponent.dart';
 import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
+import 'package:bsteeleMusicLib/songs/chordSectionGridData.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/measure.dart';
@@ -62,6 +63,7 @@ final ChordSectionLocation emptyLocation = // last resort, better than null
 const Level _editLog = Level.debug;
 const Level _editEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
+const Level _editEditPoint = Level.info;
 
 /*
 Song notes:
@@ -319,17 +321,17 @@ class _Edit extends State<Edit> {
       color: Colors.black87,
     );
     _textFieldStyle = generateAppTextFieldStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-    _labelTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, fontWeight: FontWeight.bold);
+    _labelTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
 
     //  build the chords display based on the song chord section grid
     tableKeyId = 0;
     int maxCols = 0; //  for chords only due to plus items
+    late Table chordTable2;
     {
       logger.d('size: ' + MediaQuery.of(context).size.toString());
 
       //  build the table from the song chord section grid
-      Grid<ChordSectionLocation> chordGrid = song.getChordSectionLocationGrid();
-      Grid<_EditDataPoint> editDataPoints = Grid();
+      Grid<ChordSectionGridData> chordGrid = song.getChordSectionGrid();
 
       {
         chordRows = [];
@@ -342,7 +344,7 @@ class _Edit extends State<Edit> {
 
         {
           for (int r = 0; r < chordGrid.getRowCount(); r++) {
-            List<ChordSectionLocation?>? row = chordGrid.getRow(r);
+            List<ChordSectionGridData?>? row = chordGrid.getRow(r);
             maxCols = max(maxCols, row?.length ?? 0);
 
             // //  test for no end of row
@@ -378,7 +380,7 @@ class _Edit extends State<Edit> {
 
         //  map the song chord section grid to a flutter table, one row at a time
         for (int r = 0; r < chordGrid.getRowCount(); r++) {
-          List<ChordSectionLocation?>? row = chordGrid.getRow(r);
+          List<ChordSectionGridData?>? row = chordGrid.getRow(r);
           if (row == null) {
             continue;
           }
@@ -391,12 +393,12 @@ class _Edit extends State<Edit> {
           //  find the first col with data
           //  should normally be col 1 (i.e. the second col)
           //  use its section version for the row
-          {
-            for (final ChordSectionLocation? loc in row) {
-              if (loc == null) {
+              {
+            for (final ChordSectionGridData? data in row) {
+              if (data == null) {
                 continue;
               } else {
-                firstChordSectionLocation = loc;
+                firstChordSectionLocation = data.chordSectionLocation;
                 break;
               }
             }
@@ -427,57 +429,61 @@ class _Edit extends State<Edit> {
 
             //  for each column of the song grid, create the appropriate widget
             for (int c = 0; c < row.length; c++) {
-              ChordSectionLocation? loc = row[c];
-              if (loc != null && loc.hasPhraseIndex && phraseIndex != loc.phraseIndex) {
-                phraseIndex = loc.phraseIndex;
+              ChordSectionGridData? data = row[c];
+              if (data != null &&
+                  data.chordSectionLocation.hasPhraseIndex &&
+                  phraseIndex != data.chordSectionLocation.phraseIndex) {
+                phraseIndex = data.chordSectionLocation.phraseIndex;
                 phraseRowCount = 0;
                 repeatLoc = null;
               }
               if (c > 0) {
-                lastLoc ??= loc;
+                lastLoc ??= data?.chordSectionLocation;
               }
-              var measure = song.findMeasureByChordSectionLocation(loc);
+              var measure = song.findMeasureByChordSectionLocation(data?.chordSectionLocation);
               Phrase? phrase;
               {
-                var p = song.findMeasureNodeByLocation(loc?.asPhraseLocation()); //  fixme: better mechanics here?
+                var p = song.findMeasureNodeByLocation(
+                    data?.chordSectionLocation.asPhraseLocation()); //  fixme: better mechanics here?
                 if (p is Phrase) {
                   phrase = p;
                 }
               }
 
-              logger.d('loc: ($r,$c): ${loc.toString()}, phraseIndex: $phraseIndex, phraseRowCount: $phraseRowCount'
+              logger.d('loc: ($r,$c): ${data.toString()}, phraseIndex: $phraseIndex, phraseRowCount: $phraseRowCount'
                   ', m: \'${measure?.toMarkup()}\''
-                  ', marker: ${loc?.marker.toString()}');
+                  ', marker: ${data?.chordSectionLocation.marker.toString()}');
 
               //  main elements
-              Widget w;
-              _EditDataPoint editDataPoint = _EditDataPoint(loc);
-              // logger.log(_editEntry, '$editDataPoint.isAt($_selectedEditDataPoint) = ${editDataPoint.isAt(_selectedEditDataPoint)}');
-              if (loc == null) {
-                w = nullEditGridDisplayWidget();
-              } else if (loc.isSection) {
-                w = sectionEditGridDisplayWidget(editDataPoint);
-              } else if (loc.isMeasure) {
-                w = measureEditGridDisplayWidget(editDataPoint);
-              } else if (loc.isRepeat) {
-                w = repeatEditGridDisplayWidget(editDataPoint);
-              } else if (loc.isMarker) {
-                w = markerEditGridDisplayWidget(editDataPoint);
-              } else {
-                w = nullEditGridDisplayWidget();
+              {
+                Widget w;
+                final _EditDataPoint editDataPoint = _EditDataPoint(data?.chordSectionLocation);
+                // logger.log(_editEntry, '$editDataPoint.isAt($_selectedEditDataPoint) = ${editDataPoint.isAt(_selectedEditDataPoint)}');
+                if (data == null) {
+                  w = nullEditGridDisplayWidget();
+                } else if (data.isSection) {
+                  w = sectionEditGridDisplayWidget(editDataPoint);
+                } else if (data.isMeasure) {
+                  w = measureEditGridDisplayWidget(editDataPoint);
+                } else if (data.isRepeat) {
+                  w = repeatEditGridDisplayWidget(editDataPoint);
+                } else if (data.isMarker) {
+                  w = markerEditGridDisplayWidget(editDataPoint);
+                } else {
+                  w = nullEditGridDisplayWidget();
+                }
+                chordRowChildren.add(w);
               }
-              chordRowChildren.add(w);
-              editDataPoints.set(r, c * 2, editDataPoint);
 
               //  add a row element in front of a repeat phrase
               if (c == 0) {
                 if (row.length > 1) {
-                  repeatLoc = row[1];
+                  //  find the repeat location
+                  repeatLoc = row[1]?.chordSectionLocation;
                   if (repeatLoc != null) {
                     var measureNode = song.findMeasureNodeByLocation(repeatLoc);
                     if (measureNode != null) {
                       var measureNode = song.findMeasureNodeByLocation(repeatLoc.asPhraseLocation());
-                      logger.d('c == 0: $measureNode ${measureNode?.isRepeat()}');
                       repeatLoc = (measureNode?.isRepeat() ?? false) ? repeatLoc : null;
                     }
                   }
@@ -486,7 +492,12 @@ class _Edit extends State<Edit> {
                 if (repeatLoc != null &&
                     (repeatLoc.phraseIndex == 0 || priorPhraseIsRepeat(repeatLoc)) &&
                     repeatLoc.measureIndex == 0) {
+                  logger.log(
+                      _editEditPoint,
+                      'add measures in front of a repeat phrase: $selectedEditDataPoint'
+                      ', repeatLoc: $repeatLoc');
                   if (selectedEditDataPoint?._measureEditType == MeasureEditType.insert) {
+                    chordRowChildren.add(const NullWidget()); //  past the plus column
                     chordRowChildren.add(insertMeasureBeforeRepeat(repeatLoc.asPhraseLocation()));
                   } else if (selectedEditDataPoint == null) {
                     chordRowChildren.add(plusRowWidget(repeatLoc));
@@ -499,14 +510,15 @@ class _Edit extends State<Edit> {
                 }
               } else {
                 //  test for new line measure add
-                _EditDataPoint newLineEditDataPoint =
-                    editDataPoint = _EditDataPoint(loc, measureEditType: MeasureEditType.append, onEndOfRow: true);
+                final _EditDataPoint newLineEditDataPoint = _EditDataPoint(data?.chordSectionLocation,
+                    measureEditType: MeasureEditType.append, onEndOfRow: true);
 
                 if (newLineEditDataPoint == selectedEditDataPoint) {
-                  logger.d('newLineEditDataPoint match: _selectedEditDataPoint: $selectedEditDataPoint');
+                  logger.log(
+                      _editEditPoint, 'newLineEditDataPoint match: _selectedEditDataPoint: $selectedEditDataPoint');
                   if (repeatLoc != null) {
                     //  temporary mark off of prior row in appending new row in a repeat
-                    chordRowChildren.add(markerEditGridDisplayWidget(editDataPoint,
+                    chordRowChildren.add(markerEditGridDisplayWidget(newLineEditDataPoint,
                         forceMeasureNode: MeasureRepeatExtension.get(phraseRowCount == 0
                             ? ChordSectionLocationMarker.repeatUpperRight
                             : ChordSectionLocationMarker.repeatMiddleRight)));
@@ -523,64 +535,64 @@ class _Edit extends State<Edit> {
                     }
 
                     //  temporary mark off of current temporary row in appending new row in a repeat
-                    chordRowChildren.add(markerEditGridDisplayWidget(editDataPoint,
+                    chordRowChildren.add(markerEditGridDisplayWidget(newLineEditDataPoint,
                         forceMeasureNode: MeasureRepeatExtension.get(ChordSectionLocationMarker.repeatLowerRight)));
                   }
                 }
               }
 
               //  + measure elements
-                  {
-                editDataPoint = _EditDataPoint(loc);
-                editDataPoint._measureEditType = MeasureEditType.append; //  default
+              {
+                Widget w;
+                final _EditDataPoint plusEditDataPoint =
+                    _EditDataPoint(data?.chordSectionLocation, measureEditType: MeasureEditType.append);
 
-                if (loc == null) {
+                if (data == null) {
                   if (c == 0 && row.length > 1) {
                     //  insert in front of first measure of the row
-                    editDataPoint._measureEditType = MeasureEditType.insert;
-                    editDataPoint.location = row[1] ?? emptyLocation;
-                    w = plusMeasureEditGridDisplayWidget(editDataPoint);
+                    plusEditDataPoint._measureEditType = MeasureEditType.insert;
+                    plusEditDataPoint.location = row[1]?.chordSectionLocation ?? emptyLocation;
+                    w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
                   } else {
                     w = nullEditGridDisplayWidget();
                   }
-                } else if (loc.isSection) {
+                } else if (data.isSection) {
                   if (c == 0) {
                     if (row.length > 1) {
                       //  insert in front of first measure of the section
-                      editDataPoint._measureEditType = MeasureEditType.insert;
-                      editDataPoint.location = row[1] ?? emptyLocation;
-                      w = plusMeasureEditGridDisplayWidget(editDataPoint);
+                      plusEditDataPoint._measureEditType = MeasureEditType.insert;
+                      plusEditDataPoint.location = row[1]?.chordSectionLocation ?? emptyLocation;
+                      w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
                     } else {
                       //  append to an empty section
-                      editDataPoint._measureEditType = MeasureEditType.append;
-                      editDataPoint.location = loc;
-                      w = plusMeasureEditGridDisplayWidget(editDataPoint);
+                      plusEditDataPoint._measureEditType = MeasureEditType.append;
+                      plusEditDataPoint.location = data.chordSectionLocation;
+                      w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
                     }
                   } else {
                     w = nullEditGridDisplayWidget();
                   }
-                } else if (loc.isMeasure) {
+                } else if (data.isMeasure) {
                   assert(measure != null);
-                  w = plusMeasureEditGridDisplayWidget(editDataPoint);
+                  w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
                   if (selectedEditDataPoint == null &&
                       ((measure?.endOfRow ?? false) || identical(measure, phrase?.lastMeasure))) {
                     //  sneak a new row request after the plus   fixme: too tricky
                     chordRowChildren.add(w);
-                    w = plusNewRow(loc);
+                    w = plusNewRow(data.chordSectionLocation);
                   }
                 } else {
                   w = nullEditGridDisplayWidget();
                 }
                 chordRowChildren.add(w);
-                editDataPoints.set(r, c * 2 + 1, editDataPoint);
               }
 
               //  add the option to add a repeat if the row is not a repeat already
               if (selectedEditDataPoint == null && measure != null && (c == row.length - 1 || measure.endOfRow)) {
-                var phrase = song
-                    .findMeasureNodeByLocation(ChordSectionLocation(loc!.sectionVersion, phraseIndex: loc.phraseIndex));
+                var phrase = song.findMeasureNodeByLocation(
+                    ChordSectionLocation(data!.sectionVersion, phraseIndex: data.chordSectionLocation.phraseIndex));
                 if (phrase != null && phrase is! MeasureRepeat) {
-                  chordRowChildren.add(plusRepeatWidget(loc));
+                  chordRowChildren.add(plusRepeatWidget(data.chordSectionLocation));
                 }
               }
             }
@@ -645,8 +657,105 @@ class _Edit extends State<Edit> {
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: chordRows,
         );
+      }
 
-        logger.v(editDataPoints.toMultiLineString());
+      {
+        chordRows = [];
+
+        //  find the max row column count
+        int maxRowLength = 0;
+        for (var r = 0; r < chordGrid.getRowCount(); r++) {
+          maxRowLength = max(maxRowLength, chordGrid.rowLength(r));
+        }
+
+        //  entry for each row
+        ChordSection? chordSection;
+        Phrase? phrase;
+        Measure? measure;
+        ChordSectionLocation? lastLoc;
+        for (var r = 0; r < chordGrid.getRowCount(); r++) {
+          var row = chordGrid.getRow(r);
+          if (row == null) {
+            continue;
+          }
+
+          chordRowChildren = [];
+          for (var c = 0; c < row.length; c++) {
+            var data = row[c];
+            if (data == null) {
+              chordRowChildren.add(Container(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  '${chordSection?.sectionVersion}, $lastLoc',
+                  //     '${measureNode.runtimeType} $loc: $contents',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ));
+              chordRowChildren.add(Container(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  '$lastLoc $measure ${measure?.endOfRow} +',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ));
+              continue;
+            }
+            lastLoc = data.chordSectionLocation;
+            var measureNode = song.findMeasureNodeByLocation(data.chordSectionLocation);
+            switch (measureNode.runtimeType) {
+              case ChordSection:
+                chordSection = measureNode as ChordSection;
+                break;
+              default:
+                var p = song.findMeasureNodeByLocation(data.chordSectionLocation.asPhraseLocation());
+                if (p != null) {
+                  phrase = p as Phrase;
+                } else {
+                  logger.i('found: ${measureNode.runtimeType}');
+                }
+                break;
+            }
+            var contents = measureNode?.runtimeType == null ? 'null' : measureNode!.toMarkupWithoutEnd();
+            measure = measureNode is Measure ? measureNode : null;
+            var endOfRow =
+                (measure?.endOfRow ?? false) || ((phrase?.length ?? 0) - 1 == data.chordSectionLocation.measureIndex);
+            chordRowChildren.add(Container(
+              padding: const EdgeInsets.all(4),
+              child: Text(
+                '$data (${chordSection?.sectionVersion}, phrase${data.chordSectionLocation.phraseIndex}:${phrase?.length}'
+                ', ${data.chordSectionLocation.measureIndex}'
+                ', $contents'
+                '${endOfRow ? ', endOfRow' : ''}',
+                style: const TextStyle(fontSize: 20),
+              ),
+            ));
+            chordRowChildren.add(Container(
+              padding: const EdgeInsets.all(4),
+              child: Text(
+                '$data+',
+                style: const TextStyle(fontSize: 20),
+              ),
+            ));
+          }
+
+          while (chordRowChildren.length < 2 * maxRowLength) {
+            chordRowChildren.add(const Text(' '));
+          }
+          chordRows.add(TableRow(children: chordRowChildren));
+        }
+        chordTable2 = Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: chordRows,
+          border: const TableBorder(
+            top: BorderSide(),
+            right: BorderSide(),
+            bottom: BorderSide(),
+            left: BorderSide(),
+            horizontalInside: BorderSide(),
+            verticalInside: BorderSide(),
+          ),
+        );
       }
     }
 
@@ -716,6 +825,7 @@ class _Edit extends State<Edit> {
                             appEnumeratedButton(
                               songHasChanged ? (isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
                               appKeyEnum: AppKeyEnum.editEnterSong,
+                              fontSize: _defaultChordFontSize,
                               onPressed: () {
                                 if (songHasChanged && isValidSong) {
                                   enterSong();
@@ -732,6 +842,7 @@ class _Edit extends State<Edit> {
                                   appButton(
                                     'Sheet music',
                                     appKeyEnum: AppKeyEnum.editScreenDetail,
+                                    fontSize: _defaultChordFontSize,
                                     onPressed: () {
                                       setState(() {
                                         navigateToDetail(context);
@@ -747,6 +858,7 @@ class _Edit extends State<Edit> {
                                     child: appEnumeratedButton(
                                       'Clear',
                                       appKeyEnum: AppKeyEnum.editClearSong,
+                                      fontSize: _defaultChordFontSize,
                                       onPressed: () {
                                         setState(() {
                                           song = Song.createSong('', '', '', music_key.Key.getDefault(), 106, 4, 4,
@@ -912,7 +1024,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           SizedBox(
-                            width: 3 * _defaultFontSize,
+                            width: 3 * _defaultChordFontSize,
                             child: appTextField(
                               appKeyEnum: AppKeyEnum.editBPM,
                               controller: bpmTextEditingController,
@@ -941,7 +1053,7 @@ class _Edit extends State<Edit> {
                             value: song.timeSignature,
                             style: generateAppTextStyle(
                                 textBaseline: TextBaseline.alphabetic,
-                                fontSize: _defaultFontSize,
+                                fontSize: _defaultChordFontSize,
                                 fontWeight: FontWeight.bold),
                             itemHeight: null,
                           ),
@@ -985,7 +1097,8 @@ class _Edit extends State<Edit> {
                               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                                 appTooltip(
                                   message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                  child: appEnumeratedButton('Undo', appKeyEnum: AppKeyEnum.editUndo, onPressed: () {
+                                  child: appEnumeratedButton('Undo',
+                                      appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
                                     undo();
                                   }),
                                 ),
@@ -994,6 +1107,7 @@ class _Edit extends State<Edit> {
                                   child: appEnumeratedButton(
                                     'Redo',
                                     appKeyEnum: AppKeyEnum.editRedo,
+                                    fontSize: _defaultChordFontSize,
                                     onPressed: () {
                                       redo();
                                     },
@@ -1006,7 +1120,8 @@ class _Edit extends State<Edit> {
                                       (showHints
                                           ? 'Click to hide the editing hints'
                                           : 'Click for hints about editing.'),
-                                  child: appEnumeratedButton('Hints', appKeyEnum: AppKeyEnum.editHints, onPressed: () {
+                                  child: appEnumeratedButton('Hints',
+                                      appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize, onPressed: () {
                                     setState(() {
                                       showHints = !showHints;
                                     });
@@ -1022,6 +1137,14 @@ class _Edit extends State<Edit> {
                         thickness: 8,
                         //color: ,  fixme: should be from css!!!
                       ),
+                      Container(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                          //  pre-configured table of edit widgets
+                          chordTable2,
+                        ]),
+                        padding: const EdgeInsets.all(16.0),
+                        color: theme.backgroundColor,
+                      ),
                       if (chordTable != null)
                         Container(
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
@@ -1031,6 +1154,7 @@ class _Edit extends State<Edit> {
                           padding: const EdgeInsets.all(16.0),
                           color: theme.backgroundColor,
                         ),
+
                       if (showHints)
                         RichText(
                           text: TextSpan(
@@ -1228,6 +1352,7 @@ class _Edit extends State<Edit> {
                                 child: appEnumeratedButton(
                                   'Import',
                                   appKeyEnum: AppKeyEnum.editImportLyrics,
+                                  fontSize: _defaultChordFontSize,
                                   onPressed: () {
                                     import();
                                   },
@@ -1675,8 +1800,9 @@ class _Edit extends State<Edit> {
     ChordSectionLocation? loc = song.findLastChordSectionLocation(chordSection);
     if (loc != null) {
       loc = loc.asPhraseLocation();
-      _EditDataPoint editDataPoint = _EditDataPoint(loc?.asPhraseLocation(), onEndOfRow: true);
-      editDataPoint._measureEditType = MeasureEditType.append;
+      _EditDataPoint editDataPoint =
+          _EditDataPoint(loc?.asPhraseLocation(), measureEditType: MeasureEditType.append, onEndOfRow: true);
+
       Widget w = plusMeasureEditGridDisplayWidget(editDataPoint,
           tooltip: 'add new measure on a new row'
               '${kDebugMode ? ' $editDataPoint' : ''}');
@@ -2076,7 +2202,8 @@ class _Edit extends State<Edit> {
 
     if (selectedEditDataPoint == editDataPoint) {
       //  editing this measure
-      logger.d(
+      logger.log(
+          _editEditPoint,
           '_measureEditGridDisplayWidget pre: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
           ' "${editTextController.text}');
       if (editTextField == null) {
@@ -2116,7 +2243,9 @@ class _Edit extends State<Edit> {
         );
       }
 
-      logger.d('post: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
+      logger.log(
+          _editEditPoint,
+          'post: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
           ' "${editTextController.text}", ${editTextController.text.isEmpty}');
 
       if (measureEntryIsClear) {
@@ -2125,7 +2254,9 @@ class _Edit extends State<Edit> {
         measureEntryValid = true; //  should always be!... at least at this moment,  fixme: verify
         editTextController.selection = TextSelection(baseOffset: 0, extentOffset: editTextController.text.length);
         editTextFieldFocusNode?.requestFocus();
-        logger.d('post: ${editDataPoint.location}: $measure'
+        logger.log(
+            _editEditPoint,
+            'post: ${editDataPoint.location}: $measure'
             '  selection: (${editTextController.selection.baseOffset}, ${editTextController.selection.extentOffset})'
             ', ${song.toMarkup()}');
       }
@@ -2809,11 +2940,13 @@ class _Edit extends State<Edit> {
     if (loc == null || selectedEditDataPoint == null || selectedEditDataPoint?.location != loc) {
       return const NullWidget();
     }
+    logger.log(_editEditPoint, 'insertMeasureBeforeRepeat($location): $selectedEditDataPoint}');
     return measureEditGridDisplayWidget(selectedEditDataPoint!); //  let it do the heavy lifting
   }
 
   Widget plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint, {String? tooltip}) {
     if (selectedEditDataPoint == editDataPoint) {
+      logger.log(_editEditPoint, 'plusMeasureEditGridDisplayWidget($editDataPoint): $selectedEditDataPoint}');
       return measureEditGridDisplayWidget(editDataPoint); //  let it do the heavy lifting
     }
     if (selectedEditDataPoint != null) {
@@ -3219,7 +3352,7 @@ class _Edit extends State<Edit> {
       clearMeasureEntry();
       app.clearMessage();
       selectedEditDataPoint = editDataPoint;
-      logger.d('_setEditDataPoint(${editDataPoint.toString()})');
+      logger.log(_editEditPoint, '_setEditDataPoint(${editDataPoint.toString()})');
     });
   }
 

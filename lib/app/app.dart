@@ -41,9 +41,8 @@ enum MessageType {
 
 enum CommunityJamsSongList {
   all,
-  best,
+  jams,
   ninjam,
-  ok,
 }
 
 NameValue get myGoodSongNameValue => NameValue(userName, 'good');

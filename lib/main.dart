@@ -943,7 +943,8 @@ class _MyHomePageState extends State<MyHomePage> {
     search = search.trim();
 
     search = search.replaceAll("[^\\w\\s']+", '');
-    search = search.toLowerCase();
+
+    final RegExp searchRegex = RegExp(search, caseSensitive: false);
 
     //  apply complexity filter
 //    TreeSet<Song> allSongsFiltered = allSongs;
@@ -1012,9 +1013,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
     for (final Song song in app.allSongs) {
-      if (search.isEmpty ||
-          song.getTitle().toLowerCase().contains(search) ||
-          song.getArtist().toLowerCase().contains(search)) {
+      if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
         //  if holiday and song is holiday, we're good
         if (appOptions.holiday) {
           if (isHoliday(song)) {
@@ -1221,6 +1220,7 @@ Future<String> fetchString(String uriString) async {
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 Song? _lastSelectedSong;
 
+//  for external consumption
 Song previousSongInTheList() {
   if (_filteredSongs.isEmpty) {
     return Song.createEmptySong();
@@ -1236,6 +1236,7 @@ Song previousSongInTheList() {
   return _lastSelectedSong!;
 }
 
+//  for external consumption
 Song nextSongInTheList() {
   if (_filteredSongs.isEmpty) {
     return Song.createEmptySong();

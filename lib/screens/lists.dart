@@ -421,7 +421,8 @@ class _State extends State<Lists> {
     search = search.trim();
 
     search = search.replaceAll("[^\\w\\s']+", '');
-    search = search.toLowerCase();
+
+    final RegExp searchRegex = RegExp(search, caseSensitive: false);
 
     // select order
     int Function(Song key1, Song key2) compare;
@@ -432,10 +433,8 @@ class _State extends State<Lists> {
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
     for (final Song song in app.allSongs) {
-      if (search.isEmpty ||
-          song.getTitle().toLowerCase().contains(search) ||
-          song.getArtist().toLowerCase().contains(search)) {
-        //  not filtered
+      if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
+        //  matches
         _filteredSongs.add(song);
       }
     }

@@ -31,8 +31,6 @@ class Lists extends StatefulWidget {
   _State createState() => _State();
 }
 
-late TextStyle metadataStyle;
-
 class _State extends State<Lists> {
   _State() : _searchFocusNode = FocusNode();
 
@@ -62,22 +60,6 @@ class _State extends State<Lists> {
     metadataStyle = generateAppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
-    );
-    final metadataEntryStyle = generateAppTextStyle(
-      color: Colors.black38,
-      fontSize: fontSize,
-    );
-    final TextStyle searchTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: fontSize,
-      color: Colors.black38,
-      textBaseline: TextBaseline.alphabetic,
-    );
-    final TextStyle titleTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: fontSize,
-      color: Colors.black87,
-      textBaseline: TextBaseline.alphabetic,
     );
 
     logger.v('_selectedNameValue: $_selectedNameValue');
@@ -150,16 +132,10 @@ class _State extends State<Lists> {
           SizedBox(
             width: 5 * app.screenInfo.fontSize,
             //  limit text entry display length
-            child: TextField(
-              key: const ValueKey('nameText') /*  for testing*/,
+            child: appTextField(
+              appKeyEnum: AppKeyEnum.listsNameEntry,
               controller: _nameTextFieldController,
-              // focusNode: _searchFocusNode,
-              decoration: InputDecoration(
-                hintText: "name...",
-                hintStyle: metadataEntryStyle,
-              ),
-              autofocus: true,
-              style: metadataStyle,
+              hintText: "name...",
               onChanged: (text) {
                 setState(() {
                   if (_nameTextFieldController.text.isNotEmpty) {
@@ -176,16 +152,10 @@ class _State extends State<Lists> {
           SizedBox(
             width: 5 * app.screenInfo.fontSize,
             //  limit text entry display length
-            child: TextField(
-              key: const ValueKey('valueText') /*  for testing*/,
+            child: appTextField(
+              appKeyEnum: AppKeyEnum.listsValueEntry,
               controller: _valueTextFieldController,
-              // focusNode: _searchFocusNode,
-              decoration: InputDecoration(
-                hintText: "value...",
-                hintStyle: metadataEntryStyle,
-              ),
-              autofocus: true,
-              style: metadataStyle,
+              hintText: "value...",
               onChanged: (text) {
                 setState(() {
                   if (_nameTextFieldController.text.isNotEmpty) {
@@ -271,6 +241,40 @@ class _State extends State<Lists> {
                     });
                   },
                 ),
+                appEnumeratedButton(
+                  'Delete the list',
+                  appKeyEnum: AppKeyEnum.listsClearLists,
+                  onPressed: nameValueIsDeletable(_selectedNameValue)
+                      ? () {
+                          showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                    title: Text(
+                                      'Do you really want to delete the list?',
+                                      style: TextStyle(fontSize: metadataStyle.fontSize),
+                                    ),
+                                    actions: [
+                                      appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}',
+                                          appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                                        logger.i('delete: ${_selectedNameValue.toShortString()}');
+                                        setState(() {
+                                          SongMetadata.removeAll(_selectedNameValue);
+                                          _selectedNameValue = _emptySelectedNameValue;
+                                          AppOptions().storeSongMetadata();
+                                        });
+                                        Navigator.of(context).pop();
+                                      }),
+                                      appSpace(space: 100),
+                                      appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                                        Navigator.of(context).pop();
+                                      }),
+                                    ],
+                                    elevation: 24.0,
+                                  ));
+                          // SongMetadata.clear();
+                        }
+                      : null,
+                ),
               ], alignment: WrapAlignment.spaceBetween),
               appSpace(
                 space: 20,
@@ -308,17 +312,11 @@ class _State extends State<Lists> {
                   SizedBox(
                     width: 10 * app.screenInfo.fontSize,
                     //  limit text entry display length
-                    child: TextField(
-                      key: appKey(AppKeyEnum.listsSearchText),
+                    child: appTextField(
+                      appKeyEnum: AppKeyEnum.listsSearchText,
                       enabled: _isSearchActive,
                       controller: _searchTextFieldController,
-                      focusNode: _searchFocusNode,
-                      decoration: InputDecoration(
-                        hintText: _isSearchActive ? "enter search text" : "\u2190 activate search",
-                        hintStyle: searchTextStyle,
-                      ),
-                      autofocus: true,
-                      style: titleTextStyle,
+                      hintText: _isSearchActive ? "enter search text" : "\u2190 activate search",
                       onChanged: (text) {
                         setState(() {
                           logger.v('search text: "$text"');
@@ -364,8 +362,8 @@ class _State extends State<Lists> {
   }
 
   Widget mapSongToWidget(Song song) {
-    return Row(
-      children: [
+    return appWrapFullWidth(
+      [
         appWidgetHelper.checkbox(
           value: _hasSelectedMetadata(song),
           onChanged: (bool? value) {
@@ -470,6 +468,26 @@ class _State extends State<Lists> {
       }
     });
   }
+
+  bool nameValueIsDeletable(NameValue nameValue) {
+    logger.d('selectionIsDeletable(): $nameValue');
+
+    if (nameValue == _emptySelectedNameValue) {
+      return false;
+    }
+
+    switch (nameValue.name) {
+      case '':
+      case 'christmas':
+        return false;
+      case 'cj':
+        return kDebugMode;
+      default:
+        return true;
+    }
+  }
+
+  late TextStyle metadataStyle;
 
   bool _isSearchActive = false;
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();

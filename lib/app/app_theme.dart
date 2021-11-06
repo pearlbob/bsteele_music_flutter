@@ -541,14 +541,18 @@ enum AppKeyEnum {
   editUserName,
   errorMessage,
   listsBack,
+  listsCancelDeleteList,
   listsClearSearch,
+  listsClearLists,
+  listsDeleteList,
   listsErrorMessage,
-  listsNameText,
+  listsNameEntry,
+  listsRadio,
   listsReadLists,
   listsSave,
   listsSaveSelected,
   listsSearchText,
-  listsValueText,
+  listsValueEntry,
   lyricsEntryLineAdd,
   lyricsEntryLineDelete,
   lyricsEntryLineDown,
@@ -917,7 +921,7 @@ typedef KeyCallback = void Function();
 ElevatedButton appEnumeratedButton(
   String commandName, {
   required AppKeyEnum appKeyEnum,
-  required VoidCallback onPressed,
+  required VoidCallback? onPressed,
   Color? backgroundColor,
   double? fontSize,
 }) {
@@ -933,7 +937,7 @@ ElevatedButton appEnumeratedButton(
 ElevatedButton appButton(
   String commandName, {
   required AppKeyEnum appKeyEnum,
-  required VoidCallback onPressed,
+  required VoidCallback? onPressed,
   Color? backgroundColor,
   double? fontSize,
   dynamic value,
@@ -946,10 +950,12 @@ ElevatedButton appButton(
     child: Text(commandName,
         style: app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
-    onPressed: () {
-      appLogKeyCallback(key);
-      onPressed();
-    },
+    onPressed: onPressed == null
+        ? null //  show as disabled
+        : () {
+            appLogKeyCallback(key); //  log the click
+            onPressed();
+          },
     style:
         app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
@@ -1099,10 +1105,12 @@ TextField appTextField({
   final ValueChanged<String>? onChanged,
   String? hintText,
   double? fontSize,
+  bool? enabled,
 }) {
   return TextField(
     key: appKey(appKeyEnum),
     controller: controller,
+    enabled: enabled,
     onChanged: onChanged,
     decoration: InputDecoration(
       hintText: hintText,

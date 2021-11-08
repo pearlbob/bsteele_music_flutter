@@ -143,6 +143,7 @@ class _State extends State<Lists> {
                   }
                 });
               },
+              fontSize: fontSize,
             ),
           ),
           Text(
@@ -163,6 +164,7 @@ class _State extends State<Lists> {
                   }
                 });
               },
+              fontSize: fontSize,
             ),
           ),
         ],
@@ -323,6 +325,7 @@ class _State extends State<Lists> {
                           _searchSongs(_searchTextFieldController.text);
                         });
                       },
+                      fontSize: fontSize,
                     ),
                   ),
                   appTooltip(

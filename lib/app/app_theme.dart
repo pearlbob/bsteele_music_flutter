@@ -1212,11 +1212,11 @@ TextStyle generateAppLinkTextStyle() {
   );
 }
 
-TextStyle generateTooltipTextStyle() {
+TextStyle generateTooltipTextStyle({double? fontSize}) {
   return generateAppTextStyle(
     color: _getPropertyValue(_tooltipColorProperty),
     backgroundColor: _getPropertyValue(_tooltipBackgroundColorProperty),
-    fontSize: _sizeLookup(_tooltipFontSizeProperty),
+    fontSize: fontSize ?? _sizeLookup(_tooltipFontSizeProperty),
   );
 }
 

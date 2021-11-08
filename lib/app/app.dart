@@ -236,7 +236,7 @@ Widget appTooltip({
   required Widget child,
   double? fontSize,
 }) {
-  var textStyle = generateTooltipTextStyle();
+  var textStyle = generateTooltipTextStyle(fontSize: fontSize);
   return Tooltip(
       key: key,
       message: message,

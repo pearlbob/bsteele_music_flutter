@@ -58,10 +58,10 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
-final ChordSectionLocation emptyLocation = // last resort, better than null
+final ChordSectionLocation defaultLocation = // last resort, better than null
     ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
-const bool _editDebug = kDebugMode && true;
+const bool _editDebug = kDebugMode && false;
 const Level _editLog = Level.debug;
 const Level _editEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
@@ -83,6 +83,9 @@ odd sized repeats
  */
 
 ///   screen to edit a song
+///   Note: This screen is scaled differently than the others.
+///   It is expected that it will only be used on a desktop only
+///   and will not be displayed to the musicians on a large screen display.
 class Edit extends StatefulWidget {
   Edit({Key? key, required initialSong}) : super(key: key) {
     _initialSong = initialSong;
@@ -327,344 +330,8 @@ class _Edit extends State<Edit> {
 
     //  build the chords display based on the song chord section grid
     tableKeyId = 0;
-    int maxCols = 0; //  for chords only due to plus items
 
-    {
-      logger.d('size: ' + MediaQuery.of(context).size.toString());
-
-      //  build the table from the song chord section grid
-      Grid<ChordSectionGridData> chordGrid = song.getChordSectionGrid();
-
-      {
-        chordRows = [];
-        chordRowChildren = [];
-
-        //  compute transposition offset from base key
-        transpositionOffset = 0; //_key.getHalfStep() - _song.getKey().getHalfStep();
-
-        //  compute the maximum number of columns to even out the table rows
-
-        {
-          for (int r = 0; r < chordGrid.getRowCount(); r++) {
-            List<ChordSectionGridData?>? row = chordGrid.getRow(r);
-            maxCols = max(maxCols, row?.length ?? 0);
-
-            // //  test for no end of row
-            // if (row != null && row.isNotEmpty) {
-            //   for (int c = 0; c < row.length; c++) {
-            //     ChordSectionLocation? loc = row[c];
-            //     // ChordSectionLocation? loc = row.last;
-            //     logger.log(_editLog,'   missing endOfRow: $loc');
-            //
-            //     MeasureNode? mn = _song.findMeasureNodeByGrid(GridCoordinate(r, c));
-            //     logger.log(_editLog,'   ($r, $c): $loc: ${mn?.getMeasureNodeType()}  ${mn?.toS:q
-
-            //     if (m != null //&& m.endOfRow != true
-            //     ) {
-            //       logger.log(_editLog,'   missing endOfRow: $loc: ${m.getMeasureNodeType()} $m');
-            //     }
-            //   }
-            // }
-          }
-        }
-
-        maxCols = 2 * maxCols //  item + the add measure marker plus
-                +
-                1 //  add measure plus marker
-                +
-                1 //  add new row marker
-            ;
-        //  keep track of the section
-        SectionVersion? lastSectionVersion;
-        ChordSectionLocation? repeatLoc;
-        int phraseRowCount = 0;
-        int phraseIndex = 0;
-
-        //  map the song chord section grid to a flutter table, one row at a time
-        for (int r = 0; r < chordGrid.getRowCount(); r++) {
-          List<ChordSectionGridData?>? row = chordGrid.getRow(r);
-          if (row == null) {
-            continue;
-          }
-          chordRowChildren = [];
-
-          ChordSectionLocation? firstChordSectionLocation;
-          marginInsets = EdgeInsets.all(chordFontSize / 4);
-          doubleMarginInsets = EdgeInsets.all(chordFontSize / 2);
-
-          //  find the first col with data
-          //  should normally be col 1 (i.e. the second col)
-          //  use its section version for the row
-          {
-            for (final ChordSectionGridData? data in row) {
-              if (data == null) {
-                continue;
-              } else {
-                firstChordSectionLocation = data.chordSectionLocation;
-                break;
-              }
-            }
-            if (firstChordSectionLocation == null) {
-              continue;
-            }
-
-            SectionVersion? sectionVersion = firstChordSectionLocation.sectionVersion;
-            if (sectionVersion == null) {
-              continue;
-            }
-
-            if (selectedEditDataPoint == null && sectionVersion != lastSectionVersion) {
-              //  add a plus for appending a new row to the section
-              addSectionVersionEndToTable(chordRows, lastSectionVersion, maxCols /*col+add markers*/);
-
-              var sectionBackgroundColor = getBackgroundColorForSection(sectionVersion.section);
-              sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
-
-              //  add the section heading
-              //           columnFiller = sectionVersion.toString();
-              lastSectionVersion = sectionVersion;
-            }
-          }
-
-          {
-            ChordSectionLocation? lastLoc;
-
-            //  for each column of the song grid, create the appropriate widget
-            for (int c = 0; c < row.length; c++) {
-              ChordSectionGridData? data = row[c];
-              if (data != null &&
-                  data.chordSectionLocation.hasPhraseIndex &&
-                  phraseIndex != data.chordSectionLocation.phraseIndex) {
-                phraseIndex = data.chordSectionLocation.phraseIndex;
-                phraseRowCount = 0;
-                repeatLoc = null;
-              }
-              if (c > 0) {
-                lastLoc ??= data?.chordSectionLocation;
-              }
-              var measure = song.findMeasureByChordSectionLocation(data?.chordSectionLocation);
-              Phrase? phrase;
-              {
-                var p = song.findMeasureNodeByLocation(
-                    data?.chordSectionLocation.asPhraseLocation()); //  fixme: better mechanics here?
-                if (p is Phrase) {
-                  phrase = p;
-                }
-              }
-
-              logger.d('loc: ($r,$c): ${data.toString()}, phraseIndex: $phraseIndex, phraseRowCount: $phraseRowCount'
-                  ', m: \'${measure?.toMarkup()}\''
-                  ', marker: ${data?.chordSectionLocation.marker.toString()}');
-
-              //  main elements
-              {
-                Widget w;
-                final _EditDataPoint editDataPoint = _EditDataPoint(data?.chordSectionLocation);
-                // logger.log(_editEntry, '$editDataPoint.isAt($_selectedEditDataPoint) = ${editDataPoint.isAt(_selectedEditDataPoint)}');
-                if (data == null) {
-                  w = nullEditGridDisplayWidget();
-                } else if (data.isSection) {
-                  w = sectionEditGridDisplayWidget(editDataPoint);
-                } else if (data.isMeasure) {
-                  w = measureEditGridDisplayWidget(editDataPoint);
-                } else if (data.isRepeat) {
-                  w = repeatEditGridDisplayWidget(editDataPoint);
-                } else if (data.isMarker) {
-                  w = markerEditGridDisplayWidget(editDataPoint);
-                } else {
-                  w = nullEditGridDisplayWidget();
-                }
-
-                w = _debugWidget(w, editDataPoint);
-
-                chordRowChildren.add(w);
-              }
-
-              //  add a row element in front of a repeat phrase
-              if (c == 0) {
-                if (row.length > 1) {
-                  //  find the repeat location
-                  repeatLoc = row[1]?.chordSectionLocation;
-                  if (repeatLoc != null) {
-                    var measureNode = song.findMeasureNodeByLocation(repeatLoc);
-                    if (measureNode != null) {
-                      var measureNode = song.findMeasureNodeByLocation(repeatLoc.asPhraseLocation());
-                      repeatLoc = (measureNode?.isRepeat() ?? false) ? repeatLoc : null;
-                    }
-                  }
-                }
-                //  add measures in front of a repeat phrase
-                if (repeatLoc != null &&
-                    (repeatLoc.phraseIndex == 0 || priorPhraseIsRepeat(repeatLoc)) &&
-                    repeatLoc.measureIndex == 0) {
-                  logger.log(
-                      _editEditPoint,
-                      'add measures in front of a repeat phrase: $selectedEditDataPoint'
-                      ', repeatLoc: $repeatLoc');
-                  if (selectedEditDataPoint?._measureEditType == MeasureEditType.insert) {
-                    chordRowChildren.add(const NullWidget()); //  past the plus column
-                    chordRowChildren.add(insertMeasureBeforeRepeat(repeatLoc.asPhraseLocation()));
-                  } else if (selectedEditDataPoint == null) {
-                    chordRowChildren.add(plusRowWidget(repeatLoc));
-                  }
-
-                  addChordRowChildrenAndComplete(maxCols);
-
-                  //  add blank col for the new row
-                  chordRowChildren.add(const NullWidget());
-                }
-              } else {
-                //  test for new line measure add
-                final _EditDataPoint newLineEditDataPoint = _EditDataPoint(data?.chordSectionLocation,
-                    measureEditType: MeasureEditType.append, onEndOfRow: true);
-
-                if (newLineEditDataPoint == selectedEditDataPoint) {
-                  logger.log(
-                      _editEditPoint, 'newLineEditDataPoint match: _selectedEditDataPoint: $selectedEditDataPoint');
-                  if (repeatLoc != null) {
-                    //  temporary mark off of prior row in appending new row in a repeat
-                    chordRowChildren.add(markerEditGridDisplayWidget(newLineEditDataPoint,
-                        forceMeasureNode: MeasureRepeatExtension.get(phraseRowCount == 0
-                            ? ChordSectionLocationMarker.repeatUpperRight
-                            : ChordSectionLocationMarker.repeatMiddleRight)));
-                  }
-                  addChordRowChildrenAndComplete(maxCols);
-
-                  chordRowChildren.add(const NullWidget()); //  in the first measure column
-                  chordRowChildren.add(const NullWidget()); //  past the plus column
-                  chordRowChildren.add(measureEditGridDisplayWidget(newLineEditDataPoint));
-                  if (repeatLoc != null && phraseRowCount == 0) {
-                    //  slide the possible repeat marker to a reasonable column
-                    for (var i = 0; i < row.length - 1; i++) {
-                      chordRowChildren.add(const NullWidget());
-                    }
-
-                    //  temporary mark off of current temporary row in appending new row in a repeat
-                    chordRowChildren.add(markerEditGridDisplayWidget(newLineEditDataPoint,
-                        forceMeasureNode: MeasureRepeatExtension.get(ChordSectionLocationMarker.repeatLowerRight)));
-                  }
-                }
-              }
-
-              //  + measure elements
-              {
-                Widget w;
-                final _EditDataPoint plusEditDataPoint =
-                    _EditDataPoint(data?.chordSectionLocation, measureEditType: MeasureEditType.append);
-
-                if (data == null) {
-                  if (c == 0 && row.length > 1) {
-                    //  insert in front of first measure of the row
-                    plusEditDataPoint._measureEditType = MeasureEditType.insert;
-                    plusEditDataPoint.location = row[1]?.chordSectionLocation ?? emptyLocation;
-                    w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
-                  } else {
-                    w = nullEditGridDisplayWidget();
-                  }
-                } else if (data.isSection) {
-                  if (c == 0) {
-                    if (row.length > 1) {
-                      //  insert in front of first measure of the section
-                      plusEditDataPoint._measureEditType = MeasureEditType.insert;
-                      plusEditDataPoint.location = row[1]?.chordSectionLocation ?? emptyLocation;
-                      w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
-                    } else {
-                      //  append to an empty section
-                      plusEditDataPoint._measureEditType = MeasureEditType.append;
-                      plusEditDataPoint.location = data.chordSectionLocation;
-                      w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
-                    }
-                  } else {
-                    w = nullEditGridDisplayWidget();
-                  }
-                } else if (data.isMeasure) {
-                  assert(measure != null);
-                  w = plusMeasureEditGridDisplayWidget(plusEditDataPoint);
-                  if (selectedEditDataPoint == null &&
-                      ((measure?.endOfRow ?? false) || identical(measure, phrase?.lastMeasure))) {
-                    //  sneak a new row request after the plus   fixme: too tricky
-                    chordRowChildren.add(w);
-                    w = plusNewRow(data.chordSectionLocation);
-                  }
-                } else {
-                  w = nullEditGridDisplayWidget();
-                }
-                chordRowChildren.add(w);
-              }
-
-              //  add the option to add a repeat if the row is not a repeat already
-              if (selectedEditDataPoint == null && measure != null && (c == row.length - 1 || measure.endOfRow)) {
-                var phrase = song.findMeasureNodeByLocation(
-                    ChordSectionLocation(data!.sectionVersion, phraseIndex: data.chordSectionLocation.phraseIndex));
-                if (phrase != null && phrase is! MeasureRepeat) {
-                  chordRowChildren.add(plusRepeatWidget(data.chordSectionLocation));
-                }
-              }
-            }
-
-            addChordRowChildrenAndComplete(maxCols);
-
-            phraseRowCount++;
-
-            logger.d('lastLoc: $lastLoc');
-          }
-        }
-
-        //  end for last section
-        if (selectedEditDataPoint == null) {
-          addSectionVersionEndToTable(chordRows, lastSectionVersion, maxCols);
-        }
-
-        //  add the append for a new section
-        if (selectedEditDataPoint == null) {
-          chordRowChildren = [];
-          Widget child;
-          if (selectedEditDataPoint?.isSection ?? false) {
-            child = sectionEditGridDisplayWidget(selectedEditDataPoint!);
-          } else {
-            child = Container(
-              margin: marginInsets,
-              padding: textPadding,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: _addColor,
-              ),
-              child: appTooltip(
-                message: 'add new chord section here',
-                child: appInkWell(
-                  appKeyEnum: AppKeyEnum.editNewChordSection,
-                  keyCallback: () {
-                    setState(() {
-                      song.setCurrentChordSectionLocation(null);
-                      song.setCurrentMeasureEditType(MeasureEditType.append);
-                      ChordSection cs = suggestNewSection();
-                      selectedEditDataPoint =
-                          _EditDataPoint.byChordSection(cs, measureEditType: MeasureEditType.append);
-                      logger.d('editNewChordSection: ${song.toMarkup()} + $selectedEditDataPoint');
-                    });
-                  },
-                  child: Icon(
-                    Icons.add,
-                    size: chordFontSize,
-                  ),
-                ),
-              ),
-            );
-          }
-          logger.d('chordRowChildren: $chordRowChildren, child: $child');
-          chordRowChildren.add(child);
-
-          addChordRowChildrenAndComplete(maxCols);
-        }
-
-        chordTable = Table(
-          defaultColumnWidth: const IntrinsicColumnWidth(),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: chordRows,
-        );
-      }
-    }
-    Table chordTable2 = chordsEntryWidget();
+    Table chordTable = chordsEntryWidget();
 
     List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
 
@@ -759,7 +426,7 @@ class _Edit extends State<Edit> {
                                   appSpace(
                                     space: 50,
                                   ),
-                                  appTooltip(
+                                  editTooltip(
                                     message: 'Clear all song values to\n'
                                         'start entering a new song.',
                                     child: appEnumeratedButton(
@@ -1002,14 +669,14 @@ class _Edit extends State<Edit> {
                             Flexible(
                               flex: 1,
                               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                appTooltip(
+                                editTooltip(
                                   message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
                                   child: appEnumeratedButton('Undo',
                                       appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
                                     undo();
                                   }),
                                 ),
-                                appTooltip(
+                                editTooltip(
                                   message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
                                   child: appEnumeratedButton(
                                     'Redo',
@@ -1020,7 +687,7 @@ class _Edit extends State<Edit> {
                                     },
                                   ),
                                 ),
-                                appTooltip(
+                                editTooltip(
                                   message: (selectedEditDataPoint != null
                                           ? 'Click outside the chords to cancel editing\n'
                                           : '') +
@@ -1047,21 +714,11 @@ class _Edit extends State<Edit> {
                       Container(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                           //  pre-configured table of edit widgets
-                          chordTable2,
+                          chordTable,
                         ]),
                         padding: const EdgeInsets.all(16.0),
                         color: theme.backgroundColor,
                       ),
-                      // if (chordTable != null)
-                      //   Container(
-                      //     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                      //       //  pre-configured table of edit widgets
-                      //       chordTable!,
-                      //     ]),
-                      //     padding: const EdgeInsets.all(16.0),
-                      //     color: theme.backgroundColor,
-                      //   ),
-
                       if (showHints)
                         RichText(
                           text: TextSpan(
@@ -1254,7 +911,7 @@ class _Edit extends State<Edit> {
                             ),
                             Flexible(
                               flex: 1,
-                              child: appTooltip(
+                              child: editTooltip(
                                 message: 'Import lyrics from a text file',
                                 child: appEnumeratedButton(
                                   'Import',
@@ -1307,7 +964,7 @@ class _Edit extends State<Edit> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: appTooltip(
+              child: editTooltip(
                 message: 'Back to song',
                 child: appIcon(
                   Icons.arrow_back,
@@ -1315,22 +972,20 @@ class _Edit extends State<Edit> {
               ),
               mini: !app.isScreenBig,
             )
-          : const NullWidget(),
+          : NullWidget(),
     );
   }
 
-  void addChordRowNullChildren(int cols) {
+  void addChordRowNullChildrenUpTo(int maxCols) {
     //  add children to max columns to keep the table class happy
-    for (var i = 0; i < cols; i++) {
-      chordRowChildren.add(const NullWidget());
+    while (chordRowChildren.length < maxCols) {
+      chordRowChildren.add(NullWidget());
     }
   }
 
   void addChordRowChildrenAndComplete(int maxCols) {
     //  add children to max columns to keep the table class happy
-    while (chordRowChildren.length < maxCols) {
-      chordRowChildren.add(const NullWidget());
-    }
+    addChordRowNullChildrenUpTo(maxCols);
 
     //  add row to table
     chordRows.add(TableRow(key: ValueKey('table${tableKeyId++}'), children: chordRowChildren));
@@ -1345,11 +1000,11 @@ class _Edit extends State<Edit> {
     }
 
     //  prep new row
-    addChordRowNullChildren(1); //  skip entry column
+    addChordRowNullChildrenUpTo(1); //  skip entry column
     addChordRowChild(
       _debugWidget(
           plusMeasureEditGridDisplayWidget(editDataPoint,
-              tooltip: 'plus append row after'
+              tooltip: 'append another row'
                   '${kDebugMode ? ' $editDataPoint' : ''}'),
           editDataPoint),
     );
@@ -1367,7 +1022,7 @@ class _Edit extends State<Edit> {
   }
 
   void addChordRowNullWidget() {
-    chordRowChildren.add(const NullWidget());
+    chordRowChildren.add(NullWidget());
   }
 
   Table chordsEntryWidget() {
@@ -1414,14 +1069,15 @@ class _Edit extends State<Edit> {
                         '${kDebugMode ? ' $editDataPoint' : ''}'),
                 editDataPoint));
           } else {
+            //  subsequent columns
             var editDataPoint = _EditDataPoint(lastMeasureLocation, onEndOfRow: true);
             addChordRowChild(_debugWidget(
                 plusMeasureEditGridDisplayWidget(editDataPoint,
-                    tooltip: 'plus tooltip'
+                    tooltip: 'Add a measure here between these measures'
                         '${kDebugMode ? ' $editDataPoint' : ''}'),
                 editDataPoint));
-            addChordRowNullWidget();
           }
+          lastMeasureLocation = null;
           continue;
         }
 
@@ -1434,10 +1090,14 @@ class _Edit extends State<Edit> {
         }
 
         ChordSection chordSection = data.chordSection;
+
+        //  clean up on a section change
         if (lastChordSectionLocation != null &&
             chordSection.sectionVersion != lastChordSectionLocation.sectionVersion) {
           addChordRowSectionAppend(
-              maxEntryColumns, _EditDataPoint(lastChordSectionLocation, measureEditType: MeasureEditType.insert));
+              maxEntryColumns,
+              _EditDataPoint(lastChordSectionLocation.asSectionLocation(),
+                  measureEditType: MeasureEditType.append, onEndOfRow: true));
         }
         lastChordSectionLocation = location;
 
@@ -1445,91 +1105,152 @@ class _Edit extends State<Edit> {
         if (location.isPhrase) {
           phrase = chordSection.findPhrase(measureNode);
         }
-        Measure? measure = measureNode is Measure ? measureNode : null;
+
         lastMeasureLocation = location.isMeasure ? location : lastMeasureLocation;
-        var endOfRow =
+        Measure? measure = measureNode is Measure ? measureNode : null;
+        bool endOfRow =
             (measure?.endOfRow ?? false) || (((phrase?.length ?? -1) - 1) == data.chordSectionLocation.measureIndex);
 
-        if (location.isSection) {
-          assert(c == 0);
-
-          //  section entry column
-          {
-            var editDataPoint = _EditDataPoint(location, onEndOfRow: endOfRow);
-            addChordRowChild(
-              _debugWidget(sectionEditGridDisplayWidget(editDataPoint), editDataPoint),
-            );
-          }
-
-          //  plus column
-          if (chordSection.isEmpty() || chordSection.phrases.first.isRepeat()) {
-            //  special care to insert a new row when the section is empty or starts with a repeat
+        switch (measureNode.measureNodeType) {
+          case MeasureNodeType.section:
             {
-              var editDataPoint = _EditDataPoint(location, measureEditType: MeasureEditType.insert);
-              addChordRowChild(
-                _debugWidget(
-                    plusMeasureEditGridDisplayWidget(editDataPoint,
-                        tooltip: 'plus section tooltip'
-                            '${kDebugMode ? ' $editDataPoint' : ''}'),
-                    editDataPoint),
-              );
+              //  insist that the section be in the first column
+              assert(c == 0);
+
+              //  section entry column
+              {
+                var editDataPoint = _EditDataPoint(location, onEndOfRow: endOfRow);
+                addChordRowChild(
+                  _debugWidget(sectionEditGridDisplayWidget(editDataPoint), editDataPoint),
+                );
+              }
+
+              //  plus column
+              if (chordSection.isEmpty() || chordSection.phrases.first.isRepeat()) {
+                //  special care to insert a new row when the section is empty or starts with a repeat
+                {
+                  var editDataPoint = _EditDataPoint(location, measureEditType: MeasureEditType.insert);
+                  addChordRowChild(
+                    _debugWidget(
+                        plusMeasureEditGridDisplayWidget(editDataPoint,
+                            tooltip: 'add a measure in front of the repeat'
+                                '${kDebugMode ? ' $editDataPoint' : ''}'),
+                        editDataPoint),
+                  );
+                }
+
+                addChordRowChildrenAndComplete(maxEntryColumns);
+
+                //  subsequent row: insert at the beginning of the repeat
+                addChordRowNullChildrenUpTo(1);
+                {
+                  var editDataPoint = _EditDataPoint(
+                      ChordSectionLocation(location.sectionVersion, phraseIndex: 0, measureIndex: 0),
+                      measureEditType: MeasureEditType.insert);
+                  addChordRowChild(
+                    _debugWidget(
+                        plusMeasureEditGridDisplayWidget(editDataPoint,
+                            tooltip: 'plus section tooltip'
+                                '${kDebugMode ? ' $editDataPoint' : ''}'),
+                        editDataPoint),
+                  );
+                }
+              } else {
+                //  note that the append after a section is the same as an insert before the first
+                var editDataPoint = _EditDataPoint(location, measureEditType: MeasureEditType.insert);
+                addChordRowChild(
+                  _debugWidget(
+                      plusMeasureEditGridDisplayWidget(editDataPoint,
+                          tooltip: 'insert measure'
+                              '${kDebugMode ? ' $editDataPoint' : ''}'),
+                      editDataPoint),
+                );
+              }
             }
-
-            addChordRowChildrenAndComplete(maxEntryColumns);
-
-            //  subsequent row: insert at the beginning of the repeat
-            addChordRowNullChildren(1);
+            break;
+          case MeasureNodeType.repeat:
             {
-              var editDataPoint = _EditDataPoint(
-                  ChordSectionLocation(location.sectionVersion, phraseIndex: 0, measureIndex: 0),
-                  measureEditType: MeasureEditType.insert);
+              //  entry column
+              var editDataPoint = _EditDataPoint(location);
               addChordRowChild(
-                _debugWidget(
-                    plusMeasureEditGridDisplayWidget(editDataPoint,
-                        tooltip: 'plus section tooltip'
-                            '${kDebugMode ? ' $editDataPoint' : ''}'),
-                    editDataPoint),
+                _debugWidget(repeatEditGridDisplayWidget(editDataPoint), editDataPoint),
               );
+              //  plus column
+              addChordRowNullWidget();
             }
-          } else {
-            //  note that the append after a section is the same as an insert before the first
-            var editDataPoint = _EditDataPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: false);
-            addChordRowChild(
-              _debugWidget(
+            break;
+          // case MeasureNodeType.phrase:
+          //   {
+          //     //  entry column
+          //     var editDataPoint = _EditDataPoint(location);
+          //     addChordRowChild(
+          //       _debugWidget(repeatEditGridDisplayWidget(editDataPoint), editDataPoint),
+          //     );
+          //     //  plus column
+          //         {
+          //       var editDataPoint =
+          //       _EditDataPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
+          //       addChordRowChild(_debugWidget(
+          //           plusMeasureEditGridDisplayWidget(editDataPoint,
+          //               tooltip: 'add a new measure here'
+          //                   '${kDebugMode ? ' $editDataPoint' : ''}'),
+          //           editDataPoint));
+          //     }
+          //   }
+          //   break;
+          case MeasureNodeType.decoration:
+            {
+              //  entry column
+              var editDataPoint = _EditDataPoint(location);
+              addChordRowChild(
+                _debugWidget(markerEditGridDisplayWidget(editDataPoint), editDataPoint),
+              );
+              //  plus column
+              addChordRowNullWidget();
+            }
+            break;
+
+          case MeasureNodeType.measure:
+            {
+              {
+                //  entry column
+                var editDataPoint = _EditDataPoint(location, onEndOfRow: endOfRow);
+
+                addChordRowChild(
+                  _debugWidget(measureEditGridDisplayWidget(editDataPoint), editDataPoint),
+                );
+              }
+
+              //  plus column
+              {
+                var editDataPoint =
+                    _EditDataPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
+                List<Widget> widgets = [
                   plusMeasureEditGridDisplayWidget(editDataPoint,
-                      tooltip: 'insert measure'
-                          '${kDebugMode ? ' $editDataPoint' : ''}'),
-                  editDataPoint),
-            );
-          }
-          continue;
-        }
-
-        {
-          //  entry column
-          var editDataPoint = _EditDataPoint(location, onEndOfRow: endOfRow);
-          addChordRowChild(
-            _debugWidget(
-                Column(
-                  children: [
-                    measureEditGridDisplayWidget(editDataPoint),
-                    if (endOfRow) plusNewRow(location),
-                  ],
-                ),
-                editDataPoint),
-          );
-        }
-
-        //  plus column
-        if (selectedEditDataPoint == null) {
-          var editDataPoint = _EditDataPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
-          addChordRowChild(_debugWidget(
-              plusMeasureEditGridDisplayWidget(editDataPoint,
-                  tooltip: 'plus tooltip'
-                      '${kDebugMode ? ' $editDataPoint' : ''}'),
-              editDataPoint));
-        } else {
-          addChordRowNullWidget(); //  don't show the plus columns when editing a measure or section
+                      tooltip: 'add a new measure here'
+                          '${kDebugMode ? ' $editDataPoint' : ''}')
+                ];
+                if (endOfRow) {
+                  widgets.add(appSpace());
+                  widgets.add(plusNewRow(location));
+                  if (song.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
+                      MeasureNodeType.phrase) {
+                    widgets.add(plusRepeatWidget(location));
+                  }
+                }
+                addChordRowChild(_debugWidget(
+                    appWrap(
+                      widgets,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                    ),
+                    editDataPoint));
+              }
+            }
+            break;
+          default:
+            logger.i('unmanaged MeasureNodeType: ${measureNode.measureNodeType}');
+            assert(false);
+            break;
         }
       }
 
@@ -1538,8 +1259,8 @@ class _Edit extends State<Edit> {
 
     //  append to the last section
     if (lastChordSectionLocation != null) {
-      addChordRowSectionAppend(
-          maxEntryColumns, _EditDataPoint(lastChordSectionLocation, measureEditType: MeasureEditType.append));
+      addChordRowSectionAppend(maxEntryColumns,
+          _EditDataPoint(lastChordSectionLocation, measureEditType: MeasureEditType.append, onEndOfRow: true));
     }
 
     //  add the append for a new section
@@ -1556,7 +1277,7 @@ class _Edit extends State<Edit> {
               shape: BoxShape.circle,
               color: _addColor,
             ),
-            child: appTooltip(
+            child: editTooltip(
               message: 'add new chord section here',
               child: appInkWell(
                 appKeyEnum: AppKeyEnum.editNewChordSection,
@@ -1581,18 +1302,29 @@ class _Edit extends State<Edit> {
       addChordRowChildrenAndComplete(maxEntryColumns);
     }
 
+    if (kDebugMode) {
+      int? length;
+      for (var chordRow in chordRows) {
+        assert(chordRow.children != null);
+        length ??= chordRow.children?.length;
+        assert(length == chordRow.children?.length); //  abort before the table does it for us
+      }
+    }
+
     return Table(
       defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: chordRows,
-      border: const TableBorder(
-        top: BorderSide(),
-        right: BorderSide(),
-        bottom: BorderSide(),
-        left: BorderSide(),
-        horizontalInside: BorderSide(),
-        verticalInside: BorderSide(),
-      ),
+      border: _editDebug
+          ? const TableBorder(
+              top: BorderSide(),
+              right: BorderSide(),
+              bottom: BorderSide(),
+              left: BorderSide(),
+              horizontalInside: BorderSide(),
+              verticalInside: BorderSide(),
+            )
+          : null,
     );
   }
 
@@ -1630,7 +1362,7 @@ class _Edit extends State<Edit> {
         var children = <Widget>[];
         children.add(Row(
           children: [
-            appTooltip(
+            editTooltip(
               message: 'Add new lyrics section here',
               child: DropdownButton<ChordSection>(
                 key: ValueKey('addLyricsSection${addSection++}'),
@@ -1660,7 +1392,7 @@ class _Edit extends State<Edit> {
           ],
         ));
         while (children.length < chordMaxColCount) {
-          children.add(const NullWidget());
+          children.add(NullWidget());
         }
 
         lyricsRows.add(TableRow(children: children));
@@ -1683,9 +1415,9 @@ class _Edit extends State<Edit> {
         ));
 
         while (children.length < chordMaxColCount - 1) {
-          children.add(const NullWidget());
+          children.add(NullWidget());
         }
-        children.add(appTooltip(
+        children.add(editTooltip(
           message: 'Delete this lyric section',
           child: appInkWell(
             appKeyEnum: AppKeyEnum.editDeleteLyricsSection,
@@ -1702,7 +1434,7 @@ class _Edit extends State<Edit> {
         ));
 
         while (children.length < chordMaxColCount) {
-          children.add(const NullWidget());
+          children.add(NullWidget());
         }
         lyricsRows.add(TableRow(children: children));
       }
@@ -1737,7 +1469,7 @@ class _Edit extends State<Edit> {
             }
           }
           while (children.length < chordMaxColCount - 1) {
-            children.add(const NullWidget());
+            children.add(NullWidget());
           }
         }
 
@@ -1762,7 +1494,7 @@ class _Edit extends State<Edit> {
                         shape: BoxShape.circle,
                         color: _addColor,
                       ),
-                      child: appTooltip(
+                      child: editTooltip(
                         message: 'add a lyric line here',
                         child: Icon(
                           Icons.add,
@@ -1792,7 +1524,7 @@ class _Edit extends State<Edit> {
                       shape: BoxShape.circle,
                       color: _addColor,
                     ),
-                    child: appTooltip(
+                    child: editTooltip(
                       message: 'move the lyric line upwards a section',
                       child: Icon(
                         Icons.arrow_upward,
@@ -1814,7 +1546,7 @@ class _Edit extends State<Edit> {
                       shape: BoxShape.circle,
                       color: _addColor,
                     ),
-                    child: appTooltip(
+                    child: editTooltip(
                       message: 'move the lyric line downwards a section',
                       child: Icon(
                         Icons.arrow_downward,
@@ -1828,7 +1560,7 @@ class _Edit extends State<Edit> {
                 flex: 30,
               ),
               const Spacer(),
-              appTooltip(
+              editTooltip(
                 message: 'Delete this lyric line',
                 child: appInkWell(
                   appKeyEnum: AppKeyEnum.lyricsEntryLineDelete,
@@ -1851,7 +1583,7 @@ class _Edit extends State<Edit> {
           ));
         }
         while (children.length < chordMaxColCount) {
-          children.add(const NullWidget());
+          children.add(NullWidget());
         }
 
         lyricsRows.add(TableRow(children: children));
@@ -1862,7 +1594,7 @@ class _Edit extends State<Edit> {
         {
       var children = <Widget>[];
       children.add(
-        appTooltip(
+        editTooltip(
           message: song.getChordSections().isEmpty
               ? 'No lyric section to add!  Add at least one chord section above.'
               : 'Add new lyric section here at the end',
@@ -1892,7 +1624,7 @@ class _Edit extends State<Edit> {
       );
 
       while (children.length < chordMaxColCount) {
-        children.add(const NullWidget());
+        children.add(NullWidget());
       }
 
       lyricsRows.add(TableRow(children: children));
@@ -1989,7 +1721,7 @@ class _Edit extends State<Edit> {
 
       //  add children to max columns to keep the table class happy
       while (children.length < maxCols) {
-        children.add(const NullWidget());
+        children.add(NullWidget());
       }
 
       //  add row to table
@@ -2161,7 +1893,7 @@ class _Edit extends State<Edit> {
       return const Text('null');
     }
 
-    if (measureNode.getMeasureNodeType() != MeasureNodeType.section) {
+    if (measureNode.measureNodeType != MeasureNodeType.section) {
       return const Text('not_section');
     }
 
@@ -2255,7 +1987,7 @@ class _Edit extends State<Edit> {
                 textBaseline: TextBaseline.alphabetic,
                 children: <Widget>[
                   //  section delete
-                  appTooltip(
+                  editTooltip(
                     message: 'Delete this section',
                     child: appInkWell(
                       appKeyEnum: AppKeyEnum.editChordSectionDelete,
@@ -2270,7 +2002,7 @@ class _Edit extends State<Edit> {
                       ),
                     ),
                   ),
-                  appTooltip(
+                  editTooltip(
                     message: 'Cancel the modification.',
                     child: appInkWell(
                       appKeyEnum: AppKeyEnum.editChordSectionCancel,
@@ -2286,7 +2018,7 @@ class _Edit extends State<Edit> {
                     ),
                   ),
                   if (isValidSectionEntry)
-                    appTooltip(
+                    editTooltip(
                       message: 'Accept the modification and add measures to the section.',
                       child: appInkWell(
                         appKeyEnum: AppKeyEnum.editChordSectionAcceptAndAdd,
@@ -2302,7 +2034,7 @@ class _Edit extends State<Edit> {
                     ),
                   //  section enter
                   if (isValidSectionEntry)
-                    appTooltip(
+                    editTooltip(
                       message: 'Accept the modification',
                       child: appInkWell(
                         appKeyEnum: AppKeyEnum.editChordSectionAccept,
@@ -2344,7 +2076,7 @@ class _Edit extends State<Edit> {
           margin: marginInsets,
           padding: textPadding,
           color: sectionColor,
-          child: appTooltip(
+          child: editTooltip(
               message: 'modify or delete the section'
                   '${kDebugMode ? ' $editDataPoint' : ''}',
               child: Text(
@@ -2363,23 +2095,17 @@ class _Edit extends State<Edit> {
         return const Text('null');
       }
 
-      if (editDataPoint.location.isSection) {
-        //  insert new measure as measure in section
-        assert(editDataPoint._measureEditType == MeasureEditType.insert);
-      } else {
-        switch (measureNode.getMeasureNodeType()) {
-          case MeasureNodeType.measure:
-            measure = measureNode.transposeToKey(key) as Measure;
-            break;
-          case MeasureNodeType.decoration:
-            return Text('MeasureNodeType.decoration: $measureNode');
-          case MeasureNodeType.repeat:
-            return Text('MeasureNodeType.repeat: x${(measureNode as MeasureRepeat).repeats}');
-          default:
-            logger.i('failed measureNode.getMeasureNodeType(): ${measureNode.getMeasureNodeType()}');
-            assert(false);
-            return Text('false: ${measureNode.getMeasureNodeType()}');
-        }
+      switch (measureNode.measureNodeType) {
+        case MeasureNodeType.section:
+          //  insert new measure as measure in front of a section or after the end
+          break;
+        case MeasureNodeType.measure:
+          measure = measureNode.transposeToKey(key) as Measure;
+          break;
+        default:
+          logger.i('failed measureNode.measureNodeType: ${measureNode.measureNodeType}');
+          assert(false);
+          return Text('false: ${measureNode.measureNodeType}');
       }
 
       measureNode = song.findMeasureNodeByLocation(editDataPoint.location.asPhraseLocation());
@@ -2490,7 +2216,7 @@ class _Edit extends State<Edit> {
         }
       }
 
-      Widget majorChordButton = appTooltip(
+      Widget majorChordButton = editTooltip(
           message: 'Enter the major chord.',
           child: appEnumeratedButton(
             keyChordNote.toString(),
@@ -2509,7 +2235,7 @@ class _Edit extends State<Edit> {
           keyChordNote,
           ChordDescriptor.minor,
         );
-        minorChordButton = appTooltip(
+        minorChordButton = editTooltip(
             message: 'Enter the minor chord.',
             child: appEnumeratedButton(
               sc.toString(),
@@ -2525,7 +2251,7 @@ class _Edit extends State<Edit> {
       Widget dominant7ChordButton;
       {
         ScaleChord sc = ScaleChord(keyChordNote, ChordDescriptor.dominant7);
-        dominant7ChordButton = appTooltip(
+        dominant7ChordButton = editTooltip(
             message: 'Enter the dominant7 chord.',
             child: appEnumeratedButton(
               sc.toString(),
@@ -2608,7 +2334,7 @@ class _Edit extends State<Edit> {
                   ),
                 //  measure edit chord selection
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
-                  appTooltip(
+                  editTooltip(
                       message: 'Select other notes from the key scale.',
                       child: ButtonTheme(
                         alignedDropdown: true,
@@ -2629,7 +2355,7 @@ class _Edit extends State<Edit> {
                   majorChordButton,
                   minorChordButton,
                   dominant7ChordButton,
-                  appTooltip(
+                  editTooltip(
                     message: 'Enter a silent chord.',
                     child: appEnumeratedButton(
                       'X',
@@ -2647,7 +2373,7 @@ class _Edit extends State<Edit> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    appTooltip(
+                    editTooltip(
                       message: 'Select from other chord descriptors.',
                       child: ButtonTheme(
                         alignedDropdown: true,
@@ -2667,7 +2393,7 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                     ),
-                    appTooltip(
+                    editTooltip(
                       message: 'Select a slash note',
                       child: ButtonTheme(
                         alignedDropdown: true,
@@ -2690,7 +2416,7 @@ class _Edit extends State<Edit> {
                     if ((measure?.endOfRow ?? false) &&
                         phrase != null &&
                         editDataPoint.location.measureIndex != phrase.length - 1)
-                      appTooltip(
+                      editTooltip(
                         message: 'Join the row with the row below',
                         child: appButton(
                           'Join',
@@ -2700,6 +2426,7 @@ class _Edit extends State<Edit> {
                               song.setCurrentChordSectionLocation(editDataPoint.location);
                               song.setCurrentChordSectionLocationMeasureEndOfRow(false);
                               undoStackPushIfDifferent();
+                              selectedEditDataPoint = null;
                             });
                           },
                           fontSize: _defaultChordFontSize,
@@ -2708,7 +2435,7 @@ class _Edit extends State<Edit> {
                     if (!(measure?.endOfRow ?? false) &&
                         phrase != null &&
                         editDataPoint.location.measureIndex != phrase.length - 1)
-                      appTooltip(
+                      editTooltip(
                         message: 'Add new chord row after this measure',
                         child: appButton(
                           'Split',
@@ -2718,6 +2445,7 @@ class _Edit extends State<Edit> {
                               song.setCurrentChordSectionLocation(editDataPoint.location);
                               song.setCurrentChordSectionLocationMeasureEndOfRow(true);
                               undoStackPushIfDifferent();
+                              selectedEditDataPoint = null;
                             });
                           },
                           fontSize: _defaultChordFontSize,
@@ -2730,7 +2458,7 @@ class _Edit extends State<Edit> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       if (editDataPoint._measureEditType == MeasureEditType.replace)
-                        appTooltip(
+                        editTooltip(
                           message: 'Delete this measure',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editDeleteChordMeasure,
@@ -2744,7 +2472,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         ),
-                      appTooltip(
+                      editTooltip(
                         message: 'Cancel the modification.'
                             '${kDebugMode ? ' _selectedEditDataPoint: $selectedEditDataPoint' : ''}',
                         child: appInkWell(
@@ -2760,7 +2488,7 @@ class _Edit extends State<Edit> {
                         ),
                       ),
                       if (measureEntryValid)
-                        appTooltip(
+                        editTooltip(
                           message: 'Accept the modification and extend the row.',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndExtendRow,
@@ -2774,7 +2502,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                       if (measureEntryValid)
-                        appTooltip(
+                        editTooltip(
                           message: 'Accept the modification, end the row, and continue editing.',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndStartNewRow,
@@ -2788,7 +2516,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                       if (measureEntryValid)
-                        appTooltip(
+                        editTooltip(
                           message: 'Accept the modification.\nFinished adding measures.',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndFinish,
@@ -2822,7 +2550,7 @@ class _Edit extends State<Edit> {
             margin: marginInsets,
             padding: textPadding,
             color: sectionColor,
-            child: appTooltip(
+            child: editTooltip(
                 message: 'modify or delete the measure'
                     '${kDebugMode ? ' ${editDataPoint.location} ${song.findMeasureNodeByLocation(editDataPoint.location)}' : ''}',
                 child: Text(
@@ -2908,7 +2636,7 @@ class _Edit extends State<Edit> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
-                          appTooltip(
+                          editTooltip(
                             message: 'Delete this repeat',
                             child: appInkWell(
                               appKeyEnum: AppKeyEnum.editDeleteRepeat,
@@ -2927,7 +2655,7 @@ class _Edit extends State<Edit> {
                           ),
                         ],
                       ),
-                      appTooltip(
+                      editTooltip(
                         message: 'Cancel the modification',
                         child: appInkWell(
                           appKeyEnum: AppKeyEnum.editRepeatCancel,
@@ -2960,7 +2688,7 @@ class _Edit extends State<Edit> {
           margin: marginInsets,
           padding: textPadding,
           color: sectionColor,
-          child: appTooltip(
+          child: editTooltip(
               message: 'modify or delete the measure',
               child: Text(
                 'x${repeat.repeats}',
@@ -2973,6 +2701,12 @@ class _Edit extends State<Edit> {
     MeasureNode? measureNode = forceMeasureNode ?? song.findMeasureNodeByLocation(editDataPoint.location);
     if (measureNode == null || !measureNode.isComment()) {
       return Text('is not comment: ${editDataPoint.location}: "$measureNode"');
+    }
+
+    //  suppress the unnecessary "]"
+    if (measureNode is MeasureRepeatExtension &&
+        measureNode.marker == ChordSectionLocationMarker.repeatOnOneLineRight) {
+      return NullWidget();
     }
 
     Color color = getBackgroundColorForSection(editDataPoint.location.sectionVersion?.section);
@@ -3051,7 +2785,7 @@ class _Edit extends State<Edit> {
               shape: BoxShape.circle,
               color: _addColor,
             ),
-            child: appTooltip(
+            child: editTooltip(
               message: 'insert new row above'
                   '${kDebugMode ? ' $editDataPoint' : ''}',
               child: Icon(
@@ -3081,7 +2815,7 @@ class _Edit extends State<Edit> {
               shape: BoxShape.circle,
               color: _addColor,
             ),
-            child: appTooltip(
+            child: editTooltip(
               message: 'add repeat to this chord row'
                   '${kDebugMode ? ' $editDataPoint' : ''}',
               child: Icon(
@@ -3110,7 +2844,7 @@ class _Edit extends State<Edit> {
               shape: BoxShape.circle,
               color: _addColor,
             ),
-            child: appTooltip(
+            child: editTooltip(
               message: 'add a measure on a new chord row'
                   '${kDebugMode ? ' $editDataPoint' : ''}',
               child: Icon(
@@ -3120,36 +2854,18 @@ class _Edit extends State<Edit> {
             )));
   }
 
-  bool priorPhraseIsRepeat(ChordSectionLocation? location) {
-    if (location == null || location.phraseIndex <= 0) {
-      return false;
-    }
-    var priorLoc = song.findMeasureNodeByLocation(
-        ChordSectionLocation(location.sectionVersion, phraseIndex: location.phraseIndex - 1));
-    return priorLoc != null && priorLoc.isRepeat();
-  }
-
-  Widget insertMeasureBeforeRepeat(ChordSectionLocation? location) {
-    var loc = location?.asPhraseLocation();
-    if (loc == null || selectedEditDataPoint == null || selectedEditDataPoint?.location != loc) {
-      return const NullWidget();
-    }
-    logger.log(_editEditPoint, 'insertMeasureBeforeRepeat($location): $selectedEditDataPoint}');
-    return measureEditGridDisplayWidget(selectedEditDataPoint!); //  let it do the heavy lifting
-  }
-
   Widget plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint, {String? tooltip}) {
     if (selectedEditDataPoint == editDataPoint) {
       logger.log(_editEditPoint, 'plusMeasureEditGridDisplayWidget($editDataPoint): $selectedEditDataPoint}');
       return measureEditGridDisplayWidget(editDataPoint); //  let it do the heavy lifting
     }
     if (selectedEditDataPoint != null) {
-      return const NullWidget();
+      return NullWidget();
     }
 
     MeasureNode? measureNode = song.findMeasureNodeByLocation(editDataPoint.location);
     if (measureNode == null) {
-      return const NullWidget();
+      return NullWidget();
     }
 
     return appInkWell(
@@ -3167,7 +2883,7 @@ class _Edit extends State<Edit> {
               shape: BoxShape.circle,
               color: _addColor,
             ),
-            child: appTooltip(
+            child: editTooltip(
               message: tooltip ??
                   ('add new measure on this row'
                       '${kDebugMode ? ' loc: $editDataPoint' : ''}'),
@@ -3266,7 +2982,7 @@ class _Edit extends State<Edit> {
   /// validate the given measure entry string
   List<MeasureNode> validateMeasureEntry(String entry) {
     List<MeasureNode> entries = song.parseChordEntry(SongBase.entryToUppercase(entry));
-    measureEntryValid = (entries.length == 1 && entries[0].getMeasureNodeType() != MeasureNodeType.comment);
+    measureEntryValid = (entries.length == 1 && entries[0].measureNodeType != MeasureNodeType.comment);
     measureEntryNode = (measureEntryValid ? entries[0] : null);
     logger.d('_measureEntryValid: $measureEntryValid');
     return entries;
@@ -3602,6 +3318,20 @@ class _Edit extends State<Edit> {
     return sb.toString();
   }
 
+  /// helper function to generate tool tips
+  Widget editTooltip({
+    Key? key,
+    required String message,
+    required Widget child,
+  }) {
+    return appTooltip(
+      key: key,
+      message: message,
+      child: child,
+      fontSize: chordFontSize,
+    );
+  }
+
   void import() async {
     List<NameValue> lyricStrings = await UtilWorkaround().textFilePickAndRead(context);
     for (var nameValue in lyricStrings) {
@@ -3665,7 +3395,6 @@ class _Edit extends State<Edit> {
   FocusNode? editTextFieldFocusNode;
   TextSelection? lastEditTextSelection;
 
-  Table? chordTable;
   List<TableRow> chordRows = [];
   List<Widget> chordRowChildren = [];
   int tableKeyId = 0;
@@ -3687,52 +3416,11 @@ class _Edit extends State<Edit> {
   late AppOptions appOptions;
 }
 
-// class _LyricsTextField {
-//   _LyricsTextField(
-//     this.entry,
-//     this.line, {
-//     controller,
-//     style,
-//     decoration,
-//     onSubmitted,
-//     onEditingComplete,
-//     onChanged,
-//   }) {
-//     if (controller != null) {
-//       _textField = TextField(
-//           controller: controller,
-//           style: style,
-//           decoration: decoration,
-//           onSubmitted: onSubmitted,
-//           onEditingComplete: onEditingComplete,
-//           onChanged: onChanged,
-//           keyCallback: () {
-//             logger.log(_editLog,'onTap(): ${this.toString()}  /// temp only!!!!!');
-//             _selectedLyricsTextField = this;
-//           },
-//           maxLines: null);
-//     }
-//   }
-//
-//   @override
-//   String toString() {
-//     return '_LyricsTextField{entry: $entry, line: $line, _textField: \'${_textField?.controller?.text}\'';
-//   }
-//
-//   final LyricsDataEntry entry;
-//   final int line;
-//
-//   get controller => _textField?.controller;
-//
-//   get textField => _textField ?? Text('');
-//   TextField? _textField;
-// }
-
 //  internal class to hold handy data for each point in the chord section edit display
 class _EditDataPoint {
   _EditDataPoint(ChordSectionLocation? loc,
       {MeasureEditType measureEditType = MeasureEditType.replace, this.onEndOfRow = false})
-      : location = loc ?? emptyLocation,
+      : location = loc ?? defaultLocation,
         _measureEditType = measureEditType;
 
   _EditDataPoint.byChordSection(ChordSection chordSection,
@@ -3767,7 +3455,7 @@ class _EditDataPoint {
         measureNode == o.measureNode;
   }
 
-  bool get isSection => measureNode != null && measureNode?.getMeasureNodeType() == MeasureNodeType.section;
+  bool get isSection => measureNode != null && measureNode?.measureNodeType == MeasureNodeType.section;
 
   @override
   int get hashCode => hashValues(location, _measureEditType, measureNode);
@@ -3806,7 +3494,7 @@ going the other way, we pretty-much never see A#, E#, and B# (Because E# is F an
         appKeyEnum: AppKeyEnum.editRepeatX4, value: 4, child: Text('x4', style: appDropdownListItemTextStyle)));
 
 
-    appTooltip(
+    editTooltip(
                         message: 'Add a repeat for this row',
                         child: ButtonTheme(
                           alignedDropdown: true,

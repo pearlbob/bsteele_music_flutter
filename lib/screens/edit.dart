@@ -61,11 +61,13 @@ List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 final ChordSectionLocation defaultLocation = // last resort, better than null
     ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
-const bool _editDebug = kDebugMode && false;
+const bool _editDebug = kDebugMode && true;
+const bool _editDebugVerbose = kDebugMode && false;
+
 const Level _editLog = Level.debug;
 const Level _editEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
-const Level _editEditPoint = Level.debug;
+const Level _editEditPoint = Level.info;
 
 /*
 Song notes:
@@ -1060,9 +1062,12 @@ class _Edit extends State<Edit> {
 
           //  plus column
           if (c == 0) {
-            //  note that the append after a row end is the same as an insert before the next measure
-            var editDataPoint =
-                _EditDataPoint(lastMeasureLocation, measureEditType: MeasureEditType.insert, onEndOfRow: false);
+            //  find the next measure on the row in insert in front of it
+            ChordSectionLocation? next;
+            if (row.length > 1) {
+              next = row[c + 1]?.chordSectionLocation ?? lastMeasureLocation;
+            }
+            var editDataPoint = _EditDataPoint(next ?? lastMeasureLocation, measureEditType: MeasureEditType.insert);
             addChordRowChild(_debugWidget(
                 plusMeasureEditGridDisplayWidget(editDataPoint,
                     tooltip: 'insert measure at the start of the row'
@@ -1070,12 +1075,13 @@ class _Edit extends State<Edit> {
                 editDataPoint));
           } else {
             //  subsequent columns
-            var editDataPoint = _EditDataPoint(lastMeasureLocation, onEndOfRow: true);
-            addChordRowChild(_debugWidget(
-                plusMeasureEditGridDisplayWidget(editDataPoint,
-                    tooltip: 'Add a measure here between these measures'
-                        '${kDebugMode ? ' $editDataPoint' : ''}'),
-                editDataPoint));
+            // var editDataPoint = _EditDataPoint(lastMeasureLocation, onEndOfRow: true);
+            // addChordRowChild(_debugWidget(
+            //     plusMeasureEditGridDisplayWidget(editDataPoint,
+            //         tooltip: 'Add a measure here between these measures'
+            //             '${kDebugMode ? ' $editDataPoint' : ''}'),
+            //     editDataPoint));
+            addChordRowNullWidget();
           }
           lastMeasureLocation = null;
           continue;
@@ -1101,11 +1107,7 @@ class _Edit extends State<Edit> {
         }
         lastChordSectionLocation = location;
 
-        Phrase? phrase;
-        if (location.isPhrase) {
-          phrase = chordSection.findPhrase(measureNode);
-        }
-
+        Phrase? phrase = chordSection.findPhrase(measureNode);
         lastMeasureLocation = location.isMeasure ? location : lastMeasureLocation;
         Measure? measure = measureNode is Measure ? measureNode : null;
         bool endOfRow =
@@ -1212,38 +1214,45 @@ class _Edit extends State<Edit> {
 
           case MeasureNodeType.measure:
             {
+              //     if (selectedEditDataPoint)
               {
-                //  entry column
-                var editDataPoint = _EditDataPoint(location, onEndOfRow: endOfRow);
+                {
+                  //  entry column
+                  var editDataPoint = _EditDataPoint(location, onEndOfRow: endOfRow);
+                  addChordRowChild(
+                    _debugWidget(measureEditGridDisplayWidget(editDataPoint), editDataPoint),
+                  );
+                }
 
-                addChordRowChild(
-                  _debugWidget(measureEditGridDisplayWidget(editDataPoint), editDataPoint),
-                );
-              }
+                //  plus column
+                {
+                  var editDataPoint =
+                      _EditDataPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: false);
+                  List<Widget> widgets = [
+                    plusMeasureEditGridDisplayWidget(editDataPoint,
+                        tooltip: 'add a new measure here'
+                            '${kDebugMode ? ' $editDataPoint' : ''}')
+                  ];
+                  if (endOfRow && selectedEditDataPoint == null) {
+                    widgets.add(plusNewRow(location));
 
-              //  plus column
-              {
-                var editDataPoint =
-                    _EditDataPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
-                List<Widget> widgets = [
-                  plusMeasureEditGridDisplayWidget(editDataPoint,
-                      tooltip: 'add a new measure here'
-                          '${kDebugMode ? ' $editDataPoint' : ''}')
-                ];
-                if (endOfRow) {
-                  widgets.add(appSpace());
-                  widgets.add(plusNewRow(location));
-                  if (song.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
-                      MeasureNodeType.phrase) {
-                    widgets.add(plusRepeatWidget(location));
+                    if (song.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
+                        MeasureNodeType.phrase) {}
+                  }
+                  addChordRowChild(_debugWidget(
+                      Column(
+                        children: widgets,
+                      ),
+                      editDataPoint));
+                  if (endOfRow &&
+                      selectedEditDataPoint == null &&
+                      song.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
+                          MeasureNodeType.phrase) {
+                    //  fixme: bad style: bumping into next column knowing this is the end of the row
+                    addChordRowChild(_debugWidget(plusRepeatWidget(location), editDataPoint));
+                    addChordRowNullWidget();
                   }
                 }
-                addChordRowChild(_debugWidget(
-                    appWrap(
-                      widgets,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                    ),
-                    editDataPoint));
               }
             }
             break;
@@ -1315,7 +1324,7 @@ class _Edit extends State<Edit> {
       defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: chordRows,
-      border: _editDebug
+      border: _editDebugVerbose
           ? const TableBorder(
               top: BorderSide(),
               right: BorderSide(),
@@ -1655,9 +1664,9 @@ class _Edit extends State<Edit> {
 
   Widget _debugWidget(Widget w, _EditDataPoint editDataPoint) {
     //  debug only
-    if (_editDebug) {
-      w = Column(
-        children: [
+    if (_editDebugVerbose) {
+      return appWrap(
+        [
           Text('$editDataPoint'),
           w,
         ],
@@ -2125,7 +2134,7 @@ class _Edit extends State<Edit> {
       logger.log(
           _editEditPoint,
           '_measureEditGridDisplayWidget pre: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
-          ' "${editTextController.text}');
+          ' "${editTextController.text}"');
       if (editTextField == null) {
         if (editTextFieldFocusNode != null) {
           disposeList.add(editTextFieldFocusNode!); //  fixme: dispose of the old?
@@ -2453,6 +2462,7 @@ class _Edit extends State<Edit> {
                       ),
                   ],
                 ),
+                appSpace(space: 20),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -2517,7 +2527,7 @@ class _Edit extends State<Edit> {
                         ),
                       if (measureEntryValid)
                         editTooltip(
-                          message: 'Accept the modification.\nFinished adding measures.',
+                          message: 'Accept the modification.\nFinish adding measures.',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndFinish,
                             keyCallback: () {
@@ -2552,7 +2562,7 @@ class _Edit extends State<Edit> {
             color: sectionColor,
             child: editTooltip(
                 message: 'modify or delete the measure'
-                    '${kDebugMode ? ' ${editDataPoint.location} ${song.findMeasureNodeByLocation(editDataPoint.location)}' : ''}',
+                    '${kDebugMode ? ' $editDataPoint ${song.findMeasureNodeByLocation(editDataPoint.location)}' : ''}',
                 child: Text(
                   measure?.transpose(key, transpositionOffset) ?? '',
                   style: sectionChordBoldTextStyle,

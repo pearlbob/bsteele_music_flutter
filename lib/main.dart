@@ -122,6 +122,9 @@ void main() async {
 }
 
 /*
+//  fixme: edit: add a measure on a new row doesn't work, entry never appears
+//  fixme: edit repeat add plus's should be in the last column, the one with the repeat count
+//  fixme: repeat brackets and repeat counts should be without background so they don't get too wide based on other measures in other rows
 //  fixme: lyrics "instrumental:" blows up
 //  fixme: edit: big blowup if Song.createEmptySong() goes into song on a clear
 //  fixme: edit join/split should only do the following measure

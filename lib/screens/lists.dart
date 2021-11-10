@@ -256,7 +256,7 @@ class _State extends State<Lists> {
                                       style: TextStyle(fontSize: metadataStyle.fontSize),
                                     ),
                                     actions: [
-                                      appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}',
+                                      appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
                                           appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
                                         logger.i('delete: ${_selectedNameValue.toShortString()}');
                                         setState(() {

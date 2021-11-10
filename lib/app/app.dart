@@ -274,32 +274,38 @@ Widget appWrapFullWidth(List<Widget> children,
   );
 }
 
+typedef CanPopQualifier = bool Function();
+
 ///  A collection of methods that generate application styled widgets.
 ///  It also provides a handy place to hold the build context should it be needed.
 class AppWidgetHelper {
   AppWidgetHelper(this.context);
 
-  Widget back() {
+  Widget back({CanPopQualifier? canPop}) {
     return appTooltip(
       message: 'Back',
       child: TextButton(
         key: appKey(AppKeyEnum.appBack),
         onPressed: () {
-          appLogAppKey(AppKeyEnum.appBack);
-          Navigator.pop(context);
+          if (canPop != null ? canPop() : true) {
+            appLogAppKey(AppKeyEnum.appBack);
+            Navigator.pop(context);
+          }
         },
         child: appIcon(Icons.arrow_back),
       ),
     );
   }
 
-  Widget floatingBack(AppKeyEnum appKeyEnum) {
+  Widget floatingBack(AppKeyEnum appKeyEnum, {CanPopQualifier? canPop}) {
     return appTooltip(
       message: 'Back',
       child: appFloatingActionButton(
         appKeyEnum: appKeyEnum,
         onPressed: () {
-          Navigator.pop(context);
+          if (canPop != null ? canPop() : true) {
+            Navigator.pop(context);
+          }
         },
         child: const Icon(Icons.arrow_back, color: Colors.white),
       ),

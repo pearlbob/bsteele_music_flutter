@@ -62,10 +62,10 @@ final ChordSectionLocation defaultLocation = // last resort, better than null
     ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
 const bool _editDebug = kDebugMode && true;
-const bool _editDebugVerbose = kDebugMode && false;
+const bool _editDebugVerbose = kDebugMode && true;
 
 const Level _editLog = Level.debug;
-const Level _editEntry = Level.debug;
+const Level _editEntry = Level.info;
 const Level _editKeyboard = Level.debug;
 const Level _editEditPoint = Level.info;
 
@@ -259,6 +259,37 @@ class _Edit extends State<Edit> {
     checkSongChangeStatus();
   }
 
+  /// return true if the song is original or the user has acknowledged that their edits will be lost.
+  bool canPop() {
+    if (!songHasChanged) {
+      return true;
+    }
+
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Text(
+                'Do you really want discard your changes?',
+                style: chordBoldTextStyle,
+              ),
+              actions: [
+                appButton('Yes! Discard all my changes.', appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                  Navigator.of(context).pop(); //  the dialog
+                  Navigator.of(context).pop(); //  the screen
+                }),
+                appSpace(space: 100),
+                appButton('Cancel the return... I need to work some more on this.',
+                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                  Navigator.of(context).pop();
+                }),
+              ],
+              elevation: 24.0,
+            ));
+    return false;
+  }
+
+  bool get songHasChanged => hasChangedFromOriginal || lyricsEntries.hasChangedLines();
+
   @override
   void dispose() {
     editTextController.dispose();
@@ -360,7 +391,6 @@ class _Edit extends State<Edit> {
       }));
     }
 
-    bool songHasChanged = hasChangedFromOriginal || lyricsEntries.hasChangedLines();
     var theme = Theme.of(context);
 
     logger.d('edit build here: ');
@@ -384,7 +414,7 @@ class _Edit extends State<Edit> {
                 appWidgetHelper.appBar(
                   appKeyEnum: AppKeyEnum.appBarBack,
                   title: 'Edit',
-                  leading: appWidgetHelper.back(),
+                  leading: appWidgetHelper.back(canPop: canPop),
                 ),
                 appSpace(),
                 Container(
@@ -967,14 +997,14 @@ class _Edit extends State<Edit> {
                 Navigator.pop(context);
               },
               child: editTooltip(
-                message: 'Back to song',
+                message: 'Back to the song',
                 child: appIcon(
                   Icons.arrow_back,
                 ),
               ),
               mini: !app.isScreenBig,
             )
-          : NullWidget(),
+          : NullWidget(), //  hide and disable the choice
     );
   }
 
@@ -1108,10 +1138,10 @@ class _Edit extends State<Edit> {
         lastChordSectionLocation = location;
 
         Phrase? phrase = chordSection.findPhrase(measureNode);
+        bool isLastOfPhrase = (((phrase?.length ?? -1) - 1) == data.chordSectionLocation.measureIndex);
         lastMeasureLocation = location.isMeasure ? location : lastMeasureLocation;
         Measure? measure = measureNode is Measure ? measureNode : null;
-        bool endOfRow =
-            (measure?.endOfRow ?? false) || (((phrase?.length ?? -1) - 1) == data.chordSectionLocation.measureIndex);
+        bool endOfRow = (measure?.endOfRow ?? false) || isLastOfPhrase;
 
         switch (measureNode.measureNodeType) {
           case MeasureNodeType.section:
@@ -1324,16 +1354,18 @@ class _Edit extends State<Edit> {
       defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: chordRows,
-      border: _editDebugVerbose
-          ? const TableBorder(
-              top: BorderSide(),
-              right: BorderSide(),
-              bottom: BorderSide(),
-              left: BorderSide(),
-              horizontalInside: BorderSide(),
-              verticalInside: BorderSide(),
-            )
-          : null,
+      border:
+          // _editDebugVerbose
+          //     ? const TableBorder(
+          //         top: BorderSide(),
+          //         right: BorderSide(),
+          //         bottom: BorderSide(),
+          //         left: BorderSide(),
+          //         horizontalInside: BorderSide(),
+          //         verticalInside: BorderSide(),
+          //       )
+          //     :
+          null,
     );
   }
 
@@ -2547,6 +2579,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                     ]),
+                appSpace(),
               ]));
     } else {
       //  not editing this measure
@@ -2839,29 +2872,31 @@ class _Edit extends State<Edit> {
   Widget plusNewRow(ChordSectionLocation? loc) {
     var editDataPoint = _EditDataPoint(loc, measureEditType: MeasureEditType.append, onEndOfRow: true);
 
-    return appInkWell(
-        appKeyEnum: AppKeyEnum.editAddChordRowNew,
-        value: loc,
-        keyCallback: () {
-          setState(() {
-            selectedEditDataPoint = editDataPoint;
-          });
-        },
-        child: Container(
-            margin: appendInsets,
-            padding: appendPadding,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: _addColor,
-            ),
-            child: editTooltip(
-              message: 'add a measure on a new chord row'
-                  '${kDebugMode ? ' $editDataPoint' : ''}',
-              child: Icon(
-                Icons.call_received,
-                size: appendFontSize,
-              ),
-            )));
+    return _debugWidget(
+        appInkWell(
+            appKeyEnum: AppKeyEnum.editAddChordRowNew,
+            value: loc,
+            keyCallback: () {
+              setState(() {
+                selectedEditDataPoint = editDataPoint;
+              });
+            },
+            child: Container(
+                margin: appendInsets,
+                padding: appendPadding,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _addColor,
+                ),
+                child: editTooltip(
+                  message: 'add a measure on a new chord row'
+                      '${kDebugMode ? ' $editDataPoint' : ''}',
+                  child: Icon(
+                    Icons.call_received,
+                    size: appendFontSize,
+                  ),
+                ))),
+        editDataPoint);
   }
 
   Widget plusMeasureEditGridDisplayWidget(_EditDataPoint editDataPoint, {String? tooltip}) {

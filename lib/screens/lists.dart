@@ -14,8 +14,6 @@ import '../app/app.dart';
 
 final _blue = Paint()..color = Colors.lightBlue.shade200;
 
-int _dirtyCount = 0;
-
 /// Allow the user to manage sub-lists from all available songs.
 /// Name and value pairs are assigned to songs identified by their song id.
 /// The value portion may be empty.
@@ -223,7 +221,6 @@ class _State extends State<Lists> {
                   onPressed: () {
                     _saveSongMetadata();
                   },
-                  backgroundColor: _dirtyCount == 0 ? appDisabledColor : null,
                 ),
                 if (_selectedNameValue != _emptySelectedNameValue)
                   appEnumeratedButton(
@@ -372,7 +369,6 @@ class _State extends State<Lists> {
           onChanged: (bool? value) {
             if (value != null) {
               setState(() {
-                _dirtyCount++;
                 if (value) {
                   if (_selectedNameValue.name.isNotEmpty) {
                     SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
@@ -402,7 +398,6 @@ class _State extends State<Lists> {
           onPressed: () {
             setState(() {
               if (_selectedNameValue.name.isNotEmpty) {
-                _dirtyCount++;
                 SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
               }
             });
@@ -442,12 +437,11 @@ class _State extends State<Lists> {
   }
 
   void _saveSongMetadata() async {
-    _dirtyCount = 0;
     _saveMetadata('allSongs', SongMetadata.toJson());
   }
 
-  void _saveNameValueSongMetadata(NameValue nv) async {
-    String contents = SongMetadata.toJson(values: SongMetadata.where(nameValue: _selectedNameValue));
+  void _saveNameValueSongMetadata(NameValue nameValue) async {
+    String contents = SongMetadata.toJsonAt(nameValue: nameValue);
     _saveMetadata('${_selectedNameValue.name}_${_selectedNameValue.value}', contents);
   }
 

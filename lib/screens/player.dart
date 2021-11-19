@@ -632,22 +632,19 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       textDirection: TextDirection.ltr,
                       children: <Widget>[
-                        if (_hasOpenedTheLink && app.fullscreenEnabled)
-                          appWrap(
-                            [
-                              appSpace(space: 60),
-                              appEnumeratedButton('Enter fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
-                                  onPressed: () {
-                                app.requestFullscreen();
-                                _hasOpenedTheLink = false;
-                              }),
-                            ],
-                          ),
                         Column(
+                          //  fixme: why is this column in a column?   remnant of limited scrolling?
                           children: <Widget>[
+                            //  fullscreen, hints, capo,
                             Container(
-                              padding: const EdgeInsets.only(top: 16, right: 12),
+                              padding: const EdgeInsets.all(12),
                               child: appWrapFullWidth([
+                                if (app.fullscreenEnabled && !app.isFullScreen)
+                                  appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
+                                      onPressed: () {
+                                    app.requestFullscreen();
+                                    _hasOpenedTheLink = false;
+                                  }),
                                 appTooltip(
                                   message: '''
 Space bar or clicking the song area starts "play" mode.
@@ -761,6 +758,7 @@ With escape, the app goes back to the play list.''',
                                         ),
                                         onPressed: () {
                                           SongMetadata.addSong(_song, myGoodSongNameValue);
+                                          SongMetadata.removeSong(_song, myGoodSongNameValue);
                                           appOptions.storeSongMetadata();
                                           app.errorMessage('${_song.title} added to'
                                               ' ${myGoodSongNameValue.toShortString()}');
@@ -971,7 +969,9 @@ With escape, the app goes back to the play list.''',
                                             ? 'on ${songUpdateService.authority}'
                                             : 'following ${songUpdateService.leaderName}'))
                                     : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.authority}!'),
-                                style: headerTextStyle,
+                                style: !songUpdateService.isConnected && !songUpdateService.isIdle
+                                    ? headerTextStyle.copyWith(color: Colors.red)
+                                    : headerTextStyle,
                               ),
                             ], alignment: WrapAlignment.spaceAround),
                           ],

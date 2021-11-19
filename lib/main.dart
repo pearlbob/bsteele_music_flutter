@@ -122,6 +122,9 @@ void main() async {
 }
 
 /*
+//  fixme: lists: "write all to file" can appear disabled
+//  fixme: songmetadata thumbs up should eliminate the name:value from thumbs down, and vise-versa
+//  fixme: songmetadata file should delete all prior metadata of same name:value from all songs
 //  fixme: edit: add a measure on a new row doesn't work, entry never appears
 //  fixme: edit repeat add plus's should be in the last column, the one with the repeat count
 //  fixme: repeat brackets and repeat counts should be without background so they don't get too wide based on other measures in other rows
@@ -486,7 +489,7 @@ class _MyHomePageState extends State<MyHomePage> {
       fontWeight: FontWeight.normal,
       textBaseline: TextBaseline.alphabetic,
     );
-    final TextStyle titleTextStyle = generateAppTextStyle(
+    titleTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       textBaseline: TextBaseline.alphabetic,
       color: Colors.black,
@@ -499,7 +502,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final fontSize = searchTextStyle.fontSize ?? 25;
     logger.d('fontSize: $fontSize in ${app.screenInfo.widthInLogicalPixels} px');
 
-    final TextStyle artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
+    artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle _navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     //  generate the sort selection
@@ -521,72 +524,8 @@ class _MyHomePageState extends State<MyHomePage> {
       _searchSongs(_searchTextFieldController.text);
     }
 
-    List<Widget> listViewChildren = [];
-    {
-      bool oddEven = true;
-      final oddTitle = oddTitleText(from: titleTextStyle);
-      final evenTitle = evenTitleText(from: titleTextStyle);
-      final oddText = oddTitleText(from: artistTextStyle);
-      final evenText = evenTitleText(from: artistTextStyle);
-      logger.d('_filteredSongs.length: ${_filteredSongs.length}');
-
-      for (final Song song in _filteredSongs) {
-        oddEven = !oddEven;
-        var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
-        var oddEvenTextStyle = oddEven ? oddText : evenText;
-        logger.v('song.songId: ${song.songId}');
-        listViewChildren.add(appGestureDetector(
-          appKeyEnum: AppKeyEnum.mainSong,
-          value: Id(song.songId.toString()),
-          child: Container(
-            color: oddEvenTitleTextStyle.backgroundColor,
-            padding: const EdgeInsets.all(8.0),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-              if (app.isScreenBig)
-                appWrapFullWidth(
-                  <Widget>[
-                    appWrap(
-                      <Widget>[
-                        Text(
-                          song.title,
-                          style: oddEvenTitleTextStyle,
-                        ),
-                        Text(
-                          '      ' + song.getArtist(),
-                          style: oddEvenTextStyle,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '   ' +
-                          intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                      style: oddEvenTextStyle,
-                    ),
-                  ],
-                  alignment: WrapAlignment.spaceBetween,
-                ),
-              if (app.isPhone)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      song.title,
-                      style: oddEvenTitleTextStyle,
-                    ),
-                    Text(
-                      '      ' + song.getArtist(),
-                      style: oddEvenTextStyle,
-                    ),
-                  ],
-                ),
-            ]),
-          ),
-          onTap: () {
-            _navigateToPlayer(context, song);
-          },
-        ));
-      }
-    }
+    listViewChildren.clear();
+    addSongsToListView(_filteredSongs);
     listViewChildren.add(appSpace(
       space: 20,
     ));
@@ -594,6 +533,93 @@ class _MyHomePageState extends State<MyHomePage> {
       'Count: ${_filteredSongs.length}',
       style: artistTextStyle,
     ));
+
+    if (_filteredSongsNotInSelectedList.isNotEmpty) {
+      listViewChildren.add(const Divider(
+        thickness: 10,
+        color: Colors.blue,
+      ));
+      listViewChildren.add(appSpace(space: 40));
+      listViewChildren.add(Text(
+        'Songs not in ${_selectedListNameValue?.toShortString()}:',
+        style: artistTextStyle,
+      ));
+
+      addSongsToListView(_filteredSongsNotInSelectedList);
+      listViewChildren.add(appSpace(
+        space: 20,
+      ));
+      listViewChildren.add(Text(
+        'Count: ${_filteredSongsNotInSelectedList.length}',
+        style: artistTextStyle,
+      ));
+    }
+
+    // {
+    //   bool oddEven = true;
+    //   final oddTitle = oddTitleText(from: titleTextStyle);
+    //   final evenTitle = evenTitleText(from: titleTextStyle);
+    //   final oddText = oddTitleText(from: artistTextStyle);
+    //   final evenText = evenTitleText(from: artistTextStyle);
+    //   logger.d('_filteredSongs.length: ${_filteredSongs.length}');
+    //
+    //   for (final Song song in _filteredSongs) {
+    //     oddEven = !oddEven;
+    //     var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
+    //     var oddEvenTextStyle = oddEven ? oddText : evenText;
+    //     logger.v('song.songId: ${song.songId}');
+    //     listViewChildren.add(appGestureDetector(
+    //       appKeyEnum: AppKeyEnum.mainSong,
+    //       value: Id(song.songId.toString()),
+    //       child: Container(
+    //         color: oddEvenTitleTextStyle.backgroundColor,
+    //         padding: const EdgeInsets.all(8.0),
+    //         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+    //           if (app.isScreenBig)
+    //             appWrapFullWidth(
+    //               <Widget>[
+    //                 appWrap(
+    //                   <Widget>[
+    //                     Text(
+    //                       song.title,
+    //                       style: oddEvenTitleTextStyle,
+    //                     ),
+    //                     Text(
+    //                       '      ' + song.getArtist(),
+    //                       style: oddEvenTextStyle,
+    //                     ),
+    //                   ],
+    //                 ),
+    //                 Text(
+    //                   '   ' +
+    //                       intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+    //                   style: oddEvenTextStyle,
+    //                 ),
+    //               ],
+    //               alignment: WrapAlignment.spaceBetween,
+    //             ),
+    //           if (app.isPhone)
+    //             Column(
+    //               crossAxisAlignment: CrossAxisAlignment.start,
+    //               children: <Widget>[
+    //                 Text(
+    //                   song.title,
+    //                   style: oddEvenTitleTextStyle,
+    //                 ),
+    //                 Text(
+    //                   '      ' + song.getArtist(),
+    //                   style: oddEvenTextStyle,
+    //                 ),
+    //               ],
+    //             ),
+    //         ]),
+    //       ),
+    //       onTap: () {
+    //         _navigateToPlayer(context, song);
+    //       },
+    //     ));
+    //   }
+    // }
 
     List<DropdownMenuItem<NameValue>> _metadataDropDownMenuList = [];
     {
@@ -937,6 +963,70 @@ class _MyHomePageState extends State<MyHomePage> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
+  void addSongsToListView(Iterable<Song> list) {
+    bool oddEven = true;
+    final oddTitle = oddTitleText(from: titleTextStyle);
+    final evenTitle = evenTitleText(from: titleTextStyle);
+    final oddText = oddTitleText(from: artistTextStyle);
+    final evenText = evenTitleText(from: artistTextStyle);
+
+    for (final Song song in list) {
+      oddEven = !oddEven;
+      var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
+      var oddEvenTextStyle = oddEven ? oddText : evenText;
+      logger.v('song.songId: ${song.songId}');
+      listViewChildren.add(appGestureDetector(
+        appKeyEnum: AppKeyEnum.mainSong,
+        value: Id(song.songId.toString()),
+        child: Container(
+          color: oddEvenTitleTextStyle.backgroundColor,
+          padding: const EdgeInsets.all(8.0),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            if (app.isScreenBig)
+              appWrapFullWidth(
+                <Widget>[
+                  appWrap(
+                    <Widget>[
+                      Text(
+                        song.title,
+                        style: oddEvenTitleTextStyle,
+                      ),
+                      Text(
+                        '      ' + song.getArtist(),
+                        style: oddEvenTextStyle,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '   ' + intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                    style: oddEvenTextStyle,
+                  ),
+                ],
+                alignment: WrapAlignment.spaceBetween,
+              ),
+            if (app.isPhone)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    song.title,
+                    style: oddEvenTitleTextStyle,
+                  ),
+                  Text(
+                    '      ' + song.getArtist(),
+                    style: oddEvenTextStyle,
+                  ),
+                ],
+              ),
+          ]),
+        ),
+        onTap: () {
+          _navigateToPlayer(context, song);
+        },
+      ));
+    }
+  }
+
   // void _closeDrawer() {
   //   Navigator.of(context).pop();
   // }
@@ -1015,6 +1105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
+    _filteredSongsNotInSelectedList = SplayTreeSet(compare);
     for (final Song song in app.allSongs) {
       if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
         //  if holiday and song is holiday, we're good
@@ -1037,6 +1128,7 @@ class _MyHomePageState extends State<MyHomePage> {
               logger.d('found: ${song.songId.songId}: $found');
             }
             if (found.isEmpty) {
+              _filteredSongsNotInSelectedList.add(song);
               continue; //  not a match
             }
           }
@@ -1192,6 +1284,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _reApplySearch();
   }
 
+  List<Widget> listViewChildren = [];
+  TextStyle titleTextStyle = appTextStyle; //  initial place holder
+  TextStyle artistTextStyle = appTextStyle; //  initial place holder
+
   final List<DropdownMenuItem<MainSortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = MainSortType.byTitle;
 
@@ -1221,6 +1317,7 @@ Future<String> fetchString(String uriString) async {
 }
 
 SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
+SplayTreeSet<Song> _filteredSongsNotInSelectedList = SplayTreeSet();
 Song? _lastSelectedSong;
 
 //  for external consumption

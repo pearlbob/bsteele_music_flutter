@@ -6,6 +6,7 @@ import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/status.dart' as web_socket_status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -35,6 +36,8 @@ class SongUpdateService extends ChangeNotifier {
 
       //  look back to the server to possibly find a websocket
       _authority = _findTheAuthority();
+      _ipAddress = '';
+      notifyListeners();
 
       if (_authority.isEmpty) {
         // do nothing
@@ -45,7 +48,17 @@ class SongUpdateService extends ChangeNotifier {
 
         try {
           //  or re-try
-          _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
+          Uri _uri = Uri.parse(url);
+          _webSocketChannel = WebSocketChannel.connect(_uri);
+
+          //  lookup the ip address
+          await InternetAddress.lookup(_uri.host, type: InternetAddressType.IPv4).then((value) async {
+            for (var element in value) {
+              _ipAddress = element.address; //  just the first one will do
+              notifyListeners();
+              break;
+            }
+          });
 
           _webSocketSink = _webSocketChannel!.sink;
 
@@ -68,7 +81,7 @@ class SongUpdateService extends ChangeNotifier {
           notifyListeners();
           var lastAuthority = _authority;
           for (_idleCount = 0;; _idleCount++) {
-            await Future.delayed(const Duration(seconds: 5));
+            await Future.delayed(const Duration(seconds: 1));
             notifyListeners();
 
             if (lastAuthority != _findTheAuthority()) {
@@ -100,7 +113,7 @@ class SongUpdateService extends ChangeNotifier {
 
       //  backoff bothering the server with repeated failures
       if (delaySeconds < maxDelaySeconds) {
-        delaySeconds += 5;
+        delaySeconds++;
       }
     }
   }
@@ -126,6 +139,7 @@ class SongUpdateService extends ChangeNotifier {
     _webSocketSink = null;
     _webSocketChannel?.sink.close(web_socket_status.normalClosure);
     _webSocketChannel = null;
+    _idleCount = 0;
     await _subscription?.cancel();
     _subscription = null;
     //fixme: make sticky across retries:   _isLeader = false;
@@ -169,13 +183,16 @@ class SongUpdateService extends ChangeNotifier {
       (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
   WebSocketChannel? _webSocketChannel;
 
+  String get ipAddress => _ipAddress;
+  String _ipAddress = '';
+
   String get authority => _authority;
   String _authority = '';
   static const String _port = ':8080';
   int _songUpdateCount = 0;
   int _idleCount = 0;
   WebSocketSink? _webSocketSink;
-  static const int maxDelaySeconds = 60;
+  static const int maxDelaySeconds = 10;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();
 }

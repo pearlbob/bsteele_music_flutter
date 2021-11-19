@@ -38,8 +38,9 @@ class _Options extends State<Options> {
   }
 
   void _songUpdateServiceCallback() {
-    logger.v('_songUpdateServiceCallback()');
-    setState(() {});
+    setState(() {
+      _ipAddress = _songUpdateService.ipAddress;
+    });
   }
 
   @override
@@ -217,29 +218,35 @@ class _Options extends State<Options> {
                           ),
                         ),
                       ]),
-                  Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                          child: const Text(
-                            'Host IP: ',
-                          ),
+                  appWrap(
+                    <Widget>[
+                      Container(
+                        padding: const EdgeInsets.only(right: 24),
+                        child: const Text(
+                          'Host IP: ',
                         ),
-                        Expanded(
-                          flex: 16,
-                          child: appTextField(
-                            appKeyEnum: AppKeyEnum.optionsWebsocketIP,
-                            controller: _websocketHostEditingController,
-                            hintText: 'Enter the websocket host IP address.',
-                            onChanged: (value) {
-                              _appOptions.websocketHost = value;
-                            },
-                          ),
+                      ),
+                      SizedBox(
+                        width: app.screenInfo.widthInLogicalPixels / 3,
+                        child: appTextField(
+                          appKeyEnum: AppKeyEnum.optionsWebsocketIP,
+                          controller: _websocketHostEditingController,
+                          hintText: 'Enter the websocket host IP address.',
+                          onChanged: (value) {
+                            _appOptions.websocketHost = value;
+                          },
                         ),
-                      ]),
+                      ),
+                      appSpace(),
+                      Text(
+                        _ipAddress.isEmpty || _ipAddress == _websocketHostEditingController.text
+                            ? ''
+                            : 'Address found: $_ipAddress',
+                        style: style,
+                      ),
+                    ],
+                  ),
+                  appSpace(),
                   appWrapFullWidth([
                     const Text('Hosts:'),
                     appSpace(),
@@ -296,8 +303,9 @@ class _Options extends State<Options> {
                           : (_songUpdateService.isIdle ? 'Idle' : 'Retrying ${_songUpdateService.authority}')),
                       style: generateAppTextStyle(
                         fontWeight: FontWeight.bold,
-                        backgroundColor:
-                            _songUpdateService.isConnected || _songUpdateService.isIdle ? Colors.green : Colors.red,
+                        backgroundColor: _songUpdateService.isConnected || _songUpdateService.isIdle
+                            ? Colors.green
+                            : Colors.red[300],
                       ),
                     ),
                     appSpace(),
@@ -583,6 +591,7 @@ class _Options extends State<Options> {
 
   //double _timerT = 0;
   final SongUpdateService _songUpdateService = SongUpdateService();
+  String _ipAddress = '';
 
   //final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();

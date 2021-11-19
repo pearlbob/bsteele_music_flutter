@@ -189,7 +189,6 @@ class App {
   void requestFullscreen() {
     if (html.document.fullscreenEnabled == true) {
       html.document.documentElement?.requestFullscreen();
-      _isFullScreen = true;
     }
   }
 
@@ -197,11 +196,14 @@ class App {
     if (html.document.fullscreenEnabled == true) {
       html.document.exitFullscreen();
     }
-    _isFullScreen = false;
   }
 
-  get isFullScreen => _isFullScreen;
-  bool _isFullScreen = false;
+  bool get isFullScreen {
+    if (html.document.fullscreenEnabled == true) {
+      return html.document.fullscreenElement != null;
+    }
+    return false;
+  }
 
   static final App _singleton = App._internal();
 }

@@ -95,7 +95,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:universal_io/io.dart';
-import 'package:wakelock/wakelock.dart';
+//import 'package:wakelock/wakelock.dart';
 
 import 'app/app.dart';
 import 'app/appOptions.dart';
@@ -125,6 +125,7 @@ void main() async {
 //  fixme: lists: "write all to file" can appear disabled
 //  fixme: songmetadata thumbs up should eliminate the name:value from thumbs down, and vise-versa
 //  fixme: songmetadata file should delete all prior metadata of same name:value from all songs
+//  fixme: edit: no format errors on section add
 //  fixme: edit: add a measure on a new row doesn't work, entry never appears
 //  fixme: edit repeat add plus's should be in the last column, the one with the repeat count
 //  fixme: repeat brackets and repeat counts should be without background so they don't get too wide based on other measures in other rows
@@ -285,9 +286,9 @@ enum MainSortType {
 class BSteeleMusicApp extends StatelessWidget {
   BSteeleMusicApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
-    if (kIsWeb) {
-      Wakelock.enable(); //  avoid device timeouts!
-    }
+    // if (kIsWeb) {
+    //fixme:   Wakelock.enable(); //  avoid device timeouts!
+    // }
   }
 
   // This widget is the root of your application.

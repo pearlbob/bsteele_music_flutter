@@ -52,13 +52,17 @@ class SongUpdateService extends ChangeNotifier {
           _webSocketChannel = WebSocketChannel.connect(_uri);
 
           //  lookup the ip address
-          await InternetAddress.lookup(_uri.host, type: InternetAddressType.IPv4).then((value) async {
-            for (var element in value) {
-              _ipAddress = element.address; //  just the first one will do
-              notifyListeners();
-              break;
-            }
-          });
+          try {
+            await InternetAddress.lookup(_uri.host, type: InternetAddressType.IPv4).then((value) async {
+              for (var element in value) {
+                _ipAddress = element.address; //  just the first one will do
+                notifyListeners();
+                break;
+              }
+            });
+          } catch (e) {
+            _ipAddress = '';  //  fixme: UnimplementedError
+          }
 
           _webSocketSink = _webSocketChannel!.sink;
 

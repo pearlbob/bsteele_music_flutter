@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.2+beta
 
 environment:
-  sdk: ^2.16.0-20.0.dev
+  sdk: ^2.16.0-42.0.dev
 
 dependencies:
   flutter:
@@ -37,7 +37,7 @@ dependencies:
   flutter_lints:  #not ready yet: info: Name source files using `lowercase_with_underscores`.
   universal_io:
   universal_html:
-  wakelock:
+#  wakelock:
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib
 

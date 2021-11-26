@@ -368,9 +368,10 @@ class _Edit extends State<Edit> {
     //  the edit is pre-edited on a copy and displayed as if it had already been edited.
     Table displayChordTable;
     if (selectedEditPoint != null) {
-      logger.log(_editEditPoint, 'pre  manager: selectedEditPoint: $selectedEditPoint'
-          ', chordSong: ${chordSong.toMarkup()}'
-      );
+      logger.log(
+          _editEditPoint,
+          'pre  manager: selectedEditPoint: $selectedEditPoint'
+          ', chordSong: ${chordSong.toMarkup()}');
       songEditManager = SongEditManager(chordSong);
       chordSong = songEditManager.preEdit(selectedEditPoint!);
       selectedEditPoint = songEditManager.editPoint;
@@ -1303,8 +1304,8 @@ class _Edit extends State<Edit> {
                       MeasureNodeType.phrase) {}
                 }
                 addChordRowChild(_debugWidget(
-                    Column(
-                      children: widgets,
+                    appWrap(
+                      widgets,
                     ),
                     editPoint));
                 if (endOfRow &&
@@ -1355,11 +1356,11 @@ class _Edit extends State<Edit> {
                 appKeyEnum: AppKeyEnum.editNewChordSection,
                 keyCallback: () {
                   setState(() {
-                    song.setCurrentChordSectionLocation(null);
-                    song.setCurrentMeasureEditType(MeasureEditType.append);
+                    chordSong.setCurrentChordSectionLocation(null);
+                    chordSong.setCurrentMeasureEditType(MeasureEditType.append);
                     ChordSection cs = song.suggestNewSection();
                     selectedEditPoint = EditPoint.byChordSection(cs, measureEditType: MeasureEditType.append);
-                    logger.log(_editEditPoint, 'editNewChordSection: ${song.toMarkup()} + $selectedEditPoint');
+                    logger.log(_editEditPoint, 'editNewChordSection: ${chordSong.toMarkup()} + $selectedEditPoint');
                   });
                 },
                 child: Icon(

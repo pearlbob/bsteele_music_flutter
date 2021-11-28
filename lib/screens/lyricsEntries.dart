@@ -327,6 +327,21 @@ class _LyricsLine {
   }) : _onLyricsLineChangedCallback = onLyricsLineChangedCallback {
     _originalText = lineText.replaceAll('\n', '');
     _controller.text = _originalText;
+    logger.i('_LyricsLine textStyle: $textStyle');
+
+    //  fixme: workaround for bad relationship between backgroundColor and TextField
+    textStyle = TextStyle(
+      inherit: true,
+      color: textStyle?.color,
+      backgroundColor: null,
+      fontFamily: textStyle?.fontFamily,
+      fontFamilyFallback: textStyle?.fontFamilyFallback,
+      fontSize: textStyle?.fontSize,
+      fontWeight: textStyle?.fontWeight,
+      fontStyle: textStyle?.fontStyle,
+    );
+    //  textStyle = textStyle?.copyWith(backgroundColor: null); //  doesn't work
+
     _textField = TextField(
       controller: _controller,
       focusNode: _focusNode,
@@ -338,7 +353,7 @@ class _LyricsLine {
       minLines: 1,
       enabled: true,
       //  arbitrary, large limit:
-      maxLines: null,
+      maxLines: 300,
       onSubmitted: (value) {
         //  deal with newlines
         logger.i('onSubmitted(\'$value\')');
@@ -390,6 +405,7 @@ class _LyricsLine {
 
   requestFocus() {
     logger.i('_LyricsLine.requestFocus()');
+    assert(wasDisposed==false);
     if (!_focusNode.hasFocus) {
       _focusNode.requestFocus();
     }
@@ -399,6 +415,7 @@ class _LyricsLine {
     logger.i('_LyricsLine.dispose()');
     _controller.dispose();
     _focusNode.dispose();
+    wasDisposed = true;
   }
 
   final FocusNode _focusNode = FocusNode();
@@ -411,4 +428,6 @@ class _LyricsLine {
   String get text => _controller.text;
   final TextEditingController _controller = TextEditingController();
   late final String _originalText;
+
+ bool wasDisposed = false;
 }

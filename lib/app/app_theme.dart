@@ -553,6 +553,7 @@ enum AppKeyEnum {
   listsSaveSelected,
   listsSearchText,
   listsValueEntry,
+  lyricsEntryLine,
   lyricsEntryLineAdd,
   lyricsEntryLineDelete,
   lyricsEntryLineDown,

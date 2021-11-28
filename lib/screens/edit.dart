@@ -64,8 +64,8 @@ final ChordSectionLocation defaultLocation = // last resort, better than null
 const bool _editDebug = kDebugMode && true;
 const bool _editDebugVerbose = kDebugMode && false;
 
-const Level _editLog = Level.info;
-const Level _editEditPoint = Level.info;
+const Level _editLog = Level.debug;
+const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
 
@@ -101,7 +101,10 @@ class _Edit extends State<Edit> {
   _Edit()
       : song = _initialSong.copySong(),
         originalSong = _initialSong.copySong() {
+    chordSong = song;
+
     //  _checkSongStatus();
+
     undoStackPush();
   }
 
@@ -220,6 +223,7 @@ class _Edit extends State<Edit> {
   }
 
   void loadSong(Song songToLoad) {
+    logger.log(_editLyricEntry, 'loadSong: ${songToLoad.toMarkup()}');
     selectedEditPoint = null;
     measureEntryIsClear = true;
     measureEntryCorrection = null;
@@ -273,7 +277,7 @@ class _Edit extends State<Edit> {
                 style: chordBoldTextStyle,
               ),
               actions: [
-                appButton('Yes! Discard all my changes.', appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
@@ -379,13 +383,20 @@ class _Edit extends State<Edit> {
           _editEditPoint,
           'post manager: selectedEditPoint: $selectedEditPoint'
           ', chordSong: ${chordSong.toMarkup()}');
-    } else {
+      hadSelectedEditPoint = true;
+    }
+    else if (hadSelectedEditPoint || !identical(song, chordSong)) {
+      //  update the lyrics
+      hadSelectedEditPoint = false;
       chordSong = song; //  not editing
+      lyricsEntries.removeListener(lyricsEntriesListener);
+      lyricsEntries = lyricsEntriesFromSong(song);
     }
     logger.log(
         _editEditPoint,
         'display: selectedEditPoint: $selectedEditPoint'
         ', displayMeasureEntryNode: \'${displayMeasureEntryNode?.toMarkup()}\''
+        ', lyrics: ${lyricsEntries.hasChangedLines()}'
         ', ${chordSong.toMarkup()}');
 
     displayChordTable = chordsEntryWidget();
@@ -1415,6 +1426,7 @@ class _Edit extends State<Edit> {
     logger.v('chordMaxColCount: $chordMaxColCount');
     chordMaxColCount = song.chordRowMaxLength();
     chordMaxColCount += 2; //fixme: test!!!!!!!!!!!!!!!!!!
+    logger.log(_editLyricEntry, 'chordMaxColCount: $chordMaxColCount');
 
     //  generate the section pull down data if required
     List<DropdownMenuItem<ChordSection>> sectionItems =
@@ -1522,7 +1534,8 @@ class _Edit extends State<Edit> {
       var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
-      //logger.log(_editLog, '$chordSection: chord/lyrics limit: $limit = max($chordRowCount,$lineCount)');
+      logger.log(_editLyricEntry,
+          '\'${chordSection?.toMarkup()}\': chord/lyrics limit: $limit = max($chordRowCount,$lineCount)');
       for (var line = 0; line < limit; line++) {
         var children = <Widget>[];
 
@@ -1532,7 +1545,7 @@ class _Edit extends State<Edit> {
         {
           if (line < chordRowCount) {
             var row = chordSection?.rowAt(line, expanded: expanded);
-            logger.d('row.length: ${row?.length}/$chordMaxColCount');
+            logger.log(_editLyricEntry, '   row.length: ${row?.length}/$chordMaxColCount');
             for (final Measure measure in row ?? []) {
               children.add(Container(
                 margin: marginInsets,
@@ -1554,6 +1567,7 @@ class _Edit extends State<Edit> {
         assert(children.length < chordMaxColCount);
 
         if (line == 0 && lineCount == 0) {
+          logger.log(_editLyricEntry, '   line == 0 && lineCount == 0');
           children.add(
             Row(
               children: [
@@ -1562,7 +1576,7 @@ class _Edit extends State<Edit> {
                   value: line,
                   keyCallback: () {
                     lyricsEntries.addBlankLyricsLine(entry);
-                    logger.log(_editLog, 'addBlankLyricsLine: $entry');
+                    logger.log(_editLyricEntry, 'addBlankLyricsLine: \'$entry\'');
                     pushLyricsEntries();
                   },
                   child: Container(
@@ -1675,7 +1689,7 @@ class _Edit extends State<Edit> {
         editTooltip(
           message: song.getChordSections().isEmpty
               ? 'No lyric section to add!  Add at least one chord section above.'
-              : 'Add new lyric section here at the end',
+              : 'Add new lyric section here',
           child: DropdownButton<ChordSection>(
             hint: Container(
               margin: marginInsets,
@@ -1748,10 +1762,10 @@ class _Edit extends State<Edit> {
   void pushLyricsEntries() {
     logger.log(
         _editLyricEntry,
-        '_pushLyricsEntries(): _lyricsEntries.asRawLyrics():'
-        ' <${lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>');
+        '_pushLyricsEntries(): _lyricsEntries.asRawLyrics(): ${identityHashCode(song)}:'
+        ' \'<${lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>\'');
     updateRawLyrics(lyricsEntries.asRawLyrics());
-    logger.log(_editLyricEntry, '_pushLyricsEntries: rawLyrics: ${song.rawLyrics.replaceAll('\n', '\\n')}');
+    logger.log(_editLyricEntry, '_pushLyricsEntries(): rawLyrics: ${song.rawLyrics.replaceAll('\n', '\\n')}');
   }
 
   void updateRawLyrics(String rawLyrics) {
@@ -1769,7 +1783,7 @@ class _Edit extends State<Edit> {
   }
 
   void onLyricsLineChangedCallback() {
-    logger.i('_onLyricsLineChangedCallback():  ${lyricsEntries.hasChangedLines()}');
+    logger.log(_editLyricEntry, '_onLyricsLineChangedCallback():  ${lyricsEntries.hasChangedLines()}');
   }
 
   void lyricsEntriesListener() {
@@ -1815,7 +1829,7 @@ class _Edit extends State<Edit> {
       RawKeyDownEvent e = value as RawKeyDownEvent;
       logger.log(
           _editKeyboard,
-          'edit onkey:'
+          'edit onKey:'
           //' ${e.data.logicalKey}'
           //', primaryFocus: ${_focusManager.primaryFocus}'
           ', context: ${focusManager.primaryFocus?.context}'
@@ -1833,13 +1847,13 @@ class _Edit extends State<Edit> {
           if (selectedEditPoint != null && measureEntryValid) {
             performEdit(endOfRow: true);
           }
-          logger.d('main onkey: found arrowDown');
+          logger.d('main onKey: found arrowDown');
         } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
           if (selectedEditPoint != null && measureEntryValid) {
             performEdit(endOfRow: false);
           }
         } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
-          logger.d('main onkey: found arrowUp');
+          logger.d('main onKey: found arrowUp');
         } else if (e.data.logicalKey == LogicalKeyboardKey.undo) {
           //  not that likely
           if (e.isShiftPressed) {
@@ -1886,7 +1900,7 @@ class _Edit extends State<Edit> {
           }
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.delete)) {
-        logger.d('main onkey: delete: "${editTextController.text}", ${editTextController.selection}');
+        logger.d('main onKey: delete: "${editTextController.text}", ${editTextController.selection}');
         if (editTextController.text.isEmpty) {
           if (selectedEditPoint?.measureEditType == MeasureEditType.replace) {
             performDelete();
@@ -1934,7 +1948,7 @@ class _Edit extends State<Edit> {
       //   }
       // }
       else if (e.isKeyPressed(LogicalKeyboardKey.space) && selectedEditPoint != null) {
-        logger.d('main onkey: space: "${editTextController.text}", ${editTextController.selection}');
+        logger.d('main onKey: space: "${editTextController.text}", ${editTextController.selection}');
         int extentOffset = editTextController.selection.extentOffset;
 
         editTextController.selection =
@@ -1951,10 +1965,10 @@ class _Edit extends State<Edit> {
           performEdit();
         }
       } else {
-        logger.d('main onkey: not processed: "${e.data.logicalKey}"');
+        logger.d('main onKey: not processed: "${e.data.logicalKey}"');
       }
     }
-    logger.d('post edit onkey: value: $value');
+    logger.d('post edit onKey: value: $value');
   }
 
   Widget nullEditGridDisplayWidget() {
@@ -3431,6 +3445,7 @@ class _Edit extends State<Edit> {
   double chordFontSize = 14;
 
   EditPoint? selectedEditPoint;
+  bool hadSelectedEditPoint = false;
 
   int transpositionOffset = 0;
 

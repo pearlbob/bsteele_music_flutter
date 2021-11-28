@@ -61,7 +61,7 @@ class SongUpdateService extends ChangeNotifier {
               }
             });
           } catch (e) {
-            _ipAddress = '';  //  fixme: UnimplementedError
+            _ipAddress = ''; //  fixme: UnimplementedError
           }
 
           _webSocketSink = _webSocketChannel!.sink;
@@ -85,7 +85,7 @@ class SongUpdateService extends ChangeNotifier {
           notifyListeners();
           var lastAuthority = _authority;
           for (_idleCount = 0;; _idleCount++) {
-            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(Duration(seconds: kIsWeb ? 5 : 1));
             notifyListeners();
 
             if (lastAuthority != _findTheAuthority()) {
@@ -128,7 +128,7 @@ class SongUpdateService extends ChangeNotifier {
       authority = _appOptions.websocketHost;
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       authority = Uri.base.authority;
-      if (authority.contains('bsteele.com')) {
+      if (authority.contains('bsteele.com') || (kDebugMode && authority.contains('localhost'))) {
         //  there is never a websocket on the web
         logger.log(_log, 'webSocketChannel exception: never going to be at: "$_authority"');
         //  do nothing

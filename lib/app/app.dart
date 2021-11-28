@@ -20,9 +20,6 @@ import 'app_theme.dart';
 
 final App app = App();
 
-// const _environmentDefault = 'main'; //  fixme: duplicate
-// const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
-
 String userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? 'my';
 
 final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;

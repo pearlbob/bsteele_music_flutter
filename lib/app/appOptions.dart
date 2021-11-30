@@ -39,7 +39,8 @@ class AppOptions extends ChangeNotifier {
 
   /// Must be called and waited for prior to appOptions first use!
   /// fixme: this arrangement should be improved!
-  Future<void> init() async {
+  Future<void> init({holidayOverride = false}) async {
+    _holidayOverride = holidayOverride;
     _prefs = await SharedPreferences.getInstance();
     _userDisplayStyle = Util.enumFromString(
             await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
@@ -197,8 +198,9 @@ class AppOptions extends ChangeNotifier {
   }
 
   /// True if the user wants only holiday songs.
-  bool get holiday => _holiday;
+  bool get holiday => _holiday || _holidayOverride;
   bool _holiday = false;
+  bool _holidayOverride = false;
 
   set userDisplayStyle(UserDisplayStyle value) {
     if (_userDisplayStyle != value) {

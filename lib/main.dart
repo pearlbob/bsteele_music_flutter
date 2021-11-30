@@ -104,16 +104,24 @@ import 'util/openLink.dart';
 
 const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
-const _testCss = String.fromEnvironment('css', defaultValue: 'app.css');
+const _holidayOverride = String.fromEnvironment('holiday', defaultValue: '');
+const _cssFileName = String.fromEnvironment('css', defaultValue: 'app.css');
 
 void main() async {
   Logger.level = Level.info;
 
+  //  holiday override
+  var cssFileName = _cssFileName;
+  bool holidayOverride = _holidayOverride.isNotEmpty || Uri.base.queryParameters.containsKey('holiday');
+  if ( holidayOverride ){
+    //  override the css as well
+    cssFileName = 'holiday.css';
+  }
+
   //  read the css theme data prior to the first build
   WidgetsFlutterBinding.ensureInitialized();
-  await AppTheme().init(css: _testCss); //  init the singleton
-
-  await AppOptions().init(); //  initialize the options from the stored values
+  await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
+  await AppTheme().init(css: cssFileName); //  init the singleton
 
   //  run the app
   runApp(

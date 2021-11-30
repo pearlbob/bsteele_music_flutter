@@ -277,7 +277,7 @@ class _Edit extends State<Edit> {
                 style: chordBoldTextStyle,
               ),
               actions: [
-                appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
@@ -384,8 +384,7 @@ class _Edit extends State<Edit> {
           'post manager: selectedEditPoint: $selectedEditPoint'
           ', chordSong: ${chordSong.toMarkup()}');
       hadSelectedEditPoint = true;
-    }
-    else if (hadSelectedEditPoint || !identical(song, chordSong)) {
+    } else if (hadSelectedEditPoint || !identical(song, chordSong)) {
       //  update the lyrics
       hadSelectedEditPoint = false;
       chordSong = song; //  not editing
@@ -1042,11 +1041,17 @@ class _Edit extends State<Edit> {
     );
   }
 
-  void addChordRowNullChildrenUpTo(int maxCols) {
+  void addChordRowNullChildrenUpTo(int columns) {
     //  add children to max columns to keep the table class happy
-    while (chordRowChildren.length < maxCols) {
+    while (chordRowChildren.length < columns) {
       chordRowChildren.add(NullWidget());
     }
+  }
+
+  void addChordRowChildAtRowEnd(int maxCols, Widget child) {
+    //  add children to max columns to keep the table class happy
+    addChordRowNullChildrenUpTo(maxCols - 1);
+    chordRowChildren.add(child);
   }
 
   void addChordRowChildrenAndComplete(int maxCols) {
@@ -1252,11 +1257,12 @@ class _Edit extends State<Edit> {
             {
               //  entry column
               var editPoint = EditPoint(location);
-              addChordRowChild(
+              //  warning: bumping into next column knowing this is the end of the row
+              addChordRowChildAtRowEnd(
+                maxEntryColumns,
                 _debugWidget(repeatEditGridDisplayWidget(editPoint), editPoint),
               );
-              //  plus column
-              addChordRowNullWidget();
+              //  plus column already used
             }
             break;
           // case MeasureNodeType.phrase:
@@ -1323,9 +1329,9 @@ class _Edit extends State<Edit> {
                     selectedEditPoint == null &&
                     chordSong.findMeasureNodeByLocation(location.asPhraseLocation())?.measureNodeType ==
                         MeasureNodeType.phrase) {
-                  //  fixme: bad style: bumping into next column knowing this is the end of the row
-                  addChordRowChild(_debugWidget(plusRepeatWidget(location), editPoint));
-                  addChordRowNullWidget();
+                  //  warning: bumping into next column knowing this is the end of the row
+                  addChordRowChildAtRowEnd(maxEntryColumns, _debugWidget(plusRepeatWidget(location), editPoint));
+                  //  plus column already used
                 }
               }
             }
@@ -1948,20 +1954,13 @@ class _Edit extends State<Edit> {
       //   }
       // }
       else if (e.isKeyPressed(LogicalKeyboardKey.space) && selectedEditPoint != null) {
-        logger.d('main onKey: space: "${editTextController.text}", ${editTextController.selection}');
+        logger.log(_editKeyboard, 'main onKey: space: "${editTextController.text}", ${editTextController.selection}');
         int extentOffset = editTextController.selection.extentOffset;
 
         editTextController.selection =
             TextSelection(baseOffset: 0, extentOffset: extentOffset); // fixme:!!!!!!!!!!!!!!!!!!!!
         preProcessMeasureEntry(editTextController.text);
         if (measureEntryValid && selectedEditPoint != null) {
-          switch (selectedEditPoint!.measureEditType) {
-            case MeasureEditType.replace:
-              selectedEditPoint!.measureEditType = MeasureEditType.insert;
-              break;
-            default:
-              break;
-          }
           performEdit();
         }
       } else {

@@ -283,15 +283,15 @@ class AppWidgetHelper {
   Widget back({CanPopQualifier? canPop}) {
     return appTooltip(
       message: 'Back',
-      child: TextButton(
-        key: appKey(AppKeyEnum.appBack),
+      child: appIconButton(
+        appKeyEnum: AppKeyEnum.appBack,
         onPressed: () {
           if (canPop != null ? canPop() : true) {
-            appLogAppKey(AppKeyEnum.appBack);
+            appLogKeyCallback(appKey(AppKeyEnum.appBack));
             Navigator.pop(context);
           }
         },
-        child: appIcon(Icons.arrow_back),
+        icon: appIcon(Icons.arrow_back),
       ),
     );
   }

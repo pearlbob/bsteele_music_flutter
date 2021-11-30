@@ -133,6 +133,8 @@ final CssProperty _universalBackgroundColorProperty = CssProperty(
     defaultValue: Colors.white, description: 'universal background color');
 final CssProperty _universalForegroundColorProperty = CssProperty(CssSelectorEnum.universal, '*', 'color', Color,
     defaultValue: Colors.black, description: 'universal foreground color');
+final CssProperty _universalAccentColorProperty = CssProperty(CssSelectorEnum.universal, '*', 'accent-color', Color,
+    defaultValue: Colors.blue, description: 'universal accent color');
 final _universalFontSizeProperty = CssProperty(CssSelectorEnum.universal, '*', 'font-size', visitor.UnitTerm,
     defaultValue: visitor.ViewportTerm(1.75, '1.75', null, parser.TokenKind.UNIT_VIEWPORT_VW),
     description: 'universal text font size');
@@ -152,6 +154,7 @@ void _init(CssProperty property) {
 void _initUniversal() {
   _init(_universalBackgroundColorProperty);
   _init(_universalForegroundColorProperty);
+  _init(_universalAccentColorProperty);
   _init(_universalFontSizeProperty);
   _init(_universalFontWeightProperty);
   _init(_universalFontStyleProperty);
@@ -421,6 +424,11 @@ Color getForegroundColorForSection(Section? section) {
   return (ret != null && ret is Color) ? ret : Colors.black;
 }
 
+Color getAccentColor() {
+  var ret = _getPropertyValue(_universalAccentColorProperty);
+  return (ret != null && ret is Color) ? ret : Colors.blue;
+}
+
 Color getBackgroundColorForSection(Section? section) {
   return _getBackgroundColorForSectionEnum(section?.sectionEnum ?? SectionEnum.chorus);
 }
@@ -513,6 +521,7 @@ enum AppKeyEnum {
   editDeleteLyricsSection,
   editRepeatCancel,
   editDeleteRepeat,
+  editDiscardAllChanges,
   editDominant7Chord,
   editEditKeyDropdown,
   editEnterSong,
@@ -842,10 +851,28 @@ class AppTheme {
       var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ?? const ButtonStyle();
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
+      //  hassle with mapping Color to MaterialColor
+      var color = _getPropertyValue(appbarBackgroundColorProperty) as Color;
+      Map<int, Color> colorCodes = {
+        50: color.withOpacity(.1),
+        100: color.withOpacity(.2),
+        200: color.withOpacity(.3),
+        300: color.withOpacity(.4),
+        400: color.withOpacity(.5),
+        500: color.withOpacity(.6),
+        600: color.withOpacity(.7),
+        700: color.withOpacity(.8),
+        800: color.withOpacity(.9),
+        900: color.withOpacity(1),
+      };
+      MaterialColor materialColor = MaterialColor(color.value, colorCodes);
+      color = _getPropertyValue(_universalBackgroundColorProperty) as Color;
+
       app.themeData = app.themeData.copyWith(
-        backgroundColor: _getPropertyValue(_universalBackgroundColorProperty),
-        primaryColor: _getPropertyValue(_universalBackgroundColorProperty),
+        backgroundColor: color,
+        primaryColor: color,
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: materialColor, accentColor: getAccentColor()),
       );
     }
 
@@ -903,10 +930,6 @@ double lookupIconSize() {
   return _sizeLookup(_iconSizeProperty) ?? 24; //  fixme
 }
 
-void appLogAppKey(AppKeyEnum appKeyEnum) {
-  appLogKeyCallback(appKey(appKeyEnum));
-}
-
 List<String> _appLog = [];
 
 List<String> appLog() {
@@ -959,6 +982,23 @@ ElevatedButton appButton(
           },
     style:
         app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+  );
+}
+
+TextButton appTextButton(
+  String text, {
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback onPressed,
+}) {
+  var key = appKey(appKeyEnum);
+  return TextButton(
+    key: key,
+    child: Text(text),
+    onPressed: () {
+      appLogKeyCallback(key);
+      onPressed();
+    },
+    style: app.themeData.elevatedButtonTheme.style,
   );
 }
 

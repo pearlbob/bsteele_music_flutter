@@ -5,13 +5,13 @@
 */
 
 :root {
-    --app-background-color: #2196f3;
+    --app-background-color: #5c9e58;
 }
 
 * {
     background-color: white; /* type is Color, universal background color */
     color: black; /* type is Color, universal foreground color */
-    accent-color: #57a9ff;
+    accent-color: #ff5051;
     font-size: 1.75vw; /* type is LengthTerm, universal text font size */
     font-weight: normal;
     font-style: normal;

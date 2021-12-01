@@ -1214,6 +1214,7 @@ TextStyle generateAppTextStyle({
     fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration,
+    overflow: TextOverflow.clip,
   );
 }
 

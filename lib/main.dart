@@ -130,7 +130,8 @@ void main() async {
 }
 
 /*
-//  fixme: player: if in play, no tool tips
+//  fixme: player: time signature always in view if not 4/4
+//  fixme: player: if in play, no tool tips, timeout any current tooltip
 //  fixme: lists: "write all to file" can appear disabled
 //  fixme: songmetadata thumbs up should eliminate the name:value from thumbs down, and vise-versa
 //  fixme: songmetadata file should delete all prior metadata of same name:value from all songs

@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/chordSectionGridData.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/measure.dart';
+import 'package:bsteeleMusicLib/songs/measureComment.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
@@ -51,7 +52,7 @@ TextStyle _boldTextStyle = generateAppTextStyle();
 TextStyle _textFieldStyle = generateAppTextStyle();
 TextStyle _labelTextStyle = generateAppTextStyle();
 
-const double _entryWidth = 18 * _defaultChordFontSize;
+const double _entryWidth = 22 * _defaultChordFontSize;
 
 const Color _disabledColor = Color(0xFFE0E0E0);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
@@ -64,7 +65,7 @@ final ChordSectionLocation defaultLocation = // last resort, better than null
 const bool _editDebug = kDebugMode && true;
 const bool _editDebugVerbose = kDebugMode && false;
 
-const Level _editLog = Level.debug;
+const Level _editLog = Level.info;
 const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
@@ -228,7 +229,7 @@ class _Edit extends State<Edit> {
     measureEntryIsClear = true;
     measureEntryCorrection = null;
     measureEntryValid = false;
-    measureEntryNode = null;
+    measureEntryNodes = null;
 
     song = songToLoad;
 
@@ -1084,6 +1085,7 @@ class _Edit extends State<Edit> {
   }
 
   void addChordRowChild(Widget w) {
+    //assert( chordRowChildren.length < maxCols);// fixme:
     chordRowChildren.add(
         //  add padding
         Container(
@@ -1128,11 +1130,12 @@ class _Edit extends State<Edit> {
         var data = row[c];
 
         if (data == null) {
-          //  entry column
-          addChordRowNullWidget();
 
-          //  plus column
           if (c == 0) {
+            //  entry column
+            addChordRowNullWidget();
+
+            //  plus column
             //  find the next measure on the row in insert in front of it
             ChordSectionLocation? next;
             if (row.length > 1) {
@@ -1145,14 +1148,8 @@ class _Edit extends State<Edit> {
                         '${kDebugMode ? ' $editPoint' : ''}'),
                 editPoint));
           } else {
-            //  subsequent columns
-            // var editPoint = EditPoint(lastMeasureLocation, onEndOfRow: true);
-            // addChordRowChild(_debugWidget(
-            //     plusMeasureEditGridDisplayWidget(editPoint,
-            //         tooltip: 'Add a measure here between these measures'
-            //             '${kDebugMode ? ' $editPoint' : ''}'),
-            //     editPoint));
-            addChordRowNullWidget();
+            //  null subsequent columns
+            break;
           }
           lastMeasureLocation = null;
           continue;
@@ -1399,6 +1396,7 @@ class _Edit extends State<Edit> {
         assert(chordRow.children != null);
         length ??= chordRow.children?.length;
         if (length != chordRow.children?.length) {
+          //  delayed response to put break point here:
           assert(length == chordRow.children?.length);
         } //  abort before the table does it for us
       }
@@ -2046,6 +2044,23 @@ class _Edit extends State<Edit> {
             children: <Widget>[
               //  section entry text field
               Container(margin: marginInsets, padding: textPadding, color: sectionColor, child: editTextField),
+              if (measureEntryCorrection != null)
+                editTooltip(
+                  message: measureEntryValid
+                      ? 'This is your adjusted section'
+                      : 'Your entry error is in parentheses'
+                          '${kDebugMode ? ' $editPoint' : ''}',
+                  child: appWrap(
+                    <Widget>[
+                      Text(
+                        measureEntryCorrection ?? '',
+                        style: measureEntryValid
+                            ? sectionChordBoldTextStyle
+                            : sectionChordBoldTextStyle.copyWith(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
               //  section entry pull downs
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2245,12 +2260,6 @@ class _Edit extends State<Edit> {
           autofocus: true,
           enabled: true,
           autocorrect: false,
-          onEditingComplete: () {
-            logger.d('_editTextField.onEditingComplete(): "${editTextField?.controller?.text}"');
-          },
-          onSubmitted: (_) {
-            logger.d('_editTextField.onSubmitted: ($_)');
-          },
         );
       }
 
@@ -3091,8 +3100,11 @@ class _Edit extends State<Edit> {
   /// validate the given measure entry string
   List<MeasureNode> validateMeasureEntry(String entry) {
     List<MeasureNode> entries = song.parseChordEntry(SongBase.entryToUppercase(entry));
-    measureEntryValid = (entries.length == 1 && entries[0].measureNodeType != MeasureNodeType.comment);
-    measureEntryNode = (measureEntryValid ? entries[0] : null);
+    measureEntryValid = entries.isNotEmpty;
+    for (var measureNode in entries) {
+      measureEntryValid = measureEntryValid && measureNode is! MeasureComment;
+    }
+    measureEntryNodes = measureEntryValid ? entries : null;
     logger.d('_measureEntryValid: $measureEntryValid');
     return entries;
   }
@@ -3119,7 +3131,7 @@ class _Edit extends State<Edit> {
     upperEntry = upperEntry.trim();
     String minEntry =
         entry.trim().replaceAll("\t", " ").replaceAll(":\n", ":").replaceAll("  ", " ").replaceAll("\n", ",");
-    logger.v('entry: "$minEntry" vs "$upperEntry"');
+    logger.log(_editLog, 'entry: "$minEntry" vs "$upperEntry"');
 
     //  suggest the corrected input if different
     if (upperEntry == minEntry) {
@@ -3188,13 +3200,13 @@ class _Edit extends State<Edit> {
       logger.log(
           _editLog,
           'pre  _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
-          ', entry: $measureEntryNode'
+          ', entry: $measureEntryNodes'
           ', song: ${song.toMarkup()}');
       edit(done: done, endOfRow: endOfRow);
       logger.log(
           _editLog,
           'post _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
-          ', entry: $measureEntryNode'
+          ', entry: $measureEntryNodes'
           ', song: ${song.toMarkup()}');
     });
   }
@@ -3219,7 +3231,7 @@ class _Edit extends State<Edit> {
     ChordSectionLocation? priorLocation = song.getCurrentChordSectionLocation();
 
     //  do the edit
-    if (song.editMeasureNode(measureEntryNode)) {
+    if (song.editList(measureEntryNodes!)) {
       editLogPost(song, endOfRow);
 
       //  clean up after edit
@@ -3274,7 +3286,7 @@ class _Edit extends State<Edit> {
       logger.i('ts.startingChords(\'${logSong.toMarkup()}\');');
       logger.i('ts.edit(${logSong.currentMeasureEditType}, \'${logSong.currentChordSectionLocation}\''
           ', \'${logSong.getCurrentMeasureNode()?.toMarkup()}\'' //  measure string
-          ', SongBase.entryToUppercase(\'${measureEntryNode?.toMarkup()}\')'
+          ', SongBase.entryToUppercase(\'${measureEntryNodes?.toString()}\')'
           ');'
           ' // endOfRow: $endOfRow');
     }
@@ -3307,7 +3319,7 @@ class _Edit extends State<Edit> {
       song.setCurrentChordSectionLocation(selectedEditPoint?.location);
       bool? endOfRow = song.getCurrentChordSectionLocationMeasure()?.endOfRow; //  find the current end of row
       song.setCurrentMeasureEditType(MeasureEditType.delete);
-      if (song.editMeasureNode(measureEntryNode)) {
+      if (song.editList(measureEntryNodes!)) {
         //  apply the deleted end of row to the prior
         song.setChordSectionLocationMeasureEndOfRow(priorLocation, endOfRow);
         undoStackPush();
@@ -3452,7 +3464,7 @@ class _Edit extends State<Edit> {
   String? measureEntryCorrection;
   bool measureEntryValid = false;
 
-  MeasureNode? measureEntryNode;
+  List<MeasureNode>? measureEntryNodes;
   MeasureNode? displayMeasureEntryNode;
 
   TextStyle chordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);

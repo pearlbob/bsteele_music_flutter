@@ -28,6 +28,11 @@ class _CssDemo extends State<CssDemo> {
     Widget sections;
     {
       var children = <Widget>[];
+      children.add(Text(
+        'sections:',
+        style: generateAppTextStyle(),
+      ));
+      children.add(appSpace());
       for (var section in SectionEnum.values) {
         var backgroundColor = getBackgroundColorForSection(Section.get(section));
         var coloredChordTextStyle = generateChordTextStyle(fontSize: fontSize, backgroundColor: backgroundColor);
@@ -72,6 +77,18 @@ class _CssDemo extends State<CssDemo> {
                 ),
                 appSpace(),
                 appButton('appButton', appKeyEnum: AppKeyEnum.cssDemoButton, onPressed: () {}),
+                appSpace(),
+                appWrap(
+                  [
+                    Text(
+                      'icon button:',
+                      style: generateAppTextStyle(),
+                    ),
+                    appSpace(),
+                    appIconButton(
+                        appKeyEnum: AppKeyEnum.cssDemoIconButton, icon: appIcon(Icons.check), onPressed: () {}),
+                  ],
+                ),
                 appSpace(),
                 sections,
                 appSpace(),

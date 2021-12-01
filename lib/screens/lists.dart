@@ -171,6 +171,18 @@ class _State extends State<Lists> {
 
     List<Widget> songWidgetList = [];
     {
+      if (searchTerm.isNotEmpty) {
+        songWidgetList.add(Divider(
+          thickness: 10,
+          color: _blue.color,
+        ));
+        songWidgetList.add(Text(
+          _filteredSongs.isNotEmpty ? 'Songs matching the search "$searchTerm":' : 'No songs match the search.',
+          style: metadataStyle.copyWith(color: _blue.color),
+        ));
+        songWidgetList.add(appSpace());
+      }
+
       SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
       var songIdMetadataSet = SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
       for (var song in app.allSongs) {
@@ -181,20 +193,44 @@ class _State extends State<Lists> {
         }
       }
       List<Song> _metadataSongs = [];
+
       //  search songs on top
-      if (_isSearchActive) {
-        songWidgetList.addAll(_filteredSongs.map(mapSongToWidget).toList());
+      {
+        if (_filteredSongs.isNotEmpty) {
+          songWidgetList.addAll(_filteredSongs.map(mapSongToWidget).toList());
+          songWidgetList.add(appSpace());
+        }
         songWidgetList.add(const Divider(
           thickness: 10,
         ));
+        songWidgetList.add(Text(
+          (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') +
+              ' in the list "${_selectedNameValue.toShortString()}":',
+          style: metadataStyle.copyWith(color: Colors.grey),
+        ));
         _metadataSongs.addAll(_filteredSongs);
       }
-      //  list songs later
+      //  list other, non-matching set songs later
       for (var song in _metadataSongSet) {
         //  avoid repeats
         if (!_metadataSongs.contains(song)) {
           songWidgetList.add(mapSongToWidget(song));
         }
+      }
+      songWidgetList.add(appSpace());
+      songWidgetList.add(const Divider(
+        thickness: 10,
+      ));
+      songWidgetList.add(Text(
+        (searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs ') +
+            'not in the list "${_selectedNameValue.toShortString()}":',
+        style: metadataStyle.copyWith(color: Colors.grey),
+      ));
+      for (var song in app.allSongs) {
+        if (_metadataSongSet.contains(song) || _filteredSongs.contains(song)) {
+          continue;
+        }
+        songWidgetList.add(mapSongToWidget(song));
       }
     }
 
@@ -285,17 +321,6 @@ class _State extends State<Lists> {
               appWrapFullWidth([
                 //  search line
                 appWrap([
-                  appWidgetHelper.checkbox(
-                      value: _isSearchActive,
-                      onChanged: (bool? value) {
-                        if (value != null) {
-                          setState(() {
-                            _isSearchActive = value;
-                            _searchSongs(_searchTextFieldController.text);
-                          });
-                        }
-                      },
-                      fontSize: metadataStyle.fontSize),
                   appTooltip(
                     message: 'search',
                     child: IconButton(
@@ -313,9 +338,9 @@ class _State extends State<Lists> {
                     //  limit text entry display length
                     child: appTextField(
                       appKeyEnum: AppKeyEnum.listsSearchText,
-                      enabled: _isSearchActive,
+                      enabled: true,
                       controller: _searchTextFieldController,
-                      hintText: _isSearchActive ? "enter search text" : "\u2190 activate search",
+                      hintText: "enter search text",
                       onChanged: (text) {
                         setState(() {
                           logger.v('search text: "$text"');
@@ -343,11 +368,6 @@ class _State extends State<Lists> {
                   ),
                 ]),
               ], alignment: WrapAlignment.spaceBetween),
-              appSpace(),
-              Divider(
-                thickness: 10,
-                color: _blue.color,
-              ),
               appSpace(),
               Expanded(
                 child: ListView(
@@ -408,30 +428,27 @@ class _State extends State<Lists> {
   }
 
   void _searchSongs(String? search) {
-    if (!_isSearchActive) {
-      _filteredSongs.clear();
-      return;
-    }
-
     search ??= '';
     search = search.trim();
-
-    search = search.replaceAll("[^\\w\\s']+", '');
-
-    final RegExp searchRegex = RegExp(search, caseSensitive: false);
-
-    // select order
-    int Function(Song key1, Song key2) compare;
-    compare = (Song song1, Song song2) {
-      return song1.compareTo(song2);
-    };
+    searchTerm = search.replaceAll("[^\\w\\s']+", '');
 
     //  apply search filter
-    _filteredSongs = SplayTreeSet(compare);
-    for (final Song song in app.allSongs) {
-      if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
-        //  matches
-        _filteredSongs.add(song);
+    _filteredSongs.clear();
+    if (searchTerm.isNotEmpty) {
+      // select order
+      int Function(Song key1, Song key2) compare;
+      compare = (Song song1, Song song2) {
+        return song1.compareTo(song2);
+      };
+
+      _filteredSongs = SplayTreeSet(compare);
+      final RegExp searchRegex = RegExp(searchTerm, caseSensitive: false);
+
+      for (final Song song in app.allSongs) {
+        if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
+          //  matches
+          _filteredSongs.add(song);
+        }
       }
     }
   }
@@ -486,7 +503,7 @@ class _State extends State<Lists> {
 
   late TextStyle metadataStyle;
 
-  bool _isSearchActive = false;
+  String searchTerm = '';
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
 

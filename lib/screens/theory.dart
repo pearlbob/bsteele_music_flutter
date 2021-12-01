@@ -11,6 +11,7 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
+const double _defaultFontSize = 28;
 music_key.Key _key = music_key.Key.getDefault();
 ScaleNote _chordRoot = _key.getKeyScaleNote();
 ScaleChord _scaleChord = ScaleChord(_key.getKeyScaleNote(), ChordDescriptor.defaultChordDescriptor());
@@ -33,7 +34,7 @@ class _State extends State<TheoryWidget> {
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
-    _style = generateAppTextStyle(color: Colors.black87);
+    _style = generateAppTextStyle(color: Colors.black87, fontSize: _defaultFontSize);
 
     _scaleChord = ScaleChord(_chordRoot, chordDescriptor);
     List<ScaleNote> scaleNoteValues = [];

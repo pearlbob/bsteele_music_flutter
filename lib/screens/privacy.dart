@@ -36,7 +36,7 @@ class _Privacy extends State<Privacy> {
               'any contact with the server after initialization.  '
               'If used in a local display sharing mode (leader/follower), no data '
               'other than the distribution of local song information '
-              'is sent.  This can be diabled by placing the host IP to "None".'
+              'is sent.  This can be disabled by placing the host IP to "None".'
               '\n\n'
               'No personal data is collected in any fashion at any server.  '
               'Data unique to your use, such as your user name or an entered song, '

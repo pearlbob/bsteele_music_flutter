@@ -27,7 +27,7 @@ class UtilWeb implements UtilWorkaround {
     )
       ..setAttribute("download", fileName)
       ..click();
-    return '${fileType ?? ''} file written: \'$fileName\'';
+    return '${fileType ?? ''} file written to: \'$fileName\'';
   }
 
   @override

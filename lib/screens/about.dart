@@ -53,6 +53,9 @@ class _About extends State<About> with WidgetsBindingObserver {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
+
+                app.messageTextWidget(),
+                appSpace(),
                 const Text(
                   'The bsteele Music App has been written by bob.',
                 ),
@@ -100,12 +103,19 @@ class _About extends State<About> with WidgetsBindingObserver {
                 //   'ver: ${Platform.version}',
                 // ),
                 appSpace(),
-                appButton('Write diagnostic log file', appKeyEnum: AppKeyEnum.aboutWriteDiagnosticLogFile,
+                appTooltip(
+                  message: 'If the app did something wrong,\n'
+                      'use this button to write a diagnostic file for bob.\n'
+                      'Of course it would help to email it to me as well\n'
+                      'with a brief description of what happened.',
+                  child: appButton(
+                    'Write diagnostic log file',
+                    appKeyEnum: AppKeyEnum.aboutWriteDiagnosticLogFile,
                     onPressed: () {
-                  writeDiagnosticLogFile();
-                }),
-                appSpace(),
-                app.messageTextWidget(),
+                      writeDiagnosticLogFile();
+                    },
+                  ),
+                ),
               ]),
         ),
       ),
@@ -147,7 +157,7 @@ class _About extends State<About> with WidgetsBindingObserver {
 }
 ''');
     var fileName = 'bsteeleMusicAppLog_$utcNow.json';
-    logger.i('$fileName:${sb.toString()}');
+    logger.v('$fileName:${sb.toString()}');
     String message = await UtilWorkaround().writeFileContents(fileName, sb.toString(), fileType: 'log');
     setState(() {
       if (message.toLowerCase().contains('error')) {

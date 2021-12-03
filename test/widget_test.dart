@@ -34,7 +34,7 @@ void main() {
     List<Widget> widgets;
 
     {
-      var finder = find.byKey(const ValueKey<String>('Song_12_Bar_Blues_by_All'));
+      var finder = find.byKey(const ValueKey<String>('mainSong.Song_12_Bar_Blues_by_Any'));
       expect(finder, findsOneWidget);
     }
 
@@ -76,7 +76,7 @@ void main() {
       await tester.pumpAndSettle();
       widgets = Find.findValueKeyContains('Song_', findSome: false);
       expect(widgets, isNotEmpty);
-      var song25Or6To4ByChicago = find.byKey(const ValueKey<String>('Song_25_or_6_to_4_by_Chicago'));
+      var song25Or6To4ByChicago = find.byKey(const ValueKey<String>('mainSong.Song_25_or_6_to_4_by_Chicago'));
       expect(song25Or6To4ByChicago, findsOneWidget);
       // await tester.tap(song25Or6To4ByChicago);
       // await tester.pumpAndSettle(); //  fixme: error here.  why?  because it transitions to another screen

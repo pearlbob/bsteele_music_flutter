@@ -337,7 +337,7 @@ class AppWidgetHelper {
       actions: actions,
       toolbarHeight: (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6),
       //  trim for cell phone overrun
-      leadingWidth: 2.25 * app.screenInfo.fontSize,
+      leadingWidth: 2.5 * app.screenInfo.fontSize,
     );
   }
 

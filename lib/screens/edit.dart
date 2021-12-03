@@ -37,7 +37,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import 'detail.dart';
@@ -65,7 +64,7 @@ final ChordSectionLocation defaultLocation = // last resort, better than null
 const bool _editDebug = kDebugMode && true;
 const bool _editDebugVerbose = kDebugMode && false;
 
-const Level _editLog = Level.info;
+const Level _editLog = Level.debug;
 const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
@@ -102,6 +101,8 @@ class _Edit extends State<Edit> {
   _Edit()
       : song = _initialSong.copySong(),
         originalSong = _initialSong.copySong() {
+    isProEditInput = appOptions.proEditInput;
+
     chordSong = song;
 
     //  _checkSongStatus();
@@ -247,7 +248,7 @@ class _Edit extends State<Edit> {
     checkSongChangeStatus();
   }
 
-  void enterSong() async {
+  void saveSong() async {
     app.addSong(song);
 
     String fileName = song.title + '.songlyrics'; //  fixme: cover artist?
@@ -261,7 +262,7 @@ class _Edit extends State<Edit> {
       }
     });
 
-    checkSongChangeStatus();
+    // a navigation pop is expected, leave the app error message for the next screen.   checkSongChangeStatus();
   }
 
   /// return true if the song is original or the user has acknowledged that their edits will be lost.
@@ -321,8 +322,6 @@ class _Edit extends State<Edit> {
     logger.d('edit build: "${song.toMarkup()}"');
     logger.d('edit build: "${song.rawLyrics}"');
     logger.d('edit build: ');
-
-    appOptions = Provider.of<AppOptions>(context);
 
     //  adjust to screen size
     if (screenInfo == null) {
@@ -404,6 +403,7 @@ class _Edit extends State<Edit> {
     List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
     {
       keySelectDropdownMenuItems.addAll(music_key.Key.values.toList().reversed.map((music_key.Key value) {
+        logger.v('keySelectDropdownMenuItems: music_key.Key value: $value');
         return appDropdownMenuItem<music_key.Key>(
           appKeyEnum: AppKeyEnum.editMusicKey,
           value: value,
@@ -423,9 +423,12 @@ class _Edit extends State<Edit> {
           },
         );
       }));
+      assert(keySelectDropdownMenuItems.length == music_key.KeyEnum.values.length);
     }
 
     var theme = Theme.of(context);
+
+    proTextEditingController ??= TextEditingController(text: song.toMarkup(asEntry: true));
 
     logger.d('edit build here: ');
 
@@ -463,12 +466,14 @@ class _Edit extends State<Edit> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             appEnumeratedButton(
-                              songHasChanged ? (isValidSong ? 'Enter song' : 'Fix the song') : 'Nothing has changed',
+                              songHasChanged
+                                  ? (isValidSong ? 'Save song on local drive' : 'Fix the song')
+                                  : 'Nothing has changed',
                               appKeyEnum: AppKeyEnum.editEnterSong,
                               fontSize: _defaultChordFontSize,
                               onPressed: () {
                                 if (songHasChanged && isValidSong) {
-                                  enterSong();
+                                  saveSong();
                                   Navigator.pop(context);
                                 }
                               },
@@ -722,69 +727,120 @@ class _Edit extends State<Edit> {
                         ],
                       ),
                       Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Flexible(
-                              flex: 1,
-                              child: Text(
-                                "Chords:",
-                                style: _titleTextStyle,
+                        child: appWrapFullWidth(<Widget>[
+                          Text(
+                            "Chords:",
+                            style: _titleTextStyle,
+                          ),
+                          appWrap([
+                            if (isProEditInput)
+                              editTooltip(
+                                message: 'Validate the chord input',
+                                child: appEnumeratedButton('Validate',
+                                    appKeyEnum: AppKeyEnum.editValidateChords, fontSize: _defaultChordFontSize, onPressed: () {
+                                  var markedString = SongBase.validateChords(
+                                      SongBase.entryToUppercase(proTextEditingController!.text.trim()),
+                                      song.getBeatsPerBar());
+                                  setState(() {
+
+                                  if (markedString == null) {
+                                    app.infoMessage( 'Chord entry is correct');
+                                    logger.i('pro error: none');
+                                  } else {
+                                    app.errorMessage( 'Chord entry invalid: "'
+                                        '${markedString.remainingStringLimited(markedString.getNextWhiteSpaceIndex()
+                                        - markedString.getMark())}"');
+                                    proTextEditingController!.selection = TextSelection(
+                                        baseOffset: markedString.getMark(),
+                                        extentOffset: markedString.getNextWhiteSpaceIndex());
+                                  }
+                                  });
+                                }),
+                              ),
+                            if (isProEditInput)
+                              editTooltip(
+                                message: 'Format the chord input',
+                                child: appEnumeratedButton('Format',
+                                    appKeyEnum: AppKeyEnum.editFormat,
+                                    fontSize: _defaultChordFontSize,
+                                    onPressed: false //  only offer to format if the entry is valid
+                                        ? () {
+                                            proTextEditingController!.text = song.toMarkup(asEntry: true);
+                                          }
+                                        : null),
+                              ),
+                            editTooltip(
+                              message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
+                              child: appEnumeratedButton('Undo',
+                                  appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
+                                undo();
+                              }),
+                            ),
+                            editTooltip(
+                              message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
+                              child: appEnumeratedButton(
+                                'Redo',
+                                appKeyEnum: AppKeyEnum.editRedo,
+                                fontSize: _defaultChordFontSize,
+                                onPressed: () {
+                                  redo();
+                                },
                               ),
                             ),
-                            Flexible(
-                              flex: 1,
-                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                editTooltip(
-                                  message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                                  child: appEnumeratedButton('Undo',
-                                      appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
-                                    undo();
-                                  }),
-                                ),
-                                editTooltip(
-                                  message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
-                                  child: appEnumeratedButton(
-                                    'Redo',
-                                    appKeyEnum: AppKeyEnum.editRedo,
-                                    fontSize: _defaultChordFontSize,
-                                    onPressed: () {
-                                      redo();
-                                    },
-                                  ),
-                                ),
-                                editTooltip(
-                                  message: (selectedEditPoint != null
-                                          ? 'Click outside the chords to cancel editing\n'
-                                          : '') +
-                                      (showHints
-                                          ? 'Click to hide the editing hints'
-                                          : 'Click for hints about editing.'),
-                                  child: appEnumeratedButton('Hints',
-                                      appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize, onPressed: () {
-                                    setState(() {
-                                      showHints = !showHints;
-                                    });
-                                  }),
-                                ),
-                              ]),
+                            editTooltip(
+                              message: (selectedEditPoint != null
+                                      ? 'Click outside the chords to cancel editing\n'
+                                      : '') +
+                                  (showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
+                              child: appEnumeratedButton('Hints',
+                                  appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize, onPressed: () {
+                                setState(() {
+                                  showHints = !showHints;
+                                });
+                              }),
                             ),
-                          ],
-                        ),
+                            editTooltip(
+                              message: proMessage,
+                              child: appEnumeratedButton(
+                                isProEditInput ? 'Assisted Input' : 'Pro Input',
+                                appKeyEnum: AppKeyEnum.editRedo,
+                                fontSize: _defaultChordFontSize,
+                                onPressed: () {
+                                  setState(() {
+                                    isProEditInput = !isProEditInput;
+                                    appOptions.proEditInput = isProEditInput;
+                                  });
+                                },
+                              ),
+                            ),
+                          ], spacing: 50),
+                        ], alignment: WrapAlignment.spaceBetween),
                         margin: const EdgeInsets.all(4),
                       ),
                       const Divider(
                         thickness: 8,
                         //color: ,  fixme: should be from css!!!
                       ),
-                      Container(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                          //  pre-configured table of edit widgets
-                          displayChordTable,
-                        ]),
-                        padding: const EdgeInsets.all(16.0),
-                        color: theme.backgroundColor,
-                      ),
+                      if (!isProEditInput)
+                        Container(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                            //  pre-configured table of edit widgets
+                            displayChordTable,
+                          ]),
+                          padding: const EdgeInsets.all(16.0),
+                          color: theme.backgroundColor,
+                        ),
+                      if (isProEditInput)
+                        appTextField(
+                            appKeyEnum: AppKeyEnum.editProChords,
+                            controller: proTextEditingController,
+                            minLines: 8,
+                            fontSize: _defaultChordFontSize,
+                            fontWeight: FontWeight.normal,
+                            border: InputBorder.none,
+                            onChanged: (value) {
+                              setState(() {}); //  fixme: too often?
+                            }),
                       if (showHints)
                         RichText(
                           text: TextSpan(
@@ -975,44 +1031,44 @@ class _Edit extends State<Edit> {
                               "Lyrics:",
                               style: _titleTextStyle,
                             ),
-                            Flexible(
-                              flex: 1,
-                              child: editTooltip(
-                                message: 'Import lyrics from a text file',
-                                child: appEnumeratedButton(
-                                  'Import',
-                                  appKeyEnum: AppKeyEnum.editImportLyrics,
-                                  fontSize: _defaultChordFontSize,
-                                  onPressed: () {
-                                    import();
-                                  },
+                            if (!isProEditInput)
+                              Flexible(
+                                flex: 1,
+                                child: editTooltip(
+                                  message: 'Import lyrics from a text file',
+                                  child: appEnumeratedButton(
+                                    'Import',
+                                    appKeyEnum: AppKeyEnum.editImportLyrics,
+                                    fontSize: _defaultChordFontSize,
+                                    onPressed: () {
+                                      import();
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
                       const Divider(
                         thickness: 8,
                       ),
-                      Container(
-                        child: lyricsEntryWidget(),
-                        padding: const EdgeInsets.all(16.0),
-                        color: theme.backgroundColor,
-                      ),
-                      // Container(
-                      //   padding: EdgeInsets.all(16.0),
-                      //   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                      //     //  pre-configured table of edit widgets
-                      //     _lyricsTable.lyricsTable(
-                      //       _song,
-                      //       sectionHeaderWidget: _editSectionHeaderWidget,
-                      //       textWidget: _editLyricsTextWidget,
-                      //       lyricEndWidget: _lyricEndWidget,
-                      //       requestedFontSize: _chordFontSize,
-                      //     ),
-                      //   ]),
-                      // ),
+                      if (!isProEditInput)
+                        Container(
+                          child: lyricsEntryWidget(),
+                          padding: const EdgeInsets.all(16.0),
+                          color: theme.backgroundColor,
+                        ),
+                      if (isProEditInput)
+                        appTextField(
+                            appKeyEnum: AppKeyEnum.editProLyrics,
+                            controller: TextEditingController(text: song.rawLyrics),
+                            minLines: 8,
+                            fontSize: _defaultChordFontSize,
+                            fontWeight: FontWeight.normal,
+                            border: InputBorder.none,
+                            onChanged: (value) {
+                              logger.i('raw lyric entry: "$value"');
+                            }),
                     ],
                   ),
                 ),
@@ -1130,7 +1186,6 @@ class _Edit extends State<Edit> {
         var data = row[c];
 
         if (data == null) {
-
           if (c == 0) {
             //  entry column
             addChordRowNullWidget();
@@ -1882,6 +1937,7 @@ class _Edit extends State<Edit> {
           performMeasureEntryCancel();
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
+        logger.i('e.isKeyPressed(enter)');
         if (selectedEditPoint != null) //  fixme: this is a poor workaround
         {
           performEdit(done: false, endOfRow: true);
@@ -3109,6 +3165,14 @@ class _Edit extends State<Edit> {
     return entries;
   }
 
+  String formatMeasureNodes(List<MeasureNode> nodes) {
+    StringBuffer sb = StringBuffer();
+    for (var node in nodes) {
+      sb.writeln(node.toEntry());
+    }
+    return sb.toString();
+  }
+
   SectionVersion? parsedSectionEntry(String? entry) {
     if (entry == null || entry.length < 2) return null;
     try {
@@ -3460,6 +3524,9 @@ class _Edit extends State<Edit> {
 
   int transpositionOffset = 0;
 
+  bool isProEditInput = false;
+  static const proMessage = 'Select pro input mode.\nThis requires that you know what you are doing,\n'
+      'and will not get frustrated if you don\'t.';
   bool measureEntryIsClear = true;
   String? measureEntryCorrection;
   bool measureEntryValid = false;
@@ -3487,6 +3554,7 @@ class _Edit extends State<Edit> {
   final TextEditingController copyrightTextEditingController = TextEditingController();
   final TextEditingController bpmTextEditingController = TextEditingController();
   final TextEditingController userTextEditingController = TextEditingController();
+  TextEditingController? proTextEditingController;
 
   final TextEditingController editTextController = TextEditingController();
   FocusNode? editTextFieldFocusNode;
@@ -3510,7 +3578,7 @@ class _Edit extends State<Edit> {
   final FocusManager focusManager = FocusManager.instance;
   final FocusNode focusNode = FocusNode();
 
-  late AppOptions appOptions;
+  final AppOptions appOptions = AppOptions();
 }
 
 /*

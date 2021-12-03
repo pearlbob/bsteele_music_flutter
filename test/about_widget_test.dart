@@ -7,6 +7,7 @@
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
@@ -39,21 +40,27 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('about test', (WidgetTester tester) async {
-    // tester.binding.window.physicalSizeTestValue = const Size(1920, 1080);
+    tester.binding.window.physicalSizeTestValue = const Size(1920, 1080);
 
     await tester.runAsync(() async {
       // Build our app and trigger a frame.
       await tester.pumpWidget(const MaterialApp(
-        title: 'Edit Screen',
+        title: 'About Screen',
         // home: Edit(initialSong: Song.createEmptySong(),)),
         home: About(),
       ));
 
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
-      //   logger.i(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d').toString());
-      expect(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d\n$'), findsOneWidget);
+      //  find a utc date
+      expect(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d$'), findsOneWidget);
 
+      var finder = _RegexpTextFinder(r'screen: \(');
+      expect(finder, findsOneWidget);
+      if (kDebugMode) {
+        print('fixme: why is this not correct?');  //  fixme
+        print(finder.first.evaluate());
+      }
     });
   });
 }

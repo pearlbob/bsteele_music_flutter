@@ -520,6 +520,7 @@ enum AppKeyEnum {
   editCoverArtist,
   editDeleteChordMeasure,
   editDeleteLyricsSection,
+  editFormat,
   editRepeatCancel,
   editDeleteRepeat,
   editDiscardAllChanges,
@@ -532,6 +533,10 @@ enum AppKeyEnum {
   editMinorChord,
   editMusicKey,
   editNewChordSection,
+  editProInputOff,
+  editProInputOn,
+  editProChords,
+  editProLyrics,
   editRedo,
   editRepeat,
   editRepeatX2,
@@ -549,6 +554,7 @@ enum AppKeyEnum {
   editTitle,
   editUndo,
   editUserName,
+  editValidateChords,
   errorMessage,
   listsBack,
   listsCancelDeleteList,
@@ -605,6 +611,7 @@ enum AppKeyEnum {
   playerBack,
   playerBPM,
   playerCapo,
+  playerCompressRepeats,
   playerEdit,
   playerFloatingPlay,
   playerFloatingStop,
@@ -639,6 +646,8 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.editChordSectionCancel: ChordSection,
   AppKeyEnum.editChordSectionDelete: ChordSection,
   AppKeyEnum.editChordSectionLocation: ChordSectionLocation,
+  AppKeyEnum.editProChords: String,
+  AppKeyEnum.editProLyrics: String,
   AppKeyEnum.editRepeatCancel: ChordSectionLocation,
   AppKeyEnum.editDeleteRepeat: ChordSectionLocation,
   AppKeyEnum.editRepeat: ChordSectionLocation,
@@ -686,10 +695,10 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
       return ValueKey<String>(e.name);
     case String:
       return ValueKey<String>(e.name);
+    case music_key.Key:
+      assert(value.runtimeType == type);
+      return ValueKey<String>('${e.name}.${(value as music_key.Key).toMarkup()}');
     default:
-      if (value.runtimeType != type) {
-        logger.i('not same type here:');
-      }
       assert(value.runtimeType == type);
       return ValueKey<String>('${e.name}.${value.toString()}');
   }
@@ -1147,7 +1156,11 @@ TextField appTextField({
   final ValueChanged<String>? onChanged,
   String? hintText,
   double? fontSize,
+  FontWeight? fontWeight,
   bool? enabled,
+  int? minLines,
+  int? maxLines,
+  InputBorder? border,
 }) {
   return TextField(
     key: appKey(appKeyEnum),
@@ -1155,10 +1168,13 @@ TextField appTextField({
     enabled: enabled,
     onChanged: onChanged,
     decoration: InputDecoration(
+      border: border,
       hintText: hintText,
     ),
-    style: generateAppTextFieldStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+    style: generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
     maxLength: null,
+    minLines: minLines,
+    maxLines: maxLines,
   );
 }
 

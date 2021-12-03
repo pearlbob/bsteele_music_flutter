@@ -113,7 +113,7 @@ void main() async {
   //  holiday override
   var cssFileName = _cssFileName;
   bool holidayOverride = _holidayOverride.isNotEmpty || Uri.base.queryParameters.containsKey('holiday');
-  if ( holidayOverride ){
+  if (holidayOverride) {
     //  override the css as well
     cssFileName = 'holiday.css';
   }
@@ -130,8 +130,27 @@ void main() async {
 }
 
 /*
+edit "pro-mode", canvas copy paste for chords and lyrics
+edit lyrics: not updated!
+edit lyrics: one blank row is now two?  at section end?
+
+studio instructions for personal tablets
+//  no auto 4 measures per row
+edit mod at end of repeat row broken
+css for repeat markers
+______blank edit page from options page
+______song enter confirmation after edit page
+______repeat expand/compress on player page, non persistent
+lyrics for a section in one vertical block
+verify blank lyrics lines force position in lyric sections
+expanded repeat player, no x, no repeat #
+
+
+//  fixme: edit: disposing of controllers and/or focus nodes fails
+//  fixme: edit: web version: enter doesn't work
 //  fixme: player: time signature always in view if not 4/4
 //  fixme: player: if in play, no tool tips, timeout any current tooltip
+//  fixme: lists: don't select the entry name/value until it's valid
 //  fixme: lists: "write all to file" can appear disabled
 //  fixme: songmetadata thumbs up should eliminate the name:value from thumbs down, and vise-versa
 //  fixme: songmetadata file should delete all prior metadata of same name:value from all songs
@@ -765,6 +784,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToLists(context);
                 },
               ),
+            if (app.isEditReady)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerLists,
+                title: Text(
+                  "New Song",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToEdit(context);
+                },
+              ),
             if (!app.screenInfo.isTooNarrow)
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerTheory,
@@ -824,7 +854,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       /// Navigate to song player when song tapped.
-      body: Column(children: <Widget>[
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
         appWrapFullWidth([
           appWrap([
             appTooltip(
@@ -985,7 +1016,7 @@ class _MyHomePageState extends State<MyHomePage> {
       oddEven = !oddEven;
       var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
       var oddEvenTextStyle = oddEven ? oddText : evenText;
-      logger.v('song.songId: ${song.songId}');
+      logger.d('song.songId: ${song.songId}, key: ${appKey(AppKeyEnum.mainSong, value: Id(song.songId.toString()))}');
       listViewChildren.add(appGestureDetector(
         appKeyEnum: AppKeyEnum.mainSong,
         value: Id(song.songId.toString()),
@@ -1229,7 +1260,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (song.getTitle().isEmpty) {
       return;
     }
-
+    app.clearMessage();
     app.selectedSong = song;
     _lastSelectedSong = song;
 
@@ -1241,21 +1272,32 @@ class _MyHomePageState extends State<MyHomePage> {
     _reApplySearch();
   }
 
+  _navigateToEdit(BuildContext context) async {
+    app.clearMessage();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Edit(initialSong: Song.createEmptySong())),
+    );
+    Navigator.pop(context); //  drawer
+    _reApplySearch();
+  }
+
   _navigateToOptions(BuildContext context) async {
     await Navigator.pushNamed(
       context,
       Options.routeName,
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //  drawer
     _reApplySearch();
   }
 
   _navigateToAbout(BuildContext context) async {
+    app.clearMessage();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const About()),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //  drawer
     _reApplySearch();
   }
 
@@ -1264,7 +1306,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const CssDemo()),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //  drawer
     _reApplySearch();
   }
 
@@ -1273,7 +1315,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const Documentation()),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //  drawer
     _reApplySearch();
   }
 
@@ -1282,7 +1324,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const TheoryWidget()),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //  drawer
     _reApplySearch();
   }
 
@@ -1291,7 +1333,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const Privacy()),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //  drawer
     _reApplySearch();
   }
 

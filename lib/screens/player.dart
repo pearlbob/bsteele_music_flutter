@@ -376,7 +376,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       table = lyricsTable.lyricsTable(
         _song, context,
         musicKey: displaySongKey,
-        expanded: !appOptions.compressRepeats,
+        expanded: !compressRepeats,
         chordFontSize: chordFontSize,
         lyricsFraction: lyricsFraction,
         //  givenSelectedSongMoments: selectedSongMoments
@@ -634,6 +634,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                         Column(
                           //  fixme: why is this column in a column?   remnant of limited scrolling?
                           children: <Widget>[
+                            if (app.message.isNotEmpty)
+                              Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
                             //  fullscreen, hints, capo,
                             Container(
                               padding: const EdgeInsets.all(12),
@@ -709,6 +711,20 @@ With escape, the app goes back to the play list.''',
                                 //   softWrap: false,
                                 // ),
                                 appWrap([
+                                  appTooltip(
+                                    message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
+                                    child: appIconButton(
+                                      appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                                      icon: appIcon(
+                                        compressRepeats ? Icons.expand : Icons.compress,
+                                      ),
+                                      onPressed: () {
+                                        compressRepeats = !compressRepeats;
+                                        forceTableRedisplay();
+                                      },
+                                    ),
+                                  ),
+                                  appSpace(space: 35),
                                   appWrap([
                                     //  fixme: there should be a better way.  wrap with flex?
                                     appTooltip(
@@ -910,35 +926,35 @@ With escape, the app goes back to the play list.''',
                                           iconSize: lookupIconSize(),
                                           itemHeight: null,
                                         ),
-                                        appTooltip(
-                                          message: 'Move the beats per minute (BPM) one count up.',
-                                          child: appIconButton(
-                                            appKeyEnum: AppKeyEnum.playerKeyUp,
-                                            icon: appIcon(
-                                              Icons.arrow_upward,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                _song.setBeatsPerMinute(_song.beatsPerMinute + 1);
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        appSpace(space: 5),
-                                        appTooltip(
-                                          message: 'Move the beats per minute (BPM) one count down.',
-                                          child: appIconButton(
-                                            appKeyEnum: AppKeyEnum.playerKeyDown,
-                                            icon: appIcon(
-                                              Icons.arrow_downward,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                _song.setBeatsPerMinute(_song.beatsPerMinute - 1);
-                                              });
-                                            },
-                                          ),
-                                        ),
+                                        // appTooltip(
+                                        //   message: 'Move the beats per minute (BPM) one count up.',
+                                        //   child: appIconButton(
+                                        //     appKeyEnum: AppKeyEnum.playerKeyUp,
+                                        //     icon: appIcon(
+                                        //       Icons.arrow_upward,
+                                        //     ),
+                                        //     onPressed: () {
+                                        //       setState(() {
+                                        //         _song.setBeatsPerMinute(_song.beatsPerMinute + 1);
+                                        //       });
+                                        //     },
+                                        //   ),
+                                        // ),
+                                        // appSpace(space: 5),
+                                        // appTooltip(
+                                        //   message: 'Move the beats per minute (BPM) one count down.',
+                                        //   child: appIconButton(
+                                        //     appKeyEnum: AppKeyEnum.playerKeyDown,
+                                        //     icon: appIcon(
+                                        //       Icons.arrow_downward,
+                                        //     ),
+                                        //     onPressed: () {
+                                        //       setState(() {
+                                        //         _song.setBeatsPerMinute(_song.beatsPerMinute - 1);
+                                        //       });
+                                        //     },
+                                        //   ),
+                                        // ),
                                       ],
                                       alignment: WrapAlignment.spaceBetween,
                                     )
@@ -1526,6 +1542,10 @@ With escape, the app goes back to the play list.''',
   double? lyricsFraction;
   final LyricsTable lyricsTable = LyricsTable();
   List<GridCoordinate> songMomentToGridList = [];
+
+  set compressRepeats(bool value) => _compressRepeats = value; //  local only, it's transient!
+  bool get compressRepeats => _compressRepeats ?? appOptions.compressRepeats;
+  bool? _compressRepeats;
 
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);

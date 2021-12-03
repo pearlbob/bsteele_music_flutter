@@ -30,10 +30,12 @@ class _TextFieldByAppKeyFinder extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
-    logger.v('candidate: ${candidate.widget.runtimeType} ${candidate.widget.key}');
+    logger.v(
+        'candidate: ${candidate.widget.runtimeType}, key: ${candidate.widget.key.runtimeType} ${candidate.widget.key},'
+            ' match value: $_appKey');
     if (candidate.widget is TextField) {
-      return (candidate.widget.key is ValueKey<AppKeyEnum> &&
-          (candidate.widget.key as ValueKey<AppKeyEnum>).value == _appKey);
+      return (candidate.widget.key is ValueKey<String> &&
+          (candidate.widget.key as ValueKey<String>).value == _appKey.name);
     }
     return false;
   }
@@ -66,10 +68,13 @@ class _TextByAppKeyFinder extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
+    // if (candidate.widget is Text) {
+    //   logger.i('_TextByAppKeyFinder(): $_appKey match?: ${candidate.widget.key.runtimeType} $candidate');
+    // }
     return (candidate.widget is Text &&
         (candidate.widget as Text).data != null &&
-        candidate.widget.key is ValueKey &&
-        (candidate.widget.key as ValueKey).value == _appKey);
+        candidate.widget.key is ValueKey<String> &&
+        (candidate.widget.key as ValueKey<String>).value == _appKey.name);
   }
 
   final AppKeyEnum _appKey;
@@ -130,9 +135,10 @@ class DropDownFinderByAppKey extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
+    //logger.i( 'DropDownFinderByAppKey(): try $candidate');
     return (candidate.widget is DropdownButton &&
-        candidate.widget.key is ValueKey &&
-        (candidate.widget.key as ValueKey).value == _appKey);
+        candidate.widget.key is ValueKey<String> &&
+        (candidate.widget.key as ValueKey<String>).value == _appKey.name);
   }
 
   final AppKeyEnum _appKey;

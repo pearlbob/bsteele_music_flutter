@@ -22,12 +22,12 @@ class UtilWeb implements UtilWorkaround {
     //   web stuff
     Blob blob = Blob([contents], 'text/plain', 'native');
 
-    AnchorElement(
+    var anchorElement = AnchorElement(
       href: Url.createObjectUrlFromBlob(blob).toString(),
     )
       ..setAttribute("download", fileName)
       ..click();
-    return '${fileType ?? ''} file written to: \'$fileName\'';
+    return 'The file was written into your browser\'s download folder named: \'${anchorElement.target}/$fileName\'';
   }
 
   @override

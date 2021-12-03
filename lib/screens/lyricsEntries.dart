@@ -13,7 +13,7 @@ typedef OnLyricsLineChangedCallback = void Function(); //  text content change
 LyricSection? _focusLyricSection;
 int _focusLyricsLineIndex = 0;
 
-const Level _debugLyricEntry = Level.info;
+const Level _debugLyricEntry = Level.debug;
 
 /// used in the edit screen to manage the lyrics entry and its matching to the chord section sequence
 class LyricsEntries extends ChangeNotifier {
@@ -327,7 +327,7 @@ class _LyricsLine {
   }) : _onLyricsLineChangedCallback = onLyricsLineChangedCallback {
     _originalText = lineText.replaceAll('\n', '');
     _controller.text = _originalText;
-    logger.i('_LyricsLine textStyle: $textStyle');
+    logger.v('_LyricsLine textStyle: $textStyle');
 
     //  fixme: workaround for bad relationship between backgroundColor and TextField
     textStyle = TextStyle(
@@ -356,21 +356,21 @@ class _LyricsLine {
       maxLines: 300,
       onSubmitted: (value) {
         //  deal with newlines
-        logger.i('onSubmitted(\'$value\')');
+        logger.v('onSubmitted(\'$value\')');
         _submitLine();
       },
       onChanged: (value) {
-        logger.i('onChanged(\'$value\'), ${_focusNode.hasFocus}');
+        logger.v('onChanged(\'$value\'), ${_focusNode.hasFocus}');
         if (_onLyricsLineChangedCallback != null) {
           _onLyricsLineChangedCallback!();
         }
       },
     );
-    logger.i('_LyricsLine($_originalText)');
+    logger.v('_LyricsLine($_originalText)');
   }
 
   void _submitLine() {
-    logger.i('_LyricsLine._submitLine(): ${_controller.text}');
+    logger.v('_LyricsLine._submitLine(): ${_controller.text}');
     var selection = _controller.selection;
     var text = _controller.text;
 
@@ -404,7 +404,7 @@ class _LyricsLine {
   }
 
   requestFocus() {
-    logger.i('_LyricsLine.requestFocus()');
+    logger.v('_LyricsLine.requestFocus()');
     assert(wasDisposed==false);
     if (!_focusNode.hasFocus) {
       _focusNode.requestFocus();
@@ -412,9 +412,9 @@ class _LyricsLine {
   }
 
   void dispose() {
-    logger.i('_LyricsLine.dispose()');
-    _controller.dispose();
-    _focusNode.dispose();
+    logger.v('_LyricsLine.dispose()');
+    //fixme!!!!!!!!!!!!!!!!!!!! _controller.dispose();
+  //fixme!!!!!!!!!!!!!!!!!!!!  _focusNode.dispose();
     wasDisposed = true;
   }
 

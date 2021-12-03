@@ -140,21 +140,24 @@ void main() async {
         logger.i('   musicKey: ${musicKey.halfStep} ${musicKey.toMarkup()}');
 
         await tester.tap(keyDropdownFinder.first, warnIfMissed: false);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
-        final keySelection = find.byKey(ValueKey('key_' + musicKey.toMarkup()));
-        //  expect(keySelection, findsOneWidget);  //  fixme: why are there 2?
-        logger.d('keySelection: $keySelection');
-
-        await tester.tap(keySelection.last, warnIfMissed: false);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
-
-        errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
-        logger.d('errorMessage.data: ${errorMessage.data}');
-        expect(errorMessage.data, contains('chords'));
-
-        //  expect that the key has been selected
-        expect(find.byKey(ValueKey('keyTally_' + musicKey.toMarkup()), skipOffstage: false), findsOneWidget);
+        final keySelection = find.byKey(ValueKey<String>(AppKeyEnum.editMusicKey.name + '.' + musicKey.toMarkup()));
+     for (var ks in    keySelection.evaluate()){
+    logger.i('ks: $ks,  ${ks.findAncestorStateOfType()}');
+    }
+           expect(keySelection, findsOneWidget);  //  fixme: why are there 2?
+        // logger.d('keySelection: $keySelection');
+        //
+        // await tester.tap(keySelection.last, warnIfMissed: false);
+        // await tester.pumpAndSettle(const Duration(seconds: 1));
+        //
+        // errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
+        // logger.d('errorMessage.data: ${errorMessage.data}');
+        // expect(errorMessage.data, contains('chords'));
+        //
+        // //  expect that the key has been selected
+        // expect(find.byKey(ValueKey('keyTally_' + musicKey.toMarkup()), skipOffstage: false), findsOneWidget);
       }
     }
 

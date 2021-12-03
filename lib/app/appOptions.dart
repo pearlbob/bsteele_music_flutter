@@ -58,6 +58,7 @@ class AppOptions extends ChangeNotifier {
         await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
+    _proEditInput = await _readBool('proEditInput', defaultValue: _proEditInput);
     _holiday = await _readBool('holiday', defaultValue: _holiday);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     user = await _readString('user', defaultValue: userName);
@@ -190,6 +191,18 @@ class AppOptions extends ChangeNotifier {
   /// True if the user wants the app to play bass when in play mode.
   bool get playWithBass => _playWithBass;
   bool _playWithBass = false;
+
+  set proEditInput(bool proEditInput) {
+    if (_proEditInput == proEditInput) {
+      return;
+    }
+    _proEditInput = proEditInput;
+    _saveBool('proEditInput', proEditInput);
+  }
+
+  /// True if the user wants the app to play bass when in play mode.
+  bool get proEditInput => _proEditInput;
+  bool _proEditInput = false;
 
   set holiday(bool value) {
     if (_holiday == value) return;

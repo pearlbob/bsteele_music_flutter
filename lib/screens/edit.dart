@@ -247,7 +247,6 @@ class _Edit extends State<Edit> {
 
     checkSong();
     checkSongChangeStatus();
-    validateSongChords();
   }
 
   void saveSong() async {
@@ -826,7 +825,7 @@ class _Edit extends State<Edit> {
                                     border: InputBorder.none,
                                     onChanged: (value) {
                                       setState(() {
-                                        validateSongChords();
+                                        checkSong();
                                       });
                                     }),
                               if (showHints)
@@ -1119,17 +1118,9 @@ class _Edit extends State<Edit> {
 
       //  things look good, so format the song
       if (select) {
-        var update = SongBase.entryToUppercase(proChordTextEditingController.text);
-        if (proChordTextEditingController.text != update) {
-          proChordTextEditingController.text = SongBase.entryToUppercase(proChordTextEditingController.text);
-          song.setChords(update);
-          logger.i('validateSongChords update: "$update"');
-          undoStackPushIfDifferent();
-        }
-      }
-      checkSong(); //  find something to complain about
-      if (isValidSong) {
-        app.clearMessage(); //  fixme: always correct?
+        song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
+        undoStackPushIfDifferent();
+        proChordTextEditingController.text = song.toMarkup(asEntry: true);
       }
 
       return true;
@@ -3484,8 +3475,10 @@ class _Edit extends State<Edit> {
   void checkSong() {
     try {
       song.checkSong();
-      isValidSong = true;
-      app.clearMessage();
+      isValidSong = validateSongChords() && validateSongLyrics();
+      if (isValidSong) {
+        app.clearMessage();
+      }
     } catch (e) {
       isValidSong = false;
       app.errorMessage(e.toString());

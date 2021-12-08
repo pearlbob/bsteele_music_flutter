@@ -1153,6 +1153,7 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
 TextField appTextField({
   required AppKeyEnum appKeyEnum,
   TextEditingController? controller,
+  FocusNode? focusNode,
   final ValueChanged<String>? onChanged,
   String? hintText,
   double? fontSize,
@@ -1165,6 +1166,7 @@ TextField appTextField({
   return TextField(
     key: appKey(appKeyEnum),
     controller: controller,
+    focusNode: focusNode,
     enabled: enabled,
     onChanged: onChanged,
     decoration: InputDecoration(
@@ -1216,6 +1218,7 @@ TextStyle generateAppTextStyle({
   TextBaseline? textBaseline,
   String? fontFamily = appDefaultFontFamily,
   TextDecoration? decoration,
+  TextDecorationStyle? decorationStyle,
   bool nullBackground = false,
 }) {
   fontSize ??= _sizeLookup(_universalFontSizeProperty);
@@ -1231,6 +1234,7 @@ TextStyle generateAppTextStyle({
     fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration,
+    decorationStyle: decorationStyle,
     overflow: TextOverflow.clip,
   );
 }

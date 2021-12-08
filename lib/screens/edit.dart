@@ -50,7 +50,6 @@ TextStyle _titleTextStyle = generateAppTextStyle();
 TextStyle _boldTextStyle = generateAppTextStyle();
 TextStyle _textFieldStyle = generateAppTextStyle();
 TextStyle _labelTextStyle = generateAppTextStyle();
-
 const double _entryWidth = 22 * _defaultChordFontSize;
 
 const Color _disabledColor = Color(0xFFE0E0E0);
@@ -240,12 +239,15 @@ class _Edit extends State<Edit> {
     copyrightTextEditingController.text = song.copyright;
     userTextEditingController.text = appOptions.user;
     bpmTextEditingController.text = song.beatsPerMinute.toString();
+    proChordTextEditingController.text = song.toMarkup(asEntry: true);
+    proLyricsTextEditingController.text = song.rawLyrics;
 
     lyricsEntries.removeListener(lyricsEntriesListener);
     lyricsEntries = lyricsEntriesFromSong(song);
 
     checkSong();
     checkSongChangeStatus();
+    validateSongChords();
   }
 
   void saveSong() async {
@@ -428,12 +430,13 @@ class _Edit extends State<Edit> {
 
     var theme = Theme.of(context);
 
-    proTextEditingController ??= TextEditingController(text: song.toMarkup(asEntry: true));
-
-    logger.d('edit build here: ');
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appWidgetHelper.appBar(
+        appKeyEnum: AppKeyEnum.appBarBack,
+        title: 'Edit',
+        leading: appWidgetHelper.back(canPop: canPop),
+      ),
       body:
           //  deal with keyboard strokes flutter is not usually handling
           //  note that return (i.e. enter) is not a keyboard event!
@@ -442,638 +445,634 @@ class _Edit extends State<Edit> {
         onKey: editOnKey,
         child: GestureDetector(
           // fixme: put GestureDetector only on chord table
-          child: SingleChildScrollView(
-            key: const ValueKey('singleChildScrollView'),
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                //  note: let the app bar scroll off the screen for more room for the song
-                appWidgetHelper.appBar(
-                  appKeyEnum: AppKeyEnum.appBarBack,
-                  title: 'Edit',
-                  leading: appWidgetHelper.back(canPop: canPop),
-                ),
-                appSpace(),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    textDirection: TextDirection.ltr,
-                    children: <Widget>[
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            appEnumeratedButton(
-                              songHasChanged
-                                  ? (isValidSong ? 'Save song on local drive' : 'Fix the song')
-                                  : 'Nothing has changed',
-                              appKeyEnum: AppKeyEnum.editEnterSong,
+          child: Column(
+            children: [
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    appEnumeratedButton(
+                      songHasChanged
+                          ? (isValidSong ? 'Save song on local drive' : 'Fix the song')
+                          : 'Nothing has changed',
+                      appKeyEnum: AppKeyEnum.editEnterSong,
+                      fontSize: _defaultChordFontSize,
+                      onPressed: () {
+                        if (songHasChanged && isValidSong) {
+                          saveSong();
+                          Navigator.pop(context);
+                        }
+                      },
+                      backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
+                    ),
+                    app.messageTextWidget(),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          editTooltip(
+                            message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
+                            child: appEnumeratedButton('Undo',
+                                appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
+                              undo();
+                            }),
+                          ),
+                          appSpace(
+                            space: 50,
+                          ),
+                          editTooltip(
+                            message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
+                            child: appEnumeratedButton(
+                              'Redo',
+                              appKeyEnum: AppKeyEnum.editRedo,
                               fontSize: _defaultChordFontSize,
                               onPressed: () {
-                                if (songHasChanged && isValidSong) {
-                                  saveSong();
-                                  Navigator.pop(context);
-                                }
+                                redo();
                               },
-                              backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
-                            ),
-                            app.messageTextWidget(),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  appButton(
-                                    'Sheet music',
-                                    appKeyEnum: AppKeyEnum.editScreenDetail,
-                                    fontSize: _defaultChordFontSize,
-                                    onPressed: () {
-                                      setState(() {
-                                        navigateToDetail(context);
-                                      });
-                                    },
-                                  ),
-                                  appSpace(
-                                    space: 50,
-                                  ),
-                                  editTooltip(
-                                    message: 'Clear all song values to\n'
-                                        'start entering a new song.',
-                                    child: appEnumeratedButton(
-                                      'Clear',
-                                      appKeyEnum: AppKeyEnum.editClearSong,
-                                      fontSize: _defaultChordFontSize,
-                                      onPressed: () {
-                                        setState(() {
-                                          song = Song.createSong('', '', '', music_key.Key.getDefault(), 106, 4, 4,
-                                              userName, 'V: ', 'V: ');
-                                          loadSong(song);
-                                          undoStackPushIfDifferent();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  appSpace(),
-                                  // appButton(
-                                  //   'Remove',
-                                  //   onPressed: () {
-                                  //     logger.log(_editLog, 'fixme: Remove song'); // fixme
-                                  //   },
-                                  // ),
-                                  // appIconButton(
-                                  //        icon: Icon(
-                                  //          Icons.arrow_left,
-                                  //          size: 48,
-                                  //        ),
-                                  //        label: const Text(
-                                  //          '',
-                                  //          style: _boldTextStyle,
-                                  //        ),
-                                  //        onPressed: () {
-                                  //          _errorMessage('bob: fixme: arrow_left');
-                                  //        },
-                                  //      ),
-                                  // appIconButton(
-                                  //        icon: Icon(
-                                  //          Icons.arrow_right,
-                                  //          size: 48,
-                                  //        ),
-                                  //        label: Text(
-                                  //          '',
-                                  //          style: _buttonTextStyle,
-                                  //        ),
-                                  //        onPressed: () {
-                                  //          _errorMessage('bob: fixme: arrow_right');
-                                  //        },
-                                  //      ),
-                                ]),
-                          ]),
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: <Widget>[
-                            Container(
-                              padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                              child: Text(
-                                'Title: ',
-                                style: generateAppTextStyle(
-                                  fontSize: _defaultChordFontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: appTextField(
-                                appKeyEnum: AppKeyEnum.editTitle,
-                                controller: titleTextEditingController,
-                                hintText: 'Enter the song title.',
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                          ]),
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: <Widget>[
-                            Container(
-                              padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                              child: Text(
-                                'Artist: ',
-                                style: _titleTextStyle,
-                              ),
-                            ),
-                            Expanded(
-                              child: appTextField(
-                                appKeyEnum: AppKeyEnum.editArtist,
-                                controller: artistTextEditingController,
-                                hintText: 'Enter the song\'s artist.',
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                          ]),
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: <Widget>[
-                            Container(
-                              padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                              child: Text(
-                                'Cover Artist:',
-                                style: _textFieldStyle,
-                              ),
-                            ),
-                            Expanded(
-                              child: appTextField(
-                                appKeyEnum: AppKeyEnum.editCoverArtist,
-                                controller: coverArtistTextEditingController,
-                                hintText: 'Enter the song\'s cover artist.',
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                          ]),
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: <Widget>[
-                            Container(
-                              padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                              child: Text(
-                                'Copyright:',
-                                style: _textFieldStyle,
-                              ),
-                            ),
-                            Expanded(
-                              child: appTextField(
-                                appKeyEnum: AppKeyEnum.editCopyright,
-                                controller: copyrightTextEditingController,
-                                hintText: 'Enter the song\'s copyright. Required.',
-                                fontSize: _defaultChordFontSize,
-                              ),
-                            ),
-                          ]),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: <Widget>[
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 24.0),
-                            child: Text(
-                              "Key: ",
-                              style: _labelTextStyle,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 24.0),
-                            child: DropdownButton<music_key.Key>(
-                              key: appKey(AppKeyEnum.editEditKeyDropdown),
-                              items: keySelectDropdownMenuItems,
-                              onChanged: (_value) {
-                                logger.log(_editLog, 'DropdownButton onChanged: $_value');
-                              },
-                              value: key,
-                              style: generateAppTextStyle(
-                                textBaseline: TextBaseline.ideographic,
-                              ),
-                              itemHeight: null,
-                            ),
+                          appSpace(
+                            space: 50,
                           ),
-                          SizedBox.shrink(
-                            key: ValueKey('keyTally_' + key.toMarkup()), //  tally for testing only
-                          ),
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 24.0),
-                            child: Text(
-                              "   BPM: ",
-                              style: _labelTextStyle,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 3 * _defaultChordFontSize,
-                            child: appTextField(
-                              appKeyEnum: AppKeyEnum.editBPM,
-                              controller: bpmTextEditingController,
-                              hintText: 'Enter the song\'s beats per minute.',
-                              fontSize: _defaultChordFontSize,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 24.0),
-                            child: Text(
-                              "Time: ",
-                              style: _labelTextStyle,
-                            ),
-                          ),
-                          DropdownButton<TimeSignature>(
-                            key: appKey(AppKeyEnum.editEditTimeSignatureDropdown),
-                            items: _timeSignatureItems,
-                            onChanged: (_value) {
-                              if (_value != null && song.timeSignature != _value) {
-                                song.timeSignature = _value;
-                                if (!checkSongChangeStatus()) {
-                                  setState(() {}); //  display the return to original
-                                }
-                              }
+                          appButton(
+                            'Sheet music',
+                            appKeyEnum: AppKeyEnum.editScreenDetail,
+                            fontSize: _defaultChordFontSize,
+                            onPressed: () {
+                              setState(() {
+                                navigateToDetail(context);
+                              });
                             },
-                            value: song.timeSignature,
-                            style: generateAppTextStyle(
-                                textBaseline: TextBaseline.alphabetic,
-                                fontSize: _defaultChordFontSize,
-                                fontWeight: FontWeight.bold),
-                            itemHeight: null,
                           ),
-                          Container(
-                            padding: const EdgeInsets.only(left: 24, bottom: 24.0),
-                            child: Text(
-                              "User: ",
-                              style: _labelTextStyle,
-                            ),
+                          appSpace(
+                            space: 50,
                           ),
-                          SizedBox(
-                            width: 300.0,
-                            child: appTextField(
-                              appKeyEnum: AppKeyEnum.editUserName,
-                              controller: userTextEditingController,
-                              hintText: 'Enter your user name.',
+                          editTooltip(
+                            message: 'Clear all song values to\n'
+                                'start entering a new song.',
+                            child: appEnumeratedButton(
+                              'Clear',
+                              appKeyEnum: AppKeyEnum.editClearSong,
                               fontSize: _defaultChordFontSize,
+                              onPressed: () {
+                                setState(() {
+                                  song = Song.createSong(
+                                      '', '', '', music_key.Key.getDefault(), 106, 4, 4, userName, 'V: ', 'V: ');
+                                  loadSong(song);
+                                  undoStackPushIfDifferent();
+                                });
+                              },
                             ),
                           ),
                           appSpace(),
-                          if (originalSong.user != userTextEditingController.text)
-                            Text(
-                              '(was ${originalSong.user})',
-                              style: _labelTextStyle,
-                            ),
-                        ],
-                      ),
-                      Container(
-                        child: appWrapFullWidth(<Widget>[
-                          Text(
-                            "Chords:",
-                            style: _titleTextStyle,
-                          ),
-                          appWrap([
-                            if (isProEditInput)
-                              editTooltip(
-                                message: 'Validate the chord input',
-                                child: appEnumeratedButton('Validate',
-                                    appKeyEnum: AppKeyEnum.editValidateChords, fontSize: _defaultChordFontSize, onPressed: () {
-                                  var markedString = SongBase.validateChords(
-                                      SongBase.entryToUppercase(proTextEditingController!.text.trim()),
-                                      song.getBeatsPerBar());
-                                  setState(() {
-
-                                  if (markedString == null) {
-                                    app.infoMessage( 'Chord entry is correct');
-                                    logger.i('pro error: none');
-                                  } else {
-                                    app.errorMessage( 'Chord entry invalid: "'
-                                        '${markedString.remainingStringLimited(markedString.getNextWhiteSpaceIndex()
-                                        - markedString.getMark())}"');
-                                    proTextEditingController!.selection = TextSelection(
-                                        baseOffset: markedString.getMark(),
-                                        extentOffset: markedString.getNextWhiteSpaceIndex());
-                                  }
-                                  });
-                                }),
-                              ),
-                            if (isProEditInput)
-                              editTooltip(
-                                message: 'Format the chord input',
-                                child: appEnumeratedButton('Format',
-                                    appKeyEnum: AppKeyEnum.editFormat,
-                                    fontSize: _defaultChordFontSize,
-                                    onPressed: false //  only offer to format if the entry is valid
-                                        ? () {
-                                            proTextEditingController!.text = song.toMarkup(asEntry: true);
-                                          }
-                                        : null),
-                              ),
-                            editTooltip(
-                              message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                              child: appEnumeratedButton('Undo',
-                                  appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
-                                undo();
-                              }),
-                            ),
-                            editTooltip(
-                              message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
-                              child: appEnumeratedButton(
-                                'Redo',
-                                appKeyEnum: AppKeyEnum.editRedo,
-                                fontSize: _defaultChordFontSize,
-                                onPressed: () {
-                                  redo();
-                                },
-                              ),
-                            ),
-                            editTooltip(
-                              message: (selectedEditPoint != null
-                                      ? 'Click outside the chords to cancel editing\n'
-                                      : '') +
-                                  (showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                              child: appEnumeratedButton('Hints',
-                                  appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize, onPressed: () {
-                                setState(() {
-                                  showHints = !showHints;
-                                });
-                              }),
-                            ),
-                            editTooltip(
-                              message: proMessage,
-                              child: appEnumeratedButton(
-                                isProEditInput ? 'Assisted Input' : 'Pro Input',
-                                appKeyEnum: AppKeyEnum.editRedo,
-                                fontSize: _defaultChordFontSize,
-                                onPressed: () {
-                                  setState(() {
-                                    isProEditInput = !isProEditInput;
-                                    appOptions.proEditInput = isProEditInput;
-                                  });
-                                },
-                              ),
-                            ),
-                          ], spacing: 50),
-                        ], alignment: WrapAlignment.spaceBetween),
-                        margin: const EdgeInsets.all(4),
-                      ),
-                      const Divider(
-                        thickness: 8,
-                        //color: ,  fixme: should be from css!!!
-                      ),
-                      if (!isProEditInput)
+                          // appButton(
+                          //   'Remove',
+                          //   onPressed: () {
+                          //     logger.log(_editLog, 'fixme: Remove song'); // fixme
+                          //   },
+                          // ),
+                          // appIconButton(
+                          //        icon: Icon(
+                          //          Icons.arrow_left,
+                          //          size: 48,
+                          //        ),
+                          //        label: const Text(
+                          //          '',
+                          //          style: _boldTextStyle,
+                          //        ),
+                          //        onPressed: () {
+                          //          _errorMessage('bob: fixme: arrow_left');
+                          //        },
+                          //      ),
+                          // appIconButton(
+                          //        icon: Icon(
+                          //          Icons.arrow_right,
+                          //          size: 48,
+                          //        ),
+                          //        label: Text(
+                          //          '',
+                          //          style: _buttonTextStyle,
+                          //        ),
+                          //        onPressed: () {
+                          //          _errorMessage('bob: fixme: arrow_right');
+                          //        },
+                          //      ),
+                        ]),
+                  ]),
+              Expanded(
+                child: SingleChildScrollView(
+                  key: const ValueKey('singleChildScrollView'),
+                  scrollDirection: Axis.vertical,
+                  child: SizedBox(
+                    child: Column(
+                      children: [
+                        appSpace(),
                         Container(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                            //  pre-configured table of edit widgets
-                            displayChordTable,
-                          ]),
-                          padding: const EdgeInsets.all(16.0),
-                          color: theme.backgroundColor,
-                        ),
-                      if (isProEditInput)
-                        appTextField(
-                            appKeyEnum: AppKeyEnum.editProChords,
-                            controller: proTextEditingController,
-                            minLines: 8,
-                            fontSize: _defaultChordFontSize,
-                            fontWeight: FontWeight.normal,
-                            border: InputBorder.none,
-                            onChanged: (value) {
-                              setState(() {}); //  fixme: too often?
-                            }),
-                      if (showHints)
-                        RichText(
-                          text: TextSpan(
-                            children: <InlineSpan>[
-                              TextSpan(
-                                text: '\n'
-                                    'Section types are followed by a colon (:).'
-                                    ' Sections can be entered abbreviated and in lower case.'
-                                    ' The available section buttons will enter the correct abbreviation.'
-                                    ' Section types can be followed with a digit to indicate a variation.\n',
-                                style: appTextStyle,
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            textDirection: TextDirection.ltr,
+                            children: <Widget>[
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: <Widget>[
+                                    Container(
+                                      padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                      child: Text(
+                                        'Title: ',
+                                        style: generateAppTextStyle(
+                                          fontSize: _defaultChordFontSize,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: appTextField(
+                                        appKeyEnum: AppKeyEnum.editTitle,
+                                        controller: titleTextEditingController,
+                                        hintText: 'Enter the song title.',
+                                        fontSize: _defaultChordFontSize,
+                                      ),
+                                    ),
+                                  ]),
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: <Widget>[
+                                    Container(
+                                      padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                      child: Text(
+                                        'Artist: ',
+                                        style: _titleTextStyle,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: appTextField(
+                                        appKeyEnum: AppKeyEnum.editArtist,
+                                        controller: artistTextEditingController,
+                                        hintText: 'Enter the song\'s artist.',
+                                        fontSize: _defaultChordFontSize,
+                                      ),
+                                    ),
+                                  ]),
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: <Widget>[
+                                    Container(
+                                      padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                      child: Text(
+                                        'Cover Artist:',
+                                        style: _textFieldStyle,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: appTextField(
+                                        appKeyEnum: AppKeyEnum.editCoverArtist,
+                                        controller: coverArtistTextEditingController,
+                                        hintText: 'Enter the song\'s cover artist.',
+                                        fontSize: _defaultChordFontSize,
+                                      ),
+                                    ),
+                                  ]),
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: <Widget>[
+                                    Container(
+                                      padding: const EdgeInsets.only(right: 24, bottom: 24.0),
+                                      child: Text(
+                                        'Copyright:',
+                                        style: _textFieldStyle,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: appTextField(
+                                        appKeyEnum: AppKeyEnum.editCopyright,
+                                        controller: copyrightTextEditingController,
+                                        hintText: 'Enter the song\'s copyright. Required.',
+                                        fontSize: _defaultChordFontSize,
+                                      ),
+                                    ),
+                                  ]),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: <Widget>[
+                                  Container(
+                                    padding: const EdgeInsets.only(bottom: 24.0),
+                                    child: Text(
+                                      "Key: ",
+                                      style: _labelTextStyle,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(bottom: 24.0),
+                                    child: DropdownButton<music_key.Key>(
+                                      key: appKey(AppKeyEnum.editEditKeyDropdown),
+                                      items: keySelectDropdownMenuItems,
+                                      onChanged: (_value) {
+                                        logger.log(_editLog, 'DropdownButton onChanged: $_value');
+                                      },
+                                      value: key,
+                                      style: generateAppTextStyle(
+                                        textBaseline: TextBaseline.ideographic,
+                                      ),
+                                      itemHeight: null,
+                                    ),
+                                  ),
+                                  SizedBox.shrink(
+                                    key: ValueKey('keyTally_' + key.toMarkup()), //  tally for testing only
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(bottom: 24.0),
+                                    child: Text(
+                                      "   BPM: ",
+                                      style: _labelTextStyle,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 3 * _defaultChordFontSize,
+                                    child: appTextField(
+                                      appKeyEnum: AppKeyEnum.editBPM,
+                                      controller: bpmTextEditingController,
+                                      hintText: 'Enter the song\'s beats per minute.',
+                                      fontSize: _defaultChordFontSize,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(bottom: 24.0),
+                                    child: Text(
+                                      "Time: ",
+                                      style: _labelTextStyle,
+                                    ),
+                                  ),
+                                  DropdownButton<TimeSignature>(
+                                    key: appKey(AppKeyEnum.editEditTimeSignatureDropdown),
+                                    items: _timeSignatureItems,
+                                    onChanged: (_value) {
+                                      if (_value != null && song.timeSignature != _value) {
+                                        song.timeSignature = _value;
+                                        if (!checkSongChangeStatus()) {
+                                          setState(() {}); //  display the return to original
+                                        }
+                                      }
+                                    },
+                                    value: song.timeSignature,
+                                    style: generateAppTextStyle(
+                                        textBaseline: TextBaseline.alphabetic,
+                                        fontSize: _defaultChordFontSize,
+                                        fontWeight: FontWeight.bold),
+                                    itemHeight: null,
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(left: 24, bottom: 24.0),
+                                    child: Text(
+                                      "User: ",
+                                      style: _labelTextStyle,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 300.0,
+                                    child: appTextField(
+                                      appKeyEnum: AppKeyEnum.editUserName,
+                                      controller: userTextEditingController,
+                                      hintText: 'Enter your user name.',
+                                      fontSize: _defaultChordFontSize,
+                                    ),
+                                  ),
+                                  appSpace(),
+                                  if (originalSong.user != userTextEditingController.text)
+                                    Text(
+                                      '(was ${originalSong.user})',
+                                      style: _labelTextStyle,
+                                    ),
+                                ],
                               ),
-                              TextSpan(
-                                text: '\n\n'
-                                        'The sections are: ' +
-                                    listSections(),
-                                style: appTextStyle,
+                              Container(
+                                child: appWrapFullWidth(<Widget>[
+                                  Text(
+                                    "Chords:",
+                                    style: _titleTextStyle,
+                                  ),
+                                  appWrap([
+                                    if (isProEditInput)
+                                      editTooltip(
+                                        message: 'Validate the chord input',
+                                        child: appEnumeratedButton('Validate',
+                                            appKeyEnum: AppKeyEnum.editValidateChords,
+                                            fontSize: _defaultChordFontSize, onPressed: () {
+                                          setState(() {
+                                            validateSongChords(select: true);
+                                          });
+                                        }),
+                                      ),
+                                    editTooltip(
+                                      message: (selectedEditPoint != null
+                                              ? 'Click outside the chords to cancel editing\n'
+                                              : '') +
+                                          (showHints
+                                              ? 'Click to hide the editing hints'
+                                              : 'Click for hints about editing.'),
+                                      child: appEnumeratedButton('Hints',
+                                          appKeyEnum: AppKeyEnum.editHints,
+                                          fontSize: _defaultChordFontSize, onPressed: () {
+                                        setState(() {
+                                          showHints = !showHints;
+                                        });
+                                      }),
+                                    ),
+                                    editTooltip(
+                                      message: proMessage,
+                                      child: appEnumeratedButton(
+                                        isProEditInput ? 'Assisted Input' : 'Pro Input',
+                                        appKeyEnum: AppKeyEnum.editRedo,
+                                        fontSize: _defaultChordFontSize,
+                                        onPressed: () {
+                                          setState(() {
+                                            isProEditInput = !isProEditInput;
+                                            appOptions.proEditInput = isProEditInput;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ], spacing: 50),
+                                ], alignment: WrapAlignment.spaceBetween),
+                                margin: const EdgeInsets.all(4),
                               ),
-                              TextSpan(
-                                text: '\n'
-                                    'Their abbreviations are: ',
-                                style: appTextStyle,
+                              const Divider(
+                                thickness: 8,
+                                //color: ,  fixme: should be from css!!!
                               ),
-                              TextSpan(
-                                text: listSectionAbbreviations(),
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: '.\n\n'
-                                    'Sections with the same content will automatically be placed in the same declaration.'
-                                    ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
-                                    ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
-                                    ' the capitalization for your input and place it on the line below the test entry box.'
-                                    ' What you see in the text below the entry box will be what will be entered into the edit.'
-                                    ' Note that often as you type, parts of a partial chord entry will be considered a comment,'
-                                    ' i.e. will be placed in parenthesis in the text below.'
-                                    ' When the chord entry is correct, the characters will be removed from the comment and will be'
-                                    ' returned to their correct position in the entry.'
-                                    '\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: '''A capital X is used to indicate no chord.\n\n''',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    //  todo: fix the font, ♭ is not represented properly
-                                    'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
-                                    ' be a B♭m7 or the chord B followed by a Bm7?'
-                                    ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
-                                    '',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'Limited set of case sensitive chord modifiers can be used: 7sus4,'
-                                    ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
-                                    ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
-                                    ' 6, dim7, º7, ◦, dim, aug5, aug7, aug, sus7, sus4,'
-                                    ' sus2, sus, m9, m11, m13, m6, Maj7, maj7, maj9, maj,'
-                                    ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
-                                    ' And of course the major chord is assumed if there is no modifier!'
-                                    ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
-                                    ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
-                                    ' The bass note is a single note, not a chord.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    'Periods (.) can be used to repeat chords on another beat within the same measure. For'
-                                    ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: '''Sample measures to use:
+                              if (!isProEditInput)
+                                Container(
+                                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                                    //  pre-configured table of edit widgets
+                                    displayChordTable,
+                                  ]),
+                                  padding: const EdgeInsets.all(16.0),
+                                  color: theme.backgroundColor,
+                                ),
+                              if (isProEditInput)
+                                appTextField(
+                                    appKeyEnum: AppKeyEnum.editProChords,
+                                    controller: proChordTextEditingController,
+                                    focusNode: proChordTextFieldFocusNode,
+                                    minLines: 8,
+                                    fontSize: _defaultChordFontSize,
+                                    fontWeight: FontWeight.normal,
+                                    border: InputBorder.none,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        validateSongChords();
+                                      });
+                                    }),
+                              if (showHints)
+                                RichText(
+                                  text: TextSpan(
+                                    children: <InlineSpan>[
+                                      TextSpan(
+                                        text: '\n'
+                                            'Section types are followed by a colon (:).'
+                                            ' Sections can be entered abbreviated and in lower case.'
+                                            ' The available section buttons will enter the correct abbreviation.'
+                                            ' Section types can be followed with a digit to indicate a variation.\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: '\n\n'
+                                                'The sections are: ' +
+                                            listSections(),
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: '\n'
+                                            'Their abbreviations are: ',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: listSectionAbbreviations(),
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: '.\n\n'
+                                            'Sections with the same content will automatically be placed in the same declaration.'
+                                            ' Row commas are not significant in the difference i.e. commas don\'t create a difference.'
+                                            ' Chords ultimately must be in upper case. If they are not on entry, the app will try to guess'
+                                            ' the capitalization for your input and place it on the line below the test entry box.'
+                                            ' What you see in the text below the entry box will be what will be entered into the edit.'
+                                            ' Note that often as you type, parts of a partial chord entry will be considered a comment,'
+                                            ' i.e. will be placed in parenthesis in the text below.'
+                                            ' When the chord entry is correct, the characters will be removed from the comment and will be'
+                                            ' returned to their correct position in the entry.'
+                                            '\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: '''A capital X is used to indicate no chord.\n\n''',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            //  todo: fix the font, ♭ is not represented properly
+                                            'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
+                                            ' be a B♭m7 or the chord B followed by a Bm7?'
+                                            ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
+                                            '',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: 'Limited set of case sensitive chord modifiers can be used: 7sus4,'
+                                            ' 7sus2, 7sus, 13, 11, mmaj7, m7b5, msus2,  msus4,'
+                                            ' add9, jazz7b9, 7#5, flat5, 7b5, 7#9, 7b9, 9, 69,'
+                                            ' 6, dim7, º7, ◦, dim, aug5, aug7, aug, sus7, sus4,'
+                                            ' sus2, sus, m9, m11, m13, m6, Maj7, maj7, maj9, maj,'
+                                            ' Δ, M9, M7, 2, 4, 5, m7, 7, m, M and more.'
+                                            ' And of course the major chord is assumed if there is no modifier!'
+                                            ' See the "Other chords" selection above or the "Show all chords" section of the Options tab.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
+                                            ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
+                                            ' The bass note is a single note, not a chord.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Periods (.) can be used to repeat chords on another beat within the same measure. For'
+                                            ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: '''Sample measures to use:
       A B C G
       A# C# Bb Db
       C7 D7 Dbm Dm Em Dm7 F#m7 A#maj7 Gsus9
       DC D#Bb G#m7Gm7 Am/G G..A\n\n''',
-                                style: appTextStyle,
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Commas (,) between measures can be used to indicate the end of a row of measures.'
+                                            ' The maximum number of measures allowed within a single row is 8.'
+                                            ' If there are no commas within a phrase of 8 or more measures, the phrase will'
+                                            ' automatically be split into rows of 4 measures.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: 'Minus signs (-) can be used to indicate a repeated measure.'
+                                            ' There must be a space before and after it.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Row repeats are indicated by a lower case x followed by a number 2 or more.'
+                                            ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
+                                            ' first measure of the first row and a closing square bracket (]) after the last'
+                                            ' measure before the x and the digits.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: 'Comments are not allowed in the chord section.'
+                                            ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: 'Since you can enter the return key to create a new row for your entry,'
+                                            ' you must us the exit to stop editing.  Clicking outside the entry'
+                                            ' box or typing escape will work as well.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'The red bar or measure highlight indicate where entry text will be entered.'
+                                            ' The radio buttons control the fine position of this indicator for inserting, replacing,'
+                                            ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
+                                            ' to delete it. Note that the delete key will always apply to text entry.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text: 'Double click a measure to select it for replacement or deletion.'
+                                            ' Note that if you double click the section type, the entire section will be'
+                                            ' available on the entry line for modification.'
+                                            ' If two sections have identical content, they will appear as multiple types for the'
+                                            ' single content. Define a different section content for one of the multiple sections'
+                                            ' and it will be separated from the others.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'In the lyrics section, anything else not recognized as a section identifier is'
+                                            ' considered lyrics to the end of the line.'
+                                            ' I suggest comments go into parenthesis.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'A trick: Select a section similar to a new section you are about to enter.'
+                                            ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
+                                            ' (I suggest the section buttons on the right).'
+                                            ' Paste the old text after the new section. Make edit adjustments in the entry text'
+                                            ' and press the keyboard enter button.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
+                                            ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
+                                        style: appTextStyle,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              Container(
+                                margin: const EdgeInsets.all(4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "Lyrics:",
+                                      style: _titleTextStyle,
+                                    ),
+                                    if (!isProEditInput)
+                                      Flexible(
+                                        flex: 1,
+                                        child: editTooltip(
+                                          message: 'Import lyrics from a text file',
+                                          child: appEnumeratedButton(
+                                            'Import',
+                                            appKeyEnum: AppKeyEnum.editImportLyrics,
+                                            fontSize: _defaultChordFontSize,
+                                            onPressed: () {
+                                              import();
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                              TextSpan(
-                                text:
-                                    'Commas (,) between measures can be used to indicate the end of a row of measures.'
-                                    ' The maximum number of measures allowed within a single row is 8.'
-                                    ' If there are no commas within a phrase of 8 or more measures, the phrase will'
-                                    ' automatically be split into rows of 4 measures.\n\n',
-                                style: appTextStyle,
+                              const Divider(
+                                thickness: 8,
                               ),
-                              TextSpan(
-                                text: 'Minus signs (-) can be used to indicate a repeated measure.'
-                                    ' There must be a space before and after it.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'Row repeats are indicated by a lower case x followed by a number 2 or more.'
-                                    ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
-                                    ' first measure of the first row and a closing square bracket (]) after the last'
-                                    ' measure before the x and the digits.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'Comments are not allowed in the chord section.'
-                                    ' Chord input not understood will be placed in parenthesis, eg. "(this is not a chord sequence)".\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'Since you can enter the return key to create a new row for your entry,'
-                                    ' you must us the exit to stop editing.  Clicking outside the entry'
-                                    ' box or typing escape will work as well.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'The red bar or measure highlight indicate where entry text will be entered.'
-                                    ' The radio buttons control the fine position of this indicator for inserting, replacing,'
-                                    ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
-                                    ' to delete it. Note that the delete key will always apply to text entry.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'Double click a measure to select it for replacement or deletion.'
-                                    ' Note that if you double click the section type, the entire section will be'
-                                    ' available on the entry line for modification.'
-                                    ' If two sections have identical content, they will appear as multiple types for the'
-                                    ' single content. Define a different section content for one of the multiple sections'
-                                    ' and it will be separated from the others.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'In the lyrics section, anything else not recognized as a section identifier is'
-                                    ' considered lyrics to the end of the line.'
-                                    ' I suggest comments go into parenthesis.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text: 'A trick: Select a section similar to a new section you are about to enter.'
-                                    ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
-                                    ' (I suggest the section buttons on the right).'
-                                    ' Paste the old text after the new section. Make edit adjustments in the entry text'
-                                    ' and press the keyboard enter button.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
-                                    ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
-                                style: appTextStyle,
-                              ),
-                              TextSpan(
-                                text:
-                                    'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
-                                style: appTextStyle,
-                              ),
+                              if (!isProEditInput)
+                                Container(
+                                  child: lyricsEntryWidget(),
+                                  padding: const EdgeInsets.all(16.0),
+                                  color: theme.backgroundColor,
+                                ),
+                              if (isProEditInput)
+                                appTextField(
+                                    appKeyEnum: AppKeyEnum.editProLyrics,
+                                    controller: proLyricsTextEditingController,
+                                    focusNode: proLyricsTextFieldFocusNode,
+                                    minLines: 8,
+                                    fontSize: _defaultChordFontSize,
+                                    fontWeight: FontWeight.normal,
+                                    border: InputBorder.none,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        validateSongLyrics();
+                                      });
+                                    }),
                             ],
                           ),
                         ),
-                      Container(
-                        margin: const EdgeInsets.all(4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              "Lyrics:",
-                              style: _titleTextStyle,
-                            ),
-                            if (!isProEditInput)
-                              Flexible(
-                                flex: 1,
-                                child: editTooltip(
-                                  message: 'Import lyrics from a text file',
-                                  child: appEnumeratedButton(
-                                    'Import',
-                                    appKeyEnum: AppKeyEnum.editImportLyrics,
-                                    fontSize: _defaultChordFontSize,
-                                    onPressed: () {
-                                      import();
-                                    },
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const Divider(
-                        thickness: 8,
-                      ),
-                      if (!isProEditInput)
-                        Container(
-                          child: lyricsEntryWidget(),
-                          padding: const EdgeInsets.all(16.0),
-                          color: theme.backgroundColor,
-                        ),
-                      if (isProEditInput)
-                        appTextField(
-                            appKeyEnum: AppKeyEnum.editProLyrics,
-                            controller: TextEditingController(text: song.rawLyrics),
-                            minLines: 8,
-                            fontSize: _defaultChordFontSize,
-                            fontWeight: FontWeight.normal,
-                            border: InputBorder.none,
-                            onChanged: (value) {
-                              logger.i('raw lyric entry: "$value"');
-                            }),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           onTap: () {
             performMeasureEntryCancel();
@@ -1096,6 +1095,58 @@ class _Edit extends State<Edit> {
             )
           : NullWidget(), //  hide and disable the choice
     );
+  }
+
+  bool validateSongChords({select = false}) {
+    if (isProEditInput) {
+      var markedString =
+          SongBase.validateChords(SongBase.entryToUppercase(proChordTextEditingController.text), song.getBeatsPerBar());
+
+      if (markedString != null) {
+        var error = markedString.remainingStringLimited(markedString.getNextWhiteSpaceIndex() - markedString.getMark());
+        app.errorMessage('Chord entry invalid: "$error"');
+        if (select) {
+          proChordTextEditingController.selection =
+              TextSelection(baseOffset: markedString.getMark(), extentOffset: markedString.getNextWhiteSpaceIndex());
+          proChordTextFieldFocusNode.requestFocus();
+          logger.i('pro error set: ('
+              '${proChordTextEditingController.selection.baseOffset}'
+              ',${proChordTextEditingController.selection.extentOffset})');
+        }
+        isValidSong = false;
+        return false;
+      }
+
+      //  things look good, so format the song
+      if (select) {
+        var update = SongBase.entryToUppercase(proChordTextEditingController.text);
+        if (proChordTextEditingController.text != update) {
+          proChordTextEditingController.text = SongBase.entryToUppercase(proChordTextEditingController.text);
+          song.setChords(update);
+          logger.i('validateSongChords update: "$update"');
+          undoStackPushIfDifferent();
+        }
+      }
+      checkSong(); //  find something to complain about
+      if (isValidSong) {
+        app.clearMessage(); //  fixme: always correct?
+      }
+
+      return true;
+    }
+    return false;
+  }
+
+  bool validateSongLyrics() {
+    if (isProEditInput) {
+      var lyricParseException = song.validateLyrics(proLyricsTextEditingController.text);
+      if (lyricParseException != null) {
+        app.errorMessage(
+            '${lyricParseException.message} at "${lyricParseException.markedString.remainingStringLimited(15)}"');
+        return false;
+      }
+    }
+    return true;
   }
 
   void addChordRowNullChildrenUpTo(int columns) {
@@ -3554,7 +3605,10 @@ class _Edit extends State<Edit> {
   final TextEditingController copyrightTextEditingController = TextEditingController();
   final TextEditingController bpmTextEditingController = TextEditingController();
   final TextEditingController userTextEditingController = TextEditingController();
-  TextEditingController? proTextEditingController;
+  TextEditingController proChordTextEditingController = TextEditingController();
+  FocusNode proChordTextFieldFocusNode = FocusNode();
+  TextEditingController proLyricsTextEditingController = TextEditingController();
+  FocusNode proLyricsTextFieldFocusNode = FocusNode();
 
   final TextEditingController editTextController = TextEditingController();
   FocusNode? editTextFieldFocusNode;

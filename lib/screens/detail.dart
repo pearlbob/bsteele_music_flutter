@@ -145,7 +145,7 @@ class _State extends State<Detail> {
                   setState(() {
                     sheetDisplayEnables[display.index] = value;
                     storeSheetDisplayEnables();
-                    logger.i('$name: ${sheetDisplayEnables[display.index]}');
+                    logger.i('detail: $name: ${sheetDisplayEnables[display.index]}');
                   });
                 }
               },

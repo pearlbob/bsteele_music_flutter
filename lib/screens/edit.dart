@@ -223,7 +223,7 @@ class _Edit extends State<Edit> {
     }
   }
 
-  void loadSong(Song songToLoad) {
+  void loadSong(final Song songToLoad) {
     logger.log(_editLyricEntry, 'loadSong: ${songToLoad.toMarkup()}');
     selectedEditPoint = null;
     measureEntryIsClear = true;
@@ -231,21 +231,20 @@ class _Edit extends State<Edit> {
     measureEntryValid = false;
     measureEntryNodes = null;
 
-    song = songToLoad;
+    song = songToLoad.copySong();
 
+    proChordTextEditingController.text = songToLoad.toMarkup(asEntry: true);
+    proLyricsTextEditingController.text = songToLoad.rawLyrics;
     titleTextEditingController.text = song.title;
     artistTextEditingController.text = song.artist;
     coverArtistTextEditingController.text = song.coverArtist;
     copyrightTextEditingController.text = song.copyright;
     userTextEditingController.text = appOptions.user;
     bpmTextEditingController.text = song.beatsPerMinute.toString();
-    proChordTextEditingController.text = song.toMarkup(asEntry: true);
-    proLyricsTextEditingController.text = song.rawLyrics;
 
     lyricsEntries.removeListener(lyricsEntriesListener);
     lyricsEntries = lyricsEntriesFromSong(song);
 
-    checkSong();
     checkSongChangeStatus();
   }
 
@@ -399,7 +398,7 @@ class _Edit extends State<Edit> {
         ', lyrics: ${lyricsEntries.hasChangedLines()}'
         ', ${chordSong.toMarkup()}');
 
-    displayChordTable = chordsEntryWidget();
+    displayChordTable = isProEditInput ? Table() : chordsEntryWidget();
 
     List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
     {
@@ -446,6 +445,7 @@ class _Edit extends State<Edit> {
           // fixme: put GestureDetector only on chord table
           child: Column(
             children: [
+              appSpace(space: 5),
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -565,7 +565,6 @@ class _Edit extends State<Edit> {
                   child: SizedBox(
                     child: Column(
                       children: [
-                        appSpace(),
                         Container(
                           padding: const EdgeInsets.all(12),
                           child: Column(
@@ -1060,7 +1059,7 @@ class _Edit extends State<Edit> {
                                     border: InputBorder.none,
                                     onChanged: (value) {
                                       setState(() {
-                                        validateSongLyrics();
+                                        checkSong();
                                       });
                                     }),
                             ],
@@ -1112,7 +1111,6 @@ class _Edit extends State<Edit> {
               '${proChordTextEditingController.selection.baseOffset}'
               ',${proChordTextEditingController.selection.extentOffset})');
         }
-        isValidSong = false;
         return false;
       }
 
@@ -1122,10 +1120,8 @@ class _Edit extends State<Edit> {
         undoStackPushIfDifferent();
         proChordTextEditingController.text = song.toMarkup(asEntry: true);
       }
-
-      return true;
     }
-    return false;
+    return true;
   }
 
   bool validateSongLyrics() {
@@ -3474,9 +3470,14 @@ class _Edit extends State<Edit> {
 
   void checkSong() {
     try {
-      song.checkSong();
+      // load pro input before checking song
       isValidSong = validateSongChords() && validateSongLyrics();
       if (isValidSong) {
+        if (isProEditInput) {
+          song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
+          song.rawLyrics = proLyricsTextEditingController.text;
+        }
+        song.checkSong();
         app.clearMessage();
       }
     } catch (e) {

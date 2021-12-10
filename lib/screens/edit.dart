@@ -60,7 +60,7 @@ List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 final ChordSectionLocation defaultLocation = // last resort, better than null
     ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
-const bool _editDebug = kDebugMode && true;
+const bool _editDebug = kDebugMode && false;
 const bool _editDebugVerbose = kDebugMode && false;
 
 const Level _editLog = Level.debug;
@@ -188,19 +188,18 @@ class _Edit extends State<Edit> {
       // user  will often be different  _checkSongStatus();
     });
     proChordTextEditingController.addListener(() {
-      logger.i('proChordTextEditingController listener:');
+      logger.v('proChordTextEditingController listener:');
       checkSongChangeStatus();
     });
-    proLyricsTextEditingController.addListener(()
-    {
+    proLyricsTextEditingController.addListener(() {
       //  enter lyrics if the selected line has changed
       int line = proLyricsTextEditingController.selection.baseOffset < 0
           ? -1
           : RegExp('\n')
-          .allMatches(proLyricsTextEditingController.text
-          .substring(0, proLyricsTextEditingController.selection.baseOffset))
-          .length;
-      logger.i('proLyricsTextEditingController listener: '
+              .allMatches(
+                  proLyricsTextEditingController.text.substring(0, proLyricsTextEditingController.selection.baseOffset))
+              .length;
+      logger.v('proLyricsTextEditingController listener: '
           '${RegExp('\n').allMatches(proLyricsTextEditingController.text).length}'
           ', selection: (${proLyricsTextEditingController.selection.baseOffset}'
           ',${proLyricsTextEditingController.selection.extentOffset})'
@@ -819,6 +818,16 @@ class _Edit extends State<Edit> {
                                         fontSize: _defaultChordFontSize,
                                         onPressed: () {
                                           setState(() {
+                                            if (isProEditInput) {
+                                              if (!checkSong()) {
+                                                return; //  don't change on invalid input
+                                              }
+                                            } else {
+                                              //  is currently assisted entry
+                                              proChordTextEditingController.text = song.toMarkup(asEntry: true);
+                                              proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
+                                              selectedEditPoint = null; //  for reentry to assisted
+                                            }
                                             isProEditInput = !isProEditInput;
                                             appOptions.proEditInput = isProEditInput;
                                           });
@@ -1079,15 +1088,15 @@ class _Edit extends State<Edit> {
                                 ),
                               if (isProEditInput)
                                 appTextField(
-                                    appKeyEnum: AppKeyEnum.editProLyrics,
-                                    controller: proLyricsTextEditingController,
-                                    focusNode: proLyricsTextFieldFocusNode,
-                                    minLines: 8,
-                                    fontSize: _defaultChordFontSize,
-                                    fontWeight: FontWeight.normal,
-                                    border: InputBorder.none,
-                                    // onChanged: (value) {}, //  see the listener
-                                    ),
+                                  appKeyEnum: AppKeyEnum.editProLyrics,
+                                  controller: proLyricsTextEditingController,
+                                  focusNode: proLyricsTextFieldFocusNode,
+                                  minLines: 8,
+                                  fontSize: _defaultChordFontSize,
+                                  fontWeight: FontWeight.normal,
+                                  border: InputBorder.none,
+                                  // onChanged: (value) {}, //  see the listener
+                                ),
                             ],
                           ),
                         ),
@@ -1248,9 +1257,9 @@ class _Edit extends State<Edit> {
 
       chordRowChildren = [];
       for (var c = 0; c < row.length; c++) {
-        var data = row[c];
+        var gridData = row[c];
 
-        if (data == null) {
+        if (gridData == null) {
           if (c == 0) {
             //  entry column
             addChordRowNullWidget();
@@ -1267,15 +1276,18 @@ class _Edit extends State<Edit> {
                     tooltip: 'insert measure at the start of the row'
                         '${kDebugMode ? ' $editPoint' : ''}'),
                 editPoint));
-          } else {
-            //  null subsequent columns
-            break;
+          } else if (chordRowChildren.length < maxEntryColumns - 2) {
+            //  fill in a blank grid row if required
+            //  entry column
+            addChordRowNullWidget();
+            //  plus column
+            addChordRowNullWidget();
           }
           lastMeasureLocation = null;
           continue;
         }
 
-        var location = data.chordSectionLocation;
+        var location = gridData.chordSectionLocation;
         // var sectionVersion = location.sectionVersion;
         var measureNode = chordSong.findMeasureNodeByLocation(location);
         if (measureNode == null) {
@@ -1283,7 +1295,7 @@ class _Edit extends State<Edit> {
           continue;
         }
 
-        ChordSection chordSection = data.chordSection;
+        ChordSection chordSection = gridData.chordSection;
 
         //  clean up on a section change
         if (lastChordSectionLocation != null &&
@@ -1297,7 +1309,7 @@ class _Edit extends State<Edit> {
         lastChordSectionLocation = location;
 
         Phrase? phrase = chordSection.findPhrase(measureNode);
-        bool isLastOfPhrase = (((phrase?.length ?? -1) - 1) == data.chordSectionLocation.measureIndex);
+        bool isLastOfPhrase = (((phrase?.length ?? -1) - 1) == gridData.chordSectionLocation.measureIndex);
         lastMeasureLocation = location.isMeasure ? location : lastMeasureLocation;
         Measure? measure = measureNode is Measure ? measureNode : null;
         bool endOfRow = (measure?.endOfRow ?? false) || isLastOfPhrase;
@@ -1615,7 +1627,7 @@ class _Edit extends State<Edit> {
       //  chord section headers
       var chordSection = song.getChordSection(entry.lyricSection.sectionVersion);
       var sectionBackgroundColor = getBackgroundColorForSection(chordSection?.sectionVersion.section);
-      sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
+      var sectionLyricsBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
         children.add(Container(
@@ -1624,7 +1636,7 @@ class _Edit extends State<Edit> {
           color: sectionBackgroundColor,
           child: Text(
             entry.lyricSection.sectionVersion.toString(),
-            style: sectionChordBoldTextStyle,
+            style: sectionLyricsBoldTextStyle,
           ),
         ));
 
@@ -1677,7 +1689,7 @@ class _Edit extends State<Edit> {
                 color: sectionBackgroundColor,
                 child: Text(
                   measure.transpose(key, 0),
-                  style: sectionChordBoldTextStyle,
+                  style: sectionLyricsBoldTextStyle,
                   maxLines: 1,
                 ),
               ));
@@ -2181,8 +2193,8 @@ class _Edit extends State<Edit> {
                       Text(
                         measureEntryCorrection ?? '',
                         style: measureEntryValid
-                            ? sectionChordBoldTextStyle
-                            : sectionChordBoldTextStyle.copyWith(color: Colors.red),
+                            ? sectionChordTextStyle
+                            : sectionChordTextStyle.copyWith(color: Colors.red),
                       ),
                     ],
                   ),
@@ -2951,13 +2963,14 @@ class _Edit extends State<Edit> {
       return NullWidget();
     }
 
-    Color color = getBackgroundColorForSection(editPoint.location.sectionVersion?.section);
+    var sectionColor = getBackgroundColorForSection(editPoint.location.sectionVersion?.section);
+    var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
 
     //  not editing this measureNode
     return Container(
       margin: marginInsets,
       padding: textPadding,
-      color: color,
+      color: sectionColor,
       child: Text(
         measureNode.toString(),
         style: sectionChordBoldTextStyle,
@@ -3504,7 +3517,14 @@ class _Edit extends State<Edit> {
   bool checkSong() {
     try {
       // load pro input before checking song
-      isValidSong = validateSongChords() && validateSongLyrics();
+      {
+        //  perform both
+        var chords = validateSongChords();
+        var lyrics = validateSongLyrics();
+        //  valid only if both are valid
+        isValidSong = chords && lyrics;
+      }
+
       if (isValidSong) {
         if (isProEditInput) {
           song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
@@ -3615,7 +3635,7 @@ class _Edit extends State<Edit> {
   MeasureNode? displayMeasureEntryNode;
 
   TextStyle chordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
-  TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
+ // TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
   TextStyle chordTextStyle = generateAppTextStyle();
   TextStyle lyricsTextStyle = generateAppTextStyle();
   TextStyle addRowRepeatTextStyle = generateAppTextStyle();

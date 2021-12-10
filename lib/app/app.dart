@@ -280,7 +280,7 @@ typedef CanPopQualifier = bool Function();
 class AppWidgetHelper {
   AppWidgetHelper(this.context);
 
-  Widget back({CanPopQualifier? canPop}) {
+  Widget back({CanPopQualifier? canPop, VoidCallback? onPressed}) {
     return appTooltip(
       message: 'Back',
       child: appIconButton(
@@ -288,6 +288,7 @@ class AppWidgetHelper {
         onPressed: () {
           if (canPop != null ? canPop() : true) {
             appLogKeyCallback(appKey(AppKeyEnum.appBack));
+            onPressed?.call();
             Navigator.pop(context);
           }
         },

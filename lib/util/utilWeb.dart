@@ -19,15 +19,15 @@ import '../app/app.dart';
 class UtilWeb implements UtilWorkaround {
   @override
   Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
-    //   web stuff
+    //   web stuff write
     Blob blob = Blob([contents], 'text/plain', 'native');
-
-    var anchorElement = AnchorElement(
+    AnchorElement(
       href: Url.createObjectUrlFromBlob(blob).toString(),
     )
       ..setAttribute("download", fileName)
       ..click();
-    return 'The file was written into your browser\'s download folder named: \'${anchorElement.target}/$fileName\'';
+
+    return 'The file was written into your browser\'s download folder named: \'$fileName\'';
   }
 
   @override

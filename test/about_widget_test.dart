@@ -58,8 +58,8 @@ void main() async {
       var finder = _RegexpTextFinder(r'screen: \(');
       expect(finder, findsOneWidget);
       if (kDebugMode) {
-        print('fixme: why is this not correct?');  //  fixme
-        print(finder.first.evaluate());
+        logger.i('fixme: why is this not correct?');  //  fixme
+        logger.i(finder.first.evaluate());
       }
     });
   });

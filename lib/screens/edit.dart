@@ -187,6 +187,31 @@ class _Edit extends State<Edit> {
       checkSongChangeStatus();
       // user  will often be different  _checkSongStatus();
     });
+    proChordTextEditingController.addListener(() {
+      logger.i('proChordTextEditingController listener:');
+      checkSongChangeStatus();
+    });
+    proLyricsTextEditingController.addListener(()
+    {
+      //  enter lyrics if the selected line has changed
+      int line = proLyricsTextEditingController.selection.baseOffset < 0
+          ? -1
+          : RegExp('\n')
+          .allMatches(proLyricsTextEditingController.text
+          .substring(0, proLyricsTextEditingController.selection.baseOffset))
+          .length;
+      logger.i('proLyricsTextEditingController listener: '
+          '${RegExp('\n').allMatches(proLyricsTextEditingController.text).length}'
+          ', selection: (${proLyricsTextEditingController.selection.baseOffset}'
+          ',${proLyricsTextEditingController.selection.extentOffset})'
+          ', line: $line vs $proLyricsLastLineSelected');
+      if (line != proLyricsLastLineSelected) {
+        proLyricsLastLineSelected = line;
+        setState(() {
+          checkSong();
+        });
+      }
+    });
 
     bpmTextEditingController.addListener(() {
       try {
@@ -433,7 +458,11 @@ class _Edit extends State<Edit> {
       appBar: appWidgetHelper.appBar(
         appKeyEnum: AppKeyEnum.appBarBack,
         title: 'Edit',
-        leading: appWidgetHelper.back(canPop: canPop),
+        leading: appWidgetHelper.back(
+            canPop: canPop,
+            onPressed: () {
+              app.clearMessage();
+            }),
       ),
       body:
           //  deal with keyboard strokes flutter is not usually handling
@@ -1057,11 +1086,8 @@ class _Edit extends State<Edit> {
                                     fontSize: _defaultChordFontSize,
                                     fontWeight: FontWeight.normal,
                                     border: InputBorder.none,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        checkSong();
-                                      });
-                                    }),
+                                    // onChanged: (value) {}, //  see the listener
+                                    ),
                             ],
                           ),
                         ),
@@ -1073,6 +1099,7 @@ class _Edit extends State<Edit> {
             ],
           ),
           onTap: () {
+            logger.i('GestureDetector.onTap():');
             performMeasureEntryCancel();
           },
         ),
@@ -1921,6 +1948,7 @@ class _Edit extends State<Edit> {
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void editOnKey(RawKeyEvent value) {
+    logger.v('editOnKey($value)');
     //  fixme: edit screen does not respond to escape after the detail screen
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
@@ -1976,7 +2004,11 @@ class _Edit extends State<Edit> {
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         logger.i('e.isKeyPressed(enter)');
-        if (selectedEditPoint != null) //  fixme: this is a poor workaround
+        if (isProEditInput) {
+          setState(() {
+            checkSong();
+          });
+        } else if (selectedEditPoint != null) //  fixme: this is a poor workaround
         {
           performEdit(done: false, endOfRow: true);
         }
@@ -3278,9 +3310,10 @@ class _Edit extends State<Edit> {
     });
   }
 
-  ///  don't push an identical copy
+  ///  don't push an identical copy 1234
   void undoStackPushIfDifferent() {
     if (!(song.songBaseSameContent(undoStack.top))) {
+      song.lastModifiedTime = originalSong.lastModifiedTime;
       undoStackPush();
       logger.d('undo ${undoStackAllToString()}');
     }
@@ -3468,7 +3501,7 @@ class _Edit extends State<Edit> {
     return false;
   }
 
-  void checkSong() {
+  bool checkSong() {
     try {
       // load pro input before checking song
       isValidSong = validateSongChords() && validateSongLyrics();
@@ -3478,12 +3511,14 @@ class _Edit extends State<Edit> {
           song.rawLyrics = proLyricsTextEditingController.text;
         }
         song.checkSong();
+        undoStackPushIfDifferent(); // fixme: too often?
         app.clearMessage();
       }
     } catch (e) {
       isValidSong = false;
       app.errorMessage(e.toString());
     }
+    return isValidSong;
   }
 
   String listSections() {
@@ -3602,6 +3637,7 @@ class _Edit extends State<Edit> {
   TextEditingController proChordTextEditingController = TextEditingController();
   FocusNode proChordTextFieldFocusNode = FocusNode();
   TextEditingController proLyricsTextEditingController = TextEditingController();
+  int proLyricsLastLineSelected = 0;
   FocusNode proLyricsTextFieldFocusNode = FocusNode();
 
   final TextEditingController editTextController = TextEditingController();

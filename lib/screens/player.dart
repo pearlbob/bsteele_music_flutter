@@ -1493,6 +1493,7 @@ With escape, the app goes back to the play list.''',
     );
     _playerIsOnTop = true;
     widget._song = app.selectedSong;
+    _song = widget._song;
     forceTableRedisplay();
   }
 

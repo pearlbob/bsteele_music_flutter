@@ -1171,6 +1171,9 @@ TextField appTextField({
     onChanged: onChanged,
     decoration: InputDecoration(
       border: border,
+      floatingLabelAlignment: FloatingLabelAlignment.start,
+      isDense: true,
+      contentPadding: const EdgeInsets.all(2.0),
       hintText: hintText,
     ),
     style: generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),

@@ -127,6 +127,6 @@ class _Songs extends State<Songs> {
 
   late AppWidgetHelper appWidgetHelper;
 
-  String fileLocation = kIsWeb ? 'download area' : 'Documents';
+  String fileLocation = kIsWeb ? 'download folder in local drive' : 'Documents';
   final App app = App();
 }

@@ -209,6 +209,9 @@ class _Edit extends State<Edit> {
         setState(() {
           checkSong();
         });
+      } else if (songHasChanged) {
+        //  setup the song write button
+        setState(() {});
       }
     });
 
@@ -273,7 +276,9 @@ class _Edit extends State<Edit> {
   }
 
   void saveSong() async {
+    checkSong(); //  collect tiny pro input lyric changes
     app.addSong(song);
+    app.selectedSong = song;
 
     String fileName = song.title + '.songlyrics'; //  fixme: cover artist?
     String contents = song.toJsonAsFile();
@@ -291,6 +296,7 @@ class _Edit extends State<Edit> {
 
   /// return true if the song is original or the user has acknowledged that their edits will be lost.
   bool canPop() {
+    checkSong();
     if (!songHasChanged) {
       return true;
     }
@@ -304,6 +310,7 @@ class _Edit extends State<Edit> {
               ),
               actions: [
                 appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+                  app.clearMessage();
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
@@ -311,6 +318,7 @@ class _Edit extends State<Edit> {
                 appButton('Cancel the return... I need to work some more on this.',
                     appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
                   Navigator.of(context).pop();
+                  checkSong();
                 }),
               ],
               elevation: 24.0,
@@ -318,7 +326,9 @@ class _Edit extends State<Edit> {
     return false;
   }
 
-  bool get songHasChanged => hasChangedFromOriginal || lyricsEntries.hasChangedLines();
+  bool get songHasChanged =>
+      hasChangedFromOriginal ||
+      (isProEditInput ? song.rawLyrics != proLyricsTextEditingController.text : lyricsEntries.hasChangedLines());
 
   @override
   void dispose() {
@@ -474,118 +484,100 @@ class _Edit extends State<Edit> {
           child: Column(
             children: [
               appSpace(space: 5),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    appEnumeratedButton(
-                      songHasChanged
-                          ? (isValidSong ? 'Save song on local drive' : 'Fix the song')
-                          : 'Nothing has changed',
-                      appKeyEnum: AppKeyEnum.editEnterSong,
+              appWrapFullWidth(<Widget>[
+                appEnumeratedButton(
+                  songHasChanged ? (isValidSong ? 'Save song on local drive' : 'Fix the song') : 'Nothing has changed',
+                  appKeyEnum: AppKeyEnum.editEnterSong,
+                  fontSize: _defaultChordFontSize,
+                  onPressed: () {
+                    saveSong();
+                    if (songHasChanged && isValidSong) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
+                ),
+                app.messageTextWidget(),
+                appWrap(<Widget>[
+                  editTooltip(
+                    message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
+                    child: appEnumeratedButton('Undo', appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize,
+                        onPressed: () {
+                      undo();
+                    }),
+                  ),
+                  editTooltip(
+                    message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
+                    child: appEnumeratedButton(
+                      'Redo',
+                      appKeyEnum: AppKeyEnum.editRedo,
                       fontSize: _defaultChordFontSize,
                       onPressed: () {
-                        if (songHasChanged && isValidSong) {
-                          saveSong();
-                          Navigator.pop(context);
-                        }
+                        redo();
                       },
-                      backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
                     ),
-                    app.messageTextWidget(),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          editTooltip(
-                            message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                            child: appEnumeratedButton('Undo',
-                                appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
-                              undo();
-                            }),
-                          ),
-                          appSpace(
-                            space: 50,
-                          ),
-                          editTooltip(
-                            message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
-                            child: appEnumeratedButton(
-                              'Redo',
-                              appKeyEnum: AppKeyEnum.editRedo,
-                              fontSize: _defaultChordFontSize,
-                              onPressed: () {
-                                redo();
-                              },
-                            ),
-                          ),
-                          appSpace(
-                            space: 50,
-                          ),
-                          appButton(
-                            'Sheet music',
-                            appKeyEnum: AppKeyEnum.editScreenDetail,
-                            fontSize: _defaultChordFontSize,
-                            onPressed: () {
-                              setState(() {
-                                navigateToDetail(context);
-                              });
-                            },
-                          ),
-                          appSpace(
-                            space: 50,
-                          ),
-                          editTooltip(
-                            message: 'Clear all song values to\n'
-                                'start entering a new song.',
-                            child: appEnumeratedButton(
-                              'Clear',
-                              appKeyEnum: AppKeyEnum.editClearSong,
-                              fontSize: _defaultChordFontSize,
-                              onPressed: () {
-                                setState(() {
-                                  song = Song.createSong(
-                                      '', '', '', music_key.Key.getDefault(), 106, 4, 4, userName, 'V: ', 'V: ');
-                                  loadSong(song);
-                                  undoStackPushIfDifferent();
-                                });
-                              },
-                            ),
-                          ),
-                          appSpace(),
-                          // appButton(
-                          //   'Remove',
-                          //   onPressed: () {
-                          //     logger.log(_editLog, 'fixme: Remove song'); // fixme
-                          //   },
-                          // ),
-                          // appIconButton(
-                          //        icon: Icon(
-                          //          Icons.arrow_left,
-                          //          size: 48,
-                          //        ),
-                          //        label: const Text(
-                          //          '',
-                          //          style: _boldTextStyle,
-                          //        ),
-                          //        onPressed: () {
-                          //          _errorMessage('bob: fixme: arrow_left');
-                          //        },
-                          //      ),
-                          // appIconButton(
-                          //        icon: Icon(
-                          //          Icons.arrow_right,
-                          //          size: 48,
-                          //        ),
-                          //        label: Text(
-                          //          '',
-                          //          style: _buttonTextStyle,
-                          //        ),
-                          //        onPressed: () {
-                          //          _errorMessage('bob: fixme: arrow_right');
-                          //        },
-                          //      ),
-                        ]),
-                  ]),
+                  ),
+                  appButton(
+                    'Sheet music',
+                    appKeyEnum: AppKeyEnum.editScreenDetail,
+                    fontSize: _defaultChordFontSize,
+                    onPressed: () {
+                      setState(() {
+                        navigateToDetail(context);
+                      });
+                    },
+                  ),
+                  editTooltip(
+                    message: 'Clear all song values to\n'
+                        'start entering a new song.',
+                    child: appEnumeratedButton(
+                      'Clear',
+                      appKeyEnum: AppKeyEnum.editClearSong,
+                      fontSize: _defaultChordFontSize,
+                      onPressed: () {
+                        setState(() {
+                          song = Song.createSong(
+                              '', '', '', music_key.Key.getDefault(), 106, 4, 4, userName, 'V: ', 'V: ');
+                          loadSong(song);
+                          undoStackPushIfDifferent();
+                        });
+                      },
+                    ),
+                  ),
+                  // appButton(
+                  //   'Remove',
+                  //   onPressed: () {
+                  //     logger.log(_editLog, 'fixme: Remove song'); // fixme
+                  //   },
+                  // ),
+                  // appIconButton(
+                  //        icon: Icon(
+                  //          Icons.arrow_left,
+                  //          size: 48,
+                  //        ),
+                  //        label: const Text(
+                  //          '',
+                  //          style: _boldTextStyle,
+                  //        ),
+                  //        onPressed: () {
+                  //          _errorMessage('bob: fixme: arrow_left');
+                  //        },
+                  //      ),
+                  // appIconButton(
+                  //        icon: Icon(
+                  //          Icons.arrow_right,
+                  //          size: 48,
+                  //        ),
+                  //        label: Text(
+                  //          '',
+                  //          style: _buttonTextStyle,
+                  //        ),
+                  //        onPressed: () {
+                  //          _errorMessage('bob: fixme: arrow_right');
+                  //        },
+                  //      ),
+                ], spacing: 40),
+              ], alignment: WrapAlignment.spaceBetween),
               Expanded(
                 child: SingleChildScrollView(
                   key: const ValueKey('singleChildScrollView'),
@@ -683,161 +675,155 @@ class _Edit extends State<Edit> {
                                       ),
                                     ),
                                   ]),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: <Widget>[
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 24.0),
-                                    child: Text(
+                              appSpace(),
+                              appWrapFullWidth(
+                                <Widget>[
+                                  appWrap([
+                                    Text(
                                       "Key: ",
                                       style: _labelTextStyle,
                                     ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 24.0),
-                                    child: DropdownButton<music_key.Key>(
+                                    DropdownButton<music_key.Key>(
                                       key: appKey(AppKeyEnum.editEditKeyDropdown),
                                       items: keySelectDropdownMenuItems,
+                                      isDense: true,
                                       onChanged: (_value) {
                                         logger.log(_editLog, 'DropdownButton onChanged: $_value');
                                       },
                                       value: key,
                                       style: generateAppTextStyle(
-                                        textBaseline: TextBaseline.ideographic,
-                                      ),
+                                          fontSize: _defaultChordFontSize,
+                                          fontWeight: FontWeight.bold),
                                       itemHeight: null,
                                     ),
-                                  ),
-                                  SizedBox.shrink(
-                                    key: ValueKey('keyTally_' + key.toMarkup()), //  tally for testing only
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 24.0),
-                                    child: Text(
+                                    SizedBox.shrink(
+                                      key: ValueKey('keyTally_' + key.toMarkup()), //  tally for testing only
+                                    ),
+                                  ]),
+                                  appWrap([
+                                    Text(
                                       "   BPM: ",
                                       style: _labelTextStyle,
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 3 * _defaultChordFontSize,
-                                    child: appTextField(
-                                      appKeyEnum: AppKeyEnum.editBPM,
-                                      controller: bpmTextEditingController,
-                                      hintText: 'Enter the song\'s beats per minute.',
-                                      fontSize: _defaultChordFontSize,
+                                    SizedBox(
+                                      width: 3 * _defaultChordFontSize,
+                                      child: appTextField(
+                                        appKeyEnum: AppKeyEnum.editBPM,
+                                        controller: bpmTextEditingController,
+                                        hintText: 'Enter the song\'s beats per minute.',
+                                        fontSize: _defaultChordFontSize,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 24.0),
-                                    child: Text(
+                                  ]),
+                                  appWrap([
+                                    Text(
                                       "Time: ",
                                       style: _labelTextStyle,
                                     ),
-                                  ),
-                                  DropdownButton<TimeSignature>(
-                                    key: appKey(AppKeyEnum.editEditTimeSignatureDropdown),
-                                    items: _timeSignatureItems,
-                                    onChanged: (_value) {
-                                      if (_value != null && song.timeSignature != _value) {
-                                        song.timeSignature = _value;
-                                        if (!checkSongChangeStatus()) {
-                                          setState(() {}); //  display the return to original
+                                    DropdownButton<TimeSignature>(
+                                      key: appKey(AppKeyEnum.editEditTimeSignatureDropdown),
+                                      items: _timeSignatureItems,
+                                      isDense: true,
+                                      onChanged: (_value) {
+                                        if (_value != null && song.timeSignature != _value) {
+                                          song.timeSignature = _value;
+                                          if (!checkSongChangeStatus()) {
+                                            setState(() {}); //  display the return to original
+                                          }
                                         }
-                                      }
-                                    },
-                                    value: song.timeSignature,
-                                    style: generateAppTextStyle(
-                                        textBaseline: TextBaseline.alphabetic,
-                                        fontSize: _defaultChordFontSize,
-                                        fontWeight: FontWeight.bold),
-                                    itemHeight: null,
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(left: 24, bottom: 24.0),
-                                    child: Text(
+                                      },
+                                      value: song.timeSignature,
+                                      style: generateAppTextStyle(
+                                          textBaseline: TextBaseline.alphabetic,
+                                          fontSize: _defaultChordFontSize,
+                                          fontWeight: FontWeight.bold),
+                                      itemHeight: null,
+                                    ),
+                                  ]),
+                                  appWrap([
+                                    Text(
                                       "User: ",
                                       style: _labelTextStyle,
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 300.0,
-                                    child: appTextField(
-                                      appKeyEnum: AppKeyEnum.editUserName,
-                                      controller: userTextEditingController,
-                                      hintText: 'Enter your user name.',
-                                      fontSize: _defaultChordFontSize,
-                                    ),
-                                  ),
-                                  appSpace(),
-                                  if (originalSong.user != userTextEditingController.text)
-                                    Text(
-                                      '(was ${originalSong.user})',
-                                      style: _labelTextStyle,
-                                    ),
-                                ],
-                              ),
-                              Container(
-                                child: appWrapFullWidth(<Widget>[
-                                  Text(
-                                    "Chords:",
-                                    style: _titleTextStyle,
-                                  ),
-                                  appWrap([
-                                    if (isProEditInput)
-                                      editTooltip(
-                                        message: 'Validate the chord input',
-                                        child: appEnumeratedButton('Validate',
-                                            appKeyEnum: AppKeyEnum.editValidateChords,
-                                            fontSize: _defaultChordFontSize, onPressed: () {
-                                          setState(() {
-                                            validateSongChords(select: true);
-                                          });
-                                        }),
+                                    SizedBox(
+                                      width: 300.0,
+                                      child: appTextField(
+                                        appKeyEnum: AppKeyEnum.editUserName,
+                                        controller: userTextEditingController,
+                                        hintText: 'Enter your user name.',
+                                        fontSize: _defaultChordFontSize,
                                       ),
+                                    ),
+                                    appSpace(),
+                                    if (originalSong.user != userTextEditingController.text)
+                                      Text(
+                                        '(was ${originalSong.user})',
+                                        style: _labelTextStyle,
+                                      ),
+                                  ]),
+                                ],
+                                crossAxisAlignment: WrapCrossAlignment.start,
+                                spacing: 40,
+                              ),
+                              appSpace(space: 30),
+                              appWrapFullWidth(<Widget>[
+                                Text(
+                                  "Chords:",
+                                  style: _titleTextStyle,
+                                ),
+                                appWrap([
+                                  if (isProEditInput)
                                     editTooltip(
-                                      message: (selectedEditPoint != null
-                                              ? 'Click outside the chords to cancel editing\n'
-                                              : '') +
-                                          (showHints
-                                              ? 'Click to hide the editing hints'
-                                              : 'Click for hints about editing.'),
-                                      child: appEnumeratedButton('Hints',
-                                          appKeyEnum: AppKeyEnum.editHints,
+                                      message: 'Validate the chord input',
+                                      child: appEnumeratedButton('Validate',
+                                          appKeyEnum: AppKeyEnum.editValidateChords,
                                           fontSize: _defaultChordFontSize, onPressed: () {
                                         setState(() {
-                                          showHints = !showHints;
+                                          validateSongChords(select: true);
                                         });
                                       }),
                                     ),
-                                    editTooltip(
-                                      message: proMessage,
-                                      child: appEnumeratedButton(
-                                        isProEditInput ? 'Assisted Input' : 'Pro Input',
-                                        appKeyEnum: AppKeyEnum.editRedo,
-                                        fontSize: _defaultChordFontSize,
-                                        onPressed: () {
-                                          setState(() {
-                                            if (isProEditInput) {
-                                              if (!checkSong()) {
-                                                return; //  don't change on invalid input
-                                              }
-                                            } else {
-                                              //  is currently assisted entry
-                                              proChordTextEditingController.text = song.toMarkup(asEntry: true);
-                                              proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
-                                              selectedEditPoint = null; //  for reentry to assisted
+                                  editTooltip(
+                                    message: (selectedEditPoint != null
+                                            ? 'Click outside the chords to cancel editing\n'
+                                            : '') +
+                                        (showHints
+                                            ? 'Click to hide the editing hints'
+                                            : 'Click for hints about editing.'),
+                                    child: appEnumeratedButton('Hints',
+                                        appKeyEnum: AppKeyEnum.editHints,
+                                        fontSize: _defaultChordFontSize, onPressed: () {
+                                      setState(() {
+                                        showHints = !showHints;
+                                      });
+                                    }),
+                                  ),
+                                  editTooltip(
+                                    message: proMessage,
+                                    child: appEnumeratedButton(
+                                      isProEditInput ? 'Assisted Input' : 'Pro Input',
+                                      appKeyEnum: AppKeyEnum.editRedo,
+                                      fontSize: _defaultChordFontSize,
+                                      onPressed: () {
+                                        setState(() {
+                                          if (isProEditInput) {
+                                            if (!checkSong()) {
+                                              return; //  don't change on invalid input
                                             }
-                                            isProEditInput = !isProEditInput;
-                                            appOptions.proEditInput = isProEditInput;
-                                          });
-                                        },
-                                      ),
+                                          } else {
+                                            //  is currently assisted entry
+                                            proChordTextEditingController.text = song.toMarkup(asEntry: true);
+                                            proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
+                                            selectedEditPoint = null; //  for reentry to assisted
+                                          }
+                                          isProEditInput = !isProEditInput;
+                                          appOptions.proEditInput = isProEditInput;
+                                        });
+                                      },
                                     ),
-                                  ], spacing: 50),
-                                ], alignment: WrapAlignment.spaceBetween),
-                                margin: const EdgeInsets.all(4),
-                              ),
+                                  ),
+                                ], spacing: 50),
+                              ], alignment: WrapAlignment.spaceBetween),
                               const Divider(
                                 thickness: 8,
                                 //color: ,  fixme: should be from css!!!
@@ -1153,7 +1139,7 @@ class _Edit extends State<Edit> {
       //  things look good, so format the song
       if (select) {
         song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
-        undoStackPushIfDifferent();
+        checkSong();
         proChordTextEditingController.text = song.toMarkup(asEntry: true);
       }
     }
@@ -3296,6 +3282,7 @@ class _Edit extends State<Edit> {
 
   void undo() {
     setState(() {
+      checkSong();
       if (undoStack.canUndo) {
         app.clearMessage();
         clearMeasureEntry();
@@ -3310,6 +3297,7 @@ class _Edit extends State<Edit> {
   }
 
   void redo() {
+    checkSong();
     setState(() {
       if (undoStack.canRedo) {
         app.clearMessage();
@@ -3531,7 +3519,7 @@ class _Edit extends State<Edit> {
           song.rawLyrics = proLyricsTextEditingController.text;
         }
         song.checkSong();
-        undoStackPushIfDifferent(); // fixme: too often?
+        undoStackPushIfDifferent();
         app.clearMessage();
       }
     } catch (e) {
@@ -3635,7 +3623,8 @@ class _Edit extends State<Edit> {
   MeasureNode? displayMeasureEntryNode;
 
   TextStyle chordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
- // TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
+
+  // TextStyle sectionChordBoldTextStyle = generateAppTextStyle(fontWeight: FontWeight.bold);
   TextStyle chordTextStyle = generateAppTextStyle();
   TextStyle lyricsTextStyle = generateAppTextStyle();
   TextStyle addRowRepeatTextStyle = generateAppTextStyle();

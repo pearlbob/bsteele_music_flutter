@@ -98,14 +98,14 @@ class UtilLinux implements UtilWorkaround {
   }
 
   @override
-  Future<String> songMetadataFilePick(BuildContext context) async {
+  Future<String> filePickByExtension(BuildContext context, String extension) async {
     String? path = await FilesystemPicker.open(
       title: 'Open metadata file',
       context: context,
       rootDirectory: _rootDirectory,
       fsType: FilesystemType.file,
       allowedExtensions: [
-        '.songmetadata',
+        extension,
       ],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );

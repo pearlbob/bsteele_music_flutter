@@ -20,7 +20,7 @@ class NullWorkaround implements UtilWorkaround {
   }
 
   @override
-  Future<String> songMetadataFilePick(BuildContext context) {
+  Future<String> filePickByExtension(BuildContext context, String extension) {
     // TODO: implement songMetadataFilePick
     throw UnimplementedError();
   }

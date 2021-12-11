@@ -108,9 +108,10 @@ class UtilWeb implements UtilWorkaround {
   List<File>? files;
   final RegExp chordProRegExp = RegExp(r'pro$');
 
+  /// extensions should include the dot separator
   @override
-  Future<String> songMetadataFilePick(BuildContext context) async {
-    for (NameValue nameValue in await getFiles('.songmetadata')) {
+  Future<String> filePickByExtension(BuildContext context, String extension) async {
+    for (NameValue nameValue in await getFiles(extension)) {
       Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
       String s = utf8.decode(data);
       SongMetadata.fromJson(s);

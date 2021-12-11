@@ -1,8 +1,9 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
@@ -22,32 +23,31 @@ final _blue = Paint()..color = Colors.lightBlue.shade200;
 /// Note that the lists will not persist unless written to a file.
 /// At the next app invocation, the file will have to read.
 /// Export of this file to the master release will make it the app's default set of sub-lists.
-class Lists extends StatefulWidget {
-  const Lists({Key? key}) : super(key: key);
+class Singers extends StatefulWidget {
+  const Singers({Key? key}) : super(key: key);
 
   @override
   _State createState() => _State();
+
+  static const String routeName = '/singers';
 }
 
-class _State extends State<Lists> {
+class _State extends State<Singers> {
   _State() : _searchFocusNode = FocusNode();
 
   @override
   initState() {
     super.initState();
 
-    app.clearMessage();
-    logger.d("_Songs.initState()");
-  }
+    allSongPerformances.fromJsonString('{"allSongPerformances":'
+        '[{"songId":"Song_Rock_Me_Baby_by_BB_King","singer":"bodhi","key":1,"bpm":100}'
+        ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"vicki","key":0,"bpm":120}'
+        ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"bodhi","key":9,"bpm":120}'
+        ',{"songId":"Song_Dead_Flowers_by_Rolling_Stones_The","singer":"lee","key":1,"bpm":120}'
+        ']}'); //  fixme: temp!!!!
+    logger.w('fixme: temp AllSongPerformances() initialization!');
 
-  bool _hasSelectedMetadata(Song song) {
-    if (_selectedNameValue.name.isNotEmpty &&
-        SongMetadata.where(
-                idIs: song.songId.toString(), nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value)
-            .isNotEmpty) {
-      return true;
-    }
-    return false;
+    app.clearMessage();
   }
 
   @override
@@ -60,51 +60,31 @@ class _State extends State<Lists> {
       fontSize: fontSize,
     );
 
-    logger.v('_selectedNameValue: $_selectedNameValue');
-
     List<Widget> _metadataWidgets = [];
     {
-      //  find all name/values in use
-      SplayTreeSet<NameValue> nameValues = SplayTreeSet();
-      for (var songIdMetadata in SongMetadata.idMetadata) {
-        for (var nameValue in songIdMetadata.nameValues) {
-          nameValues.add(nameValue);
-        }
-      }
-      logger.v('lists.build: ${SongMetadata.idMetadata}');
-      {
-        //  clear the selected of old values
-        List<NameValue> removal = [];
-        if (!nameValues.contains(_selectedNameValue)) {
-          removal.add(_selectedNameValue);
-        }
-      }
-
-      for (var nameValue in nameValues) {
-        if (nameValue.name.isEmpty) {
-          continue;
-        }
+      //  find all singers
+      for (var singer in allSongPerformances.setOfSingers()) {
         _metadataWidgets.add(appWrap(
           [
             Radio(
-              value: nameValue,
-              groupValue: _selectedNameValue,
-              onChanged: (NameValue? value) {
+              value: singer,
+              groupValue: _selectedSinger,
+              onChanged: (String? value) {
                 if (value != null) {
                   setState(() {
-                    _selectedNameValue = nameValue;
+                    _selectedSinger = singer;
                   });
                 }
               },
             ),
             TextButton(
               child: Text(
-                '${nameValue.name}:${nameValue.value}',
+                singer,
                 style: metadataStyle,
               ),
               onPressed: () {
                 setState(() {
-                  _selectedNameValue = nameValue;
+                  _selectedSinger = singer;
                 });
               },
             ),
@@ -117,48 +97,27 @@ class _State extends State<Lists> {
         [
           appSpace(space: 20),
           Radio(
-            value: NameValue(_nameTextFieldController.text, _valueTextFieldController.text),
-            groupValue: _selectedNameValue,
-            onChanged: (NameValue? value) {
+            value: singerTextFieldController.text,
+            groupValue: _selectedSinger,
+            onChanged: (String? value) {
               if (value != null) {
                 setState(() {
-                  _selectedNameValue = value;
+                  _selectedSinger = value;
                 });
               }
             },
           ),
           SizedBox(
-            width: 5 * app.screenInfo.fontSize,
+            width: 8 * app.screenInfo.fontSize,
             //  limit text entry display length
             child: appTextField(
-              appKeyEnum: AppKeyEnum.listsNameEntry,
-              controller: _nameTextFieldController,
-              hintText: "name...",
+              appKeyEnum: AppKeyEnum.singersNameEntry,
+              controller: singerTextFieldController,
+              hintText: "Singer's name",
               onChanged: (text) {
                 setState(() {
-                  if (_nameTextFieldController.text.isNotEmpty) {
-                    _selectedNameValue = NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
-                  }
-                });
-              },
-              fontSize: fontSize,
-            ),
-          ),
-          Text(
-            ':',
-            style: metadataStyle,
-          ),
-          SizedBox(
-            width: 5 * app.screenInfo.fontSize,
-            //  limit text entry display length
-            child: appTextField(
-              appKeyEnum: AppKeyEnum.listsValueEntry,
-              controller: _valueTextFieldController,
-              hintText: "value...",
-              onChanged: (text) {
-                setState(() {
-                  if (_nameTextFieldController.text.isNotEmpty) {
-                    _selectedNameValue = NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                  if (singerTextFieldController.text.isNotEmpty) {
+                    _selectedSinger = singerTextFieldController.text;
                   }
                 });
               },
@@ -183,16 +142,13 @@ class _State extends State<Lists> {
         songWidgetList.add(appSpace());
       }
 
-      SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
-      var songIdMetadataSet = SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
-      for (var song in app.allSongs) {
-        for (var songIdMetadata in songIdMetadataSet) {
-          if (songIdMetadata.id == song.songId.toString()) {
-            _metadataSongSet.add(song);
-          }
-        }
-      }
-      List<Song> _metadataSongs = [];
+      SplayTreeSet<SongPerformance> _singerSongPerformanceSet = SplayTreeSet();
+      SplayTreeSet<Song> _singerSongSet = SplayTreeSet();
+      allSongPerformances.loadSongs(app.allSongs.toList(growable: false));
+      _singerSongPerformanceSet.addAll(allSongPerformances.bySinger(_selectedSinger));
+      _singerSongSet.addAll(_singerSongPerformanceSet.map((e) => e.song ?? Song.createEmptySong()));
+
+      List<Song> _singersSongs = [];
 
       //  search songs on top
       {
@@ -204,18 +160,17 @@ class _State extends State<Lists> {
           thickness: 10,
         ));
         songWidgetList.add(Text(
-          (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') +
-              ' in the list "${_selectedNameValue.toShortString()}":',
+          (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') + ' in the song list for $_selectedSinger:',
           style: metadataStyle.copyWith(color: Colors.grey),
         ));
-        _metadataSongs.addAll(_filteredSongs);
+        _singersSongs.addAll(_filteredSongs);
       }
+
       //  list other, non-matching set songs later
-      for (var song in _metadataSongSet) {
+      for (var songPerformance in _singerSongPerformanceSet) {
         //  avoid repeats
-        if (!_metadataSongs.contains(song)) {
-          songWidgetList.add(mapSongToWidget(song));
-        }
+        if (songPerformance.song != null)
+          songWidgetList.add(mapSongToWidget(songPerformance.song!, key: songPerformance.key));
       }
       songWidgetList.add(appSpace());
       songWidgetList.add(const Divider(
@@ -223,11 +178,11 @@ class _State extends State<Lists> {
       ));
       songWidgetList.add(Text(
         (searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs ') +
-            'not in the list "${_selectedNameValue.toShortString()}":',
+            'not in the list for $_selectedSinger:',
         style: metadataStyle.copyWith(color: Colors.grey),
       ));
       for (var song in app.allSongs) {
-        if (_metadataSongSet.contains(song) || _filteredSongs.contains(song)) {
+        if (_singerSongSet.contains(song) || _filteredSongs.contains(song)) {
           continue;
         }
         songWidgetList.add(mapSongToWidget(song));
@@ -236,40 +191,38 @@ class _State extends State<Lists> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Lists'),
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Singers'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              if (app.message.isNotEmpty)
+                Text(app.message,
+                    style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                    key: const ValueKey('errorMessage')),
               appSpace(),
-              Text(app.message,
-                  style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                  key: const ValueKey('errorMessage')),
-              const SizedBox(
-                height: 10,
-              ),
               appWrapFullWidth([
                 appEnumeratedButton(
-                  'Write all to file',
-                  appKeyEnum: AppKeyEnum.listsSave,
+                  'Write all singers to a local file',
+                  appKeyEnum: AppKeyEnum.singersSave,
                   onPressed: () {
                     _saveSongMetadata();
                   },
                 ),
-                if (_selectedNameValue != _emptySelectedNameValue)
+                if (_selectedSinger != unknownSinger)
                   appEnumeratedButton(
-                    'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
-                    appKeyEnum: AppKeyEnum.listsSaveSelected,
+                    'Write $_selectedSinger\'s song list to local file',
+                    appKeyEnum: AppKeyEnum.singersSaveSelected,
                     onPressed: () {
-                      _saveNameValueSongMetadata(_selectedNameValue);
-                      logger.i('save selection: $_selectedNameValue');
+                      _saveSingersSongList(_selectedSinger);
+                      logger.i('save selection: $_selectedSinger');
                     },
                   ),
                 appEnumeratedButton(
-                  'Read lists from file',
-                  appKeyEnum: AppKeyEnum.listsReadLists,
+                  'Read all singers from a local file',
+                  appKeyEnum: AppKeyEnum.singersReadSingers,
                   onPressed: () {
                     setState(() {
                       _filePick(context);
@@ -277,38 +230,36 @@ class _State extends State<Lists> {
                   },
                 ),
                 appEnumeratedButton(
-                  'Delete the list',
-                  appKeyEnum: AppKeyEnum.listsClearLists,
-                  onPressed: nameValueIsDeletable(_selectedNameValue)
-                      ? () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                    title: Text(
-                                      'Do you really want to delete the list?',
-                                      style: TextStyle(fontSize: metadataStyle.fontSize),
-                                    ),
-                                    actions: [
-                                      appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
-                                          appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
-                                        logger.i('delete: ${_selectedNameValue.toShortString()}');
-                                        setState(() {
-                                          SongMetadata.removeAll(_selectedNameValue);
-                                          _selectedNameValue = _emptySelectedNameValue;
-                                          AppOptions().storeSongMetadata();
-                                        });
-                                        Navigator.of(context).pop();
-                                      }),
-                                      appSpace(space: 100),
-                                      appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
-                                        Navigator.of(context).pop();
-                                      }),
-                                    ],
-                                    elevation: 24.0,
-                                  ));
-                          // SongMetadata.clear();
-                        }
-                      : null,
+                  'Delete the singer',
+                  appKeyEnum: AppKeyEnum.singersDeleteSinger,
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                              title: Text(
+                                'Do you really want to delete the singer $_selectedSinger?',
+                                style: TextStyle(fontSize: metadataStyle.fontSize),
+                              ),
+                              actions: [
+                                appButton('Yes! Delete all of $_selectedSinger\'s song list',
+                                    appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                  logger.i('delete: $_selectedSinger');
+                                  setState(() {
+                                    allSongPerformances.removeSinger(_selectedSinger);
+                                    _selectedSinger = unknownSinger;
+                                    AppOptions().storeSongMetadata();
+                                  });
+                                  Navigator.of(context).pop();
+                                }),
+                                appSpace(space: 100),
+                                appButton('Cancel', appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                  Navigator.of(context).pop();
+                                }),
+                              ],
+                              elevation: 24.0,
+                            ));
+                    // SongMetadata.clear();
+                  },
                 ),
               ], alignment: WrapAlignment.spaceBetween),
               appSpace(
@@ -337,7 +288,7 @@ class _State extends State<Lists> {
                     width: 10 * app.screenInfo.fontSize,
                     //  limit text entry display length
                     child: appTextField(
-                      appKeyEnum: AppKeyEnum.listsSearchText,
+                      appKeyEnum: AppKeyEnum.singersSearchText,
                       enabled: true,
                       controller: _searchTextFieldController,
                       hintText: "enter search text",
@@ -354,7 +305,7 @@ class _State extends State<Lists> {
                     message:
                         _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
                     child: appEnumeratedIconButton(
-                      appKeyEnum: AppKeyEnum.listsClearSearch,
+                      appKeyEnum: AppKeyEnum.singersClearSearch,
                       icon: const Icon(Icons.clear),
                       iconSize: 1.5 * fontSize,
                       onPressed: (() {
@@ -377,32 +328,32 @@ class _State extends State<Lists> {
               ),
             ]),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.singersBack),
     );
   }
 
-  Widget mapSongToWidget(Song song) {
+  Widget mapSongToWidget(Song song, {music_key.Key? key}) {
     return appWrapFullWidth(
       [
         appWidgetHelper.checkbox(
-          value: _hasSelectedMetadata(song),
+          value: allSongPerformances.isSongInSingersList(_selectedSinger, song),
           onChanged: (bool? value) {
             if (value != null) {
               setState(() {
                 if (value) {
-                  if (_selectedNameValue.name.isNotEmpty) {
-                    SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
+                  if (_selectedSinger != unknownSinger) {
+                    allSongPerformances.addSongPerformance(
+                        SongPerformance(song.songId.toString(), _selectedSinger, music_key.Key.getDefault()));
                   }
                 } else {
-                  for (var songIdMetadata in SongMetadata.where(
-                      idIs: song.songId.toString(),
-                      nameIs: _selectedNameValue.name,
-                      valueIs: _selectedNameValue.value)) {
-                    logger.d('remove: $songIdMetadata');
-                    SongMetadata.remove(songIdMetadata, _selectedNameValue);
-                  }
+                  // for (var songIdMetadata in SongMetadata.where(
+                  //     idIs: song.songId.toString(), nameIs: _selectedSinger.name, valueIs: _selectedSinger.value)) {
+                  //   logger.d('remove: $songIdMetadata');
+                  //   SongMetadata.remove(songIdMetadata, _selectedSinger);
+                  // }
+                  logger.w('fixme');
                 }
-                AppOptions().storeSongMetadata();
+                AppOptions().storeAllSongPerformances();
               });
             }
           },
@@ -412,16 +363,20 @@ class _State extends State<Lists> {
         TextButton(
           child: Text(
             '${song.title} by ${song.artist}'
-            '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}',
+            '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+            '${key == null ?'':' in $key'}',
             style: metadataStyle,
           ),
-          onPressed: () {
-            setState(() {
-              if (_selectedNameValue.name.isNotEmpty) {
-                SongMetadata.add(SongIdMetadata(song.songId.toString(), metadata: [_selectedNameValue]));
-              }
-            });
-          },
+          onPressed: (_selectedSinger != unknownSinger)
+              ? () {
+                  setState(() {
+                    if (_selectedSinger != unknownSinger) {
+                      allSongPerformances.addSongPerformance(
+                          SongPerformance(song.songId.toString(), _selectedSinger, music_key.Key.getDefault()));
+                    }
+                  });
+                }
+              : null,
         )
       ],
     );
@@ -454,51 +409,32 @@ class _State extends State<Lists> {
   }
 
   void _saveSongMetadata() async {
-    _saveMetadata('allSongs', SongMetadata.toJson());
+    _saveAllSongPerformances('allSongPerformances', allSongPerformances.toJsonString());
   }
 
-  void _saveNameValueSongMetadata(NameValue nameValue) async {
-    String contents = SongMetadata.toJsonAt(nameValue: nameValue);
-    _saveMetadata('${_selectedNameValue.name}_${_selectedNameValue.value}', contents);
+  void _saveSingersSongList(String singer) async {
+    _saveAllSongPerformances('singer_$singer', allSongPerformances.toJsonStringFor(singer));
   }
 
-  void _saveMetadata(String prefix, String contents) async {
+  void _saveAllSongPerformances(String prefix, String contents) async {
     String fileName = '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songmetadata';
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
-    logger.i('_saveMetadata message: $message');
+    logger.i('_saveAllSongPerformances message: $message');
     setState(() {
-      app.infoMessage('.songmetadata $message');
+      app.infoMessage('.songPerformance $message');
     });
   }
 
   void _filePick(BuildContext context) async {
-    var message = await UtilWorkaround().filePickByExtension(context, '.songmetadata');
+    var message = await UtilWorkaround().filePickByExtension(context, AllSongPerformances.fileExtension);
 
     setState(() {
       if (message.isEmpty) {
-        app.infoMessage('No metatdata read');
+        app.infoMessage('No singers file read');
       } else {
         app.infoMessage(message);
       }
     });
-  }
-
-  bool nameValueIsDeletable(NameValue nameValue) {
-    logger.d('selectionIsDeletable(): $nameValue');
-
-    if (nameValue == _emptySelectedNameValue) {
-      return false;
-    }
-
-    switch (nameValue.name) {
-      case '':
-      case 'christmas':
-        return false;
-      case 'cj':
-        return kDebugMode;
-      default:
-        return true;
-    }
   }
 
   late TextStyle metadataStyle;
@@ -507,12 +443,13 @@ class _State extends State<Lists> {
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
 
-  static const NameValue _emptySelectedNameValue = NameValue('', '');
-  NameValue _selectedNameValue = _emptySelectedNameValue;
+  static const String unknownSinger = 'unknown';
+  String _selectedSinger = unknownSinger;
   final TextEditingController _searchTextFieldController = TextEditingController();
 
-  final TextEditingController _nameTextFieldController = TextEditingController();
-  final TextEditingController _valueTextFieldController = TextEditingController();
+  AllSongPerformances allSongPerformances = AllSongPerformances();
+
+  final TextEditingController singerTextFieldController = TextEditingController();
 
   late AppWidgetHelper appWidgetHelper;
 

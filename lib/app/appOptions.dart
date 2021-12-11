@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
@@ -24,6 +25,7 @@ enum UserDisplayStyle {
 enum StorageValue {
   //  only partial at the moment
   songMetadata,
+  allSongPerformances,
 }
 
 /// Application level, persistent, shared values.
@@ -64,6 +66,7 @@ class AppOptions extends ChangeNotifier {
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _readSongMetadata();
+    _readAllSongPerformances();
     notifyListeners();
   }
 
@@ -287,6 +290,20 @@ class AppOptions extends ChangeNotifier {
     }
   }
 
+  void storeAllSongPerformances() {
+    String storage = allSongPerformances.toJsonString();
+    _saveString(Util.enumToString(StorageValue.allSongPerformances), storage);
+  }
+
+  void _readAllSongPerformances() async {
+    var jsonString = await _readString(Util.enumToString(StorageValue.allSongPerformances), defaultValue: '');
+    //logger.d('_readAllSongPerformances(): ${Util.enumToString(StorageValue.allSongPerformances)}: $jsonString');
+    if (jsonString.isNotEmpty) {
+      allSongPerformances.fromJsonString(jsonString);
+    }
+    logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
+  }
+
   void storeSongMetadata() {
     final storageSongMetadata = <SongIdMetadata>[];
 
@@ -324,6 +341,8 @@ class AppOptions extends ChangeNotifier {
   /// A list of the names of sheet music displays that are currently active.
   HashSet<SheetDisplay> get sheetDisplays => _sheetDisplays;
   HashSet<SheetDisplay> _sheetDisplays = HashSet();
+
+  AllSongPerformances allSongPerformances = AllSongPerformances();
 
   static const String unknownUser = Song.unknownUser;
 

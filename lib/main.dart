@@ -83,6 +83,7 @@ import 'package:bsteele_music_flutter/screens/lists.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
+import 'package:bsteele_music_flutter/screens/singers.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -339,15 +340,15 @@ class BSteeleMusicApp extends StatelessWidget {
                 //'/': (context) => MyApp(),
                 // When navigating to the "/second" route, build the SecondScreen widget.
                 Player.routeName: playerPageRoute.builder,
-                '/options': (context) => const Options(),
+                Options.routeName: (context) => const Options(),
                 '/songs': (context) => const Songs(),
                 '/lists': (context) => const Lists(),
+                Singers.routeName: (context) => const Singers(),
                 '/edit': (context) => Edit(initialSong: app.selectedSong),
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
                 '/about': (context) => const About(),
                 '/cssDemo': (context) => const CssDemo(),
-                // '/bass': (context) => const BassWidget(),
                 '/theory': (context) => const TheoryWidget(),
               },
             ));
@@ -782,6 +783,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onTap: () {
                   _navigateToLists(context);
+                },
+              ),
+            if (app.isEditReady)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerLists,
+                title: Text(
+                  "Singers",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToSingers(context);
                 },
               ),
             if (app.isEditReady)
@@ -1286,6 +1298,15 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.pushNamed(
       context,
       Options.routeName,
+    );
+    Navigator.pop(context); //  drawer
+    _reApplySearch();
+  }
+
+  _navigateToSingers(BuildContext context) async {
+    await Navigator.pushNamed(
+      context,
+      Singers.routeName,
     );
     Navigator.pop(context); //  drawer
     _reApplySearch();

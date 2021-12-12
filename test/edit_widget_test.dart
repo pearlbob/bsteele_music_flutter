@@ -9,6 +9,7 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -142,7 +143,7 @@ void main() async {
         await tester.tap(keyDropdownFinder.first, warnIfMissed: false);
         await tester.pumpAndSettle();
 
-        final keySelection = find.byKey(ValueKey<String>(AppKeyEnum.editMusicKey.name + '.' + musicKey.toMarkup()));
+        final keySelection = find.byKey(ValueKey<String>(Util.enumName(AppKeyEnum.editMusicKey) + '.' + musicKey.toMarkup()));
      for (var ks in    keySelection.evaluate()){
     logger.i('ks: $ks,  ${ks.findAncestorStateOfType()}');
     }

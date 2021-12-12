@@ -4,8 +4,10 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,13 +41,13 @@ class _State extends State<Singers> {
   initState() {
     super.initState();
 
-    allSongPerformances.fromJsonString('{"allSongPerformances":'
-        '[{"songId":"Song_Rock_Me_Baby_by_BB_King","singer":"bodhi","key":1,"bpm":100}'
-        ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"vicki","key":0,"bpm":120}'
-        ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"bodhi","key":9,"bpm":120}'
-        ',{"songId":"Song_Dead_Flowers_by_Rolling_Stones_The","singer":"lee","key":1,"bpm":120}'
-        ']}'); //  fixme: temp!!!!
-    logger.w('fixme: temp AllSongPerformances() initialization!');
+    // allSongPerformances.fromJsonString('{"allSongPerformances":'
+    //     '[{"songId":"Song_Rock_Me_Baby_by_BB_King","singer":"Bodhi","key":10,"bpm":100}'
+    //     ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"Vicki","key":0,"bpm":120}'
+    //     ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"Bodhi","key":5,"bpm":120}'
+    //     ',{"songId":"Song_Dead_Flowers_by_Rolling_Stones_The","singer":"Lee","key":3,"bpm":120}'
+    //     ']}'); //  fixme: temp!!!!
+    // logger.w('fixme: temp AllSongPerformances() initialization!');
 
     app.clearMessage();
   }
@@ -55,16 +57,21 @@ class _State extends State<Singers> {
     appWidgetHelper = AppWidgetHelper(context);
 
     final double fontSize = app.screenInfo.fontSize;
-    metadataStyle = generateAppTextStyle(
+    songPerformanceStyle = generateAppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
     );
 
-    List<Widget> _metadataWidgets = [];
+    List<Widget> _singerWidgets = [];
     {
       //  find all singers
-      for (var singer in allSongPerformances.setOfSingers()) {
-        _metadataWidgets.add(appWrap(
+      var setOfSingers = SplayTreeSet<String>();
+      setOfSingers.addAll(allSongPerformances.setOfSingers());
+      if (_selectedSinger != unknownSinger) {
+        setOfSingers.add(_selectedSinger);
+      }
+      for (var singer in setOfSingers) {
+        _singerWidgets.add(appWrap(
           [
             Radio(
               value: singer,
@@ -80,7 +87,7 @@ class _State extends State<Singers> {
             TextButton(
               child: Text(
                 singer,
-                style: metadataStyle,
+                style: songPerformanceStyle,
               ),
               onPressed: () {
                 setState(() {
@@ -93,7 +100,7 @@ class _State extends State<Singers> {
         ));
       }
 
-      _metadataWidgets.add(appWrap(
+      _singerWidgets.add(appWrap(
         [
           appSpace(space: 20),
           Radio(
@@ -108,20 +115,22 @@ class _State extends State<Singers> {
             },
           ),
           SizedBox(
-            width: 8 * app.screenInfo.fontSize,
+            width: 10 * app.screenInfo.fontSize,
             //  limit text entry display length
             child: appTextField(
               appKeyEnum: AppKeyEnum.singersNameEntry,
               controller: singerTextFieldController,
-              hintText: "Singer's name",
-              onChanged: (text) {
+              hintText: "new singer's name",
+              onSubmitted: (value) {
                 setState(() {
                   if (singerTextFieldController.text.isNotEmpty) {
-                    _selectedSinger = singerTextFieldController.text;
+                    _selectedSinger = Util.firstToUpper(singerTextFieldController.text);
+                    singerTextFieldController.text = '';
                   }
                 });
               },
               fontSize: fontSize,
+              fontWeight: FontWeight.normal,
             ),
           ),
         ],
@@ -130,6 +139,12 @@ class _State extends State<Singers> {
 
     List<Widget> songWidgetList = [];
     {
+      if (_selectedSinger != unknownSinger && allSongPerformances.bySinger(_selectedSinger).isEmpty) {
+        songWidgetList.add(Text(
+          'Select at least one song for $_selectedSinger to remain a singer! ',
+          style: songPerformanceStyle.copyWith(color: _blue.color),
+        ));
+      }
       if (searchTerm.isNotEmpty) {
         songWidgetList.add(Divider(
           thickness: 10,
@@ -137,7 +152,7 @@ class _State extends State<Singers> {
         ));
         songWidgetList.add(Text(
           _filteredSongs.isNotEmpty ? 'Songs matching the search "$searchTerm":' : 'No songs match the search.',
-          style: metadataStyle.copyWith(color: _blue.color),
+          style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
       }
@@ -148,8 +163,6 @@ class _State extends State<Singers> {
       _singerSongPerformanceSet.addAll(allSongPerformances.bySinger(_selectedSinger));
       _singerSongSet.addAll(_singerSongPerformanceSet.map((e) => e.song ?? Song.createEmptySong()));
 
-      List<Song> _singersSongs = [];
-
       //  search songs on top
       {
         if (_filteredSongs.isNotEmpty) {
@@ -159,34 +172,43 @@ class _State extends State<Singers> {
         songWidgetList.add(const Divider(
           thickness: 10,
         ));
-        songWidgetList.add(Text(
-          (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') + ' in the song list for $_selectedSinger:',
-          style: metadataStyle.copyWith(color: Colors.grey),
-        ));
-        _singersSongs.addAll(_filteredSongs);
+        if (_selectedSinger != unknownSinger) {
+          songWidgetList.add(Text(
+            (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') + ' for singer $_selectedSinger:',
+            style: songPerformanceStyle.copyWith(color: Colors.grey),
+          ));
+        }
       }
 
-      //  list other, non-matching set songs later
+      //  list other, non-matching singer songs later
       for (var songPerformance in _singerSongPerformanceSet) {
         //  avoid repeats
-        if (songPerformance.song != null)
+        if (songPerformance.song != null && !_filteredSongs.contains(songPerformance.song)) {
           songWidgetList.add(mapSongToWidget(songPerformance.song!, key: songPerformance.key));
+        }
       }
-      songWidgetList.add(appSpace());
-      songWidgetList.add(const Divider(
-        thickness: 10,
-      ));
-      songWidgetList.add(Text(
-        (searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs ') +
-            'not in the list for $_selectedSinger:',
-        style: metadataStyle.copyWith(color: Colors.grey),
-      ));
+
+      if (_selectedSinger != unknownSinger) {
+        songWidgetList.add(appSpace());
+        songWidgetList.add(const Divider(
+          thickness: 10,
+        ));
+        songWidgetList.add(Text(
+          (searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs ') +
+              'not for singer $_selectedSinger:',
+          style: songPerformanceStyle.copyWith(color: Colors.grey),
+        ));
+      }
       for (var song in app.allSongs) {
         if (_singerSongSet.contains(song) || _filteredSongs.contains(song)) {
           continue;
         }
         songWidgetList.add(mapSongToWidget(song));
       }
+    }
+
+    if (singerList.isEmpty) {
+      singerList.addAll(allSongPerformances.setOfSingers()); //  fixme: temp
     }
 
     return Scaffold(
@@ -203,12 +225,23 @@ class _State extends State<Singers> {
                     style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                     key: const ValueKey('errorMessage')),
               appSpace(),
+              // ReorderableListView(
+              //     children:
+              //       singerList.map((singer)=>
+              //         ListTile(
+              //           key: ValueKey(singer),
+              //           title: Text(singer),
+              //         )).toList()
+              //     ,
+              //     onReorder: (oldIndex, newIndex) {
+              //       logger.i('singer list reorder: ($oldIndex, $newIndex)');
+              //     }),
               appWrapFullWidth([
                 appEnumeratedButton(
                   'Write all singers to a local file',
                   appKeyEnum: AppKeyEnum.singersSave,
                   onPressed: () {
-                    _saveSongMetadata();
+                    _saveSongPerformances();
                   },
                 ),
                 if (_selectedSinger != unknownSinger)
@@ -238,7 +271,7 @@ class _State extends State<Singers> {
                         builder: (_) => AlertDialog(
                               title: Text(
                                 'Do you really want to delete the singer $_selectedSinger?',
-                                style: TextStyle(fontSize: metadataStyle.fontSize),
+                                style: TextStyle(fontSize: songPerformanceStyle.fontSize),
                               ),
                               actions: [
                                 appButton('Yes! Delete all of $_selectedSinger\'s song list',
@@ -247,7 +280,7 @@ class _State extends State<Singers> {
                                   setState(() {
                                     allSongPerformances.removeSinger(_selectedSinger);
                                     _selectedSinger = unknownSinger;
-                                    AppOptions().storeSongMetadata();
+                                    AppOptions().storeAllSongPerformances();
                                   });
                                   Navigator.of(context).pop();
                                 }),
@@ -258,15 +291,15 @@ class _State extends State<Singers> {
                               ],
                               elevation: 24.0,
                             ));
-                    // SongMetadata.clear();
                   },
                 ),
               ], alignment: WrapAlignment.spaceBetween),
               appSpace(
                 space: 20,
               ),
+
               appWrap(
-                _metadataWidgets,
+                _singerWidgets,
                 alignment: WrapAlignment.spaceEvenly,
               ),
               appWrapFullWidth([
@@ -346,33 +379,30 @@ class _State extends State<Singers> {
                         SongPerformance(song.songId.toString(), _selectedSinger, music_key.Key.getDefault()));
                   }
                 } else {
-                  // for (var songIdMetadata in SongMetadata.where(
-                  //     idIs: song.songId.toString(), nameIs: _selectedSinger.name, valueIs: _selectedSinger.value)) {
-                  //   logger.d('remove: $songIdMetadata');
-                  //   SongMetadata.remove(songIdMetadata, _selectedSinger);
-                  // }
-                  logger.w('fixme');
+                  allSongPerformances.removeSingerSong(_selectedSinger, song.songId.toString());
                 }
                 AppOptions().storeAllSongPerformances();
               });
             }
           },
-          fontSize: metadataStyle.fontSize,
+          fontSize: songPerformanceStyle.fontSize,
         ),
         appSpace(space: 12),
         TextButton(
           child: Text(
             '${song.title} by ${song.artist}'
             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-            '${key == null ?'':' in $key'}',
-            style: metadataStyle,
+            '${key == null ? '' : ' in $key'}',
+            style: songPerformanceStyle,
           ),
           onPressed: (_selectedSinger != unknownSinger)
               ? () {
                   setState(() {
+                    var songPerformance =
+                        SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault());
                     if (_selectedSinger != unknownSinger) {
-                      allSongPerformances.addSongPerformance(
-                          SongPerformance(song.songId.toString(), _selectedSinger, music_key.Key.getDefault()));
+                      allSongPerformances.addSongPerformance(songPerformance);
+                      navigateToPlayer(context, songPerformance);
                     }
                   });
                 }
@@ -408,7 +438,25 @@ class _State extends State<Singers> {
     }
   }
 
-  void _saveSongMetadata() async {
+  void navigateToPlayer(BuildContext context, SongPerformance songPerformance) async {
+    if (songPerformance.song == null) {
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Player(songPerformance.song!, musicKey: songPerformance.key)),
+    );
+    setState(() {
+      //  fixme: song may have changed in the player screen!!!!
+      if ( playerSelectedSongKey != null ) {
+        allSongPerformances
+          .addSongPerformance(SongPerformance(songPerformance.songIdAsString, _selectedSinger, playerSelectedSongKey!));
+      }
+      AppOptions().storeAllSongPerformances();
+    });
+  }
+
+  void _saveSongPerformances() async {
     _saveAllSongPerformances('allSongPerformances', allSongPerformances.toJsonString());
   }
 
@@ -417,11 +465,12 @@ class _State extends State<Singers> {
   }
 
   void _saveAllSongPerformances(String prefix, String contents) async {
-    String fileName = '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.songmetadata';
+    String fileName =
+        '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}${AllSongPerformances.fileExtension}';
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     logger.i('_saveAllSongPerformances message: $message');
     setState(() {
-      app.infoMessage('.songPerformance $message');
+      app.infoMessage('${AllSongPerformances.fileExtension} $message');
     });
   }
 
@@ -437,7 +486,9 @@ class _State extends State<Singers> {
     });
   }
 
-  late TextStyle metadataStyle;
+  List<String> singerList = [];
+
+  late TextStyle songPerformanceStyle;
 
   String searchTerm = '';
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();

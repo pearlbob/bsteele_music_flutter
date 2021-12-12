@@ -339,7 +339,7 @@ class _State extends State<TheoryWidget> {
             padding: padding,
             alignment: Alignment.center,
             child: Text(
-              Util.enumToString(diatonic),
+              Util.enumName(diatonic),
               style: _style,
             )));
       }
@@ -536,7 +536,7 @@ class _State extends State<TheoryWidget> {
             padding: padding,
             alignment: Alignment.center,
             child: Text(
-              Util.enumToString(diatonic),
+              Util.enumName(diatonic),
               style: _style,
             )));
       }

@@ -135,7 +135,7 @@ class _State extends State<Detail> {
     if (_options) {
       List<Widget> children = [];
       for (var display in SheetDisplay.values) {
-        var name = Util.firstToUpper(Util.camelCaseToLowercaseSpace(Util.enumToString(display)));
+        var name = Util.firstToUpper(Util.camelCaseToLowercaseSpace(Util.enumName(display)));
         children.add(Row(
           children: [
             appWidgetHelper.checkbox(

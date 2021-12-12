@@ -42,7 +42,7 @@ class _Songs extends State<Songs> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               appEnumeratedButton(
-                'Read files',
+                'Read local file',
                 appKeyEnum: AppKeyEnum.songsReadFiles,
                 onPressed: () {
                   setState(() {
@@ -54,7 +54,7 @@ class _Songs extends State<Songs> {
                 space: 20,
               ),
               appEnumeratedButton(
-                'Write all songs to $fileLocation',
+                'Write all songs to the local file: $fileLocation',
                 appKeyEnum: AppKeyEnum.songsWriteFiles,
                 onPressed: () {
                   _writeAll();

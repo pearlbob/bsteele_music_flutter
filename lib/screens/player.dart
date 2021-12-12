@@ -35,6 +35,9 @@ import '../main.dart';
 /// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
 
+//  intentionally global to share with singer screen    fixme?
+music_key.Key? playerSelectedSongKey;
+
 /// An observer used to respond to a song update server request.
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 
@@ -88,7 +91,9 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 /// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
 class Player extends StatefulWidget {
-  Player(this._song, {Key? key}) : super(key: key);
+  Player(this._song, {Key? key, music_key.Key? musicKey}) : super(key: key) {
+    playerSelectedSongKey = musicKey; //  to be read later at initialization
+  }
 
   @override
   State<Player> createState() => _Player();
@@ -118,7 +123,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     displayKeyOffset = app.displayKeyOffset;
     _song = widget._song;
-    setSelectedSongKey(_song.key);
+    setSelectedSongKey( playerSelectedSongKey ?? _song.key);
 
     leaderSongUpdate(0);
 
@@ -1364,6 +1369,7 @@ With escape, the app goes back to the play list.''',
     var update = SongUpdate.createSongUpdate(widget._song.copySong()); //  fixme: copy  required?
     _lastSongUpdate = update;
     update.currentKey = selectedSongKey;
+    playerSelectedSongKey = selectedSongKey;
     update.momentNumber = momentNumber;
     update.user = appOptions.user;
     update.setState(isPlaying ? SongUpdateState.playing : SongUpdateState.none);
@@ -1469,6 +1475,7 @@ With escape, the app goes back to the play list.''',
       return; //  no change required
     }
     selectedSongKey = key;
+    playerSelectedSongKey = key;
     displaySongKey = newDisplayKey;
     logger.v('_setSelectedSongKey(): _selectedSongKey: $selectedSongKey, _displaySongKey: $displaySongKey');
 
@@ -1485,7 +1492,7 @@ With escape, the app goes back to the play list.''',
     return anchorUrlStart + Uri.encodeFull(widget._song.artist);
   }
 
-  navigateToEdit(BuildContext context, Song song) async {
+  void navigateToEdit(BuildContext context, Song song) async {
     _playerIsOnTop = false;
     await Navigator.push(
       context,

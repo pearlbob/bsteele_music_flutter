@@ -39,7 +39,7 @@ abstract class SheetNotation {
 
     if (_debug) {
       {
-        _renderText(Util.enumToString(sheetDisplay), xOff: 45); //  debug name
+        _renderText(Util.enumName(sheetDisplay), xOff: 45); //  debug name
         canvas.drawRect(Rect.fromLTWH(sheetDisplay.index * 30, dy, 10, totalHeight), _transGrey);
         canvas.drawRect(Rect.fromLTWH(sheetDisplay.index * 30 - 5, dy, 10, preHeight), _transBlue);
         canvas.drawRect(

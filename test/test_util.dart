@@ -1,5 +1,6 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,7 +36,7 @@ class _TextFieldByAppKeyFinder extends MatchFinder {
             ' match value: $_appKey');
     if (candidate.widget is TextField) {
       return (candidate.widget.key is ValueKey<String> &&
-          (candidate.widget.key as ValueKey<String>).value == _appKey.name);
+          (candidate.widget.key as ValueKey<String>).value == Util.enumName(_appKey));
     }
     return false;
   }
@@ -74,7 +75,7 @@ class _TextByAppKeyFinder extends MatchFinder {
     return (candidate.widget is Text &&
         (candidate.widget as Text).data != null &&
         candidate.widget.key is ValueKey<String> &&
-        (candidate.widget.key as ValueKey<String>).value == _appKey.name);
+        (candidate.widget.key as ValueKey<String>).value == Util.enumName(_appKey));
   }
 
   final AppKeyEnum _appKey;
@@ -138,7 +139,7 @@ class DropDownFinderByAppKey extends MatchFinder {
     //logger.i( 'DropDownFinderByAppKey(): try $candidate');
     return (candidate.widget is DropdownButton &&
         candidate.widget.key is ValueKey<String> &&
-        (candidate.widget.key as ValueKey<String>).value == _appKey.name);
+        (candidate.widget.key as ValueKey<String>).value == Util.enumName(_appKey));
   }
 
   final AppKeyEnum _appKey;

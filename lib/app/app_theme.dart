@@ -702,15 +702,15 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
         logger.i('not null here:');
       }
       assert(value == null);
-      return ValueKey<String>(e.name);
+      return ValueKey<String>(Util.enumName(e));
     case String:
-      return ValueKey<String>(e.name);
+      return ValueKey<String>(Util.enumName(e));
     case music_key.Key:
       assert(value.runtimeType == type);
-      return ValueKey<String>('${e.name}.${(value as music_key.Key).toMarkup()}');
+      return ValueKey<String>('${Util.enumName(e)}.${(value as music_key.Key).toMarkup()}');
     default:
       assert(value.runtimeType == type);
-      return ValueKey<String>('${e.name}.${value.toString()}');
+      return ValueKey<String>('${Util.enumName(e)}.${value.toString()}');
   }
 }
 
@@ -1165,12 +1165,13 @@ TextField appTextField({
   TextEditingController? controller,
   FocusNode? focusNode,
   final ValueChanged<String>? onChanged,
+  final ValueChanged<String>? onSubmitted,
   String? hintText,
-  double? fontSize,
+  TextStyle? style,
+  double? fontSize, //  fixme: overridden by non-null style above
   FontWeight? fontWeight,
   bool? enabled,
   int? minLines,
-  int? maxLines,
   InputBorder? border,
 }) {
   return TextField(
@@ -1178,18 +1179,19 @@ TextField appTextField({
     controller: controller,
     focusNode: focusNode,
     enabled: enabled,
+    keyboardType: (minLines ?? 0) > 1 ? TextInputType.multiline: TextInputType.text,
     onChanged: onChanged,
+    onSubmitted: onSubmitted,
     decoration: InputDecoration(
       border: border,
-      floatingLabelAlignment: FloatingLabelAlignment.start,
+     // floatingLabelAlignment: FloatingLabelAlignment.start,
       isDense: true,
       contentPadding: const EdgeInsets.all(2.0),
       hintText: hintText,
     ),
-    style: generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
+    style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
     maxLength: null,
     minLines: minLines,
-    maxLines: maxLines,
   );
 }
 
@@ -1381,9 +1383,9 @@ class CssProperty implements Comparable<CssProperty> {
   CssProperty.fromCssClass(CssClassEnum cssClass, this.property, this.type,
       {required this.defaultValue, this.description})
       : selector = CssSelectorEnum.classSelector,
-        selectorName = Util.enumToString(cssClass),
+        selectorName = Util.enumName(cssClass),
         _id = '${cssSelectorCharacterMap[CssSelectorEnum.classSelector] ?? ''}'
-            '${Util.enumToString(cssClass)}.$property' {
+            '${Util.enumName(cssClass)}.$property' {
     _setPropertyValue(this, defaultValue);
     allCssProperties.add(this);
   }

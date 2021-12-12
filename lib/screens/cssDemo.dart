@@ -41,7 +41,7 @@ class _CssDemo extends State<CssDemo> {
             padding: getMeasurePadding(),
             color: backgroundColor,
             child: Text(
-              Util.enumToString(section),
+              Util.enumName(section),
               style: coloredChordTextStyle,
             )));
       }

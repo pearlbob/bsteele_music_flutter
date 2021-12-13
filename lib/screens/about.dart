@@ -53,8 +53,7 @@ class _About extends State<About> with WidgetsBindingObserver {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-
-                app.messageTextWidget(),
+                app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
                 appSpace(),
                 const Text(
                   'The bsteele Music App has been written by bob.',

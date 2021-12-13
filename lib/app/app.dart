@@ -132,10 +132,9 @@ class App {
   }
 
   /// Generate a message display widget
-  Widget messageTextWidget() {
+  Widget messageTextWidget(AppKeyEnum appKeyEnum) {
     return Text(message,
-        style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
-        key: appKey(AppKeyEnum.errorMessage));
+        style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle, key: appKey(appKeyEnum));
   }
 
   String get message => _message;

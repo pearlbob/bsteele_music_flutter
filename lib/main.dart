@@ -130,6 +130,11 @@ void main() async {
   );
 }
 
+/* fixit notes:
+
+  review .idea/modules.xml   remove offending <modules>
+*/
+
 /*
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!
@@ -147,6 +152,9 @@ verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
 
+//  fixme: edit: change title: does not get a new modification date
+//  fixme: If the key was changed on a song and it is saved, it displays in the previous key instead of the new original key. The behavior should display as original key.
+//  fixme: main: change to last changed, sticks to last selected song
 //  fixme: edit: disposing of controllers and/or focus nodes fails
 //  fixme: edit: web version: enter doesn't work
 //  fixme: player: time signature always in view if not 4/4
@@ -787,7 +795,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             if (app.isEditReady)
               appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerLists,
+                appKeyEnum: AppKeyEnum.mainDrawerSingers,
                 title: Text(
                   "Singers",
                   style: _navTextStyle,
@@ -798,7 +806,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             if (app.isEditReady)
               appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerLists,
+                appKeyEnum: AppKeyEnum.mainDrawerNewSong,
                 title: Text(
                   "New Song",
                   style: _navTextStyle,
@@ -867,7 +875,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-        if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
+        if (app.message.isNotEmpty)
+          Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
         appWrapFullWidth([
           appWrap([
             appTooltip(

@@ -78,7 +78,7 @@ class _Songs extends State<Songs> {
               appSpace(
                 space: 20,
               ),
-              app.messageTextWidget(),
+              app.messageTextWidget(AppKeyEnum.songsErrorMessage),
               appSpace(
                 space: 20,
               ),

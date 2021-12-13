@@ -39,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
 import '../app/app.dart';
+import '../main.dart';
 import 'detail.dart';
 
 late Song _initialSong;
@@ -483,7 +484,7 @@ class _Edit extends State<Edit> {
           // fixme: put GestureDetector only on chord table
           child: Column(
             children: [
-              appSpace(space: 5),
+              appSpace(space: 10),
               appWrapFullWidth(<Widget>[
                 appEnumeratedButton(
                   songHasChanged ? (isValidSong ? 'Save song on local drive' : 'Fix the song') : 'Nothing has changed',
@@ -497,7 +498,7 @@ class _Edit extends State<Edit> {
                   },
                   backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
                 ),
-                app.messageTextWidget(),
+                app.messageTextWidget(AppKeyEnum.editErrorMessage),
                 appWrap(<Widget>[
                   editTooltip(
                     message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
@@ -544,12 +545,23 @@ class _Edit extends State<Edit> {
                       },
                     ),
                   ),
-                  // appButton(
-                  //   'Remove',
-                  //   onPressed: () {
-                  //     logger.log(_editLog, 'fixme: Remove song'); // fixme
-                  //   },
-                  // ),
+                  editTooltip(
+                    message: 'Remove this song from the list of songs.',
+                    child: appEnumeratedButton(
+                      'Remove',
+                      appKeyEnum: AppKeyEnum.editRemoveSong,
+                      fontSize: _defaultChordFontSize,
+                      onPressed: () {
+                        Song nextSong = nextSongInTheList();
+                        undoStackPush(); //  user safety
+                        app.allSongs.remove(song);
+                        originalSong = nextSong;
+                        app.selectedSong = nextSong;
+                        loadSong(nextSong);
+                        undoStackPushIfDifferent();
+                      },
+                    ),
+                  ),
                   // appIconButton(
                   //        icon: Icon(
                   //          Icons.arrow_left,
@@ -576,8 +588,8 @@ class _Edit extends State<Edit> {
                   //          _errorMessage('bob: fixme: arrow_right');
                   //        },
                   //      ),
-                ], spacing: 40),
-              ], alignment: WrapAlignment.spaceBetween),
+                ], alignment: WrapAlignment.spaceBetween, spacing: 25),
+              ], alignment: WrapAlignment.spaceAround, spacing: 10),
               Expanded(
                 child: SingleChildScrollView(
                   key: const ValueKey('singleChildScrollView'),
@@ -692,8 +704,7 @@ class _Edit extends State<Edit> {
                                       },
                                       value: key,
                                       style: generateAppTextStyle(
-                                          fontSize: _defaultChordFontSize,
-                                          fontWeight: FontWeight.bold),
+                                          fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold),
                                       itemHeight: null,
                                     ),
                                     SizedBox.shrink(
@@ -3518,7 +3529,8 @@ class _Edit extends State<Edit> {
           song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
           song.rawLyrics = proLyricsTextEditingController.text;
         }
-        song.checkSong();
+        song.checkSong(); //  throws exception on entry error
+        song.resetLastModifiedDateToNow();
         undoStackPushIfDifferent();
         app.clearMessage();
       }
@@ -3597,7 +3609,7 @@ class _Edit extends State<Edit> {
 
   //  a song copy with the selected edit point activated.  Used to minimize the labor of display construction.
   late Song chordSong;
-  final Song originalSong;
+  Song originalSong;
 
   bool get hasChangedFromOriginal => !song.songBaseSameContent(originalSong); //  fixme: too fine a line
 

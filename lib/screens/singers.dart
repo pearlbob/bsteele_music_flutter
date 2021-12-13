@@ -42,8 +42,7 @@ class _State extends State<Singers> {
     super.initState();
 
     // allSongPerformances.fromJsonString('{"allSongPerformances":'
-    //     '[{"songId":"Song_Rock_Me_Baby_by_BB_King","singer":"Bodhi","key":10,"bpm":100}'
-    //     ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"Vicki","key":0,"bpm":120}'
+    //     '[{"songId":"Song_Rock_Me_Baby_by_BB_King","singer":"Bodhi","key":10,"bpm":100},{"songId":"Song_Dream_by_Everly_Brothers","singer":"Vicki","key":0,"bpm":120}'
     //     ',{"songId":"Song_Dream_by_Everly_Brothers","singer":"Bodhi","key":5,"bpm":120}'
     //     ',{"songId":"Song_Dead_Flowers_by_Rolling_Stones_The","singer":"Lee","key":3,"bpm":120}'
     //     ']}'); //  fixme: temp!!!!
@@ -221,21 +220,12 @@ class _State extends State<Singers> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               if (app.message.isNotEmpty)
-                Text(app.message,
-                    style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                    key: const ValueKey('errorMessage')),
+                Text(
+                  app.message,
+                  style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                  key: appKey(AppKeyEnum.singerErrorMessage),
+                ),
               appSpace(),
-              // ReorderableListView(
-              //     children:
-              //       singerList.map((singer)=>
-              //         ListTile(
-              //           key: ValueKey(singer),
-              //           title: Text(singer),
-              //         )).toList()
-              //     ,
-              //     onReorder: (oldIndex, newIndex) {
-              //       logger.i('singer list reorder: ($oldIndex, $newIndex)');
-              //     }),
               appWrapFullWidth([
                 appEnumeratedButton(
                   'Write all singers to a local file',
@@ -274,7 +264,7 @@ class _State extends State<Singers> {
                                 style: TextStyle(fontSize: songPerformanceStyle.fontSize),
                               ),
                               actions: [
-                                appButton('Yes! Delete all of $_selectedSinger\'s song list',
+                                appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
                                     appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
                                   logger.i('delete: $_selectedSinger');
                                   setState(() {
@@ -285,7 +275,8 @@ class _State extends State<Singers> {
                                   Navigator.of(context).pop();
                                 }),
                                 appSpace(space: 100),
-                                appButton('Cancel', appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
+                                    appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
                                   Navigator.of(context).pop();
                                 }),
                               ],
@@ -297,7 +288,6 @@ class _State extends State<Singers> {
               appSpace(
                 space: 20,
               ),
-
               appWrap(
                 _singerWidgets,
                 alignment: WrapAlignment.spaceEvenly,
@@ -448,9 +438,9 @@ class _State extends State<Singers> {
     );
     setState(() {
       //  fixme: song may have changed in the player screen!!!!
-      if ( playerSelectedSongKey != null ) {
-        allSongPerformances
-          .addSongPerformance(SongPerformance(songPerformance.songIdAsString, _selectedSinger, playerSelectedSongKey!));
+      if (playerSelectedSongKey != null) {
+        allSongPerformances.addSongPerformance(
+            SongPerformance(songPerformance.songIdAsString, _selectedSinger, playerSelectedSongKey!));
       }
       AppOptions().storeAllSongPerformances();
     });

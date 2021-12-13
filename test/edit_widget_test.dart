@@ -85,7 +85,7 @@ void main() async {
     titleTextField.controller!.text = testTitle;
 
     await tester.pump();
-    errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
+    errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
 
     logger.i('title: "${titleTextField.controller!.text}"');
     logger.i('errorMessage: "${errorMessage.data}"');
@@ -96,7 +96,7 @@ void main() async {
     artistTextField.controller!.text = testArtist;
 
     await tester.pump();
-    errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
+    errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
 
     logger.i('artist: "${artistTextField.controller!.text}"');
 
@@ -106,7 +106,7 @@ void main() async {
     logger.i('coverArtist: "${coverArtistTextField.controller!.text}"');
 
     await tester.pump();
-    errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
+    errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
     expect(errorMessage.data, contains('copyright'));
 
     var copyrightTextField = Find.findTextFieldByAppKey(AppKeyEnum.editCopyright);
@@ -115,7 +115,7 @@ void main() async {
     logger.i('copyright: "${copyrightTextField.controller!.text}"');
 
     await tester.pump();
-    errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
+    errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
     expect(errorMessage.data, contains('chords'));
 
     expect(titleTextField.controller!.text, testTitle);
@@ -123,7 +123,7 @@ void main() async {
     expect(coverArtistTextField.controller!.text, coverArtist);
     expect(copyrightTextField.controller!.text, copyright);
 
-    errorMessage = Find.findTextByAppKey(AppKeyEnum.errorMessage);
+    errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
     logger.i('errorMessage: "${errorMessage.data}"');
     expect(errorMessage.data, contains('chords'));
 

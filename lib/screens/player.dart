@@ -640,7 +640,9 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                           //  fixme: why is this column in a column?   remnant of limited scrolling?
                           children: <Widget>[
                             if (app.message.isNotEmpty)
-                              Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
+                              Container(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
                             //  fullscreen, hints, capo,
                             Container(
                               padding: const EdgeInsets.all(12),

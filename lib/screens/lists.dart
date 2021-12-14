@@ -472,13 +472,14 @@ class _State extends State<Lists> {
   }
 
   void _filePick(BuildContext context) async {
-    var message = await UtilWorkaround().filePickByExtension(context, '.songmetadata');
+    var content = await UtilWorkaround().filePickByExtension(context, '.songmetadata');
 
     setState(() {
-      if (message.isEmpty) {
-        app.infoMessage('No metatdata read');
+      if (content.isEmpty) {
+        app.infoMessage('No metadata read');
       } else {
-        app.infoMessage(message);
+        SongMetadata.fromJson(content);
+        AppOptions().storeSongMetadata();
       }
     });
   }

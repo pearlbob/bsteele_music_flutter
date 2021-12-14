@@ -114,13 +114,11 @@ class UtilLinux implements UtilWorkaround {
       if (file.existsSync()) {
         String s = utf8.decode(file.readAsBytesSync());
 
-        SongMetadata.fromJson(s);
-        AppOptions().storeSongMetadata();
-
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
+        return s;
       }
-      return 'Song metadata read from $path';
+      return '';
     } else {
       //  reset the root
       _rootDirectory = Directory(Util.homePath());

@@ -293,7 +293,6 @@ class AppOptions extends ChangeNotifier {
   void storeAllSongPerformances() {
     String storage = allSongPerformances.toJsonString();
     _saveString(Util.enumName(StorageValue.allSongPerformances), storage);
-    logger.i('AppOptions().storeAllSongPerformances():');
   }
 
   void _readAllSongPerformances() async {

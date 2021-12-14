@@ -631,14 +631,20 @@ enum AppKeyEnum {
   playerSongBad,
   playerSongGood,
   privacyBack,
+  singersAddSingerToSession,
+  singersAllSingers,
   singersBack,
   singersCancelDeleteSinger,
   singersClearSearch,
   singersDeleteSinger,
   singersDeleteSingerConfirmation,
-  singerErrorMessage,
+  singersErrorMessage,
+  singersSinging,
   singersReadSingers,
+  singersRemoveAllSingers,
+  singersRemoveSingerFromSession,
   singersSearchText,
+  singersSessionSingerSelect,
   singersNameEntry,
   singersSave,
   singersSaveSelected,
@@ -686,6 +692,9 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.optionsUserName: String,
   AppKeyEnum.playerBPM: int,
   AppKeyEnum.playerMusicKey: music_key.Key,
+  AppKeyEnum.singersAddSingerToSession: String,
+  AppKeyEnum.singersAllSingers: String,
+  AppKeyEnum.singersSessionSingerSelect: String,
 };
 
 class Id {
@@ -712,7 +721,7 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
       assert(value == null);
       return ValueKey<String>(Util.enumName(e));
     case String:
-      return ValueKey<String>(Util.enumName(e));
+      return ValueKey<String>(Util.enumName(e) + (value == null ? '' : '.$value'));
     case music_key.Key:
       assert(value.runtimeType == type);
       return ValueKey<String>('${Util.enumName(e)}.${(value as music_key.Key).toMarkup()}');
@@ -1017,16 +1026,19 @@ TextButton appTextButton(
   String text, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback onPressed,
+  TextStyle? style,
 }) {
-  var key = appKey(appKeyEnum);
+  var key = appKey(appKeyEnum, value: text);
   return TextButton(
     key: key,
-    child: Text(text),
+    child: Text(
+      text,
+      style: style,
+    ),
     onPressed: () {
       appLogKeyCallback(key);
       onPressed();
     },
-    style: app.themeData.elevatedButtonTheme.style,
   );
 }
 

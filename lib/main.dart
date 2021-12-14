@@ -151,7 +151,7 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
-
+//  fixme: feature: for ninjam: put title, chords in ninjam format for copy/paste to ninjam comment, + /bpm and /bpi
 //  fixme: edit: change title: does not get a new modification date
 //  fixme: If the key was changed on a song and it is saved, it displays in the previous key instead of the new original key. The behavior should display as original key.
 //  fixme: main: change to last changed, sticks to last selected song

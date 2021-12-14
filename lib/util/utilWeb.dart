@@ -114,9 +114,7 @@ class UtilWeb implements UtilWorkaround {
     for (NameValue nameValue in await getFiles(extension)) {
       Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
       String s = utf8.decode(data);
-      SongMetadata.fromJson(s);
-      AppOptions().storeSongMetadata();
-      return 'Song metadata read from ${nameValue.name}';
+      return s;
     }
     return '';
   }

@@ -579,6 +579,7 @@ enum AppKeyEnum {
   mainClearSearch,
   mainDrawerAbout,
   mainDrawerCssDemo,
+  mainDrawerDebug,
   mainDrawerDocs,
   mainDrawerLists,
   mainDrawerNewSong,
@@ -1192,6 +1193,7 @@ TextField appTextField({
   FontWeight? fontWeight,
   bool? enabled,
   int? minLines,
+  int? maxLines,
   InputBorder? border,
 }) {
   return TextField(
@@ -1212,7 +1214,7 @@ TextField appTextField({
     style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
     maxLength: null,
     minLines: minLines,
-    maxLines: minLines,
+    maxLines: maxLines ?? minLines,
   );
 }
 

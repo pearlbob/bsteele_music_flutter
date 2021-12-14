@@ -77,6 +77,7 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/cssDemo.dart';
+import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lists.dart';
@@ -350,11 +351,12 @@ class BSteeleMusicApp extends StatelessWidget {
                 Player.routeName: playerPageRoute.builder,
                 Options.routeName: (context) => const Options(),
                 '/songs': (context) => const Songs(),
-                '/lists': (context) => const Lists(),
                 Singers.routeName: (context) => const Singers(),
+                '/lists': (context) => const Lists(),
                 '/edit': (context) => Edit(initialSong: app.selectedSong),
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
+                Debug.routeName: (context) => const Debug(),
                 '/about': (context) => const About(),
                 '/cssDemo': (context) => const CssDemo(),
                 '/theory': (context) => const TheoryWidget(),
@@ -771,6 +773,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToOptions(context);
               },
             ),
+            if (app.isEditReady)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerSingers,
+                title: Text(
+                  "Singers",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToSingers(context);
+                },
+              ),
             if (app.isEditReady) //  no files on phones!
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerSongs,
@@ -791,17 +804,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onTap: () {
                   _navigateToLists(context);
-                },
-              ),
-            if (app.isEditReady)
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerSingers,
-                title: Text(
-                  "Singers",
-                  style: _navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToSingers(context);
                 },
               ),
             if (app.isEditReady)
@@ -856,6 +858,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onTap: () {
                   _navigateToCssDemo(context);
+                },
+              ),
+            if (kDebugMode)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerDebug,
+                title: Text(
+                  "Debug",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToDebug(context);
                 },
               ),
             appListTile(
@@ -1319,6 +1332,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Navigator.pop(context); //  drawer
     _reApplySearch();
+  }
+
+  _navigateToDebug(BuildContext context) async {
+    app.clearMessage();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Debug()),
+    );
+    Navigator.pop(context); //  drawer
   }
 
   _navigateToAbout(BuildContext context) async {

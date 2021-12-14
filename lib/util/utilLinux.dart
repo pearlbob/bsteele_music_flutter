@@ -6,7 +6,6 @@ import 'package:bsteeleMusicLib/songs/chordPro.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
-import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/widgets.dart';

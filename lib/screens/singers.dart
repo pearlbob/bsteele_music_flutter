@@ -8,7 +8,6 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
-import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +70,9 @@ class _State extends State<Singers> {
             appTextButton(
               singer,
               appKeyEnum: AppKeyEnum.singersAllSingers,
-              style: songPerformanceStyle,
+              style: singer == _selectedSinger
+                  ? songPerformanceStyle.copyWith(backgroundColor: _addColor)
+                  : songPerformanceStyle,
               onPressed: () {
                 setState(() {
                   _selectedSinger = singer;
@@ -98,7 +99,7 @@ class _State extends State<Singers> {
                         message: 'Add $singer to today\'s session.',
                         child: Icon(
                           Icons.add,
-                          size: fontSize,
+                          size: fontSize * 0.75,
                         ),
                       ))),
             if (_sessionSingers.contains(singer))
@@ -121,7 +122,7 @@ class _State extends State<Singers> {
                         message: 'Remove $singer from today\'s session.',
                         child: Icon(
                           Icons.remove,
-                          size: fontSize,
+                          size: fontSize * 0.75,
                         ),
                       ))),
             appSpace(),
@@ -273,7 +274,7 @@ class _State extends State<Singers> {
                 ),
                 if (!isInSingingMode)
                   Text(
-                    'adjustments:',
+                    '  Make adjustments:',
                     style: singerTextStyle,
                     softWrap: false,
                   ),
@@ -506,21 +507,21 @@ class _State extends State<Singers> {
         TextButton(
           child: Text(
             '${song.title} by ${song.artist}'
-                '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-                '${key == null ? '' : ' in $key'}',
+            '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+            '${key == null ? '' : ' in $key'}',
             style: songPerformanceStyle,
           ),
           onPressed: (_selectedSinger != unknownSinger)
               ? () {
-            setState(() {
-              var songPerformance =
-              SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault());
-              if (_selectedSinger != unknownSinger) {
-                allSongPerformances.addSongPerformance(songPerformance);
-                navigateToPlayer(context, songPerformance);
-              }
-            });
-          }
+                  setState(() {
+                    var songPerformance =
+                        SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault());
+                    if (_selectedSinger != unknownSinger) {
+                      allSongPerformances.addSongPerformance(songPerformance);
+                      navigateToPlayer(context, songPerformance);
+                    }
+                  });
+                }
               : null,
         )
       ],

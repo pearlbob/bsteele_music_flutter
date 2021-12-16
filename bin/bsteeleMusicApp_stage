@@ -72,21 +72,16 @@ ls -l lib/assets/utcDate.txt
 cat lib/assets/utcDate.txt
 
 
-#	incorporate the beta to the legacy .war file
+#	incorporate the app into the server .war file
 set war=build/bsteeleMusicApp.war
 set gswar=gs://www.bsteele.com/$app/bsteeleMusicApp.war
 rm -rf $war
-cp ../bsteeleMusicApp/target/bsteeleMusicApp.war $war
-rm -rf build/beta
-mkdir build/beta
-cp -r build/web/* build/beta
-rm -rf build/beta/audio
-echo NO audio
-jar -uf $war -C build beta
+#	note the Server part!
+cp ../bsteeleMusicServer/target/bsteeleMusicApp.war $war
+jar -uf $war -C build/web .
 #	update the local allSongs to the latest
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
-rm -rf build/beta
 
 #	ship it to distribution point for raspberry pi's
 #	already done above: bsteele_auth

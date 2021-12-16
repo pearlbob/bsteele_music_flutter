@@ -12,7 +12,7 @@
     background-color: white; /* type is Color, universal background color */
     color: black; /* type is Color, universal foreground color */
     accent-color: #57a9ff;
-    font-size: 1.75vw; /* type is LengthTerm, universal text font size */
+  /*  font-size: 1.75vw; /* type is LengthTerm, universal text font size */
     font-weight: normal;
     font-style: normal;
 }
@@ -25,13 +25,13 @@
 .button {
     background-color: var(--app-background-color); /* type is Color, (elevated) button background color */
     color: white; /* type is Color, (elevated) button foreground color */
-    font-size: 1.5vw; /* type is UnitTerm, button text font size */
+    /*font-size: 1.5vw; /* type is UnitTerm, button text font size */
 }
 
 .tooltip {
     background-color: #dcedc8; /* type is Color, (elevated) button background color */
     color: black; /* type is Color, (elevated) button foreground color */
-    font-size: 1.75vw; /* type is UnitTerm, button text font size */
+    /*font-size: 1.75vw; /* type is UnitTerm, button text font size */
 }
 
 .oddTitleText, .evenTitleText {

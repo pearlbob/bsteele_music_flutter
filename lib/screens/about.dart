@@ -39,13 +39,12 @@ class _About extends State<About> with WidgetsBindingObserver {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     ScreenInfo screenInfo = App().screenInfo;
-    final double fontSize = screenInfo.fontSize;
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'About the bsteele Music App'),
       body: DefaultTextStyle(
-        style: generateAppTextStyle(color: Colors.black87, fontSize: fontSize),
+        style: generateAppTextStyle(color: Colors.black87, fontSize: screenInfo.fontSize),
         child: Container(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -68,7 +67,7 @@ class _About extends State<About> with WidgetsBindingObserver {
                     },
                     child: Text(
                       'bsteele.com',
-                      style: generateAppLinkTextStyle(),
+                      style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
                     ),
                   ),
                 ]),
@@ -93,7 +92,10 @@ class _About extends State<About> with WidgetsBindingObserver {
                 const Text(''),
                 Text(
                   'screen: (${screenInfo.widthInLogicalPixels.toStringAsFixed(0)}'
-                  ',${screenInfo.heightInLogicalPixels.toStringAsFixed(0)})',
+                  ',${screenInfo.heightInLogicalPixels.toStringAsFixed(0)})'
+                  // ', fontSize: ${screenInfo.fontSize}'
+                  // ', titleScaleFactor: ${screenInfo.titleScaleFactor.toStringAsFixed(2)}'
+                  ,
                 ),
                 Text(
                   'OS: ${kIsWeb ? 'web' : Platform.operatingSystem}',

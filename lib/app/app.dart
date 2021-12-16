@@ -210,11 +210,11 @@ TextStyle appErrorTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, c
 
 const double _defaultFontSize = 24;
 
-TextStyle appButtonTextStyle({double? fontSize}) {
+TextStyle appButtonTextStyle({final double? fontSize}) {
   return generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
 }
 
-Widget appSpace({double? space}) {
+Widget appSpace({final double? space}) {
   if (space == null) {
     return const SizedBox(
       height: 10,
@@ -229,10 +229,10 @@ Widget appSpace({double? space}) {
 
 /// helper function to generate tool tips
 Widget appTooltip({
-  Key? key,
-  required String message,
-  required Widget child,
-  double? fontSize,
+  final Key? key,
+  required final String message,
+  required final Widget child,
+  final double? fontSize,
 }) {
   var textStyle = generateTooltipTextStyle(fontSize: fontSize);
   return Tooltip(
@@ -246,7 +246,7 @@ Widget appTooltip({
       padding: const EdgeInsets.all(8));
 }
 
-BoxDecoration appTooltipBoxDecoration(Color? color) {
+BoxDecoration appTooltipBoxDecoration(final Color? color) {
   return BoxDecoration(
       color: color,
       border: Border.all(),
@@ -255,7 +255,7 @@ BoxDecoration appTooltipBoxDecoration(Color? color) {
 }
 
 Wrap appWrap(List<Widget> children,
-    {WrapAlignment? alignment, WrapCrossAlignment? crossAxisAlignment, double? spacing}) {
+    {final WrapAlignment? alignment, final WrapCrossAlignment? crossAxisAlignment, final double? spacing}) {
   return Wrap(
     children: children,
     crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
@@ -264,8 +264,8 @@ Wrap appWrap(List<Widget> children,
   );
 }
 
-Widget appWrapFullWidth(List<Widget> children,
-    {WrapAlignment? alignment, WrapCrossAlignment? crossAxisAlignment, double? spacing}) {
+Widget appWrapFullWidth(final List<Widget> children,
+    {final WrapAlignment? alignment, final WrapCrossAlignment? crossAxisAlignment, final double? spacing}) {
   return SizedBox(
     width: double.infinity,
     child: appWrap(children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
@@ -279,7 +279,7 @@ typedef CanPopQualifier = bool Function();
 class AppWidgetHelper {
   AppWidgetHelper(this.context);
 
-  Widget back({CanPopQualifier? canPop, VoidCallback? onPressed}) {
+  Widget back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
     return appTooltip(
       message: 'Back',
       child: appIconButton(
@@ -296,7 +296,7 @@ class AppWidgetHelper {
     );
   }
 
-  Widget floatingBack(AppKeyEnum appKeyEnum, {CanPopQualifier? canPop}) {
+  Widget floatingBack(final AppKeyEnum appKeyEnum, {final CanPopQualifier? canPop}) {
     return appTooltip(
       message: 'Back',
       child: appFloatingActionButton(
@@ -311,7 +311,8 @@ class AppWidgetHelper {
     );
   }
 
-  AppBar backBar({AppKeyEnum? appKeyEnum, Widget? titleWidget, String? title, List<Widget>? actions}) {
+  AppBar backBar(
+      {final AppKeyEnum? appKeyEnum, final Widget? titleWidget, final String? title, final List<Widget>? actions}) {
     return appBar(
         appKeyEnum: appKeyEnum ?? AppKeyEnum.appBarBack,
         title: title,
@@ -320,7 +321,12 @@ class AppWidgetHelper {
         actions: actions);
   }
 
-  AppBar appBar({AppKeyEnum? appKeyEnum, String? title, Widget? titleWidget, Widget? leading, List<Widget>? actions}) {
+  AppBar appBar(
+      {final AppKeyEnum? appKeyEnum,
+      final String? title,
+      final Widget? titleWidget,
+      final Widget? leading,
+      final List<Widget>? actions}) {
     return AppBar(
       key: appKeyEnum != null ? appKey(appKeyEnum) : null,
       title: titleWidget ??
@@ -341,7 +347,7 @@ class AppWidgetHelper {
     );
   }
 
-  Widget checkbox({required bool? value, ValueChanged<bool?>? onChanged, double? fontSize}) {
+  Widget checkbox({required final bool? value, final ValueChanged<bool?>? onChanged, final double? fontSize}) {
     ThemeData themeData = Theme.of(context);
     return Transform.scale(
       scale: 0.7 * (fontSize ?? _defaultFontSize) / Checkbox.width,
@@ -350,7 +356,8 @@ class AppWidgetHelper {
     );
   }
 
-  Widget transpose(Measure measure, music_key.Key key, int halfSteps, {required TextStyle style}) {
+  Widget transpose(final Measure measure, final music_key.Key key, final int halfSteps,
+      {required final TextStyle style}) {
     TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize).copyWith(
       // fontFamily: 'Roboto', //  fixme
       backgroundColor: style.backgroundColor,
@@ -362,8 +369,8 @@ class AppWidgetHelper {
     );
 
     if (measure.chords.isNotEmpty) {
-      List<TextSpan> children = [];
-      for (Chord chord in measure.chords) {
+      final List<TextSpan> children = [];
+      for (final Chord chord in measure.chords) {
         var transposedChord = chord.transpose(key, halfSteps);
         var isSlash = transposedChord.slashScaleNote != null;
 
@@ -420,14 +427,14 @@ class AppWidgetHelper {
     );
   }
 
-  Widget chordSection(ChordSection chordSection, {required TextStyle style}) {
+  Widget chordSection(final ChordSection chordSection, {required final TextStyle style}) {
     return _text(
       chordSection.sectionVersion.toString(),
       style,
     );
   }
 
-  Widget _text(String text, TextStyle style) {
+  Widget _text(final String text, final TextStyle style) {
     return Text(
       text,
       style: style,

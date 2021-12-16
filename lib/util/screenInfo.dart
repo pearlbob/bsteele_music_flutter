@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Gather information on screen size and adapt to it
@@ -12,14 +10,9 @@ class ScreenInfo {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
 
     double devicePixelRatio = mediaQueryData.devicePixelRatio;
+    _mediaWidth = mediaQueryData.size.width;
     _widthInLogicalPixels = mediaQueryData.size.width;
     _heightInLogicalPixels = mediaQueryData.size.height;
-
-    //  fixme: an attempt to improve the logical pixel stuff
-    if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
-      _widthInLogicalPixels *= devicePixelRatio;
-      _heightInLogicalPixels *= devicePixelRatio;
-    }
 
     _fontSize = 2 * appDefaultFontSize * min(2.25, max(1, _widthInLogicalPixels / minLogicalPixels));
     _isTooNarrow = _widthInLogicalPixels <= minLogicalPixels; //  logical pixels
@@ -49,6 +42,9 @@ class ScreenInfo {
   double get widthInLogicalPixels => _widthInLogicalPixels;
   late double _widthInLogicalPixels;
 
+  double get mediaWidth => _mediaWidth;
+  late double _mediaWidth;
+
   /// Screen height in logical pixels
   double get heightInLogicalPixels => _heightInLogicalPixels;
   late double _heightInLogicalPixels;
@@ -62,7 +58,7 @@ class ScreenInfo {
   bool get isWayTooNarrow => _isWayTooNarrow;
   late bool _isWayTooNarrow;
 
-  // double get titleScaleFactor => _titleScaleFactor;
+  double get titleScaleFactor => _titleScaleFactor;
   late double _titleScaleFactor;
 
   bool get isDefaultValue => _isDefaultValue;

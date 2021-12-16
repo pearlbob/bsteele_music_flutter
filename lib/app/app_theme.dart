@@ -135,9 +135,10 @@ final CssProperty _universalForegroundColorProperty = CssProperty(CssSelectorEnu
     defaultValue: Colors.black, description: 'universal foreground color');
 final CssProperty _universalAccentColorProperty = CssProperty(CssSelectorEnum.universal, '*', 'accent-color', Color,
     defaultValue: Colors.blue, description: 'universal accent color');
-final _universalFontSizeProperty = CssProperty(CssSelectorEnum.universal, '*', 'font-size', visitor.UnitTerm,
-    defaultValue: visitor.ViewportTerm(1.75, '1.75', null, parser.TokenKind.UNIT_VIEWPORT_VW),
-    description: 'universal text font size');
+//  _universalFontSizeProperty not used in favor of screenInfo.fontsize
+// final _universalFontSizeProperty = CssProperty(CssSelectorEnum.universal, '*', 'font-size', visitor.UnitTerm,
+//     defaultValue: visitor.ViewportTerm(1.75, '1.75', null, parser.TokenKind.UNIT_VIEWPORT_VW),
+//     description: 'universal text font size');
 final CssProperty _universalFontWeightProperty = CssProperty(
     CssSelectorEnum.universal, '*', 'font-weight', visitor.UnitTerm,
     defaultValue: 'normal', description: 'universal text font weight');
@@ -155,7 +156,7 @@ void _initUniversal() {
   _init(_universalBackgroundColorProperty);
   _init(_universalForegroundColorProperty);
   _init(_universalAccentColorProperty);
-  _init(_universalFontSizeProperty);
+  // _init(_universalFontSizeProperty);
   _init(_universalFontWeightProperty);
   _init(_universalFontStyleProperty);
 }
@@ -640,10 +641,13 @@ enum AppKeyEnum {
   singersDeleteSinger,
   singersDeleteSingerConfirmation,
   singersErrorMessage,
+  singersMoveSingerEarlierInSession,
+  singersMoveSingerLaterInSession,
   singersSinging,
   singersReadSingers,
   singersRemoveAllSingers,
   singersRemoveSingerFromSession,
+  singersRemoveThisSingerFromSession,
   singersSearchText,
   singersSessionSingerSelect,
   singersNameEntry,
@@ -738,6 +742,24 @@ class _CssColor extends Color {
   String toCss() {
     return '#${(value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
   }
+}
+
+Widget appCircledIcon(IconData iconData, String toolTip,
+    {Color? color, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? size}) {
+  return Container(
+      margin: margin,
+      padding: padding,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
+      child: appTooltip(
+        message: toolTip,
+        child: Icon(
+          iconData,
+          size: size,
+        ),
+      ));
 }
 
 /// Icon widget with the application look
@@ -1004,7 +1026,7 @@ ElevatedButton appButton(
   double? fontSize,
   dynamic value,
 }) {
-  fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
+  fontSize ??= app.screenInfo.fontSize; // _sizeLookup(_universalFontSizeProperty);
   var key = appKey(appKeyEnum, value: value);
 
   return ElevatedButton(
@@ -1070,7 +1092,8 @@ InkWell appInkWell({
   KeyCallback? keyCallback,
   dynamic value, // overrides onPressed(), requires key
 }) {
-  fontSize ??= _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
+  fontSize ??=
+      app.screenInfo.fontSize; // _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
 
   //  some form of callback is required, but not two!
   assert((keyCallback != null && onTap == null) || (keyCallback == null && onTap != null));
@@ -1259,7 +1282,7 @@ TextStyle generateAppTextStyle({
   TextDecorationStyle? decorationStyle,
   bool nullBackground = false,
 }) {
-  fontSize ??= _sizeLookup(_universalFontSizeProperty);
+  fontSize ??= app.screenInfo.fontSize; // _sizeLookup(_universalFontSizeProperty);
   fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
   return TextStyle(
     color: color ?? _getColor(_universalForegroundColorProperty),
@@ -1306,10 +1329,13 @@ TextStyle generateAppBarLinkTextStyle() {
   );
 }
 
-TextStyle generateAppLinkTextStyle() {
+TextStyle generateAppLinkTextStyle({
+  double? fontSize,
+}) {
   return generateAppTextStyle(
     color: Colors.blue, //  fixme
     decoration: TextDecoration.underline,
+    fontSize: fontSize,
   );
 }
 

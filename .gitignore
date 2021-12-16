@@ -78,6 +78,3 @@ gradlew.bat
 *.jar
 key.properties
 *.aab
-
-#   app related
-utcDate.txt

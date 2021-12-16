@@ -81,50 +81,40 @@ class _State extends State<Singers> {
             ),
             if (!_sessionSingers.contains(singer))
               appInkWell(
-                  appKeyEnum: AppKeyEnum.singersAddSingerToSession,
-                  value: singer,
-                  keyCallback: () {
-                    setState(() {
-                      _sessionSingers.add(singer);
-                    });
-                  },
-                  child: Container(
-                      margin: appendInsets,
-                      padding: appendPadding,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _addColor,
-                      ),
-                      child: appTooltip(
-                        message: 'Add $singer to today\'s session.',
-                        child: Icon(
-                          Icons.add,
-                          size: fontSize * 0.75,
-                        ),
-                      ))),
+                appKeyEnum: AppKeyEnum.singersAddSingerToSession,
+                value: singer,
+                keyCallback: () {
+                  setState(() {
+                    _sessionSingers.add(singer);
+                  });
+                },
+                child: appCircledIcon(
+                  Icons.add,
+                  'Add $singer to today\'s session.',
+                  margin: appendInsets,
+                  padding: appendPadding,
+                  color: _addColor,
+                  size: fontSize * 0.7,
+                ),
+              ),
             if (_sessionSingers.contains(singer))
               appInkWell(
-                  appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
-                  // value: singer,
-                  keyCallback: () {
-                    setState(() {
-                      _sessionSingers.remove(singer);
-                    });
-                  },
-                  child: Container(
-                      margin: appendInsets,
-                      padding: appendPadding,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _removeColor,
-                      ),
-                      child: appTooltip(
-                        message: 'Remove $singer from today\'s session.',
-                        child: Icon(
-                          Icons.remove,
-                          size: fontSize * 0.75,
-                        ),
-                      ))),
+                appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
+                // value: singer,
+                keyCallback: () {
+                  setState(() {
+                    _sessionSingers.remove(singer);
+                  });
+                },
+                child: appCircledIcon(
+                  Icons.remove,
+                  'Remove $singer from today\'s session.',
+                  margin: appendInsets,
+                  padding: appendPadding,
+                  color: _removeColor,
+                  size: fontSize * 0.7,
+                ),
+              ),
             appSpace(),
             appSpace(),
           ],
@@ -190,7 +180,7 @@ class _State extends State<Singers> {
         ));
         songWidgetList.add(Text(
           (searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs ') +
-              'not yet for singer $_selectedSinger:',
+              'not yet sung by $_selectedSinger:',
           style: songPerformanceStyle.copyWith(color: Colors.grey),
         ));
       }
@@ -214,8 +204,32 @@ class _State extends State<Singers> {
             style: singerTextStyle,
           )
         : appWrapFullWidth(
-            [
-              for (var e in _sessionSingers)
+        [
+            for (var e in _sessionSingers)
+              appWrap([
+                if (!isInSingingMode &&
+                    _selectedSinger == e &&
+                    _sessionSingers.length > 1 &&
+                    _sessionSingers.indexOf(e) > 0)
+                  appInkWell(
+                    appKeyEnum: AppKeyEnum.singersMoveSingerEarlierInSession,
+                    // value: singer,
+                    keyCallback: () {
+                      setState(() {
+                        var index = _sessionSingers.indexOf(e);
+                        _sessionSingers.remove(e);
+                        _sessionSingers.insert(index - 1, e);
+                      });
+                    },
+                    child: appCircledIcon(
+                      Icons.arrow_back,
+                      'Move the singer earlier in today\'s list',
+                      margin: appendInsets,
+                      padding: appendPadding,
+                      color: _addColor,
+                      size: fontSize * 0.7,
+                    ),
+                  ),
                 appTextButton(
                   e,
                   appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
@@ -226,8 +240,49 @@ class _State extends State<Singers> {
                   },
                   style: e == _selectedSinger ? singerTextStyle.copyWith(backgroundColor: _addColor) : singerTextStyle,
                 ),
-            ],
-          );
+                // if (!isInSingingMode && _selectedSinger == e)
+                //   appInkWell(
+                //     appKeyEnum: AppKeyEnum.singersRemoveThisSingerFromSession,
+                //     // value: singer,
+                //     keyCallback: () {
+                //       setState(() {
+                //         _sessionSingers.remove(e);
+                //       });
+                //     },
+                //     child: appCircledIcon(
+                //       Icons.remove,
+                //       'Remove $e from today\'s session.',
+                //       margin: appendInsets,
+                //       padding: appendPadding,
+                //       color: _removeColor,
+                //       size: fontSize * 0.7,
+                //     ),
+                //   ),
+                if (!isInSingingMode &&
+                    _selectedSinger == e &&
+                    _sessionSingers.length > 1 &&
+                    _sessionSingers.indexOf(e) < _sessionSingers.length - 1)
+                  appInkWell(
+                    appKeyEnum: AppKeyEnum.singersMoveSingerLaterInSession,
+                    // value: singer,
+                    keyCallback: () {
+                      setState(() {
+                        var index = _sessionSingers.indexOf(e);
+                        _sessionSingers.remove(e);
+                        _sessionSingers.insert(index + 1, e);
+                      });
+                    },
+                    child: appCircledIcon(
+                      Icons.arrow_forward,
+                      'Move the singer to later in today\'s list',
+                      margin: appendInsets,
+                      padding: appendPadding,
+                      color: _addColor,
+                      size: fontSize * 0.7,
+                    ),
+                  ),
+              ]),
+          ], spacing: 25);
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -266,6 +321,7 @@ class _State extends State<Singers> {
                         }
                         if (isInSingingMode) {
                           app.clearMessage();
+                          _searchClear();
                         }
                       });
                     },
@@ -434,10 +490,9 @@ class _State extends State<Singers> {
                       icon: const Icon(Icons.clear),
                       iconSize: 1.5 * fontSize,
                       onPressed: (() {
-                        _searchTextFieldController.clear();
                         setState(() {
+                          _searchClear();
                           FocusScope.of(context).requestFocus(_searchFocusNode);
-                          _searchSongs(null);
                         });
                       }),
                     ),
@@ -528,6 +583,11 @@ class _State extends State<Singers> {
     );
   }
 
+  void _searchClear() {
+    _searchTextFieldController.clear();
+    _searchSongs(null);
+  }
+
   void _searchSongs(String? search) {
     search ??= '';
     search = search.trim();
@@ -577,8 +637,7 @@ class _State extends State<Singers> {
         _selectedSinger = _sessionSingers[index >= _sessionSingers.length ? 0 : index];
       }
 
-      _searchTextFieldController.text = '';
-      _searchSongs(null);
+      _searchClear();
     });
   }
 

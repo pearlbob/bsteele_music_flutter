@@ -145,7 +145,6 @@ class LyricsTable {
                           style: _coloredChordTextStyle,
                         ),
                         selectionColor: textStyle.backgroundColor);
-
                     break;
                   default:
                     w = _box(Text(

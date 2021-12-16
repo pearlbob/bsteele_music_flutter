@@ -152,6 +152,14 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
+//  fixme: flutter webview 3.0 has an iframe
+// fixme: • When trying to adjust lyrics to best match the lines of chords, I need to see the chords and lyrics together.
+     Though I couldn't see the entire song lyrics in the release version,
+      it allowed me to scroll the lyrics section independently, keeping the chords visible.
+//
+// fixme: Pro input feels like it struggles to 'pretend' to be a text editor.
+        There is so much delay while scrolling and entering text, it's hard to work.
+         I am now looking into working with an external text editor.
 //  fixme: feature: for ninjam: put title, chords in ninjam format for copy/paste to ninjam comment, + /bpm and /bpi
 //  fixme: edit: change title: does not get a new modification date
 //  fixme: If the key was changed on a song and it is saved, it displays in the previous key instead of the new original key. The behavior should display as original key.
@@ -839,16 +847,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 _navigateToPrivacyPolicy(context);
               },
             ),
-            appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerDocs,
-              title: Text(
-                "Docs",
-                style: _navTextStyle,
+            if (app.isScreenBig)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerDocs,
+                title: Text(
+                  "Docs",
+                  style: _navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToDocumentation(context);
+                },
               ),
-              onTap: () {
-                _navigateToDocumentation(context);
-              },
-            ),
             if (kDebugMode)
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
@@ -905,7 +914,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(
-              width: 14 * _titleBarFontSize,
+              width: 12 * _titleBarFontSize,
               //  limit text entry display length
               child: TextField(
                 key: appKey(AppKeyEnum.mainSearchText),
@@ -942,32 +951,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   }),
                 )),
           ]),
-          appWrap([
-            appTooltip(
-              message: 'Select the order of the song list.',
-              child: Text(
-                'Order',
-                style: searchDropDownStyle,
+          if (app.isScreenBig)
+            appWrap([
+              appTooltip(
+                message: 'Select the order of the song list.',
+                child: Text(
+                  'Order',
+                  style: searchDropDownStyle,
+                ),
               ),
-            ),
-            appSpace(),
-            DropdownButton<MainSortType>(
-              items: _sortTypesDropDownMenuList,
-              onChanged: (value) {
-                if (_selectedSortType != value) {
-                  setState(() {
-                    _selectedSortType = value ?? MainSortType.byTitle;
-                    _searchSongs(_searchTextFieldController.text);
-                  });
-                }
-              },
-              value: _selectedSortType,
-              style: searchDropDownStyle,
-              alignment: Alignment.topLeft,
-              elevation: 8,
-              itemHeight: null,
-            ),
-          ]),
+              appSpace(),
+              DropdownButton<MainSortType>(
+                items: _sortTypesDropDownMenuList,
+                onChanged: (value) {
+                  if (_selectedSortType != value) {
+                    setState(() {
+                      _selectedSortType = value ?? MainSortType.byTitle;
+                      _searchSongs(_searchTextFieldController.text);
+                    });
+                  }
+                },
+                value: _selectedSortType,
+                style: searchDropDownStyle,
+                alignment: Alignment.topLeft,
+                elevation: 8,
+                itemHeight: null,
+              ),
+            ]),
           if (appOptions.holiday)
             appWrap([
               appTooltip(
@@ -978,7 +988,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ]),
-          if (!appOptions.holiday)
+          if (!appOptions.holiday && app.isScreenBig)
             appWrap([
               appTooltip(
                 message: 'Select which song list to show.',

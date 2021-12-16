@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
@@ -59,7 +60,7 @@ const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
 
 final ChordSectionLocation defaultLocation = // last resort, better than null
-    ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
+ChordSectionLocation(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
 const bool _editDebug = kDebugMode && false;
 const bool _editDebugVerbose = kDebugMode && false;
@@ -148,7 +149,7 @@ class _Edit extends State<Edit> {
           case '\n':
             logger.log(_editLog, 'newline: should _editMeasure() called here?');
             break;
-          //  look for TextField.onEditingComplete() for end of entry... but it happens too often!
+        //  look for TextField.onEditingComplete() for end of entry... but it happens too often!
         }
       }
 
@@ -187,33 +188,6 @@ class _Edit extends State<Edit> {
       song.user = userTextEditingController.text;
       checkSongChangeStatus();
       // user  will often be different  _checkSongStatus();
-    });
-    proChordTextEditingController.addListener(() {
-      logger.v('proChordTextEditingController listener:');
-      checkSongChangeStatus();
-    });
-    proLyricsTextEditingController.addListener(() {
-      //  enter lyrics if the selected line has changed
-      int line = proLyricsTextEditingController.selection.baseOffset < 0
-          ? -1
-          : RegExp('\n')
-              .allMatches(
-                  proLyricsTextEditingController.text.substring(0, proLyricsTextEditingController.selection.baseOffset))
-              .length;
-      logger.v('proLyricsTextEditingController listener: '
-          '${RegExp('\n').allMatches(proLyricsTextEditingController.text).length}'
-          ', selection: (${proLyricsTextEditingController.selection.baseOffset}'
-          ',${proLyricsTextEditingController.selection.extentOffset})'
-          ', line: $line vs $proLyricsLastLineSelected');
-      if (line != proLyricsLastLineSelected) {
-        proLyricsLastLineSelected = line;
-        setState(() {
-          checkSong();
-        });
-      } else if (songHasChanged) {
-        //  setup the song write button
-        setState(() {});
-      }
     });
 
     bpmTextEditingController.addListener(() {
@@ -305,31 +279,31 @@ class _Edit extends State<Edit> {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
-              title: Text(
-                'Do you really want discard your changes?',
-                style: chordBoldTextStyle,
-              ),
-              actions: [
-                appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
-                  app.clearMessage();
-                  Navigator.of(context).pop(); //  the dialog
-                  Navigator.of(context).pop(); //  the screen
-                }),
-                appSpace(space: 100),
-                appButton('Cancel the return... I need to work some more on this.',
-                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+          title: Text(
+            'Do you really want discard your changes?',
+            style: chordBoldTextStyle,
+          ),
+          actions: [
+            appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+              app.clearMessage();
+              Navigator.of(context).pop(); //  the dialog
+              Navigator.of(context).pop(); //  the screen
+            }),
+            appSpace(space: 100),
+            appButton('Cancel the return... I need to work some more on this.',
+                appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
                   Navigator.of(context).pop();
                   checkSong();
                 }),
-              ],
-              elevation: 24.0,
-            ));
+          ],
+          elevation: 24.0,
+        ));
     return false;
   }
 
   bool get songHasChanged =>
       hasChangedFromOriginal ||
-      (isProEditInput ? song.rawLyrics != proLyricsTextEditingController.text : lyricsEntries.hasChangedLines());
+          (isProEditInput ? song.rawLyrics != proLyricsTextEditingController.text : lyricsEntries.hasChangedLines());
 
   @override
   void dispose() {
@@ -341,6 +315,9 @@ class _Edit extends State<Edit> {
     copyrightTextEditingController.dispose();
     bpmTextEditingController.dispose();
     userTextEditingController.dispose();
+    if (_idleTimer != null) {
+      _idleTimer!.cancel();
+    }
 
     for (final focusNode in disposeList) {
       focusNode.dispose();
@@ -410,14 +387,14 @@ class _Edit extends State<Edit> {
       logger.log(
           _editEditPoint,
           'pre  manager: selectedEditPoint: $selectedEditPoint'
-          ', chordSong: ${chordSong.toMarkup()}');
+              ', chordSong: ${chordSong.toMarkup()}');
       songEditManager = SongEditManager(chordSong);
       chordSong = songEditManager.preEdit(selectedEditPoint!);
       selectedEditPoint = songEditManager.editPoint;
       logger.log(
           _editEditPoint,
           'post manager: selectedEditPoint: $selectedEditPoint'
-          ', chordSong: ${chordSong.toMarkup()}');
+              ', chordSong: ${chordSong.toMarkup()}');
       hadSelectedEditPoint = true;
     } else if (hadSelectedEditPoint || !identical(song, chordSong)) {
       //  update the lyrics
@@ -429,9 +406,9 @@ class _Edit extends State<Edit> {
     logger.log(
         _editEditPoint,
         'display: selectedEditPoint: $selectedEditPoint'
-        ', displayMeasureEntryNode: \'${displayMeasureEntryNode?.toMarkup()}\''
-        ', lyrics: ${lyricsEntries.hasChangedLines()}'
-        ', ${chordSong.toMarkup()}');
+            ', displayMeasureEntryNode: \'${displayMeasureEntryNode?.toMarkup()}\''
+            ', lyrics: ${lyricsEntries.hasChangedLines()}'
+            ', ${chordSong.toMarkup()}');
 
     displayChordTable = isProEditInput ? Table() : chordsEntryWidget();
 
@@ -463,6 +440,8 @@ class _Edit extends State<Edit> {
 
     var theme = Theme.of(context);
 
+    logger.i('edit build');
+
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.appBar(
@@ -475,9 +454,9 @@ class _Edit extends State<Edit> {
             }),
       ),
       body:
-          //  deal with keyboard strokes flutter is not usually handling
-          //  note that return (i.e. enter) is not a keyboard event!
-          RawKeyboardListener(
+      //  deal with keyboard strokes flutter is not usually handling
+      //  note that return (i.e. enter) is not a keyboard event!
+      RawKeyboardListener(
         focusNode: FocusNode(),
         onKey: editOnKey,
         child: GestureDetector(
@@ -504,8 +483,8 @@ class _Edit extends State<Edit> {
                     message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
                     child: appEnumeratedButton('Undo', appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize,
                         onPressed: () {
-                      undo();
-                    }),
+                          undo();
+                        }),
                   ),
                   editTooltip(
                     message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
@@ -789,25 +768,25 @@ class _Edit extends State<Edit> {
                                       child: appEnumeratedButton('Validate',
                                           appKeyEnum: AppKeyEnum.editValidateChords,
                                           fontSize: _defaultChordFontSize, onPressed: () {
-                                        setState(() {
-                                          validateSongChords(select: true);
-                                        });
-                                      }),
+                                            setState(() {
+                                              validateSongChords(select: true);
+                                            });
+                                          }),
                                     ),
                                   editTooltip(
                                     message: (selectedEditPoint != null
-                                            ? 'Click outside the chords to cancel editing\n'
-                                            : '') +
+                                        ? 'Click outside the chords to cancel editing\n'
+                                        : '') +
                                         (showHints
                                             ? 'Click to hide the editing hints'
                                             : 'Click for hints about editing.'),
                                     child: appEnumeratedButton('Hints',
                                         appKeyEnum: AppKeyEnum.editHints,
                                         fontSize: _defaultChordFontSize, onPressed: () {
-                                      setState(() {
-                                        showHints = !showHints;
-                                      });
-                                    }),
+                                          setState(() {
+                                            showHints = !showHints;
+                                          });
+                                        }),
                                   ),
                                   editTooltip(
                                     message: proMessage,
@@ -859,9 +838,7 @@ class _Edit extends State<Edit> {
                                     fontWeight: FontWeight.normal,
                                     border: InputBorder.none,
                                     onChanged: (value) {
-                                      setState(() {
-                                        checkSong();
-                                      });
+                                      checkSongWhenIdle();
                                     }),
                               if (showHints)
                                 RichText(
@@ -877,7 +854,7 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text: '\n\n'
-                                                'The sections are: ' +
+                                            'The sections are: ' +
                                             listSections(),
                                         style: appTextStyle,
                                       ),
@@ -910,13 +887,13 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
+                                        '''Using a lower case b for a flat will work. A sharp sign (#) works as a sharp.\n\n''',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            //  todo: fix the font, ♭ is not represented properly
-                                            'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
+                                        //  todo: fix the font, ♭ is not represented properly
+                                        'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
                                             ' be a B♭m7 or the chord B followed by a Bm7?'
                                             ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'
                                             '',
@@ -935,19 +912,19 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
+                                        '''Spaces between chords indicate a new measure. Chords without spaces are within one measure.\n\n''',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
+                                        'Forward slashes (/) can be used to indicate bass notes that differ from the chord.'
                                             ' For example A/G would mean a G for the bass, an A chord for the other instruments.'
                                             ' The bass note is a single note, not a chord.\n\n',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            'Periods (.) can be used to repeat chords on another beat within the same measure. For'
+                                        'Periods (.) can be used to repeat chords on another beat within the same measure. For'
                                             ' example, G..A would be three beats of G followed by one beat of A in the same measure.\n\n',
                                         style: appTextStyle,
                                       ),
@@ -961,7 +938,7 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            'Commas (,) between measures can be used to indicate the end of a row of measures.'
+                                        'Commas (,) between measures can be used to indicate the end of a row of measures.'
                                             ' The maximum number of measures allowed within a single row is 8.'
                                             ' If there are no commas within a phrase of 8 or more measures, the phrase will'
                                             ' automatically be split into rows of 4 measures.\n\n',
@@ -974,7 +951,7 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            'Row repeats are indicated by a lower case x followed by a number 2 or more.'
+                                        'Row repeats are indicated by a lower case x followed by a number 2 or more.'
                                             ' Multiple rows can be repeated by placing an opening square bracket ([) in front of the'
                                             ' first measure of the first row and a closing square bracket (]) after the last'
                                             ' measure before the x and the digits.\n\n',
@@ -993,7 +970,7 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            'The red bar or measure highlight indicate where entry text will be entered.'
+                                        'The red bar or measure highlight indicate where entry text will be entered.'
                                             ' The radio buttons control the fine position of this indicator for inserting, replacing,'
                                             ' or appending. To delete a measure, select it and click Replace. This activates the Delete button'
                                             ' to delete it. Note that the delete key will always apply to text entry.\n\n',
@@ -1010,24 +987,24 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
+                                        'Control plus the arrow keys can help navigate in the chord entry once selected.\n\n',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            'In the lyrics section, anything else not recognized as a section identifier is'
+                                        'In the lyrics section, anything else not recognized as a section identifier is'
                                             ' considered lyrics to the end of the line.'
                                             ' I suggest comments go into parenthesis.\n\n',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
+                                        'The buttons to the right of the displayed chords are active and there to minimize your typing.\n\n',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            'A trick: Select a section similar to a new section you are about to enter.'
+                                        'A trick: Select a section similar to a new section you are about to enter.'
                                             ' Copy the text from the entry area. Delete the entry line. Enter the new section identifier'
                                             ' (I suggest the section buttons on the right).'
                                             ' Paste the old text after the new section. Make edit adjustments in the entry text'
@@ -1036,13 +1013,13 @@ class _Edit extends State<Edit> {
                                       ),
                                       TextSpan(
                                         text:
-                                            'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
+                                        'Another trick: Write the chord section as you like in a text editor, copy the whole song\'s'
                                             ' chords and paste into the entry line... complete with newlines. All should be well.\n\n',
                                         style: appTextStyle,
                                       ),
                                       TextSpan(
                                         text:
-                                            'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
+                                        'Don\'t forget the undo/redo keys! Undo will even go backwards into the previously edited song.\n\n',
                                         style: appTextStyle,
                                       ),
                                     ],
@@ -1094,7 +1071,9 @@ class _Edit extends State<Edit> {
                                   fontSize: _defaultChordFontSize,
                                   fontWeight: FontWeight.normal,
                                   border: InputBorder.none,
-                                  // onChanged: (value) {}, //  see the listener
+                                  onChanged: (value) {
+                                    checkSongWhenIdle();
+                                  },
                                 ),
                             ],
                           ),
@@ -1114,18 +1093,18 @@ class _Edit extends State<Edit> {
       ),
       floatingActionButton: !songHasChanged
           ? appFloatingActionButton(
-              appKeyEnum: AppKeyEnum.editBack,
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: editTooltip(
-                message: 'Back to the song',
-                child: appIcon(
-                  Icons.arrow_back,
-                ),
-              ),
-              mini: !app.isScreenBig,
-            )
+        appKeyEnum: AppKeyEnum.editBack,
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: editTooltip(
+          message: 'Back to the song',
+          child: appIcon(
+            Icons.arrow_back,
+          ),
+        ),
+        mini: !app.isScreenBig,
+      )
           : NullWidget(), //  hide and disable the choice
     );
   }
@@ -1133,7 +1112,7 @@ class _Edit extends State<Edit> {
   bool validateSongChords({select = false}) {
     if (isProEditInput) {
       var markedString =
-          SongBase.validateChords(SongBase.entryToUppercase(proChordTextEditingController.text), song.getBeatsPerBar());
+      SongBase.validateChords(SongBase.entryToUppercase(proChordTextEditingController.text), song.getBeatsPerBar());
 
       if (markedString != null) {
         var error = markedString.remainingStringLimited(markedString.getNextWhiteSpaceIndex() - markedString.getMark());
@@ -1216,11 +1195,11 @@ class _Edit extends State<Edit> {
   void addChordRowChild(Widget w) {
     //assert( chordRowChildren.length < maxCols);// fixme:
     chordRowChildren.add(
-        //  add padding
+      //  add padding
         Container(
-      padding: const EdgeInsets.all(4),
-      child: w,
-    ));
+          padding: const EdgeInsets.all(4),
+          child: w,
+        ));
   }
 
   void addChordRowNullWidget() {
@@ -1239,10 +1218,10 @@ class _Edit extends State<Edit> {
       maxRowLength = max(maxRowLength, chordGrid.rowLength(r));
     }
     int maxEntryColumns = maxRowLength //  the locations
-            +
-            maxRowLength //  the plus operators
-            +
-            2 //  row extensions
+        +
+        maxRowLength //  the plus operators
+        +
+        2 //  row extensions
         ;
 
     //  entry for each row
@@ -1320,7 +1299,7 @@ class _Edit extends State<Edit> {
               assert(c == 0);
 
               //  section entry column
-              {
+                  {
                 var editPoint = EditPoint(location, onEndOfRow: endOfRow);
                 addChordRowChild(
                   _debugWidget(sectionEditGridDisplayWidget(editPoint), editPoint),
@@ -1393,25 +1372,25 @@ class _Edit extends State<Edit> {
               //  plus column already used
             }
             break;
-          // case MeasureNodeType.phrase:
-          //   {
-          //     //  entry column
-          //     var editPoint = EditPoint(location);
-          //     addChordRowChild(
-          //       _debugWidget(repeatEditGridDisplayWidget(editPoint), editPoint),
-          //     );
-          //     //  plus column
-          //         {
-          //       var editPoint =
-          //       EditPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
-          //       addChordRowChild(_debugWidget(
-          //           plusMeasureEditGridDisplayWidget(editPoint,
-          //               tooltip: 'add a new measure here'
-          //                   '${kDebugMode ? ' $editPoint' : ''}'),
-          //           editPoint));
-          //     }
-          //   }
-          //   break;
+        // case MeasureNodeType.phrase:
+        //   {
+        //     //  entry column
+        //     var editPoint = EditPoint(location);
+        //     addChordRowChild(
+        //       _debugWidget(repeatEditGridDisplayWidget(editPoint), editPoint),
+        //     );
+        //     //  plus column
+        //         {
+        //       var editPoint =
+        //       EditPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: endOfRow);
+        //       addChordRowChild(_debugWidget(
+        //           plusMeasureEditGridDisplayWidget(editPoint,
+        //               tooltip: 'add a new measure here'
+        //                   '${kDebugMode ? ' $editPoint' : ''}'),
+        //           editPoint));
+        //     }
+        //   }
+        //   break;
           case MeasureNodeType.decoration:
             {
               //  entry column
@@ -1435,7 +1414,7 @@ class _Edit extends State<Edit> {
               }
 
               //  plus column
-              {
+                  {
                 var editPoint = EditPoint(location, measureEditType: MeasureEditType.append, onEndOfRow: false);
                 List<Widget> widgets = [
                   plusMeasureEditGridDisplayWidget(editPoint,
@@ -1538,17 +1517,17 @@ class _Edit extends State<Edit> {
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: chordRows,
       border:
-          // _editDebugVerbose
-          //     ? const TableBorder(
-          //         top: BorderSide(),
-          //         right: BorderSide(),
-          //         bottom: BorderSide(),
-          //         left: BorderSide(),
-          //         horizontalInside: BorderSide(),
-          //         verticalInside: BorderSide(),
-          //       )
-          //     :
-          null,
+      // _editDebugVerbose
+      //     ? const TableBorder(
+      //         top: BorderSide(),
+      //         right: BorderSide(),
+      //         bottom: BorderSide(),
+      //         left: BorderSide(),
+      //         horizontalInside: BorderSide(),
+      //         verticalInside: BorderSide(),
+      //       )
+      //     :
+      null,
     );
   }
 
@@ -1565,7 +1544,7 @@ class _Edit extends State<Edit> {
 
     //  generate the section pull down data if required
     List<DropdownMenuItem<ChordSection>> sectionItems =
-        SplayTreeSet<ChordSection>.from(song.getChordSections()).map((chordSection) {
+    SplayTreeSet<ChordSection>.from(song.getChordSections()).map((chordSection) {
       return DropdownMenuItem(
         value: chordSection,
         child: Text(
@@ -1677,7 +1656,7 @@ class _Edit extends State<Edit> {
         // children.add(Text('line:$line/$chordRowCount '));
 
         //  chord rows
-        {
+            {
           if (line < chordRowCount) {
             var row = chordSection?.rowAt(line, expanded: expanded);
             logger.log(_editLyricEntry, '   row.length: ${row?.length}/$chordMaxColCount');
@@ -1818,7 +1797,7 @@ class _Edit extends State<Edit> {
     }
 
     //  last append goes here
-    {
+        {
       var children = <Widget>[];
       children.add(
         editTooltip(
@@ -1898,7 +1877,7 @@ class _Edit extends State<Edit> {
     logger.log(
         _editLyricEntry,
         '_pushLyricsEntries(): _lyricsEntries.asRawLyrics(): ${identityHashCode(song)}:'
-        ' \'<${lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>\'');
+            ' \'<${lyricsEntries.asRawLyrics().replaceAll('\n', '\\n')}>\'');
     updateRawLyrics(lyricsEntries.asRawLyrics());
     logger.log(_editLyricEntry, '_pushLyricsEntries(): rawLyrics: ${song.rawLyrics.replaceAll('\n', '\\n')}');
   }
@@ -1968,12 +1947,12 @@ class _Edit extends State<Edit> {
           'edit onKey:'
           //' ${e.data.logicalKey}'
           //', primaryFocus: ${_focusManager.primaryFocus}'
-          ', context: ${focusManager.primaryFocus?.context}'
-          // ', ctl: ${e.isControlPressed}'
-          // ', shf: ${e.isShiftPressed}'
-          // ', alt: ${e.isAltPressed}'
-          //
-          );
+              ', context: ${focusManager.primaryFocus?.context}'
+        // ', ctl: ${e.isControlPressed}'
+        // ', shf: ${e.isShiftPressed}'
+        // ', alt: ${e.isAltPressed}'
+        //
+      );
       logger.d(
           'isControlPressed?: keyLabel:\'${e.data.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
       if (e.isControlPressed) {
@@ -1998,10 +1977,10 @@ class _Edit extends State<Edit> {
             undo();
           }
         } else if (e.data.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()) //fixme
-        {
+            {
           redo();
         } else if (e.data.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toLowerCase()) //fixme
-        {
+            {
           undo();
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
@@ -2014,7 +1993,7 @@ class _Edit extends State<Edit> {
           performMeasureEntryCancel();
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
-        logger.i('e.isKeyPressed(enter)');
+        logger.d('e.isKeyPressed(enter)');
         if (isProEditInput) {
           setState(() {
             checkSong();
@@ -2054,8 +2033,8 @@ class _Edit extends State<Edit> {
 
           //  selection in a range
           editTextController.text = (editTextController.selection.baseOffset > 0
-                  ? editTextController.text.substring(0, editTextController.selection.baseOffset)
-                  : '') +
+              ? editTextController.text.substring(0, editTextController.selection.baseOffset)
+              : '') +
               editTextController.text.substring(editTextController.selection.extentOffset);
           editTextController.selection = TextSelection(baseOffset: loc, extentOffset: loc);
         } else if (editTextController.selection.extentOffset < editTextController.text.length - 1) {
@@ -2186,7 +2165,7 @@ class _Edit extends State<Edit> {
                   message: measureEntryValid
                       ? 'This is your adjusted section'
                       : 'Your entry error is in parentheses'
-                          '${kDebugMode ? ' $editPoint' : ''}',
+                      '${kDebugMode ? ' $editPoint' : ''}',
                   child: appWrap(
                     <Widget>[
                       Text(
@@ -2339,7 +2318,7 @@ class _Edit extends State<Edit> {
 
       switch (measureNode.measureNodeType) {
         case MeasureNodeType.section:
-          //  insert new measure as measure in front of a section or after the end
+        //  insert new measure as measure in front of a section or after the end
           break;
         case MeasureNodeType.measure:
           measure = measureNode.transposeToKey(key) as Measure;
@@ -2367,8 +2346,8 @@ class _Edit extends State<Edit> {
       logger.log(
           _editEditPoint,
           '_measureEditGridDisplayWidget pre: (${editTextController.selection.baseOffset}'
-          ',${editTextController.selection.extentOffset})'
-          ' "${editTextController.text}"');
+              ',${editTextController.selection.extentOffset})'
+              ' "${editTextController.text}"');
       if (editTextField == null) {
         if (editTextFieldFocusNode != null) {
           disposeList.add(editTextFieldFocusNode!); //  fixme: dispose of the old?
@@ -2388,10 +2367,10 @@ class _Edit extends State<Edit> {
               borderRadius: BorderRadius.all(Radius.circular(14)),
             ),
             hintText:
-                (editTextController.text.isEmpty && (selectedEditPoint?.measureEditType == MeasureEditType.replace))
-                    //  fixme: delete of last measure in section should warn about second delete
-                    ? 'A second delete will delete this measure' //  fixme: not working?
-                    : 'Enter the measure.',
+            (editTextController.text.isEmpty && (selectedEditPoint?.measureEditType == MeasureEditType.replace))
+            //  fixme: delete of last measure in section should warn about second delete
+                ? 'A second delete will delete this measure' //  fixme: not working?
+                : 'Enter the measure.',
             contentPadding: const EdgeInsets.all(_defaultFontSize / 2),
           ),
           autofocus: true,
@@ -2403,7 +2382,7 @@ class _Edit extends State<Edit> {
       logger.log(
           _editEditPoint,
           '_measureEditGridDisplayWidget post: (${editTextController.selection.baseOffset},${editTextController.selection.extentOffset})'
-          ' "${editTextController.text}", ${editTextController.text.isEmpty}');
+              ' "${editTextController.text}", ${editTextController.text.isEmpty}');
 
       if (measureEntryIsClear) {
         measureEntryIsClear = false;
@@ -2414,8 +2393,8 @@ class _Edit extends State<Edit> {
         logger.log(
             _editEditPoint,
             '_measureEditGridDisplayWidget post clear: ${editPoint.location}: $measure'
-            '  selection: (${editTextController.selection.baseOffset}, ${editTextController.selection.extentOffset})'
-            ', ${chordSong.toMarkup()}');
+                '  selection: (${editTextController.selection.baseOffset}, ${editTextController.selection.extentOffset})'
+                ', ${chordSong.toMarkup()}');
       }
 
       //  make the key selection drop down list
@@ -2566,7 +2545,7 @@ class _Edit extends State<Edit> {
                     message: measureEntryValid
                         ? 'These are your adjusted chords'
                         : 'Your chord entry error is in parentheses'
-                            '${kDebugMode ? ' $editPoint' : ''}',
+                        '${kDebugMode ? ' $editPoint' : ''}',
                     child: Container(
                       margin: doubleMarginInsets,
                       child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
@@ -2778,8 +2757,8 @@ class _Edit extends State<Edit> {
                               performEdit(
                                   done: true,
                                   endOfRow: chordSong
-                                          .findMeasureByChordSectionLocation(selectedEditPoint?.location)
-                                          ?.endOfRow ??
+                                      .findMeasureByChordSectionLocation(selectedEditPoint?.location)
+                                      ?.endOfRow ??
                                       false);
                             },
                             child: const Icon(
@@ -2992,7 +2971,7 @@ class _Edit extends State<Edit> {
       logger.log(
           _editLog,
           '_updateChordText: _lastEditTextSelection is null: '
-          '"$text"+"$s"');
+              '"$text"+"$s"');
 
       return;
     }
@@ -3013,8 +2992,8 @@ class _Edit extends State<Edit> {
     logger.log(
         _editLog,
         '>=0: "${text.substring(0, minOffset)}"'
-        '+"$s"'
-        '+"${text.substring(maxOffset)}"');
+            '+"$s"'
+            '+"${text.substring(maxOffset)}"');
 
     editTextController.text = text.substring(0, minOffset) + s + text.substring(maxOffset);
     int len = minOffset + s.length;
@@ -3204,7 +3183,7 @@ class _Edit extends State<Edit> {
               ),
               Text(
                 '${sectionVersion.section.formalName} '
-                '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
+                    '${sectionVersion.version == 0 ? '' : sectionVersion.version.toString()}',
                 style: sectionChordTextStyle,
               ),
             ],
@@ -3276,7 +3255,7 @@ class _Edit extends State<Edit> {
     String upperEntry = MeasureNode.concatMarkup(validateMeasureEntry(entry));
     upperEntry = upperEntry.trim();
     String minEntry =
-        entry.trim().replaceAll("\t", " ").replaceAll(":\n", ":").replaceAll("  ", " ").replaceAll("\n", ",");
+    entry.trim().replaceAll("\t", " ").replaceAll(":\n", ":").replaceAll("  ", " ").replaceAll("\n", ",");
     logger.log(_editLog, 'entry: "$minEntry" vs "$upperEntry"');
 
     //  suggest the corrected input if different
@@ -3349,14 +3328,14 @@ class _Edit extends State<Edit> {
       logger.log(
           _editLog,
           'pre  _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
-          ', entry: $measureEntryNodes'
-          ', song: ${song.toMarkup()}');
+              ', entry: $measureEntryNodes'
+              ', song: ${song.toMarkup()}');
       edit(done: done, endOfRow: endOfRow);
       logger.log(
           _editLog,
           'post _performEdit(): done: $done, endOfRow: $endOfRow, selected: $selectedEditPoint'
-          ', entry: $measureEntryNodes'
-          ', song: ${song.toMarkup()}');
+              ', entry: $measureEntryNodes'
+              ', song: ${song.toMarkup()}');
     });
   }
 
@@ -3515,7 +3494,21 @@ class _Edit extends State<Edit> {
     return false;
   }
 
+  void checkSongWhenIdle() {
+    if (_idleTimer != null) {
+      _idleTimer!.cancel();
+    }
+
+    _idleTimer = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        logger.i('checkSongWhenIdle():');
+        checkSong();
+      });
+    });
+  }
+
   bool checkSong() {
+    logger.i('checkSong():');
     try {
       // load pro input before checking song
       {
@@ -3629,6 +3622,7 @@ class _Edit extends State<Edit> {
   bool isProEditInput = false;
   static const proMessage = 'Select pro input mode.\nThis requires that you know what you are doing,\n'
       'and will not get frustrated if you don\'t.';
+  Timer? _idleTimer;
   bool measureEntryIsClear = true;
   String? measureEntryCorrection;
   bool measureEntryValid = false;

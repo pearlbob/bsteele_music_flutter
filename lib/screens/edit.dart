@@ -440,8 +440,6 @@ class _Edit extends State<Edit> {
 
     var theme = Theme.of(context);
 
-    logger.i('edit build');
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.appBar(
@@ -3501,14 +3499,12 @@ class _Edit extends State<Edit> {
 
     _idleTimer = Timer(const Duration(milliseconds: 500), () {
       setState(() {
-        logger.i('checkSongWhenIdle():');
         checkSong();
       });
     });
   }
 
   bool checkSong() {
-    logger.i('checkSong():');
     try {
       // load pro input before checking song
       {

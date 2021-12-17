@@ -1,0 +1,95 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+#	set default version code to today's date
+set versionCode=`date +%Y%m%d`
+set historical=0
+
+set flut=bsteele_music_flutter
+set rel=bsteeleMusicRelease
+set lib=bsteeleMusicLib
+set server=/home/bob/github/bsteeleMusicServer
+#	war: web archive.  from java since the server is java
+set warName=bsteeleMusicApp
+set war=$warName.war
+
+#	allow for historical version codes
+while ( $#argv > 1 )
+	switch ( $1 )
+	case '-vc':	#	use a prior existing version code and tag
+	    set historical=1
+		shift
+		set versionCode=$1
+		shift
+		continue;
+	default:
+		breaksw;
+	endsw
+	break;
+end
+
+set tag=v$versionCode
+
+cd ~/github/$flut
+if ( $status != 0 ) exit $status
+
+#	generate remote tag if required
+if ( $historical == 0 ) then
+	git commit -a -m "commit for war $tag"
+	git tag -a $tag -m "tag: $tag"
+	git tag
+	git push
+	git push origin $tag
+	git show --name-status | head -1
+endif
+
+#	move to temporary work area
+set tmp=~/junk
+cd $tmp
+
+#	assure rebuild is from scratch
+rm -rf $rel
+mkdir $rel
+cd $rel
+
+#	get the tagged release version and its corresponding lib
+echo get source
+git -c advice.detachedHead=false clone --depth 1 --branch $tag git@github.com:pearlbob/$lib.git
+if ( $status != 0 ) exit $status
+git -c advice.detachedHead=false clone --depth 1 --branch $tag git@github.com:pearlbob/$flut.git
+if ( $status != 0 ) exit $status
+
+
+#	build the flutter web release from source and lib
+echo build
+cd $flut
+#	adjust the version code in the pubspec.yaml file
+sed -i -e "s/^version: *\([0-9]*\.[0-9]*\.[0-9]*\).*/version: \1+$versionCode/;" pubspec.yaml 
+if ( $status != 0 ) exit $status
+flutter build web --release
+if ( $status != 0 ) exit $status
+
+#	build the server war file
+echo build server
+cd $server
+mvn package
+
+cd $tmp/$rel/$flut
+
+#	add the app to the server war file
+cp $server/target/$war .
+jar -uf $war -C build/web .
+
+#	update the local allSongs to the latest
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
+
+set dst=~/lib/${warName}_$tag.war
+mv $war $dst
+
+cd $tmp
+rm -rf $rel
+
+echo $dst
+
+exit 0

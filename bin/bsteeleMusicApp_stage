@@ -2,6 +2,7 @@
 #set echo; set verbose
 
 set debug=0
+#   default is beta:
 set isBeta=1
 set app=bsteeleMusicApp
 set flavor=beta
@@ -14,10 +15,10 @@ while ( $#argv > 0 )
 		set flavor=alpha
 		shift
 		continue;
-#	case '-beta':
-#		set isBeta=1
-#		shift
-#		continue;
+	case '-beta':
+		set isBeta=1
+		shift
+		continue;
 	case '-d':		#	debug
 	case '-debug':
 		set debug=1
@@ -61,7 +62,6 @@ cp -r build/web/* $dst
 
 #	send to flavor's web location
 set gs=gs://www.bsteele.com/$app/$flavor
-
 bsteele_auth
 gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $dst/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
@@ -72,19 +72,26 @@ ls -l lib/assets/utcDate.txt
 cat lib/assets/utcDate.txt
 
 
-#	incorporate the app into the server .war file
+#	incorporate the beta into the server .war file
 set war=build/bsteeleMusicApp.war
-set gswar=gs://www.bsteele.com/$app/bsteeleMusicApp.war
 rm -rf $war
-#	note the Server part!
-cp ../bsteeleMusicServer/target/bsteeleMusicApp.war $war
-jar -uf $war -C build/web .
+#   assuming the latest is found where expected:
+cp ~/lib/bsteeleMusicApp.war $war
+rm -rf build/beta
+mkdir build/beta
+cp -r build/web/* build/beta
+jar -uf $war -C build beta
 #	update the local allSongs to the latest
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
+rm -rf build/beta
+
+echo fixme now_______________________
+exit -1
 
 #	ship it to distribution point for raspberry pi's
 #	already done above: bsteele_auth
+set gswar=gs://www.bsteele.com/$app/bsteeleMusicApp.war
 gsutil cp $war $gswar
 gsutil -q acl -r ch -u AllUsers:R  $gswar
 

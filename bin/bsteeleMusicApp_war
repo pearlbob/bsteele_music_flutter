@@ -35,10 +35,22 @@ if ( $status != 0 ) exit $status
 
 #	generate remote tag if required
 if ( $historical == 0 ) then
+	cd ~/github/$flut
+	if ( $status != 0 ) exit $status
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
 	git tag | tail
 	git remote set-url origin git@github.com:pearlbob/$flut.git
+	git push
+	git push origin $tag
+	git show --name-status | head -1
+
+	cd ~/github/$lib
+	if ( $status != 0 ) exit $status
+	git commit -a -m "commit for war $tag"
+	git tag -a $tag -m "tag: $tag"
+	git tag | tail
+	git remote set-url origin git@github.com:pearlbob/$lib.git
 	git push
 	git push origin $tag
 	git show --name-status | head -1

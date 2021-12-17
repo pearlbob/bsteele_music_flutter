@@ -1,5 +1,5 @@
 #!/bin/tcsh
-#set echo; set verbose
+set echo; set verbose
 
 #	set default version code to today's date
 set versionCode=`date +%Y%m%d`

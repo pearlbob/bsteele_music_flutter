@@ -1,5 +1,5 @@
 #!/bin/tcsh
-set echo; set verbose
+#set echo; set verbose
 
 #	set default version code to today's date
 set versionCode=`date +%Y%m%d`
@@ -76,9 +76,12 @@ if ( $status != 0 ) exit $status
 #	build the flutter web release from source and lib
 echo build
 cd $flut
+flutter clean
 #	adjust the version code in the pubspec.yaml file
 sed -i -e "s/^version: *\([0-9]*\.[0-9]*\.[0-9]*\).*/version: \1+$versionCode/;" pubspec.yaml 
 if ( $status != 0 ) exit $status
+#	record the build date
+utcDate > lib/assets/utcDate.txt
 flutter build web --release
 if ( $status != 0 ) exit $status
 

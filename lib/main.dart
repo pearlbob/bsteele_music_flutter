@@ -412,6 +412,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     //logger.i('uri: ${Uri.base}, ${Uri.base.queryParameters.keys.contains('follow')}');
+
+    //  give the beta warning
+    if (Uri.base.toString().contains('beta')) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        _betaWarningPopup();
+      });
+    }
   }
 
   void _readInternalSongList() async {
@@ -1047,6 +1054,44 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _openDrawer() {
     _scaffoldKey.currentState?.openDrawer();
+  }
+
+  void _betaWarningPopup() async {
+    await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Do you really want test the beta version of the bsteeleMusicApp?',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              actions: [
+                Column(
+                  children: [
+                    const Text(
+                      'This version is only for testing application development.\n'
+                      'bob can damage this version at any time, for any reason.\n'
+                      'Any remembered setup will not transfer to the real version.',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    appSpace(),
+                    appButton('Send me to the real version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
+                      var s = Uri.base.toString();
+                      s = s.substring(0, s.indexOf('beta'));
+                      openLink(
+                        s,
+                        sameTab: true,
+                      );
+                    }),
+                    appSpace(space: 50),
+                    appButton('This is exciting! I will test the beta.', appKeyEnum: AppKeyEnum.mainCancelBeta,
+                        onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
+                  ],
+                ),
+              ],
+              elevation: 24.0,
+            ));
   }
 
   void addSongsToListView(Iterable<Song> list) {

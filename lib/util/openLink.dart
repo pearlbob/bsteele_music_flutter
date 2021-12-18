@@ -11,10 +11,11 @@ _top - specifies the top-level frame in the current window
 A custom target name of a window that exists
  */
 
-void openLink(String url) async {
+void openLink(String url, {bool sameTab = false}) async {
   if (kIsWeb) {
+    String? webOnlyWindowName = sameTab ? '_self' : null;
     if (await canLaunch(url)) {
-      await launch(url);
+      await launch(url, webOnlyWindowName: webOnlyWindowName);
     } else {
       throw 'Could not launch $url';
     }

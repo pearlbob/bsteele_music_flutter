@@ -12,6 +12,7 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:intl/intl.dart';
 
 import '../app/app.dart';
 
@@ -203,86 +204,107 @@ class _State extends State<Singers> {
             '(none)',
             style: singerTextStyle,
           )
-        : appWrapFullWidth(
-        [
-            for (var e in _sessionSingers)
-              appWrap([
-                if (!isInSingingMode &&
-                    _selectedSinger == e &&
-                    _sessionSingers.length > 1 &&
-                    _sessionSingers.indexOf(e) > 0)
-                  appInkWell(
-                    appKeyEnum: AppKeyEnum.singersMoveSingerEarlierInSession,
-                    // value: singer,
-                    keyCallback: () {
+        : Container(
+            child: appWrapFullWidth([
+              for (var e in _sessionSingers)
+                appWrap([
+                  if (!isInSingingMode &&
+                      _selectedSinger == e &&
+                      _sessionSingers.length > 1 &&
+                      _sessionSingers.indexOf(e) > 0)
+                    appInkWell(
+                      appKeyEnum: AppKeyEnum.singersMoveSingerEarlierInSession,
+                      // value: singer,
+                      keyCallback: () {
+                        setState(() {
+                          var index = _sessionSingers.indexOf(e);
+                          _sessionSingers.remove(e);
+                          _sessionSingers.insert(index - 1, e);
+                        });
+                      },
+                      child: appCircledIcon(
+                        Icons.arrow_back,
+                        'Move the singer earlier in today\'s list',
+                        margin: appendInsets,
+                        padding: appendPadding,
+                        color: _addColor,
+                        size: fontSize * 0.7,
+                      ),
+                    ),
+                  appTextButton(
+                    e,
+                    appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
+                    onPressed: () {
                       setState(() {
-                        var index = _sessionSingers.indexOf(e);
-                        _sessionSingers.remove(e);
-                        _sessionSingers.insert(index - 1, e);
+                        _selectedSinger = e;
                       });
                     },
-                    child: appCircledIcon(
-                      Icons.arrow_back,
-                      'Move the singer earlier in today\'s list',
-                      margin: appendInsets,
-                      padding: appendPadding,
-                      color: _addColor,
-                      size: fontSize * 0.7,
-                    ),
+                    style:
+                        e == _selectedSinger ? singerTextStyle.copyWith(backgroundColor: _addColor) : singerTextStyle,
                   ),
-                appTextButton(
-                  e,
-                  appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
-                  onPressed: () {
-                    setState(() {
-                      _selectedSinger = e;
-                    });
-                  },
-                  style: e == _selectedSinger ? singerTextStyle.copyWith(backgroundColor: _addColor) : singerTextStyle,
-                ),
-                // if (!isInSingingMode && _selectedSinger == e)
-                //   appInkWell(
-                //     appKeyEnum: AppKeyEnum.singersRemoveThisSingerFromSession,
-                //     // value: singer,
-                //     keyCallback: () {
-                //       setState(() {
-                //         _sessionSingers.remove(e);
-                //       });
-                //     },
-                //     child: appCircledIcon(
-                //       Icons.remove,
-                //       'Remove $e from today\'s session.',
-                //       margin: appendInsets,
-                //       padding: appendPadding,
-                //       color: _removeColor,
-                //       size: fontSize * 0.7,
-                //     ),
-                //   ),
-                if (!isInSingingMode &&
-                    _selectedSinger == e &&
-                    _sessionSingers.length > 1 &&
-                    _sessionSingers.indexOf(e) < _sessionSingers.length - 1)
-                  appInkWell(
-                    appKeyEnum: AppKeyEnum.singersMoveSingerLaterInSession,
-                    // value: singer,
-                    keyCallback: () {
-                      setState(() {
-                        var index = _sessionSingers.indexOf(e);
-                        _sessionSingers.remove(e);
-                        _sessionSingers.insert(index + 1, e);
-                      });
-                    },
-                    child: appCircledIcon(
-                      Icons.arrow_forward,
-                      'Move the singer to later in today\'s list',
-                      margin: appendInsets,
-                      padding: appendPadding,
-                      color: _addColor,
-                      size: fontSize * 0.7,
+                  // if (!isInSingingMode && _selectedSinger == e)
+                  //   appInkWell(
+                  //     appKeyEnum: AppKeyEnum.singersRemoveThisSingerFromSession,
+                  //     // value: singer,
+                  //     keyCallback: () {
+                  //       setState(() {
+                  //         _sessionSingers.remove(e);
+                  //       });
+                  //     },
+                  //     child: appCircledIcon(
+                  //       Icons.remove,
+                  //       'Remove $e from today\'s session.',
+                  //       margin: appendInsets,
+                  //       padding: appendPadding,
+                  //       color: _removeColor,
+                  //       size: fontSize * 0.7,
+                  //     ),
+                  //   ),
+                  if (!isInSingingMode &&
+                      _selectedSinger == e &&
+                      _sessionSingers.length > 1 &&
+                      _sessionSingers.indexOf(e) < _sessionSingers.length - 1)
+                    appInkWell(
+                      appKeyEnum: AppKeyEnum.singersMoveSingerLaterInSession,
+                      // value: singer,
+                      keyCallback: () {
+                        setState(() {
+                          var index = _sessionSingers.indexOf(e);
+                          _sessionSingers.remove(e);
+                          _sessionSingers.insert(index + 1, e);
+                        });
+                      },
+                      child: appCircledIcon(
+                        Icons.arrow_forward,
+                        'Move the singer to later in today\'s list',
+                        margin: appendInsets,
+                        padding: appendPadding,
+                        color: _addColor,
+                        size: fontSize * 0.7,
+                      ),
                     ),
-                  ),
-              ]),
-          ], spacing: 25);
+                ]),
+            ], spacing: 25),
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: _blue.color,
+                width: 2,
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+          );
+    var allSingersWidgetWrap = Container(
+      child: appWrapFullWidth(sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey,
+          width: 2,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -300,81 +322,113 @@ class _State extends State<Singers> {
                   key: appKey(AppKeyEnum.singersErrorMessage),
                 ),
               appSpace(),
-              appWrap([
-                appTooltip(
-                  message: singingTooltipText,
-                  child: Text(
-                    'Singing',
-                    style: singerTextStyle,
-                    softWrap: false,
-                  ),
-                ),
-                appTooltip(
-                  message: singingTooltipText,
-                  child: appSwitch(
-                    appKeyEnum: AppKeyEnum.singersSinging,
-                    onChanged: (value) {
-                      setState(() {
-                        isInSingingMode = !isInSingingMode;
-                        if (!_sessionSingers.contains(_selectedSinger) && _sessionSingers.isNotEmpty) {
-                          _selectedSinger = _sessionSingers.first;
-                        }
-                        if (isInSingingMode) {
-                          app.clearMessage();
-                          _searchClear();
-                        }
-                      });
-                    },
-                    value: isInSingingMode,
-                  ),
-                ),
-                if (!isInSingingMode)
-                  Text(
-                    '  Make adjustments:',
-                    style: singerTextStyle,
-                    softWrap: false,
-                  ),
-              ]),
-              if (!isInSingingMode)
-                appWrapFullWidth([
-                  appEnumeratedButton(
-                    'Write all singer songs to a local file',
-                    appKeyEnum: AppKeyEnum.singersSave,
-                    onPressed: () {
-                      setState(() {
-                        _saveSongPerformances();
-                      });
-                    },
-                  ),
-                  if (_selectedSinger != unknownSinger)
-                    appEnumeratedButton(
-                      'Write singer $_selectedSinger\'s songs to a local file',
-                      appKeyEnum: AppKeyEnum.singersSaveSelected,
-                      onPressed: () {
-                        _saveSingersSongList(_selectedSinger);
-                        logger.i('save selection: $_selectedSinger');
-                      },
+              appWrapFullWidth([
+                appWrap([
+                  appTooltip(
+                    message: singingTooltipText,
+                    child: Text(
+                      'Singing',
+                      style: singerTextStyle,
+                      softWrap: false,
                     ),
-                  appEnumeratedButton(
-                    'Read all singers from a local file',
-                    appKeyEnum: AppKeyEnum.singersReadSingers,
-                    onPressed: () {
-                      setState(() {
-                        _filePick(context);
-                      });
-                    },
                   ),
-                  if (allHaveBeenWritten)
-                    appEnumeratedButton(
-                      'Remove all singers',
-                      appKeyEnum: AppKeyEnum.singersRemoveAllSingers,
-                      onPressed: () {
+                  appTooltip(
+                    message: singingTooltipText,
+                    child: appSwitch(
+                      appKeyEnum: AppKeyEnum.singersSinging,
+                      onChanged: (value) {
                         setState(() {
-                          allSongPerformances.clear();
+                          isInSingingMode = !isInSingingMode;
+                          if (!_sessionSingers.contains(_selectedSinger) && _sessionSingers.isNotEmpty) {
+                            _selectedSinger = _sessionSingers.first;
+                          }
+                          if (isInSingingMode) {
+                            app.clearMessage();
+                            _searchClear();
+                          }
                         });
                       },
+                      value: isInSingingMode,
                     ),
-                ], alignment: WrapAlignment.end, spacing: 20),
+                  ),
+                  if (!isInSingingMode)
+                    Text(
+                      '  Make adjustments:',
+                      style: singerTextStyle,
+                      softWrap: false,
+                    ),
+                ]),
+              ], alignment: WrapAlignment.spaceBetween),
+              if (!isInSingingMode)
+                appWrapFullWidth([
+                  Column(
+                    children: [
+                      appTooltip(
+                          message: 'For safety reasons you cannot read all singers\n'
+                              'without first having written all singers.',
+                          child: appEnumeratedButton(
+                            'Write all singer songs to a local file',
+                            appKeyEnum: AppKeyEnum.singersSave,
+                            onPressed: () {
+                              setState(() {
+                                _saveSongPerformances();
+                              });
+                            },
+                          )),
+                      appSpace(),
+                      if (allHaveBeenWritten)
+                        appTooltip(
+                          message: 'Warning: This will delete all singers\n'
+                              'and replace them with singers from the read file.',
+                          child: appEnumeratedButton(
+                            'Read all singers from a local file',
+                            appKeyEnum: AppKeyEnum.singersReadSingers,
+                            onPressed: () {
+                              setState(() {
+                                _filePickAll(context);
+                              });
+                            },
+                          ),
+                        ),
+                      appSpace(),
+                      if (_selectedSinger != unknownSinger)
+                        appEnumeratedButton(
+                          'Write singer $_selectedSinger\'s songs to a local file',
+                          appKeyEnum: AppKeyEnum.singersSaveSelected,
+                          onPressed: () {
+                            _saveSingersSongList(_selectedSinger);
+                            logger.i('save selection: $_selectedSinger');
+                          },
+                        ),
+                      appSpace(),
+                      appTooltip(
+                        message: 'If the singer matches an existing singer,\n'
+                            'the songs will be added to the singer.',
+                        child: appEnumeratedButton(
+                          'Read a single singer from a local file',
+                          appKeyEnum: AppKeyEnum.singersReadASingleSinger,
+                          onPressed: () {
+                            setState(() {
+                              _filePickSingle(context);
+                            });
+                          },
+                        ),
+                      ),
+                      appSpace(),
+                      if (allHaveBeenWritten)
+                        appEnumeratedButton(
+                          'Remove all singers',
+                          appKeyEnum: AppKeyEnum.singersRemoveAllSingers,
+                          onPressed: () {
+                            setState(() {
+                              allSongPerformances.clear();
+                            });
+                          },
+                        ),
+                    ],
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                  ),
+                ], alignment: WrapAlignment.end),
               if (!isInSingingMode)
                 appSpace(
                   space: 20,
@@ -384,6 +438,7 @@ class _State extends State<Singers> {
                   'Today\'s Singers:',
                   style: singerTextStyle,
                 ),
+              appSpace(),
               todaysSingersWidgetWrap,
               appSpace(),
               if (!isInSingingMode)
@@ -393,7 +448,10 @@ class _State extends State<Singers> {
                     style: singerTextStyle,
                   ),
 
-                  appWrap(sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
+                  appSpace(),
+                  allSingersWidgetWrap,
+                  appSpace(),
+
                   //  new singer stuff
                   appWrapFullWidth([
                     if (_selectedSinger != unknownSinger)
@@ -436,7 +494,7 @@ class _State extends State<Singers> {
                       child: appTextField(
                         appKeyEnum: AppKeyEnum.singersNameEntry,
                         controller: singerTextFieldController,
-                        hintText: "a new singer's name",
+                        hintText: "enter a new singer's name",
                         onSubmitted: (value) {
                           setState(() {
                             if (singerTextFieldController.text.isNotEmpty) {
@@ -525,7 +583,7 @@ class _State extends State<Singers> {
       [
         appWrapSong(songPerformance.song, key: songPerformance.key),
         Text(
-          songPerformance.dateString,
+          songPerformance.lastSungDateString + (kDebugMode ? ' ${hms(songPerformance.lastSung)}' : ''),
           style: songPerformanceStyle,
         ),
       ],
@@ -623,12 +681,9 @@ class _State extends State<Singers> {
       MaterialPageRoute(builder: (context) => Player(songPerformance.song!, musicKey: songPerformance.key)),
     );
     setState(() {
-      //  fixme: song may have changed in the player screen!!!!
-      //  update the key
-      if (playerSelectedSongKey != null) {
-        allSongPerformances.addSongPerformance(
-            SongPerformance(songPerformance.songIdAsString, _selectedSinger, playerSelectedSongKey!));
-      }
+      //  fixme: song may have been edited in the player screen!!!!
+      //  update the last sung date and the key if it has been changed
+      allSongPerformances.addSongPerformance(songPerformance.update(key: playerSelectedSongKey));
       AppOptions().storeAllSongPerformances();
 
       if (_sessionSingers.isNotEmpty) {
@@ -639,6 +694,11 @@ class _State extends State<Singers> {
 
       _searchClear();
     });
+  }
+
+  String hms(int ms) {
+    if (ms == 0) return '';
+    return DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(ms));
   }
 
   void _saveSongPerformances() async {
@@ -660,7 +720,8 @@ class _State extends State<Singers> {
     });
   }
 
-  void _filePick(BuildContext context) async {
+  void _filePickAll(BuildContext context) async {
+    app.clearMessage();
     var content = await UtilWorkaround().filePickByExtension(context, AllSongPerformances.fileExtension);
 
     setState(() {
@@ -668,6 +729,21 @@ class _State extends State<Singers> {
         app.infoMessage('No singers file read');
       } else {
         allSongPerformances.fromJsonString(content);
+        AppOptions().storeAllSongPerformances();
+      }
+    });
+  }
+
+  void _filePickSingle(BuildContext context) async {
+    app.clearMessage();
+    var content = await UtilWorkaround().filePickByExtension(context, AllSongPerformances.fileExtension);
+
+    setState(() {
+      if (content.isEmpty) {
+        app.infoMessage('No singer file read');
+      } else {
+        logger.i('_filePickSingle: $context');
+        allSongPerformances.addFromJsonString(content);
         AppOptions().storeAllSongPerformances();
       }
     });

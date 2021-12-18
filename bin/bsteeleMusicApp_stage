@@ -2,10 +2,12 @@
 #set echo; set verbose
 
 set debug=0
+set remote=0
 #   default is beta:
 set isBeta=1
 set app=bsteeleMusicApp
 set flavor=beta
+set git=~/github/bsteele_music_flutter
 
 while ( $#argv > 0 )
 	switch ( $1 )
@@ -24,6 +26,11 @@ while ( $#argv > 0 )
 		set debug=1
 		shift
 		continue;
+	case '-r':		#	remote
+	case '-remote':
+		set debug=1
+		shift
+		continue;
 	default:
 		echo unknown argument: $1
 		exit -1;
@@ -38,15 +45,22 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-set dst=/var/www/html/public_html/$app
+#	reinstall the current release to the local host
+set www=/var/www/html/public_html/$app
+rm -rf $www
+mkdir -p $www
+cd $www
+jar -xf ~/lib/bsteeleMusicApp.war
+
+#	on to the beta stuff
+cd $git
 if ( $isBeta != 0 ) then
-	set dst=$dst/$flavor
+	set www=$www/$flavor
 endif
-set git=~/github/bsteele_music_flutter
 set target=$git/build/web
 cd $git
 
-##	build the release version
+##	build the release version of the beta
 flutter clean
 utcDate > lib/assets/utcDate.txt
 #flutter config --enable-web
@@ -54,18 +68,21 @@ utcDate > lib/assets/utcDate.txt
 flutter build web --release
 
 #	clear the last one
-mkdir -p $dst
-rm  -rf $dst/*
+mkdir -p $www
+rm  -rf $www/*
 
 #	copy to localhost website
-cp -r build/web/* $dst
+cp -r build/web/* $www
 
 #	send to flavor's web location
-set gs=gs://www.bsteele.com/$app/$flavor
-bsteele_auth
-gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $dst/ $gs 	#	source needs the /
-gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
-gsutil -m -q acl -r ch -u AllUsers:R $gs
+if ( $remote != 0 ) then
+echo fixme: remote______________________
+#	set gs=gs://www.bsteele.com/$app/$flavor
+#	bsteele_auth
+#	gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $www/ $gs 	#	source needs the /
+#	gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
+#	gsutil -m -q acl -r ch -u AllUsers:R $gs
+endif
 
 echo test http://www.bsteele.com/$app/$flavor
 ls -l lib/assets/utcDate.txt
@@ -85,15 +102,6 @@ jar -uf $war -C build beta
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
 rm -rf build/beta
-
-echo fixme now_______________________
-exit -1
-
-#	ship it to distribution point for raspberry pi's
-#	already done above: bsteele_auth
-set gswar=gs://www.bsteele.com/$app/bsteeleMusicApp.war
-gsutil cp $war $gswar
-gsutil -q acl -r ch -u AllUsers:R  $gswar
 
 # print some facts
 bin/bsteeleMusicApp_codeLineCount

@@ -3,7 +3,7 @@
 
 #	set default version code to today's date
 set versionCode=`date +%Y%m%d`
-set historical=0
+set historicalCode=$versionCode
 
 set flut=bsteele_music_flutter
 set rel=bsteeleMusicRelease
@@ -17,9 +17,8 @@ set war=$warName.war
 while ( $#argv > 1 )
 	switch ( $1 )
 	case '-vc':	#	use a prior existing version code and tag
-	    set historical=1
 		shift
-		set versionCode=$1
+	    set historicalCode=$1
 		shift
 		continue;
 	default:
@@ -34,7 +33,9 @@ cd ~/github/$flut
 if ( $status != 0 ) exit $status
 
 #	generate remote tag if required
-if ( $historical == 0 ) then
+#	otherwise we'll assume it already exists
+if ( $historicalCode == $versionCode ) then
+
 	cd ~/github/$flut
 	if ( $status != 0 ) exit $status
 	git commit -a -m "commit for war $tag"
@@ -107,5 +108,6 @@ cd $tmp
 rm -rf $rel
 
 echo $dst
+echo use ~/lib/bsteeleMusicAppWarLocalInstall for local install
 
 exit 0

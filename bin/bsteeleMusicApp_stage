@@ -76,12 +76,11 @@ cp -r build/web/* $www
 
 #	send to flavor's web location
 if ( $remote != 0 ) then
-echo fixme: remote______________________
-#	set gs=gs://www.bsteele.com/$app/$flavor
-#	bsteele_auth
-#	gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $www/ $gs 	#	source needs the /
-#	gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
-#	gsutil -m -q acl -r ch -u AllUsers:R $gs
+	set gs=gs://www.bsteele.com/$app/$flavor
+	bsteele_auth
+	gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $www/ $gs 	#	source needs the /
+	gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
+	gsutil -m -q acl -r ch -u AllUsers:R $gs
 endif
 
 echo test http://www.bsteele.com/$app/$flavor

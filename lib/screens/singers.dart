@@ -358,38 +358,45 @@ class _State extends State<Singers> {
                       softWrap: false,
                     ),
                 ]),
+                if (!isInSingingMode)
+                  appButton('Other Actions', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
+                    setState(() {
+                      showOtherActions = !showOtherActions;
+                    });
+                  }),
               ], alignment: WrapAlignment.spaceBetween),
-              if (!isInSingingMode)
+              if (!isInSingingMode && showOtherActions)
                 appWrapFullWidth([
                   Column(
                     children: [
-                      appTooltip(
-                          message: 'For safety reasons you cannot read all singers\n'
-                              'without first having written all singers.',
-                          child: appEnumeratedButton(
-                            'Write all singer songs to a local file',
-                            appKeyEnum: AppKeyEnum.singersSave,
-                            onPressed: () {
-                              setState(() {
-                                _saveSongPerformances();
-                              });
-                            },
-                          )),
                       appSpace(),
-                      if (allHaveBeenWritten)
+                      if (allSongPerformances.isNotEmpty)
                         appTooltip(
-                          message: 'Warning: This will delete all singers\n'
-                              'and replace them with singers from the read file.',
-                          child: appEnumeratedButton(
-                            'Read all singers from a local file',
-                            appKeyEnum: AppKeyEnum.singersReadSingers,
-                            onPressed: () {
-                              setState(() {
-                                _filePickAll(context);
-                              });
-                            },
-                          ),
+                            message: 'For safety reasons you cannot remove all singers\n'
+                                'without first having written them all.',
+                            child: appEnumeratedButton(
+                              'Write all singer songs to a local file',
+                              appKeyEnum: AppKeyEnum.singersSave,
+                              onPressed: () {
+                                setState(() {
+                                  _saveSongPerformances();
+                                });
+                              },
+                            )),
+                      appSpace(),
+                      appTooltip(
+                        message: 'Warning: This will delete all singers\n'
+                            'and replace them with singers from the read file.',
+                        child: appEnumeratedButton(
+                          'Read all singers from a local file',
+                          appKeyEnum: AppKeyEnum.singersReadSingers,
+                          onPressed: () {
+                            setState(() {
+                              _filePickAll(context);
+                            });
+                          },
                         ),
+                      ),
                       appSpace(),
                       if (_selectedSinger != unknownSinger)
                         appEnumeratedButton(
@@ -422,7 +429,44 @@ class _State extends State<Singers> {
                           onPressed: () {
                             setState(() {
                               allSongPerformances.clear();
+                              allHaveBeenWritten = false;
                             });
+                          },
+                        ),
+                      appSpace(),
+                      if (_selectedSinger != unknownSinger)
+                        appEnumeratedButton(
+                          'Delete the singer $_selectedSinger',
+                          appKeyEnum: AppKeyEnum.singersDeleteSinger,
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                      title: Text(
+                                        'Do you really want to delete the singer $_selectedSinger?',
+                                        style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                                      ),
+                                      actions: [
+                                        appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
+                                            appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                          logger.i('delete: $_selectedSinger');
+                                          setState(() {
+                                            allSongPerformances.removeSinger(_selectedSinger);
+                                            _sessionSingers.remove(_selectedSinger);
+                                            _selectedSinger = unknownSinger;
+                                            AppOptions().storeAllSongPerformances();
+                                            allHaveBeenWritten = false;
+                                          });
+                                          Navigator.of(context).pop();
+                                        }),
+                                        appSpace(space: 100),
+                                        appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
+                                            appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                          Navigator.of(context).pop();
+                                        }),
+                                      ],
+                                      elevation: 24.0,
+                                    ));
                           },
                         ),
                     ],
@@ -454,40 +498,6 @@ class _State extends State<Singers> {
 
                   //  new singer stuff
                   appWrapFullWidth([
-                    if (_selectedSinger != unknownSinger)
-                      appEnumeratedButton(
-                        'Delete the singer $_selectedSinger',
-                        appKeyEnum: AppKeyEnum.singersDeleteSinger,
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                    title: Text(
-                                      'Do you really want to delete the singer $_selectedSinger?',
-                                      style: TextStyle(fontSize: songPerformanceStyle.fontSize),
-                                    ),
-                                    actions: [
-                                      appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                          appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
-                                        logger.i('delete: $_selectedSinger');
-                                        setState(() {
-                                          allSongPerformances.removeSinger(_selectedSinger);
-                                          _sessionSingers.remove(_selectedSinger);
-                                          _selectedSinger = unknownSinger;
-                                          AppOptions().storeAllSongPerformances();
-                                        });
-                                        Navigator.of(context).pop();
-                                      }),
-                                      appSpace(space: 100),
-                                      appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                          appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
-                                        Navigator.of(context).pop();
-                                      }),
-                                    ],
-                                    elevation: 24.0,
-                                  ));
-                        },
-                      ),
                     SizedBox(
                       width: 20 * app.screenInfo.fontSize,
                       //  limit text entry display length
@@ -685,6 +695,7 @@ class _State extends State<Singers> {
       //  update the last sung date and the key if it has been changed
       allSongPerformances.addSongPerformance(songPerformance.update(key: playerSelectedSongKey));
       AppOptions().storeAllSongPerformances();
+      allHaveBeenWritten = false;
 
       if (_sessionSingers.isNotEmpty) {
         //  increment the selected singer now that we're done singing a song
@@ -745,6 +756,7 @@ class _State extends State<Singers> {
         logger.i('_filePickSingle: $context');
         allSongPerformances.addFromJsonString(content);
         AppOptions().storeAllSongPerformances();
+        allHaveBeenWritten = false;
       }
     });
   }
@@ -752,6 +764,7 @@ class _State extends State<Singers> {
   static const singingTooltipText = 'Switch to singing mode, otherwise make adjustments.';
 
   bool isInSingingMode = false;
+  bool showOtherActions = false;
   List<String> singerList = [];
 
   late TextStyle songPerformanceStyle;

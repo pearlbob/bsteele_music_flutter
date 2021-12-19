@@ -651,6 +651,7 @@ enum AppKeyEnum {
   singersRemoveAllSingers,
   singersRemoveSingerFromSession,
   singersRemoveThisSingerFromSession,
+  singersShowOtherActions,
   singersSearchText,
   singersSessionSingerSelect,
   singersNameEntry,
@@ -703,6 +704,7 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.singersAddSingerToSession: String,
   AppKeyEnum.singersAllSingers: String,
   AppKeyEnum.singersSessionSingerSelect: String,
+  // AppKeyEnum.singersShowFileActions: String,
 };
 
 class Id {
@@ -724,7 +726,7 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
   switch (type) {
     case null:
       if (value != null) {
-        logger.i('not null here:');
+        logger.i('not null here: $e');
       }
       assert(value == null);
       return ValueKey<String>(Util.enumName(e));
@@ -1135,6 +1137,19 @@ IconButton appEnumeratedIconButton({
     },
     color: color,
     iconSize: iconSize ?? 24.0, //  demanded by IconButton
+  );
+}
+
+DropdownButton<T> appDropdownButton<T>(AppKeyEnum appKeyEnum, List<DropdownMenuItem<T>> items,
+    {T? value, ValueChanged<T?>? onChanged, Widget? hint, TextStyle? style}) {
+  return DropdownButton<T>(
+    key: appKey(appKeyEnum),
+    value: value,
+    items: items,
+    onChanged: onChanged,
+    hint: hint,
+    style: style,
+    isDense: true,
   );
 }
 

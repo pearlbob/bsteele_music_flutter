@@ -156,10 +156,11 @@ expanded repeat player, no x, no repeat #
 // fixme: • When trying to adjust lyrics to best match the lines of chords, I need to see the chords and lyrics together.
      Though I couldn't see the entire song lyrics in the release version,
       it allowed me to scroll the lyrics section independently, keeping the chords visible.
-//
 // fixme: Pro input feels like it struggles to 'pretend' to be a text editor.
         There is so much delay while scrolling and entering text, it's hard to work.
          I am now looking into working with an external text editor.
+
+
 //  fixme: feature: for ninjam: put title, chords in ninjam format for copy/paste to ninjam comment, + /bpm and /bpi
 //  fixme: edit: change title: does not get a new modification date
 //  fixme: If the key was changed on a song and it is saved, it displays in the previous key instead of the new original key. The behavior should display as original key.

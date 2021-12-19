@@ -3,22 +3,14 @@
 
 set www=/var/www/html/public_html
 set app=bsteeleMusicApp
-set betaDir=beta
-set beta=$betaDir/$app
-set dst=gs://www.bsteele.com/$app
-set lyricsDst=gs://songlyrics.bsteele.com
-set lyricsWar=${app}.war
-
 set localdst=$www/$app
-
-#	copy local war to distribution point for raspberry pi's
-echo bsteele_auth
-echo gsutil cp $www/$betaDir/${app}.war $lyricsDst/$lyricsWar
-echo gsutil -q acl -r ch -u AllUsers:R $lyricsDst/$lyricsWar
+set dst=gs://www.bsteele.com/$app
 
 #	copy local deploy to the web server
-echo gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localdst/ $dst 	#	source needs the /
-echo gsutil -m -q acl -r ch -u AllUsers:R $dst
+bsteele_auth
+gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localdst/ $dst 	#	source needs the /
+gsutil -m -q acl -r ch -u AllUsers:R $dst
 
+~/github/allSongs.songlyrics/bin/lyrics_update
 
 echo try:  http://bsteele.com/$app

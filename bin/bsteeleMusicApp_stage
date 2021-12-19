@@ -2,7 +2,6 @@
 #set echo; set verbose
 
 set debug=0
-set remote=0
 #   default is beta:
 set isBeta=1
 set app=bsteeleMusicApp
@@ -26,11 +25,6 @@ while ( $#argv > 0 )
 		set debug=1
 		shift
 		continue;
-	case '-r':		#	remote
-	case '-remote':
-		set debug=1
-		shift
-		continue;
 	default:
 		echo unknown argument: $1
 		exit -1;
@@ -45,20 +39,9 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-#	reinstall the current release to the local host
-set www=/var/www/html/public_html/$app
-rm -rf $www
-mkdir -p $www
-cd $www
-jar -xf ~/lib/bsteeleMusicApp.war
-
-#	on to the beta stuff
+#	beta to local static host
 cd $git
-if ( $isBeta != 0 ) then
-	set www=$www/$flavor
-endif
-set target=$git/build/web
-cd $git
+set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
 
 ##	build the release version of the beta
 flutter clean
@@ -68,39 +51,21 @@ utcDate > lib/assets/utcDate.txt
 flutter build web --release
 
 #	clear the last one
-mkdir -p $www
-rm  -rf $www/*
+mkdir -p $betaDir
+rm  -rf $betaDir/*
 
 #	copy to localhost website
-cp -r build/web/* $www
+cp -r build/web/* $betaDir
 
 #	send to flavor's web location
-if ( $remote != 0 ) then
-	set gs=gs://www.bsteele.com/$app/$flavor
-	bsteele_auth
-	gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $www/ $gs 	#	source needs the /
-	gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
-	gsutil -m -q acl -r ch -u AllUsers:R $gs
-endif
+set gs=gs://www.bsteele.com/$app/$flavor
+bsteele_auth
+gsutil -m -q rsync -d -R -x 'allSongs\.songlyrics$' -x 'allSongs\.songmetadata$' $betaDir/ $gs 	#	source needs the /
+gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
+gsutil -m -q acl -r ch -u AllUsers:R $gs
 
 echo test http://www.bsteele.com/$app/$flavor
-ls -l lib/assets/utcDate.txt
 cat lib/assets/utcDate.txt
-
-
-#	incorporate the beta into the server .war file
-set war=build/bsteeleMusicApp.war
-rm -rf $war
-#   assuming the latest is found where expected:
-cp ~/lib/bsteeleMusicApp.war $war
-rm -rf build/beta
-mkdir build/beta
-cp -r build/web/* build/beta
-jar -uf $war -C build beta
-#	update the local allSongs to the latest
-jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
-jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
-rm -rf build/beta
 
 # print some facts
 bin/bsteeleMusicApp_codeLineCount

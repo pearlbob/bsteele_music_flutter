@@ -1,0 +1,27 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+set www=/var/www/html/public_html
+set app=bsteeleMusicApp
+
+#	link to the latest
+cd ~/lib
+set war=`ls -t ${app}_*.war | head -1`
+rm $app.war
+ln -s $war $app.war
+
+#	install in local static web pages
+rm -rf $www/$app
+mkdir -p $www/$app
+cd $www/$app
+jar -xf ~/lib/$app.war
+cp ~/lib/$app.war .		#	war for raspberry pi's to download
+
+#	install in local server
+sudo cp ~/lib/$app.war /var/lib/tomcat9/webapps/
+
+
+#	wait for tomcat install
+echo wait
+sleep 10
+ls -ltr  /var/lib/tomcat9/webapps/ | tail -3

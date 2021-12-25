@@ -648,12 +648,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 child: appWrapFullWidth([
-                                  if (app.fullscreenEnabled && !app.isFullScreen)
-                                    appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
-                                        onPressed: () {
-                                      app.requestFullscreen();
-                                      _hasOpenedTheLink = false;
-                                    }),
                                   appTooltip(
                                     message: '''
 Space bar or clicking the song area starts "play" mode.
@@ -822,6 +816,12 @@ With escape, the app goes back to the play list.''',
                                 ], alignment: WrapAlignment.spaceBetween),
                               ),
                             appWrapFullWidth([
+                              if (app.fullscreenEnabled && !app.isFullScreen)
+                                appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
+                                    onPressed: () {
+                                      app.requestFullscreen();
+                                      _hasOpenedTheLink = false;
+                                    }),
                               Container(
                                 padding: const EdgeInsets.only(left: 8, right: 8),
                                 child: appTooltip(
@@ -833,7 +833,7 @@ With escape, the app goes back to the play list.''',
                                     appKeyEnum: AppKeyEnum.playerPlay,
                                     icon: appIcon(
                                       playStopIcon,
-                                      size: 1.75 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                      size: 1.5 * app.screenInfo.fontSize, //  fixme: why is this required?
                                     ),
                                     onPressed: () {
                                       isPlaying ? performStop() : performPlay();
@@ -1060,7 +1060,7 @@ With escape, the app goes back to the play list.''',
                     child: appIcon(
                       Icons.play_arrow,
                     ),
-                    fontSize: headerTextStyle.fontSize,
+                    // fontSize: headerTextStyle.fontSize,
                   ),
                   mini: !app.isScreenBig,
                 )
@@ -1074,7 +1074,6 @@ With escape, the app goes back to the play list.''',
                     child: appIcon(
                       Icons.stop,
                     ),
-                    fontSize: headerTextStyle.fontSize,
                   ),
                   mini: !app.isScreenBig,
                 ))
@@ -1093,7 +1092,6 @@ With escape, the app goes back to the play list.''',
                     child: appIcon(
                       Icons.arrow_upward,
                     ),
-                    fontSize: headerTextStyle.fontSize,
                   ),
                   mini: !app.isScreenBig,
                 )
@@ -1107,7 +1105,6 @@ With escape, the app goes back to the play list.''',
                     child: appIcon(
                       Icons.arrow_back,
                     ),
-                    fontSize: headerTextStyle.fontSize,
                   ),
                   mini: !app.isScreenBig,
                 )),

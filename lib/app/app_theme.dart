@@ -654,6 +654,8 @@ enum AppKeyEnum {
   singersShowOtherActions,
   singersSearchText,
   singersSessionSingerSelect,
+  singersSingerClearSearch,
+  singersSingerSearchText,
   singersNameEntry,
   singersSave,
   singersSaveSelected,

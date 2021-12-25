@@ -38,7 +38,9 @@ class Singers extends StatefulWidget {
 }
 
 class _State extends State<Singers> {
-  _State() : _searchFocusNode = FocusNode();
+  _State()
+      : _searchFocusNode = FocusNode(),
+        _singerSearchFocusNode = FocusNode();
 
   @override
   initState() {
@@ -59,67 +61,113 @@ class _State extends State<Singers> {
 
     List<Widget> sessionSingerWidgets = [];
     {
+      //  add  singer search
+      sessionSingerWidgets.add(appWrap([
+        appTooltip(
+          message: 'search',
+          child: IconButton(
+            icon: const Icon(Icons.search),
+            iconSize: fontSize,
+            onPressed: (() {}),
+          ),
+        ),
+        SizedBox(
+          width: 14 * app.screenInfo.fontSize,
+          //  limit text entry display length
+          child: appTextField(
+            appKeyEnum: AppKeyEnum.singersSingerSearchText,
+            enabled: true,
+            controller: _singerSearchTextFieldController,
+            hintText: "enter singer search",
+            onChanged: (text) {
+              setState(() {
+                //  code will respond to change of singer search text
+              });
+            },
+            fontSize: fontSize,
+          ),
+        ),
+        appTooltip(
+          message: 'Clear the singer search text.',
+          child: appEnumeratedIconButton(
+            appKeyEnum: AppKeyEnum.singersSingerClearSearch,
+            icon: const Icon(Icons.clear),
+            iconSize: 1.5 * fontSize,
+            onPressed: (() {
+              setState(() {
+                _singerSearchTextFieldController.text = '';
+                FocusScope.of(context).requestFocus(_singerSearchFocusNode);
+              });
+            }),
+          ),
+        ),
+      ], alignment: WrapAlignment.spaceBetween));
+
       //  find all singers
       var setOfSingers = SplayTreeSet<String>();
       setOfSingers.addAll(allSongPerformances.setOfSingers());
       if (_selectedSinger != unknownSinger) {
         setOfSingers.add(_selectedSinger);
       }
+
+      var singerSearch = _singerSearchTextFieldController.text.toLowerCase();
       for (var singer in setOfSingers) {
-        sessionSingerWidgets.add(appWrap(
-          [
-            appTextButton(
-              singer,
-              appKeyEnum: AppKeyEnum.singersAllSingers,
-              style: singer == _selectedSinger
-                  ? songPerformanceStyle.copyWith(backgroundColor: _addColor)
-                  : songPerformanceStyle,
-              onPressed: () {
-                setState(() {
-                  _selectedSinger = singer;
-                });
-              },
-            ),
-            if (!_sessionSingers.contains(singer))
-              appInkWell(
-                appKeyEnum: AppKeyEnum.singersAddSingerToSession,
-                value: singer,
-                keyCallback: () {
+        if (singerSearch.isEmpty ||singer.toLowerCase().contains(singerSearch)) {
+          sessionSingerWidgets.add(appWrap(
+            [
+              appTextButton(
+                singer,
+                appKeyEnum: AppKeyEnum.singersAllSingers,
+                style: singer == _selectedSinger
+                    ? songPerformanceStyle.copyWith(backgroundColor: _addColor)
+                    : songPerformanceStyle,
+                onPressed: () {
                   setState(() {
-                    _sessionSingers.add(singer);
+                    _selectedSinger = singer;
                   });
                 },
-                child: appCircledIcon(
-                  Icons.add,
-                  'Add $singer to today\'s session.',
-                  margin: appendInsets,
-                  padding: appendPadding,
-                  color: _addColor,
-                  size: fontSize * 0.7,
-                ),
               ),
-            if (_sessionSingers.contains(singer))
-              appInkWell(
-                appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
-                // value: singer,
-                keyCallback: () {
-                  setState(() {
-                    _sessionSingers.remove(singer);
-                  });
-                },
-                child: appCircledIcon(
-                  Icons.remove,
-                  'Remove $singer from today\'s session.',
-                  margin: appendInsets,
-                  padding: appendPadding,
-                  color: _removeColor,
-                  size: fontSize * 0.7,
+              if (!_sessionSingers.contains(singer))
+                appInkWell(
+                  appKeyEnum: AppKeyEnum.singersAddSingerToSession,
+                  value: singer,
+                  keyCallback: () {
+                    setState(() {
+                      _sessionSingers.add(singer);
+                    });
+                  },
+                  child: appCircledIcon(
+                    Icons.add,
+                    'Add $singer to today\'s session.',
+                    margin: appendInsets,
+                    padding: appendPadding,
+                    color: _addColor,
+                    size: fontSize * 0.7,
+                  ),
                 ),
-              ),
-            appSpace(),
-            appSpace(),
-          ],
-        ));
+              if (_sessionSingers.contains(singer))
+                appInkWell(
+                  appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
+                  // value: singer,
+                  keyCallback: () {
+                    setState(() {
+                      _sessionSingers.remove(singer);
+                    });
+                  },
+                  child: appCircledIcon(
+                    Icons.remove,
+                    'Remove $singer from today\'s session.',
+                    margin: appendInsets,
+                    padding: appendPadding,
+                    color: _removeColor,
+                    size: fontSize * 0.7,
+                  ),
+                ),
+              appSpace(),
+              appSpace(),
+            ],
+          ));
+        }
       }
     }
 
@@ -527,11 +575,7 @@ class _State extends State<Singers> {
                     child: IconButton(
                       icon: const Icon(Icons.search),
                       iconSize: fontSize,
-                      onPressed: (() {
-                        setState(() {
-                          _searchSongs(_searchTextFieldController.text);
-                        });
-                      }),
+                      onPressed: (() {}),
                     ),
                   ),
                   SizedBox(
@@ -572,6 +616,7 @@ class _State extends State<Singers> {
                 child: ListView(
                   children: songWidgetList,
                   scrollDirection: Axis.vertical,
+                  controller: singerScrollController,
                 ),
               ),
             ]),
@@ -583,7 +628,7 @@ class _State extends State<Singers> {
   Widget mapSongToWidget(Song song, {music_key.Key? key}) {
     return appWrapFullWidth(
       [
-        appWrapSong(song, key: key),
+        appWrapSong(song, key: key ?? song.key),
       ],
     );
   }
@@ -615,7 +660,7 @@ class _State extends State<Singers> {
                 if (value) {
                   if (_selectedSinger != unknownSinger) {
                     allSongPerformances.addSongPerformance(
-                        SongPerformance(song.songId.toString(), _selectedSinger, music_key.Key.getDefault()));
+                        SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault()));
                   }
                 } else {
                   allSongPerformances.removeSingerSong(_selectedSinger, song.songId.toString());
@@ -660,6 +705,8 @@ class _State extends State<Singers> {
     search ??= '';
     search = search.trim();
     searchTerm = search.replaceAll("[^\\w\\s']+", '');
+
+    singerScrollController.jumpTo(0);
 
     //  apply search filter
     _filteredSongs.clear();
@@ -772,10 +819,13 @@ class _State extends State<Singers> {
   String searchTerm = '';
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
+  final singerScrollController = ScrollController();
 
   static const String unknownSinger = 'unknown';
   String _selectedSinger = unknownSinger;
   final TextEditingController _searchTextFieldController = TextEditingController();
+  final FocusNode _singerSearchFocusNode;
+  final TextEditingController _singerSearchTextFieldController = TextEditingController();
 
   AllSongPerformances allSongPerformances = AllSongPerformances();
   bool allHaveBeenWritten = false;

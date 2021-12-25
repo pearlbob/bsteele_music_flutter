@@ -152,6 +152,8 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
+//  fixme: Fix "Not enough", fix "I shall be released"
+//  fixme: Singer demands at least one song
 //  fixme: flutter webview 3.0 has an iframe
 // fixme: • When trying to adjust lyrics to best match the lines of chords, I need to see the chords and lyrics together.
      Though I couldn't see the entire song lyrics in the release version,
@@ -159,7 +161,6 @@ expanded repeat player, no x, no repeat #
 // fixme: Pro input feels like it struggles to 'pretend' to be a text editor.
         There is so much delay while scrolling and entering text, it's hard to work.
          I am now looking into working with an external text editor.
-
 
 //  fixme: feature: for ninjam: put title, chords in ninjam format for copy/paste to ninjam comment, + /bpm and /bpi
 //  fixme: edit: change title: does not get a new modification date

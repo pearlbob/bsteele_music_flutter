@@ -51,7 +51,6 @@ _Player? _player;
 
 final GlobalKey _stackKey = GlobalKey();
 
-List<Offset> _songMomentLocations = [];
 SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
@@ -68,7 +67,8 @@ const Level _playerLogFontResize = Level.debug;
 /// Note: This is an awkward move, given that it can happen at any time from any route.
 /// Likely the implementation here will require adjustments.
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
-  logger.d('playerUpdate');
+  logger.log(_playerLogLeaderFollower,
+      'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
@@ -91,8 +91,8 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     _player?.setPlayState();
   });
 
-  logger.log(
-      _playerLogLeaderFollower, 'playerUpdate: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  logger.log(_playerLogLeaderFollower,
+      'playerUpdate(): end:   ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
 /// Display the song moments in sequential order.
@@ -199,45 +199,33 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         'scrollControllerListener: ${scrollController.offset}'
         ', section: ${sectionIndexAtScrollOffset()}');
 
-    if (_songMomentLocations.isNotEmpty) {
-      double stopAt = max(_songMomentLocations.last.dy - 2 * boxCenter, 0);
+    if (_songMomentChordRectangles.isNotEmpty) {
+      double stopAt = max(_songMomentChordRectangles.last.bottom - boxCenter, 0);
       if (scrollController.offset > stopAt) {
         //  cancels any animation
         logger.log(_playerLogScroll, 'scrollController.offset stop at: $stopAt');
         scrollController.jumpTo(stopAt);
       }
-    }
 
-    //  follow the leader's scroll
-    if (table != null && songUpdateService.isLeader) {
-      RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-      assert(renderObject != null && renderObject is RenderTable);
-      RenderTable renderTable = renderObject as RenderTable;
+      //  follow the leader's scroll
+      if (table != null && songUpdateService.isLeader && !isPlaying) {
+        RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+        assert(renderObject != null && renderObject is RenderTable);
+        RenderTable renderTable = renderObject as RenderTable;
 
-      BoxHitTestResult result = BoxHitTestResult();
-      Offset position = Offset(20, boxCenter + scrollController.offset);
-      if (renderTable.hitTestChildren(result, position: position)) {
-        logger.d('hitTest $position: ${result.path.last}');
-        assert(_songMomentLocations.isNotEmpty);
-        assert(_songMomentLocations.length == _song.songMoments.length);
+        BoxHitTestResult result = BoxHitTestResult();
+        Offset position = Offset(20, boxCenter + scrollController.offset);
+        if (renderTable.hitTestChildren(result, position: position)) {
+          logger.d('hitTest $position: ${result.path.last}');
+          assert(_songMomentChordRectangles.length == _song.songMoments.length);
 
-        //  find the moment past the marker
-        var offset =
-            _songMomentLocations.firstWhere((loc) => loc.dy >= position.dy, orElse: () => _songMomentLocations.last);
-        var index = _songMomentLocations.indexOf(offset);
-        selectedSongMoment = _song.songMoments[index];
-
-        // //  see if the section above is closer
-        // {
-        //   var sectionLocationIndex = sectionLocationIndexForSongMoment(songMoment);
-        //   if (sectionLocationIndex > 0) {
-        //     var delta1 = sectionLocations[index - 1] - position.dy;
-        //     var delta2 = sectionLocations[index] - position.dy;
-        //     if (delta1.abs() < delta2.abs()) {
-        //       songMoment = _song.songMoments[index - 1];
-        //     }
-        //   }
-        // }
+          //  find the moment past the marker
+          var rect = _songMomentChordRectangles.firstWhere((rect) => rect.bottom >= position.dy,
+              orElse: () => _songMomentChordRectangles.last);
+          var index = _songMomentChordRectangles.indexOf(rect);
+          selectedSongMoment = _song.songMoments[index];
+          logger.log(_playerLogLeaderFollower, 'leader scroll: $_selectedSongMoment');
+        }
       }
     }
   }
@@ -311,7 +299,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             songMomentToGridList = lyricsTable.songMomentToGridList;
 
             sectionLocations = [];
-            _songMomentLocations = [];
             _songMomentChordRectangles.clear();
             sectionSongMoments = [];
 
@@ -326,7 +313,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               _songMomentChordRectangles.add(rect);
 
               var y = offset.dy;
-              _songMomentLocations.add(rect.topLeft);
 
               if (lastLyricSection == songMoment.lyricSection) {
                 continue; //  not a new lyric section
@@ -342,7 +328,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   ', global: ${renderBox.localToGlobal(Offset.zero)}');
             }
           }
-          logger.d('_songMomentLocations.first: ${_songMomentLocations.first}');
         }
 
         logger.log(
@@ -414,7 +399,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         //  givenSelectedSongMoments: selectedSongMoments
       );
       sectionLocations.clear(); //  clear any previous song cached data
-      _songMomentLocations.clear();
       _songMomentChordRectangles.clear();
       logger.d('_table clear: index: $sectionIndex');
       WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -574,9 +558,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
           child: InkWell(
             onTap: () {
               openLink(titleAnchor());
-              setState(() {
-                _hasOpenedTheLink = true;
-              });
             },
             child: Text(
               _song.title,
@@ -591,9 +572,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             child: InkWell(
               onTap: () {
                 openLink(artistAnchor());
-                setState(() {
-                  _hasOpenedTheLink = true;
-                });
               },
               child: Text(
                 ' by  ${_song.artist}',
@@ -658,7 +636,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   child: Stack(key: _stackKey, children: [
                     if (isPlaying)
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                        appSpace(space:  selectedTargetY - (chordFontSize ?? 0) / 2),
+                        appSpace(space: selectedTargetY - (chordFontSize ?? 0) / 2),
                         appWrap([
                           SizedBox(height: 0, width: max(0, renderTableLeft - (chordFontSize ?? 0))),
                           appIcon(
@@ -867,7 +845,6 @@ With escape, the app goes back to the play list.''',
                                   appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
                                       onPressed: () {
                                     app.requestFullscreen();
-                                    _hasOpenedTheLink = false;
                                   }),
                                 Container(
                                   padding: const EdgeInsets.only(left: 8, right: 8),
@@ -1284,7 +1261,7 @@ With escape, the app goes back to the play list.''',
       return;
     }
 
-    if (_songMomentLocations.isNotEmpty) {
+    if (_songMomentChordRectangles.isNotEmpty) {
       selectedSongMoment = songMoment;
       var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
       scrollToTarget(y);
@@ -1315,15 +1292,22 @@ With escape, the app goes back to the play list.''',
   }
 
   bool scrollToTarget(double target) {
-    selectedTargetY = target;
     double adjustedTarget = max(0, target - boxCenter);
     if (scrollTarget != adjustedTarget) {
-      logger.log(_playerLogScroll, 'scrollTarget != target, $scrollTarget != $target');
+      logger.log(_playerLogScroll, 'scrollTarget != adjustedTarget, $scrollTarget != $adjustedTarget');
       setState(() {
+        selectedTargetY = target;
         scrollTarget = adjustedTarget;
         if (scrollController.offset != adjustedTarget) {
           scrollController.animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.ease);
         }
+      });
+      return true;
+    }
+    if (selectedTargetY != target) {
+      logger.log(_playerLogScroll, 'selectedTargetY != target, $selectedTargetY != $target');
+      setState(() {
+        selectedTargetY = target;
       });
       return true;
     }
@@ -1540,7 +1524,8 @@ With escape, the app goes back to the play list.''',
       leaderSongUpdate(_selectedSongMoment!.momentNumber);
     }
 
-    forceTableRedisplay();
+    // scrollToSectionByMoment(_selectedSongMoment);
+    // forceTableRedisplay();
     logger.log(_playerLogScroll, 'selectedSongMoment: $_selectedSongMoment');
   }
 
@@ -1549,7 +1534,6 @@ With escape, the app goes back to the play list.''',
   }
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
-  bool _hasOpenedTheLink = false;
 
   bool isPlaying = false;
   bool isPaused = false;
@@ -1602,8 +1586,8 @@ With escape, the app goes back to the play list.''',
 class _ChordHighlightPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    const overlap = 3;
-
+    // const overlap = 3;
+    //
     // //  clear the layer
     // canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
     //
@@ -1622,5 +1606,5 @@ class _ChordHighlightPainter extends CustomPainter {
     return true; //  fixme optimize?
   }
 
-  static final highlightColor = Paint()..color = Colors.red;
+  // static final highlightColor = Paint()..color = Colors.red;
 }

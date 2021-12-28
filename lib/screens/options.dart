@@ -227,7 +227,7 @@ class _Options extends State<Options> {
                         ),
                       ),
                       SizedBox(
-                        width: app.screenInfo.widthInLogicalPixels / 3,
+                        width: app.screenInfo.mediaWidth / 3,
                         child: appTextField(
                           appKeyEnum: AppKeyEnum.optionsWebsocketIP,
                           controller: _websocketHostEditingController,

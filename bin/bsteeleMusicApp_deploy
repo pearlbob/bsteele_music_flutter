@@ -6,6 +6,15 @@ set app=bsteeleMusicApp
 set localdst=$www/$app
 set dst=gs://www.bsteele.com/$app
 
+#	compile for release
+set git=~/github/bsteele_music_flutter
+cd $git
+bin/bsteeleMusicApp_war
+if ( $status != 0 ) exit $status
+
+#	deploy locally (typically re-deploy)
+bin/bsteeleMusicApp_localWarInstall
+
 #	copy local deploy to the web server
 bsteele_auth
 gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localdst/ $dst 	#	source needs the /

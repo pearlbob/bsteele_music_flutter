@@ -338,7 +338,7 @@ class _Edit extends State<Edit> {
     //  adjust to screen size
     if (screenInfo == null) {
       screenInfo = ScreenInfo(context);
-      final double _screenWidth = screenInfo!.widthInLogicalPixels;
+      final double _screenWidth = screenInfo!.mediaWidth;
 
       chordFontSize = _defaultChordFontSize * _screenWidth / 800;
       chordFontSize = min(_defaultChordFontSize, max(12, chordFontSize));

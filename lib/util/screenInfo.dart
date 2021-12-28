@@ -11,24 +11,24 @@ class ScreenInfo {
 
     double devicePixelRatio = mediaQueryData.devicePixelRatio;
     _mediaWidth = mediaQueryData.size.width;
-    _widthInLogicalPixels = mediaQueryData.size.width;
-    _heightInLogicalPixels = mediaQueryData.size.height;
+    _mediaHeight = mediaQueryData.size.height;
 
-    _fontSize = 2 * appDefaultFontSize * min(2.25, max(1, _widthInLogicalPixels / minLogicalPixels));
-    _isTooNarrow = _widthInLogicalPixels <= minLogicalPixels; //  logical pixels
-    _isWayTooNarrow = _widthInLogicalPixels <= 400;
-    _titleScaleFactor = 1.25 * max(1, _widthInLogicalPixels / minLogicalPixels);
-    logger.d('ScreenInfo: ($_widthInLogicalPixels, $_heightInLogicalPixels)'
+    _fontSize = 2 * appDefaultFontSize * min(2.25, max(1, _mediaWidth / minLogicalPixels));
+    _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
+    _isWayTooNarrow = _mediaWidth <= 400;
+    _titleScaleFactor = 1.25 * max(1, _mediaWidth / minLogicalPixels);
+    logger.d('ScreenInfo: ($_mediaWidth, $_mediaHeight)'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
     logger.d('devicePixelRatio: $devicePixelRatio,'
-        ' ($_widthInLogicalPixels,$_heightInLogicalPixels)');
+        ' ($_mediaWidth,$_mediaHeight)');
   }
 
   ScreenInfo.defaultValue()
-      : _widthInLogicalPixels = 1024,
-        _heightInLogicalPixels = 800,
-        _isDefaultValue = true {
+      : _isDefaultValue = true,
+        // place holders only:
+        _mediaWidth = 1920,
+        _mediaHeight = 1080 {
     _isTooNarrow = false; //  logical pixels
     _titleScaleFactor = 1;
     _fontSize = 16;
@@ -38,16 +38,11 @@ class ScreenInfo {
   double get fontSize => _fontSize;
   late double _fontSize;
 
-  /// Screen width in logical pixels
-  double get widthInLogicalPixels => _widthInLogicalPixels;
-  late double _widthInLogicalPixels;
-
   double get mediaWidth => _mediaWidth;
   late double _mediaWidth;
 
-  /// Screen height in logical pixels
-  double get heightInLogicalPixels => _heightInLogicalPixels;
-  late double _heightInLogicalPixels;
+  double get mediaHeight => _mediaHeight;
+  late double _mediaHeight;
 
   /// Indicate the screen is too narrow for a number of functions that require a wider screen.
   /// An example is the edit screen.

@@ -91,8 +91,8 @@ class _About extends State<About> with WidgetsBindingObserver {
                 ),
                 const Text(''),
                 Text(
-                  'screen: (${screenInfo.widthInLogicalPixels.toStringAsFixed(0)}'
-                  ',${screenInfo.heightInLogicalPixels.toStringAsFixed(0)})'
+                  'screen: (${screenInfo.mediaWidth.toStringAsFixed(0)}'
+                  ',${screenInfo.mediaHeight.toStringAsFixed(0)})'
                   // ', fontSize: ${screenInfo.fontSize}'
                   // ', titleScaleFactor: ${screenInfo.titleScaleFactor.toStringAsFixed(2)}'
                   ,

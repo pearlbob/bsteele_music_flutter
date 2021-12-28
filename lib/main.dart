@@ -152,6 +152,8 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
+//  fixme: try FittedBox for autoscaling the player display
+//  fixme: SelectableText instead of Text
 //  fixme: Fix "Not enough", fix "I shall be released"
 //  fixme: Singer demands at least one song
 //  fixme: flutter webview 3.0 has an iframe
@@ -343,6 +345,9 @@ class BSteeleMusicApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    logger.i('main: build()');
+
     return ChangeNotifierProvider<AppOptions>(
         create: (_) => AppOptions(),
         builder: (context, _) => MaterialApp(
@@ -535,7 +540,7 @@ class _MyHomePageState extends State<MyHomePage> {
     app.isScreenBig = app.isEditReady || !app.screenInfo.isTooNarrow;
     app.isPhone = !app.isScreenBig;
 
-    logger.v('screen: logical: (${app.screenInfo.widthInLogicalPixels},${app.screenInfo.heightInLogicalPixels})');
+    logger.v('screen: logical: (${app.screenInfo.mediaWidth},${app.screenInfo.mediaHeight})');
     logger.v('isScreenBig: $app.isScreenBig, isPhone: $app.isPhone');
 
     final TextStyle searchTextStyle = generateAppTextStyle(
@@ -558,7 +563,7 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.black,
     );
     final fontSize = searchTextStyle.fontSize ?? 25;
-    logger.d('fontSize: $fontSize in ${app.screenInfo.widthInLogicalPixels} px');
+    logger.d('fontSize: $fontSize in ${app.screenInfo.mediaWidth} px');
 
     artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle _navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

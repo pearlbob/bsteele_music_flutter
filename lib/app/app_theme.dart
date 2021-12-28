@@ -621,6 +621,9 @@ enum AppKeyEnum {
   playerBPM,
   playerCapo,
   playerCompressRepeats,
+  playerCopyNinjamChords,
+  playerCopyNinjamCycle,
+  playerCopyNinjamBPM,
   playerEdit,
   playerErrorMessage,
   playerFloatingPlay,
@@ -987,7 +990,7 @@ double? _sizeLookup(CssProperty property) {
       }
     case visitor.ViewportTerm:
       var term = value as visitor.ViewportTerm;
-      return term.value * app.screenInfo.widthInLogicalPixels / 100; //  ie. dynamically mapped into pixels
+      return term.value * app.screenInfo.mediaWidth / 100; //  ie. dynamically mapped into pixels
     default:
       return null;
   }

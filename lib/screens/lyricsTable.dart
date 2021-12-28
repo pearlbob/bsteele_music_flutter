@@ -226,8 +226,8 @@ class LyricsTable {
   /// compute screen size values used here and on other screens
   void _computeScreenSizes() {
     App app = App();
-    _screenWidth = app.screenInfo.widthInLogicalPixels;
-    _screenHeight = app.screenInfo.heightInLogicalPixels;
+    _screenWidth = app.screenInfo.mediaWidth;
+    _screenHeight = app.screenInfo.mediaHeight;
     _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 500));
     _lyricsFontSize = _chordFontSize! * 0.6;
 

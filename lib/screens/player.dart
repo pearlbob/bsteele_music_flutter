@@ -555,9 +555,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     logger.log(
         _playerLogScroll,
         ' sectionTarget: $scrollTarget, '
-        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}'
-        //', scroll: ${scrollController.offset}'
-        );
+        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_playerLogMode, 'playing: $isPlaying, pause: $isPaused');
 
     var rawKeyboardListenerFocusNode = playerOnKeyFocusNode();
@@ -567,9 +565,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     var theme = Theme.of(context);
     var appBarTextStyle = generateAppBarLinkTextStyle();
-
-    logger.d('_hasOpenedTheLink: $_hasOpenedTheLink, app.fullscreenEnabled: ${app.fullscreenEnabled}'
-        ', app.isFullScreen: ${app.isFullScreen}');
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
@@ -661,11 +656,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 scrollDirection: Axis.vertical,
                 child: SizedBox(
                   child: Stack(key: _stackKey, children: [
-                    if (scrollTarget > 0  && isPlaying)
+                    if (isPlaying)
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                        appSpace(space: scrollTarget - (chordFontSize ?? 0) / 2),
+                        appSpace(space:  selectedTargetY - (chordFontSize ?? 0) / 2),
                         appWrap([
-                          appSpace(space: renderTableLeft - (chordFontSize ?? 0)),
+                          SizedBox(height: 0, width: max(0, renderTableLeft - (chordFontSize ?? 0))),
                           appIcon(
                             Icons.play_arrow,
                             size: chordFontSize,
@@ -673,15 +668,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                           ),
                         ], crossAxisAlignment: WrapCrossAlignment.center),
                       ]),
-                    // CustomPaint(
-                    //   painter: _ChordHighlightPainter(),
-                    //   isComplex: true,
-                    //   willChange: false,
-                    //   child: SizedBox(
-                    //     width: app.screenInfo.mediaWidth,
-                    //     height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
-                    //   ),
-                    // ),
+                    CustomPaint(
+                      painter: _ChordHighlightPainter(),
+                      isComplex: true,
+                      willChange: false,
+                      child: SizedBox(
+                        width: app.screenInfo.mediaWidth,
+                        height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
+                      ),
+                    ),
                     Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1251,15 +1246,13 @@ With escape, the app goes back to the play list.''',
       } else if (isPlaying &&
           !isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
-        logger.log(
-            _playerLogKeyboard,'arrowUp');
+        logger.log(_playerLogKeyboard, 'arrowUp');
         sectionBump(-1);
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         if (isPlaying) {
           performStop();
         } else {
-          logger.log(
-              _playerLogKeyboard,'player: pop the navigator');
+          logger.log(_playerLogKeyboard, 'player: pop the navigator');
           Navigator.pop(context);
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
@@ -1285,7 +1278,7 @@ With escape, the app goes back to the play list.''',
     return renderTable.row(coord.row).elementAt(coord.col);
   }
 
-  scrollToSectionByMoment(SongMoment? songMoment) {
+  void scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, 'scrollToSectionByMoment( $songMoment )');
     if (songMoment == null) {
       return;
@@ -1293,12 +1286,12 @@ With escape, the app goes back to the play list.''',
 
     if (_songMomentLocations.isNotEmpty) {
       selectedSongMoment = songMoment;
-      Offset offset = _songMomentLocations[songMoment.momentNumber];
-      scrollToTarget(offset.dy);
+      var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
+      scrollToTarget(y);
       logger.log(
           _playerLogScroll,
           'scrollToSectionByMoment: ${songMoment.momentNumber}: '
-          '$songMoment => section #${songMoment.lyricSection.index} => ${offset.dy}');
+          '$songMoment => section #${songMoment.lyricSection.index} => $y');
     }
   }
 
@@ -1322,23 +1315,19 @@ With escape, the app goes back to the play list.''',
   }
 
   bool scrollToTarget(double target) {
-    if (scrollTarget != target) {
+    selectedTargetY = target;
+    double adjustedTarget = max(0, target - boxCenter);
+    if (scrollTarget != adjustedTarget) {
       logger.log(_playerLogScroll, 'scrollTarget != target, $scrollTarget != $target');
       setState(() {
-        scrollTarget = target;
-        double offset = max(0, target - boxCenter);
-        if (scrollController.offset != offset) {
-          scrollController.animateTo(offset, duration: scrollDuration, curve: Curves.ease);
+        scrollTarget = adjustedTarget;
+        if (scrollController.offset != adjustedTarget) {
+          scrollController.animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.ease);
         }
       });
       return true;
     }
     return false;
-  }
-
-  int sectionLocationIndexForSongMoment(SongMoment songMoment) {
-    Offset offset = _songMomentLocations[songMoment.momentNumber];
-    return sectionLocations.indexWhere((e) => e >= offset.dy);
   }
 
   int? sectionIndexAtScrollOffset() {
@@ -1370,88 +1359,6 @@ With escape, the app goes back to the play list.''',
 
     return null;
   }
-
-  // updateSectionLocations() {
-  //   logger.d('updateSectionLocations(): empty: ${sectionLocations.isEmpty}');
-  //
-  //   //  lazy update
-  //   if (scrollController.hasClients && sectionLocations.isEmpty && lyricSectionRowLocations.isNotEmpty) {
-  //     //  initialize the section locations... after the initial rendering
-  //     double? y0;
-  //     int sectionCount = -1; //  will never match the original, as intended
-  //
-  //     sectionLocations = [];
-  //     for (LyricSectionRowLocation? _rowLocation in lyricSectionRowLocations) {
-  //       if (_rowLocation == null) {
-  //         continue;
-  //       }
-  //       assert(sectionCount != _rowLocation.sectionCount);
-  //       if (sectionCount == _rowLocation.sectionCount) {
-  //         continue; //  same section, no entry
-  //       }
-  //       sectionCount = _rowLocation.sectionCount;
-  //
-  //       GlobalKey key = _rowLocation.key;
-  //       double y = scrollController.offset; //  safety
-  //       {
-  //         //  deal with possible missing render objects
-  //         var renderObject = key.currentContext?.findRenderObject();
-  //         if (renderObject != null && renderObject is RenderBox) {
-  //           y = renderObject.localToGlobal(Offset.zero).dy;
-  //         } else {
-  //           sectionLocations.clear();
-  //           return;
-  //         }
-  //       }
-  //       y0 ??= y; //  initialize y0 to first y
-  //       y -= y0;
-  //       sectionLocations.add(y);
-  //     }
-  //     logger.log(_playerLogScroll, 'raw _sectionLocations: $sectionLocations');
-  //
-  //     //  add half of the deltas to center each selection
-  //     {
-  //       List<double> tmp = [];
-  //       for (int i = 0; i < sectionLocations.length - 1; i++) {
-  //         if (_centerSelections) {
-  //           tmp.add((sectionLocations[i] + sectionLocations[i + 1]) / 2);
-  //         } else {
-  //           tmp.add(sectionLocations[i]);
-  //         }
-  //       }
-  //
-  //       //  average the last with the end of the last
-  //       GlobalKey key = lyricSectionRowLocations.last!.key;
-  //       double y = scrollController.offset; //  safety
-  //       {
-  //         //  deal with possible missing render objects
-  //         var renderObject = key.currentContext?.findRenderObject();
-  //         if (renderObject != null && renderObject is RenderBox) {
-  //           y = renderObject.size.height;
-  //         } else {
-  //           sectionLocations.clear();
-  //           return;
-  //         }
-  //       }
-  //       if (table != null && table?.key != null) {
-  //         var globalKey = table!.key as GlobalKey;
-  //         logger.log(
-  //             _playerLogScroll, '_table height: ${globalKey.currentContext?.findRenderObject()?.paintBounds.height}');
-  //         var tableHeight = globalKey.currentContext?.findRenderObject()?.paintBounds.height ?? y;
-  //         tmp.add((sectionLocations[sectionLocations.length - 1] + tableHeight) / 2);
-  //       }
-  //
-  //       //  not really required:
-  //       // if (tmp.isNotEmpty) {
-  //       //  tmp.first = 0; //  special for first song moment so it can show the header data
-  //       // }
-  //
-  //       sectionLocations = tmp;
-  //     }
-  //
-  //     logger.log(_playerLogScroll, '_sectionLocations: $sectionLocations');
-  //   }
-  // }
 
   /// send a song update to the followers
   void leaderSongUpdate(int momentNumber) {
@@ -1673,7 +1580,8 @@ With escape, the app goes back to the play list.''',
 
   int sectionIndex = 0; //  index for current lyric section, fixme temp?
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
-  double scrollTarget = 0; //  targeted scroll position for lyric section
+  double scrollTarget = 0;
+  double selectedTargetY = 0;
   List<double> sectionLocations = [];
 
   late Size lastSize;
@@ -1696,15 +1604,15 @@ class _ChordHighlightPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     const overlap = 3;
 
-    //  clear the fretboard
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
-
-    if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
-      final rect = _songMomentChordRectangles[_selectedSongMoment!.momentNumber];
-      canvas.drawRect(
-          Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
-          highlightColor);
-    }
+    // //  clear the layer
+    // canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
+    //
+    // if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
+    //   final rect = _songMomentChordRectangles[_selectedSongMoment!.momentNumber];
+    //   canvas.drawRect(
+    //       Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
+    //       highlightColor);
+    // }
 
     logger.v('_ChordHighlightPainter.paint: $size');
   }

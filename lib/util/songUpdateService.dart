@@ -86,17 +86,18 @@ class SongUpdateService extends ChangeNotifier {
           var lastAuthority = _authority;
           for (_idleCount = 0;; _idleCount++) {
             await Future.delayed(Duration(seconds: kIsWeb ? 5 : 1));
-            notifyListeners();
 
             if (lastAuthority != _findTheAuthority()) {
               logger.log(_log, 'lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
               _closeWebSocketChannel();
               delaySeconds = 0;
+              notifyListeners();
               break;
             }
             if (!_isOpen) {
               logger.log(_log, 'on close: $lastAuthority');
               delaySeconds = 0;
+              notifyListeners();
               break;
             }
             logger.log(_log, 'webSocketChannel idle: $_isOpen, count: $_idleCount');
@@ -104,6 +105,7 @@ class SongUpdateService extends ChangeNotifier {
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
           _closeWebSocketChannel();
+          notifyListeners();
         }
       }
 

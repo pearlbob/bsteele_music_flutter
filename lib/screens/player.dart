@@ -248,7 +248,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         final width = renderTable.size.width;
 
         if (chordFontSize == null) {
-          final pixels = app.screenInfo.mediaWidth;
+          final pixels = app.screenInfo.mediaWidth * 0.99;
           if (width > 0 && lyricsTable.chordFontSize != null) {
             var lastChordFontSize = chordFontSize ?? 0;
             var newFontSize = lyricsTable.chordFontSize! * pixels / width;
@@ -634,7 +634,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 scrollDirection: Axis.vertical,
                 child: SizedBox(
                   child: Stack(key: _stackKey, children: [
-                    if (isPlaying)
+                    if (selectedTargetY > 0)
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         appSpace(space: selectedTargetY - (chordFontSize ?? 0) / 2),
                         appWrap([
@@ -1606,5 +1606,5 @@ class _ChordHighlightPainter extends CustomPainter {
     return true; //  fixme optimize?
   }
 
-  // static final highlightColor = Paint()..color = Colors.red;
+// static final highlightColor = Paint()..color = Colors.red;
 }

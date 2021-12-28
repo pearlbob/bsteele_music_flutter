@@ -52,6 +52,7 @@ _Player? _player;
 final GlobalKey _stackKey = GlobalKey();
 
 List<Offset> _songMomentLocations = [];
+SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
 //  diagnostic logging enables
@@ -304,7 +305,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             RenderObject? renderObject = _stackKey.currentContext?.findRenderObject();
             assert(renderObject != null);
             stackOffset = (renderObject as RenderStack).localToGlobal(Offset(0, scrollController.offset));
-            logger.i('renderObject: $stackOffset');
           }
 
           {
@@ -321,11 +321,12 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
               var renderBox = renderTable.row(coord.row).elementAt(coord.col);
 
-              var offset = renderBox.localToGlobal(Offset(0, -stackOffset.dy)); //  compensate for scroll offset
-              _songMomentChordRectangles.add(offset & renderBox.size);
+              var offset = renderBox.localToGlobal(Offset(0, scrollController.offset)); //  compensate for scroll offset
+              var rect = (offset - stackOffset) & renderBox.size;
+              _songMomentChordRectangles.add(rect);
 
               var y = offset.dy;
-              _songMomentLocations.add(offset - stackOffset);
+              _songMomentLocations.add(rect.topLeft);
 
               if (lastLyricSection == songMoment.lyricSection) {
                 continue; //  not a new lyric section
@@ -341,7 +342,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   ', global: ${renderBox.localToGlobal(Offset.zero)}');
             }
           }
-          logger.i('_songMomentLocations.first: ${_songMomentLocations.first}');
+          logger.d('_songMomentLocations.first: ${_songMomentLocations.first}');
         }
 
         logger.log(
@@ -364,7 +365,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.i('player build: $_song, selectedSongMoment: $_selectedSongMoment');
+    logger.v('player build: $_song, selectedSongMoment: $_selectedSongMoment');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -559,7 +560,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         );
     logger.log(_playerLogMode, 'playing: $isPlaying, pause: $isPaused');
 
-    var rawKeyboardListenerFocusNode = FocusNode();
+    var rawKeyboardListenerFocusNode = playerOnKeyFocusNode();
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
     isCapo = isCapo && showCapo; //  can't be capo if you cannot show it
@@ -660,7 +661,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 scrollDirection: Axis.vertical,
                 child: SizedBox(
                   child: Stack(key: _stackKey, children: [
-                    if (scrollTarget > 0)
+                    if (scrollTarget > 0  && isPlaying)
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         appSpace(space: scrollTarget - (chordFontSize ?? 0) / 2),
                         appWrap([
@@ -672,15 +673,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                           ),
                         ], crossAxisAlignment: WrapCrossAlignment.center),
                       ]),
-                    CustomPaint(
-                      painter: _ChordHighlightPainter(),
-                      isComplex: true,
-                      willChange: false,
-                      child: SizedBox(
-                        width: app.screenInfo.mediaWidth,
-                        height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
-                      ),
-                    ),
+                    // CustomPaint(
+                    //   painter: _ChordHighlightPainter(),
+                    //   isComplex: true,
+                    //   willChange: false,
+                    //   child: SizedBox(
+                    //     width: app.screenInfo.mediaWidth,
+                    //     height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
+                    //   ),
+                    // ),
                     Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -908,7 +909,6 @@ With escape, the app goes back to the play list.''',
                                         setState(() {
                                           if (value != null) {
                                             setSelectedSongKey(value);
-                                            FocusScope.of(context).requestFocus(rawKeyboardListenerFocusNode);
                                           }
                                         });
                                       },
@@ -1204,6 +1204,23 @@ With escape, the app goes back to the play list.''',
     );
   }
 
+  FocusNode playerOnKeyFocusNode() {
+    //  note: must be manually aligned with the playerOnKey() method below!
+    return FocusNode(onKey: (FocusNode node, RawKeyEvent event) {
+      if (event.logicalKey == LogicalKeyboardKey.escape ||
+          event.logicalKey == LogicalKeyboardKey.keyB ||
+          event.logicalKey == LogicalKeyboardKey.arrowDown ||
+          event.logicalKey == LogicalKeyboardKey.arrowRight ||
+          event.logicalKey == LogicalKeyboardKey.arrowUp ||
+          event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+          event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+          event.logicalKey == LogicalKeyboardKey.enter) {
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    });
+  }
+
   void playerOnKey(RawKeyEvent value) {
     if (!_playerIsOnTop) {
       return;
@@ -1229,18 +1246,20 @@ With escape, the app goes back to the play list.''',
       } else if (isPlaying &&
           !isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
-        logger.i('arrowDown');
+        logger.d('arrowDown');
         sectionBump(1);
       } else if (isPlaying &&
           !isPaused &&
           (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
-        logger.i('arrowUp');
+        logger.log(
+            _playerLogKeyboard,'arrowUp');
         sectionBump(-1);
       } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
         if (isPlaying) {
           performStop();
         } else {
-          logger.i('player: pop the navigator');
+          logger.log(
+              _playerLogKeyboard,'player: pop the navigator');
           Navigator.pop(context);
         }
       } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
@@ -1652,7 +1671,6 @@ With escape, the app goes back to the play list.''',
   final ScrollController scrollController = ScrollController();
   static const scrollDuration = Duration(milliseconds: 850);
 
-  SongMoment? _selectedSongMoment;
   int sectionIndex = 0; //  index for current lyric section, fixme temp?
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
   double scrollTarget = 0; //  targeted scroll position for lyric section
@@ -1662,7 +1680,7 @@ With escape, the app goes back to the play list.''',
 
   bool isCapo = false;
 
-  static const _centerSelections = true; //fixme: add later!
+  static const _centerSelections = false; //fixme: add later!
   static const _maxFontSizeFraction = 0.035;
   static const _sectionCenterLocationFraction = 0.35;
   double boxCenter = 0;
@@ -1681,15 +1699,14 @@ class _ChordHighlightPainter extends CustomPainter {
     //  clear the fretboard
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
 
-    if (_songMomentChordRectangles.isNotEmpty) {
-      for (final rect in _songMomentChordRectangles) {
-        canvas.drawRect(
-            Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
-            highlightColor);
-      }
+    if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
+      final rect = _songMomentChordRectangles[_selectedSongMoment!.momentNumber];
+      canvas.drawRect(
+          Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
+          highlightColor);
     }
 
-    logger.d('_ChordHighlightPainter.paint: $size');
+    logger.v('_ChordHighlightPainter.paint: $size');
   }
 
   @override

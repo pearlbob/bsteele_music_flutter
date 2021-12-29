@@ -207,7 +207,6 @@ class Find {
 
   static DropdownButton<music_key.Key> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
     var _textFinder = DropDownFinderByAppKey(appKeyEnum);
-    expect(_textFinder, findsOneWidget);
     var ret = _textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
     return ret;
   }
@@ -217,4 +216,26 @@ class Find {
 //   expect(_textFinder, findsOneWidget);
 //   return _textFinder.evaluate().first.widget;
 // }
+}
+
+class RegexpTextFinder extends MatchFinder {
+  RegexpTextFinder(String regexpString) : _regExp = RegExp(regexpString);
+
+  @override
+  String get description => '_RegexpTextFinder: ${_regExp.pattern}';
+
+  @override
+  bool matches(Element candidate) {
+    if (candidate.widget is Text) {
+      var text = (candidate.widget as Text).data ?? '';
+      RegExpMatch? m = _regExp.firstMatch(text);
+      if (m != null) {
+        logger.v(' matching: <$text>');
+        return true;
+      }
+    }
+    return false;
+  }
+
+  final RegExp _regExp;
 }

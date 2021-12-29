@@ -7,32 +7,12 @@
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
 
-class _RegexpTextFinder extends MatchFinder {
-  _RegexpTextFinder(String regexpString) : _regExp = RegExp(regexpString);
+import 'test_util.dart';
 
-  @override
-  String get description => '_RegexpTextFinder: ${_regExp.pattern}';
-
-  @override
-  bool matches(Element candidate) {
-    if (candidate.widget is Text) {
-      var text = (candidate.widget as Text).data ?? '';
-      RegExpMatch? m = _regExp.firstMatch(text);
-      if (m != null) {
-        logger.d(' matching: <$text>');
-        return true;
-      }
-    }
-    return false;
-  }
-
-  final RegExp _regExp;
-}
 
 void main() async {
   Logger.level = Level.info;
@@ -53,13 +33,17 @@ void main() async {
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       //  find a utc date
-      expect(_RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d$'), findsOneWidget);
+      {
+        var finder = RegexpTextFinder(r'.*utcDate: +20\d\d[01]\d\d\d_[0-2]\d[0-5]\d[0-5]\d$');
+        expect(finder, findsOneWidget);
+        logger.i((finder.first.evaluate().first.widget as Text).data);
+      }
 
-      var finder = _RegexpTextFinder(r'screen: \(');
-      expect(finder, findsOneWidget);
-      if (kDebugMode) {
-        logger.i('fixme: why is this not correct?');  //  fixme
-        logger.i(finder.first.evaluate());
+      //  find the screen size
+      {
+        var finder = RegexpTextFinder(r'screen: *\(\d+,\d+\)\s*$');
+        expect(finder, findsOneWidget);
+        logger.i((finder.first.evaluate().first.widget as Text).data);
       }
     });
   });

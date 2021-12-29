@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:developer';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -412,32 +413,6 @@ class _Edit extends State<Edit> {
 
     displayChordTable = isProEditInput ? Table() : chordsEntryWidget();
 
-    List<DropdownMenuItem<music_key.Key>> keySelectDropdownMenuItems = [];
-    {
-      keySelectDropdownMenuItems.addAll(music_key.Key.values.toList().reversed.map((music_key.Key value) {
-        logger.v('keySelectDropdownMenuItems: music_key.Key value: $value');
-        return appDropdownMenuItem<music_key.Key>(
-          appKeyEnum: AppKeyEnum.editMusicKey,
-          value: value,
-          child: Text(
-            '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-            style: _boldTextStyle,
-          ),
-          keyCallback: () {
-            logger.log(_editLog, 'item keyCallback: ${value.runtimeType} $value');
-            if (song.key != value) {
-              setState(() {
-                song.key = value;
-                key = value;
-                keyChordNote = key.getKeyScaleNote();
-              }); //  display the return to original
-            }
-          },
-        );
-      }));
-      assert(keySelectDropdownMenuItems.length == music_key.KeyEnum.values.length);
-    }
-
     var theme = Theme.of(context);
 
     return Scaffold(
@@ -673,15 +648,32 @@ class _Edit extends State<Edit> {
                                   ),
                                   appDropdownButton<music_key.Key>(
                                     AppKeyEnum.editEditKeyDropdown,
-                                    keySelectDropdownMenuItems,
+                                    music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                                      logger.v('keySelectDropdownMenuItems: music_key.Key value: $value');
+                                      return appDropdownMenuItem<music_key.Key>(
+                                        appKeyEnum: AppKeyEnum.editMusicKey,
+                                        value: value,
+                                        child: Text(
+                                          '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                                          style: _boldTextStyle,
+                                        ),
+                                      );
+                                    }).toList(growable: false),
                                     onChanged: (value) {
-                                      logger.log(_editLog, 'DropdownButton onChanged: $value');
+                                      logger.log(_editLog, 'editEditKeyDropdown onChanged: $value');
+                                      if (song.key != value && value != null) {
+                                        setState(() {
+                                          song.key = value;
+                                          key = value;
+                                          keyChordNote = key.getKeyScaleNote();
+                                        });
+                                      }
                                     },
                                     value: key,
                                     style: _labelTextStyle,
                                   ),
                                   SizedBox.shrink(
-                                    key: ValueKey('keyTally_' + key.toMarkup()), //  tally for testing only
+                                    child: Text('keyTally_${key.toMarkup()}'),
                                   ),
                                 ]),
                                 appWrap([
@@ -1277,7 +1269,7 @@ class _Edit extends State<Edit> {
         // var sectionVersion = location.sectionVersion;
         var measureNode = chordSong.findMeasureNodeByLocation(location);
         if (measureNode == null) {
-          assert(false);
+          debugger(when: measureNode == null);
           continue;
         }
 

@@ -63,6 +63,7 @@ class AppOptions extends ChangeNotifier {
     _proEditInput = await _readBool('proEditInput', defaultValue: _proEditInput);
     _holiday = await _readBool('holiday', defaultValue: _holiday);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
+    _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _readSongMetadata();
@@ -239,6 +240,18 @@ class AppOptions extends ChangeNotifier {
   /// If false, the fractional display will be shown.
   bool get compressRepeats => _compressRepeats;
   bool _compressRepeats = true;
+
+  set ninJam(bool value) {
+    if (_ninJam == value) {
+      return;
+    }
+    _ninJam = value;
+    _saveBool('ninJam', value);
+  }
+
+  /// True if the user wants NinJam aids shown
+  bool get ninJam => _ninJam;
+  bool _ninJam = false;
 
   /// The user's selected style of player display.
   UserDisplayStyle get userDisplayStyle => _userDisplayStyle;

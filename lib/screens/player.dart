@@ -7,6 +7,7 @@ import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/ninjam.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
@@ -31,8 +32,6 @@ import '../main.dart';
 
 //  fixme: shapes in chromium?  circles become stop signs
 //  fixme: compile to armv71
-
-bool isNinjam = false; //  fixme: temp
 
 /// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
@@ -550,6 +549,10 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     var theme = Theme.of(context);
     var appBarTextStyle = generateAppBarLinkTextStyle();
 
+    if (appOptions.ninJam) {
+      ninJam = NinJam(_song);
+    }
+
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: appWidgetHelper.backBar(
@@ -1020,7 +1023,7 @@ With escape, the app goes back to the play list.''',
                             ],
                           ),
                           appSpace(),
-                          if (isNinjam)
+                          if (appOptions.ninJam  && ninJam.isNinJamReady)
                             appWrapFullWidth([
                               appSpace(),
                               Text(
@@ -1044,7 +1047,7 @@ With escape, the app goes back to the play list.''',
                                 appKeyEnum: AppKeyEnum.playerCopyNinjamCycle,
                                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                 onPressed: () {
-                                  Clipboard.setData(const ClipboardData(text: '/bpi 16')); //fixme
+                                  Clipboard.setData( ClipboardData(text: '/bpi ${ninJam.beatsPerInterval}'));
                                 },
                               ),
                               Text(
@@ -1056,8 +1059,13 @@ With escape, the app goes back to the play list.''',
                                 appKeyEnum: AppKeyEnum.playerCopyNinjamChords,
                                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                 onPressed: () {
-                                  Clipboard.setData(const ClipboardData(text: '/bpi 16')); //fixme
+                                  Clipboard.setData( ClipboardData(text: ninJam.toMarkup()));
                                 },
+                              ),
+                              Text(
+                                ninJam.toMarkup(),
+                                style: headerTextStyle,
+                                softWrap: false,
                               ),
                             ], spacing: 10),
                           appSpace(),
@@ -1552,6 +1560,8 @@ With escape, the app goes back to the play list.''',
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
   int displayKeyOffset = 0;
+
+  NinJam ninJam = NinJam.empty();
 
   int capoLocation = 0;
   final List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList = [];

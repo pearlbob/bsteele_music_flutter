@@ -80,121 +80,158 @@ class _Options extends State<Options> {
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
-                    child: Column(
-                      children: <Widget>[
-                        RadioListTile<UserDisplayStyle>(
-                          title: Text('Player', style: style),
-                          value: UserDisplayStyle.player,
-                          groupValue: _appOptions.userDisplayStyle,
-                          onChanged: (value) {
+                    child: appWrapFullWidth(<Widget>[
+                      appWrap(
+                        [
+                          Radio<UserDisplayStyle>(
+                            value: UserDisplayStyle.player,
+                            groupValue: _appOptions.userDisplayStyle,
+                            onChanged: (value) {
+                              setState(() {
+                                if (value != null) {
+                                  _appOptions.userDisplayStyle = value;
+                                }
+                              });
+                            },
+                          ),
+                          appTextButton('Player', appKeyEnum: AppKeyEnum.optionsUserDisplayStyle, onPressed: () {
                             setState(() {
-                              if (value != null) {
-                                _appOptions.userDisplayStyle = value;
-                              }
+                              _appOptions.userDisplayStyle = UserDisplayStyle.player;
                             });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        RadioListTile<UserDisplayStyle>(
-                          title: Text('Both Player and Singer', style: style),
-                          value: UserDisplayStyle.both,
-                          groupValue: _appOptions.userDisplayStyle,
-                          onChanged: (value) {
+                          }, style: style),
+                        ],
+                        spacing: 10,
+                      ),
+                      appWrap(
+                        [
+                          Radio<UserDisplayStyle>(
+                            value: UserDisplayStyle.both,
+                            groupValue: _appOptions.userDisplayStyle,
+                            onChanged: (value) {
+                              setState(() {
+                                if (value != null) {
+                                  _appOptions.userDisplayStyle = value;
+                                }
+                              });
+                            },
+                          ),
+                          appTextButton('Both Player and Singer', appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                              onPressed: () {
                             setState(() {
-                              if (value != null) {
-                                _appOptions.userDisplayStyle = value;
-                              }
+                              _appOptions.userDisplayStyle = UserDisplayStyle.both;
                             });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        RadioListTile<UserDisplayStyle>(
-                          title: Text('Singer', style: style),
-                          value: UserDisplayStyle.singer,
-                          groupValue: _appOptions.userDisplayStyle,
-                          onChanged: (value) {
+                          }, style: style),
+                        ],
+                        spacing: 10,
+                      ),
+                      appWrap(
+                        [
+                          Radio<UserDisplayStyle>(
+                            value: UserDisplayStyle.singer,
+                            groupValue: _appOptions.userDisplayStyle,
+                            onChanged: (value) {
+                              setState(() {
+                                if (value != null) {
+                                  _appOptions.userDisplayStyle = value;
+                                }
+                              });
+                            },
+                          ),
+                          appTextButton('Singer', appKeyEnum: AppKeyEnum.optionsUserDisplayStyle, onPressed: () {
                             setState(() {
-                              if (value != null) {
-                                _appOptions.userDisplayStyle = value;
-                              }
+                              _appOptions.userDisplayStyle = UserDisplayStyle.singer;
                             });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ],
-                    ),
+                          }, style: style),
+                        ],
+                        spacing: 10,
+                      ),
+                    ], spacing: 30),
                   ),
+                  appSpace(),
                   const Text(
                     'Holiday choice: ',
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
-                    child: Column(
-                      children: <Widget>[
-                        RadioListTile<bool>(
-                          title: Text('Not in a holiday mood', style: style),
-                          value: false,
-                          groupValue: _appOptions.holiday,
-                          onChanged: (value) {
-                            setState(() {
-                              _appOptions.holiday = value ?? false;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        RadioListTile<bool>(
-                          title: Text('All holiday, all the time!', style: style),
-                          value: true,
-                          groupValue: _appOptions.holiday,
-                          onChanged: (value) {
-                            setState(() {
-                              _appOptions.holiday = value ?? true;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                    child: appWrapFullWidth(
+                      <Widget>[
+                        appRadio<bool>('Not in a holiday mood',
+                            appKeyEnum: AppKeyEnum.optionsHoliday,
+                            value: false,
+                            groupValue: _appOptions.holiday, onPressed: () {
+                          setState(() {
+                            _appOptions.holiday = false;
+                          });
+                        }, style: style),
+                        appRadio<bool>('All holiday, all the time!',
+                            appKeyEnum: AppKeyEnum.optionsHoliday,
+                            value: true,
+                            groupValue: _appOptions.holiday, onPressed: () {
+                          setState(() {
+                            _appOptions.holiday = true;
+                          });
+                        }, style: style),
                       ],
+                      spacing: 30,
                     ),
                   ),
+                  appSpace(),
                   const Text(
                     'Repeat display choice: ',
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
-                    child: Column(
-                      children: <Widget>[
-                        RadioListTile<bool>(
-                          title: Text('Compress all repeats (for example: x4)', style: style),
-                          value: true,
-                          groupValue: _appOptions.compressRepeats,
-                          onChanged: (value) {
-                            setState(() {
-                              _appOptions.compressRepeats = value ?? true;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        RadioListTile<bool>(
-                          title: Text('Expand all repeat repetitions', style: style),
-                          value: false,
-                          groupValue: _appOptions.compressRepeats,
-                          onChanged: (value) {
-                            setState(() {
-                              _appOptions.compressRepeats = value ?? false;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                    child: appWrapFullWidth(
+                      <Widget>[
+                        appRadio<bool>('Compress all repeats (for example: x4)',
+                            appKeyEnum: AppKeyEnum.optionsExpandRepeats,
+                            value: true,
+                            groupValue: _appOptions.compressRepeats, onPressed: () {
+                          setState(() {
+                            _appOptions.compressRepeats = true;
+                          });
+                        }, style: style),
+                        appRadio<bool>('Expand all repeat repetitions',
+                            appKeyEnum: AppKeyEnum.optionsExpandRepeats,
+                            value: false,
+                            groupValue: _appOptions.compressRepeats, onPressed: () {
+                          setState(() {
+                            _appOptions.compressRepeats = false;
+                          });
+                        }, style: style),
                       ],
+                      spacing: 30,
                     ),
                   ),
+                  appSpace(),
+                  const Text(
+                    'NinJam choice: ',
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 30.0),
+                    child: appWrapFullWidth(
+                      <Widget>[
+                        appRadio<bool>('No NinJam aids',
+                            appKeyEnum: AppKeyEnum.optionsNinJam,
+                            value: false,
+                            groupValue: _appOptions.ninJam, onPressed: () {
+                          setState(() {
+                            _appOptions.ninJam = false;
+                          });
+                        }, style: style),
+                        appRadio<bool>('Show NinJam aids',
+                            appKeyEnum: AppKeyEnum.optionsNinJam,
+                            value: true,
+                            groupValue: _appOptions.ninJam, onPressed: () {
+                          setState(() {
+                            _appOptions.ninJam = true;
+                          });
+                        }, style: style),
+                      ],
+                      spacing: 30,
+                    ),
+                  ),
+                  appSpace(),
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,

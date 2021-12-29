@@ -273,6 +273,29 @@ Widget appWrapFullWidth(final List<Widget> children,
   );
 }
 
+appRadio<T>(
+  String text, {
+  required AppKeyEnum appKeyEnum,
+  required T value,
+  required T groupValue,
+  required VoidCallback onPressed,
+  TextStyle? style,
+}) {
+  return appWrap(
+    [
+      Radio<T>(
+        value: value,
+        groupValue: groupValue,
+        onChanged: (value) {
+          onPressed();
+        },
+      ),
+      appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style),
+    ],
+    spacing: 10,
+  );
+}
+
 typedef CanPopQualifier = bool Function();
 
 ///  A collection of methods that generate application styled widgets.

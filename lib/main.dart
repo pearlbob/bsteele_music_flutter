@@ -107,13 +107,14 @@ import 'util/openLink.dart';
 const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 const _holidayOverride = String.fromEnvironment('holiday', defaultValue: '');
-const _cssFileName = String.fromEnvironment('css', defaultValue: 'app.css');
+const _cssFileName = String.fromEnvironment('css', defaultValue: '');
 
 void main() async {
   Logger.level = Level.info;
 
   //  holiday override
-  var cssFileName = _cssFileName;
+  var cssFileName = _cssFileName.isNotEmpty ? _cssFileName : Uri.base.queryParameters['css'];
+  cssFileName = (cssFileName?.isEmpty ?? true) ? 'app.css' : cssFileName;
   bool holidayOverride = _holidayOverride.isNotEmpty || Uri.base.queryParameters.containsKey('holiday');
   if (holidayOverride) {
     //  override the css as well
@@ -123,7 +124,7 @@ void main() async {
   //  read the css theme data prior to the first build
   WidgetsFlutterBinding.ensureInitialized();
   await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
-  await AppTheme().init(css: cssFileName); //  init the singleton
+  await AppTheme().init(css: cssFileName!); //  init the singleton
 
   //  run the app
   runApp(
@@ -131,14 +132,9 @@ void main() async {
   );
 }
 
-/* fixit notes:
-
-  review .idea/modules.xml   remove offending <modules>
-*/
-
 /*
 edit "pro-mode", canvas copy paste for chords and lyrics
-edit lyrics: not updated!
+edit lyrics: not updated!  should be on timeout like chords?
 edit lyrics: one blank row is now two?  at section end?
 
 studio instructions for personal tablets
@@ -152,12 +148,77 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
+//  song "match" for song title, removing special characters
+//  song match takin' vs taking
+//  log all song playings, summary of history
+
+//
+// Singers for a given song
+// player: Tap to tempo
+// player: Real play mode
+// player: validate follower accuracy
+// player: Intro and solo repeats
+// player: Dynamic Tempo adjustments
+// player: Metronome audio
+// player: Bouncing ball, accuracy
+// player: Guitar and/or piano chords audio
+// sheetMusic: Read mp3 audio
+// sheetMusic: Display mp3 with chords and zoom
+// sheetMusic: Align drag and drop editing
+// sheetMusic: N2N processing
+// sheetMusic: Chord and slash suggestions
+// sheetMusic: Looping playback
+// sheetMusic: Variable tempo?
+// sheetMusic: Drum machine
+// sheetMusic: evaluate Performance
+// sheetMusic: Automated song transcription
+
+// edit: transpose song to new key
+
+Key F# vs Gb  ie. -6 vs +6  in the display
+
+key guess
+
+close gap between lyrics lines on player
+
+wikipedia page link: not that regular, can be very ambiguous: eg: Winter by Tori Amos https://en.wikipedia.org/wiki/Winter_(Tori_Amos_song)
+copyright vs release owner and date
+
+ultimate guitar   drum patterns
+https://tabs.ultimate-guitar.com/ copy/paste reformatting  don't lose lyrics verses chords alignment
+
+
+edit: adjust fontsize with buttons, memorized
+lyrics, jump left right based on pinching the chords
+vertical bars to split lyrics into measures
+play screen freeze top when not in play mode
+Nashville notation for leadin lyrics
+not all lyrics changes get proper notification
+
+file differences on song file read as opposed to assuming all is well
+args from screens on url end keeps app from reloading
+metronome just as a resource for editing screen
+
+grab bar on scroll for song list
+select by last change should jump to top
+very old songs: dec 31, 1969     30+ songs, some have been edited
+
+edit chords at lyrics section
+space in front of lyrics in hopes of being able to select the first character from the left
+
+https://www.apronus.com/music/onlineguitar.htm
+https://www.pianochord.org/
+https://www.all8.com/tools/bpm.htm
+https://getsongkey.com/
+https://www.musicnotes.com/  sheetmusic in pdf pro version?
+https://www.all8.com/tools/bpm.htm
+
+
 //  remember: debugger( when: );
-//  fixme: try FittedBox for autoscaling the player display
-//  fixme: SelectableText instead of Text
-//  fixme: Fix "Not enough", fix "I shall be released"
+// Love song Sara Bareilles in G
+//  Fix "Not enough", fix "I shall be released"
 //  fixme: Singer demands at least one song
-//  fixme: flutter webview 3.0 has an iframe
+//  flutter webview 3.0 has an iframe
 
 //  fixme: feature: for ninjam: put title, chords in ninjam format for copy/paste to ninjam comment, + /bpm and /bpi
 //  fixme: edit: change title: does not get a new modification date
@@ -340,7 +401,6 @@ class BSteeleMusicApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     logger.i('main: build()');
 
     return ChangeNotifierProvider<AppOptions>(
@@ -1098,10 +1158,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void addSongsToListView(Iterable<Song> list) {
     bool oddEven = true;
-    final oddTitle = oddTitleText(from: titleTextStyle);
-    final evenTitle = evenTitleText(from: titleTextStyle);
-    final oddText = oddTitleText(from: artistTextStyle);
-    final evenText = evenTitleText(from: artistTextStyle);
+    final oddTitle = oddTitleTextStyle(from: titleTextStyle);
+    final evenTitle = evenTitleTextStyle(from: titleTextStyle);
+    final oddText = oddTitleTextStyle(from: artistTextStyle);
+    final evenText = evenTitleTextStyle(from: artistTextStyle);
 
     for (final Song song in list) {
       oddEven = !oddEven;
@@ -1278,8 +1338,20 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
         _itemScrollController.jumpTo(index: _rollIndex);
       }
-    } else if (_filteredSongs.isNotEmpty && _selectedSortType == MainSortType.byTitle) {
-      _rollUnfilteredSongs();
+    } else if (_filteredSongs.isNotEmpty) {
+      switch (_selectedSortType) {
+        case MainSortType.byTitle:
+          _rollUnfilteredSongs();
+          break;
+        case MainSortType.byLastChange:
+          _rollIndex = 0;
+          if (_itemScrollController.isAttached) {
+            _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 

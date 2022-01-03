@@ -647,6 +647,7 @@ enum AppKeyEnum {
   singersBack,
   singersCancelDeleteSinger,
   singersClearSearch,
+  singersClearRequestedSearch,
   singersDeleteSinger,
   singersDeleteSingerConfirmation,
   singersErrorMessage,
@@ -660,12 +661,14 @@ enum AppKeyEnum {
   singersRemoveThisSingerFromSession,
   singersShowOtherActions,
   singersSearchText,
+  singersSearchRequestedText,
   singersSessionSingerSelect,
   singersSingerClearSearch,
   singersSingerSearchText,
   singersNameEntry,
   singersSave,
   singersSaveSelected,
+  singersSingingTextButton,
   songsBack,
   songsErrorMessage,
   songsReadFiles,
@@ -717,6 +720,8 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.singersAddSingerToSession: String,
   AppKeyEnum.singersAllSingers: String,
   AppKeyEnum.singersSessionSingerSelect: String,
+  AppKeyEnum.singersSingingTextButton: String,
+
   // AppKeyEnum.singersShowFileActions: String,
 };
 
@@ -1438,13 +1443,13 @@ TextStyle generateChordSlashNoteTextStyle({double? fontSize}) {
   );
 }
 
-TextStyle oddTitleText({TextStyle? from}) {
+TextStyle oddTitleTextStyle({TextStyle? from}) {
   return (from ?? generateAppTextStyle()).copyWith(
       backgroundColor: _getPropertyValue(_oddTitleTextBackgroundProperty),
       color: _getPropertyValue(_oddTitleTextColorProperty));
 }
 
-TextStyle evenTitleText({TextStyle? from}) {
+TextStyle evenTitleTextStyle({TextStyle? from}) {
   return (from ?? generateAppTextStyle()).copyWith(
       backgroundColor: _getPropertyValue(_evenTitleTextBackgroundProperty),
       color: _getPropertyValue(_evenTitleTextColorProperty));

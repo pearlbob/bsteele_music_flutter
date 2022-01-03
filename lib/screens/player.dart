@@ -198,6 +198,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         'scrollControllerListener: ${scrollController.offset}'
         ', section: ${sectionIndexAtScrollOffset()}');
 
+    //  worry about when to update the floating button
+    bool scrollIsZero = scrollController.offset == 0; //  no check for has client in a client!
+    if (scrollWasZero != scrollIsZero) {
+      logger.d('scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
+      setState(() {});
+    }
+    scrollWasZero = scrollIsZero;
+
+    //  follow the leader
     if (_songMomentChordRectangles.isNotEmpty) {
       double stopAt = max(_songMomentChordRectangles.last.bottom - boxCenter, 0);
       if (scrollController.offset > stopAt) {
@@ -1023,7 +1032,7 @@ With escape, the app goes back to the play list.''',
                             ],
                           ),
                           appSpace(),
-                          if (appOptions.ninJam  && ninJam.isNinJamReady)
+                          if (appOptions.ninJam && ninJam.isNinJamReady)
                             appWrapFullWidth([
                               appSpace(),
                               Text(
@@ -1047,7 +1056,7 @@ With escape, the app goes back to the play list.''',
                                 appKeyEnum: AppKeyEnum.playerCopyNinjamCycle,
                                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                 onPressed: () {
-                                  Clipboard.setData( ClipboardData(text: '/bpi ${ninJam.beatsPerInterval}'));
+                                  Clipboard.setData(ClipboardData(text: '/bpi ${ninJam.beatsPerInterval}'));
                                 },
                               ),
                               Text(
@@ -1059,7 +1068,7 @@ With escape, the app goes back to the play list.''',
                                 appKeyEnum: AppKeyEnum.playerCopyNinjamChords,
                                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                 onPressed: () {
-                                  Clipboard.setData( ClipboardData(text: ninJam.toMarkup()));
+                                  Clipboard.setData(ClipboardData(text: ninJam.toMarkup()));
                                 },
                               ),
                               Text(
@@ -1570,6 +1579,7 @@ With escape, the app goes back to the play list.''',
   SongMaster songMaster = SongMaster();
 
   final ScrollController scrollController = ScrollController();
+  bool scrollWasZero = true;
   static const scrollDuration = Duration(milliseconds: 850);
 
   int sectionIndex = 0; //  index for current lyric section, fixme temp?

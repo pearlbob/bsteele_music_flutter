@@ -112,7 +112,7 @@ class _State extends State<Singers> {
 
       var singerSearch = _singerSearchTextFieldController.text.toLowerCase();
       for (var singer in setOfSingers) {
-        if (singerSearch.isEmpty ||singer.toLowerCase().contains(singerSearch)) {
+        if (singerSearch.isEmpty || singer.toLowerCase().contains(singerSearch)) {
           sessionSingerWidgets.add(appWrap(
             [
               appTextButton(
@@ -134,6 +134,7 @@ class _State extends State<Singers> {
                   keyCallback: () {
                     setState(() {
                       _sessionSingers.add(singer);
+                      _searchClear();
                     });
                   },
                   child: appCircledIcon(
@@ -152,6 +153,7 @@ class _State extends State<Singers> {
                   keyCallback: () {
                     setState(() {
                       _sessionSingers.remove(singer);
+                      _searchClear();
                     });
                   },
                   child: appCircledIcon(
@@ -179,6 +181,20 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
       }
+      if (requestedPerformances.isNotEmpty) {
+        songWidgetList.add(Divider(
+          thickness: 10,
+          color: _blue.color,
+        ));
+        songWidgetList.add(Text(
+          'Singer performances requested:',
+          style: songPerformanceStyle.copyWith(color: _blue.color),
+        ));
+        songWidgetList.add(appSpace());
+        songWidgetList.addAll(requestedPerformances.map(mapSongPerformanceToSingerWidget).toList());
+        songWidgetList.add(appSpace());
+      }
+
       if (searchTerm.isNotEmpty) {
         songWidgetList.add(Divider(
           thickness: 10,
@@ -374,10 +390,16 @@ class _State extends State<Singers> {
                 appWrap([
                   appTooltip(
                     message: singingTooltipText,
-                    child: Text(
+                    child: appTextButton(
                       'Singing',
+                      appKeyEnum: AppKeyEnum.singersSingingTextButton,
                       style: singerTextStyle,
-                      softWrap: false,
+                      onPressed: () {
+                        setState(() {
+                          toggleSingingMode();
+                        });
+                      },
+                      // softWrap: false,
                     ),
                   ),
                   appTooltip(
@@ -386,14 +408,7 @@ class _State extends State<Singers> {
                       appKeyEnum: AppKeyEnum.singersSinging,
                       onChanged: (value) {
                         setState(() {
-                          isInSingingMode = !isInSingingMode;
-                          if (!_sessionSingers.contains(_selectedSinger) && _sessionSingers.isNotEmpty) {
-                            _selectedSinger = _sessionSingers.first;
-                          }
-                          if (isInSingingMode) {
-                            app.clearMessage();
-                            _searchClear();
-                          }
+                          toggleSingingMode();
                         });
                       },
                       value: isInSingingMode,
@@ -401,7 +416,7 @@ class _State extends State<Singers> {
                   ),
                   if (!isInSingingMode)
                     Text(
-                      '  Make adjustments:',
+                      '       Make adjustments:',
                       style: singerTextStyle,
                       softWrap: false,
                     ),
@@ -547,7 +562,7 @@ class _State extends State<Singers> {
                   //  new singer stuff
                   appWrapFullWidth([
                     SizedBox(
-                      width: 20 * app.screenInfo.fontSize,
+                      width: 16 * app.screenInfo.fontSize,
                       //  limit text entry display length
                       child: appTextField(
                         appKeyEnum: AppKeyEnum.singersNameEntry,
@@ -571,7 +586,7 @@ class _State extends State<Singers> {
                 //  search line
                 appWrap([
                   appTooltip(
-                    message: 'search',
+                    message: 'Search for songs for $_selectedSinger',
                     child: IconButton(
                       icon: const Icon(Icons.search),
                       iconSize: fontSize,
@@ -585,7 +600,7 @@ class _State extends State<Singers> {
                       appKeyEnum: AppKeyEnum.singersSearchText,
                       enabled: true,
                       controller: _searchTextFieldController,
-                      hintText: "enter search text",
+                      hintText: 'enter song search${_selectedSinger != unknownSinger ? ' for $_selectedSinger' : ''}',
                       onChanged: (text) {
                         setState(() {
                           logger.v('search text: "$text"');
@@ -596,7 +611,7 @@ class _State extends State<Singers> {
                     ),
                   ),
                   appTooltip(
-                    message: 'Clear the search text.',
+                    message: 'Clear the search text for Singer $_selectedSinger.',
                     child: appEnumeratedIconButton(
                       appKeyEnum: AppKeyEnum.singersClearSearch,
                       icon: const Icon(Icons.clear),
@@ -604,6 +619,51 @@ class _State extends State<Singers> {
                       onPressed: (() {
                         setState(() {
                           _searchClear();
+                          FocusScope.of(context).requestFocus(_searchFocusNode);
+                        });
+                      }),
+                    ),
+                  ),
+                ]),
+                //  search for requested song
+                appWrap([
+                  Text(
+                    'Requested:',
+                    style: singerTextStyle,
+                  ),
+                  appTooltip(
+                    message: 'Search for a requested song',
+                    child: IconButton(
+                      icon: const Icon(Icons.search),
+                      iconSize: fontSize,
+                      onPressed: (() {}),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 16 * app.screenInfo.fontSize,
+                    //  limit text entry display length
+                    child: appTextField(
+                      appKeyEnum: AppKeyEnum.singersSearchRequestedText,
+                      enabled: true,
+                      controller: _searchRequestedTextFieldController,
+                      hintText: "search for requested song",
+                      onChanged: (text) {
+                        setState(() {
+                          _searchRequestedSongs(_searchRequestedTextFieldController.text);
+                        });
+                      },
+                      fontSize: fontSize,
+                    ),
+                  ),
+                  appTooltip(
+                    message: 'Clear the search text.',
+                    child: appEnumeratedIconButton(
+                      appKeyEnum: AppKeyEnum.singersClearRequestedSearch,
+                      icon: const Icon(Icons.clear),
+                      iconSize: 1.5 * fontSize,
+                      onPressed: (() {
+                        setState(() {
+                          _searchRequestedClear();
                           FocusScope.of(context).requestFocus(_searchFocusNode);
                         });
                       }),
@@ -625,6 +685,17 @@ class _State extends State<Singers> {
     );
   }
 
+  void toggleSingingMode() {
+    isInSingingMode = !isInSingingMode;
+    if (!_sessionSingers.contains(_selectedSinger) && _sessionSingers.isNotEmpty) {
+      _selectedSinger = _sessionSingers.first;
+    }
+    if (isInSingingMode) {
+      app.clearMessage();
+      _searchClear();
+    }
+  }
+
   Widget mapSongToWidget(Song song, {music_key.Key? key}) {
     return appWrapFullWidth(
       [
@@ -633,10 +704,14 @@ class _State extends State<Singers> {
     );
   }
 
-  Widget mapSongPerformanceToWidget(SongPerformance songPerformance) {
+  Widget mapSongPerformanceToSingerWidget(SongPerformance songPerformance) {
+    return mapSongPerformanceToWidget(songPerformance, withSinger: true);
+  }
+
+  Widget mapSongPerformanceToWidget(SongPerformance songPerformance, {withSinger = false}) {
     return appWrapFullWidth(
       [
-        appWrapSong(songPerformance.song, key: songPerformance.key),
+        appWrapSong(songPerformance.song, key: songPerformance.key, singer: songPerformance.singer),
         Text(
           songPerformance.lastSungDateString + (kDebugMode ? ' ${hms(songPerformance.lastSung)}' : ''),
           style: songPerformanceStyle,
@@ -646,7 +721,7 @@ class _State extends State<Singers> {
     );
   }
 
-  Wrap appWrapSong(Song? song, {music_key.Key? key}) {
+  Wrap appWrapSong(Song? song, {music_key.Key? key, String? singer}) {
     if (song == null) {
       return appWrap([]);
     }
@@ -655,7 +730,7 @@ class _State extends State<Singers> {
         appWidgetHelper.checkbox(
           value: allSongPerformances.isSongInSingersList(_selectedSinger, song),
           onChanged: (bool? value) {
-            if (value != null) {
+            if (value != null && singer == null) {
               setState(() {
                 if (value) {
                   if (_selectedSinger != unknownSinger) {
@@ -676,12 +751,16 @@ class _State extends State<Singers> {
           child: Text(
             '${song.title} by ${song.artist}'
             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+            '${singer != null ? ' sung by $singer' : ''}'
             '${key == null ? '' : ' in $key'}',
             style: songPerformanceStyle,
           ),
-          onPressed: (_selectedSinger != unknownSinger)
+          onPressed: (singer != null || _selectedSinger != unknownSinger)
               ? () {
                   setState(() {
+                    if (singer != null) {
+                      _selectedSinger = singer;
+                    }
                     var songPerformance =
                         SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault());
                     if (_selectedSinger != unknownSinger) {
@@ -699,6 +778,36 @@ class _State extends State<Singers> {
   void _searchClear() {
     _searchTextFieldController.clear();
     _searchSongs(null);
+    _searchRequestedClear();
+  }
+
+  void _searchRequestedClear() {
+    _searchRequestedTextFieldController.clear();
+    _searchRequestedSongs(null);
+  }
+
+  void _searchRequestedSongs(String? searchRequested) {
+    _filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
+    searchRequested ??= '';
+    searchRequested = searchRequested.trim();
+
+    singerScrollController.jumpTo(0);
+
+    //  apply search filter
+    requestedPerformances = SplayTreeSet<SongPerformance>();
+    var requestedPattern = searchRequested.replaceAll("[^\\w\\s']+", '');
+    if (requestedPattern.isNotEmpty) {
+      final RegExp searchRegex = RegExp(requestedPattern, caseSensitive: false);
+
+      for (final Song song in app.allSongs) {
+        if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
+          requestedPerformances.addAll(allSongPerformances.bySong(song).where((performance) {
+            return _sessionSingers.contains(performance.singer);
+          }));
+        }
+      }
+    }
+    _searchSongs(searchRequested);
   }
 
   void _searchSongs(String? search) {
@@ -712,12 +821,7 @@ class _State extends State<Singers> {
     _filteredSongs.clear();
     if (searchTerm.isNotEmpty) {
       // select order
-      int Function(Song key1, Song key2) compare;
-      compare = (Song song1, Song song2) {
-        return song1.compareTo(song2);
-      };
-
-      _filteredSongs = SplayTreeSet(compare);
+      _filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
       final RegExp searchRegex = RegExp(searchTerm, caseSensitive: false);
 
       for (final Song song in app.allSongs) {
@@ -817,6 +921,7 @@ class _State extends State<Singers> {
   late TextStyle songPerformanceStyle;
 
   String searchTerm = '';
+  var requestedPerformances = SplayTreeSet<SongPerformance>();
   SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
   final singerScrollController = ScrollController();
@@ -824,6 +929,7 @@ class _State extends State<Singers> {
   static const String unknownSinger = 'unknown';
   String _selectedSinger = unknownSinger;
   final TextEditingController _searchTextFieldController = TextEditingController();
+  final TextEditingController _searchRequestedTextFieldController = TextEditingController();
   final FocusNode _singerSearchFocusNode;
   final TextEditingController _singerSearchTextFieldController = TextEditingController();
 

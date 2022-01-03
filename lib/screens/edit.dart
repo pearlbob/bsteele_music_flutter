@@ -1915,7 +1915,9 @@ class _Edit extends State<Edit> {
 
         if (lastSectionVersion != null) {
           logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
-          sb.write(song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount));
+          sb.write(song
+              .findChordSectionBySectionVersion(lastSectionVersion)
+              ?.toMarkupInRows(lineCount, expanded: !appOptions.compressRepeats));
           lineCount = 1;
         }
 
@@ -1926,7 +1928,9 @@ class _Edit extends State<Edit> {
     }
     if (lastSectionVersion != null) {
       logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
-      sb.write(song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount));
+      sb.write(song
+          .findChordSectionBySectionVersion(lastSectionVersion)
+          ?.toMarkupInRows(lineCount, expanded: !appOptions.compressRepeats));
     }
     return sb.toString();
   }
@@ -3524,7 +3528,7 @@ class _Edit extends State<Edit> {
       _idleTimer!.cancel();
     }
 
-    _idleTimer = Timer(const Duration(milliseconds: 500), () {
+    _idleTimer = Timer(const Duration(milliseconds: 700), () {
       setState(() {
         checkSong();
       });

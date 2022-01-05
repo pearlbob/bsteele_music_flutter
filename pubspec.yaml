@@ -37,6 +37,7 @@ dependencies:
   flutter_lints:  #not ready yet: info: Name source files using `lowercase_with_underscores`.
   universal_io:
   universal_html:
+  reorderables:
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib
 

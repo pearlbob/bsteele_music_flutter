@@ -1,0 +1,54 @@
+#!/bin/tcsh
+set echo; set verbose
+
+set bsDir=bsteeleMusicAppDmg
+set dmg=dmg_creator
+set app=bsteele_music_flutter
+
+if ( `hostname` == 'bob64' ) then
+	#	on local host with git authentication
+	echo	on local host with git authentication
+
+	if ( 1 ) then
+		rm -rf ~/junk/remoteDmg
+		mkdir -p ~/junk/remoteDmg
+		cd ~/junk/remoteDmg
+		cp `which $0` .
+		git clone git@github.com:pearlbob/bsteeleMusicLib.git
+		git clone git@github.com:pearlbob/bsteele_music_flutter.git
+
+		ssh ${mac} rm -rf '~bob/junk/'$bsDir
+		ssh ${mac} 'mkdir -p  ~bob/junk/'$bsDir
+		scp -q -r *  ${mac}:junk/$bsDir
+	endif
+
+	ssh ${mac} "cd ~$user/junk/$bsDir; $0:t"
+	scp ${mac}:junk/$bsDir/$app/bsteeleMusicApp.dmg .
+	exit $status
+else
+	echo on mac `hostname`
+	cd ~/junk/$bsDir
+	cd $app
+	pwd
+
+	rm -rf .gradle
+	flutter clean
+	flutter pub get
+    	rm -rf macos/
+	set osEnable=macos-desktop
+    	flutter config --enable-$osEnable
+    	flutter -d macos create . # > /dev/null
+
+	flutter clean
+	flutter build macos --release
+	set stat=$status
+	if ( $stat != 0 ) exit $stat
+
+	cp build/macos/Build/Products/Release/bsteele_music_flutter.app/Contents/Resources/AppIcon.icns bin/
+
+	appdmg bin/dmgConfig.json bsteeleMusicApp.dmg
+	exit $status
+endif
+
+
+

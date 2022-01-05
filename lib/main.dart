@@ -148,6 +148,8 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
+ReorderableListView class for today's singers
+ResizableWidget
 //  song "match" for song title, removing special characters
 //  song match takin' vs taking
 //  log all song playings, summary of history

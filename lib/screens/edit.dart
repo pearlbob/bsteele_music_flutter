@@ -46,7 +46,7 @@ import 'detail.dart';
 
 late Song _initialSong;
 
-const double _defaultChordFontSize = 28;
+const double _defaultChordFontSize = 20;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
 TextStyle _titleTextStyle = generateAppTextStyle();

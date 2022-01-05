@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:intl/intl.dart';
+import 'package:reorderables/reorderables.dart';
 
 import '../app/app.dart';
 
@@ -263,93 +264,45 @@ class _State extends State<Singers> {
 
     var singerTextStyle = generateAppTextFieldStyle(fontSize: fontSize);
 
-    var todaysSingersWidgetWrap = _sessionSingers.isEmpty
+    void _onReorder(int oldIndex, int newIndex) {
+      setState(() {
+        logger.i('_onReorder($oldIndex, $newIndex)');
+        var singer = _sessionSingers.removeAt(oldIndex);
+        _sessionSingers.insert(newIndex, singer);
+      });
+    }
+
+    var todaysReorderableSingersWidgetWrap = _sessionSingers.isEmpty
         ? Text(
             '(none)',
             style: singerTextStyle,
           )
         : Container(
-            child: appWrapFullWidth([
-              for (var e in _sessionSingers)
-                appWrap([
-                  if (!isInSingingMode &&
-                      _selectedSinger == e &&
-                      _sessionSingers.length > 1 &&
-                      _sessionSingers.indexOf(e) > 0)
-                    appInkWell(
-                      appKeyEnum: AppKeyEnum.singersMoveSingerEarlierInSession,
-                      // value: singer,
-                      keyCallback: () {
-                        setState(() {
-                          var index = _sessionSingers.indexOf(e);
-                          _sessionSingers.remove(e);
-                          _sessionSingers.insert(index - 1, e);
-                        });
-                      },
-                      child: appCircledIcon(
-                        Icons.arrow_back,
-                        'Move the singer earlier in today\'s list',
-                        margin: appendInsets,
-                        padding: appendPadding,
-                        color: _addColor,
-                        size: fontSize * 0.7,
+            child: appWrapFullWidth(
+              [
+                ReorderableWrap(
+                  children: _sessionSingers.map((e) {
+                    return Container(
+                      child: appTextButton(
+                        e,
+                        appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
+                        onPressed: () {
+                          setState(() {
+                            _selectedSinger = e;
+                          });
+                        },
+                        style: e == _selectedSinger
+                            ? singerTextStyle.copyWith(backgroundColor: _addColor)
+                            : singerTextStyle,
                       ),
-                    ),
-                  appTextButton(
-                    e,
-                    appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
-                    onPressed: () {
-                      setState(() {
-                        _selectedSinger = e;
-                      });
-                    },
-                    style:
-                        e == _selectedSinger ? singerTextStyle.copyWith(backgroundColor: _addColor) : singerTextStyle,
-                  ),
-                  // if (!isInSingingMode && _selectedSinger == e)
-                  //   appInkWell(
-                  //     appKeyEnum: AppKeyEnum.singersRemoveThisSingerFromSession,
-                  //     // value: singer,
-                  //     keyCallback: () {
-                  //       setState(() {
-                  //         _sessionSingers.remove(e);
-                  //       });
-                  //     },
-                  //     child: appCircledIcon(
-                  //       Icons.remove,
-                  //       'Remove $e from today\'s session.',
-                  //       margin: appendInsets,
-                  //       padding: appendPadding,
-                  //       color: _removeColor,
-                  //       size: fontSize * 0.7,
-                  //     ),
-                  //   ),
-                  if (!isInSingingMode &&
-                      _selectedSinger == e &&
-                      _sessionSingers.length > 1 &&
-                      _sessionSingers.indexOf(e) < _sessionSingers.length - 1)
-                    appInkWell(
-                      appKeyEnum: AppKeyEnum.singersMoveSingerLaterInSession,
-                      // value: singer,
-                      keyCallback: () {
-                        setState(() {
-                          var index = _sessionSingers.indexOf(e);
-                          _sessionSingers.remove(e);
-                          _sessionSingers.insert(index + 1, e);
-                        });
-                      },
-                      child: appCircledIcon(
-                        Icons.arrow_forward,
-                        'Move the singer to later in today\'s list',
-                        margin: appendInsets,
-                        padding: appendPadding,
-                        color: _addColor,
-                        size: fontSize * 0.7,
-                      ),
-                    ),
-                ]),
-            ], spacing: 25),
-            padding: const EdgeInsets.all(8.0),
+                      margin: const EdgeInsets.all(10),
+                    );
+                  }).toList(growable: false),
+                  onReorder: _onReorder,
+                )
+              ],
+            ),
+            //   padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               border: Border.all(
                 color: _blue.color,
@@ -358,6 +311,7 @@ class _State extends State<Singers> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
           );
+
     var allSingersWidgetWrap = Container(
       child: appWrapFullWidth(sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
       padding: const EdgeInsets.all(8.0),
@@ -541,12 +495,18 @@ class _State extends State<Singers> {
                   space: 20,
                 ),
               if (!isInSingingMode)
-                Text(
-                  'Today\'s Singers:',
-                  style: singerTextStyle,
-                ),
+                appWrap([
+                  Text(
+                    'Today\'s Singers:',
+                    style: singerTextStyle,
+                  ),
+                  Text(
+                    'to reorder: click, hold, and drag.',
+                    style: singerTextStyle.copyWith(color: Colors.grey),
+                  ),
+                ], spacing: 30),
               appSpace(),
-              todaysSingersWidgetWrap,
+              todaysReorderableSingersWidgetWrap,
               appSpace(),
               if (!isInSingingMode)
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

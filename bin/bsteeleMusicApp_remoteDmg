@@ -5,25 +5,38 @@ set bsDir=bsteeleMusicAppDmg
 set dmg=dmg_creator
 set app=bsteele_music_flutter
 
+
 if ( `hostname` == 'bob64' ) then
 	#	on local host with git authentication
 	echo	on local host with git authentication
 
-	if ( 1 ) then
-		rm -rf ~/junk/remoteDmg
-		mkdir -p ~/junk/remoteDmg
-		cd ~/junk/remoteDmg
-		cp `which $0` .
-		git clone git@github.com:pearlbob/bsteeleMusicLib.git
-		git clone git@github.com:pearlbob/bsteele_music_flutter.git
+    //  note: beta without git commit implies the utc date is stale!
+    rm -rf ~/junk/remoteDmg
+    mkdir -p ~/junk/remoteDmg
+    cd ~/junk/remoteDmg
+    git clone git@github.com:pearlbob/bsteeleMusicLib.git
+    git clone git@github.com:pearlbob/bsteele_music_flutter.git
 
-		ssh ${mac} rm -rf '~bob/junk/'$bsDir
-		ssh ${mac} 'mkdir -p  ~bob/junk/'$bsDir
-		scp -q -r *  ${mac}:junk/$bsDir
-	endif
+    ssh ${mac} rm -rf '~bob/junk/'$bsDir
+    ssh ${mac} 'mkdir -p  ~bob/junk/'$bsDir
+    scp -q -r *  ${mac}:junk/$bsDir
 
-	ssh ${mac} "cd ~$user/junk/$bsDir; $0:t"
+	#	execute this script on the mac
+	ssh ${mac} "cd ~$user/junk/$bsDir/$app; ./bin/$0:t"
+	set stat=$status
+	if ( $stat != 0 ) exit $stat
 	scp ${mac}:junk/$bsDir/$app/bsteeleMusicApp.dmg .
+	set stat=$status
+	if ( $stat != 0 ) exit $stat
+
+	echo sha256sum: `sha256sum bsteeleMusicApp.dmg`
+
+	#	upload to website
+	set gs=gs://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.dmg
+	bsteele_auth
+	gsutil cp ./bsteeleMusicApp.dmg $gs
+	gsutil -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
+	gsutil -m -q acl -r ch -u AllUsers:R $gs
 	exit $status
 else
 	echo on mac `hostname`

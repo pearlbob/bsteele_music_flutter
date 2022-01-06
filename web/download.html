@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Download bsteeleMusicApp</title>
+    <script>
+        let warSha256sum = '3cc810f327a8d8268134d3e706bdd8746dc4a7cbbbeedd231972087579f17bdf bsteeleMusicApp.war';
+        let dmgSha256sum = 'dmg_sha256sum';
+
+        function onLoad() {
+            document.getElementById("warSha256sum").innerHTML = warSha256sum;
+            document.getElementById("dmgSha256sum").innerHTML = dmgSha256sum;
+        }
+
+    </script>
+</head>
+<body onload="onLoad();">
+<h1>bsteeleMusicApp Download Page</h1>
+<p>The bsteeleMusicApp is usually found on the web at
+    <a href="http://www.bsteele.com/bsteeleMusicApp/index.html">bsteeleMusicApp</a>.</p>
+<p>The app can also be downloaded at the following links:</p>
+<ul>
+    <li><p>Apache Tomcat war file (a Java web archive file):
+        <a href="http://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.war">
+            bsteeleMusicApp.war</a>. After downloading, verify the sha256sum as:</p>
+        <span id="warSha256sum"> </span>
+        <p>
+        The war file contents can also be extracted to a webserver (typically Apache)
+        and served as static webpages without the leader/follower function.
+        </p>
+    </li>
+    <li><p>Macos x86 dmg: <a href="http://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.dmg">
+        bsteeleMusicApp.dmg</a>. After downloading, verify the sha256sum as:
+        <span id="dmgSha256sum"> </span>.
+        The Macos will not be happy about running an app downloaded from the web but you can
+        force it with: Apple icon, System Preferences, Security & Privacy, Allow apps downloaded
+        from:, select the app to enable it.
+        </p>
+    </li>
+</ul>
+<p>In all cases, please check back here frequently for updates.</p>
+</body>
+</html>

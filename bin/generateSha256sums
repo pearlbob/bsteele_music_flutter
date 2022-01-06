@@ -1,0 +1,15 @@
+#!/bin/tcsh
+set echo; set verbose
+
+set src=~/github/bsteele_music_flutter
+set app=bsteeleMusicApp
+set lib=~/lib
+
+#	compile for release
+cd $lib
+set warSum=`sha256sum $app.war`
+
+echo $warSum
+
+cd $src
+sed -e "s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; " web/download.html

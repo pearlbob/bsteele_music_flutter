@@ -201,6 +201,8 @@ file differences on song file read as opposed to assuming all is well
 args from screens on url end keeps app from reloading
 metronome just as a resource for editing screen
 
+disable player tooltips when in follow mode
+
 grab bar on scroll for song list
 select by last change should jump to top
 very old songs: dec 31, 1969     30+ songs, some have been edited

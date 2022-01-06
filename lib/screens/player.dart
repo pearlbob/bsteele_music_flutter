@@ -199,7 +199,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         ', section: ${sectionIndexAtScrollOffset()}');
 
     //  worry about when to update the floating button
-    bool scrollIsZero = scrollController.offset == 0; //  no check for has client in a client!
+    bool scrollIsZero = scrollController.offset == 0; //  no check for has client in a client!... we are the client
     if (scrollWasZero != scrollIsZero) {
       logger.d('scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
       setState(() {});
@@ -230,8 +230,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
           //  find the moment past the marker
           var rect = _songMomentChordRectangles.firstWhere((rect) => rect.bottom >= position.dy,
               orElse: () => _songMomentChordRectangles.last);
-          var index = _songMomentChordRectangles.indexOf(rect);
-          selectedSongMoment = _song.songMoments[index];
+          var songMomentIndex = _songMomentChordRectangles.indexOf(rect);
+          setSelectedSongMoment(_song.songMoments[songMomentIndex]); //  leader distribution done here
           logger.log(_playerLogLeaderFollower, 'leader scroll: $_selectedSongMoment');
         }
       }
@@ -379,7 +379,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     if (_selectedSongMoment == null) {
       //  fixme
-      selectedSongMoment = _song.songMoments.first;
+      setSelectedSongMoment(_song.songMoments.first);
     }
 
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
@@ -1279,13 +1279,25 @@ With escape, the app goes back to the play list.''',
     }
 
     if (_songMomentChordRectangles.isNotEmpty) {
-      selectedSongMoment = songMoment;
+      setSelectedSongMoment(songMoment);
       var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
-      scrollToTarget(y);
+      scrollToTargetY(y);
       logger.log(
           _playerLogScroll,
           'scrollToSectionByMoment: ${songMoment.momentNumber}: '
           '$songMoment => section #${songMoment.lyricSection.index} => $y');
+    }
+  }
+
+  void setTargetYToSongMoment(SongMoment? songMoment) {
+    if (songMoment == null) {
+      return;
+    }
+
+    if (_songMomentChordRectangles.isNotEmpty) {
+      setSelectedSongMoment(songMoment);
+      var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
+      selectedTargetY = y;
     }
   }
 
@@ -1296,10 +1308,10 @@ With escape, the app goes back to the play list.''',
       return;
     }
 
-    scrollToSectionIndex(_selectedSongMoment!.lyricSection.index + bump);
+    scrollToLyricsSectionIndex(_selectedSongMoment!.lyricSection.index + bump);
   }
 
-  void scrollToSectionIndex(int index) {
+  void scrollToLyricsSectionIndex(int index) {
     if (sectionSongMoments.isEmpty) {
       return;
     }
@@ -1308,12 +1320,12 @@ With escape, the app goes back to the play list.''',
     scrollToSectionByMoment(sectionSongMoments[index]);
   }
 
-  bool scrollToTarget(double target) {
-    double adjustedTarget = max(0, target - boxCenter);
+  bool scrollToTargetY(double targetY) {
+    double adjustedTarget = max(0, targetY - boxCenter);
     if (scrollTarget != adjustedTarget) {
       logger.log(_playerLogScroll, 'scrollTarget != adjustedTarget, $scrollTarget != $adjustedTarget');
       setState(() {
-        selectedTargetY = target;
+        selectedTargetY = targetY;
         scrollTarget = adjustedTarget;
         if (scrollController.offset != adjustedTarget) {
           scrollController.animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.ease);
@@ -1321,10 +1333,10 @@ With escape, the app goes back to the play list.''',
       });
       return true;
     }
-    if (selectedTargetY != target) {
-      logger.log(_playerLogScroll, 'selectedTargetY != target, $selectedTargetY != $target');
+    if (selectedTargetY != targetY) {
+      logger.log(_playerLogScroll, 'selectedTargetY != target, $selectedTargetY != $targetY');
       setState(() {
-        selectedTargetY = target;
+        selectedTargetY = targetY;
       });
       return true;
     }
@@ -1393,7 +1405,7 @@ With escape, the app goes back to the play list.''',
   void performPlay() {
     setState(() {
       setPlayMode();
-      selectedSongMoment = _song.songMoments.first;
+      setSelectedSongMoment(_song.songMoments.first);
       sectionBump(0);
       leaderSongUpdate(0);
       logger.log(_playerLogMode, 'play:');
@@ -1439,7 +1451,7 @@ With escape, the app goes back to the play list.''',
   void simpleStop() {
     isPlaying = false;
     isPaused = true;
-    scrollController.jumpTo(0);
+    // scrollController.jumpTo(0);   //  too rash
     songMaster.stop();
     logger.log(_playerLogMode, 'simpleStop()');
     logger.log(_playerLogScroll, 'simpleStop():');
@@ -1531,8 +1543,8 @@ With escape, the app goes back to the play list.''',
     return (d1 - d2).abs() <= tolerance;
   }
 
-  set selectedSongMoment(SongMoment songMoment) {
-    if (_selectedSongMoment == songMoment) {
+  void setSelectedSongMoment(SongMoment? songMoment) {
+    if (songMoment == null || _selectedSongMoment == songMoment) {
       return;
     }
     _selectedSongMoment = songMoment;

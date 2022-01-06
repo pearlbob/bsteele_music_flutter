@@ -10,7 +10,6 @@ if ( `hostname` == 'bob64' ) then
 	#	on local host with git authentication
 	echo	on local host with git authentication
 
-    //  note: beta without git commit implies the utc date is stale!
     rm -rf ~/junk/remoteDmg
     mkdir -p ~/junk/remoteDmg
     cd ~/junk/remoteDmg

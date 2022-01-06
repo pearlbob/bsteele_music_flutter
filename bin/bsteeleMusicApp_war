@@ -1,7 +1,7 @@
 #!/bin/tcsh
 #set echo; set verbose
 
-#	set default version code to today's date
+#	set default version code from today's date
 set versionCode=`date +%Y%m%d`
 set historicalCode=$versionCode
 
@@ -27,6 +27,7 @@ while ( $#argv > 1 )
 	break;
 end
 
+#	notice the v in front of the date number
 set tag=v$versionCode
 
 cd ~/github/$flut
@@ -38,6 +39,7 @@ if ( $historicalCode == $versionCode ) then
 
 	cd ~/github/$flut
 	if ( $status != 0 ) exit $status
+	utcDate > lib/assets/utcDate.txt	#	update for the commit, may not match the version code exactly
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
 	git tag | tail

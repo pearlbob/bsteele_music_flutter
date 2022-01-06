@@ -3,8 +3,21 @@
 
 set www=/var/www/html/public_html
 set app=bsteeleMusicApp
-set localdst=$www/$app
+set localDst=$www/$app
 set dst=gs://www.bsteele.com/$app
+set git=~/github/bsteele_music_flutter
+
+
+#   verify that the mac is present
+ssh bobsmac.local echo yes
+set stat=$status
+if ( $stat != 0 ) then
+	echo bobs mac is missing
+	exit $stat
+endif
+
+
+if ( 1 ) then 
 
 #	compile for release
 set git=~/github/bsteele_music_flutter
@@ -15,9 +28,17 @@ if ( $status != 0 ) exit $status
 #	deploy locally (typically re-deploy)
 bin/bsteeleMusicApp_localWarInstall
 
-#	copy local deploy to the web server
+endif
+
+#	deploy locally the download page
+bin/bsteeleMusicApp_downloadPage
+
+echo fix deploy
+exit -1
+
+#	copy local deployment to the web server
 bsteele_auth
-gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localdst/ $dst 	#	source needs the /
+gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localDst/ $dst 	#	source needs the /
 gsutil -m -q acl -r ch -u AllUsers:R $dst
 
 ~/github/allSongs.songlyrics/bin/lyrics_update

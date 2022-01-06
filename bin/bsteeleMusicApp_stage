@@ -57,6 +57,9 @@ rm  -rf $betaDir/*
 #	copy to localhost website
 cp -r build/web/* $betaDir
 
+
+
+
 #	send to flavor's web location
 set gs=gs://www.bsteele.com/$app/$flavor
 bsteele_auth

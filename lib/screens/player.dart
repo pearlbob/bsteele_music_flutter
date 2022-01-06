@@ -45,7 +45,7 @@ final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 //  player update workaround data
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
-SongUpdate? _lastSongUpdate;
+SongUpdate? _lastSongUpdateSent;
 _Player? _player;
 
 final GlobalKey _stackKey = GlobalKey();
@@ -54,7 +54,7 @@ SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
 //  diagnostic logging enables
-const Level _playerLogScroll = Level.debug;
+const Level _playerLogScroll = Level.info;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
@@ -81,7 +81,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   if (!songUpdate.song.songBaseSameContent(_songUpdate?.song)) {
     _player?.adjustDisplay();
   }
-  _lastSongUpdate = null;
+  _lastSongUpdateSent = null;
   _player?.setSelectedSongKey(songUpdate.currentKey);
 
   Timer(const Duration(milliseconds: 2), () {
@@ -1377,19 +1377,19 @@ With escape, the app goes back to the play list.''',
   void leaderSongUpdate(int momentNumber) {
     logger.log(_playerLogLeaderFollower, 'leaderSongUpdate($momentNumber):');
     if (!songUpdateService.isLeader) {
-      _lastSongUpdate = null;
+      _lastSongUpdateSent = null;
       return;
     }
-    if (_lastSongUpdate != null) {
-      if (_lastSongUpdate!.song == widget._song &&
-          _lastSongUpdate!.momentNumber == momentNumber &&
-          _lastSongUpdate!.currentKey == selectedSongKey) {
+    if (_lastSongUpdateSent != null) {
+      if (_lastSongUpdateSent!.song == widget._song &&
+          _lastSongUpdateSent!.momentNumber == momentNumber &&
+          _lastSongUpdateSent!.currentKey == selectedSongKey) {
         return;
       }
     }
 
     var update = SongUpdate.createSongUpdate(widget._song.copySong()); //  fixme: copy  required?
-    _lastSongUpdate = update;
+    _lastSongUpdateSent = update;
     update.currentKey = selectedSongKey;
     playerSelectedSongKey = selectedSongKey;
     update.momentNumber = momentNumber;
@@ -1427,6 +1427,7 @@ With escape, the app goes back to the play list.''',
           break;
       }
 
+      assert(_songUpdate!.momentNumber >=0);
       assert(_songUpdate!.momentNumber < _song.songMoments.length);
       scrollToSectionByMoment(_song.songMoments[_songUpdate!.momentNumber]);
       logger.log(

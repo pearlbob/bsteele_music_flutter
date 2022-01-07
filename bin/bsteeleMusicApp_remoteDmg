@@ -1,9 +1,10 @@
 #!/bin/tcsh
 set echo; set verbose
 
-set bsDir=bsteeleMusicAppDmg
-set dmg=dmg_creator
-set app=bsteele_music_flutter
+set app=bsteeleMusicApp
+set bsDir=${app}Dmg
+set src=bsteele_music_flutter
+set www=/var/www/html/public_html/$app
 
 
 if ( `hostname` == 'bob64' ) then
@@ -13,6 +14,7 @@ if ( `hostname` == 'bob64' ) then
     rm -rf ~/junk/remoteDmg
     mkdir -p ~/junk/remoteDmg
     cd ~/junk/remoteDmg
+	#	note the use of the latest master commit, fixme
     git clone git@github.com:pearlbob/bsteeleMusicLib.git
     git clone git@github.com:pearlbob/bsteele_music_flutter.git
 
@@ -21,26 +23,23 @@ if ( `hostname` == 'bob64' ) then
     scp -q -r *  ${mac}:junk/$bsDir
 
 	#	execute this script on the mac
-	ssh ${mac} "cd ~$user/junk/$bsDir/$app; ./bin/$0:t"
+	ssh ${mac} "cd ~$user/junk/$bsDir/$src; ./bin/$0:t"
 	set stat=$status
+	echo mac status $stat
 	if ( $stat != 0 ) exit $stat
-	scp ${mac}:junk/$bsDir/$app/bsteeleMusicApp.dmg .
+	scp ${mac}:junk/$bsDir/$src/bsteeleMusicApp.dmg .
 	set stat=$status
 	if ( $stat != 0 ) exit $stat
 
 	echo sha256sum: `sha256sum bsteeleMusicApp.dmg`
 
-	#	upload to website
-	set gs=gs://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.dmg
-	bsteele_auth
-	gsutil cp ./bsteeleMusicApp.dmg $gs
-	gsutil -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
-	gsutil -m -q acl -r ch -u AllUsers:R $gs
+	#	upload to local host
+	cp ./bsteeleMusicApp.dmg $www
 	exit $status
 else
 	echo on mac `hostname`
 	cd ~/junk/$bsDir
-	cd $app
+	cd $src
 	pwd
 
 	rm -rf .gradle
@@ -59,6 +58,9 @@ else
 	cp build/macos/Build/Products/Release/bsteele_music_flutter.app/Contents/Resources/AppIcon.icns bin/
 
 	appdmg bin/dmgConfig.json bsteeleMusicApp.dmg
+	set stat=$status
+	if ( $stat != 0 ) exit $stat
+
 	exit $status
 endif
 

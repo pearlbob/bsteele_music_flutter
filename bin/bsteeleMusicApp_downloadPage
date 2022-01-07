@@ -1,26 +1,27 @@
 #!/bin/tcsh
-set echo; set verbose
+#set echo; set verbose
 
 set src=~/github/bsteele_music_flutter
 set app=bsteeleMusicApp
 set www=/var/www/html/public_html/$app
 set lib=~/lib
 
-echo fix bsteeleMusicApp_downloadPage
-exit -1
 
-#	compile for release
-cd $lib
+#	sum the release
+cd $www
 set warSum=`sha256sum $app.war`
-
 echo $warSum
 
-cd $src
-sed -e "s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; " web/download.html
+set dmgSum=`sha256sum $app.dmg`
+echo $dmgSum
 
 #	write the download page
 cd ~/lib
 set warSum=`sha256sum $app.war`
-cd $git
-sed -e "s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; " web/download.html > $www/$app/download.html
+cd $src
+sed -e "s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
+	s/^ *let dmgSha256sum = '.*';/        let dmgSha256sum = '$dmgSum';/; \
+	" \
+	web/download.html > $www/download.html
 
+exit $status

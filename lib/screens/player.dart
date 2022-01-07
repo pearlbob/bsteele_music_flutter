@@ -54,7 +54,7 @@ SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
 //  diagnostic logging enables
-const Level _playerLogScroll = Level.info;
+const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
@@ -142,6 +142,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     // };
 
     WidgetsBinding.instance?.scheduleWarmUpFrame();
+
+    app.clearMessage();
   }
 
   @override
@@ -256,7 +258,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         final width = renderTable.size.width;
 
         if (chordFontSize == null) {
-          final pixels = app.screenInfo.mediaWidth * 0.99;
+          final pixels = app.screenInfo.mediaWidth * 0.965;
           if (width > 0 && lyricsTable.chordFontSize != null) {
             var lastChordFontSize = chordFontSize ?? 0;
             var newFontSize = lyricsTable.chordFontSize! * pixels / width;

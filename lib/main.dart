@@ -154,6 +154,8 @@ ResizableWidget
 //  song match takin' vs taking
 //  log all song playings, summary of history
 
+Kill error message on some screen changes
+ Retain the requested songs
 //
 // Singers for a given song
 // player: Tap to tempo

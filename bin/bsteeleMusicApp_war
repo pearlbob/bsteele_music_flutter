@@ -42,7 +42,7 @@ if ( $historicalCode == $versionCode ) then
 	utcDate > lib/assets/utcDate.txt	#	update for the commit, may not match the version code exactly
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
-	git tag | tail
+	git tag | tail -3
 	git remote set-url origin git@github.com:pearlbob/$flut.git
 	git push
 	git push origin $tag
@@ -52,7 +52,7 @@ if ( $historicalCode == $versionCode ) then
 	if ( $status != 0 ) exit $status
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
-	git tag | tail
+	git tag | tail -3
 	git remote set-url origin git@github.com:pearlbob/$lib.git
 	git push
 	git push origin $tag

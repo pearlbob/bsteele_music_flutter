@@ -70,6 +70,18 @@ class _About extends State<About> with WidgetsBindingObserver {
                       style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
                     ),
                   ),
+                  const Text(
+                    ', ',
+                  ),
+                  InkWell(
+                    onTap: () {
+                      openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
+                    },
+                    child: Text(
+                      'download',
+                      style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                    ),
+                  ),
                 ]),
                 Text(
                   'appName: ${_packageInfo.appName}',

@@ -182,7 +182,7 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
       }
-      if (requestedPerformances.isNotEmpty) {
+      if (requestedSongPerformances.isNotEmpty) {
         songWidgetList.add(Divider(
           thickness: 10,
           color: _blue.color,
@@ -192,17 +192,17 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
-        songWidgetList.addAll(requestedPerformances.map(mapSongPerformanceToSingerWidget).toList());
+        songWidgetList.addAll(requestedSongPerformances.map(mapSongPerformanceToSingerWidget).toList());
         songWidgetList.add(appSpace());
       }
 
-      if (searchTerm.isNotEmpty) {
+      if (searchTerm.isNotEmpty && _filteredSongs.isNotEmpty) {
         songWidgetList.add(Divider(
           thickness: 10,
           color: _blue.color,
         ));
         songWidgetList.add(Text(
-          _filteredSongs.isNotEmpty ? 'Songs matching the search "$searchTerm":' : 'No songs match the search.',
+          'Songs matching the search "$searchTerm":',
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
@@ -564,7 +564,7 @@ class _State extends State<Singers> {
                       onChanged: (text) {
                         setState(() {
                           logger.v('search text: "$text"');
-                          _searchSongs(_searchTextFieldController.text);
+                          _searchAllPerformanceSongs(_searchTextFieldController.text);
                         });
                       },
                       fontSize: fontSize,
@@ -609,7 +609,7 @@ class _State extends State<Singers> {
                       hintText: "search for requested song",
                       onChanged: (text) {
                         setState(() {
-                          _searchRequestedSongs(_searchRequestedTextFieldController.text);
+                          _searchAllPerformanceSongs(_searchRequestedTextFieldController.text);
                         });
                       },
                       fontSize: fontSize,
@@ -690,18 +690,21 @@ class _State extends State<Singers> {
         appWidgetHelper.checkbox(
           value: allSongPerformances.isSongInSingersList(_selectedSinger, song),
           onChanged: (bool? value) {
-            if (value != null && singer == null) {
-              setState(() {
-                if (value) {
-                  if (_selectedSinger != unknownSinger) {
-                    allSongPerformances.addSongPerformance(
-                        SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault()));
+            if (value != null) {
+              singer ??= _selectedSinger;
+              if (singer != null) {
+                setState(() {
+                  if (value) {
+                    if (singer != unknownSinger) {
+                      allSongPerformances.addSongPerformance(
+                          SongPerformance(song.songId.toString(), singer!, key ?? music_key.Key.getDefault()));
+                    }
+                  } else {
+                    allSongPerformances.removeSingerSong(singer!, song.songId.toString());
                   }
-                } else {
-                  allSongPerformances.removeSingerSong(_selectedSinger, song.songId.toString());
-                }
-                AppOptions().storeAllSongPerformances();
-              });
+                  AppOptions().storeAllSongPerformances();
+                });
+              }
             }
           },
           fontSize: songPerformanceStyle.fontSize,
@@ -719,7 +722,7 @@ class _State extends State<Singers> {
               ? () {
                   setState(() {
                     if (singer != null) {
-                      _selectedSinger = singer;
+                      _selectedSinger = singer!;
                     }
                     var songPerformance =
                         SongPerformance(song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault());
@@ -737,40 +740,40 @@ class _State extends State<Singers> {
 
   void _searchClear() {
     _searchTextFieldController.clear();
-    _searchSongs(null);
+    _searchAllPerformanceSongs(null);
     _searchRequestedClear();
   }
 
   void _searchRequestedClear() {
     _searchRequestedTextFieldController.clear();
-    _searchRequestedSongs(null);
+    _searchAllPerformanceSongs(null);
   }
 
-  void _searchRequestedSongs(String? searchRequested) {
-    _filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
-    searchRequested ??= '';
-    searchRequested = searchRequested.trim();
+  // void _searchRequestedSongs(String? searchRequested) {
+  //   _filteredSongs.clear();
+  //   searchRequested ??= '';
+  //   searchRequested = searchRequested.trim();
+  //
+  //   singerScrollController.jumpTo(0);
+  //
+  //   //  apply search filter
+  //   requestedSongPerformances = SplayTreeSet<SongPerformance>();
+  //   var requestedPattern = searchRequested.replaceAll("[^\\w\\s']+", '');
+  //   if (requestedPattern.isNotEmpty) {
+  //     final RegExp searchRegex = RegExp(requestedPattern, caseSensitive: false);
+  //
+  //     for (final Song song in app.allSongs) {
+  //       if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
+  //         requestedSongPerformances.addAll(allSongPerformances.bySong(song).where((performance) {
+  //           return _sessionSingers.contains(performance.singer);
+  //         }));
+  //       }
+  //     }
+  //   }
+  //   _searchAllPerformanceSongs(searchRequested);
+  // }
 
-    singerScrollController.jumpTo(0);
-
-    //  apply search filter
-    requestedPerformances = SplayTreeSet<SongPerformance>();
-    var requestedPattern = searchRequested.replaceAll("[^\\w\\s']+", '');
-    if (requestedPattern.isNotEmpty) {
-      final RegExp searchRegex = RegExp(requestedPattern, caseSensitive: false);
-
-      for (final Song song in app.allSongs) {
-        if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
-          requestedPerformances.addAll(allSongPerformances.bySong(song).where((performance) {
-            return _sessionSingers.contains(performance.singer);
-          }));
-        }
-      }
-    }
-    _searchSongs(searchRequested);
-  }
-
-  void _searchSongs(String? search) {
+  void _searchAllPerformanceSongs(String? search) {
     search ??= '';
     search = search.trim();
     searchTerm = search.replaceAll("[^\\w\\s']+", '');
@@ -778,16 +781,32 @@ class _State extends State<Singers> {
     singerScrollController.jumpTo(0);
 
     //  apply search filter
+    requestedSongPerformances.clear();
+    var requestsFound = SplayTreeSet<Song>();
     _filteredSongs.clear();
     if (searchTerm.isNotEmpty) {
       // select order
-      _filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
+      //_filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
       final RegExp searchRegex = RegExp(searchTerm, caseSensitive: false);
+
+      for (final SongPerformance songPerformance in allSongPerformances.toList()) {
+        if (songPerformance.song == null) {
+          continue;
+        }
+        if (searchRegex.hasMatch(songPerformance.song!.getTitle()) ||
+            searchRegex.hasMatch(songPerformance.song!.getArtist())) {
+          //  matches
+          requestedSongPerformances.add(songPerformance);
+          requestsFound.add(songPerformance.song!);
+        }
+      }
 
       for (final Song song in app.allSongs) {
         if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
           //  matches
-          _filteredSongs.add(song);
+          if (!requestsFound.contains(song)) {
+            _filteredSongs.add(song);
+          }
         }
       }
     }
@@ -881,8 +900,8 @@ class _State extends State<Singers> {
   late TextStyle songPerformanceStyle;
 
   String searchTerm = '';
-  var requestedPerformances = SplayTreeSet<SongPerformance>();
-  SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
+  var requestedSongPerformances = SplayTreeSet<SongPerformance>();
+  final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
   final singerScrollController = ScrollController();
 

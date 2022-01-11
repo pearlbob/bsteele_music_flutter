@@ -561,7 +561,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     var appBarTextStyle = generateAppBarLinkTextStyle();
 
     if (appOptions.ninJam) {
-      ninJam = NinJam(_song);
+      ninJam = NinJam(_song, keyOffset: displaySongKey.getHalfStep() - _song.getKey().getHalfStep());
     }
 
     return Scaffold(
@@ -1038,7 +1038,7 @@ With escape, the app goes back to the play list.''',
                             appWrapFullWidth([
                               appSpace(),
                               Text(
-                                'Ninjam: BPM: ',
+                                'Ninjam: BPM: ${_song.beatsPerMinute.toString()}',
                                 style: headerTextStyle,
                                 softWrap: false,
                               ),
@@ -1050,7 +1050,7 @@ With escape, the app goes back to the play list.''',
                                 },
                               ),
                               Text(
-                                'Cycle: ',
+                                'Cycle: ${ninJam.beatsPerInterval}',
                                 style: headerTextStyle,
                                 softWrap: false,
                               ),
@@ -1429,7 +1429,7 @@ With escape, the app goes back to the play list.''',
           break;
       }
 
-      assert(_songUpdate!.momentNumber >=0);
+      assert(_songUpdate!.momentNumber >= 0);
       assert(_songUpdate!.momentNumber < _song.songMoments.length);
       scrollToSectionByMoment(_song.songMoments[_songUpdate!.momentNumber]);
       logger.log(

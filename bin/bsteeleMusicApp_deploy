@@ -26,6 +26,10 @@ if ( $status != 0 ) exit -1
 #	deploy locally (typically re-deploy)
 bin/bsteeleMusicApp_localWarInstall
 
+#	compile for android
+bin/bsteeleMusicApp_apk
+if ( $status != 0 ) exit -1
+
 #	compile for native macos x86
 bin/bsteeleMusicApp_remoteDmg
 if ( $status != 0 ) exit -1

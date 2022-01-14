@@ -11,8 +11,6 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../app/app.dart';
-
 Directory _rootDirectory = Directory(Util.homePath());
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
@@ -36,7 +34,7 @@ class UtilLinux implements UtilWorkaround {
   }
 
   @override
-  Future<void> songFilePick(BuildContext context) async {
+  Future<List<Song>> songFilePick(BuildContext context) async {
     String? path = await FilesystemPicker.open(
       title: 'Open song file',
       context: context,
@@ -45,19 +43,19 @@ class UtilLinux implements UtilWorkaround {
       allowedExtensions: ['.songlyrics', '.pro', '.chordpro'],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
+    List<Song> ret = [];
     if (path != null) {
       var file = File(path);
-      final app = App();
       if (file.existsSync()) {
         String s = utf8.decode(file.readAsBytesSync());
         if (chordProRegExp.hasMatch(path)) {
           //  chordpro
           var song = ChordPro().parse(s);
-          app.addSongs([song]);
+          ret.add(song);
         } else {
           //  .songlyrics
           List<Song> songs = Song.songListFromJson(s);
-          app.addSongs(songs);
+          ret.addAll(songs);
         }
         //  fixme: limits subsequent opens to the selected directory
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
@@ -67,6 +65,7 @@ class UtilLinux implements UtilWorkaround {
       _rootDirectory = Directory(Util.homePath());
     }
     //  fixme: FilesystemPicker.open() in linux needs big help
+    return ret;
   }
 
   final RegExp chordProRegExp = RegExp(r'pro$');

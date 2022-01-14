@@ -136,6 +136,7 @@ void main() async {
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?
 edit lyrics: one blank row is now two?  at section end?
+messages for file task completions or failures.
 
 studio instructions for personal tablets
 //  no auto 4 measures per row
@@ -1006,6 +1007,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     logger.v('search text: "$text"');
                     _searchSongs(_searchTextFieldController.text);
+                    app.clearMessage();
                   });
                 },
               ),
@@ -1018,6 +1020,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   iconSize: 1.5 * fontSize,
                   onPressed: (() {
                     _searchTextFieldController.clear();
+                    app.clearMessage();
                     setState(() {
                       FocusScope.of(context).requestFocus(_searchFocusNode);
                       _lastSelectedSong = null;
@@ -1043,6 +1046,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     setState(() {
                       _selectedSortType = value ?? MainSortType.byTitle;
                       _searchSongs(_searchTextFieldController.text);
+                      app.clearMessage();
                     });
                   }
                 },
@@ -1077,6 +1081,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 items: _metadataDropDownMenuList,
                 onChanged: (value) {
                   logger.v('metadataDropDownMenuList selection: $value');
+                  app.clearMessage();
                 },
                 value: _selectedListNameValue ?? allSongsMetadataNameValue,
                 style: searchDropDownStyle,
@@ -1191,9 +1196,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         style: oddEvenTitleTextStyle,
                       ),
                       Text(
-                        '      ' + song.getArtist(),
+                        '    ' + song.getArtist(),
                         style: oddEvenTextStyle,
                       ),
+                      if (song.coverArtist.isNotEmpty)
+                        Text(
+                          ', cover by ${song.coverArtist}',
+                          style: oddEvenTextStyle,
+                        ),
                     ],
                   ),
                   Text(

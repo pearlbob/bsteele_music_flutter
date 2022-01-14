@@ -38,6 +38,7 @@ dependencies:
   universal_io:
   universal_html:
   reorderables:
+  pretty_diff_text:
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib
 

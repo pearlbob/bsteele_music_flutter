@@ -12,7 +12,6 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/widgets.dart';
 
-import '../app/app.dart';
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {
@@ -30,12 +29,8 @@ class UtilWeb implements UtilWorkaround {
   }
 
   @override
-  Future<void> songFilePick(BuildContext context) async {
-    List<Song> songs = await getSongsAsync();
-    for (final Song song in songs) {
-      App().addSong(song);
-      //logger.d('song: ${song.title.toString()}');
-    }
+  Future<List<Song>> songFilePick(BuildContext context) async {
+    return await getSongsAsync();
   }
 
   Future<List<Song>> getSongsAsync() async {

@@ -6,10 +6,12 @@
     <script>
         let warSha256sum = 'unknown';
         let dmgSha256sum = 'unknown';
+        let apkSha256sum = 'unknown';
 
         function onLoad() {
             document.getElementById("warSha256sum").innerHTML = warSha256sum;
             document.getElementById("dmgSha256sum").innerHTML = dmgSha256sum;
+            document.getElementById("apkSha256sum").innerHTML = apkSha256sum;
         }
 
     </script>
@@ -27,6 +29,16 @@
         <p>
         The war file contents can also be extracted to a webserver (typically Apache)
         and served as static webpages without the leader/follower function.
+        </p>
+    </li>
+    <li><p>Android apk: <a href="./bsteeleMusicApp.apk" download>
+        bsteeleMusicApp.apk</a>. The sha256sum as:
+		</p>
+        <span id="apkSha256sum"> </span>.
+		<p>
+		Android will not willingly download and install apps from the web.  Please research this and
+		understand your security exposure.  I suggest you start with
+		<a href="https://www.androidauthority.com/how-to-install-apks-31494/">androidauthority.com<a>.
         </p>
     </li>
     <li><p>Macos x86 dmg: <a href="./bsteeleMusicApp.dmg" download>

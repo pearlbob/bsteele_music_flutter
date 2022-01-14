@@ -561,7 +561,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     var appBarTextStyle = generateAppBarLinkTextStyle();
 
     if (appOptions.ninJam) {
-      ninJam = NinJam(_song, keyOffset: displaySongKey.getHalfStep() - _song.getKey().getHalfStep());
+      ninJam =
+          NinJam(_song, key: displaySongKey, keyOffset: displaySongKey.getHalfStep() - _song.getKey().getHalfStep());
     }
 
     return Scaffold(
@@ -1034,51 +1035,52 @@ With escape, the app goes back to the play list.''',
                             ],
                           ),
                           appSpace(),
-                          if (appOptions.ninJam && ninJam.isNinJamReady)
+                          if (app.isScreenBig && appOptions.ninJam && ninJam.isNinJamReady)
                             appWrapFullWidth([
                               appSpace(),
-                              Text(
-                                'Ninjam: BPM: ${_song.beatsPerMinute.toString()}',
-                                style: headerTextStyle,
-                                softWrap: false,
-                              ),
-                              appIconButton(
-                                appKeyEnum: AppKeyEnum.playerCopyNinjamBPM,
-                                icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: '/bpm ${_song.beatsPerMinute.toString()}'));
-                                },
-                              ),
-                              Text(
-                                'Cycle: ${ninJam.beatsPerInterval}',
-                                style: headerTextStyle,
-                                softWrap: false,
-                              ),
-                              appIconButton(
-                                appKeyEnum: AppKeyEnum.playerCopyNinjamCycle,
-                                icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: '/bpi ${ninJam.beatsPerInterval}'));
-                                },
-                              ),
-                              Text(
-                                'Chords: ',
-                                style: headerTextStyle,
-                                softWrap: false,
-                              ),
-                              appIconButton(
-                                appKeyEnum: AppKeyEnum.playerCopyNinjamChords,
-                                icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: ninJam.toMarkup()));
-                                },
-                              ),
-                              Text(
-                                ninJam.toMarkup(),
-                                style: headerTextStyle,
-                                softWrap: false,
-                              ),
-                            ], spacing: 10),
+                              appWrap([
+                                Text(
+                                  'Ninjam: BPM: ${_song.beatsPerMinute.toString()}',
+                                  style: headerTextStyle,
+                                  softWrap: false,
+                                ),
+                                appIconButton(
+                                  appKeyEnum: AppKeyEnum.playerCopyNinjamBPM,
+                                  icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: '/bpm ${_song.beatsPerMinute.toString()}'));
+                                  },
+                                ),
+                              ], spacing: 10),
+                              appWrap([
+                                Text(
+                                  'Cycle: ${ninJam.beatsPerInterval}',
+                                  style: headerTextStyle,
+                                  softWrap: false,
+                                ),
+                                appIconButton(
+                                  appKeyEnum: AppKeyEnum.playerCopyNinjamCycle,
+                                  icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: '/bpi ${ninJam.beatsPerInterval}'));
+                                  },
+                                ),
+                              ], spacing: 10),
+                              appWrap([
+                                Text(
+                                  'Chords: ${ninJam.toMarkup()}',
+                                  style: headerTextStyle,
+                                  softWrap: false,
+                                ),
+                                appIconButton(
+                                  appKeyEnum: AppKeyEnum.playerCopyNinjamChords,
+                                  icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: ninJam.toMarkup()));
+                                  },
+                                ),
+                              ], spacing: 10),
+                            ], spacing: 20),
                           appSpace(),
                           Center(
                             child: table ?? const Text('_table missing!'),

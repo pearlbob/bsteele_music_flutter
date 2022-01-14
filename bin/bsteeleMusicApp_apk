@@ -1,0 +1,23 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+set app=bsteeleMusicApp
+set bsDir=${app}Dmg
+set src=~/github/bsteele_music_flutter
+set www=/var/www/html/public_html/$app
+set apk=build/app/outputs/apk/release/app-release.apk
+
+echo uses existing source code at: $src
+cd $src
+
+
+rm -rf .gradle
+flutter clean
+flutter build apk --release
+ls -lt $apk
+
+echo sha256sum: `sha256sum $apk`
+
+#	upload to local host
+cp $apk $www/$app.apk
+exit $status

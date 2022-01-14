@@ -3335,7 +3335,7 @@ class _Edit extends State<Edit> {
   ///  don't push an identical copy 1234
   void undoStackPushIfDifferent() {
     if (!(song.songBaseSameContent(undoStack.top))) {
-      song.lastModifiedTime = originalSong.lastModifiedTime;
+      //  fixme: what was this doing?:  song.lastModifiedTime = originalSong.lastModifiedTime;
       undoStackPush();
       logger.d('undo ${undoStackAllToString()}');
     }

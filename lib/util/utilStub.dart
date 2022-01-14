@@ -1,3 +1,4 @@
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/widgets.dart';
@@ -9,8 +10,8 @@ class NullWorkaround implements UtilWorkaround {
   }
 
   @override
-  Future<void> songFilePick(BuildContext context) async {
-    return Future<void>(() {});
+  Future<List<Song>> songFilePick(BuildContext context) async {
+    return Future<List<Song>>(() { return [];});
   }
 
   @override

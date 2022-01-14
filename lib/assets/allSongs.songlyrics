@@ -3918,7 +3918,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1641789437477, "song": 
+{ "file": "", "lastModifiedDate": 1641789437477, "song": 
 {
 "title": "American Girl",
 "artist": "Tom Petty and the Heartbreakers",
@@ -5536,7 +5536,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1641791688154, "song": 
+{ "file": "", "lastModifiedDate": 1641791688154, "song": 
 {
 "title": "Anyone Who Knows What Love Is (Will Understand)",
 "artist": "Irma Thomas",
@@ -14715,7 +14715,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1641787543407, "song": 
+{ "file": "", "lastModifiedDate": 1641787543407, "song": 
 {
 "title": "Buckets of Rain",
 "artist": "Bob Dylan",
@@ -23550,7 +23550,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1641795565206, "song": 
+{ "file": "", "lastModifiedDate": 1641795565206, "song": 
 {
 "title": "Dancing in the Moonlight, cover by Toploader",
 "artist": "King Harvest",
@@ -29525,7 +29525,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1641801887820, "song": 
+{ "file": "", "lastModifiedDate": 1641801887820, "song": 
 {
 "title": "Earth Angel (Will You Be Mine)",
 "artist": "Penguins, The",
@@ -29590,75 +29590,6 @@
 	"I'll be the vision of your happiness, oh",
 	"",
 	"O:",
-	"Earth angel, earth angel, please be mine",
-	"My darling dear love you all the time",
-	"I'm just a fool, a fool in love with ",
-	"You"
-    ]
-}
-},
-{ "file": null, "lastModifiedDate": 0, "song": 
-{
-"title": "Earth Angel (Will You Be Mine)",
-"artist": "Penguins, The ",
-"user": "my",
-"lastModifiedDate": 0,
-"copyright": "1954 Dootone",
-"key": "Eb",
-"defaultBpm": 69,
-"timeSignature": "2/4",
-"chords": 
-    [
-	"I:",
-	"Eb",
-	"Ab Fm7 Db Eb",
-	"A:",
-	"Ab Fm7 Db Eb x4",
-	"A2:",
-	"Ab Fm7 Db Eb x3",
-	"Ab Db Ab Ab",
-	"B:",
-	"Db Db Ab Ab",
-	"Db Db Ab Ab",
-	"Db Db Ab Ab",
-	"Bb7 Bb7 Eb Eb"
-    ],
-"lyrics": 
-    [
-	"I:",
-	"(instrumental)",
-	"",
-	"A:",
-	"Earth angel, earth angel, will you be mine",
-	"My darling dear, love you all the time",
-	"I'm just a fool, a fool in love with ",
-	"You",
-	"",
-	"A2:",
-	"Earth angel, earth angel, the one I adore",
-	"Love you forever, and ever more",
-	"I'm just a fool, a fool in love with ",
-	"You",
-	"",
-	"B:",
-	"I fell for you and I knew",
-	"The vision of your love, loveliness",
-	"I hope and I pray that someday, I'll be the",
-	"Vision of your happy, happiness, oh",
-	"",
-	"A2:",
-	"Oh earth angel, earth angel, please be mine",
-	"My darling dear, love you all the time",
-	"I'm just a fool, a fool in love with ",
-	"You",
-	"",
-	"B:",
-	"I fell for you and I knew",
-	"The visions of your loveliness",
-	"I hope and I pray that someday, that",
-	"I'll be the vision of your happiness, oh",
-	"",
-	"A:",
 	"Earth angel, earth angel, please be mine",
 	"My darling dear love you all the time",
 	"I'm just a fool, a fool in love with ",
@@ -55746,6 +55677,97 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1641963838535, "song": 
+{
+"title": "In God's Country",
+"artist": "U2",
+"user": "my",
+"lastModifiedDate": 1641963838535,
+"copyright": "1986 Island",
+"key": "D",
+"defaultBpm": 126,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"D D D D",
+	"D Am D Am x2",
+	"I2:",
+	"D Am D Am",
+	"I3:",
+	"D Am D Am",
+	"I4:",
+	"D Am D Am x2",
+	"V:",
+	"D Am D Am x2",
+	"C:",
+	"Em GD Em GD",
+	"Em GD Em GD",
+	"O:",
+	"D Am D Am",
+	"D Am D"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Desert sky, dream beneath the ",
+	"Desert sky, the rivers run but ",
+	"Soon run dry, we need new ",
+	"Dreams tonight",
+	"",
+	"V:",
+	"Desert rose, dreamed I saw a ",
+	"Desert rose, dress torn in ",
+	"Ribbons and in bows, like a",
+	"Siren she calls to me",
+	"",
+	"C:",
+	"Sleep comes like a drug ",
+	"In God's country",
+	"Sad eyes, crooked crosses",
+	"In God's country",
+	"",
+	"I2:",
+	"(instrumental) Yeah, yeah",
+	"",
+	"V:",
+	"Set me alight, we'll punch a hole right ",
+	"Through the night, every day the ",
+	"Dreamers die to see what's on the ",
+	"Other side",
+	"",
+	"V:",
+	"She is liberty, and she comes to ",
+	"Rescue me, hope, faith, her ",
+	"Vanity, the greatest ",
+	"Gift is gold",
+	"",
+	"C:",
+	"Sleep comes like a drug ",
+	"In God's country",
+	"Sad eyes, crooked crosses",
+	"In God's country",
+	"",
+	"I3:",
+	"(bass solo)",
+	"",
+	"I4:",
+	"(instrumental solo)",
+	"",
+	"V:",
+	"Naked flame, she stands with a ",
+	"Naked flame, I stand with the ",
+	"Sons of Cain, burned by the ",
+	"Fire of love, burned by the",
+	"",
+	"O:",
+	"Fire of love"
+    ]
+}
+},
 { "file": "In My Life  (5).songlyrics", "lastModifiedDate": 1581306688709, "song": 
 {
 "title": "In My Life",
@@ -61445,12 +61467,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1641800855065, "song": 
+{ "file": "", "lastModifiedDate": 1641962256397, "song": 
 {
 "title": "Kodachrome",
 "artist": "Paul Simon",
 "user": "my",
-"lastModifiedDate": 1641800855065,
+"lastModifiedDate": 1641962256397,
 "copyright": "1973 Columbia",
 "key": "A",
 "defaultBpm": 138,
@@ -61501,7 +61523,7 @@
 	"",
 	"C:",
 	"Kodachrome, they give those",
-	"Nice bright colors, give us the greens of summers, makes you thing",
+	"Nice bright colors, give us the greens of summers, makes you think",
 	"All the world's a sunny day, oh yeah, I got a ",
 	"Nikon camera, I love to take a photograph, so mama don't ",
 	"Take my Kodachrome away",
@@ -61517,7 +61539,7 @@
 	"",
 	"C:",
 	"Kodachrome, they give those",
-	"Nice bright colors, give us the greens of summers, makes you thing",
+	"Nice bright colors, give us the greens of summers, makes you think",
 	"All the world's a sunny day, oh yeah, I got a ",
 	"Nikon camera, I love to take a photograph, so mama don't ",
 	"Take my Kodachrome away",
@@ -61528,10 +61550,11 @@
 	"C2:",
 	"(Mama, don't) take my Kodachrome away, mama don't",
 	"Take my Kodachrome away, mama don't",
-	"Take my Kodachrome away, mama don't",
+	"Take my Kodachrome away",
 	"",
 	"BR:",
-	"Mama don't take my Kodachrome away, mama don't take my Kodachrome, Mama don't take my Kodachrome away",
+	"Mama don't take my Kodachrome away, mama don't take my Kodachrome ",
+	"Mama don't take my Kodachrome away",
 	"Mama don't take my Kodachrome, leave your boy so far from home",
 	"Mama don't take my Kodachrome away",
 	"Mama don't take my Kodachrome, mmm",

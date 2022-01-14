@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/utilStub.dart'
 // ignore: uri_does_not_exist
@@ -12,7 +13,7 @@ abstract class UtilWorkaround {
   /// Workaround to implement functionality that is not generic across all platforms at this point.
   Future<String> writeFileContents(String fileName, String contents, {String? fileType});
 
-  Future<void> songFilePick(BuildContext context);
+  Future<List<Song>> songFilePick(BuildContext context);
 
   Future<String> filePickByExtension(BuildContext context, String extension);
 

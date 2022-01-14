@@ -1478,7 +1478,7 @@ class _Edit extends State<Edit> {
               message: 'add new chord section here',
               child: appInkWell(
                 appKeyEnum: AppKeyEnum.editNewChordSection,
-                keyCallback: () {
+                onTap: () {
                   setState(() {
                     chordSong.setCurrentChordSectionLocation(null);
                     chordSong.setCurrentMeasureEditType(MeasureEditType.append);
@@ -1624,7 +1624,7 @@ class _Edit extends State<Edit> {
           message: 'Delete this lyric section',
           child: appInkWell(
             appKeyEnum: AppKeyEnum.editDeleteLyricsSection,
-            keyCallback: () {
+            onTap: () {
               lyricsEntries.delete(entry);
               pushLyricsEntries();
             },
@@ -1687,7 +1687,7 @@ class _Edit extends State<Edit> {
                 appInkWell(
                   appKeyEnum: AppKeyEnum.lyricsEntryLineAdd,
                   value: line,
-                  keyCallback: () {
+                  onTap: () {
                     lyricsEntries.addBlankLyricsLine(entry);
                     logger.log(_editLyricEntry, 'addBlankLyricsLine: \'$entry\'');
                     pushLyricsEntries();
@@ -1718,7 +1718,7 @@ class _Edit extends State<Edit> {
               appInkWell(
                 appKeyEnum: AppKeyEnum.lyricsEntryLineUp,
                 value: line,
-                keyCallback: () {
+                onTap: () {
                   lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: true);
                   pushLyricsEntries();
                 },
@@ -1740,7 +1740,7 @@ class _Edit extends State<Edit> {
               appInkWell(
                 appKeyEnum: AppKeyEnum.lyricsEntryLineDown,
                 value: line,
-                keyCallback: () {
+                onTap: () {
                   lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: false);
                   pushLyricsEntries();
                 },
@@ -1770,7 +1770,7 @@ class _Edit extends State<Edit> {
                 child: appInkWell(
                   appKeyEnum: AppKeyEnum.lyricsEntryLineDelete,
                   value: line,
-                  keyCallback: () {
+                  onTap: () {
                     lyricsEntries.deleteLyricLine(
                       entry,
                       line,
@@ -2243,7 +2243,7 @@ class _Edit extends State<Edit> {
                     child: appInkWell(
                       appKeyEnum: AppKeyEnum.editChordSectionDelete,
                       value: chordSection,
-                      keyCallback: () {
+                      onTap: () {
                         performDelete();
                       },
                       child: const Icon(
@@ -2258,7 +2258,7 @@ class _Edit extends State<Edit> {
                     child: appInkWell(
                       appKeyEnum: AppKeyEnum.editChordSectionCancel,
                       value: chordSection,
-                      keyCallback: () {
+                      onTap: () {
                         performMeasureEntryCancel();
                       },
                       child: Icon(
@@ -2274,7 +2274,7 @@ class _Edit extends State<Edit> {
                       child: appInkWell(
                         appKeyEnum: AppKeyEnum.editChordSectionAcceptAndAdd,
                         value: chordSection,
-                        keyCallback: () {
+                        onTap: () {
                           performEdit();
                         },
                         child: const Icon(
@@ -2290,7 +2290,7 @@ class _Edit extends State<Edit> {
                       child: appInkWell(
                         appKeyEnum: AppKeyEnum.editChordSectionAccept,
                         value: chordSection,
-                        keyCallback: () {
+                        onTap: () {
                           logger.d('sectionVersion measureEditType: ${selectedEditPoint?.measureEditType.toString()}');
                           performEdit(done: true, endOfRow: selectedEditPoint!.onEndOfRow); //  section enter
                         },
@@ -2317,7 +2317,7 @@ class _Edit extends State<Edit> {
     return appInkWell(
       appKeyEnum: AppKeyEnum.editChordDataPoint,
       value: editPoint.location,
-      keyCallback: () {
+      onTap: () {
         sectionVersion = chordSection.sectionVersion;
         editTextController.text = sectionVersion.toString();
         setEditPoint(editPoint);
@@ -2719,7 +2719,7 @@ class _Edit extends State<Edit> {
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editDeleteChordMeasure,
-                            keyCallback: () {
+                            onTap: () {
                               performDelete();
                             },
                             child: const Icon(
@@ -2734,7 +2734,7 @@ class _Edit extends State<Edit> {
                             '${kDebugMode ? ' $editPoint' : ''}',
                         child: appInkWell(
                           appKeyEnum: AppKeyEnum.editCancelChordModification,
-                          keyCallback: () {
+                          onTap: () {
                             performMeasureEntryCancel();
                           },
                           child: Icon(
@@ -2750,7 +2750,7 @@ class _Edit extends State<Edit> {
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndExtendRow,
-                            keyCallback: () {
+                            onTap: () {
                               performEdit(endOfRow: false);
                             },
                             child: const Icon(
@@ -2765,7 +2765,7 @@ class _Edit extends State<Edit> {
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndStartNewRow,
-                            keyCallback: () {
+                            onTap: () {
                               performEdit(done: false, endOfRow: true);
                             },
                             child: const Icon(
@@ -2780,7 +2780,7 @@ class _Edit extends State<Edit> {
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: appInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndFinish,
-                            keyCallback: () {
+                            onTap: () {
                               logger.i(
                                   'endOfRow?:  ${chordSong.findMeasureByChordSectionLocation(selectedEditPoint?.location)?.endOfRow} ');
                               performEdit(
@@ -2804,7 +2804,7 @@ class _Edit extends State<Edit> {
       ret = appInkWell(
         appKeyEnum: AppKeyEnum.editChordSectionLocation,
         value: editPoint.location,
-        keyCallback: () {
+        onTap: () {
           setEditPoint(editPoint);
         },
         child: Container(
@@ -2902,7 +2902,7 @@ class _Edit extends State<Edit> {
                             child: appInkWell(
                               appKeyEnum: AppKeyEnum.editDeleteRepeat,
                               value: editPoint.location,
-                              keyCallback: () {
+                              onTap: () {
                                 song.setRepeat(editPoint.location, 1);
                                 undoStackPush();
                                 performMeasureEntryCancel();
@@ -2921,7 +2921,7 @@ class _Edit extends State<Edit> {
                         child: appInkWell(
                           appKeyEnum: AppKeyEnum.editRepeatCancel,
                           value: editPoint.location,
-                          keyCallback: () {
+                          onTap: () {
                             performMeasureEntryCancel();
                           },
                           child: Icon(
@@ -2942,7 +2942,7 @@ class _Edit extends State<Edit> {
     return appInkWell(
       appKeyEnum: AppKeyEnum.editRepeat,
       value: editPoint.location,
-      keyCallback: () {
+      onTap: () {
         setEditPoint(editPoint);
       },
       child: Container(
@@ -3034,7 +3034,7 @@ class _Edit extends State<Edit> {
     return appInkWell(
         appKeyEnum: AppKeyEnum.editAddChordRow,
         value: editPoint.location,
-        keyCallback: () {
+        onTap: () {
           if (loc != null) {
             setEditPoint(editPoint);
             logger.d('insert new row above: $selectedEditPoint');
@@ -3062,7 +3062,7 @@ class _Edit extends State<Edit> {
     return appInkWell(
         appKeyEnum: AppKeyEnum.editAddChordRowRepeat,
         value: loc,
-        keyCallback: () {
+        onTap: () {
           if (loc != null) {
             setEditPoint(editPoint);
             song.setRepeat(editPoint.location, 2);
@@ -3095,7 +3095,7 @@ class _Edit extends State<Edit> {
         appInkWell(
             appKeyEnum: AppKeyEnum.editAddChordRowNew,
             value: loc,
-            keyCallback: () {
+            onTap: () {
               setState(() {
                 selectedEditPoint = editPoint;
               });
@@ -3137,7 +3137,7 @@ class _Edit extends State<Edit> {
             ? AppKeyEnum.editChordPlusInsert
             : AppKeyEnum.editChordPlusAppend,
         value: editPoint.location,
-        keyCallback: () {
+        onTap: () {
           setEditPoint(editPoint);
         },
         child: Container(

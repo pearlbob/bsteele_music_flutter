@@ -309,8 +309,7 @@ class AppWidgetHelper {
       child: appIconButton(
         appKeyEnum: AppKeyEnum.appBack,
         onPressed: () {
-          if (canPop != null ? canPop() : true) {
-            appLogKeyCallback(appKey(AppKeyEnum.appBack));
+          if (canPop?.call() ?? true) {
             onPressed?.call();
             Navigator.pop(context);
           }
@@ -326,7 +325,7 @@ class AppWidgetHelper {
       child: appFloatingActionButton(
         appKeyEnum: appKeyEnum,
         onPressed: () {
-          if (canPop != null ? canPop() : true) {
+          if (canPop?.call() ?? true) {
             Navigator.pop(context);
           }
         },

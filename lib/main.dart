@@ -104,6 +104,9 @@ import 'app/appOptions.dart';
 import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
+//  diagnostic logging enables
+const Level _mainLogScroll = Level.debug;
+
 const _environmentDefault = 'main';
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 const _holidayOverride = String.fromEnvironment('holiday', defaultValue: '');
@@ -1179,7 +1182,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
       var oddEvenTextStyle = oddEven ? oddText : evenText;
       logger.d('song.songId: ${song.songId}, key: ${appKey(AppKeyEnum.mainSong, value: Id(song.songId.toString()))}');
-      listViewChildren.add(appGestureDetector(
+      listViewChildren.add(appInkWell(
         appKeyEnum: AppKeyEnum.mainSong,
         value: Id(song.songId.toString()),
         child: Container(
@@ -1316,7 +1319,11 @@ class _MyHomePageState extends State<MyHomePage> {
     _filteredSongs = SplayTreeSet(compare);
     _filteredSongsNotInSelectedList = SplayTreeSet(compare);
     for (final Song song in app.allSongs) {
-      if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
+      if (searchRegex.hasMatch(song.getTitle())
+          || searchRegex.hasMatch(song.getArtist())
+          || searchRegex.hasMatch(song.coverArtist)
+          || searchRegex.hasMatch(song.songId.toUnderScorelessString()) //  removes contractions
+      ) {
         //  if holiday and song is holiday, we're good
         if (appOptions.holiday) {
           if (isHoliday(song)) {
@@ -1437,12 +1444,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _navigateToPlayer(BuildContext context, Song song) async {
     if (song.getTitle().isEmpty) {
+      logger.log(_mainLogScroll, 'song title is empty: $song');
       return;
     }
     app.clearMessage();
     app.selectedSong = song;
     _lastSelectedSong = song;
 
+    logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
     await Navigator.pushNamed(
       context,
       Player.routeName,

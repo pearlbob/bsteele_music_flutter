@@ -187,13 +187,14 @@ class _Songs extends State<Songs> {
                       Text(
                         'Existing, dated: '
                         '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}'
-                        '${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}',
+                        ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(oldSong.lastModifiedTime))}',
                         style: prettyDiffText.deletedTextStyle,
                       ),
                       Text(
                         'Read, dated: '
                         '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
-                        '${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}',
+                        ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
+                        '${oldSong.lastModifiedTime>newSong.lastModifiedTime?' It\'s older!':''}',
                         style: prettyDiffText.addedTextStyle,
                       )
                     ], spacing: 20),

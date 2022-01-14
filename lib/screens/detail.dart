@@ -193,7 +193,8 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: '${app.selectedSong.title} (sheet music)'),
+      appBar: appWidgetHelper.backBar(title: '${app.selectedSong.titleWithCover}'
+          ' (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -743,7 +744,7 @@ class _FretBoardPainter extends CustomPainter {
     if (_lastWidth != width) {
       //  lazy eval
       _lastWidth = width;
-      fretLocs.clear();
+      fretLocations.clear();
     }
 
     var margin = width * 0.1;
@@ -758,12 +759,12 @@ class _FretBoardPainter extends CustomPainter {
     //  frets
     _black.strokeWidth = 2;
     {
-      var fretYmin = bassFretY + bassFretHeight / 16;
-      var fretYmax = bassFretY + bassFretHeight - bassFretHeight / 16;
+      var fretYMin = bassFretY + bassFretHeight / 16;
+      var fretYMax = bassFretY + bassFretHeight - bassFretHeight / 16;
       for (var fret = 0; fret <= 12; fret++) {
         _black.strokeWidth = fret == 0 ? 6.0 : 2.0;
         var x = fretLoc(fret);
-        canvas.drawLine(Offset(x, fretYmin), Offset(x, fretYmax), _black);
+        canvas.drawLine(Offset(x, fretYMin), Offset(x, fretYMax), _black);
       }
     }
 
@@ -906,12 +907,12 @@ class _FretBoardPainter extends CustomPainter {
   double fretLoc(int n) {
     n = max(0, min(12, n));
 
-    if (fretLocs.isEmpty) {
+    if (fretLocations.isEmpty) {
       for (var i = 0; i <= 12; i++) {
-        fretLocs.add(bassFretX + 2 * (bassScale - ((bassScale / pow(2, i / 12)))));
+        fretLocations.add(bassFretX + 2 * (bassScale - ((bassScale / pow(2, i / 12)))));
       }
     }
-    return fretLocs[n];
+    return fretLocations[n];
   }
 
   // double _fretWidth(int n) {
@@ -929,7 +930,7 @@ class _FretBoardPainter extends CustomPainter {
   final music_key.Key keyE = music_key.Key.get(music_key.KeyEnum.E);
 
   late Canvas canvas;
-  final List<double> fretLocs = [];
+  final List<double> fretLocations = [];
   final List<double> fretWidths = [];
   double bassFretHeight = 200;
   double bassFretY = 0;

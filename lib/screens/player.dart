@@ -575,7 +575,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               openLink(titleAnchor());
             },
             child: Text(
-              _song.title,
+              _song.titleWithCover,
               style: appBarTextStyle,
             ),
             hoverColor: hoverColor,

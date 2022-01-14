@@ -1116,28 +1116,19 @@ InkWell appInkWell({
   double? fontSize,
   GestureTapCallback? onTap,
   Widget? child,
-  KeyCallback? keyCallback,
   dynamic value, // overrides onPressed(), requires key
 }) {
   fontSize ??=
       app.screenInfo.fontSize; // _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
 
-  //  some form of callback is required, but not two!
-  assert((keyCallback != null && onTap == null) || (keyCallback == null && onTap != null));
-
   var key = appKey(appKeyEnum, value: value);
-
-  //  supply an on pressed callback with key, if asked
-  if (keyCallback != null) {
-    onTap = () {
-      appLogKeyCallback(key);
-      keyCallback();
-    };
-  }
 
   return InkWell(
     key: key,
-    onTap: onTap,
+    onTap: () {
+      appLogKeyCallback(key);
+      onTap?.call();
+    },
     child: child,
   );
 }
@@ -1187,9 +1178,7 @@ DropdownMenuItem<T> appDropdownMenuItem<T>({
       key: key,
       onTap: () {
         appLogKeyCallback(key);
-        if (keyCallback != null) {
-          keyCallback();
-        }
+        keyCallback?.call();
       },
       value: value,
       enabled: true,
@@ -1289,9 +1278,7 @@ GestureDetector appGestureDetector(
     child: child,
     onTap: () {
       appLogKeyCallback(key);
-      if (onTap != null) {
-        onTap();
-      }
+      onTap?.call();
     },
   );
 }

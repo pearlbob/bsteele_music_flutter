@@ -132,7 +132,7 @@ class _State extends State<Singers> {
                 appInkWell(
                   appKeyEnum: AppKeyEnum.singersAddSingerToSession,
                   value: singer,
-                  keyCallback: () {
+                  onTap: () {
                     setState(() {
                       _sessionSingers.add(singer);
                       _searchClear();
@@ -151,7 +151,7 @@ class _State extends State<Singers> {
                 appInkWell(
                   appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
                   // value: singer,
-                  keyCallback: () {
+                  onTap: () {
                     setState(() {
                       _sessionSingers.remove(singer);
                       _searchClear();
@@ -712,9 +712,9 @@ class _State extends State<Singers> {
         appSpace(space: 12),
         TextButton(
           child: Text(
+            '${singer != null ? '$singer sings: ' : ''}'
             '${song.title} by ${song.artist}'
             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-            '${singer != null ? ' sung by $singer' : ''}'
             '${key == null ? '' : ' in $key'}',
             style: songPerformanceStyle,
           ),
@@ -790,7 +790,7 @@ class _State extends State<Singers> {
       final RegExp searchRegex = RegExp(searchTerm, caseSensitive: false);
 
       for (final SongPerformance songPerformance in allSongPerformances.toList()) {
-        if (songPerformance.song == null) {
+        if (songPerformance.song == null  || !_sessionSingers.contains(songPerformance.singer)) {
           continue;
         }
         if (searchRegex.hasMatch(songPerformance.song!.getTitle()) ||

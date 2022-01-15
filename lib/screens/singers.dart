@@ -196,7 +196,22 @@ class _State extends State<Singers> {
         songWidgetList.add(appSpace());
       }
 
-      if (searchTerm.isNotEmpty && _filteredSongs.isNotEmpty) {
+      _searchSelectedSingerSongs(_searchTextFieldController.text);
+
+      if (selectedSongPerformances.isNotEmpty) {
+        songWidgetList.add(Divider(
+          thickness: 10,
+          color: _blue.color,
+        ));
+        songWidgetList.add(Text(
+          '$_selectedSinger performances selected:',
+          style: songPerformanceStyle.copyWith(color: _blue.color),
+        ));
+        songWidgetList.add(appSpace());
+        songWidgetList.addAll(selectedSongPerformances.map(mapSongPerformanceToSingerWidget).toList());
+        songWidgetList.add(appSpace());
+      }
+      if (searchTerm.isNotEmpty && filteredSongs.isNotEmpty) {
         songWidgetList.add(Divider(
           thickness: 10,
           color: _blue.color,
@@ -216,8 +231,8 @@ class _State extends State<Singers> {
 
       //  search songs on top
       {
-        if (_filteredSongs.isNotEmpty) {
-          songWidgetList.addAll(_filteredSongs.map(mapSongToWidget).toList());
+        if (filteredSongs.isNotEmpty) {
+          songWidgetList.addAll(filteredSongs.map(mapSongToWidget).toList());
           songWidgetList.add(appSpace());
         }
         songWidgetList.add(const Divider(
@@ -225,7 +240,7 @@ class _State extends State<Singers> {
         ));
         if (_selectedSinger != unknownSinger) {
           songWidgetList.add(Text(
-            (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') + ' for singer $_selectedSinger:',
+            (filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') + ' for singer $_selectedSinger:',
             style: songPerformanceStyle.copyWith(color: Colors.grey),
           ));
         }
@@ -234,7 +249,7 @@ class _State extends State<Singers> {
       //  list other, non-matching singer songs later
       for (var songPerformance in _singerSongPerformanceSet) {
         //  avoid repeats
-        if (songPerformance.song != null && !_filteredSongs.contains(songPerformance.song)) {
+        if (songPerformance.song != null && !filteredSongs.contains(songPerformance.song)) {
           songWidgetList.add(mapSongPerformanceToWidget(songPerformance));
         }
       }
@@ -251,7 +266,7 @@ class _State extends State<Singers> {
         ));
       }
       for (var song in app.allSongs) {
-        if (_singerSongSet.contains(song) || _filteredSongs.contains(song)) {
+        if (_singerSongSet.contains(song) || filteredSongs.contains(song)) {
           continue;
         }
         songWidgetList.add(mapSongToWidget(song));
@@ -344,10 +359,9 @@ class _State extends State<Singers> {
                 appWrap([
                   appTooltip(
                     message: singingTooltipText,
-                    child: appTextButton(
+                    child: appButton(
                       'Singing',
                       appKeyEnum: AppKeyEnum.singersSingingTextButton,
-                      style: singerTextStyle,
                       onPressed: () {
                         setState(() {
                           toggleSingingMode();
@@ -563,8 +577,6 @@ class _State extends State<Singers> {
                       hintText: 'enter song search${_selectedSinger != unknownSinger ? ' for $_selectedSinger' : ''}',
                       onChanged: (text) {
                         setState(() {
-                          logger.v('search text: "$text"');
-                          _searchAllPerformanceSongs(_searchTextFieldController.text);
                         });
                       },
                       fontSize: fontSize,
@@ -773,24 +785,57 @@ class _State extends State<Singers> {
   //   _searchAllPerformanceSongs(searchRequested);
   // }
 
-  void _searchAllPerformanceSongs(String? search) {
+  void _searchSelectedSingerSongs(String? search) {
     search ??= '';
     search = search.trim();
     searchTerm = search.replaceAll("[^\\w\\s']+", '');
 
-    singerScrollController.jumpTo(0);
-
     //  apply search filter
-    requestedSongPerformances.clear();
-    var requestsFound = SplayTreeSet<Song>();
-    _filteredSongs.clear();
+    selectedSongPerformances.clear();
+    filteredSongs.clear();
     if (searchTerm.isNotEmpty) {
       // select order
       //_filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
       final RegExp searchRegex = RegExp(searchTerm, caseSensitive: false);
 
       for (final SongPerformance songPerformance in allSongPerformances.toList()) {
-        if (songPerformance.song == null  || !_sessionSingers.contains(songPerformance.singer)) {
+        if (songPerformance.song == null || !_sessionSingers.contains(_selectedSinger)) {
+          continue;
+        }
+        if (searchRegex.hasMatch(songPerformance.song!.getTitle()) ||
+            searchRegex.hasMatch(songPerformance.song!.getArtist())) {
+          //  matches
+          selectedSongPerformances.add(songPerformance);
+        }
+      }
+
+      for (final Song song in app.allSongs) {
+        if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
+          if (selectedSongPerformances.where((value) => value.song == song).isEmpty) {
+            filteredSongs.add(song);
+          }
+        }
+      }
+    }
+  }
+
+  void _searchAllPerformanceSongs(String? search) {
+    search ??= '';
+    search = search.trim();
+    search = search.replaceAll("[^\\w\\s']+", '');
+
+    singerScrollController.jumpTo(0);
+
+    //  apply search filter
+    requestedSongPerformances.clear();
+    var requestsFound = SplayTreeSet<Song>();
+    if (search.isNotEmpty) {
+      // select order
+      //_filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
+      final RegExp searchRegex = RegExp(search, caseSensitive: false);
+
+      for (final SongPerformance songPerformance in allSongPerformances.toList()) {
+        if (songPerformance.song == null || !_sessionSingers.contains(songPerformance.singer)) {
           continue;
         }
         if (searchRegex.hasMatch(songPerformance.song!.getTitle()) ||
@@ -798,15 +843,6 @@ class _State extends State<Singers> {
           //  matches
           requestedSongPerformances.add(songPerformance);
           requestsFound.add(songPerformance.song!);
-        }
-      }
-
-      for (final Song song in app.allSongs) {
-        if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
-          //  matches
-          if (!requestsFound.contains(song)) {
-            _filteredSongs.add(song);
-          }
         }
       }
     }
@@ -900,8 +936,10 @@ class _State extends State<Singers> {
   late TextStyle songPerformanceStyle;
 
   String searchTerm = '';
+  var selectedSongPerformances = SplayTreeSet<SongPerformance>();
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
-  final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
+
+  final SplayTreeSet<Song> filteredSongs = SplayTreeSet();
   final FocusNode _searchFocusNode;
   final singerScrollController = ScrollController();
 

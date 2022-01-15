@@ -75,78 +75,6 @@ class _Options extends State<Options> {
                       ],
                     ),
 
-                  const Text(
-                    'User style: ',
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 30.0),
-                    child: appWrapFullWidth(<Widget>[
-                      appWrap(
-                        [
-                          Radio<UserDisplayStyle>(
-                            value: UserDisplayStyle.player,
-                            groupValue: _appOptions.userDisplayStyle,
-                            onChanged: (value) {
-                              setState(() {
-                                if (value != null) {
-                                  _appOptions.userDisplayStyle = value;
-                                }
-                              });
-                            },
-                          ),
-                          appTextButton('Player', appKeyEnum: AppKeyEnum.optionsUserDisplayStyle, onPressed: () {
-                            setState(() {
-                              _appOptions.userDisplayStyle = UserDisplayStyle.player;
-                            });
-                          }, style: style),
-                        ],
-                        spacing: 10,
-                      ),
-                      appWrap(
-                        [
-                          Radio<UserDisplayStyle>(
-                            value: UserDisplayStyle.both,
-                            groupValue: _appOptions.userDisplayStyle,
-                            onChanged: (value) {
-                              setState(() {
-                                if (value != null) {
-                                  _appOptions.userDisplayStyle = value;
-                                }
-                              });
-                            },
-                          ),
-                          appTextButton('Both Player and Singer', appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                              onPressed: () {
-                            setState(() {
-                              _appOptions.userDisplayStyle = UserDisplayStyle.both;
-                            });
-                          }, style: style),
-                        ],
-                        spacing: 10,
-                      ),
-                      appWrap(
-                        [
-                          Radio<UserDisplayStyle>(
-                            value: UserDisplayStyle.singer,
-                            groupValue: _appOptions.userDisplayStyle,
-                            onChanged: (value) {
-                              setState(() {
-                                if (value != null) {
-                                  _appOptions.userDisplayStyle = value;
-                                }
-                              });
-                            },
-                          ),
-                          appTextButton('Singer', appKeyEnum: AppKeyEnum.optionsUserDisplayStyle, onPressed: () {
-                            setState(() {
-                              _appOptions.userDisplayStyle = UserDisplayStyle.singer;
-                            });
-                          }, style: style),
-                        ],
-                        spacing: 10,
-                      ),
-                    ], spacing: 30),
-                  ),
                   appSpace(),
                   const Text(
                     'Holiday choice: ',
@@ -175,62 +103,7 @@ class _Options extends State<Options> {
                       spacing: 30,
                     ),
                   ),
-                  appSpace(),
-                  const Text(
-                    'Repeat display choice: ',
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 30.0),
-                    child: appWrapFullWidth(
-                      <Widget>[
-                        appRadio<bool>('Compress all repeats (for example: x4)',
-                            appKeyEnum: AppKeyEnum.optionsExpandRepeats,
-                            value: true,
-                            groupValue: _appOptions.compressRepeats, onPressed: () {
-                          setState(() {
-                            _appOptions.compressRepeats = true;
-                          });
-                        }, style: style),
-                        appRadio<bool>('Expand all repeat repetitions',
-                            appKeyEnum: AppKeyEnum.optionsExpandRepeats,
-                            value: false,
-                            groupValue: _appOptions.compressRepeats, onPressed: () {
-                          setState(() {
-                            _appOptions.compressRepeats = false;
-                          });
-                        }, style: style),
-                      ],
-                      spacing: 30,
-                    ),
-                  ),
-                  appSpace(),
-                  const Text(
-                    'NinJam choice: ',
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 30.0),
-                    child: appWrapFullWidth(
-                      <Widget>[
-                        appRadio<bool>('No NinJam aids',
-                            appKeyEnum: AppKeyEnum.optionsNinJam,
-                            value: false,
-                            groupValue: _appOptions.ninJam, onPressed: () {
-                          setState(() {
-                            _appOptions.ninJam = false;
-                          });
-                        }, style: style),
-                        appRadio<bool>('Show NinJam aids',
-                            appKeyEnum: AppKeyEnum.optionsNinJam,
-                            value: true,
-                            groupValue: _appOptions.ninJam, onPressed: () {
-                          setState(() {
-                            _appOptions.ninJam = true;
-                          });
-                        }, style: style),
-                      ],
-                      spacing: 30,
-                    ),
-                  ),
+
                   appSpace(),
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -325,7 +198,7 @@ class _Options extends State<Options> {
                     if (kDebugMode) appSpace(),
                     if (kDebugMode)
                       appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
-                        _appOptions.websocketHost = 'bobspi.local';
+                        _appOptions.websocketHost = 'bob64.local';//'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
                   ]),

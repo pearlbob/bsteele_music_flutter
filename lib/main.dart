@@ -152,17 +152,14 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
-ReorderableListView class for today's singers
-ResizableWidget
-//  song "match" for song title, removing special characters
 //  song match takin' vs taking
 //  log all song playings, summary of history
 
-Kill error message on some screen changes
+edit: change of title, artist or cover artist should trigger a comparison at song collisions
  Retain the requested songs
 //
 // Singers for a given song
-// player: Tap to tempo
+// _____player: Tap to tempo
 // player: Real play mode
 // player: validate follower accuracy
 // player: Intro and solo repeats

@@ -48,6 +48,8 @@ SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 _Player? _player;
 
+const int microsecondsPerSecond = 1000 * 1000;
+
 final GlobalKey _stackKey = GlobalKey();
 
 SongMoment? _selectedSongMoment;
@@ -376,7 +378,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     displayKeyOffset = app.displayKeyOffset;
 
     final _lyricsTextStyle = lyricsTable.lyricsTextStyle;
-    final headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
+
     logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
 
     if (_selectedSongMoment == null) {
@@ -690,8 +692,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                                     appTooltip(
                                       message: '''
 Space bar or clicking the song area starts "play" mode.
-    First section is in the middle of the display.
-    Display items on the top will be missing.
+    Selected section is in the top or middle of the display.
 Another space bar or song area hit advances one section.
 Down or right arrow also advances one section.
 Up or left arrow backs up one section.
@@ -712,34 +713,15 @@ With escape, the app goes back to the play list.''',
                                     if (showCapo)
                                       appWrap(
                                         [
-                                          appTooltip(
-                                            message: 'For a guitar, show the capo location and\n'
-                                                'chords to match the current key.',
-                                            child: Text(
-                                              'Capo',
-                                              style: headerTextStyle,
-                                              softWrap: false,
-                                            ),
-                                          ),
-                                          appSwitch(
-                                            appKeyEnum: AppKeyEnum.playerCapo,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                isCapo = !isCapo;
-                                                setSelectedSongKey(selectedSongKey);
-                                              });
-                                            },
-                                            value: isCapo,
-                                          ),
                                           if (isCapo && capoLocation > 0)
                                             Text(
-                                              'on $capoLocation',
+                                              'Capo on $capoLocation',
                                               style: headerTextStyle,
                                               softWrap: false,
                                             ),
                                           if (isCapo && capoLocation == 0)
                                             Text(
-                                              'no capo needed',
+                                              'No capo needed',
                                               style: headerTextStyle,
                                               softWrap: false,
                                             ),
@@ -751,23 +733,9 @@ With escape, the app goes back to the play list.''',
                                     //   style: headerTextStyle,
                                     //   softWrap: false,
                                     // ),
+
                                     if (app.isScreenBig)
                                       appWrap([
-                                        appTooltip(
-                                          message:
-                                              '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
-                                          child: appIconButton(
-                                            appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                                            icon: appIcon(
-                                              compressRepeats ? Icons.expand : Icons.compress,
-                                            ),
-                                            onPressed: () {
-                                              compressRepeats = !compressRepeats;
-                                              forceTableRedisplay();
-                                            },
-                                          ),
-                                        ),
-                                        appSpace(space: 35),
                                         appWrap([
                                           //  fixme: there should be a better way.  wrap with flex?
                                           appTooltip(
@@ -852,6 +820,21 @@ With escape, the app goes back to the play list.''',
                                               },
                                             ),
                                           ),
+                                        appSpace(space: 35),
+                                        appSpace(space: 35),
+                                        appTooltip(
+                                          message: 'Player settings',
+                                          child: appIconButton(
+                                            appKeyEnum: AppKeyEnum.playerSettings,
+                                            icon: appIcon(
+                                              Icons.settings,
+                                            ),
+                                            onPressed: () {
+                                              settingsPopup();
+                                            },
+                                          ),
+                                        ),
+                                        appSpace(),
                                       ]),
                                   ], alignment: WrapAlignment.spaceBetween),
                                 ),
@@ -953,12 +936,17 @@ With escape, the app goes back to the play list.''',
                                   appWrap(
                                     [
                                       appTooltip(
-                                        message: 'Beats per minute',
-                                        child: Text(
-                                          'BPM: ',
-                                          style: headerTextStyle,
+                                        message: 'Beats per minute.  Tap here or hold control and tap space\n'
+                                            ' for tap to tempo.',
+                                        child: appButton(
+                                          'BPM:',
+                                          appKeyEnum: AppKeyEnum.playerTempoTap,
+                                          onPressed: () {
+                                            tempoTap();
+                                          },
                                         ),
                                       ),
+                                      appSpace(),
                                       appWrap(
                                         [
                                           DropdownButton<int>(
@@ -1218,45 +1206,50 @@ With escape, the app goes back to the play list.''',
     if (!_playerIsOnTop) {
       return;
     }
-    if (value.runtimeType == RawKeyDownEvent) {
-      RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.log(
-          _playerLogKeyboard,
-          '_playerOnKey(): ${e.data.logicalKey}'
-          ', ctl: ${e.isControlPressed}'
-          ', shf: ${e.isShiftPressed}'
-          ', alt: ${e.isAltPressed}');
-      //  only deal with new key down events
+    if (value.runtimeType != RawKeyDownEvent) {
+      return;
+    }
+    RawKeyDownEvent e = value as RawKeyDownEvent;
+    logger.log(
+        _playerLogKeyboard,
+        '_playerOnKey(): ${e.data.logicalKey}'
+        ', ctl: ${e.isControlPressed}'
+        ', shf: ${e.isShiftPressed}'
+        ', alt: ${e.isAltPressed}');
+    //  only deal with new key down events
 
-      if (e.isKeyPressed(LogicalKeyboardKey.space) ||
-              e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
-          ) {
+    if (e.isKeyPressed(LogicalKeyboardKey.space) ||
+            e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
+        ) {
+      if (e.isControlPressed) {
+        tempoTap();
+      } else {
         if (!isPlaying) {
           performPlay();
         } else {
           sectionBump(1);
         }
-      } else if (isPlaying &&
-          !isPaused &&
-          (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
-        logger.d('arrowDown');
-        sectionBump(1);
-      } else if (isPlaying &&
-          !isPaused &&
-          (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
-        logger.log(_playerLogKeyboard, 'arrowUp');
-        sectionBump(-1);
-      } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
-        if (isPlaying) {
-          performStop();
-        } else {
-          logger.log(_playerLogKeyboard, 'player: pop the navigator');
-          Navigator.pop(context);
-        }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
-        if (isPlaying) {
-          performStop();
-        }
+      }
+    } else if (isPlaying &&
+        !isPaused &&
+        (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
+      logger.d('arrowDown');
+      sectionBump(1);
+    } else if (isPlaying &&
+        !isPaused &&
+        (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
+      logger.log(_playerLogKeyboard, 'arrowUp');
+      sectionBump(-1);
+    } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
+      if (isPlaying) {
+        performStop();
+      } else {
+        logger.log(_playerLogKeyboard, 'player: pop the navigator');
+        Navigator.pop(context);
+      }
+    } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
+      if (isPlaying) {
+        performStop();
       }
     }
   }
@@ -1538,6 +1531,11 @@ With escape, the app goes back to the play list.''',
     setState(() {});
   }
 
+  //  for use in popup
+  void forcePlayerSetState() {
+    setState(() {});
+  }
+
   void adjustDisplay() {
     chordFontSize = null; //  take a shot at adjusting the display of chords and lyrics
     lyricsFraction = null;
@@ -1567,6 +1565,245 @@ With escape, the app goes back to the play list.''',
     return !appOptions.isSinger && !(songUpdateService.isConnected && songUpdateService.isLeader);
   }
 
+  Future<void> settingsPopup() async {
+    await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Player settings:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+                return
+                    // SingleChildScrollView(
+                    //   child:
+                    Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    appWrapFullWidth([
+                      Text(
+                        'User style: ',
+                        style: headerTextStyle,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 30.0),
+                        child: appWrapFullWidth(<Widget>[
+                          appWrap(
+                            [
+                              Radio<UserDisplayStyle>(
+                                value: UserDisplayStyle.player,
+                                groupValue: appOptions.userDisplayStyle,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value != null) {
+                                      appOptions.userDisplayStyle = value;
+                                      forceTableRedisplay();
+                                    }
+                                  });
+                                },
+                              ),
+                              appTextButton(
+                                'Player',
+                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                onPressed: () {
+                                  setState(() {
+                                    appOptions.userDisplayStyle = UserDisplayStyle.player;
+                                    forceTableRedisplay();
+                                  });
+                                },
+                                style: headerTextStyle,
+                              ),
+                            ],
+                            spacing: 10,
+                          ),
+                          appWrap(
+                            [
+                              Radio<UserDisplayStyle>(
+                                value: UserDisplayStyle.both,
+                                groupValue: appOptions.userDisplayStyle,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value != null) {
+                                      appOptions.userDisplayStyle = value;
+                                      forceTableRedisplay();
+                                    }
+                                  });
+                                },
+                              ),
+                              appTextButton(
+                                'Both Player and Singer',
+                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                onPressed: () {
+                                  setState(() {
+                                    appOptions.userDisplayStyle = UserDisplayStyle.both;
+                                    forceTableRedisplay();
+                                  });
+                                },
+                                style: headerTextStyle,
+                              ),
+                            ],
+                            spacing: 10,
+                          ),
+                          appWrap(
+                            [
+                              Radio<UserDisplayStyle>(
+                                value: UserDisplayStyle.singer,
+                                groupValue: appOptions.userDisplayStyle,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value != null) {
+                                      appOptions.userDisplayStyle = value;
+                                      forceTableRedisplay();
+                                    }
+                                  });
+                                },
+                              ),
+                              appTextButton(
+                                'Singer',
+                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                onPressed: () {
+                                  setState(() {
+                                    appOptions.userDisplayStyle = UserDisplayStyle.singer;
+                                    forceTableRedisplay();
+                                  });
+                                },
+                                style: headerTextStyle,
+                              ),
+                            ],
+                            spacing: 10,
+                          ),
+                        ], spacing: 30),
+                      ),
+                    ], spacing: 20),
+                    appSpace(),
+                    appWrapFullWidth(
+                      [
+                        appTooltip(
+                          message: 'For a guitar, show the capo location and\n'
+                              'chords to match the current key.',
+                          child: Text(
+                            'Capo',
+                            style: headerTextStyle,
+                            softWrap: false,
+                          ),
+                        ),
+                        appSwitch(
+                          appKeyEnum: AppKeyEnum.playerCapo,
+                          onChanged: (value) {
+                            setState(() {
+                              isCapo = !isCapo;
+                              setSelectedSongKey(selectedSongKey);
+                              forceTableRedisplay();
+                            });
+                          },
+                          value: isCapo,
+                        ),
+                      ],
+                    ),
+                    appSpace(),
+                    appWrapFullWidth([
+                      appTextButton(
+                        'Repeats:',
+                        appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
+                        onPressed: () {
+                          setState(() {
+                            compressRepeats = !compressRepeats;
+                            forceTableRedisplay();
+                          });
+                        },
+                        style: headerTextStyle,
+                      ),
+                      appTooltip(
+                        message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
+                        child: appIconButton(
+                          appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                          icon: appIcon(
+                            compressRepeats ? Icons.expand : Icons.compress,
+                          ),
+                          value: compressRepeats,
+                          onPressed: () {
+                            setState(() {
+                              compressRepeats = !compressRepeats;
+                              forceTableRedisplay();
+                            });
+                          },
+                        ),
+                      ),
+                    ]),
+                    appSpace(),
+                    appWrapFullWidth(
+                      [
+                        Text(
+                          'NinJam choice:',
+                          style: headerTextStyle,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(left: 30.0),
+                          child: appWrapFullWidth(
+                            <Widget>[
+                              appRadio<bool>('No NinJam aids',
+                                  appKeyEnum: AppKeyEnum.optionsNinJam,
+                                  value: false,
+                                  groupValue: appOptions.ninJam, onPressed: () {
+                                setState(() {
+                                  appOptions.ninJam = false;
+                                  forcePlayerSetState();
+                                });
+                              }, style: headerTextStyle),
+                              appRadio<bool>('Show NinJam aids',
+                                  appKeyEnum: AppKeyEnum.optionsNinJam,
+                                  value: true,
+                                  groupValue: appOptions.ninJam, onPressed: () {
+                                setState(() {
+                                  appOptions.ninJam = true;
+                                  forcePlayerSetState();
+                                });
+                              }, style: headerTextStyle),
+                            ],
+                            spacing: 30,
+                          ),
+                        ),
+                      ], spacing:  10,
+                    ),
+                  ],
+                );
+              }),
+              actions: [
+                appSpace(),
+                appWrapFullWidth([
+                  appTooltip(
+                    message: 'Click here or outside of the popup to return to the player screen.',
+                    child: appButton('Return', appKeyEnum: AppKeyEnum.songsCancelSongAllAdds, onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
+                  ),
+                ], spacing: 20, alignment: WrapAlignment.end),
+              ],
+              actionsAlignment: MainAxisAlignment.start,
+              elevation: 24.0,
+            ));
+  }
+
+  void tempoTap() {
+    //  tap to tempo
+    final tempoTap = DateTime.now().microsecondsSinceEpoch;
+    double delta = (tempoTap - _lastTempoTap) / microsecondsPerSecond;
+    _lastTempoTap = tempoTap;
+
+    if (delta < 60 / 30 && delta > 60 / 200) {
+      int bpm = (tempoRollingAverage ??= RollingAverage()).average(60 / delta).round();
+      if (_song.beatsPerMinute != bpm) {
+        setState(() {
+          _song.beatsPerMinute = bpm;
+        });
+      }
+    } else {
+      //  delta too small or too large
+      tempoRollingAverage = null;
+    }
+  }
+
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
   bool isPlaying = false;
@@ -1579,15 +1816,17 @@ With escape, the app goes back to the play list.''',
   List<GridCoordinate> songMomentToGridList = [];
   double renderTableLeft = 0;
 
-  set compressRepeats(bool value) => _compressRepeats = value; //  local only, it's transient!
-  bool get compressRepeats => _compressRepeats ?? appOptions.compressRepeats;
-  bool? _compressRepeats;
+  set compressRepeats(bool value) => appOptions.compressRepeats = value;
+  bool get compressRepeats => appOptions.compressRepeats;
 
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
   int displayKeyOffset = 0;
 
   NinJam ninJam = NinJam.empty();
+
+  int _lastTempoTap = DateTime.now().microsecondsSinceEpoch;
+  RollingAverage? tempoRollingAverage;
 
   int capoLocation = 0;
   final List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList = [];
@@ -1613,6 +1852,7 @@ With escape, the app goes back to the play list.''',
   static const _maxFontSizeFraction = 0.035;
   static const _sectionCenterLocationFraction = 0.35;
   double boxCenter = 0;
+  var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   late AppWidgetHelper appWidgetHelper;
 

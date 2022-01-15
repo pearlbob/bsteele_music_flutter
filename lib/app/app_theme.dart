@@ -625,6 +625,7 @@ enum AppKeyEnum {
   playerBPM,
   playerCapo,
   playerCompressRepeats,
+  playerCompressRepeatsLabel,
   playerCopyNinjamChords,
   playerCopyNinjamCycle,
   playerCopyNinjamBPM,
@@ -639,8 +640,10 @@ enum AppKeyEnum {
   playerNextSong,
   playerPlay,
   playerPreviousSong,
+  playerSettings,
   playerSongBad,
   playerSongGood,
+  playerTempoTap,
   privacyBack,
   singersAddSingerToSession,
   singersAllSingers,
@@ -720,6 +723,8 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.optionsHoliday: String,
   AppKeyEnum.optionsNinJam: String,
   AppKeyEnum.playerBPM: int,
+  AppKeyEnum.playerCompressRepeats: bool,
+  AppKeyEnum.playerCompressRepeatsLabel: String,
   AppKeyEnum.playerMusicKey: music_key.Key,
   AppKeyEnum.singersAddSingerToSession: String,
   AppKeyEnum.singersAllSingers: String,
@@ -1096,8 +1101,9 @@ TextButton appIconButton({
   required AppKeyEnum appKeyEnum,
   required Widget icon,
   required VoidCallback onPressed,
+  dynamic value,
 }) {
-  var key = appKey(appKeyEnum);
+  var key = appKey(appKeyEnum, value: value);
   return TextButton.icon(
     key: key,
     icon: icon,

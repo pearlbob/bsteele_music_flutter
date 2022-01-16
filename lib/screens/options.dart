@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
@@ -233,29 +232,6 @@ class _Options extends State<Options> {
                         },
                       ),
                   ]),
-                  appSpace(space: 30),
-                  appWrapFullWidth(<Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(right: 24, bottom: 24.0),
-                      child: const Text(
-                        'Display key offset: ',
-                      ),
-                    ),
-                    DropdownButton<int>(
-                      items: _keyOffsetItems,
-                      onChanged: (_value) {
-                        if (_value != null) {
-                          setState(() {
-                            app.displayKeyOffset = _value;
-                            logger.d('key offset: $_value');
-                          });
-                        }
-                      },
-                      style: style,
-                      value: app.displayKeyOffset,
-                      itemHeight: null,
-                    ),
-                  ]),
 
                   // Row(children: <Widget>[
                   //   appWidget.checkbox(
@@ -452,38 +428,7 @@ class _Options extends State<Options> {
   //       'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
   // }
 
-  final List<DropdownMenuItem<int>> _keyOffsetItems = [
-    const DropdownMenuItem(key: ValueKey('keyOffset0'), value: 0, child: Text('normal: (no key offset)')),
-    const DropdownMenuItem(
-        key: ValueKey('keyOffset1'),
-        value: 1,
-        child: Text('+1   (-11) halfsteps = scale  ${MusicConstants.flatChar}2')),
-    const DropdownMenuItem(key: ValueKey('keyOffset2'), value: 2, child: Text('+2   (-10) halfsteps = scale   2')),
-    const DropdownMenuItem(
-        key: ValueKey('keyOffset3'),
-        value: 3,
-        child:
-            Text('+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3, E${MusicConstants.flatChar} instrument')),
-    const DropdownMenuItem(key: ValueKey('keyOffset4'), value: 4, child: Text('+4   (-8)   halfsteps = scale   3')),
-    const DropdownMenuItem(key: ValueKey('keyOffset5'), value: 5, child: Text('+5   (-7)   halfsteps = scale   4')),
-    const DropdownMenuItem(
-        key: ValueKey('keyOffset6'),
-        value: 6,
-        child: Text('+6   (-6)   halfsteps = scale  ${MusicConstants.flatChar}5')),
-    const DropdownMenuItem(
-        key: ValueKey('keyOffset7'), value: 7, child: Text('+7   (-5)   halfsteps = scale   5, baritone guitar')),
-    const DropdownMenuItem(
-        key: ValueKey('keyOffset8'),
-        value: 8,
-        child: Text('+8   (-4)   halfsteps = scale  ${MusicConstants.flatChar}6')),
-    const DropdownMenuItem(key: ValueKey('keyOffset9'), value: 9, child: Text('+9   (-3)   halfsteps = scale   6')),
-    const DropdownMenuItem(
-        key: ValueKey('keyOffset10'),
-        value: 10,
-        child:
-            Text('+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7, B${MusicConstants.flatChar} instrument')),
-    const DropdownMenuItem(key: ValueKey('keyOffset10'), value: 11, child: Text('+11 (-1)   halfsteps = scale   7')),
-  ];
+
 
   final TextEditingController _userTextEditingController = TextEditingController();
   final TextEditingController _websocketHostEditingController = TextEditingController();

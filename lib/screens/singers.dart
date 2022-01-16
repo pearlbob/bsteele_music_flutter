@@ -21,6 +21,10 @@ final _blue = Paint()..color = Colors.lightBlue.shade200;
 
 final List<String> _sessionSingers = []; //  in session order, stored locally to persist over screen reentry.
 
+/*
+CJ singers clear all,
+ single search on singer,
+ */
 /// Allow the user to manage sub-lists from all available songs.
 /// Name and value pairs are assigned to songs identified by their song id.
 /// The value portion may be empty.
@@ -293,30 +297,49 @@ class _State extends State<Singers> {
             style: singerTextStyle,
           )
         : Container(
-            child: appWrapFullWidth(
-              [
-                ReorderableWrap(
-                  children: _sessionSingers.map((e) {
-                    return Container(
-                      child: appTextButton(
-                        e,
-                        appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
-                        onPressed: () {
-                          setState(() {
-                            _selectedSinger = e;
-                          });
-                        },
-                        style: e == _selectedSinger
-                            ? singerTextStyle.copyWith(backgroundColor: _addColor)
-                            : singerTextStyle,
+            child: appWrapFullWidth([
+              ReorderableWrap(
+                  children: _sessionSingers.map((singer) {
+                    return appWrap([
+                      Container(
+                        child: appTextButton(
+                          singer,
+                          appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
+                          onPressed: () {
+                            setState(() {
+                              _selectedSinger = singer;
+                            });
+                          },
+                          style: singer == _selectedSinger
+                              ? singerTextStyle.copyWith(backgroundColor: _addColor)
+                              : singerTextStyle,
+                        ),
                       ),
-                      margin: const EdgeInsets.all(10),
-                    );
+                      if (!isInSingingMode)
+                        appInkWell(
+                          appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
+                          // value: singer,
+                          onTap: () {
+                            setState(() {
+                              _sessionSingers.remove(singer);
+                              _searchClear();
+                            });
+                          },
+                          child: appCircledIcon(
+                            Icons.remove,
+                            'Remove $singer from today\'s session.',
+                            margin: appendInsets,
+                            padding: appendPadding,
+                            color: _removeColor,
+                            size: fontSize * 0.7,
+                          ),
+                        ),
+                    ]);
                   }).toList(growable: false),
                   onReorder: _onReorder,
-                )
-              ],
-            ),
+                  padding: const EdgeInsets.all(10),
+                  spacing: 20),
+            ]),
             //   padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               border: Border.all(
@@ -576,8 +599,7 @@ class _State extends State<Singers> {
                       controller: _searchTextFieldController,
                       hintText: 'enter song search${_selectedSinger != unknownSinger ? ' for $_selectedSinger' : ''}',
                       onChanged: (text) {
-                        setState(() {
-                        });
+                        setState(() {});
                       },
                       fontSize: fontSize,
                     ),
@@ -793,17 +815,19 @@ class _State extends State<Singers> {
     //  apply search filter
     selectedSongPerformances.clear();
     filteredSongs.clear();
+    if (!_sessionSingers.contains(_selectedSinger)) {
+      return;
+    }
     if (searchTerm.isNotEmpty) {
       // select order
       //_filteredSongs = SplayTreeSet((Song song1, Song song2) => song1.compareTo(song2));
       final RegExp searchRegex = RegExp(searchTerm, caseSensitive: false);
 
       for (final SongPerformance songPerformance in allSongPerformances.toList()) {
-        if (songPerformance.song == null || !_sessionSingers.contains(_selectedSinger)) {
-          continue;
-        }
-        if (searchRegex.hasMatch(songPerformance.song!.getTitle()) ||
-            searchRegex.hasMatch(songPerformance.song!.getArtist())) {
+        if (songPerformance.song != null &&
+            songPerformance.singer == _selectedSinger &&
+            (searchRegex.hasMatch(songPerformance.song!.getTitle()) ||
+                searchRegex.hasMatch(songPerformance.song!.getArtist()))) {
           //  matches
           selectedSongPerformances.add(songPerformance);
         }

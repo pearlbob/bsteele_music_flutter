@@ -96,6 +96,46 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
       'playerUpdate(): end:   ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
 }
 
+final List<DropdownMenuItem<int>> _keyOffsetItems = [
+  DropdownMenuItem(key: appKey(AppKeyEnum.playerKeyOffset0), value: 0, child: const Text('normal: (no key offset)')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset1),
+      value: 1,
+      child: const Text('+1   (-11) halfsteps = scale  ${MusicConstants.flatChar}2')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset2), value: 2, child: const Text('+2   (-10) halfsteps = scale   2')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset3),
+      value: 3,
+      child: const Text(
+          '+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3, E${MusicConstants.flatChar} instrument')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset4), value: 4, child: const Text('+4   (-8)   halfsteps = scale   3')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset5), value: 5, child: const Text('+5   (-7)   halfsteps = scale   4')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset6),
+      value: 6,
+      child: const Text('+6   (-6)   halfsteps = scale  ${MusicConstants.flatChar}5')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset7),
+      value: 7,
+      child: const Text('+7   (-5)   halfsteps = scale   5, baritone guitar')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset8),
+      value: 8,
+      child: const Text('+8   (-4)   halfsteps = scale  ${MusicConstants.flatChar}6')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset9), value: 9, child: const Text('+9   (-3)   halfsteps = scale   6')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset10),
+      value: 10,
+      child: const Text(
+          '+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7, B${MusicConstants.flatChar} instrument')),
+  DropdownMenuItem(
+      key: appKey(AppKeyEnum.playerKeyOffset11), value: 11, child: const Text('+11 (-1)   halfsteps = scale   7')),
+];
+
 /// Display the song moments in sequential order.
 /// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
@@ -840,7 +880,7 @@ With escape, the app goes back to the play list.''',
                                 ),
                               appWrapFullWidth([
                                 if (app.fullscreenEnabled && !app.isFullScreen)
-                                  appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
+                                  appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                       onPressed: () {
                                     app.requestFullscreen();
                                   }),
@@ -1764,8 +1804,29 @@ With escape, the app goes back to the play list.''',
                             spacing: 30,
                           ),
                         ),
-                      ], spacing:  10,
+                      ],
+                      spacing: 10,
                     ),
+                    appSpace(),
+                    appWrapFullWidth(<Widget>[
+                      Text(
+                        'Display key offset: ',
+                        style: headerTextStyle,
+                      ),
+                      appDropdownButton<int>(
+                        AppKeyEnum.playerKeyOffset,
+                        _keyOffsetItems,
+                        onChanged: (_value) {
+                          if (_value != null) {
+                            setState(() {
+                              app.displayKeyOffset = _value;
+                            });
+                          }
+                        },
+                        style: headerTextStyle,
+                        value: app.displayKeyOffset,
+                      ),
+                    ]),
                   ],
                 );
               }),
@@ -1774,7 +1835,7 @@ With escape, the app goes back to the play list.''',
                 appWrapFullWidth([
                   appTooltip(
                     message: 'Click here or outside of the popup to return to the player screen.',
-                    child: appButton('Return', appKeyEnum: AppKeyEnum.songsCancelSongAllAdds, onPressed: () {
+                    child: appButton('Return', appKeyEnum: AppKeyEnum.playerReturnFromSettings, onPressed: () {
                       Navigator.of(context).pop();
                     }),
                   ),
@@ -1817,6 +1878,7 @@ With escape, the app goes back to the play list.''',
   double renderTableLeft = 0;
 
   set compressRepeats(bool value) => appOptions.compressRepeats = value;
+
   bool get compressRepeats => appOptions.compressRepeats;
 
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);

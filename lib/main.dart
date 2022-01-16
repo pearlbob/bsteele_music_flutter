@@ -152,6 +152,27 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
+1. If we normally use Player mode to play charts, there is no reason not to freeze the row of buttons at the top when not in Player mode. We can scan down the song and not have to scroll back and forth/up and down to determine where there are potential problems before performing.
+
+2. Bodhi is swinging back to wanting some of the more musically dense songs charted in 2, which makes sense for readability and therefore playability. In fact, it would be nice if he could mark this type of timing edit in a special way, since it comes up more than other issues. Is there a way to mark the 'type' of edit - as in timing change versus content change?
+
+3. I have a feeling I may need two sets of some charts, in 2 or 4, in case we need to move in the other direction as in the past. Is there a way to do this programmatically?
+
+4. Technically, I have been looking at a lot of sheet music and most of our 2-time charts are not technically in 2/2 or 2/4 (bouncy folk timing), so I suggest that the app should not specifically refer to "time signature" if we want to spread out the chords and make charts more jam-friendly.
+
+It is difficult to find an alternative that does not confuse. One article I found refers to harmonic rhythm, but that is too long a term.
+https://www.ars-nova.com/Theory%20Q&A/Q5.html
+
+I believe the most appropriate term for us to use is beats per measure, rather than time signature. Since that confuses with the common term bpm (beats per minute), perhaps we can switch our bpm to "tempo" and switch our time to "b/m"? That would give us more freedom to chart songs with our desired simple beats per measure and not be limited by the formal and occasionally inaccurate use of "time signature." With b/m, we might even add the elusive 3-5 to the list - the 3-5 beat pattern that is not actually a real time signature but keeps coming up on songs without any reference on the chart.
+
+I also try to keep tempo within the industry standards. Here is another reference for that:
+https://songbpm.com/searches/ce40775f-0d09-496b-89c1-403d48591227
+
+I need these types of guidelines so I am not forced to make arbitrary decisions while charting. I am not clear how Bodhi calculates his tempo, but sometimes it is outside of these standards, so I will need to discuss this with him.
+
+5. We cannot obtain proper "Copyright" information so I suggest we name the field properly until we can. I suggest that we use the term "Credit" instead, rather than mislead the audience about copyright.
+
+
 //  song match takin' vs taking
 //  log all song playings, summary of history
 

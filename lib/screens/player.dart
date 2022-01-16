@@ -103,16 +103,19 @@ final List<DropdownMenuItem<int>> _keyOffsetItems = [
       value: 1,
       child: const Text('+1   (-11) halfsteps = scale  ${MusicConstants.flatChar}2')),
   DropdownMenuItem(
-      key: appKey(AppKeyEnum.playerKeyOffset2), value: 2, child: const Text('+2   (-10) halfsteps = scale   2')),
+      key: appKey(AppKeyEnum.playerKeyOffset2),
+      value: 2,
+      child: const Text('+2   (-10) halfsteps = scale   2, B${MusicConstants.flatChar} instrument')),
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset3),
       value: 3,
-      child: const Text(
-          '+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3, E${MusicConstants.flatChar} instrument')),
+      child: const Text('+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3')),
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset4), value: 4, child: const Text('+4   (-8)   halfsteps = scale   3')),
   DropdownMenuItem(
-      key: appKey(AppKeyEnum.playerKeyOffset5), value: 5, child: const Text('+5   (-7)   halfsteps = scale   4')),
+      key: appKey(AppKeyEnum.playerKeyOffset5),
+      value: 5,
+      child: const Text('+5   (-7)   halfsteps = scale   4, baritone guitar')),
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset6),
       value: 6,
@@ -120,18 +123,19 @@ final List<DropdownMenuItem<int>> _keyOffsetItems = [
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset7),
       value: 7,
-      child: const Text('+7   (-5)   halfsteps = scale   5, baritone guitar')),
+      child: const Text('+7   (-5)   halfsteps = scale   5, F instrument')),
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset8),
       value: 8,
       child: const Text('+8   (-4)   halfsteps = scale  ${MusicConstants.flatChar}6')),
   DropdownMenuItem(
-      key: appKey(AppKeyEnum.playerKeyOffset9), value: 9, child: const Text('+9   (-3)   halfsteps = scale   6')),
+      key: appKey(AppKeyEnum.playerKeyOffset9),
+      value: 9,
+      child: const Text('+9   (-3)   halfsteps = scale   6, E${MusicConstants.flatChar} instrument')),
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset10),
       value: 10,
-      child: const Text(
-          '+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7, B${MusicConstants.flatChar} instrument')),
+      child: const Text('+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7')),
   DropdownMenuItem(
       key: appKey(AppKeyEnum.playerKeyOffset11), value: 11, child: const Text('+11 (-1)   halfsteps = scale   7')),
 ];
@@ -1820,6 +1824,7 @@ With escape, the app goes back to the play list.''',
                           if (_value != null) {
                             setState(() {
                               app.displayKeyOffset = _value;
+                              forcePlayerSetState();
                             });
                           }
                         },

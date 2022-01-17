@@ -25,7 +25,7 @@ set buildDate=`date`
 cd $src
 sed -e \
     "s/^ *let buildDate = '.*';/        let buildDate = '$buildDate';/; \
-    "s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
+    s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
 	s/^ *let dmgSha256sum = '.*';/        let dmgSha256sum = '$dmgSum';/; \
 	s/^ *let apkSha256sum = '.*';/        let apkSha256sum = '$apkSum';/; \
 	" \

@@ -140,6 +140,9 @@ edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?
 edit lyrics: one blank row is now two?  at section end?
 messages for file task completions or failures.
+mac native:  desktop app couldn't get I Shall Be Released to save in the key of E
+
+download.html needs the date of generation on it
 
 studio instructions for personal tablets
 //  no auto 4 measures per row

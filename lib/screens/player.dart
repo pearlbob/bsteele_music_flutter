@@ -728,7 +728,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                                 Container(
                                     padding: const EdgeInsets.all(6.0),
                                     child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
-                              //  fullscreen, hints, capo,
+                              //  hints
                               if (app.isScreenBig)
                                 Container(
                                   padding: const EdgeInsets.all(12),
@@ -864,8 +864,7 @@ With escape, the app goes back to the play list.''',
                                               },
                                             ),
                                           ),
-                                        appSpace(space: 35),
-                                        appSpace(space: 35),
+                                        appSpace(horizontalSpace: 70),
                                         appTooltip(
                                           message: 'Player settings',
                                           child: appIconButton(

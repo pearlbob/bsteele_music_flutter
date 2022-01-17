@@ -41,6 +41,7 @@ if ( $status != 0 ) exit -1
 #	copy local deployment to the web server
 bsteele_auth
 gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localDst/ $dst 	#	source needs the /
+gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $dst
 gsutil -m -q acl -r ch -u AllUsers:R $dst
 
 ~/github/allSongs.songlyrics/bin/lyrics_update

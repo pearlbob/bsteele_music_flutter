@@ -4,15 +4,19 @@
     <meta charset="UTF-8">
     <title>Download bsteeleMusicApp</title>
     <script>
+        let buildDate = 'unknown';
         let warSha256sum = 'unknown';
         let dmgSha256sum = 'unknown';
         let apkSha256sum = 'unknown';
 
         function onLoad() {
+            document.getElementById("buildDate").innerHTML = buildDate;
             document.getElementById("warSha256sum").innerHTML = warSha256sum;
             document.getElementById("dmgSha256sum").innerHTML = dmgSha256sum;
             document.getElementById("apkSha256sum").innerHTML = apkSha256sum;
         }
+
+
 
     </script>
 </head>
@@ -27,31 +31,33 @@
             bsteeleMusicApp.war</a>. After downloading, verify the sha256sum as:</p>
         <span id="warSha256sum"> </span>
         <p>
-        The war file contents can also be extracted to a webserver (typically Apache)
-        and served as static webpages without the leader/follower function.
-        </p>
-    </li>
-    <li><p>Android apk: <a href="./bsteeleMusicApp.apk" download>
-        bsteeleMusicApp.apk</a>. The sha256sum as:
-		</p>
-        <span id="apkSha256sum"> </span>.
-		<p>
-		Android will not willingly download and install apps from the web.  Please research this and
-		understand your security exposure.  I suggest you start with
-		<a href="https://www.androidauthority.com/how-to-install-apks-31494/">androidauthority.com<a>.
+            The war file contents can also be extracted to a webserver (typically Apache)
+            and served as static webpages without the leader/follower function.
         </p>
     </li>
     <li><p>Macos x86 dmg: <a href="./bsteeleMusicApp.dmg" download>
         bsteeleMusicApp.dmg</a>. After downloading, verify the sha256sum as:
-		</p>
+    </p>
         <span id="dmgSha256sum"> </span>.
-		<p>
-        The Macos will not be happy about running an app downloaded from the web but you can
-        force it with: Apple icon, System Preferences, Security & Privacy, Allow apps downloaded
-        from:, select the app to enable it.
+        <p>
+            The Macos will not be happy about running an app downloaded from the web but you can
+            force it with: Apple icon, System Preferences, Security & Privacy, Allow apps downloaded
+            from:, select the app to enable it.
+        </p>
+    </li>
+    <li>
+        <p>Android apk: <a href="./bsteeleMusicApp.apk" download>
+            bsteeleMusicApp.apk</a>. The sha256sum as:
+        </p>
+        <span id="apkSha256sum"> </span>.
+        <p>
+            Android will not willingly download and install apps from the web. Please research this
+            and understand your security exposure. I suggest you start with
+            <a href="https://www.androidauthority.com/how-to-install-apks-31494/">androidauthority.com</a>.
         </p>
     </li>
 </ul>
+<p>Build date: <span id="buildDate"> </span></p>
 <p>Please check back here for updates.</p>
 </body>
 </html>

@@ -214,11 +214,11 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
   return generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
 }
 
-Widget appSpace({double? space}) {
+Widget appSpace({double? space, double? horizontalSpace, double? verticalSpace}) {
   if (space == null) {
-    return const SizedBox(
-      height: 10,
-      width: 10,
+    return SizedBox(
+      height: verticalSpace ?? 10,
+      width: horizontalSpace ?? 10,
     );
   }
   space = max(space, 0);

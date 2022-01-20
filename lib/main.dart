@@ -88,6 +88,7 @@ import 'package:bsteele_music_flutter/screens/singers.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:bsteele_music_flutter/util/songSearchMatcher.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -142,7 +143,11 @@ edit lyrics: one blank row is now two?  at section end?
 messages for file task completions or failures.
 mac native:  desktop app couldn't get I Shall Be Released to save in the key of E
 
+For me, key change creates a duplicate chart. And then looks like it keeps key change UNTIL you get rid of old version. Very weird.
+map accented characters to lower case without accent: "Exposé" should match "expose"
+
 download.html needs the date of generation on it
+research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released".
 
 studio instructions for personal tablets
 //  no auto 4 measures per row
@@ -151,6 +156,7 @@ css for repeat markers
 ______blank edit page from options page
 ______song enter confirmation after edit page
 ______repeat expand/compress on player page, non persistent
+player: in pause, reposition play with up/down arrows, continue from new location with space
 lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
@@ -1265,13 +1271,6 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
 
   void _searchSongs(String? search) {
-    search ??= '';
-    search = search.trim();
-
-    search = search.replaceAll("[^\\w\\s']+", '');
-
-    final RegExp searchRegex = RegExp(search, caseSensitive: false);
-
     //  apply complexity filter
 //    TreeSet<Song> allSongsFiltered = allSongs;
 //    if (complexityFilter != ComplexityFilter.all) {
@@ -1339,12 +1338,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //  apply search filter
     _filteredSongs = SplayTreeSet(compare);
     _filteredSongsNotInSelectedList = SplayTreeSet(compare);
+    var matcher = SongSearchMatcher(search);
     for (final Song song in app.allSongs) {
-      if (searchRegex.hasMatch(song.getTitle())
-          || searchRegex.hasMatch(song.getArtist())
-          || searchRegex.hasMatch(song.coverArtist)
-          || searchRegex.hasMatch(song.songId.toUnderScorelessString()) //  removes contractions
-      ) {
+      if (matcher.matches(song)) {
         //  if holiday and song is holiday, we're good
         if (appOptions.holiday) {
           if (isHoliday(song)) {
@@ -1377,7 +1373,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     //  on new search, start the list at the first location
-    if (search.isNotEmpty) {
+    if (matcher.isNotEmpty) {
       _rollIndex = 0;
       if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
         _itemScrollController.jumpTo(index: _rollIndex);

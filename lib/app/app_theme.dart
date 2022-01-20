@@ -647,6 +647,7 @@ enum AppKeyEnum {
   playerSettings,
   playerSongBad,
   playerSongGood,
+  playerSpeed, //  debug only
   playerTempoTap,
   privacyBack,
   singersAddSingerToSession,
@@ -668,7 +669,8 @@ enum AppKeyEnum {
   singersRemoveThisSingerFromSession,
   singersShowOtherActions,
   singersSearchText,
-  singersSearchRequestedText,
+  singersSearchSingle,
+  singersSearchSingleSwitch,
   singersSessionSingerSelect,
   singersSingerClearSearch,
   singersSingerSearchText,
@@ -733,10 +735,9 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.playerMusicKey: music_key.Key,
   AppKeyEnum.singersAddSingerToSession: String,
   AppKeyEnum.singersAllSingers: String,
+  AppKeyEnum.singersSearchSingle: bool,
   AppKeyEnum.singersSessionSingerSelect: String,
   AppKeyEnum.singersSingingTextButton: String,
-
-  // AppKeyEnum.singersShowFileActions: String,
 };
 
 class Id {

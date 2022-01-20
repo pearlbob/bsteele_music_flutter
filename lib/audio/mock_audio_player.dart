@@ -1,9 +1,9 @@
 import 'app_audio_player.dart';
 
-class MobileAudioPlayer implements AppAudioPlayer {
+class MockAudioPlayer implements AppAudioPlayer {
   @override
   double getCurrentTime() {
-    return 0;
+    return DateTime.now().microsecondsSinceEpoch / Duration.microsecondsPerSecond;
   }
 
   @override
@@ -27,4 +27,4 @@ class MobileAudioPlayer implements AppAudioPlayer {
   }
 }
 
-AppAudioPlayer getAudioPlayer() => MobileAudioPlayer();
+AppAudioPlayer getAudioPlayer() => MockAudioPlayer();

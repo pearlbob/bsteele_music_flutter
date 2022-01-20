@@ -14,13 +14,14 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
-import 'package:bsteele_music_flutter/SongMaster.dart';
+import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -47,8 +48,6 @@ bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 _Player? _player;
-
-const int microsecondsPerSecond = 1000 * 1000;
 
 final GlobalKey _stackKey = GlobalKey();
 
@@ -164,7 +163,10 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     scrollController.addListener(_scrollControllerListener);
 
     //  show the update service status
-    songUpdateService.addListener(_songUpdateServiceListener);
+    songUpdateService.addListener(songUpdateServiceListener);
+
+    //  show song master play updates
+    songMaster.addListener(songMasterListener);
   }
 
   @override
@@ -234,7 +236,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     _playerIsOnTop = false;
     _songUpdate = null;
     scrollController.removeListener(_scrollControllerListener);
-    songUpdateService.removeListener(_songUpdateServiceListener);
+    songUpdateService.removeListener(songUpdateServiceListener);
+    songMaster.removeListener(songMasterListener);
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
@@ -287,9 +290,21 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   //  update the song update service status
-  void _songUpdateServiceListener() {
-    logger.log(_playerLogLeaderFollower, '_songUpdateServiceListener():');
+  void songUpdateServiceListener() {
+    logger.log(_playerLogLeaderFollower, 'songUpdateServiceListener():');
     setState(() {});
+  }
+
+  void songMasterListener() {
+    if (songMaster.momentNumber != null) {
+      _selectedSongMoment = _song.getSongMoment(songMaster.momentNumber!);
+      setTargetYToSongMoment(_selectedSongMoment);
+      leaderSongUpdate(songMaster.momentNumber!);
+    }
+    //logger.i('songMaster event:  $_selectedSongMoment');
+    setState(() {
+      isPlaying = songMaster.isPlaying;
+    });
   }
 
   void positionAfterBuild() {
@@ -707,15 +722,16 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                           ),
                         ], crossAxisAlignment: WrapCrossAlignment.center),
                       ]),
-                    CustomPaint(
-                      painter: _ChordHighlightPainter(),
-                      isComplex: true,
-                      willChange: false,
-                      child: SizedBox(
-                        width: app.screenInfo.mediaWidth,
-                        height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
+                    if (isPlaying)
+                      CustomPaint(
+                        painter: _ChordHighlightPainter(), //  fixme: optimize with builder
+                        isComplex: true,
+                        willChange: false,
+                        child: SizedBox(
+                          width: app.screenInfo.mediaWidth,
+                          height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
+                        ),
                       ),
-                    ),
                     Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -887,25 +903,27 @@ With escape, the app goes back to the play list.''',
                                       onPressed: () {
                                     app.requestFullscreen();
                                   }),
-                                Container(
-                                  padding: const EdgeInsets.only(left: 8, right: 8),
-                                  child: appTooltip(
-                                    message: app.isPhone
-                                        ? ''
-                                        : 'Tip: Use the space bar to start playing.\n'
-                                            'Use the space bar to advance the section while playing.',
-                                    child: appIconButton(
-                                      appKeyEnum: AppKeyEnum.playerPlay,
-                                      icon: appIcon(
-                                        playStopIcon,
-                                        size: 1.5 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                if (!songUpdateService.isFollowing)
+                                  Container(
+                                    padding: const EdgeInsets.only(left: 8, right: 8),
+                                    child: appTooltip(
+                                      message: app.isPhone
+                                          ? ''
+                                          : 'Tip: Use the space bar to start playing.\n'
+                                              'Use the space bar to advance the section while playing.',
+                                      child: appIconButton(
+                                        appKeyEnum: AppKeyEnum.playerPlay,
+                                        icon: appIcon(
+                                          playStopIcon,
+                                          size: 1.5 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                        ),
+                                        onPressed: () {
+                                          isPlaying ? performStop() : performPlay();
+                                        },
                                       ),
-                                      onPressed: () {
-                                        isPlaying ? performStop() : performPlay();
-                                      },
+                                      active: !isPlaying,
                                     ),
                                   ),
-                                ),
                                 appWrap(
                                   [
                                     appTooltip(
@@ -1037,7 +1055,18 @@ With escape, the app goes back to the play list.''',
                                           // ),
                                         ],
                                         alignment: WrapAlignment.spaceBetween,
-                                      )
+                                      ),
+                                      if (kDebugMode) appSpace(),
+                                      if (kDebugMode)
+                                        appButton(
+                                          'speed',
+                                          appKeyEnum: AppKeyEnum.playerSpeed,
+                                          onPressed: () {
+                                            setState(() {
+                                              _song.setBeatsPerMinute(MusicConstants.maxBpm);
+                                            });
+                                          },
+                                        ),
                                     ],
                                     alignment: WrapAlignment.spaceBetween,
                                   ),
@@ -1268,18 +1297,16 @@ With escape, the app goes back to the play list.''',
         tempoTap();
       } else {
         if (!isPlaying) {
-          performPlay();
-        } else {
           sectionBump(1);
+        } else {
+          pauseToggle();
         }
       }
-    } else if (isPlaying &&
-        !isPaused &&
+    } else if ((!isPlaying || isPaused) &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
       logger.d('arrowDown');
       sectionBump(1);
-    } else if (isPlaying &&
-        !isPaused &&
+    } else if ((!isPlaying || isPaused) &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
       logger.log(_playerLogKeyboard, 'arrowUp');
       sectionBump(-1);
@@ -1337,7 +1364,7 @@ With escape, the app goes back to the play list.''',
     if (_songMomentChordRectangles.isNotEmpty) {
       setSelectedSongMoment(songMoment);
       var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
-      selectedTargetY = y;
+      scrollToTargetY(y);
     }
   }
 
@@ -1853,7 +1880,7 @@ With escape, the app goes back to the play list.''',
   void tempoTap() {
     //  tap to tempo
     final tempoTap = DateTime.now().microsecondsSinceEpoch;
-    double delta = (tempoTap - _lastTempoTap) / microsecondsPerSecond;
+    double delta = (tempoTap - _lastTempoTap) / Duration.microsecondsPerSecond;
     _lastTempoTap = tempoTap;
 
     if (delta < 60 / 30 && delta > 60 / 200) {
@@ -1929,17 +1956,17 @@ With escape, the app goes back to the play list.''',
 class _ChordHighlightPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // const overlap = 3;
-    //
-    // //  clear the layer
-    // canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
-    //
-    // if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
-    //   final rect = _songMomentChordRectangles[_selectedSongMoment!.momentNumber];
-    //   canvas.drawRect(
-    //       Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
-    //       highlightColor);
-    // }
+    const overlap = 3;
+
+    //  clear the layer
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
+
+    if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
+      final rect = _songMomentChordRectangles[_selectedSongMoment!.momentNumber];
+      canvas.drawRect(
+          Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
+          highlightColor);
+    }
 
     logger.v('_ChordHighlightPainter.paint: $size');
   }
@@ -1949,5 +1976,5 @@ class _ChordHighlightPainter extends CustomPainter {
     return true; //  fixme optimize?
   }
 
-// static final highlightColor = Paint()..color = Colors.red;
+  static final highlightColor = Paint()..color = Colors.red;
 }

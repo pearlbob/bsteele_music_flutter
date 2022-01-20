@@ -4,6 +4,7 @@ library js_audio_file_player;
 import 'package:js/js.dart';
 
 @JS('AudioFilePlayer')
+/// JavaScript audio file player dart interface for web/js/AudioFilePlayer.js
 class JsAudioFilePlayer {
   external factory JsAudioFilePlayer();
 

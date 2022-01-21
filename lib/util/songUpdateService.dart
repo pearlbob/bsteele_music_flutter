@@ -140,7 +140,7 @@ class SongUpdateService extends ChangeNotifier {
         authority = '';
       }
     }
-    logger.log(_log, 'authority: $authority');
+    logger.log(_log, 'authority: \'$authority\'');
     return authority;
   }
 

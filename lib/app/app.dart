@@ -280,7 +280,7 @@ appRadio<T>(
   required AppKeyEnum appKeyEnum,
   required T value,
   required T groupValue,
-  required VoidCallback onPressed,
+  required VoidCallback? onPressed,
   TextStyle? style,
 }) {
   return appWrap(
@@ -289,12 +289,11 @@ appRadio<T>(
         value: value,
         groupValue: groupValue,
         onChanged: (value) {
-          onPressed();
+          onPressed?.call();
         },
       ),
       appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style),
     ],
-    spacing: 10,
   );
 }
 
@@ -337,12 +336,16 @@ class AppWidgetHelper {
   }
 
   AppBar backBar(
-      {final AppKeyEnum? appKeyEnum, final Widget? titleWidget, final String? title, final List<Widget>? actions}) {
+      {final AppKeyEnum? appKeyEnum,
+      final Widget? titleWidget,
+      final String? title,
+      final List<Widget>? actions,
+      final VoidCallback? onPressed}) {
     return appBar(
         appKeyEnum: appKeyEnum ?? AppKeyEnum.appBarBack,
         title: title,
         titleWidget: titleWidget,
-        leading: back(),
+        leading: back(onPressed: onPressed),
         actions: actions);
   }
 

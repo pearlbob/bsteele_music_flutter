@@ -629,43 +629,46 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: appWidgetHelper.backBar(
-        titleWidget: appTooltip(
-          message: 'Click to hear the song on youtube.com',
-          child: InkWell(
-            onTap: () {
-              openLink(titleAnchor());
-            },
-            child: Text(
-              _song.titleWithCover,
-              style: appBarTextStyle,
-            ),
-            hoverColor: hoverColor,
-          ),
-        ),
-        actions: <Widget>[
-          appTooltip(
-            message: 'Click to hear the artist on youtube.com',
+          titleWidget: appTooltip(
+            message: 'Click to hear the song on youtube.com',
             child: InkWell(
               onTap: () {
-                openLink(artistAnchor());
+                openLink(titleAnchor());
               },
               child: Text(
-                ' by  ${_song.artist}',
+                _song.titleWithCover,
                 style: appBarTextStyle,
-                softWrap: false,
               ),
               hoverColor: hoverColor,
             ),
           ),
-          if (isPlaying && isCapo)
-            Text(
-              ',  Capo ${capoLocation == 0 ? 'not needed' : 'on $capoLocation'}',
-              style: appBarTextStyle,
-              softWrap: false,
+          actions: <Widget>[
+            appTooltip(
+              message: 'Click to hear the artist on youtube.com',
+              child: InkWell(
+                onTap: () {
+                  openLink(artistAnchor());
+                },
+                child: Text(
+                  ' by  ${_song.artist}',
+                  style: appBarTextStyle,
+                  softWrap: false,
+                ),
+                hoverColor: hoverColor,
+              ),
             ),
-          appSpace(),
-        ],
-      ),
+            if (isPlaying && isCapo)
+              Text(
+                ',  Capo ${capoLocation == 0 ? 'not needed' : 'on $capoLocation'}',
+                style: appBarTextStyle,
+                softWrap: false,
+              ),
+            appSpace(),
+          ],
+          onPressed: () {
+            songMaster.removeListener(songMasterListener); //  avoid race condition with the listener notification
+            songMaster.stop();
+          }),
       body: RawKeyboardListener(
         focusNode: rawKeyboardListenerFocusNode,
         onKey: playerOnKey,
@@ -862,6 +865,7 @@ With escape, the app goes back to the play list.''',
                                             onPressed: () {
                                               SongMetadata.addSong(_song, myBadSongNameValue);
                                               appOptions.storeSongMetadata();
+                                              songMaster.stop();
                                               Navigator.pop(context); //  return to main list
                                             },
                                           ),
@@ -926,59 +930,71 @@ With escape, the app goes back to the play list.''',
                                   ),
                                 appWrap(
                                   [
-                                    appTooltip(
-                                      message: 'Transcribe the song to the selected key.',
-                                      child: Text(
-                                        'Key: ',
+                                    if (!songUpdateService.isFollowing)
+                                      appWrap(
+                                        [
+                                          appTooltip(
+                                            message: 'Transcribe the song to the selected key.',
+                                            child: Text(
+                                              'Key: ',
+                                              style: headerTextStyle,
+                                              softWrap: false,
+                                            ),
+                                          ),
+                                          DropdownButton<music_key.Key>(
+                                            items: keyDropDownMenuList,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                if (value != null) {
+                                                  setSelectedSongKey(value);
+                                                }
+                                              });
+                                            },
+                                            value: selectedSongKey,
+                                            style: headerTextStyle,
+                                            iconSize: lookupIconSize(),
+                                            itemHeight: null,
+                                          ),
+                                          if (app.isScreenBig) appSpace(),
+                                          if (app.isScreenBig)
+                                            appTooltip(
+                                              message: 'Move the key one half step up.',
+                                              child: appIconButton(
+                                                appKeyEnum: AppKeyEnum.playerKeyUp,
+                                                icon: appIcon(
+                                                  Icons.arrow_upward,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    setSelectedSongKey(selectedSongKey.nextKeyByHalfStep());
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          if (app.isScreenBig) appSpace(space: 5),
+                                          if (app.isScreenBig)
+                                            appTooltip(
+                                              message: 'Move the key one half step down.',
+                                              child: appIconButton(
+                                                appKeyEnum: AppKeyEnum.playerKeyDown,
+                                                icon: appIcon(
+                                                  Icons.arrow_downward,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    setSelectedSongKey(selectedSongKey.previousKeyByHalfStep());
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                        ],
+                                        alignment: WrapAlignment.spaceBetween,
+                                      ),
+                                    if (songUpdateService.isFollowing)
+                                      Text(
+                                        'Key: $selectedSongKey',
                                         style: headerTextStyle,
                                         softWrap: false,
-                                      ),
-                                    ),
-                                    DropdownButton<music_key.Key>(
-                                      items: keyDropDownMenuList,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          if (value != null) {
-                                            setSelectedSongKey(value);
-                                          }
-                                        });
-                                      },
-                                      value: selectedSongKey,
-                                      style: headerTextStyle,
-                                      iconSize: lookupIconSize(),
-                                      itemHeight: null,
-                                    ),
-                                    if (app.isScreenBig) appSpace(),
-                                    if (app.isScreenBig)
-                                      appTooltip(
-                                        message: 'Move the key one half step up.',
-                                        child: appIconButton(
-                                          appKeyEnum: AppKeyEnum.playerKeyUp,
-                                          icon: appIcon(
-                                            Icons.arrow_upward,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              setSelectedSongKey(selectedSongKey.nextKeyByHalfStep());
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    if (app.isScreenBig) appSpace(space: 5),
-                                    if (app.isScreenBig)
-                                      appTooltip(
-                                        message: 'Move the key one half step down.',
-                                        child: appIconButton(
-                                          appKeyEnum: AppKeyEnum.playerKeyDown,
-                                          icon: appIcon(
-                                            Icons.arrow_downward,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              setSelectedSongKey(selectedSongKey.previousKeyByHalfStep());
-                                            });
-                                          },
-                                        ),
                                       ),
                                     appSpace(),
                                     if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
@@ -993,7 +1009,7 @@ With escape, the app goes back to the play list.''',
                                   ],
                                   alignment: WrapAlignment.spaceBetween,
                                 ),
-                                if (app.isScreenBig)
+                                if (app.isScreenBig && !songUpdateService.isFollowing)
                                   appWrap(
                                     [
                                       appTooltip(
@@ -1069,6 +1085,11 @@ With escape, the app goes back to the play list.''',
                                         ),
                                     ],
                                     alignment: WrapAlignment.spaceBetween,
+                                  ),
+                                if (app.isScreenBig && songUpdateService.isFollowing)
+                                  Text(
+                                    'BPM: ${_song.beatsPerMinute}',
+                                    style: headerTextStyle,
                                   ),
                                 appTooltip(
                                   message: 'time signature',
@@ -1244,6 +1265,7 @@ With escape, the app goes back to the play list.''',
               : appFloatingActionButton(
                   appKeyEnum: AppKeyEnum.playerBack,
                   onPressed: () {
+                    songMaster.stop();
                     Navigator.pop(context);
                   },
                   child: appTooltip(
@@ -1315,6 +1337,7 @@ With escape, the app goes back to the play list.''',
         performStop();
       } else {
         logger.log(_playerLogKeyboard, 'player: pop the navigator');
+        songMaster.stop();
         Navigator.pop(context);
       }
     } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
@@ -1476,7 +1499,9 @@ With escape, the app goes back to the play list.''',
       sectionBump(0);
       leaderSongUpdate(0);
       logger.log(_playerLogMode, 'play:');
-      songMaster.playSong(widget._song);
+      if (!songUpdateService.isFollowing) {
+        songMaster.playSong(widget._song);
+      }
     });
   }
 

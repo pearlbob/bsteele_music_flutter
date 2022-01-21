@@ -74,6 +74,7 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/cssDemo.dart';
@@ -550,6 +551,17 @@ class _MyHomePageState extends State<MyHomePage> {
         logger.i("internal song metadata parse error: " + fe.toString());
       }
     }
+    {
+      String dataAsString = await loadString('lib/assets/allSongPerformances.songperformances');
+
+      try {
+        AllSongPerformances().fromJsonString(dataAsString);
+        logger.i("internal song performances used");
+        setState(() {});
+      } catch (fe) {
+        logger.i("internal song performance parse error: " + fe.toString());
+      }
+    }
   }
 
   void _readExternalSongList() async {
@@ -600,6 +612,27 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {});
       } catch (fe) {
         logger.i("external song metadata parse error: " + fe.toString());
+      }
+    }
+
+    {
+      const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongPerformances.songperformances';
+
+      String dataAsString;
+      try {
+        dataAsString = await fetchString(url);
+      } catch (e) {
+        logger.i("read of url: '$url' failed: ${e.toString()}");
+        _readInternalSongList();
+        return;
+      }
+
+      try {
+        AllSongPerformances().fromJsonString(dataAsString);
+        logger.i("external song performances read from: " + url);
+        setState(() {});
+      } catch (fe) {
+        logger.i("external song performance parse error: " + fe.toString());
       }
     }
   }

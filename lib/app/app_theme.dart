@@ -1086,7 +1086,7 @@ ElevatedButton appButton(
 TextButton appTextButton(
   String text, {
   required AppKeyEnum appKeyEnum,
-  required VoidCallback onPressed,
+  required VoidCallback? onPressed,
   TextStyle? style,
 }) {
   var key = appKey(appKeyEnum, value: text);
@@ -1098,7 +1098,7 @@ TextButton appTextButton(
     ),
     onPressed: () {
       appLogKeyCallback(key);
-      onPressed();
+      onPressed?.call();
     },
   );
 }

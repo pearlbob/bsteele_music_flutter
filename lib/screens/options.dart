@@ -1,7 +1,13 @@
 import 'dart:async';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/bass.dart';
+import 'package:bsteeleMusicLib/songs/chord.dart';
+import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
+import 'package:bsteeleMusicLib/songs/pitch.dart';
+import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -197,7 +203,7 @@ class _Options extends State<Options> {
                     if (kDebugMode) appSpace(),
                     if (kDebugMode)
                       appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
-                        _appOptions.websocketHost = 'bob64.local';//'bobspi.local';
+                        _appOptions.websocketHost = 'bob64.local'; //'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
                   ]),
@@ -246,63 +252,67 @@ class _Options extends State<Options> {
                   //     'debug: ',
                   //   ),
                   // ]),
-                  //  //  fixme: audio!
-                  // Row(children: <Widget>[
-                  //   appWidget.checkbox(
-                  //     value: _appOptions.playWithChords,
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         _appOptions.playWithChords = value ?? false;
-                  //       });
-                  //     },
-                  //   ),
-                  //   Text(
-                  //     'Playback with chords',
-                  //     style: AppTextStyle(fontSize: fontSize),
-                  //   ),
-                  // ]),
-                  // Row(children: <Widget>[
-                  //   appWidget.checkbox(
-                  //     value: _appOptions.playWithBass,
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         _appOptions.playWithBass = value ?? true;
-                  //       });
-                  //     },
-                  //   ),
-                  //   Text(
-                  //     'Playback with bass',
-                  //     style: AppTextStyle(fontSize: fontSize),
-                  //   ),
-                  // ]),
-                  // Row(children: <Widget>[
-                  //   Text(
-                  //     'audio test: ',
-                  //     style: AppTextStyle(fontSize: fontSize),
-                  //   ),
-                  //   InkWell(
-                  //     onTap: () {
-                  //       setState(() {
-                  //         _stop();
-                  //       });
-                  //     },
-                  //     child: Icon(
-                  //       Icons.stop,
-                  //       size: fontSize * 2,
-                  //     ),
-                  //   ),
-                  //   InkWell(
-                  //     onTap: () {
-                  //       setState(() {
-                  //         _audioTest();
-                  //       });
-                  //     },
-                  //     child: Icon(
-                  //       Icons.play_arrow,
-                  //       size: fontSize * 2,
-                  //     ),
-                  //   ),
-                  // ]),
+                  //  fixme: audio!
+                  if (kDebugMode) appSpace(verticalSpace: 30),
+                  if (kDebugMode)
+                    Row(children: <Widget>[
+                      appWidgetHelper.checkbox(
+                        value: _appOptions.playWithChords,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.playWithChords = value ?? false;
+                          });
+                        },
+                      ),
+                      Text(
+                        'Playback with chords',
+                        //    style: AppTextStyle(fontSize: fontSize),
+                      ),
+                    ]),
+                  if (kDebugMode)
+                    Row(children: <Widget>[
+                      appWidgetHelper.checkbox(
+                        value: _appOptions.playWithBass,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.playWithBass = value ?? true;
+                          });
+                        },
+                      ),
+                      const Text(
+                        'Playback with bass',
+                        //   style: AppTextStyle(fontSize: fontSize),
+                      ),
+                    ]),
+                  if (kDebugMode)
+                    Row(children: <Widget>[
+                      const Text(
+                        'audio test: ',
+                        //   style: AppTextStyle(fontSize: fontSize),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            _stop();
+                          });
+                        },
+                        child: const Icon(
+                          Icons.stop,
+                          //       size: fontSize * 2,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            _audioTest();
+                          });
+                        },
+                        child: const Icon(
+                          Icons.play_arrow,
+                          //       size: fontSize * 2,
+                        ),
+                      ),
+                    ]),
                 ]),
           ),
         ),
@@ -319,136 +329,134 @@ class _Options extends State<Options> {
     super.dispose();
   }
 
-  // void _stop() {
-  //   _timer?.cancel();
-  //   _timer = null;
-  //   //_audioPlayer.stop();
-  // }
+  void _stop() {
+    _timer?.cancel();
+    _timer = null;
+    //_audioPlayer.stop();
+  }
 
-  // void _audioTest() async {
-  //   _timer?.cancel();
-  //
-  //   _test = 0;
-  //   const int bpm = 50;
-  //   const double timerPeriod = 60 / bpm;
-  //
-  //   const int microsecondsPerSecond = 1000000;
-  //   int periodMs = (microsecondsPerSecond * timerPeriod).round();
-  //   logger.d('periodMs: ${periodMs.toString()}');
-  //   logger.d('timerPeriod: ${timerPeriod.toString()}');
-  //   _timerT = _audioPlayer.getCurrentTime() + 2;
-  //   _testType = 'bass';
-  //   const double gap = 0.25;
-  //   _timer = Timer.periodic(Duration(microseconds: periodMs), (timer) {
-  //     try {
-  //       logger.d('_audioTest() ${_testNumber.toString()}.${_test.toString()}');
-  //       switch (_testNumber) {
-  //         case 0:
-  //           switch (_testType) {
-  //             case 'bass':
-  //               if (_test > 39) {
-  //                 _testType = 'guitar';
-  //                 _test = 0;
-  //               }
-  //               break;
-  //             case 'guitar':
-  //               if (_test > 30) {
-  //                 _timer?.cancel();
-  //                 _timer = null;
-  //               }
-  //               break;
-  //           }
-  //
-  //           _audioPlayer.play('audio/${_testType}_$_test.mp3', _timerT, timerPeriod - gap, 1.0);
-  //           _test++;
-  //           break;
-  //         case 1:
-  //           if (_test > 20) {
-  //             _timer?.cancel();
-  //             _timer = null;
-  //           }
-  //
-  //           //  guitar and bass
-  //           _audioPlayer.play('audio/bass_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-  //           _audioPlayer.play('audio/guitar_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-  //           _audioPlayer.play(
-  //               'audio/guitar_${_test + 4 /*half steps to major 3rd*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-  //           _audioPlayer.play(
-  //               'audio/guitar_${_test + 7 /*half steps to 5th*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-  //
-  //           _test++;
-  //           break;
-  //         case 2:
-  //           if (_test >= _pitches.length) {
-  //             _timer?.cancel();
-  //             _timer = null;
-  //           }
-  //
-  //           _audioPlayer.oscillate(_pitches[_test].frequency, _timerT, timerPeriod - gap, 1.0);
-  //           _test++;
-  //           break;
-  //         case 3:
-  //           if (_test < 12) _test = 3 * 12;
-  //           if (_test >= _pitches.length - 3 * 12) {
-  //             _timer?.cancel();
-  //             _timer = null;
-  //           }
-  //
-  //           ChordDescriptor chordDescriptor = ChordDescriptor.minor;
-  //           Pitch refPitch = _pitches[_test];
-  //
-  //           //  guitar and bass
-  //           _audioPlayer.play(
-  //               'audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
-  //
-  //           //  piano chord
-  //           Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
-  //           List<Pitch> pitches = chord.getPitches(_atOrAbove);
-  //           double duration = timerPeriod - gap;
-  //           double amp = 1.0 / (pitches.length + 2);
-  //           for (final Pitch pitch in pitches) {
-  //             _playPianoPitch(pitch, duration, amp);
-  //           }
-  //           Pitch octaveLower = pitches[0].octaveLower();
-  //           _playPianoPitch(octaveLower, duration, amp);
-  //           _playPianoPitch(octaveLower.octaveLower(), duration, amp);
-  //
-  //           _test++;
-  //           break;
-  //       }
-  //       _timerT += periodMs / microsecondsPerSecond;
-  //     } catch (e) {
-  //       logger.d('_audioTest() error: ${e.toString()}');
-  //     }
-  //   });
-  // }
-  //
-  // void _playPianoPitch(Pitch pitch, double duration, double amp) {
-  //   _audioPlayer.play(
-  //       'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
-  // }
+  void _audioTest() async {
+    _timer?.cancel();
 
+    _test = 0;
+    const int bpm = 50;
+    const double timerPeriod = 60 / bpm;
 
+    const int microsecondsPerSecond = 1000000;
+    int periodMs = (microsecondsPerSecond * timerPeriod).round();
+    logger.d('periodMs: ${periodMs.toString()}');
+    logger.d('timerPeriod: ${timerPeriod.toString()}');
+    _timerT = _audioPlayer.getCurrentTime() + 2;
+    _testType = 'bass';
+    const double gap = 0.25;
+    _timer = Timer.periodic(Duration(microseconds: periodMs), (timer) {
+      try {
+        logger.d('_audioTest() ${_testNumber.toString()}.${_test.toString()}');
+        switch (_testNumber) {
+          case 0:
+            switch (_testType) {
+              case 'bass':
+                if (_test > 39) {
+                  _testType = 'guitar';
+                  _test = 0;
+                }
+                break;
+              case 'guitar':
+                if (_test > 30) {
+                  _timer?.cancel();
+                  _timer = null;
+                }
+                break;
+            }
+
+            _audioPlayer.play('audio/${_testType}_$_test.mp3', _timerT, timerPeriod - gap, 1.0);
+            _test++;
+            break;
+          case 1:
+            if (_test > 20) {
+              _timer?.cancel();
+              _timer = null;
+            }
+
+            //  guitar and bass
+            _audioPlayer.play('audio/bass_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play('audio/guitar_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play(
+                'audio/guitar_${_test + 4 /*half steps to major 3rd*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play(
+                'audio/guitar_${_test + 7 /*half steps to 5th*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+
+            _test++;
+            break;
+          case 2:
+            if (_test >= _pitches.length) {
+              _timer?.cancel();
+              _timer = null;
+            }
+
+            _audioPlayer.oscillate(_pitches[_test].frequency, _timerT, timerPeriod - gap, 1.0);
+            _test++;
+            break;
+          case 3:
+            if (_test < 12) _test = 3 * 12;
+            if (_test >= _pitches.length - 3 * 12) {
+              _timer?.cancel();
+              _timer = null;
+            }
+
+            ChordDescriptor chordDescriptor = ChordDescriptor.minor;
+            Pitch refPitch = _pitches[_test];
+
+            //  guitar and bass
+            _audioPlayer.play(
+                'audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
+
+            //  piano chord
+            Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
+            List<Pitch> pitches = chord.getPitches(_atOrAbove);
+            double duration = timerPeriod - gap;
+            double amp = 1.0 / (pitches.length + 2);
+            for (final Pitch pitch in pitches) {
+              _playPianoPitch(pitch, duration, amp);
+            }
+            Pitch octaveLower = pitches[0].octaveLower();
+            _playPianoPitch(octaveLower, duration, amp);
+            _playPianoPitch(octaveLower.octaveLower(), duration, amp);
+
+            _test++;
+            break;
+        }
+        _timerT += periodMs / microsecondsPerSecond;
+      } catch (e) {
+        logger.d('_audioTest() error: ${e.toString()}');
+      }
+    });
+  }
+
+  void _playPianoPitch(Pitch pitch, double duration, double amp) {
+    _audioPlayer.play(
+        'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
+  }
 
   final TextEditingController _userTextEditingController = TextEditingController();
   final TextEditingController _websocketHostEditingController = TextEditingController();
 
-  // static const int _testNumber = 3;
-  // int _test = 0;
-  //
-  // String _testType = 'unknown';
-  // final List<Pitch> _pitches = Pitch.flats;
-  // static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
+  static const int _testNumber = 3;
+  int _test = 0;
+
+  String _testType = 'unknown';
+  final List<Pitch> _pitches = Pitch.flats;
+  static final Pitch _atOrAbove = Pitch.get(PitchEnum.A3);
 
   late AppWidgetHelper appWidgetHelper;
 
   Timer? _timer;
 
-  //double _timerT = 0;
+  double _timerT = 0;
   final SongUpdateService _songUpdateService = SongUpdateService();
   String _ipAddress = '';
 
-  //final AppAudioPlayer _audioPlayer = AppAudioPlayer();
+  final AppAudioPlayer _audioPlayer = AppAudioPlayer();
   final AppOptions _appOptions = AppOptions();
   final App app = App();
 }

@@ -59,7 +59,7 @@ const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.debug;
+const Level _playerLogLeaderFollower = Level.info;
 const Level _playerLogFontResize = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
@@ -180,7 +180,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     _song = widget._song;
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
 
-    leaderSongUpdate(0);
+    leaderSongUpdate(-1);
 
     // PlatformDispatcher.instance.onMetricsChanged=(){
     //   setState(() {
@@ -1497,7 +1497,7 @@ With escape, the app goes back to the play list.''',
       setPlayMode();
       setSelectedSongMoment(_song.songMoments.first);
       sectionBump(0);
-      leaderSongUpdate(0);
+      leaderSongUpdate(-1);
       logger.log(_playerLogMode, 'play:');
       if (!songUpdateService.isFollowing) {
         songMaster.playSong(widget._song);
@@ -1596,7 +1596,7 @@ With escape, the app goes back to the play list.''',
 
     forceTableRedisplay();
 
-    leaderSongUpdate(0);
+    leaderSongUpdate(-1);
   }
 
   String titleAnchor() {

@@ -134,7 +134,7 @@ class _State extends State<Singers> {
                     setState(() {
                       _sessionSingers.add(singer);
                       selectedSinger = singer;
-                      searchClear();
+                      searchForSelectedSingerOnly = true;
                     });
                   },
                   child: appCircledIcon(
@@ -153,7 +153,6 @@ class _State extends State<Singers> {
                   onTap: () {
                     setState(() {
                       _sessionSingers.remove(singer);
-                      searchClear();
                     });
                   },
                   child: appCircledIcon(
@@ -196,7 +195,7 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
-        songWidgetList.addAll(requestedSongPerformances.map(mapSongPerformanceToSingerWidget).toList());
+        songWidgetList.add(songPerformanceListView(requestedSongPerformances.toList(growable: false)));
         songWidgetList.add(appSpace());
       }
 
@@ -210,7 +209,7 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
-        songWidgetList.addAll(selectedSongPerformances.map(mapSongPerformanceToSingerWidget).toList());
+        songWidgetList.add(songPerformanceListView(selectedSongPerformances.toList(growable: false)));
         songWidgetList.add(appSpace());
       }
 
@@ -241,8 +240,7 @@ class _State extends State<Singers> {
           ));
         }
         songWidgetList.add(appSpace());
-
-        songWidgetList.addAll(filteredSongs.map(mapSongToWidget).toList());
+        songWidgetList.add(songListView(filteredSongs.toList(growable: false)));
         songWidgetList.add(appSpace());
       }
 
@@ -277,11 +275,15 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: Colors.grey),
         ));
       }
-      for (var song in app.allSongs) {
-        if (_singerSongSet.contains(song) || filteredSongs.contains(song)) {
-          continue;
+      {
+        List<Song> songs = [];
+        for (var song in app.allSongs) {
+          if (_singerSongSet.contains(song) || filteredSongs.contains(song)) {
+            continue;
+          }
+          songs.add(song);
         }
-        songWidgetList.add(mapSongToWidget(song));
+        songWidgetList.add(songListView(songs));
       }
     }
 
@@ -331,7 +333,6 @@ class _State extends State<Singers> {
                           onTap: () {
                             setState(() {
                               _sessionSingers.remove(singer);
-                              searchClear();
                             });
                           },
                           child: appCircledIcon(
@@ -628,7 +629,6 @@ class _State extends State<Singers> {
                       iconSize: 1.5 * fontSize,
                       onPressed: (() {
                         setState(() {
-                          searchClear();
                           FocusScope.of(context).requestFocus(searchFocusNode);
                         });
                       }),
@@ -659,12 +659,15 @@ class _State extends State<Singers> {
                   }, style: singerTextStyle),
                 ], spacing: 10, alignment: WrapAlignment.spaceBetween),
               ], spacing: 10, alignment: WrapAlignment.spaceBetween),
-              ListView(
+              ListView.builder(
                 primary: false,
                 shrinkWrap: true,
-                children: songWidgetList,
                 scrollDirection: Axis.vertical,
-                controller: singerScrollController,
+                itemCount: songWidgetList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return songWidgetList[index];
+                },
+                cacheExtent: 200,
               ),
             ],
           ),
@@ -682,11 +685,10 @@ class _State extends State<Singers> {
     }
     if (isInSingingMode) {
       app.clearMessage();
-      searchClear();
     }
   }
 
-  Widget mapSongToWidget(Song song, {music_key.Key? key}) {
+  Widget mapSongToWidget(final Song song, {final music_key.Key? key}) {
     return appWrapFullWidth(
       [
         appWrapSong(song, key: key ?? song.key),
@@ -711,7 +713,7 @@ class _State extends State<Singers> {
     );
   }
 
-  Wrap appWrapSong(Song? song, {music_key.Key? key, String? singer}) {
+  Wrap appWrapSong(final Song? song, {final music_key.Key? key, String? singer}) {
     if (song == null) {
       return appWrap([]);
     }
@@ -775,30 +777,6 @@ class _State extends State<Singers> {
     searchAllPerformanceSongs();
   }
 
-  // void _searchRequestedSongs(String? searchRequested) {
-  //   _filteredSongs.clear();
-  //   searchRequested ??= '';
-  //   searchRequested = searchRequested.trim();
-  //
-  //   singerScrollController.jumpTo(0);
-  //
-  //   //  apply search filter
-  //   requestedSongPerformances = SplayTreeSet<SongPerformance>();
-  //   var requestedPattern = searchRequested.replaceAll("[^\\w\\s']+", '');
-  //   if (requestedPattern.isNotEmpty) {
-  //     final RegExp searchRegex = RegExp(requestedPattern, caseSensitive: false);
-  //
-  //     for (final Song song in app.allSongs) {
-  //       if (searchRegex.hasMatch(song.getTitle()) || searchRegex.hasMatch(song.getArtist())) {
-  //         requestedSongPerformances.addAll(allSongPerformances.bySong(song).where((performance) {
-  //           return _sessionSingers.contains(performance.singer);
-  //         }));
-  //       }
-  //     }
-  //   }
-  //   _searchAllPerformanceSongs(searchRequested);
-  // }
-
   void searchSelectedSingerSongs() {
     //  apply search filter
     selectedSongPerformances.clear();
@@ -832,10 +810,6 @@ class _State extends State<Singers> {
   }
 
   void searchAllPerformanceSongs() {
-    if (singerScrollController.hasClients) {
-      singerScrollController.jumpTo(0);
-    }
-
     //  apply search filter
     selectedSongPerformances.clear();
     requestedSongPerformances.clear();
@@ -943,6 +917,32 @@ class _State extends State<Singers> {
     });
   }
 
+  ListView songListView(final List<Song> songs) {
+    return ListView.builder(
+      primary: false,
+      shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      itemCount: songs.length,
+      itemBuilder: (context, index) {
+        return mapSongToWidget(songs[index]);
+      },
+      cacheExtent: 200,
+    );
+  }
+
+  ListView songPerformanceListView(final List<SongPerformance> songPerformances) {
+    return ListView.builder(
+      primary: false,
+      shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      itemCount: songPerformances.length,
+      itemBuilder: (context, index) {
+        return mapSongPerformanceToSingerWidget(songPerformances[index]);
+      },
+      cacheExtent: 200,
+    );
+  }
+
   static const singingTooltipText = 'Switch to singing mode, otherwise make adjustments.';
 
   bool isInSingingMode = false;
@@ -957,7 +957,6 @@ class _State extends State<Singers> {
 
   final SplayTreeSet<Song> filteredSongs = SplayTreeSet();
   final FocusNode searchFocusNode;
-  final singerScrollController = ScrollController();
 
   static const String unknownSinger = 'unknown';
   String selectedSinger = unknownSinger;

@@ -70,6 +70,7 @@ class SongMaster extends ChangeNotifier {
     _isPlaying = true;
     _isPaused = false;
     _songStart = appAudioPlayer.getCurrentTime();
+    _momentNumber = null;
     notifyListeners();
   }
 

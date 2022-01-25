@@ -250,7 +250,7 @@ class _State extends State<Lists> {
               const SizedBox(
                 height: 10,
               ),
-              appWrapFullWidth([
+              appWrapFullWidth(children: [
                 appEnumeratedButton(
                   'Write all to file',
                   appKeyEnum: AppKeyEnum.listsSave,
@@ -318,7 +318,7 @@ class _State extends State<Lists> {
                 _metadataWidgets,
                 alignment: WrapAlignment.spaceEvenly,
               ),
-              appWrapFullWidth([
+              appWrapFullWidth(children: [
                 //  search line
                 appWrap([
                   appTooltip(
@@ -383,7 +383,7 @@ class _State extends State<Lists> {
 
   Widget mapSongToWidget(Song song) {
     return appWrapFullWidth(
-      [
+      children: [
         appWidgetHelper.checkbox(
           value: _hasSelectedMetadata(song),
           onChanged: (bool? value) {

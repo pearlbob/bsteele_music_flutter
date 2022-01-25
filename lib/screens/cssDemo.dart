@@ -45,7 +45,7 @@ class _CssDemo extends State<CssDemo> {
               style: coloredChordTextStyle,
             )));
       }
-      sections = appWrapFullWidth(children);
+      sections = appWrapFullWidth(children: children);
     }
 
     TextStyle toolTipTextStyle = generateTooltipTextStyle();

@@ -228,6 +228,20 @@ Widget appSpace({double? space, double? horizontalSpace, double? verticalSpace})
   );
 }
 
+Widget appVerticalSpace({double? space}) {
+  if (space == null) {
+    return const SizedBox(
+      height: 10,
+      width: double.infinity,
+    );
+  }
+  space = max(space, 0);
+  return SizedBox(
+    height: space,
+    width: double.infinity,
+  );
+}
+
 /// helper function to generate tool tips
 Widget appTooltip({
   final Key? key,
@@ -265,11 +279,14 @@ Wrap appWrap(List<Widget> children,
   );
 }
 
-Widget appWrapFullWidth(final List<Widget> children,
-    {final WrapAlignment? alignment, final WrapCrossAlignment? crossAxisAlignment, final double? spacing}) {
+Widget appWrapFullWidth(
+    {final List<Widget>? children,
+    final WrapAlignment? alignment,
+    final WrapCrossAlignment? crossAxisAlignment,
+    final double? spacing}) {
   return SizedBox(
     width: double.infinity,
-    child: appWrap(children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
+    child: appWrap(children ?? [], alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
   );
 }
 

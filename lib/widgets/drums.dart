@@ -137,7 +137,7 @@ class _Drums extends State<Drums> {
       Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            appWrapFullWidth([
+            appWrapFullWidth(children: [
               // appNoteButton(
               //   noteQuarterUp.character,
               //   appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,

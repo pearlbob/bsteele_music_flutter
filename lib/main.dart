@@ -764,7 +764,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //         padding: const EdgeInsets.all(8.0),
     //         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
     //           if (app.isScreenBig)
-    //             appWrapFullWidth(
+    //             appWrapFullWidth(children:
     //               <Widget>[
     //                 appWrap(
     //                   <Widget>[
@@ -1038,7 +1038,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
-        appWrapFullWidth([
+        appWrapFullWidth(children: [
           appWrap([
             appTooltip(
               message: _searchTextTooltipText,
@@ -1251,7 +1251,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
             if (app.isScreenBig)
               appWrapFullWidth(
-                <Widget>[
+                children: <Widget>[
                   appWrap(
                     <Widget>[
                       Text(

@@ -14,14 +14,13 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
-import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
+import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
-import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -602,7 +601,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     }
 
     boxCenter = boxCenterHeight();
-    final double boxHeight = boxCenter * 2;
     final double boxOffset = boxCenter;
 
     final hoverColor = Colors.blue[700]; //  fixme with css
@@ -680,7 +678,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             Positioned(
               top: boxCenter - boxOffset,
               child: Container(
-                constraints: BoxConstraints.loose(Size(lyricsTable.screenWidth, boxHeight)),
+                constraints: BoxConstraints.loose(Size(lyricsTable.screenWidth, app.screenInfo.mediaHeight)),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -689,7 +687,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                       theme.backgroundColor,
                       centerBackgroundColor,
                       centerBackgroundColor,
-                      theme.backgroundColor,
+                      centerBackgroundColor,
                     ],
                   ),
                 ),
@@ -752,7 +750,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                               if (app.isScreenBig)
                                 Container(
                                   padding: const EdgeInsets.all(12),
-                                  child: appWrapFullWidth([
+                                  child: appWrapFullWidth(children: [
                                     appTooltip(
                                       message: '''
 Space bar or clicking the song area starts "play" mode.
@@ -902,7 +900,7 @@ With escape, the app goes back to the play list.''',
                                       ]),
                                   ], alignment: WrapAlignment.spaceBetween),
                                 ),
-                              appWrapFullWidth([
+                              appWrapFullWidth(children: [
                                 if (app.fullscreenEnabled && !app.isFullScreen)
                                   appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                       onPressed: () {
@@ -1111,7 +1109,7 @@ With escape, the app goes back to the play list.''',
                           ),
                           appSpace(),
                           if (app.isScreenBig && appOptions.ninJam && ninJam.isNinJamReady)
-                            appWrapFullWidth([
+                            appWrapFullWidth(children: [
                               appSpace(),
                               appWrap([
                                 Text(
@@ -1670,14 +1668,14 @@ With escape, the app goes back to the play list.''',
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    appWrapFullWidth([
+                    appWrapFullWidth(children: [
                       Text(
                         'User style: ',
                         style: headerTextStyle,
                       ),
                       Container(
                         padding: const EdgeInsets.only(left: 30.0),
-                        child: appWrapFullWidth(<Widget>[
+                        child: appWrapFullWidth(children: <Widget>[
                           appWrap(
                             [
                               Radio<UserDisplayStyle>(
@@ -1767,7 +1765,7 @@ With escape, the app goes back to the play list.''',
                     ], spacing: 20),
                     appSpace(),
                     appWrapFullWidth(
-                      [
+                      children: [
                         appTooltip(
                           message: 'For a guitar, show the capo location and\n'
                               'chords to match the current key.',
@@ -1791,7 +1789,7 @@ With escape, the app goes back to the play list.''',
                       ],
                     ),
                     appSpace(),
-                    appWrapFullWidth([
+                    appWrapFullWidth(children: [
                       appTextButton(
                         'Repeats:',
                         appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
@@ -1822,7 +1820,7 @@ With escape, the app goes back to the play list.''',
                     ]),
                     appSpace(),
                     appWrapFullWidth(
-                      [
+                      children: [
                         Text(
                           'NinJam choice:',
                           style: headerTextStyle,
@@ -1830,7 +1828,7 @@ With escape, the app goes back to the play list.''',
                         Container(
                           padding: const EdgeInsets.only(left: 30.0),
                           child: appWrapFullWidth(
-                            <Widget>[
+                            children: <Widget>[
                               appRadio<bool>('No NinJam aids',
                                   appKeyEnum: AppKeyEnum.optionsNinJam,
                                   value: false,
@@ -1857,7 +1855,7 @@ With escape, the app goes back to the play list.''',
                       spacing: 10,
                     ),
                     appSpace(),
-                    appWrapFullWidth(<Widget>[
+                    appWrapFullWidth(children: <Widget>[
                       Text(
                         'Display key offset: ',
                         style: headerTextStyle,
@@ -1882,7 +1880,7 @@ With escape, the app goes back to the play list.''',
               }),
               actions: [
                 appSpace(),
-                appWrapFullWidth([
+                appWrapFullWidth(children: [
                   appTooltip(
                     message: 'Click here or outside of the popup to return to the player screen.',
                     child: appButton('Return', appKeyEnum: AppKeyEnum.playerReturnFromSettings, onPressed: () {

@@ -436,7 +436,7 @@ class _Edit extends State<Edit> {
           // fixme: put GestureDetector only on chord table
           child: Column(children: [
             appSpace(space: 10),
-            appWrapFullWidth(<Widget>[
+            appWrapFullWidth(children: <Widget>[
               appEnumeratedButton(
                 songHasChanged ? (isValidSong ? 'Save song on local drive' : 'Fix the song') : 'Nothing has changed',
                 appKeyEnum: AppKeyEnum.editEnterSong,
@@ -634,7 +634,7 @@ class _Edit extends State<Edit> {
                         ]),
                     appSpace(),
                     appWrapFullWidth(
-                      <Widget>[
+                      children: <Widget>[
                         appWrap([
                           Text(
                             "Key: ",
@@ -731,7 +731,7 @@ class _Edit extends State<Edit> {
                       spacing: 40,
                     ),
                     appSpace(space: 30),
-                    appWrapFullWidth(<Widget>[
+                    appWrapFullWidth(children: <Widget>[
                       Text(
                         "Chords:",
                         style: _titleTextStyle,

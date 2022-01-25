@@ -91,7 +91,7 @@ class _Options extends State<Options> {
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: appWrapFullWidth(
-                      <Widget>[
+                      children: <Widget>[
                         appRadio<bool>('Not in a holiday mood',
                             appKeyEnum: AppKeyEnum.optionsHoliday,
                             value: false,
@@ -166,7 +166,7 @@ class _Options extends State<Options> {
                     ],
                   ),
                   appSpace(),
-                  appWrapFullWidth([
+                  appWrapFullWidth(children: [
                     const Text('Hosts:'),
                     appSpace(),
                     appTooltip(

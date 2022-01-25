@@ -179,7 +179,7 @@ class _Songs extends State<Songs> {
               content: SingleChildScrollView(
                 child: Column(
                   children: [
-                    appWrapFullWidth([
+                    appWrapFullWidth(children: [
                       Text(
                         'Legend:',
                         style: prettyDiffText.defaultTextStyle,
@@ -203,7 +203,7 @@ class _Songs extends State<Songs> {
                 ),
               ),
               actions: [
-                appWrapFullWidth([
+                appWrapFullWidth(children: [
                   appButton('Accept', appKeyEnum: AppKeyEnum.songsAcceptSongRead, onPressed: () {
                     Navigator.of(context).pop();
                     response = _dialogResponse.accept;
@@ -214,7 +214,7 @@ class _Songs extends State<Songs> {
                   }),
                 ], spacing: 20),
                 appSpace(),
-                appWrapFullWidth([
+                appWrapFullWidth(children: [
                   appButton('Accept all songs', appKeyEnum: AppKeyEnum.songsAcceptAllSongReads, onPressed: () {
                     Navigator.of(context).pop();
                     response = _dialogResponse.acceptAll;

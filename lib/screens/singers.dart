@@ -15,9 +15,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../app/app.dart';
+
+//  diagnostic logging enables
+const Level _singerLogBuild = Level.info;
 
 final _blue = Paint()..color = Colors.lightBlue.shade200;
 
@@ -44,11 +48,14 @@ class _State extends State<Singers> {
     super.initState();
 
     app.clearMessage();
+    allSongPerformances.loadSongs(app.allSongs);
   }
 
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
+
+    logger.log(_singerLogBuild, 'singer build:');
 
     songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
 
@@ -165,7 +172,7 @@ class _State extends State<Singers> {
                     size: fontSize * 0.7,
                   ),
                 ),
-              appSpace(verticalSpace: 20),
+              appSpace(horizontalSpace: 20), //  list singers horizontally
             ],
           ));
         }
@@ -195,9 +202,9 @@ class _State extends State<Singers> {
           'Matching songs sung by any singer:',
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
-        songWidgetList.add(appSpace());
-        songWidgetList.addAll(requestedSongPerformances.map(mapSongPerformanceToSingerWidget).toList(growable: false));
-        songWidgetList.add(appSpace());
+        songWidgetList.add(appVerticalSpace());
+        songWidgetList.addAll(requestedSongPerformances.map(mapSongPerformanceToSingerWidget));
+        songWidgetList.add(appVerticalSpace());
       }
 
       if (selectedSongPerformances.isNotEmpty) {
@@ -209,18 +216,18 @@ class _State extends State<Singers> {
           'Sung by $selectedSinger:',
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
-        songWidgetList.add(appSpace());
-        songWidgetList.addAll(selectedSongPerformances.map(mapSongPerformanceToSingerWidget).toList(growable: false));
-        songWidgetList.add(appSpace());
+        songWidgetList.add(appVerticalSpace());
+        songWidgetList.addAll(selectedSongPerformances.map(mapSongPerformanceToSingerWidget));
+        songWidgetList.add(appVerticalSpace());
       }
 
       SplayTreeSet<SongPerformance> _singerSongPerformanceSet = SplayTreeSet();
       SplayTreeSet<Song> _singerSongSet = SplayTreeSet();
-      allSongPerformances.loadSongs(app.allSongs.toList(growable: false));
+
       _singerSongPerformanceSet.addAll(allSongPerformances.bySinger(selectedSinger));
       _singerSongSet.addAll(_singerSongPerformanceSet.map((e) => e.song ?? Song.createEmptySong()));
 
-      //  search songs on top
+      // //  search songs on top
       if (filteredSongs.isNotEmpty) {
         if (songSearchMatcher.isNotEmpty) {
           songWidgetList.add(Divider(
@@ -240,9 +247,10 @@ class _State extends State<Singers> {
             style: songPerformanceStyle,
           ));
         }
-        songWidgetList.add(appSpace());
-        songWidgetList.addAll(filteredSongs.map(mapSongToWidget).toList(growable: false));
-        songWidgetList.add(appSpace());
+        songWidgetList.add(appVerticalSpace());
+        songWidgetList.addAll(filteredSongs.map(mapSongToWidget));
+        //   songWidgetList.addAll(filteredSongs.map(mapSongToWidget));
+        songWidgetList.add(appVerticalSpace());
       }
 
       songWidgetList.add(const Divider(
@@ -264,7 +272,7 @@ class _State extends State<Singers> {
       }
 
       if (selectedSinger != unknownSinger) {
-        songWidgetList.add(appSpace());
+        songWidgetList.add(appVerticalSpace());
         songWidgetList.add(const Divider(
           thickness: 10,
         ));
@@ -305,7 +313,7 @@ class _State extends State<Singers> {
             style: singerTextStyle,
           )
         : Container(
-            child: appWrapFullWidth([
+      child: appWrapFullWidth(children: [
               ReorderableWrap(
                   children: _sessionSingers.map((singer) {
                     return appWrap([
@@ -359,7 +367,7 @@ class _State extends State<Singers> {
           );
 
     var allSingersWidgetWrap = Container(
-      child: appWrapFullWidth(sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
+      child: appWrapFullWidth(children: sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         border: Border.all(
@@ -373,21 +381,19 @@ class _State extends State<Singers> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'bsteele Music App Singers'),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: ListView(children: [
+          appWrapFullWidth(
+            children: [
               if (app.message.isNotEmpty)
                 Text(
                   app.message,
                   style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                   key: appKey(AppKeyEnum.singersErrorMessage),
                 ),
-              appSpace(),
-              appWrapFullWidth([
+              appVerticalSpace(),
+              appWrapFullWidth(children: [
                 appWrap([
                   appTooltip(
                     message: singingTooltipText,
@@ -429,10 +435,10 @@ class _State extends State<Singers> {
                   }),
               ], alignment: WrapAlignment.spaceBetween),
               if (!isInSingingMode && showOtherActions)
-                appWrapFullWidth([
+                appWrapFullWidth(children: [
                   Column(
                     children: [
-                      appSpace(),
+                      appVerticalSpace(),
                       if (allSongPerformances.isNotEmpty)
                         appTooltip(
                             message: 'For safety reasons you cannot remove all singers\n'
@@ -446,7 +452,7 @@ class _State extends State<Singers> {
                                 });
                               },
                             )),
-                      appSpace(),
+                      appVerticalSpace(),
                       if (selectedSinger != unknownSinger)
                         appEnumeratedButton(
                           'Write singer $selectedSinger\'s songs to a local file',
@@ -456,7 +462,7 @@ class _State extends State<Singers> {
                             logger.i('save selection: $selectedSinger');
                           },
                         ),
-                      appSpace(),
+                      appVerticalSpace(),
                       appTooltip(
                         message: 'If the singer matches an existing singer,\n'
                             'the songs will be added to the singer.',
@@ -470,7 +476,7 @@ class _State extends State<Singers> {
                           },
                         ),
                       ),
-                      appSpace(verticalSpace: 25),
+                      appVerticalSpace(space: 25),
                       if (selectedSinger != unknownSinger)
                         appEnumeratedButton(
                           'Delete the singer $selectedSinger',
@@ -506,7 +512,7 @@ class _State extends State<Singers> {
                                     ));
                           },
                         ),
-                      appSpace(),
+                      appVerticalSpace(),
                       appTooltip(
                         message: 'Warning: This will delete all singers\n'
                             'and replace them with singers from the read file.',
@@ -520,7 +526,7 @@ class _State extends State<Singers> {
                           },
                         ),
                       ),
-                      appSpace(),
+                      appVerticalSpace(),
                       if (!allHaveBeenWritten)
                         Text(
                           'Hint: Write all singer songs to enable all singer removal.',
@@ -542,16 +548,16 @@ class _State extends State<Singers> {
                   ),
                 ], alignment: WrapAlignment.end),
               if (_songUpdateService.isFollowing)
-                appSpace(
-                  verticalSpace: 20,
+                appVerticalSpace(
+                  space: 20,
                 ),
               if (_songUpdateService.isFollowing)
-                appWrapFullWidth([
+                appWrapFullWidth(children: [
                   Text(
                     'Warning: you are not a leader!',
                     style: singerTextStyle,
                   ),
-                  appSpace(),
+                  appVerticalSpace(),
                   if (_songUpdateService.isConnected)
                     appEnumeratedButton(
                       (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader') +
@@ -566,12 +572,9 @@ class _State extends State<Singers> {
                       },
                     ),
                 ]),
+              if (!isInSingingMode) appVerticalSpace(),
               if (!isInSingingMode)
-                appSpace(
-                  verticalSpace: 20,
-                ),
-              if (!isInSingingMode)
-                appWrap([
+                appWrapFullWidth(children: [
                   Text(
                     'Today\'s Singers:',
                     style: singerTextStyle,
@@ -581,9 +584,9 @@ class _State extends State<Singers> {
                     style: singerTextStyle.copyWith(color: Colors.grey),
                   ),
                 ], spacing: 30),
-              appSpace(),
+              appVerticalSpace(),
               todaysReorderableSingersWidgetWrap,
-              appSpace(),
+              appVerticalSpace(),
               if (!isInSingingMode)
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(
@@ -591,12 +594,12 @@ class _State extends State<Singers> {
                     style: singerTextStyle,
                   ),
 
-                  appSpace(),
+                  appVerticalSpace(),
                   allSingersWidgetWrap,
-                  appSpace(),
+                  appVerticalSpace(),
 
                   //  new singer stuff
-                  appWrapFullWidth([
+                  appWrapFullWidth(children: [
                     SizedBox(
                       width: 16 * app.screenInfo.fontSize,
                       //  limit text entry display length
@@ -619,7 +622,7 @@ class _State extends State<Singers> {
                     ),
                   ], alignment: WrapAlignment.end, spacing: 30),
                 ]),
-              appWrapFullWidth([
+              appWrapFullWidth(children: [
                 //  search line
                 appWrap([
                   appTooltip(
@@ -683,19 +686,10 @@ class _State extends State<Singers> {
                   }, style: singerTextStyle),
                 ], spacing: 10, alignment: WrapAlignment.spaceBetween),
               ], spacing: 10, alignment: WrapAlignment.spaceBetween),
-              ListView.builder(
-                primary: false,
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                itemCount: songWidgetList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return songWidgetList[index];
-                },
-                cacheExtent: 200,
-              ),
             ],
           ),
-        ),
+          ...songWidgetList //  add the computed widget list of lists
+        ]),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.singersBack),
     );
@@ -714,7 +708,7 @@ class _State extends State<Singers> {
 
   Widget mapSongToWidget(final Song song, {final music_key.Key? key}) {
     return appWrapFullWidth(
-      [
+      children: [
         appWrapSong(song, key: key ?? song.key),
       ],
     );
@@ -726,7 +720,7 @@ class _State extends State<Singers> {
 
   Widget mapSongPerformanceToWidget(SongPerformance songPerformance, {withSinger = false}) {
     return appWrapFullWidth(
-      [
+      children: [
         appWrapSong(songPerformance.song, key: songPerformance.key, singer: songPerformance.singer),
         Text(
           songPerformance.lastSungDateString + (kDebugMode ? ' ${hms(songPerformance.lastSung)}' : ''),
@@ -741,31 +735,33 @@ class _State extends State<Singers> {
     if (song == null) {
       return appWrap([]);
     }
+    bool hasUniqueSinger = singer != null && singer != unknownSinger && singer != selectedSinger;
     return appWrap(
       [
-        appWidgetHelper.checkbox(
-          value: allSongPerformances.isSongInSingersList(selectedSinger, song),
-          onChanged: (bool? value) {
-            if (value != null) {
-              singer ??= selectedSinger;
-              if (singer != null) {
-                setState(() {
-                  if (value) {
-                    if (singer != unknownSinger) {
-                      allSongPerformances.addSongPerformance(
-                          SongPerformance(song.songId.toString(), singer!, key ?? music_key.Key.getDefault()));
+        if (!hasUniqueSinger)
+          appWidgetHelper.checkbox(
+            value: allSongPerformances.isSongInSingersList(selectedSinger, song),
+            onChanged: (bool? value) {
+              if (value != null) {
+                singer ??= selectedSinger;
+                if (singer != null) {
+                  setState(() {
+                    if (value) {
+                      if (singer != unknownSinger) {
+                        allSongPerformances.addSongPerformance(
+                            SongPerformance(song.songId.toString(), singer!, key ?? music_key.Key.getDefault()));
+                      }
+                    } else {
+                      allSongPerformances.removeSingerSong(singer!, song.songId.toString());
                     }
-                  } else {
-                    allSongPerformances.removeSingerSong(singer!, song.songId.toString());
-                  }
-                  AppOptions().storeAllSongPerformances();
-                });
+                    AppOptions().storeAllSongPerformances();
+                  });
+                }
               }
-            }
-          },
-          fontSize: songPerformanceStyle.fontSize,
-        ),
-        appSpace(space: 12),
+            },
+            fontSize: songPerformanceStyle.fontSize,
+          ),
+        if (!hasUniqueSinger) appSpace(space: 12),
         TextButton(
           child: Text(
             '${singer != null ? '$singer sings: ' : ''}'
@@ -814,7 +810,7 @@ class _State extends State<Singers> {
 
     //  select songs from the selected singer
     if (songSearchMatcher.isNotEmpty) {
-      for (final SongPerformance songPerformance in allSongPerformances.toList()) {
+      for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
         if (songPerformance.song != null &&
             songPerformance.singer == selectedSinger &&
             songSearchMatcher.matches(songPerformance.song!)) {
@@ -841,7 +837,7 @@ class _State extends State<Singers> {
     var requestsFound = SplayTreeSet<Song>();
 
     if (songSearchMatcher.isNotEmpty) {
-      for (final SongPerformance songPerformance in allSongPerformances.toList()) {
+      for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
         if (songPerformance.song != null &&
             _sessionSingers.contains(songPerformance.singer) &&
             songSearchMatcher.matches(songPerformance.song!)) {

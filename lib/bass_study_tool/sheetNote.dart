@@ -110,10 +110,7 @@ class SheetNoteSymbol {
 
   final bool isUp;
 
-  Point<double> get focusPoint => _focusPoint;
-  final Point<double> _focusPoint = const Point(0, 0);
-
-  final double staffPosition;
+  final double staffPosition; //  set when the pitch and staff are known
 
   double get fixedYOff => _fixedYOff;
   static const double _fixedYOff = 4;

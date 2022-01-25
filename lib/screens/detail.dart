@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 final _black = Paint()..color = Colors.black;
-final _blue = Paint()..color = Colors.lightBlue.shade200;
 final _blackOutline = Paint()
   ..color = Colors.black
   ..style = PaintingStyle.stroke
@@ -193,8 +192,9 @@ class _State extends State<Detail> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: '${app.selectedSong.titleWithCover}'
-          ' (sheet music)'),
+      appBar: appWidgetHelper.backBar(
+          title: '${app.selectedSong.titleWithCover}'
+              ' (sheet music)'),
       body: Wrap(
         children: <Widget>[
           Column(
@@ -247,36 +247,41 @@ class _State extends State<Detail> {
                     children: [
                       Row(
                         children: [
-                          _noteButton(
+                          appNoteButton(
                             noteWhole.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicWholeNote,
                             onPressed: () {
                               logger.i('noteWhole pressed');
                             },
                           ),
                           appSpace(),
-                          _noteButton(
+                          appNoteButton(
                             noteHalfUp.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicHalfNoteUp,
                             onPressed: () {
                               logger.i('noteHalfUp pressed');
                             },
                           ),
                           appSpace(),
-                          _noteButton(
+                          appNoteButton(
                             noteQuarterUp.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,
                             onPressed: () {
                               logger.i('noteQuarterUp pressed');
                             },
                           ),
                           appSpace(),
-                          _noteButton(
+                          appNoteButton(
                             note8thUp.character,
+                            appKeyEnum: AppKeyEnum.sheetMusic8thNoteUp,
                             onPressed: () {
                               logger.i('note8thUp pressed');
                             },
                           ),
                           appSpace(),
-                          _noteButton(
+                          appNoteButton(
                             note16thUp.character,
+                            appKeyEnum: AppKeyEnum.sheetMusic16thNoteUp,
                             onPressed: () {
                               logger.i('note16thUp pressed');
                             },
@@ -289,6 +294,7 @@ class _State extends State<Detail> {
                         children: [
                           _restButton(
                             restWhole.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicRestWhole,
                             onPressed: () {
                               logger.i('restWhole pressed');
                             },
@@ -296,6 +302,7 @@ class _State extends State<Detail> {
                           appSpace(),
                           _restButton(
                             restHalf.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicRestHalf,
                             onPressed: () {
                               logger.i('restHalf pressed');
                             },
@@ -303,6 +310,7 @@ class _State extends State<Detail> {
                           appSpace(),
                           _restButton(
                             restQuarter.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicRestQuarter,
                             onPressed: () {
                               logger.i('restQuarter pressed');
                             },
@@ -310,6 +318,7 @@ class _State extends State<Detail> {
                           appSpace(),
                           _restButton(
                             rest8th.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicRest8th,
                             onPressed: () {
                               logger.i('rest8th pressed');
                             },
@@ -317,6 +326,7 @@ class _State extends State<Detail> {
                           appSpace(),
                           _restButton(
                             rest16th.character,
+                            appKeyEnum: AppKeyEnum.sheetMusicRest16th,
                             onPressed: () {
                               logger.i('rest16th pressed');
                             },
@@ -659,49 +669,14 @@ class _State extends State<Detail> {
 
   ElevatedButton _restButton(
     String character, {
+    required AppKeyEnum appKeyEnum,
     required VoidCallback? onPressed,
   }) {
-    return _noteButton(
+    return appNoteButton(
       character,
+      appKeyEnum: appKeyEnum,
       onPressed: onPressed,
       height: 1,
-    );
-  }
-
-  ElevatedButton _noteButton(
-    String character, {
-    required VoidCallback? onPressed,
-    double height = 2,
-  }) {
-    var backgroundColor =
-        app.themeData.elevatedButtonTheme.style?.backgroundColor ?? MaterialStateProperty.all(_blue.color);
-    var background = Paint()..color = backgroundColor.resolve({}) ?? _blue.color;
-    var foregroundColor =
-        app.themeData.elevatedButtonTheme.style?.foregroundColor ?? MaterialStateProperty.all(Colors.black);
-    var foreground = Paint()..color = foregroundColor.resolve({}) ?? Colors.black;
-
-    return ElevatedButton(
-      child: Text(
-        character,
-        style: TextStyle(
-          fontFamily: 'Bravura',
-          fontSize: 50,
-          background: background,
-          foreground: foreground,
-          height: height,
-          fontFeatures: const [ui.FontFeature.stylisticAlternates()],
-        ),
-      ),
-      clipBehavior: Clip.hardEdge,
-      onPressed: onPressed,
-      style: ButtonStyle(
-        fixedSize: MaterialStateProperty.all(const Size(40, 60)),
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_fontSize / 4), side: const BorderSide(color: Colors.grey))),
-        elevation: MaterialStateProperty.all<double>(6),
-      ),
     );
   }
 

@@ -16,7 +16,7 @@ const Level _log = Level.debug;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
-    _singleton.open(context);
+    _singleton._open(context);
   }
 
   static final SongUpdateService _singleton = SongUpdateService._internal();
@@ -27,7 +27,13 @@ class SongUpdateService extends ChangeNotifier {
 
   SongUpdateService._internal();
 
-  void open(BuildContext context) async {
+  void _open(BuildContext context) async {
+    currentContext = context;
+    if (_isRunning) {
+      return;
+    }
+    _isRunning = true; //  start only once!
+
     var delaySeconds = 0;
 
     for (;;) //  retry on a failure
@@ -86,7 +92,7 @@ class SongUpdateService extends ChangeNotifier {
           var lastAuthority = _authority;
           for (_idleCount = 0;; _idleCount++) {
             await Future.delayed(Duration(seconds: kIsWeb ? 5 : 1));
-            if ( kIsWeb ) {
+            if (kIsWeb) {
               notifyListeners();
             }
 
@@ -180,6 +186,9 @@ class SongUpdateService extends ChangeNotifier {
     _isLeader = value;
     notifyListeners();
   }
+
+  bool _isRunning = false;
+  BuildContext? currentContext;
 
   bool get isFollowing => !_isLeader && !isIdle;
 

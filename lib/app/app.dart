@@ -234,7 +234,6 @@ Widget appTooltip({
   required final String message,
   required final Widget child,
   final double? fontSize,
-  bool? active,
 }) {
   var textStyle = generateTooltipTextStyle(fontSize: fontSize);
   return Tooltip(
@@ -242,8 +241,7 @@ Widget appTooltip({
       message: message,
       child: child,
       textStyle: textStyle,
-      waitDuration:
-          (active ?? true) ? const Duration(seconds: 1, milliseconds: 200) : const Duration(days: 1200) /* ie never */,
+      waitDuration: const Duration(seconds: 1, milliseconds: 200),
       verticalOffset: 75,
       decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
       padding: const EdgeInsets.all(8));

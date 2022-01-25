@@ -650,6 +650,16 @@ enum AppKeyEnum {
   playerSpeed, //  debug only
   playerTempoTap,
   privacyBack,
+  sheetMusicHalfNoteUp,
+  sheetMusicQuarterNoteUp,
+  sheetMusic16thNoteUp,
+  sheetMusic8thNoteUp,
+  sheetMusicRestHalf,
+  sheetMusicRestQuarter,
+  sheetMusicRest8th,
+  sheetMusicRest16th,
+  sheetMusicRestWhole,
+  sheetMusicWholeNote,
   singersAddSingerToSession,
   singersAllSingers,
   singersBack,
@@ -1060,6 +1070,7 @@ ElevatedButton appButton(
   String commandName, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
+  final TextStyle? textStyle,
   Color? backgroundColor,
   double? fontSize,
   dynamic value,
@@ -1070,7 +1081,9 @@ ElevatedButton appButton(
   return ElevatedButton(
     key: key,
     child: Text(commandName,
-        style: app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ?? TextStyle(fontSize: fontSize)),
+        style: textStyle ??
+            app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ??
+            TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: onPressed == null
         ? null //  show as disabled
@@ -1119,6 +1132,46 @@ TextButton appIconButton({
       onPressed();
     },
     style: app.themeData.elevatedButtonTheme.style,
+  );
+}
+
+ElevatedButton appNoteButton(
+  String character, // a note character is expected
+  {
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback? onPressed,
+  Color? backgroundColor,
+  double? fontSize,
+  double? height,
+  dynamic value,
+}) {
+  fontSize ??= app.screenInfo.fontSize; // _sizeLookup(_universalFontSizeProperty);
+  var key = appKey(appKeyEnum, value: value);
+
+  fontSize = 30;
+
+  return ElevatedButton(
+    key: key,
+    child: Baseline(
+      baselineType: TextBaseline.alphabetic,
+      baseline: fontSize,
+      child: Text(
+        character,
+        style: TextStyle(
+          fontFamily: 'Bravura',
+          fontSize: fontSize,
+          height: height ?? 0.5,
+        ),
+      ),
+    ),
+    onPressed: onPressed == null
+        ? null //  show as disabled
+        : () {
+            appLogKeyCallback(key); //  log the click
+            onPressed();
+          },
+    // style:
+    //     app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
 }
 

@@ -21,6 +21,7 @@ import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
+import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -59,7 +60,7 @@ const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.info;
+const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
@@ -910,22 +911,15 @@ With escape, the app goes back to the play list.''',
                                 if (!songUpdateService.isFollowing)
                                   Container(
                                     padding: const EdgeInsets.only(left: 8, right: 8),
-                                    child: appTooltip(
-                                      message: app.isPhone
-                                          ? ''
-                                          : 'Tip: Use the space bar to start playing.\n'
-                                              'Use the space bar to advance the section while playing.',
-                                      child: appIconButton(
-                                        appKeyEnum: AppKeyEnum.playerPlay,
-                                        icon: appIcon(
-                                          playStopIcon,
-                                          size: 1.5 * app.screenInfo.fontSize, //  fixme: why is this required?
-                                        ),
-                                        onPressed: () {
-                                          isPlaying ? performStop() : performPlay();
-                                        },
+                                    child: appIconButton(
+                                      appKeyEnum: AppKeyEnum.playerPlay,
+                                      icon: appIcon(
+                                        playStopIcon,
+                                        size: 1.5 * app.screenInfo.fontSize, //  fixme: why is this required?
                                       ),
-                                      active: !isPlaying,
+                                      onPressed: () {
+                                        isPlaying ? performStop() : performPlay();
+                                      },
                                     ),
                                   ),
                                 appWrap(

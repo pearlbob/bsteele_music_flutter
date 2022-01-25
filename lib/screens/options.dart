@@ -11,9 +11,13 @@ import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
+
+//  diagnostic logging enables
+const Level _optionLogAudio = Level.info;
 
 /// A screen to display controls for the user to manage some of the app's options.
 class Options extends StatefulWidget {
@@ -229,12 +233,11 @@ class _Options extends State<Options> {
                         _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
                         appKeyEnum: AppKeyEnum.optionsLeadership,
                         onPressed: () {
-                          if (_songUpdateService.isConnected) {
-                            _songUpdateService.isLeader = !_songUpdateService.isLeader;
-                          } else {
-                            _songUpdateService.open(context);
-                          }
-                          setState(() {});
+                          setState(() {
+                            if (_songUpdateService.isConnected) {
+                              _songUpdateService.isLeader = !_songUpdateService.isLeader;
+                            }
+                          });
                         },
                       ),
                   ]),
@@ -264,7 +267,7 @@ class _Options extends State<Options> {
                           });
                         },
                       ),
-                      Text(
+                      const Text(
                         'Playback with chords',
                         //    style: AppTextStyle(fontSize: fontSize),
                       ),
@@ -344,14 +347,14 @@ class _Options extends State<Options> {
 
     const int microsecondsPerSecond = 1000000;
     int periodMs = (microsecondsPerSecond * timerPeriod).round();
-    logger.d('periodMs: ${periodMs.toString()}');
-    logger.d('timerPeriod: ${timerPeriod.toString()}');
+    logger.log(_optionLogAudio, 'periodMs: ${periodMs.toString()}');
+    logger.log(_optionLogAudio, 'timerPeriod: ${timerPeriod.toString()}, _testType: $_testType');
     _timerT = _audioPlayer.getCurrentTime() + 2;
     _testType = 'bass';
     const double gap = 0.25;
     _timer = Timer.periodic(Duration(microseconds: periodMs), (timer) {
       try {
-        logger.d('_audioTest() ${_testNumber.toString()}.${_test.toString()}');
+        logger.log(_optionLogAudio, '_audioTest() $_testNumber.$_test');
         switch (_testNumber) {
           case 0:
             switch (_testType) {
@@ -425,10 +428,14 @@ class _Options extends State<Options> {
 
             _test++;
             break;
+
+          case 4:
+            _audioPlayer.play('audio/snare_4406.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            break;
         }
         _timerT += periodMs / microsecondsPerSecond;
       } catch (e) {
-        logger.d('_audioTest() error: ${e.toString()}');
+        logger.log(_optionLogAudio, '_audioTest() error: ${e.toString()}');
       }
     });
   }
@@ -441,7 +448,7 @@ class _Options extends State<Options> {
   final TextEditingController _userTextEditingController = TextEditingController();
   final TextEditingController _websocketHostEditingController = TextEditingController();
 
-  static const int _testNumber = 3;
+  static const int _testNumber = 4;
   int _test = 0;
 
   String _testType = 'unknown';

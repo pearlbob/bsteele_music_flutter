@@ -9,6 +9,7 @@ import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/util/songSearchMatcher.dart';
+import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -195,7 +196,7 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
-        songWidgetList.add(songPerformanceListView(requestedSongPerformances.toList(growable: false)));
+        songWidgetList.addAll(requestedSongPerformances.map(mapSongPerformanceToSingerWidget).toList(growable: false));
         songWidgetList.add(appSpace());
       }
 
@@ -209,7 +210,7 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: _blue.color),
         ));
         songWidgetList.add(appSpace());
-        songWidgetList.add(songPerformanceListView(selectedSongPerformances.toList(growable: false)));
+        songWidgetList.addAll(selectedSongPerformances.map(mapSongPerformanceToSingerWidget).toList(growable: false));
         songWidgetList.add(appSpace());
       }
 
@@ -240,7 +241,7 @@ class _State extends State<Singers> {
           ));
         }
         songWidgetList.add(appSpace());
-        songWidgetList.add(songListView(filteredSongs.toList(growable: false)));
+        songWidgetList.addAll(filteredSongs.map(mapSongToWidget).toList(growable: false));
         songWidgetList.add(appSpace());
       }
 
@@ -275,15 +276,12 @@ class _State extends State<Singers> {
           style: songPerformanceStyle.copyWith(color: Colors.grey),
         ));
       }
-      {
-        List<Song> songs = [];
-        for (var song in app.allSongs) {
-          if (_singerSongSet.contains(song) || filteredSongs.contains(song)) {
-            continue;
-          }
-          songs.add(song);
+
+      for (var song in app.allSongs) {
+        if (_singerSongSet.contains(song) || filteredSongs.contains(song)) {
+          continue;
         }
-        songWidgetList.add(songListView(songs));
+        songWidgetList.add(mapSongToWidget(song));
       }
     }
 
@@ -543,9 +541,34 @@ class _State extends State<Singers> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                   ),
                 ], alignment: WrapAlignment.end),
+              if (_songUpdateService.isFollowing)
+                appSpace(
+                  verticalSpace: 20,
+                ),
+              if (_songUpdateService.isFollowing)
+                appWrapFullWidth([
+                  Text(
+                    'Warning: you are not a leader!',
+                    style: singerTextStyle,
+                  ),
+                  appSpace(),
+                  if (_songUpdateService.isConnected)
+                    appEnumeratedButton(
+                      (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader') +
+                          ' of ${_songUpdateService.authority}',
+                      appKeyEnum: AppKeyEnum.optionsLeadership,
+                      onPressed: () {
+                        setState(() {
+                          if (_songUpdateService.isConnected) {
+                            _songUpdateService.isLeader = !_songUpdateService.isLeader;
+                          }
+                        });
+                      },
+                    ),
+                ]),
               if (!isInSingingMode)
                 appSpace(
-                  space: 20,
+                  verticalSpace: 20,
                 ),
               if (!isInSingingMode)
                 appWrap([
@@ -629,6 +652,7 @@ class _State extends State<Singers> {
                       iconSize: 1.5 * fontSize,
                       onPressed: (() {
                         setState(() {
+                          searchClear();
                           FocusScope.of(context).requestFocus(searchFocusNode);
                         });
                       }),
@@ -917,30 +941,14 @@ class _State extends State<Singers> {
     });
   }
 
-  ListView songListView(final List<Song> songs) {
-    return ListView.builder(
-      primary: false,
-      shrinkWrap: true,
-      scrollDirection: Axis.vertical,
-      itemCount: songs.length,
-      itemBuilder: (context, index) {
-        return mapSongToWidget(songs[index]);
-      },
-      cacheExtent: 200,
-    );
+  void _songUpdateServiceCallback() {
+    setState(() {});
   }
 
-  ListView songPerformanceListView(final List<SongPerformance> songPerformances) {
-    return ListView.builder(
-      primary: false,
-      shrinkWrap: true,
-      scrollDirection: Axis.vertical,
-      itemCount: songPerformances.length,
-      itemBuilder: (context, index) {
-        return mapSongPerformanceToSingerWidget(songPerformances[index]);
-      },
-      cacheExtent: 200,
-    );
+  @override
+  void dispose() {
+    _songUpdateService.removeListener(_songUpdateServiceCallback);
+    super.dispose();
   }
 
   static const singingTooltipText = 'Switch to singing mode, otherwise make adjustments.';
@@ -980,6 +988,8 @@ class _State extends State<Singers> {
   late AppWidgetHelper appWidgetHelper;
 
   String fileLocation = kIsWeb ? 'download area' : 'Documents';
+
+  final SongUpdateService _songUpdateService = SongUpdateService();
 
   static const addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
   static const removeColor = Color(0xFFE57373); //var c = Colors.red[300]: Color(0xFFE57373),

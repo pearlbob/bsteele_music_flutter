@@ -676,7 +676,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1643009481873, "song": 
+{ "file": "", "lastModifiedDate": 1643009481873, "song": 
 {
 "title": "99 Red Balloons",
 "artist": "Nena",
@@ -23993,7 +23993,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1643009369172, "song": 
+{ "file": "", "lastModifiedDate": 1643009369172, "song": 
 {
 "title": "Day Breaks",
 "artist": "Norah Jones",
@@ -26546,12 +26546,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1643004919093, "song": 
+{ "file": "", "lastModifiedDate": 1643173625342, "song": 
 {
 "title": "Dog and Butterfly",
 "artist": "Heart",
-"user": "Shari",
-"lastModifiedDate": 1643004919093,
+"user": "my",
+"lastModifiedDate": 1643173625342,
 "copyright": "1979 Portrait",
 "key": "A",
 "defaultBpm": 124,
@@ -26559,24 +26559,24 @@
 "chords": 
     [
 	"I:",
-	"A A6 A A6",
+	"Amaj7 Amaj7 Amaj7 Amaj7",
 	"I2:",
-	"A A6",
+	"A A",
 	"I3:",
 	"Csus2 Csus2 E7sus4 E7",
 	"V:",
 	"A A E E",
-	"A A6 E C#7",
+	"A A E EC#7",
 	"F#m B Bsus2 B7",
 	"D EX",
 	"C:",
-	"A A A A6",
-	"G D A A6",
+	"A A Amaj7 Amaj7",
+	"G D A Amaj7",
 	"F#m C#m F#m B B",
 	"D DX",
 	"C2:",
-	"A A A A6",
-	"G D A A6",
+	"A A Amaj7 Amaj7",
+	"G D A Amaj7",
 	"F#m C#m F#m B B",
 	"B B D DX",
 	"Br:",
@@ -26586,7 +26586,7 @@
 	"D CG A A",
 	"D CG A A",
 	"O:",
-	"A A6 A A6 x4"
+	"A Amaj7 A Amaj7 x4"
     ],
 "lyrics": 
     [
@@ -26606,8 +26606,8 @@
 	"(See the) dog and butterfly up in the ",
 	"Air he liked to fly",
 	"Dog and butterfly",
-	"Below she had to try",
-	"She rolled back down to the warm soft ground ",
+	"Below she had to try, she",
+	"Rolled back down to the warm soft ground ",
 	"Laughing, she don't know why",
 	"Why, she don't know",
 	"Why, dog and butterfly",
@@ -26620,8 +26620,8 @@
 	"Safe in the trees you had tears on your face",
 	"Wrestling with your desires",
 	"Frozen strangers stealing your fires",
-	"The message hit my mind",
-	"Only words that I could ",
+	"The message hit my mind, only",
+	"Words that I could ",
 	"Find",
 	"",
 	"C:",
@@ -46538,7 +46538,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1643000043623, "song": 
+{ "file": "", "lastModifiedDate": 1643000043623, "song": 
 {
 "title": "Higher Ground",
 "artist": "Stevie Wonder",
@@ -52154,7 +52154,7 @@
 { "file": "", "lastModifiedDate": 0, "song": 
 {
 "title": "I Shall Be Released",
-"artist": "Band, The ",
+"artist": "Band, The",
 "user": "Shari",
 "lastModifiedDate": 0,
 "copyright": "1969 Capitol, written by Bob Dylan",
@@ -57656,12 +57656,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1643000467641, "song": 
+{ "file": "", "lastModifiedDate": 1643174514497, "song": 
 {
 "title": "Ironic",
 "artist": "Alanis Morissette",
-"user": "Shari",
-"lastModifiedDate": 1643000467641,
+"user": "my",
+"lastModifiedDate": 1643174514497,
 "copyright": "1996 Maverick, Warner Bros.",
 "key": "B",
 "defaultBpm": 85,
@@ -57681,11 +57681,11 @@
 	"F#B F#G#m F#B F#G#m",
 	"F#B F#G#m AE F#",
 	"B:",
-	"Emaj7 F#6 Emaj7 Eadd9",
-	"Emaj7 F#6 Emaj7 Eadd9",
+	"Emaj7 F#6 Emaj7 F#6",
+	"Emaj7 F#6 Emaj7 EF#",
 	"O:",
-	"Emaj7 F#6 Emaj7 Eadd9",
-	"Emaj7 F#6 Emaj7 Eadd9"
+	"Emaj7 F#6 Emaj7 F#6",
+	"Emaj7 F#6 Emaj7 Emaj7"
     ],
 "lyrics": 
     [
@@ -60344,7 +60344,7 @@
 { "file": "", "lastModifiedDate": 1642819708976, "song": 
 {
 "title": "Just My Imagination (Running Away With Me), cover by The Rolling Stones",
-"artist": "Temptations, The ",
+"artist": "Temptations, The",
 "user": "Shari",
 "lastModifiedDate": 1642819708976,
 "copyright": "1978 Rolling Stones, Virgin",
@@ -104585,7 +104585,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1643007351979, "song": 
+{ "file": "", "lastModifiedDate": 1643007351979, "song": 
 {
 "title": "Sweet Child O' Mine",
 "artist": "Guns N' Roses",

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -17,8 +18,6 @@ class Drums extends StatefulWidget {
   @override
   _Drums createState() => _Drums();
 }
-
-enum DrumPartEnum { topHat1, topHat2, topHat3, snare, bass }
 
 int _subBeats = 4;
 List<String> _timingNames = [
@@ -68,10 +67,12 @@ class _Drums extends State<Drums> {
       //  title row
       {
         children = [];
-        children.add(Text(
-          'Drum',
-          style: _smallStyle,
-          textAlign: TextAlign.right,
+        children.add(Center(
+          child: Text(
+            'Drum',
+            style: _smallStyle,
+            textAlign: TextAlign.right,
+          ),
         ));
 
         int index = 0;
@@ -89,12 +90,14 @@ class _Drums extends State<Drums> {
       }
 
       //  for each drum
-      for (var part in DrumPartEnum.values) {
+      for (var part in DrumType.values) {
         children = [];
-        children.add(Text(
-          Util.enumName(part),
-          style: _smallStyle,
-          textAlign: TextAlign.right,
+        children.add(Center(
+          child: Text(
+            Util.camelCaseToLowercaseSpace(Util.enumName(part)),
+            style: _smallStyle,
+            textAlign: TextAlign.right,
+          ),
         ));
         DrumPart drumPart = _drumParts.at(part);
         for (var b = 0; b < beats; b++) {
@@ -113,7 +116,7 @@ class _Drums extends State<Drums> {
       }
 
       Map<int, TableColumnWidth>? columnWidths = {};
-      columnWidths[0] = const FlexColumnWidth(2.0);
+      columnWidths[0] = const FlexColumnWidth(4.0);
       //  skip the drum titles
       for (var col = 1; col < beats * _subBeats; col++) {
         columnWidths[col] = const FlexColumnWidth();
@@ -215,20 +218,20 @@ class _Drums extends State<Drums> {
 
 class DrumParts {
   DrumParts(int beats) {
-    for (var e in DrumPartEnum.values) {
+    for (var e in DrumType.values) {
       _drumParts[e] = DrumPart(e, beats);
     }
   }
 
-  DrumPart at(DrumPartEnum e) {
+  DrumPart at(DrumType e) {
     return _drumParts[e];
   }
 
-  bool beatSelection(DrumPartEnum e, int beat, int subBeat) {
+  bool beatSelection(DrumType e, int beat, int subBeat) {
     return _drumParts[e].beatSelection(beat, subBeat);
   }
 
-  final Map _drumParts = HashMap<DrumPartEnum, DrumPart>();
+  final Map _drumParts = HashMap<DrumType, DrumPart>();
 }
 
 class DrumPart {
@@ -244,7 +247,7 @@ class DrumPart {
     _beatSelection[beat * _subBeats + subBeat] = b;
   }
 
-  final DrumPartEnum partEnum;
+  final DrumType partEnum;
   final int beats;
   List<bool> _beatSelection = [];
 }

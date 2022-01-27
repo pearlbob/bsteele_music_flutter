@@ -21,6 +21,7 @@ import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
+import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -55,6 +56,7 @@ SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
 //  diagnostic logging enables
+const Level _playerLogBuild = Level.debug;
 const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
@@ -179,6 +181,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     displayKeyOffset = app.displayKeyOffset;
     _song = widget._song;
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
+    _selectedSongMoment = null;
 
     leaderSongUpdate(-1);
 
@@ -421,7 +424,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.v('player build: $_song, selectedSongMoment: $_selectedSongMoment');
+    logger.log(_playerLogBuild,
+        'player build: $_song, selectedSongMoment: $_selectedSongMoment, selectedTargetY: $selectedTargetY');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -443,6 +447,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     if (_selectedSongMoment == null) {
       //  fixme
       setSelectedSongMoment(_song.songMoments.first);
+      scrollToSectionByMoment(_selectedSongMoment);
     }
 
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
@@ -1409,7 +1414,7 @@ With escape, the app goes back to the play list.''',
       setState(() {
         selectedTargetY = targetY;
         scrollTarget = adjustedTarget;
-        if (scrollController.offset != adjustedTarget) {
+        if (scrollController.hasClients && scrollController.offset != adjustedTarget) {
           scrollController.animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.ease);
         }
       });
@@ -1673,123 +1678,109 @@ With escape, the app goes back to the play list.''',
                         'User style: ',
                         style: headerTextStyle,
                       ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 30.0),
-                        child: appWrapFullWidth(children: <Widget>[
-                          appWrap(
-                            [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.player,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Player',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.player;
-                                    forceTableRedisplay();
-                                  });
-                                },
-                                style: headerTextStyle,
-                              ),
-                            ],
-                            spacing: 10,
-                          ),
-                          appWrap(
-                            [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.both,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Both Player and Singer',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.both;
-                                    forceTableRedisplay();
-                                  });
-                                },
-                                style: headerTextStyle,
-                              ),
-                            ],
-                            spacing: 10,
-                          ),
-                          appWrap(
-                            [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.singer,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Singer',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.singer;
-                                    forceTableRedisplay();
-                                  });
-                                },
-                                style: headerTextStyle,
-                              ),
-                            ],
-                            spacing: 10,
-                          ),
-                        ], spacing: 30),
-                      ),
-                    ], spacing: 20),
-                    appSpace(),
-                    appWrapFullWidth(
-                      children: [
-                        appTooltip(
-                          message: 'For a guitar, show the capo location and\n'
-                              'chords to match the current key.',
-                          child: Text(
-                            'Capo',
-                            style: headerTextStyle,
-                            softWrap: false,
-                          ),
-                        ),
-                        appSwitch(
-                          appKeyEnum: AppKeyEnum.playerCapo,
+                      appWrap([
+                        Radio<UserDisplayStyle>(
+                          value: UserDisplayStyle.player,
+                          groupValue: appOptions.userDisplayStyle,
                           onChanged: (value) {
                             setState(() {
-                              isCapo = !isCapo;
-                              setSelectedSongKey(selectedSongKey);
+                              if (value != null) {
+                                appOptions.userDisplayStyle = value;
+                                forceTableRedisplay();
+                              }
+                            });
+                          },
+                        ),
+                        appTextButton(
+                          'Player',
+                          appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                          onPressed: () {
+                            setState(() {
+                              appOptions.userDisplayStyle = UserDisplayStyle.player;
                               forceTableRedisplay();
                             });
                           },
-                          value: isCapo,
+                          style: headerTextStyle,
                         ),
-                      ],
-                    ),
+                      ]),
+                      appWrap([
+                        Radio<UserDisplayStyle>(
+                          value: UserDisplayStyle.both,
+                          groupValue: appOptions.userDisplayStyle,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                appOptions.userDisplayStyle = value;
+                                forceTableRedisplay();
+                              }
+                            });
+                          },
+                        ),
+                        appTextButton(
+                          'Both Player and Singer',
+                          appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                          onPressed: () {
+                            setState(() {
+                              appOptions.userDisplayStyle = UserDisplayStyle.both;
+                              forceTableRedisplay();
+                            });
+                          },
+                          style: headerTextStyle,
+                        ),
+                      ]),
+                      appWrap([
+                        Radio<UserDisplayStyle>(
+                          value: UserDisplayStyle.singer,
+                          groupValue: appOptions.userDisplayStyle,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                appOptions.userDisplayStyle = value;
+                                forceTableRedisplay();
+                              }
+                            });
+                          },
+                        ),
+                        appTextButton(
+                          'Singer',
+                          appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                          onPressed: () {
+                            setState(() {
+                              appOptions.userDisplayStyle = UserDisplayStyle.singer;
+                              forceTableRedisplay();
+                            });
+                          },
+                          style: headerTextStyle,
+                        ),
+                      ]),
+                    ], spacing: 10),
                     appSpace(),
                     appWrapFullWidth(children: [
+                      appWrap(
+                        [
+                          appTooltip(
+                            message: 'For a guitar, show the capo location and\n'
+                                'chords to match the current key.',
+                            child: Text(
+                              'Capo',
+                              style: headerTextStyle,
+                              softWrap: false,
+                            ),
+                          ),
+                          appSwitch(
+                            appKeyEnum: AppKeyEnum.playerCapo,
+                            onChanged: (value) {
+                              setState(() {
+                                isCapo = !isCapo;
+                                setSelectedSongKey(selectedSongKey);
+                                forceTableRedisplay();
+                              });
+                            },
+                            value: isCapo,
+                          ),
+                        ],
+                      ),
+                      appSpace(space: 40),
                       appTextButton(
                         'Repeats:',
                         appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
@@ -1819,42 +1810,36 @@ With escape, the app goes back to the play list.''',
                       ),
                     ]),
                     appSpace(),
+                    if (kDebugMode) const Drums(),
+                    appSpace(),
                     appWrapFullWidth(
                       children: [
                         Text(
                           'NinJam choice:',
                           style: headerTextStyle,
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(left: 30.0),
-                          child: appWrapFullWidth(
-                            children: <Widget>[
-                              appRadio<bool>('No NinJam aids',
-                                  appKeyEnum: AppKeyEnum.optionsNinJam,
-                                  value: false,
-                                  groupValue: appOptions.ninJam, onPressed: () {
-                                setState(() {
-                                  appOptions.ninJam = false;
-                                  forcePlayerSetState();
-                                });
-                              }, style: headerTextStyle),
-                              appRadio<bool>('Show NinJam aids',
-                                  appKeyEnum: AppKeyEnum.optionsNinJam,
-                                  value: true,
-                                  groupValue: appOptions.ninJam, onPressed: () {
-                                setState(() {
-                                  appOptions.ninJam = true;
-                                  forcePlayerSetState();
-                                });
-                              }, style: headerTextStyle),
-                            ],
-                            spacing: 30,
-                          ),
-                        ),
+                        appRadio<bool>('No NinJam aids',
+                            appKeyEnum: AppKeyEnum.optionsNinJam,
+                            value: false,
+                            groupValue: appOptions.ninJam, onPressed: () {
+                          setState(() {
+                            appOptions.ninJam = false;
+                            forcePlayerSetState();
+                          });
+                        }, style: headerTextStyle),
+                        appRadio<bool>('Show NinJam aids',
+                            appKeyEnum: AppKeyEnum.optionsNinJam,
+                            value: true,
+                            groupValue: appOptions.ninJam, onPressed: () {
+                          setState(() {
+                            appOptions.ninJam = true;
+                            forcePlayerSetState();
+                          });
+                        }, style: headerTextStyle),
                       ],
-                      spacing: 10,
+                      spacing: 30,
                     ),
-                    appSpace(),
+                    appVerticalSpace(),
                     appWrapFullWidth(children: <Widget>[
                       Text(
                         'Display key offset: ',

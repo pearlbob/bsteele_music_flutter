@@ -24075,12 +24075,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1642821549949, "song": 
+{ "file": "", "lastModifiedDate": 1643253885801, "song": 
 {
 "title": "Day Tripper",
 "artist": "Beatles, The",
 "user": "my",
-"lastModifiedDate": 1642821549949,
+"lastModifiedDate": 1643253885801,
 "copyright": "1966 Apple Records",
 "key": "E",
 "defaultBpm": 136,
@@ -24093,7 +24093,7 @@
 	"I2:",
 	"E7 E7 E7 E7",
 	"I3:",
-	"E7 E7 E7 E7 x3",
+	"B B B B x3",
 	"I4:",
 	"E7 E7 E7 E7 x2",
 	"V:",
@@ -24101,7 +24101,7 @@
 	"A7 A7 E7 E7",
 	"C:",
 	"F#7 F#7 F#7 F#7",
-	"A7 G#7 C# B7",
+	"A7 G#7 C#7 B7",
 	"O:",
 	"E7 E7 E7 E7 x2",
 	"E7"
@@ -27037,15 +27037,15 @@
     ]
 }
 },
-{ "file": "Don't Fear the Reaper.songlyrics", "lastModifiedDate": 1642925554538, "song": 
+{ "file": "Don't Fear the Reaper.songlyrics", "lastModifiedDate": 1643310907316, "song": 
 {
 "title": "Don't Fear the Reaper",
 "artist": "Blue Oyster Cult",
-"user": "Shari",
-"lastModifiedDate": 1642925554538,
+"user": "my",
+"lastModifiedDate": 1643310907316,
 "copyright": "1978 Columbia",
 "key": "C",
-"defaultBpm": 145,
+"defaultBpm": 141,
 "timeSignature": "2/4",
 "chords": 
     [
@@ -84407,12 +84407,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1634170195832, "song": 
+{ "file": "", "lastModifiedDate": 1643310876175, "song": 
 {
 "title": "Pretending",
 "artist": "Eric Clapton",
-"user": "Shari",
-"lastModifiedDate": 1634170195832,
+"user": "my",
+"lastModifiedDate": 1643310876175,
 "copyright": "1989 Reprise, written by Jerry Lynn Williams",
 "key": "A",
 "defaultBpm": 98,
@@ -84491,10 +84491,12 @@
 	"Fail",
 	"",
 	"C:",
-	"Don't be pretending, about how you feel",
-	"Don't be pretending, that your love is real",
-	"Don't be pretending, about how you feel",
-	"Don't be pretending, that your love is real",
+	"(Don't be) pretending, about how you feel, don't be",
+	"Pretending, that your love is real",
+	"",
+	"C:",
+	"(Don't be) pretending, about how you feel, don't be",
+	"Pretending, that your love is real",
 	"",
 	"PC:",
 	"Pretending, pretending",

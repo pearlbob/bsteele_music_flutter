@@ -50,7 +50,7 @@ SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 _Player? _player;
 
-final GlobalKey _stackKey = GlobalKey();
+GlobalKey _stackKey = GlobalKey();
 
 SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
@@ -286,7 +286,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               orElse: () => _songMomentChordRectangles.last);
           var songMomentIndex = _songMomentChordRectangles.indexOf(rect);
           setSelectedSongMoment(_song.songMoments[songMomentIndex]); //  leader distribution done here
-          logger.log(_playerLogLeaderFollower, 'leader scroll: $_selectedSongMoment');
         }
       }
     }
@@ -299,13 +298,14 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void songMasterListener() {
-    if (songMaster.momentNumber != null) {
-      _selectedSongMoment = _song.getSongMoment(songMaster.momentNumber!);
-      setTargetYToSongMoment(_selectedSongMoment);
-      leaderSongUpdate(songMaster.momentNumber!);
-    }
-    //logger.i('songMaster event:  $_selectedSongMoment');
     setState(() {
+      if (songMaster.momentNumber != null) {
+        setSelectedSongMoment(_song.getSongMoment(songMaster.momentNumber!));
+        // _selectedSongMoment = _song.getSongMoment(songMaster.momentNumber!);
+        // setTargetYToSongMoment(_selectedSongMoment);
+        // leaderSongUpdate(songMaster.momentNumber!);
+      }
+      //logger.i('songMaster event:  $_selectedSongMoment');
       isPlaying = songMaster.isPlaying;
     });
   }
@@ -424,8 +424,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.log(_playerLogBuild,
-        'player build: $_song, selectedSongMoment: $_selectedSongMoment, selectedTargetY: $selectedTargetY');
+    logger.log(
+        _playerLogBuild, 'player build: $_song, selectedSongMoment: $_selectedSongMoment, isPlaying: $isPlaying');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -433,7 +433,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         _song = _songUpdate!.song;
         widget._song = _song;
         adjustDisplay();
-        performPlay();
+        if (_songUpdate!.state == SongUpdateState.playing) {
+          performPlay();
+        } else {
+          simpleStop();
+        }
       }
       setSelectedSongKey(_songUpdate!.currentKey);
     }
@@ -609,7 +613,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final double boxOffset = boxCenter;
 
     final hoverColor = Colors.blue[700]; //  fixme with css
-    Color centerBackgroundColor = app.themeData.colorScheme.secondary;
+    Color centerBackgroundColor = const Color(0xff598aea);
 
     logger.log(
         _playerLogScroll,
@@ -716,7 +720,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 controller: scrollController,
                 scrollDirection: Axis.vertical,
                 child: SizedBox(
-                  child: Stack(key: _stackKey, children: [
+                  child: Stack(key: _stackKey = GlobalKey(), children: [
                     if (selectedTargetY > 0)
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                         appSpace(space: selectedTargetY - (chordFontSize ?? 0) / 2),
@@ -1180,13 +1184,6 @@ With escape, the app goes back to the play list.''',
                   ]),
                 ),
               ),
-              onTap: () {
-                if (isPlaying) {
-                  sectionBump(1);
-                } else {
-                  performPlay();
-                }
-              },
             ),
             // //  mask future sections for the leader to force them to stay on the current section
             // //  this minimizes the errors seen by followers with smaller displays.
@@ -1384,6 +1381,10 @@ With escape, the app goes back to the play list.''',
     if (_songMomentChordRectangles.isNotEmpty) {
       setSelectedSongMoment(songMoment);
       var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
+      logger.log(
+          _playerLogScroll,
+          'setTargetYToSongMoment: ${songMoment.momentNumber}: '
+          '$songMoment => section #${songMoment.lyricSection.index} => $y');
       scrollToTargetY(y);
     }
   }
@@ -1467,11 +1468,19 @@ With escape, the app goes back to the play list.''',
       _lastSongUpdateSent = null;
       return;
     }
+
+    SongUpdateState state = isPlaying ? SongUpdateState.playing : SongUpdateState.none;
     if (_lastSongUpdateSent != null) {
       if (_lastSongUpdateSent!.song == widget._song &&
           _lastSongUpdateSent!.momentNumber == momentNumber &&
+          _lastSongUpdateSent!.state == state &&
           _lastSongUpdateSent!.currentKey == selectedSongKey) {
         return;
+      }
+
+      //  debug bait
+      if (_lastSongUpdateSent!.momentNumber > momentNumber) {
+        logger.i('debughere:');
       }
     }
 
@@ -1481,7 +1490,7 @@ With escape, the app goes back to the play list.''',
     playerSelectedSongKey = selectedSongKey;
     update.momentNumber = momentNumber;
     update.user = appOptions.user;
-    update.setState(isPlaying ? SongUpdateState.playing : SongUpdateState.none);
+    update.setState(state);
     songUpdateService.issueSongUpdate(update);
 
     logger.log(_playerLogLeaderFollower, 'leadSongUpdate: momentNumber: $momentNumber');
@@ -1648,7 +1657,7 @@ With escape, the app goes back to the play list.''',
       leaderSongUpdate(_selectedSongMoment!.momentNumber);
     }
 
-    // scrollToSectionByMoment(_selectedSongMoment);
+    scrollToSectionByMoment(_selectedSongMoment);
     // forceTableRedisplay();
     logger.log(_playerLogScroll, 'selectedSongMoment: $_selectedSongMoment');
   }

@@ -18,12 +18,12 @@
 }
 
 .appbar {
-    background-color: var(--app-background-color); /* type is Color, app bar background color */
+    background-color: #2654c6; /* type is Color, app bar background color */
     color: white; /* type is Color, app bar foreground color */
 }
 
 .button {
-    background-color: var(--app-background-color); /* type is Color, (elevated) button background color */
+    background-color: #2654c6; /* type is Color, (elevated) button background color */
     color: white; /* type is Color, (elevated) button foreground color */
     /*font-size: 1.5vw; /* type is UnitTerm, button text font size */
 }
@@ -128,44 +128,62 @@
 }
 
 .sectionA {
-    background-color: #f5e6b8; /* type is Color, A section background color */
+    background-color: #f6fc81; /* type is Color, A section background color */
 }
 
 .sectionB {
-    background-color: #d2f5cd; /* type is Color, B section background color */
+    background-color: #cec8fc; /* type is Color, B section background color */
 }
 
 .sectionBridge {
-    background-color: #d2f5cd; /* type is Color, Bridge section background color */
+    background-color: #cec8fc; /* type is Color, Bridge section background color */
 }
+/*BR2: #bbb6e6  */
 
 .sectionChorus {
     background-color: #f0f0f0; /* type is Color, Chorus section background color */
 }
+/*C1: #f0f0f0 (same as C)
+  C2: #d1d2d3
+  C3: #bdbebf
+*/
 
 .sectionCoda {
     background-color: #cdf5e9; /* type is Color, Coda section background color */
 }
 
 .sectionIntro {
-    background-color: #cdf5e9; /* type is Color, Intro section background color */
+    background-color: #ccfcc3; /* type is Color, Intro section background color */
 }
+/*
+I1: #ccfcc3 (same as I)
+I2: #b5e6ad
+I3: #a3cf9b
+I4: #ccfcc3
+*/
 
 .sectionOutro {
-    background-color: #cdf5e9; /* type is Color, Outro section background color */
+    background-color: #cedaf4; /* type is Color, Outro section background color */
 }
 
 .sectionPreChorus {
-    background-color: #e8e8e8; /* type is Color, PreChorus section background color */
+    background-color: #f9dceb; /* type is Color, PreChorus section background color */
 }
+/*PC1: #f9dceb (same as PC)
+  PC2: #e6cbd9
+*/
 
 .sectionTag {
-    background-color: #cee1f5; /* type is Color, Tag section background color */
+    background-color: #f7e1dc; /* type is Color, Tag section background color */
 }
 
 .sectionVerse {
-    background-color: #f5e6b8; /* type is Color, Verse section background color */
+    background-color: #f6fc81; /* type is Color, Verse section background color */
 }
+/*V1: #f6fc81 (same as V)
+  V2: #eaea7a
+  V3: #d1d16d
+*/
 
 .docs {
     font-size: 24px;    /*  font size for the in app documentation  */

@@ -252,6 +252,9 @@ https://www.musicnotes.com/  sheetmusic in pdf pro version?
 https://www.all8.com/tools/bpm.htm
 
 
+timing of bass sound from omnidirectional to recording vs timing from within pisound
+timing delay of mic to headphones?
+
 //  remember: debugger( when: );
 // Love song Sara Bareilles in G
 //  Fix "Not enough", fix "I shall be released"

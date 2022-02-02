@@ -2,6 +2,8 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Show some data about the app and it's environment.
@@ -25,7 +27,7 @@ class _CssDemo extends State<CssDemo> {
     const fontSize = 40.0;
     const lyricsFontSize = fontSize * 0.6;
 
-    Widget sections;
+    Widget sections = NullWidget();
     {
       var children = <Widget>[];
       children.add(Text(
@@ -33,17 +35,34 @@ class _CssDemo extends State<CssDemo> {
         style: generateAppTextStyle(),
       ));
       children.add(appSpace());
+      sections = appWrapFullWidth(children: children);
+
       for (var section in SectionEnum.values) {
-        var backgroundColor = getBackgroundColorForSection(Section.get(section));
-        var coloredChordTextStyle = generateChordTextStyle(fontSize: fontSize, backgroundColor: backgroundColor);
-        children.add(Container(
-            margin: getMeasureMargin(),
-            padding: getMeasurePadding(),
-            color: backgroundColor,
-            child: Text(
-              Util.enumName(section),
-              style: coloredChordTextStyle,
-            )));
+        if (kDebugMode) {
+          var lightenings = [
+            0.95,
+            0.90,
+            0.85,
+            0.80,
+          ];
+          var sectionContainers = <Widget>[];
+
+          for (var index = 0; index < lightenings.length * 2; index++) {
+            var backgroundColor = HSLColor.fromColor(getBackgroundColorForSection(Section.get(section)))
+                .withLightness(lightenings[index % lightenings.length])
+                .toColor();
+            var coloredChordTextStyle = generateChordTextStyle(fontSize: fontSize, backgroundColor: backgroundColor);
+            sectionContainers.add(Container(
+                margin: getMeasureMargin(),
+                padding: getMeasurePadding(),
+                color: backgroundColor,
+                child: Text(
+                  Util.enumName(section) + (index > 0 ? index.toString() : ''),
+                  style: coloredChordTextStyle,
+                )));
+          }
+          children.add(appWrapFullWidth(children: sectionContainers));
+        }
       }
       sections = appWrapFullWidth(children: children);
     }
@@ -68,7 +87,7 @@ class _CssDemo extends State<CssDemo> {
                 ),
                 appSpace(),
                 Container(
-                  color: Colors.blue,
+                  color: appbarBackgroundColor(),
                   padding: const EdgeInsets.all(8),
                   child: Text(
                     'App Bar Text Style',
@@ -90,7 +109,10 @@ class _CssDemo extends State<CssDemo> {
                   ],
                 ),
                 appSpace(),
-                sections,
+                Container(
+                  child: sections,
+                  color: measureContainerBackgroundColor(),
+                ),
                 appSpace(),
                 Container(
                     margin: getMeasureMargin(),

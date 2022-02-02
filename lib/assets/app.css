@@ -70,9 +70,14 @@
     /*size: 2.5vw;*/ /* allow the dynamic sizing to function by NOT specifying the size */
 }
 
+/*  container for measures and the sections    */
+.measureContainer {
+    background-color: #598aea;
+}
+
 .measure {
     margin: 3px;
-    padding: 2px;
+    padding: 5px;
 }
 
 .chordNote {

@@ -162,13 +162,17 @@ void _initUniversal() {
 }
 
 //  app bar
-final appbarBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'background-color', Color,
+Color? appbarBackgroundColor() {
+  return _getColor(_appbarBackgroundColorProperty);
+}
+
+final _appbarBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'background-color', Color,
     defaultValue: _defaultBackgroundColor, description: 'app bar background color');
 final appbarColorProperty = CssProperty.fromCssClass(CssClassEnum.appbar, 'color', Color,
     defaultValue: _defaultForegroundColor, description: 'app bar foreground color');
 
 void _initAppBar() {
-  _init(appbarBackgroundColorProperty);
+  _init(_appbarBackgroundColorProperty);
   _init(appbarColorProperty);
 }
 
@@ -217,6 +221,10 @@ void _initTooltip() {
 }
 
 //  chord note
+Color measureContainerBackgroundColor() {
+  return _getColor(_measureContainerBackgroundColorProperty) ?? Colors.blue;
+}
+
 final CssProperty _chordNoteColorProperty = CssProperty(CssSelectorEnum.classSelector, 'chordNote', 'color', _CssColor,
     defaultValue: null, description: 'chord note foreground color');
 final CssProperty _chordNoteBackgroundColorProperty = CssProperty(
@@ -238,6 +246,9 @@ final _measureMarginProperty = CssProperty(CssSelectorEnum.classSelector, 'measu
 final _measurePaddingProperty = CssProperty(CssSelectorEnum.classSelector, 'measure', 'padding', visitor.UnitTerm,
     defaultValue: visitor.ViewportTerm(0.35, '0.35', null, parser.TokenKind.UNIT_VIEWPORT_VW),
     description: 'measure padding, i.e. the space between chord characters and the measure boundary');
+final CssProperty _measureContainerBackgroundColorProperty = CssProperty(
+    CssSelectorEnum.classSelector, 'measureContainer', 'background-color', _CssColor,
+    defaultValue: Colors.white, description: 'Container background color for measures and sections');
 
 void _initChord() {
   _init(_chordNoteColorProperty);
@@ -247,6 +258,7 @@ void _initChord() {
   _init(_chordNoteFontStyleProperty);
   _init(_measureMarginProperty);
   _init(_measurePaddingProperty);
+  _init(_measureContainerBackgroundColorProperty);
 }
 
 //  chord descriptor
@@ -960,7 +972,7 @@ class AppTheme {
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
       //  hassle with mapping Color to MaterialColor
-      var color = _getPropertyValue(appbarBackgroundColorProperty) as Color;
+      var color = _getPropertyValue(_appbarBackgroundColorProperty) as Color;
       Map<int, Color> colorCodes = {
         50: color.withOpacity(.1),
         100: color.withOpacity(.2),
@@ -1266,7 +1278,7 @@ FloatingActionButton appFloatingActionButton({
     },
     child: child,
     mini: mini,
-    backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(appbarBackgroundColorProperty),
+    backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
   );
 }
 
@@ -1759,7 +1771,7 @@ List<CssAction> cssActions = [
                     .copyWith(foregroundColor: MaterialStateProperty.all(value)))));
     _setPropertyValue(p, value);
   }),
-  CssAction(appbarBackgroundColorProperty, (p, value) {
+  CssAction(_appbarBackgroundColorProperty, (p, value) {
     assert(value is Color);
     app.themeData = app.themeData.copyWith(appBarTheme: app.themeData.appBarTheme.copyWith(backgroundColor: value));
     _setPropertyValue(p, value);

@@ -69,6 +69,11 @@
     size: 3.25vw;
 }
 
+/*  container for measures and the sections    */
+.measureContainer {
+    background-color: cyan;
+}
+
 .measure {
     margin: 1.0vw;
     padding: 1.8vw;

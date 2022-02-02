@@ -138,6 +138,7 @@ void main() async {
 }
 
 /*
+in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?
 edit lyrics: one blank row is now two?  at section end?
@@ -875,12 +876,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   openLink('http://www.bsteele.com');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: const Image(
                     image: AssetImage('lib/assets/runningMan.png'),
                     width: kToolbarHeight,
                     height: kToolbarHeight,
                     semanticLabel: "bsteele.com website",
+                  ),
+                  //  color: Colors.white,
+                  margin: const EdgeInsets.all(4),
+                  //padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    color: Colors.white,
                   ),
                 ),
               ),

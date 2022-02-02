@@ -613,7 +613,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     final double boxOffset = boxCenter;
 
     final hoverColor = Colors.blue[700]; //  fixme with css
-    Color centerBackgroundColor = const Color(0xff598aea);
 
     logger.log(
         _playerLogScroll,
@@ -694,9 +693,9 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                     end: Alignment.bottomCenter,
                     colors: <Color>[
                       theme.backgroundColor,
-                      centerBackgroundColor,
-                      centerBackgroundColor,
-                      centerBackgroundColor,
+                      measureContainerBackgroundColor(),
+                      measureContainerBackgroundColor(),
+                      measureContainerBackgroundColor(),
                     ],
                   ),
                 ),

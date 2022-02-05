@@ -138,6 +138,9 @@ void main() async {
 }
 
 /*
+beta short list:
+verify dmg version reads allSongs from web
+
 in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?
@@ -443,7 +446,7 @@ class BSteeleMusicApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    logger.i('main: build()');
+    logger.v('main: build()');
 
     return ChangeNotifierProvider<AppOptions>(
         create: (_) => AppOptions(),
@@ -539,7 +542,7 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           _refilterSongs();
         });
-        logger.i("internal songList used");
+        app.warningMessage = 'internal songList used, dated: ${await app.releaseUtcDate()}';
       } catch (fe) {
         logger.i("internal songList parse error: " + fe.toString());
       }
@@ -592,7 +595,7 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           _refilterSongs();
         });
-        logger.i("external songList read from: " + url);
+        app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
         logger.i("external songList parse error: " + fe.toString());
         _readInternalSongList();

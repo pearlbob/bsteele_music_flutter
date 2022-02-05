@@ -9,139 +9,109 @@
 }
 
 * {
-    background-color: cyan; /* type is Color, universal background color */
-    color: blue; /* type is Color, universal foreground color */
-    font-size: 3vw; /* type is LengthTerm, universal text font size */
+    background-color: white; /* type is Color, universal background color */
+    color: black; /* type is Color, universal foreground color */
+    accent-color: #57a9ff;
+  /*  font-size: 1.75vw; /* type is LengthTerm, universal text font size */
     font-weight: normal;
-    font-style: italic;
+    font-style: normal;
 }
 
 .appbar {
-    background-color: orange; /* type is Color, app bar background color */
-    color: purple; /* type is Color, app bar foreground color */
+    background-color: #2654c6; /* type is Color, app bar background color */
+    color: white; /* type is Color, app bar foreground color */
 }
 
 .button {
-    background-color: #2196f3; /* type is Color, (elevated) button background color */
+    background-color: #2654c6; /* type is Color, (elevated) button background color */
     color: white; /* type is Color, (elevated) button foreground color */
-    font-size: 1.25vw; /* type is UnitTerm, button text font size */
+    /*font-size: 1.5vw; /* type is UnitTerm, button text font size */
 }
 
 .tooltip {
-    background-color: cyan; /* type is Color, (elevated) button background color */
-    color: deeppink; /* type is Color, (elevated) button foreground color */
-    font-size: 2.25vw; /* type is UnitTerm, button text font size */
+    background-color: #dcedc8; /* type is Color, (elevated) button background color */
+    color: black; /* type is Color, (elevated) button foreground color */
+    /*font-size: 1.75vw; /* type is UnitTerm, button text font size */
 }
 
 .oddTitleText, .evenTitleText {
-    background-color: peru; /* type is Color, odd row background color */
-    color: mediumspringgreen;
-    /*font-family: sans-serif;*/
-    /*font-size: clamp( 12px, 1.5vw, 24px);*/
-    /*font-style: normal;*/
-    /*font-weight: normal;*/
-    /*text-align: left;*/
-    /*line-height: normal;*/
-    /*margin: 0 0 0 0;*/
-    /*padding: 0 0 0 0;*/
-    /*border-top: 0 solid #000;*/
-    /*border-right: 0 solid #000;*/
-    /*border-bottom: 0 solid #000;*/
-    /*border-left: 0 solid #000;*/
-    /*word-wrap: normal;*/
-    /*text-overflow: clip;*/
-    /*white-space: normal;*/
+    background-color: white; /* type is Color, odd row background color */
+    color: black;
 }
 
 .oddTitleText {
-    background-color: orange; /* type is Color, odd row background color */
-    color: yellow;
+    background-color: white; /* type is Color, odd row background color */
+    color: black;
 }
 
 .evenTitleText {
-    background-color: peru; /* type is Color, even row background color */
-    color: pink;
+    background-color: whitesmoke; /* type is Color, even row background color */
+    color: black;
 }
 
 .icon {
-    color: deeppink; /* type is Color, icon foreground color */
-    background-color: green; /* type is Color, icon bar background color */
-    size: 3.25vw;
+    color: white; /* type is Color, icon foreground color */
+    background-color: var(--app-background-color); /* type is Color, icon bar background color */
+    /*size: 2.5vw;*/ /* allow the dynamic sizing to function by NOT specifying the size */
 }
 
 /*  container for measures and the sections    */
 .measureContainer {
-    background-color: cyan;
+    background-color: #598aea;
 }
 
 .measure {
-    margin: 1.0vw;
-    padding: 1.8vw;
+    margin: 3px;
+    padding: 5px;
 }
 
 .chordNote {
     /*  assumes the background color will come from the section */
-    color: #dd1144;
-    font-size: 18px; /*    app will dynamically override any font size specification */
-    font-weight: bolder;
+    color: black;
+    /*font-size: 10px; !*    app will dynamically override any font size specification *!*/
+    font-weight: bold;
     font-style: normal;
 }
 
 .chordDescriptor {
     /*  assumes the background color will come from the section */
-    color: deeppink;
-    font-weight: bolder;
+    color: #333;    /*  give a slight advantage to the chord note over the chord descriptor  */
+    font-weight: normal;
     font-style: normal;
     /*  default font size is 0.8 of the chord note  */
 }
 
 .chordSlashNote {
     /*  assumes the background color will come from the section */
-    color: darkcyan;
-    font-weight: normal;
-    font-style: normal;
+    color: darkred;
+    font-weight: bold;
+    font-style: italic;
     /*  default font size is the same as the chord note  */
 }
 
 .lyrics {
     /*  assumes the background color will come from the section */
-    color: green;
-    background-color: darkblue;
-    font-weight: lighter;
-    font-style: italic;
+    color: black;
+    font-weight: normal;
+    font-style: normal;
     /*  default font size is 0.8 the chord note size  */
 }
 
 .section { /*  for all section types   */
     background-color: white; /* type is Color, default section background color */
-    color: burlywood;
-    /*font-family: sans-serif;*/
-    /*font-size: clamp( 12px, 2.25vw, 40px);*/
-    /*font-style: normal;*/
-    /*font-weight: normal;*/
-    /*text-align: left;*/
-    /*line-height: normal;*/
-    /*margin: 0 0 0 0;*/
-    /*padding: 0 0 0 0;*/
-    /*border-top: 0 solid #000;*/
-    /*border-right: 0 solid #000;*/
-    /*border-bottom: 0 solid #000;*/
-    /*border-left: 0 solid #000;*/
-    /*word-wrap: normal;*/
-    /*text-overflow: clip;*/
-    /*white-space: normal;*/
+    color: black;   /*  default for all sections, see .chordNote, .chordDescriptor and .chordSlashNote    */
 }
 
 .sectionA {
-    background-color: #f5e6b8; /* type is Color, A section background color */
+    background-color: #f6fc81; /* type is Color, A section background color */
 }
 
 .sectionB {
-    background-color: #d2f5cd; /* type is Color, B section background color */
+    background-color: #cec8fc; /* type is Color, B section background color */
 }
 
 .sectionBridge {
-    background-color: #d2f5cd; /* type is Color, Bridge section background color */
+    background-color: #cec8fc; /* type is Color, Bridge section background color */
 }
 
 .sectionChorus {
@@ -153,25 +123,25 @@
 }
 
 .sectionIntro {
-    background-color: #cdf5e9; /* type is Color, Intro section background color */
+    background-color: #C8E6C9; /* type is Color, Intro section background color */
 }
 
 .sectionOutro {
-    background-color: #cdf5e9; /* type is Color, Outro section background color */
+    background-color: #cedaf4; /* type is Color, Outro section background color */
 }
 
 .sectionPreChorus {
-    background-color: #e8e8e8; /* type is Color, PreChorus section background color */
+    background-color: #f9dceb; /* type is Color, PreChorus section background color */
 }
 
 .sectionTag {
-    background-color: #cee1f5; /* type is Color, Tag section background color */
+    background-color: #f7e1dc; /* type is Color, Tag section background color */
 }
 
 .sectionVerse {
-    background-color: #f5e6b8; /* type is Color, Verse section background color */
+    background-color: #FFF59D; /* type is Color, Verse section background color */
 }
 
 .docs {
-    font-size: 16px;    /*  font size for the in app documentation  */
+    font-size: 24px;    /*  font size for the in app documentation  */
 }

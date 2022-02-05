@@ -11,6 +11,7 @@ import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatMarker.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -51,7 +52,8 @@ class LyricsTable {
 
     List<TableRow> rows = [];
     List<Widget> children = []; //  items for the current row
-    _sectionBackgroundColor = getBackgroundColorForSection(Section.get(SectionEnum.chorus));
+    _sectionBackgroundColor =
+        getBackgroundColorForSectionVersion(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
     //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
@@ -69,7 +71,7 @@ class LyricsTable {
     {
       Widget w;
 
-      _colorBySection(ChordSection.getDefault());
+      _colorBySectionVersion(SectionVersion.defaultInstance);
 
       TextStyle textStyle = _coloredChordTextStyle;
       for (int r = 0; r < _grid.getRowCount(); r++) {
@@ -85,7 +87,7 @@ class LyricsTable {
             case ChordSection:
               {
                 var chordSection = measureNode as ChordSection;
-                _colorBySection(chordSection);
+                _colorBySectionVersion(chordSection.sectionVersion);
                 w = _box(appWidgetHelper.chordSection(
                   chordSection,
                   style: _coloredBackgroundLyricsTextStyle,
@@ -212,8 +214,8 @@ class LyricsTable {
     );
   }
 
-  void _colorBySection(ChordSection chordSection) {
-    _sectionBackgroundColor = getBackgroundColorForSection(chordSection.getSection());
+  void _colorBySectionVersion(SectionVersion sectionVersion) {
+    _sectionBackgroundColor = getBackgroundColorForSectionVersion(sectionVersion);
     _coloredChordTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
     );

@@ -47,6 +47,7 @@ linux/
 android/
 ios/
 macos/
+windows/
 .idea/
 
 # See https://www.dartlang.org/guides/libraries/private-files

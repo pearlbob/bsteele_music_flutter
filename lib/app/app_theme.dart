@@ -7,6 +7,7 @@ import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:csslib/parser.dart' as parser;
@@ -48,6 +49,12 @@ Map<String, List<String>> _propertyLiterals = {
     'solid', /*'dotted', 'dashed', 'double', 'groove', 'ridge', 'inset', 'outset', 'hidden'*/
   ],
 };
+
+String colorToCssColorString(Color color) {
+  return '#${color.red.toRadixString(16).padLeft(2, '0')}'
+      '${color.green.toRadixString(16).padLeft(2, '0')}'
+      '${color.blue.toRadixString(16).padLeft(2, '0')}';
+}
 
 TextAlign? textAlignParse(String value) {
   return Util.enumFromString(value, TextAlign.values);
@@ -442,9 +449,40 @@ Color getAccentColor() {
   return (ret != null && ret is Color) ? ret : Colors.blue;
 }
 
-Color getBackgroundColorForSection(Section? section) {
-  return _getBackgroundColorForSectionEnum(section?.sectionEnum ?? SectionEnum.chorus);
+Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
+  sectionVersion ??= SectionVersion.defaultInstance;
+
+  var index = sectionVersion.version <= 0 ? 0 : sectionVersion.version - 1;
+  var colorInts = _sectionColorMap[sectionVersion.section.sectionEnum] ?? [0xf0f0f0];
+  var color = Color(0xff000000 | (colorInts[index % colorInts.length] & 0xffffff));
+
+  return color;
 }
+
+//  all section versions 1 will be the same color as the section without a version number
+//  section version color cycle will be determined by the number of colors added here for each section
+Map<SectionEnum, List<int>> _sectionColorMap = {
+  SectionEnum.intro: [0xccfcc3, 0xb5e6ad, 0xa3cf9b, 0xccfcc3],
+  SectionEnum.verse: [0xf6fc81, 0xeaea7a, 0xd1d16d],
+  SectionEnum.preChorus: [0xf9dceb, 0xe6cbd9],
+  SectionEnum.chorus: [0xf0f0f0, 0xd1d2d3, 0xbdbebf],
+  SectionEnum.a: [
+    0xf6fc81,
+  ],
+  SectionEnum.b: [
+    0xcec8fc,
+  ],
+  SectionEnum.bridge: [0xcec8fc, 0xbbb6e6],
+  SectionEnum.coda: [
+    0xcdf5e9,
+  ],
+  SectionEnum.tag: [
+    0xf7e1dc,
+  ],
+  SectionEnum.outro: [
+    0xcedaf4,
+  ],
+};
 
 Color _getBackgroundColorForSectionEnum(SectionEnum sectionEnum) {
   final Map<SectionEnum, CssProperty> sectionMap = {

@@ -1567,7 +1567,7 @@ class _Edit extends State<Edit> {
           style: generateAppTextStyle(
               fontSize: chordFontSize,
               fontWeight: FontWeight.bold,
-              backgroundColor: getBackgroundColorForSection(chordSection.sectionVersion.section)),
+              backgroundColor: getBackgroundColorForSectionVersion(chordSection.sectionVersion)),
         ),
       );
     }).toList();
@@ -1618,7 +1618,7 @@ class _Edit extends State<Edit> {
 
       //  chord section headers
       var chordSection = song.getChordSection(entry.lyricSection.sectionVersion);
-      var sectionBackgroundColor = getBackgroundColorForSection(chordSection?.sectionVersion.section);
+      var sectionBackgroundColor = getBackgroundColorForSectionVersion(chordSection?.sectionVersion);
       var sectionLyricsBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
@@ -2147,7 +2147,7 @@ class _Edit extends State<Edit> {
     }
 
     ChordSection chordSection = measureNode as ChordSection;
-    var sectionColor = getBackgroundColorForSection(chordSection.sectionVersion.section);
+    var sectionColor = getBackgroundColorForSectionVersion(chordSection.sectionVersion);
     var sectionChordTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
 
     if (editPoint.matches(selectedEditPoint)) {
@@ -2380,7 +2380,7 @@ class _Edit extends State<Edit> {
       //  note: can be a chord section location!
     }
 
-    Color sectionColor = getBackgroundColorForSection(editPoint.location.sectionVersion?.section);
+    Color sectionColor = getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
     var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
 
@@ -2846,7 +2846,7 @@ class _Edit extends State<Edit> {
     }
     MeasureRepeat repeat = measureNode as MeasureRepeat;
 
-    Color sectionColor = getBackgroundColorForSection(editPoint.location.sectionVersion?.section);
+    Color sectionColor = getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
 
     if (editPoint.matches(selectedEditPoint)) {
       var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
@@ -2985,7 +2985,7 @@ class _Edit extends State<Edit> {
       return NullWidget();
     }
 
-    var sectionColor = getBackgroundColorForSection(editPoint.location.sectionVersion?.section);
+    var sectionColor = getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
     var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
 
     //  not editing this measureNode
@@ -3210,14 +3210,14 @@ class _Edit extends State<Edit> {
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
       var sectionChordTextStyle = chordTextStyle.copyWith(
-          backgroundColor: getBackgroundColorForSection(sectionVersion.section),
+          backgroundColor: getBackgroundColorForSectionVersion(sectionVersion),
           color: getForegroundColorForSection(sectionVersion.section));
 
       //fixme: deal with selectedSectionVersion;
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
         value: sectionVersion,
         child: Container(
-          color: getBackgroundColorForSection(sectionVersion.section),
+          color: getBackgroundColorForSectionVersion(sectionVersion),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -3251,7 +3251,7 @@ class _Edit extends State<Edit> {
         });
       },
       style: generateAppTextStyle(
-        color: getBackgroundColorForSection(selectedSectionVersion.section),
+        color: getBackgroundColorForSectionVersion(selectedSectionVersion),
         textBaseline: TextBaseline.alphabetic,
       ),
       itemHeight: null,

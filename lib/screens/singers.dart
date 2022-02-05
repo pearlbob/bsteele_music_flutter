@@ -21,11 +21,13 @@ import 'package:reorderables/reorderables.dart';
 import '../app/app.dart';
 
 //  diagnostic logging enables
-const Level _singerLogBuild = Level.info;
+const Level _singerLogBuild = Level.debug;
 
 final _blue = Paint()..color = Colors.lightBlue.shade200;
 
-final List<String> _sessionSingers = []; //  in session order, stored locally to persist over screen reentry.
+final AppOptions _appOptions = AppOptions();
+final List<String> _sessionSingers =
+    _appOptions.sessionSingers; //  in session order, stored locally to persist over screen reentry.
 
 /// Allow the session leader to manage songs for the singers currently present.
 /// Remembers the last key and BPM used by a given singer to aid in the re-singing of that song by the singer.
@@ -141,6 +143,7 @@ class _State extends State<Singers> {
                   onTap: () {
                     setState(() {
                       _sessionSingers.add(singer);
+                      _appOptions.sessionSingers = _sessionSingers;
                       selectedSinger = singer;
                       searchForSelectedSingerOnly = true;
                     });
@@ -161,6 +164,7 @@ class _State extends State<Singers> {
                   onTap: () {
                     setState(() {
                       _sessionSingers.remove(singer);
+                      _appOptions.sessionSingers = _sessionSingers;
                     });
                   },
                   child: appCircledIcon(
@@ -304,6 +308,7 @@ class _State extends State<Singers> {
         logger.i('_onReorder($oldIndex, $newIndex)');
         var singer = _sessionSingers.removeAt(oldIndex);
         _sessionSingers.insert(newIndex, singer);
+        _appOptions.sessionSingers = _sessionSingers;
       });
     }
 
@@ -339,6 +344,7 @@ class _State extends State<Singers> {
                           onTap: () {
                             setState(() {
                               _sessionSingers.remove(singer);
+                              _appOptions.sessionSingers = _sessionSingers;
                             });
                           },
                           child: appCircledIcon(
@@ -476,6 +482,20 @@ class _State extends State<Singers> {
                           },
                         ),
                       ),
+                      appVerticalSpace(),
+                      appTooltip(
+                        message: 'Convenience operation to clear all the singers from today\'s session.',
+                        child: appEnumeratedButton(
+                          'Clear the session singers',
+                          appKeyEnum: AppKeyEnum.singersReadASingleSinger,
+                          onPressed: () {
+                            setState(() {
+                              _sessionSingers.clear();
+                              _appOptions.sessionSingers = _sessionSingers;
+                            });
+                          },
+                        ),
+                      ),
                       appVerticalSpace(space: 25),
                       if (selectedSinger != unknownSinger)
                         appEnumeratedButton(
@@ -496,6 +516,7 @@ class _State extends State<Singers> {
                                           setState(() {
                                             allSongPerformances.removeSinger(selectedSinger);
                                             _sessionSingers.remove(selectedSinger);
+                                            _appOptions.sessionSingers = _sessionSingers;
                                             selectedSinger = unknownSinger;
                                             AppOptions().storeAllSongPerformances();
                                             allHaveBeenWritten = false;
@@ -576,7 +597,7 @@ class _State extends State<Singers> {
               if (!isInSingingMode)
                 appWrapFullWidth(children: [
                   Text(
-                    'Today\'s Singers:',
+                    'Today\'s Session Singers:',
                     style: singerTextStyle,
                   ),
                   Text(

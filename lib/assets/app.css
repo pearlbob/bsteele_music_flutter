@@ -37,21 +37,6 @@
 .oddTitleText, .evenTitleText {
     background-color: white; /* type is Color, odd row background color */
     color: black;
-    /*font-family: sans-serif;*/
-    /*font-size: clamp( 12px, 1.5vw, 24px);*/
-    /*font-style: normal;*/
-    /*font-weight: normal;*/
-    /*text-align: left;*/
-    /*line-height: normal;*/
-    /*margin: 0 0 0 0;*/
-    /*padding: 0 0 0 0;*/
-    /*border-top: 0 solid #000;*/
-    /*border-right: 0 solid #000;*/
-    /*border-bottom: 0 solid #000;*/
-    /*border-left: 0 solid #000;*/
-    /*word-wrap: normal;*/
-    /*text-overflow: clip;*/
-    /*white-space: normal;*/
 }
 
 .oddTitleText {
@@ -115,21 +100,6 @@
 .section { /*  for all section types   */
     background-color: white; /* type is Color, default section background color */
     color: black;   /*  default for all sections, see .chordNote, .chordDescriptor and .chordSlashNote    */
-    /*font-family: sans-serif;*/
-    /*font-size: clamp( 12px, 2.25vw, 40px);*/
-    /*font-style: normal;*/
-    /*font-weight: normal;*/
-    /*text-align: left;*/
-    /*line-height: normal;*/
-    /*margin: 0 0 0 0;*/
-    /*padding: 0 0 0 0;*/
-    /*border-top: 0 solid #000;*/
-    /*border-right: 0 solid #000;*/
-    /*border-bottom: 0 solid #000;*/
-    /*border-left: 0 solid #000;*/
-    /*word-wrap: normal;*/
-    /*text-overflow: clip;*/
-    /*white-space: normal;*/
 }
 
 .sectionA {
@@ -143,15 +113,10 @@
 .sectionBridge {
     background-color: #cec8fc; /* type is Color, Bridge section background color */
 }
-/*BR2: #bbb6e6  */
 
 .sectionChorus {
     background-color: #f0f0f0; /* type is Color, Chorus section background color */
 }
-/*C1: #f0f0f0 (same as C)
-  C2: #d1d2d3
-  C3: #bdbebf
-*/
 
 .sectionCoda {
     background-color: #cdf5e9; /* type is Color, Coda section background color */
@@ -160,12 +125,6 @@
 .sectionIntro {
     background-color: #ccfcc3; /* type is Color, Intro section background color */
 }
-/*
-I1: #ccfcc3 (same as I)
-I2: #b5e6ad
-I3: #a3cf9b
-I4: #ccfcc3
-*/
 
 .sectionOutro {
     background-color: #cedaf4; /* type is Color, Outro section background color */
@@ -174,9 +133,6 @@ I4: #ccfcc3
 .sectionPreChorus {
     background-color: #f9dceb; /* type is Color, PreChorus section background color */
 }
-/*PC1: #f9dceb (same as PC)
-  PC2: #e6cbd9
-*/
 
 .sectionTag {
     background-color: #f7e1dc; /* type is Color, Tag section background color */
@@ -185,10 +141,6 @@ I4: #ccfcc3
 .sectionVerse {
     background-color: #f6fc81; /* type is Color, Verse section background color */
 }
-/*V1: #f6fc81 (same as V)
-  V2: #eaea7a
-  V3: #d1d16d
-*/
 
 .docs {
     font-size: 24px;    /*  font size for the in app documentation  */

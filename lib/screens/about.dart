@@ -182,10 +182,8 @@ class _About extends State<About> with WidgetsBindingObserver {
   }
 
   void _readUtcDate() async {
-    rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
-      setState(() {
-        _utcDateAsString = value.replaceAll('\n', '');
-      });
+    setState(() async {
+      _utcDateAsString = await app.releaseUtcDate();
     });
   }
 

@@ -7,6 +7,7 @@ import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,6 +67,7 @@ class AppOptions extends ChangeNotifier {
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
+    _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
     _readSongMetadata();
     _readAllSongPerformances();
     notifyListeners();
@@ -351,9 +353,46 @@ class AppOptions extends ChangeNotifier {
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
   }
 
+  set sessionSingers(List<String> values) {
+    if (!listEquals(_sessionSingers, values)) {
+      _sessionSingers = List.from(values);
+      _saveString('sessionSingers', _stringListEncode(values));
+    }
+  }
+
+  List<String> get sessionSingers => List.from(_sessionSingers); //  don't give away a mutable list!
+
+  String _stringListEncode(List<String> strings) {
+    StringBuffer ret = StringBuffer();
+    var first = true;
+    for (var string in strings) {
+      if (string.isEmpty) {
+        continue;
+      }
+      if (first) {
+        first = false;
+      } else {
+        ret.write(', ');
+      }
+      ret.write(string);
+    }
+    return ret.toString();
+  }
+
+  List<String> _stringListDecode(String all) {
+    List<String> ret = [];
+    for (var string in all.split(', ')) {
+      if (string.isNotEmpty) {
+        ret.add(string);
+      }
+    }
+    return ret;
+  }
+
   /// A list of the names of sheet music displays that are currently active.
   HashSet<SheetDisplay> get sheetDisplays => _sheetDisplays;
   HashSet<SheetDisplay> _sheetDisplays = HashSet();
+  List<String> _sessionSingers = [];
 
   AllSongPerformances allSongPerformances = AllSongPerformances();
 

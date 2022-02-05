@@ -201,6 +201,12 @@ class App {
     return false;
   }
 
+  Future<String> releaseUtcDate() async {
+    return await rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
+      return Future.value(value.replaceAll('\n', ''));
+    });
+  }
+
   static final App _singleton = App._internal();
 }
 

@@ -59,6 +59,10 @@ class _State extends State<Singers> {
 
     logger.log(_singerLogBuild, 'singer build:');
 
+    if (selectedSinger == unknownSinger && _sessionSingers.isNotEmpty) {
+      selectedSinger = _sessionSingers[0];
+    }
+
     songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
 
     final double fontSize = app.screenInfo.fontSize;

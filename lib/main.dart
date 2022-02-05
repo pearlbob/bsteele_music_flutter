@@ -140,6 +140,7 @@ void main() async {
 /*
 beta short list:
 verify dmg version reads allSongs from web
+initial singer selection not properly searched
 
 in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics

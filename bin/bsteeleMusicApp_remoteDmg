@@ -15,6 +15,7 @@ if ( `hostname` == 'bob64' ) then
     mkdir -p ~/junk/remoteDmg
     cd ~/junk/remoteDmg
 	#	note the use of the latest master commit, fixme
+	echo "Warning: this will only be the current master github commit!"
     git clone git@github.com:pearlbob/bsteeleMusicLib.git
     git clone git@github.com:pearlbob/bsteele_music_flutter.git
 
@@ -44,10 +45,12 @@ else
 	rm -rf .gradle
 	flutter clean
 	flutter pub get
-    	rm -rf macos/
+    rm -rf macos/
 	set osEnable=macos-desktop
-    	flutter config --enable-$osEnable
-    	flutter -d macos create . # > /dev/null
+    flutter config --enable-$osEnable
+    flutter -d macos create . # > /dev/null
+
+	bin/bsteeleMusicApp_macEntitlements
 
 	flutter clean
 	flutter build macos --release

@@ -462,7 +462,13 @@ Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
 //  all section versions 1 will be the same color as the section without a version number
 //  section version color cycle will be determined by the number of colors added here for each section
 Map<SectionEnum, List<int>> _sectionColorMap = {
-  SectionEnum.intro: [0xccfcc3, 0xb5e6ad, 0xa3cf9b, 0xccfcc3],
+  SectionEnum.intro: [
+    0xccfcc3, 0xb5e6ad, 0xa3cf9b, 0xccfcc3,
+    // 0xC8E6C9,
+    // 0xA5D6A7,
+    // 0x81C784,
+    // 0x66BB6A,
+  ],
   SectionEnum.verse: [0xf6fc81, 0xeaea7a, 0xd1d16d],
   SectionEnum.preChorus: [0xf9dceb, 0xe6cbd9],
   SectionEnum.chorus: [0xf0f0f0, 0xd1d2d3, 0xbdbebf],

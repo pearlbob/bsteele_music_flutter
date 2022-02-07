@@ -39,7 +39,7 @@ if ( $historicalCode == $versionCode ) then
 
 	cd ~/github/$flut
 	if ( $status != 0 ) exit $status
-	utcDate > lib/assets/utcDate.txt	#	update for the commit, may not match the version code exactly
+	date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt #	update for the commit, may not match the version code exactly
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
 	git tag | tail -3
@@ -84,7 +84,7 @@ flutter clean
 sed -i -e "s/^version: *\([0-9]*\.[0-9]*\.[0-9]*\).*/version: \1+$versionCode/;" pubspec.yaml 
 if ( $status != 0 ) exit $status
 #	record the build date
-utcDate > lib/assets/utcDate.txt
+date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 flutter build web --release
 if ( $status != 0 ) exit $status
 

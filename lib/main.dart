@@ -142,6 +142,8 @@ beta short list:
 verify dmg version reads allSongs from web
 initial singer selection not properly searched
 
+on return to singer screen from singing a song, scroll to the top
+
 in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?

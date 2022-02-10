@@ -1,5 +1,7 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:logger/logger.dart';
@@ -17,7 +19,7 @@ class SongMaster extends ChangeNotifier {
 
   SongMaster._internal() {
     _ticker = Ticker((duration) {
-      double time = appAudioPlayer.getCurrentTime();
+      double time = _appAudioPlayer.getCurrentTime();
       double dt = time - _lastTime;
 
       if (_song != null) {
@@ -41,9 +43,12 @@ class SongMaster extends ChangeNotifier {
           } else {
             if (newMomentNumber != _momentNumber) {
               _momentNumber = newMomentNumber;
+              _playDrumParts(
+                  time, _song!.getBeatsPerBar() * 60.0 / _song!.beatsPerMinute, _drumParts); //fixme: one moment late?
               logger.log(
                   _loggerLevel,
-                  'songTime: ${songTime.toStringAsFixed(3)}'
+                  //   'songTime: ${songTime.toStringAsFixed(3)}'
+                  'time: ${time.toStringAsFixed(3)}'
                   ', dt: ${dt.toStringAsFixed(3)}'
                   ', moment: ${newMomentNumber.toString()}');
               notifyListeners();
@@ -65,11 +70,13 @@ class SongMaster extends ChangeNotifier {
     _ticker.start();
   }
 
-  void playSong(Song song) {
+  void playSong(Song song, {DrumParts? drumParts} //  fixme: temp
+      ) {
     _song = song;
+    _drumParts = drumParts; //  fixme: temp
     _isPlaying = true;
     _isPaused = false;
-    _songStart = appAudioPlayer.getCurrentTime();
+    _songStart = _appAudioPlayer.getCurrentTime();
     _momentNumber = null;
     notifyListeners();
   }
@@ -95,6 +102,35 @@ class SongMaster extends ChangeNotifier {
     }
   }
 
+  void _playDrumParts(double time, double period, final DrumParts? drumParts) {
+    if (drumParts != null) {
+      const double volume = 0.25;
+      final double subBeatDuration = period / (drumParts.beats * drumSubBeats);
+      for (var type in DrumType.values) {
+        var drumPart = drumParts.at(type);
+        var filePath = drumTypeToFileMap[type] ?? 'audio/bass_0.mp3';
+        for (var beat = 0; beat < drumPart.beats; beat++) {
+          for (var subBeat = 0; subBeat < drumSubBeats; subBeat++) {
+            if (drumPart.beatSelection(beat, subBeat)) {
+              logger.log(
+                  _loggerLevel,
+                  'beat: $type: beat: ${beat + 1}, subBeat: $subBeat'
+                  ', time: $time '
+                  ', period: $period '
+                  ', t: ${time + subBeatDuration * (beat * drumSubBeats + subBeat)}'
+                  ', path: $filePath');
+              _appAudioPlayer.play(
+                  filePath,
+                  time + subBeatDuration * (beat * drumSubBeats + subBeat),
+                  0.25, //fixme: temp
+                  volume);
+            }
+          }
+        }
+      }
+    }
+  }
+
   @override
   String toString() {
     return 'SongMaster{_song: $_song, _moment: $_momentNumber, _isPlaying: $_isPlaying, _isPaused: $_isPaused, }';
@@ -106,8 +142,6 @@ class SongMaster extends ChangeNotifier {
   int? get momentNumber => _momentNumber; //  can negative during preroll, will be null after the end
   int? _momentNumber; //  for debug
 
-  AppAudioPlayer appAudioPlayer = AppAudioPlayer();
-
   bool get isPlaying => _isPlaying;
   bool _isPlaying = false;
 
@@ -115,4 +149,7 @@ class SongMaster extends ChangeNotifier {
   bool _isPaused = false;
   Song? _song;
   double? _songStart;
+
+  DrumParts? _drumParts;
+  final AppAudioPlayer _appAudioPlayer = AppAudioPlayer();
 }

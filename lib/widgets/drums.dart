@@ -6,20 +6,31 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
+Map<DrumType, String> drumTypeToFileMap = {
+  DrumType.closedHighHat: 'audio/hihat1.mp3',
+  DrumType.openHighHat: 'audio/hihat3.mp3',
+  DrumType.snare: 'audio/snare_4406.mp3',
+  DrumType.kick: 'audio/kick_4513.mp3',
+  DrumType.bass: 'audio/kick_4516.mp3',
+};
+
 TextStyle _style = generateAppTextStyle();
 TextStyle _smallStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize * 2 / 3);
 
 /// Show some data about the app and it's environment.
-class Drums extends StatefulWidget {
-  const Drums({Key? key}) : super(key: key);
+class DrumsWidget extends StatefulWidget {
+  DrumsWidget({Key? key, this.beats = 4, DrumParts? drumParts})
+      : _drumParts = drumParts ?? DrumParts.defaultDrumParts(),
+        super(key: key);
 
-  final int beats = 4; //  fixme!!!!!!!!!!!!!!!!!!!!!!
+  final int beats;
+  final DrumParts _drumParts;
 
   @override
   _Drums createState() => _Drums();
 }
 
-int _subBeats = 4;
+const int drumSubBeats = 4;
 List<String> _timingNames = [
   '1',
   'e',
@@ -47,13 +58,15 @@ List<String> _timingNames = [
   'a',
 ];
 
-class _Drums extends State<Drums> {
+class _Drums extends State<DrumsWidget> {
+  _Drums({int? beats}) : _beats = beats ?? 4;
+
   @override
   initState() {
     super.initState();
 
-    beats = widget.beats;
-    _drumParts = DrumParts(beats);
+    _beats = widget.beats;
+    _drumParts = widget._drumParts;
   }
 
   @override
@@ -76,8 +89,7 @@ class _Drums extends State<Drums> {
         ));
 
         int index = 0;
-        for (var beat = 0; beat < beats; beat++) //  fixme!!!!!!!!!!!!
-        {
+        for (var beat = 0; beat < _beats; beat++) {
           for (var subBeat = 0; subBeat < 4; subBeat++) {
             children.add(Text(
               _timingNames[index++],
@@ -100,8 +112,8 @@ class _Drums extends State<Drums> {
           ),
         ));
         DrumPart drumPart = _drumParts.at(part);
-        for (var b = 0; b < beats; b++) {
-          for (var s = 0; s < _subBeats; s++) {
+        for (var b = 0; b < _beats; b++) {
+          for (var s = 0; s < drumSubBeats; s++) {
             children.add(Checkbox(
               value: drumPart.beatSelection(b, s),
               onChanged: (value) {
@@ -118,7 +130,7 @@ class _Drums extends State<Drums> {
       Map<int, TableColumnWidth>? columnWidths = {};
       columnWidths[0] = const FlexColumnWidth(4.0);
       //  skip the drum titles
-      for (var col = 1; col < beats * _subBeats; col++) {
+      for (var col = 1; col < _beats * drumSubBeats; col++) {
         columnWidths[col] = const FlexColumnWidth();
       }
 
@@ -212,12 +224,12 @@ class _Drums extends State<Drums> {
     ]);
   }
 
-  late int beats;
+  int _beats;
   late DrumParts _drumParts;
 }
 
 class DrumParts {
-  DrumParts(int beats) {
+  DrumParts(int beats) : _beats = beats {
     for (var e in DrumType.values) {
       _drumParts[e] = DrumPart(e, beats);
     }
@@ -227,25 +239,55 @@ class DrumParts {
     return _drumParts[e];
   }
 
+  static DrumParts defaultDrumParts() {
+    return _defaultDrumParts;
+  }
+
   bool beatSelection(DrumType e, int beat, int subBeat) {
     return _drumParts[e].beatSelection(beat, subBeat);
   }
 
+  void setBeatSelection(DrumType e, int beat, int subBeat, bool value) {
+    _drumParts[e].setBeatSelection(beat, subBeat, value);
+  }
+
+  static final _defaultDrumParts = DrumParts(4)
+        //..setBeatSelection(DrumType.bass, 0, 0, true)
+        ..setBeatSelection(DrumType.openHighHat, 0, 0, true)
+        ..setBeatSelection(DrumType.closedHighHat, 1, 0, true)
+        // ..setBeatSelection(DrumType.snare, 1, 0, true)
+        ..setBeatSelection(DrumType.closedHighHat, 2, 0, true)
+        ..setBeatSelection(DrumType.closedHighHat, 3, 0, true)
+
+      // ..setBeatSelection(DrumType.snare, 3, 0, true)
+      ;
+
+  int get beats => _beats;
+  final int _beats;
   final Map _drumParts = HashMap<DrumType, DrumPart>();
 }
 
 class DrumPart {
   DrumPart(this.partEnum, this.beats) {
-    _beatSelection = List<bool>.filled(beats * _subBeats, false);
+    _beatSelection = List<bool>.filled(beats * drumSubBeats, false);
   }
 
+  bool subBeatSelection(int subBeatIndex, int subBeat) {
+    return _beatSelection[subBeatIndex];
+  }
+
+  /// Count from zero
   bool beatSelection(int beat, int subBeat) {
-    return _beatSelection[beat * _subBeats + subBeat];
+    assert(beat < beats);
+    assert(subBeat < drumSubBeats);
+    return _beatSelection[beat * drumSubBeats + subBeat];
   }
 
   void setBeatSelection(int beat, int subBeat, bool b) {
-    _beatSelection[beat * _subBeats + subBeat] = b;
+    _beatSelection[beat * drumSubBeats + subBeat] = b;
   }
+
+  int get subBeatLength => _beatSelection.length;
 
   final DrumType partEnum;
   final int beats;

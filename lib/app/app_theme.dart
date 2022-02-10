@@ -463,52 +463,54 @@ Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
 //  section version color cycle will be determined by the number of colors added here for each section
 Map<SectionEnum, List<int>> _sectionColorMap = {
   SectionEnum.intro: [
-    0xccfcc3, 0xb5e6ad, 0xa3cf9b, 0xccfcc3,
-    // 0xC8E6C9,
-    // 0xA5D6A7,
-    // 0x81C784,
-    // 0x66BB6A,
+    // 0&1     2         3
+    0xccfcc3, 0xb5e6ad, 0xa3cf9b
   ],
-  SectionEnum.verse: [0xf6fc81, 0xeaea7a, 0xd1d16d],
-  SectionEnum.preChorus: [0xf9dceb, 0xe6cbd9],
-  SectionEnum.chorus: [0xf0f0f0, 0xd1d2d3, 0xbdbebf],
+  SectionEnum.verse: [
+    // 0 & 1     2         3
+    0xfcf99d, 0xeaea7a, 0xd1d16d,
+  ],
+  SectionEnum.preChorus: [
+    // 0 & 1     2
+    0xf4dcf2, 0xe1bee7, 0xdaa8e5
+  ],
+  SectionEnum.chorus: [
+    // 0 & 1     2         3
+    0xf0f0f0, 0xd1d2d3, 0xbdbebf
+  ],
   SectionEnum.a: [
-    0xf6fc81,
+    // 0 & 1     2         3
+    0xfcf99d, 0xeaea7a, 0xd1d16d,
   ],
-  SectionEnum.b: [
-    0xcec8fc,
-  ],
-  SectionEnum.bridge: [0xcec8fc, 0xbbb6e6],
-  SectionEnum.coda: [
-    0xcdf5e9,
-  ],
-  SectionEnum.tag: [
-    0xf7e1dc,
-  ],
+  SectionEnum.b: [0xdfd9ff, 0xcabbff, 0xaca0ef],
+  SectionEnum.bridge: [0xdfd9ff, 0xcabbff, 0xaca0ef],
+  SectionEnum.coda: [0xd7e5ff, 0xb6d2fc, 0x92b8ef],
+  SectionEnum.tag: [0xf4dcf2, 0xe1bee7, 0xdaa8e5],
   SectionEnum.outro: [
-    0xcedaf4,
+    // 0 & 1
+    0xd7e5ff, 0xb6d2fc, 0x92b8ef
   ],
 };
 
-Color _getBackgroundColorForSectionEnum(SectionEnum sectionEnum) {
-  final Map<SectionEnum, CssProperty> sectionMap = {
-    SectionEnum.intro: _sectionIntroBackgroundProperty,
-    SectionEnum.verse: _sectionVerseBackgroundProperty,
-    SectionEnum.preChorus: _sectionPreChorusBackgroundProperty,
-    SectionEnum.chorus: _sectionChorusBackgroundProperty,
-    SectionEnum.a: _sectionABackgroundProperty,
-    SectionEnum.b: _sectionBBackgroundProperty,
-    SectionEnum.bridge: _sectionBridgeBackgroundProperty,
-    SectionEnum.coda: _sectionCodaBackgroundProperty,
-    SectionEnum.tag: _sectionTagBackgroundProperty,
-    SectionEnum.outro: _sectionOutroBackgroundProperty,
-  };
-
-  var ret = _getPropertyValue(sectionMap[sectionEnum]);
-  ret ??= _getPropertyValue(_sectionBackgroundProperty); //  inherited
-  logger.d('_getBackgroundColorForSectionEnum: $sectionEnum: $ret');
-  return (ret != null && ret is Color) ? ret : Colors.white;
-}
+// Color _getBackgroundColorForSectionEnum(SectionEnum sectionEnum) {
+//   final Map<SectionEnum, CssProperty> sectionMap = {
+//     SectionEnum.intro: _sectionIntroBackgroundProperty,
+//     SectionEnum.verse: _sectionVerseBackgroundProperty,
+//     SectionEnum.preChorus: _sectionPreChorusBackgroundProperty,
+//     SectionEnum.chorus: _sectionChorusBackgroundProperty,
+//     SectionEnum.a: _sectionABackgroundProperty,
+//     SectionEnum.b: _sectionBBackgroundProperty,
+//     SectionEnum.bridge: _sectionBridgeBackgroundProperty,
+//     SectionEnum.coda: _sectionCodaBackgroundProperty,
+//     SectionEnum.tag: _sectionTagBackgroundProperty,
+//     SectionEnum.outro: _sectionOutroBackgroundProperty,
+//   };
+//
+//   var ret = _getPropertyValue(sectionMap[sectionEnum]);
+//   ret ??= _getPropertyValue(_sectionBackgroundProperty); //  inherited
+//   logger.d('_getBackgroundColorForSectionEnum: $sectionEnum: $ret');
+//   return (ret != null && ret is Color) ? ret : Colors.white;
+// }
 
 Color? _getColor(CssProperty property) {
   var ret = _getPropertyValue(property);

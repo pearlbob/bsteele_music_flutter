@@ -50,6 +50,8 @@ SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 _Player? _player;
 
+DrumParts _drumParts = DrumParts.defaultDrumParts(); //  temp
+
 GlobalKey _stackKey = GlobalKey();
 
 SongMoment? _selectedSongMoment;
@@ -136,6 +138,9 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     displayKeyOffset = app.displayKeyOffset;
     _song = widget._song;
+    drums = DrumsWidget(
+      beats: _song.timeSignature.beatsPerBar,
+    );
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
     _selectedSongMoment = null;
 
@@ -677,6 +682,15 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               ),
 
             GestureDetector(
+              onTapDown: (details) {
+                if (!isPlaying) {
+                  if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
+                    sectionBump(1); //  fixme: when not in play
+                  } else {
+                    sectionBump(-1); //  fixme: when not in play
+                  }
+                }
+              },
               child: NotificationListener<ScrollEndNotification>(
                 onNotification: (end) {
                   isScrolling = false;
@@ -881,8 +895,8 @@ With escape, the app goes back to the play list.''',
                                   if (app.fullscreenEnabled && !app.isFullScreen)
                                     appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                         onPressed: () {
-                                      app.requestFullscreen();
-                                    }),
+                                          app.requestFullscreen();
+                                        }),
                                   if (!songUpdateService.isFollowing)
                                     Container(
                                       padding: const EdgeInsets.only(left: 8, right: 8),
@@ -987,7 +1001,7 @@ With escape, the app goes back to the play list.''',
                                           message: 'Beats per minute.  Tap here or hold control and tap space\n'
                                               ' for tap to tempo.',
                                           child: appButton(
-                                            'BPM:',
+                                            'Tempo:',
                                             appKeyEnum: AppKeyEnum.playerTempoTap,
                                             onPressed: () {
                                               tempoTap();
@@ -1059,16 +1073,13 @@ With escape, the app goes back to the play list.''',
                                     ),
                                   if (app.isScreenBig && songUpdateService.isFollowing)
                                     Text(
-                                      'BPM: ${_song.beatsPerMinute}',
+                                      'Tempo: ${_song.beatsPerMinute}',
                                       style: headerTextStyle,
                                     ),
-                                  appTooltip(
-                                    message: 'time signature',
-                                    child: Text(
-                                      '  Time: ${_song.timeSignature}',
-                                      style: headerTextStyle,
-                                      softWrap: false,
-                                    ),
+                                  Text(
+                                    '  Beats per Measure: ${_song.timeSignature.beatsPerBar}',
+                                    style: headerTextStyle,
+                                    softWrap: false,
                                   ),
                                   if (app.isScreenBig)
                                     Text(
@@ -1478,7 +1489,7 @@ With escape, the app goes back to the play list.''',
       leaderSongUpdate(-1);
       logger.log(_playerLogMode, 'play:');
       if (!songUpdateService.isFollowing) {
-        songMaster.playSong(widget._song);
+        songMaster.playSong(widget._song, drumParts: _drumParts);
       }
     });
   }
@@ -1791,7 +1802,7 @@ With escape, the app goes back to the play list.''',
                       ),
                     ]),
                     appSpace(),
-                    if (kDebugMode) const Drums(),
+                    if (kDebugMode) drums,
                     appSpace(),
                     appWrapFullWidth(
                       children: [
@@ -1942,6 +1953,8 @@ With escape, the app goes back to the play list.''',
   music_key.Key selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
   music_key.Key displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
   int displayKeyOffset = 0;
+
+  DrumsWidget drums = DrumsWidget();
 
   NinJam ninJam = NinJam.empty();
 

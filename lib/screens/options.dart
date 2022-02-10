@@ -299,9 +299,9 @@ class _Options extends State<Options> {
                             _stop();
                           });
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.stop,
-                          //       size: fontSize * 2,
+                          size: app.screenInfo.fontSize * 2,
                         ),
                       ),
                       InkWell(
@@ -310,9 +310,9 @@ class _Options extends State<Options> {
                             _audioTest();
                           });
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
-                          //       size: fontSize * 2,
+                          size: app.screenInfo.fontSize * 2,
                         ),
                       ),
                     ]),

@@ -60,7 +60,8 @@ class _State extends State<Singers> {
     logger.log(_singerLogBuild, 'singer build:');
 
     if (selectedSinger == unknownSinger && _sessionSingers.isNotEmpty) {
-      selectedSinger = _sessionSingers[0];
+      selectedSinger = _sessionSingers.first;
+      searchForSelectedSingerOnly = true;
     }
 
     songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
@@ -393,7 +394,7 @@ class _State extends State<Singers> {
       appBar: appWidgetHelper.backBar(title: 'bsteele Music App Singers'),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: ListView(children: [
+        child: ListView(controller: scrollController, children: [
           appWrapFullWidth(
             children: [
               if (app.message.isNotEmpty)
@@ -905,6 +906,7 @@ class _State extends State<Singers> {
       }
 
       searchClear();
+      scrollController.jumpTo(0);
     });
   }
 
@@ -1005,6 +1007,8 @@ class _State extends State<Singers> {
   bool allHaveBeenWritten = false;
 
   final TextEditingController singerTextFieldController = TextEditingController();
+
+  final ScrollController scrollController = ScrollController();
 
   late AppWidgetHelper appWidgetHelper;
 

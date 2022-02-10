@@ -8,7 +8,6 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Selection of the user's display style for the player screen.

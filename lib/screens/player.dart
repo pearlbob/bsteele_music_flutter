@@ -687,10 +687,14 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             GestureDetector(
               onTapDown: (details) {
                 if (!isPlaying) {
-                  if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
-                    sectionBump(1); //  fixme: when not in play
-                  } else {
-                    sectionBump(-1); //  fixme: when not in play
+                  //  don't respond above the player song table     fixme: this is likely not the best
+                  RenderTable renderTable = (table?.key as GlobalKey).currentContext?.findRenderObject() as RenderTable;
+                  if (details.globalPosition.dy > renderTable.localToGlobal(Offset.zero).dy ) {
+                    if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
+                      sectionBump(1); //  fixme: when not in play
+                    } else {
+                      sectionBump(-1); //  fixme: when not in play
+                    }
                   }
                 }
               },
@@ -1304,14 +1308,14 @@ With escape, the app goes back to the play list.''',
         );
   }
 
-  RenderObject renderTableObjectAt(SongMoment songMoment) {
-    RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-    assert(renderObject != null && renderObject is RenderTable);
-    RenderTable renderTable = renderObject as RenderTable;
-
-    GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
-    return renderTable.row(coord.row).elementAt(coord.col);
-  }
+  // RenderObject renderTableObjectAt(SongMoment songMoment) {
+  //   RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
+  //   assert(renderObject != null && renderObject is RenderTable);
+  //   RenderTable renderTable = renderObject as RenderTable;
+  //
+  //   GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
+  //   return renderTable.row(coord.row).elementAt(coord.col);
+  // }
 
   void scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, 'scrollToSectionByMoment( $songMoment )');

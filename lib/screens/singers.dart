@@ -472,16 +472,16 @@ class _State extends State<Singers> {
                             logger.i('save selection: $selectedSinger');
                           },
                         ),
-                      appVerticalSpace(),
+                      appVerticalSpace(space: 25),
                       appTooltip(
-                        message: 'If the singer matches an existing singer,\n'
-                            'the songs will be added to the singer.',
+                        message: 'Singer performance updates read from a local file\n'
+                            'will be added to the singers.',
                         child: appEnumeratedButton(
-                          'Read a single singer from a local file',
+                          'Read singer performance updates from a local file',
                           appKeyEnum: AppKeyEnum.singersReadASingleSinger,
                           onPressed: () {
                             setState(() {
-                              filePickSingle(context);
+                              filePickUpdate(context);
                             });
                           },
                         ),
@@ -540,7 +540,7 @@ class _State extends State<Singers> {
                       appVerticalSpace(),
                       appTooltip(
                         message: 'Warning: This will delete all singers\n'
-                            'and replace them with singers from the read file.',
+                            'and replace them with singers from the file read.',
                         child: appEnumeratedButton(
                           'Read all singers from a local file',
                           appKeyEnum: AppKeyEnum.singersReadSingers,
@@ -962,7 +962,7 @@ class _State extends State<Singers> {
     });
   }
 
-  void filePickSingle(BuildContext context) async {
+  void filePickUpdate(BuildContext context) async {
     app.clearMessage();
     var content = await UtilWorkaround().filePickByExtension(context, AllSongPerformances.fileExtension);
 
@@ -970,8 +970,8 @@ class _State extends State<Singers> {
       if (content.isEmpty) {
         app.infoMessage('No singer file read');
       } else {
-        logger.i('_filePickSingle: $context');
-        allSongPerformances.addFromJsonString(content);
+        logger.i('filePickUpdate: $context');
+        allSongPerformances.updateFromJsonString(content);
         allSongPerformances.loadSongs(app.allSongs);
         AppOptions().storeAllSongPerformances();
         allHaveBeenWritten = false;

@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -149,6 +150,22 @@ class _Drums extends State<DrumsWidget> {
         'Drums:',
         style: _style,
       ),
+      Center(
+        child: Text(
+          'Volume:',
+          style: _smallStyle,
+        ),
+      ),
+      Slider(
+        value: widget._drumParts.volume * 10,
+        onChanged: (value) {
+          setState(() {
+            widget._drumParts.volume = value / 10;
+          });
+        },
+        min: 0,
+        max: 10.0,
+      ),
       Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -229,7 +246,9 @@ class _Drums extends State<DrumsWidget> {
 }
 
 class DrumParts {
-  DrumParts(int beats) : _beats = beats {
+  DrumParts(int beats, {double? volume})
+      : _beats = beats,
+        _volume = volume ?? 0.25 {
     for (var e in DrumType.values) {
       _drumParts[e] = DrumPart(e, beats);
     }
@@ -265,6 +284,13 @@ class DrumParts {
   int get beats => _beats;
   final int _beats;
   final Map _drumParts = HashMap<DrumType, DrumPart>();
+
+  set volume(double value) {
+    _volume = max(0, min(1.0, value));
+  }
+
+  double get volume => _volume;
+  double _volume = 0.25;
 }
 
 class DrumPart {

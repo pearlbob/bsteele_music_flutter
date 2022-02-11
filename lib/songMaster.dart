@@ -1,5 +1,6 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
+import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
@@ -43,8 +44,7 @@ class SongMaster extends ChangeNotifier {
           } else {
             if (newMomentNumber != _momentNumber) {
               _momentNumber = newMomentNumber;
-              _playDrumParts(
-                  time, _song!.getBeatsPerBar() * 60.0 / _song!.beatsPerMinute, _drumParts); //fixme: one moment late?
+              _playDrumParts(time, _song!.getBeatsPerBar() * 60.0 / _bpm, _drumParts); //fixme: one moment late?
               logger.log(
                   _loggerLevel,
                   //   'songTime: ${songTime.toStringAsFixed(3)}'
@@ -70,15 +70,19 @@ class SongMaster extends ChangeNotifier {
     _ticker.start();
   }
 
-  void playSong(Song song, {DrumParts? drumParts} //  fixme: temp
-      ) {
-    _song = song;
+  void playSong(final Song song, //
+      {DrumParts? drumParts, //  fixme: temp
+      int? bpm}) {
+    _song = song.copySong(); //  allow for play modifications
+    _bpm = bpm ?? song.beatsPerMinute;
+    _song?.setBeatsPerMinute(_bpm);
     _drumParts = drumParts; //  fixme: temp
     _isPlaying = true;
     _isPaused = false;
     _songStart = _appAudioPlayer.getCurrentTime();
     _momentNumber = null;
     notifyListeners();
+    logger.d('playSong: _bpm: $_bpm');
   }
 
   void stop() {
@@ -104,8 +108,8 @@ class SongMaster extends ChangeNotifier {
 
   void _playDrumParts(double time, double period, final DrumParts? drumParts) {
     if (drumParts != null) {
-      const double volume = 0.25;
       final double subBeatDuration = period / (drumParts.beats * drumSubBeats);
+      logger.i('_playDrumParts: period: $period');
       for (var type in DrumType.values) {
         var drumPart = drumParts.at(type);
         var filePath = drumTypeToFileMap[type] ?? 'audio/bass_0.mp3';
@@ -123,7 +127,7 @@ class SongMaster extends ChangeNotifier {
                   filePath,
                   time + subBeatDuration * (beat * drumSubBeats + subBeat),
                   0.25, //fixme: temp
-                  volume);
+                  drumParts.volume);
             }
           }
         }
@@ -149,6 +153,7 @@ class SongMaster extends ChangeNotifier {
   bool _isPaused = false;
   Song? _song;
   double? _songStart;
+  int _bpm = MusicConstants.minBpm; //  default value only
 
   DrumParts? _drumParts;
   final AppAudioPlayer _appAudioPlayer = AppAudioPlayer();

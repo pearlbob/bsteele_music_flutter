@@ -50,7 +50,6 @@ class _State extends State<Singers> {
     super.initState();
 
     app.clearMessage();
-    allSongPerformances.loadSongs(app.allSongs);
   }
 
   @override
@@ -236,7 +235,7 @@ class _State extends State<Singers> {
       _singerSongPerformanceSet.addAll(allSongPerformances.bySinger(selectedSinger));
       _singerSongSet.addAll(_singerSongPerformanceSet.map((e) => e.song ?? Song.createEmptySong()));
 
-      // //  search songs on top
+      //  search songs on top
       if (filteredSongs.isNotEmpty) {
         if (songSearchMatcher.isNotEmpty) {
           songWidgetList.add(Divider(
@@ -747,7 +746,8 @@ class _State extends State<Singers> {
   Widget mapSongPerformanceToWidget(SongPerformance songPerformance, {withSinger = false}) {
     return appWrapFullWidth(
       children: [
-        appWrapSong(songPerformance.song, key: songPerformance.key, singer: songPerformance.singer),
+        appWrapSong(songPerformance.song,
+            key: songPerformance.key, bpm: songPerformance.bpm, singer: songPerformance.singer),
         Text(
           songPerformance.lastSungDateString + (kDebugMode ? ' ${hms(songPerformance.lastSung)}' : ''),
           style: songPerformanceStyle,
@@ -757,7 +757,7 @@ class _State extends State<Singers> {
     );
   }
 
-  Wrap appWrapSong(final Song? song, {final music_key.Key? key, String? singer}) {
+  Wrap appWrapSong(final Song? song, {final music_key.Key? key, final int? bpm, String? singer}) {
     if (song == null) {
       return appWrap([]);
     }
@@ -793,7 +793,8 @@ class _State extends State<Singers> {
             '${singer != null ? '$singer sings: ' : ''}'
             '${song.title} by ${song.artist}'
             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-            '${key == null ? '' : ' in $key'}',
+            '${key == null ? '' : ' in $key'}'
+            '${bpm == null ? '' : ' at $bpm'}',
             style: songPerformanceStyle,
           ),
           onPressed: (singer != null || selectedSinger != unknownSinger)
@@ -803,8 +804,9 @@ class _State extends State<Singers> {
                       selectedSinger = singer!;
                       searchForSelectedSingerOnly = true;
                     }
-                    var songPerformance =
-                        SongPerformance(song.songId.toString(), selectedSinger, key ?? music_key.Key.getDefault());
+                    var songPerformance = SongPerformance(
+                        song.songId.toString(), selectedSinger, key ?? music_key.Key.getDefault(),
+                        bpm: bpm);
                     if (selectedSinger != unknownSinger) {
                       allSongPerformances.addSongPerformance(songPerformance);
                       navigateToPlayer(context, songPerformance);
@@ -834,22 +836,24 @@ class _State extends State<Singers> {
       return;
     }
 
-    //  select songs from the selected singer
-    if (songSearchMatcher.isNotEmpty) {
-      for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
-        if (songPerformance.song != null &&
-            songPerformance.singer == selectedSinger &&
-            songSearchMatcher.matches(songPerformance.song!)) {
-          //  matches
-          selectedSongPerformances.add(songPerformance);
-        }
-      }
+    logger.d('allSongPerformances.length: ${allSongPerformances.length}');
 
-      for (final Song song in app.allSongs) {
-        if (songSearchMatcher.matches(song)) {
-          if (selectedSongPerformances.where((value) => value.song == song).isEmpty) {
-            filteredSongs.add(song);
-          }
+    //  select songs from the selected singer
+    for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
+      if (songPerformance.song != null &&
+          songPerformance.singer == selectedSinger &&
+          songSearchMatcher.matches(songPerformance.song!)) {
+        //  matches
+        selectedSongPerformances.add(songPerformance);
+      }
+    }
+
+    logger.d('selectedSinger: $selectedSinger, selectedSongPerformances.length: ${selectedSongPerformances.length}');
+
+    for (final Song song in app.allSongs) {
+      if (songSearchMatcher.matches(song)) {
+        if (selectedSongPerformances.where((value) => value.song == song).isEmpty) {
+          filteredSongs.add(song);
         }
       }
     }
@@ -887,14 +891,23 @@ class _State extends State<Singers> {
     if (songPerformance.song == null) {
       return;
     }
+    logger.i('navigateToPlayer.playerSelectedBpm out: ${songPerformance.bpm}');
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Player(songPerformance.song!, musicKey: songPerformance.key)),
+      MaterialPageRoute(
+          builder: (context) => Player(
+                songPerformance.song!,
+                //  adjust song to singer's last performance
+                musicKey: songPerformance.key,
+                bpm: songPerformance.bpm,
+              )),
     );
     setState(() {
       //  fixme: song may have been edited in the player screen!!!!
       //  update the last sung date and the key if it has been changed
-      allSongPerformances.addSongPerformance(songPerformance.update(key: playerSelectedSongKey));
+      allSongPerformances.addSongPerformance(songPerformance.update(
+          key: playerSelectedSongKey, bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute));
+      logger.i('navigateToPlayer.playerSelectedBpm back: $playerSelectedBpm');
       AppOptions().storeAllSongPerformances();
       allHaveBeenWritten = false;
 
@@ -921,7 +934,7 @@ class _State extends State<Singers> {
   }
 
   void saveSingersSongList(String singer) async {
-    saveAllSongPerformances('singer_$singer', allSongPerformances.toJsonStringFor(singer));
+    saveAllSongPerformances('singer_${singer.replaceAll(' ', '_')}', allSongPerformances.toJsonStringFor(singer));
   }
 
   void saveAllSongPerformances(String prefix, String contents) async {
@@ -943,6 +956,7 @@ class _State extends State<Singers> {
         app.infoMessage('No singers file read');
       } else {
         allSongPerformances.fromJsonString(content);
+        allSongPerformances.loadSongs(app.allSongs);
         AppOptions().storeAllSongPerformances();
       }
     });
@@ -958,6 +972,7 @@ class _State extends State<Singers> {
       } else {
         logger.i('_filePickSingle: $context');
         allSongPerformances.addFromJsonString(content);
+        allSongPerformances.loadSongs(app.allSongs);
         AppOptions().storeAllSongPerformances();
         allHaveBeenWritten = false;
       }

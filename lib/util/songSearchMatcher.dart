@@ -5,7 +5,8 @@ class SongSearchMatcher {
       : _searchRegex = RegExp((search ?? '').trim().replaceAll("[^\\w\\s']+", ''), caseSensitive: false);
 
   bool matches(Song song) {
-    return _searchRegex.hasMatch(song.getTitle()) ||
+    return isEmpty ||
+        _searchRegex.hasMatch(song.getTitle()) ||
         _searchRegex.hasMatch(song.getArtist()) ||
         _searchRegex.hasMatch(song.coverArtist) ||
         _searchRegex.hasMatch(song.songId.toUnderScorelessString() //  removes contractions

@@ -40,6 +40,7 @@ final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Pla
 
 //  intentionally global to share with singer screen    fixme?
 music_key.Key? playerSelectedSongKey;
+int? playerSelectedBpm;
 
 /// An observer used to respond to a song update server request.
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
@@ -103,8 +104,9 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 /// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
 class Player extends StatefulWidget {
-  Player(this._song, {Key? key, music_key.Key? musicKey}) : super(key: key) {
+  Player(this._song, {Key? key, music_key.Key? musicKey, int? bpm}) : super(key: key) {
     playerSelectedSongKey = musicKey; //  to be read later at initialization
+    playerSelectedBpm = bpm ?? _song.beatsPerMinute;
   }
 
   @override
@@ -142,6 +144,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       beats: _song.timeSignature.beatsPerBar,
     );
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
+    playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
     _selectedSongMoment = null;
 
     leaderSongUpdate(-1);
@@ -541,7 +544,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     List<DropdownMenuItem<int>> _bpmDropDownMenuList = [];
     {
-      final int bpm = _song.beatsPerMinute;
+      final int bpm = playerSelectedBpm ?? _song.beatsPerMinute;
 
       //  assure entries are unique
       SplayTreeSet<int> set = SplayTreeSet();
@@ -895,8 +898,8 @@ With escape, the app goes back to the play list.''',
                                   if (app.fullscreenEnabled && !app.isFullScreen)
                                     appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                         onPressed: () {
-                                          app.requestFullscreen();
-                                        }),
+                                      app.requestFullscreen();
+                                    }),
                                   if (!songUpdateService.isFollowing)
                                     Container(
                                       padding: const EdgeInsets.only(left: 8, right: 8),
@@ -1016,44 +1019,15 @@ With escape, the app goes back to the play list.''',
                                               onChanged: (value) {
                                                 if (value != null) {
                                                   setState(() {
-                                                    _song.setBeatsPerMinute(value);
+                                                    playerSelectedBpm = value;
                                                   });
                                                 }
                                               },
-                                              value: _song.beatsPerMinute,
+                                              value: playerSelectedBpm,
                                               style: headerTextStyle,
                                               iconSize: lookupIconSize(),
                                               itemHeight: null,
                                             ),
-                                            // appTooltip(
-                                            //   message: 'Move the beats per minute (BPM) one count up.',
-                                            //   child: appIconButton(
-                                            //     appKeyEnum: AppKeyEnum.playerKeyUp,
-                                            //     icon: appIcon(
-                                            //       Icons.arrow_upward,
-                                            //     ),
-                                            //     onPressed: () {
-                                            //       setState(() {
-                                            //         _song.setBeatsPerMinute(_song.beatsPerMinute + 1);
-                                            //       });
-                                            //     },
-                                            //   ),
-                                            // ),
-                                            // appSpace(space: 5),
-                                            // appTooltip(
-                                            //   message: 'Move the beats per minute (BPM) one count down.',
-                                            //   child: appIconButton(
-                                            //     appKeyEnum: AppKeyEnum.playerKeyDown,
-                                            //     icon: appIcon(
-                                            //       Icons.arrow_downward,
-                                            //     ),
-                                            //     onPressed: () {
-                                            //       setState(() {
-                                            //         _song.setBeatsPerMinute(_song.beatsPerMinute - 1);
-                                            //       });
-                                            //     },
-                                            //   ),
-                                            // ),
                                           ],
                                           alignment: WrapAlignment.spaceBetween,
                                         ),
@@ -1064,7 +1038,7 @@ With escape, the app goes back to the play list.''',
                                             appKeyEnum: AppKeyEnum.playerSpeed,
                                             onPressed: () {
                                               setState(() {
-                                                _song.setBeatsPerMinute(MusicConstants.maxBpm);
+                                                playerSelectedBpm = MusicConstants.maxBpm;
                                               });
                                             },
                                           ),
@@ -1073,7 +1047,7 @@ With escape, the app goes back to the play list.''',
                                     ),
                                   if (app.isScreenBig && songUpdateService.isFollowing)
                                     Text(
-                                      'Tempo: ${_song.beatsPerMinute}',
+                                      'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
                                       style: headerTextStyle,
                                     ),
                                   Text(
@@ -1103,7 +1077,7 @@ With escape, the app goes back to the play list.''',
                                 appSpace(),
                                 appWrap([
                                   Text(
-                                    'Ninjam: BPM: ${_song.beatsPerMinute.toString()}',
+                                    'Ninjam: BPM: ${playerSelectedBpm ?? _song.beatsPerMinute.toString()}',
                                     style: headerTextStyle,
                                     softWrap: false,
                                   ),
@@ -1111,7 +1085,8 @@ With escape, the app goes back to the play list.''',
                                     appKeyEnum: AppKeyEnum.playerCopyNinjamBPM,
                                     icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                     onPressed: () {
-                                      Clipboard.setData(ClipboardData(text: '/bpm ${_song.beatsPerMinute.toString()}'));
+                                      Clipboard.setData(ClipboardData(
+                                          text: '/bpm ${(playerSelectedBpm ?? _song.beatsPerMinute).toString()}'));
                                     },
                                   ),
                                 ], spacing: 10),
@@ -1471,7 +1446,7 @@ With escape, the app goes back to the play list.''',
     _lastSongUpdateSent = update;
     update.currentKey = selectedSongKey;
     playerSelectedSongKey = selectedSongKey;
-    update.momentNumber = momentNumber;
+    playerSelectedBpm = update.momentNumber = momentNumber;
     update.user = appOptions.user;
     update.setState(state);
     songUpdateService.issueSongUpdate(update);
@@ -1489,7 +1464,7 @@ With escape, the app goes back to the play list.''',
       leaderSongUpdate(-1);
       logger.log(_playerLogMode, 'play:');
       if (!songUpdateService.isFollowing) {
-        songMaster.playSong(widget._song, drumParts: _drumParts);
+        songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm);
       }
     });
   }
@@ -1802,7 +1777,7 @@ With escape, the app goes back to the play list.''',
                       ),
                     ]),
                     appSpace(),
-                    if (kDebugMode) drums,
+                    drums,
                     appSpace(),
                     appWrapFullWidth(
                       children: [
@@ -1852,6 +1827,7 @@ With escape, the app goes back to the play list.''',
                         value: app.displayKeyOffset,
                       ),
                     ]),
+                    appVerticalSpace(space: 35),
                   ],
                 );
               }),
@@ -1879,14 +1855,15 @@ With escape, the app goes back to the play list.''',
 
     if (delta < 60 / 30 && delta > 60 / 200) {
       int bpm = (tempoRollingAverage ??= RollingAverage()).average(60 / delta).round();
-      if (_song.beatsPerMinute != bpm) {
+      if (playerSelectedBpm != bpm) {
         setState(() {
-          _song.beatsPerMinute = bpm;
+          playerSelectedBpm = bpm;
         });
       }
     } else {
       //  delta too small or too large
       tempoRollingAverage = null;
+      playerSelectedBpm = null; //  default to song beats per minute
     }
   }
 

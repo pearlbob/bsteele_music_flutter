@@ -561,7 +561,9 @@ class _MyHomePageState extends State<MyHomePage> {
       String dataAsString = await loadString('lib/assets/allSongPerformances.songperformances');
 
       try {
-        AllSongPerformances().fromJsonString(dataAsString);
+        var performances = AllSongPerformances();
+        performances.fromJsonString(dataAsString);
+        performances.loadSongs(app.allSongs);
         logger.i("internal song performances used");
         setState(() {});
       } catch (fe) {
@@ -634,7 +636,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        AllSongPerformances().fromJsonString(dataAsString);
+        var performances = AllSongPerformances();
+        performances.fromJsonString(dataAsString);
+        performances.loadSongs(app.allSongs);
         logger.i("external song performances read from: " + url);
         setState(() {});
       } catch (fe) {

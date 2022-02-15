@@ -296,11 +296,14 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
           if (width > 0 && lyricsTable.chordFontSize != null) {
             var lastChordFontSize = chordFontSize ?? 0;
             var newFontSize = lyricsTable.chordFontSize! * pixels / width;
-            newFontSize = Util.limit(newFontSize, 8.0, _maxFontSizeFraction * pixels) as double;
+            var userDisplayStyle = appOptions.userDisplayStyle;
+            newFontSize =
+                Util.limit(newFontSize, 8.0, 0.035 * pixels * (userDisplayStyle == UserDisplayStyle.player ? 2.0 : 1.0))
+                    as double;
             renderTableLeft = 0;
             logger.log(_playerLogFontResize, 'newFontSize : $newFontSize = ${newFontSize / pixels} of $pixels');
 
-            if (appOptions.userDisplayStyle == UserDisplayStyle.both) {
+            if (userDisplayStyle == UserDisplayStyle.both) {
               var fontSizeFraction = newFontSize / lyricsTable.chordFontSize!;
               var newLyricsWidth = renderTable.row(0).last.size.width //  lyrics are last!
                   *
@@ -445,7 +448,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         musicKey: displaySongKey,
         expanded: !compressRepeats,
         chordFontSize: chordFontSize,
-        lyricsFraction: lyricsFraction,
+        lyricsFraction: lyricsFraction ?? (appOptions.userDisplayStyle == UserDisplayStyle.player ? 0.20 : 0.35),
         //  givenSelectedSongMoments: selectedSongMoments
       );
       sectionLocations.clear(); //  clear any previous song cached data
@@ -689,7 +692,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 if (!isPlaying) {
                   //  don't respond above the player song table     fixme: this is likely not the best
                   RenderTable renderTable = (table?.key as GlobalKey).currentContext?.findRenderObject() as RenderTable;
-                  if (details.globalPosition.dy > renderTable.localToGlobal(Offset.zero).dy ) {
+                  if (details.globalPosition.dy > renderTable.localToGlobal(Offset.zero).dy) {
                     if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
                       sectionBump(1); //  fixme: when not in play
                     } else {
@@ -809,6 +812,7 @@ With escape, the app goes back to the play list.''',
                                                   widget._song = previousSongInTheList();
                                                   _song = widget._song;
                                                   setSelectedSongKey(_song.key);
+                                                  _selectedSongMoment = null;
                                                   adjustDisplay();
                                                 },
                                               ),
@@ -825,6 +829,7 @@ With escape, the app goes back to the play list.''',
                                                   widget._song = nextSongInTheList();
                                                   _song = widget._song;
                                                   setSelectedSongKey(_song.key);
+                                                  _selectedSongMoment = null;
                                                   adjustDisplay();
                                                 },
                                               ),
@@ -1849,6 +1854,8 @@ With escape, the app goes back to the play list.''',
               actionsAlignment: MainAxisAlignment.start,
               elevation: 24.0,
             ));
+
+    adjustDisplay();
   }
 
   void tempoTap() {
@@ -1964,7 +1971,6 @@ With escape, the app goes back to the play list.''',
   bool isCapo = false;
 
   static const _centerSelections = false; //fixme: add later!
-  static const _maxFontSizeFraction = 0.035;
   static const _sectionCenterLocationFraction = 0.35;
   double boxCenter = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

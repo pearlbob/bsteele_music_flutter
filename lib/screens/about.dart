@@ -181,9 +181,8 @@ class _About extends State<About> with WidgetsBindingObserver {
   }
 
   void _readUtcDate() async {
-    setState(() async {
-      _utcDateAsString = await app.releaseUtcDate();
-    });
+    _utcDateAsString = await app.releaseUtcDate();
+    setState(() {});
   }
 
   String? _utcDateAsString;

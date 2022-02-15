@@ -140,6 +140,8 @@ void main() async {
 /*
 beta short list:
 
+ small bug:  switch to player only, back out to the play list and then into a song with long lyrics.  you'll find lyrics with ... at the end of the line.
+
 in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?

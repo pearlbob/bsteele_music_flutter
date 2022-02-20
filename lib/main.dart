@@ -140,8 +140,10 @@ void main() async {
 /*
 beta short list:
 
+BPM lost on web version, won't play
  small bug:  switch to player only, back out to the play list and then into a song with long lyrics.  you'll find lyrics with ... at the end of the line.
 
+singers: purge singer without them coming back from the web site
 in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?
@@ -563,9 +565,9 @@ class _MyHomePageState extends State<MyHomePage> {
       String dataAsString = await loadString('lib/assets/allSongPerformances.songperformances');
 
       try {
-        var performances = AllSongPerformances();
-        performances.fromJsonString(dataAsString);
-        performances.loadSongs(app.allSongs);
+        var allPerformances = AllSongPerformances();
+        allPerformances.updateFromJsonString(dataAsString);
+        allPerformances.loadSongs(app.allSongs);
         logger.i("internal song performances used");
         setState(() {});
       } catch (fe) {
@@ -638,9 +640,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        var performances = AllSongPerformances();
-        performances.fromJsonString(dataAsString);
-        performances.loadSongs(app.allSongs);
+        var allPerformances = AllSongPerformances();
+        allPerformances.updateFromJsonString(dataAsString);
+        allPerformances.loadSongs(app.allSongs);
         logger.i("external song performances read from: " + url);
         setState(() {});
       } catch (fe) {
@@ -1392,7 +1394,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _filteredSongsNotInSelectedList = SplayTreeSet(compare);
     var matcher = SongSearchMatcher(search);
     for (final Song song in app.allSongs) {
-      if (matcher.matches(song)) {
+      if (matcher.matchesOrEmptySearch(song)) {
         //  if holiday and song is holiday, we're good
         if (appOptions.holiday) {
           if (isHoliday(song)) {

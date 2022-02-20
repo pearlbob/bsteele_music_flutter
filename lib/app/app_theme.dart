@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../main.dart';
+import '../screens/singers.dart';
 import 'app.dart';
 
 const Level _cssLog = Level.debug;
@@ -743,6 +744,7 @@ enum AppKeyEnum {
   singersSingerClearSearch,
   singersSingerSearchText,
   singersNameEntry,
+  singersSortTypeSelection,
   singersSave,
   singersSaveSelected,
   singersSingingTextButton,
@@ -806,6 +808,7 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.singersSearchSingle: bool,
   AppKeyEnum.singersSessionSingerSelect: String,
   AppKeyEnum.singersSingingTextButton: String,
+  AppKeyEnum.singersSortTypeSelection: SingersSongOrder,
 };
 
 class Id {

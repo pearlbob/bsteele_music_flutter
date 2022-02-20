@@ -31,7 +31,7 @@ const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
 enum MessageType {
-  message,
+  info,
   warning,
   error,
 }
@@ -106,20 +106,20 @@ class App {
   }
 
   /// Enter an informational message to the user
-  void infoMessage(String warning) {
-    _messageType = MessageType.warning;
-    _message = warning;
+  void infoMessage(String message) {
+    _messageType = MessageType.info;
+    _message = message;
   }
 
   /// Clear all messages to the user
   void clearMessage() {
-    _messageType = MessageType.message;
+    _messageType = MessageType.info;
     _message = '';
   }
 
-  set warningMessage(String message) {
+  set warningMessage(String warning) {
     _messageType = MessageType.warning;
-    _message = message;
+    _message = warning;
   }
 
   /// Return the current error message
@@ -141,7 +141,7 @@ class App {
   String _message = '';
 
   MessageType get messageType => _messageType;
-  MessageType _messageType = MessageType.message;
+  MessageType _messageType = MessageType.info;
 
   SplayTreeSet<Song> get allSongs => _allSongs;
   final SplayTreeSet<Song> _allSongs = SplayTreeSet();

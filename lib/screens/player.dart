@@ -41,6 +41,7 @@ final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Pla
 //  intentionally global to share with singer screen    fixme?
 music_key.Key? playerSelectedSongKey;
 int? playerSelectedBpm;
+String? playerSinger;
 
 /// An observer used to respond to a song update server request.
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
@@ -104,9 +105,10 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 /// Typically the chords will be grouped in lines.
 // ignore: must_be_immutable
 class Player extends StatefulWidget {
-  Player(this._song, {Key? key, music_key.Key? musicKey, int? bpm}) : super(key: key) {
+  Player(this._song, {Key? key, music_key.Key? musicKey, int? bpm, String? singer}) : super(key: key) {
     playerSelectedSongKey = musicKey; //  to be read later at initialization
     playerSelectedBpm = bpm ?? _song.beatsPerMinute;
+    playerSinger = singer;
   }
 
   @override
@@ -637,6 +639,12 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 hoverColor: hoverColor,
               ),
             ),
+            if (playerSinger != null)
+              Text(
+                ', sung by $playerSinger',
+                style: appBarTextStyle,
+                softWrap: false,
+              ),
             if (isPlaying && isCapo)
               Text(
                 ',  Capo ${capoLocation == 0 ? 'not needed' : 'on $capoLocation'}',
@@ -986,10 +994,15 @@ With escape, the app goes back to the play list.''',
                                           alignment: WrapAlignment.spaceBetween,
                                         ),
                                       if (songUpdateService.isFollowing)
-                                        Text(
-                                          'Key: $selectedSongKey',
-                                          style: headerTextStyle,
-                                          softWrap: false,
+                                        appTooltip(
+                                          message:
+                                              'When following the leader, the leader will select the key for you.\n'
+                                              'To correct this from the main screen: hamburger, Options, Hosts: None',
+                                          child: Text(
+                                            'Key: $selectedSongKey',
+                                            style: headerTextStyle,
+                                            softWrap: false,
+                                          ),
                                         ),
                                       appSpace(),
                                       if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
@@ -1055,9 +1068,13 @@ With escape, the app goes back to the play list.''',
                                       alignment: WrapAlignment.spaceBetween,
                                     ),
                                   if (app.isScreenBig && songUpdateService.isFollowing)
-                                    Text(
-                                      'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
-                                      style: headerTextStyle,
+                                    appTooltip(
+                                      message: 'When following the leader, the leader will select the tempo for you.\n'
+                                          'To correct this from the main screen: hamburger, Options, Hosts: None',
+                                      child: Text(
+                                        'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
+                                        style: headerTextStyle,
+                                      ),
                                     ),
                                   Text(
                                     '  Beats per Measure: ${_song.timeSignature.beatsPerBar}',

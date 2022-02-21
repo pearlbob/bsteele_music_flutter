@@ -30,6 +30,7 @@ end
 #	notice the v in front of the date number
 set tag=v$versionCode
 
+
 cd ~/github/$flut
 if ( $status != 0 ) exit $status
 
@@ -39,6 +40,8 @@ if ( $historicalCode == $versionCode ) then
 
 	cd ~/github/$flut
 	if ( $status != 0 ) exit $status
+	git tag -d $tag
+	git push --delete origin $tag
 	date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt #	update for the commit, may not match the version code exactly
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
@@ -50,6 +53,8 @@ if ( $historicalCode == $versionCode ) then
 
 	cd ~/github/$lib
 	if ( $status != 0 ) exit $status
+	git tag -d $tag
+	git push --delete origin $tag
 	git commit -a -m "commit for war $tag"
 	git tag -a $tag -m "tag: $tag"
 	git tag | tail -3

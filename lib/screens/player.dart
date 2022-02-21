@@ -62,7 +62,7 @@ const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.info;
+const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 
@@ -1340,15 +1340,6 @@ With escape, the app goes back to the play list.''',
         );
   }
 
-  // RenderObject renderTableObjectAt(SongMoment songMoment) {
-  //   RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
-  //   assert(renderObject != null && renderObject is RenderTable);
-  //   RenderTable renderTable = renderObject as RenderTable;
-  //
-  //   GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
-  //   return renderTable.row(coord.row).elementAt(coord.col);
-  // }
-
   void scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, 'scrollToSectionByMoment( $songMoment )');
     if (songMoment == null) {
@@ -1515,9 +1506,10 @@ With escape, the app goes back to the play list.''',
           break;
       }
 
-      assert(_songUpdate!.momentNumber >= 0);
-      assert(_songUpdate!.momentNumber < _song.songMoments.length);
-      scrollToSectionByMoment(_song.songMoments[_songUpdate!.momentNumber]);
+      int momentNumber = Util.intLimit(_songUpdate!.momentNumber, 0, _song.songMoments.length - 1);
+      assert(momentNumber >= 0);
+      assert(momentNumber < _song.songMoments.length);
+      scrollToSectionByMoment(_song.songMoments[momentNumber]);
       logger.log(
           _playerLogLeaderFollower,
           'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $isPlaying'

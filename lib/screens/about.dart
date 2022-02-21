@@ -10,7 +10,7 @@ import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+// import 'package:package_info_plus/package_info_plus.dart';
 
 /// Show some data about the app and it's environment.
 class About extends StatefulWidget {
@@ -82,15 +82,15 @@ class _About extends State<About> with WidgetsBindingObserver {
                     ),
                   ),
                 ]),
-                Text(
-                  'appName: ${_packageInfo.appName}',
-                ),
-                Text(
-                  'version: ${_packageInfo.version}',
-                ),
-                Text(
-                  'buildNumber: ${_packageInfo.buildNumber}',
-                ),
+                // Text(
+                //   'appName: ${_packageInfo.appName}',
+                // ),
+                // Text(
+                //   'version: ${_packageInfo.version}',
+                // ),
+                // Text(
+                //   'buildNumber: ${_packageInfo.buildNumber}',
+                // ),
                 // Text(
                 //   'packageName: ${_packageInfo.packageName}',
                 // ),
@@ -136,10 +136,10 @@ class _About extends State<About> with WidgetsBindingObserver {
   }
 
   void _readPackageInfo() async {
-    final info = await PackageInfo.fromPlatform();
-    setState(() {
-      _packageInfo = info;
-    });
+    // final info = await PackageInfo.fromPlatform();
+    // setState(() {
+    //   _packageInfo = info;
+    // });
   }
 
   void writeDiagnosticLogFile() async {
@@ -148,10 +148,10 @@ class _About extends State<About> with WidgetsBindingObserver {
     sb.writeln('''{
     "fileFormat": "1.0.0",
     "user": ${jsonEncode(userName)},
-    "version": ${jsonEncode(_packageInfo.version)},
     "versionUtcDate": ${jsonEncode(_utcDateAsString ?? 'unknown')},
     "nowUtc": ${jsonEncode(utcNow)},
     "log": [''');
+    // "version": ${jsonEncode(_packageInfo.version)},
 
     bool first = true;
     for (var s in appLog()) {
@@ -186,13 +186,13 @@ class _About extends State<About> with WidgetsBindingObserver {
   }
 
   String? _utcDateAsString;
-  PackageInfo _packageInfo = PackageInfo(
-    appName: 'Unknown',
-    packageName: 'Unknown',
-    version: 'Unknown',
-    buildNumber: 'Unknown',
-    buildSignature: 'Unknown',
-  );
+  // PackageInfo _packageInfo = PackageInfo(
+  //   appName: 'Unknown',
+  //   packageName: 'Unknown',
+  //   version: 'Unknown',
+  //   buildNumber: 'Unknown',
+  //   buildSignature: 'Unknown',
+  // );
 
   @override
   void didChangeMetrics() {

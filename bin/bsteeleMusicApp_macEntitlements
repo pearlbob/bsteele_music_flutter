@@ -1,0 +1,16 @@
+#!/bin/tcsh
+#set echo; set verbose
+ 
+cd macos/Runner
+
+set entitlement='<key>com.apple.security.network.client</key><true/>'
+
+foreach f ( DebugProfile.entitlements Release.entitlements )
+	echo $f
+	grep -q $entitlement $f
+	if ( $status != 0 ) then
+		sed -e "s:</dict>:$entitlement</dict>:" $f > tmp_file
+		mv tmp_file $f
+		echo "     updated $f"
+	endif
+end

@@ -62,7 +62,7 @@ const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.debug;
+const Level _playerLogLeaderFollower = Level.info;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 
@@ -71,8 +71,10 @@ const Level _playerLogBPM = Level.debug;
 /// Note: This is an awkward move, given that it can happen at any time from any route.
 /// Likely the implementation here will require adjustments.
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
-  logger.log(_playerLogLeaderFollower,
-      'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  logger.log(
+      _playerLogLeaderFollower,
+      'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
+      ', pbm: ${songUpdate.currentBeatsPerMinute} vs ${songUpdate.song.beatsPerMinute}');
 
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
@@ -88,6 +90,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   }
   _lastSongUpdateSent = null;
   _player?.setSelectedSongKey(songUpdate.currentKey);
+  playerSelectedBpm = songUpdate.currentBeatsPerMinute;
 
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
@@ -95,8 +98,10 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     _player?.setPlayState();
   });
 
-  logger.log(_playerLogLeaderFollower,
-      'playerUpdate(): end:   ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}');
+  logger.log(
+      _playerLogLeaderFollower,
+      'playerUpdate(): end:   ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
+      ', pbm: $playerSelectedBpm');
 }
 
 /// Display the song moments in sequential order.
@@ -1472,7 +1477,7 @@ With escape, the app goes back to the play list.''',
     _lastSongUpdateSent = update;
     update.currentKey = selectedSongKey;
     playerSelectedSongKey = selectedSongKey;
-    update.song.beatsPerMinute = playerSelectedBpm ?? update.song.beatsPerMinute;
+    update.currentBeatsPerMinute = playerSelectedBpm ?? update.song.beatsPerMinute;
     update.momentNumber = momentNumber;
     update.user = appOptions.user;
     update.setState(state);

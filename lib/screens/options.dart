@@ -17,7 +17,7 @@ import '../app/app.dart';
 import '../app/appOptions.dart';
 
 //  diagnostic logging enables
-const Level _optionLogAudio = Level.info;
+const Level _optionLogAudio = Level.debug;
 
 /// A screen to display controls for the user to manage some of the app's options.
 class Options extends StatefulWidget {

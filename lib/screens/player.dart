@@ -32,9 +32,6 @@ import '../app/app.dart';
 import '../app/appOptions.dart';
 import '../main.dart';
 
-//  fixme: shapes in chromium?  circles become stop signs
-//  fixme: compile to armv71
-
 /// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
 
@@ -67,6 +64,7 @@ const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
 const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
+const Level _playerLogBPM = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -109,6 +107,8 @@ class Player extends StatefulWidget {
     playerSelectedSongKey = musicKey; //  to be read later at initialization
     playerSelectedBpm = bpm ?? _song.beatsPerMinute;
     playerSinger = singer;
+
+    logger.log(_playerLogBPM, 'Player(bpm: $playerSelectedBpm)');
   }
 
   @override
@@ -148,6 +148,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
     playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
     _selectedSongMoment = null;
+
+    logger.log(_playerLogBPM, 'initState() bpm: $playerSelectedBpm');
 
     leaderSongUpdate(-1);
 
@@ -1042,10 +1044,12 @@ With escape, the app goes back to the play list.''',
                                                 if (value != null) {
                                                   setState(() {
                                                     playerSelectedBpm = value;
+                                                    logger.log(
+                                                        _playerLogBPM, '_bpmDropDownMenuList: bpm: $playerSelectedBpm');
                                                   });
                                                 }
                                               },
-                                              value: playerSelectedBpm,
+                                              value: playerSelectedBpm ?? _song.beatsPerMinute,
                                               style: headerTextStyle,
                                               iconSize: lookupIconSize(),
                                               itemHeight: null,
@@ -1061,6 +1065,7 @@ With escape, the app goes back to the play list.''',
                                             onPressed: () {
                                               setState(() {
                                                 playerSelectedBpm = MusicConstants.maxBpm;
+                                                logger.log(_playerLogBPM, 'speed: bpm: $playerSelectedBpm');
                                               });
                                             },
                                           ),
@@ -1461,18 +1466,14 @@ With escape, the app goes back to the play list.''',
           _lastSongUpdateSent!.currentKey == selectedSongKey) {
         return;
       }
-
-      //  debug bait
-      if (_lastSongUpdateSent!.momentNumber > momentNumber) {
-        logger.i('debughere:');
-      }
     }
 
     var update = SongUpdate.createSongUpdate(widget._song.copySong()); //  fixme: copy  required?
     _lastSongUpdateSent = update;
     update.currentKey = selectedSongKey;
     playerSelectedSongKey = selectedSongKey;
-    playerSelectedBpm = update.momentNumber = momentNumber;
+    update.song.beatsPerMinute = playerSelectedBpm ?? update.song.beatsPerMinute;
+    update.momentNumber = momentNumber;
     update.user = appOptions.user;
     update.setState(state);
     songUpdateService.issueSongUpdate(update);
@@ -1490,7 +1491,7 @@ With escape, the app goes back to the play list.''',
       leaderSongUpdate(-1);
       logger.log(_playerLogMode, 'play:');
       if (!songUpdateService.isFollowing) {
-        songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm);
+        songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
       }
     });
   }
@@ -1886,12 +1887,14 @@ With escape, the app goes back to the play list.''',
       if (playerSelectedBpm != bpm) {
         setState(() {
           playerSelectedBpm = bpm;
+          logger.log(_playerLogBPM, 'tempoTap(): bpm: $playerSelectedBpm');
         });
       }
     } else {
       //  delta too small or too large
       tempoRollingAverage = null;
       playerSelectedBpm = null; //  default to song beats per minute
+      logger.log(_playerLogBPM, 'tempoTap(): default: bpm: $playerSelectedBpm');
     }
   }
 

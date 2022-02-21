@@ -139,9 +139,7 @@ void main() async {
 
 /*
 beta short list:
-
 BPM lost on web version, won't play
- small bug:  switch to player only, back out to the play list and then into a song with long lyrics.  you'll find lyrics with ... at the end of the line.
 
 singers: purge singer without them coming back from the web site
 in edit: show diff with similar song
@@ -154,8 +152,7 @@ mac native:  desktop app couldn't get I Shall Be Released to save in the key of 
 For me, key change creates a duplicate chart. And then looks like it keeps key change UNTIL you get rid of old version. Very weird.
 map accented characters to lower case without accent: "Exposé" should match "expose"
 
-download.html needs the date of generation on it
-research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released".
+research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released".   YES!
 
 studio instructions for personal tablets
 //  no auto 4 measures per row
@@ -892,9 +889,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: kToolbarHeight,
                     semanticLabel: "bsteele.com website",
                   ),
-                  //  color: Colors.white,
-                  margin: const EdgeInsets.all(4),
-                  //padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  margin: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -911,12 +906,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   openLink('http://communityjams.org');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: const Image(
                     image: AssetImage('lib/assets/cjLogo.png'),
                     width: kToolbarHeight,
                     height: kToolbarHeight,
                     semanticLabel: "community jams",
+                  ),
+                  margin: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    color: Colors.white,
                   ),
                 ),
               ),

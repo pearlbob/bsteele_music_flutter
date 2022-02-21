@@ -10,7 +10,6 @@ import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Show some data about the app and it's environment.
@@ -182,9 +181,8 @@ class _About extends State<About> with WidgetsBindingObserver {
   }
 
   void _readUtcDate() async {
-    setState(() async {
-      _utcDateAsString = await app.releaseUtcDate();
-    });
+    _utcDateAsString = await app.releaseUtcDate();
+    setState(() {});
   }
 
   String? _utcDateAsString;

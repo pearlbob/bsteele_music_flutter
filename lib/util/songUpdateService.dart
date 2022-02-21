@@ -91,7 +91,7 @@ class SongUpdateService extends ChangeNotifier {
           notifyListeners();
           var lastAuthority = _authority;
           for (_idleCount = 0;; _idleCount++) {
-            await Future.delayed(Duration(seconds: kIsWeb ? 5 : 1));
+            await Future.delayed(const Duration(seconds: kIsWeb ? 5 : 1));
             if (kIsWeb) {
               notifyListeners();
             }

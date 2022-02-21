@@ -8,7 +8,6 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Selection of the user's display style for the player screen.
@@ -69,7 +68,7 @@ class AppOptions extends ChangeNotifier {
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
     _readSongMetadata();
-    _readAllSongPerformances();
+    _updateAllSongPerformances();
     notifyListeners();
   }
 
@@ -269,7 +268,7 @@ class AppOptions extends ChangeNotifier {
   /// The current selected web socket host.
   /// An empty string will indicate the web socket should remain idle.
   String get websocketHost => _websocketHost;
-  String _websocketHost = 'cj.local';
+  String _websocketHost = ''; //  initialize idle
 
   bool isInThePark() {
     return _websocketHost == parkFixedIpAddress;
@@ -310,11 +309,13 @@ class AppOptions extends ChangeNotifier {
     _saveString(Util.enumName(StorageValue.allSongPerformances), storage);
   }
 
-  void _readAllSongPerformances() async {
+  void _updateAllSongPerformances() async {
     var jsonString = await _readString(Util.enumName(StorageValue.allSongPerformances), defaultValue: '');
-    //logger.d('_readAllSongPerformances(): ${Util.enumName(StorageValue.allSongPerformances)}: $jsonString');
+    logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
+    //logger.d('_updateAllSongPerformances(): ${Util.enumName(StorageValue.allSongPerformances)}: $jsonString');
     if (jsonString.isNotEmpty) {
-      allSongPerformances.fromJsonString(jsonString);
+      int count = allSongPerformances.updateFromJsonString(jsonString);
+      logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
   }

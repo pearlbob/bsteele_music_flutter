@@ -43,14 +43,16 @@ class _CssDemo extends State<CssDemo> {
           var sectionContainers = <Widget>[];
           for (var index = 0; index <= 8; index++) {
             var sectionVersion = SectionVersion(Section.get(section), index);
-            var coloredChordTextStyle = generateChordTextStyle(
-                fontSize: fontSize, backgroundColor: getBackgroundColorForSectionVersion(sectionVersion));
+            var color = getBackgroundColorForSectionVersion(sectionVersion);
+            var coloredChordTextStyle = generateChordTextStyle(fontSize: fontSize, backgroundColor: color);
             sectionContainers.add(Container(
                 margin: getMeasureMargin(),
                 padding: getMeasurePadding(),
                 color: coloredChordTextStyle.backgroundColor,
                 child: Text(
-                  Util.enumName(section) + (index > 0 ? index.toString() : ''),
+                  Util.enumName(section) + (index > 0 ? index.toString() : '')
+                  //  + ' ' + colorToCssColorString( color)
+                  ,
                   style: coloredChordTextStyle,
                 )));
           }

@@ -230,7 +230,7 @@ class LyricsTable {
     App app = App();
     _screenWidth = app.screenInfo.mediaWidth;
     _screenHeight = app.screenInfo.mediaHeight;
-    _chordFontSize ??= appDefaultFontSize * min(4, max(1, _screenWidth / 500));
+    _chordFontSize ??= appDefaultFontSize * min(8, max(1, _screenWidth / 500));
     _lyricsFontSize = _chordFontSize! * 0.6;
 
     //  text styles

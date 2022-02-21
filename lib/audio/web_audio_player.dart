@@ -23,10 +23,13 @@ class WebAudioPlayer implements AppAudioPlayer {
         String path = 'audio/guitar_$i.mp3';
         _audioFilePlayer.bufferFile(path);
       }
+      _audioFilePlayer.bufferFile('audio/hihat1.mp3');
+      _audioFilePlayer.bufferFile('audio/hihat3.mp3');
       _audioFilePlayer.bufferFile('audio/kick_4513.mp3');
       _audioFilePlayer.bufferFile('audio/kick_4516.mp3');
       _audioFilePlayer.bufferFile('audio/snare_4405.mp3');
       _audioFilePlayer.bufferFile('audio/snare_4406.mp3');
+
       logger.i('audio: getBaseLatency="${_audioFilePlayer.getBaseLatency()}"');
     } catch (e) {
       logger.e('exception: ${e.toString()}');

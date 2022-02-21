@@ -139,8 +139,9 @@ void main() async {
 
 /*
 beta short list:
-verify dmg version reads allSongs from web
+BPM lost on web version, won't play
 
+singers: purge singer without them coming back from the web site
 in edit: show diff with similar song
 edit "pro-mode", canvas copy paste for chords and lyrics
 edit lyrics: not updated!  should be on timeout like chords?
@@ -151,8 +152,7 @@ mac native:  desktop app couldn't get I Shall Be Released to save in the key of 
 For me, key change creates a duplicate chart. And then looks like it keeps key change UNTIL you get rid of old version. Very weird.
 map accented characters to lower case without accent: "Exposé" should match "expose"
 
-download.html needs the date of generation on it
-research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released".
+research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released".   YES!
 
 studio instructions for personal tablets
 //  no auto 4 measures per row
@@ -562,7 +562,9 @@ class _MyHomePageState extends State<MyHomePage> {
       String dataAsString = await loadString('lib/assets/allSongPerformances.songperformances');
 
       try {
-        AllSongPerformances().fromJsonString(dataAsString);
+        var allPerformances = AllSongPerformances();
+        allPerformances.updateFromJsonString(dataAsString);
+        allPerformances.loadSongs(app.allSongs);
         logger.i("internal song performances used");
         setState(() {});
       } catch (fe) {
@@ -635,7 +637,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        AllSongPerformances().fromJsonString(dataAsString);
+        var allPerformances = AllSongPerformances();
+        allPerformances.updateFromJsonString(dataAsString);
+        allPerformances.loadSongs(app.allSongs);
         logger.i("external song performances read from: " + url);
         setState(() {});
       } catch (fe) {
@@ -885,9 +889,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: kToolbarHeight,
                     semanticLabel: "bsteele.com website",
                   ),
-                  //  color: Colors.white,
-                  margin: const EdgeInsets.all(4),
-                  //padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  margin: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -904,12 +906,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   openLink('http://communityjams.org');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: const Image(
                     image: AssetImage('lib/assets/cjLogo.png'),
                     width: kToolbarHeight,
                     height: kToolbarHeight,
                     semanticLabel: "community jams",
+                  ),
+                  margin: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -1387,7 +1394,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _filteredSongsNotInSelectedList = SplayTreeSet(compare);
     var matcher = SongSearchMatcher(search);
     for (final Song song in app.allSongs) {
-      if (matcher.matches(song)) {
+      if (matcher.matchesOrEmptySearch(song)) {
         //  if holiday and song is holiday, we're good
         if (appOptions.holiday) {
           if (isHoliday(song)) {

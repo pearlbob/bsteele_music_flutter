@@ -139,7 +139,8 @@ void main() async {
 
 /*
 beta short list:
-BPM lost on web version, won't play
+
+share the "sung by" in the follower update
 
 singers: purge singer without them coming back from the web site
 in edit: show diff with similar song

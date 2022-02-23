@@ -190,7 +190,7 @@ class SongUpdateService extends ChangeNotifier {
   bool _isRunning = false;
   BuildContext? currentContext;
 
-  bool get isFollowing => !_isLeader && !isIdle;
+  bool get isFollowing => !_isLeader && !isIdle && isConnected;
 
   bool get isLeader => isConnected && _isLeader;
   bool _isLeader = false;

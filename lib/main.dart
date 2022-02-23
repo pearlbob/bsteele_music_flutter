@@ -110,6 +110,7 @@ import 'util/openLink.dart';
 const Level _mainLogScroll = Level.debug;
 
 const _environmentDefault = 'main';
+// --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 const _holidayOverride = String.fromEnvironment('holiday', defaultValue: '');
 const _cssFileName = String.fromEnvironment('css', defaultValue: '');

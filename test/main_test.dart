@@ -131,5 +131,7 @@ void main() {
 
 //  wait a while
 //     await tester.pump(new Duration(milliseconds: 50));
+
+    testUtilShutdown(tester);
   });
 }

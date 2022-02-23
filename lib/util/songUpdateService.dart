@@ -12,11 +12,15 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
 
-const Level _log = Level.debug;
+const Level _log = Level.info;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
     _singleton._open(context);
+  }
+
+  SongUpdateService.close() {
+    _singleton._close();
   }
 
   static final SongUpdateService _singleton = SongUpdateService._internal();
@@ -34,9 +38,7 @@ class SongUpdateService extends ChangeNotifier {
     }
     _isRunning = true; //  start only once!
 
-    var delaySeconds = 0;
-
-    for (;;) //  retry on a failure
+    while (_isRunning) //  retry on a failure
     {
       _closeWebSocketChannel();
 
@@ -77,7 +79,7 @@ class SongUpdateService extends ChangeNotifier {
             if (_songUpdate != null) {
               // logger.d('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
               playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
-              delaySeconds = 0;
+              _delaySeconds = 0;
               _songUpdateCount++;
             }
           }, onError: (Object error) {
@@ -99,13 +101,13 @@ class SongUpdateService extends ChangeNotifier {
             if (lastAuthority != _findTheAuthority()) {
               logger.log(_log, 'lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
               _closeWebSocketChannel();
-              delaySeconds = 0;
+              _delaySeconds = 0;
               notifyListeners();
               break;
             }
             if (!_isOpen) {
               logger.log(_log, 'on close: $lastAuthority');
-              delaySeconds = 0;
+              _delaySeconds = 0;
               notifyListeners();
               break;
             }
@@ -118,19 +120,23 @@ class SongUpdateService extends ChangeNotifier {
         }
       }
 
-      if (delaySeconds > 0) {
+      if (_delaySeconds > 0) {
         //  wait a while
-        if (delaySeconds < maxDelaySeconds) {
-          logger.log(_log, 'wait a while... before retrying websocket: $delaySeconds s');
+        if (_delaySeconds < maxDelaySeconds) {
+          logger.log(_log, 'wait a while... before retrying websocket: $_delaySeconds s');
         }
-        await Future.delayed(Duration(seconds: delaySeconds));
+        await Future.delayed(Duration(seconds: _delaySeconds));
       }
 
       //  backoff bothering the server with repeated failures
-      if (delaySeconds < maxDelaySeconds) {
-        delaySeconds++;
+      if (_delaySeconds < maxDelaySeconds) {
+        _delaySeconds++;
       }
     }
+  }
+
+  void _close() {
+    _isRunning = false;
   }
 
   String _findTheAuthority() {
@@ -211,6 +217,9 @@ class SongUpdateService extends ChangeNotifier {
   int _idleCount = 0;
   WebSocketSink? _webSocketSink;
   static const int maxDelaySeconds = 10;
+
+  static int get delaySeconds => _singleton._delaySeconds;
+  var _delaySeconds = 0;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();
 }

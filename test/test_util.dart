@@ -2,6 +2,7 @@ import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -238,4 +239,12 @@ class RegexpTextFinder extends MatchFinder {
   }
 
   final RegExp _regExp;
+}
+
+testUtilShutdown(WidgetTester tester) async {
+  //  wait for song update service to close
+  SongUpdateService.close();
+  if (SongUpdateService.delaySeconds > 0) {
+    await tester.pumpAndSettle(Duration(seconds: SongUpdateService.delaySeconds));
+  }
 }

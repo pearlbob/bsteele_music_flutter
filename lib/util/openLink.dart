@@ -13,7 +13,6 @@ A custom target name of a window that exists
 
 void openLink(String url, {bool sameTab = false}) async {
   if (kIsWeb) {
-    String? webOnlyWindowName = sameTab ? '_self' : null;
     if (await canLaunch(url)) {
       await launch(url);
     } else {

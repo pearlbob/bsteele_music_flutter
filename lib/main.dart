@@ -140,7 +140,10 @@ void main() async {
 
 /*
 beta short list:
+Alicia C. ???  Alicia C. lost from singers, again!
 
+white rabbit no f sharp, no indicator
+Read of files by dmg from web version
 share the "sung by" in the follower update
 
 singers: purge singer without them coming back from the web site

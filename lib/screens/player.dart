@@ -58,11 +58,11 @@ List<Rect> _songMomentChordRectangles = [];
 
 //  diagnostic logging enables
 const Level _playerLogBuild = Level.debug;
-const Level _playerLogScroll = Level.debug;
+const Level _playerLogScroll = Level.info;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.debug;
+const Level _playerLogLeaderFollower = Level.info;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 
@@ -293,7 +293,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     logger.d('positionAfterBuild():');
 
     //  look at the rendered table size, resize if required
-    {
+    if (table?.key != null) {
       RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
       assert(renderObject != null && renderObject is RenderTable);
       if (renderObject != null && renderObject is RenderTable) {
@@ -762,13 +762,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                                   Container(
                                       padding: const EdgeInsets.all(6.0),
                                       child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
-                                //  hints
-                                if (app.isScreenBig)
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    child: appWrapFullWidth(children: [
-                                      appTooltip(
-                                        message: '''
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: appWrapFullWidth(children: [
+                                    appTooltip(
+                                      message: '''
 Space bar or clicking the song area starts "play" mode.
     Selected section is in the top or middle of the display.
 Another space bar or song area hit advances one section.
@@ -777,79 +775,81 @@ Up or left arrow backs up one section.
 Scrolling with the mouse wheel works as well.
 Enter ends the "play" mode.
 With escape, the app goes back to the play list.''',
-                                        child: TextButton(
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.all(8),
-                                          ),
-                                          child: Text(
-                                            'Hints',
-                                            style: headerTextStyle,
-                                          ),
-                                          onPressed: () {},
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.all(8),
                                         ),
+                                        child: Text(
+                                          'Hints',
+                                          style: headerTextStyle,
+                                        ),
+                                        onPressed: () {},
                                       ),
-                                      if (showCapo)
-                                        appWrap(
-                                          [
-                                            if (isCapo && capoLocation > 0)
-                                              Text(
-                                                'Capo on $capoLocation',
-                                                style: headerTextStyle,
-                                                softWrap: false,
-                                              ),
-                                            if (isCapo && capoLocation == 0)
-                                              Text(
-                                                'No capo needed',
-                                                style: headerTextStyle,
-                                                softWrap: false,
-                                              ),
-                                          ],
-                                        ),
-                                      // //  recommend a blues harp
-                                      // Text(
-                                      //   'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
-                                      //   style: headerTextStyle,
-                                      //   softWrap: false,
-                                      // ),
+                                    ),
+                                    if (showCapo)
+                                      appWrap(
+                                        [
+                                          if (isCapo && capoLocation > 0)
+                                            Text(
+                                              'Capo on $capoLocation',
+                                              style: headerTextStyle,
+                                              softWrap: false,
+                                            ),
+                                          if (isCapo && capoLocation == 0)
+                                            Text(
+                                              'No capo needed',
+                                              style: headerTextStyle,
+                                              softWrap: false,
+                                            ),
+                                        ],
+                                      ),
+                                    // //  recommend a blues harp
+                                    // Text(
+                                    //   'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
+                                    //   style: headerTextStyle,
+                                    //   softWrap: false,
+                                    // ),
 
+                                    appWrap([
                                       if (app.isScreenBig)
                                         appWrap([
-                                          appWrap([
-                                            //  fixme: there should be a better way.  wrap with flex?
-                                            appTooltip(
-                                              message: 'Back to the previous song in the list',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerPreviousSong,
-                                                icon: appIcon(
-                                                  Icons.navigate_before,
-                                                ),
-                                                onPressed: () {
-                                                  widget._song = previousSongInTheList();
-                                                  _song = widget._song;
-                                                  setSelectedSongKey(_song.key);
-                                                  _selectedSongMoment = null;
-                                                  adjustDisplay();
-                                                },
+                                          //  fixme: there should be a better way.  wrap with flex?
+                                          appTooltip(
+                                            message: 'Back to the previous song in the list',
+                                            child: appIconButton(
+                                              appKeyEnum: AppKeyEnum.playerPreviousSong,
+                                              icon: appIcon(
+                                                Icons.navigate_before,
                                               ),
+                                              onPressed: () {
+                                                widget._song = previousSongInTheList();
+                                                _song = widget._song;
+                                                setSelectedSongKey(_song.key);
+                                                _selectedSongMoment = null;
+                                                adjustDisplay();
+                                              },
                                             ),
-                                            appSpace(space: 5),
-                                            appTooltip(
-                                              message: 'Advance to the next song in the list',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerNextSong,
-                                                icon: appIcon(
-                                                  Icons.navigate_next,
-                                                ),
-                                                onPressed: () {
-                                                  widget._song = nextSongInTheList();
-                                                  _song = widget._song;
-                                                  setSelectedSongKey(_song.key);
-                                                  _selectedSongMoment = null;
-                                                  adjustDisplay();
-                                                },
+                                          ),
+                                          appSpace(space: 5),
+                                          appTooltip(
+                                            message: 'Advance to the next song in the list',
+                                            child: appIconButton(
+                                              appKeyEnum: AppKeyEnum.playerNextSong,
+                                              icon: appIcon(
+                                                Icons.navigate_next,
                                               ),
+                                              onPressed: () {
+                                                widget._song = nextSongInTheList();
+                                                _song = widget._song;
+                                                setSelectedSongKey(_song.key);
+                                                _selectedSongMoment = null;
+                                                adjustDisplay();
+                                              },
                                             ),
-                                          ]),
+                                          ),
+                                        ]),
+                                      if (app.isScreenBig)
+                                        appWrap([
                                           appSpace(space: 35),
                                           appTooltip(
                                             message: 'Mark the song as good.'
@@ -887,37 +887,37 @@ With escape, the app goes back to the play list.''',
                                               },
                                             ),
                                           ),
-                                          if (app.isEditReady) appSpace(space: 35),
-                                          if (app.isEditReady)
-                                            appTooltip(
-                                              message: 'Edit the song',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerEdit,
-                                                icon: appIcon(
-                                                  Icons.edit,
-                                                ),
-                                                onPressed: () {
-                                                  navigateToEdit(context, _song);
-                                                },
-                                              ),
-                                            ),
-                                          appSpace(horizontalSpace: 70),
-                                          appTooltip(
-                                            message: 'Player settings',
-                                            child: appIconButton(
-                                              appKeyEnum: AppKeyEnum.playerSettings,
-                                              icon: appIcon(
-                                                Icons.settings,
-                                              ),
-                                              onPressed: () {
-                                                settingsPopup();
-                                              },
-                                            ),
-                                          ),
-                                          appSpace(),
                                         ]),
-                                    ], alignment: WrapAlignment.spaceBetween),
-                                  ),
+                                      if (app.isEditReady) appSpace(space: 35),
+                                      if (app.isEditReady)
+                                        appTooltip(
+                                          message: 'Edit the song',
+                                          child: appIconButton(
+                                            appKeyEnum: AppKeyEnum.playerEdit,
+                                            icon: appIcon(
+                                              Icons.edit,
+                                            ),
+                                            onPressed: () {
+                                              navigateToEdit(context, _song);
+                                            },
+                                          ),
+                                        ),
+                                      appSpace(space: 70),
+                                      appTooltip(
+                                        message: 'Player settings',
+                                        child: appIconButton(
+                                          appKeyEnum: AppKeyEnum.playerSettings,
+                                          icon: appIcon(
+                                            Icons.settings,
+                                          ),
+                                          onPressed: () {
+                                            settingsPopup();
+                                          },
+                                        ),
+                                      ),
+                                    ]),
+                                  ], alignment: WrapAlignment.spaceBetween),
+                                ),
                                 appWrapFullWidth(children: [
                                   if (app.fullscreenEnabled && !app.isFullScreen)
                                     appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
@@ -1157,7 +1157,7 @@ With escape, the app goes back to the play list.''',
                               ], spacing: 20),
                             appSpace(),
                             Center(
-                              child: table ?? const Text('_table missing!'),
+                              child: table ?? const Text('table missing!'),
                             ),
 
                             Text(
@@ -1801,7 +1801,7 @@ With escape, the app goes back to the play list.''',
                       ),
                     ]),
                     appSpace(),
-                    drums,
+                    if (app.isScreenBig) drums,
                     appSpace(),
                     appWrapFullWidth(
                       children: [

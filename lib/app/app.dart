@@ -207,6 +207,38 @@ class App {
     });
   }
 
+  //  an experiment
+  // clearWidgets() {
+  //   _widgetMap.clear();
+  // }
+  // registerWidget(ValueKey<String> key, Widget widget) {
+  //   _widgetMap[key] = widget;
+  // }
+  //
+  // logWidgets() {
+  //   logger.i('logWidgets: ${_widgetMap.keys.length}');
+  //   for (var key in _widgetMap.keys) {
+  //     //logger.i(' key: ${key.runtimeType} ${key.toString()}');
+  //     var widget = _widgetMap[key];
+  //     if (widget != null) {
+  //       if (widget is ElevatedButton) {
+  //         logger.i('  ${key.value} => ElevatedButton.${widget.onPressed}');
+  //       }
+  //       else if (widget is TextButton) {
+  //         logger.i('  ${key.value} => TextButton.${widget.onPressed}');
+  //         if ( key.value == 'playerNextSong'){
+  //           widget.onPressed?.call();
+  //         }
+  //       }
+  //       else {
+  //         logger.i('  widget.runtimeType: ${widget.runtimeType}, key: ${key.value}');
+  //       }
+  //     }
+  //   }
+  // }
+  //
+  // final Map<ValueKey<String>, Widget> _widgetMap = {};
+
   static final App _singleton = App._internal();
 }
 

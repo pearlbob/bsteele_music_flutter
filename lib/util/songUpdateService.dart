@@ -12,7 +12,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
 
-const Level _log = Level.info;
+const Level _log = Level.verbose;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
@@ -38,6 +38,8 @@ class SongUpdateService extends ChangeNotifier {
     }
     _isRunning = true; //  start only once!
 
+    var lastAuthority = '';
+
     while (_isRunning) //  retry on a failure
     {
       _closeWebSocketChannel();
@@ -45,7 +47,6 @@ class SongUpdateService extends ChangeNotifier {
       //  look back to the server to possibly find a websocket
       _authority = _findTheAuthority();
       _ipAddress = '';
-      notifyListeners();
 
       if (_authority.isEmpty) {
         // do nothing
@@ -64,13 +65,14 @@ class SongUpdateService extends ChangeNotifier {
             await InternetAddress.lookup(_uri.host, type: InternetAddressType.IPv4).then((value) async {
               for (var element in value) {
                 _ipAddress = element.address; //  just the first one will do
-                notifyListeners();
+
                 break;
               }
             });
           } catch (e) {
             _ipAddress = ''; //  fixme: UnimplementedError
           }
+          notifyListeners();
 
           _webSocketSink = _webSocketChannel!.sink;
 
@@ -90,8 +92,11 @@ class SongUpdateService extends ChangeNotifier {
             _closeWebSocketChannel();
           });
 
-          notifyListeners();
-          var lastAuthority = _authority;
+          if (lastAuthority != _authority) {
+            notifyListeners();
+          }
+          lastAuthority = _authority;
+
           for (_idleCount = 0;; _idleCount++) {
             await Future.delayed(const Duration(seconds: kIsWeb ? 5 : 1));
             if (kIsWeb) {
@@ -110,6 +115,10 @@ class SongUpdateService extends ChangeNotifier {
               _delaySeconds = 0;
               notifyListeners();
               break;
+            }
+            if (_idleCount == 0) {
+              //  notify on first idle cycle
+              notifyListeners();
             }
             logger.log(_log, 'webSocketChannel idle: $_isOpen, count: $_idleCount');
           }
@@ -157,15 +166,17 @@ class SongUpdateService extends ChangeNotifier {
   }
 
   void _closeWebSocketChannel() async {
-    _webSocketSink = null;
-    _webSocketChannel?.sink.close(web_socket_status.normalClosure);
-    _webSocketChannel = null;
-    _idleCount = 0;
-    await _subscription?.cancel();
-    _subscription = null;
-    //fixme: make sticky across retries:   _isLeader = false;
-    _songUpdateCount = 0;
-    notifyListeners();
+    if (_webSocketSink != null) {
+      _webSocketSink = null;
+      _webSocketChannel?.sink.close(web_socket_status.normalClosure);
+      _webSocketChannel = null;
+      _idleCount = 0;
+      await _subscription?.cancel();
+      _subscription = null;
+      //fixme: make sticky across retries:   _isLeader = false;
+      _songUpdateCount = 0;
+      notifyListeners();
+    }
   }
 
   void issueSongUpdate(SongUpdate songUpdate) {

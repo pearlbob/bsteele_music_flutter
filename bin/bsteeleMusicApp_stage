@@ -39,8 +39,12 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-#	beta to local static host
+#	test
 cd $git
+flutter test tests
+if ( $status != 0 ) exit -1
+
+#	beta to local static host
 set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
 
 ##	build the release version of the beta

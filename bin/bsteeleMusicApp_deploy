@@ -17,6 +17,10 @@ if ( $stat != 0 ) then
 endif
 
 
+#	prep for subsequent sudo in war file install
+#	this forces the sudo early in the deployment process
+sudo date
+
 
 #	compile for release
 set git=~/github/bsteele_music_flutter

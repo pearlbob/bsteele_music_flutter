@@ -6064,7 +6064,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1645584367894, "song": 
+{ "file": "", "lastModifiedDate": 1645584367894, "song": 
 {
 "title": "As I Lay Me Down",
 "artist": "Sophie B. Hawkins",
@@ -26400,12 +26400,12 @@
     ]
 }
 },
-{ "file": "Dirty Work.songlyrics", "lastModifiedDate": 1645338356282, "song": 
+{ "file": "Dirty Work.songlyrics", "lastModifiedDate": 1645751390303, "song": 
 {
 "title": "Dirty Work",
 "artist": "Steely Dan",
 "user": "Shari",
-"lastModifiedDate": 1645338356282,
+"lastModifiedDate": 1645751390303,
 "copyright": "1972 ABC",
 "key": "C",
 "defaultBpm": 106,
@@ -26434,7 +26434,6 @@
 	"C:",
 	"C# F#maj7 A#m7 B x3",
 	"O:",
-	"C# F#maj7 A#m7 B x2",
 	"C#"
     ],
 "lyrics": 
@@ -26471,15 +26470,6 @@
 	"I don't wanna do your dirty work, no more",
 	"I'm a fool to do your dirty work, oh yeah",
 	"",
-	"V:",
-	"Like a castle in his corner, in some medieval game",
-	"I foresee some terrible trouble and I'll stay here just the same",
-	"",
-	"C:",
-	"I'm a fool to do your dirty work,oh yeah",
-	"I don't wanna do your dirty work, no more",
-	"I'm a fool to do your dirty work, oh yeah",
-	"",
 	"I3:",
 	"(instrumental)",
 	"",
@@ -26491,17 +26481,21 @@
 	"I don't wanna do your dirty work, no more",
 	"I'm a fool to do your dirty work, oh yeah",
 	"",
-	"O:",
-	"(instrumental)"
+	"C:",
+	"I don't wanna do your dirty work, no more",
+	"I'm a fool to do your dirty work, oh yeah",
+	"I don't wanna do your dirty work, no more",
+	"",
+	"O:"
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1645338394368, "song": 
+{ "file": "", "lastModifiedDate": 1645751569960, "song": 
 {
 "title": "Dirty Work, cover by Melissa Manchester",
 "artist": "Steely Dan",
 "user": "Shari",
-"lastModifiedDate": 1645338394368,
+"lastModifiedDate": 1645751569960,
 "copyright": "1976 SBCMG",
 "key": "Eb",
 "defaultBpm": 74,
@@ -26565,7 +26559,7 @@
 	"(instrumental)",
 	"",
 	"V2:",
-	"(Like a) castle in his corner, in some medieval game, I",
+	"(Like a) castle in his corner, in a medieval game, I",
 	"Foresee some terrible trouble but I'll stay here, oh I'll stay here just the same",
 	"",
 	"C2:",
@@ -43611,7 +43605,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1645582525640, "song": 
+{ "file": "", "lastModifiedDate": 1645582525640, "song": 
 {
 "title": "Halo",
 "artist": "Beyonce",
@@ -51523,7 +51517,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1645580008764, "song": 
+{ "file": "", "lastModifiedDate": 1645580008764, "song": 
 {
 "title": "I Can't Stand the Rain",
 "artist": "Ann Peebles",
@@ -77238,12 +77232,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1645573522844, "song": 
+{ "file": "", "lastModifiedDate": 1645751915483, "song": 
 {
 "title": "Never Tear Us Apart",
 "artist": "INXS",
-"user": "pillyweed",
-"lastModifiedDate": 1645573522844,
+"user": "Shari",
+"lastModifiedDate": 1645751915483,
 "copyright": "1988 Atlantic",
 "key": "C",
 "defaultBpm": 196,
@@ -77286,8 +77280,10 @@
 	"",
 	"V:",
 	"(We could) live for a thousand years, but if I",
-	"Hurt you, I'd make wine from your tears, I",
-	"Told you that we could fly, 'cause we all have wings, but",
+	"Hurt you, I'd make wine from your tears",
+	"",
+	"V:",
+	"(I) told you that we could fly, 'cause we all have wings, but",
 	"Some of us don't know why",
 	"",
 	"C:",
@@ -121865,7 +121861,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1645586127620, "song": 
+{ "file": "", "lastModifiedDate": 1645586127620, "song": 
 {
 "title": "Wildest Dreams",
 "artist": "Taylor Swift",

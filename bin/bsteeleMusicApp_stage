@@ -41,7 +41,7 @@ endif
 
 #	test
 cd $git
-flutter test tests
+flutter test test
 if ( $status != 0 ) exit -1
 
 #	beta to local static host

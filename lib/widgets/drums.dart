@@ -28,7 +28,7 @@ class DrumsWidget extends StatefulWidget {
   final DrumParts _drumParts;
 
   @override
-  _Drums createState() => _Drums();
+  _DrumsState createState() => _DrumsState();
 }
 
 const int drumSubBeats = 4;
@@ -59,8 +59,8 @@ List<String> _timingNames = [
   'a',
 ];
 
-class _Drums extends State<DrumsWidget> {
-  _Drums({int? beats}) : _beats = beats ?? 4;
+class _DrumsState extends State<DrumsWidget> {
+  _DrumsState({int? beats}) : _beats = beats ?? 4;
 
   @override
   initState() {

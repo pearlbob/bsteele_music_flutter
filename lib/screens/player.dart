@@ -58,11 +58,11 @@ List<Rect> _songMomentChordRectangles = [];
 
 //  diagnostic logging enables
 const Level _playerLogBuild = Level.debug;
-const Level _playerLogScroll = Level.info;
+const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.info;
+const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 
@@ -256,7 +256,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         BoxHitTestResult result = BoxHitTestResult();
         Offset position = Offset(20, boxCenter + scrollController.offset);
         if (renderTable.hitTestChildren(result, position: position)) {
-          logger.d('hitTest $position: ${result.path.last}');
+          logger.log(_playerLogScroll, '_scrollControllerListener(): hitTest $position: ${result.path.last}');
           assert(_songMomentChordRectangles.length == _song.songMoments.length);
 
           //  find the moment past the marker
@@ -1379,14 +1379,20 @@ With escape, the app goes back to the play list.''',
       assert(false);
       return;
     }
-
+    logger.log(
+        _playerLogScroll,
+        'sectionBump(): bump = $bump'
+        ', lyricSection.index: ${_selectedSongMoment!.lyricSection.index}');
     scrollToLyricsSectionIndex(_selectedSongMoment!.lyricSection.index + bump);
   }
 
   void scrollToLyricsSectionIndex(int index) {
+    logger.log(_playerLogScroll, 'scrollToLyricsSectionIndex(): index: $index');
     if (sectionSongMoments.isEmpty) {
       return;
     }
+    logger.log(
+        _playerLogScroll, 'scrollToLyricsSectionIndex(): sectionSongMoments.length: ${sectionSongMoments.length}');
     index = Util.intLimit(index, 0, sectionSongMoments.length - 1);
     sectionIndex = index;
     scrollToSectionByMoment(sectionSongMoments[index]);
@@ -1630,6 +1636,7 @@ With escape, the app goes back to the play list.''',
   }
 
   void setSelectedSongMoment(SongMoment? songMoment) {
+    logger.log(_playerLogScroll, 'setSelectedSongMoment(): $songMoment');
     if (songMoment == null || _selectedSongMoment == songMoment) {
       return;
     }

@@ -147,7 +147,13 @@ void main() async {
 
 /*
 beta short list:
-Alicia C. ???  Alicia C. lost from singers, again!
+____sail (a d d) won't advance on tab:  damaged song
+_____Alicia C. ???  Alicia C. lost from singers, again!
+
+song play history
+standard drum list
+consistent arrow on leader and follower
+test following after a local scroll
 
 white rabbit no f sharp, no indicator
 Read of files by dmg from web version

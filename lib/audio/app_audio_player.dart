@@ -5,9 +5,9 @@ import 'audio_player_stub.dart'
     if (dart.library.html) 'package:bsteele_music_flutter/audio/web_audio_player.dart';
 
 abstract class AppAudioPlayer {
-  bool play(String filePath, double when, double duration, double volume);
+  bool play(String filePath, {required double when, required double duration, required double volume});
 
-  bool oscillate(double frequency, double when, double duration, double volume);
+  bool oscillate(double frequency, {required double when, required double duration, required double volume});
 
   bool stop();
 

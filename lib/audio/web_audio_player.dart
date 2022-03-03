@@ -2,6 +2,7 @@
 import 'dart:html';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+
 //import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
@@ -46,12 +47,12 @@ class WebAudioPlayer implements AppAudioPlayer {
   }
 
   @override
-  bool play(String filePath, double when, double duration, double volume) {
+  bool play(String filePath, {required double when, required double duration, required double volume}) {
     return _audioFilePlayer.play(filePath, when, duration, volume);
   }
 
   @override
-  bool oscillate(double frequency, double when, double duration, double volume) {
+  bool oscillate(double frequency, {required double when, required double duration, required double volume}) {
     return _audioFilePlayer.oscillate(frequency, when, duration, volume);
   }
 

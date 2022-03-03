@@ -1,0 +1,20 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+set file = /tmp/bsteeleMusicApp_war_$$
+onintr Lend;
+
+#	get the web war file
+mkdir $file
+cd $file
+bsteele_auth
+
+gsutil cp gs://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.war .
+if ( $status ) exit -1;
+jar -xf bsteeleMusicApp.war assets/lib/assets/utcDate.txt
+if ( $status ) exit -1;
+cat assets/lib/assets/utcDate.txt
+if ( $status ) exit -1;
+
+Lend:
+rm -rf $file

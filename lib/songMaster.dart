@@ -9,7 +9,7 @@ import 'package:logger/logger.dart';
 
 import 'audio/app_audio_player.dart';
 
-const Level _loggerLevel = Level.debug;
+const Level _songMasterLogTicker = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -37,16 +37,18 @@ class SongMaster extends ChangeNotifier {
             _isPlaying = false;
             notifyListeners();
             logger.log(
-                _loggerLevel,
+                _songMasterLogTicker,
                 'SongMaster stop: ${songTime.toStringAsFixed(3)}'
                 ', dt: ${dt.toStringAsFixed(3)}'
                 ', moment: ${newMomentNumber.toString()}');
           } else {
             if (newMomentNumber != _momentNumber) {
               _momentNumber = newMomentNumber;
-              _playDrumParts(time, _song!.getBeatsPerBar() * 60.0 / _bpm, _drumParts); //fixme: one moment late?
+              if (_drumParts != null) {
+                _playDrumParts(time, _bpm, _drumParts!); //fixme: one moment late?
+              }
               logger.log(
-                  _loggerLevel,
+                  _songMasterLogTicker,
                   //   'songTime: ${songTime.toStringAsFixed(3)}'
                   'time: ${time.toStringAsFixed(3)}'
                   ', dt: ${dt.toStringAsFixed(3)}'
@@ -63,7 +65,7 @@ class SongMaster extends ChangeNotifier {
         notifyListeners();
       }
 
-      //logger.log(_loggerLevel, 'time: $time, ${dt.toStringAsFixed(3)}');
+      //logger.log(_songMasterLogTicker, 'time: $time, ${dt.toStringAsFixed(3)}');
       _lastTime = time;
     });
 
@@ -106,31 +108,19 @@ class SongMaster extends ChangeNotifier {
     }
   }
 
-  void _playDrumParts(double time, double period, final DrumParts? drumParts) {
-    if (drumParts != null) {
-      final double subBeatDuration = period / (drumParts.beats * drumSubBeats);
-      logger.i('_playDrumParts: period: $period');
-      for (var type in DrumType.values) {
-        var drumPart = drumParts.at(type);
-        var filePath = drumTypeToFileMap[type] ?? 'audio/bass_0.mp3';
-        for (var beat = 0; beat < drumPart.beats; beat++) {
-          for (var subBeat = 0; subBeat < drumSubBeats; subBeat++) {
-            if (drumPart.beatSelection(beat, subBeat)) {
-              logger.log(
-                  _loggerLevel,
-                  'beat: $type: beat: ${beat + 1}, subBeat: $subBeat'
-                  ', time: $time '
-                  ', period: $period '
-                  ', t: ${time + subBeatDuration * (beat * drumSubBeats + subBeat)}'
-                  ', path: $filePath');
-              _appAudioPlayer.play(
-                  filePath,
-                  time + subBeatDuration * (beat * drumSubBeats + subBeat),
-                  0.25, //fixme: temp
-                  drumParts.volume);
-            }
-          }
-        }
+  void _playDrumParts(double time, int bpm, final DrumParts drumParts) {
+    for (var drumPart in drumParts.parts) {
+      var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
+      for (var timing in drumPart.timings(time, bpm)) {
+        logger.log(
+            _songMasterLogTicker,
+            'beat: ${drumPart.drumType}: '
+            ', time: $time, timing: $timing'
+            ', path: $filePath');
+        _appAudioPlayer.play(filePath,
+            when: timing,
+            duration: 0.25, //fixme: temp
+            volume: drumParts.volume);
       }
     }
   }

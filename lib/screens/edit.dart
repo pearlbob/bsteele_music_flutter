@@ -489,7 +489,7 @@ class _Edit extends State<Edit> {
                     onPressed: () {
                       setState(() {
                         song =
-                            Song.createSong('', '', '', music_key.Key.getDefault(), 106, 4, 4, userName, 'V: ', 'V: ');
+                            Song.createSong('', '', '', music_key.Key.getDefault(), 106, 4, 4, userName, 'V: X', 'V: ');
                         loadSong(song);
                         undoStackPushIfDifferent();
                       });
@@ -770,7 +770,9 @@ class _Edit extends State<Edit> {
                             onPressed: () {
                               setState(() {
                                 if (isProEditInput) {
-                                  if (!checkSong()) {
+                                  checkSong();
+                                  if (!isValidSongChordsAndLyrics) {
+                                    app.errorMessage('Cannot change edit input mode without valid chords and lyrics.');
                                     return; //  don't change on invalid input
                                   }
                                 } else {
@@ -3561,7 +3563,8 @@ class _Edit extends State<Edit> {
         var chords = validateSongChords();
         var lyrics = validateSongLyrics();
         //  valid only if both are valid
-        isValidSong = chords && lyrics;
+        isValidSongChordsAndLyrics = chords && lyrics;
+        isValidSong = isValidSongChordsAndLyrics;
       }
 
       if (isValidSong) {
@@ -3654,6 +3657,7 @@ class _Edit extends State<Edit> {
   bool get hasChangedFromOriginal => !song.songBaseSameContent(originalSong); //  fixme: too fine a line
 
   bool isValidSong = false;
+  bool isValidSongChordsAndLyrics = false;
 
   music_key.Key key = music_key.Key.getDefault();
   double appendFontSize = 14;

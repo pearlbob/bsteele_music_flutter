@@ -372,7 +372,7 @@ class _Options extends State<Options> {
                 break;
             }
 
-            _audioPlayer.play('audio/${_testType}_$_test.mp3', _timerT, timerPeriod - gap, 1.0);
+            _audioPlayer.play('audio/${_testType}_$_test.mp3', when: _timerT, duration: timerPeriod - gap, volume: 1.0);
             _test++;
             break;
           case 1:
@@ -382,12 +382,12 @@ class _Options extends State<Options> {
             }
 
             //  guitar and bass
-            _audioPlayer.play('audio/bass_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-            _audioPlayer.play('audio/guitar_$_test.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-            _audioPlayer.play(
-                'audio/guitar_${_test + 4 /*half steps to major 3rd*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
-            _audioPlayer.play(
-                'audio/guitar_${_test + 7 /*half steps to 5th*/}.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play('audio/bass_$_test.mp3', when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
+            _audioPlayer.play('audio/guitar_$_test.mp3', when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
+            _audioPlayer.play('audio/guitar_${_test + 4 /*half steps to major 3rd*/}.mp3',
+                when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
+            _audioPlayer.play('audio/guitar_${_test + 7 /*half steps to 5th*/}.mp3',
+                when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
 
             _test++;
             break;
@@ -397,7 +397,7 @@ class _Options extends State<Options> {
               _timer = null;
             }
 
-            _audioPlayer.oscillate(_pitches[_test].frequency, _timerT, timerPeriod - gap, 1.0);
+            _audioPlayer.oscillate(_pitches[_test].frequency, when: _timerT, duration: timerPeriod - gap, volume: 1.0);
             _test++;
             break;
           case 3:
@@ -411,8 +411,8 @@ class _Options extends State<Options> {
             Pitch refPitch = _pitches[_test];
 
             //  guitar and bass
-            _audioPlayer.play(
-                'audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3', _timerT, timerPeriod - gap, 1.0 / 8);
+            _audioPlayer.play('audio/bass_${Bass.mapPitchToBassFret(refPitch)}.mp3',
+                when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 8);
 
             //  piano chord
             Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
@@ -430,7 +430,7 @@ class _Options extends State<Options> {
             break;
 
           case 4:
-            _audioPlayer.play('audio/snare_4406.mp3', _timerT, timerPeriod - gap, 1.0 / 4);
+            _audioPlayer.play('audio/snare_4406.mp3', when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
             break;
         }
         _timerT += periodMs / microsecondsPerSecond;
@@ -441,8 +441,8 @@ class _Options extends State<Options> {
   }
 
   void _playPianoPitch(Pitch pitch, double duration, double amp) {
-    _audioPlayer.play(
-        'audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3', _timerT, duration, amp);
+    _audioPlayer.play('audio/Piano.mf.${pitch.getScaleNote().toMarkup()}${pitch.number.toString()}.mp3',
+        when: _timerT, duration: duration, volume: amp);
   }
 
   final TextEditingController _userTextEditingController = TextEditingController();

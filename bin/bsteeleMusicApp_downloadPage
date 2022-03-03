@@ -6,7 +6,6 @@ set app=bsteeleMusicApp
 set www=/var/www/html/public_html/$app
 set lib=~/lib
 
-
 #	sum the release
 cd $www
 set warSum=`sha256sum $app.war`

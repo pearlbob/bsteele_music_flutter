@@ -47,9 +47,15 @@ if ( $status != 0 ) exit -1
 #	copy local deployment to the web server
 bsteele_auth
 gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localDst/ $dst 	#	source needs the /
+if ( $status != 0 ) exit -1
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $dst
+if ( $status != 0 ) exit -1
 gsutil -m -q acl -r ch -u AllUsers:R $dst
+if ( $status != 0 ) exit -1
 
 ~/github/allSongs.songlyrics/bin/lyrics_update
+
+//  see that the web sees the update
+bin/bsteeleMusicApp_gs_utcDate
 
 echo try:  http://bsteele.com/$app

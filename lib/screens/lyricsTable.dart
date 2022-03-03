@@ -17,11 +17,15 @@ import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
 
 const double _defaultLyricsFraction = 0.35;
+
+//  diagnostic logging enables
+const Level _lyricsTableLogBuild = Level.debug;
 
 /// compute a lyrics table
 class LyricsTable {
@@ -228,9 +232,16 @@ class LyricsTable {
   /// compute screen size values used here and on other screens
   void _computeScreenSizes() {
     App app = App();
+    const usableRatio = 0.93;
     _screenWidth = app.screenInfo.mediaWidth;
     _screenHeight = app.screenInfo.mediaHeight;
-    _chordFontSize ??= appDefaultFontSize * min(8, max(1, _screenWidth / 500));
+
+    const screenFraction = 1.0 / 300;
+    _chordFontSize ??= appDefaultFontSize * min(8, max(1, _screenWidth * usableRatio * screenFraction));
+    logger.log(
+        _lyricsTableLogBuild,
+        '_computeScreenSizes(): _chordFontSize: ${_chordFontSize?.toStringAsFixed(2)}'
+        ', _screenWidth * $screenFraction: ${_screenWidth * screenFraction}');
     _lyricsFontSize = _chordFontSize! * 0.6;
 
     //  text styles

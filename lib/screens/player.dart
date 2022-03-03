@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/gridCoordinate.dart';
+import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
@@ -49,7 +50,7 @@ SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 _Player? _player;
 
-DrumParts _drumParts = DrumParts.defaultDrumParts(); //  temp
+DrumParts _drumParts = DrumParts(); //  temp
 
 GlobalKey _stackKey = GlobalKey();
 
@@ -148,6 +149,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     displayKeyOffset = app.displayKeyOffset;
     _song = widget._song;
     drums = DrumsWidget(
+      drumParts: _drumParts,
       beats: _song.timeSignature.beatsPerBar,
     );
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
@@ -290,7 +292,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void positionAfterBuild() {
-    logger.d('positionAfterBuild():');
+    logger.log(_playerLogFontResize, 'positionAfterBuild(): chordFontSize: $chordFontSize');
 
     //  look at the rendered table size, resize if required
     if (table?.key != null) {
@@ -300,17 +302,22 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         RenderTable renderTable = renderObject;
         final width = renderTable.size.width;
 
+        logger.log(
+            _playerLogFontResize,
+            'positionAfterBuild(): renderTable.size.width: $width'
+            ', lyricsTable.chordFontSize: ${lyricsTable.chordFontSize}');
+
         if (chordFontSize == null) {
-          final pixels = app.screenInfo.mediaWidth * 0.965;
           if (width > 0 && lyricsTable.chordFontSize != null) {
-            var lastChordFontSize = chordFontSize ?? 0;
+            var lastChordFontSize = lyricsTable.chordFontSize!;
+            final pixels = app.screenInfo.mediaWidth * 0.965;
             var newFontSize = lyricsTable.chordFontSize! * pixels / width;
             var userDisplayStyle = appOptions.userDisplayStyle;
             newFontSize =
                 Util.limit(newFontSize, 8.0, 0.035 * pixels * (userDisplayStyle == UserDisplayStyle.player ? 2.0 : 1.0))
                     as double;
             renderTableLeft = 0;
-            logger.log(_playerLogFontResize, 'newFontSize : $newFontSize = ${newFontSize / pixels} of $pixels');
+            logger.log(_playerLogFontResize, 'newFontSize: $newFontSize = ${newFontSize / pixels} of $pixels');
 
             if (userDisplayStyle == UserDisplayStyle.both) {
               var fontSizeFraction = newFontSize / lyricsTable.chordFontSize!;
@@ -336,13 +343,18 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
           //  table is now final size
           logger.log(
               _playerLogFontResize,
-              '_chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
+              'chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
               ' ${(100 * chordFontSize! / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw'
               ', table at: ${renderTable.localToGlobal(Offset.zero)}'
               ', scroll: ${scrollController.offset}');
 
           Offset renderTableOffset = renderTable.localToGlobal(Offset(0, scrollController.offset));
-          renderTableLeft = renderTableOffset.dx;
+          if (renderTableLeft != renderTableOffset.dx) {
+            //  render one last time for the arrow!
+            setState(() {
+              renderTableLeft = renderTableOffset.dx;
+            });
+          }
 
           Offset stackOffset;
           {
@@ -395,8 +407,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             // ', chord fontSize: ${lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
             // ', lyrics fontSize: ${lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
             // ', _lyricsTable.chordFontSize: ${lyricsTable.chordFontSize?.toStringAsFixed(1)}'
-            ', _chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
-            ' ${(100 * chordFontSize! / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw');
+            ', chordFontSize: ${chordFontSize?.toStringAsFixed(1)} ='
+            ' ${(100 * (chordFontSize ?? 0) / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw');
       }
     }
   }
@@ -428,12 +440,14 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     final _lyricsTextStyle = lyricsTable.lyricsTextStyle;
 
-    logger.d('_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize}');
+    logger.log(
+        _playerLogBuild,
+        '_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize?.toStringAsFixed(2)}'
+        ', chordFontSize: ${chordFontSize?.toStringAsFixed(2)}');
 
     if (_selectedSongMoment == null) {
       //  fixme
       setSelectedSongMoment(_song.songMoments.first);
-      scrollToSectionByMoment(_selectedSongMoment);
     }
 
     if (table == null || chordFontSize != lyricsTable.chordFontSize) {
@@ -450,7 +464,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       //   //   }
       //   // }
       // }
-      logger.d('table rebuild: selectedSongMoment: $_selectedSongMoment');
+      logger.log(_playerLogBuild, 'table rebuild: selectedSongMoment: $_selectedSongMoment');
 
       table = lyricsTable.lyricsTable(
         _song, context,
@@ -460,6 +474,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         lyricsFraction: lyricsFraction ?? (appOptions.userDisplayStyle == UserDisplayStyle.player ? 0.20 : 0.35),
         //  givenSelectedSongMoments: selectedSongMoments
       );
+      chordFontSize ??= lyricsTable.chordFontSize;
       sectionLocations.clear(); //  clear any previous song cached data
       _songMomentChordRectangles.clear();
       logger.d('_table clear: index: $sectionIndex');
@@ -730,15 +745,16 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                     child: Stack(key: _stackKey = GlobalKey(), children: [
                       if (selectedTargetY > 0)
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                          appSpace(space: selectedTargetY - (chordFontSize ?? 0) / 2),
+                          appSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
                           appWrap([
-                            SizedBox(height: 0, width: max(0, renderTableLeft - (chordFontSize ?? 0))),
+                            appSpace(
+                                horizontalSpace: max(renderTableLeft - (chordFontSize ?? app.screenInfo.fontSize), 0)),
                             appIcon(
                               Icons.play_arrow,
                               size: chordFontSize,
                               color: Colors.redAccent,
                             ),
-                          ], crossAxisAlignment: WrapCrossAlignment.center),
+                          ], crossAxisAlignment: WrapCrossAlignment.start),
                         ]),
                       if (isPlaying)
                         CustomPaint(
@@ -1178,27 +1194,6 @@ With escape, the app goes back to the play list.''',
                 ),
               ),
             ),
-            // //  mask future sections for the leader to force them to stay on the current section
-            // //  this minimizes the errors seen by followers with smaller displays.
-            //  this doesn't seem to help... so it's not used
-            // if (isPlaying && songUpdateService.isLeader)
-            //   Positioned(
-            //     top: boxCenter + boxOffset,
-            //     child: Container(
-            //       constraints: BoxConstraints.loose(
-            //           Size(lyricsTable.screenWidth, app.screenInfo.mediaHeight - boxHeight)),
-            //       decoration: BoxDecoration(
-            //         gradient: LinearGradient(
-            //           begin: Alignment.topCenter,
-            //           end: Alignment.bottomCenter,
-            //           colors: <Color>[
-            //             Colors.grey.withAlpha(0),
-            //             Colors.grey[850] ?? Colors.grey,
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //   ),
           ],
         ),
       ),
@@ -1340,13 +1335,9 @@ With escape, the app goes back to the play list.''',
         );
   }
 
-  void scrollToSectionByMoment(SongMoment? songMoment) {
+  bool scrollToSectionByMoment(SongMoment? songMoment) {
     logger.log(_playerLogScroll, 'scrollToSectionByMoment( $songMoment )');
-    if (songMoment == null) {
-      return;
-    }
-
-    if (_songMomentChordRectangles.isNotEmpty) {
+    if (songMoment != null && _songMomentChordRectangles.isNotEmpty) {
       setSelectedSongMoment(songMoment);
       var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
       scrollToTargetY(y);
@@ -1354,23 +1345,9 @@ With escape, the app goes back to the play list.''',
           _playerLogScroll,
           'scrollToSectionByMoment: ${songMoment.momentNumber}: '
           '$songMoment => section #${songMoment.lyricSection.index} => $y');
+      return true;
     }
-  }
-
-  void setTargetYToSongMoment(SongMoment? songMoment) {
-    if (songMoment == null) {
-      return;
-    }
-
-    if (_songMomentChordRectangles.isNotEmpty) {
-      setSelectedSongMoment(songMoment);
-      var y = _songMomentChordRectangles[songMoment.momentNumber].center.dy;
-      logger.log(
-          _playerLogScroll,
-          'setTargetYToSongMoment: ${songMoment.momentNumber}: '
-          '$songMoment => section #${songMoment.lyricSection.index} => $y');
-      scrollToTargetY(y);
-    }
+    return false;
   }
 
   /// bump from one section to the next
@@ -1616,7 +1593,8 @@ With escape, the app goes back to the play list.''',
   void forceTableRedisplay() {
     sectionLocations.clear();
     table = null;
-    logger.d('_forceTableRedisplay');
+    renderTableLeft = 20;
+    logger.log(_playerLogFontResize, '_forceTableRedisplay');
     setState(() {});
   }
 
@@ -1636,7 +1614,8 @@ With escape, the app goes back to the play list.''',
   }
 
   void setSelectedSongMoment(SongMoment? songMoment) {
-    logger.log(_playerLogScroll, 'setSelectedSongMoment(): $songMoment');
+    logger.log(_playerLogScroll, 'setSelectedSongMoment(): $songMoment, _selectedSongMoment: $_selectedSongMoment');
+    logger.log(_playerLogScroll, 'setSelectedSongMoment():  selectedTargetY: $selectedTargetY');
     if (songMoment == null || _selectedSongMoment == songMoment) {
       return;
     }

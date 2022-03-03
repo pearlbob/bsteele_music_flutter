@@ -7,12 +7,12 @@ class MockAudioPlayer implements AppAudioPlayer {
   }
 
   @override
-  bool play(String filePath, double when, double duration, double volume) {
+  bool play(String filePath, {required double when, required double duration, required double volume}) {
     return false;
   }
 
   @override
-  bool oscillate(double frequency, double when, double duration, double volume) {
+  bool oscillate(double frequency, {required double when, required double duration, required double volume}) {
     return false;
   }
 

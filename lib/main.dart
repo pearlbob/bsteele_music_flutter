@@ -146,18 +146,32 @@ void main() async {
 }
 
 /*
+done:
+____sail (a d d) won't advance on tab:  damaged song, Shari fixed it
+_____Alicia C. ???  Alicia C. lost from singers, again!  had a space at the end of the name!
+
 beta short list:
-____sail (a d d) won't advance on tab:  damaged song
-_____Alicia C. ???  Alicia C. lost from singers, again!
-
-song play history
-standard drum list
+________Hamburger , new song, won't toggle edit mode
 consistent arrow on leader and follower
+share the "sung by" in the follower update
+eliminate singer needs a song requirement
+drums to library
+drums json
+drums other than 4/4
+standard drum list
+test drum consistency: place on it's own isolate?
 test following after a local scroll
+session history... to the web!
+fun: key guess
+larger font on player only mode
+improve player: Tap to tempo
 
+
+
+key of F# labeled Gb
 white rabbit no f sharp, no indicator
 Read of files by dmg from web version
-share the "sung by" in the follower update
+
 
 singers: purge singer without them coming back from the web site
 in edit: show diff with similar song
@@ -168,7 +182,7 @@ messages for file task completions or failures.
 mac native:  desktop app couldn't get I Shall Be Released to save in the key of E
 
 For me, key change creates a duplicate chart. And then looks like it keeps key change UNTIL you get rid of old version. Very weird.
-map accented characters to lower case without accent: "Exposé" should match "expose"
+map accented characters to lower case without accent: "Exposé" should match "expose"  fixme: dart package diacritic
 
 research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released".   YES!
 
@@ -184,25 +198,36 @@ lyrics for a section in one vertical block
 verify blank lyrics lines force position in lyric sections
 expanded repeat player, no x, no repeat #
 
-1. If we normally use Player mode to play charts, there is no reason not to freeze the row of buttons at the top when not in Player mode. We can scan down the song and not have to scroll back and forth/up and down to determine where there are potential problems before performing.
+1. If we normally use Player mode to play charts, there is no reason not to freeze the row of buttons at the top when not in Player mode.
+ We can scan down the song and not have to scroll back and forth/up and down to determine where there are potential problems before performing.
 
-2. Bodhi is swinging back to wanting some of the more musically dense songs charted in 2, which makes sense for readability and therefore playability. In fact, it would be nice if he could mark this type of timing edit in a special way, since it comes up more than other issues. Is there a way to mark the 'type' of edit - as in timing change versus content change?
+2. Bodhi is swinging back to wanting some of the more musically dense songs charted in 2, which makes sense for readability and therefore playability.
+ In fact, it would be nice if he could mark this type of timing edit in a special way, since it comes up more than other issues.
+  Is there a way to mark the 'type' of edit - as in timing change versus content change?
 
-3. I have a feeling I may need two sets of some charts, in 2 or 4, in case we need to move in the other direction as in the past. Is there a way to do this programmatically?
+3. I have a feeling I may need two sets of some charts, in 2 or 4, in case we need to move in the other direction as in the past.
+ Is there a way to do this programmatically?
 
-4. Technically, I have been looking at a lot of sheet music and most of our 2-time charts are not technically in 2/2 or 2/4 (bouncy folk timing), so I suggest that the app should not specifically refer to "time signature" if we want to spread out the chords and make charts more jam-friendly.
+4. Technically, I have been looking at a lot of sheet music and most of our 2-time charts are not technically in 2/2 or 2/4 (bouncy folk timing),
+ so I suggest that the app should not specifically refer to "time signature" if we want to spread out the chords and make charts more jam-friendly.
 
 It is difficult to find an alternative that does not confuse. One article I found refers to harmonic rhythm, but that is too long a term.
 https://www.ars-nova.com/Theory%20Q&A/Q5.html
 
-I believe the most appropriate term for us to use is beats per measure, rather than time signature. Since that confuses with the common term bpm (beats per minute), perhaps we can switch our bpm to "tempo" and switch our time to "b/m"? That would give us more freedom to chart songs with our desired simple beats per measure and not be limited by the formal and occasionally inaccurate use of "time signature." With b/m, we might even add the elusive 3-5 to the list - the 3-5 beat pattern that is not actually a real time signature but keeps coming up on songs without any reference on the chart.
+I believe the most appropriate term for us to use is beats per measure, rather than time signature.
+Since that confuses with the common term bpm (beats per minute), perhaps we can switch our bpm to "tempo" and switch our time to "b/m"?
+That would give us more freedom to chart songs with our desired simple beats per measure and not be limited by the formal
+ and occasionally inaccurate use of "time signature."
+ With b/m, we might even add the elusive 3-5 to the list - the 3-5 beat pattern that is not actually a real time signature but keeps coming up on songs without any reference on the chart.
 
 I also try to keep tempo within the industry standards. Here is another reference for that:
 https://songbpm.com/searches/ce40775f-0d09-496b-89c1-403d48591227
 
-I need these types of guidelines so I am not forced to make arbitrary decisions while charting. I am not clear how Bodhi calculates his tempo, but sometimes it is outside of these standards, so I will need to discuss this with him.
+I need these types of guidelines so I am not forced to make arbitrary decisions while charting.
+I am not clear how Bodhi calculates his tempo, but sometimes it is outside of these standards, so I will need to discuss this with him.
 
-5. We cannot obtain proper "Copyright" information so I suggest we name the field properly until we can. I suggest that we use the term "Credit" instead, rather than mislead the audience about copyright.
+5. We cannot obtain proper "Copyright" information so I suggest we name the field properly until we can.
+ I suggest that we use the term "Credit" instead, rather than mislead the audience about copyright.
 
 
 //  song match takin' vs taking
@@ -211,8 +236,6 @@ I need these types of guidelines so I am not forced to make arbitrary decisions 
 edit: change of title, artist or cover artist should trigger a comparison at song collisions
  Retain the requested songs
 //
-// Singers for a given song
-// _____player: Tap to tempo
 // player: Real play mode
 // player: validate follower accuracy
 // player: Intro and solo repeats

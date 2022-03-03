@@ -76,7 +76,7 @@ else
 	flutter pub get
 
 	flutter build linux --release
-	set $stat=$status
+	set stat=$status
 	if ( $stat != 0 ) exit $stat
 
 	cd build/linux/arm64/release/

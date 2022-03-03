@@ -1,0 +1,91 @@
+#!/bin/tcsh
+set echo; set verbose
+
+set machine=pi@bobspi.local
+
+#	prep for the build
+	cd ~/github/bsteele_music_flutter/
+	rm -rf linux
+	flutter clean
+	flutter config --enable-linux-desktop
+	flutter pub get
+	flutter -d linux create .
+	flutter pub get
+
+#	flutter -d linux run --release
+
+	cd ~/github/bsteeleMusicLib/
+	cd bsteele_music_lib/
+	flutter clean
+#	flutter config --enable-linux-desktop
+#	flutter pub get
+#	flutter -d linux create .
+#	#flutter -d linux run lib/bsteeleMusicUtil.dart
+#!/bin/tcsh
+#set echo; set verbose
+
+set app=bsteeleMusicApp
+set bsDir=${app}Pi
+set remoteDir=remotePi
+set src=bsteele_music_flutter
+set www=/var/www/html/public_html/$app
+
+
+if ( `hostname` == 'bob64' ) then
+	#	on local host with git authentication
+	bsteele_auth
+	echo	on local host with git authentication
+
+	rm -rf ~/junk/$remoteDir
+	mkdir -p ~/junk/$remoteDir
+	cd ~/junk/$remoteDir
+	#	note the use of the latest master commit, fixme
+	echo "Warning: this will only be the current master github commit!"
+	git clone git@github.com:pearlbob/bsteeleMusicLib.git
+	git clone git@github.com:pearlbob/bsteele_music_flutter.git
+
+	ssh ${machine} rm -rf '~pi/junk/'$bsDir
+	ssh ${machine} 'mkdir -p  ~pi/junk/'$bsDir
+	scp -q -r *  ${machine}:junk/$bsDir
+
+	#	execute this script on the machine
+	ssh ${machine} "cd ~pi/junk/$bsDir/$src; ./bin/$0:t"
+	set stat=$status
+	echo machine status $stat
+	if ( $stat != 0 ) exit $stat
+	scp ${machine}:junk/$bsDir/$src/${app}Pi.tgz .
+	set stat=$status
+	if ( $stat != 0 ) exit $stat
+
+	echo sha256sum: `sha256sum ${app}Pi.tgz`
+
+	#	upload to local host
+	cp ./${app}Pi.tgz $www
+	exit $status
+else
+
+	echo on machine `hostname`
+	cd ~/junk/$bsDir/$src
+
+	rm -rf .gradle
+	rm -rf linux
+	flutter clean
+	flutter config --enable-linux-desktop
+	flutter pub get
+	flutter -d linux create .
+	flutter pub get
+
+	flutter build linux --release
+	set $stat=$status
+	if ( $stat != 0 ) exit $stat
+
+	cd build/linux/arm64/release/
+	mv bundle $app
+	tar -czf ${app}Pi.tgz $app
+	mv ${app}Pi.tgz ~/junk/$bsDir/$src
+
+	exit $status
+endif
+
+
+

@@ -11,17 +11,17 @@ if ( `hostname` == 'bob64' ) then
 	#	on local host with git authentication
 	echo	on local host with git authentication
 
-    rm -rf ~/junk/remoteDmg
-    mkdir -p ~/junk/remoteDmg
-    cd ~/junk/remoteDmg
+  rm -rf ~/junk/remoteDmg
+  mkdir -p ~/junk/remoteDmg
+  cd ~/junk/remoteDmg
 	#	note the use of the latest master commit, fixme
 	echo "Warning: this will only be the current master github commit!"
-    git clone git@github.com:pearlbob/bsteeleMusicLib.git
-    git clone git@github.com:pearlbob/bsteele_music_flutter.git
+  git clone git@github.com:pearlbob/bsteeleMusicLib.git
+  git clone git@github.com:pearlbob/bsteele_music_flutter.git
 
-    ssh ${mac} rm -rf '~bob/junk/'$bsDir
-    ssh ${mac} 'mkdir -p  ~bob/junk/'$bsDir
-    scp -q -r *  ${mac}:junk/$bsDir
+  ssh ${mac} rm -rf '~bob/junk/'$bsDir
+  ssh ${mac} 'mkdir -p  ~bob/junk/'$bsDir
+  scp -q -r *  ${mac}:junk/$bsDir
 
 	#	execute this script on the mac
 	ssh ${mac} "cd ~$user/junk/$bsDir/$src; ./bin/$0:t"
@@ -45,10 +45,10 @@ else
 	rm -rf .gradle
 	flutter clean
 	flutter pub get
-    rm -rf macos/
+  rm -rf macos/
 	set osEnable=macos-desktop
-    flutter config --enable-$osEnable
-    flutter -d macos create . # > /dev/null
+  flutter config --enable-$osEnable
+  flutter -d macos create . # > /dev/null
 
 	bin/bsteeleMusicApp_macEntitlements
 

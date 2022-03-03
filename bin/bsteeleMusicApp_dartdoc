@@ -8,5 +8,4 @@ cd $dir
 dartdoc --exclude 'dart:ui,dart:async,dart:collection,dart:convert,dart:core,dart:developer,\
 dart:math,dart:typed_data,dart:ffi,dart:io,dart:isolate,dart:html,dart:js,dart:js_util'
 
-
 exit $status

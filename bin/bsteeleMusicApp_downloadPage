@@ -8,26 +8,26 @@ set lib=~/lib
 
 #	sum the release
 cd $www
-set warSum=`sha256sum $app.war`
+set warSum=$(sha256sum $app.war)
 echo $warSum
 
-set dmgSum=`sha256sum $app.dmg`
+set dmgSum=$(sha256sum $app.dmg)
 echo $dmgSum
 
-set apkSum=`sha256sum $app.apk`
+set apkSum=$(sha256sum $app.apk)
 echo $apkSum
 
 #	write the download page
 cd ~/lib
-set warSum=`sha256sum $app.war`
-set buildDate=`date`
+set warSum=$(sha256sum $app.war)
+set buildDate=$(date)
 cd $src
 sed -e \
-    "s/^ *let buildDate = '.*';/        let buildDate = '$buildDate';/; \
-    s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
+  "s/^ *let buildDate = '.*';/        let buildDate = '$buildDate';/; \
+  s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
 	s/^ *let dmgSha256sum = '.*';/        let dmgSha256sum = '$dmgSum';/; \
 	s/^ *let apkSha256sum = '.*';/        let apkSha256sum = '$apkSum';/; \
 	" \
-	web/download.html > $www/download.html
+  web/download.html >$www/download.html
 
 exit $status

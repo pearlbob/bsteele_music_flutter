@@ -167,6 +167,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     //   });
     // };
 
+    rawKeyboardListenerFocusNode = playerOnKeyFocusNode();
+
     WidgetsBinding.instance?.scheduleWarmUpFrame();
 
     app.clearMessage();
@@ -395,6 +397,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   ', coord: $coord'
                   ', global: ${renderBox.localToGlobal(Offset.zero)}');
             }
+            setSelectedSongMoment(_selectedSongMoment, force: true);
           }
         }
 
@@ -616,8 +619,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         ' sectionTarget: $scrollTarget, '
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_playerLogMode, 'playing: $isPlaying, pause: $isPaused');
-
-    var rawKeyboardListenerFocusNode = playerOnKeyFocusNode();
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
     isCapo = isCapo && showCapo; //  can't be capo if you cannot show it
@@ -1279,6 +1280,8 @@ With escape, the app goes back to the play list.''',
   }
 
   void playerOnKey(RawKeyEvent value) {
+    logger.log(_playerLogKeyboard, '_playerOnKey(): event: $value');
+
     if (!_playerIsOnTop) {
       return;
     }
@@ -1289,14 +1292,14 @@ With escape, the app goes back to the play list.''',
     logger.log(
         _playerLogKeyboard,
         '_playerOnKey(): ${e.data.logicalKey}'
-        ', ctl: ${e.isControlPressed}'
-        ', shf: ${e.isShiftPressed}'
-        ', alt: ${e.isAltPressed}');
+            ', ctl: ${e.isControlPressed}'
+            ', shf: ${e.isShiftPressed}'
+            ', alt: ${e.isAltPressed}');
     //  only deal with new key down events
 
     if (e.isKeyPressed(LogicalKeyboardKey.space) ||
-            e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
-        ) {
+        e.isKeyPressed(LogicalKeyboardKey.keyB) //  workaround for cheap foot pedal... only outputs b
+    ) {
       if (e.isControlPressed) {
         tempoTap();
       } else {
@@ -1613,10 +1616,10 @@ With escape, the app goes back to the play list.''',
     return (d1 - d2).abs() <= tolerance;
   }
 
-  void setSelectedSongMoment(SongMoment? songMoment) {
+  void setSelectedSongMoment(SongMoment? songMoment, {force = false}) {
     logger.log(_playerLogScroll, 'setSelectedSongMoment(): $songMoment, _selectedSongMoment: $_selectedSongMoment');
     logger.log(_playerLogScroll, 'setSelectedSongMoment():  selectedTargetY: $selectedTargetY');
-    if (songMoment == null || _selectedSongMoment == songMoment) {
+    if (songMoment == null || (force == false && _selectedSongMoment == songMoment)) {
       return;
     }
     _selectedSongMoment = songMoment;
@@ -1936,6 +1939,8 @@ With escape, the app goes back to the play list.''',
   final LyricsTable lyricsTable = LyricsTable();
   List<GridCoordinate> songMomentToGridList = [];
   double renderTableLeft = 0;
+
+  late FocusNode rawKeyboardListenerFocusNode;
 
   set compressRepeats(bool value) => appOptions.compressRepeats = value;
 

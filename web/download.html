@@ -8,12 +8,14 @@
         let warSha256sum = 'unknown';
         let dmgSha256sum = 'unknown';
         let apkSha256sum = 'unknown';
+        let piSha256sum = 'unknown';
 
         function onLoad() {
             document.getElementById("buildDate").innerHTML = buildDate;
             document.getElementById("warSha256sum").innerHTML = warSha256sum;
             document.getElementById("dmgSha256sum").innerHTML = dmgSha256sum;
             document.getElementById("apkSha256sum").innerHTML = apkSha256sum;
+            document.getElementById("piSha256sum").innerHTML = piSha256sum;
         }
 
 
@@ -54,6 +56,20 @@
             Android will not willingly download and install apps from the web. Please research this
             and understand your security exposure. I suggest you start with
             <a href="https://www.androidauthority.com/how-to-install-apks-31494/">androidauthority.com</a>.
+        </p>
+    </li>
+    <li>
+        <p>Raspberry Pi arm64: <a href="./bsteeleMusicAppPi.tgz" download>
+            bsteeleMusicAppPi.tgz</a>. The sha256sum as:
+        </p>
+        <span id="piSha256sum"> </span>.
+        <p>
+            This tar file needs to be extracted to a convenient directory in a Raspberry Pi with a
+            64
+            bit OS. Run the binary bsteele_music_flutter can be run there.
+            Note that it requires the lib and data directories be in their relative positions.
+            Performance on a Pi 3 is marginal. Tested on the Debian 11, bullseye OS. Song and singer
+            updates will come from the web so assess is encouraged.
         </p>
     </li>
 </ul>

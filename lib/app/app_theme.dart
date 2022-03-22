@@ -1328,6 +1328,7 @@ FloatingActionButton appFloatingActionButton({
     child: child,
     mini: mini,
     backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
+    heroTag: null, //  workaround in case there are more than one per route.
   );
 }
 

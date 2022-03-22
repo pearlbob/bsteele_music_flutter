@@ -165,9 +165,12 @@ session history... to the web!
 fun: key guess
 larger font on player only mode
 improve player: Tap to tempo
+verify full validation of song before entry
+Capitalization of user name
 
 
 
+suggested solo notes and scales
 key of F# labeled Gb
 white rabbit no f sharp, no indicator
 Read of files by dmg from web version

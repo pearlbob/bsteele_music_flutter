@@ -17,6 +17,9 @@ echo $dmgSum
 set apkSum=$(sha256sum $app.apk)
 echo $apkSum
 
+set piSum=$(sha256sum ${app}Pi.tgz)
+echo $piSum
+
 #	write the download page
 cd ~/lib
 set warSum=$(sha256sum $app.war)
@@ -24,9 +27,10 @@ set buildDate=$(date)
 cd $src
 sed -e \
   "s/^ *let buildDate = '.*';/        let buildDate = '$buildDate';/; \
-  s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
+	s/^ *let warSha256sum = '.*';/        let warSha256sum = '$warSum';/; \
 	s/^ *let dmgSha256sum = '.*';/        let dmgSha256sum = '$dmgSum';/; \
 	s/^ *let apkSha256sum = '.*';/        let apkSha256sum = '$apkSum';/; \
+	s/^ *let piSha256sum = '.*';/        let piSha256sum = '$piSum';/; \
 	" \
   web/download.html >$www/download.html
 

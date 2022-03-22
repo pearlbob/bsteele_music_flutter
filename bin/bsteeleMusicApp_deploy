@@ -8,6 +8,14 @@ set dst=gs://www.bsteele.com/$app
 set git=~/github/bsteele_music_flutter
 
 
+#   verify that the pi is present
+ssh bobspi.local echo yes
+set stat=$status
+if ( $stat != 0 ) then
+	echo "bob's pi is missing"
+	exit $stat
+endif
+
 #   verify that the mac is present
 ssh bobsmac.local echo yes
 set stat=$status
@@ -34,6 +42,10 @@ bin/bsteeleMusicApp_localWarInstall
 
 #	compile for android
 bin/bsteeleMusicApp_apk
+if ( $status != 0 ) exit -1
+
+#	compile for native arm64
+bin/bsteeleMusicApp_remotePi
 if ( $status != 0 ) exit -1
 
 #	compile for native macos x86

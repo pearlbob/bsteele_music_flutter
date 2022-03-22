@@ -83,6 +83,7 @@ import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lists.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
+import 'package:bsteele_music_flutter/screens/performanceHistory.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/singers.dart';
@@ -514,6 +515,7 @@ class BSteeleMusicApp extends StatelessWidget {
                 Singers.routeName: (context) => const Singers(),
                 '/lists': (context) => const Lists(),
                 '/edit': (context) => Edit(initialSong: app.selectedSong),
+                PerformanceHistory.routeName: (context) => const PerformanceHistory(),
                 '/privacy': (context) => const Privacy(),
                 '/documentation': (context) => const Documentation(),
                 Debug.routeName: (context) => const Debug(),
@@ -997,6 +999,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   _navigateToSingers(context);
                 },
               ),
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerPerformanceHistory,
+              title: Text(
+                "History",
+                style: _navTextStyle,
+              ),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToPerformanceHistory(context);
+              },
+            ),
             if (app.isEditReady) //  no files on phones!
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerSongs,
@@ -1613,6 +1626,15 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.pushNamed(
       context,
       Singers.routeName,
+    );
+    Navigator.pop(context); //  drawer
+    _reApplySearch();
+  }
+
+  _navigateToPerformanceHistory(BuildContext context) async {
+    await Navigator.pushNamed(
+      context,
+      PerformanceHistory.routeName,
     );
     Navigator.pop(context); //  drawer
     _reApplySearch();

@@ -4,15 +4,16 @@ class SongSearchMatcher {
   SongSearchMatcher(String? search)
       : _searchRegex = RegExp((search ?? '').trim().replaceAll("[^\\w\\s']+", ''), caseSensitive: false);
 
-  bool matchesOrEmptySearch(Song song) {
-    return isEmpty || matches(song);
+  bool matchesOrEmptySearch(Song song, {year = false}) {
+    return isEmpty || matches(song, year: year);
   }
 
-  bool matches(Song song) {
+  bool matches(Song song, {year = false}) {
     return isNotEmpty &&
         (_searchRegex.hasMatch(song.getTitle()) ||
             _searchRegex.hasMatch(song.getArtist()) ||
             (song.coverArtist.isNotEmpty && _searchRegex.hasMatch(song.coverArtist)) ||
+            (year && _searchRegex.hasMatch(song.getCopyrightYear().toString())) ||
             _searchRegex.hasMatch(song.songId.toUnderScorelessString()) //  removes contractions
         );
   }

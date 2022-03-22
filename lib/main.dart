@@ -1320,6 +1320,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: <Widget>[
                   appWrap(
                     <Widget>[
+                      if (_selectedSortType == MainSortType.byYear)
+                        Text(
+                          '${song.getCopyrightYear()}: ',
+                          style: oddEvenTitleTextStyle,
+                        ),
                       Text(
                         song.title,
                         style: oddEvenTitleTextStyle,
@@ -1448,7 +1453,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _filteredSongsNotInSelectedList = SplayTreeSet(compare);
     var matcher = SongSearchMatcher(search);
     for (final Song song in app.allSongs) {
-      if (matcher.matchesOrEmptySearch(song)) {
+      if (matcher.matchesOrEmptySearch(song, year: _selectedSortType == MainSortType.byYear)) {
         //  if holiday and song is holiday, we're good
         if (appOptions.holiday) {
           if (isHoliday(song)) {

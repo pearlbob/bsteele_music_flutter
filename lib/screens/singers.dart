@@ -400,7 +400,7 @@ class _State extends State<Singers> {
             style: singerTextStyle,
           )
         : Container(
-      child: appWrapFullWidth(children: [
+            child: appWrapFullWidth(children: [
               ReorderableWrap(
                   children: _sessionSingers.map((singer) {
                     return appWrap([
@@ -414,7 +414,7 @@ class _State extends State<Singers> {
                               searchForSelectedSingerOnly = true;
                             });
                           },
-                    style: singer == _selectedSinger
+                          style: singer == _selectedSinger
                               ? singerTextStyle.copyWith(backgroundColor: addColor)
                               : singerTextStyle,
                         ),

@@ -476,6 +476,7 @@ enum MainSortType {
   byArtist,
   byLastChange,
   byComplexity,
+  byYear,
 }
 
 /// Display the list of songs to choose from.
@@ -1417,6 +1418,15 @@ class _MyHomePageState extends State<MyHomePage> {
       case MainSortType.byComplexity:
         compare = (Song song1, Song song2) {
           var ret = song1.getComplexity().compareTo(song2.getComplexity());
+          if (ret != 0) {
+            return ret;
+          }
+          return song1.compareTo(song2);
+        };
+        break;
+      case MainSortType.byYear:
+        compare = (Song song1, Song song2) {
+          var ret = song1.getCopyrightYear().compareTo(song2.getCopyrightYear());
           if (ret != 0) {
             return ret;
           }

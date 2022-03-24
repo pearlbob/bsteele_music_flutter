@@ -77,7 +77,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
               ),
               onPressed: () {
                 setState(() {
-                  _navigateToPlayer(context, perf.song);
+                  _navigateToPlayer(context, perf);
                 });
               }),
         ], spacing: 10));
@@ -107,15 +107,24 @@ class _PerformanceHistory extends State<PerformanceHistory> {
     );
   }
 
-  _navigateToPlayer(BuildContext context, Song? song) async {
-    if (song == null || song.getTitle().isEmpty) {
+  _navigateToPlayer(BuildContext context, SongPerformance songPerformance) async {
+    if (songPerformance.song == null) {
       return;
     }
     app.clearMessage();
-    app.selectedSong = song;
-    await Navigator.pushNamed(
+    app.selectedSong = songPerformance.song!;
+
+    logger.d('navigateToPlayer.playerSelectedBpm out: ${songPerformance.bpm}');
+    await Navigator.push(
       context,
-      Player.routeName,
+      MaterialPageRoute(
+          builder: (context) => Player(
+                songPerformance.song!,
+                //  adjust song to singer's last performance
+                musicKey: songPerformance.key,
+                bpm: songPerformance.bpm,
+                singer: songPerformance.singer,
+              )),
     );
   }
 

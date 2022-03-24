@@ -148,8 +148,6 @@ void main() async {
 
 /*
 done:
-____sail (a d d) won't advance on tab:  damaged song, Shari fixed it
-_____Alicia C. ???  Alicia C. lost from singers, again!  had a space at the end of the name!
 
 beta short list:
 ________Hamburger , new song, won't toggle edit mode
@@ -168,6 +166,7 @@ larger font on player only mode
 improve player: Tap to tempo
 verify full validation of song before entry
 Capitalization of user name
+get real file name of written file for confirmation message
 
 
 
@@ -1335,7 +1334,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     <Widget>[
                       if (_selectedSortType == MainSortType.byYear)
                         Text(
-                          '${song.getCopyrightYear()}: ',
+                          '${song.getCopyrightYearAsString()}: ',
                           style: oddEvenTitleTextStyle,
                         ),
                       Text(

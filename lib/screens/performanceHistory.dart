@@ -1,17 +1,10 @@
-import 'dart:math';
-
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
-import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:intl/intl.dart';
-import 'package:pretty_diff_text/pretty_diff_text.dart';
 
 import '../app/app.dart';
 
@@ -47,7 +40,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
 
     List<Widget> history = [];
     {
-      var lastSungDateString;
+      String? lastSungDateString;
       for (var perf in allSongPerformances.allSongPerformanceHistory.toList(growable: false).reversed) {
         var song = perf.song;
         if (song == null) {
@@ -69,7 +62,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
 
         var singer = perf.singer;
         var key = perf.key;
-        var bpm = perf.bpm;
+        // var bpm = perf.bpm;
         history.add(appWrapFullWidth(children: [
           TextButton(
               child: Text(
@@ -93,7 +86,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Performance History'),
+      appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),
         child: Column(

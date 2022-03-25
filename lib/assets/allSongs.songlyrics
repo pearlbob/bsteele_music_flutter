@@ -33344,12 +33344,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1648001242047, "song": 
+{ "file": "", "lastModifiedDate": 1648166082157, "song": 
 {
 "title": "Everything I Wanted",
 "artist": "Billie Eilish",
-"user": "shari",
-"lastModifiedDate": 1648001242047,
+"user": "Shari",
+"lastModifiedDate": 1648166082157,
 "copyright": "2019 Darkroom, Interscope, written by Billie Eilish, Finneas O'Connell",
 "key": "A",
 "defaultBpm": 120,
@@ -33365,9 +33365,15 @@
 	"PC:",
 	"Dmaj7 E C#m Dmaj7 x2",
 	"C:",
-	"Dmaj7 E C#m Dmaj7 x4",
+	"Dmaj7 E C#m Dmaj7",
+	"Dmaj7 E C#m Dmaj7",
+	"Dmaj7 E C#7 Dmaj7",
+	"Dmaj7 E C#m Dmaj7",
 	"Br:",
-	"Dmaj7 E C#m Dmaj7 x2",
+	"Dmaj7 E C#m Dmaj7",
+	"Dmaj7 E C#m Dmaj7",
+	"Dmaj7 E C#7 Dmaj7",
+	"Dmaj7 E C#m Dmaj7",
 	"O:",
 	"Dmaj7 E C#m Dmaj7"
     ],
@@ -37371,28 +37377,28 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1609912756514, "song": 
+{ "file": "", "lastModifiedDate": 1648166552730, "song": 
 {
 "title": "Folsom Prison Blues",
 "artist": "Johnny Cash",
 "user": "Shari",
-"lastModifiedDate": 1609912756514,
+"lastModifiedDate": 1648166552730,
 "copyright": "1955 Sun",
 "key": "F",
-"defaultBpm": 101,
+"defaultBpm": 111,
 "timeSignature": "4/4",
 "chords": 
     [
 	"I:",
 	"C7 F",
 	"I2:",
-	"F F7 F F7",
-	"A# A# F F",
-	"C7 C7 F",
+	"F7 F7 F7 F7",
+	"A# A# F7 F7",
+	"C7 C7 F7",
 	"V:",
 	"F F F F7",
 	"A# A# F F",
-	"C7 C7 F F"
+	"C7 C7 F"
     ],
 "lyrics": 
     [
@@ -37425,7 +37431,7 @@
 	"(instrumental)",
 	"",
 	"v:",
-	"Well if they freed me from this prison",
+	"(Well if they) freed me from this prison",
 	"If that railroad train was mine",
 	"I bet I'd move it on a little farther down the line",
 	"Far from Folsom prison, that's where I want to stay",
@@ -60828,12 +60834,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1626414889752, "song": 
+{ "file": "", "lastModifiedDate": 1648166181600, "song": 
 {
 "title": "Jack and Diane",
 "artist": "John Mellencamp",
 "user": "Shari",
-"lastModifiedDate": 1626414889752,
+"lastModifiedDate": 1648166181600,
 "copyright": "1982 Riva",
 "key": "A",
 "defaultBpm": 105,
@@ -60841,7 +60847,7 @@
 "chords": 
     [
 	"I:",
-	"AE AE D D x3",
+	"A E.AE D D x3",
 	"I2:",
 	"AE DE AE DA",
 	"I3:",
@@ -60861,7 +60867,7 @@
 	"T:",
 	"AE DE AE D.EA",
 	"O:",
-	"AE AE D D x3"
+	"A E.AE D D x3"
     ],
 "lyrics": 
     [

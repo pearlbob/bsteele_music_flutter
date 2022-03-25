@@ -9,7 +9,7 @@ set git=~/github/bsteele_music_flutter
 
 
 #   verify that the pi is present
-ssh bobspi.local echo yes
+sshpi echo yes
 set stat=$status
 if ( $stat != 0 ) then
 	echo "bob's pi is missing"
@@ -27,6 +27,7 @@ endif
 
 #	prep for subsequent sudo in war file install
 #	this forces the sudo early in the deployment process
+echo on bob64:
 sudo date
 
 

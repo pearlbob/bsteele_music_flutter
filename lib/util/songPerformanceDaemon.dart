@@ -38,7 +38,7 @@ class SongPerformanceDaemon {
   }
 
   void _initialize() async {
-    if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    if (!kDebugMode && !kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
       _lastStore = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
       Timer.periodic(const Duration(minutes: 10), _timerCallback);
       logger.i('SongPerformanceDaemon initialized');

@@ -14,7 +14,6 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -550,7 +549,8 @@ class _State extends State<Singers> {
                               appKeyEnum: AppKeyEnum.singersSave,
                               onPressed: () {
                                 setState(() {
-                                  saveSongPerformances();
+                                  app.songPerformanceDaemon.saveAllSongPerformances();
+                                  allHaveBeenWritten = true; //  fixme: on failure?
                                 });
                               },
                             )),
@@ -560,7 +560,7 @@ class _State extends State<Singers> {
                           'Write singer $_selectedSinger\'s songs to a local file',
                           appKeyEnum: AppKeyEnum.singersSaveSelected,
                           onPressed: () {
-                            saveSingersSongList(_selectedSinger);
+                            app.songPerformanceDaemon.saveSingersSongList(_selectedSinger);
                             logger.d('save selection: $_selectedSinger');
                           },
                         ),
@@ -943,8 +943,8 @@ class _State extends State<Singers> {
                     var songPerformance = SongPerformance(
                         song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault(),
                         bpm: bpm);
+                    songPerformance.song = app.allSongs.where((element) => element.songId == song.songId).first;
                     if (_selectedSinger != _unknownSinger) {
-                      allSongPerformances.addSongPerformance(songPerformance);
                       navigateToPlayer(context, songPerformance);
                     }
                   });
@@ -1062,26 +1062,7 @@ class _State extends State<Singers> {
 
   String hms(int ms) {
     if (ms == 0) return '';
-    return DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(ms));
-  }
-
-  void saveSongPerformances() async {
-    saveAllSongPerformances('allSongPerformances', allSongPerformances.toJsonString());
-    allHaveBeenWritten = true;
-  }
-
-  void saveSingersSongList(String singer) async {
-    saveAllSongPerformances('singer_${singer.replaceAll(' ', '_')}', allSongPerformances.toJsonStringFor(singer));
-  }
-
-  void saveAllSongPerformances(String prefix, String contents) async {
-    String fileName =
-        '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}${AllSongPerformances.fileExtension}';
-    String message = await UtilWorkaround().writeFileContents(fileName, contents);
-    logger.d('_saveAllSongPerformances message: $message');
-    setState(() {
-      app.infoMessage('${AllSongPerformances.fileExtension} $message');
-    });
+    return intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(ms));
   }
 
   void filePickUpdate(BuildContext context) async {

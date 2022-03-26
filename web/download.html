@@ -20,6 +20,7 @@
 
 
 
+
     </script>
 </head>
 <body onload="onLoad();">
@@ -28,30 +29,31 @@
     <a href="http://www.bsteele.com/bsteeleMusicApp/index.html">bsteeleMusicApp</a>.</p>
 <p>The app can also be downloaded at the following links:</p>
 <ul>
-    <li><p>Apache Tomcat war file (a Java web archive file):
-        <a href="./bsteeleMusicApp.war" download>
-            bsteeleMusicApp.war</a>. After downloading, verify the sha256sum as:</p>
-        <span id="warSha256sum"> </span>
-        <p>
-            The war file contents can also be extracted to a webserver (typically Apache)
-            and served as static webpages without the leader/follower function.
-        </p>
-    </li>
     <li><p>Macos x86 dmg: <a href="./bsteeleMusicApp.dmg" download>
         bsteeleMusicApp.dmg</a>. After downloading, verify the sha256sum as:
     </p>
-        <span id="dmgSha256sum"> </span>.
+        <p>
+            <span id="dmgSha256sum"> </span>
+        </p>
         <p>
             The Macos will not be happy about running an app downloaded from the web but you can
-            force it with: Apple icon, System Preferences, Security & Privacy, Allow apps downloaded
-            from:, select the app to enable it.
+            force it with: Apple icon, System Preferences, Security & Privacy, "Allow apps
+            downloaded
+            from:", select the app to enable it. When re-installing the app, you will again
+            have to force acceptance.
+        </p>
+        <p>
+            Once installed, the app can be found in the system Applications folder labeled
+            "bsteele_music_flutter.app".
         </p>
     </li>
     <li>
         <p>Android apk: <a href="./bsteeleMusicApp.apk" download>
             bsteeleMusicApp.apk</a>. The sha256sum as:
         </p>
-        <span id="apkSha256sum"> </span>.
+        <p>
+            <span id="apkSha256sum"> </span>
+        </p>
         <p>
             Android will not willingly download and install apps from the web. Please research this
             and understand your security exposure. I suggest you start with
@@ -62,7 +64,9 @@
         <p>Raspberry Pi aarch64: <a href="./bsteeleMusicAppPi.tgz" download>
             bsteeleMusicAppPi.tgz</a>. The sha256sum as:
         </p>
-        <span id="piSha256sum"> </span>.
+        <p>
+            <span id="piSha256sum"> </span>
+        </p>
         <p>
             This tar file needs to be extracted to a convenient directory in a Raspberry Pi with a
             64
@@ -70,6 +74,17 @@
             Note that it requires the lib and data directories be in their relative positions.
             Performance on a Pi 3 is marginal. Tested on the Debian 11, bullseye OS. Song and singer
             updates will come from the web so assess is encouraged.
+        </p>
+    </li>
+    <li><p>Apache Tomcat war file (a Java web archive file):
+        <a href="./bsteeleMusicApp.war" download>
+            bsteeleMusicApp.war</a>. After downloading, verify the sha256sum as:</p>
+        <p>
+            <span id="warSha256sum"> </span>
+        </p>
+        <p>
+            The war file contents can also be extracted to a webserver (typically Apache)
+            and served as static webpages without the leader/follower function.
         </p>
     </li>
 </ul>

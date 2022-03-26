@@ -68,6 +68,8 @@ class AppOptions extends ChangeNotifier {
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
     _readSongMetadata();
+    _lastAllSongPerformancesStoreMillisecondsSinceEpoch =
+        await _readInt('lastAllSongPerformancesStoreMillisecondsSinceEpoch', defaultValue: 0);
     _updateAllSongPerformances();
     notifyListeners();
   }
@@ -86,14 +88,25 @@ class AppOptions extends ChangeNotifier {
     return value;
   }
 
+  Future<int> _readInt(final String key, {defaultValue = 0}) async {
+    var value = _prefs.getInt(key) ?? defaultValue;
+    notifyListeners();
+    return value;
+  }
+
   Future<String> _readString(final String key, {defaultValue = ''}) async {
     var value = _prefs.getString(key) ?? defaultValue;
     notifyListeners();
     return value;
   }
 
-  _saveBool(final String key, bool value) async {
+  _saveBool(final String key, final bool value) async {
     await _prefs.setBool(key, value);
+    notifyListeners();
+  }
+
+  _saveInt(final String key, final int value) async {
+    await _prefs.setInt(key, value);
     notifyListeners();
   }
 
@@ -307,6 +320,7 @@ class AppOptions extends ChangeNotifier {
   void storeAllSongPerformances() {
     String storage = allSongPerformances.toJsonString();
     _saveString(Util.enumName(StorageValue.allSongPerformances), storage);
+    _lastAllSongPerformancesStoreMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
   }
 
   void _updateAllSongPerformances() async {
@@ -389,6 +403,17 @@ class AppOptions extends ChangeNotifier {
     }
     return ret;
   }
+
+  set lastAllSongPerformancesStoreMillisecondsSinceEpoch(int milliseconds) {
+    if (_lastAllSongPerformancesStoreMillisecondsSinceEpoch == milliseconds) {
+      return;
+    }
+    _lastAllSongPerformancesStoreMillisecondsSinceEpoch = milliseconds;
+    _saveInt('lastAllSongPerformancesStoreMillisecondsSinceEpoch', milliseconds);
+  }
+
+  int get lastAllSongPerformancesStoreMillisecondsSinceEpoch => _lastAllSongPerformancesStoreMillisecondsSinceEpoch;
+  int _lastAllSongPerformancesStoreMillisecondsSinceEpoch = 0;
 
   /// A list of the names of sheet music displays that are currently active.
   HashSet<SheetDisplay> get sheetDisplays => _sheetDisplays;

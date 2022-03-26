@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:universal_io/io.dart';
 
+import '../util/songPerformanceDaemon.dart';
 import 'app_theme.dart';
 
 final App app = App();
@@ -72,6 +73,8 @@ class App {
   bool isEditReady = false;
   bool isScreenBig = true;
   bool isPhone = false;
+
+  final SongPerformanceDaemon songPerformanceDaemon = SongPerformanceDaemon();
 
   /// Add a song to the master song list
   void addSong(Song song) {

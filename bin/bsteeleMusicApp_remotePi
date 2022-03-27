@@ -9,7 +9,7 @@ set machine=pi@bobspi.local
 	flutter clean
 	flutter config --enable-linux-desktop
 	flutter pub get
-	flutter -d linux create .
+	flutter -d linux create . --org com.bsteele
 	flutter pub get
 
 #	flutter -d linux run --release
@@ -19,7 +19,7 @@ set machine=pi@bobspi.local
 	flutter clean
 #	flutter config --enable-linux-desktop
 #	flutter pub get
-#	flutter -d linux create .
+#	flutter -d linux create . --org com.bsteele
 #	#flutter -d linux run lib/bsteeleMusicUtil.dart
 #!/bin/tcsh
 #set echo; set verbose
@@ -72,7 +72,7 @@ else
 	flutter clean
 	flutter config --enable-linux-desktop
 	flutter pub get
-	flutter -d linux create .
+	flutter -d linux create . --org com.bsteele
 	flutter pub get
 
 	flutter build linux --release

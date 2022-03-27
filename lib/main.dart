@@ -169,7 +169,28 @@ verify full validation of song before entry
 Capitalization of user name
 get real file name of written file for confirmation message
 
+frank music requests:
+    Elvis Costello:
+    Everyday I write The Book
+    What's so Funny about Peace Love and Understanding
 
+    Tears For Fears:
+    Everybody Wants To Rule the World
+    Head Over Heels
+    Shout
+
+    GoGos: Head Over Heels
+    STP: Sour Girl
+    Beatles: Dear Prudence
+    Zero 7:  Destiny
+    Stevie: Superstition
+
+    Commitments:
+    I Can't stand the Rain
+    Chain of Fools
+    Mustang Sally
+
+    Wild Cherry: Play That Funky Music
 
 suggested solo notes and scales
 key of F# labeled Gb

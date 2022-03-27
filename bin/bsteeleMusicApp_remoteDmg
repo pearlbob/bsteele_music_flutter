@@ -48,7 +48,7 @@ else
   rm -rf macos/
 	set osEnable=macos-desktop
   flutter config --enable-$osEnable
-  flutter -d macos create . # > /dev/null
+  flutter -d macos create . --org com.bsteele # > /dev/null
 
 	bin/bsteeleMusicApp_macEntitlements
 

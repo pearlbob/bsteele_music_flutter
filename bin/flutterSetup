@@ -1,5 +1,6 @@
 #!/bin/tcsh
-set echo; set verbose
+set echo
+set verbose
 
 set git=~/github/bsteeleMusicFlutter
 cd $git
@@ -8,6 +9,6 @@ cd $git
 rm -rf linux/
 flutter clean
 flutter pub get
-flutter -d linux create . #> /dev/null
+flutter -d linux create . --org com.bsteele #> /dev/null
 
-echo run command:  flutter -d linux run
+echo run command: flutter -d linux run

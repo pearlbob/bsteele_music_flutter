@@ -60,7 +60,7 @@ void main() {
 
     {
       logger.i('allSongs.length: ${app.allSongs.length}');
-      assert(app.allSongs.length > 1300);
+      assert(app.allSongs.length > 1500);
       var allSongsSongIds = SplayTreeSet<String>();
       allSongsSongIds.addAll(app.allSongs.map((song) {
         return song.songId.toString();
@@ -93,13 +93,13 @@ void main() {
       var missingWidgetSongIds = widgetSongIds.difference(notHoliday);
       //expect(missingWidgetSongIds.length, 0);
       logger.i('missing widgetSongIds  diff notHoliday:  ${missingWidgetSongIds.length}');
-      for (var id in missingWidgetSongIds) {
-        logger.i('missingWidgetSongIds: $id');
-      }
+      // for (var id in missingWidgetSongIds) {
+      //   logger.i('missingWidgetSongIds: $id');
+      // }
 
       //  assure that the start of the elements found match the not holiday list
       for (var i = 0; i < widgetSongIds.length; i++) {
-        expect(widgetSongIds.elementAt(i), 'mainSong.'+notHoliday.elementAt(i));
+        expect(widgetSongIds.elementAt(i), 'mainSong.' + notHoliday.elementAt(i));
       }
       logger.i('notHoliday.elementAt(${widgetSongIds.length - 1}):'
           '       ${notHoliday.elementAt(widgetSongIds.length - 1)}');

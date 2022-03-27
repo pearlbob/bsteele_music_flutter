@@ -10,6 +10,7 @@ import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 // import 'package:package_info_plus/package_info_plus.dart';
 
 /// Show some data about the app and it's environment.
@@ -111,6 +112,10 @@ class _About extends State<About> with WidgetsBindingObserver {
                 Text(
                   'OS: ${kIsWeb ? 'web' : Platform.operatingSystem}',
                 ),
+                if (!kIsWeb)
+                  Text(
+                    'Document Path: $_applicationDocumentsPath',
+                  ),
                 // Text(
                 //   'ver: ${Platform.version}',
                 // ),
@@ -140,6 +145,8 @@ class _About extends State<About> with WidgetsBindingObserver {
     // setState(() {
     //   _packageInfo = info;
     // });
+    final applicationDocumentsDirectory = await getApplicationDocumentsDirectory();
+    _applicationDocumentsPath = applicationDocumentsDirectory.path;
   }
 
   void writeDiagnosticLogFile() async {
@@ -186,6 +193,7 @@ class _About extends State<About> with WidgetsBindingObserver {
   }
 
   String? _utcDateAsString;
+
   // PackageInfo _packageInfo = PackageInfo(
   //   appName: 'Unknown',
   //   packageName: 'Unknown',
@@ -211,5 +219,6 @@ class _About extends State<About> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  String? _applicationDocumentsPath = 'unknown';
   late Size _lastSize;
 }

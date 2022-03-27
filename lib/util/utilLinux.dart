@@ -18,8 +18,8 @@ class UtilLinux implements UtilWorkaround {
   @override
   Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
     //  not web stuff
-    final directory = await getApplicationDocumentsDirectory();
-    String path = directory.path;
+    final applicationDocumentsDirectory = await getApplicationDocumentsDirectory();
+    String path = applicationDocumentsDirectory.path;
     logger.d('path: $path');
 
     File file = File('$path/$fileName');

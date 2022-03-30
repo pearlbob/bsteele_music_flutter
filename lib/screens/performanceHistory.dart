@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
@@ -6,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../app/app.dart';
+import '../util/songSearchMatcher.dart';
 
 /// Provide a number of song related actions for the user.
 /// This includes reading song files, clearing all songs from the current song list, and the like.
@@ -32,15 +36,17 @@ class _PerformanceHistory extends State<PerformanceHistory> {
     appWidgetHelper = AppWidgetHelper(context);
 
     final double fontSize = app.screenInfo.fontSize;
-    songPerformanceStyle = generateAppTextStyle(
+    _songPerformanceStyle = generateAppTextStyle(
       color: Colors.black87,
       fontSize: fontSize,
     );
 
     List<Widget> history = [];
     {
+      _songSearchMatcher = SongSearchMatcher(_searchTextFieldController.text);
       String? lastSungDateString;
-      for (var perf in allSongPerformances.allSongPerformanceHistory.toList(growable: false).reversed) {
+
+      for (var perf in searchAllPerformanceSongs().toList(growable: false).reversed) {
         var song = perf.song;
         if (song == null) {
           continue;
@@ -51,7 +57,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
           history.add(appSpace(verticalSpace: 20));
           history.add(Text(
             lastSungDateString,
-            style: songPerformanceStyle,
+            style: _songPerformanceStyle,
           ));
           history.add(const Divider(
             thickness: 10,
@@ -72,7 +78,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                         ' in $key'
                 // ' at $bpm'
                 ,
-                style: songPerformanceStyle,
+                style: _songPerformanceStyle,
               ),
               onPressed: () {
                 setState(() {
@@ -92,7 +98,46 @@ class _PerformanceHistory extends State<PerformanceHistory> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
+              if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
+              appWrapFullWidth(children: [
+                //  search line
+                appTooltip(
+                  message: 'Search for songs',
+                  child: IconButton(
+                    icon: const Icon(Icons.search),
+                    iconSize: fontSize,
+                    onPressed: (() {}),
+                  ),
+                ),
+                SizedBox(
+                  width: 20 * fontSize,
+                  //  limit text entry display length
+                  child: appTextField(
+                    appKeyEnum: AppKeyEnum.singersSearchText,
+                    enabled: true,
+                    controller: _searchTextFieldController,
+                    hintText: 'enter song search',
+                    onChanged: (text) {
+                      setState(() {});
+                    },
+                    fontSize: fontSize,
+                  ),
+                ),
+                appTooltip(
+                  message: 'Clear the search text',
+                  child: appEnumeratedIconButton(
+                    appKeyEnum: AppKeyEnum.singersClearSearch,
+                    icon: const Icon(Icons.clear),
+                    iconSize: 1.5 * fontSize,
+                    onPressed: (() {
+                      setState(() {
+                        searchClear();
+                        FocusScope.of(context).requestFocus(_searchFocusNode);
+                      });
+                    }),
+                  ),
+                ),
+              ]),
               appSpace(),
               ...history,
               appSpace(),
@@ -104,6 +149,23 @@ class _PerformanceHistory extends State<PerformanceHistory> {
       ),
       floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
     );
+  }
+
+  void searchClear() {
+    _searchTextFieldController.clear();
+    _songSearchMatcher = SongSearchMatcher(_searchTextFieldController.text);
+  }
+
+  SplayTreeSet<SongPerformance> searchAllPerformanceSongs() {
+    //  apply search filter
+    final SplayTreeSet<SongPerformance> filteredSongPerformances =
+        SplayTreeSet(SongPerformance.compareByLastSungSongIdAndSinger);
+    for (final SongPerformance songPerformance in allSongPerformances.allSongPerformanceHistory) {
+      if (_songSearchMatcher.performanceMatchesOrEmptySearch(songPerformance)) {
+        filteredSongPerformances.add(songPerformance);
+      }
+    }
+    return filteredSongPerformances;
   }
 
   _navigateToPlayer(BuildContext context, SongPerformance songPerformance) async {
@@ -127,8 +189,12 @@ class _PerformanceHistory extends State<PerformanceHistory> {
     );
   }
 
+  SongSearchMatcher _songSearchMatcher = SongSearchMatcher('');
+  final TextEditingController _searchTextFieldController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
   late AppWidgetHelper appWidgetHelper;
-  late TextStyle songPerformanceStyle;
+  late TextStyle _songPerformanceStyle;
 
   final App app = App();
   final AllSongPerformances allSongPerformances = AllSongPerformances();

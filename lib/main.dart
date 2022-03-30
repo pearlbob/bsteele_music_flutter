@@ -151,7 +151,12 @@ void main() async {
 done:
 
 beta short list:
-________Hamburger , new song, won't toggle edit mode
+
+Into the Great Wide Open(3).songlyrics:  comment in chords
+Into the Great Wide Open(3).songlyrics:  no lyric sections allowed to be written
+Into the Great Wide Open(3).songlyrics:  no lyric sections: gray page!
+song not selected on main list after a file read and return to main list
+
 consistent arrow on leader and follower
 share the "sung by" in the follower update
 eliminate singer needs a song requirement
@@ -168,6 +173,10 @@ improve player: Tap to tempo
 verify full validation of song before entry
 Capitalization of user name
 get real file name of written file for confirmation message
+
+fixme: first singers list doesn't showup on message section when all singers is written
+
+ fixme: this is likely wrong:  void _readExternalSongList() async { if (appOptions.isInThePark()) ...
 
 frank music requests:
     Elvis Costello:

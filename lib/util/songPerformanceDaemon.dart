@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
-import 'package:universal_io/io.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:universal_io/io.dart';
 
 import '../app/app.dart';
 
@@ -22,18 +21,19 @@ class SongPerformanceDaemon {
     _initialize();
   }
 
-  void saveAllSongPerformances() {
-    _saveSongPerformances('allSongPerformances', _allSongPerformances.toJsonString());
+  Future<void> saveAllSongPerformances() {
+    return _saveSongPerformances('allSongPerformances', _allSongPerformances.toJsonString());
   }
 
-  void saveSingersSongList(String singer) async {
+  Future<void> saveSingersSongList(String singer) {
     return _saveSongPerformances('singer_${singer.replaceAll(' ', '_')}', _allSongPerformances.toJsonStringFor(singer));
   }
 
-  void _saveSongPerformances(String prefix, String contents) async {
+  Future<void> _saveSongPerformances(String prefix, String contents) async {
     String fileName =
         '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}${AllSongPerformances.fileExtension}';
     String message = await UtilWorkaround().writeFileContents(fileName, contents); //  fixme: should be async
+    logger.d('saveSingersSongList message: \'$message\'');
     app.infoMessage(message);
   }
 
@@ -47,7 +47,7 @@ class SongPerformanceDaemon {
     }
   }
 
-  _timerCallback(Timer timer) {
+  _timerCallback(Timer timer) async {
     var due = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch + _updateDelayMilliseconds;
 
     var dueFormat = intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(due));
@@ -59,9 +59,10 @@ class SongPerformanceDaemon {
         ) {
       logger.i('SongPerformanceDaemon update: '
           '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(nowMs))} > $dueFormat');
-      saveAllSongPerformances();
-      _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch = nowMs;
-      _lastStore = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
+      saveAllSongPerformances().then((response) {
+        _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch = nowMs;
+        _lastStore = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
+      });
     } else {
       logger.i('SongPerformanceDaemon callback: not needed: '
           '${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(_lastStore))}'

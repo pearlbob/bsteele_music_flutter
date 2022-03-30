@@ -59,14 +59,14 @@ class _State extends State<Singers> {
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
 
-    logger.log(_singerLogBuild, 'singer build:');
+    logger.log(_singerLogBuild, 'singer build:  message: ${app.message}');
 
     if (_selectedSinger == _unknownSinger && _sessionSingers.isNotEmpty) {
       _selectedSinger = _sessionSingers.first;
       searchForSelectedSingerOnly = true;
     }
 
-    songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
+    _songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
     logger.d('searchTextFieldController.text: "${searchTextFieldController.text}"');
 
     final double fontSize = app.screenInfo.fontSize;
@@ -124,7 +124,7 @@ class _State extends State<Singers> {
       for (var performance in performancesFromSinger) {
         if (performance.song != null) {
           var song = performance.song!;
-          if (songSearchMatcher.matches(song) /*	note: empty search means no match!  */) {
+          if (_songSearchMatcher.matches(song) /*	note: empty search means no match!  */) {
             performancesFromSingerMatching.add(performance);
           } else {
             performancesFromSingerNotMatching.add(performance);
@@ -139,7 +139,7 @@ class _State extends State<Singers> {
           for (var performance in allSongPerformances.bySinger(singer)) {
             if (performance.song != null) {
               var song = performance.song!;
-              if (songSearchMatcher.matchesOrEmptySearch(song)) {
+              if (_songSearchMatcher.matchesOrEmptySearch(song)) {
                 performancesFromSessionSingers.add(performance);
               }
             }
@@ -148,7 +148,7 @@ class _State extends State<Singers> {
       }
       for (var song in app.allSongs) {
         if (!songsSungBySingers.contains(song)) {
-          if (songSearchMatcher.matches(song)) {
+          if (_songSearchMatcher.matches(song)) {
             otherMatchingSongs.add(song);
           } else {
             otherSongs.add(song);
@@ -158,10 +158,10 @@ class _State extends State<Singers> {
     }
 
     logger.d('performances:  searchForSelectedSingerOnly: $searchForSelectedSingerOnly'
-        ', search: ${songSearchMatcher.isNotEmpty}');
+        ', search: ${_songSearchMatcher.isNotEmpty}');
     if (_selectedSinger != _unknownSinger) {
       //   selected singer known
-      if (songSearchMatcher.isNotEmpty) {
+      if (_songSearchMatcher.isNotEmpty) {
         // 		search text NOT empty
         if (searchForSelectedSingerOnly) {
           // 			search for single singer selected
@@ -224,7 +224,7 @@ class _State extends State<Singers> {
     }
 
     //   - all the other songs not otherwise listed
-    if (songSearchMatcher.isEmpty) {
+    if (_songSearchMatcher.isEmpty) {
       addSongWidgets(songWidgetList, 'Other songs:', otherSongs);
     }
 
@@ -548,9 +548,10 @@ class _State extends State<Singers> {
                               'Write all singer songs to a local file',
                               appKeyEnum: AppKeyEnum.singersSave,
                               onPressed: () {
-                                setState(() {
-                                  app.songPerformanceDaemon.saveAllSongPerformances();
-                                  allHaveBeenWritten = true; //  fixme: on failure?
+                                _saveAllSongPerformances().then((response) {
+                                  setState(() {
+                                    allHaveBeenWritten = true; //  fixme: on failure?
+                                  });
                                 });
                               },
                             )),
@@ -957,7 +958,7 @@ class _State extends State<Singers> {
 
   void searchClear() {
     searchTextFieldController.clear();
-    songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
+    _songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
     searchAllPerformanceSongs();
   }
 
@@ -965,7 +966,7 @@ class _State extends State<Singers> {
     //  apply search filter
     selectedSongPerformances.clear();
     requestedSongPerformances.clear();
-    filteredSongs.clear();
+    _filteredSongs.clear();
 
     //  don't look for a singer not present
     if (!_sessionSingers.contains(_selectedSinger)) {
@@ -978,7 +979,7 @@ class _State extends State<Singers> {
     for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
       if (songPerformance.song != null &&
           songPerformance.singer == _selectedSinger &&
-          songSearchMatcher.matchesOrEmptySearch(songPerformance.song!)) {
+          _songSearchMatcher.matchesOrEmptySearch(songPerformance.song!)) {
         //  matches
         selectedSongPerformances.add(songPerformance);
       }
@@ -987,9 +988,9 @@ class _State extends State<Singers> {
     logger.d('selectedSinger: $_selectedSinger, selectedSongPerformances.length: ${selectedSongPerformances.length}');
 
     for (final Song song in app.allSongs) {
-      if (songSearchMatcher.matchesOrEmptySearch(song)) {
+      if (_songSearchMatcher.matchesOrEmptySearch(song)) {
         if (selectedSongPerformances.where((value) => value.song == song).isEmpty) {
-          filteredSongs.add(song);
+          _filteredSongs.add(song);
         }
       }
     }
@@ -999,14 +1000,14 @@ class _State extends State<Singers> {
     //  apply search filter
     selectedSongPerformances.clear();
     requestedSongPerformances.clear();
-    filteredSongs.clear();
+    _filteredSongs.clear();
     var requestsFound = SplayTreeSet<Song>();
 
-    if (songSearchMatcher.isNotEmpty) {
+    if (_songSearchMatcher.isNotEmpty) {
       for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
         if (songPerformance.song != null &&
             _sessionSingers.contains(songPerformance.singer) &&
-            songSearchMatcher.matchesOrEmptySearch(songPerformance.song!)) {
+            _songSearchMatcher.matchesOrEmptySearch(songPerformance.song!)) {
           //  matches
           requestedSongPerformances.add(songPerformance);
           requestsFound.add(songPerformance.song!);
@@ -1015,9 +1016,9 @@ class _State extends State<Singers> {
     }
 
     for (final Song song in app.allSongs) {
-      if (songSearchMatcher.matchesOrEmptySearch(song)) {
+      if (_songSearchMatcher.matchesOrEmptySearch(song)) {
         if (requestedSongPerformances.where((value) => value.song == song).isEmpty) {
-          filteredSongs.add(song);
+          _filteredSongs.add(song);
         }
       }
     }
@@ -1058,6 +1059,10 @@ class _State extends State<Singers> {
       searchClear();
       scrollController.jumpTo(0);
     });
+  }
+
+  Future<void> _saveAllSongPerformances() async {
+    return app.songPerformanceDaemon.saveAllSongPerformances();
   }
 
   String hms(int ms) {
@@ -1104,11 +1109,11 @@ class _State extends State<Singers> {
 
   late TextStyle songPerformanceStyle;
 
-  SongSearchMatcher songSearchMatcher = SongSearchMatcher('');
+  SongSearchMatcher _songSearchMatcher = SongSearchMatcher('');
   var selectedSongPerformances = SplayTreeSet<SongPerformance>();
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
 
-  final SplayTreeSet<Song> filteredSongs = SplayTreeSet();
+  final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
   final FocusNode searchFocusNode;
 
   final TextEditingController searchTextFieldController = TextEditingController();

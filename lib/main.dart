@@ -173,6 +173,7 @@ improve player: Tap to tempo
 verify full validation of song before entry
 Capitalization of user name
 get real file name of written file for confirmation message
+fixme: player scroll to top doesn't on songs with big intros and short verticals: bohemian rhapsody
 
 fixme: first singers list doesn't showup on message section when all singers is written
 
@@ -200,6 +201,24 @@ frank music requests:
     Mustang Sally
 
     Wild Cherry: Play That Funky Music
+
+Joshua
+    Request to sing:
+    [  ] Stand by me - key of G - capo 3
+    [  ] Radioactive - key of F - capo 4
+    [  ] Wagon wheel - key of G/A? - capo 2
+    [  ] Why Georgie - key of G
+    [  ] Take me Home - key of A - capo 2
+    [  ] Come Together - key of C
+    [  ] Breakfast at Tiffany's
+
+    Request to play:
+    [  ] Chocolate Jesus - Tom Waits
+    [  ] Ants Marching - Dave Matthews
+    [  ] Crazy Little thing called love - Queen
+    [  ] As Tears Go by - Rolling Stones
+    [  ] All of me - John Legend
+    [  ] Don't bring me down
 
 suggested solo notes and scales
 key of F# labeled Gb

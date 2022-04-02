@@ -27065,20 +27065,22 @@
     ]
 }
 },
-{ "file": "Do It Again.songlyrics", "lastModifiedDate": 1592536161465, "song": 
+{ "file": "Do It Again.songlyrics", "lastModifiedDate": 1648857354806, "song": 
 {
 "title": "Do It Again",
 "artist": "Steely Dan",
 "user": "Shari",
-"lastModifiedDate": 1592536161465,
+"lastModifiedDate": 1648857354806,
 "copyright": "1972 ABC",
 "key": "G",
 "defaultBpm": 124,
 "timeSignature": "4/4",
 "chords": 
     [
-	"I:",
-	"Gm Gm Gm Gm x2",
+	"I1:",
+	"X X X X x2",
+	"I2:",
+	"Gm Gm Gm Gm x4",
 	"Cm7Dm7 D#maj7Dm7 Gm Gm",
 	"Cm7Dm7 D#maj7Dm7 Gm Gm",
 	"Gm GmX",
@@ -27106,7 +27108,11 @@
 "lyrics": 
     [
 	"",
-	"i: (instrumental)",
+	"I1: (instrumental)",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
 	"v:In the mornin' you go gunning for the man who stole your water",
 	"And you fire till he is done in but they catch you at the border",
 	"And the mourners are all singing as they drag you by your feet",
@@ -59363,12 +59369,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1648674698579, "song": 
+{ "file": "", "lastModifiedDate": 1648858195396, "song": 
 {
 "title": "Into the Great Wide Open",
 "artist": "Tom Petty",
 "user": "Shari",
-"lastModifiedDate": 1648674698579,
+"lastModifiedDate": 1648858195396,
 "copyright": "1991 MCA",
 "key": "G",
 "defaultBpm": 100,
@@ -59378,9 +59384,7 @@
 	"I:",
 	"Em Emmaj7 Em7 Em6 x2",
 	"I2:",
-	"Asus2 G G C",
-	"G G G G",
-	"G G C G",
+	"CG G",
 	"I3:",
 	"Em Emmaj7 Em7 Em6",
 	"Em Emmaj7 Em7 Asus2",
@@ -59388,7 +59392,7 @@
 	"Em Emmaj7 Em7 Em6",
 	"Em Emmaj7 Em7 Em6",
 	"Am Am/G Am/F# C/G",
-	"G F C G G",
+	"G F C C",
 	"C:",
 	"G C Dsus4 Dsus4",
 	"G Em D A",
@@ -59407,6 +59411,8 @@
 	"He went to Hollywood, got a tattoo",
 	"He met a girl out there with a tattoo too",
 	"The future was wide open",
+	"",
+	"I2:",
 	"",
 	"V:",
 	"They moved into a place they both could afford",
@@ -94244,12 +94250,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1648441336130, "song": 
+{ "file": "", "lastModifiedDate": 1648690617483, "song": 
 {
 "title": "Say You Love Me",
 "artist": "Fleetwood Mac",
-"user": "shari",
-"lastModifiedDate": 1648441336130,
+"user": "Shari",
+"lastModifiedDate": 1648690617483,
 "copyright": "1976 Reprise",
 "key": "A",
 "defaultBpm": 127,
@@ -94270,7 +94276,7 @@
 	"C2:",
 	"F#mD A F#mE A x2",
 	"T:",
-	"F#mD A F#mE D D",
+	"F#mE A F#mE D D",
 	"O:",
 	"A A A A x4"
     ],
@@ -104352,12 +104358,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1632111444640, "song": 
+{ "file": "", "lastModifiedDate": 1648697887173, "song": 
 {
 "title": "Steamboat Row",
 "artist": "Humblebums, The",
 "user": "Shari",
-"lastModifiedDate": 1632111444640,
+"lastModifiedDate": 1648697887173,
 "copyright": "1970 Transatlantic Records, written by Gerry Rafferty",
 "key": "D",
 "defaultBpm": 89,
@@ -104365,8 +104371,8 @@
 "chords": 
     [
 	"I:",
-	"B Bm7 A D",
-	"E Bm7 EA E",
+	"B Bm7 A D |",
+	"E Bm7 EA E E | x2",
 	"V:",
 	"B B A A",
 	"E A B B",
@@ -122771,6 +122777,111 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1648856899749, "song": 
+{
+"title": "While You See A Chance",
+"artist": "Steve Winwood",
+"user": "Shari",
+"lastModifiedDate": 1648856899749,
+"copyright": "1981 Island",
+"key": "D",
+"defaultBpm": 128,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I1:",
+	"Gmaj9Em7 D/F# Gmaj9 D/A",
+	"G E/G#",
+	"D/A F#/Bb Bm D/C",
+	"G/B A D G/DA/D",
+	"I2:",
+	"DA/D G/D G/DA/D D",
+	"AG/D DA/C# G/BG A7",
+	"DA/D G/BG D/AA F#mD7 G",
+	"I3:",
+	"G/D G/D D D",
+	"G/D G/D",
+	"V:",
+	"DA/C# Bm7D/F# Em7 A x2",
+	"PC:",
+	"Gmaj9Em7 D/F# Gmaj9 D/A",
+	"G E/G#",
+	"C:",
+	"D/A F#/A# Bm D/C",
+	"G/B A D D",
+	"Br:",
+	"Bb Eb/Bb Bb Eb/Bb",
+	"Bb BbF/Bb",
+	"C/GD/A.. D/A Asus4 A",
+	"O:",
+	"D D G/D G/D x4",
+	"D"
+    ],
+"lyrics": 
+    [
+	"I1:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Stand up in a clear blue morning until you see what can ",
+	"Be alone in a cold day dawning, are you still free? Can you be?",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"PC:",
+	"When some cold tomorrow finds you, when some ",
+	"Sad old dream reminds you, how the ",
+	"Endless road unwinds you",
+	"",
+	"C:",
+	"(While you) see a chance, take it, find romance, fake it",
+	"Because it's all on you",
+	"",
+	"BR:",
+	"Don't you know by now no one gives you anything?",
+	"And don't you wonder how you keep on ",
+	"Moving? One more day...your way",
+	"",
+	"I2:",
+	"(instrumental solo) Whoa, your way",
+	"",
+	"PC:",
+	"(When there's) no one left to leave you, even ",
+	"You don't quite believe you, that's when ",
+	"Nothing can deceive you",
+	"",
+	"C:",
+	"(While you) see a chance, take it, find romance, fake it",
+	"Because it's all on you",
+	"",
+	"V:",
+	"Stand up in a clear blue morning until you see what can ",
+	"Be alone in a cold day dawning, are you still free? Can you be?",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"PC:",
+	"And that old grey wind is blowing",
+	"And there's nothing left worth knowing",
+	"And it's time you should be going",
+	"",
+	"C:",
+	"While you see a chance, take it",
+	"Find romance, fake it",
+	"Because it's all on you",
+	"While you see a chance, take it",
+	"Find romance",
+	"",
+	"I3:",
+	"(instrumental)",
+	"",
+	"O:",
+	"While you see a chance, take it, find romance (fake it) x4"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1606711437863, "song": 
 {
 "title": "White Christmas, cover by Bing Crosby",
@@ -126157,12 +126268,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1647560929889, "song": 
+{ "file": "", "lastModifiedDate": 1648857186992, "song": 
 {
 "title": "Year of the Cat",
 "artist": "Al Stewart",
 "user": "Shari",
-"lastModifiedDate": 1647560929889,
+"lastModifiedDate": 1648857186992,
 "copyright": "1976 Janus, written by Al Stewart and Peter Wood",
 "key": "G",
 "defaultBpm": 116,
@@ -126190,7 +126301,7 @@
 	"B C G",
 	"FC D DX",
 	"O:",
-	"Cmaj7"
+	"Em"
     ],
 "lyrics": 
     [
@@ -127024,12 +127135,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1647405003602, "song": 
+{ "file": "", "lastModifiedDate": 1648857077022, "song": 
 {
 "title": "You Can't Hurry Love",
 "artist": "Supremes, The",
 "user": "Shari",
-"lastModifiedDate": 1647405003602,
+"lastModifiedDate": 1648857077022,
 "copyright": "1966 Motown",
 "key": "Bb",
 "defaultBpm": 192,
@@ -127083,15 +127194,9 @@
 	"",
 	"C:",
 	"(You) can't hurry love, no, you just have to wait, she said",
-	"Love don't come easy, it's a game of give and take, you",
-	"Can't hurry love, no, you just have to wait, you got to",
-	"Trust give it time, no matter how long it takes",
-	"",
-	"C:",
-	"(How) long must I wait, how much ",
-	"More can I take, before ",
-	"Loneliness will cause my ",
-	"Heart, heart to break?",
+	"Love don't come easy, it's a game of give and take, how",
+	"Long must I wait, how much more can I take, before ",
+	"Loneliness will cause my heart, heart to break?",
 	"",
 	"V2:",
 	"(No) I can't bear to live my life alone, I grow ",

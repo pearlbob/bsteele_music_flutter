@@ -3,7 +3,7 @@
  
 cd macos/Runner
 
-set entitlement='<key>com.apple.security.network.client</key><true/>'
+set entitlement='<key>com.apple.security.network.client</key><true/><key>com.apple.security.app-sandbox</key><false/>'
 
 foreach f ( DebugProfile.entitlements Release.entitlements )
 	echo $f

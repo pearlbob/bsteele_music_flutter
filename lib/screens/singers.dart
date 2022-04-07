@@ -1139,8 +1139,6 @@ class _State extends State<Singers> {
 
   late AppWidgetHelper appWidgetHelper;
 
-  String fileLocation = kIsWeb ? 'download area' : 'Documents';
-
   final SongUpdateService _songUpdateService = SongUpdateService();
 
   static const addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];

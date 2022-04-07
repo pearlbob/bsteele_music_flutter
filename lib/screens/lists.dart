@@ -516,6 +516,4 @@ class _State extends State<Lists> {
   final TextEditingController _valueTextFieldController = TextEditingController();
 
   late AppWidgetHelper appWidgetHelper;
-
-  String fileLocation = kIsWeb ? 'download area' : 'Documents';
 }

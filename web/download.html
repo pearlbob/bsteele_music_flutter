@@ -9,6 +9,7 @@
         let dmgSha256sum = 'unknown';
         let apkSha256sum = 'unknown';
         let piSha256sum = 'unknown';
+        let linuxSha256sum = 'unknown';
 
         function onLoad() {
             document.getElementById("buildDate").innerHTML = buildDate;
@@ -16,6 +17,7 @@
             document.getElementById("dmgSha256sum").innerHTML = dmgSha256sum;
             document.getElementById("apkSha256sum").innerHTML = apkSha256sum;
             document.getElementById("piSha256sum").innerHTML = piSha256sum;
+            document.getElementById("linuxSha256sum").innerHTML = linuxSha256sum;
         }
     </script>
 </head>
@@ -36,7 +38,7 @@
         </p>
         <p>
             The Macos will not be happy about running an app downloaded from the web but you can
-            force it with: Apple icon, System Preferences, Security & Privacy, "Allow apps
+            force it with: Apple icon, System Preferences, Security &amp; Privacy, "Allow apps
             downloaded
             from:", select the app to enable it. When re-installing the app, you will again
             have to force acceptance.
@@ -48,8 +50,8 @@
     </li>
     <li>
         <p>Android apk: <a href="./bsteeleMusicApp.apk" download>
-            bsteeleMusicApp.apk</a>. The sha256sum as:
-        </p>
+            bsteeleMusicApp.apk</a>.
+            After downloading, verify the sha256sum as:</p>
         <p>
             <span id="apkSha256sum"> </span>
         </p>
@@ -61,8 +63,8 @@
     </li>
     <li>
         <p>Raspberry Pi aarch64: <a href="./bsteeleMusicAppPi.tgz" download>
-            bsteeleMusicAppPi.tgz</a>. The sha256sum as:
-        </p>
+            bsteeleMusicAppPi.tgz</a>.
+            After downloading, verify the sha256sum as:</p>
         <p>
             <span id="piSha256sum"> </span>
         </p>
@@ -71,13 +73,31 @@
             64
             bit OS. Run the binary bsteele_music_flutter can be run there.
             Note that it requires the lib and data directories be in their relative positions.
-            Performance on a Pi 3 is marginal. Tested on the Debian 11, bullseye OS. Song and singer
-            updates will come from the web so assess is encouraged.
+            Performance on a Pi 3 is marginal.
+            Tested on Debian 11, bullseye OS on a Raspberry Pi 4. Song and singer
+            updates will come from the web so internet assess is encouraged.
+        </p>
+    </li>
+    <li>
+        <p>Linuxmint x64: <a href="./bsteeleMusicAppx64Linux.tgz" download>
+            bsteeleMusicAppx64Linux.tgz</a>.
+            After downloading, verify the sha256sum as:</p>
+        <p>
+            <span id="linuxSha256sum"> </span>
+        </p>
+        <p>
+            This tar file needs to be extracted to a convenient directory on linux.
+            Run the binary bsteele_music_flutter can be run there.
+            Note that it requires the lib and data directories be in their relative positions.
+            Tested on Linuxmint 20.3 Cinnamon OS on a x86-64 box.
+            Song and singer
+            updates will come from the web so internet assess is encouraged.
         </p>
     </li>
     <li><p>Apache Tomcat war file (a Java web archive file):
         <a href="./bsteeleMusicApp.war" download>
-            bsteeleMusicApp.war</a>. After downloading, verify the sha256sum as:</p>
+            bsteeleMusicApp.war</a>.
+        After downloading, verify the sha256sum as:</p>
         <p>
             <span id="warSha256sum"> </span>
         </p>

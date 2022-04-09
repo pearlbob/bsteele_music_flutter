@@ -151,11 +151,9 @@ void main() async {
 done:
 
 beta short list:
-
-Into the Great Wide Open(3).songlyrics:  comment in chords
-Into the Great Wide Open(3).songlyrics:  no lyric sections allowed to be written
-Into the Great Wide Open(3).songlyrics:  no lyric sections: gray page!
+finish automation of history update from GS
 song not selected on main list after a file read and return to main list
+song requestor feature for singer page.
 
 consistent arrow on leader and follower
 share the "sung by" in the follower update

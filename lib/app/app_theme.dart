@@ -1242,14 +1242,10 @@ ElevatedButton appNoteButton(
 InkWell appInkWell({
   required AppKeyEnum appKeyEnum,
   Color? backgroundColor,
-  double? fontSize,
   GestureTapCallback? onTap,
   Widget? child,
   dynamic value, // overrides onPressed(), requires key
 }) {
-  fontSize ??=
-      app.screenInfo.fontSize; // _sizeLookup(_buttonFontScaleProperty) ?? _sizeLookup(_universalFontSizeProperty);
-
   var key = appKey(appKeyEnum, value: value);
 
   return InkWell(

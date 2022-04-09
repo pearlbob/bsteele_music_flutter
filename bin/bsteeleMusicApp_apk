@@ -2,7 +2,6 @@
 #set echo; set verbose
 
 set app=bsteeleMusicApp
-set bsDir=${app}Dmg
 set src=~/github/bsteele_music_flutter
 set www=/var/www/html/public_html/$app
 set apk=build/app/outputs/apk/release/app-release.apk

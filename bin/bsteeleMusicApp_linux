@@ -1,0 +1,30 @@
+#!/bin/tcsh
+set echo
+set verbose
+
+set app=bsteeleMusicApp
+set src=~/github/bsteele_music_flutter
+set www=/var/www/html/public_html/$app
+set linuxBundle=build/linux/x64/release/bundle
+set tgz=${app}X64Linux.tgz
+
+echo uses existing source code at: $src
+cd $src
+
+rm -rf .gradle
+flutter clean
+flutter build linux --release
+
+cd $src/build/linux/x64/release
+
+mv bundle $app
+
+rm -f ${tgz}
+tar -zcf ${tgz} $app
+tar -tf ${tgz}
+
+echo sha256sum: $(sha256sum $tgz)
+
+#	upload to local host
+cp $tgz $www/$tgz
+exit $status

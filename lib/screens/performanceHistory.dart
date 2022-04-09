@@ -40,58 +40,17 @@ class _PerformanceHistory extends State<PerformanceHistory> {
       fontSize: fontSize,
     );
 
-    List<Widget> history = [];
-    {
-      _songSearchMatcher = SongSearchMatcher(_searchTextFieldController.text);
-      String? lastSungDateString;
-
-      for (var perf in searchAllPerformanceSongs().toList(growable: false).reversed) {
-        var song = perf.song;
-        if (song == null) {
-          continue;
-        }
-
-        if (lastSungDateString != perf.lastSungDateString) {
-          lastSungDateString = perf.lastSungDateString;
-          history.add(appSpace(verticalSpace: 20));
-          history.add(Text(
-            lastSungDateString,
-            style: _songPerformanceStyle,
-          ));
-          history.add(const Divider(
-            thickness: 10,
-            color: Colors.black,
-          ));
-        }
-
-        var singer = perf.singer;
-        var key = perf.key;
-        // var bpm = perf.bpm;
-        history.add(appWrapFullWidth(children: [
-          TextButton(
-              child: Text(
-                DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(perf.lastSung)) +
-                    ' $singer sang: '
-                        '${song.title} by ${song.artist}'
-                        '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-                        ' in $key'
-                // ' at $bpm'
-                ,
-                style: _songPerformanceStyle,
-              ),
-              onPressed: () {
-                setState(() {
-                  _navigateToPlayer(context, perf);
-                });
-              }),
-        ], spacing: 10));
-      }
-    }
+    SplayTreeSet<SongPerformance> performanceHistory = SplayTreeSet((SongPerformance first, SongPerformance other) {
+      // reverse the date ordering
+      return -SongPerformance.compareByLastSungSongIdAndSinger(first, other);
+    });
+    _songSearchMatcher = SongSearchMatcher(_searchTextFieldController.text);
+    performanceHistory.addAll(searchAllPerformanceSongs());
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
-      body: SingleChildScrollView(
+      body: Container(
         padding: const EdgeInsets.all(36.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,10 +97,58 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                 ),
               ]),
               appSpace(),
-              ...history,
+              Flexible(
+                child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.all(8),
+                    itemCount: performanceHistory.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var performance = performanceHistory.elementAt(index);
+                      var singer = performance.singer;
+                      var song = performance.song!;
+                      var key = performance.key;
+                      return appWrapFullWidth(children: [
+                        if (index == 0 ||
+                            (index > 0 &&
+                                performance.lastSungDateString !=
+                                    performanceHistory.elementAt(index - 1).lastSungDateString))
+                          appWrapFullWidth(children: [
+                            appSpace(verticalSpace: 40),
+                            Text(
+                              performance.lastSungDateString,
+                              style: _songPerformanceStyle,
+                            ),
+                            const Divider(
+                              thickness: 10,
+                              color: Colors.black,
+                            )
+                          ]),
+                        TextButton(
+                            style: const ButtonStyle(alignment: Alignment.topLeft),
+                            child: Text(
+                              //'${performance.lastSungDateString}'
+                              ' ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung))}'
+                              ' $singer sang: '
+                              '${song.title} by ${song.artist}'
+                              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+                              ' in $key'
+                              // ' at $bpm'
+                              ,
+                              style: _songPerformanceStyle,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _navigateToPlayer(context, performance);
+                              });
+                            }),
+                      ]);
+                    }),
+              ),
+              //     ...history,
               appSpace(),
               Text(
-                'Performance count:  ${allSongPerformances.allSongPerformanceHistory.length}',
+                'Performance count:  ${performanceHistory.length}',
                 style: generateAppTextStyle(),
               ),
             ]),
@@ -160,7 +167,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
     final SplayTreeSet<SongPerformance> filteredSongPerformances =
         SplayTreeSet(SongPerformance.compareByLastSungSongIdAndSinger);
     for (final SongPerformance songPerformance in allSongPerformances.allSongPerformanceHistory) {
-      if (_songSearchMatcher.performanceMatchesOrEmptySearch(songPerformance)) {
+      if (songPerformance.song != null && _songSearchMatcher.performanceMatchesOrEmptySearch(songPerformance)) {
         filteredSongPerformances.add(songPerformance);
       }
     }

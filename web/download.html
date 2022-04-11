@@ -27,8 +27,12 @@
          height="48"/>
     bsteeleMusicApp Download Page</h1>
 <p>The bsteeleMusicApp is usually found on the web at
-    <a href="http://www.bsteele.com/bsteeleMusicApp/index.html">bsteeleMusicApp</a>.</p>
-<p>The app can also be downloaded at the following links:</p>
+    <a href="http://www.bsteele.com/bsteeleMusicApp/index.html">bsteeleMusicApp</a>.
+    This will be the most universal and easiest to use of the application formats.
+</p>
+<p>Native applications are also available.
+    They are more difficult to install but will typically provide slightly better performance.
+    They can be downloaded using the following links:</p>
 <ul>
     <li><p>Macos x86 dmg: <a href="./bsteeleMusicApp.dmg" download>
         bsteeleMusicApp.dmg</a>. After downloading, verify the sha256sum as:
@@ -46,6 +50,12 @@
         <p>
             Once installed, the app can be found in the system Applications folder labeled
             "bsteele_music_flutter.app".
+        </p>
+        <p>
+            Note that the application will automatically write the allSongPerformances file to the
+            users home Download directory if the performances have been sung using the Singers
+            screen and there has been roughly 45 minutes of no further action.
+            This safety feature is not available in the web version.
         </p>
     </li>
     <li>
@@ -70,8 +80,7 @@
         </p>
         <p>
             This tar file needs to be extracted to a convenient directory in a Raspberry Pi with a
-            64
-            bit OS. Run the binary bsteele_music_flutter can be run there.
+            64 bit OS. Run the binary bsteele_music_flutter can be run there.
             Note that it requires the lib and data directories be in their relative positions.
             Performance on a Pi 3 is marginal.
             Tested on Debian 11, bullseye OS on a Raspberry Pi 4. Song and singer
@@ -93,6 +102,13 @@
             Song and singer
             updates will come from the web so internet assess is encouraged.
         </p>
+        <p>
+            Note that the application will automatically write the allSongPerformances file to the
+            users home Download directory if the performances have been sung using the Singers
+            screen and there has been roughly 45 minutes of no further action.
+            This safety feature is not available in the web version.
+        </p>
+
     </li>
     <li><p>Apache Tomcat war file (a Java web archive file):
         <a href="./bsteeleMusicApp.war" download>

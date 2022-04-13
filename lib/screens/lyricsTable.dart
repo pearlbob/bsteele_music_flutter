@@ -25,7 +25,8 @@ import '../app/appOptions.dart';
 const double _defaultLyricsFraction = 0.35;
 
 //  diagnostic logging enables
-const Level _lyricsTableLogBuild = Level.debug;
+//const Level _lyricsTableLogBuild = Level.debug;
+const Level _lyricsTableLogFontSize = Level.debug;
 
 /// compute a lyrics table
 class LyricsTable {
@@ -47,13 +48,6 @@ class LyricsTable {
     _computeScreenSizes();
 
     //  build the table from the song lyrics and chords
-    if (song.lyricSections.isEmpty) {
-      _table = Table(
-        key: GlobalKey(),
-      );
-      return _table;
-    }
-
     List<TableRow> rows = [];
     List<Widget> children = []; //  items for the current row
     _sectionBackgroundColor =
@@ -170,21 +164,27 @@ class LyricsTable {
       }
     }
 
-    Map<int, TableColumnWidth>? columnWidths = {};
-    if (rows.isNotEmpty && hasLyrics) {
-      columnWidths[rows[0].children!.length - 1] =
-          MinColumnWidth(const IntrinsicColumnWidth(), FractionColumnWidth(showChords ? _lyricsFraction : 0.95));
-    }
+    if (rows.isEmpty) {
+      _table = Table(
+        key: GlobalKey(),
+      );
+    } else {
+      Map<int, TableColumnWidth>? columnWidths = {};
+      if (rows.isNotEmpty && hasLyrics) {
+        columnWidths[rows[0].children!.length - 1] =
+            MinColumnWidth(const IntrinsicColumnWidth(), FractionColumnWidth(showChords ? _lyricsFraction : 0.95));
+      }
 
-    _table = Table(
-      key: GlobalKey(),
-      defaultColumnWidth: const IntrinsicColumnWidth(),
-      columnWidths: columnWidths,
-      //  covers all
-      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      children: rows,
-      border: TableBorder.symmetric(),
-    );
+      _table = Table(
+        key: GlobalKey(),
+        defaultColumnWidth: const IntrinsicColumnWidth(),
+        columnWidths: columnWidths,
+        //  covers all
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: rows,
+        border: TableBorder.symmetric(),
+      );
+    }
 
     logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'
         ' default:$appDefaultFontSize  => _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)}'
@@ -197,11 +197,11 @@ class LyricsTable {
     return Container(
       //  outline container
       margin: getMeasureMargin(),
-      padding: getMeasurePadding(),
+      padding: _padding,
       child: Container(
         //  inner container of section color
         margin: getMeasureMargin(),
-        padding: getMeasurePadding(),
+        padding: _padding,
         color: _sectionBackgroundColor,
         child: w,
       ),
@@ -236,13 +236,20 @@ class LyricsTable {
     _screenWidth = app.screenInfo.mediaWidth;
     _screenHeight = app.screenInfo.mediaHeight;
 
-    const screenFraction = 1.0 / 300;
+    const screenFraction = 1.0 / 200;
     _chordFontSize ??= appDefaultFontSize * min(8, max(1, _screenWidth * usableRatio * screenFraction));
+    double paddingSize = Util.doubleLimit(_chordFontSize! / 10, 0.5, 8);
     logger.log(
-        _lyricsTableLogBuild,
+        _lyricsTableLogFontSize,
         '_computeScreenSizes(): _chordFontSize: ${_chordFontSize?.toStringAsFixed(2)}'
-        ', _screenWidth * $screenFraction: ${_screenWidth * screenFraction}');
+        ', _screenWidth: ${_screenWidth.toStringAsFixed(2)}');
+    logger.log(
+        _lyricsTableLogFontSize,
+        ', screenFraction: ${screenFraction.toStringAsFixed(4)}'
+        ', padding: ${paddingSize.toStringAsFixed(2)}');
     _lyricsFontSize = _chordFontSize! * 0.6;
+
+    _padding = EdgeInsets.all(paddingSize);
 
     //  text styles
     _chordTextStyle = generateChordTextStyle(fontSize: _chordFontSize);
@@ -263,6 +270,7 @@ class LyricsTable {
 
   double? get chordFontSize => _chordFontSize;
   double? _chordFontSize;
+  EdgeInsets _padding = const EdgeInsets.all(5);
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();

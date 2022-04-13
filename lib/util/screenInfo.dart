@@ -3,6 +3,10 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+
+//  diagnostic logging enables
+const Level _screenInfoLogFontsize = Level.debug;
 
 /// Gather information on screen size and adapt to it
 class ScreenInfo {
@@ -17,10 +21,14 @@ class ScreenInfo {
     _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
     _isWayTooNarrow = _mediaWidth <= 400;
     _titleScaleFactor = 1.25 * max(1, _mediaWidth / minLogicalPixels);
-    logger.d('ScreenInfo: ($_mediaWidth, $_mediaHeight)'
+    logger.log(
+        _screenInfoLogFontsize,
+        'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $fontSize'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
-    logger.d('devicePixelRatio: $devicePixelRatio,'
+    logger.log(
+        _screenInfoLogFontsize,
+        'devicePixelRatio: $devicePixelRatio,'
         ' ($_mediaWidth,$_mediaHeight)');
   }
 

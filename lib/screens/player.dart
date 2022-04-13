@@ -292,7 +292,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void positionAfterBuild() {
-    logger.log(_playerLogFontResize, 'positionAfterBuild(): chordFontSize: $chordFontSize');
+    logger.log(_playerLogFontResize, 'positionAfterBuild(): chordFontSize: ${chordFontSize!.toStringAsFixed(2)}');
 
     //  look at the rendered table size, resize if required
     if (table?.key != null) {

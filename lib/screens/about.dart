@@ -145,8 +145,12 @@ class _About extends State<About> with WidgetsBindingObserver {
     // setState(() {
     //   _packageInfo = info;
     // });
-    final applicationDocumentsDirectory = await getApplicationDocumentsDirectory();
-    _applicationDocumentsPath = applicationDocumentsDirectory.path;
+    try {
+      final applicationDocumentsDirectory = await getApplicationDocumentsDirectory();
+      _applicationDocumentsPath = applicationDocumentsDirectory.path;
+    } catch (e) {
+      _applicationDocumentsPath = 'unknown';
+    }
   }
 
   void writeDiagnosticLogFile() async {

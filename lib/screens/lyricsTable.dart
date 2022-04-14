@@ -73,7 +73,9 @@ class LyricsTable {
 
       TextStyle textStyle = _coloredChordTextStyle;
       for (int r = 0; r < _grid.getRowCount(); r++) {
-        children = [];
+        children = [
+          appSpace(horizontalSpace: _lyricsFontSize) //  slot for play arrow
+        ];
         var row = _grid.getRow(r);
         var columns = row!.length;
         for (int c = 0; c < columns; c++) {
@@ -171,13 +173,12 @@ class LyricsTable {
     } else {
       Map<int, TableColumnWidth>? columnWidths = {};
       if (rows.isNotEmpty && hasLyrics) {
-        columnWidths[rows[0].children!.length - 1] =
-            MinColumnWidth(const IntrinsicColumnWidth(), FractionColumnWidth(showChords ? _lyricsFraction : 0.95));
+        columnWidths[rows[0].children!.length - 1] = const IntrinsicColumnWidth(flex: 8);
       }
 
       _table = Table(
         key: GlobalKey(),
-        defaultColumnWidth: const IntrinsicColumnWidth(),
+        defaultColumnWidth: const IntrinsicColumnWidth(flex: 1),
         columnWidths: columnWidths,
         //  covers all
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -247,7 +248,7 @@ class LyricsTable {
         _lyricsTableLogFontSize,
         ', screenFraction: ${screenFraction.toStringAsFixed(4)}'
         ', padding: ${paddingSize.toStringAsFixed(2)}');
-    _lyricsFontSize = _chordFontSize! * 0.6;
+    _lyricsFontSize = _chordFontSize! * 0.5;
 
     _padding = EdgeInsets.all(paddingSize);
 

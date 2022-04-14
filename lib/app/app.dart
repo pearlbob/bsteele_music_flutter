@@ -257,6 +257,8 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
 
 Widget appSpace({double? space, double? horizontalSpace, double? verticalSpace}) {
   if (space == null) {
+    assert((horizontalSpace ?? 0) >= 0);
+    assert((verticalSpace ?? 0) >= 0);
     return SizedBox(
       height: verticalSpace ?? 10,
       width: horizontalSpace ?? 10,

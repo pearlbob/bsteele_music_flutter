@@ -731,19 +731,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
                     child: Stack(key: _stackKey = GlobalKey(), children: [
-                      if (selectedTargetY > 0)
-                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                          appSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
-                          appWrap([
-                            appSpace(
-                                horizontalSpace: max(renderTableLeft - (chordFontSize ?? app.screenInfo.fontSize), 0)),
-                            appIcon(
-                              Icons.play_arrow,
-                              size: chordFontSize,
-                              color: Colors.redAccent,
-                            ),
-                          ], crossAxisAlignment: WrapCrossAlignment.start),
-                        ]),
                       if (isPlaying)
                         CustomPaint(
                           painter: _ChordHighlightPainter(), //  fixme: optimize with builder
@@ -1171,6 +1158,18 @@ With escape, the app goes back to the play list.''',
                               height: app.screenInfo.mediaHeight - boxCenter,
                             ),
                           ]),
+                      if (selectedTargetY > 0)
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                          appSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
+                          appWrap([
+                            appSpace(horizontalSpace: max(renderTableLeft - ((chordFontSize ?? 0) / 4), 0)),
+                            appIcon(
+                              Icons.play_arrow,
+                              size: chordFontSize,
+                              color: Colors.redAccent,
+                            ),
+                          ], crossAxisAlignment: WrapCrossAlignment.start),
+                        ]),
                     ]),
                   ),
                 ),

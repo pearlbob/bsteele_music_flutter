@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -110,7 +109,8 @@ class _About extends State<About> with WidgetsBindingObserver {
                   ,
                 ),
                 Text(
-                  'OS: ${kIsWeb ? 'web' : Platform.operatingSystem}',
+                  'OS:  ${kIsWeb ? 'web on' : ''}'
+                  ' ${Util.enumName(Theme.of(context).platform)}',
                 ),
                 if (!kIsWeb)
                   Text(

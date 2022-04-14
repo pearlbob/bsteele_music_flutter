@@ -22,8 +22,6 @@ import 'package:logger/logger.dart';
 import '../app/app.dart';
 import '../app/appOptions.dart';
 
-const double _defaultLyricsFraction = 0.35;
-
 //  diagnostic logging enables
 //const Level _lyricsTableLogBuild = Level.debug;
 const Level _lyricsTableLogFontSize = Level.debug;
@@ -43,7 +41,6 @@ class LyricsTable {
     displayMusicKey = musicKey ?? song.key;
     _chordFontSize = chordFontSize;
     List<SongMoment> selectedSongMoments = givenSelectedSongMoments ?? [];
-    _lyricsFraction = Util.doubleLimit(lyricsFraction ?? _defaultLyricsFraction, 0.15, 0.90);
 
     _computeScreenSizes();
 
@@ -173,12 +170,12 @@ class LyricsTable {
     } else {
       Map<int, TableColumnWidth>? columnWidths = {};
       if (rows.isNotEmpty && hasLyrics) {
-        columnWidths[rows[0].children!.length - 1] = const IntrinsicColumnWidth(flex: 8);
+        columnWidths[rows[0].children!.length - 1] = const FlexColumnWidth();
       }
 
       _table = Table(
         key: GlobalKey(),
-        defaultColumnWidth: const IntrinsicColumnWidth(flex: 1),
+        defaultColumnWidth: const IntrinsicColumnWidth(),
         columnWidths: columnWidths,
         //  covers all
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -257,8 +254,6 @@ class LyricsTable {
 
     _lyricsTextStyle = generateLyricsTextStyle(fontSize: _lyricsFontSize);
   }
-
-  double _lyricsFraction = 0.35;
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 100;

@@ -1177,6 +1177,7 @@ TextButton appTextButton(
       appLogKeyCallback(key);
       onPressed?.call();
     },
+    style: ButtonStyle(textStyle: MaterialStateProperty.all(style)),
   );
 }
 

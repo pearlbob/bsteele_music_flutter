@@ -271,6 +271,30 @@ Widget appSpace({double? space, double? horizontalSpace, double? verticalSpace})
   );
 }
 
+double viewportWidth(double width) {
+  return width / 100 * app.screenInfo.mediaWidth;
+}
+
+/// Supply a spacing box proportional to the screen's width... not exactly the viewport though!
+Widget appSpaceViewportWidth({double? space, double? horizontalSpace, double? verticalSpace}) {
+  final width = app.screenInfo.mediaWidth;
+  assert(width > 0);
+
+  if (space == null) {
+    assert((horizontalSpace ?? 0) >= 0);
+    assert((verticalSpace ?? 0) >= 0);
+    return SizedBox(
+      height: (verticalSpace ?? 1) / 100 * width,
+      width: (horizontalSpace ?? 1) / 100 * width,
+    );
+  }
+  space = max(space, 0);
+  return SizedBox(
+    height: space / 100 * width,
+    width: space / 100 * width,
+  );
+}
+
 Widget appVerticalSpace({double? space}) {
   if (space == null) {
     return const SizedBox(

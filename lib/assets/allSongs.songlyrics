@@ -33552,12 +33552,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1649818454717, "song": 
+{ "file": "", "lastModifiedDate": 1649912100445, "song": 
 {
 "title": "Everyday Is A Winding Road",
 "artist": "Sheryl Crow",
 "user": "pillyweed",
-"lastModifiedDate": 1649818454717,
+"lastModifiedDate": 1649912100445,
 "copyright": "1996 A&M",
 "key": "Gb",
 "defaultBpm": 112,
@@ -33565,24 +33565,26 @@
 "chords": 
     [
 	"I:",
-	"C# F# C# F# x2",
+	"C#..B F#..B C#..B F#..B",
+	"C#..B F#..B C#..B F#",
 	"I2:",
-	"C# F# C# F#",
+	"C#7 F# C#7 F#",
 	"I3:",
 	"C# C# C# C#",
 	"V:",
-	"C# F# C# F# x2",
+	"C#..B F#..B C#..B F#..B",
+	"C#..B F#..B C#..B F#",
 	"PC:",
-	"Ab Db Ab Db",
-	"Ab Db Ab B",
+	"Ab..F# Db..F# Ab..F# Db..F#",
+	"Ab..F# Db..F# Ab B",
 	"C:",
-	"C# F# C# F#",
-	"C# F# C# F#",
+	"C#7 F# C#7 F#",
+	"C#7 F# C#7 F#",
 	"Br:",
 	"C# F# C# F#",
 	"C# F# C# F# X",
 	"O:",
-	"C# F# C# F# x2",
+	"C#7 F# C#7 F# x2",
 	"C#"
     ],
 "lyrics": 
@@ -49562,7 +49564,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1649824481179, "song": 
+{ "file": "", "lastModifiedDate": 1649824481179, "song": 
 {
 "title": "Holiday",
 "artist": "Green Day",
@@ -76868,7 +76870,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1649817284265, "song": 
+{ "file": "", "lastModifiedDate": 1649817284265, "song": 
 {
 "title": "Missionary Man",
 "artist": "Eurythmics",
@@ -78303,6 +78305,99 @@
 	"Me, I can show you what it’s like",
 	"",
 	"O: (Instrumental)"
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1649898701514, "song": 
+{
+"title": "Movin' Out",
+"artist": "Billy Joel",
+"user": "pillyweed",
+"lastModifiedDate": 1649898701514,
+"copyright": "1977 Columbia",
+"key": "C",
+"defaultBpm": 131,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Dm Gm7 C9E7b9 F x2",
+	"V:",
+	"Dm Gm7 C9E7b9 F x2",
+	"PC:",
+	"Dm Gm7X Bb C",
+	"Dm Gm7 C7sus4C7/E F",
+	"C:",
+	"BbBb/D CC7/Bb AA/C# DmDm/C",
+	"BbBb/D Em7 A",
+	"O:",
+	"D G A D x8"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"",
+	"V:",
+	"Anthony works in the grocery store",
+	"Savin' his pennies for someday",
+	"Mama Leone left a note on the door, she said",
+	"\"Sonny, move out to the country\"",
+	"",
+	"PC:",
+	"(Ah but) workin' too hard can give you",
+	"A heart attack (ack, ack, ack, ack, ack)",
+	"You oughta know by now (oughta know by now)",
+	"Who needs a house out in Hackensack, is",
+	"That all you get for your money?",
+	"",
+	"C:",
+	"(And it) seems such a waste of time, if",
+	"That's what it's all about, mama if",
+	"That's movin' up, then I'm ",
+	"Movin' out",
+	"",
+	"I:",
+	"I'm movin' out",
+	"",
+	"V:",
+	"Sergeant O'Leary is walkin' the beat, at",
+	"Night he becomes a bartender, he works at",
+	"Mister Cacciatore's down on Sullivan Street",
+	"Across from the medical center",
+	"",
+	"PC:",
+	"(And he's) tradin' in his Chevy for a ",
+	"Cadillac (ack, ack, ack, ack, ack)",
+	"You oughta know by now (you oughta know by now) and",
+	"If he can't drive with a broken back, at",
+	"Least he can polish the fenders",
+	"",
+	"C:",
+	"(And it) seems such a waste of time, if",
+	"That's what it's all about, mama if",
+	"That's movin' up, then I'm ",
+	"Movin' out",
+	"",
+	"I:",
+	"I'm movin' out",
+	"",
+	"PC:",
+	"You should never argue with a crazy mind (mi-, mi-, mi-, mi-, mi-)",
+	"You oughta know by now, you can",
+	"Pay Uncle Sam with the overtime",
+	"Is that all you get for your money",
+	"",
+	"C:",
+	"(And if) that's what you have in mind, yeah",
+	"That's what you're all about, good",
+	"Luck movin' up 'cause I'm ",
+	"Movin' out",
+	"",
+	"I:",
+	"I'm movin' out",
+	"",
+	"O:",
+	"(instrumental)"
     ]
 }
 },

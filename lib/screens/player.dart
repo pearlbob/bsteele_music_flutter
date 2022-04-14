@@ -296,50 +296,33 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     //  look at the rendered table size, resize if required
     if (table?.key != null) {
+      assert(chordFontSize != null);
+
       RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
       assert(renderObject != null && renderObject is RenderTable);
       if (renderObject != null && renderObject is RenderTable) {
         RenderTable renderTable = renderObject;
         final width = renderTable.size.width;
 
+        //  fixme: singer mode??
+        //  fixme: player mode??
+
+        final targetRatio = appOptions.userDisplayStyle == UserDisplayStyle.player ? .75 : 0.6;
+        final double chordRatio = _globalPaintBounds(renderTable.column(renderTable.columns - 1).first).left / width;
+        final double correction = targetRatio / chordRatio;
+        if (correction < 1.0) {
+          chordFontSize = chordFontSize! * correction;
+          forceTableRedisplay();
+        }
+
         logger.log(
             _playerLogFontResize,
             'positionAfterBuild(): renderTable.size.width: $width'
-            ', lyricsTable.chordFontSize: ${lyricsTable.chordFontSize}');
+            ', lyricsTable.chordFontSize: ${lyricsTable.chordFontSize}'
+            ', chordRatio: ${chordRatio.toStringAsFixed(3)}'
+            ', correction: ${correction.toStringAsFixed(3)}');
 
-        if (chordFontSize == null) {
-          if (width > 0 && lyricsTable.chordFontSize != null) {
-            var lastChordFontSize = lyricsTable.chordFontSize!;
-            final pixels = app.screenInfo.mediaWidth * 0.965;
-            var newFontSize = lyricsTable.chordFontSize! * pixels / width;
-            var userDisplayStyle = appOptions.userDisplayStyle;
-            newFontSize =
-                Util.limit(newFontSize, 8.0, 0.035 * pixels * (userDisplayStyle == UserDisplayStyle.player ? 2.0 : 1.0))
-                    as double;
-            renderTableLeft = 0;
-            logger.log(_playerLogFontResize, 'newFontSize: $newFontSize = ${newFontSize / pixels} of $pixels');
-
-            if (userDisplayStyle == UserDisplayStyle.both) {
-              var fontSizeFraction = newFontSize / lyricsTable.chordFontSize!;
-              var newLyricsWidth = renderTable.row(0).last.size.width //  lyrics are last!
-                  *
-                  fontSizeFraction;
-              var newWidth = width * fontSizeFraction;
-              lyricsFraction = (1 - (newWidth - newLyricsWidth) / pixels);
-              logger.log(
-                  _playerLogFontResize,
-                  'lyrics column new width: ${newLyricsWidth.toStringAsFixed(2)}'
-                  ' = ${(newLyricsWidth / pixels).toStringAsFixed(2)}'
-                  ', lyricsFraction: ${lyricsFraction!.toStringAsFixed(2)}');
-            }
-
-            if ((newFontSize - lastChordFontSize).abs() > 1) {
-              //  resize the font based on initial rendering
-              chordFontSize = newFontSize;
-              forceTableRedisplay();
-            }
-          }
-        } else {
+        {
           //  table is now final size
           logger.log(
               _playerLogFontResize,
@@ -347,14 +330,6 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               ' ${(100 * chordFontSize! / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw'
               ', table at: ${renderTable.localToGlobal(Offset.zero)}'
               ', scroll: ${scrollController.offset}');
-
-          Offset renderTableOffset = renderTable.localToGlobal(Offset(0, scrollController.offset));
-          if (renderTableLeft != renderTableOffset.dx) {
-            //  render one last time for the arrow!
-            setState(() {
-              renderTableLeft = renderTableOffset.dx;
-            });
-          }
 
           Offset stackOffset;
           {
@@ -392,8 +367,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               logger.d(
                   'positionAfterBuild()#2: ${songMoment.momentNumber}: ${songMoment.lyricSection}, ${sectionLocations.last}'
                   // ', ${renderBox.paintBounds}'
-                  ', coord: $coord'
-                  ', global: ${renderBox.localToGlobal(Offset.zero)}');
+                      ', coord: $coord'
+                      ', global: ${renderBox.localToGlobal(Offset.zero)}');
             }
             setSelectedSongMoment(_selectedSongMoment, force: true);
           }
@@ -402,8 +377,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         logger.log(
             _playerLogFontResize,
             'table width: ${width.toStringAsFixed(1)}'
-            '/${app.screenInfo.mediaWidth.toStringAsFixed(1)}'
-            ', sectionIndex = $sectionIndex'
+                '/${app.screenInfo.mediaWidth.toStringAsFixed(1)}'
+                ', sectionIndex = $sectionIndex'
             ', lyricsFraction = $lyricsFraction'
             // ', chord fontSize: ${lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
             // ', lyrics fontSize: ${lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
@@ -412,6 +387,12 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             ' ${(100 * (chordFontSize ?? 0) / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw');
       }
     }
+  }
+
+  Rect _globalPaintBounds(final RenderObject renderObject) {
+    final translation = renderObject.getTransformTo(null).getTranslation();
+    final offset = Offset(translation.x, translation.y);
+    return renderObject.paintBounds.shift(offset);
   }
 
   @override
@@ -899,7 +880,7 @@ With escape, the app goes back to the play list.''',
                                         Icons.settings,
                                       ),
                                       onPressed: () {
-                                        settingsPopup();
+                                        _settingsPopup();
                                       },
                                     ),
                                   ),
@@ -1618,13 +1599,14 @@ With escape, the app goes back to the play list.''',
     return !appOptions.isSinger && !(songUpdateService.isConnected && songUpdateService.isLeader);
   }
 
-  Future<void> settingsPopup() async {
+  Future<void> _settingsPopup() async {
+    var boldStyle = headerTextStyle.copyWith(fontWeight: FontWeight.bold);
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
-              title: const Text(
+              title: Text(
                 'Player settings:',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: boldStyle,
               ),
               content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
                 return
@@ -1637,7 +1619,7 @@ With escape, the app goes back to the play list.''',
                     appWrapFullWidth(children: [
                       Text(
                         'User style: ',
-                        style: headerTextStyle,
+                        style: boldStyle,
                       ),
                       appWrap([
                         Radio<UserDisplayStyle>(
@@ -1714,8 +1696,8 @@ With escape, the app goes back to the play list.''',
                           style: headerTextStyle,
                         ),
                       ]),
-                    ], spacing: 10),
-                    appSpace(),
+                    ], spacing: viewportWidth(0.5)),
+                    appSpaceViewportWidth(),
                     appWrapFullWidth(children: [
                       appWrap(
                         [
@@ -1724,7 +1706,7 @@ With escape, the app goes back to the play list.''',
                                 'chords to match the current key.',
                             child: Text(
                               'Capo',
-                              style: headerTextStyle,
+                              style: boldStyle,
                               softWrap: false,
                             ),
                           ),
@@ -1741,7 +1723,7 @@ With escape, the app goes back to the play list.''',
                           ),
                         ],
                       ),
-                      appSpace(space: 40),
+                      appSpaceViewportWidth(space: 1),
                       appTextButton(
                         'Repeats:',
                         appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
@@ -1751,7 +1733,7 @@ With escape, the app goes back to the play list.''',
                             forceTableRedisplay();
                           });
                         },
-                        style: headerTextStyle,
+                        style: boldStyle,
                       ),
                       appTooltip(
                         message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
@@ -1777,7 +1759,7 @@ With escape, the app goes back to the play list.''',
                       children: [
                         Text(
                           'NinJam choice:',
-                          style: headerTextStyle,
+                          style: boldStyle,
                         ),
                         appRadio<bool>('No NinJam aids',
                             appKeyEnum: AppKeyEnum.optionsNinJam,
@@ -1798,13 +1780,13 @@ With escape, the app goes back to the play list.''',
                           });
                         }, style: headerTextStyle),
                       ],
-                      spacing: 30,
+                      spacing: viewportWidth(1),
                     ),
                     appVerticalSpace(),
                     appWrapFullWidth(children: <Widget>[
                       Text(
                         'Display key offset: ',
-                        style: headerTextStyle,
+                        style: boldStyle,
                       ),
                       appDropdownButton<int>(
                         AppKeyEnum.playerKeyOffset,
@@ -1834,7 +1816,7 @@ With escape, the app goes back to the play list.''',
                       Navigator.of(context).pop();
                     }),
                   ),
-                ], spacing: 20, alignment: WrapAlignment.end),
+                ], spacing: viewportWidth(1), alignment: WrapAlignment.end),
               ],
               actionsAlignment: MainAxisAlignment.start,
               elevation: 24.0,

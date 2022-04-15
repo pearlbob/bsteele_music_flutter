@@ -1,6 +1,8 @@
 #!/bin/tcsh
 #set echo; set verbose
 
+echo $0\:
+
 #	set default version code from today's date
 set versionCode=`date +%Y%m%d`
 set historicalCode=$versionCode

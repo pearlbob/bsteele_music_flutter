@@ -1,6 +1,8 @@
 #!/bin/tcsh
 #set echo; set verbose
 
+echo $0\:
+
 set app=bsteeleMusicApp
 set bsDir=${app}Dmg
 set src=bsteele_music_flutter

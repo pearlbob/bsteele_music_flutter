@@ -1186,12 +1186,13 @@ TextButton appIconButton({
   required Widget icon,
   required VoidCallback onPressed,
   dynamic value,
+  String? label,
 }) {
   var key = appKey(appKeyEnum, value: value);
   return TextButton.icon(
     key: key,
     icon: icon,
-    label: const Text(''),
+    label: Text(label ?? ''),
     onPressed: () {
       appLogKeyCallback(key);
       onPressed();

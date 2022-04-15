@@ -453,7 +453,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       });
     }
 
-    headerTextStyle = headerTextStyle.copyWith(fontSize: lyricsTable.lyricsFontSize);
+    final fontSize = lyricsTable.lyricsFontSize;
+    headerTextStyle = headerTextStyle.copyWith(fontSize: fontSize);
 
     final List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList = [];
     {
@@ -871,13 +872,13 @@ With escape, the app goes back to the play list.''',
                                         },
                                       ),
                                     ),
-                                  appSpace(horizontalSpace: 70),
+                                  appSpaceViewportWidth(horizontalSpace: 3.0),
                                   appTooltip(
                                     message: 'Player settings',
                                     child: appIconButton(
                                       appKeyEnum: AppKeyEnum.playerSettings,
                                       icon: appIcon(
-                                        Icons.settings,
+                                        Icons.settings,size: 1.5*fontSize,
                                       ),
                                       onPressed: () {
                                         _settingsPopup();
@@ -900,7 +901,7 @@ With escape, the app goes back to the play list.''',
                                     appKeyEnum: AppKeyEnum.playerPlay,
                                     icon: appIcon(
                                       playStopIcon,
-                                      size: 1.5 * app.screenInfo.fontSize, //  fixme: why is this required?
+                                      size: 2 * fontSize,
                                     ),
                                     onPressed: () {
                                       isPlaying ? performStop() : performPlay();

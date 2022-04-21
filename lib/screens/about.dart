@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -10,7 +11,6 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'package:package_info_plus/package_info_plus.dart';
 
 /// Show some data about the app and it's environment.
 class About extends StatefulWidget {
@@ -56,32 +56,41 @@ class _About extends State<About> with WidgetsBindingObserver {
                 const Text(
                   'The bsteele Music App has been written by bob.',
                 ),
-                Row(children: <Widget>[
-                  const Text(
-                    'See ',
-                  ),
-                  InkWell(
-                    onTap: () {
-                      openLink('http://www.bsteele.com');
-                    },
-                    child: Text(
-                      'bsteele.com',
-                      style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                Image(
+                  image: const AssetImage('lib/assets/app_qr_code.png'),
+                  width: max(150, screenInfo.mediaWidth / 5),
+                  height: max(150, screenInfo.mediaWidth / 5),
+                  semanticLabel: "bsteele.com website",
+                ),
+                Row(
+                  children: <Widget>[
+                    const Text(
+                      'See ',
                     ),
-                  ),
-                  const Text(
-                    ', ',
-                  ),
-                  InkWell(
-                    onTap: () {
-                      openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
-                    },
-                    child: Text(
-                      'download',
-                      style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                    InkWell(
+                      onTap: () {
+                        openLink('http://www.bsteele.com');
+                      },
+                      child: Text(
+                        'bsteele.com',
+                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                      ),
                     ),
-                  ),
-                ]),
+                    const Text(
+                      '.',
+                    ),
+                    appSpace(horizontalSpace: 20),
+                    InkWell(
+                      onTap: () {
+                        openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
+                      },
+                      child: Text(
+                        'Download the app.',
+                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                      ),
+                    ),
+                  ],
+                ),
                 // Text(
                 //   'appName: ${_packageInfo.appName}',
                 // ),

@@ -77,6 +77,7 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
+import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/cssDemo.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
@@ -151,6 +152,7 @@ void main() async {
 done:
 
 beta short list:
+leader/follower will not follow scrolling!
 finish automation of history update from GS
 song not selected on main list after a file read and return to main list
 song requestor feature for singer page.
@@ -567,6 +569,7 @@ class BSteeleMusicApp extends StatelessWidget {
                 '/documentation': (context) => const Documentation(),
                 Debug.routeName: (context) => const Debug(),
                 '/about': (context) => const About(),
+                CommunityJams.routeName: (context) => const Debug(),
                 '/cssDemo': (context) => const CssDemo(),
                 '/theory': (context) => const TheoryWidget(),
               },
@@ -1148,6 +1151,18 @@ class _MyHomePageState extends State<MyHomePage> {
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: Text(
+                'CJ',
+                style: _navTextStyle,
+              ),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToCommunityJams(context);
+              },
+            ),
+
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerAbout,
+              title: Text(
                 'About',
                 style: _navTextStyle,
               ),
@@ -1701,6 +1716,16 @@ class _MyHomePageState extends State<MyHomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const About()),
+    );
+    Navigator.pop(context); //  drawer
+    _reApplySearch();
+  }
+
+  _navigateToCommunityJams(BuildContext context) async {
+    app.clearMessage();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CommunityJams()),
     );
     Navigator.pop(context); //  drawer
     _reApplySearch();

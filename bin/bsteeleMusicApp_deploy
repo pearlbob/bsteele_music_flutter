@@ -55,6 +55,10 @@ if ( $status != 0 ) exit -1
 bin/bsteeleMusicApp_remoteDmg
 if ( $status != 0 ) exit -1
 
+#	compile for native linux x86
+bin/bsteeleMusicApp_linux
+if ( $status != 0 ) exit -1
+
 #	deploy locally the download page
 bin/bsteeleMusicApp_downloadPage
 if ( $status != 0 ) exit -1

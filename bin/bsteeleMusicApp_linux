@@ -25,7 +25,7 @@ rm -f ${tgz}
 tar -zcf ${tgz} $app
 tar -tf ${tgz}
 
-echo sha256sum: $(sha256sum $tgz)
+echo sha256sum: `sha256sum $tgz`
 
 #	upload to local host
 cp $tgz $www/$tgz

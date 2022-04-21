@@ -108,7 +108,7 @@ class UtilLinux implements UtilWorkaround {
   @override
   Future<String> filePickByExtension(BuildContext context, String extension) async {
     String? path = await FilesystemPicker.open(
-      title: 'Open metadata file',
+      title: 'Open $extension file',
       context: context,
       rootDirectory: _rootDirectory,
       fsType: FilesystemType.file,

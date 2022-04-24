@@ -71,7 +71,7 @@ class LyricsTable {
       TextStyle textStyle = _coloredChordTextStyle;
       for (int r = 0; r < _grid.getRowCount(); r++) {
         children = [
-          appSpace(horizontalSpace: _lyricsFontSize) //  slot for play arrow
+          AppSpace(horizontalSpace: _lyricsFontSize) //  slot for play arrow
         ];
         var row = _grid.getRow(r);
         var columns = row!.length;

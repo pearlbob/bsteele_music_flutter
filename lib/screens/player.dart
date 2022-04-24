@@ -506,7 +506,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         keyDropDownMenuList.add(appDropdownMenuItem<music_key.Key>(
             appKeyEnum: AppKeyEnum.playerMusicKey,
             value: value,
-            child: appWrap([
+            child: AppWrap(children: [
               SizedBox(
                 width: 3 * chordsTextWidth, //  max width of chars expected
                 child: Text(
@@ -607,7 +607,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       child: Scaffold(
         backgroundColor: theme.backgroundColor,
         appBar: appWidgetHelper.backBar(
-            titleWidget: appTooltip(
+            titleWidget: AppTooltip(
               message: 'Click to hear the song on youtube.com',
               child: InkWell(
                 onTap: () {
@@ -621,7 +621,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               ),
             ),
             actions: <Widget>[
-              appTooltip(
+              AppTooltip(
                 message: 'Click to hear the artist on youtube.com',
                 child: InkWell(
                   onTap: () {
@@ -647,7 +647,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   style: appBarTextStyle,
                   softWrap: false,
                 ),
-              appSpace(),
+              const AppSpace(),
             ],
             onPressed: () {
               songMaster.removeListener(songMasterListener); //  avoid race condition with the listener notification
@@ -734,8 +734,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                                   child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
                             Container(
                               padding: const EdgeInsets.all(12),
-                              child: appWrapFullWidth(children: [
-                                appTooltip(
+                              child: AppWrapFullWidth(children: [
+                                AppTooltip(
                                   message: '''
 Space bar or clicking the song area starts "play" mode.
     Selected section is in the top or middle of the display.
@@ -757,8 +757,8 @@ With escape, the app goes back to the play list.''',
                                   ),
                                 ),
                                 if (showCapo)
-                                  appWrap(
-                                    [
+                                  AppWrap(
+                                    children: [
                                       if (isCapo && capoLocation > 0)
                                         Text(
                                           'Capo on $capoLocation',
@@ -780,11 +780,11 @@ With escape, the app goes back to the play list.''',
                                 //   softWrap: false,
                                 // ),
 
-                                appWrap([
+                                AppWrap(children: [
                                   if (app.isScreenBig)
-                                    appWrap([
+                                    AppWrap(children: [
                                       //  fixme: there should be a better way.  wrap with flex?
-                                      appTooltip(
+                                      AppTooltip(
                                         message: 'Back to the previous song in the list',
                                         child: appIconButton(
                                           appKeyEnum: AppKeyEnum.playerPreviousSong,
@@ -800,8 +800,8 @@ With escape, the app goes back to the play list.''',
                                           },
                                         ),
                                       ),
-                                      appSpace(space: 5),
-                                      appTooltip(
+                                      const AppSpace(space: 5),
+                                      AppTooltip(
                                         message: 'Advance to the next song in the list',
                                         child: appIconButton(
                                           appKeyEnum: AppKeyEnum.playerNextSong,
@@ -819,9 +819,9 @@ With escape, the app goes back to the play list.''',
                                       ),
                                     ]),
                                   if (app.isScreenBig)
-                                    appWrap([
-                                      appSpace(horizontalSpace: 35),
-                                      appTooltip(
+                                    AppWrap(children: [
+                                      const AppSpace(horizontalSpace: 35),
+                                      AppTooltip(
                                         message: 'Mark the song as good.'
                                             '\nYou will find it in the'
                                             ' "${myGoodSongNameValue.toShortString()}" list.',
@@ -839,8 +839,8 @@ With escape, the app goes back to the play list.''',
                                           },
                                         ),
                                       ),
-                                      appSpace(space: 5),
-                                      appTooltip(
+                                      const AppSpace(space: 5),
+                                      AppTooltip(
                                         message: 'Mark the song as bad, that is, in need of correction.'
                                             '\nYou will find it in the'
                                             ' "${myBadSongNameValue.toShortString()}" list.',
@@ -858,9 +858,9 @@ With escape, the app goes back to the play list.''',
                                         ),
                                       ),
                                     ]),
-                                  if (app.isEditReady) appSpace(horizontalSpace: 35),
+                                  if (app.isEditReady) const AppSpace(horizontalSpace: 35),
                                   if (app.isEditReady)
-                                    appTooltip(
+                                    AppTooltip(
                                       message: 'Edit the song',
                                       child: appIconButton(
                                         appKeyEnum: AppKeyEnum.playerEdit,
@@ -873,12 +873,13 @@ With escape, the app goes back to the play list.''',
                                       ),
                                     ),
                                   appSpaceViewportWidth(horizontalSpace: 3.0),
-                                  appTooltip(
+                                  AppTooltip(
                                     message: 'Player settings',
                                     child: appIconButton(
                                       appKeyEnum: AppKeyEnum.playerSettings,
                                       icon: appIcon(
-                                        Icons.settings,size: 1.5*fontSize,
+                                        Icons.settings,
+                                        size: 1.5 * fontSize,
                                       ),
                                       onPressed: () {
                                         _settingsPopup();
@@ -888,7 +889,7 @@ With escape, the app goes back to the play list.''',
                                 ]),
                               ], alignment: WrapAlignment.spaceBetween),
                             ),
-                            appWrapFullWidth(children: [
+                            AppWrapFullWidth(children: [
                               if (app.fullscreenEnabled && !app.isFullScreen)
                                 appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                     onPressed: () {
@@ -908,12 +909,12 @@ With escape, the app goes back to the play list.''',
                                     },
                                   ),
                                 ),
-                              appWrap(
-                                [
+                              AppWrap(
+                                children: [
                                   if (!songUpdateService.isFollowing)
-                                    appWrap(
-                                      [
-                                        appTooltip(
+                                    AppWrap(
+                                      children: [
+                                        AppTooltip(
                                           message: 'Transcribe the song to the selected key.',
                                           child: Text(
                                             'Key: ',
@@ -936,9 +937,9 @@ With escape, the app goes back to the play list.''',
                                           itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
                                               kMinInteractiveDimension),
                                         ),
-                                        if (app.isScreenBig) appSpace(),
+                                        if (app.isScreenBig) const AppSpace(),
                                         if (app.isScreenBig)
-                                          appTooltip(
+                                          AppTooltip(
                                             message: 'Move the key one half step up.',
                                             child: appIconButton(
                                               appKeyEnum: AppKeyEnum.playerKeyUp,
@@ -952,9 +953,9 @@ With escape, the app goes back to the play list.''',
                                               },
                                             ),
                                           ),
-                                        if (app.isScreenBig) appSpace(space: 5),
+                                        if (app.isScreenBig) const AppSpace(space: 5),
                                         if (app.isScreenBig)
-                                          appTooltip(
+                                          AppTooltip(
                                             message: 'Move the key one half step down.',
                                             child: appIconButton(
                                               appKeyEnum: AppKeyEnum.playerKeyDown,
@@ -972,7 +973,7 @@ With escape, the app goes back to the play list.''',
                                       alignment: WrapAlignment.spaceBetween,
                                     ),
                                   if (songUpdateService.isFollowing)
-                                    appTooltip(
+                                    AppTooltip(
                                       message: 'When following the leader, the leader will select the key for you.\n'
                                           'To correct this from the main screen: hamburger, Options, Hosts: None',
                                       child: Text(
@@ -981,7 +982,7 @@ With escape, the app goes back to the play list.''',
                                         softWrap: false,
                                       ),
                                     ),
-                                  appSpace(),
+                                  const AppSpace(),
                                   if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
                                     Text(
                                       ' ($selectedSongKey' +
@@ -995,9 +996,9 @@ With escape, the app goes back to the play list.''',
                                 alignment: WrapAlignment.spaceBetween,
                               ),
                               if (app.isScreenBig && !songUpdateService.isFollowing)
-                                appWrap(
-                                  [
-                                    appTooltip(
+                                AppWrap(
+                                  children: [
+                                    AppTooltip(
                                       message: 'Beats per minute.  Tap here or hold control and tap space\n'
                                           ' for tap to tempo.',
                                       child: appButton(
@@ -1008,9 +1009,9 @@ With escape, the app goes back to the play list.''',
                                         },
                                       ),
                                     ),
-                                    appSpace(),
-                                    appWrap(
-                                      [
+                                    const AppSpace(),
+                                    AppWrap(
+                                      children: [
                                         DropdownButton<int>(
                                           items: _bpmDropDownMenuList,
                                           onChanged: (value) {
@@ -1031,7 +1032,7 @@ With escape, the app goes back to the play list.''',
                                       ],
                                       alignment: WrapAlignment.spaceBetween,
                                     ),
-                                    if (kDebugMode) appSpace(),
+                                    if (kDebugMode) const AppSpace(),
                                     if (kDebugMode)
                                       appButton(
                                         'speed',
@@ -1047,7 +1048,7 @@ With escape, the app goes back to the play list.''',
                                   alignment: WrapAlignment.spaceBetween,
                                 ),
                               if (app.isScreenBig && songUpdateService.isFollowing)
-                                appTooltip(
+                                AppTooltip(
                                   message: 'When following the leader, the leader will select the tempo for you.\n'
                                       'To correct this from the main screen: hamburger, Options, Hosts: None',
                                   child: Text(
@@ -1074,11 +1075,11 @@ With escape, the app goes back to the play list.''',
                                       : headerTextStyle,
                                 ),
                             ], alignment: WrapAlignment.spaceAround),
-                            appSpace(),
+                            const AppSpace(),
                             if (app.isScreenBig && appOptions.ninJam && ninJam.isNinJamReady)
-                              appWrapFullWidth(children: [
-                                appSpace(),
-                                appWrap([
+                              AppWrapFullWidth(children: [
+                                const AppSpace(),
+                                AppWrap(children: [
                                   Text(
                                     'Ninjam: BPM: ${playerSelectedBpm ?? _song.beatsPerMinute.toString()}',
                                     style: headerTextStyle,
@@ -1093,7 +1094,7 @@ With escape, the app goes back to the play list.''',
                                     },
                                   ),
                                 ], spacing: 10),
-                                appWrap([
+                                AppWrap(children: [
                                   Text(
                                     'Cycle: ${ninJam.beatsPerInterval}',
                                     style: headerTextStyle,
@@ -1107,7 +1108,7 @@ With escape, the app goes back to the play list.''',
                                     },
                                   ),
                                 ], spacing: 10),
-                                appWrap([
+                                AppWrap(children: [
                                   Text(
                                     'Chords: ${ninJam.toMarkup()}',
                                     style: headerTextStyle,
@@ -1122,7 +1123,7 @@ With escape, the app goes back to the play list.''',
                                   ),
                                 ], spacing: 10),
                               ], spacing: 20),
-                            appSpace(),
+                            const AppSpace(),
                             Center(
                               child: table ?? const Text('table missing!'),
                             ),
@@ -1142,9 +1143,9 @@ With escape, the app goes back to the play list.''',
                           ]),
                       if (selectedTargetY > 0)
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                          appSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
-                          appWrap([
-                            appSpace(horizontalSpace: max(renderTableLeft - ((chordFontSize ?? 0) / 4), 0)),
+                          AppSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
+                          AppWrap(children: [
+                            AppSpace(horizontalSpace: max(renderTableLeft - ((chordFontSize ?? 0) / 4), 0)),
                             appIcon(
                               Icons.play_arrow,
                               size: chordFontSize,
@@ -1166,7 +1167,7 @@ With escape, the app goes back to the play list.''',
                     onPressed: () {
                       pauseToggle();
                     },
-                    child: appTooltip(
+          child: AppTooltip(
                       message: 'Stop.  Space bar will continue the play.',
                       child: appIcon(
                         Icons.play_arrow,
@@ -1180,7 +1181,7 @@ With escape, the app goes back to the play list.''',
                     onPressed: () {
                       performStop();
                     },
-                    child: appTooltip(
+          child: AppTooltip(
                       message: 'Escape to stop the play\nor space to next section',
                       child: appIcon(
                         Icons.stop,
@@ -1198,7 +1199,7 @@ With escape, the app goes back to the play list.''',
                         scrollController.jumpTo(0);
                       }
                     },
-                    child: appTooltip(
+          child: AppTooltip(
                       message: 'Top of song',
                       child: appIcon(
                         Icons.arrow_upward,
@@ -1212,7 +1213,7 @@ With escape, the app goes back to the play list.''',
                       songMaster.stop();
                       Navigator.pop(context);
                     },
-                    child: appTooltip(
+          child: AppTooltip(
                       message: 'Back to song list',
                       child: appIcon(
                         Icons.arrow_back,
@@ -1617,12 +1618,12 @@ With escape, the app goes back to the play list.''',
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    appWrapFullWidth(children: [
+                    AppWrapFullWidth(children: [
                       Text(
                         'User style: ',
                         style: boldStyle,
                       ),
-                      appWrap([
+                      AppWrap(children: [
                         Radio<UserDisplayStyle>(
                           value: UserDisplayStyle.player,
                           groupValue: appOptions.userDisplayStyle,
@@ -1647,7 +1648,7 @@ With escape, the app goes back to the play list.''',
                           style: headerTextStyle,
                         ),
                       ]),
-                      appWrap([
+                      AppWrap(children: [
                         Radio<UserDisplayStyle>(
                           value: UserDisplayStyle.both,
                           groupValue: appOptions.userDisplayStyle,
@@ -1672,7 +1673,7 @@ With escape, the app goes back to the play list.''',
                           style: headerTextStyle,
                         ),
                       ]),
-                      appWrap([
+                      AppWrap(children: [
                         Radio<UserDisplayStyle>(
                           value: UserDisplayStyle.singer,
                           groupValue: appOptions.userDisplayStyle,
@@ -1699,10 +1700,10 @@ With escape, the app goes back to the play list.''',
                       ]),
                     ], spacing: viewportWidth(0.5)),
                     appSpaceViewportWidth(),
-                    appWrapFullWidth(children: [
-                      appWrap(
-                        [
-                          appTooltip(
+                    AppWrapFullWidth(children: [
+                      AppWrap(
+                        children: [
+                          AppTooltip(
                             message: 'For a guitar, show the capo location and\n'
                                 'chords to match the current key.',
                             child: Text(
@@ -1736,7 +1737,7 @@ With escape, the app goes back to the play list.''',
                         },
                         style: boldStyle,
                       ),
-                      appTooltip(
+                      AppTooltip(
                         message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
                         child: appIconButton(
                           appKeyEnum: AppKeyEnum.playerCompressRepeats,
@@ -1753,10 +1754,10 @@ With escape, the app goes back to the play list.''',
                         ),
                       ),
                     ]),
-                    appSpace(),
+                    const AppSpace(),
                     if (app.isScreenBig) drums,
-                    appSpace(),
-                    appWrapFullWidth(
+                    const AppSpace(),
+                    AppWrapFullWidth(
                       children: [
                         Text(
                           'NinJam choice:',
@@ -1783,8 +1784,8 @@ With escape, the app goes back to the play list.''',
                       ],
                       spacing: viewportWidth(1),
                     ),
-                    appVerticalSpace(),
-                    appWrapFullWidth(children: <Widget>[
+                    const AppVerticalSpace(),
+                    AppWrapFullWidth(children: <Widget>[
                       Text(
                         'Display key offset: ',
                         style: boldStyle,
@@ -1804,14 +1805,14 @@ With escape, the app goes back to the play list.''',
                         value: app.displayKeyOffset,
                       ),
                     ]),
-                    appVerticalSpace(space: 35),
+                    const AppVerticalSpace(space: 35),
                   ],
                 );
               }),
               actions: [
-                appSpace(),
-                appWrapFullWidth(children: [
-                  appTooltip(
+                const AppSpace(),
+                AppWrapFullWidth(children: [
+                  AppTooltip(
                     message: 'Click here or outside of the popup to return to the player screen.',
                     child: appButton('Return', appKeyEnum: AppKeyEnum.playerReturnFromSettings, onPressed: () {
                       Navigator.of(context).pop();

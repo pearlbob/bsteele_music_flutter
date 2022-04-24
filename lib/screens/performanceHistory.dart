@@ -57,9 +57,9 @@ class _PerformanceHistory extends State<PerformanceHistory> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
-              appWrapFullWidth(children: [
+              AppWrapFullWidth(children: [
                 //  search line
-                appTooltip(
+                AppTooltip(
                   message: 'Search for songs',
                   child: IconButton(
                     icon: const Icon(Icons.search),
@@ -81,7 +81,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                     fontSize: fontSize,
                   ),
                 ),
-                appTooltip(
+                AppTooltip(
                   message: 'Clear the search text',
                   child: appEnumeratedIconButton(
                     appKeyEnum: AppKeyEnum.singersClearSearch,
@@ -96,7 +96,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                   ),
                 ),
               ]),
-              appSpace(),
+              const AppSpace(),
               Flexible(
                 child: ListView.builder(
                     scrollDirection: Axis.vertical,
@@ -108,13 +108,13 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                       var singer = performance.singer;
                       var song = performance.song!;
                       var key = performance.key;
-                      return appWrapFullWidth(children: [
+                      return AppWrapFullWidth(children: [
                         if (index == 0 ||
                             (index > 0 &&
                                 performance.lastSungDateString !=
                                     performanceHistory.elementAt(index - 1).lastSungDateString))
-                          appWrapFullWidth(children: [
-                            appSpace(verticalSpace: 40),
+                          AppWrapFullWidth(children: [
+                            const AppSpace(verticalSpace: 40),
                             Text(
                               performance.lastSungDateString,
                               style: _songPerformanceStyle,
@@ -146,7 +146,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                     }),
               ),
               //     ...history,
-              appSpace(),
+              const AppSpace(),
               Text(
                 'Performance count:  ${performanceHistory.length}',
                 style: generateAppTextStyle(),

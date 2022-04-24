@@ -46,7 +46,7 @@ class _Songs extends State<Songs> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               app.messageTextWidget(AppKeyEnum.songsErrorMessage),
-              appSpace(),
+              const AppSpace(),
               appEnumeratedButton(
                 'Read local file',
                 appKeyEnum: AppKeyEnum.songsReadFiles,
@@ -54,7 +54,7 @@ class _Songs extends State<Songs> {
                   _filePick(context);
                 },
               ),
-              appSpace(
+              const AppSpace(
                 space: 20,
               ),
               appEnumeratedButton(
@@ -64,10 +64,10 @@ class _Songs extends State<Songs> {
                   _writeAll();
                 },
               ),
-              appSpace(
+              const AppSpace(
                 space: 20,
               ),
-              appTooltip(
+              AppTooltip(
                 message: 'A reload of the application will return them all.',
                 child: appEnumeratedButton(
                   'Remove all songs from the current list',
@@ -79,7 +79,7 @@ class _Songs extends State<Songs> {
                   },
                 ),
               ),
-              appSpace(
+              const AppSpace(
                 space: 20,
               ),
               Text(
@@ -179,7 +179,7 @@ class _Songs extends State<Songs> {
               content: SingleChildScrollView(
                 child: Column(
                   children: [
-                    appWrapFullWidth(children: [
+                    AppWrapFullWidth(children: [
                       Text(
                         'Legend:',
                         style: prettyDiffText.defaultTextStyle,
@@ -194,7 +194,7 @@ class _Songs extends State<Songs> {
                         'Read, dated: '
                         '${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
                         ' ${intl.DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(newSong.lastModifiedTime))}'
-                        '${oldSong.lastModifiedTime>newSong.lastModifiedTime?' It\'s older!':''}',
+                        '${oldSong.lastModifiedTime > newSong.lastModifiedTime ? ' It\'s older!' : ''}',
                         style: prettyDiffText.addedTextStyle,
                       )
                     ], spacing: 20),
@@ -203,7 +203,7 @@ class _Songs extends State<Songs> {
                 ),
               ),
               actions: [
-                appWrapFullWidth(children: [
+                AppWrapFullWidth(children: [
                   appButton('Accept', appKeyEnum: AppKeyEnum.songsAcceptSongRead, onPressed: () {
                     Navigator.of(context).pop();
                     response = _dialogResponse.accept;
@@ -213,8 +213,8 @@ class _Songs extends State<Songs> {
                     response = _dialogResponse.reject;
                   }),
                 ], spacing: 20),
-                appSpace(),
-                appWrapFullWidth(children: [
+                const AppSpace(),
+                AppWrapFullWidth(children: [
                   appButton('Accept all songs', appKeyEnum: AppKeyEnum.songsAcceptAllSongReads, onPressed: () {
                     Navigator.of(context).pop();
                     response = _dialogResponse.acceptAll;

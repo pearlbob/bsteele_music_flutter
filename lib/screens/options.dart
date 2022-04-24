@@ -84,13 +84,13 @@ class _Options extends State<Options> {
                       ],
                     ),
 
-                  appSpace(),
+                  const AppSpace(),
                   const Text(
                     'Holiday choice: ',
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
-                    child: appWrapFullWidth(
+                    child: AppWrapFullWidth(
                       children: <Widget>[
                         appRadio<bool>('Not in a holiday mood',
                             appKeyEnum: AppKeyEnum.optionsHoliday,
@@ -113,7 +113,7 @@ class _Options extends State<Options> {
                     ),
                   ),
 
-                  appSpace(),
+                  const AppSpace(),
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -137,8 +137,8 @@ class _Options extends State<Options> {
                           ),
                         ),
                       ]),
-                  appWrap(
-                    <Widget>[
+                  AppWrap(
+                    children: <Widget>[
                       Container(
                         padding: const EdgeInsets.only(right: 24),
                         child: const Text(
@@ -156,7 +156,7 @@ class _Options extends State<Options> {
                           },
                         ),
                       ),
-                      appSpace(),
+                      const AppSpace(),
                       Text(
                         _ipAddress.isEmpty || _ipAddress == _websocketHostEditingController.text
                             ? ''
@@ -165,11 +165,11 @@ class _Options extends State<Options> {
                       ),
                     ],
                   ),
-                  appSpace(),
-                  appWrapFullWidth(children: [
+                  const AppSpace(),
+                  AppWrapFullWidth(children: [
                     const Text('Hosts:'),
-                    appSpace(),
-                    appTooltip(
+                    const AppSpace(),
+                    AppTooltip(
                       message: 'No leader/follower',
                       child: appEnumeratedButton(
                         'None',
@@ -180,8 +180,8 @@ class _Options extends State<Options> {
                         },
                       ),
                     ),
-                    appSpace(),
-                    appTooltip(
+                    const AppSpace(),
+                    AppTooltip(
                       message: 'You are in the Community Jams studio.',
                       child: appEnumeratedButton(
                         'Studio',
@@ -192,8 +192,20 @@ class _Options extends State<Options> {
                         },
                       ),
                     ),
-                    appSpace(),
-                    appTooltip(
+                    const AppSpace(),
+                    AppTooltip(
+                      message: 'You are in the Community Jams studio with an old ipad.',
+                      child: appEnumeratedButton(
+                        'Studio and old Ipad',
+                        appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
+                        onPressed: () {
+                          _appOptions.websocketHost = '10.1.10.50';
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                        },
+                      ),
+                    ),
+                    const AppSpace(),
+                    AppTooltip(
                       message: 'You are in the park.',
                       child: appEnumeratedButton(
                         'Park',
@@ -204,14 +216,14 @@ class _Options extends State<Options> {
                         },
                       ),
                     ),
-                    if (kDebugMode) appSpace(),
+                    if (kDebugMode) const AppSpace(),
                     if (kDebugMode)
                       appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
                         _appOptions.websocketHost = 'bob64.local'; //'bobspi.local';
                         _websocketHostEditingController.text = _appOptions.websocketHost;
                       }),
                   ]),
-                  appSpace(),
+                  const AppSpace(),
                   Row(children: <Widget>[
                     const Text(
                       'Song Update: ',
@@ -227,7 +239,7 @@ class _Options extends State<Options> {
                             : Colors.red[300],
                       ),
                     ),
-                    appSpace(),
+                    const AppSpace(),
                     if (_songUpdateService.isConnected)
                       appEnumeratedButton(
                         _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
@@ -256,7 +268,7 @@ class _Options extends State<Options> {
                   //   ),
                   // ]),
                   //  fixme: audio!
-                  if (kDebugMode) appSpace(verticalSpace: 30),
+                  if (kDebugMode) const AppSpace(verticalSpace: 30),
                   if (kDebugMode)
                     Row(children: <Widget>[
                       appWidgetHelper.checkbox(

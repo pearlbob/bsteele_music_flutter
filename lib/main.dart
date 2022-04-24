@@ -822,7 +822,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     listViewChildren.clear();
     addSongsToListView(_filteredSongs);
-    listViewChildren.add(appSpace(
+    listViewChildren.add(const AppSpace(
       space: 20,
     ));
     listViewChildren.add(Text(
@@ -835,14 +835,14 @@ class _MyHomePageState extends State<MyHomePage> {
         thickness: 10,
         color: Colors.blue,
       ));
-      listViewChildren.add(appSpace(space: 40));
+      listViewChildren.add(const AppSpace(space: 40));
       listViewChildren.add(Text(
         'Songs not in ${_selectedListNameValue?.toShortString()}:',
         style: artistTextStyle,
       ));
 
       addSongsToListView(_filteredSongsNotInSelectedList);
-      listViewChildren.add(appSpace(
+      listViewChildren.add(const AppSpace(
         space: 20,
       ));
       listViewChildren.add(Text(
@@ -872,9 +872,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //         padding: const EdgeInsets.all(8.0),
     //         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
     //           if (app.isScreenBig)
-    //             appWrapFullWidth(children:
+    //             AppWrapFullWidth(children:
     //               <Widget>[
-    //                 appWrap(
+    //                 AppWrap(
     //                   <Widget>[
     //                     Text(
     //                       song.title,
@@ -961,7 +961,7 @@ class _MyHomePageState extends State<MyHomePage> {
       key: _scaffoldKey,
       appBar: AppWidgetHelper(context).appBar(
         title: widget.title,
-        leading: appTooltip(
+        leading: AppTooltip(
           message: MaterialLocalizations.of(context).openAppDrawerTooltip,
           child: appIconButton(
             appKeyEnum: AppKeyEnum.mainHamburger,
@@ -973,7 +973,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         actions: <Widget>[
           if (!app.screenInfo.isWayTooNarrow)
-            appTooltip(
+            AppTooltip(
               message: "Visit bsteele.com, the provider of this app.",
               child: InkWell(
                 onTap: () {
@@ -996,7 +996,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           if (!app.screenInfo.isWayTooNarrow)
-            appTooltip(
+            AppTooltip(
               message: "Visit Community Jams, the motivation and main user for this app.",
               child: InkWell(
                 onTap: () {
@@ -1179,9 +1179,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
-        appWrapFullWidth(children: [
-          appWrap([
-            appTooltip(
+        AppWrapFullWidth(children: [
+          AppWrap(children: [
+            AppTooltip(
               message: _searchTextTooltipText,
               child: IconButton(
                 icon: const Icon(Icons.search),
@@ -1216,7 +1216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
-            appTooltip(
+            AppTooltip(
                 message: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
                 child: appEnumeratedIconButton(
                   icon: const Icon(Icons.clear),
@@ -1234,15 +1234,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 )),
           ]),
           if (app.isScreenBig)
-            appWrap([
-              appTooltip(
+            AppWrap(children: [
+              AppTooltip(
                 message: 'Select the order of the song list.',
                 child: Text(
                   'Order',
                   style: searchDropDownStyle,
                 ),
               ),
-              appSpace(),
+              const AppSpace(),
               DropdownButton<MainSortType>(
                 items: _sortTypesDropDownMenuList,
                 onChanged: (value) {
@@ -1262,8 +1262,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ]),
           if (appOptions.holiday)
-            appWrap([
-              appTooltip(
+            AppWrap(children: [
+              AppTooltip(
                 message: 'Change the holiday selection in the general options (☰, Options).',
                 child: Text(
                   'Happy Holidays!  ',
@@ -1272,15 +1272,15 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ]),
           if (!appOptions.holiday && app.isScreenBig)
-            appWrap([
-              appTooltip(
+            AppWrap(children: [
+              AppTooltip(
                 message: 'Select which song list to show.',
                 child: Text(
                   'List',
                   style: searchDropDownStyle,
                 ),
               ),
-              appSpace(),
+              const AppSpace(),
               DropdownButton<NameValue>(
                 items: _metadataDropDownMenuList,
                 onChanged: (value) {
@@ -1305,7 +1305,7 @@ class _MyHomePageState extends State<MyHomePage> {
           )),
       ]),
 
-      floatingActionButton: appTooltip(
+      floatingActionButton: AppTooltip(
         message: 'Back to the list top',
         child: appFloatingActionButton(
           appKeyEnum: AppKeyEnum.mainUp,
@@ -1350,7 +1350,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       'Any remembered setup will not transfer to the real version.',
                       style: TextStyle(fontSize: 22),
                     ),
-                    appSpace(),
+                    const AppSpace(),
                     appButton('Send me to the real version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
                       var s = Uri.base.toString();
                       s = s.substring(0, s.indexOf('beta'));
@@ -1359,7 +1359,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         sameTab: true,
                       );
                     }),
-                    appSpace(space: 50),
+                    const AppSpace(space: 50),
                     appButton('This is exciting! I will test the beta.', appKeyEnum: AppKeyEnum.mainCancelBeta,
                         onPressed: () {
                       Navigator.of(context).pop();
@@ -1391,10 +1391,10 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(8.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
             if (app.isScreenBig)
-              appWrapFullWidth(
+              AppWrapFullWidth(
                 children: <Widget>[
-                  appWrap(
-                    <Widget>[
+                  AppWrap(
+                    children: <Widget>[
                       if (_selectedSortType == MainSortType.byYear)
                         Text(
                           '${song.getCopyrightYearAsString()}: ',

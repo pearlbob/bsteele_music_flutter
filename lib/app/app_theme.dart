@@ -865,7 +865,7 @@ Widget appCircledIcon(IconData iconData, String toolTip,
         shape: BoxShape.circle,
         color: color,
       ),
-      child: appTooltip(
+      child: AppTooltip(
         message: toolTip,
         child: Icon(
           iconData,

@@ -35,8 +35,8 @@ class _CssDemo extends State<CssDemo> {
         'sections:',
         style: generateAppTextStyle(),
       ));
-      children.add(appSpace());
-      sections = appWrapFullWidth(children: children);
+      children.add(const AppSpace());
+      sections = AppWrapFullWidth(children: children);
 
       for (var section in SectionEnum.values) {
         if (kDebugMode) {
@@ -56,10 +56,10 @@ class _CssDemo extends State<CssDemo> {
                   style: coloredChordTextStyle,
                 )));
           }
-          children.add(appWrapFullWidth(children: sectionContainers));
+          children.add(AppWrapFullWidth(children: sectionContainers));
         }
       }
-      sections = appWrapFullWidth(children: children);
+      sections = AppWrapFullWidth(children: children);
     }
 
     TextStyle toolTipTextStyle = generateTooltipTextStyle();
@@ -80,7 +80,7 @@ class _CssDemo extends State<CssDemo> {
                   'Default Text Style',
                   style: generateAppTextStyle(),
                 ),
-                appSpace(),
+                const AppSpace(),
                 Container(
                   color: appbarBackgroundColor(),
                   padding: const EdgeInsets.all(8),
@@ -89,26 +89,26 @@ class _CssDemo extends State<CssDemo> {
                     style: generateAppBarLinkTextStyle(),
                   ),
                 ),
-                appSpace(),
+                const AppSpace(),
                 appButton('appButton', appKeyEnum: AppKeyEnum.cssDemoButton, onPressed: () {}),
-                appSpace(),
-                appWrap(
-                  [
+                const AppSpace(),
+                AppWrap(
+                  children: [
                     Text(
                       'icon button:',
                       style: generateAppTextStyle(),
                     ),
-                    appSpace(),
+                    const AppSpace(),
                     appIconButton(
                         appKeyEnum: AppKeyEnum.cssDemoIconButton, icon: appIcon(Icons.check), onPressed: () {}),
                   ],
                 ),
-                appSpace(),
+                const AppSpace(),
                 Container(
                   child: sections,
                   color: measureContainerBackgroundColor(),
                 ),
-                appSpace(),
+                const AppSpace(),
                 Container(
                     margin: getMeasureMargin(),
                     padding: getMeasurePadding(),
@@ -117,18 +117,18 @@ class _CssDemo extends State<CssDemo> {
                       'Lyrics text style',
                       style: generateLyricsTextStyle(fontSize: lyricsFontSize, backgroundColor: verseBackgroundColor),
                     )),
-                appSpace(),
+                const AppSpace(),
                 TextField(
                   controller: _textFieldController,
                   maxLength: null,
                   style: generateAppTextFieldStyle(),
                 ),
-                appSpace(),
+                const AppSpace(),
                 Text(
                   'link text style',
                   style: generateAppLinkTextStyle(),
                 ),
-                appSpace(),
+                const AppSpace(),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: appTooltipBoxDecoration(toolTipTextStyle.backgroundColor),

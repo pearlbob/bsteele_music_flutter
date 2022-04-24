@@ -54,7 +54,7 @@ class _State extends State<TheoryWidget> {
         scrollDirection: Axis.vertical,
         child: Column(
           children: [
-            appSpace(),
+            const AppSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -176,7 +176,7 @@ class _State extends State<TheoryWidget> {
                 ),
               ],
             ),
-            appSpace(),
+            const AppSpace(),
           ],
         ),
       ),

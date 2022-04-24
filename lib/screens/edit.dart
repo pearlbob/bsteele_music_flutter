@@ -290,7 +290,7 @@ class _Edit extends State<Edit> {
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
-                appSpace(space: 100),
+                const AppSpace(space: 100),
                 appButton('Cancel the return... I need to work some more on this.',
                     appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
                   Navigator.of(context).pop();
@@ -435,8 +435,8 @@ class _Edit extends State<Edit> {
         child: GestureDetector(
           // fixme: put GestureDetector only on chord table
           child: Column(children: [
-            appSpace(space: 10),
-            appWrapFullWidth(children: <Widget>[
+            const AppSpace(space: 10),
+            AppWrapFullWidth(children: <Widget>[
               appEnumeratedButton(
                 songHasChanged ? (isValidSong ? 'Save song on local drive' : 'Fix the song') : 'Nothing has changed',
                 appKeyEnum: AppKeyEnum.editEnterSong,
@@ -450,7 +450,7 @@ class _Edit extends State<Edit> {
                 backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
               ),
               app.messageTextWidget(AppKeyEnum.editErrorMessage),
-              appWrap(<Widget>[
+              AppWrap(children: <Widget>[
                 editTooltip(
                   message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
                   child: appEnumeratedButton('Undo', appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize,
@@ -632,10 +632,10 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         ]),
-                    appSpace(),
-                    appWrapFullWidth(
+                    const AppSpace(),
+                    AppWrapFullWidth(
                       children: <Widget>[
-                        appWrap([
+                        AppWrap(children: [
                           Text(
                             "Key: ",
                             style: _labelTextStyle,
@@ -670,8 +670,8 @@ class _Edit extends State<Edit> {
                             child: Text('keyTally_${key.toMarkup()}'),
                           ),
                         ]),
-                        appWrap([
-                          appTooltip(
+                        AppWrap(children: [
+                          AppTooltip(
                             message: 'Enter the song\'s tempo in beats per minute.',
                             child: Text(
                               "   Tempo: ",
@@ -688,7 +688,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                         ]),
-                        appWrap([
+                        AppWrap(children: [
                           Text(
                             "Time Signature: ",
                             style: _labelTextStyle,
@@ -708,7 +708,7 @@ class _Edit extends State<Edit> {
                             style: _labelTextStyle,
                           ),
                         ]),
-                        appWrap([
+                        AppWrap(children: [
                           Text(
                             "User: ",
                             style: _labelTextStyle,
@@ -722,7 +722,7 @@ class _Edit extends State<Edit> {
                               fontSize: _defaultChordFontSize,
                             ),
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           if (originalSong.user != userTextEditingController.text)
                             Text(
                               '(was ${originalSong.user})',
@@ -733,13 +733,13 @@ class _Edit extends State<Edit> {
                       crossAxisAlignment: WrapCrossAlignment.start,
                       spacing: 40,
                     ),
-                    appSpace(space: 30),
-                    appWrapFullWidth(children: <Widget>[
+                    const AppSpace(space: 30),
+                    AppWrapFullWidth(children: <Widget>[
                       Text(
                         "Chords:",
                         style: _titleTextStyle,
                       ),
-                      appWrap([
+                      AppWrap(children: [
                         if (isProEditInput)
                           editTooltip(
                             message: 'Validate the chord input',
@@ -1079,7 +1079,7 @@ class _Edit extends State<Edit> {
                                   softWrap: false,
                                 ),
                               ),
-                              appSpace(),
+                              const AppSpace(),
                               Expanded(
                                 flex: 3,
                                 child: appTextField(
@@ -1448,8 +1448,8 @@ class _Edit extends State<Edit> {
                       MeasureNodeType.phrase) {}
                 }
                 addChordRowChild(_debugWidget(
-                    appWrap(
-                      widgets,
+                    AppWrap(
+                      children: widgets,
                     ),
                     editPoint));
                 if (endOfRow &&
@@ -1881,8 +1881,8 @@ class _Edit extends State<Edit> {
   Widget _debugWidget(Widget w, EditPoint editPoint) {
     //  debug only
     if (_editDebugVerbose) {
-      return appWrap(
-        [
+      return AppWrap(
+        children: [
           Text('$editPoint'),
           w,
         ],
@@ -2215,8 +2215,8 @@ class _Edit extends State<Edit> {
                       ? 'This is your adjusted section'
                       : 'Your entry error is in parentheses'
                           '${kDebugMode ? ' $editPoint' : ''}',
-                  child: appWrap(
-                    <Widget>[
+                  child: AppWrap(
+                    children: <Widget>[
                       Text(
                         measureEntryCorrection ?? '',
                         style: measureEntryValid
@@ -2728,7 +2728,7 @@ class _Edit extends State<Edit> {
                       ),
                   ],
                 ),
-                appSpace(space: 20),
+                const AppSpace(space: 20),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -2817,7 +2817,7 @@ class _Edit extends State<Edit> {
                           ),
                         ),
                     ]),
-                appSpace(),
+                const AppSpace(),
               ]));
     } else {
       //  not editing this measure
@@ -3622,7 +3622,7 @@ class _Edit extends State<Edit> {
     required String message,
     required Widget child,
   }) {
-    return appTooltip(
+    return AppTooltip(
       key: key,
       message: message,
       child: child,

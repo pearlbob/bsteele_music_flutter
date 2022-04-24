@@ -255,20 +255,29 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
   return generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
 }
 
-Widget appSpace({double? space, double? horizontalSpace, double? verticalSpace}) {
-  if (space == null) {
-    assert((horizontalSpace ?? 0) >= 0);
-    assert((verticalSpace ?? 0) >= 0);
+class AppSpace extends StatelessWidget {
+  const AppSpace({Key? key, this.space, this.horizontalSpace, this.verticalSpace}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (space == null) {
+      assert((horizontalSpace ?? 0) >= 0);
+      assert((verticalSpace ?? 0) >= 0);
+      return SizedBox(
+        height: verticalSpace ?? 10,
+        width: horizontalSpace ?? 10,
+      );
+    }
+    final double maxSpace = max(space ?? 0, 0);
     return SizedBox(
-      height: verticalSpace ?? 10,
-      width: horizontalSpace ?? 10,
+      height: maxSpace,
+      width: maxSpace,
     );
   }
-  space = max(space, 0);
-  return SizedBox(
-    height: space,
-    width: space,
-  );
+
+  final double? space;
+  final double? horizontalSpace;
+  final double? verticalSpace;
 }
 
 double viewportWidth(double width) {
@@ -295,37 +304,48 @@ Widget appSpaceViewportWidth({double? space, double? horizontalSpace, double? ve
   );
 }
 
-Widget appVerticalSpace({double? space}) {
-  if (space == null) {
-    return const SizedBox(
-      height: 10,
+class AppVerticalSpace extends StatelessWidget {
+  const AppVerticalSpace({Key? key, this.space}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (space == null) {
+      return const SizedBox(
+        height: 10,
+        width: double.infinity,
+      );
+    }
+    final double height = max(space ?? 0, 0);
+    return SizedBox(
+      height: height,
       width: double.infinity,
     );
   }
-  space = max(space, 0);
-  return SizedBox(
-    height: space,
-    width: double.infinity,
-  );
+
+  final double? space;
 }
 
 /// helper function to generate tool tips
-Widget appTooltip({
-  final Key? key,
-  required final String message,
-  required final Widget child,
-  final double? fontSize,
-}) {
-  var textStyle = generateTooltipTextStyle(fontSize: fontSize);
-  return Tooltip(
-      key: key,
-      message: message,
-      child: child,
-      textStyle: textStyle,
-      waitDuration: const Duration(seconds: 1, milliseconds: 200),
-      verticalOffset: 75,
-      decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
-      padding: const EdgeInsets.all(8));
+class AppTooltip extends StatelessWidget {
+  const AppTooltip({Key? key, required this.message, required this.child, this.fontSize}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var textStyle = generateTooltipTextStyle(fontSize: fontSize);
+    return Tooltip(
+        key: key,
+        message: message,
+        child: child,
+        textStyle: textStyle,
+        waitDuration: const Duration(seconds: 1, milliseconds: 200),
+        verticalOffset: 75,
+        decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
+        padding: const EdgeInsets.all(8));
+  }
+
+  final String message;
+  final Widget child;
+  final double? fontSize;
 }
 
 BoxDecoration appTooltipBoxDecoration(final Color? color) {
@@ -336,25 +356,43 @@ BoxDecoration appTooltipBoxDecoration(final Color? color) {
       boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]);
 }
 
-Wrap appWrap(List<Widget> children,
-    {final WrapAlignment? alignment, final WrapCrossAlignment? crossAxisAlignment, final double? spacing}) {
-  return Wrap(
-    children: children,
-    crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
-    alignment: alignment ?? WrapAlignment.start,
-    spacing: spacing ?? 0.0,
-  );
+class AppWrap extends StatelessWidget {
+  const AppWrap({Key? key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: children,
+      crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
+      alignment: alignment ?? WrapAlignment.start,
+      spacing: spacing ?? 0.0,
+    );
+  }
+
+  final List<Widget> children;
+  final WrapAlignment? alignment;
+  final WrapCrossAlignment? crossAxisAlignment;
+  final double? spacing;
 }
 
-Widget appWrapFullWidth(
-    {final List<Widget>? children,
-    final WrapAlignment? alignment,
-    final WrapCrossAlignment? crossAxisAlignment,
-    final double? spacing}) {
-  return SizedBox(
-    width: double.infinity,
-    child: appWrap(children ?? [], alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
-  );
+class AppWrapFullWidth extends StatelessWidget {
+  const AppWrapFullWidth({Key? key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child:
+          AppWrap(children: children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
+    );
+  }
+
+  final List<Widget> children;
+  final WrapAlignment? alignment;
+  final WrapCrossAlignment? crossAxisAlignment;
+  final double? spacing;
 }
 
 appRadio<T>(
@@ -365,8 +403,8 @@ appRadio<T>(
   required VoidCallback? onPressed,
   TextStyle? style,
 }) {
-  return appWrap(
-    [
+  return AppWrap(
+    children: [
       Radio<T>(
         value: value,
         groupValue: groupValue,
@@ -387,7 +425,7 @@ class AppWidgetHelper {
   AppWidgetHelper(this.context);
 
   Widget back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
-    return appTooltip(
+    return AppTooltip(
       message: 'Back',
       child: appIconButton(
         appKeyEnum: AppKeyEnum.appBack,
@@ -403,7 +441,7 @@ class AppWidgetHelper {
   }
 
   Widget floatingBack(final AppKeyEnum appKeyEnum, {final CanPopQualifier? canPop}) {
-    return appTooltip(
+    return AppTooltip(
       message: 'Back',
       child: appFloatingActionButton(
         appKeyEnum: appKeyEnum,

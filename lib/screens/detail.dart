@@ -166,7 +166,7 @@ class _State extends State<Detail> {
         ));
       }
 
-      children.add(appSpace());
+      children.add(const AppSpace());
       children.add(appButton('Close the options', appKeyEnum: AppKeyEnum.detailCloseOptions, onPressed: () {
         setState(() {
           _options = false;
@@ -199,7 +199,7 @@ class _State extends State<Detail> {
         children: <Widget>[
           Column(
             children: [
-              appSpace(),
+              const AppSpace(),
               if (hasDisplay(SheetDisplay.bass8vb))
                 CustomPaint(
                   painter: _FretBoardPainter(),
@@ -210,7 +210,7 @@ class _State extends State<Detail> {
                     height: 200.0,
                   ),
                 ),
-              appSpace(),
+              const AppSpace(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -240,7 +240,7 @@ class _State extends State<Detail> {
                       ),
                     ],
                   ),
-                  appSpace(),
+                  const AppSpace(),
                   //  notes and rests
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,7 +254,7 @@ class _State extends State<Detail> {
                               logger.i('noteWhole pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           appNoteButton(
                             noteHalfUp.character,
                             appKeyEnum: AppKeyEnum.sheetMusicHalfNoteUp,
@@ -262,7 +262,7 @@ class _State extends State<Detail> {
                               logger.i('noteHalfUp pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           appNoteButton(
                             noteQuarterUp.character,
                             appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,
@@ -270,7 +270,7 @@ class _State extends State<Detail> {
                               logger.i('noteQuarterUp pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           appNoteButton(
                             note8thUp.character,
                             appKeyEnum: AppKeyEnum.sheetMusic8thNoteUp,
@@ -278,7 +278,7 @@ class _State extends State<Detail> {
                               logger.i('note8thUp pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           appNoteButton(
                             note16thUp.character,
                             appKeyEnum: AppKeyEnum.sheetMusic16thNoteUp,
@@ -288,7 +288,7 @@ class _State extends State<Detail> {
                           ),
                         ],
                       ),
-                      appSpace(),
+                      const AppSpace(),
                       Row(
                         textBaseline: TextBaseline.alphabetic,
                         children: [
@@ -299,7 +299,7 @@ class _State extends State<Detail> {
                               logger.i('restWhole pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           _restButton(
                             restHalf.character,
                             appKeyEnum: AppKeyEnum.sheetMusicRestHalf,
@@ -307,7 +307,7 @@ class _State extends State<Detail> {
                               logger.i('restHalf pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           _restButton(
                             restQuarter.character,
                             appKeyEnum: AppKeyEnum.sheetMusicRestQuarter,
@@ -315,7 +315,7 @@ class _State extends State<Detail> {
                               logger.i('restQuarter pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           _restButton(
                             rest8th.character,
                             appKeyEnum: AppKeyEnum.sheetMusicRest8th,
@@ -323,7 +323,7 @@ class _State extends State<Detail> {
                               logger.i('rest8th pressed');
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           _restButton(
                             rest16th.character,
                             appKeyEnum: AppKeyEnum.sheetMusicRest16th,
@@ -335,7 +335,7 @@ class _State extends State<Detail> {
                       ),
                     ],
                   ),
-                  appSpace(),
+                  const AppSpace(),
                   //  entry details
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +363,7 @@ class _State extends State<Detail> {
                               });
                             },
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           appWidgetHelper.checkbox(
                               value: _isTie,
                               onChanged: (bool? value) {
@@ -388,14 +388,14 @@ class _State extends State<Detail> {
                           ),
                         ],
                       ),
-                      appSpace(),
+                      const AppSpace(),
                       Row(
                         children: [
                           Text(
                             'Lyrics:',
                             style: _style,
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           SizedBox(
                             width: 250,
                             height: 70,
@@ -426,7 +426,7 @@ class _State extends State<Detail> {
                             'Time:',
                             style: _style,
                           ),
-                          appSpace(),
+                          const AppSpace(),
                           DropdownButton<TimeSignature>(
                             items: knownTimeSignatures.map((TimeSignature value) {
                               return DropdownMenuItem<TimeSignature>(
@@ -516,7 +516,7 @@ class _State extends State<Detail> {
                   ),
                 ],
               ),
-              appSpace(),
+              const AppSpace(),
               //  run controls
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -536,7 +536,7 @@ class _State extends State<Detail> {
                   }, fontSize: _fontSize),
                 ],
               ),
-              appSpace(),
+              const AppSpace(),
               _sheetDisplayEnableOptionsWidget,
               //  sheet music
               RawKeyboardListener(

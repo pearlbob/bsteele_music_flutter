@@ -84,8 +84,8 @@ class _State extends State<Lists> {
         if (nameValue.name.isEmpty) {
           continue;
         }
-        _metadataWidgets.add(appWrap(
-          [
+        _metadataWidgets.add(AppWrap(
+          children: [
             Radio(
               value: nameValue,
               groupValue: _selectedNameValue,
@@ -108,14 +108,14 @@ class _State extends State<Lists> {
                 });
               },
             ),
-            appSpace(),
+            const AppSpace(),
           ],
         ));
       }
 
-      _metadataWidgets.add(appWrap(
-        [
-          appSpace(space: 20),
+      _metadataWidgets.add(AppWrap(
+        children: [
+          const AppSpace(space: 20),
           Radio(
             value: NameValue(_nameTextFieldController.text, _valueTextFieldController.text),
             groupValue: _selectedNameValue,
@@ -180,7 +180,7 @@ class _State extends State<Lists> {
           _filteredSongs.isNotEmpty ? 'Songs matching the search "$searchTerm":' : 'No songs match the search.',
           style: metadataStyle.copyWith(color: _blue.color),
         ));
-        songWidgetList.add(appSpace());
+        songWidgetList.add(const AppSpace());
       }
 
       SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
@@ -198,7 +198,7 @@ class _State extends State<Lists> {
       {
         if (_filteredSongs.isNotEmpty) {
           songWidgetList.addAll(_filteredSongs.map(mapSongToWidget).toList());
-          songWidgetList.add(appSpace());
+          songWidgetList.add(const AppSpace());
         }
         songWidgetList.add(const Divider(
           thickness: 10,
@@ -217,7 +217,7 @@ class _State extends State<Lists> {
           songWidgetList.add(mapSongToWidget(song));
         }
       }
-      songWidgetList.add(appSpace());
+      songWidgetList.add(const AppSpace());
       songWidgetList.add(const Divider(
         thickness: 10,
       ));
@@ -243,14 +243,14 @@ class _State extends State<Lists> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              appSpace(),
+              const AppSpace(),
               Text(app.message,
                   style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                   key: const ValueKey('errorMessage')),
               const SizedBox(
                 height: 10,
               ),
-              appWrapFullWidth(children: [
+              AppWrapFullWidth(children: [
                 appEnumeratedButton(
                   'Write all to file',
                   appKeyEnum: AppKeyEnum.listsSave,
@@ -299,7 +299,7 @@ class _State extends State<Lists> {
                                         });
                                         Navigator.of(context).pop();
                                       }),
-                                      appSpace(space: 100),
+                                      const AppSpace(space: 100),
                                       appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
                                         Navigator.of(context).pop();
                                       }),
@@ -311,17 +311,17 @@ class _State extends State<Lists> {
                       : null,
                 ),
               ], alignment: WrapAlignment.spaceBetween),
-              appSpace(
+              const AppSpace(
                 space: 20,
               ),
-              appWrap(
-                _metadataWidgets,
+              AppWrap(
+                children: _metadataWidgets,
                 alignment: WrapAlignment.spaceEvenly,
               ),
-              appWrapFullWidth(children: [
+              AppWrapFullWidth(children: [
                 //  search line
-                appWrap([
-                  appTooltip(
+                AppWrap(children: [
+                  AppTooltip(
                     message: 'search',
                     child: IconButton(
                       icon: const Icon(Icons.search),
@@ -350,7 +350,7 @@ class _State extends State<Lists> {
                       fontSize: fontSize,
                     ),
                   ),
-                  appTooltip(
+                  AppTooltip(
                     message:
                         _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
                     child: appEnumeratedIconButton(
@@ -368,7 +368,7 @@ class _State extends State<Lists> {
                   ),
                 ]),
               ], alignment: WrapAlignment.spaceBetween),
-              appSpace(),
+              const AppSpace(),
               Expanded(
                 child: ListView(
                   children: songWidgetList,
@@ -382,7 +382,7 @@ class _State extends State<Lists> {
   }
 
   Widget mapSongToWidget(Song song) {
-    return appWrapFullWidth(
+    return AppWrapFullWidth(
       children: [
         appWidgetHelper.checkbox(
           value: _hasSelectedMetadata(song),
@@ -408,7 +408,7 @@ class _State extends State<Lists> {
           },
           fontSize: metadataStyle.fontSize,
         ),
-        appSpace(space: 12),
+        const AppSpace(space: 12),
         TextButton(
           child: Text(
             '${song.title} by ${song.artist}'

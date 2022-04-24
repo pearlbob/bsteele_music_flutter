@@ -248,8 +248,8 @@ class _State extends State<Singers> {
 
     {
       //  add  singer search
-      sessionSingerWidgets.add(appWrap([
-        appTooltip(
+      sessionSingerWidgets.add(AppWrap(children: [
+        AppTooltip(
           message: 'search',
           child: IconButton(
             icon: const Icon(Icons.search),
@@ -273,7 +273,7 @@ class _State extends State<Singers> {
             fontSize: fontSize,
           ),
         ),
-        appTooltip(
+        AppTooltip(
           message: 'Clear the singer search text.',
           child: appEnumeratedIconButton(
             appKeyEnum: AppKeyEnum.singersSingerClearSearch,
@@ -299,8 +299,8 @@ class _State extends State<Singers> {
       var singerSearch = singerSearchTextFieldController.text.toLowerCase();
       for (var singer in setOfSingers) {
         if (singerSearch.isEmpty || singer.toLowerCase().contains(singerSearch)) {
-          sessionSingerWidgets.add(appWrap(
-            [
+          sessionSingerWidgets.add(AppWrap(
+            children: [
               appTextButton(
                 singer,
                 appKeyEnum: AppKeyEnum.singersAllSingers,
@@ -354,7 +354,7 @@ class _State extends State<Singers> {
                     size: fontSize * 0.7,
                   ),
                 ),
-              appSpace(horizontalSpace: 20), //  list singers horizontally
+              const AppSpace(horizontalSpace: 20), //  list singers horizontally
             ],
           ));
         }
@@ -368,7 +368,7 @@ class _State extends State<Singers> {
     }
 
     {
-      songWidgetList.add(appVerticalSpace());
+      songWidgetList.add(const AppVerticalSpace());
       songWidgetList.add(const Divider(
         thickness: 10,
       ));
@@ -399,10 +399,10 @@ class _State extends State<Singers> {
             style: singerTextStyle,
           )
         : Container(
-            child: appWrapFullWidth(children: [
+      child: AppWrapFullWidth(children: [
               ReorderableWrap(
                   children: _sessionSingers.map((singer) {
-                    return appWrap([
+                    return AppWrap(children: [
                       Container(
                         child: appTextButton(
                           singer,
@@ -454,7 +454,7 @@ class _State extends State<Singers> {
           );
 
     var allSingersWidgetWrap = Container(
-      child: appWrapFullWidth(children: sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
+      child: AppWrapFullWidth(children: sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         border: Border.all(
@@ -485,7 +485,7 @@ class _State extends State<Singers> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: ListView(controller: scrollController, children: [
-          appWrapFullWidth(
+          AppWrapFullWidth(
             children: [
               if (app.message.isNotEmpty)
                 Text(
@@ -493,10 +493,10 @@ class _State extends State<Singers> {
                   style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
                   key: appKey(AppKeyEnum.singersErrorMessage),
                 ),
-              appVerticalSpace(),
-              appWrapFullWidth(children: [
-                appWrap([
-                  appTooltip(
+              const AppVerticalSpace(),
+              AppWrapFullWidth(children: [
+                AppWrap(children: [
+                  AppTooltip(
                     message: singingTooltipText,
                     child: appButton(
                       'Singing',
@@ -509,7 +509,7 @@ class _State extends State<Singers> {
                       // softWrap: false,
                     ),
                   ),
-                  appTooltip(
+                  AppTooltip(
                     message: singingTooltipText,
                     child: appSwitch(
                       appKeyEnum: AppKeyEnum.singersSinging,
@@ -536,12 +536,12 @@ class _State extends State<Singers> {
                   }),
               ], alignment: WrapAlignment.spaceBetween),
               if (!isInSingingMode && showOtherActions)
-                appWrapFullWidth(children: [
+                AppWrapFullWidth(children: [
                   Column(
                     children: [
-                      appVerticalSpace(),
+                      const AppVerticalSpace(),
                       if (allSongPerformances.isNotEmpty)
-                        appTooltip(
+                        AppTooltip(
                             message: 'For safety reasons you cannot remove all singers\n'
                                 'without first having written them all.',
                             child: appEnumeratedButton(
@@ -555,7 +555,7 @@ class _State extends State<Singers> {
                                 });
                               },
                             )),
-                      appVerticalSpace(),
+                      const AppVerticalSpace(),
                       if (_selectedSinger != _unknownSinger)
                         appEnumeratedButton(
                           'Write singer $_selectedSinger\'s songs to a local file',
@@ -565,8 +565,8 @@ class _State extends State<Singers> {
                             logger.d('save selection: $_selectedSinger');
                           },
                         ),
-                      appVerticalSpace(space: 25),
-                      appTooltip(
+                      const AppVerticalSpace(space: 25),
+                      AppTooltip(
                         message: 'Singer performance updates read from a local file\n'
                             'will be added to the singers.',
                         child: appEnumeratedButton(
@@ -579,8 +579,8 @@ class _State extends State<Singers> {
                           },
                         ),
                       ),
-                      appVerticalSpace(),
-                      appTooltip(
+                      const AppVerticalSpace(),
+                      AppTooltip(
                         message: 'Convenience operation to clear all the singers from today\'s session.',
                         child: appEnumeratedButton(
                           'Clear the current session singers',
@@ -593,7 +593,7 @@ class _State extends State<Singers> {
                           },
                         ),
                       ),
-                      appVerticalSpace(space: 25),
+                      const AppVerticalSpace(space: 25),
                       if (_selectedSinger != _unknownSinger)
                         appEnumeratedButton(
                           'Delete the singer $_selectedSinger',
@@ -620,7 +620,7 @@ class _State extends State<Singers> {
                                           });
                                           Navigator.of(context).pop();
                                         }),
-                                        appSpace(space: 100),
+                                        const AppSpace(space: 100),
                                         appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
                                             appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
                                           Navigator.of(context).pop();
@@ -630,7 +630,7 @@ class _State extends State<Singers> {
                                     ));
                           },
                         ),
-                      appVerticalSpace(),
+                      const AppVerticalSpace(),
                       if (!allHaveBeenWritten)
                         Text(
                           'Hint: Write all singer songs to enable all singer removal.',
@@ -652,16 +652,16 @@ class _State extends State<Singers> {
                   ),
                 ], alignment: WrapAlignment.end),
               if (_songUpdateService.isFollowing)
-                appVerticalSpace(
+                const AppVerticalSpace(
                   space: 20,
                 ),
               if (_songUpdateService.isFollowing)
-                appWrapFullWidth(children: [
+                AppWrapFullWidth(children: [
                   Text(
                     'Warning: you are not a leader!',
                     style: singerTextStyle,
                   ),
-                  appVerticalSpace(),
+                  const AppVerticalSpace(),
                   if (_songUpdateService.isConnected)
                     appEnumeratedButton(
                       (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader') +
@@ -676,9 +676,9 @@ class _State extends State<Singers> {
                       },
                     ),
                 ]),
-              if (!isInSingingMode) appVerticalSpace(),
+              if (!isInSingingMode) const AppVerticalSpace(),
               if (!isInSingingMode)
-                appWrapFullWidth(children: [
+                AppWrapFullWidth(children: [
                   Text(
                     'Today\'s Session Singers:',
                     style: singerTextStyle,
@@ -688,9 +688,9 @@ class _State extends State<Singers> {
                     style: singerTextStyle.copyWith(color: Colors.grey),
                   ),
                 ], spacing: 30),
-              appVerticalSpace(),
+              const AppVerticalSpace(),
               todaysReorderableSingersWidgetWrap,
-              appVerticalSpace(),
+              const AppVerticalSpace(),
               if (!isInSingingMode)
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(
@@ -698,12 +698,12 @@ class _State extends State<Singers> {
                     style: singerTextStyle,
                   ),
 
-                  appVerticalSpace(),
+                  const AppVerticalSpace(),
                   allSingersWidgetWrap,
-                  appVerticalSpace(),
+                  const AppVerticalSpace(),
 
                   //  new singer stuff
-                  appWrapFullWidth(children: [
+                  AppWrapFullWidth(children: [
                     SizedBox(
                       width: 16 * app.screenInfo.fontSize,
                       //  limit text entry display length
@@ -726,10 +726,10 @@ class _State extends State<Singers> {
                     ),
                   ], alignment: WrapAlignment.end, spacing: 30),
                 ]),
-              appWrapFullWidth(children: [
+              AppWrapFullWidth(children: [
                 //  search line
-                appWrap([
-                  appTooltip(
+                AppWrap(children: [
+                  AppTooltip(
                     message: 'Search for songs for $_selectedSinger',
                     child: IconButton(
                       icon: const Icon(Icons.search),
@@ -751,7 +751,7 @@ class _State extends State<Singers> {
                       fontSize: fontSize,
                     ),
                   ),
-                  appTooltip(
+                  AppTooltip(
                     message: 'Clear the search text for Singer $_selectedSinger.',
                     child: appEnumeratedIconButton(
                       appKeyEnum: AppKeyEnum.singersClearSearch,
@@ -767,7 +767,7 @@ class _State extends State<Singers> {
                   ),
                 ]),
 
-                appWrap([
+                AppWrap(children: [
                   Text(
                     'Search for:',
                     style: singerTextStyle,
@@ -790,8 +790,8 @@ class _State extends State<Singers> {
                     });
                   }, style: singerTextStyle),
                 ], spacing: 10, alignment: WrapAlignment.spaceBetween),
-                appWrap([
-                  appTooltip(
+                AppWrap(children: [
+                  AppTooltip(
                     message: 'Select the order of the song performance list.',
                     child: Text(
                       'Order by:',
@@ -846,9 +846,9 @@ class _State extends State<Singers> {
         text,
         style: songPerformanceStyle.copyWith(color: color),
       ));
-      widgetList.add(appVerticalSpace());
+      widgetList.add(const AppVerticalSpace());
       widgetList.addAll(performances.map(mapSongPerformanceToSingerWidget));
-      widgetList.add(appVerticalSpace());
+      widgetList.add(const AppVerticalSpace());
     }
   }
 
@@ -862,14 +862,14 @@ class _State extends State<Singers> {
         text,
         style: songPerformanceStyle.copyWith(color: color),
       ));
-      widgetList.add(appVerticalSpace());
+      widgetList.add(const AppVerticalSpace());
       widgetList.addAll(songs.map(mapSongToWidget));
-      widgetList.add(appVerticalSpace());
+      widgetList.add(const AppVerticalSpace());
     }
   }
 
   Widget mapSongToWidget(final Song song, {final music_key.Key? key}) {
-    return appWrapFullWidth(
+    return AppWrapFullWidth(
       children: [
         appWrapSong(song, key: key ?? song.key),
       ],
@@ -881,7 +881,7 @@ class _State extends State<Singers> {
   }
 
   Widget mapSongPerformanceToWidget(SongPerformance songPerformance, {withSinger = false}) {
-    return appWrapFullWidth(
+    return AppWrapFullWidth(
       children: [
         appWrapSong(songPerformance.song,
             key: songPerformance.key, bpm: songPerformance.bpm, singer: songPerformance.singer),
@@ -894,13 +894,13 @@ class _State extends State<Singers> {
     );
   }
 
-  Wrap appWrapSong(final Song? song, {final music_key.Key? key, final int? bpm, String? singer}) {
+  AppWrap appWrapSong(final Song? song, {final music_key.Key? key, final int? bpm, String? singer}) {
     if (song == null) {
-      return appWrap([]);
+      return const AppWrap(children: []);
     }
     bool hasUniqueSinger = singer != null && singer != _unknownSinger && singer != _selectedSinger;
-    return appWrap(
-      [
+    return AppWrap(
+      children: [
         if (!hasUniqueSinger)
           appWidgetHelper.checkbox(
             value: allSongPerformances.isSongInSingersList(_selectedSinger, song),
@@ -924,7 +924,7 @@ class _State extends State<Singers> {
             },
             fontSize: songPerformanceStyle.fontSize,
           ),
-        if (!hasUniqueSinger) appSpace(space: 12),
+        if (!hasUniqueSinger) const AppSpace(space: 12),
         TextButton(
           child: Text(
             '${singer != null ? '$singer sings: ' : ''}'

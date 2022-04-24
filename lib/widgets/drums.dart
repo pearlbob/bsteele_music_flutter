@@ -141,7 +141,7 @@ class _DrumsState extends State<DrumsWidget> {
       Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            appWrapFullWidth(children: [
+            AppWrapFullWidth(children: [
               // appNoteButton(
               //   noteQuarterUp.character,
               //   appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,
@@ -149,7 +149,7 @@ class _DrumsState extends State<DrumsWidget> {
               //     logger.i('noteQuarterUp pressed');
               //   },
               // ),
-              //         appSpace(),
+              //         const AppSpace(),
               //         appNoteButton(
               //           note8thUp.character,
               //           appKeyEnum: AppKeyEnum.sheetMusic8thNoteUp,
@@ -157,7 +157,7 @@ class _DrumsState extends State<DrumsWidget> {
               //             logger.i('note8thUp pressed');
               //           },
               //         ),
-              //         appSpace(),
+              //         const AppSpace(),
               //         appNoteButton(
               //           note16thUp.character,
               //           appKeyEnum: AppKeyEnum.sheetMusic16thNoteUp,

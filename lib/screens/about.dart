@@ -52,7 +52,7 @@ class _About extends State<About> with WidgetsBindingObserver {
               textDirection: TextDirection.ltr,
               children: <Widget>[
                 app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
-                appSpace(),
+                const AppSpace(),
                 const Text(
                   'The bsteele Music App has been written by bob.',
                 ),
@@ -79,7 +79,7 @@ class _About extends State<About> with WidgetsBindingObserver {
                     const Text(
                       '.',
                     ),
-                    appSpace(horizontalSpace: 20),
+                    const AppSpace(horizontalSpace: 20),
                     InkWell(
                       onTap: () {
                         openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
@@ -128,8 +128,8 @@ class _About extends State<About> with WidgetsBindingObserver {
                 // Text(
                 //   'ver: ${Platform.version}',
                 // ),
-                appSpace(),
-                appTooltip(
+                const AppSpace(),
+                AppTooltip(
                   message: 'If the app did something wrong,\n'
                       'use this button to write a diagnostic file for bob.\n'
                       'Of course it would help to email it to me as well\n'

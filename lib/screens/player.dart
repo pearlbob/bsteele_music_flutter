@@ -57,9 +57,11 @@ GlobalKey _stackKey = GlobalKey();
 SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
+const int _minimumSpaceBarGapMs = 750; //  milliseconds
+
 //  diagnostic logging enables
 const Level _playerLogBuild = Level.debug;
-const Level _playerLogScroll = Level.debug;
+const Level _playerLogScroll = Level.info;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
@@ -367,8 +369,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
               logger.d(
                   'positionAfterBuild()#2: ${songMoment.momentNumber}: ${songMoment.lyricSection}, ${sectionLocations.last}'
                   // ', ${renderBox.paintBounds}'
-                      ', coord: $coord'
-                      ', global: ${renderBox.localToGlobal(Offset.zero)}');
+                  ', coord: $coord'
+                  ', global: ${renderBox.localToGlobal(Offset.zero)}');
             }
             setSelectedSongMoment(_selectedSongMoment, force: true);
           }
@@ -377,8 +379,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         logger.log(
             _playerLogFontResize,
             'table width: ${width.toStringAsFixed(1)}'
-                '/${app.screenInfo.mediaWidth.toStringAsFixed(1)}'
-                ', sectionIndex = $sectionIndex'
+            '/${app.screenInfo.mediaWidth.toStringAsFixed(1)}'
+            ', sectionIndex = $sectionIndex'
             ', lyricsFraction = $lyricsFraction'
             // ', chord fontSize: ${lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
             // ', lyrics fontSize: ${lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
@@ -872,7 +874,7 @@ With escape, the app goes back to the play list.''',
                                         },
                                       ),
                                     ),
-                                  appSpaceViewportWidth(horizontalSpace: 3.0),
+                                  const AppSpaceViewportWidth(horizontalSpace: 3.0),
                                   AppTooltip(
                                     message: 'Player settings',
                                     child: appIconButton(
@@ -1267,7 +1269,12 @@ With escape, the app goes back to the play list.''',
         tempoTap();
       } else {
         if (!isPlaying) {
-          sectionBump(1);
+          var nowMs = DateTime.now().millisecondsSinceEpoch;
+          logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
+          if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
+            _lastBumpTimeMs = nowMs;
+            sectionBump(1);
+          }
         } else {
           pauseToggle();
         }
@@ -1699,7 +1706,7 @@ With escape, the app goes back to the play list.''',
                         ),
                       ]),
                     ], spacing: viewportWidth(0.5)),
-                    appSpaceViewportWidth(),
+                    const AppSpaceViewportWidth(),
                     AppWrapFullWidth(children: [
                       AppWrap(
                         children: [
@@ -1725,7 +1732,7 @@ With escape, the app goes back to the play list.''',
                           ),
                         ],
                       ),
-                      appSpaceViewportWidth(space: 1),
+                      const AppSpaceViewportWidth(space: 1),
                       appTextButton(
                         'Repeats:',
                         appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
@@ -1763,24 +1770,30 @@ With escape, the app goes back to the play list.''',
                           'NinJam choice:',
                           style: boldStyle,
                         ),
-                        appRadio<bool>('No NinJam aids',
+                        AppRadio<bool>(
+                            text: 'No NinJam aids',
                             appKeyEnum: AppKeyEnum.optionsNinJam,
                             value: false,
-                            groupValue: appOptions.ninJam, onPressed: () {
-                          setState(() {
-                            appOptions.ninJam = false;
-                            forcePlayerSetState();
-                          });
-                        }, style: headerTextStyle),
-                        appRadio<bool>('Show NinJam aids',
+                            groupValue: appOptions.ninJam,
+                            onPressed: () {
+                              setState(() {
+                                appOptions.ninJam = false;
+                                forcePlayerSetState();
+                              });
+                            },
+                            style: headerTextStyle),
+                        AppRadio<bool>(
+                            text: 'Show NinJam aids',
                             appKeyEnum: AppKeyEnum.optionsNinJam,
                             value: true,
-                            groupValue: appOptions.ninJam, onPressed: () {
-                          setState(() {
-                            appOptions.ninJam = true;
-                            forcePlayerSetState();
-                          });
-                        }, style: headerTextStyle),
+                            groupValue: appOptions.ninJam,
+                            onPressed: () {
+                              setState(() {
+                                appOptions.ninJam = true;
+                                forcePlayerSetState();
+                              });
+                            },
+                            style: headerTextStyle),
                       ],
                       spacing: viewportWidth(1),
                     ),
@@ -1897,6 +1910,7 @@ With escape, the app goes back to the play list.''',
 
   bool isPlaying = false;
   bool isPaused = false;
+  int _lastBumpTimeMs = 0;
 
   Table? table;
   double? chordFontSize;

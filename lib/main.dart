@@ -1383,7 +1383,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
       var oddEvenTextStyle = oddEven ? oddText : evenText;
       logger.d('song.songId: ${song.songId}, key: ${appKey(AppKeyEnum.mainSong, value: Id(song.songId.toString()))}');
-      listViewChildren.add(appInkWell(
+      listViewChildren.add(AppInkWell(
         appKeyEnum: AppKeyEnum.mainSong,
         value: Id(song.songId.toString()),
         child: Container(

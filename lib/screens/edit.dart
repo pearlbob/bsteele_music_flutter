@@ -1496,7 +1496,7 @@ class _Edit extends State<Edit> {
             ),
             child: editTooltip(
               message: 'add new chord section here',
-              child: appInkWell(
+              child: AppInkWell(
                 appKeyEnum: AppKeyEnum.editNewChordSection,
                 onTap: () {
                   setState(() {
@@ -1642,7 +1642,7 @@ class _Edit extends State<Edit> {
         }
         children.add(editTooltip(
           message: 'Delete this lyric section',
-          child: appInkWell(
+          child: AppInkWell(
             appKeyEnum: AppKeyEnum.editDeleteLyricsSection,
             onTap: () {
               lyricsEntries.delete(entry);
@@ -1704,7 +1704,7 @@ class _Edit extends State<Edit> {
           children.add(
             Row(
               children: [
-                appInkWell(
+                AppInkWell(
                   appKeyEnum: AppKeyEnum.lyricsEntryLineAdd,
                   value: line,
                   onTap: () {
@@ -1735,7 +1735,7 @@ class _Edit extends State<Edit> {
 
           children.add(Row(
             children: [
-              appInkWell(
+              AppInkWell(
                 appKeyEnum: AppKeyEnum.lyricsEntryLineUp,
                 value: line,
                 onTap: () {
@@ -1757,7 +1757,7 @@ class _Edit extends State<Edit> {
                       ),
                     )),
               ),
-              appInkWell(
+              AppInkWell(
                 appKeyEnum: AppKeyEnum.lyricsEntryLineDown,
                 value: line,
                 onTap: () {
@@ -1787,7 +1787,7 @@ class _Edit extends State<Edit> {
               const Spacer(),
               editTooltip(
                 message: 'Delete this lyric line',
-                child: appInkWell(
+                child: AppInkWell(
                   appKeyEnum: AppKeyEnum.lyricsEntryLineDelete,
                   value: line,
                   onTap: () {
@@ -2260,7 +2260,7 @@ class _Edit extends State<Edit> {
                   //  section delete
                   editTooltip(
                     message: 'Delete this section',
-                    child: appInkWell(
+                    child: AppInkWell(
                       appKeyEnum: AppKeyEnum.editChordSectionDelete,
                       value: chordSection,
                       onTap: () {
@@ -2275,7 +2275,7 @@ class _Edit extends State<Edit> {
                   ),
                   editTooltip(
                     message: 'Cancel the modification.',
-                    child: appInkWell(
+                    child: AppInkWell(
                       appKeyEnum: AppKeyEnum.editChordSectionCancel,
                       value: chordSection,
                       onTap: () {
@@ -2291,7 +2291,7 @@ class _Edit extends State<Edit> {
                   if (isValidSectionEntry)
                     editTooltip(
                       message: 'Accept the modification and add measures to the section.',
-                      child: appInkWell(
+                      child: AppInkWell(
                         appKeyEnum: AppKeyEnum.editChordSectionAcceptAndAdd,
                         value: chordSection,
                         onTap: () {
@@ -2307,7 +2307,7 @@ class _Edit extends State<Edit> {
                   if (isValidSectionEntry)
                     editTooltip(
                       message: 'Accept the modification',
-                      child: appInkWell(
+                      child: AppInkWell(
                         appKeyEnum: AppKeyEnum.editChordSectionAccept,
                         value: chordSection,
                         onTap: () {
@@ -2334,7 +2334,7 @@ class _Edit extends State<Edit> {
     }
 
     //  the section is not selected for editing, just display
-    return appInkWell(
+    return AppInkWell(
       appKeyEnum: AppKeyEnum.editChordDataPoint,
       value: editPoint.location,
       onTap: () {
@@ -2737,7 +2737,7 @@ class _Edit extends State<Edit> {
                         editTooltip(
                           message: 'Delete this measure'
                               '${kDebugMode ? ' $editPoint' : ''}',
-                          child: appInkWell(
+                          child: AppInkWell(
                             appKeyEnum: AppKeyEnum.editDeleteChordMeasure,
                             onTap: () {
                               performDelete();
@@ -2752,7 +2752,7 @@ class _Edit extends State<Edit> {
                       editTooltip(
                         message: 'Cancel the modification.'
                             '${kDebugMode ? ' $editPoint' : ''}',
-                        child: appInkWell(
+                        child: AppInkWell(
                           appKeyEnum: AppKeyEnum.editCancelChordModification,
                           onTap: () {
                             performMeasureEntryCancel();
@@ -2768,7 +2768,7 @@ class _Edit extends State<Edit> {
                         editTooltip(
                           message: 'Accept the modification and extend the row.'
                               '${kDebugMode ? ' $editPoint' : ''}',
-                          child: appInkWell(
+                          child: AppInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndExtendRow,
                             onTap: () {
                               performEdit(endOfRow: false);
@@ -2783,7 +2783,7 @@ class _Edit extends State<Edit> {
                         editTooltip(
                           message: 'Accept the modification, end the row, and continue editing.'
                               '${kDebugMode ? ' $editPoint' : ''}',
-                          child: appInkWell(
+                          child: AppInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndStartNewRow,
                             onTap: () {
                               performEdit(done: false, endOfRow: true);
@@ -2798,7 +2798,7 @@ class _Edit extends State<Edit> {
                         editTooltip(
                           message: 'Accept the modification.\nFinish adding measures.'
                               '${kDebugMode ? ' $editPoint' : ''}',
-                          child: appInkWell(
+                          child: AppInkWell(
                             appKeyEnum: AppKeyEnum.editAcceptChordModificationAndFinish,
                             onTap: () {
                               logger.i(
@@ -2821,7 +2821,7 @@ class _Edit extends State<Edit> {
               ]));
     } else {
       //  not editing this measure
-      ret = appInkWell(
+      ret = AppInkWell(
         appKeyEnum: AppKeyEnum.editChordSectionLocation,
         value: editPoint.location,
         onTap: () {
@@ -2919,7 +2919,7 @@ class _Edit extends State<Edit> {
                         children: <Widget>[
                           editTooltip(
                             message: 'Delete this repeat',
-                            child: appInkWell(
+                            child: AppInkWell(
                               appKeyEnum: AppKeyEnum.editDeleteRepeat,
                               value: editPoint.location,
                               onTap: () {
@@ -2938,7 +2938,7 @@ class _Edit extends State<Edit> {
                       ),
                       editTooltip(
                         message: 'Cancel the modification',
-                        child: appInkWell(
+                        child: AppInkWell(
                           appKeyEnum: AppKeyEnum.editRepeatCancel,
                           value: editPoint.location,
                           onTap: () {
@@ -2959,7 +2959,7 @@ class _Edit extends State<Edit> {
 
     var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     //  not editing this measureNode
-    return appInkWell(
+    return AppInkWell(
       appKeyEnum: AppKeyEnum.editRepeat,
       value: editPoint.location,
       onTap: () {
@@ -3051,7 +3051,7 @@ class _Edit extends State<Edit> {
 
   Widget plusRowWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc?.asPhraseLocation(), measureEditType: MeasureEditType.insert);
-    return appInkWell(
+    return AppInkWell(
         appKeyEnum: AppKeyEnum.editAddChordRow,
         value: editPoint.location,
         onTap: () {
@@ -3079,7 +3079,7 @@ class _Edit extends State<Edit> {
 
   Widget plusRepeatWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc, measureEditType: MeasureEditType.insert);
-    return appInkWell(
+    return AppInkWell(
         appKeyEnum: AppKeyEnum.editAddChordRowRepeat,
         value: loc,
         onTap: () {
@@ -3112,7 +3112,7 @@ class _Edit extends State<Edit> {
     var editPoint = EditPoint(loc, measureEditType: MeasureEditType.append, onEndOfRow: true);
 
     return _debugWidget(
-        appInkWell(
+        AppInkWell(
             appKeyEnum: AppKeyEnum.editAddChordRowNew,
             value: loc,
             onTap: () {
@@ -3152,7 +3152,7 @@ class _Edit extends State<Edit> {
       return NullWidget();
     }
 
-    return appInkWell(
+    return AppInkWell(
         appKeyEnum: editPoint.measureEditType == MeasureEditType.insert
             ? AppKeyEnum.editChordPlusInsert
             : AppKeyEnum.editChordPlusAppend,

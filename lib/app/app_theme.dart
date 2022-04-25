@@ -1241,23 +1241,30 @@ ElevatedButton appNoteButton(
   );
 }
 
-InkWell appInkWell({
-  required AppKeyEnum appKeyEnum,
-  Color? backgroundColor,
-  GestureTapCallback? onTap,
-  Widget? child,
-  dynamic value, // overrides onPressed(), requires key
-}) {
-  var key = appKey(appKeyEnum, value: value);
+@immutable
+class AppInkWell extends StatelessWidget {
+  const AppInkWell({Key? key, required this.appKeyEnum, this.backgroundColor, this.onTap, this.child, this.value})
+      : super(key: key);
 
-  return InkWell(
-    key: key,
-    onTap: () {
-      appLogKeyCallback(key);
-      onTap?.call();
-    },
-    child: child,
-  );
+  @override
+  Widget build(BuildContext context) {
+    var key = appKey(appKeyEnum, value: value);
+
+    return InkWell(
+      key: key,
+      onTap: () {
+        appLogKeyCallback(key);
+        onTap?.call();
+      },
+      child: child,
+    );
+  }
+
+  final AppKeyEnum appKeyEnum;
+  final Color? backgroundColor;
+  final GestureTapCallback? onTap;
+  final Widget? child;
+  final dynamic value;
 }
 
 IconButton appEnumeratedIconButton({

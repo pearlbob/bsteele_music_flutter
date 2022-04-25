@@ -92,22 +92,28 @@ class _Options extends State<Options> {
                     padding: const EdgeInsets.only(left: 30.0),
                     child: AppWrapFullWidth(
                       children: <Widget>[
-                        appRadio<bool>('Not in a holiday mood',
+                        AppRadio<bool>(
+                            text: 'Not in a holiday mood',
                             appKeyEnum: AppKeyEnum.optionsHoliday,
                             value: false,
-                            groupValue: _appOptions.holiday, onPressed: () {
-                          setState(() {
-                            _appOptions.holiday = false;
-                          });
-                        }, style: style),
-                        appRadio<bool>('All holiday, all the time!',
+                            groupValue: _appOptions.holiday,
+                            onPressed: () {
+                              setState(() {
+                                _appOptions.holiday = false;
+                              });
+                            },
+                            style: style),
+                        AppRadio<bool>(
+                            text: 'All holiday, all the time!',
                             appKeyEnum: AppKeyEnum.optionsHoliday,
                             value: true,
-                            groupValue: _appOptions.holiday, onPressed: () {
-                          setState(() {
-                            _appOptions.holiday = true;
-                          });
-                        }, style: style),
+                            groupValue: _appOptions.holiday,
+                            onPressed: () {
+                              setState(() {
+                                _appOptions.holiday = true;
+                              });
+                            },
+                            style: style),
                       ],
                       spacing: 30,
                     ),

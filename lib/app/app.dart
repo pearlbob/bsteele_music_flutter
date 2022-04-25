@@ -255,6 +255,7 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
   return generateAppTextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black);
 }
 
+@immutable
 class AppSpace extends StatelessWidget {
   const AppSpace({Key? key, this.space, this.horizontalSpace, this.verticalSpace}) : super(key: key);
 
@@ -285,25 +286,36 @@ double viewportWidth(double width) {
 }
 
 /// Supply a spacing box proportional to the screen's width... not exactly the viewport though!
-Widget appSpaceViewportWidth({double? space, double? horizontalSpace, double? verticalSpace}) {
-  final width = app.screenInfo.mediaWidth;
-  assert(width > 0);
+@immutable
+class AppSpaceViewportWidth extends StatelessWidget {
+  const AppSpaceViewportWidth({Key? key, this.space, this.horizontalSpace, this.verticalSpace}) : super(key: key);
 
-  if (space == null) {
-    assert((horizontalSpace ?? 0) >= 0);
-    assert((verticalSpace ?? 0) >= 0);
+  @override
+  Widget build(BuildContext context) {
+    final width = app.screenInfo.mediaWidth;
+    assert(width > 0);
+
+    if (space == null) {
+      assert((horizontalSpace ?? 0) >= 0);
+      assert((verticalSpace ?? 0) >= 0);
+      return SizedBox(
+        height: (verticalSpace ?? 1) / 100 * width,
+        width: (horizontalSpace ?? 1) / 100 * width,
+      );
+    }
+    var fixedSpace = max(space ?? 0, 0);
     return SizedBox(
-      height: (verticalSpace ?? 1) / 100 * width,
-      width: (horizontalSpace ?? 1) / 100 * width,
+      height: fixedSpace / 100 * width,
+      width: fixedSpace / 100 * width,
     );
   }
-  space = max(space, 0);
-  return SizedBox(
-    height: space / 100 * width,
-    width: space / 100 * width,
-  );
+
+  final double? space;
+  final double? horizontalSpace;
+  final double? verticalSpace;
 }
 
+@immutable
 class AppVerticalSpace extends StatelessWidget {
   const AppVerticalSpace({Key? key, this.space}) : super(key: key);
 
@@ -326,6 +338,7 @@ class AppVerticalSpace extends StatelessWidget {
 }
 
 /// helper function to generate tool tips
+@immutable
 class AppTooltip extends StatelessWidget {
   const AppTooltip({Key? key, required this.message, required this.child, this.fontSize}) : super(key: key);
 
@@ -356,6 +369,7 @@ BoxDecoration appTooltipBoxDecoration(final Color? color) {
       boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]);
 }
 
+@immutable
 class AppWrap extends StatelessWidget {
   const AppWrap({Key? key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing})
       : super(key: key);
@@ -376,6 +390,7 @@ class AppWrap extends StatelessWidget {
   final double? spacing;
 }
 
+@immutable
 class AppWrapFullWidth extends StatelessWidget {
   const AppWrapFullWidth({Key? key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing})
       : super(key: key);
@@ -385,7 +400,7 @@ class AppWrapFullWidth extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child:
-          AppWrap(children: children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
+      AppWrap(children: children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
     );
   }
 
@@ -395,27 +410,63 @@ class AppWrapFullWidth extends StatelessWidget {
   final double? spacing;
 }
 
-appRadio<T>(
-  String text, {
-  required AppKeyEnum appKeyEnum,
-  required T value,
-  required T groupValue,
-  required VoidCallback? onPressed,
-  TextStyle? style,
-}) {
-  return AppWrap(
-    children: [
-      Radio<T>(
-        value: value,
-        groupValue: groupValue,
-        onChanged: (value) {
-          onPressed?.call();
-        },
-      ),
-      appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style),
-    ],
-  );
+@immutable
+class AppRadio<T> extends StatelessWidget {
+  const AppRadio({
+    Key? key,
+    required this.text,
+    required this.appKeyEnum,
+    required this.value,
+    required this.groupValue,
+    required this.onPressed,
+    this.style,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppWrap(
+      children: [
+        Radio<T>(
+          value: value,
+          groupValue: groupValue,
+          onChanged: (value) {
+            onPressed?.call();
+          },
+        ),
+        appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style),
+      ],
+    );
+  }
+
+  final String text;
+  final AppKeyEnum appKeyEnum;
+  final T value;
+  final T groupValue;
+  final VoidCallback? onPressed;
+  final TextStyle? style;
 }
+
+// appRadio<T>(
+//   String text, {
+//   required AppKeyEnum appKeyEnum,
+//   required T value,
+//   required T groupValue,
+//   required VoidCallback? onPressed,
+//   TextStyle? style,
+// }) {
+//   return AppWrap(
+//     children: [
+//       Radio<T>(
+//         value: value,
+//         groupValue: groupValue,
+//         onChanged: (value) {
+//           onPressed?.call();
+//         },
+//       ),
+//       appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style),
+//     ],
+//   );
+// }
 
 typedef CanPopQualifier = bool Function();
 

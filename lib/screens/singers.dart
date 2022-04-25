@@ -29,6 +29,7 @@ const String _unknownSinger = 'unknown';
 String _selectedSinger = _unknownSinger;
 final List<String> _sessionSingers =
     _appOptions.sessionSingers; //  in session order, stored locally to persist over screen reentry.
+bool _isInSingingMode = false;
 
 enum SingersSongOrder { singer, title, recentOnTop, oldestFirst }
 
@@ -45,8 +46,8 @@ class Singers extends StatefulWidget {
 
 class _State extends State<Singers> {
   _State()
-      : searchFocusNode = FocusNode(),
-        singerSearchFocusNode = FocusNode();
+      : _searchFocusNode = FocusNode(),
+        _singerSearchFocusNode = FocusNode();
 
   @override
   initState() {
@@ -248,7 +249,7 @@ class _State extends State<Singers> {
 
     {
       //  add  singer search
-      sessionSingerWidgets.add(AppWrap(children: [
+      sessionSingerWidgets.add(AppWrapFullWidth(children: [
         AppTooltip(
           message: 'search',
           child: IconButton(
@@ -264,6 +265,7 @@ class _State extends State<Singers> {
             appKeyEnum: AppKeyEnum.singersSingerSearchText,
             enabled: true,
             controller: singerSearchTextFieldController,
+            focusNode: _singerSearchFocusNode,
             hintText: "enter singer search",
             onChanged: (text) {
               setState(() {
@@ -282,7 +284,7 @@ class _State extends State<Singers> {
             onPressed: (() {
               setState(() {
                 singerSearchTextFieldController.text = '';
-                FocusScope.of(context).requestFocus(singerSearchFocusNode);
+                FocusScope.of(context).requestFocus(_singerSearchFocusNode);
               });
             }),
           ),
@@ -297,66 +299,79 @@ class _State extends State<Singers> {
       }
 
       var singerSearch = singerSearchTextFieldController.text.toLowerCase();
-      for (var singer in setOfSingers) {
-        if (singerSearch.isEmpty || singer.toLowerCase().contains(singerSearch)) {
-          sessionSingerWidgets.add(AppWrap(
-            children: [
-              appTextButton(
-                singer,
-                appKeyEnum: AppKeyEnum.singersAllSingers,
-                style: singer == _selectedSinger
-                    ? songPerformanceStyle.copyWith(backgroundColor: addColor)
-                    : songPerformanceStyle,
-                onPressed: () {
-                  setState(() {
-                    _selectedSinger = singer;
-                    searchForSelectedSingerOnly = true;
-                  });
-                },
-              ),
-              if (!_sessionSingers.contains(singer))
-                appInkWell(
-                  appKeyEnum: AppKeyEnum.singersAddSingerToSession,
-                  value: singer,
-                  onTap: () {
+      {
+        var lastFirstInitial = '';
+        for (var singer in setOfSingers) {
+          if (singerSearch.isEmpty || singer.toLowerCase().contains(singerSearch)) {
+            var firstInitial = singer.characters.first.toUpperCase();
+            if (firstInitial != lastFirstInitial) {
+              lastFirstInitial = firstInitial;
+              sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
+              sessionSingerWidgets.add(Text(
+                '$firstInitial:',
+                style: songPerformanceStyle.copyWith(color: _blue.color),
+              ));
+              sessionSingerWidgets.add(const AppSpace(horizontalSpace: 40));
+            }
+            sessionSingerWidgets.add(AppWrap(
+              children: [
+                appTextButton(
+                  singer,
+                  appKeyEnum: AppKeyEnum.singersAllSingers,
+                  style: singer == _selectedSinger
+                      ? songPerformanceStyle.copyWith(backgroundColor: addColor)
+                      : songPerformanceStyle,
+                  onPressed: () {
                     setState(() {
-                      _sessionSingers.add(singer);
-                      _appOptions.sessionSingers = _sessionSingers;
                       _selectedSinger = singer;
                       searchForSelectedSingerOnly = true;
                     });
                   },
-                  child: appCircledIcon(
-                    Icons.add,
-                    'Add $singer to today\'s session.',
-                    margin: appendInsets,
-                    padding: appendPadding,
-                    color: addColor,
-                    size: fontSize * 0.7,
-                  ),
                 ),
-              if (_sessionSingers.contains(singer))
-                appInkWell(
-                  appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
-                  // value: singer,
-                  onTap: () {
-                    setState(() {
-                      _sessionSingers.remove(singer);
-                      _appOptions.sessionSingers = _sessionSingers;
-                    });
-                  },
-                  child: appCircledIcon(
-                    Icons.remove,
-                    'Remove $singer from today\'s session.',
-                    margin: appendInsets,
-                    padding: appendPadding,
-                    color: removeColor,
-                    size: fontSize * 0.7,
+                if (!_sessionSingers.contains(singer))
+                  AppInkWell(
+                    appKeyEnum: AppKeyEnum.singersAddSingerToSession,
+                    value: singer,
+                    onTap: () {
+                      setState(() {
+                        _sessionSingers.add(singer);
+                        _appOptions.sessionSingers = _sessionSingers;
+                        _selectedSinger = singer;
+                        searchForSelectedSingerOnly = true;
+                      });
+                    },
+                    child: appCircledIcon(
+                      Icons.add,
+                      'Add $singer to today\'s session.',
+                      margin: appendInsets,
+                      padding: appendPadding,
+                      color: addColor,
+                      size: fontSize * 0.7,
+                    ),
                   ),
-                ),
-              const AppSpace(horizontalSpace: 20), //  list singers horizontally
-            ],
-          ));
+                if (_sessionSingers.contains(singer))
+                  AppInkWell(
+                    appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
+                    // value: singer,
+                    onTap: () {
+                      setState(() {
+                        _sessionSingers.remove(singer);
+                        _appOptions.sessionSingers = _sessionSingers;
+                      });
+                    },
+                    child: appCircledIcon(
+                      Icons.remove,
+                      'Remove $singer from today\'s session.',
+                      margin: appendInsets,
+                      padding: appendPadding,
+                      color: removeColor,
+                      size: fontSize * 0.7,
+                    ),
+                  ),
+                const AppSpace(horizontalSpace: 20), //  list singers horizontally
+              ],
+            ));
+          }
         }
       }
     }
@@ -418,8 +433,8 @@ class _State extends State<Singers> {
                               : singerTextStyle,
                         ),
                       ),
-                      if (!isInSingingMode)
-                        appInkWell(
+                      if (!_isInSingingMode)
+                        AppInkWell(
                           appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
                           // value: singer,
                           onTap: () {
@@ -518,24 +533,24 @@ class _State extends State<Singers> {
                           toggleSingingMode();
                         });
                       },
-                      value: isInSingingMode,
+                      value: _isInSingingMode,
                     ),
                   ),
-                  if (!isInSingingMode)
+                  if (!_isInSingingMode)
                     Text(
                       '       Make adjustments:',
                       style: singerTextStyle,
                       softWrap: false,
                     ),
                 ]),
-                if (!isInSingingMode)
+                if (!_isInSingingMode)
                   appButton('Other Actions', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
                     setState(() {
                       showOtherActions = !showOtherActions;
                     });
                   }),
               ], alignment: WrapAlignment.spaceBetween),
-              if (!isInSingingMode && showOtherActions)
+              if (!_isInSingingMode && showOtherActions)
                 AppWrapFullWidth(children: [
                   Column(
                     children: [
@@ -676,8 +691,8 @@ class _State extends State<Singers> {
                       },
                     ),
                 ]),
-              if (!isInSingingMode) const AppVerticalSpace(),
-              if (!isInSingingMode)
+              if (!_isInSingingMode) const AppVerticalSpace(),
+              if (!_isInSingingMode)
                 AppWrapFullWidth(children: [
                   Text(
                     'Today\'s Session Singers:',
@@ -691,7 +706,7 @@ class _State extends State<Singers> {
               const AppVerticalSpace(),
               todaysReorderableSingersWidgetWrap,
               const AppVerticalSpace(),
-              if (!isInSingingMode)
+              if (!_isInSingingMode)
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(
                     'All Singers:',
@@ -728,67 +743,74 @@ class _State extends State<Singers> {
                 ]),
               AppWrapFullWidth(children: [
                 //  search line
-                AppWrap(children: [
-                  AppTooltip(
-                    message: 'Search for songs for $_selectedSinger',
-                    child: IconButton(
-                      icon: const Icon(Icons.search),
-                      iconSize: fontSize,
-                      onPressed: (() {}),
-                    ),
+                AppTooltip(
+                  message: 'Search for songs for $_selectedSinger',
+                  child: IconButton(
+                    icon: const Icon(Icons.search),
+                    iconSize: fontSize,
+                    onPressed: (() {}),
                   ),
-                  SizedBox(
-                    width: 16 * app.screenInfo.fontSize,
-                    //  limit text entry display length
-                    child: appTextField(
-                      appKeyEnum: AppKeyEnum.singersSearchText,
-                      enabled: true,
-                      controller: searchTextFieldController,
-                      hintText: 'enter song search${_selectedSinger != _unknownSinger ? ' for $_selectedSinger' : ''}',
-                      onChanged: (text) {
-                        setState(() {});
-                      },
-                      fontSize: fontSize,
-                    ),
+                ),
+                SizedBox(
+                  width: 16 * app.screenInfo.fontSize,
+                  //  limit text entry display length
+                  child: appTextField(
+                    appKeyEnum: AppKeyEnum.singersSearchText,
+                    enabled: true,
+                    controller: searchTextFieldController,
+                    focusNode: _searchFocusNode,
+                    hintText: 'enter song search${_selectedSinger != _unknownSinger ? ' for $_selectedSinger' : ''}',
+                    onChanged: (text) {
+                      setState(() {});
+                    },
+                    fontSize: fontSize,
                   ),
-                  AppTooltip(
-                    message: 'Clear the search text for Singer $_selectedSinger.',
-                    child: appEnumeratedIconButton(
-                      appKeyEnum: AppKeyEnum.singersClearSearch,
-                      icon: const Icon(Icons.clear),
-                      iconSize: 1.5 * fontSize,
-                      onPressed: (() {
-                        setState(() {
-                          searchClear();
-                          FocusScope.of(context).requestFocus(searchFocusNode);
-                        });
-                      }),
-                    ),
+                ),
+                AppTooltip(
+                  message: 'Clear the search text for Singer $_selectedSinger.',
+                  child: appEnumeratedIconButton(
+                    appKeyEnum: AppKeyEnum.singersClearSearch,
+                    icon: const Icon(Icons.clear),
+                    iconSize: 1.5 * fontSize,
+                    onPressed: (() {
+                      setState(() {
+                        searchClear();
+                        FocusScope.of(context).requestFocus(_searchFocusNode);
+                      });
+                    }),
                   ),
-                ]),
-
+                ),
+              ], spacing: 10, alignment: WrapAlignment.start),
+              const AppSpace(),
+              AppWrapFullWidth(children: [
                 AppWrap(children: [
                   Text(
                     'Search for:',
                     style: singerTextStyle,
                   ),
                   if (_selectedSinger != _unknownSinger)
-                    appRadio<bool>('just $_selectedSinger',
+                    AppRadio<bool>(
+                        text: 'just $_selectedSinger',
                         appKeyEnum: AppKeyEnum.optionsNinJam,
                         value: true,
-                        groupValue: searchForSelectedSingerOnly, onPressed: () {
-                      setState(() {
-                        searchForSelectedSingerOnly = true;
-                      });
-                    }, style: singerTextStyle),
-                  appRadio<bool>('any singer',
+                        groupValue: searchForSelectedSingerOnly,
+                        onPressed: () {
+                          setState(() {
+                            searchForSelectedSingerOnly = true;
+                          });
+                        },
+                        style: singerTextStyle),
+                  AppRadio<bool>(
+                      text: 'any singer',
                       appKeyEnum: AppKeyEnum.optionsNinJam,
                       value: false,
-                      groupValue: searchForSelectedSingerOnly, onPressed: () {
-                    setState(() {
-                      searchForSelectedSingerOnly = false;
-                    });
-                  }, style: singerTextStyle),
+                      groupValue: searchForSelectedSingerOnly,
+                      onPressed: () {
+                        setState(() {
+                          searchForSelectedSingerOnly = false;
+                        });
+                      },
+                      style: singerTextStyle),
                 ], spacing: 10, alignment: WrapAlignment.spaceBetween),
                 AppWrap(children: [
                   AppTooltip(
@@ -825,12 +847,12 @@ class _State extends State<Singers> {
   }
 
   void toggleSingingMode() {
-    isInSingingMode = !isInSingingMode;
+    _isInSingingMode = !_isInSingingMode;
     if (!_sessionSingers.contains(_selectedSinger) && _sessionSingers.isNotEmpty) {
       _selectedSinger = _sessionSingers.first;
       searchForSelectedSingerOnly = true;
     }
-    if (isInSingingMode) {
+    if (_isInSingingMode) {
       app.clearMessage();
     }
   }
@@ -898,10 +920,13 @@ class _State extends State<Singers> {
     if (song == null) {
       return const AppWrap(children: []);
     }
-    bool hasUniqueSinger = singer != null && singer != _unknownSinger && singer != _selectedSinger;
+    bool hasUniqueSinger =
+        singer != null && singer != _unknownSinger && singer == _selectedSinger && searchForSelectedSingerOnly;
+    logger.d('hasUniqueSinger: $hasUniqueSinger, singer: $singer, _selectedSinger: $_selectedSinger'
+        ', searchForSelectedSingerOnly: $searchForSelectedSingerOnly');
     return AppWrap(
       children: [
-        if (!hasUniqueSinger)
+        if (hasUniqueSinger)
           appWidgetHelper.checkbox(
             value: allSongPerformances.isSongInSingersList(_selectedSinger, song),
             onChanged: (bool? value) {
@@ -924,7 +949,7 @@ class _State extends State<Singers> {
             },
             fontSize: songPerformanceStyle.fontSize,
           ),
-        if (!hasUniqueSinger) const AppSpace(space: 12),
+        if (hasUniqueSinger) const AppSpace(space: 12),
         TextButton(
           child: Text(
             '${singer != null ? '$singer sings: ' : ''}'
@@ -1057,6 +1082,7 @@ class _State extends State<Singers> {
       }
 
       searchClear();
+      FocusScope.of(context).requestFocus(_searchFocusNode);
       scrollController.jumpTo(0);
     });
   }
@@ -1102,7 +1128,6 @@ class _State extends State<Singers> {
 
   static const singingTooltipText = 'Switch to singing mode, otherwise make adjustments.';
 
-  bool isInSingingMode = false;
   bool showOtherActions = false;
   List<String> singerList = [];
   SingersSongOrder songOrder = SingersSongOrder.title;
@@ -1114,10 +1139,10 @@ class _State extends State<Singers> {
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
 
   final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
-  final FocusNode searchFocusNode;
+  final FocusNode _searchFocusNode;
 
   final TextEditingController searchTextFieldController = TextEditingController();
-  bool _searchForSelectedSingerOnly = false;
+  bool _searchForSelectedSingerOnly = true;
 
   bool get searchForSelectedSingerOnly => _searchForSelectedSingerOnly;
 
@@ -1125,7 +1150,7 @@ class _State extends State<Singers> {
     _searchForSelectedSingerOnly = _selectedSinger == _unknownSinger ? false : selection;
   }
 
-  final FocusNode singerSearchFocusNode;
+  final FocusNode _singerSearchFocusNode;
   final TextEditingController singerSearchTextFieldController = TextEditingController();
 
   final List<DropdownMenuItem<SingersSongOrder>> _sortOrderDropDownMenuList = [];

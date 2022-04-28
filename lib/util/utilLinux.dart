@@ -33,7 +33,7 @@ class UtilLinux implements UtilWorkaround {
     logger.i('writeFileContents directory: $path');
 
     File file = File('$path/$fileName');
-    logger.d('file: $file');
+    logger.i('file: $file');
 
     try {
       await file.writeAsString(contents, flush: true);

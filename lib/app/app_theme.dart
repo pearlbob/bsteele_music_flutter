@@ -169,6 +169,11 @@ void _initUniversal() {
   _init(_universalFontStyleProperty);
 }
 
+//  app background
+Color appBackgroundColor() {
+  return _getColor(_iconBackgroundColorProperty) ?? _defaultBackgroundColor;
+}
+
 //  app bar
 Color? appbarBackgroundColor() {
   return _getColor(_appbarBackgroundColorProperty);

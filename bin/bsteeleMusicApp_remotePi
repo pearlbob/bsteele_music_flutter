@@ -12,6 +12,8 @@ set machine=pi@bobspi.local
 	flutter config --enable-linux-desktop
 	flutter pub get
 	flutter -d linux create . --org com.bsteele
+	sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
+	  linux/my_application.cc
 	flutter pub get
 
 #	flutter -d linux run --release
@@ -19,12 +21,6 @@ set machine=pi@bobspi.local
 	cd ~/github/bsteeleMusicLib/
 	cd bsteele_music_lib/
 	flutter clean
-#	flutter config --enable-linux-desktop
-#	flutter pub get
-#	flutter -d linux create . --org com.bsteele
-#	#flutter -d linux run lib/bsteeleMusicUtil.dart
-#!/bin/tcsh
-#set echo; set verbose
 
 set app=bsteeleMusicApp
 set bsDir=${app}Pi

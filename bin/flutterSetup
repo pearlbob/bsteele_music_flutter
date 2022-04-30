@@ -10,5 +10,7 @@ rm -rf linux/
 flutter clean
 flutter pub get
 flutter -d linux create . --org com.bsteele #> /dev/null
+sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
+  linux/my_application.cc
 
 echo run command: flutter -d linux run

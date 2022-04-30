@@ -117,11 +117,11 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                             const AppSpace(verticalSpace: 40),
                             Text(
                               performance.lastSungDateString,
-                              style: _songPerformanceStyle,
+                              style: _songPerformanceStyle.copyWith(color: appBackgroundColor()),
                             ),
-                            const Divider(
+                            Divider(
                               thickness: 10,
-                              color: Colors.black,
+                              color: appBackgroundColor(),
                             )
                           ]),
                         TextButton(

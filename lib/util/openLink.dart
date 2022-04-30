@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../app/app.dart';
 
@@ -11,16 +11,16 @@ _top - specifies the top-level frame in the current window
 A custom target name of a window that exists
  */
 
-void openLink(String url, {bool sameTab = false}) async {
+void openLink(String urlString, {bool sameTab = false}) async {
   if (kIsWeb) {
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrlString(urlString)) {
+      await launchUrlString(urlString);
     } else {
-      throw 'Could not launch $url';
+      throw 'Could not launch $urlString';
     }
   } else if (!App().isPhone) {
-    if (await canLaunch(url)) {
-      launch(url);
+    if (await canLaunchUrlString(urlString)) {
+      launchUrlString(urlString);
     }
   }
 }

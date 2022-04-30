@@ -24779,6 +24779,87 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1650858210366, "song": 
+{
+"title": "Dance with Me",
+"artist": "Orleans",
+"user": "pillyweed",
+"lastModifiedDate": 1650858210366,
+"copyright": "1975 Asylum",
+"key": "D",
+"defaultBpm": 99,
+"timeSignature": "2/4",
+"chords": 
+    [
+	"I:",
+	"A/DD D D D",
+	"A/GG G G G",
+	"Em Em G/A D/AA",
+	"A/DD D D D",
+	"V:",
+	"A/DD D D D",
+	"A/GG G G G",
+	"Em Em G/A D/AA",
+	"A/DD D D D",
+	"C:",
+	"Gmaj7 Gmaj7 A A",
+	"Gmaj7 Gmaj7 E E",
+	"Gmaj7 Gmaj7 A A#dim7",
+	"Bm Bm G/A D/AA",
+	"O:",
+	"A/DD D G G",
+	"A/DD D G G",
+	"A/DD D G G",
+	"D D BmA D"
+    ],
+"lyrics": 
+    [
+	"I: ",
+	"(instrumental)",
+	"",
+	"V:",
+	"Dance with me, I want to be your partner",
+	"Can't you see the music is just starting",
+	"Night is calling and I am falling",
+	"Dance with me",
+	"",
+	"V:",
+	"Fantasy could never be so killing",
+	"I feel free, I hope that you are willing",
+	"Pick the beat up and kick your feet up",
+	"Dance with me",
+	"",
+	"C:",
+	"Let it lift you off the ground",
+	"Starry eyes and love is all around us",
+	"I can take you where you want to go",
+	"...Ohh oh",
+	"",
+	"V:",
+	"Dance with me, I want to be your partner",
+	"Can't you see the music is just starting",
+	"Night is calling and I am falling",
+	"Dance with me",
+	"",
+	"I:",
+	"(instrumental melodica)",
+	"",
+	"C:",
+	"Let it lift you off the ground",
+	"Starry eyes, and love is all around us",
+	"I can take you where you want to go",
+	"",
+	"V:",
+	"Dance with me, I want to be your partner",
+	"Can't you see the music is just starting",
+	"Night is calling, and I am falling",
+	"Dance with me",
+	"",
+	"O:",
+	"(instrumental)"
+    ]
+}
+},
 { "file": "Dancefloors.songlyrics", "lastModifiedDate": 1615780973811, "song": 
 {
 "title": "Dancefloors",
@@ -117912,7 +117993,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1651036603519, "song": 
+{ "file": "", "lastModifiedDate": 1651036603519, "song": 
 {
 "title": "Truly Madly Deeply",
 "artist": "Savage Garden",
@@ -121642,30 +121723,40 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
+{ "file": "", "lastModifiedDate": 1651291600472, "song": 
 {
 "title": "Walls",
 "artist": "Tom Petty & the Heartbreakers",
-"user": "Shari",
-"lastModifiedDate": 0,
-"copyright": "lyrics © Sony/ATV Tunes LLC, Gerald Marks Music, Bourne Co.",
+"user": "pillyweed",
+"lastModifiedDate": 1651291600472,
+"copyright": "1996 Warner Bros.",
 "key": "D",
 "defaultBpm": 102,
 "timeSignature": "4/4",
 "chords": 
     [
+	"I:",
+	"F F F F",
+	"I2:",
+	"F F Dm Dm",
+	"Bb Bb C C",
 	"V:",
-	"D D Bm Bm",
-	"G G A A",
+	"F F Dm Dm",
+	"Bb Bb C C",
 	"V1:",
-	"D D Bm Bm",
-	"G G A X",
+	"F F Dm Dm",
+	"Bb Bb C CX",
 	"C:",
-	"G D G D",
-	"Em Bm A D"
+	"Bb F Bb F",
+	"Gm Dm C F F",
+	"O:",
+	"F F F F x2"
     ],
 "lyrics": 
     [
+	"I:",
+	"(instrumental)",
+	"",
 	"v:",
 	"Some days are diamonds",
 	"Some days are rocks",
@@ -121679,10 +121770,10 @@
 	"I'll get you back some day",
 	"",
 	"c:",
-	"'Cause you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down.",
+	"('Cause you got a) heart so big, it could",
+	"Crush this town, and I can't ",
+	"Hold out forever, even ",
+	"Walls fall down",
 	"",
 	"v:",
 	"And all around your island",
@@ -121697,12 +121788,12 @@
 	"Half of me is sky",
 	"",
 	"c:",
-	"But you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down",
+	"(But you got a) heart so big, it could",
+	"Crush this town, and I can't ",
+	"Hold out forever, even ",
+	"Walls fall down",
 	"",
-	"v:",
+	"I2:",
 	"[instrumental]",
 	"",
 	"v1:",
@@ -121712,19 +121803,19 @@
 	"Part of me is gone",
 	"",
 	"c:",
-	"But you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down",
+	"(But you got a) heart so big, it could",
+	"Crush this town, and I can't ",
+	"Hold out forever, even ",
+	"Walls fall down",
 	"",
 	"c:",
-	"Baby, you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down",
-	"They fall down",
-	"*",
-	"[Petty recorded this in F; live, he plays it using C chord shapes with the capo on the 5th fret.]"
+	"(Baby, you got a) heart so big, it could",
+	"Crush this town, and I can't ",
+	"Hold out forever, even ",
+	"Walls fall down",
+	"",
+	"O:",
+	"They fall down"
     ]
 }
 },
@@ -128475,12 +128566,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1648441811487, "song": 
+{ "file": "", "lastModifiedDate": 1651243345971, "song": 
 {
 "title": "Wonderwall",
 "artist": "Oasis",
-"user": "shari",
-"lastModifiedDate": 1648441811487,
+"user": "bob",
+"lastModifiedDate": 1651243345971,
 "copyright": "1995 Creation",
 "key": "A",
 "defaultBpm": 87,
@@ -128496,7 +128587,8 @@
 	"Dadd9E AF#m7 B7sus4 B7sus4",
 	"C:",
 	"Dadd9F#m7 AF#m7 Dadd9F#m7 AF#m7",
-	"Dadd9F#m7 AF#m7 Dadd9F#m7 A. F#m7X X",
+	"Dadd9F#m7 AF#m7 Dadd9F#m7 A.",
+	"F#m7X X",
 	"C2:",
 	"Dadd9F#m7 AF#m7 Dadd9F#m7 AF#m7",
 	"Dadd9F#m7 AF#m7 Dadd9F#m7 AF#m7",

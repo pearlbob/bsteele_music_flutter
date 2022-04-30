@@ -34,7 +34,6 @@ sudo date
 
 
 #	compile for release
-set git=~/github/bsteele_music_flutter
 cd $git
 flutter_clean	#	prep
 bin/bsteeleMusicApp_war
@@ -78,3 +77,6 @@ if ( $status != 0 ) exit -1
 bin/bsteeleMusicApp_gs_utcDate
 
 echo try:  http://bsteele.com/$app
+
+cd $git
+bin/bsteeleMusicApp_stage

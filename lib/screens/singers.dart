@@ -22,11 +22,36 @@ import '../app/app.dart';
 //  diagnostic logging enables
 const Level _singerLogBuild = Level.debug;
 
-final _blue = Paint()..color = Colors.lightBlue.shade200;
-
 final AppOptions _appOptions = AppOptions();
+
 const String _unknownSinger = 'unknown';
+bool _searchForSelectedSingerOnly = true;
+
+bool get searchForSelectedSingerOnly => _searchForSelectedSingerOnly;
+
+set searchForSelectedSingerOnly(bool selection) {
+  _searchForSelectedSingerOnly = _selectedSinger == _unknownSinger ? false : selection;
+}
+
+void _setSelectedSinger(String? singer) {
+  _selectedSinger = singer ?? _unknownSinger;
+  _selectedSingerIsRequester = _hasRequests(_selectedSinger);
+  searchForSelectedSingerOnly = !_selectedSingerIsRequester;
+}
+
+AllSongPerformances _allSongPerformances = AllSongPerformances();
+
+bool _hasRequests(String participant) {
+  try {
+    _allSongPerformances.allSongPerformanceRequests.firstWhere((element) => element.requester == participant);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 String _selectedSinger = _unknownSinger;
+bool _selectedSingerIsRequester = false;
 final List<String> _sessionSingers =
     _appOptions.sessionSingers; //  in session order, stored locally to persist over screen reentry.
 bool _isInSingingMode = false;
@@ -63,8 +88,7 @@ class _State extends State<Singers> {
     logger.log(_singerLogBuild, 'singer build:  message: ${app.message}');
 
     if (_selectedSinger == _unknownSinger && _sessionSingers.isNotEmpty) {
-      _selectedSinger = _sessionSingers.first;
-      searchForSelectedSingerOnly = true;
+      _setSelectedSinger(_sessionSingers.first);
     }
 
     _songSearchMatcher = SongSearchMatcher(searchTextFieldController.text);
@@ -109,19 +133,31 @@ class _State extends State<Singers> {
     }
 
     //  sorted and stored
+
+    var songRequests = SplayTreeSet<Song>();
     SplayTreeSet<SongPerformance> performancesFromSinger = SplayTreeSet(songPerformanceComparator);
     SplayTreeSet<SongPerformance> performancesFromSingerMatching = SplayTreeSet(songPerformanceComparator);
     SplayTreeSet<SongPerformance> performancesFromSingerNotMatching = SplayTreeSet(songPerformanceComparator);
     SplayTreeSet<SongPerformance> performancesFromSessionSingers = SplayTreeSet(songPerformanceComparator);
     SplayTreeSet<Song> otherMatchingSongs = SplayTreeSet();
     SplayTreeSet<Song> otherSongs = SplayTreeSet();
+    if (_selectedSingerIsRequester) {
+      SplayTreeSet<SongRequest> songRequestsFromRequester = SplayTreeSet<SongRequest>()
+        ..addAll(_allSongPerformances.allSongPerformanceRequests.where((e) => e.requester == _selectedSinger));
+      logger.i('requests: $songRequestsFromRequester');
+      songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
+          .where((e) => e.requester == _selectedSinger)
+          .map((e) => e.song)
+          .whereType<Song>());
+      logger.i('songRequests.length: ${songRequests.length}');
+    }
 
     //  fill the stores
     {
       SplayTreeSet<Song> songsSungBySingers = SplayTreeSet();
 
       //  songs sung by selected singer
-      performancesFromSinger.addAll(allSongPerformances.bySinger(_selectedSinger));
+      performancesFromSinger.addAll(_allSongPerformances.bySinger(_selectedSinger));
       for (var performance in performancesFromSinger) {
         if (performance.song != null) {
           var song = performance.song!;
@@ -137,7 +173,7 @@ class _State extends State<Singers> {
       //  songs sung by other session singers
       for (var singer in _sessionSingers) {
         if (!searchForSelectedSingerOnly || singer != _selectedSinger) {
-          for (var performance in allSongPerformances.bySinger(singer)) {
+          for (var performance in _allSongPerformances.bySinger(singer)) {
             if (performance.song != null) {
               var song = performance.song!;
               if (_songSearchMatcher.matchesOrEmptySearch(song)) {
@@ -148,7 +184,7 @@ class _State extends State<Singers> {
         }
       }
       for (var song in app.allSongs) {
-        if (!songsSungBySingers.contains(song)) {
+        if (!songsSungBySingers.contains(song) && !songRequests.contains(song)) {
           if (_songSearchMatcher.matches(song)) {
             otherMatchingSongs.add(song);
           } else {
@@ -169,7 +205,7 @@ class _State extends State<Singers> {
           // 				- performances from singer that match search
           addPerformanceWidgets(
               songWidgetList, 'Matching songs sung by $_selectedSinger:', performancesFromSingerMatching,
-              color: _blue.color);
+              color: appBackgroundColor());
           //   - all other matching songs
           addSongWidgets(songWidgetList, 'Matching songs $_selectedSinger might sing:', otherMatchingSongs);
           // // 				- performances from session singers that match
@@ -180,29 +216,32 @@ class _State extends State<Singers> {
           //     songWidgetList,
           //     'Songs sung by $selectedSinger but not matching "${songSearchMatcher.pattern}":',
           //     performancesFromSingerNotMatching,
-          //     color: _blue.color);
+          //     color: appBackgroundColor());
 
         } else {
           // 			search all session singers
           // 				- performances from session singers that match
           addPerformanceWidgets(songWidgetList, 'Songs sung by any session singer:', performancesFromSessionSingers,
-              color: _blue.color);
+              color: appBackgroundColor());
           //   - all other matching songs
-          addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
+          addSongWidgets(songWidgetList, 'Other matching songs for $_selectedSinger:', otherMatchingSongs);
           // // 				- performances from singer that do NOT match search
           // addPerformanceWidgets(
           //     songWidgetList,
           //     'Songs sung by $selectedSinger but not matching "${songSearchMatcher.pattern}":',
           //     performancesFromSingerNotMatching,
-          //     color: _blue.color);
+          //     color: appBackgroundColor());
         }
       } else {
         // 		search text empty
-        if (searchForSelectedSingerOnly) {
+        if (_selectedSingerIsRequester) {
+          addSongWidgets(songWidgetList, 'Songs $_selectedSinger would like to play:', songRequests,
+              color: appBackgroundColor());
+        } else if (searchForSelectedSingerOnly) {
           // 			search single singer selected
           // 				- performances from singer
           addPerformanceWidgets(songWidgetList, '$_selectedSinger sings:', performancesFromSingerNotMatching,
-              color: _blue.color);
+              color: appBackgroundColor());
           //   - all other matching songs
           addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
         } else {
@@ -211,7 +250,7 @@ class _State extends State<Singers> {
           addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
           // 				- performances from session singers
           addPerformanceWidgets(songWidgetList, 'Today\'s singers sing:', performancesFromSessionSingers,
-              color: _blue.color);
+              color: appBackgroundColor());
         }
       }
     } else {
@@ -219,14 +258,18 @@ class _State extends State<Singers> {
       // 			search all session singers
       // 				- performances from session singers that match
       addPerformanceWidgets(songWidgetList, 'Today\'s session singers sing:', performancesFromSessionSingers,
-          color: _blue.color);
+          color: appBackgroundColor());
       //   - all other matching songs
       addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
     }
 
     //   - all the other songs not otherwise listed
     if (_songSearchMatcher.isEmpty) {
-      addSongWidgets(songWidgetList, 'Other songs:', otherSongs);
+      if (_selectedSingerIsRequester) {
+        addSongWidgets(songWidgetList, 'Songs $_selectedSinger might request:', otherSongs);
+      } else {
+        addSongWidgets(songWidgetList, 'Other songs:', otherSongs);
+      }
     }
 
     logger.d(
@@ -244,7 +287,8 @@ class _State extends State<Singers> {
             performancesFromSingerNotMatching.length +
             performancesFromSessionSingers.length +
             otherMatchingSongs.length +
-            otherSongs.length) >=
+            otherSongs.length +
+            songRequests.length) >=
         app.allSongs.length);
 
     {
@@ -293,7 +337,7 @@ class _State extends State<Singers> {
 
       //  find all singers
       var setOfSingers = SplayTreeSet<String>();
-      setOfSingers.addAll(allSongPerformances.setOfSingers());
+      setOfSingers.addAll(_allSongPerformances.setOfSingers());
       if (_selectedSinger != _unknownSinger) {
         setOfSingers.add(_selectedSinger);
       }
@@ -309,7 +353,7 @@ class _State extends State<Singers> {
               sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
               sessionSingerWidgets.add(Text(
                 '$firstInitial:',
-                style: songPerformanceStyle.copyWith(color: _blue.color),
+                style: songPerformanceStyle.copyWith(color: appBackgroundColor()),
               ));
               sessionSingerWidgets.add(const AppSpace(horizontalSpace: 40));
             }
@@ -323,8 +367,7 @@ class _State extends State<Singers> {
                       : songPerformanceStyle,
                   onPressed: () {
                     setState(() {
-                      _selectedSinger = singer;
-                      searchForSelectedSingerOnly = true;
+                      _setSelectedSinger(singer);
                     });
                   },
                 ),
@@ -336,8 +379,7 @@ class _State extends State<Singers> {
                       setState(() {
                         _sessionSingers.add(singer);
                         _appOptions.sessionSingers = _sessionSingers;
-                        _selectedSinger = singer;
-                        searchForSelectedSingerOnly = true;
+                        _setSelectedSinger(singer);
                       });
                     },
                     child: appCircledIcon(
@@ -388,13 +430,13 @@ class _State extends State<Singers> {
         thickness: 10,
       ));
       songWidgetList.add(Text(
-        'Performance count: ${allSongPerformances.length} ',
+        'Performance count: ${_allSongPerformances.length} ',
         style: songPerformanceStyle.copyWith(color: Colors.grey),
       ));
     }
 
     if (singerList.isEmpty) {
-      singerList.addAll(allSongPerformances.setOfSingers()); //  fixme: temp
+      singerList.addAll(_allSongPerformances.setOfSingers()); //  fixme: temp
     }
 
     var singerTextStyle = generateAppTextFieldStyle(fontSize: fontSize);
@@ -424,8 +466,7 @@ class _State extends State<Singers> {
                           appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
                           onPressed: () {
                             setState(() {
-                              _selectedSinger = singer;
-                              searchForSelectedSingerOnly = true;
+                              _setSelectedSinger(singer);
                             });
                           },
                           style: singer == _selectedSinger
@@ -461,7 +502,7 @@ class _State extends State<Singers> {
             //   padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               border: Border.all(
-                color: _blue.color,
+                color: appBackgroundColor(),
                 width: 2,
               ),
               borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -555,7 +596,7 @@ class _State extends State<Singers> {
                   Column(
                     children: [
                       const AppVerticalSpace(),
-                      if (allSongPerformances.isNotEmpty)
+                      if (_allSongPerformances.isNotEmpty)
                         AppTooltip(
                             message: 'For safety reasons you cannot remove all singers\n'
                                 'without first having written them all.',
@@ -626,10 +667,10 @@ class _State extends State<Singers> {
                                             appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
                                           logger.d('delete: $_selectedSinger');
                                           setState(() {
-                                            allSongPerformances.removeSinger(_selectedSinger);
+                                            _allSongPerformances.removeSinger(_selectedSinger);
                                             _sessionSingers.remove(_selectedSinger);
                                             _appOptions.sessionSingers = _sessionSingers;
-                                            _selectedSinger = _unknownSinger;
+                                            _setSelectedSinger(_unknownSinger);
                                             AppOptions().storeAllSongPerformances();
                                             allHaveBeenWritten = false;
                                           });
@@ -657,7 +698,7 @@ class _State extends State<Singers> {
                           appKeyEnum: AppKeyEnum.singersRemoveAllSingers,
                           onPressed: () {
                             setState(() {
-                              allSongPerformances.clear();
+                              _allSongPerformances.clear();
                               allHaveBeenWritten = false;
                             });
                           },
@@ -729,8 +770,7 @@ class _State extends State<Singers> {
                         onSubmitted: (value) {
                           setState(() {
                             if (singerTextFieldController.text.isNotEmpty) {
-                              _selectedSinger = Util.firstToUpper(singerTextFieldController.text);
-                              searchForSelectedSingerOnly = true;
+                              _setSelectedSinger(Util.firstToUpper(singerTextFieldController.text));
                               singerTextFieldController.text = '';
                             }
                           });
@@ -813,6 +853,21 @@ class _State extends State<Singers> {
                       style: singerTextStyle),
                 ], spacing: 10, alignment: WrapAlignment.spaceBetween),
                 AppWrap(children: [
+                  appWidgetHelper.checkbox(
+                    value: _selectedSingerIsRequester,
+                    onChanged: (bool? value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedSingerIsRequester = value;
+                        });
+                      }
+                    },
+                    fontSize: songPerformanceStyle.fontSize,
+                  ),
+                  const AppSpace(),
+                  Text('as requester', style: songPerformanceStyle),
+                ]),
+                AppWrap(children: [
                   AppTooltip(
                     message: 'Select the order of the song performance list.',
                     child: Text(
@@ -849,8 +904,7 @@ class _State extends State<Singers> {
   void toggleSingingMode() {
     _isInSingingMode = !_isInSingingMode;
     if (!_sessionSingers.contains(_selectedSinger) && _sessionSingers.isNotEmpty) {
-      _selectedSinger = _sessionSingers.first;
-      searchForSelectedSingerOnly = true;
+      _setSelectedSinger(_sessionSingers.first);
     }
     if (_isInSingingMode) {
       app.clearMessage();
@@ -921,26 +975,40 @@ class _State extends State<Singers> {
       return const AppWrap(children: []);
     }
     bool hasUniqueSinger =
-        singer != null && singer != _unknownSinger && singer == _selectedSinger && searchForSelectedSingerOnly;
+        ((singer != null && singer != _unknownSinger && singer == _selectedSinger) || _selectedSingerIsRequester) &&
+            searchForSelectedSingerOnly;
     logger.d('hasUniqueSinger: $hasUniqueSinger, singer: $singer, _selectedSinger: $_selectedSinger'
+        ', _selectedSingerIsRequester: $_selectedSingerIsRequester'
         ', searchForSelectedSingerOnly: $searchForSelectedSingerOnly');
     return AppWrap(
       children: [
         if (hasUniqueSinger)
           appWidgetHelper.checkbox(
-            value: allSongPerformances.isSongInSingersList(_selectedSinger, song),
+            value: _selectedSingerIsRequester
+                ? _allSongPerformances.isSongInRequestersList(_selectedSinger, song)
+                : _allSongPerformances.isSongInSingersList(_selectedSinger, song),
             onChanged: (bool? value) {
               if (value != null) {
                 singer ??= _selectedSinger;
                 if (singer != null) {
                   setState(() {
-                    if (value) {
-                      if (singer != _unknownSinger) {
-                        allSongPerformances.addSongPerformance(
-                            SongPerformance(song.songId.toString(), singer!, key ?? music_key.Key.getDefault()));
+                    if (_selectedSingerIsRequester) {
+                      if (value) {
+                        if (_selectedSinger != _unknownSinger) {
+                          _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
+                        }
+                      } else {
+                        _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
                       }
                     } else {
-                      allSongPerformances.removeSingerSong(singer!, song.songId.toString());
+                      if (value) {
+                        if (singer != _unknownSinger) {
+                          _allSongPerformances.addSongPerformance(
+                              SongPerformance(song.songId.toString(), singer!, key ?? music_key.Key.getDefault()));
+                        }
+                      } else {
+                        _allSongPerformances.removeSingerSong(singer!, song.songId.toString());
+                      }
                     }
                     AppOptions().storeAllSongPerformances();
                   });
@@ -963,8 +1031,7 @@ class _State extends State<Singers> {
               ? () {
                   setState(() {
                     if (singer != null) {
-                      _selectedSinger = singer!;
-                      searchForSelectedSingerOnly = true;
+                      _setSelectedSinger(singer);
                     }
                     var songPerformance = SongPerformance(
                         song.songId.toString(), _selectedSinger, key ?? music_key.Key.getDefault(),
@@ -998,10 +1065,10 @@ class _State extends State<Singers> {
       return;
     }
 
-    logger.d('allSongPerformances.length: ${allSongPerformances.length}');
+    logger.d('allSongPerformances.length: ${_allSongPerformances.length}');
 
     //  select songs from the selected singer
-    for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
+    for (final SongPerformance songPerformance in _allSongPerformances.allSongPerformances) {
       if (songPerformance.song != null &&
           songPerformance.singer == _selectedSinger &&
           _songSearchMatcher.matchesOrEmptySearch(songPerformance.song!)) {
@@ -1029,7 +1096,7 @@ class _State extends State<Singers> {
     var requestsFound = SplayTreeSet<Song>();
 
     if (_songSearchMatcher.isNotEmpty) {
-      for (final SongPerformance songPerformance in allSongPerformances.allSongPerformances) {
+      for (final SongPerformance songPerformance in _allSongPerformances.allSongPerformances) {
         if (songPerformance.song != null &&
             _sessionSingers.contains(songPerformance.singer) &&
             _songSearchMatcher.matchesOrEmptySearch(songPerformance.song!)) {
@@ -1068,7 +1135,7 @@ class _State extends State<Singers> {
     setState(() {
       //  fixme: song may have been edited in the player screen!!!!
       //  update the last sung date and the key if it has been changed
-      allSongPerformances.addSongPerformance(songPerformance.update(
+      _allSongPerformances.addSongPerformance(songPerformance.update(
           key: playerSelectedSongKey, bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute));
       logger.d('navigateToPlayer.playerSelectedBpm back: $playerSelectedBpm');
       AppOptions().storeAllSongPerformances();
@@ -1077,8 +1144,7 @@ class _State extends State<Singers> {
       if (_sessionSingers.isNotEmpty) {
         //  increment the selected singer now that we're done singing a song
         var index = _sessionSingers.indexOf(_selectedSinger) + 1;
-        _selectedSinger = _sessionSingers[index >= _sessionSingers.length ? 0 : index];
-        searchForSelectedSingerOnly = true;
+        _setSelectedSinger(_sessionSingers[index >= _sessionSingers.length ? 0 : index]);
       }
 
       searchClear();
@@ -1104,10 +1170,10 @@ class _State extends State<Singers> {
       if (content.isEmpty) {
         app.infoMessage('No singer file read');
       } else {
-        int count = allSongPerformances.updateFromJsonString(content);
+        int count = _allSongPerformances.updateFromJsonString(content);
         app.infoMessage('Performances updated: $count');
         logger.d('filePickUpdate: $count');
-        allSongPerformances.loadSongs(app.allSongs);
+        _allSongPerformances.loadSongs(app.allSongs);
         if (count > 0) {
           AppOptions().storeAllSongPerformances();
           allHaveBeenWritten = false;
@@ -1142,20 +1208,12 @@ class _State extends State<Singers> {
   final FocusNode _searchFocusNode;
 
   final TextEditingController searchTextFieldController = TextEditingController();
-  bool _searchForSelectedSingerOnly = true;
-
-  bool get searchForSelectedSingerOnly => _searchForSelectedSingerOnly;
-
-  set searchForSelectedSingerOnly(bool selection) {
-    _searchForSelectedSingerOnly = _selectedSinger == _unknownSinger ? false : selection;
-  }
 
   final FocusNode _singerSearchFocusNode;
   final TextEditingController singerSearchTextFieldController = TextEditingController();
 
   final List<DropdownMenuItem<SingersSongOrder>> _sortOrderDropDownMenuList = [];
 
-  AllSongPerformances allSongPerformances = AllSongPerformances();
   bool allHaveBeenWritten = false;
 
   final TextEditingController singerTextFieldController = TextEditingController();

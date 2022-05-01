@@ -152,6 +152,10 @@ void main() async {
 done:
 
 beta short list:
+singer: on request select, increment from requester, not singer!
+______requested song from singers only shows up once!
+lists for other matching song & today's singers sing on any singer, not requester,  wrong list order
+
 leader/follower will not follow scrolling!
 finish automation of history update from GS
 song not selected on main list after a file read and return to main list

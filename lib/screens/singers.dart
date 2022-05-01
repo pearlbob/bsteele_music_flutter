@@ -144,7 +144,7 @@ class _State extends State<Singers> {
     if (_selectedSingerIsRequester) {
       SplayTreeSet<SongRequest> songRequestsFromRequester = SplayTreeSet<SongRequest>()
         ..addAll(_allSongPerformances.allSongPerformanceRequests.where((e) => e.requester == _selectedSinger));
-      logger.i('requests: $songRequestsFromRequester');
+      logger.d('requests: $songRequestsFromRequester');
 
       if (searchForSelectedSingerOnly) {
         songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
@@ -159,7 +159,7 @@ class _State extends State<Singers> {
           ..addAll(songRequestsFromRequester
               .where((e) => e.requester == _selectedSinger && e.song != null)
               .map<Song>((e) => e.song!));
-        logger.i('requests: $songRequestsFromRequester');
+        logger.d('requests: $songRequestsFromRequester');
         for (var singer in _sessionSingers) {
           if (singer != _selectedSinger) {
             for (var performance in _allSongPerformances.bySinger(singer)) {
@@ -332,7 +332,7 @@ class _State extends State<Singers> {
 
     {
       //  add  singer search
-      sessionSingerWidgets.add(AppWrapFullWidth(children: [
+      sessionSingerWidgets.add(AppWrap(children: [
         AppTooltip(
           message: 'search',
           child: IconButton(
@@ -375,18 +375,19 @@ class _State extends State<Singers> {
       ], alignment: WrapAlignment.spaceBetween));
 
       //  find all singers
-      var setOfSingers = SplayTreeSet<String>();
-      setOfSingers.addAll(_allSongPerformances.setOfSingers());
+      var setOfPerformers = SplayTreeSet<String>();
+      setOfPerformers.addAll(_allSongPerformances.setOfSingers());
+      setOfPerformers.addAll(_allSongPerformances.setOfRequesters());
       if (_selectedSinger != _unknownSinger) {
-        setOfSingers.add(_selectedSinger);
+        setOfPerformers.add(_selectedSinger);
       }
 
       var singerSearch = singerSearchTextFieldController.text.toLowerCase();
       {
         var lastFirstInitial = '';
-        for (var singer in setOfSingers) {
-          if (singerSearch.isEmpty || singer.toLowerCase().contains(singerSearch)) {
-            var firstInitial = singer.characters.first.toUpperCase();
+        for (var performer in setOfPerformers) {
+          if (singerSearch.isEmpty || performer.toLowerCase().contains(singerSearch)) {
+            var firstInitial = performer.characters.first.toUpperCase();
             if (firstInitial != lastFirstInitial) {
               lastFirstInitial = firstInitial;
               sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
@@ -399,50 +400,50 @@ class _State extends State<Singers> {
             sessionSingerWidgets.add(AppWrap(
               children: [
                 appTextButton(
-                  singer,
+                  performer,
                   appKeyEnum: AppKeyEnum.singersAllSingers,
-                  style: singer == _selectedSinger
+                  style: performer == _selectedSinger
                       ? songPerformanceStyle.copyWith(backgroundColor: addColor)
                       : songPerformanceStyle,
                   onPressed: () {
                     setState(() {
-                      _setSelectedSinger(singer);
+                      _setSelectedSinger(performer);
                     });
                   },
                 ),
-                if (!_sessionSingers.contains(singer))
+                if (!_sessionSingers.contains(performer))
                   AppInkWell(
                     appKeyEnum: AppKeyEnum.singersAddSingerToSession,
-                    value: singer,
+                    value: performer,
                     onTap: () {
                       setState(() {
-                        _sessionSingers.add(singer);
+                        _sessionSingers.add(performer);
                         _appOptions.sessionSingers = _sessionSingers;
-                        _setSelectedSinger(singer);
+                        _setSelectedSinger(performer);
                       });
                     },
                     child: appCircledIcon(
                       Icons.add,
-                      'Add $singer to today\'s session.',
+                      'Add $performer to today\'s session.',
                       margin: appendInsets,
                       padding: appendPadding,
                       color: addColor,
                       size: fontSize * 0.7,
                     ),
                   ),
-                if (_sessionSingers.contains(singer))
+                if (_sessionSingers.contains(performer))
                   AppInkWell(
                     appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
                     // value: singer,
                     onTap: () {
                       setState(() {
-                        _sessionSingers.remove(singer);
+                        _sessionSingers.remove(performer);
                         _appOptions.sessionSingers = _sessionSingers;
                       });
                     },
                     child: appCircledIcon(
                       Icons.remove,
-                      'Remove $singer from today\'s session.',
+                      'Remove $performer from today\'s session.',
                       margin: appendInsets,
                       padding: appendPadding,
                       color: removeColor,

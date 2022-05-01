@@ -145,11 +145,34 @@ class _State extends State<Singers> {
       SplayTreeSet<SongRequest> songRequestsFromRequester = SplayTreeSet<SongRequest>()
         ..addAll(_allSongPerformances.allSongPerformanceRequests.where((e) => e.requester == _selectedSinger));
       logger.i('requests: $songRequestsFromRequester');
-      songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
-          .where((e) => e.requester == _selectedSinger)
-          .map((e) => e.song)
-          .whereType<Song>());
-      logger.i('songRequests.length: ${songRequests.length}');
+
+      if (searchForSelectedSingerOnly) {
+        songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
+            .where((e) =>
+                e.requester == _selectedSinger && e.song != null && _songSearchMatcher.matchesOrEmptySearch(e.song!))
+            .map((e) => e.song)
+            .whereType<Song>());
+        logger.i('songRequests.length: ${songRequests.length}');
+      } else {
+        // find all the requested songs that match the current session singers
+        SplayTreeSet<Song> requestedSongs = SplayTreeSet<Song>()
+          ..addAll(songRequestsFromRequester
+              .where((e) => e.requester == _selectedSinger && e.song != null)
+              .map<Song>((e) => e.song!));
+        logger.i('requests: $songRequestsFromRequester');
+        for (var singer in _sessionSingers) {
+          if (singer != _selectedSinger) {
+            for (var performance in _allSongPerformances.bySinger(singer)) {
+              if (performance.song != null) {
+                var song = performance.song!;
+                if (_songSearchMatcher.matchesOrEmptySearch(song) && requestedSongs.contains(song)) {
+                  performancesFromSessionSingers.add(performance);
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     //  fill the stores
@@ -171,13 +194,15 @@ class _State extends State<Singers> {
       }
 
       //  songs sung by other session singers
-      for (var singer in _sessionSingers) {
-        if (!searchForSelectedSingerOnly || singer != _selectedSinger) {
-          for (var performance in _allSongPerformances.bySinger(singer)) {
-            if (performance.song != null) {
-              var song = performance.song!;
-              if (_songSearchMatcher.matchesOrEmptySearch(song)) {
-                performancesFromSessionSingers.add(performance);
+      if (!_selectedSingerIsRequester) {
+        for (var singer in _sessionSingers) {
+          if (!searchForSelectedSingerOnly || singer != _selectedSinger) {
+            for (var performance in _allSongPerformances.bySinger(singer)) {
+              if (performance.song != null) {
+                var song = performance.song!;
+                if (_songSearchMatcher.matchesOrEmptySearch(song)) {
+                  performancesFromSessionSingers.add(performance);
+                }
               }
             }
           }
@@ -201,23 +226,29 @@ class _State extends State<Singers> {
       if (_songSearchMatcher.isNotEmpty) {
         // 		search text NOT empty
         if (searchForSelectedSingerOnly) {
-          // 			search for single singer selected
-          // 				- performances from singer that match search
-          addPerformanceWidgets(
-              songWidgetList, 'Matching songs sung by $_selectedSinger:', performancesFromSingerMatching,
-              color: appBackgroundColor());
-          //   - all other matching songs
-          addSongWidgets(songWidgetList, 'Matching songs $_selectedSinger might sing:', otherMatchingSongs);
-          // // 				- performances from session singers that match
-          // addPerformanceWidgets(
-          //     songWidgetList, 'Matching songs sung by other singers:', performancesFromSessionSingers);
-          // // 				- performances from singer that do NOT match search
-          // addPerformanceWidgets(
-          //     songWidgetList,
-          //     'Songs sung by $selectedSinger but not matching "${songSearchMatcher.pattern}":',
-          //     performancesFromSingerNotMatching,
-          //     color: appBackgroundColor());
-
+          if (_selectedSingerIsRequester) {
+            addSongWidgets(songWidgetList, 'Songs $_selectedSinger would like to request:', songRequests,
+                color: appBackgroundColor());
+            //   - all other matching songs
+            addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
+          } else {
+            // 			search for single singer selected
+            // 				- performances from singer that match search
+            addPerformanceWidgets(
+                songWidgetList, 'Matching songs sung by $_selectedSinger:', performancesFromSingerMatching,
+                color: appBackgroundColor());
+            //   - all other matching songs
+            addSongWidgets(songWidgetList, 'Matching songs $_selectedSinger might sing:', otherMatchingSongs);
+            // // 				- performances from session singers that match
+            // addPerformanceWidgets(
+            //     songWidgetList, 'Matching songs sung by other singers:', performancesFromSessionSingers);
+            // // 				- performances from singer that do NOT match search
+            // addPerformanceWidgets(
+            //     songWidgetList,
+            //     'Songs sung by $selectedSinger but not matching "${songSearchMatcher.pattern}":',
+            //     performancesFromSingerNotMatching,
+            //     color: appBackgroundColor());
+          }
         } else {
           // 			search all session singers
           // 				- performances from session singers that match
@@ -235,8 +266,14 @@ class _State extends State<Singers> {
       } else {
         // 		search text empty
         if (_selectedSingerIsRequester) {
-          addSongWidgets(songWidgetList, 'Songs $_selectedSinger would like to play:', songRequests,
-              color: appBackgroundColor());
+          if (searchForSelectedSingerOnly) {
+            addSongWidgets(songWidgetList, 'Songs $_selectedSinger would like to request:', songRequests,
+                color: appBackgroundColor());
+          } else {
+            addPerformanceWidgets(
+                songWidgetList, '$_selectedSinger would like to hear:', performancesFromSessionSingers,
+                color: appBackgroundColor());
+          }
         } else if (searchForSelectedSingerOnly) {
           // 			search single singer selected
           // 				- performances from singer
@@ -266,7 +303,9 @@ class _State extends State<Singers> {
     //   - all the other songs not otherwise listed
     if (_songSearchMatcher.isEmpty) {
       if (_selectedSingerIsRequester) {
-        addSongWidgets(songWidgetList, 'Songs $_selectedSinger might request:', otherSongs);
+        if (searchForSelectedSingerOnly) {
+          addSongWidgets(songWidgetList, 'Songs $_selectedSinger might request:', otherSongs);
+        }
       } else {
         addSongWidgets(songWidgetList, 'Other songs:', otherSongs);
       }
@@ -1020,11 +1059,11 @@ class _State extends State<Singers> {
         if (hasUniqueSinger) const AppSpace(space: 12),
         TextButton(
           child: Text(
-            '${singer != null ? '$singer sings: ' : ''}'
+            '${singer != null ? '$singer sing${_selectedSingerIsRequester ? '' : 's'}: ' : ''}'
             '${song.title} by ${song.artist}'
             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
             '${key == null ? '' : ' in $key'}'
-            '${bpm == null ? '' : ' at $bpm'}',
+            '${bpm == null && bpm != song.beatsPerMinute ? '' : ' at $bpm'}',
             style: songPerformanceStyle,
           ),
           onPressed: (singer != null || _selectedSinger != _unknownSinger)

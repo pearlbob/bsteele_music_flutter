@@ -927,7 +927,7 @@ class _State extends State<Singers> {
                     ),
                   ),
                   SizedBox(
-                    width: 10 * app.screenInfo.fontSize,
+                    width: 15 * fontSize,
                     //  limit text entry display length
                     child: appTextField(
                       appKeyEnum: AppKeyEnum.singersSingerSearchText,
@@ -1296,7 +1296,9 @@ class _State extends State<Singers> {
 
       searchClear();
       FocusScope.of(context).requestFocus(_searchFocusNode);
-      scrollController.jumpTo(0);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(0);
+      }
     });
   }
 
@@ -1385,7 +1387,9 @@ class _State extends State<Singers> {
       _searchForSelectedSingerOnly = !_selectedSingerIsRequester;
       _selectedVolunteerSinger = _unknownSinger;
       searchClear();
-      scrollController.jumpTo(0);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(0);
+      }
     }
   }
 

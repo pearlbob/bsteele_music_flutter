@@ -61,7 +61,7 @@ const int _minimumSpaceBarGapMs = 750; //  milliseconds
 
 //  diagnostic logging enables
 const Level _playerLogBuild = Level.debug;
-const Level _playerLogScroll = Level.info;
+const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;

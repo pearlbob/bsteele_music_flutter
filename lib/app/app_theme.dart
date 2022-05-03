@@ -744,6 +744,7 @@ enum AppKeyEnum {
   singersRemoveAllSingers,
   singersRemoveSingerFromSession,
   singersRemoveThisSingerFromSession,
+  singersRequestVolunteer,
   singersShowOtherActions,
   singersSearchText,
   singersSearchSingle,
@@ -813,6 +814,7 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.playerMusicKey: music_key.Key,
   AppKeyEnum.singersAddSingerToSession: String,
   AppKeyEnum.singersAllSingers: String,
+  AppKeyEnum.singersRequestVolunteer: String,
   AppKeyEnum.singersSearchSingle: bool,
   AppKeyEnum.singersSessionSingerSelect: String,
   AppKeyEnum.singersSingingTextButton: String,
@@ -1469,6 +1471,7 @@ TextStyle generateAppTextStyle({
 
 TextStyle generateAppTextFieldStyle({
   Color? color,
+  Color? backgroundColor,
   double? fontSize,
   FontWeight? fontWeight,
   FontStyle? fontStyle,
@@ -1478,6 +1481,7 @@ TextStyle generateAppTextFieldStyle({
 }) {
   return generateAppTextStyle(
       color: color,
+      backgroundColor: backgroundColor,
       fontSize: fontSize,
       fontWeight: fontWeight,
       fontStyle: fontStyle,

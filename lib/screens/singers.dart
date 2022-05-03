@@ -273,7 +273,7 @@ class _State extends State<Singers> {
               thickness: 10,
               color: appBackgroundColor(),
             ));
-            songWidgetList.add(Text('Songs $_selectedSinger would like a singer volunteer:',
+            songWidgetList.add(Text('Songs $_selectedSinger would like a volunteer singer:',
                 style: songPerformanceStyle.copyWith(color: appBackgroundColor())));
             songWidgetList.add(const AppSpace());
             {
@@ -312,25 +312,16 @@ class _State extends State<Singers> {
           // 			search single singer selected
           // 			search for single singer selected
           // 				- performances from singer that match search
-          addPerformanceWidgets(
-              songWidgetList, 'Matching songs sung by $_selectedSinger:', performancesFromSingerMatching,
-              color: appBackgroundColor());
+
           if (_songSearchMatcher.isNotEmpty) {
-            //   - all other matching songs
-            addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
+            addPerformanceWidgets(
+                songWidgetList, 'Matching songs sung by $_selectedSinger:', performancesFromSingerMatching,
+                color: appBackgroundColor());
+          } else {
+            addPerformanceWidgets(songWidgetList, '$_selectedSinger sings:', performancesFromSingerNotMatching,
+                color: appBackgroundColor());
           }
-          // 				- non matching performances from singer
-          addPerformanceWidgets(
-              songWidgetList,
-              '$_selectedSinger '
-              '${performancesFromSingerMatching.isNotEmpty ? 'also ' : ''}'
-              'sings:',
-              performancesFromSingerNotMatching,
-              color: appBackgroundColor());
-          if (_songSearchMatcher.isEmpty) {
-            //   - all other matching songs
-            addSongWidgets(songWidgetList, 'Other matching songs:', otherMatchingSongs);
-          }
+          // 				matching performances from singer
         } else {
           // 			search all singers selected
           // 				- performances from session singers
@@ -645,7 +636,7 @@ class _State extends State<Singers> {
                           ),
                         ),
                         SizedBox(
-                          width: 16 * app.screenInfo.fontSize,
+                          width: 20 * fontSize,
                           //  limit text entry display length
                           child: appTextField(
                             appKeyEnum: AppKeyEnum.singersSearchText,
@@ -655,7 +646,9 @@ class _State extends State<Singers> {
                             hintText:
                                 'enter song search${_selectedSinger != _unknownSinger ? ' for $_selectedSinger' : ''}',
                             onChanged: (text) {
-                              setState(() {});
+                              setState(() {
+                                scrollController.jumpTo(0);
+                              });
                             },
                             fontSize: fontSize,
                           ),
@@ -1392,6 +1385,7 @@ class _State extends State<Singers> {
       _searchForSelectedSingerOnly = !_selectedSingerIsRequester;
       _selectedVolunteerSinger = _unknownSinger;
       searchClear();
+      scrollController.jumpTo(0);
     }
   }
 

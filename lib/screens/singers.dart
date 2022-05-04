@@ -790,6 +790,7 @@ class _State extends State<Singers> {
                             onPressed: () {
                               setState(() {
                                 _allSongPerformances.clear();
+                                AppOptions().storeAllSongPerformances();
                                 allHaveBeenWritten = false;
                               });
                             },

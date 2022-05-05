@@ -152,14 +152,11 @@ void main() async {
 done:
 
 beta short list:
-singer: on request select, increment from requester, not singer!
-______requested song from singers only shows up once!
-lists for other matching song & today's singers sing on any singer, not requester,  wrong list order
-
+fix song: Handlebar
+add beta link to about screen
 leader/follower will not follow scrolling!
-finish automation of history update from GS
+finish automation of history update from JS
 song not selected on main list after a file read and return to main list
-song requestor feature for singer page.
 
 consistent arrow on leader and follower
 share the "sung by" in the follower update

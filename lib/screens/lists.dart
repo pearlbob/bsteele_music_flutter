@@ -130,7 +130,7 @@ class _State extends State<Lists> {
           SizedBox(
             width: 5 * app.screenInfo.fontSize,
             //  limit text entry display length
-            child: appTextField(
+            child: AppTextField(
               appKeyEnum: AppKeyEnum.listsNameEntry,
               controller: _nameTextFieldController,
               hintText: "name...",
@@ -151,7 +151,7 @@ class _State extends State<Lists> {
           SizedBox(
             width: 5 * app.screenInfo.fontSize,
             //  limit text entry display length
-            child: appTextField(
+            child: AppTextField(
               appKeyEnum: AppKeyEnum.listsValueEntry,
               controller: _valueTextFieldController,
               hintText: "value...",
@@ -336,7 +336,7 @@ class _State extends State<Lists> {
                   SizedBox(
                     width: 10 * app.screenInfo.fontSize,
                     //  limit text entry display length
-                    child: appTextField(
+                    child: AppTextField(
                       appKeyEnum: AppKeyEnum.listsSearchText,
                       enabled: true,
                       controller: _searchTextFieldController,

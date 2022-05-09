@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../main.dart';
-import '../screens/singers.dart';
 import 'app.dart';
 
 const Level _cssLog = Level.debug;
@@ -660,6 +659,7 @@ enum AppKeyEnum {
   mainHamburger,
   mainSearchText,
   mainSong,
+  mainSortType,
   mainSortTypeSelection,
   mainUp,
   optionsBack,
@@ -818,7 +818,7 @@ Map<AppKeyEnum, Type> appKeyEnumTypeMap = {
   AppKeyEnum.singersSearchSingle: bool,
   AppKeyEnum.singersSessionSingerSelect: String,
   AppKeyEnum.singersSingingTextButton: String,
-  AppKeyEnum.singersSortTypeSelection: SingersSongOrder,
+  AppKeyEnum.singersSortTypeSelection: String,
 };
 
 class Id {
@@ -1304,6 +1304,10 @@ DropdownButton<T> appDropdownButton<T>(AppKeyEnum appKeyEnum, List<DropdownMenuI
     hint: hint,
     style: style,
     isDense: true,
+    iconSize: app.screenInfo.fontSize,
+    alignment: Alignment.centerLeft,
+    elevation: 8,
+    itemHeight: null,
   );
 }
 
@@ -1375,41 +1379,69 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
   );
 }
 
-TextField appTextField({
-  required AppKeyEnum appKeyEnum,
-  TextEditingController? controller,
-  FocusNode? focusNode,
-  final ValueChanged<String>? onChanged,
-  final ValueChanged<String>? onSubmitted,
-  String? hintText,
-  TextStyle? style,
-  double? fontSize, //  fixme: overridden by non-null style above
-  FontWeight? fontWeight,
-  bool? enabled,
-  int? minLines,
-  int? maxLines,
-  InputBorder? border,
-}) {
-  return TextField(
-    key: appKey(appKeyEnum),
-    controller: controller,
-    focusNode: focusNode,
-    enabled: enabled,
-    keyboardType: (minLines ?? 0) > 1 ? TextInputType.multiline : TextInputType.text,
-    onChanged: onChanged,
-    onSubmitted: onSubmitted,
-    decoration: InputDecoration(
-      border: border,
-      // floatingLabelAlignment: FloatingLabelAlignment.start,
-      isDense: true,
-      contentPadding: const EdgeInsets.all(2.0),
-      hintText: hintText,
-    ),
-    style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
-    maxLength: null,
-    minLines: minLines,
-    maxLines: maxLines ?? minLines,
-  );
+@immutable
+class AppTextField extends StatelessWidget {
+  const AppTextField({
+    Key? key,
+    required this.appKeyEnum,
+    this.controller,
+    this.focusNode,
+    this.onChanged,
+    this.onSubmitted,
+    this.hintText,
+    this.style,
+    this.fontSize, //  fixme: overridden by non-null style above
+    this.fontWeight,
+    this.enabled,
+    this.minLines,
+    this.maxLines,
+    this.border,
+    this.width = 200,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: TextField(
+        key: appKey(appKeyEnum),
+        controller: controller,
+        focusNode: focusNode,
+        enabled: enabled,
+        keyboardType: (minLines ?? 0) > 1 ? TextInputType.multiline : TextInputType.text,
+        onChanged: onChanged,
+        onSubmitted: onSubmitted,
+        decoration: InputDecoration(
+          border: border,
+          // floatingLabelAlignment: FloatingLabelAlignment.start,
+          isDense: true,
+          contentPadding: const EdgeInsets.all(2.0),
+          hintText: hintText,
+        ),
+        style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
+        //(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
+        autofocus: true,
+        maxLength: null,
+        minLines: minLines,
+        maxLines: maxLines ?? minLines,
+      ),
+    );
+  }
+
+  final AppKeyEnum appKeyEnum;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final String? hintText;
+  final TextStyle? style;
+  final double? fontSize; //  fixme: overridden by non-null style above
+  final FontWeight? fontWeight;
+  final bool? enabled;
+  final int? minLines;
+  final int? maxLines;
+  final InputBorder? border;
+  final double width;
 }
 
 GestureDetector appGestureDetector(

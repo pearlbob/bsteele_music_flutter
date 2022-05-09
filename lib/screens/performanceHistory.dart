@@ -70,7 +70,7 @@ class _PerformanceHistory extends State<PerformanceHistory> {
                 SizedBox(
                   width: 20 * fontSize,
                   //  limit text entry display length
-                  child: appTextField(
+                  child: AppTextField(
                     appKeyEnum: AppKeyEnum.singersSearchText,
                     enabled: true,
                     controller: _searchTextFieldController,

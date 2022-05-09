@@ -130,17 +130,15 @@ class _Options extends State<Options> {
                             'User name: ',
                           ),
                         ),
-                        Expanded(
-                          child: appTextField(
-                            appKeyEnum: AppKeyEnum.optionsUserName,
-                            controller: _userTextEditingController,
-                            hintText: 'Enter your user name.',
-                            onChanged: (value) {
-                              if (value.isNotEmpty) {
-                                _appOptions.user = value;
-                              }
-                            },
-                          ),
+                        AppTextField(
+                          appKeyEnum: AppKeyEnum.optionsUserName,
+                          controller: _userTextEditingController,
+                          hintText: 'Enter your user name.',
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              _appOptions.user = value;
+                            }
+                          },
                         ),
                       ]),
                   AppWrap(
@@ -153,7 +151,7 @@ class _Options extends State<Options> {
                       ),
                       SizedBox(
                         width: app.screenInfo.mediaWidth / 3,
-                        child: appTextField(
+                        child: AppTextField(
                           appKeyEnum: AppKeyEnum.optionsWebsocketIP,
                           controller: _websocketHostEditingController,
                           hintText: 'Enter the websocket host IP address.',

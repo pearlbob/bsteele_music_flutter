@@ -35,15 +35,16 @@ class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
       appBar: appWidgetHelper.backBar(title: 'Community Jams'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: screenInfo.fontSize),
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
+        child: Column(
+          // padding: const EdgeInsets.all(8.0),
+          children: [
+            Expanded(
+              child: ListView(//controller: scrollController,
+                  children: <Widget>[
                 app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
-                const AppSpace(),
+                const AppVerticalSpace(
+                  space: 200,
+                ),
                 const Text(
                   'The bsteele Music App has been motivated by Community Jams.',
                 ),
@@ -52,6 +53,7 @@ class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
                   width: max(200, screenInfo.mediaWidth / 5),
                   height: max(200, screenInfo.mediaWidth / 5),
                   semanticLabel: "communityjams.org website",
+                  alignment: Alignment.topLeft,
                 ),
                 AppWrapFullWidth(
                   children: <Widget>[
@@ -67,11 +69,38 @@ class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
                         style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
                       ),
                     ),
-                const Text(
-                  '.',
+                    const Text(
+                      '.',
+                    ),
+                  ],
                 ),
-              ],),
+                const AppVerticalSpace(
+                  space: 300,
+                ),
+                const AppWrapFullWidth(
+                  children: <Widget>[
+                    Text(
+                      'When in the park with Community Jams,\n'
+                      'share this link to the bsteeleMusicApp with others in the park:',
+                    ),
+                  ],
+                ),
+                const AppVerticalSpace(
+                  space: 25,
+                ),
+                Image(
+                  image: const AssetImage('lib/assets/cj_park_qr_code.png'),
+                  width: max(200, screenInfo.mediaWidth / 5),
+                  height: max(200, screenInfo.mediaWidth / 5),
+                  semanticLabel: "Community Jams website in the park",
+                  alignment: Alignment.topLeft,
+                ),
+                const AppVerticalSpace(
+                  space: 400,
+                ),
               ]),
+            )
+          ],
         ),
       ),
     );

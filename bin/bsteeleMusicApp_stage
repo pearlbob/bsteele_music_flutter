@@ -9,6 +9,7 @@ set isBeta=1
 set app=bsteeleMusicApp
 set flavor=beta
 set git=~/github/bsteele_music_flutter
+set bsteeleMusicLib=~/github/bsteeleMusicLib
 
 while ( $#argv > 0 )
 	switch ( $1 )
@@ -55,6 +56,11 @@ date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 #	note: use web-render to run on the pi in park mode
 flutter build web --release
+
+# install beta lib util
+cd bsteeleMusicLib
+bin/bsteeleMusicUtil_install
+cd $git
 
 #	clear the last one
 mkdir -p $betaDir

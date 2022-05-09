@@ -157,6 +157,7 @@ add beta link to about screen
 leader/follower will not follow scrolling!
 finish automation of history update from JS
 song not selected on main list after a file read and return to main list
+insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 
 consistent arrow on leader and follower
 share the "sung by" in the follower update
@@ -1235,33 +1236,34 @@ class _MyHomePageState extends State<MyHomePage> {
                 )),
           ]),
           if (app.isScreenBig)
-            AppWrap(children: [
-              AppTooltip(
-                message: 'Select the order of the song list.',
-                child: Text(
-                  'Order',
+            AppWrap(
+              children: [
+                AppTooltip(
+                  message: 'Select the order of the song list.',
+                  child: Text(
+                    'Order',
+                    style: searchDropDownStyle,
+                  ),
+                ),
+                appDropdownButton<MainSortType>(
+                  AppKeyEnum.mainSortType,
+                  _sortTypesDropDownMenuList,
+                  onChanged: (value) {
+                    if (_selectedSortType != value) {
+                      setState(() {
+                        _selectedSortType = value ?? MainSortType.byTitle;
+                        _searchSongs(_searchTextFieldController.text);
+                        app.clearMessage();
+                      });
+                    }
+                  },
+                  value: _selectedSortType,
                   style: searchDropDownStyle,
                 ),
-              ),
-              const AppSpace(),
-              DropdownButton<MainSortType>(
-                items: _sortTypesDropDownMenuList,
-                onChanged: (value) {
-                  if (_selectedSortType != value) {
-                    setState(() {
-                      _selectedSortType = value ?? MainSortType.byTitle;
-                      _searchSongs(_searchTextFieldController.text);
-                      app.clearMessage();
-                    });
-                  }
-                },
-                value: _selectedSortType,
-                style: searchDropDownStyle,
-                alignment: Alignment.topLeft,
-                elevation: 8,
-                itemHeight: null,
-              ),
-            ]),
+              ],
+              crossAxisAlignment: WrapCrossAlignment.start,
+              spacing: app.screenInfo.fontSize / 2,
+            ),
           if (appOptions.holiday)
             AppWrap(children: [
               AppTooltip(
@@ -1273,27 +1275,30 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ]),
           if (!appOptions.holiday && app.isScreenBig)
-            AppWrap(children: [
-              AppTooltip(
-                message: 'Select which song list to show.',
-                child: Text(
-                  'List',
-                  style: searchDropDownStyle,
+            AppWrap(
+              children: [
+                AppTooltip(
+                  message: 'Select which song list to show.',
+                  child: Text(
+                    'List',
+                    style: searchDropDownStyle,
+                  ),
                 ),
-              ),
-              const AppSpace(),
-              DropdownButton<NameValue>(
-                items: _metadataDropDownMenuList,
-                onChanged: (value) {
-                  logger.v('metadataDropDownMenuList selection: $value');
-                  app.clearMessage();
-                },
-                value: _selectedListNameValue ?? allSongsMetadataNameValue,
-                style: searchDropDownStyle,
-                elevation: 8,
-                itemHeight: null,
-              ),
-            ]),
+                DropdownButton<NameValue>(
+                  items: _metadataDropDownMenuList,
+                  onChanged: (value) {
+                    logger.v('metadataDropDownMenuList selection: $value');
+                    app.clearMessage();
+                  },
+                  value: _selectedListNameValue ?? allSongsMetadataNameValue,
+                  style: searchDropDownStyle,
+                  elevation: 8,
+                  itemHeight: null,
+                ),
+              ],
+              crossAxisAlignment: WrapCrossAlignment.start,
+              spacing: app.screenInfo.fontSize / 2,
+            ),
         ], alignment: WrapAlignment.spaceBetween),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(

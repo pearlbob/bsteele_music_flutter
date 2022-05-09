@@ -46,141 +46,290 @@ class _State extends State<TheoryWidget> {
       scaleNoteValues = scaleNoteSet.toList(growable: false);
     }
 
+    var backgroundColor = Theme.of(context).backgroundColor;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'Music Theory'),
-      body: SingleChildScrollView(
-        //controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            const AppSpace(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Key: ',
-                          style: _style,
-                        ),
-                        DropdownButton<music_key.Key>(
-                          items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                            return DropdownMenuItem<music_key.Key>(
-                              key: ValueKey('half' + value.getHalfStep().toString()),
-                              value: value,
-                              child: Text(
-                                '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != _key) {
-                              setState(() {
-                                _key = _value;
-                              });
-                            }
-                          },
-                          value: _key,
-                          style: generateAppTextStyle(
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                          itemHeight: null,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Chord root: ',
-                          style: _style,
-                        ),
-                        DropdownButton<ScaleNote>(
-                          items: scaleNoteValues.map((ScaleNote value) {
-                            return DropdownMenuItem<ScaleNote>(
-                              key: ValueKey('root' + value.halfStep.toString()),
-                              value: value,
-                              child: Text(
-                                _key.inKey(value).toMarkup(),
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != _chordRoot) {
-                              setState(() {
-                                _chordRoot = _value;
-                              });
-                            }
-                          },
-                          value: _chordRoot,
-                          style: generateAppTextStyle(
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                          itemHeight: null,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Chord type: ',
-                          style: _style,
-                        ),
-                        DropdownButton<ChordDescriptor>(
-                          items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
-                            return DropdownMenuItem<ChordDescriptor>(
-                              value: value,
-                              child: Text(
-                                '${value.toString().padRight(3)} (${value.name})',
-                                style: _style,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_value) {
-                            if (_value != null && _value != chordDescriptor) {
-                              setState(() {
-                                chordDescriptor = _value;
-                              });
-                            }
-                          },
-                          value: chordDescriptor,
-                          style: generateAppTextStyle(
-                            color: Colors.black,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                          itemHeight: null,
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: 10,
-                    ),
-                    _keyTable(),
-                    Container(
-                      height: 20,
-                    ),
-                    _majorDiatonicsTable(),
-                    Container(
-                      height: 20,
-                    ),
-                    _minorDiatonicsTable()
-                  ],
-                ),
-              ],
-            ),
-            const AppSpace(),
-          ],
+      body: Stack(children: [
+        Container(
+          color: measureContainerBackgroundColor(),
         ),
-      ),
+        SingleChildScrollView(
+          //controller: _scrollController,
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              const AppSpace(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        color: backgroundColor,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Key: ',
+                              style: _style,
+                            ),
+                            DropdownButton<music_key.Key>(
+                              items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
+                                return DropdownMenuItem<music_key.Key>(
+                                  key: ValueKey('half' + value.getHalfStep().toString()),
+                                  value: value,
+                                  child: Text(
+                                    '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
+                                    style: _style,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (_value) {
+                                if (_value != null && _value != _key) {
+                                  setState(() {
+                                    _key = _value;
+                                  });
+                                }
+                              },
+                              value: _key,
+                              style: generateAppTextStyle(
+                                color: Colors.black,
+                                textBaseline: TextBaseline.ideographic,
+                              ),
+                              itemHeight: null,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const AppSpace(),
+                      Container(color: backgroundColor, child: _keyScaleNoteTable()),
+                      const AppSpace(),
+                      Container(
+                        color: backgroundColor,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Chord root: ',
+                              style: _style,
+                            ),
+                            DropdownButton<ScaleNote>(
+                              items: scaleNoteValues.map((ScaleNote value) {
+                                return DropdownMenuItem<ScaleNote>(
+                                  key: ValueKey('root' + value.halfStep.toString()),
+                                  value: value,
+                                  child: Text(
+                                    _key.inKey(value).toMarkup(),
+                                    style: _style,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (_value) {
+                                if (_value != null && _value != _chordRoot) {
+                                  setState(() {
+                                    _chordRoot = _value;
+                                  });
+                                }
+                              },
+                              value: _chordRoot,
+                              style: generateAppTextStyle(
+                                color: Colors.black,
+                                textBaseline: TextBaseline.ideographic,
+                              ),
+                              itemHeight: null,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        color: backgroundColor,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Chord type: ',
+                              style: _style,
+                            ),
+                            DropdownButton<ChordDescriptor>(
+                              items: ChordDescriptor.values.toList().map((ChordDescriptor value) {
+                                return DropdownMenuItem<ChordDescriptor>(
+                                  value: value,
+                                  child: Text(
+                                    '${value.toString().padRight(3)} (${value.name})',
+                                    style: _style,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (_value) {
+                                if (_value != null && _value != chordDescriptor) {
+                                  setState(() {
+                                    chordDescriptor = _value;
+                                  });
+                                }
+                              },
+                              value: chordDescriptor,
+                              style: generateAppTextStyle(
+                                color: Colors.black,
+                                textBaseline: TextBaseline.ideographic,
+                              ),
+                              itemHeight: null,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(color: backgroundColor, child: _keyTable()),
+                      Container(
+                        height: 20,
+                      ),
+                      Container(color: backgroundColor, child: _majorDiatonicsTable()),
+                      Container(
+                        height: 20,
+                      ),
+                      Container(color: backgroundColor, child: _minorDiatonicsTable())
+                    ],
+                  ),
+                ],
+              ),
+              const AppSpace(),
+            ],
+          ),
+        ),
+      ]),
       floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.theoryBack),
+    );
+  }
+
+  Table _keyScaleNoteTable() {
+    final children = <TableRow>[];
+    const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
+    const halfSteps = _halfStepsPerOctave * 2 + 1;
+
+    List<Widget> row = [];
+
+    //  major half steps
+    {
+      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+      row.add(Container(
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          'Half Steps',
+          style: boldStyle,
+        ),
+      ));
+
+      for (var i = 0; i < halfSteps; i++) {
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              '${i % MusicConstants.halfStepsPerOctave}',
+              style: boldStyle,
+            )));
+      }
+      children.add(TableRow(children: row));
+    }
+
+    music_key.Key rootKey = _key;
+
+    {
+      //  compute major scale notes
+      var scaleNotes = <ScaleNote>[];
+      for (int n = 0; n < MusicConstants.notesPerScale; n++) {
+        scaleNotes.add(_key.inKey(rootKey.getMajorScaleByNote(n)));
+      }
+
+      //  display scale notes
+      row = [];
+      row.add(Container(
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          '$_key Major Scale',
+          style: _style,
+        ),
+      ));
+      for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
+        var scaleNote = _key.inKey(rootKey.getKeyScaleNoteByHalfStep(halfStep));
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              (scaleNotes.contains(scaleNote) ? scaleNote.toString() : ''),
+              style: _style,
+            )));
+      }
+      children.add(TableRow(children: row));
+    }
+
+    //  major half steps
+    {
+      row = [];
+      row.add(Container(
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          'Half Steps',
+          style: _style,
+        ),
+      ));
+
+      for (var i = 0; i < halfSteps; i++) {
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              '${(i + 3) % MusicConstants.halfStepsPerOctave}',
+              style: _style,
+            )));
+      }
+      children.add(TableRow(children: row));
+    }
+
+    {
+      //  compute minor scale notes
+      var minorKey = rootKey.getMinorKey();
+      var scaleNote = rootKey.getKeyMinorScaleNote();
+      var isSharp = scaleNote.isSharp;
+      var scaleNotes = <ScaleNote>[];
+      for (int n = 0; n < MusicConstants.notesPerScale; n++) {
+        scaleNotes.add(minorKey.inKey(minorKey.getMinorScaleByNote(n)));
+      }
+
+      //  display scale notes
+      row = [];
+      row.add(Container(
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          '${scaleNote.toMarkup()} Minor Scale',
+          style: _style,
+        ),
+      ));
+      for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
+        var originalScaleNote = minorKey.getKeyScaleNoteByHalfStep(halfStep + 3);
+        scaleNote = originalScaleNote.asSharp(value: isSharp);
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              (scaleNotes.contains(originalScaleNote) ? scaleNote.toString() : ''),
+              style: _style,
+            )));
+      }
+      children.add(TableRow(children: row));
+    }
+
+    Map<int, TableColumnWidth> widths = {};
+    for (var i = 0; i < halfSteps + 1; i++) {
+      widths[i] = const IntrinsicColumnWidth(flex: 1);
+    }
+
+    return Table(
+      children: children,
+      columnWidths: widths,
+      border: TableBorder.all(),
     );
   }
 
@@ -191,22 +340,26 @@ class _State extends State<TheoryWidget> {
     List<Widget> row = [];
 
     //  halfsteps
-    row.add(Container(
-      padding: padding,
-      alignment: Alignment.centerRight,
-      child: Text(
-        'Half Steps',
-        style: _style,
-      ),
-    ));
-    for (var i = 0; i < _halfStepsPerOctave; i++) {
+    {
+      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
       row.add(Container(
-          padding: padding,
-          alignment: Alignment.center,
-          child: Text(
-            '$i',
-            style: _style,
-          )));
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          'Half Steps',
+          style: boldStyle,
+        ),
+      ));
+
+      for (var i = 0; i < _halfStepsPerOctave; i++) {
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              '$i',
+              style: boldStyle,
+            )));
+      }
     }
     children.add(TableRow(children: row));
 
@@ -325,13 +478,14 @@ class _State extends State<TheoryWidget> {
 
     //  major diatonic names
     {
+      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
         alignment: Alignment.centerRight,
         child: Text(
           'Major Key',
-          style: _style,
+          style: boldStyle,
         ),
       ));
       for (var diatonic in MajorDiatonic.values) {
@@ -340,7 +494,7 @@ class _State extends State<TheoryWidget> {
             alignment: Alignment.center,
             child: Text(
               Util.enumName(diatonic),
-              style: _style,
+              style: boldStyle,
             )));
       }
       tableRows.add(TableRow(children: row));
@@ -522,13 +676,14 @@ class _State extends State<TheoryWidget> {
 
     //  major diatonic names
     {
+      var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
       List<Widget> row = [];
       row.add(Container(
         padding: padding,
         alignment: Alignment.centerRight,
         child: Text(
           'Minor Key',
-          style: _style,
+          style: boldStyle,
         ),
       ));
       for (var diatonic in MinorDiatonic.values) {
@@ -537,7 +692,7 @@ class _State extends State<TheoryWidget> {
             alignment: Alignment.center,
             child: Text(
               Util.enumName(diatonic),
-              style: _style,
+              style: boldStyle,
             )));
       }
       tableRows.add(TableRow(children: row));

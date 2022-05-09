@@ -638,7 +638,7 @@ class _State extends State<Singers> {
                         SizedBox(
                           width: 20 * fontSize,
                           //  limit text entry display length
-                          child: appTextField(
+                          child: AppTextField(
                             appKeyEnum: AppKeyEnum.singersSearchText,
                             enabled: true,
                             controller: searchTextFieldController,
@@ -930,7 +930,7 @@ class _State extends State<Singers> {
                   SizedBox(
                     width: 15 * fontSize,
                     //  limit text entry display length
-                    child: appTextField(
+                    child: AppTextField(
                       appKeyEnum: AppKeyEnum.singersSingerSearchText,
                       enabled: true,
                       controller: singerSearchTextFieldController,
@@ -963,7 +963,7 @@ class _State extends State<Singers> {
                   //  new singer stuff
                   width: 16 * app.screenInfo.fontSize,
                   //  limit text entry display length
-                  child: appTextField(
+                  child: AppTextField(
                     appKeyEnum: AppKeyEnum.singersNameEntry,
                     controller: singerTextFieldController,
                     hintText: "enter a new singer's name",

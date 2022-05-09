@@ -564,7 +564,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           Expanded(
-                            child: appTextField(
+                            child: AppTextField(
                               appKeyEnum: AppKeyEnum.editTitle,
                               controller: titleTextEditingController,
                               hintText: 'Enter the song title.',
@@ -584,7 +584,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           Expanded(
-                            child: appTextField(
+                            child: AppTextField(
                               appKeyEnum: AppKeyEnum.editArtist,
                               controller: artistTextEditingController,
                               hintText: 'Enter the song\'s artist.',
@@ -604,7 +604,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           Expanded(
-                            child: appTextField(
+                            child: AppTextField(
                               appKeyEnum: AppKeyEnum.editCoverArtist,
                               controller: coverArtistTextEditingController,
                               hintText: 'Enter the song\'s cover artist.',
@@ -624,7 +624,7 @@ class _Edit extends State<Edit> {
                             ),
                           ),
                           Expanded(
-                            child: appTextField(
+                            child: AppTextField(
                               appKeyEnum: AppKeyEnum.editCopyright,
                               controller: copyrightTextEditingController,
                               hintText: 'Enter the song\'s copyright. Required.',
@@ -680,7 +680,7 @@ class _Edit extends State<Edit> {
                           ),
                           SizedBox(
                             width: 3 * _defaultChordFontSize,
-                            child: appTextField(
+                            child: AppTextField(
                               appKeyEnum: AppKeyEnum.editBPM,
                               controller: bpmTextEditingController,
                               hintText: 'Enter the song\'s tempo in beats per minute.',
@@ -715,7 +715,7 @@ class _Edit extends State<Edit> {
                           ),
                           SizedBox(
                             width: 300.0,
-                            child: appTextField(
+                            child: AppTextField(
                               appKeyEnum: AppKeyEnum.editUserName,
                               controller: userTextEditingController,
                               hintText: 'Enter your user name.',
@@ -813,7 +813,7 @@ class _Edit extends State<Edit> {
                         flex: 1,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,controller: ScrollController(),
-                          child: appTextField(
+                          child: AppTextField(
                               appKeyEnum: AppKeyEnum.editProChords,
                               controller: proChordTextEditingController,
                               focusNode: proChordTextFieldFocusNode,
@@ -1082,7 +1082,7 @@ class _Edit extends State<Edit> {
                               const AppSpace(),
                               Expanded(
                                 flex: 3,
-                                child: appTextField(
+                                child: AppTextField(
                                   appKeyEnum: AppKeyEnum.editProLyrics,
                                   controller: proLyricsTextEditingController,
                                   focusNode: proLyricsTextFieldFocusNode,

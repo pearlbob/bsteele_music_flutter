@@ -6,7 +6,6 @@ import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:universal_io/io.dart';
 
 import '../app/app.dart';
 
@@ -38,7 +37,7 @@ class SongPerformanceDaemon {
   }
 
   void _initialize() async {
-    if (!kDebugMode && !kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    if (!kDebugMode) {
       _lastStore = _appOptions.lastAllSongPerformancesStoreMillisecondsSinceEpoch;
       Timer.periodic(const Duration(minutes: 10), _timerCallback);
       logger.i('SongPerformanceDaemon initialized');

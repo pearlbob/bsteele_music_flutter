@@ -22,10 +22,10 @@ class TheoryWidget extends StatefulWidget {
   const TheoryWidget({Key? key}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  TheoryState createState() => TheoryState();
 }
 
-class _State extends State<TheoryWidget> {
+class TheoryState extends State<TheoryWidget> {
   @override
   initState() {
     super.initState();
@@ -79,7 +79,7 @@ class _State extends State<TheoryWidget> {
                             DropdownButton<music_key.Key>(
                               items: music_key.Key.values.toList().reversed.map((music_key.Key value) {
                                 return DropdownMenuItem<music_key.Key>(
-                                  key: ValueKey('half' + value.getHalfStep().toString()),
+                                  key: ValueKey('half${value.getHalfStep()}'),
                                   value: value,
                                   child: Text(
                                     '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
@@ -87,10 +87,10 @@ class _State extends State<TheoryWidget> {
                                   ),
                                 );
                               }).toList(),
-                              onChanged: (_value) {
-                                if (_value != null && _value != _key) {
+                              onChanged: (value) {
+                                if (value != null && value != _key) {
                                   setState(() {
-                                    _key = _value;
+                                    _key = value;
                                   });
                                 }
                               },
@@ -118,7 +118,7 @@ class _State extends State<TheoryWidget> {
                             DropdownButton<ScaleNote>(
                               items: scaleNoteValues.map((ScaleNote value) {
                                 return DropdownMenuItem<ScaleNote>(
-                                  key: ValueKey('root' + value.halfStep.toString()),
+                                  key: ValueKey('root${value.halfStep}'),
                                   value: value,
                                   child: Text(
                                     _key.inKey(value).toMarkup(),
@@ -126,10 +126,10 @@ class _State extends State<TheoryWidget> {
                                   ),
                                 );
                               }).toList(),
-                              onChanged: (_value) {
-                                if (_value != null && _value != _chordRoot) {
+                              onChanged: (value) {
+                                if (value != null && value != _chordRoot) {
                                   setState(() {
-                                    _chordRoot = _value;
+                                    _chordRoot = value;
                                   });
                                 }
                               },
@@ -161,10 +161,10 @@ class _State extends State<TheoryWidget> {
                                   ),
                                 );
                               }).toList(),
-                              onChanged: (_value) {
-                                if (_value != null && _value != chordDescriptor) {
+                              onChanged: (value) {
+                                if (value != null && value != chordDescriptor) {
                                   setState(() {
-                                    chordDescriptor = _value;
+                                    chordDescriptor = value;
                                   });
                                 }
                               },

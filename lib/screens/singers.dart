@@ -42,13 +42,13 @@ class Singers extends StatefulWidget {
   const Singers({Key? key}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  SingersState createState() => SingersState();
 
   static const String routeName = '/singers';
 }
 
-class _State extends State<Singers> {
-  _State()
+class SingersState extends State<Singers> {
+  SingersState()
       : _searchFocusNode = FocusNode(),
         _singerSearchFocusNode = FocusNode();
 
@@ -291,8 +291,8 @@ class _State extends State<Singers> {
                 }
               }
               songWidgetList.add(AppWrapFullWidth(
-                children: list,
                 spacing: 20,
+                children: list,
               ));
             }
             songWidgetList.add(const AppSpace());
@@ -499,8 +499,18 @@ class _State extends State<Singers> {
             style: singerTextStyle,
           )
         : Container(
-      child: AppWrapFullWidth(children: [
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: appBackgroundColor(),
+                width: 2,
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            child: AppWrapFullWidth(children: [
               ReorderableWrap(
+                  onReorder: _onReorder,
+                  padding: const EdgeInsets.all(10),
+                  spacing: 20,
                   children: _sessionSingers.map((singer) {
                     return AppWrap(children: [
                       Container(
@@ -512,21 +522,21 @@ class _State extends State<Singers> {
                               _setSelectedSinger(singer);
                             });
                           },
-                          style: singer == _selectedSinger
-                              ? selectedButtonTextStyle
-                              : (requesters.contains(singer) ? inactiveRequesterButtonTextStyle : buttonTextStyle),
-                        ),
-                      ),
-                      if (!_isInSingingMode)
-                        AppInkWell(
-                          appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
-                          // value: singer,
-                          onTap: () {
-                            setState(() {
-                              _sessionSingers.remove(singer);
-                              _appOptions.sessionSingers = _sessionSingers;
-                            });
-                          },
+                    style: singer == _selectedSinger
+                        ? selectedButtonTextStyle
+                        : (requesters.contains(singer) ? inactiveRequesterButtonTextStyle : buttonTextStyle),
+                  ),
+                ),
+                if (!_isInSingingMode)
+                  AppInkWell(
+                    appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
+                    // value: singer,
+                    onTap: () {
+                      setState(() {
+                        _sessionSingers.remove(singer);
+                        _appOptions.sessionSingers = _sessionSingers;
+                      });
+                    },
                           child: appCircledIcon(
                             Icons.remove,
                             'Remove $singer from today\'s session.',
@@ -537,23 +547,11 @@ class _State extends State<Singers> {
                           ),
                         ),
                     ]);
-                  }).toList(growable: false),
-                  onReorder: _onReorder,
-                  padding: const EdgeInsets.all(10),
-                  spacing: 20),
+                  }).toList(growable: false)),
             ]),
-            //   padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: appBackgroundColor(),
-                width: 2,
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-            ),
           );
 
     var allSingersWidgetWrap = Container(
-      child: AppWrapFullWidth(children: sessionSingerWidgets, alignment: WrapAlignment.start, spacing: 10),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         border: Border.all(
@@ -562,6 +560,7 @@ class _State extends State<Singers> {
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
+      child: AppWrapFullWidth(alignment: WrapAlignment.start, spacing: 10, children: sessionSingerWidgets),
     );
 
     //  generate the sort selection
@@ -594,7 +593,7 @@ class _State extends State<Singers> {
                     key: appKey(AppKeyEnum.singersErrorMessage),
                   ),
                 const AppVerticalSpace(),
-                AppWrapFullWidth(children: [
+                AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                   AppWrap(children: [
                     AppTooltip(
                       message: singingTooltipText,
@@ -625,7 +624,7 @@ class _State extends State<Singers> {
                       horizontalSpace: 30,
                     ),
                     if (_isInSingingMode)
-                      AppWrap(children: [
+                      AppWrap(spacing: 10, alignment: WrapAlignment.start, children: [
                         //  search line
                         AppTooltip(
                           message: 'Search for songs for $_selectedSinger',
@@ -667,7 +666,7 @@ class _State extends State<Singers> {
                             }),
                           ),
                         ),
-                      ], spacing: 10, alignment: WrapAlignment.start),
+                      ]),
                     if (!_isInSingingMode)
                       Text(
                         '       Make adjustments:',
@@ -681,10 +680,11 @@ class _State extends State<Singers> {
                         showOtherActions = !showOtherActions;
                       });
                     }),
-                ], alignment: WrapAlignment.spaceBetween),
+                ]),
                 if (!_isInSingingMode && showOtherActions)
-                  AppWrapFullWidth(children: [
+                  AppWrapFullWidth(alignment: WrapAlignment.end, children: [
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const AppVerticalSpace(),
                         if (_allSongPerformances.isNotEmpty)
@@ -749,13 +749,13 @@ class _State extends State<Singers> {
                               showDialog(
                                   context: context,
                                   builder: (_) => AlertDialog(
-                                        title: Text(
-                                          'Do you really want to delete the singer $_selectedSinger?',
-                                          style: TextStyle(fontSize: songPerformanceStyle.fontSize),
-                                        ),
-                                        actions: [
-                                          appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                              appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                    title: Text(
+                                      'Do you really want to delete the singer $_selectedSinger?',
+                                      style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                                    ),
+                                    actions: [
+                                      appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
+                                          appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
                                             logger.d('delete: $_selectedSinger');
                                             setState(() {
                                               _allSongPerformances.removeSinger(_selectedSinger);
@@ -767,14 +767,14 @@ class _State extends State<Singers> {
                                             });
                                             Navigator.of(context).pop();
                                           }),
-                                          const AppSpace(space: 100),
-                                          appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                              appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                      const AppSpace(space: 100),
+                                      appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
+                                          appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
                                             Navigator.of(context).pop();
                                           }),
-                                        ],
-                                        elevation: 24.0,
-                                      ));
+                                    ],
+                                    elevation: 24.0,
+                                  ));
                             },
                           ),
                         const AppVerticalSpace(),
@@ -796,9 +796,8 @@ class _State extends State<Singers> {
                             },
                           ),
                       ],
-                      crossAxisAlignment: CrossAxisAlignment.end,
                     ),
-                  ], alignment: WrapAlignment.end),
+                  ]),
                 if (_songUpdateService.isFollowing)
                   const AppVerticalSpace(
                     space: 20,
@@ -812,8 +811,7 @@ class _State extends State<Singers> {
                     const AppVerticalSpace(),
                     if (_songUpdateService.isConnected)
                       appEnumeratedButton(
-                        (_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader') +
-                            ' of ${_songUpdateService.authority}',
+                        '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.authority}',
                         appKeyEnum: AppKeyEnum.optionsLeadership,
                         onPressed: () {
                           setState(() {
@@ -826,7 +824,7 @@ class _State extends State<Singers> {
                   ]),
                 if (!_isInSingingMode) const AppVerticalSpace(),
                 if (!_isInSingingMode)
-                  AppWrapFullWidth(children: [
+                  AppWrapFullWidth(spacing: 30, children: [
                     Text(
                       'Today\'s Session Singers:',
                       style: singerTextStyle,
@@ -835,13 +833,13 @@ class _State extends State<Singers> {
                       'to reorder: click, hold, and drag.',
                       style: singerTextStyle.copyWith(color: Colors.grey),
                     ),
-                  ], spacing: 30),
+                  ]),
                 const AppVerticalSpace(),
                 todaysReorderableSingersWidgetWrap,
                 const AppVerticalSpace(),
                 if (_isInSingingMode)
-                  AppWrapFullWidth(children: [
-                    AppWrap(children: [
+                  AppWrapFullWidth(spacing: 10, alignment: WrapAlignment.spaceBetween, children: [
+                    AppWrap(spacing: 10, alignment: WrapAlignment.spaceBetween, children: [
                       Text(
                         'Search for:',
                         style: singerTextStyle,
@@ -869,7 +867,7 @@ class _State extends State<Singers> {
                             });
                           },
                           style: singerTextStyle),
-                    ], spacing: 10, alignment: WrapAlignment.spaceBetween),
+                    ]),
                     AppWrap(children: [
                       appWidgetHelper.checkbox(
                         value: _selectedSingerIsRequester,
@@ -909,11 +907,11 @@ class _State extends State<Singers> {
                         itemHeight: null,
                       ),
                     ]),
-                  ], spacing: 10, alignment: WrapAlignment.spaceBetween),
+                  ]),
               ],
             ),
             if (!_isInSingingMode)
-              AppWrapFullWidth(children: [
+              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                 Text(
                   'All Singers:',
                   style: singerTextStyle,
@@ -979,7 +977,7 @@ class _State extends State<Singers> {
                     fontWeight: FontWeight.normal,
                   ),
                 ),
-              ], alignment: WrapAlignment.spaceBetween),
+              ]),
             const AppVerticalSpace(),
             if (!_isInSingingMode)
               Expanded(
@@ -1096,6 +1094,7 @@ class _State extends State<Singers> {
     Song song = songPerformance.song!;
     var singer = songPerformance.singer;
     return AppWrapFullWidth(
+      alignment: WrapAlignment.spaceBetween,
       children: [
         appWrapSongExplicit(
           songPerformance.song,
@@ -1107,26 +1106,26 @@ class _State extends State<Singers> {
                   if (value != null) {
                     setState(() {
                       if (_selectedSingerIsRequester) {
-                        if (value) {
-                          _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
-                        } else {
-                          _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
-                        }
-                      } else if (singer != _unknownSinger) {
-                        //  not a requester
-                        if (value) {
-                          if (singer != _unknownSinger) {
-                            _allSongPerformances.addSongPerformance(
-                                SongPerformance(song.songId.toString(), singer, key: songPerformance.key));
-                          }
-                        } else {
-                          _allSongPerformances.removeSingerSong(singer, song.songId.toString());
-                        }
-                      }
-                      AppOptions().storeAllSongPerformances();
-                    });
+                  if (value) {
+                    _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
+                  } else {
+                    _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
+                  }
+                } else if (singer != _unknownSinger) {
+                  //  not a requester
+                  if (value) {
+                    if (singer != _unknownSinger) {
+                      _allSongPerformances.addSongPerformance(
+                          SongPerformance(song.songId.toString(), singer, key: songPerformance.key));
+                    }
+                  } else {
+                    _allSongPerformances.removeSingerSong(singer, song.songId.toString());
                   }
                 }
+                AppOptions().storeAllSongPerformances();
+              });
+            }
+          }
               : null),
           whenPressed: whenPressed,
         ),
@@ -1135,7 +1134,6 @@ class _State extends State<Singers> {
           style: songPerformanceStyle,
         ),
       ],
-      alignment: WrapAlignment.spaceBetween,
     );
   }
 
@@ -1164,14 +1162,6 @@ class _State extends State<Singers> {
           ),
         if (onChanged != null) const AppSpace(space: 12),
         TextButton(
-            child: Text(
-              '$musician'
-              '${song.title} by ${song.artist}'
-              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-              '${key == null ? '' : ' in $key'}'
-              '${bpm == null && bpm != song.beatsPerMinute ? '' : ' at $bpm'}',
-              style: enable ? songPerformanceStyle : disabledSongPerformanceStyle,
-            ),
             onPressed: enable && whenPressed
                 ? () {
                     //  play the song
@@ -1189,7 +1179,15 @@ class _State extends State<Singers> {
                       }
                     });
                   }
-                : null //
+                : null,
+            child: Text(
+              '$musician'
+              '${song.title} by ${song.artist}'
+              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+              '${key == null ? '' : ' in $key'}'
+              '${bpm == null && bpm != song.beatsPerMinute ? '' : ' at $bpm'}',
+              style: enable ? songPerformanceStyle : disabledSongPerformanceStyle,
+            ) //
             ),
       ],
     );

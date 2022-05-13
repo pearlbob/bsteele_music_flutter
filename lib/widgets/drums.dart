@@ -25,11 +25,11 @@ class DrumsWidget extends StatefulWidget {
   final DrumParts _drumParts;
 
   @override
-  _DrumsState createState() => _DrumsState();
+  DrumsState createState() => DrumsState();
 }
 
-class _DrumsState extends State<DrumsWidget> {
-  _DrumsState({int? beats}) : _beats = beats ?? 4;
+class DrumsState extends State<DrumsWidget> {
+  DrumsState({int? beats}) : _beats = beats ?? 4;
 
   @override
   initState() {

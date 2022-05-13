@@ -96,11 +96,11 @@ class Edit extends StatefulWidget {
   }
 
   @override
-  _Edit createState() => _Edit();
+  EditState createState() => EditState();
 }
 
-class _Edit extends State<Edit> {
-  _Edit()
+class EditState extends State<Edit> {
+  EditState()
       : song = _initialSong.copySong(),
         originalSong = _initialSong.copySong() {
     isProEditInput = appOptions.proEditInput;
@@ -256,7 +256,7 @@ class _Edit extends State<Edit> {
     app.addSong(song);
     app.selectedSong = song;
 
-    String fileName = song.title + '.songlyrics'; //  fixme: cover artist?
+    String fileName = '${song.title}.songlyrics'; //  fixme: cover artist?
     String contents = song.toJsonAsFile();
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     setState(() {
@@ -339,9 +339,9 @@ class _Edit extends State<Edit> {
     //  adjust to screen size
     if (screenInfo == null) {
       screenInfo = ScreenInfo(context);
-      final double _screenWidth = screenInfo!.mediaWidth;
+      final double screenWidth = screenInfo!.mediaWidth;
 
-      chordFontSize = _defaultChordFontSize * _screenWidth / 800;
+      chordFontSize = _defaultChordFontSize * screenWidth / 800;
       chordFontSize = min(_defaultChordFontSize, max(12, chordFontSize));
       appendFontSize = chordFontSize * 0.75;
 
@@ -436,7 +436,7 @@ class _Edit extends State<Edit> {
           // fixme: put GestureDetector only on chord table
           child: Column(children: [
             const AppSpace(space: 10),
-            AppWrapFullWidth(children: <Widget>[
+            AppWrapFullWidth(alignment: WrapAlignment.spaceAround, spacing: 10, children: <Widget>[
               appEnumeratedButton(
                 songHasChanged ? (isValidSong ? 'Save song on local drive' : 'Fix the song') : 'Nothing has changed',
                 appKeyEnum: AppKeyEnum.editEnterSong,
@@ -450,7 +450,7 @@ class _Edit extends State<Edit> {
                 backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
               ),
               app.messageTextWidget(AppKeyEnum.editErrorMessage),
-              AppWrap(children: <Widget>[
+              AppWrap(alignment: WrapAlignment.spaceBetween, spacing: 25, children: <Widget>[
                 editTooltip(
                   message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
                   child: appEnumeratedButton('Undo', appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize,
@@ -539,8 +539,8 @@ class _Edit extends State<Edit> {
                 //          _errorMessage('bob: fixme: arrow_right');
                 //        },
                 //      ),
-              ], alignment: WrapAlignment.spaceBetween, spacing: 25),
-            ], alignment: WrapAlignment.spaceAround, spacing: 10),
+              ]),
+            ]),
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -634,6 +634,8 @@ class _Edit extends State<Edit> {
                         ]),
                     const AppSpace(),
                     AppWrapFullWidth(
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      spacing: 40,
                       children: <Widget>[
                         AppWrap(children: [
                           Text(
@@ -696,9 +698,9 @@ class _Edit extends State<Edit> {
                           appDropdownButton<TimeSignature>(
                             AppKeyEnum.editEditTimeSignatureDropdown,
                             _timeSignatureItems,
-                            onChanged: (_value) {
-                              if (_value != null && song.timeSignature != _value) {
-                                song.timeSignature = _value;
+                            onChanged: (value) {
+                              if (value != null && song.timeSignature != value) {
+                                song.timeSignature = value;
                                 if (!checkSongChangeStatus()) {
                                   setState(() {}); //  display the return to original
                                 }
@@ -730,16 +732,14 @@ class _Edit extends State<Edit> {
                             ),
                         ]),
                       ],
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      spacing: 40,
                     ),
                     const AppSpace(space: 30),
-                    AppWrapFullWidth(children: <Widget>[
+                    AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: <Widget>[
                       Text(
                         "Chords:",
                         style: _titleTextStyle,
                       ),
-                      AppWrap(children: [
+                      AppWrap(spacing: 50, children: [
                         if (isProEditInput)
                           editTooltip(
                             message: 'Validate the chord input',
@@ -787,8 +787,8 @@ class _Edit extends State<Edit> {
                             },
                           ),
                         ),
-                      ], spacing: 50),
-                    ], alignment: WrapAlignment.spaceBetween),
+                      ]),
+                    ]),
                     const Divider(
                       thickness: 8,
                       //color: ,  fixme: should be from css!!!
@@ -800,12 +800,12 @@ class _Edit extends State<Edit> {
                             scrollDirection: Axis.vertical,
                             controller: ScrollController(),
                             child: Container(
+                              padding: const EdgeInsets.all(16.0),
+                              color: theme.backgroundColor,
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                                 //  pre-configured table of edit widgets
                                 displayChordTable,
                               ]),
-                              padding: const EdgeInsets.all(16.0),
-                              color: theme.backgroundColor,
                             ),
                           )),
                     if (isProEditInput)
@@ -845,9 +845,7 @@ class _Edit extends State<Edit> {
                                     style: appTextStyle,
                                   ),
                                   TextSpan(
-                                    text: '\n\n'
-                                            'The sections are: ' +
-                                        listSections(),
+                                    text: '\n\nThe sections are: ${listSections()}',
                                     style: appTextStyle,
                                   ),
                                   TextSpan(
@@ -1052,9 +1050,9 @@ class _Edit extends State<Edit> {
                             scrollDirection: Axis.vertical,
                             controller: ScrollController(),
                             child: Container(
-                              child: lyricsEntryWidget(),
                               padding: const EdgeInsets.all(16.0),
                               color: theme.backgroundColor,
+                              child: lyricsEntryWidget(),
                             )),
                       ),
                     if (isProEditInput)
@@ -1781,8 +1779,8 @@ class _Edit extends State<Edit> {
               ),
               const Spacer(),
               Expanded(
-                child: lyricsTextField,
                 flex: 30,
+                child: lyricsTextField,
               ),
               const Spacer(),
               editTooltip(
@@ -2185,7 +2183,7 @@ class _Edit extends State<Edit> {
       for (int i = 0; i <= 9; i++) {
         sectionVersionNumberDropdownMenuList.add(
           DropdownMenuItem<int>(
-            key: ValueKey('sectionVersionNumber.' + i.toString()),
+            key: ValueKey('sectionVersionNumber.$i'),
             value: i,
             child: Row(
               children: <Widget>[
@@ -2447,7 +2445,7 @@ class _Edit extends State<Edit> {
       }
 
       //  make the key selection drop down list
-      List<DropdownMenuItem<ScaleNote>> _keyChordDropDownMenuList = [];
+      List<DropdownMenuItem<ScaleNote>> keyChordDropDownMenuList = [];
       {
         //  list the notes required
         List<ScaleNote> scaleNotes = [];
@@ -2463,9 +2461,8 @@ class _Edit extends State<Edit> {
 
         for (final ScaleNote scaleNote in scaleNotes) {
           String s = scaleNote.toMarkup();
-          String label = s.padRight(2) +
-              " " +
-              ChordComponent.getByHalfStep(scaleNote.halfStep - key.getHalfStep()).shortName.padLeft(2);
+          String label =
+              "${s.padRight(2)} ${ChordComponent.getByHalfStep(scaleNote.halfStep - key.getHalfStep()).shortName.padLeft(2)}";
           DropdownMenuItem<ScaleNote> item = appDropdownMenuItem(
             appKeyEnum: AppKeyEnum.editScaleNote,
             value: scaleNote,
@@ -2474,7 +2471,7 @@ class _Edit extends State<Edit> {
               style: sectionAppTextStyle,
             ),
           );
-          _keyChordDropDownMenuList.add(item);
+          keyChordDropDownMenuList.add(item);
           ButtonTheme(
             child: item,
           );
@@ -2530,12 +2527,12 @@ class _Edit extends State<Edit> {
             ));
       }
 
-      List<DropdownMenuItem<ScaleChord>> _otherChordDropDownMenuList = [];
+      List<DropdownMenuItem<ScaleChord>> otherChordDropDownMenuList = [];
       {
         // other chords
         for (ChordDescriptor cd in ChordDescriptor.otherChordDescriptorsOrdered) {
           ScaleChord sc = ScaleChord(keyChordNote, cd);
-          _otherChordDropDownMenuList.add(appDropdownMenuItem<ScaleChord>(
+          otherChordDropDownMenuList.add(appDropdownMenuItem<ScaleChord>(
             appKeyEnum: AppKeyEnum.editScaleChord,
             value: sc,
             child: Row(
@@ -2550,13 +2547,13 @@ class _Edit extends State<Edit> {
         }
       }
 
-      List<DropdownMenuItem<ScaleNote>> _slashNoteDropDownMenuList = [];
+      List<DropdownMenuItem<ScaleNote>> slashNoteDropDownMenuList = [];
       {
         // slash chords
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
           ScaleNote sc = key.getScaleNoteByHalfStep(i);
-          _slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
-            key: ValueKey('scaleNote' + sc.toString()),
+          slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
+            key: ValueKey('scaleNote$sc'),
             value: sc,
             child: Row(
               children: <Widget>[
@@ -2614,7 +2611,7 @@ class _Edit extends State<Edit> {
                       child: ButtonTheme(
                         alignedDropdown: true,
                         child: DropdownButton<ScaleNote>(
-                          items: _keyChordDropDownMenuList,
+                          items: keyChordDropDownMenuList,
                           onChanged: (value) {
                             setState(() {
                               if (value != null) {
@@ -2657,10 +2654,10 @@ class _Edit extends State<Edit> {
                             'Other chords',
                             style: sectionAppTextStyle,
                           ),
-                          items: _otherChordDropDownMenuList,
-                          onChanged: (_value) {
+                          items: otherChordDropDownMenuList,
+                          onChanged: (value) {
                             setState(() {
-                              updateChordText(_value?.toMarkup());
+                              updateChordText(value?.toMarkup());
                             });
                           },
                           style: sectionAppTextStyle,
@@ -2677,10 +2674,10 @@ class _Edit extends State<Edit> {
                             "/note",
                             style: sectionAppTextStyle,
                           ),
-                          items: _slashNoteDropDownMenuList,
-                          onChanged: (_value) {
+                          items: slashNoteDropDownMenuList,
+                          onChanged: (value) {
                             setState(() {
-                              updateChordText('/' + (_value?.toMarkup() ?? ''));
+                              updateChordText('/${value?.toMarkup() ?? ''}');
                             });
                           },
                           style: sectionAppTextStyle,
@@ -3625,8 +3622,8 @@ class _Edit extends State<Edit> {
     return AppTooltip(
       key: key,
       message: message,
-      child: child,
       fontSize: chordFontSize,
+      child: child,
     );
   }
 

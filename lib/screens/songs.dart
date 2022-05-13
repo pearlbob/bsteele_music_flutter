@@ -12,7 +12,7 @@ import 'package:pretty_diff_text/pretty_diff_text.dart';
 
 import '../app/app.dart';
 
-enum _dialogResponse { accept, reject, acceptAll, rejectAll }
+enum SongsDialogResponse { accept, reject, acceptAll, rejectAll }
 
 /// Provide a number of song related actions for the user.
 /// This includes reading song files, clearing all songs from the current song list, and the like.
@@ -20,10 +20,10 @@ class Songs extends StatefulWidget {
   const Songs({Key? key}) : super(key: key);
 
   @override
-  _Songs createState() => _Songs();
+  SongsState createState() => SongsState();
 }
 
-class _Songs extends State<Songs> {
+class SongsState extends State<Songs> {
   @override
   initState() {
     super.initState();
@@ -139,14 +139,14 @@ class _Songs extends State<Songs> {
 
         if (!acceptAll) {
           switch (await _diffWarningPopup(oldSong, song)) {
-            case _dialogResponse.accept:
+            case SongsDialogResponse.accept:
               break;
-            case _dialogResponse.acceptAll:
+            case SongsDialogResponse.acceptAll:
               acceptAll = true;
               break;
-            case _dialogResponse.reject:
+            case SongsDialogResponse.reject:
               continue;
-            case _dialogResponse.rejectAll:
+            case SongsDialogResponse.rejectAll:
               break forLoop;
           }
         }
@@ -162,11 +162,11 @@ class _Songs extends State<Songs> {
     setState(() {});
   }
 
-  Future<_dialogResponse> _diffWarningPopup(Song oldSong, Song newSong) async {
+  Future<SongsDialogResponse> _diffWarningPopup(Song oldSong, Song newSong) async {
     PrettyDiffText prettyDiffText =
         PrettyDiffText(oldText: Util.readableJson(oldSong.toJson()), newText: Util.readableJson(newSong.toJson()));
     logger.i('_diffWarningPopup( ${oldSong.songId.toString()} , ${newSong.songId.toString()})');
-    _dialogResponse response = _dialogResponse.rejectAll;
+    SongsDialogResponse response = SongsDialogResponse.rejectAll;
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -179,7 +179,7 @@ class _Songs extends State<Songs> {
               content: SingleChildScrollView(
                 child: Column(
                   children: [
-                    AppWrapFullWidth(children: [
+                    AppWrapFullWidth(spacing: 20, children: [
                       Text(
                         'Legend:',
                         style: prettyDiffText.defaultTextStyle,
@@ -197,34 +197,34 @@ class _Songs extends State<Songs> {
                         '${oldSong.lastModifiedTime > newSong.lastModifiedTime ? ' It\'s older!' : ''}',
                         style: prettyDiffText.addedTextStyle,
                       )
-                    ], spacing: 20),
+                    ]),
                     prettyDiffText
                   ],
                 ),
               ),
               actions: [
-                AppWrapFullWidth(children: [
+                AppWrapFullWidth(spacing: 20, children: [
                   appButton('Accept', appKeyEnum: AppKeyEnum.songsAcceptSongRead, onPressed: () {
                     Navigator.of(context).pop();
-                    response = _dialogResponse.accept;
+                    response = SongsDialogResponse.accept;
                   }),
                   appButton('Reject', appKeyEnum: AppKeyEnum.songsRejectSongRead, onPressed: () {
                     Navigator.of(context).pop();
-                    response = _dialogResponse.reject;
+                    response = SongsDialogResponse.reject;
                   }),
-                ], spacing: 20),
+                ]),
                 const AppSpace(),
-                AppWrapFullWidth(children: [
+                AppWrapFullWidth(spacing: 20, children: [
                   appButton('Accept all songs', appKeyEnum: AppKeyEnum.songsAcceptAllSongReads, onPressed: () {
                     Navigator.of(context).pop();
-                    response = _dialogResponse.acceptAll;
+                    response = SongsDialogResponse.acceptAll;
                   }),
                   appButton('Reject this and any more songs', appKeyEnum: AppKeyEnum.songsCancelSongAllAdds,
                       onPressed: () {
                     Navigator.of(context).pop();
-                    response = _dialogResponse.rejectAll;
+                    response = SongsDialogResponse.rejectAll;
                   }),
-                ], spacing: 20),
+                ]),
               ],
               actionsAlignment: MainAxisAlignment.start,
               elevation: 24.0,

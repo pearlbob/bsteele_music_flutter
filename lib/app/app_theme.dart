@@ -1060,7 +1060,7 @@ class AppTheme {
 
   void _logActions() {
     SplayTreeSet<CssProperty> properties = SplayTreeSet();
-    for (var appliedAction in appliedActions) {
+    for (var appliedAction in _appliedActions) {
       properties.add(appliedAction.cssAction.cssProperty);
     }
     properties.addAll(_propertyValueLookupMap.keys);
@@ -1151,10 +1151,6 @@ ElevatedButton appButton(
 
   return ElevatedButton(
     key: key,
-    child: Text(commandName,
-        style: textStyle ??
-            app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ??
-            TextStyle(fontSize: fontSize)),
     clipBehavior: Clip.hardEdge,
     onPressed: onPressed == null
         ? null //  show as disabled
@@ -1164,6 +1160,10 @@ ElevatedButton appButton(
           },
     style:
         app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+    child: Text(commandName,
+        style: textStyle ??
+            app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ??
+            TextStyle(fontSize: fontSize)),
   );
 }
 
@@ -1176,15 +1176,15 @@ TextButton appTextButton(
   var key = appKey(appKeyEnum, value: text);
   return TextButton(
     key: key,
-    child: Text(
-      text,
-      style: style,
-    ),
     onPressed: () {
       appLogKeyCallback(key);
       onPressed?.call();
     },
     style: ButtonStyle(textStyle: MaterialStateProperty.all(style)),
+    child: Text(
+      text,
+      style: style,
+    ),
   );
 }
 
@@ -1225,6 +1225,12 @@ ElevatedButton appNoteButton(
 
   return ElevatedButton(
     key: key,
+    onPressed: onPressed == null
+        ? null //  show as disabled
+        : () {
+            appLogKeyCallback(key); //  log the click
+            onPressed();
+          },
     child: Baseline(
       baselineType: TextBaseline.alphabetic,
       baseline: fontSize,
@@ -1237,12 +1243,6 @@ ElevatedButton appNoteButton(
         ),
       ),
     ),
-    onPressed: onPressed == null
-        ? null //  show as disabled
-        : () {
-            appLogKeyCallback(key); //  log the click
-            onPressed();
-          },
     // style:
     //     app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
   );
@@ -1344,10 +1344,10 @@ FloatingActionButton appFloatingActionButton({
       appLogKeyCallback(key);
       onPressed();
     },
-    child: child,
     mini: mini,
     backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
-    heroTag: null, //  workaround in case there are more than one per route.
+    heroTag: null,
+    child: child, //  workaround in case there are more than one per route.
   );
 }
 
@@ -1847,7 +1847,7 @@ String _documentCssProperties(final Iterable<CssProperty>? properties) {
   return sb.toString();
 }
 
-List<_AppliedAction> appliedActions = [];
+List<_AppliedAction> _appliedActions = [];
 
 List<CssAction> cssActions = [
   CssAction(_buttonBackgroundColorProperty, (CssProperty p, value) {
@@ -1908,7 +1908,7 @@ void applyAction(
           property == e.cssProperty.property)) {
         logger.log(_cssLog, 'CSS action: ${action.toString()} /*${value.runtimeType}*/ $value;');
         action.cssActionFunction(action.cssProperty, value);
-        appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
+        _appliedActions.add(_AppliedAction(action, value, rawValue: rawValue));
 
         applications++;
       }

@@ -57,12 +57,12 @@ class SongUpdateService extends ChangeNotifier {
 
         try {
           //  or re-try
-          Uri _uri = Uri.parse(url);
-          _webSocketChannel = WebSocketChannel.connect(_uri);
+          Uri uri = Uri.parse(url);
+          _webSocketChannel = WebSocketChannel.connect(uri);
 
           //  lookup the ip address
           try {
-            await InternetAddress.lookup(_uri.host, type: InternetAddressType.IPv4).then((value) async {
+            await InternetAddress.lookup(uri.host, type: InternetAddressType.IPv4).then((value) async {
               for (var element in value) {
                 _ipAddress = element.address; //  just the first one will do
 
@@ -184,7 +184,7 @@ class SongUpdateService extends ChangeNotifier {
       songUpdate.setUser(_appOptions.user);
       _webSocketSink?.add(songUpdate.toJson());
       _songUpdateCount++;
-      logger.v("leader " + songUpdate.getUser() + " issueSongUpdate #$_songUpdateCount: " + songUpdate.toString());
+      logger.v("leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
     }
   }
 

@@ -17,16 +17,16 @@ class About extends StatefulWidget {
   const About({Key? key}) : super(key: key);
 
   @override
-  _About createState() => _About();
+  AboutState createState() => AboutState();
 }
 
-class _About extends State<About> with WidgetsBindingObserver {
+class AboutState extends State<About> with WidgetsBindingObserver {
   @override
   initState() {
     super.initState();
 
-    _lastSize = WidgetsBinding.instance!.window.physicalSize;
-    WidgetsBinding.instance!.addObserver(this);
+    _lastSize = WidgetsBinding.instance.window.physicalSize;
+    WidgetsBinding.instance.addObserver(this);
 
     _readPackageInfo();
     _readUtcDate();
@@ -218,7 +218,7 @@ class _About extends State<About> with WidgetsBindingObserver {
   @override
   void didChangeMetrics() {
     //  used to keep the window size data current
-    Size size = WidgetsBinding.instance!.window.physicalSize;
+    Size size = WidgetsBinding.instance.window.physicalSize;
     if (size != _lastSize) {
       setState(() {
         _lastSize = size;
@@ -228,7 +228,7 @@ class _About extends State<About> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

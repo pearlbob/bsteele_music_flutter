@@ -72,10 +72,10 @@ class Detail extends StatefulWidget {
   const Detail({Key? key}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  DetailState createState() => DetailState();
 }
 
-class _State extends State<Detail> {
+class DetailState extends State<Detail> {
   @override
   initState() {
     super.initState();
@@ -128,7 +128,7 @@ class _State extends State<Detail> {
     _bpmTextEditingController.text = _bpm.toString();
 
     //  sheet display enables
-    Widget _sheetDisplayEnableOptionsWidget = const SizedBox(
+    Widget sheetDisplayEnableOptionsWidget = const SizedBox(
       height: 0,
     );
     if (_options) {
@@ -173,7 +173,7 @@ class _State extends State<Detail> {
         });
       }, fontSize: _fontSize));
 
-      _sheetDisplayEnableOptionsWidget = Padding(
+      sheetDisplayEnableOptionsWidget = Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -188,7 +188,7 @@ class _State extends State<Detail> {
       height: 1000.0,
     );
 
-    SheetMusicPainter _sheetMusicPainter = SheetMusicPainter();
+    SheetMusicPainter sheetMusicPainter = SheetMusicPainter();
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -438,10 +438,10 @@ class _State extends State<Detail> {
                                 ),
                               );
                             }).toList(),
-                            onChanged: (_value) {
-                              if (_value != null && _value != _timeSignature) {
+                            onChanged: (value) {
+                              if (value != null && value != _timeSignature) {
                                 setState(() {
-                                  _timeSignature = _value;
+                                  _timeSignature = value;
                                 });
                               }
                             },
@@ -537,7 +537,7 @@ class _State extends State<Detail> {
                 ],
               ),
               const AppSpace(),
-              _sheetDisplayEnableOptionsWidget,
+              sheetDisplayEnableOptionsWidget,
               //  sheet music
               RawKeyboardListener(
                 focusNode: FocusNode(),
@@ -556,7 +556,7 @@ class _State extends State<Detail> {
                     children: [
                       RepaintBoundary(
                         child: CustomPaint(
-                          painter: _sheetMusicPainter,
+                          painter: sheetMusicPainter,
                           isComplex: true,
                           willChange: false,
                           child: sheetMusicSizedBox,
@@ -565,7 +565,7 @@ class _State extends State<Detail> {
                       GestureDetector(
                         child: RepaintBoundary(
                           child: CustomPaint(
-                            painter: _SheetMusicDragger(_sheetMusicPainter),
+                            painter: _SheetMusicDragger(sheetMusicPainter),
                             isComplex: true,
                             willChange: false,
                             child: sheetMusicSizedBox,
@@ -744,12 +744,12 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  strings
-    final _stringGrey = Paint()..color = appDisabledColor;
+    final stringGrey = Paint()..color = appDisabledColor;
     for (var s = 0; s < 4; s++) {
-      _stringGrey.strokeWidth = (4.0 - s) * 3.0;
+      stringGrey.strokeWidth = (4.0 - s) * 3.0;
 
       var y = bassFretY + bassFretHeight - bassFretHeight * s / 4 - bassFretHeight / 8;
-      canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + 1.05 * bassScale /* over-run */, y), _stringGrey);
+      canvas.drawLine(Offset(bassFretX, y), Offset(bassFretX + 1.05 * bassScale /* over-run */, y), stringGrey);
     }
 
     //  dots on frets 3, 5, 7, 9

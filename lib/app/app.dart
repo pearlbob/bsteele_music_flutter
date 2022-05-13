@@ -324,13 +324,13 @@ class AppVerticalSpace extends StatelessWidget {
     if (space == null) {
       return const SizedBox(
         height: 10,
-        width: double.infinity,
+        width: 0,
       );
     }
     final double height = max(space ?? 0, 0);
     return SizedBox(
       height: height,
-      width: double.infinity,
+      width: 0,
     );
   }
 
@@ -348,12 +348,12 @@ class AppTooltip extends StatelessWidget {
     return Tooltip(
         key: key,
         message: message,
-        child: child,
         textStyle: textStyle,
         waitDuration: const Duration(seconds: 1, milliseconds: 200),
         verticalOffset: 75,
         decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
-        padding: const EdgeInsets.all(8));
+        padding: const EdgeInsets.all(8),
+        child: child);
   }
 
   final String message;
@@ -377,10 +377,10 @@ class AppWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      children: children,
       crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
       alignment: alignment ?? WrapAlignment.start,
       spacing: spacing ?? 0.0,
+      children: children,
     );
   }
 
@@ -400,7 +400,7 @@ class AppWrapFullWidth extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child:
-      AppWrap(children: children, alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing),
+          AppWrap(alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing, children: children),
     );
   }
 

@@ -56,6 +56,7 @@ GlobalKey _stackKey = GlobalKey();
 
 SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
+double _renderTableLeft = 0;
 
 const int _minimumSpaceBarGapMs = 750; //  milliseconds
 
@@ -146,8 +147,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   initState() {
     super.initState();
 
-    lastSize = WidgetsBinding.instance!.window.physicalSize;
-    WidgetsBinding.instance!.addObserver(this);
+    lastSize = WidgetsBinding.instance.window.physicalSize;
+    WidgetsBinding.instance.addObserver(this);
 
     displayKeyOffset = app.displayKeyOffset;
     _song = widget._song;
@@ -170,7 +171,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     //   });
     // };
 
-    WidgetsBinding.instance?.scheduleWarmUpFrame();
+    WidgetsBinding.instance.scheduleWarmUpFrame();
 
     app.clearMessage();
   }
@@ -201,7 +202,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
   @override
   void didChangeMetrics() {
-    Size size = WidgetsBinding.instance!.window.physicalSize;
+    Size size = WidgetsBinding.instance.window.physicalSize;
     if (size != lastSize) {
       setState(() {
         chordFontSize = null; //  take a shot at adjusting the display of chords and lyrics
@@ -220,7 +221,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
     songUpdateService.removeListener(songUpdateServiceListener);
     songMaster.removeListener(songMasterListener);
     playerRouteObserver.unsubscribe(this);
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -424,11 +425,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
     displayKeyOffset = app.displayKeyOffset;
 
-    final _lyricsTextStyle = lyricsTable.lyricsTextStyle;
+    final lyricsTextStyle = lyricsTable.lyricsTextStyle;
 
     logger.log(
         _playerLogBuild,
-        '_lyricsTextStyle.fontSize: ${_lyricsTextStyle.fontSize?.toStringAsFixed(2)}'
+        '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}'
         ', chordFontSize: ${chordFontSize?.toStringAsFixed(2)}');
 
     if (_selectedSongMoment == null) {
@@ -451,7 +452,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       sectionLocations.clear(); //  clear any previous song cached data
       _songMomentChordRectangles.clear();
       logger.d('_table clear: index: $sectionIndex');
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         // executes after build
         positionAfterBuild();
       });
@@ -485,7 +486,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
 
       final double chordsTextWidth = textWidth(context, headerTextStyle, 'G'); //  something sane
       const String onString = '(on ';
-      final double onStringWidth = textWidth(context, _lyricsTextStyle, onString);
+      final double onStringWidth = textWidth(context, lyricsTextStyle, onString);
 
       for (int i = 0; i < steps; i++) {
         music_key.Key value = rolledKeyList[i] ?? selectedSongKey;
@@ -535,7 +536,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   width: onStringWidth + 4 * chordsTextWidth,
                   //  max width of chars expected
                   child: Text(
-                    onString + '${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
+                    '$onString${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
                     style: headerTextStyle,
                     softWrap: false,
                     textAlign: TextAlign.right,
@@ -545,7 +546,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       }
     }
 
-    List<DropdownMenuItem<int>> _bpmDropDownMenuList = [];
+    List<DropdownMenuItem<int>> bpmDropDownMenuList = [];
     {
       final int bpm = playerSelectedBpm ?? _song.beatsPerMinute;
 
@@ -579,7 +580,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
         );
       }
 
-      _bpmDropDownMenuList = bpmList;
+      bpmDropDownMenuList = bpmList;
     }
 
     boxCenter = boxCenterHeight();
@@ -617,11 +618,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                 onTap: () {
                   openLink(titleAnchor());
                 },
+                hoverColor: hoverColor,
                 child: Text(
                   _song.titleWithCover,
                   style: appBarTextStyle,
                 ),
-                hoverColor: hoverColor,
               ),
             ),
             actions: <Widget>[
@@ -631,12 +632,12 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                   onTap: () {
                     openLink(artistAnchor());
                   },
+                  hoverColor: hoverColor,
                   child: Text(
                     ' by  ${_song.artist}',
                     style: appBarTextStyle,
                     softWrap: false,
                   ),
-                  hoverColor: hoverColor,
                 ),
               ),
               if (playerSinger != null)
@@ -738,7 +739,7 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
                                   child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
                             Container(
                               padding: const EdgeInsets.all(12),
-                              child: AppWrapFullWidth(children: [
+                              child: AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                                 AppTooltip(
                                   message: '''
 Space bar or clicking the song area starts "play" mode.
@@ -891,9 +892,9 @@ With escape, the app goes back to the play list.''',
                                     ),
                                   ),
                                 ]),
-                              ], alignment: WrapAlignment.spaceBetween),
+                              ]),
                             ),
-                            AppWrapFullWidth(children: [
+                            AppWrapFullWidth(alignment: WrapAlignment.spaceAround, children: [
                               if (app.fullscreenEnabled && !app.isFullScreen)
                                 appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                     onPressed: () {
@@ -914,9 +915,11 @@ With escape, the app goes back to the play list.''',
                                   ),
                                 ),
                               AppWrap(
+                                alignment: WrapAlignment.spaceBetween,
                                 children: [
                                   if (!songUpdateService.isFollowing)
                                     AppWrap(
+                                      alignment: WrapAlignment.spaceBetween,
                                       children: [
                                         AppTooltip(
                                           message: 'Transcribe the song to the selected key.',
@@ -974,7 +977,6 @@ With escape, the app goes back to the play list.''',
                                             ),
                                           ),
                                       ],
-                                      alignment: WrapAlignment.spaceBetween,
                                     ),
                                   if (songUpdateService.isFollowing)
                                     AppTooltip(
@@ -989,18 +991,14 @@ With escape, the app goes back to the play list.''',
                                   const AppSpace(),
                                   if (displayKeyOffset > 0 || (showCapo && isCapo && capoLocation > 0))
                                     Text(
-                                      ' ($selectedSongKey' +
-                                          (displayKeyOffset > 0 ? '+$displayKeyOffset' : '') +
-                                          (isCapo && capoLocation > 0 ? '-$capoLocation' : '') //  indicate: "maps to"
-                                          +
-                                          '=$displaySongKey)',
+                                      ' ($selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}${isCapo && capoLocation > 0 ? '-$capoLocation' : ''}=$displaySongKey)',
                                       style: headerTextStyle,
                                     ),
                                 ],
-                                alignment: WrapAlignment.spaceBetween,
                               ),
                               if (app.isScreenBig && !songUpdateService.isFollowing)
                                 AppWrap(
+                                  alignment: WrapAlignment.spaceBetween,
                                   children: [
                                     AppTooltip(
                                       message: 'Beats per minute.  Tap here or hold control and tap space\n'
@@ -1015,9 +1013,10 @@ With escape, the app goes back to the play list.''',
                                     ),
                                     const AppSpace(),
                                     AppWrap(
+                                      alignment: WrapAlignment.spaceBetween,
                                       children: [
                                         DropdownButton<int>(
-                                          items: _bpmDropDownMenuList,
+                                          items: bpmDropDownMenuList,
                                           onChanged: (value) {
                                             if (value != null) {
                                               setState(() {
@@ -1034,7 +1033,6 @@ With escape, the app goes back to the play list.''',
                                               kMinInteractiveDimension),
                                         ),
                                       ],
-                                      alignment: WrapAlignment.spaceBetween,
                                     ),
                                     if (kDebugMode) const AppSpace(),
                                     if (kDebugMode)
@@ -1049,7 +1047,6 @@ With escape, the app goes back to the play list.''',
                                         },
                                       ),
                                   ],
-                                  alignment: WrapAlignment.spaceBetween,
                                 ),
                               if (app.isScreenBig && songUpdateService.isFollowing)
                                 AppTooltip(
@@ -1078,12 +1075,12 @@ With escape, the app goes back to the play list.''',
                                       ? headerTextStyle.copyWith(color: Colors.red)
                                       : headerTextStyle,
                                 ),
-                            ], alignment: WrapAlignment.spaceAround),
+                            ]),
                             const AppSpace(),
                             if (app.isScreenBig && appOptions.ninJam && ninJam.isNinJamReady)
-                              AppWrapFullWidth(children: [
+                              AppWrapFullWidth(spacing: 20, children: [
                                 const AppSpace(),
-                                AppWrap(children: [
+                                AppWrap(spacing: 10, children: [
                                   Text(
                                     'Ninjam: BPM: ${playerSelectedBpm ?? _song.beatsPerMinute.toString()}',
                                     style: headerTextStyle,
@@ -1097,8 +1094,8 @@ With escape, the app goes back to the play list.''',
                                           text: '/bpm ${(playerSelectedBpm ?? _song.beatsPerMinute).toString()}'));
                                     },
                                   ),
-                                ], spacing: 10),
-                                AppWrap(children: [
+                                ]),
+                                AppWrap(spacing: 10, children: [
                                   Text(
                                     'Cycle: ${ninJam.beatsPerInterval}',
                                     style: headerTextStyle,
@@ -1111,8 +1108,8 @@ With escape, the app goes back to the play list.''',
                                       Clipboard.setData(ClipboardData(text: '/bpi ${ninJam.beatsPerInterval}'));
                                     },
                                   ),
-                                ], spacing: 10),
-                                AppWrap(children: [
+                                ]),
+                                AppWrap(spacing: 10, children: [
                                   Text(
                                     'Chords: ${ninJam.toMarkup()}',
                                     style: headerTextStyle,
@@ -1125,8 +1122,8 @@ With escape, the app goes back to the play list.''',
                                       Clipboard.setData(ClipboardData(text: ninJam.toMarkup()));
                                     },
                                   ),
-                                ], spacing: 10),
-                              ], spacing: 20),
+                                ]),
+                              ]),
                             const AppSpace(),
                             table ?? const Text('table missing!'),
 
@@ -1143,17 +1140,17 @@ With escape, the app goes back to the play list.''',
                               height: app.screenInfo.mediaHeight - boxCenter,
                             ),
                           ]),
-                      if (selectedTargetY > 0)
+                      if (selectedTargetY > 0 && !isPlaying)
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                          AppSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
+                          AppVerticalSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
                           AppWrap(children: [
-                            AppSpace(horizontalSpace: max(renderTableLeft - ((chordFontSize ?? 0) / 4), 0)),
                             appIcon(
                               Icons.play_arrow,
                               size: chordFontSize,
                               color: Colors.redAccent,
                             ),
-                          ], crossAxisAlignment: WrapCrossAlignment.start),
+                          ] //, crossAxisAlignment: WrapCrossAlignment.start
+                              ),
                         ]),
                     ]),
                   ),
@@ -1567,7 +1564,7 @@ With escape, the app goes back to the play list.''',
   void forceTableRedisplay() {
     sectionLocations.clear();
     table = null;
-    renderTableLeft = 20;
+    _renderTableLeft = 20;
     logger.log(_playerLogFontResize, '_forceTableRedisplay');
     setState(() {});
   }
@@ -1625,7 +1622,7 @@ With escape, the app goes back to the play list.''',
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppWrapFullWidth(children: [
+                    AppWrapFullWidth(spacing: viewportWidth(0.5), children: [
                       Text(
                         'User style: ',
                         style: boldStyle,
@@ -1705,7 +1702,7 @@ With escape, the app goes back to the play list.''',
                           style: headerTextStyle,
                         ),
                       ]),
-                    ], spacing: viewportWidth(0.5)),
+                    ]),
                     const AppSpaceViewportWidth(),
                     AppWrapFullWidth(children: [
                       AppWrap(
@@ -1765,6 +1762,7 @@ With escape, the app goes back to the play list.''',
                     if (app.isScreenBig) drums,
                     const AppSpace(),
                     AppWrapFullWidth(
+                      spacing: viewportWidth(1),
                       children: [
                         Text(
                           'NinJam choice:',
@@ -1795,7 +1793,6 @@ With escape, the app goes back to the play list.''',
                             },
                             style: headerTextStyle),
                       ],
-                      spacing: viewportWidth(1),
                     ),
                     const AppVerticalSpace(),
                     AppWrapFullWidth(children: <Widget>[
@@ -1806,10 +1803,10 @@ With escape, the app goes back to the play list.''',
                       appDropdownButton<int>(
                         AppKeyEnum.playerKeyOffset,
                         keyOffsetItems,
-                        onChanged: (_value) {
-                          if (_value != null) {
+                        onChanged: (value) {
+                          if (value != null) {
                             setState(() {
-                              app.displayKeyOffset = _value;
+                              app.displayKeyOffset = value;
                               forcePlayerSetState();
                             });
                           }
@@ -1824,14 +1821,14 @@ With escape, the app goes back to the play list.''',
               }),
               actions: [
                 const AppSpace(),
-                AppWrapFullWidth(children: [
+                AppWrapFullWidth(spacing: viewportWidth(1), alignment: WrapAlignment.end, children: [
                   AppTooltip(
                     message: 'Click here or outside of the popup to return to the player screen.',
                     child: appButton('Return', appKeyEnum: AppKeyEnum.playerReturnFromSettings, onPressed: () {
                       Navigator.of(context).pop();
                     }),
                   ),
-                ], spacing: viewportWidth(1), alignment: WrapAlignment.end),
+                ]),
               ],
               actionsAlignment: MainAxisAlignment.start,
               elevation: 24.0,
@@ -1917,7 +1914,6 @@ With escape, the app goes back to the play list.''',
   double? lyricsFraction;
   final LyricsTable lyricsTable = LyricsTable();
   List<GridCoordinate> songMomentToGridList = [];
-  double renderTableLeft = 0;
 
   final FocusNode _rawKeyboardListenerFocusNode = FocusNode();
 
@@ -1976,9 +1972,30 @@ class _ChordHighlightPainter extends CustomPainter {
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
 
     if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
-      final rect = _songMomentChordRectangles[_selectedSongMoment!.momentNumber];
+      int index = _selectedSongMoment!.momentNumber;
+      final rect = _songMomentChordRectangles[index];
+      final outlineRect =
+          Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap);
+      canvas.drawRect(outlineRect, highlightColor);
+      // if (index < _songMomentChordRectangles.length - 1) {
+      //   final nextRect = _songMomentChordRectangles[index + 1];
+      //   if (rect.bottom < nextRect.bottom) {
+      //     // we're moving down
+      //     //canvas.drawRect(Rect.fromLTRB(0, rect.bottom, rect.left - overlap, nextRect.bottom), highlightColor);
+      //     var vertices = ui.Vertices(VertexMode.triangles,
+      //         [Offset(0, rect.bottom), Offset(nextRect.left, rect.bottom), Offset(nextRect.left / 2, nextRect.bottom)]);
+      //     canvas.drawVertices(vertices, BlendMode.srcOver, highlightColor);
+      //   }
+      // }
       canvas.drawRect(
-          Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap),
+          Rect.fromLTWH(
+              0,
+              rect.top,
+              _renderTableLeft * 2,
+              rect.height *
+                  (_selectedSongMoment!.repeatMax == 0
+                      ? 1.0
+                      : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax)),
           highlightColor);
     }
 
@@ -1990,5 +2007,5 @@ class _ChordHighlightPainter extends CustomPainter {
     return true; //  fixme optimize?
   }
 
-  static final highlightColor = Paint()..color = Colors.red;
+  static final highlightColor = Paint()..color = Colors.redAccent;
 }

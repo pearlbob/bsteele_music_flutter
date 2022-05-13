@@ -591,11 +591,11 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState()
+class MyHomePageState extends State<MyHomePage> {
+  MyHomePageState()
       : _searchFocusNode = FocusNode(),
         appOptions = AppOptions();
 
@@ -621,7 +621,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //  give the beta warning
     if (Uri.base.toString().contains('beta')) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         _betaWarningPopup();
       });
     }
@@ -643,7 +643,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         app.warningMessage = 'internal songList used, dated: ${await app.releaseUtcDate()}';
       } catch (fe) {
-        logger.i("internal songList parse error: " + fe.toString());
+        logger.i("internal songList parse error: $fe");
       }
     }
     {
@@ -654,7 +654,7 @@ class _MyHomePageState extends State<MyHomePage> {
         logger.i("internal song metadata used");
         setState(() {});
       } catch (fe) {
-        logger.i("internal song metadata parse error: " + fe.toString());
+        logger.i("internal song metadata parse error: $fe");
       }
     }
     {
@@ -667,7 +667,7 @@ class _MyHomePageState extends State<MyHomePage> {
         logger.i("internal song performances used");
         setState(() {});
       } catch (fe) {
-        logger.i("internal song performance parse error: " + fe.toString());
+        logger.i("internal song performance parse error: $fe");
       }
     }
   }
@@ -698,7 +698,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
-        logger.i("external songList parse error: " + fe.toString());
+        logger.i("external songList parse error: $fe");
         _readInternalSongList();
       }
     }
@@ -716,10 +716,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
       try {
         SongMetadata.fromJson(metadataAsString);
-        logger.i("external song metadata read from: " + url);
+        logger.i("external song metadata read from: $url");
         setState(() {});
       } catch (fe) {
-        logger.i("external song metadata parse error: " + fe.toString());
+        logger.i("external song metadata parse error: $fe");
       }
     }
 
@@ -739,10 +739,10 @@ class _MyHomePageState extends State<MyHomePage> {
         var allPerformances = AllSongPerformances();
         allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
-        logger.i("external song performances read from: " + url);
+        logger.i("external song performances read from: $url");
         setState(() {});
       } catch (fe) {
-        logger.i("external song performance parse error: " + fe.toString());
+        logger.i("external song performance parse error: $fe");
       }
     }
   }
@@ -760,7 +760,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
-    final _titleBarFontSize = app.screenInfo.fontSize;
+    final titleBarFontSize = app.screenInfo.fontSize;
 
     //  figure the configuration when the values are established
     app.isEditReady = (kIsWeb
@@ -801,7 +801,7 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.d('fontSize: $fontSize in ${app.screenInfo.mediaWidth} px');
 
     artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
-    final TextStyle _navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
+    final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
@@ -919,7 +919,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //   }
     // }
 
-    List<DropdownMenuItem<NameValue>> _metadataDropDownMenuList = [];
+    List<DropdownMenuItem<NameValue>> metadataDropDownMenuList = [];
     {
       SplayTreeSet<NameValue> nameValues = SplayTreeSet();
       nameValues.add(allSongsMetadataNameValue); // default all value
@@ -932,7 +932,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (nameValue.name == holidayMetadataNameValue.name) {
           continue;
         }
-        _metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
+        metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
           value: nameValue,
           child: Text(
             '${nameValue.name}: ${nameValue.value}',
@@ -982,17 +982,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   openLink('http://www.bsteele.com');
                 },
                 child: Container(
-                  child: const Image(
-                    image: AssetImage('lib/assets/runningMan.png'),
-                    width: kToolbarHeight,
-                    height: kToolbarHeight,
-                    semanticLabel: "bsteele.com website",
-                  ),
                   margin: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(14)),
                     color: Colors.white,
+                  ),
+                  child: const Image(
+                    image: AssetImage('lib/assets/runningMan.png'),
+                    width: kToolbarHeight,
+                    height: kToolbarHeight,
+                    semanticLabel: "bsteele.com website",
                   ),
                 ),
               ),
@@ -1005,17 +1005,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   openLink('http://communityjams.org');
                 },
                 child: Container(
-                  child: const Image(
-                    image: AssetImage('lib/assets/cjLogo.png'),
-                    width: kToolbarHeight,
-                    height: kToolbarHeight,
-                    semanticLabel: "community jams",
-                  ),
                   margin: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(14)),
                     color: Colors.white,
+                  ),
+                  child: const Image(
+                    image: AssetImage('lib/assets/cjLogo.png'),
+                    width: kToolbarHeight,
+                    height: kToolbarHeight,
+                    semanticLabel: "community jams",
                   ),
                 ),
               ),
@@ -1034,10 +1034,10 @@ class _MyHomePageState extends State<MyHomePage> {
               appKeyEnum: AppKeyEnum.mainDrawerOptions,
               title: Text(
                 "Options",
-                style: _navTextStyle,
+                style: navTextStyle,
               ),
               onTap: () {
-                _navigateToOptions(context);
+                _navigateToOptions();
               },
             ),
             if (app.isEditReady)
@@ -1045,21 +1045,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerSingers,
                 title: Text(
                   "Singers",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToSingers(context);
+                  _navigateToSingers();
                 },
               ),
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerPerformanceHistory,
               title: Text(
                 "History",
-                style: _navTextStyle,
+                style: navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
-                _navigateToPerformanceHistory(context);
+                _navigateToPerformanceHistory();
               },
             ),
             if (app.isEditReady) //  no files on phones!
@@ -1067,10 +1067,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerSongs,
                 title: Text(
                   "Songs",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToSongs(context);
+                  _navigateToSongs();
                 },
               ),
             if (app.isEditReady)
@@ -1078,10 +1078,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerLists,
                 title: Text(
                   "Lists",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToLists(context);
+                  _navigateToLists();
                 },
               ),
             if (app.isEditReady)
@@ -1089,10 +1089,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerNewSong,
                 title: Text(
                   "New Song",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToEdit(context);
+                  _navigateToEdit();
                 },
               ),
             if (!app.screenInfo.isTooNarrow)
@@ -1100,21 +1100,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerTheory,
                 title: Text(
                   "Theory",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToTheory(context);
+                  _navigateToTheory();
                 },
               ),
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerPrivacy,
               title: Text(
                 "Privacy",
-                style: _navTextStyle,
+                style: navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
-                _navigateToPrivacyPolicy(context);
+                _navigateToPrivacyPolicy();
               },
             ),
             if (app.isScreenBig)
@@ -1122,10 +1122,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerDocs,
                 title: Text(
                   "Docs",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToDocumentation(context);
+                  _navigateToDocumentation();
                 },
               ),
             if (kDebugMode)
@@ -1133,10 +1133,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
                 title: Text(
                   "CSS Demo",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToCssDemo(context);
+                  _navigateToCssDemo();
                 },
               ),
             if (kDebugMode)
@@ -1144,21 +1144,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 appKeyEnum: AppKeyEnum.mainDrawerDebug,
                 title: Text(
                   "Debug",
-                  style: _navTextStyle,
+                  style: navTextStyle,
                 ),
                 onTap: () {
-                  _navigateToDebug(context);
+                  _navigateToDebug();
                 },
               ),
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: Text(
                 'CJ',
-                style: _navTextStyle,
+                style: navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
-                _navigateToCommunityJams(context);
+                _navigateToCommunityJams();
               },
             ),
 
@@ -1166,11 +1166,11 @@ class _MyHomePageState extends State<MyHomePage> {
               appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: Text(
                 'About',
-                style: _navTextStyle,
+                style: navTextStyle,
               ),
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
-                _navigateToAbout(context);
+                _navigateToAbout();
               },
             ),
           ],
@@ -1181,7 +1181,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
-        AppWrapFullWidth(children: [
+        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
           AppWrap(children: [
             AppTooltip(
               message: _searchTextTooltipText,
@@ -1196,7 +1196,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(
-              width: 12 * _titleBarFontSize,
+              width: 12 * titleBarFontSize,
               //  limit text entry display length
               child: TextField(
                 key: appKey(AppKeyEnum.mainSearchText),
@@ -1237,6 +1237,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ]),
           if (app.isScreenBig)
             AppWrap(
+              crossAxisAlignment: WrapCrossAlignment.start,
+              spacing: app.screenInfo.fontSize / 2,
               children: [
                 AppTooltip(
                   message: 'Select the order of the song list.',
@@ -1261,8 +1263,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: searchDropDownStyle,
                 ),
               ],
-              crossAxisAlignment: WrapCrossAlignment.start,
-              spacing: app.screenInfo.fontSize / 2,
             ),
           if (appOptions.holiday)
             AppWrap(children: [
@@ -1276,6 +1276,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ]),
           if (!appOptions.holiday && app.isScreenBig)
             AppWrap(
+              crossAxisAlignment: WrapCrossAlignment.start,
+              spacing: app.screenInfo.fontSize / 2,
               children: [
                 AppTooltip(
                   message: 'Select which song list to show.',
@@ -1285,7 +1287,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 DropdownButton<NameValue>(
-                  items: _metadataDropDownMenuList,
+                  items: metadataDropDownMenuList,
                   onChanged: (value) {
                     logger.v('metadataDropDownMenuList selection: $value');
                     app.clearMessage();
@@ -1296,10 +1298,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemHeight: null,
                 ),
               ],
-              crossAxisAlignment: WrapCrossAlignment.start,
-              spacing: app.screenInfo.fontSize / 2,
             ),
-        ], alignment: WrapAlignment.spaceBetween),
+        ]),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(
               child: ScrollablePositionedList.builder(
@@ -1398,6 +1398,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
             if (app.isScreenBig)
               AppWrapFullWidth(
+                alignment: WrapAlignment.spaceBetween,
                 children: <Widget>[
                   AppWrap(
                     children: <Widget>[
@@ -1411,7 +1412,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         style: oddEvenTitleTextStyle,
                       ),
                       Text(
-                        '    ' + song.getArtist(),
+                        '    ${song.getArtist()}',
                         style: oddEvenTextStyle,
                       ),
                       if (song.coverArtist.isNotEmpty)
@@ -1422,11 +1423,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   Text(
-                    '   ' + intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                    '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime))}',
                     style: oddEvenTextStyle,
                   ),
                 ],
-                alignment: WrapAlignment.spaceBetween,
               ),
             if (app.isPhone)
               Column(
@@ -1437,7 +1437,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: oddEvenTitleTextStyle,
                   ),
                   Text(
-                    '      ' + song.getArtist(),
+                    '      ${song.getArtist()}',
                     style: oddEvenTextStyle,
                   ),
                 ],
@@ -1619,23 +1619,29 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _navigateToSongs(BuildContext context) async {
+  void _navigateToSongs() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Songs()),
     );
 
-    Navigator.pop(context);
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop();
     _reApplySearch();
   }
 
-  void _navigateToLists(BuildContext context) async {
+  void _navigateToLists() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Lists()),
     );
 
-    Navigator.pop(context);
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop();
     _reApplySearch();
   }
 
@@ -1671,105 +1677,138 @@ class _MyHomePageState extends State<MyHomePage> {
     _reApplySearch();
   }
 
-  _navigateToEdit(BuildContext context) async {
+  _navigateToEdit() async {
     app.clearMessage();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Edit(initialSong: Song.createEmptySong())),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToOptions(BuildContext context) async {
+  _navigateToOptions() async {
     await Navigator.pushNamed(
       context,
       Options.routeName,
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToSingers(BuildContext context) async {
+  _navigateToSingers() async {
     await Navigator.pushNamed(
       context,
       Singers.routeName,
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToPerformanceHistory(BuildContext context) async {
+  _navigateToPerformanceHistory() async {
     await Navigator.pushNamed(
       context,
       PerformanceHistory.routeName,
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToDebug(BuildContext context) async {
+  _navigateToDebug() async {
     app.clearMessage();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Debug()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
   }
 
-  _navigateToAbout(BuildContext context) async {
+  _navigateToAbout() async {
     app.clearMessage();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const About()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToCommunityJams(BuildContext context) async {
+  _navigateToCommunityJams() async {
     app.clearMessage();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CommunityJams()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToCssDemo(BuildContext context) async {
+  _navigateToCssDemo() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CssDemo()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToDocumentation(BuildContext context) async {
+  _navigateToDocumentation() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Documentation()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToTheory(BuildContext context) async {
+  _navigateToTheory() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const TheoryWidget()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 
-  _navigateToPrivacyPolicy(BuildContext context) async {
+  _navigateToPrivacyPolicy() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Privacy()),
     );
-    Navigator.pop(context); //  drawer
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
     _reApplySearch();
   }
 

@@ -24,12 +24,12 @@ class Options extends StatefulWidget {
   const Options({Key? key}) : super(key: key);
 
   @override
-  _Options createState() => _Options();
+  OptionsState createState() => OptionsState();
 
   static const String routeName = '/options';
 }
 
-class _Options extends State<Options> {
+class OptionsState extends State<Options> {
   @override
   initState() {
     super.initState();
@@ -91,6 +91,7 @@ class _Options extends State<Options> {
                   Container(
                     padding: const EdgeInsets.only(left: 30.0),
                     child: AppWrapFullWidth(
+                      spacing: 30,
                       children: <Widget>[
                         AppRadio<bool>(
                             text: 'Not in a holiday mood',
@@ -115,7 +116,6 @@ class _Options extends State<Options> {
                             },
                             style: style),
                       ],
-                      spacing: 30,
                     ),
                   ),
 

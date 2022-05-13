@@ -7,12 +7,12 @@ class Debug extends StatefulWidget {
   const Debug({Key? key}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  DebugState createState() => DebugState();
 
   static const String routeName = '/debug';
 }
 
-class _State extends State<Debug> {
+class DebugState extends State<Debug> {
   @override
   initState() {
     super.initState();

@@ -26,11 +26,11 @@ class Lists extends StatefulWidget {
   const Lists({Key? key}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  ListsState createState() => ListsState();
 }
 
-class _State extends State<Lists> {
-  _State() : _searchFocusNode = FocusNode();
+class ListsState extends State<Lists> {
+  ListsState() : _searchFocusNode = FocusNode();
 
   @override
   initState() {
@@ -62,7 +62,7 @@ class _State extends State<Lists> {
 
     logger.v('_selectedNameValue: $_selectedNameValue');
 
-    List<Widget> _metadataWidgets = [];
+    List<Widget> metadataWidgets = [];
     {
       //  find all name/values in use
       SplayTreeSet<NameValue> nameValues = SplayTreeSet();
@@ -84,7 +84,7 @@ class _State extends State<Lists> {
         if (nameValue.name.isEmpty) {
           continue;
         }
-        _metadataWidgets.add(AppWrap(
+        metadataWidgets.add(AppWrap(
           children: [
             Radio(
               value: nameValue,
@@ -113,7 +113,7 @@ class _State extends State<Lists> {
         ));
       }
 
-      _metadataWidgets.add(AppWrap(
+      metadataWidgets.add(AppWrap(
         children: [
           const AppSpace(space: 20),
           Radio(
@@ -183,16 +183,16 @@ class _State extends State<Lists> {
         songWidgetList.add(const AppSpace());
       }
 
-      SplayTreeSet<Song> _metadataSongSet = SplayTreeSet();
+      SplayTreeSet<Song> metadataSongSet = SplayTreeSet();
       var songIdMetadataSet = SongMetadata.where(nameIs: _selectedNameValue.name, valueIs: _selectedNameValue.value);
       for (var song in app.allSongs) {
         for (var songIdMetadata in songIdMetadataSet) {
           if (songIdMetadata.id == song.songId.toString()) {
-            _metadataSongSet.add(song);
+            metadataSongSet.add(song);
           }
         }
       }
-      List<Song> _metadataSongs = [];
+      List<Song> metadataSongs = [];
 
       //  search songs on top
       {
@@ -204,16 +204,15 @@ class _State extends State<Lists> {
           thickness: 10,
         ));
         songWidgetList.add(Text(
-          (_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs') +
-              ' in the list "${_selectedNameValue.toShortString()}":',
+          '${_filteredSongs.isNotEmpty ? 'Other songs' : 'Songs'} in the list "${_selectedNameValue.toShortString()}":',
           style: metadataStyle.copyWith(color: Colors.grey),
         ));
-        _metadataSongs.addAll(_filteredSongs);
+        metadataSongs.addAll(_filteredSongs);
       }
       //  list other, non-matching set songs later
-      for (var song in _metadataSongSet) {
+      for (var song in metadataSongSet) {
         //  avoid repeats
-        if (!_metadataSongs.contains(song)) {
+        if (!metadataSongs.contains(song)) {
           songWidgetList.add(mapSongToWidget(song));
         }
       }
@@ -222,12 +221,11 @@ class _State extends State<Lists> {
         thickness: 10,
       ));
       songWidgetList.add(Text(
-        (searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs ') +
-            'not in the list "${_selectedNameValue.toShortString()}":',
+        '${searchTerm.isNotEmpty ? 'Other songs not matching the search "$searchTerm" and ' : 'Songs '}not in the list "${_selectedNameValue.toShortString()}":',
         style: metadataStyle.copyWith(color: Colors.grey),
       ));
       for (var song in app.allSongs) {
-        if (_metadataSongSet.contains(song) || _filteredSongs.contains(song)) {
+        if (metadataSongSet.contains(song) || _filteredSongs.contains(song)) {
           continue;
         }
         songWidgetList.add(mapSongToWidget(song));
@@ -250,7 +248,7 @@ class _State extends State<Lists> {
               const SizedBox(
                 height: 10,
               ),
-              AppWrapFullWidth(children: [
+              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                 appEnumeratedButton(
                   'Write all to file',
                   appKeyEnum: AppKeyEnum.listsSave,
@@ -310,15 +308,15 @@ class _State extends State<Lists> {
                         }
                       : null,
                 ),
-              ], alignment: WrapAlignment.spaceBetween),
+              ]),
               const AppSpace(
                 space: 20,
               ),
               AppWrap(
-                children: _metadataWidgets,
                 alignment: WrapAlignment.spaceEvenly,
+                children: metadataWidgets,
               ),
-              AppWrapFullWidth(children: [
+              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                 //  search line
                 AppWrap(children: [
                   AppTooltip(
@@ -367,12 +365,12 @@ class _State extends State<Lists> {
                     ),
                   ),
                 ]),
-              ], alignment: WrapAlignment.spaceBetween),
+              ]),
               const AppSpace(),
               Expanded(
                 child: ListView(
-                  children: songWidgetList,
                   scrollDirection: Axis.vertical,
+                  children: songWidgetList,
                 ),
               ),
             ]),

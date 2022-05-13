@@ -51,7 +51,7 @@ class BassStudyTool {
                     ChordDescriptor chordDescriptor = ChordDescriptor.major;
                     String lyrics;
                     bool tied = false;
-                    _NoteDuration _noteDuration = _noteDurations[0];
+                    _NoteDuration noteDuration = _noteDurations[0];
 
                     //  process these first
                     for (var attr in item.keys) {
@@ -82,8 +82,8 @@ class BassStudyTool {
                           logger.v('    $attr: ${fret.toString()}');
                           break;
                         case 'noteDuration': //  encoded
-                          _noteDuration = (isNote ? _noteDurations[item[attr]] : _restDurations[item[attr]]);
-                          logger.v('    $attr: ${_noteDuration.toString()}');
+                          noteDuration = (isNote ? _noteDurations[item[attr]] : _restDurations[item[attr]]);
+                          logger.v('    $attr: ${noteDuration.toString()}');
                           break;
                         case 'chordModifier':
                           String chordModifier = item[attr];
@@ -212,7 +212,7 @@ class BassStudyTool {
                       logger.v('    Pitch: $pitch  (string: $string, fret: $fret), $chordDescriptor');
                       if (pitch != null) {
                         SheetNote sn = SheetNote.note(
-                          Clef.bass8vb, pitch, _noteDuration.duration,
+                          Clef.bass8vb, pitch, noteDuration.duration,
                           // lyrics: lyrics,
                           tied: tied,
                         );
@@ -222,7 +222,7 @@ class BassStudyTool {
                       //  rest
                       SheetNote sn = SheetNote.rest(
                         Clef.bass8vb,
-                        _noteDuration.duration,
+                        noteDuration.duration,
                       );
                       sheetNotes.add(sn);
                     }

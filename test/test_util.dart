@@ -148,17 +148,17 @@ class DropDownFinderByAppKey extends MatchFinder {
 
 class Find {
   static TextField findTextField(String valueKeyString) {
-    var _textFieldFinder = _TextFieldFinder(valueKeyString);
-    expect(_textFieldFinder, findsOneWidget);
-    var ret = _textFieldFinder.evaluate().last.widget as TextField;
+    var textFieldFinder = _TextFieldFinder(valueKeyString);
+    expect(textFieldFinder, findsOneWidget);
+    var ret = textFieldFinder.evaluate().last.widget as TextField;
     expect(ret.controller, isNotNull);
     return ret;
   }
 
   static TextField findTextFieldByAppKey(AppKeyEnum appKeyEnum) {
-    var _textFieldFinder = _TextFieldByAppKeyFinder(appKeyEnum);
-    expect(_textFieldFinder, findsOneWidget);
-    var ret = _textFieldFinder.evaluate().last.widget as TextField;
+    var textFieldFinder = _TextFieldByAppKeyFinder(appKeyEnum);
+    expect(textFieldFinder, findsOneWidget);
+    var ret = textFieldFinder.evaluate().last.widget as TextField;
     expect(ret.controller, isNotNull);
     return ret;
   }
@@ -200,15 +200,15 @@ class Find {
   }
 
   static DropdownButton<music_key.Key> findDropDown(String valueKeyString) {
-    var _textFinder = DropDownFinder(valueKeyString);
-    expect(_textFinder, findsOneWidget);
-    var ret = _textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
+    var textFinder = DropDownFinder(valueKeyString);
+    expect(textFinder, findsOneWidget);
+    var ret = textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
     return ret;
   }
 
   static DropdownButton<music_key.Key> findDropDownByAppKey(AppKeyEnum appKeyEnum) {
-    var _textFinder = DropDownFinderByAppKey(appKeyEnum);
-    var ret = _textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
+    var textFinder = DropDownFinderByAppKey(appKeyEnum);
+    var ret = textFinder.evaluate().first.widget as DropdownButton<music_key.Key>;
     return ret;
   }
 

@@ -196,6 +196,7 @@ class LyricsTable {
       //  outline container
       margin: getMeasureMargin(),
       padding: _padding,
+      color: selectionColor ?? _sectionBackgroundColor,
       child: Container(
         //  inner container of section color
         margin: getMeasureMargin(),
@@ -203,7 +204,6 @@ class LyricsTable {
         color: _sectionBackgroundColor,
         child: w,
       ),
-      color: selectionColor ?? _sectionBackgroundColor,
     );
   }
 

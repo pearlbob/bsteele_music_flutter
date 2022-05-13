@@ -12,10 +12,10 @@ class CssDemo extends StatefulWidget {
   const CssDemo({Key? key}) : super(key: key);
 
   @override
-  _CssDemo createState() => _CssDemo();
+  CssDemoState createState() => CssDemoState();
 }
 
-class _CssDemo extends State<CssDemo> {
+class CssDemoState extends State<CssDemo> {
   @override
   initState() {
     super.initState();
@@ -105,8 +105,8 @@ class _CssDemo extends State<CssDemo> {
                 ),
                 const AppSpace(),
                 Container(
-                  child: sections,
                   color: measureContainerBackgroundColor(),
+                  child: sections,
                 ),
                 const AppSpace(),
                 Container(

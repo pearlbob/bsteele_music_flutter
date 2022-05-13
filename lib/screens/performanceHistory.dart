@@ -16,12 +16,12 @@ class PerformanceHistory extends StatefulWidget {
   const PerformanceHistory({Key? key}) : super(key: key);
 
   @override
-  _PerformanceHistory createState() => _PerformanceHistory();
+  PerformanceHistoryState createState() => PerformanceHistoryState();
 
   static const String routeName = '/history';
 }
 
-class _PerformanceHistory extends State<PerformanceHistory> {
+class PerformanceHistoryState extends State<PerformanceHistory> {
   @override
   initState() {
     super.initState();

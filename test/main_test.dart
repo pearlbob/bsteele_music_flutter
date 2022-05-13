@@ -99,7 +99,7 @@ void main() {
 
       //  assure that the start of the elements found match the not holiday list
       for (var i = 0; i < widgetSongIds.length; i++) {
-        expect(widgetSongIds.elementAt(i), 'mainSong.' + notHoliday.elementAt(i));
+        expect(widgetSongIds.elementAt(i), 'mainSong.${notHoliday.elementAt(i)}');
       }
       logger.i('notHoliday.elementAt(${widgetSongIds.length - 1}):'
           '       ${notHoliday.elementAt(widgetSongIds.length - 1)}');

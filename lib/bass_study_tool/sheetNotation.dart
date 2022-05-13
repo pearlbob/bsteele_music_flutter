@@ -355,8 +355,8 @@ class _SheetStaffNotation extends SheetNotation {
     Pitch? pitch = _key.mappedPitch(sn.pitch!);
     double staffPosition = musical_key.Key.getStaffPosition(_clef, pitch);
 
-    double _accidentalDx = accidentalDx ?? dx;
-    double _rootDx = rootDx ?? dx;
+    double myAccidentalDx = accidentalDx ?? dx;
+    double theRootDx = rootDx ?? dx;
 
     logger.v('_measureAccidentals[$staffPosition]: ${_measureAccidentals[staffPosition]}');
     logger.v('_key.getMajorScaleByNote(${pitch.scaleNumber}): ${_key.getMajorScaleByNote(pitch.scaleNumber)}');
@@ -379,9 +379,9 @@ class _SheetStaffNotation extends SheetNotation {
     Rect? accidentalRect;
     if (accidental != null) {
       accidentalRect = _renderSheetNoteSymbol(_accidentalSheetNoteSymbol(accidental), staffPosition,
-          scale: scale, renderForward: false, x: _accidentalDx);
+          scale: scale, renderForward: false, x: myAccidentalDx);
       if (rootDx == null) {
-        _rootDx += _accidentalStaffSpace * staffSpace * scale;
+        theRootDx += _accidentalStaffSpace * staffSpace * scale;
       }
       if (_debug) {
         _canvas.drawRect(accidentalRect, _transGrey);
@@ -393,7 +393,8 @@ class _SheetStaffNotation extends SheetNotation {
 
     logger.d('_measureAccidentals[  $staffPosition  ] = ${_measureAccidentals[staffPosition]} ');
 
-    var rect = _renderSheetNoteSymbol(sn.symbol, staffPosition, renderForward: renderForward, scale: scale, x: _rootDx);
+    var rect =
+        _renderSheetNoteSymbol(sn.symbol, staffPosition, renderForward: renderForward, scale: scale, x: theRootDx);
     if (accidentalRect != null) {
       rect = rect.expandToInclude(accidentalRect);
     }
@@ -416,15 +417,15 @@ class _SheetStaffNotation extends SheetNotation {
     final double scaledStaffSpace = staffSpace * scale;
     final double w = symbol.fontSizeOnStaffs * scaledStaffSpace;
 
-    double _x = x ?? dx;
+    double myX = x ?? dx;
 
     var y = dy + preHeight;
     var yOff = symbol.fixedYOff * scaledStaffSpace;
     var yPos = activeHeight - staffPosition * scaledStaffSpace;
     Rect rect = Rect.fromLTRB(
-        _x + symbol.bounds.left * scaledStaffSpace,
+        myX + symbol.bounds.left * scaledStaffSpace,
         y + yOff - yPos + symbol.bounds.top * scaledStaffSpace,
-        _x + symbol.bounds.right * scaledStaffSpace,
+        myX + symbol.bounds.right * scaledStaffSpace,
         y + yOff - yPos + symbol.bounds.bottom * scaledStaffSpace);
 
     logger.d('${symbol.name} $staffPosition = $yPos'

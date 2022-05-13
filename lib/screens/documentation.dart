@@ -10,10 +10,10 @@ class Documentation extends StatefulWidget {
   const Documentation({Key? key}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  DocumentationState createState() => DocumentationState();
 }
 
-class _State extends State<Documentation> {
+class DocumentationState extends State<Documentation> {
   @override
   initState() {
     super.initState();

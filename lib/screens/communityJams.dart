@@ -11,12 +11,12 @@ class CommunityJams extends StatefulWidget {
   const CommunityJams({Key? key}) : super(key: key);
 
   @override
-  _CommunityJams createState() => _CommunityJams();
+  CommunityJamsState createState() => CommunityJamsState();
 
   static const String routeName = '/communityJams';
 }
 
-class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
+class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserver {
   @override
   initState() {
     super.initState();
@@ -76,6 +76,7 @@ class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
                 ),
                 const AppSpace(),
                 AppWrapFullWidth(
+                  spacing: 20,
                   children: <Widget>[
                     const Text('The Community Jams park QR is below:'),
                     Icon(
@@ -83,7 +84,6 @@ class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
                       size: 1.5 * app.screenInfo.fontSize,
                     ),
                   ],
-                  spacing: 20,
                 ),
                 const AppVerticalSpace(
                   space: 300,

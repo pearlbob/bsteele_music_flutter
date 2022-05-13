@@ -21,7 +21,7 @@ class SheetNotationList {
       const staffMarginHeight = staffMargin * staffSpace;
       SheetDisplay display = SheetDisplay.values[index];
 
-      const double _fontSize = 15; //  fixme
+      const double fontSize = 15; //  fixme
       switch (display) {
         case SheetDisplay.section:
           return SheetSectionTextNotation(
@@ -30,14 +30,14 @@ class SheetNotationList {
         case SheetDisplay.measureCount:
           return SheetMeasureCountTextNotation(
             display,
-            activeHeight: _fontSize,
+            activeHeight: fontSize,
           );
         case SheetDisplay.chords:
           return SheetChordTextNotation(display);
         case SheetDisplay.lyrics:
           return SheetLyricsTextNotation(display);
         case SheetDisplay.guitarFingerings:
-          return SheetTextNotation(display, activeHeight: _fontSize * 4); // fixme temp
+          return SheetTextNotation(display, activeHeight: fontSize * 4); // fixme temp
         case SheetDisplay.pianoChords:
           return SheetChordStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
@@ -48,9 +48,9 @@ class SheetNotationList {
           return SheetBassStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);
         case SheetDisplay.bassNoteNumbers:
-          return SheetBassNoteNumbersTextNotation(display, activeHeight: _fontSize * 2);
+          return SheetBassNoteNumbersTextNotation(display, activeHeight: fontSize * 2);
         case SheetDisplay.bassNotes:
-          return SheetBassNotesTextNotation(display, activeHeight: _fontSize * 2);
+          return SheetBassNotesTextNotation(display, activeHeight: fontSize * 2);
         case SheetDisplay.bass8vb:
           return SheetBass8vbStaffNotation(display,
               preHeight: staffMarginHeight, activeHeight: staffHeight, postHeight: staffMarginHeight);

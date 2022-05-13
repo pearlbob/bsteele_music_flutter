@@ -7,7 +7,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
-typedef _LyricsEntriesCallback = void Function(); //  structural change
+typedef LyricsEntriesCallback = void Function(); //  structural change
 typedef OnLyricsLineChangedCallback = void Function(); //  text content change
 
 LyricSection? _focusLyricSection;
@@ -33,7 +33,7 @@ class LyricsEntries extends ChangeNotifier {
   void updateEntriesFromSong() {
     _entries.clear();
     for (final lyricSection in _song.lyricSections) {
-      _entries.add(_LyricsDataEntry.fromSong(
+      _entries.add(LyricsDataEntry.fromSong(
         lyricSection,
         _lyricsEntriesCallback,
         onLyricsLineChangedCallback: _onLyricsLineChangedCallback,
@@ -62,19 +62,19 @@ class LyricsEntries extends ChangeNotifier {
     return sb.toString();
   }
 
-  void insertChordSection(_LyricsDataEntry entry, ChordSection chordSection) {
+  void insertChordSection(LyricsDataEntry entry, ChordSection chordSection) {
     var index = _entries.indexOf(entry);
     if (index >= 0) {
       _entries.insert(
           index,
-          _LyricsDataEntry._fromChordSection(chordSection, index,
+          LyricsDataEntry._fromChordSection(chordSection, index,
               textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     }
   }
 
   void addChordSection(ChordSection chordSection) {
     logger.log(_debugLyricEntry, 'addChordSection(${chordSection.toMarkup()}):');
-    _entries.add(_LyricsDataEntry._fromChordSection(chordSection, _entries.length,
+    _entries.add(LyricsDataEntry._fromChordSection(chordSection, _entries.length,
         textStyle: _textStyle, lyricsEntriesCallback: _lyricsEntriesCallback));
     logger.log(_debugLyricEntry, '   _entries: ${_entries.length}');
   }
@@ -162,20 +162,20 @@ class LyricsEntries extends ChangeNotifier {
     }
   }
 
-  void addBlankLyricsLine(_LyricsDataEntry entry) {
+  void addBlankLyricsLine(LyricsDataEntry entry) {
     logger.log(_debugLyricEntry, 'LyricsEntries: add empty line to $entry');
     entry.addEmptyLine(textStyle: _textStyle);
   }
 
   void deleteLyricLine(
-    _LyricsDataEntry entry,
+    LyricsDataEntry entry,
     int i,
   ) {
     logger.log(_debugLyricEntry, 'delete lyrics line at $entry, line $i');
     entry._lyricsLines.removeAt(i).dispose();
   }
 
-  void delete(_LyricsDataEntry entry) {
+  void delete(LyricsDataEntry entry) {
     if (_entries.remove(entry)) {
       entry.dispose();
     }
@@ -207,17 +207,17 @@ class LyricsEntries extends ChangeNotifier {
   final Song _song;
   OnLyricsLineChangedCallback? _onLyricsLineChangedCallback;
 
-  List<_LyricsDataEntry> get entries => _entries;
-  final List<_LyricsDataEntry> _entries = [];
+  List<LyricsDataEntry> get entries => _entries;
+  final List<LyricsDataEntry> _entries = [];
   TextStyle? _textStyle;
 }
 
 typedef _LyricsLineCallback = void Function(_LyricsLine line, List<String> lines);
 
-class _LyricsDataEntry {
-  _LyricsDataEntry.fromSong(
+class LyricsDataEntry {
+  LyricsDataEntry.fromSong(
     this.lyricSection,
-    _LyricsEntriesCallback? lyricsEntriesCallback, {
+    LyricsEntriesCallback? lyricsEntriesCallback, {
     OnLyricsLineChangedCallback? onLyricsLineChangedCallback,
     TextStyle? textStyle,
   })  : _textStyle = textStyle,
@@ -239,8 +239,8 @@ class _LyricsDataEntry {
     }
   }
 
-  _LyricsDataEntry._fromChordSection(ChordSection chordSection, int index,
-      {TextStyle? textStyle, _LyricsEntriesCallback? lyricsEntriesCallback})
+  LyricsDataEntry._fromChordSection(ChordSection chordSection, int index,
+      {TextStyle? textStyle, LyricsEntriesCallback? lyricsEntriesCallback})
       : lyricSection = LyricSection(chordSection.sectionVersion, index),
         _textStyle = textStyle,
         _lyricsEntriesCallback = lyricsEntriesCallback;
@@ -311,7 +311,7 @@ class _LyricsDataEntry {
   final LyricSection lyricSection;
   int? initialGridRowIndex;
   final TextStyle? _textStyle;
-  final _LyricsEntriesCallback? _lyricsEntriesCallback;
+  final LyricsEntriesCallback? _lyricsEntriesCallback;
 
   int get length => _lyricsLines.length;
   List<_LyricsLine> _lyricsLines = [];

@@ -74,6 +74,17 @@ class _CommunityJams extends State<CommunityJams> with WidgetsBindingObserver {
                     ),
                   ],
                 ),
+                const AppSpace(),
+                AppWrapFullWidth(
+                  children: <Widget>[
+                    const Text('The Community Jams park QR is below:'),
+                    Icon(
+                      Icons.arrow_downward,
+                      size: 1.5 * app.screenInfo.fontSize,
+                    ),
+                  ],
+                  spacing: 20,
+                ),
                 const AppVerticalSpace(
                   space: 300,
                 ),

@@ -68,6 +68,7 @@ const Level _playerLogMusicKey = Level.debug;
 const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
+const Level _playerLogChordDisplayLocations = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -351,10 +352,11 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
             logger.d('scrollController.offset: ${scrollController.offset}');
             for (var songMoment in _song.songMoments) {
               GridCoordinate coord = songMomentToGridList[songMoment.momentNumber];
-              var renderBox = renderTable.row(coord.row).elementAt(coord.col);
+              var renderBox = renderTable.row(coord.row).elementAt(coord.col + 1);
 
               var offset = renderBox.localToGlobal(Offset(0, scrollController.offset)); //  compensate for scroll offset
               var rect = (offset - stackOffset) & renderBox.size;
+              logger.log(_playerLogChordDisplayLocations, 'dispLoc: ${songMoment.momentNumber}: $rect');
               _songMomentChordRectangles.add(rect);
 
               var y = offset.dy;
@@ -1126,9 +1128,7 @@ With escape, the app goes back to the play list.''',
                                 ], spacing: 10),
                               ], spacing: 20),
                             const AppSpace(),
-                            Center(
-                              child: table ?? const Text('table missing!'),
-                            ),
+                            table ?? const Text('table missing!'),
 
                             Text(
                               'Copyright: ${_song.copyright}',

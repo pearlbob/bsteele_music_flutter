@@ -134,7 +134,7 @@ void main() async {
             finder = find.byKey(appKey(appKeyEnum!, value: music_key.Key.parseString(parts[1])), skipOffstage: false);
             break;
           case null:
-            finder = find.byKey(ValueKey<String>(Util.enumName(appKeyEnum!)), skipOffstage: false);
+            finder = find.byKey(ValueKey<String>(appKeyEnum!.name), skipOffstage: false);
             break;
           case ScaleChord:
             try {

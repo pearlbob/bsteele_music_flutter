@@ -65,7 +65,9 @@ class SongMaster extends ChangeNotifier {
         notifyListeners();
       }
 
-      //logger.log(_songMasterLogTicker, 'time: $time, ${dt.toStringAsFixed(3)}');
+      if (dt > 0.04) {
+        logger.log(_songMasterLogTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
+      }
       _lastTime = time;
     });
 

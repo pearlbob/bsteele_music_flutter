@@ -1,6 +1,5 @@
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
@@ -50,7 +49,7 @@ class CssDemoState extends State<CssDemo> {
                 padding: getMeasurePadding(),
                 color: coloredChordTextStyle.backgroundColor,
                 child: Text(
-                  Util.enumName(section) + (index > 0 ? index.toString() : '')
+                  section.name + (index > 0 ? index.toString() : '')
                   //  + ' ' + colorToCssColorString( color)
                   ,
                   style: coloredChordTextStyle,

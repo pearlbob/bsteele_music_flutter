@@ -6,7 +6,6 @@ import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -493,7 +492,7 @@ class TheoryState extends State<TheoryWidget> {
             padding: padding,
             alignment: Alignment.center,
             child: Text(
-              Util.enumName(diatonic),
+              diatonic.name,
               style: boldStyle,
             )));
       }
@@ -691,7 +690,7 @@ class TheoryState extends State<TheoryWidget> {
             padding: padding,
             alignment: Alignment.center,
             child: Text(
-              Util.enumName(diatonic),
+              diatonic.name,
               style: boldStyle,
             )));
       }

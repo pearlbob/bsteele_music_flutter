@@ -119,7 +119,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 ),
                 Text(
                   'OS:  ${kIsWeb ? 'web on' : ''}'
-                  ' ${Util.enumName(Theme.of(context).platform)}',
+                  ' ${Theme.of(context).platform.name}',
                 ),
                 if (!kIsWeb)
                   Text(

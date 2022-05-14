@@ -843,15 +843,15 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
         logger.i('not null here: $e');
       }
       assert(value == null);
-      return ValueKey<String>(Util.enumName(e));
+      return ValueKey<String>(e.name);
     case String:
-      return ValueKey<String>(Util.enumName(e) + (value == null ? '' : '.$value'));
+      return ValueKey<String>(e.name + (value == null ? '' : '.$value'));
     case music_key.Key:
       assert(value.runtimeType == type);
-      return ValueKey<String>('${Util.enumName(e)}.${(value as music_key.Key).toMarkup()}');
+      return ValueKey<String>('${e.name}.${(value as music_key.Key).toMarkup()}');
     default:
       assert(value.runtimeType == type);
-      return ValueKey<String>('${Util.enumName(e)}.${value.toString()}');
+      return ValueKey<String>('${e.name}.${value.toString()}');
   }
 }
 
@@ -1635,9 +1635,9 @@ class CssProperty implements Comparable<CssProperty> {
   CssProperty.fromCssClass(CssClassEnum cssClass, this.property, this.type,
       {required this.defaultValue, this.description})
       : selector = CssSelectorEnum.classSelector,
-        selectorName = Util.enumName(cssClass),
+        selectorName = cssClass.name,
         _id = '${cssSelectorCharacterMap[CssSelectorEnum.classSelector] ?? ''}'
-            '${Util.enumName(cssClass)}.$property' {
+            '${cssClass.name}.$property' {
     _setPropertyValue(this, defaultValue);
     allCssProperties.add(this);
   }

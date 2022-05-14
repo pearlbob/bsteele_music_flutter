@@ -236,7 +236,7 @@ class AppOptions extends ChangeNotifier {
   set userDisplayStyle(UserDisplayStyle value) {
     if (_userDisplayStyle != value) {
       _userDisplayStyle = value;
-      _saveString('userDisplayStyle', Util.enumName(value));
+      _saveString('userDisplayStyle', value.name);
     }
   }
 
@@ -319,14 +319,14 @@ class AppOptions extends ChangeNotifier {
 
   void storeAllSongPerformances() {
     String storage = allSongPerformances.toJsonString();
-    _saveString(Util.enumName(StorageValue.allSongPerformances), storage);
+    _saveString(StorageValue.allSongPerformances.name, storage);
     _lastAllSongPerformancesStoreMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
   }
 
   void _updateAllSongPerformances() async {
-    var jsonString = await _readString(Util.enumName(StorageValue.allSongPerformances), defaultValue: '');
+    var jsonString = await _readString(StorageValue.allSongPerformances.name, defaultValue: '');
     logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
-    //logger.d('_updateAllSongPerformances(): ${Util.enumName(StorageValue.allSongPerformances)}: $jsonString');
+    //logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
     if (jsonString.isNotEmpty) {
       int count = allSongPerformances.updateFromJsonString(jsonString);
       logger.i('_updateAllSongPerformances() update count: $count');
@@ -355,13 +355,13 @@ class AppOptions extends ChangeNotifier {
     }
 
     String storage = SongMetadata.toJson(values: storageSongMetadata);
-    logger.d('storeSongMetadata(): ${Util.enumName(StorageValue.songMetadata)}: $storage');
-    _saveString(Util.enumName(StorageValue.songMetadata), storage);
+    logger.d('storeSongMetadata(): ${StorageValue.songMetadata.name}: $storage');
+    _saveString(StorageValue.songMetadata.name, storage);
   }
 
   void _readSongMetadata() async {
-    var jsonString = await _readString(Util.enumName(StorageValue.songMetadata), defaultValue: '');
-    //logger.d('_readSongMetadata(): ${Util.enumName(StorageValue.songMetadata)}: $jsonString');
+    var jsonString = await _readString(StorageValue.songMetadata.name, defaultValue: '');
+    //logger.d('_readSongMetadata(): ${StorageValue.songMetadata.name}: $jsonString');
     if (jsonString.isNotEmpty) {
       SongMetadata.fromJson(jsonString);
     }

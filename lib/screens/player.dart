@@ -48,7 +48,7 @@ final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
-_Player? _player;
+PlayerState? _player;
 
 DrumParts _drumParts = DrumParts(); //  temp
 
@@ -122,15 +122,15 @@ class Player extends StatefulWidget {
   }
 
   @override
-  State<Player> createState() => _Player();
+  State<Player> createState() => PlayerState();
 
   Song _song; //  fixme: not const due to song updates!
 
   static const String routeName = '/player';
 }
 
-class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
-  _Player() {
+class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver {
+  PlayerState() {
     _player = this;
 
     //  as leader, distribute current location
@@ -282,17 +282,23 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
   }
 
   void songMasterListener() {
-    logger.d('songMasterListener event:  leader: ${songUpdateService.isLeader}');
-    setState(() {
-      if (songMaster.momentNumber != null) {
-        setSelectedSongMoment(_song.getSongMoment(songMaster.momentNumber!));
-        // _selectedSongMoment = _song.getSongMoment(songMaster.momentNumber!);
-        // setTargetYToSongMoment(_selectedSongMoment);
-        // leaderSongUpdate(songMaster.momentNumber!);
+    logger.d('songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}');
+
+    if (songMaster.momentNumber != null) {
+      var songMoment = _song.getSongMoment(songMaster.momentNumber!);
+      if (songMoment != null && _selectedSongMoment != songMoment) {
+        setState(() {
+          {
+            setSelectedSongMoment(songMoment);
+            // _selectedSongMoment = _song.getSongMoment(songMaster.momentNumber!);
+            // setTargetYToSongMoment(_selectedSongMoment);
+            // leaderSongUpdate(songMaster.momentNumber!);
+          }
+          //logger.i('songMaster event:  $_selectedSongMoment');
+          isPlaying = songMaster.isPlaying;
+        });
       }
-      //logger.i('songMaster event:  $_selectedSongMoment');
-      isPlaying = songMaster.isPlaying;
-    });
+    }
   }
 
   void positionAfterBuild() {
@@ -604,6 +610,8 @@ class _Player extends State<Player> with RouteAware, WidgetsBindingObserver {
       ninJam =
           NinJam(_song, key: displaySongKey, keyOffset: displaySongKey.getHalfStep() - _song.getKey().getHalfStep());
     }
+
+    // var showBeatWidget = const ShowBeatWidget();
 
     return RawKeyboardListener(
       focusNode: _rawKeyboardListenerFocusNode,
@@ -1152,6 +1160,7 @@ With escape, the app goes back to the play list.''',
                           ] //, crossAxisAlignment: WrapCrossAlignment.start
                               ),
                         ]),
+                      // if (isPlaying) showBeatWidget,
                     ]),
                   ),
                 ),
@@ -2009,3 +2018,22 @@ class _ChordHighlightPainter extends CustomPainter {
 
   static final highlightColor = Paint()..color = Colors.redAccent;
 }
+
+// class ShowBeatWidget extends StatefulWidget {
+//   const ShowBeatWidget({Key? key}) : super(key: key);
+//
+//   @override
+//   State<ShowBeatWidget> createState() => ShowBeatState();
+// }
+//
+// class ShowBeatState extends State<ShowBeatWidget> {
+//   final _textStyle = generateAppTextStyle(backgroundColor: Colors.transparent, fontSize: 30);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Text(
+//       'beat here',
+//       style: _textStyle,
+//     );
+//   }
+// }

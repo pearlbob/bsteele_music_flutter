@@ -138,9 +138,10 @@ void main() async {
   }
 
   //  read the css theme data prior to the first build
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
   await AppTheme().init(css: cssFileName!); //  init the singleton
+  audioPlayerIsolate.start();
 
   //  run the app
   runApp(
@@ -181,46 +182,6 @@ fixme: first singers list doesn't showup on message section when all singers is 
 
  fixme: this is likely wrong:  void _readExternalSongList() async { if (appOptions.isInThePark()) ...
 
-frank music requests:
-    Elvis Costello:
-    Everyday I write The Book
-    What's so Funny about Peace Love and Understanding
-
-    Tears For Fears:
-    Everybody Wants To Rule the World
-    Head Over Heels
-    Shout
-
-    GoGos: Head Over Heels
-    STP: Sour Girl
-    Beatles: Dear Prudence
-    Zero 7:  Destiny
-    Stevie: Superstition
-
-    Commitments:
-    I Can't stand the Rain
-    Chain of Fools
-    Mustang Sally
-
-    Wild Cherry: Play That Funky Music
-
-Joshua
-    Request to sing:
-    [  ] Stand by me - key of G - capo 3
-    [  ] Radioactive - key of F - capo 4
-    [  ] Wagon wheel - key of G/A? - capo 2
-    [  ] Why Georgie - key of G
-    [  ] Take me Home - key of A - capo 2
-    [  ] Come Together - key of C
-    [  ] Breakfast at Tiffany's
-
-    Request to play:
-    [  ] Chocolate Jesus - Tom Waits
-    [  ] Ants Marching - Dave Matthews
-    [  ] Crazy Little thing called love - Queen
-    [  ] As Tears Go by - Rolling Stones
-    [  ] All of me - John Legend
-    [  ] Don't bring me down
 
 suggested solo notes and scales
 key of F# labeled Gb
@@ -438,11 +399,7 @@ Shari UI stuff:
 //  fixme: aim a little low on a large section 	ie. always show next section first row (approximate)
 //
 //  fixme: more on follower display when leader is not playing a song
-//
-//  fixme: poor, poor pitiful me:   font too large  (approximate)
-//
-//
-//  fixme: log of songs played
+
 
 fixme: I continue to have intermittent trouble if I have to scroll back up during the play mode. Here is the sequence:
 1. First enter play mode, then use space bar to advance
@@ -531,16 +488,12 @@ enum MainSortType {
   byYear,
 }
 
-/// Display the list of songs to choose from.
+/// Display the master list of songs to choose from.
 class BSteeleMusicApp extends StatelessWidget {
   BSteeleMusicApp({Key? key}) : super(key: key) {
     Logger.level = Level.info;
-    // if (kIsWeb) {
-    //fixme:   Wakelock.enable(); //  avoid device timeouts!
-    // }
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     logger.v('main: build()');

@@ -23,7 +23,7 @@ dependencies:
   filesystem_picker:
   logger:
   shared_preferences:
-  url_launcher: ^6.0.20
+  url_launcher:
   intl:
   path_provider:
   flutter_markdown:
@@ -38,9 +38,10 @@ dependencies:
   universal_html:
   reorderables:
   pretty_diff_text:
+  http:
+  js:
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib
-
 
 
   # The following adds the Cupertino Icons font to your application.

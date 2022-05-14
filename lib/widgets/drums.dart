@@ -77,7 +77,7 @@ class DrumsState extends State<DrumsWidget> {
           children = [];
           children.add(Center(
             child: Text(
-              Util.camelCaseToLowercaseSpace(Util.enumName(part)),
+              Util.camelCaseToLowercaseSpace(part.name),
               style: _smallStyle,
               textAlign: TextAlign.right,
             ),

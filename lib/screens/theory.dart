@@ -202,7 +202,7 @@ class TheoryState extends State<TheoryWidget> {
   Table _keyScaleNoteTable() {
     final children = <TableRow>[];
     const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
-    const halfSteps = _halfStepsPerOctave * 2 + 1;
+    const halfSteps = _halfStepsPerOctave * 2;
 
     List<Widget> row = [];
 
@@ -213,7 +213,7 @@ class TheoryState extends State<TheoryWidget> {
         padding: padding,
         alignment: Alignment.centerRight,
         child: Text(
-          'Half Steps',
+          'Major Half Steps',
           style: boldStyle,
         ),
       ));
@@ -223,7 +223,7 @@ class TheoryState extends State<TheoryWidget> {
             padding: padding,
             alignment: Alignment.center,
             child: Text(
-              '${i % MusicConstants.halfStepsPerOctave}',
+              '${(i % MusicConstants.halfStepsPerOctave) + 1}',
               style: boldStyle,
             )));
       }
@@ -231,6 +231,35 @@ class TheoryState extends State<TheoryWidget> {
     }
 
     music_key.Key rootKey = _key;
+
+    {
+      //  compute major scale notes
+      // map[0] = 0; //  root
+      // map[2] = 1; //  2nd
+      // map[4] = 2; //  major 3rd
+
+      //  display scale notes
+      row = [];
+      row.add(Container(
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          '$_key Major Scale Number',
+          style: _style,
+        ),
+      ));
+      for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
+        var scaleNoteNumber = _key.getMajorScaleNumberByHalfStep(halfStep);
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              (scaleNoteNumber != null ? (scaleNoteNumber + 1).toString() : ''),
+              style: _style,
+            )));
+      }
+      children.add(TableRow(children: row));
+    }
 
     {
       //  compute major scale notes
@@ -262,30 +291,60 @@ class TheoryState extends State<TheoryWidget> {
       children.add(TableRow(children: row));
     }
 
-    //  major half steps
+    //  minor half steps
     {
       row = [];
       row.add(Container(
         padding: padding,
         alignment: Alignment.centerRight,
         child: Text(
-          'Half Steps',
+          'Minor Half Steps',
           style: _style,
         ),
       ));
 
-      for (var i = 0; i < halfSteps; i++) {
+      for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
         row.add(Container(
             padding: padding,
             alignment: Alignment.center,
             child: Text(
-              '${(i + 3) % MusicConstants.halfStepsPerOctave}',
+              '${(halfStep + 3) % MusicConstants.halfStepsPerOctave + 1}',
               style: _style,
             )));
       }
       children.add(TableRow(children: row));
     }
 
+    {
+      var scaleNote = rootKey.getKeyMinorScaleNote();
+      //  compute minor scale notes
+      // map[0] = 0; //  root
+      // map[2] = 1; //  2nd
+      // map[3] = 2; //  minor 3rd
+
+      //  display scale notes
+      row = [];
+      row.add(Container(
+        padding: padding,
+        alignment: Alignment.centerRight,
+        child: Text(
+          '${scaleNote.toMarkup()} Minor Scale Number',
+          style: _style,
+        ),
+      ));
+      for (var halfStep = 0; halfStep < halfSteps; halfStep++) {
+        var scaleNoteNumber =
+            _key.getMinorScaleNumberByHalfStep(halfStep + MusicConstants.halfStepsFromMajorToAssociatedMinorKey);
+        row.add(Container(
+            padding: padding,
+            alignment: Alignment.center,
+            child: Text(
+              (scaleNoteNumber != null ? (scaleNoteNumber + 1).toString() : ''),
+              style: _style,
+            )));
+      }
+      children.add(TableRow(children: row));
+    }
     {
       //  compute minor scale notes
       var minorKey = rootKey.getMinorKey();

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:isolate';
 import 'dart:math';
 
@@ -86,17 +85,17 @@ int _beatNumber(int beatUsSinceEpoch) {
 
 _loop() {
   //  compute the duration to the next beat as quickly and safely as possible
-  var now = DateTime.now();
-  int nextBeatUsSinceEpoch = _nextBeatUsSinceEpoch(now: now);
-  var duration = Duration(microseconds: nextBeatUsSinceEpoch - now.microsecondsSinceEpoch);
-  if (_isRunning) {
-    Future.delayed(duration, _loop);
-  }
-
-  var nextBeat = _beatNumber(nextBeatUsSinceEpoch);
-  var beat0SinceEpoch = _nextBeat0SinceEpoch(now: now);
-  logger.log(
-      _audioPlayerIsolateLog,
-      't: $now, nextBeat: $nextBeat'
-      ', nextBeat0: ${_beatNumber(beat0SinceEpoch)} at ${DateTime.fromMicrosecondsSinceEpoch(beat0SinceEpoch)}');
+  // var now = DateTime.now();
+  // int nextBeatUsSinceEpoch = _nextBeatUsSinceEpoch(now: now);
+  // var duration = Duration(microseconds: nextBeatUsSinceEpoch - now.microsecondsSinceEpoch);
+  // if (_isRunning) {
+  //   Future.delayed(duration, _loop);
+  // }
+  //
+  // var nextBeat = _beatNumber(nextBeatUsSinceEpoch);
+  // var beat0SinceEpoch = _nextBeat0SinceEpoch(now: now);
+  // logger.log(
+  //     _audioPlayerIsolateLog,
+  //     't: $now, nextBeat: $nextBeat'
+  //     ', nextBeat0: ${_beatNumber(beat0SinceEpoch)} at ${DateTime.fromMicrosecondsSinceEpoch(beat0SinceEpoch)}');
 }

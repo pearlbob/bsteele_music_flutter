@@ -226,6 +226,8 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
   }
 
   void _scrollControllerListener() {
+    _resetIdleTimer();
+
     //  don't fool with the location if we're moving to a known location
     if (isScrolling) {
       return;
@@ -408,6 +410,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
   @override
   Widget build(BuildContext context) {
+    _resetIdleTimer();
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
@@ -436,7 +439,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(
         _playerLogBuild,
         '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}'
-        ', chordFontSize: ${chordFontSize?.toStringAsFixed(2)}');
+            ', chordFontSize: ${chordFontSize?.toStringAsFixed(2)}');
 
     if (_selectedSongMoment == null) {
       //  fixme
@@ -506,7 +509,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
         int relativeOffset = halfOctave - i;
         String valueString =
-            value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+        value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
         String offsetString = '';
         if (relativeOffset > 0) {
           offsetString = '+${relativeOffset.toString()}';
@@ -597,7 +600,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(
         _playerLogScroll,
         ' sectionTarget: $scrollTarget, '
-        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+            ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_playerLogMode, 'playing: $isPlaying, pause: $isPaused');
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
@@ -866,6 +869,7 @@ With escape, the app goes back to the play list.''',
                                             SongMetadata.addSong(_song, myBadSongNameValue);
                                             appOptions.storeSongMetadata();
                                             songMaster.stop();
+                                            _cancelIdleTimer();
                                             Navigator.pop(context); //  return to main list
                                           },
                                         ),
@@ -906,8 +910,8 @@ With escape, the app goes back to the play list.''',
                               if (app.fullscreenEnabled && !app.isFullScreen)
                                 appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                     onPressed: () {
-                                  app.requestFullscreen();
-                                }),
+                                      app.requestFullscreen();
+                                    }),
                               if (!songUpdateService.isFollowing)
                                 Container(
                                   padding: const EdgeInsets.only(left: 8, right: 8),
@@ -1074,10 +1078,10 @@ With escape, the app goes back to the play list.''',
                                 Text(
                                   songUpdateService.isConnected
                                       ? (songUpdateService.isLeader
-                                          ? 'leading ${songUpdateService.authority}'
-                                          : (songUpdateService.leaderName == AppOptions.unknownUser
-                                              ? 'on ${songUpdateService.authority}'
-                                              : 'following ${songUpdateService.leaderName}'))
+                                      ? 'leading ${songUpdateService.authority}'
+                                      : (songUpdateService.leaderName == AppOptions.unknownUser
+                                      ? 'on ${songUpdateService.authority}'
+                                      : 'following ${songUpdateService.leaderName}'))
                                       : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.authority}!'),
                                   style: !songUpdateService.isConnected && !songUpdateService.isIdle
                                       ? headerTextStyle.copyWith(color: Colors.red)
@@ -1158,7 +1162,7 @@ With escape, the app goes back to the play list.''',
                               color: Colors.redAccent,
                             ),
                           ] //, crossAxisAlignment: WrapCrossAlignment.start
-                              ),
+                          ),
                         ]),
                       // if (isPlaying) showBeatWidget,
                     ]),
@@ -1170,11 +1174,11 @@ With escape, the app goes back to the play list.''',
         ),
         floatingActionButton: isPlaying
             ? (isPaused
-                ? appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerFloatingPlay,
-                    onPressed: () {
-                      pauseToggle();
-                    },
+            ? appFloatingActionButton(
+          appKeyEnum: AppKeyEnum.playerFloatingPlay,
+          onPressed: () {
+            pauseToggle();
+          },
           child: AppTooltip(
                       message: 'Stop.  Space bar will continue the play.',
                       child: appIcon(
@@ -1182,53 +1186,53 @@ With escape, the app goes back to the play list.''',
                       ),
                       // fontSize: headerTextStyle.fontSize,
                     ),
-                    mini: !app.isScreenBig,
-                  )
-                : appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerFloatingStop,
-                    onPressed: () {
-                      performStop();
-                    },
+          mini: !app.isScreenBig,
+        )
+            : appFloatingActionButton(
+          appKeyEnum: AppKeyEnum.playerFloatingStop,
+          onPressed: () {
+            performStop();
+          },
           child: AppTooltip(
                       message: 'Escape to stop the play\nor space to next section',
                       child: appIcon(
                         Icons.stop,
                       ),
                     ),
-                    mini: !app.isScreenBig,
-                  ))
+          mini: !app.isScreenBig,
+        ))
             : (scrollController.hasClients && scrollController.offset > 0
-                ? appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerFloatingTop,
-                    onPressed: () {
-                      if (isPlaying) {
-                        performStop();
-                      } else {
-                        scrollController.jumpTo(0);
-                      }
-                    },
+            ? appFloatingActionButton(
+          appKeyEnum: AppKeyEnum.playerFloatingTop,
+          onPressed: () {
+            if (isPlaying) {
+              performStop();
+            } else {
+              scrollController.jumpTo(0);
+            }
+          },
           child: AppTooltip(
                       message: 'Top of song',
                       child: appIcon(
                         Icons.arrow_upward,
                       ),
                     ),
-                    mini: !app.isScreenBig,
-                  )
-                : appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerBack,
-                    onPressed: () {
-                      songMaster.stop();
-                      Navigator.pop(context);
-                    },
+          mini: !app.isScreenBig,
+        )
+            : appFloatingActionButton(
+          appKeyEnum: AppKeyEnum.playerBack,
+          onPressed: () {
+            songMaster.stop();
+            Navigator.pop(context);
+          },
           child: AppTooltip(
                       message: 'Back to song list',
                       child: appIcon(
                         Icons.arrow_back,
                       ),
                     ),
-                    mini: !app.isScreenBig,
-                  )),
+          mini: !app.isScreenBig,
+        )),
       ),
     );
   }
@@ -1299,6 +1303,7 @@ With escape, the app goes back to the play list.''',
       } else {
         logger.log(_playerLogKeyboard, 'player: pop the navigator');
         songMaster.stop();
+        _cancelIdleTimer();
         Navigator.pop(context);
       }
     } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
@@ -1560,6 +1565,7 @@ With escape, the app goes back to the play list.''',
 
   void navigateToEdit(BuildContext context, Song song) async {
     _playerIsOnTop = false;
+    _cancelIdleTimer();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
@@ -1912,6 +1918,18 @@ With escape, the app goes back to the play list.''',
         key: appKey(AppKeyEnum.playerKeyOffset11), value: 11, child: const Text('+11 (-1)   halfsteps = scale   7')),
   ];
 
+  void _resetIdleTimer() {
+    _cancelIdleTimer();
+    _idleTimer = Timer(const Duration(minutes: 20), () {
+      logger.i('idleTimer fired');
+      Navigator.of(context).pop();
+    });
+  }
+
+  void _cancelIdleTimer() {
+    _idleTimer?.cancel();
+  }
+
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
   bool isPlaying = false;
@@ -1965,6 +1983,8 @@ With escape, the app goes back to the play list.''',
   static const _sectionCenterLocationFraction = 0.35;
   double boxCenter = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
+
+  Timer? _idleTimer;
 
   late AppWidgetHelper appWidgetHelper;
 

@@ -4,6 +4,10 @@
 set file = /tmp/bsteeleMusicApp_war_$$
 onintr Lend;
 
+#	assure our tools are ready
+gcloud --quiet components update
+
+
 #	get the web war file
 mkdir $file
 cd $file

@@ -32,6 +32,9 @@ endif
 echo on bob64:
 sudo date
 
+#	assure our tools are ready
+gcloud --quiet components update
+
 
 #	compile for release
 cd $git

@@ -160,6 +160,9 @@ finish automation of history update from JS
 song not selected on main list after a file read and return to main list
 insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 
+look for the flutter widget rebuild tool in intellij idea
+
+
 consistent arrow on leader and follower
 share the "sung by" in the follower update
 eliminate singer needs a song requirement

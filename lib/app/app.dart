@@ -16,12 +16,10 @@ import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:universal_io/io.dart';
 
-import '../audio/audio_player_isolate.dart';
 import '../util/songPerformanceDaemon.dart';
 import 'app_theme.dart';
 
 final App app = App();
-final audioPlayerIsolate = AudioPlayerIsolate();
 
 String userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? 'my';
 

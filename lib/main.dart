@@ -141,7 +141,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
   await AppTheme().init(css: cssFileName!); //  init the singleton
-  audioPlayerIsolate.start();
 
   //  run the app
   runApp(
@@ -170,7 +169,6 @@ drums to library
 drums json
 drums other than 4/4
 standard drum list
-test drum consistency: place on it's own isolate?
 test following after a local scroll
 session history... to the web!
 fun: key guess

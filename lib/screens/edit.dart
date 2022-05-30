@@ -814,6 +814,7 @@ class EditState extends State<Edit> {
                           maxLines: 100,
                           fontSize: _defaultChordFontSize,
                           fontWeight: FontWeight.normal,
+                          width: MediaQuery.of(context).size.width * 0.96,
                           border: InputBorder.none,
                           onChanged: (value) {
                             checkSongWhenIdle();

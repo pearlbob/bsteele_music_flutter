@@ -206,30 +206,6 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1652248705492, "song": 
-{
-"title": "12 Bar Minor Blues",
-"artist": "Any",
-"user": "shari",
-"lastModifiedDate": 1652248705492,
-"copyright": "Any",
-"key": "Eb",
-"defaultBpm": 100,
-"timeSignature": "4/4",
-"chords": 
-    [
-	"I:",
-	"Cm Cm Cm Cm",
-	"Fm Fm Cm Cm",
-	"Ab G Cm AbG"
-    ],
-"lyrics": 
-    [
-	"I:",
-	"(instrumental)"
-    ]
-}
-},
 { "file": "", "lastModifiedDate": 1652684945263, "song": 
 {
 "title": "14 Karat Gold",
@@ -3822,12 +3798,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1642575800846, "song": 
+{ "file": "", "lastModifiedDate": 1653686895499, "song": 
 {
 "title": "Alone",
-"artist": "Heart",
-"user": "Shari",
-"lastModifiedDate": 1642575800846,
+"artist": "i-Ten",
+"user": "shari",
+"lastModifiedDate": 1653686895499,
 "copyright": "1987 Capitol",
 "key": "Db",
 "defaultBpm": 87,
@@ -15535,12 +15511,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1599435310755, "song": 
+{ "file": "", "lastModifiedDate": 1653005677092, "song": 
 {
 "title": "Brown-Eyed Girl",
 "artist": "Van Morrison",
-"user": "Shari",
-"lastModifiedDate": 1599435310755,
+"user": "Cassandra",
+"lastModifiedDate": 1653005677092,
 "copyright": "1967 Bang",
 "key": "G",
 "defaultBpm": 148,
@@ -15548,34 +15524,39 @@
 "chords": 
     [
 	"I:",
-	"G C G D x2",
+	"G C G D",
+	"G C G D7",
 	"I2:",
 	"G C G D",
+	"I3:",
+	"G G G G",
 	"V:",
-	"G C G D x4",
+	"G C G D |",
+	"G C G D7 | x2",
 	"C D G Em",
-	"C D G D",
+	"C D7 G D",
 	"V2:",
 	"G C G D x4",
 	"C D G Em",
 	"C D G",
-	"D7 D7 D7",
+	"PC:",
+	"D D7 D7",
 	"C:",
-	"G C G D x2",
-	"G G G G",
+	"G C G D7 x2",
 	"O:",
-	"G C G D x4",
-	"G G G G"
+	"G"
     ],
 "lyrics": 
     [
 	"i:",
+	"(instrumental)",
+	"",
 	"v:",
 	"Hey, where did we go, days when the rains came",
 	"Down in the hollow, playing a new game",
 	"Laughing and a-running, hey hey, skipping and a-jumping",
 	"In the misty morning fog with ah our hearts a-thumping and you",
-	"My brown-eyed girl, ",
+	"My brown-eyed girl",
 	"You, my brown-eyed girl",
 	"",
 	"v2:",
@@ -15585,12 +15566,17 @@
 	"Slipping and a-sliding, all along the waterfall with you",
 	"My brown-eyed girl",
 	"You, my brown-eyed girl",
+	"",
+	"PC:",
 	"Do you remember when we used to sing",
 	"",
 	"c:",
 	"Sha la la la la la la la la la la dee dah (just like that)",
 	"Sha la la la la la la la la la la dee dah",
 	"La dee dah",
+	"",
+	"I3:",
+	"(instrumental)",
 	"",
 	"i2:",
 	"(instrumental bass solo)",
@@ -15602,14 +15588,21 @@
 	"Making love in the green grass, behind the stadium with you",
 	"My brown-eyed girl",
 	"You, my brown-eyed girl",
+	"",
+	"PC:",
 	"Do you remember when we used to sing",
 	"",
-	"o:",
+	"C:",
 	"Sha la la la la la la la la la la dee dah",
 	"Sha la la la la la la la la la la dee dah",
+	"",
+	"C:",
 	"Sha la la la la la la la la la la dee dah",
 	"Sha la la la la la la la la la la dee dah",
-	"La dee dah"
+	"La dee ",
+	"",
+	"O:",
+	"Dah"
     ]
 }
 },
@@ -18169,6 +18162,89 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1653031333157, "song": 
+{
+"title": "Carmelita",
+"artist": "Warren Zevon",
+"user": "Cassandra",
+"lastModifiedDate": 1653031333157,
+"copyright": "1976 Asylum",
+"key": "E",
+"defaultBpm": 94,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I1:",
+	"E E E E",
+	"I2:",
+	"E E E B7",
+	"B7 B7 B7 E",
+	"AX AX E A",
+	"E B7 B7 E E",
+	"V:",
+	"E E E B7",
+	"B7 B7 B7 E",
+	"C1:",
+	"AX AX E A",
+	"E B7 B7 E E",
+	"C2:",
+	"AX AX E A",
+	"E B7 B7 E",
+	"O:",
+	"E E EX"
+    ],
+"lyrics": 
+    [
+	"I1: (instrumental)",
+	"",
+	"V: ",
+	"(I hear) Mariachi static on my radio, and the",
+	"Tubes they glow in the dark, and I'm",
+	"There with her in Ensenada, and I'm",
+	"Here in Echo Park",
+	"",
+	"C1: ",
+	"Carmelita hold me tighter",
+	"I think I'm sinking down, and I'm",
+	"All strung out on heroin on the",
+	"Outskirts of town",
+	"",
+	"V: ",
+	"(Well I'm) sittin' here playing solitaire, with my",
+	"Pearl-handled deck, the",
+	"County won't give me no more methadone, and they",
+	"Cut off your welfare check",
+	"",
+	"C1: ",
+	"Carmelita hold me tighter",
+	"I think I'm sinking down, and I'm",
+	"All strung out on heroin on the",
+	"Outskirts of town",
+	"",
+	"I2: (instrumental)",
+	"",
+	"V: ",
+	"(Well I) pawned my Smith Corona, and I",
+	"Went to meet my man, he",
+	"Hangs out down on Alvarado Street, by the",
+	"Pioneer chicken stand",
+	"",
+	"C2: ",
+	"Carmelita hold me tighter",
+	"I think I'm sinking down, and I'm",
+	"All strung out on heroin on the",
+	"Outskirts of town",
+	"",
+	"C2: ",
+	"Carmelita hold me tighter",
+	"I think I'm sinking down, and I'm",
+	"All strung out on heroin on the",
+	"Outskirts of town",
+	"",
+	"O: "
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1641362036604, "song": 
 {
 "title": "Carnival",
@@ -19550,7 +19626,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1652850135307, "song": 
+{ "file": "", "lastModifiedDate": 1652850135307, "song": 
 {
 "title": "Change",
 "artist": "Tracy Chapman",
@@ -44918,6 +44994,84 @@
 	"Light is, c'mon keep me where the ",
 	"Light is, c'mon keep me where the ",
 	"Light is"
+    ]
+}
+},
+{ "file": "", "lastModifiedDate": 1653029495802, "song": 
+{
+"title": "Great Balls of Fire",
+"artist": "Jerry Lee Lewis",
+"user": "Cassandra",
+"lastModifiedDate": 1653029495802,
+"copyright": "1957 Sun 281",
+"key": "C",
+"defaultBpm": 158,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I2:",
+	"C C F7 F7 |",
+	"G7 F7 CX X | x2",
+	"V:",
+	"C C F7 F7",
+	"G7 F7 CX X",
+	"PC:",
+	"F7 F7 C C",
+	"F7 F7",
+	"C:",
+	"G7X X G7 G7",
+	"G7 G7",
+	"O:",
+	"CX"
+    ],
+"lyrics": 
+    [
+	"V:",
+	"You shake my nerves and you rattle my brain",
+	"Too much love drives a man insane",
+	"You broke my will, but what a thrill",
+	"Goodness gracious great balls of fire",
+	"",
+	"V:",
+	"I laughed at love when I thought it was funny",
+	"But you came along and you moved me honey",
+	"I've changed my mind, this love is fine",
+	"Goodness gracious great balls of fire",
+	"",
+	"PC:",
+	"Kiss me baby, woo, it feels good",
+	"Hold me baby, ooh, yeah",
+	"",
+	"C:",
+	"I wanna love you like a lover should",
+	"You're fine, so kind",
+	"I'm gonna tell this world that you're mine, mine, mine, mine",
+	"",
+	"V:",
+	"I chew my nails, I twiddle my thumbs",
+	"I'm really nervous but it sure is fun",
+	"Come on baby, you drive me crazy",
+	"Goodness gracious great balls of fire",
+	"",
+	"I2:",
+	"(instrumental solo)",
+	"",
+	"PC:",
+	"Oh, kiss me baby, woo, feels good",
+	"Hold me baby",
+	"",
+	"C:",
+	"(Well) I want to love you like a lover should",
+	"You're fine, so kind",
+	"I gonna tell this world that you're mine, mine, mine, mine",
+	"",
+	"V:",
+	"I chew my nails and I twiddle my thumbs",
+	"I'm real nervous but it sure is fun",
+	"Come on baby, you drive me crazy",
+	"Goodness gracious great balls of fire",
+	"",
+	"O:"
     ]
 }
 },
@@ -74509,7 +74663,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1652853077452, "song": 
+{ "file": "", "lastModifiedDate": 1652853077452, "song": 
 {
 "title": "Lowdown",
 "artist": "Boz Scaggs",
@@ -79172,12 +79326,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1631065841233, "song": 
+{ "file": "", "lastModifiedDate": 1653030110741, "song": 
 {
 "title": "Moondance",
 "artist": "Van Morrison",
-"user": "Shari",
-"lastModifiedDate": 1631065841233,
+"user": "Cassandra",
+"lastModifiedDate": 1653030110741,
 "copyright": "1970 Warner Bros.",
 "key": "C",
 "defaultBpm": 134,
@@ -79196,8 +79350,8 @@
 	"V2:",
 	"Am7Bm7 Am7Bm7 Am7Bm7 Am7Bm7 x3",
 	"PC:",
-	"Dm6G7 Am9 Dm6G7 Am9",
-	"Dm6G7 Am9 XDm6.. XE7..",
+	"Dm6 Am9 Dm6 Am9",
+	"Dm6 Am9 XDm6.. XE7..",
 	"C:",
 	"Am7Dm7 Am7Dm7 Am7Dm7 Am7Dm7",
 	"Am7Dm7 Am7Dm7 AmDm7 XE7..",
@@ -80947,6 +81101,89 @@
 	"For you it's breaking",
 	"I:",
 	"O:"
+    ]
+}
+},
+{ "file": "", "lastModifiedDate": 1653686730420, "song": 
+{
+"title": "My Pack Pages",
+"artist": "Bob Dylan",
+"coverArtist": "Roger McGuinn, Tom Petty, Neil Young, Eric Clapton, Bob Dylan, George Harrison",
+"user": "shari",
+"lastModifiedDate": 1653686730420,
+"copyright": "1964 Warner Brothers",
+"key": "E",
+"defaultBpm": 130,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"EEsus4 EEsus4 EEsus4 EEsus4 x2",
+	"I2:",
+	"EC#m G#m AB EEsus4",
+	"EC#m G#m A B",
+	"C#m G#m A B",
+	"I3:",
+	"E AE AB EEsus4 EEsus4",
+	"V:",
+	"EC#m G#m AB EEsus4",
+	"EC#m G#m A B",
+	"C#m G#m A B",
+	"C:",
+	"E AE AB EEsus4 EEsus4",
+	"O:",
+	"EEsus4 EEsus4 E"
+    ],
+"lyrics": 
+    [
+	"I: (instrumental)",
+	"V: Crimson flames tied through my ears rolling high and mighty traps",
+	" Pounced with fire on flaming roads using ideas as my maps, \"We'll",
+	"Meet on edges soon” said I, proud ’neath heated brow",
+	"",
+	" C: (Ah, but) I was so much older then I’m younger than that now",
+	" ",
+	" V: Half-wracked prejudice leaped forth “Rip down all hate,” I screamed",
+	" Lies that life is black and white spoke from my skull I dreamed",
+	" Romantic facts of musketeers, foundationed deep somehow",
+	"",
+	" C: (Ah, but) I was so much older then, I'm younger than that now",
+	" ",
+	" V: (Girls’) faces formed the forward path from phony jealousy, to",
+	"Memorizing politics of ancient history, flung",
+	" Down by corpse evangelists unthought of, though, somehow",
+	"",
+	" C: (Ah, but) I was so much older then I’m younger than that now",
+	"",
+	"I2: (instrumental solo)",
+	"",
+	"I3: (instrumental solo)",
+	"",
+	" V: A self-ordained professor’s tongue too serious to fool",
+	" Spouted out that liberty iss just equality in school",
+	" “Equality,” I spoke the word as if a wedding vow",
+	"",
+	" C: (Ah, but)I was so much older then I’m younger than that now",
+	"",
+	" V: ",
+	"(In a) soldier’s stance, I aimed my hand at the mongrel dogs who teach, fearing",
+	"Not that I’d become my enemy in the instant that I preach, my",
+	"Existence led by confusion boats mutiny from stern to bow",
+	"",
+	" C: (Ah, but) I was so much older then I’m younger than that now",
+	" ",
+	" V: ",
+	"(Yes, my) guard stood hard when abstract threats too noble to neglect",
+	" Deceived me into thinking I had something to protect",
+	" Good and bad, I define these terms quite clear no doubt somehow",
+	"",
+	" C: (Ah, but) I was so much older then I’m younger than that now",
+	"",
+	"I2: (instrumental solo)",
+	"",
+	"C: (Ah, but) I was so much older then I’m younger than that now",
+	"",
+	"O: "
     ]
 }
 },
@@ -88037,7 +88274,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1652855749988, "song": 
+{ "file": "", "lastModifiedDate": 1652855749988, "song": 
 {
 "title": "Peace Train",
 "artist": "Cat Stevens",
@@ -121973,15 +122210,15 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1609911151284, "song": 
+{ "file": "", "lastModifiedDate": 1653025191950, "song": 
 {
 "title": "Wagon Wheel",
 "artist": "Bob Dylan, Ketch Secor, Darius Rucker",
-"user": "Shari",
-"lastModifiedDate": 1609911151284,
+"user": "Cassandra",
+"lastModifiedDate": 1653025191950,
 "copyright": "2004 Nettwerk",
 "key": "G",
-"defaultBpm": 144,
+"defaultBpm": 140,
 "timeSignature": "4/4",
 "chords": 
     [
@@ -122974,30 +123211,46 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1651450487955, "song": 
+{ "file": "", "lastModifiedDate": 1653030943178, "song": 
 {
-"title": "Walls",
+"title": "Walls (Circus)",
 "artist": "Tom Petty & the Heartbreakers",
-"user": "Shari",
-"lastModifiedDate": 1651450487955,
-"copyright": "lyrics © Sony/ATV Tunes LLC, Gerald Marks Music, Bourne Co.",
-"key": "D",
-"defaultBpm": 102,
+"user": "Cassandra",
+"lastModifiedDate": 1653030943178,
+"copyright": "1996 Warner Bros",
+"key": "F",
+"defaultBpm": 120,
 "timeSignature": "4/4",
 "chords": 
     [
+	"I:",
+	"F F F F",
+	"I2:",
+	"F F Dm Dm",
+	"Bb Bb C C",
 	"V:",
-	"D D Bm Bm",
-	"G G A A",
+	"F F Dm Dm",
+	"Bb Bb C C",
 	"V1:",
-	"D D Bm Bm",
-	"G G A X",
+	"F F Dm Dm",
+	"Bb Bb C X",
+	"V2:",
+	"F F Dm Dm",
+	"Bb Bb C C",
 	"C:",
-	"G D G D",
-	"Em Bm A D"
+	"Bb F Bb F",
+	"Gm Dm C F F",
+	"C2:",
+	"Bb F Bb F",
+	"Gm Dm C F",
+	"O:",
+	"F F FX"
     ],
 "lyrics": 
     [
+	"I:",
+	"(instrumental)",
+	"",
 	"v:",
 	"Some days are diamonds",
 	"Some days are rocks",
@@ -123011,16 +123264,16 @@
 	"I'll get you back some day",
 	"",
 	"c:",
-	"'Cause you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down.",
+	"('Cause you got a) heart so big, it could",
+	"Crush this town, and I can't",
+	"Hold out forever, even",
+	"Walls fall down",
 	"",
 	"v:",
 	"And all around your island",
-	"There's a barricade",
-	"It keeps out the danger",
-	"It holds in the pain",
+	"There's a barricade, it",
+	"Keeps out the danger, it",
+	"Holds in the pain",
 	"",
 	"v1:",
 	"Sometimes you're happy",
@@ -123029,34 +123282,33 @@
 	"Half of me is sky",
 	"",
 	"c:",
-	"But you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down",
+	"('Cause you got a) heart so big, it could",
+	"Crush this town, and I can't",
+	"Hold out forever, even",
+	"Walls fall down",
 	"",
-	"v:",
-	"[instrumental]",
+	"I2:",
+	"[instrumental harmonica solo]",
 	"",
-	"v1:",
-	"And some things are over",
+	"v2:",
+	"Some things are over",
 	"Some things go on",
-	"And part of me you carry",
+	"Part of me you carry",
 	"Part of me is gone",
 	"",
-	"c:",
-	"But you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down",
+	"c2:",
+	"('Cause you got a) heart so big, it could",
+	"Crush this town, and I can't",
+	"Hold out forever, even",
+	"Walls fall down",
 	"",
-	"c:",
-	"Baby, you got a heart so big",
-	"It could crush this town",
-	"And I can't hold out forever",
-	"Even walls fall down",
-	"They fall down",
-	"*",
-	"[Petty recorded this in F; live, he plays it using C chord shapes with the capo on the 5th fret.]"
+	"c2:",
+	"(You got a) heart so big, it could",
+	"Crush this town, and I can't",
+	"Hold out forever, even",
+	"Walls fall down",
+	"",
+	"O:"
     ]
 }
 },
@@ -124015,12 +124267,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1652847610630, "song": 
+{ "file": "", "lastModifiedDate": 1653024549831, "song": 
 {
 "title": "We Can Work It Out",
 "artist": "Beatles, The",
-"user": "pillyweed",
-"lastModifiedDate": 1652847610630,
+"user": "Cassandra",
+"lastModifiedDate": 1653024549831,
 "copyright": "1965 Parlophone, Capitol",
 "key": "D",
 "defaultBpm": 104,
@@ -124031,9 +124283,9 @@
 	"G D G A",
 	"A:",
 	"D D D Dsus4",
-	"C D",
+	"Cadd9 D",
 	"D D D Dsus4",
-	"C D",
+	"Cadd9 D",
 	"B:",
 	"Bm Bm Bm Bm",
 	"G G F# F#",

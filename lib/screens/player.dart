@@ -49,6 +49,7 @@ bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 PlayerState? _player;
+bool _isPlaying = false;
 
 DrumParts _drumParts = DrumParts(); //  temp
 
@@ -56,7 +57,6 @@ GlobalKey _stackKey = GlobalKey();
 
 SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
-double _renderTableLeft = 0;
 
 const int _minimumSpaceBarGapMs = 750; //  milliseconds
 
@@ -70,6 +70,7 @@ const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 const Level _playerLogChordDisplayLocations = Level.debug;
+const Level _playerLogSongMaster = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -141,6 +142,8 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
     //  show song master play updates
     songMaster.addListener(songMasterListener);
+
+    _isPlaying = false;
   }
 
   @override
@@ -256,7 +259,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
       }
 
       //  follow the leader's scroll
-      if (table != null && songUpdateService.isLeader && !isPlaying) {
+      if (table != null && songUpdateService.isLeader && !_isPlaying) {
         RenderObject? renderObject = (table?.key as GlobalKey).currentContext?.findRenderObject();
         assert(renderObject != null && renderObject is RenderTable);
         RenderTable renderTable = renderObject as RenderTable;
@@ -284,7 +287,10 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
   }
 
   void songMasterListener() {
-    logger.d('songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}');
+    logger.log(
+        _playerLogSongMaster,
+        'songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}'
+        ', moment: ${songMaster.momentNumber}');
 
     if (songMaster.momentNumber != null) {
       var songMoment = _song.getSongMoment(songMaster.momentNumber!);
@@ -297,9 +303,12 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
             // leaderSongUpdate(songMaster.momentNumber!);
           }
           //logger.i('songMaster event:  $_selectedSongMoment');
-          isPlaying = songMaster.isPlaying;
         });
       }
+    } else if (_isPlaying != songMaster.isPlaying) {
+      setState(() {
+        _isPlaying = songMaster.isPlaying;
+      });
     }
   }
 
@@ -415,7 +424,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     _song = widget._song; //  default only
 
     logger.log(
-        _playerLogBuild, 'player build: $_song, selectedSongMoment: $_selectedSongMoment, isPlaying: $isPlaying');
+        _playerLogBuild, 'player build: $_song, selectedSongMoment: $_selectedSongMoment, isPlaying: $_isPlaying');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -439,7 +448,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(
         _playerLogBuild,
         '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}'
-            ', chordFontSize: ${chordFontSize?.toStringAsFixed(2)}');
+        ', chordFontSize: ${chordFontSize?.toStringAsFixed(2)}');
 
     if (_selectedSongMoment == null) {
       //  fixme
@@ -509,7 +518,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
         int relativeOffset = halfOctave - i;
         String valueString =
-        value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+            value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
         String offsetString = '';
         if (relativeOffset > 0) {
           offsetString = '+${relativeOffset.toString()}';
@@ -600,8 +609,8 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(
         _playerLogScroll,
         ' sectionTarget: $scrollTarget, '
-            ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
-    logger.log(_playerLogMode, 'playing: $isPlaying, pause: $isPaused');
+        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+    logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $isPaused');
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
     isCapo = isCapo && showCapo; //  can't be capo if you cannot show it
@@ -657,7 +666,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                   style: appBarTextStyle,
                   softWrap: false,
                 ),
-              if (isPlaying && isCapo)
+              if (_isPlaying && isCapo)
                 Text(
                   ',  Capo ${capoLocation == 0 ? 'not needed' : 'on $capoLocation'}',
                   style: appBarTextStyle,
@@ -705,7 +714,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
             GestureDetector(
               onTapDown: (details) {
-                if (!isPlaying) {
+                if (!_isPlaying) {
                   //  don't respond above the player song table     fixme: this is likely not the best
                   RenderTable renderTable = (table?.key as GlobalKey).currentContext?.findRenderObject() as RenderTable;
                   if (details.globalPosition.dy > renderTable.localToGlobal(Offset.zero).dy) {
@@ -729,16 +738,15 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
                     child: Stack(key: _stackKey = GlobalKey(), children: [
-                      if (isPlaying)
-                        CustomPaint(
-                          painter: _ChordHighlightPainter(), //  fixme: optimize with builder
-                          isComplex: true,
-                          willChange: false,
-                          child: SizedBox(
-                            width: app.screenInfo.mediaWidth,
-                            height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
-                          ),
+                      CustomPaint(
+                        painter: _ChordHighlightPainter(), //  fixme: optimize with builder
+                        isComplex: true,
+                        willChange: false,
+                        child: SizedBox(
+                          width: app.screenInfo.mediaWidth,
+                          height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
                         ),
+                      ),
                       Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -910,8 +918,8 @@ With escape, the app goes back to the play list.''',
                               if (app.fullscreenEnabled && !app.isFullScreen)
                                 appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                     onPressed: () {
-                                      app.requestFullscreen();
-                                    }),
+                                  app.requestFullscreen();
+                                }),
                               if (!songUpdateService.isFollowing)
                                 Container(
                                   padding: const EdgeInsets.only(left: 8, right: 8),
@@ -922,7 +930,7 @@ With escape, the app goes back to the play list.''',
                                       size: 2 * fontSize,
                                     ),
                                     onPressed: () {
-                                      isPlaying ? performStop() : performPlay();
+                                      _isPlaying ? performStop() : performPlay();
                                     },
                                   ),
                                 ),
@@ -1078,10 +1086,10 @@ With escape, the app goes back to the play list.''',
                                 Text(
                                   songUpdateService.isConnected
                                       ? (songUpdateService.isLeader
-                                      ? 'leading ${songUpdateService.authority}'
-                                      : (songUpdateService.leaderName == AppOptions.unknownUser
-                                      ? 'on ${songUpdateService.authority}'
-                                      : 'following ${songUpdateService.leaderName}'))
+                                          ? 'leading ${songUpdateService.authority}'
+                                          : (songUpdateService.leaderName == AppOptions.unknownUser
+                                              ? 'on ${songUpdateService.authority}'
+                                              : 'following ${songUpdateService.leaderName}'))
                                       : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.authority}!'),
                                   style: !songUpdateService.isConnected && !songUpdateService.isIdle
                                       ? headerTextStyle.copyWith(color: Colors.red)
@@ -1152,7 +1160,7 @@ With escape, the app goes back to the play list.''',
                               height: app.screenInfo.mediaHeight - boxCenter,
                             ),
                           ]),
-                      if (selectedTargetY > 0 && !isPlaying)
+                      if (selectedTargetY > 0 && !_isPlaying)
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                           AppVerticalSpace(space: selectedTargetY - (chordFontSize ?? app.screenInfo.fontSize) / 2),
                           AppWrap(children: [
@@ -1162,7 +1170,7 @@ With escape, the app goes back to the play list.''',
                               color: Colors.redAccent,
                             ),
                           ] //, crossAxisAlignment: WrapCrossAlignment.start
-                          ),
+                              ),
                         ]),
                       // if (isPlaying) showBeatWidget,
                     ]),
@@ -1172,67 +1180,67 @@ With escape, the app goes back to the play list.''',
             ),
           ],
         ),
-        floatingActionButton: isPlaying
+        floatingActionButton: _isPlaying
             ? (isPaused
-            ? appFloatingActionButton(
-          appKeyEnum: AppKeyEnum.playerFloatingPlay,
-          onPressed: () {
-            pauseToggle();
-          },
-          child: AppTooltip(
+                ? appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerFloatingPlay,
+                    onPressed: () {
+                      pauseToggle();
+                    },
+                    child: AppTooltip(
                       message: 'Stop.  Space bar will continue the play.',
                       child: appIcon(
                         Icons.play_arrow,
                       ),
                       // fontSize: headerTextStyle.fontSize,
                     ),
-          mini: !app.isScreenBig,
-        )
-            : appFloatingActionButton(
-          appKeyEnum: AppKeyEnum.playerFloatingStop,
-          onPressed: () {
-            performStop();
-          },
-          child: AppTooltip(
+                    mini: !app.isScreenBig,
+                  )
+                : appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerFloatingStop,
+                    onPressed: () {
+                      performStop();
+                    },
+                    child: AppTooltip(
                       message: 'Escape to stop the play\nor space to next section',
                       child: appIcon(
                         Icons.stop,
                       ),
                     ),
-          mini: !app.isScreenBig,
-        ))
+                    mini: !app.isScreenBig,
+                  ))
             : (scrollController.hasClients && scrollController.offset > 0
-            ? appFloatingActionButton(
-          appKeyEnum: AppKeyEnum.playerFloatingTop,
-          onPressed: () {
-            if (isPlaying) {
-              performStop();
-            } else {
-              scrollController.jumpTo(0);
-            }
-          },
-          child: AppTooltip(
+                ? appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerFloatingTop,
+                    onPressed: () {
+                      if (_isPlaying) {
+                        performStop();
+                      } else {
+                        scrollController.jumpTo(0);
+                      }
+                    },
+                    child: AppTooltip(
                       message: 'Top of song',
                       child: appIcon(
                         Icons.arrow_upward,
                       ),
                     ),
-          mini: !app.isScreenBig,
-        )
-            : appFloatingActionButton(
-          appKeyEnum: AppKeyEnum.playerBack,
-          onPressed: () {
-            songMaster.stop();
-            Navigator.pop(context);
-          },
-          child: AppTooltip(
+                    mini: !app.isScreenBig,
+                  )
+                : appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerBack,
+                    onPressed: () {
+                      songMaster.stop();
+                      Navigator.pop(context);
+                    },
+                    child: AppTooltip(
                       message: 'Back to song list',
                       child: appIcon(
                         Icons.arrow_back,
                       ),
                     ),
-          mini: !app.isScreenBig,
-        )),
+                    mini: !app.isScreenBig,
+                  )),
       ),
     );
   }
@@ -1278,7 +1286,7 @@ With escape, the app goes back to the play list.''',
       if (e.isControlPressed) {
         tempoTap();
       } else {
-        if (!isPlaying) {
+        if (!_isPlaying) {
           var nowMs = DateTime.now().millisecondsSinceEpoch;
           logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
           if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
@@ -1289,16 +1297,16 @@ With escape, the app goes back to the play list.''',
           pauseToggle();
         }
       }
-    } else if ((!isPlaying || isPaused) &&
+    } else if ((!_isPlaying || isPaused) &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
       logger.d('arrowDown');
       sectionBump(1);
-    } else if ((!isPlaying || isPaused) &&
+    } else if ((!_isPlaying || isPaused) &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
       logger.log(_playerLogKeyboard, 'arrowUp');
       sectionBump(-1);
     } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
-      if (isPlaying) {
+      if (_isPlaying) {
         performStop();
       } else {
         logger.log(_playerLogKeyboard, 'player: pop the navigator');
@@ -1307,7 +1315,7 @@ With escape, the app goes back to the play list.''',
         Navigator.pop(context);
       }
     } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
-      if (isPlaying) {
+      if (_isPlaying) {
         performStop();
       }
     }
@@ -1421,7 +1429,7 @@ With escape, the app goes back to the play list.''',
       return;
     }
 
-    SongUpdateState state = isPlaying ? SongUpdateState.playing : SongUpdateState.none;
+    SongUpdateState state = _isPlaying ? SongUpdateState.playing : SongUpdateState.none;
     if (_lastSongUpdateSent != null) {
       if (_lastSongUpdateSent!.song == widget._song &&
           _lastSongUpdateSent!.momentNumber == momentNumber &&
@@ -1444,7 +1452,7 @@ With escape, the app goes back to the play list.''',
     logger.log(_playerLogLeaderFollower, 'leadSongUpdate: momentNumber: $momentNumber');
   }
 
-  IconData get playStopIcon => isPlaying ? Icons.stop : Icons.play_arrow;
+  IconData get playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
 
   void performPlay() {
     setState(() {
@@ -1479,7 +1487,7 @@ With escape, the app goes back to the play list.''',
       scrollToSectionByMoment(_song.songMoments[momentNumber]);
       logger.log(
           _playerLogLeaderFollower,
-          'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $isPlaying'
+          'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
           ', moment: ${_songUpdate?.momentNumber}'
           ', scroll: ${scrollController.offset}');
     });
@@ -1487,7 +1495,7 @@ With escape, the app goes back to the play list.''',
 
   void setPlayMode() {
     isPaused = false;
-    isPlaying = true;
+    _isPlaying = true;
   }
 
   void performStop() {
@@ -1497,7 +1505,7 @@ With escape, the app goes back to the play list.''',
   }
 
   void simpleStop() {
-    isPlaying = false;
+    _isPlaying = false;
     isPaused = true;
     // scrollController.jumpTo(0);   //  too rash
     songMaster.stop();
@@ -1506,9 +1514,9 @@ With escape, the app goes back to the play list.''',
   }
 
   void pauseToggle() {
-    logger.log(_playerLogMode, '_pauseToggle():  pre: _isPlaying: $isPlaying, _isPaused: $isPaused');
+    logger.log(_playerLogMode, '_pauseToggle():  pre: _isPlaying: $_isPlaying, _isPaused: $isPaused');
     setState(() {
-      if (isPlaying) {
+      if (_isPlaying) {
         isPaused = !isPaused;
         if (isPaused) {
           songMaster.pause();
@@ -1519,11 +1527,11 @@ With escape, the app goes back to the play list.''',
         }
       } else {
         songMaster.resume();
-        isPlaying = true;
+        _isPlaying = true;
         isPaused = false;
       }
     });
-    logger.log(_playerLogMode, '_pauseToggle(): post: _isPlaying: $isPlaying, _isPaused: $isPaused');
+    logger.log(_playerLogMode, '_pauseToggle(): post: _isPlaying: $_isPlaying, _isPaused: $isPaused');
   }
 
   setSelectedSongKey(music_key.Key key) {
@@ -1579,7 +1587,6 @@ With escape, the app goes back to the play list.''',
   void forceTableRedisplay() {
     sectionLocations.clear();
     table = null;
-    _renderTableLeft = 20;
     logger.log(_playerLogFontResize, '_forceTableRedisplay');
     setState(() {});
   }
@@ -1932,7 +1939,6 @@ With escape, the app goes back to the play list.''',
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
-  bool isPlaying = false;
   bool isPaused = false;
   int _lastBumpTimeMs = 0;
 
@@ -2000,7 +2006,9 @@ class _ChordHighlightPainter extends CustomPainter {
     //  clear the layer
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
 
-    if (_songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
+    logger.v('_ChordHighlightPainter.paint: _isPlaying: $_isPlaying');
+
+    if (_isPlaying && _songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
       int index = _selectedSongMoment!.momentNumber;
       final rect = _songMomentChordRectangles[index];
       final outlineRect =
@@ -2019,16 +2027,15 @@ class _ChordHighlightPainter extends CustomPainter {
       canvas.drawRect(
           Rect.fromLTWH(
               0,
-              rect.top,
-              _renderTableLeft * 2,
+              rect.top + overlap,
+              _songMomentChordRectangles[0].left + overlap, //  used as a width
               rect.height *
-                  (_selectedSongMoment!.repeatMax == 0
-                      ? 1.0
-                      : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax)),
+                      (_selectedSongMoment!.repeatMax == 0
+                          ? 1.0
+                          : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax) -
+                  2 * overlap),
           highlightColor);
     }
-
-    logger.v('_ChordHighlightPainter.paint: $size');
   }
 
   @override

@@ -57,7 +57,7 @@ flutter clean
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 #	note: use web-render to run on the pi in park mode
-flutter build web --release
+flutter build web --web-renderer html --release
 
 # install beta lib util
 cd bsteeleMusicLib

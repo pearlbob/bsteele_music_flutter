@@ -2,8 +2,18 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 
 class SongSearchMatcher {
-  SongSearchMatcher(String? search)
-      : _searchRegex = RegExp((search ?? '').trim().replaceAll("[^\\w\\s']+", ''), caseSensitive: false);
+  SongSearchMatcher(final String? search) {
+    var s = (search ?? '').trim().replaceAll("[^\\w\\s']+", '');
+    //  a tiny attempt to defend against a bad regex
+    if (s.endsWith('\\')) {
+      s = '$s ';
+    }
+    try {
+      _searchRegex = RegExp(s, caseSensitive: false);
+    } catch (e) {
+      _searchRegex = RegExp(' ', caseSensitive: false); //  fixme: what should happen here?
+    }
+  }
 
   bool performanceMatchesOrEmptySearch(SongPerformance songPerformance, {year = false}) {
     if (isEmpty) {
@@ -39,5 +49,5 @@ class SongSearchMatcher {
 
   bool get isNotEmpty => _searchRegex.pattern.isNotEmpty;
 
-  final RegExp _searchRegex;
+  late RegExp _searchRegex;
 }

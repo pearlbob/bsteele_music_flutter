@@ -155,7 +155,10 @@ beta short list:
 fix song: Handlebar
 add beta link to about screen
 leader/follower will not follow scrolling!
-finish automation of history update from JS
+play tally off space bar: what?Do I have to pay attention?....
+freezing? do you mean always displaying the play button, key and beats per measure? capo is in that category. Bodhi wants to change bpm while in play.
+drum: note: the default volume is zero. did you slide the volume up?i hear it on my system. I'll try the mac to see if it's a permission thing.
+for the moment, the drums only work on 4 beats per measure songs. what?!!! yeah i know.
 song not selected on main list after a file read and return to main list
 insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 

@@ -150,10 +150,12 @@ void main() async {
 
 /*
 done:
+___add beta link to about screen
 
 beta short list:
+
 fix song: Handlebar
-add beta link to about screen
+
 leader/follower will not follow scrolling!
 play tally off space bar: what?Do I have to pay attention?....
 freezing? do you mean always displaying the play button, key and beats per measure? capo is in that category. Bodhi wants to change bpm while in play.

@@ -106,6 +106,24 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 const Text(
                   'Mode: ${kReleaseMode ? 'release' : 'debug'}',
                 ),
+                if (kReleaseMode)
+                  AppWrapFullWidth(children: [
+                    const Text(
+                      'Test the ',
+                    ),
+                    InkWell(
+                      onTap: () {
+                        openLink('http://www.bsteele.com/bsteeleMusicApp/beta/index.html');
+                      },
+                      child: Text(
+                        'beta',
+                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                      ),
+                    ),
+                    const Text(
+                      '.',
+                    ),
+                  ]),
                 Text(
                   'utcDate: ${_utcDateAsString ?? 'unknown'}',
                 ),
@@ -118,7 +136,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                   ,
                 ),
                 Text(
-                  'OS:  ${kIsWeb ? 'web on' : ''}'
+                  'OS:  ${kIsWeb ? 'web version on' : ''}'
                   ' ${Theme.of(context).platform.name}',
                 ),
                 if (!kIsWeb)

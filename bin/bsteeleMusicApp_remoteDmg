@@ -1,6 +1,13 @@
 #!/bin/tcsh
 #set echo; set verbose
 
+#	problem:
+#The module '/usr/local/lib/node_modules/appdmg/node_modules/macos-alias/build/Release/volume.node' was compiled against a different Node.js version using NODE_MODULE_VERSION 102.
+#	fix on mac:
+#
+#	npm uninstall -g appdmg
+#	npm install -g appdmg
+
 echo $0\:
 
 set app=bsteeleMusicApp

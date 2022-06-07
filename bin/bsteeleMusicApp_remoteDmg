@@ -51,6 +51,9 @@ else
 	cd ~/junk/$bsDir/$src
 	pwd
 
+	#	global update
+	npm update -g
+
 	rm -rf .gradle
 	flutter clean
 	flutter pub get

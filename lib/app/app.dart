@@ -69,7 +69,7 @@ class App {
   ThemeData themeData = ThemeData(); //  start with the default theme
 
   /// A single instance of the screen information class for common use.
-  ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refreshed on main build
+  ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refresh often for window size changes
   bool isEditReady = false;
   bool isScreenBig = true;
   bool isPhone = false;

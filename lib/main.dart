@@ -150,9 +150,10 @@ void main() async {
 
 /*
 done:
-___add beta link to about screen
 
 beta short list:
+key of historical performance not retained after a song base key edit change: fix file format?
+
 
 fix song: Handlebar
 

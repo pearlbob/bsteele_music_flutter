@@ -22,6 +22,7 @@ import '../app/app.dart';
 //  diagnostic logging enables
 const Level _singerLogBuild = Level.debug;
 const Level _singerRequester = Level.debug;
+const Level _singerLogHistory = Level.debug;
 
 final AppOptions _appOptions = AppOptions();
 final List<String> _sessionSingers =
@@ -875,6 +876,7 @@ class SingersState extends State<Singers> {
                           if (value != null) {
                             setState(() {
                               _selectedSingerIsRequester = value;
+                              logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
                             });
                           }
                         },
@@ -1280,12 +1282,15 @@ class SingersState extends State<Singers> {
     setState(() {
       //  fixme: song may have been edited in the player screen!!!!
       //  update the last sung date and the key if it has been changed
-      _allSongPerformances.addSongPerformance(songPerformance.update(
-          key: playerSelectedSongKey, bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute));
+      var updatedPerformance = songPerformance.update(
+          key: playerSelectedSongKey, bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute);
+      _allSongPerformances.addSongPerformance(updatedPerformance);
+      logger.log(_singerLogHistory, 'updatedPerformance: $updatedPerformance');
       logger.d('navigateToPlayer.playerSelectedBpm back: $playerSelectedBpm');
       AppOptions().storeAllSongPerformances();
       allHaveBeenWritten = false;
 
+      //  push the selected singer forward in the list
       if (_sessionSingers.isNotEmpty) {
         logger.log(_singerRequester, 'old _selectedSinger: $_selectedSinger');
         //  increment the selected singer or requester now that we're done singing a song

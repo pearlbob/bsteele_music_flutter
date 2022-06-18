@@ -11,6 +11,10 @@ const Level _screenInfoLogFontsize = Level.debug;
 /// Gather information on screen size and adapt to it
 class ScreenInfo {
   ScreenInfo(BuildContext context) : _isDefaultValue = false {
+    refresh(context);
+  }
+
+  void refresh(BuildContext context) {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
 
     double devicePixelRatio = mediaQueryData.devicePixelRatio;
@@ -24,12 +28,12 @@ class ScreenInfo {
     logger.log(
         _screenInfoLogFontsize,
         'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $fontSize'
-        ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
+            ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
     logger.log(
         _screenInfoLogFontsize,
         'devicePixelRatio: $devicePixelRatio,'
-        ' ($_mediaWidth,$_mediaHeight)');
+            ' ($_mediaWidth,$_mediaHeight)');
   }
 
   ScreenInfo.defaultValue()

@@ -698,8 +698,11 @@ class SingersState extends State<Singers> {
                                 onPressed: () {
                                   _saveAllSongPerformances().then((response) {
                                     setState(() {
-                                      allHaveBeenWritten = true; //  fixme: on failure?
+                                      allHaveBeenWritten = true;
                                     });
+                                  }).onError((error, stackTrace) {
+                                    allHaveBeenWritten = false; //  fixme: on failure?
+                                    app.errorMessage(error.toString());
                                   });
                                 },
                               )),

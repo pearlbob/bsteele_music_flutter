@@ -586,6 +586,7 @@ enum AppKeyEnum {
   editDeleteChordMeasure,
   editDeleteLyricsSection,
   editFormat,
+  editRenameSong,
   editRemoveSong,
   editRepeatCancel,
   editDeleteRepeat,

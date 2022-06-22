@@ -81,7 +81,6 @@ class App {
     logger.v('addSong( ${song.toString()} )');
     _allSongs.remove(song); // any prior version of same song
     _allSongs.add(song);
-    _filteredSongs.clear();
     selectedSong = song;
   }
 
@@ -95,7 +94,6 @@ class App {
   /// Remove all songs from the master song list
   void removeAllSongs() {
     _allSongs.clear();
-    _filteredSongs.clear();
     selectedSong = _emptySong;
   }
 
@@ -148,9 +146,6 @@ class App {
 
   SplayTreeSet<Song> get allSongs => _allSongs;
   final SplayTreeSet<Song> _allSongs = SplayTreeSet();
-
-  SplayTreeSet<Song> get filteredSongs => _filteredSongs;
-  final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
   Song _selectedSong = _emptySong;
 

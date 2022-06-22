@@ -17,12 +17,14 @@ TextStyle _smallStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize *
 
 /// Show some data about the app and it's environment.
 class DrumsWidget extends StatefulWidget {
-  DrumsWidget({Key? key, this.beats = 4, DrumParts? drumParts})
+  DrumsWidget({Key? key, this.beats = 4, DrumParts? drumParts, TextStyle? headerStyle})
       : _drumParts = drumParts ?? DrumParts(),
+        _headerStyle = headerStyle ?? _style,
         super(key: key);
 
   final int beats;
   final DrumParts _drumParts;
+  final TextStyle _headerStyle;
 
   @override
   DrumsState createState() => DrumsState();
@@ -76,6 +78,7 @@ class DrumsState extends State<DrumsWidget> {
         if (drumPart != null) {
           children = [];
           children.add(Center(
+            heightFactor: 1.0,
             child: Text(
               Util.camelCaseToLowercaseSpace(part.name),
               style: _smallStyle,
@@ -120,24 +123,27 @@ class DrumsState extends State<DrumsWidget> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
         'Drums:',
-        style: _style,
+        style: widget._headerStyle,
       ),
-      Center(
-        child: Text(
+      AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+        Text(
           'Volume:',
           style: _smallStyle,
         ),
-      ),
-      Slider(
-        value: widget._drumParts.volume * 10,
-        onChanged: (value) {
-          setState(() {
-            widget._drumParts.volume = value / 10;
-          });
-        },
-        min: 0,
-        max: 10.0,
-      ),
+        SizedBox(
+          width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
+          child: Slider(
+            value: widget._drumParts.volume * 10,
+            onChanged: (value) {
+              setState(() {
+                widget._drumParts.volume = value / 10;
+              });
+            },
+            min: 0,
+            max: 10.0,
+          ),
+        ),
+      ]),
       Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

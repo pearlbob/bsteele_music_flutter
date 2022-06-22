@@ -87,7 +87,7 @@ class SongsState extends State<Songs> {
                 style: generateAppTextStyle(),
               ),
               Text(
-                'Most recent: ${_mostRecent()}',
+                'Most recent song update: ${_mostRecent()}',
                 style: generateAppTextStyle(),
               ),
             ]),
@@ -106,7 +106,7 @@ class SongsState extends State<Songs> {
       lastModifiedTime = max(lastModifiedTime, song.lastModifiedTime);
     }
 
-    return intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(lastModifiedTime));
+    return intl.DateFormat.yMMMd().add_jm().format(DateTime.fromMillisecondsSinceEpoch(lastModifiedTime));
   }
 
   /// write all songs to the standard location
@@ -234,6 +234,6 @@ class SongsState extends State<Songs> {
 
   late AppWidgetHelper appWidgetHelper;
 
-  String fileLocation = kIsWeb ? 'download folder in local drive' : 'Documents';
+  String fileLocation = kIsWeb ? 'download folder in local drive' : 'Downloads';
   final App app = App();
 }

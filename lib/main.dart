@@ -115,7 +115,13 @@ const Level _mainLogScroll = Level.debug;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
+
+//  for holiday display: in Additional run args: --dart-define=holiday=true
+//  note: not much effect due to hard-wiring of colors!
 const _holidayOverride = String.fromEnvironment('holiday', defaultValue: '');
+
+//  for holiday display: in Additional run args: --dart-define=css=test.css
+//  note: not much effect due to hard-wiring of colors!
 const _cssFileName = String.fromEnvironment('css', defaultValue: '');
 
 /*
@@ -1141,19 +1147,22 @@ class MyHomePageState extends State<MyHomePage> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
-        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-          AppWrap(children: [
-            AppTooltip(
-              message: _searchTextTooltipText,
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                iconSize: fontSize,
-                onPressed: (() {
-                  setState(() {
-                    _searchSongs(_searchTextFieldController.text);
-                  });
-                }),
-              ),
+        AppWrapFullWidth(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                AppTooltip(
+                  message: _searchTextTooltipText,
+                  child: IconButton(
+                    icon: const Icon(Icons.search),
+                    iconSize: fontSize,
+                    onPressed: (() {
+                      setState(() {
+                        _searchSongs(_searchTextFieldController.text);
+                      });
+                    }),
+                  ),
             ),
             SizedBox(
               width: 12 * titleBarFontSize,
@@ -1197,18 +1206,18 @@ class MyHomePageState extends State<MyHomePage> {
           ]),
           if (app.isScreenBig)
             AppWrap(
-              crossAxisAlignment: WrapCrossAlignment.start,
-              spacing: app.screenInfo.fontSize / 2,
-              children: [
-                AppTooltip(
-                  message: 'Select the order of the song list.',
-                  child: Text(
-                    'Order',
-                    style: searchDropDownStyle,
-                  ),
-                ),
-                appDropdownButton<MainSortType>(
-                  AppKeyEnum.mainSortType,
+              crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: app.screenInfo.fontSize / 2,
+                  children: [
+                    AppTooltip(
+                      message: 'Select the order of the song list.',
+                      child: Text(
+                        'Order',
+                        style: searchDropDownStyle,
+                      ),
+                    ),
+                    appDropdownButton<MainSortType>(
+                      AppKeyEnum.mainSortType,
                   _sortTypesDropDownMenuList,
                   onChanged: (value) {
                     if (_selectedSortType != value) {
@@ -1236,18 +1245,18 @@ class MyHomePageState extends State<MyHomePage> {
             ]),
           if (!appOptions.holiday && app.isScreenBig)
             AppWrap(
-              crossAxisAlignment: WrapCrossAlignment.start,
-              spacing: app.screenInfo.fontSize / 2,
-              children: [
-                AppTooltip(
-                  message: 'Select which song list to show.',
-                  child: Text(
-                    'List',
-                    style: searchDropDownStyle,
-                  ),
-                ),
-                DropdownButton<NameValue>(
-                  items: metadataDropDownMenuList,
+              crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: app.screenInfo.fontSize / 2,
+                  children: [
+                    AppTooltip(
+                      message: 'Select which song list to show.',
+                      child: Text(
+                        'List',
+                        style: searchDropDownStyle,
+                      ),
+                    ),
+                    DropdownButton<NameValue>(
+                      items: metadataDropDownMenuList,
                   onChanged: (value) {
                     logger.v('metadataDropDownMenuList selection: $value');
                     app.clearMessage();
@@ -1380,6 +1389,7 @@ class MyHomePageState extends State<MyHomePage> {
                           ', cover by ${song.coverArtist}',
                           style: oddEvenTextStyle,
                         ),
+                      //  Text( song.getComplexity().toString()),
                     ],
                   ),
                   Text(

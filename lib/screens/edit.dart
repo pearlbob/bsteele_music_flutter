@@ -41,7 +41,6 @@ import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
 import '../app/app.dart';
-import '../main.dart';
 import 'detail.dart';
 
 late Song _initialSong;
@@ -302,6 +301,68 @@ class EditState extends State<Edit> {
     return false;
   }
 
+  /// return true if the song removal was confirmed
+  bool removePopup() {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Text(
+                'Do you really want remove "${song.title}" by ${song.artist}'
+                '${song.coverArtist.isEmpty ? '' : ', cover by ${song.coverArtist}'}?',
+                style: chordBoldTextStyle,
+              ),
+              actions: [
+                appButton('Remove the song.', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+                  app.allSongs.remove(song);
+                  app.clearMessage();
+                  Navigator.of(context).pop(); //  the dialog
+                  Navigator.of(context).pop(); //  the screen
+                }),
+                const AppSpace(space: 100),
+                appButton('Cancel the removal... I need to work some more on this.',
+                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                  Navigator.of(context).pop();
+                  checkSong();
+                }),
+              ],
+              elevation: 24.0,
+            ));
+    return false;
+  }
+
+  /// return true if the song removal was confirmed
+  bool renamePopup() {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Text(
+                'Do you really want rename "${originalSong.title}" by ${originalSong.artist}'
+                '${originalSong.coverArtist.isEmpty ? '' : ', cover by ${originalSong.coverArtist}'}'
+                '\nto "${song.title}" by ${song.artist}'
+                '${song.coverArtist.isEmpty ? '' : ', cover by ${song.coverArtist}'}?',
+                style: chordBoldTextStyle,
+              ),
+              actions: [
+                appButton('Rename the song.', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+                  app.allSongs.remove(originalSong);
+                  app.allSongs.add(song);
+                  app.selectedSong = song;
+                  app.clearMessage();
+                  Navigator.of(context).pop(); //  the dialog
+                  Navigator.of(context).pop(); //  the screen
+                }),
+                const AppSpace(space: 100),
+                appButton('Cancel the rename... I need to work some more on this.',
+                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                  Navigator.of(context).pop();
+                  checkSong();
+                }),
+              ],
+              elevation: 24.0,
+            ));
+    return false;
+  }
+
   bool get songHasChanged =>
       hasChangedFromOriginal ||
       (isProEditInput ? song.rawLyrics != proLyricsTextEditingController.text : lyricsEntries.hasChangedLines());
@@ -501,23 +562,31 @@ class EditState extends State<Edit> {
                         },
                       ),
                     ),
-                    editTooltip(
-                      message: 'Remove this song from the list of songs.',
-                      child: appEnumeratedButton(
-                        'Remove',
-                        appKeyEnum: AppKeyEnum.editRemoveSong,
-                        fontSize: _defaultChordFontSize,
-                        onPressed: () {
-                          Song nextSong = nextSongInTheList();
-                          undoStackPush(); //  user safety
-                          app.allSongs.remove(song);
-                          originalSong = nextSong;
-                          app.selectedSong = nextSong;
-                          loadSong(nextSong);
-                          undoStackPushIfDifferent();
-                        },
+                    if (song.songId == originalSong.songId)
+                      editTooltip(
+                        message: 'Remove this song from the list of songs.',
+                        child: appEnumeratedButton(
+                          'Remove',
+                          appKeyEnum: AppKeyEnum.editRemoveSong,
+                          fontSize: _defaultChordFontSize,
+                          onPressed: () {
+                            removePopup();
+                          },
+                        ),
                       ),
-                    ),
+                    if (song.songId != originalSong.songId)
+                      editTooltip(
+                        message: 'Rename this song.'
+                            '${kDebugMode ? '\n${song.songId} vs ${originalSong.songId}' : ''}',
+                        child: appEnumeratedButton(
+                          'Rename the song',
+                          appKeyEnum: AppKeyEnum.editRenameSong,
+                          fontSize: _defaultChordFontSize,
+                          onPressed: () {
+                            renamePopup();
+                          },
+                        ),
+                      ),
                     // appIconButton(
                     //        icon: Icon(
                     //          Icons.arrow_left,

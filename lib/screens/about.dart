@@ -156,7 +156,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                     'Write diagnostic log file',
                     appKeyEnum: AppKeyEnum.aboutWriteDiagnosticLogFile,
                     onPressed: () {
-                      writeDiagnosticLogFile();
+                      _writeDiagnosticLogFile();
                     },
                   ),
                 ),
@@ -180,7 +180,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
     }
   }
 
-  void writeDiagnosticLogFile() async {
+  void _writeDiagnosticLogFile() async {
     String utcNow = Util.utcNow();
     StringBuffer sb = StringBuffer();
     sb.writeln('''{

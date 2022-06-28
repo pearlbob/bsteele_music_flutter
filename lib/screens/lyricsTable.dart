@@ -291,7 +291,7 @@ class LyricsTable {
 
   late AppWidgetHelper appWidgetHelper;
 
-  music_key.Key displayMusicKey = music_key.Key.get(music_key.KeyEnum.C);
+  music_key.Key displayMusicKey = music_key.Key.C;
   final AppOptions _appOptions = AppOptions();
   final RegExp verticalBarAndSpacesRegExp = RegExp(r'\s*\|\s*');
 }

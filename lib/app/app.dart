@@ -21,7 +21,8 @@ import 'app_theme.dart';
 
 final App app = App();
 
-String userName = Platform.environment['USER'] ?? Platform.environment['LOGNAME'] ?? 'my';
+String userName =
+    Platform.environment['USER'] ?? Platform.environment['USERNAME'] ?? Platform.environment['LOGNAME'] ?? 'my';
 
 final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone

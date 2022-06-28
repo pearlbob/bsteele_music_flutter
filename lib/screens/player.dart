@@ -1578,7 +1578,7 @@ With escape, the app goes back to the play list.''',
     logger.log(_playerLogMusicKey, 'key: $key');
 
     //  add any offset
-    music_key.Key newDisplayKey = music_key.Key.getKeyByHalfStep(key.halfStep + displayKeyOffset);
+    music_key.Key newDisplayKey = key.nextKeyByHalfSteps(displayKeyOffset);
     logger.log(_playerLogMusicKey, 'offsetKey: $newDisplayKey');
 
     //  deal with capo
@@ -2023,8 +2023,8 @@ With escape, the app goes back to the play list.''',
 
   bool get compressRepeats => appOptions.compressRepeats;
 
-  music_key.Key _selectedSongKey = music_key.Key.get(music_key.KeyEnum.C);
-  music_key.Key _displaySongKey = music_key.Key.get(music_key.KeyEnum.C);
+  music_key.Key _selectedSongKey = music_key.Key.C;
+  music_key.Key _displaySongKey = music_key.Key.C;
   int displayKeyOffset = 0;
 
   DrumsWidget _drums = DrumsWidget();

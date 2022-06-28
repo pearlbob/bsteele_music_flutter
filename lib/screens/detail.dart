@@ -53,8 +53,8 @@ bool _isSwing = true;
 TimeSignature _timeSignature = TimeSignature.defaultTimeSignature;
 int _bpm = 106;
 
-final _defaultChord = Chord(ScaleChord(ScaleNote.get(ScaleNoteEnum.C), ChordDescriptor.defaultChordDescriptor()), 4, 4,
-    null, ChordAnticipationOrDelay.defaultValue, false);
+final _defaultChord = Chord(ScaleChord(ScaleNote.C, ChordDescriptor.defaultChordDescriptor()), 4, 4, null,
+    ChordAnticipationOrDelay.defaultValue, false);
 
 Chord _getChord() {
   if (app.selectedSong.songMoments.isNotEmpty) {
@@ -902,7 +902,7 @@ class _FretBoardPainter extends CustomPainter {
   //   return fretWidths[n];
   // }
 
-  final music_key.Key keyE = music_key.Key.get(music_key.KeyEnum.E);
+  final music_key.Key keyE = music_key.Key.E;
 
   late Canvas canvas;
   final List<double> fretLocations = [];

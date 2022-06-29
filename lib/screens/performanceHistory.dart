@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/songId.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
@@ -53,7 +54,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       body: Container(
         padding: const EdgeInsets.all(36.0),
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
@@ -106,8 +107,13 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                     itemBuilder: (BuildContext context, int index) {
                       var performance = performanceHistory.elementAt(index);
                       var singer = performance.singer;
-                      var song = performance.song!;
+                      var song = performance.song;
+                      var title = (song != null
+                          ? '${song.title} by ${song.artist}'
+                              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+                          : '${SongId.asReadableString(performance.songIdAsString)} (missing)');
                       var key = performance.key;
+
                       return AppWrapFullWidth(children: [
                         if (index == 0 ||
                             (index > 0 &&
@@ -129,9 +135,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                             child: Text(
                               //'${performance.lastSungDateString}'
                               ' ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung))}'
-                              ' $singer sang: '
-                              '${song.title} by ${song.artist}'
-                              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+                              ' $singer sang: $title'
                               ' in $key'
                               // ' at $bpm'
                               ,
@@ -167,7 +171,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     final SplayTreeSet<SongPerformance> filteredSongPerformances =
         SplayTreeSet(SongPerformance.compareByLastSungSongIdAndSinger);
     for (final SongPerformance songPerformance in allSongPerformances.allSongPerformanceHistory) {
-      if (songPerformance.song != null && _songSearchMatcher.performanceMatchesOrEmptySearch(songPerformance)) {
+      if (_songSearchMatcher.performanceMatchesOrEmptySearch(songPerformance)) {
         filteredSongPerformances.add(songPerformance);
       }
     }

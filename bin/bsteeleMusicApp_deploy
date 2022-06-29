@@ -76,10 +76,14 @@ if ( $status != 0 ) exit -1
 
 ~/github/allSongs.songlyrics/bin/lyrics_update
 
-//  see that the web sees the update
+#  see that the web sees the update
 bin/bsteeleMusicApp_gs_utcDate
+
+#	force a refresh of the local native copy
+rm -rf ~/lib/bsteeleMusicApp
 
 echo try:  http://bsteele.com/$app
 
+#	put something in the beta
 cd $git
 bin/bsteeleMusicApp_stage

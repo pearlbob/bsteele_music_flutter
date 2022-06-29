@@ -1,4 +1,5 @@
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songId.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 
 class SongSearchMatcher {
@@ -23,10 +24,11 @@ class SongSearchMatcher {
       return true;
     }
     var song = songPerformance.song;
-    if (song == null) {
-      return false;
+    if (song != null) {
+      return matches(song, year: year);
     }
-    return matches(song, year: year);
+    //  try to match a song id without a song
+    return _searchRegex.hasMatch(SongId.asReadableString(songPerformance.songIdAsString));
   }
 
   bool matchesOrEmptySearch(Song song, {year = false}) {

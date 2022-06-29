@@ -1,12 +1,14 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songId.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
@@ -107,11 +109,11 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                     itemBuilder: (BuildContext context, int index) {
                       var performance = performanceHistory.elementAt(index);
                       var singer = performance.singer;
-                      var song = performance.song;
-                      var title = (song != null
-                          ? '${song.title} by ${song.artist}'
-                              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-                          : '${SongId.asReadableString(performance.songIdAsString)} (missing)');
+                      bool missing = performance.song == null;
+                      var song = performance.song ?? bestSongMatch(performance);
+                      var title = '${song.title} by ${song.artist}'
+                          '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+                          '${missing ? ' (a match?)' : ''}';
                       var key = performance.key;
 
                       return AppWrapFullWidth(children: [
@@ -143,7 +145,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _navigateToPlayer(context, performance);
+                                _navigateToPlayer(context, performance, matchingSong: song);
                               });
                             }),
                       ]);
@@ -166,6 +168,18 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     _songSearchMatcher = SongSearchMatcher(_searchTextFieldController.text);
   }
 
+  Song bestSongMatch(SongPerformance performance) {
+    //  fixme: performance
+    BestMatch bestMatch = StringSimilarity.findBestMatch(
+        performance.songIdAsString, app.allSongs.map((song) => song.songId.toString()).toList(growable: false));
+
+    logger.d('${performance.songIdAsString}:  ${bestMatch.bestMatch.target}   ${bestMatch.bestMatch.rating}');
+    return app.allSongs.firstWhere((song) => song.songId.toString() == bestMatch.bestMatch.target, //
+        orElse: () {
+      return Song.theEmptySong;
+    });
+  }
+
   SplayTreeSet<SongPerformance> searchAllPerformanceSongs() {
     //  apply search filter
     final SplayTreeSet<SongPerformance> filteredSongPerformances =
@@ -178,19 +192,23 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     return filteredSongPerformances;
   }
 
-  _navigateToPlayer(BuildContext context, SongPerformance songPerformance) async {
+  _navigateToPlayer(BuildContext context, SongPerformance songPerformance, {Song? matchingSong}) async {
     if (songPerformance.song == null) {
-      return;
+      if (matchingSong == null) {
+        return;
+      }
+      app.selectedSong = matchingSong;
+    } else {
+      app.selectedSong = songPerformance.song!;
     }
     app.clearMessage();
-    app.selectedSong = songPerformance.song!;
 
     logger.d('navigateToPlayer.playerSelectedBpm out: ${songPerformance.bpm}');
     await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => Player(
-                songPerformance.song!,
+                app.selectedSong,
                 //  adjust song to singer's last performance
                 musicKey: songPerformance.key,
                 bpm: songPerformance.bpm,

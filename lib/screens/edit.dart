@@ -90,7 +90,7 @@ odd sized repeats
 ///   It is expected that it will only be used on a desktop only
 ///   and will not be displayed to the musicians on a large screen display.
 class Edit extends StatefulWidget {
-  Edit({Key? key, required initialSong}) : super(key: key) {
+  Edit({super.key, required initialSong}) {
     _initialSong = initialSong;
   }
 
@@ -1067,7 +1067,7 @@ class EditState extends State<Edit> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "Lyrics:",
+                      'Lyrics:',
                       style: _titleTextStyle,
                     ),
                     if (!isProEditInput)

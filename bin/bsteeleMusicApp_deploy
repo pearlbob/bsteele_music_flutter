@@ -34,6 +34,7 @@ sudo date
 
 #	assure our tools are ready
 gcloud --quiet components update
+flup
 
 
 #	compile for release

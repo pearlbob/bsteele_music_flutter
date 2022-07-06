@@ -546,7 +546,7 @@ class BSteeleMusicApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, this.title = 'unknown'}) : super(key: key);
+  const MyHomePage({super.key, this.title = 'unknown'});
 
   // This widget is the home page of the application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -1163,50 +1163,51 @@ class MyHomePageState extends State<MyHomePage> {
                       });
                     }),
                   ),
-            ),
-            SizedBox(
-              width: 12 * titleBarFontSize,
-              //  limit text entry display length
-              child: TextField(
-                key: appKey(AppKeyEnum.mainSearchText),
-                //  for testing
-                controller: _searchTextFieldController,
-                focusNode: _searchFocusNode,
-                decoration: InputDecoration(
-                  hintText: 'enter search text',
-                  hintStyle: searchTextStyle,
                 ),
-                autofocus: true,
-                style: titleTextFieldStyle,
-                onChanged: (text) {
-                  setState(() {
-                    logger.v('search text: "$text"');
-                    _searchSongs(_searchTextFieldController.text);
-                    app.clearMessage();
-                  });
-                },
-              ),
-            ),
-            AppTooltip(
-                message: _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                child: appEnumeratedIconButton(
-                  icon: const Icon(Icons.clear),
-                  appKeyEnum: AppKeyEnum.mainClearSearch,
-                  iconSize: 1.5 * fontSize,
-                  onPressed: (() {
-                    _searchTextFieldController.clear();
-                    app.clearMessage();
-                    setState(() {
-                      FocusScope.of(context).requestFocus(_searchFocusNode);
-                      _lastSelectedSong = null;
-                      _searchSongs(null);
-                    });
-                  }),
-                )),
-          ]),
-          if (app.isScreenBig)
-            AppWrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
+                SizedBox(
+                  width: 12 * titleBarFontSize,
+                  //  limit text entry display length
+                  child: TextField(
+                    key: appKey(AppKeyEnum.mainSearchText),
+                    //  for testing
+                    controller: _searchTextFieldController,
+                    focusNode: _searchFocusNode,
+                    decoration: InputDecoration(
+                      hintText: 'enter search text',
+                      hintStyle: searchTextStyle,
+                    ),
+                    autofocus: true,
+                    style: titleTextFieldStyle,
+                    onChanged: (text) {
+                      setState(() {
+                        logger.v('search text: "$text"');
+                        _searchSongs(_searchTextFieldController.text);
+                        app.clearMessage();
+                      });
+                    },
+                  ),
+                ),
+                AppTooltip(
+                    message:
+                        _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                    child: appEnumeratedIconButton(
+                      icon: const Icon(Icons.clear),
+                      appKeyEnum: AppKeyEnum.mainClearSearch,
+                      iconSize: 1.5 * fontSize,
+                      onPressed: (() {
+                        _searchTextFieldController.clear();
+                        app.clearMessage();
+                        setState(() {
+                          FocusScope.of(context).requestFocus(_searchFocusNode);
+                          _lastSelectedSong = null;
+                          _searchSongs(null);
+                        });
+                      }),
+                    )),
+              ]),
+              if (app.isScreenBig)
+                AppWrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: app.screenInfo.fontSize / 2,
                   children: [
                     AppTooltip(
@@ -1218,34 +1219,34 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                     appDropdownButton<MainSortType>(
                       AppKeyEnum.mainSortType,
-                  _sortTypesDropDownMenuList,
-                  onChanged: (value) {
-                    if (_selectedSortType != value) {
-                      setState(() {
-                        _selectedSortType = value ?? MainSortType.byTitle;
-                        _searchSongs(_searchTextFieldController.text);
-                        app.clearMessage();
-                      });
-                    }
-                  },
-                  value: _selectedSortType,
-                  style: searchDropDownStyle,
+                      _sortTypesDropDownMenuList,
+                      onChanged: (value) {
+                        if (_selectedSortType != value) {
+                          setState(() {
+                            _selectedSortType = value ?? MainSortType.byTitle;
+                            _searchSongs(_searchTextFieldController.text);
+                            app.clearMessage();
+                          });
+                        }
+                      },
+                      value: _selectedSortType,
+                      style: searchDropDownStyle,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          if (appOptions.holiday)
-            AppWrap(children: [
-              AppTooltip(
-                message: 'Change the holiday selection in the general options (☰, Options).',
-                child: Text(
-                  'Happy Holidays!  ',
-                  style: searchDropDownStyle.copyWith(color: Colors.green),
-                ),
-              ),
-            ]),
-          if (!appOptions.holiday && app.isScreenBig)
-            AppWrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
+              if (appOptions.holiday)
+                AppWrap(children: [
+                  AppTooltip(
+                    message: 'Change the holiday selection in the general options (☰, Options).',
+                    child: Text(
+                      'Happy Holidays!  ',
+                      style: searchDropDownStyle.copyWith(color: Colors.green),
+                    ),
+                  ),
+                ]),
+              if (!appOptions.holiday && app.isScreenBig)
+                AppWrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: app.screenInfo.fontSize / 2,
                   children: [
                     AppTooltip(
@@ -1257,18 +1258,18 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                     DropdownButton<NameValue>(
                       items: metadataDropDownMenuList,
-                  onChanged: (value) {
-                    logger.v('metadataDropDownMenuList selection: $value');
-                    app.clearMessage();
-                  },
-                  value: _selectedListNameValue ?? allSongsMetadataNameValue,
-                  style: searchDropDownStyle,
-                  elevation: 8,
-                  itemHeight: null,
+                      onChanged: (value) {
+                        logger.v('metadataDropDownMenuList selection: $value');
+                        app.clearMessage();
+                      },
+                      value: _selectedListNameValue ?? allSongsMetadataNameValue,
+                      style: searchDropDownStyle,
+                      elevation: 8,
+                      itemHeight: null,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-        ]),
+            ]),
         if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
           Expanded(
               child: ScrollablePositionedList.builder(
@@ -1320,9 +1321,9 @@ class MyHomePageState extends State<MyHomePage> {
                 Column(
                   children: [
                     const Text(
-                      'This version is only for testing application development.\n'
+                      'This beta version is only for testing application development.\n'
                       'bob can damage this version at any time, for any reason.\n'
-                      'Any remembered setup will not transfer to the real version.',
+                      'Any remembered setup will not necessarily transfer to the real version.',
                       style: TextStyle(fontSize: 22),
                     ),
                     const AppSpace(),

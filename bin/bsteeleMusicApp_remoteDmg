@@ -53,14 +53,15 @@ else
 
 	#	global update
 	npm update -g
+	flup
 
 	rm -rf .gradle
 	flutter clean
 	flutter pub get
-  rm -rf macos/
+    rm -rf macos/
 	set osEnable=macos-desktop
-  flutter config --enable-$osEnable
-  flutter -d macos create . --org com.bsteele # > /dev/null
+    flutter config --enable-$osEnable
+    flutter -d macos create . --org com.bsteele # > /dev/null
 
 	bin/bsteeleMusicApp_macEntitlements
 

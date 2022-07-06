@@ -20,6 +20,9 @@ enum UserDisplayStyle {
 
   /// For an audience of both singers and players, both chords and lyrics will be fully displayed.
   both,
+
+  /// White board style minimum player mode
+  proPlayer,
 }
 
 enum StorageValue {

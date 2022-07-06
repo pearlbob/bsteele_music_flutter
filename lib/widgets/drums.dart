@@ -17,10 +17,9 @@ TextStyle _smallStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize *
 
 /// Show some data about the app and it's environment.
 class DrumsWidget extends StatefulWidget {
-  DrumsWidget({Key? key, this.beats = 4, DrumParts? drumParts, TextStyle? headerStyle})
+  DrumsWidget({super.key, this.beats = 4, DrumParts? drumParts, TextStyle? headerStyle})
       : _drumParts = drumParts ?? DrumParts(),
-        _headerStyle = headerStyle ?? _style,
-        super(key: key);
+        _headerStyle = headerStyle ?? _style;
 
   final int beats;
   final DrumParts _drumParts;

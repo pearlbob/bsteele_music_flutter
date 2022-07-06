@@ -253,7 +253,7 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
 
 @immutable
 class AppSpace extends StatelessWidget {
-  const AppSpace({Key? key, this.space, this.horizontalSpace, this.verticalSpace}) : super(key: key);
+  const AppSpace({super.key, this.space, this.horizontalSpace, this.verticalSpace});
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +284,7 @@ double viewportWidth(double width) {
 /// Supply a spacing box proportional to the screen's width... not exactly the viewport though!
 @immutable
 class AppSpaceViewportWidth extends StatelessWidget {
-  const AppSpaceViewportWidth({Key? key, this.space, this.horizontalSpace, this.verticalSpace}) : super(key: key);
+  const AppSpaceViewportWidth({super.key, this.space, this.horizontalSpace, this.verticalSpace});
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +313,7 @@ class AppSpaceViewportWidth extends StatelessWidget {
 
 @immutable
 class AppVerticalSpace extends StatelessWidget {
-  const AppVerticalSpace({Key? key, this.space}) : super(key: key);
+  const AppVerticalSpace({super.key, this.space});
 
   @override
   Widget build(BuildContext context) {
@@ -336,7 +336,7 @@ class AppVerticalSpace extends StatelessWidget {
 /// helper function to generate tool tips
 @immutable
 class AppTooltip extends StatelessWidget {
-  const AppTooltip({Key? key, required this.message, required this.child, this.fontSize}) : super(key: key);
+  const AppTooltip({super.key, required this.message, required this.child, this.fontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -367,8 +367,7 @@ BoxDecoration appTooltipBoxDecoration(final Color? color) {
 
 @immutable
 class AppWrap extends StatelessWidget {
-  const AppWrap({Key? key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing})
-      : super(key: key);
+  const AppWrap({super.key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing});
 
   @override
   Widget build(BuildContext context) {
@@ -388,8 +387,7 @@ class AppWrap extends StatelessWidget {
 
 @immutable
 class AppWrapFullWidth extends StatelessWidget {
-  const AppWrapFullWidth({Key? key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing})
-      : super(key: key);
+  const AppWrapFullWidth({super.key, required this.children, this.alignment, this.crossAxisAlignment, this.spacing});
 
   @override
   Widget build(BuildContext context) {
@@ -409,14 +407,14 @@ class AppWrapFullWidth extends StatelessWidget {
 @immutable
 class AppRadio<T> extends StatelessWidget {
   const AppRadio({
-    Key? key,
+    super.key,
     required this.text,
     required this.appKeyEnum,
     required this.value,
     required this.groupValue,
     required this.onPressed,
     this.style,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -16,8 +16,6 @@ set machine=pi@bobspi.local
 	  linux/my_application.cc
 	flutter pub get
 
-#	flutter -d linux run --release
-
 	cd ~/github/bsteeleMusicLib/
 	cd bsteele_music_lib/
 	flutter clean
@@ -64,6 +62,7 @@ else
 
 	echo on machine `hostname`
 	cd ~/junk/$bsDir/$src
+	flup
 
 	rm -rf .gradle
 	rm -rf linux

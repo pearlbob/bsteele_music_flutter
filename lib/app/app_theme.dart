@@ -1251,8 +1251,7 @@ ElevatedButton appNoteButton(
 
 @immutable
 class AppInkWell extends StatelessWidget {
-  const AppInkWell({Key? key, required this.appKeyEnum, this.backgroundColor, this.onTap, this.child, this.value})
-      : super(key: key);
+  const AppInkWell({super.key, required this.appKeyEnum, this.backgroundColor, this.onTap, this.child, this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -1383,7 +1382,7 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
 @immutable
 class AppTextField extends StatelessWidget {
   const AppTextField({
-    Key? key,
+    super.key,
     required this.appKeyEnum,
     this.controller,
     this.focusNode,
@@ -1398,7 +1397,7 @@ class AppTextField extends StatelessWidget {
     this.maxLines,
     this.border,
     this.width = 200,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1496,7 +1495,7 @@ TextStyle generateAppTextStyle({
     textBaseline: textBaseline,
     fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback,
-    decoration: decoration,
+    decoration: decoration ?? TextDecoration.none,
     decorationStyle: decorationStyle,
     overflow: TextOverflow.clip,
   );

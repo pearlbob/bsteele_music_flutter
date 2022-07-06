@@ -106,7 +106,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 const Text(
                   'Mode: ${kReleaseMode ? 'release' : 'debug'}',
                 ),
-                if (kReleaseMode)
+                if (kReleaseMode) //  fixme: not necessary
                   AppWrapFullWidth(children: [
                     const Text(
                       'Test the ',

@@ -26,13 +26,19 @@
 <h1><img src="http://www.bsteele.com/bsteeleMusicApp/favicon.png" alt="BSteele.com icon" width="48"
          height="48"/>
     bsteeleMusicApp Download Page</h1>
+<h2>Web Version</h2>
 <p>The bsteeleMusicApp is usually found on the web at
     <a href="http://www.bsteele.com/bsteeleMusicApp/index.html">bsteeleMusicApp</a>.
-    This will be the most universal and easiest to use of the application formats.
+    This web version will be the most universal and easiest to use of the application formats.
 </p>
+<h2>Native Versions</h2>
 <p>Native applications are also available.
     They are more difficult to install but will typically provide slightly better performance.
-    They can be downloaded using the following links:</p>
+    Song list and song history updates are provided in the cloud so native applications
+    should have access to the web for the best user experience.
+</p>
+<p>
+    The following can be downloaded using the these links:</p>
 <ul>
     <li><p>Macos x86 dmg: <a href="./bsteeleMusicApp.dmg" download>
         bsteeleMusicApp.dmg</a>. After downloading, verify the sha256sum as:
@@ -55,7 +61,6 @@
             Note that the application will automatically write the allSongPerformances file to the
             users home Download directory if the performances have been sung using the Singers
             screen and there has been roughly 45 minutes of no further action.
-            This safety feature is not available in the web version.
         </p>
     </li>
     <li>
@@ -123,6 +128,32 @@
         </p>
     </li>
 </ul>
+<h2>Source Code</h2>
+<p>The application is written in Flutter and Dart. See <a href="https://flutter.dev/">Flutter</a>.
+    The source code is available on github.com in two projects at:</p>
+<ul>
+    <li>
+        <a href="https://github.com/pearlbob/bsteele_music_flutter">bsteele_music_flutter</a>: This is the GUI
+        section of the application written using the data model in the project bsteeleMusicLib. This split facilitates
+        the logical division of functionality, provides a command line interface independent of flutter
+        and increases the speed of testing.
+    </li>
+    <li>
+        <a href="https://github.com/pearlbob/bsteeleMusicLib">bsteeleMusicLib</a>:
+        This is the data model support for the application. This project is intentionally strictly dart.
+    </li>
+</ul>
+<p>Technical Notes:</p>
+<ul>
+    <li>The build scripts in the bsteele_music_flutter/bin directory are tailored to my development environment
+        and are not likely but be of much use otherwise. The projects should build and test properly
+        from the usual flutter and dart command line interface.
+    </li>
+    <li>The bsteele_music_flutter/pubspec.yaml assumes that the bsteeleMusicLib project is in an
+        adjacent directory.
+    </li>
+</ul>
+
 <p>Build date: <span id="buildDate"> </span></p>
 <p>Please check back here for updates.</p>
 </body>

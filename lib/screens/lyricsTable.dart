@@ -28,7 +28,7 @@ const Level _lyricsTableLogFontSize = Level.debug;
 
 /// compute a lyrics table
 class LyricsTable {
-  Table lyricsTable(
+  Widget lyricsTable(
     Song song,
     BuildContext context, {
     musicKey,
@@ -44,151 +44,231 @@ class LyricsTable {
 
     _computeScreenSizes();
 
-    //  build the table from the song lyrics and chords
-    List<TableRow> rows = [];
-    List<Widget> children = []; //  items for the current row
     _sectionBackgroundColor =
         getBackgroundColorForSectionVersion(SectionVersion.bySection(Section.get(SectionEnum.chorus)));
 
     //  display style booleans
     bool showChords = _appOptions.userDisplayStyle == UserDisplayStyle.player ||
+        _appOptions.userDisplayStyle == UserDisplayStyle.proPlayer ||
         _appOptions.userDisplayStyle == UserDisplayStyle.both;
+    bool showLyrics = _appOptions.userDisplayStyle != UserDisplayStyle.proPlayer;
     bool showFullLyrics = _appOptions.userDisplayStyle == UserDisplayStyle.singer ||
         _appOptions.userDisplayStyle == UserDisplayStyle.both;
 
     //  compute transposition offset from base key
     int tranOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
 
-    _grid = song.toGrid(expanded: expanded);
-    _songMomentToGridList = song.songMomentToGrid(expanded: expanded);
+    _colorBySectionVersion(SectionVersion.defaultInstance);
 
-    bool hasLyrics = false;
-    {
-      Widget w;
+    if (showLyrics) {
+      //  build the table from the song lyrics and chords
+      List<TableRow> rows = [];
+      List<Widget> children = []; //  items for the current row
+      bool hasLyrics = false;
+      {
+        Grid<MeasureNode> grid = song.toGrid(expanded: expanded);
+        _songMomentToGridList = song.songMomentToGrid(expanded: expanded);
 
-      _colorBySectionVersion(SectionVersion.defaultInstance);
+        Widget w;
 
-      TextStyle textStyle = _coloredChordTextStyle;
-      for (int r = 0; r < _grid.getRowCount(); r++) {
-        children = [
-          AppSpace(horizontalSpace: _lyricsFontSize) //  slot for play arrow
-        ];
-        var row = _grid.getRow(r);
-        var columns = row!.length;
-        for (int c = 0; c < columns; c++) {
-          var measureNode = row[c];
-          switch (measureNode.runtimeType) {
-            case Null:
-              w = const Text('');
-              break;
-            case ChordSection:
-              {
-                var chordSection = measureNode as ChordSection;
-                _colorBySectionVersion(chordSection.sectionVersion);
-                w = _box(appWidgetHelper.chordSection(
-                  chordSection,
-                  style: _coloredBackgroundLyricsTextStyle,
-                ));
-              }
-              break;
-            case Lyric:
-              {
-                var lyric = measureNode as Lyric;
-                hasLyrics = true;
-
-                if (lyric.line.isEmpty) {
-                  w = const Text('');
-                } else if (showFullLyrics) {
-                  w = _box(Text(
-                    lyric.line,
-                    style: _coloredBackgroundLyricsTextStyle,
-                  ));
-                } else {
-                  //  short lyrics
-                  w = _box(Text(
-                    lyric.line,
-                    style: _coloredBackgroundLyricsTextStyle,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  ));
-                }
-              }
-              break;
-            default:
-              if (showChords) {
-                switch (measureNode.runtimeType) {
-                  case MeasureRepeatMarker:
-                  case MeasureRepeatExtension:
-                    w = _measureBox(
-                        Text(
-                          measureNode.toString(),
-                          style: _coloredChordTextStyle,
-                        ),
-                        selectionColor: textStyle.backgroundColor //  note the trick, uses textStyle from prior measures
-                        );
-                    break;
-                  case Measure:
-                    {
-                      //  setup the text style
-                      var index = _songMomentToGridList.indexOf(GridCoordinate(r, c));
-                      var songMoment = song.songMoments[index];
-                      bool isSelected = selectedSongMoments.contains(songMoment);
-                      textStyle = isSelected ? _selectedChordTextStyle : _coloredChordTextStyle;
-                      // logger.i('selectedSongMoments: $selectedSongMoments');
-                    }
-                    w = _measureBox(
-                        appWidgetHelper.transpose(
-                          measureNode as Measure,
-                          displayMusicKey,
-                          tranOffset,
-                          style: _coloredChordTextStyle,
-                        ),
-                        selectionColor: textStyle.backgroundColor);
-                    break;
-                  default:
-                    w = _box(Text(
-                      '($r,$c)', //  diagnostic only!
-                      style: c == columns - 1 ? _lyricsTextStyle : _coloredChordTextStyle,
-                    ));
-                    break;
-                }
-              } else {
+        TextStyle textStyle = _coloredChordTextStyle;
+        for (int r = 0; r < grid.getRowCount(); r++) {
+          children = [
+            AppSpace(horizontalSpace: _lyricsFontSize) //  slot for play arrow
+          ];
+          var row = grid.getRow(r);
+          var columns = row!.length;
+          for (int c = 0; c < columns; c++) {
+            var measureNode = row[c];
+            switch (measureNode.runtimeType) {
+              case Null:
                 w = const Text('');
-              }
-              break;
+                break;
+              case ChordSection:
+                {
+                  var chordSection = measureNode as ChordSection;
+                  _colorBySectionVersion(chordSection.sectionVersion);
+                  w = _box(appWidgetHelper.chordSection(
+                    chordSection,
+                    style: _coloredBackgroundLyricsTextStyle,
+                  ));
+                }
+                break;
+              case Lyric:
+                if (showLyrics) {
+                  var lyric = measureNode as Lyric;
+                  hasLyrics = true;
+
+                  if (lyric.line.isEmpty) {
+                    w = const Text('');
+                  } else if (showFullLyrics) {
+                    w = _box(Text(
+                      lyric.line,
+                      style: _coloredBackgroundLyricsTextStyle,
+                    ));
+                  } else {
+                    //  short lyrics
+                    w = _box(Text(
+                      lyric.line,
+                      style: _coloredBackgroundLyricsTextStyle,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                    ));
+                  }
+                } else {
+                  w = const Text('');
+                }
+                break;
+              default:
+                if (showChords) {
+                  switch (measureNode.runtimeType) {
+                    case MeasureRepeatMarker:
+                    case MeasureRepeatExtension:
+                      w = _measureBox(
+                          Text(
+                            measureNode.toString(),
+                            style: _coloredChordTextStyle,
+                          ),
+                          selectionColor:
+                              textStyle.backgroundColor //  note the trick, uses textStyle from prior measures
+                          );
+                      break;
+                    case Measure:
+                      {
+                        //  setup the text style
+                        var index = _songMomentToGridList.indexOf(GridCoordinate(r, c));
+                        var songMoment = song.songMoments[index];
+                        bool isSelected = selectedSongMoments.contains(songMoment);
+                        textStyle = isSelected ? _selectedChordTextStyle : _coloredChordTextStyle;
+                        // logger.i('selectedSongMoments: $selectedSongMoments');
+                      }
+                      w = _measureBox(
+                          appWidgetHelper.transpose(
+                            measureNode as Measure,
+                            displayMusicKey,
+                            tranOffset,
+                            style: _coloredChordTextStyle,
+                          ),
+                          selectionColor: textStyle.backgroundColor);
+                      break;
+                    default:
+                      w = _box(Text(
+                        '($r,$c)', //  diagnostic only!
+                        style: c == columns - 1 ? _lyricsTextStyle : _coloredChordTextStyle,
+                      ));
+                      break;
+                  }
+                } else {
+                  w = const Text('');
+                }
+                break;
+            }
+            children.add(w);
           }
-          children.add(w);
+          rows.add(TableRow(children: children));
         }
-        rows.add(TableRow(children: children));
       }
-    }
 
-    if (rows.isEmpty) {
-      _table = Table(
-        key: GlobalKey(),
-      );
+      if (rows.isEmpty) {
+        _table = Table(
+          key: GlobalKey(),
+        );
+      } else {
+        Map<int, TableColumnWidth>? columnWidths = {};
+        if (rows.isNotEmpty && hasLyrics) {
+          columnWidths[rows[0].children!.length - 1] = const FlexColumnWidth();
+        }
+
+        _table = Table(
+          key: GlobalKey(),
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          columnWidths: columnWidths,
+          //  covers all
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: rows,
+          border: TableBorder.symmetric(),
+        );
+      }
+
+      logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'
+          ' default:$appDefaultFontSize  => _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)}'
+          ', _lyricsFontSize: ${_lyricsFontSize.toStringAsFixed(1)}');
+
+      return _table;
     } else {
-      Map<int, TableColumnWidth>? columnWidths = {};
-      if (rows.isNotEmpty && hasLyrics) {
-        columnWidths[rows[0].children!.length - 1] = const FlexColumnWidth();
+      var sections = <Widget>[];
+      for (var lyricSection in song.lyricSections) {
+        _colorBySectionVersion(lyricSection.sectionVersion);
+        sections.add(
+          Container(
+            padding: const EdgeInsets.all(15.0),
+            margin: const EdgeInsets.all(4.0),
+            color: _coloredChordTextStyle.backgroundColor,
+            child: Text(
+              lyricSection.sectionVersion.toString().replaceAll(
+                    ':',
+                    '',
+                  ),
+              style: _coloredChordTextStyle,
+            ),
+          ),
+        );
+      }
+      List<TableRow> tableRows = [];
+      var chordGrid = song.chordSectionGrid;
+      int maxCols = 0;
+      for (int r = 0; r < chordGrid.getRowCount(); r++) {
+        maxCols = max(maxCols, chordGrid.getRow(r)?.length ?? 0);
+      }
+      for (int r = 0; r < chordGrid.getRowCount(); r++) {
+        var row = chordGrid.getRow(r);
+        if (row == null) {
+          continue;
+        }
+        var chordRow = <Widget>[];
+        for (int c = 0; c < row.length; c++) {
+          var data = chordGrid.get(r, c);
+          if (data == null) {
+            chordRow.add(
+              const Text(
+                ' ',
+              ),
+            );
+            continue;
+          }
+          _colorBySectionVersion(data.sectionVersion);
+          chordRow.add(
+            _box(
+              Text(
+                data.toMarkup(),
+                style: _coloredChordTextStyle,
+              ),
+            ),
+          );
+        }
+        while (chordRow.length < maxCols) {
+          chordRow.add(const Text(''));
+        }
+        tableRows.add(TableRow(children: chordRow));
       }
 
-      _table = Table(
-        key: GlobalKey(),
-        defaultColumnWidth: const IntrinsicColumnWidth(),
-        columnWidths: columnWidths,
-        //  covers all
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        children: rows,
-        border: TableBorder.symmetric(),
+      return Column(
+        children: [
+          AppWrapFullWidth(children: sections),
+          const AppSpace(
+            verticalSpace: 10,
+          ),
+          Table(
+            key: GlobalKey(),
+            defaultColumnWidth: const IntrinsicColumnWidth(),
+            //  covers all
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: tableRows,
+            //   border: const TableBorder(),
+          ),
+        ],
       );
     }
-
-    logger.d('lyricsTable: ($_screenWidth,$_screenHeight),'
-        ' default:$appDefaultFontSize  => _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)}'
-        ', _lyricsFontSize: ${_lyricsFontSize.toStringAsFixed(1)}');
-
-    return _table;
   }
 
   Widget _measureBox(Widget w, {Color? selectionColor}) {
@@ -279,9 +359,6 @@ class LyricsTable {
   TextStyle _selectedChordTextStyle = generateLyricsTextStyle();
 
   TextStyle _coloredBackgroundLyricsTextStyle = generateLyricsTextStyle();
-
-  //Grid<MeasureNode> get grid => _grid;
-  Grid<MeasureNode> _grid = Grid();
 
   List<GridCoordinate> get songMomentToGridList => _songMomentToGridList;
   List<GridCoordinate> _songMomentToGridList = [];

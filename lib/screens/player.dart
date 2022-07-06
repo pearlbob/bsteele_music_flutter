@@ -53,6 +53,8 @@ SongUpdate? _lastSongUpdateSent;
 PlayerState? _player;
 bool _isPlaying = false;
 
+bool _isCapo = false; //  for persistance across player invocations
+
 DrumParts _drumParts = DrumParts(); //  temp
 
 GlobalKey _stackKey = GlobalKey();
@@ -70,7 +72,7 @@ const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
 const Level _playerLogMusicKey = Level.debug;
 const Level _playerLogLeaderFollower = Level.debug;
-const Level _playerLogFontResize = Level.info;
+const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 const Level _playerLogChordDisplayLocations = Level.debug;
 const Level _playerLogSongMaster = Level.debug;
@@ -672,7 +674,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $_isPaused');
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
-    isCapo = isCapo && showCapo; //  can't be capo if you cannot show it
+    _isCapo = _isCapo && showCapo; //  can't be capo if you cannot show it
 
     var theme = Theme.of(context);
     var appBarTextStyle = generateAppBarLinkTextStyle();
@@ -726,7 +728,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                       style: appBarTextStyle,
                       softWrap: false,
                     ),
-                  if (_isPlaying && isCapo)
+                  if (_isPlaying && _isCapo)
                     Text(
                       ',  Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
                       style: appBarTextStyle,
@@ -841,13 +843,13 @@ With escape, the app goes back to the play list.''',
                                   if (showCapo)
                                     AppWrap(
                                       children: [
-                                        if (isCapo && _capoLocation > 0)
+                                        if (_isCapo && _capoLocation > 0)
                                           Text(
                                             'Capo on $_capoLocation',
                                             style: headerTextStyle,
                                             softWrap: false,
                                           ),
-                                        if (isCapo && _capoLocation == 0)
+                                        if (_isCapo && _capoLocation == 0)
                                           Text(
                                             'No capo needed',
                                             style: headerTextStyle,
@@ -1067,9 +1069,9 @@ With escape, the app goes back to the play list.''',
                                         ),
                                       ),
                                     const AppSpace(),
-                                    if (displayKeyOffset > 0 || (showCapo && isCapo && _capoLocation > 0))
+                                    if (displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
                                       Text(
-                                        ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}${isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
+                                        ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
                                         style: headerTextStyle,
                                       ),
                                   ],
@@ -1315,7 +1317,7 @@ With escape, the app goes back to the play list.''',
                       'Key $_selectedSongKey'
                       '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
                       '    ${_song.timeSignature.beatsPerBar} beats per measure'
-                      '${isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
+                      '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                       '  ', //  padding at the end
                       style: generateAppTextStyle(
                         decoration: TextDecoration.none,
@@ -1611,7 +1613,7 @@ With escape, the app goes back to the play list.''',
     logger.log(_playerLogMusicKey, 'offsetKey: $newDisplayKey');
 
     //  deal with capo
-    if (capoIsAvailable() && isCapo) {
+    if (capoIsAvailable() && _isCapo) {
       _capoLocation = newDisplayKey.capoLocation;
       newDisplayKey = newDisplayKey.capoKey;
       logger.log(_playerLogMusicKey, 'capo: $newDisplayKey + $_capoLocation');
@@ -1865,12 +1867,12 @@ With escape, the app goes back to the play list.''',
                               appKeyEnum: AppKeyEnum.playerCapo,
                               onChanged: (value) {
                                 setState(() {
-                                  isCapo = !isCapo;
+                                  _isCapo = !_isCapo;
                                   setSelectedSongKey(_selectedSongKey);
                                   forceTableRedisplay();
                                 });
                               },
-                              value: isCapo,
+                              value: _isCapo,
                             ),
                           ],
                         ),
@@ -2109,8 +2111,6 @@ With escape, the app goes back to the play list.''',
   List<double> sectionLocations = [];
 
   late Size lastSize;
-
-  bool isCapo = false;
 
   static const _centerSelections = false; //fixme: add later!
   static const _sectionCenterLocationFraction = 0.35;

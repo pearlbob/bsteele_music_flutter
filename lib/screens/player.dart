@@ -777,7 +777,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
                 GestureDetector(
                   onTapDown: (details) {
-                    if (!_isPlaying) {
+                    if (!_isPlaying && appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
                       //  don't respond above the player song table     fixme: this is likely not the best
                       RenderTable renderTable =
                           (_table?.key as GlobalKey).currentContext?.findRenderObject() as RenderTable;

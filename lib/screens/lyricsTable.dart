@@ -31,7 +31,7 @@ class LyricsTable {
   Widget lyricsTable(
     Song song,
     BuildContext context, {
-    musicKey,
+    music_key.Key? musicKey,
     expanded = false,
     double? chordFontSize,
     List<SongMoment>? givenSelectedSongMoments,
@@ -56,7 +56,7 @@ class LyricsTable {
         _appOptions.userDisplayStyle == UserDisplayStyle.both;
 
     //  compute transposition offset from base key
-    int tranOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
+    int transpositionOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
 
     _colorBySectionVersion(SectionVersion.defaultInstance);
 
@@ -146,7 +146,7 @@ class LyricsTable {
                           appWidgetHelper.transpose(
                             measureNode as Measure,
                             displayMusicKey,
-                            tranOffset,
+                            transpositionOffset,
                             style: _coloredChordTextStyle,
                           ),
                           selectionColor: textStyle.backgroundColor);
@@ -196,6 +196,9 @@ class LyricsTable {
 
       return _table;
     } else {
+      //  don't show lyrics
+
+      //  list the lyrics sections
       var sections = <Widget>[];
       for (var lyricSection in song.lyricSections) {
         _colorBySectionVersion(lyricSection.sectionVersion);
@@ -214,6 +217,8 @@ class LyricsTable {
           ),
         );
       }
+
+      //  show the chord table
       List<TableRow> tableRows = [];
       var chordGrid = song.chordSectionGrid;
       int maxCols = 0;
@@ -240,7 +245,7 @@ class LyricsTable {
           chordRow.add(
             _box(
               Text(
-                data.toMarkup(),
+                data.transpose(musicKey ?? music_key.Key.C, transpositionOffset),
                 style: _coloredChordTextStyle,
               ),
             ),

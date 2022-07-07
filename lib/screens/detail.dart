@@ -792,7 +792,7 @@ class _FretBoardPainter extends CustomPainter {
     Chord chord = _getChord(); //  fixme!!!!!!!!!!!!!!!!!!!
     ScaleChord scaleChord = chord.scaleChord;
     music_key.Key rootKey = music_key.Key.getKeyByHalfStep(chord.scaleChord.scaleNote.halfStep);
-    var fretBoardNotes = SplayTreeSet<ScaleNote>();
+    final fretBoardNotes = SplayTreeSet<ScaleNote>();
     for (int n = 0; n < MusicConstants.notesPerScale; n++) {
       fretBoardNotes.add(_key.inKey(
           scaleChord.chordDescriptor.isMajor() ? rootKey.getMajorScaleByNote(n) : rootKey.getMinorScaleByNote(n)));

@@ -227,7 +227,7 @@ class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
         if (chord.scaleChord.scaleNote.isSilent) {
           //  do nothing
         } else {
-          ScaleNote sn = chord.slashScaleNote ?? chord.scaleChord.scaleNote;
+          final sn = chord.slashScaleNote ?? chord.scaleChord.scaleNote;
           var halfStep = (sn.halfStep - chord.scaleChord.scaleNote.halfStep) % MusicConstants.halfStepsPerOctave;
           _renderText(ChordComponent.values[halfStep].toString(), fontSize: _chordFontSize);
           dx += staffSpace;

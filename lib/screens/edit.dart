@@ -2485,11 +2485,11 @@ class EditState extends State<Edit> {
 
         //  not scale notes
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-          ScaleNote scaleNote = key.getScaleNoteByHalfStep(i);
+          final scaleNote = key.getScaleNoteByHalfStep(i);
           if (!scaleNotes.contains(scaleNote)) scaleNotes.add(scaleNote);
         }
 
-        for (final ScaleNote scaleNote in scaleNotes) {
+        for (final scaleNote in scaleNotes) {
           String s = scaleNote.toMarkup();
           String label =
               "${s.padRight(2)} ${ChordComponent.getByHalfStep(scaleNote.halfStep - key.getHalfStep()).shortName.padLeft(2)}";
@@ -2581,7 +2581,7 @@ class EditState extends State<Edit> {
       {
         // slash chords
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-          ScaleNote sc = key.getScaleNoteByHalfStep(i);
+          final sc = key.getScaleNoteByHalfStep(i);
           slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
             key: ValueKey('scaleNote$sc'),
             value: sc,

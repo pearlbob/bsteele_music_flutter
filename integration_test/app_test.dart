@@ -146,7 +146,7 @@ void main() async {
             break;
           case ScaleNote:
             try {
-              var scaleNote = ScaleNote.parseString(parts[1]);
+              final scaleNote = ScaleNote.parseString(parts[1]);
               finder = find.byKey(appKey(appKeyEnum!, value: scaleNote!), skipOffstage: false);
             } catch (d) {
               assert(false);

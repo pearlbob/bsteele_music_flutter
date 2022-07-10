@@ -59,9 +59,9 @@ build/
 # If you're building an application, you may want to check-in your pubspec.lock
 pubspec.lock
 
-# Directory created by dartdoc
+# Directory created by dart doc
 # If you don't generate documentation locally you can remove this line.
-doc/api/
+doc/
 
 # Avoid committing generated Javascript files:
 *.dart.js

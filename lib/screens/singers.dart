@@ -815,7 +815,7 @@ class SingersState extends State<Singers> {
                     const AppVerticalSpace(),
                     if (_songUpdateService.isConnected)
                       appEnumeratedButton(
-                        '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.authority}',
+                        '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.host}',
                         appKeyEnum: AppKeyEnum.optionsLeadership,
                         onPressed: () {
                           setState(() {

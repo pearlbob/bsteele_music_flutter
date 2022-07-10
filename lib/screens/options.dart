@@ -235,7 +235,7 @@ class OptionsState extends State<Options> {
                     Text(
                       (_songUpdateService.isConnected
                           ? 'Connected'
-                          : (_songUpdateService.isIdle ? 'Idle' : 'Retrying ${_songUpdateService.authority}')),
+                          : (_songUpdateService.isIdle ? 'Idle' : 'Retrying ${_songUpdateService.host}')),
                       style: generateAppTextStyle(
                         fontWeight: FontWeight.bold,
                         backgroundColor: _songUpdateService.isConnected || _songUpdateService.isIdle

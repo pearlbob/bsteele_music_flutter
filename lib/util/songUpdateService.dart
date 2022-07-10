@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
+import 'package:bsteeleMusicLib/util/uri_helper.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,21 +39,21 @@ class SongUpdateService extends ChangeNotifier {
     }
     _isRunning = true; //  start only once!
 
-    var lastAuthority = '';
+    var lastHost = '';
 
     while (_isRunning) //  retry on a failure
     {
       _closeWebSocketChannel();
 
       //  look back to the server to possibly find a websocket
-      _authority = _findTheAuthority();
+      _host = _findTheHost();
       _ipAddress = '';
 
-      if (_authority.isEmpty) {
+      if (_host.isEmpty) {
         // do nothing
       } else {
         //  assume that the authority is good, or at least worth trying
-        var url = 'ws://$_authority$_port/bsteeleMusicApp/bsteeleMusic';
+        var url = 'ws://$_host$_port/bsteeleMusicApp/bsteeleMusic';
         logger.log(_log, 'trying: $url');
 
         try {
@@ -85,17 +86,17 @@ class SongUpdateService extends ChangeNotifier {
               _songUpdateCount++;
             }
           }, onError: (Object error) {
-            logger.log(_log, 'webSocketChannel error: $error at $_authority'); //  fixme: retry later
+            logger.log(_log, 'webSocketChannel error: $error at $_host'); //  fixme: retry later
             _closeWebSocketChannel();
           }, onDone: () {
-            logger.log(_log, 'webSocketChannel onDone: at $_authority');
+            logger.log(_log, 'webSocketChannel onDone: at $_host');
             _closeWebSocketChannel();
           });
 
-          if (lastAuthority != _authority) {
+          if (lastHost != _host) {
             notifyListeners();
           }
-          lastAuthority = _authority;
+          lastHost = _host;
 
           for (_idleCount = 0;; _idleCount++) {
             await Future.delayed(const Duration(seconds: kIsWeb ? 5 : 1));
@@ -103,15 +104,15 @@ class SongUpdateService extends ChangeNotifier {
               notifyListeners();
             }
 
-            if (lastAuthority != _findTheAuthority()) {
-              logger.log(_log, 'lastAuthority != _findTheAuthority(): $lastAuthority vs ${_findTheAuthority()}');
+            if (lastHost != _findTheHost()) {
+              logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
               _closeWebSocketChannel();
               _delaySeconds = 0;
               notifyListeners();
               break;
             }
             if (!_isOpen) {
-              logger.log(_log, 'on close: $lastAuthority');
+              logger.log(_log, 'on close: $lastHost');
               _delaySeconds = 0;
               notifyListeners();
               break;
@@ -148,21 +149,21 @@ class SongUpdateService extends ChangeNotifier {
     _isRunning = false;
   }
 
-  String _findTheAuthority() {
-    var authority = '';
+  String _findTheHost() {
+    var host = '';
     if (_appOptions.websocketHost.isNotEmpty) {
-      authority = _appOptions.websocketHost;
+      host = _appOptions.websocketHost;
     } else if (kIsWeb && Uri.base.scheme == 'http') {
-      authority = Uri.base.authority;
-      if (authority.contains('bsteele.com') || (kDebugMode && authority.contains('localhost'))) {
+      host = Uri.base.authority;
+      if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
         //  there is never a websocket on the web
-        logger.log(_log, 'webSocketChannel exception: never going to be at: "$_authority"');
+        logger.log(_log, 'webSocketChannel exception: never going to be at: "$_host"');
         //  do nothing
-        authority = '';
+        host = '';
       }
     }
-    logger.log(_log, 'authority: \'$authority\'');
-    return authority;
+    var uri = extractUri(host);
+    return uri?.host ?? '';
   }
 
   void _closeWebSocketChannel() async {
@@ -194,7 +195,7 @@ class SongUpdateService extends ChangeNotifier {
       _isOpen && _idleCount > 0 //  fixme: needs connection confirmation from server without a song update
       ;
 
-  bool get isIdle => authority.isEmpty;
+  bool get isIdle => host.isEmpty;
 
   set isLeader(bool value) {
     if (value == _isLeader) {
@@ -221,8 +222,8 @@ class SongUpdateService extends ChangeNotifier {
   String get ipAddress => _ipAddress;
   String _ipAddress = '';
 
-  String get authority => _authority;
-  String _authority = '';
+  String get host => _host;
+  String _host = '';
   static const String _port = ':8080';
   int _songUpdateCount = 0;
   int _idleCount = 0;

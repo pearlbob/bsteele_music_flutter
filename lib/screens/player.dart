@@ -1146,11 +1146,11 @@ With escape, the app goes back to the play list.''',
                                   Text(
                                     songUpdateService.isConnected
                                         ? (songUpdateService.isLeader
-                                            ? 'leading ${songUpdateService.authority}'
+                                            ? 'leading ${songUpdateService.host}'
                                             : (songUpdateService.leaderName == AppOptions.unknownUser
-                                                ? 'on ${songUpdateService.authority}'
+                                                ? 'on ${songUpdateService.host}'
                                                 : 'following ${songUpdateService.leaderName}'))
-                                        : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.authority}!'),
+                                        : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
                                     style: !songUpdateService.isConnected && !songUpdateService.isIdle
                                         ? headerTextStyle.copyWith(color: Colors.red)
                                         : headerTextStyle,

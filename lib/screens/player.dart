@@ -317,6 +317,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
   /// executes after build
   void positionAfterBuild() {
     logger.log(_playerLogFontResize, 'positionAfterBuild(): chordFontSize: ${_chordFontSize!.toStringAsFixed(2)}');
+    return;
 
     //  workaround for window size updates
     logger.log(
@@ -2128,7 +2129,6 @@ With escape, the app goes back to the play list.''',
 class _ChordHighlightPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    const overlap = 3;
 
     //  clear the layer
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
@@ -2138,8 +2138,8 @@ class _ChordHighlightPainter extends CustomPainter {
     if (_isPlaying && _songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
       int index = _selectedSongMoment!.momentNumber;
       final rect = _songMomentChordRectangles[index];
-      final outlineRect =
-          Rect.fromLTWH(rect.left - overlap, rect.top - overlap, rect.width + 2 * overlap, rect.height + 2 * overlap);
+      final outlineRect = Rect.fromLTWH(rect.left - defaultTableGap, rect.top - defaultTableGap,
+          rect.width + 2 * defaultTableGap, rect.height + 2 * defaultTableGap);
       canvas.drawRect(outlineRect, highlightColor);
       // if (index < _songMomentChordRectangles.length - 1) {
       //   final nextRect = _songMomentChordRectangles[index + 1];
@@ -2154,13 +2154,13 @@ class _ChordHighlightPainter extends CustomPainter {
       canvas.drawRect(
           Rect.fromLTWH(
               0,
-              rect.top + overlap,
-              _songMomentChordRectangles[0].left + overlap, //  used as a width
+              rect.top + defaultTableGap,
+              _songMomentChordRectangles[0].left + defaultTableGap, //  used as a width
               rect.height *
                       (_selectedSongMoment!.repeatMax == 0
                           ? 1.0
                           : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax) -
-                  2 * overlap),
+                  2 * defaultTableGap),
           highlightColor);
     }
   }

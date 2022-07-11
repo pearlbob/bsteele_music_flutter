@@ -48,6 +48,8 @@ NameValue get myGoodSongNameValue => NameValue(userName, 'good');
 
 NameValue get myBadSongNameValue => NameValue(userName, 'bad');
 
+const defaultTableGap = 3;
+
 /// workaround for rootBundle.loadString() failures in flutter test
 Future<String> loadString(String assetPath) async {
   //return rootBundle.loadString(assetPath, cache: false);
@@ -549,7 +551,7 @@ class AppWidgetHelper {
     );
   }
 
-  Widget transpose(final Measure measure, final music_key.Key key, final int halfSteps,
+  RichText transpose(final Measure measure, final music_key.Key key, final int halfSteps,
       {required final TextStyle style}) {
     TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize).copyWith(
       // fontFamily: 'Roboto', //  fixme
@@ -561,6 +563,7 @@ class AppWidgetHelper {
       backgroundColor: style.backgroundColor,
     );
 
+    TextSpan textSpan;
     if (measure.chords.isNotEmpty) {
       final List<TextSpan> children = [];
       for (final Chord chord in measure.chords) {
@@ -599,41 +602,41 @@ class AppWidgetHelper {
         }
       }
 
-      return RichText(
-        text: TextSpan(children: children),
-        //  don't allow the rich text to wrap:
-        textWidthBasis: TextWidthBasis.longestLine,
-        maxLines: 1,
-        overflow: TextOverflow.clip,
-        softWrap: false,
-        textDirection: TextDirection.ltr,
-        textScaleFactor: 1.0,
-        textAlign: TextAlign.start,
-        textHeightBehavior: const TextHeightBehavior(),
+      textSpan = TextSpan(children: children);
+    } else {
+      //  no chord measures such as repeats, repeat markers and comments
+      textSpan = TextSpan(
+        text: measure.toString(),
+        style: style,
       );
     }
 
-    //  no chord measures such as repeats, repeat markers and comments
-    return _text(
-      measure.toString(),
-      style,
-    );
-  }
-
-  Widget chordSection(final ChordSection chordSection, {required final TextStyle style}) {
-    return _text(
-      chordSection.sectionVersion.toString(),
-      style,
-    );
-  }
-
-  Widget _text(final String text, final TextStyle style) {
-    return Text(
-      text,
-      style: style,
-      softWrap: false,
+    return RichText(
+      text: textSpan,
+      //  don't allow the rich text to wrap:
+      textWidthBasis: TextWidthBasis.longestLine,
       maxLines: 1,
       overflow: TextOverflow.clip,
+      softWrap: false,
+      textDirection: TextDirection.ltr,
+      textScaleFactor: 1.0,
+      textAlign: TextAlign.start,
+      textHeightBehavior: const TextHeightBehavior(),
+    );
+  }
+
+  RichText chordSection(final ChordSection chordSection, {required final TextStyle style}) {
+    return RichText(
+      text: TextSpan(text: chordSection.sectionVersion.toString(), style: style),
+      //  don't allow the rich text to wrap:
+      textWidthBasis: TextWidthBasis.longestLine,
+      maxLines: 1,
+      overflow: TextOverflow.clip,
+      softWrap: false,
+      textDirection: TextDirection.ltr,
+      textScaleFactor: 1.0,
+      textAlign: TextAlign.start,
+      textHeightBehavior: const TextHeightBehavior(),
     );
   }
 

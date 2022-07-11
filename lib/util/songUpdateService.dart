@@ -13,7 +13,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
 
-const Level _log = Level.verbose;
+const Level _log = Level.debug;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
@@ -51,6 +51,7 @@ class SongUpdateService extends ChangeNotifier {
 
       if (_host.isEmpty) {
         // do nothing
+        logger.log(_log, 'webSocket: empty host');
       } else {
         //  assume that the authority is good, or at least worth trying
         var url = 'ws://$_host$_port/bsteeleMusicApp/bsteeleMusic';
@@ -66,7 +67,6 @@ class SongUpdateService extends ChangeNotifier {
             await InternetAddress.lookup(uri.host, type: InternetAddressType.IPv4).then((value) async {
               for (var element in value) {
                 _ipAddress = element.address; //  just the first one will do
-
                 break;
               }
             });
@@ -86,10 +86,10 @@ class SongUpdateService extends ChangeNotifier {
               _songUpdateCount++;
             }
           }, onError: (Object error) {
-            logger.log(_log, 'webSocketChannel error: $error at $_host'); //  fixme: retry later
+            logger.log(_log, 'webSocketChannel error: $error at $uri'); //  fixme: retry later
             _closeWebSocketChannel();
           }, onDone: () {
-            logger.log(_log, 'webSocketChannel onDone: at $_host');
+            logger.log(_log, 'webSocketChannel onDone: at $uri');
             _closeWebSocketChannel();
           });
 
@@ -117,7 +117,8 @@ class SongUpdateService extends ChangeNotifier {
               notifyListeners();
               break;
             }
-            if (_idleCount == 0) {
+            if (isConnected != _wasConnected) {
+              _wasConnected = isConnected;
               //  notify on first idle cycle
               notifyListeners();
             }
@@ -172,6 +173,7 @@ class SongUpdateService extends ChangeNotifier {
       _webSocketChannel?.sink.close(web_socket_status.normalClosure);
       _webSocketChannel = null;
       _idleCount = 0;
+      _wasConnected = false;
       await _subscription?.cancel();
       _subscription = null;
       //fixme: make sticky across retries:   _isLeader = false;
@@ -192,8 +194,10 @@ class SongUpdateService extends ChangeNotifier {
   bool get _isOpen => _webSocketChannel != null;
 
   bool get isConnected =>
-      _isOpen && _idleCount > 0 //  fixme: needs connection confirmation from server without a song update
+      _isOpen && _idleCount > 1 //  fixme: needs connection confirmation from server without a song update
       ;
+
+  bool _wasConnected = false;
 
   bool get isIdle => host.isEmpty;
 

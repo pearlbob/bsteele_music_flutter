@@ -28,6 +28,10 @@ const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLayout = Level.debug;
 
+const double _paddingSizeMax = 8;
+double _paddingSize = _paddingSizeMax;
+EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
+
 /// compute a lyrics table
 class LyricsTable {
   Widget lyricsTable(
@@ -43,6 +47,7 @@ class LyricsTable {
     displayMusicKey = musicKey ?? song.key;
     _chordFontSize = chordFontSize;
     final Grid<Size> textSizeGrid = Grid<Size>();
+    locationGrid = Grid();
 
     _computeScreenSizes();
 
@@ -64,7 +69,7 @@ class LyricsTable {
 
     if (showLyrics) {
       //  build the table from the song lyrics and chords
-      List<TableRow> rows = [];
+      List<Row> rows = [];
       List<Widget> children = []; //  items for the current row
       {
         Grid<MeasureNode> grid = song.toGrid(expanded: expanded);
@@ -96,7 +101,8 @@ class LyricsTable {
                 if (showLyrics) {
                   var lyric = measureNode as Lyric;
 
-                  if (lyric.line.isEmpty) {} else if (showFullLyrics) {
+                  if (lyric.line.isEmpty) {
+                  } else if (showFullLyrics) {
                     richText = RichText(text: TextSpan(text: lyric.line, style: _coloredBackgroundLyricsTextStyle));
                   } else {
                     //  short lyrics
@@ -143,18 +149,20 @@ class LyricsTable {
               logger.log(_logLayout, '($r,$c): "${richText.text.toPlainText()}": ${textPainter.size}');
               textSizeGrid.set(r, c, textPainter.size);
 
-              children.add(_box(richText));
+              children.add(SongCell(richText, null));
             } else {
               textSizeGrid.set(r, c, null);
               children.add(NullWidget());
             }
           }
-          rows.add(TableRow(children: children));
+          rows.add(Row(children: children));
         }
       }
 
       logger.log(_logFontSizeDetail, textSizeGrid.toMultiLineString());
 
+      //  compute the location grid
+      //  start with row heights and column widths
       var columnWidths = <double>[];
       final rowHeights = List<double>.filled(textSizeGrid.getRowCount(), 0);
       if (rows.isNotEmpty) {
@@ -169,7 +177,9 @@ class LyricsTable {
             assert(false); //  shouldn't happen
             continue; //  for release version
           }
-          assert(row.length == rowLength);
+          assert(row.length == rowLength); //  all rows should be of the same length
+
+          //  find the minimum width and height for each column and row
           double chordWidth = 0;
           double lyricsWidth = 0;
           double rowHeight = 0;
@@ -196,7 +206,7 @@ class LyricsTable {
                 break;
             }
             columnWidths[c] = max(columnWidths[c], width);
-            rowHeight = max(rowHeight, size.height);
+            rowHeight = max(rowHeight, size.height + 2 * defaultTableGap);
           }
 
           rowHeights[r] = rowHeight;
@@ -208,6 +218,21 @@ class LyricsTable {
         logger.log(_logFontSize, 'maxChordWidth: $maxChordWidth, maxLyricsWidth: $maxLyricsWidth,');
         logger.log(_logFontSize, 'columWidths: $columnWidths');
         logger.log(_logFontSize, 'rowHeights: $rowHeights');
+
+        //  fill the location grid
+        {
+          double y = 0;
+          for (var r = 0; r < rowHeights.length; r++) {
+            double x = 0;
+            for (var c = 0; c < columnWidths.length; c++) {
+              Rect rect = Rect.fromLTWH(x, y, columnWidths[c], rowHeights[r]);
+              locationGrid.set(r, c, rect);
+              logger.log(_logFontSizeDetail, 'rect($r,$c): $rect');
+              x += columnWidths[c] + defaultTableGap;
+            }
+            y += rowHeights[r] + defaultTableGap + 10.75; //  fixme: why this?
+          }
+        }
       }
 
       if (rows.isEmpty) {
@@ -224,14 +249,8 @@ class LyricsTable {
           logger.log(_logFontSizeDetail, '$c: ${tableColumnWidths[c]}');
         }
 
-        _table = Table(
-          key: GlobalKey(),
-          // defaultColumnWidth: const IntrinsicColumnWidth(),
-          columnWidths: tableColumnWidths,
-          //  covers all
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        _table = Column(
           children: rows,
-          border: TableBorder.symmetric(),
         );
       }
 
@@ -239,7 +258,7 @@ class LyricsTable {
           ' default:$appDefaultFontSize  => _chordFontSize: ${_chordFontSize?.toStringAsFixed(1)}'
           ', _lyricsFontSize: ${_lyricsFontSize.toStringAsFixed(1)}');
 
-      return _table;
+      return Column(key: GlobalKey(), children: <Widget>[_table]);
     } else {
       //  don't show any lyrics, i.e. pro player
 
@@ -311,7 +330,7 @@ class LyricsTable {
                 );
 
           chordRow.add(
-            _box(richText),
+            SongCell(richText, null),
           );
         }
         while (chordRow.length < maxCols) {
@@ -339,15 +358,6 @@ class LyricsTable {
     }
   }
 
-  Container _box(RichText richText) {
-    return Container(
-      margin: getMeasureMargin(),
-      padding: _padding,
-      color: _sectionBackgroundColor,
-      child: richText,
-    );
-  }
-
   void _colorBySectionVersion(SectionVersion sectionVersion) {
     _sectionBackgroundColor = getBackgroundColorForSectionVersion(sectionVersion);
     _coloredChordTextStyle = _chordTextStyle.copyWith(
@@ -365,7 +375,8 @@ class LyricsTable {
 
     const screenFraction = 1.0 / 200;
     _chordFontSize ??= appDefaultFontSize * min(8, max(1, _screenWidth * usableRatio * screenFraction));
-    double paddingSize = Util.doubleLimit(_chordFontSize! / 10, 0.5, 8);
+    _paddingSize = Util.doubleLimit(_chordFontSize! / 10, 6, 18);
+    _padding = EdgeInsets.all(_paddingSize);
     logger.log(
         _logFontSize,
         '_computeScreenSizes(): _chordFontSize: ${_chordFontSize?.toStringAsFixed(2)}'
@@ -397,9 +408,8 @@ class LyricsTable {
 
   double? get chordFontSize => _chordFontSize;
   double? _chordFontSize;
-  static const double _paddingSizeMax = 8;
-  double _paddingSize = _paddingSizeMax;
-  EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
+
+  Grid<Rect> locationGrid = Grid();
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();
@@ -415,12 +425,53 @@ class LyricsTable {
   List<GridCoordinate> get songMomentToGridList => _songMomentToGridList;
   List<GridCoordinate> _songMomentToGridList = [];
 
-  Table get table => _table;
-  Table _table = Table();
+  Widget get table => _table;
+  Widget _table = const Text('empty');
 
   late AppWidgetHelper appWidgetHelper;
 
   music_key.Key displayMusicKey = music_key.Key.C;
   final AppOptions _appOptions = AppOptions();
   final RegExp verticalBarAndSpacesRegExp = RegExp(r'\s*\|\s*');
+}
+
+class SongCell extends StatefulWidget {
+  const SongCell(this.richText, this.songMoment, {super.key});
+
+  SongCell.text(String text, this.songMoment, {required TextStyle style, super.key})
+      : richText = RichText(text: TextSpan(text: text, style: style));
+
+  final RichText richText;
+  final SongMoment? songMoment;
+
+  @override
+  SongCellState createState() => SongCellState();
+}
+
+class SongCellState extends State<SongCell> {
+  @override
+  initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var size = _computeSize();
+    return Container(
+      width: size.width + 2 * _paddingSizeMax,
+      height: size.height + 2 * _paddingSizeMax,
+      margin: _defaultTableEdgeInsets,
+      padding: _padding,
+      color: widget.richText.text.style?.backgroundColor ?? Colors.white,
+      child: widget.richText,
+    );
+  }
+
+  Size _computeSize() {
+    TextPainter textPainter = TextPainter(text: widget.richText.text, textDirection: TextDirection.ltr)
+      ..layout(minWidth: 0, maxWidth: double.infinity);
+    return textPainter.size;
+  }
+
+  static const _defaultTableEdgeInsets = EdgeInsets.all(defaultTableGap);
 }

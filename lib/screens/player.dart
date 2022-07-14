@@ -52,8 +52,9 @@ SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 PlayerState? _player;
 bool _isPlaying = false;
+final LyricsTable _lyricsTable = LyricsTable();
 
-bool _isCapo = false; //  for persistance across player invocations
+bool _isCapo = false; //  package level for persistence across player invocations
 
 DrumParts _drumParts = DrumParts(); //  temp
 
@@ -76,6 +77,7 @@ const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 const Level _playerLogChordDisplayLocations = Level.debug;
 const Level _playerLogSongMaster = Level.debug;
+const Level _logLocationGrid = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -780,9 +782,10 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                   onTapDown: (details) {
                     if (!_isPlaying && appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
                       //  don't respond above the player song table     fixme: this is likely not the best
-                      RenderTable renderTable =
-                          (_table?.key as GlobalKey).currentContext?.findRenderObject() as RenderTable;
-                      if (details.globalPosition.dy > renderTable.localToGlobal(Offset.zero).dy) {
+                      RenderFlex renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject()
+                          as RenderFlex; //  fixme: a presumption
+
+                      if (details.globalPosition.dy > renderObject.localToGlobal(Offset.zero).dy) {
                         if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
                           sectionBump(1); //  fixme: when not in play
                         } else {
@@ -1221,6 +1224,19 @@ With escape, the app goes back to the play list.''',
                                 height: app.screenInfo.mediaHeight - boxCenter,
                               ),
                             ]),
+
+                        //  diagnostic for location grid
+                        if (kDebugMode && _logLocationGrid.index >= Level.info.index)
+                          CustomPaint(
+                            painter: _LocationGridDebugPainter(), //  fixme: optimize with builder
+                            isComplex: true,
+                            willChange: false,
+                            child: SizedBox(
+                              width: app.screenInfo.mediaWidth,
+                              height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
+                            ),
+                          ),
+
                         if (selectedTargetY > 0 && !_isPlaying)
                           Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                             AppVerticalSpace(space: selectedTargetY - (_chordFontSize ?? app.screenInfo.fontSize) / 2),
@@ -2074,7 +2090,6 @@ With escape, the app goes back to the play list.''',
   Widget? _table;
   double? _chordFontSize;
   double? _lyricsFraction;
-  final LyricsTable _lyricsTable = LyricsTable();
   List<GridCoordinate> _songMomentToGridList = [];
   late final FocusNode _rawKeyboardListenerFocusNode;
   double _lastMediaWidth = 0;
@@ -2129,7 +2144,6 @@ With escape, the app goes back to the play list.''',
 class _ChordHighlightPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-
     //  clear the layer
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
 
@@ -2171,6 +2185,39 @@ class _ChordHighlightPainter extends CustomPainter {
   }
 
   static final highlightColor = Paint()..color = Colors.redAccent;
+}
+
+class _LocationGridDebugPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    //  clear the layer
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
+
+    Offset offset = const Offset(2, 190); //  fixme soon!
+
+    var grid = _lyricsTable.locationGrid;
+    logger.log(_logLocationGrid, '_LocationGridDebugPainter: (${grid.rowLength(0)}, ${grid.getRowCount()}): $grid');
+    for (var r = 0; r < grid.getRowCount(); r++) {
+      var cLen = grid.rowLength(r);
+      for (var c = 0; c < cLen; c++) {
+        var rect = grid.get(r, c);
+        if (rect == null) {
+          continue;
+        }
+        canvas.drawRect(rect.shift(offset).inflate(1), highlightColor);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true; //  fixme optimize?
+  }
+
+// static final highlightColor = Paint()..color = Colors.lightBlueAccent..color.withAlpha( 100)..style = PaintingStyle.stroke;
+  static final highlightColor = Paint()
+    ..color = Colors.yellowAccent //.withAlpha(200)
+    ..style = PaintingStyle.stroke;
 }
 
 class BeatStatefulWidget extends StatefulWidget {

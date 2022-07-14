@@ -48,7 +48,7 @@ NameValue get myGoodSongNameValue => NameValue(userName, 'good');
 
 NameValue get myBadSongNameValue => NameValue(userName, 'bad');
 
-const defaultTableGap = 3;
+const defaultTableGap = 3.0;
 
 /// workaround for rootBundle.loadString() failures in flutter test
 Future<String> loadString(String assetPath) async {
@@ -602,7 +602,7 @@ class AppWidgetHelper {
         }
       }
 
-      textSpan = TextSpan(children: children);
+      textSpan = TextSpan(children: children, style: style);
     } else {
       //  no chord measures such as repeats, repeat markers and comments
       textSpan = TextSpan(

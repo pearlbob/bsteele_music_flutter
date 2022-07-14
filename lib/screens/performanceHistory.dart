@@ -123,7 +123,9 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                           AppWrapFullWidth(children: [
                             const AppSpace(verticalSpace: 40),
                             Text(
-                              performance.lastSungDateString,
+                              DateFormat.yMd()
+                                  .add_EEEE()
+                                  .format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung)),
                               style: _songPerformanceStyle.copyWith(color: appBackgroundColor()),
                             ),
                             Divider(

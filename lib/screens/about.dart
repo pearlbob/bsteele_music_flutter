@@ -49,7 +49,6 @@ class AboutState extends State<About> with WidgetsBindingObserver {
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              textDirection: TextDirection.ltr,
               children: <Widget>[
                 app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
                 const AppSpace(),

@@ -71,7 +71,7 @@ const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
 const Level _playerLogSongMaster = Level.debug;
-const Level _logLocationGrid = Level.debug;
+const Level _logLocationGrid = Level.info;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -207,7 +207,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     Size size = WidgetsBinding.instance.window.physicalSize;
     if (size != lastSize) {
       setState(() {
-         _table = null;
+        _table = null;
         lastSize = size;
       });
     }
@@ -702,7 +702,7 @@ With escape, the app goes back to the play list.''',
                                   // ),
 
                                   AppWrap(children: [
-                                    if (app.isScreenBig)
+                                    if (kDebugMode && app.isScreenBig)
                                       AppWrap(children: [
                                         //  fixme: there should be a better way.  wrap with flex?
                                         AppTooltip(
@@ -739,7 +739,7 @@ With escape, the app goes back to the play list.''',
                                           ),
                                         ),
                                       ]),
-                                    if (app.isScreenBig)
+                                    if (kDebugMode && app.isScreenBig)
                                       AppWrap(children: [
                                         const AppSpace(horizontalSpace: 35),
                                         AppTooltip(
@@ -1973,11 +1973,12 @@ class _ChordHighlightPainter extends CustomPainter {
 
     logger.v('_ChordHighlightPainter.paint: _isPlaying: $_isPlaying');
 
+    var margin = _lyricsTable.marginSize;
     if (_isPlaying && _songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
       int index = _selectedSongMoment!.momentNumber;
       final rect = _songMomentChordRectangles[index];
-      final outlineRect = Rect.fromLTWH(rect.left - defaultTableGap, rect.top - defaultTableGap,
-          rect.width + 2 * defaultTableGap, rect.height + 2 * defaultTableGap);
+      final outlineRect =
+          Rect.fromLTWH(rect.left - margin, rect.top - margin, rect.width + 2 * margin, rect.height + 2 * margin);
       canvas.drawRect(outlineRect, highlightColor);
       // if (index < _songMomentChordRectangles.length - 1) {
       //   final nextRect = _songMomentChordRectangles[index + 1];
@@ -1992,13 +1993,13 @@ class _ChordHighlightPainter extends CustomPainter {
       canvas.drawRect(
           Rect.fromLTWH(
               0,
-              rect.top + defaultTableGap,
-              _songMomentChordRectangles[0].left + defaultTableGap, //  used as a width
+              rect.top + margin,
+              _songMomentChordRectangles[0].left + margin, //  used as a width
               rect.height *
                       (_selectedSongMoment!.repeatMax == 0
                           ? 1.0
                           : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax) -
-                  2 * defaultTableGap),
+                  2 * margin),
           highlightColor);
     }
   }
@@ -2017,7 +2018,7 @@ class _LocationGridDebugPainter extends CustomPainter {
     //  clear the layer
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
 
-    Offset offset = const Offset(defaultTableGap, 187); //  fixme soon!
+    Offset offset = Offset(_lyricsTable.marginSize, 187); //  fixme soon!
 
     var grid = _lyricsTable.locationGrid;
     for (var r = 0; r < grid.getRowCount(); r++) {

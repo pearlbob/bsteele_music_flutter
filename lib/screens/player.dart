@@ -602,14 +602,14 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                   onTapDown: (details) {
                     if (!_isPlaying && appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
                       //  don't respond above the player song table     fixme: this is likely not the best
-                      RenderFlex renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject()
-                          as RenderFlex; //  fixme: a presumption
-
-                      if (details.globalPosition.dy > renderObject.localToGlobal(Offset.zero).dy) {
-                        if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
-                          sectionBump(1); //  fixme: when not in play
-                        } else {
-                          sectionBump(-1); //  fixme: when not in play
+                      RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
+                      if (renderObject is RenderBox) {
+                        if (details.globalPosition.dy > renderObject.localToGlobal(Offset.zero).dy) {
+                          if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
+                            sectionBump(1); //  fixme: when not in play
+                          } else {
+                            sectionBump(-1); //  fixme: when not in play
+                          }
                         }
                       }
                     }

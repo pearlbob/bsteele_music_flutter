@@ -238,17 +238,17 @@ class LyricsTable {
         logger.log(_logFontSizeDetail, 'rowMeasureHeights: $rowMeasureHeights');
 
         //  scale the song to the display
-        double scaleFactor = 1.0;
+        _scaleFactor = 1.0;
         {
           var width = 3 * _marginSize;
           for (var w in columnWidths) {
             width += w + 3 * _marginSize;
           }
           logger.i('column width/display width: $width/$screenWidth  = ${(width / screenWidth).toStringAsFixed(3)}');
-          scaleFactor = Util.doubleLimit(screenWidth / width, 0.10, 1.0);
+          _scaleFactor = Util.doubleLimit(screenWidth / width, 0.10, 1.0);
         }
-        logger.i('scaleFactor: $scaleFactor');
-        _scaleComponents(scaleFactor: scaleFactor);
+        logger.i('scaleFactor: $_scaleFactor');
+        _scaleComponents(scaleFactor: _scaleFactor);
 
         //  fill the location grid
         {
@@ -279,14 +279,14 @@ class LyricsTable {
                   r,
                   c,
                   songCell.copyWith(
-                      size: size * scaleFactor,
+                      size: size * _scaleFactor,
                       point: Point<double>(x, y), //  already scaled
-                      columnWidth: columnWidths[c] * scaleFactor, //  for even column widths
-                      scaleFactor: scaleFactor));
-              x += columnWidths[c] * scaleFactor + 3 * _marginSize;
+                      columnWidth: columnWidths[c] * _scaleFactor, //  for even column widths
+                      scaleFactor: _scaleFactor));
+              x += columnWidths[c] * _scaleFactor + 3 * _marginSize;
               logger.v('   x = $x');
             }
-            y += rowHeights[r] * scaleFactor + 2 * _marginSize;
+            y += rowHeights[r] * _scaleFactor + 2 * _marginSize;
           }
         }
       }
@@ -465,7 +465,7 @@ class LyricsTable {
   double get screenHeight => _screenHeight;
   double _screenHeight = 50;
 
-  double get lyricsFontSize => _lyricsFontSize;
+  double get lyricsFontSize => _lyricsFontSize * _scaleFactor;
   double _lyricsFontSize = 18;
 
   double? get chordFontSize => _chordFontSize;
@@ -491,6 +491,7 @@ class LyricsTable {
 
   Widget get table => _table;
   Widget _table = const Text('empty');
+  double _scaleFactor = 1.0;
 
   late AppWidgetHelper appWidgetHelper;
 

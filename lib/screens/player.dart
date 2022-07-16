@@ -3,10 +3,8 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/ninjam.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
@@ -58,8 +56,6 @@ bool _isCapo = false; //  package level for persistence across player invocation
 
 DrumParts _drumParts = DrumParts(); //  temp
 
-GlobalKey _stackKey = GlobalKey();
-
 SongMoment? _selectedSongMoment;
 List<Rect> _songMomentChordRectangles = [];
 
@@ -67,7 +63,6 @@ const int _minimumSpaceBarGapMs = 750; //  milliseconds
 
 //  diagnostic logging enables
 const Level _playerLogBuild = Level.debug;
-const Level _playerLogScreen = Level.debug;
 const Level _playerLogScroll = Level.debug;
 const Level _playerLogMode = Level.debug;
 const Level _playerLogKeyboard = Level.debug;
@@ -75,7 +70,6 @@ const Level _playerLogMusicKey = Level.debug;
 const Level _playerLogLeaderFollower = Level.debug;
 const Level _playerLogFontResize = Level.debug;
 const Level _playerLogBPM = Level.debug;
-const Level _playerLogChordDisplayLocations = Level.debug;
 const Level _playerLogSongMaster = Level.debug;
 const Level _logLocationGrid = Level.debug;
 
@@ -213,7 +207,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     Size size = WidgetsBinding.instance.window.physicalSize;
     if (size != lastSize) {
       setState(() {
-        _chordFontSize = null; //  take a shot at adjusting the display of chords and lyrics
+         _table = null;
         lastSize = size;
       });
     }
@@ -316,170 +310,6 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     }
   }
 
-  /// executes after build
-  void positionAfterBuild() {
-    logger.log(_playerLogFontResize, 'positionAfterBuild(): chordFontSize: ${_chordFontSize!.toStringAsFixed(2)}');
-    return;
-
-    //  workaround for window size updates
-    logger.log(
-        _playerLogScreen,
-        'screenInfo.mediaWidth: ${app.screenInfo.mediaWidth}'
-        ', last: $_lastMediaWidth, at 0: ${sectionLocations.isEmpty ? 'empty' : sectionLocations[0]}'
-        ', table.key: ${_table?.key}');
-
-    if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
-      return; //  dynamic scaling not required
-    }
-
-    if (_table?.key == null) {
-      logger.log(_playerLogScreen, 'table?.key == null');
-      //  let's try again with a new width
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        positionAfterBuild();
-      });
-      setState(() {});
-      return;
-    }
-
-    app.screenInfo.refresh(context);
-    if (_lastMediaWidth != app.screenInfo.mediaWidth) {
-      _lastMediaWidth = app.screenInfo.mediaWidth;
-      logger.log(_playerLogScreen, 'new width');
-
-      //  let's try again with a new width
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        positionAfterBuild();
-      });
-      forceTableRedisplay();
-      return;
-    }
-
-    assert(_chordFontSize != null);
-
-    //  look at the rendered table size, resize if required
-    RenderObject? renderObject = (_table?.key as GlobalKey).currentContext?.findRenderObject();
-    assert(renderObject != null && renderObject is RenderTable);
-    if (renderObject != null && renderObject is RenderTable) {
-      RenderTable renderTable = renderObject;
-      final width = renderTable.size.width;
-
-      //  fixme: singer mode??
-      //  fixme: player mode??
-
-      final targetRatio = appOptions.userDisplayStyle == UserDisplayStyle.player ? .75 : 0.6;
-      final double chordRatio = _globalPaintBounds(renderTable.column(renderTable.columns - 1).first).left / width;
-      final double correction = targetRatio / chordRatio;
-      if (correction < 1.0) {
-        _chordFontSize = _chordFontSize! * correction;
-        logger.log(_playerLogScreen, 'chordFontSize to: $_chordFontSize');
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          positionAfterBuild();
-        });
-        forceTableRedisplay();
-        return;
-      }
-
-      logger.log(
-          _playerLogFontResize,
-          'positionAfterBuild(): renderTable.size.width: $width'
-          ', lyricsTable.chordFontSize: ${_lyricsTable.chordFontSize}'
-          ', chordRatio: ${chordRatio.toStringAsFixed(3)}'
-          ', correction: ${correction.toStringAsFixed(3)}');
-
-      {
-        //  table is now final size
-        logger.log(
-            _playerLogFontResize,
-            'chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
-            ' ${(100 * _chordFontSize! / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw'
-            ', table at: ${renderTable.localToGlobal(Offset.zero)}'
-            ', scroll: ${_scrollController.offset}');
-
-        Offset stackOffset;
-        {
-          RenderObject? renderObject = _stackKey.currentContext?.findRenderObject();
-          assert(renderObject != null);
-          stackOffset = (renderObject as RenderStack).localToGlobal(Offset(0, _scrollController.offset));
-        }
-
-        {
-          _songMomentToGridList = _lyricsTable.songMomentToGridList;
-
-          sectionLocations = [];
-          _songMomentChordRectangles.clear();
-          sectionSongMoments = [];
-
-          LyricSection? lastLyricSection; //  starts as null
-          logger.d('scrollController.offset: ${_scrollController.offset}');
-          for (var songMoment in _song.songMoments) {
-            GridCoordinate coord = _songMomentToGridList[songMoment.momentNumber];
-            var renderBox = renderTable.row(coord.row).elementAt(coord.col + 1);
-
-            var offset = renderBox.localToGlobal(Offset(0, _scrollController.offset)); //  compensate for scroll offset
-            var rect = (offset - stackOffset) & renderBox.size;
-            logger.log(_playerLogChordDisplayLocations, 'dispLoc: ${songMoment.momentNumber}: $rect');
-            _songMomentChordRectangles.add(rect);
-
-            var y = offset.dy;
-
-            if (lastLyricSection == songMoment.lyricSection) {
-              continue; //  not a new lyric section
-            }
-            lastLyricSection = songMoment.lyricSection;
-
-            sectionLocations.add(y);
-            sectionSongMoments.add(songMoment);
-            logger.d(
-                'positionAfterBuild()#2: ${songMoment.momentNumber}: ${songMoment.lyricSection}, ${sectionLocations.last}'
-                // ', ${renderBox.paintBounds}'
-                ', coord: $coord'
-                ', global: ${renderBox.localToGlobal(Offset.zero)}');
-          }
-          setSelectedSongMoment(_selectedSongMoment, force: true);
-
-          //  update to new locations!
-          var sectionLocationAt0 = (sectionLocations.isEmpty ? 0.0 : sectionLocations[0]).roundToDouble();
-          if (_lastSectionLocationAt0 != sectionLocationAt0) {
-            logger.log(_playerLogScreen,
-                '_lastSectionLocationAt0 != _lastSectionLocationAt0: $_lastSectionLocationAt0 vs $sectionLocationAt0');
-            //  outlast any animations from the system!
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              positionAfterBuild();
-            });
-            setState(() {
-              _lastSectionLocationAt0 = sectionLocationAt0;
-            });
-          }
-        }
-      }
-
-      logger.log(
-          _playerLogFontResize,
-          'table width: ${width.toStringAsFixed(1)}'
-          '/${app.screenInfo.mediaWidth.toStringAsFixed(1)}'
-          ', sectionIndex = $sectionIndex'
-          ', lyricsFraction = $_lyricsFraction'
-          // ', chord fontSize: ${lyricsTable.chordTextStyle.fontSize?.toStringAsFixed(1)}'
-          // ', lyrics fontSize: ${lyricsTable.lyricsTextStyle.fontSize?.toStringAsFixed(1)}'
-          // ', _lyricsTable.chordFontSize: ${lyricsTable.chordFontSize?.toStringAsFixed(1)}'
-          ', chordFontSize: ${_chordFontSize?.toStringAsFixed(1)} ='
-          ' ${(100 * (_chordFontSize ?? 0) / app.screenInfo.mediaWidth).toStringAsFixed(1)}vw');
-    } else {
-      //  let's try this again with a new table
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        positionAfterBuild();
-      });
-      logger.log(_playerLogScreen, 'renderObject wrong:');
-    }
-  }
-
-  Rect _globalPaintBounds(final RenderObject renderObject) {
-    final translation = renderObject.getTransformTo(null).getTranslation();
-    final offset = Offset(translation.x, translation.y);
-    return renderObject.paintBounds.shift(offset);
-  }
-
   @override
   Widget build(BuildContext context) {
     _resetIdleTimer();
@@ -509,35 +339,25 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
     final lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
-    logger.log(
-        _playerLogBuild,
-        '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}'
-        ', chordFontSize: ${_chordFontSize?.toStringAsFixed(2)}');
+    logger.log(_playerLogBuild, '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}');
 
     if (_selectedSongMoment == null) {
       //  fixme
       setSelectedSongMoment(_song.songMoments.first);
     }
 
-    if (_table == null || _chordFontSize != _lyricsTable.chordFontSize) {
+    if (_table == null) {
       logger.log(_playerLogBuild, 'table rebuild: selectedSongMoment: $_selectedSongMoment');
 
       _table = _lyricsTable.lyricsTable(
         _song, context,
         musicKey: _displaySongKey,
         expanded: !compressRepeats,
-        chordFontSize: _chordFontSize,
         lyricsFraction: _lyricsFraction ?? (appOptions.userDisplayStyle == UserDisplayStyle.player ? 0.20 : 0.35),
         //  givenSelectedSongMoments: selectedSongMoments
       );
-      _chordFontSize ??= _lyricsTable.chordFontSize;
       sectionLocations.clear(); //  clear any previous song cached data
       _songMomentChordRectangles.clear();
-      logger.d('table clear: index: $sectionIndex');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // executes after build
-        positionAfterBuild();
-      });
     }
 
     final fontSize = _lyricsTable.lyricsFontSize;
@@ -798,7 +618,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                     controller: _scrollController,
                     scrollDirection: Axis.vertical,
                     child: SizedBox(
-                      child: Stack(key: _stackKey = GlobalKey(), children: [
+                      child: Stack(children: [
                         if (appOptions.userDisplayStyle != UserDisplayStyle.proPlayer)
                           CustomPaint(
                             painter: _ChordHighlightPainter(), //  fixme: optimize with builder
@@ -809,6 +629,19 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                               height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
                             ),
                           ),
+
+                        //  diagnostic for location grid
+                        if (kDebugMode && _logLocationGrid.index >= Level.info.index)
+                          CustomPaint(
+                            painter: _LocationGridDebugPainter(), //  fixme: optimize with builder
+                            isComplex: true,
+                            willChange: false,
+                            child: SizedBox(
+                              width: app.screenInfo.mediaWidth,
+                              height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
+                            ),
+                          ),
+
                         Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1225,25 +1058,18 @@ With escape, the app goes back to the play list.''',
                               ),
                             ]),
 
-                        //  diagnostic for location grid
-                        if (kDebugMode && _logLocationGrid.index >= Level.info.index)
-                          CustomPaint(
-                            painter: _LocationGridDebugPainter(), //  fixme: optimize with builder
-                            isComplex: true,
-                            willChange: false,
-                            child: SizedBox(
-                              width: app.screenInfo.mediaWidth,
-                              height: max(app.screenInfo.mediaHeight, 200), // fixme: temp
-                            ),
-                          ),
-
                         if (selectedTargetY > 0 && !_isPlaying)
                           Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                            AppVerticalSpace(space: selectedTargetY - (_chordFontSize ?? app.screenInfo.fontSize) / 2),
+                            AppVerticalSpace(
+                                space: selectedTargetY -
+                                    (
+                                            // _chordFontSize ??
+                                            app.screenInfo.fontSize) /
+                                        2),
                             AppWrap(children: [
                               appIcon(
                                 Icons.play_arrow,
-                                size: _chordFontSize,
+                                size: _lyricsTable.chordFontSize,
                                 color: Colors.redAccent,
                               ),
                             ] //, crossAxisAlignment: WrapCrossAlignment.start
@@ -1693,7 +1519,6 @@ With escape, the app goes back to the play list.''',
   }
 
   void adjustDisplay() {
-    _chordFontSize = null; //  take a shot at adjusting the display of chords and lyrics
     _lyricsFraction = null;
     forceTableRedisplay();
   }
@@ -2088,12 +1913,11 @@ With escape, the app goes back to the play list.''',
   int _lastBumpTimeMs = 0;
 
   Widget? _table;
-  double? _chordFontSize;
+
   double? _lyricsFraction;
-  List<GridCoordinate> _songMomentToGridList = [];
+
   late final FocusNode _rawKeyboardListenerFocusNode;
-  double _lastMediaWidth = 0;
-  double _lastSectionLocationAt0 = 0;
+
   BeatStatefulWidget beatStatefulWidget = const BeatStatefulWidget();
 
   set compressRepeats(bool value) => appOptions.compressRepeats = value;
@@ -2193,18 +2017,17 @@ class _LocationGridDebugPainter extends CustomPainter {
     //  clear the layer
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
 
-    Offset offset = const Offset(2, 190); //  fixme soon!
+    Offset offset = const Offset(defaultTableGap, 187); //  fixme soon!
 
     var grid = _lyricsTable.locationGrid;
-    logger.log(_logLocationGrid, '_LocationGridDebugPainter: (${grid.rowLength(0)}, ${grid.getRowCount()}): $grid');
     for (var r = 0; r < grid.getRowCount(); r++) {
       var cLen = grid.rowLength(r);
       for (var c = 0; c < cLen; c++) {
-        var rect = grid.get(r, c);
-        if (rect == null) {
+        var cell = grid.get(r, c);
+        if (cell == null) {
           continue;
         }
-        canvas.drawRect(rect.shift(offset).inflate(1), highlightColor);
+        canvas.drawRect(cell.rect.shift(offset).inflate(1.0), highlightColor);
       }
     }
   }

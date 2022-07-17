@@ -262,7 +262,7 @@ class LyricsTable {
               Size size;
               switch (songCell.measureNode?.measureNodeType) {
                 case MeasureNodeType.section:
-                  size = songCell._buildSize; //  prior to scaling
+                  size = songCell._buildSize;
                   break;
                 case MeasureNodeType.measure:
                   size = Size(columnWidths[c], rowMeasureHeights[r]);
@@ -445,7 +445,7 @@ class LyricsTable {
   }
 
   _scaleComponents({double scaleFactor = 1.0}) {
-    _paddingSize = Util.doubleLimit(_chordFontSize / 10, 1, _paddingSizeMax) * scaleFactor;
+    _paddingSize = Util.doubleLimit(_chordFontSize / 10, 4 * _paddingSizeMax, 4 * _paddingSizeMax) * scaleFactor;
     _padding = EdgeInsets.all(_paddingSize);
     _marginSize = _marginSizeMax * scaleFactor;
     _margin = EdgeInsets.all(_marginSize);
@@ -532,18 +532,19 @@ class SongCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size buildSize = _computeBuildSize();
     if (width < columnWidth ?? 0) {
       //  put the narrow column width on the left of a container
       //  do the following row element is aligned in the next column
       return Container(
         alignment: Alignment.centerLeft,
         width: columnWidth,
-        height: height,
+        height: buildSize.height,
         color: Colors.transparent,
         margin: _margin,
         child: Container(
-          width: width,
-          height: height,
+          width: buildSize.width,
+          height: buildSize.height,
           padding: _padding,
           color: richText.text.style?.backgroundColor ?? Colors.transparent,
           child: richText,
@@ -551,8 +552,8 @@ class SongCell extends StatelessWidget {
       );
     }
     return Container(
-      width: width,
-      height: height,
+      width: buildSize.width,
+      height: buildSize.height,
       margin: _margin,
       padding: _padding,
       color: richText.text.style?.backgroundColor ?? Colors.transparent,
@@ -565,8 +566,9 @@ class SongCell extends StatelessWidget {
   }
 
   Size _computeTextSize() {
-    TextPainter textPainter = TextPainter(text: richText.text, textDirection: TextDirection.ltr)
-      ..layout(minWidth: 0, maxWidth: double.infinity);
+    TextPainter textPainter =
+        TextPainter(text: richText.text, textDirection: TextDirection.ltr, textScaleFactor: scaleFactor)
+          ..layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter.size;
   }
 

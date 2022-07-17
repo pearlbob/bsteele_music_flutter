@@ -158,8 +158,11 @@ void main() async {
 done:
 
 beta short list:
-key of historical performance not retained after a song base key edit change: fix file format?
-
+figure out the temperamental tomcat server.
+I've restarted my research to put DNS on the pi to ease the configuration. Say "park.local" instead of "192.168.1.205".
+the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
+the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
+and of course i'm working full speed on the player resizing and following... without getting lost.
 
 fix song: Handlebar
 

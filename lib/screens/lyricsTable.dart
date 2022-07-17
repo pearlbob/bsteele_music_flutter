@@ -16,6 +16,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -36,7 +37,7 @@ get it right next time:  repeats in measure column
  */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.info;
+const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLayout = Level.debug;
 
@@ -55,8 +56,7 @@ class LyricsTable {
     BuildContext context, {
     music_key.Key? musicKey,
     expanded = false,
-    List<SongMoment>? givenSelectedSongMoments,
-    double? lyricsFraction,
+    SongMoment? selectedSongMoment,
   }) {
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
@@ -80,6 +80,7 @@ class LyricsTable {
 
     _colorBySectionVersion(SectionVersion.defaultInstance);
 
+    _songMomentNumberToSongCell.clear();
     if (showLyrics) {
       //  build the table from the song lyrics and chords
       locationGrid = Grid();
@@ -240,22 +241,26 @@ class LyricsTable {
 
         //  scale the song to the display
         _scaleFactor = 1.0;
+        double arrowIndicatorWidth = _chordFontSize;
         {
-          var width = 3 * _marginSize;
+          var width = 3 * _marginSize + arrowIndicatorWidth * _scaleFactor;
           for (var w in columnWidths) {
             width += w + 3 * _marginSize;
           }
-          logger.i('column width/display width: $width/$screenWidth  = ${(width / screenWidth).toStringAsFixed(3)}');
+          logger.log(
+              _logFontSizeDetail,
+              'column width/display width: $width/$screenWidth'
+              ' = ${(width / screenWidth).toStringAsFixed(3)}');
           _scaleFactor = Util.doubleLimit(screenWidth / width, 0.10, 1.0);
         }
-        logger.i('scaleFactor: $_scaleFactor');
+        logger.log(_logFontSizeDetail, 'scaleFactor: $_scaleFactor');
         _scaleComponents(scaleFactor: _scaleFactor);
 
         //  fill the location grid
         {
           double y = 0;
           for (var r = 0; r < rowHeights.length; r++) {
-            double x = _marginSize;
+            double x = 2 * _marginSize + arrowIndicatorWidth * _scaleFactor;
             for (var c = 0; c < columnWidths.length; c++) {
               var songCell = locationGrid.get(r, c);
               assert(songCell != null);
@@ -287,7 +292,7 @@ class LyricsTable {
               x += columnWidths[c] * _scaleFactor + 3 * _marginSize;
               logger.v('   x = $x');
             }
-            y += rowHeights[r] * _scaleFactor + 2 * _marginSize;
+            y += rowHeights[r] * _scaleFactor;
           }
         }
       }
@@ -298,9 +303,36 @@ class LyricsTable {
           key: GlobalKey(),
         );
       } else {
-        var rows = <Widget>[];
+        //  generate lookup data
+        _songMomentNumberToSongCell.clear();
+        for (var songMoment in song.songMoments) {
+          assert(songMoment.momentNumber >= 0);
+          assert(songMoment.momentNumber < _songMomentToGridList.length);
+          var gridCoordinate = _songMomentToGridList[songMoment.momentNumber];
+          var cell = locationGrid.get(gridCoordinate.row, gridCoordinate.col);
+          assert(cell != null);
+          _songMomentNumberToSongCell.add(cell ?? _emptySongCell);
+        }
+        assert(song.songMoments.length == _songMomentNumberToSongCell.length);
+        if (kDebugMode) {
+          //   test the mapping
+          for (var songMoment in song.songMoments) {
+            var cell = _songMomentNumberToSongCell[songMoment.momentNumber];
+            assert(cell.measureNode == songMoment.measure);
+            logger.v('songMoment: ${songMoment.momentNumber}: ${cell.point} ${cell.rect}');
+          }
+        }
 
+        //  generate widget rows from grid
+        var arrowWidget = appIcon(
+          Icons.play_arrow,
+          size: _chordFontSize * _scaleFactor,
+          color: Colors.redAccent,
+        );
+        var selectedArrowCell = _songMomentNumberToSongCell[selectedSongMoment?.momentNumber ?? 0];
+        var rows = <Widget>[];
         for (var r = 0; r < locationGrid.getRowCount(); r++) {
+          bool selectThisRow = false;
           var row = locationGrid.getRow(r);
           assert(row != null);
           row = row!;
@@ -311,11 +343,20 @@ class LyricsTable {
             var cell = locationGrid.get(r, c);
             assert(cell != null);
             cellRow.add(cell!);
+            if (selectedArrowCell == cell) {
+              selectThisRow = true;
+            }
           }
           rows.add(AppWrapFullWidth(
             spacing: _marginSize,
             crossAxisAlignment: WrapCrossAlignment.start,
-            children: cellRow,
+            children: [
+              SizedBox(
+                width: _chordFontSize * _scaleFactor,
+                child: selectThisRow ? arrowWidget : null,
+              ),
+              ...cellRow
+            ],
           ));
         }
         _table = Column(children: rows);
@@ -449,7 +490,7 @@ class LyricsTable {
   }
 
   _scaleComponents({double scaleFactor = 1.0}) {
-    _paddingSize = Util.doubleLimit(_chordFontSize / 10, 4 * _paddingSizeMax, 4 * _paddingSizeMax) * scaleFactor;
+    _paddingSize = Util.doubleLimit(_chordFontSize / 10, 2, _paddingSizeMax) * scaleFactor;
     _padding = EdgeInsets.all(_paddingSize);
     _marginSize = _marginSizeMax * scaleFactor;
     _margin = EdgeInsets.all(_marginSize);
@@ -459,6 +500,11 @@ class LyricsTable {
         '_scaleComponents(): _chordFontSize: ${_chordFontSize.toStringAsFixed(2)}'
         ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
+  }
+
+  double songMomentToY(SongMoment songMoment) {
+    assert(songMoment.momentNumber >= 0 && songMoment.momentNumber < _songMomentNumberToSongCell.length);
+    return _songMomentNumberToSongCell[songMoment.momentNumber].point?.y ?? 0;
   }
 
   static final emptyRichText = RichText(text: const TextSpan(text: ''));
@@ -496,6 +542,7 @@ class LyricsTable {
 
   List<GridCoordinate> get songMomentToGridList => _songMomentToGridList;
   List<GridCoordinate> _songMomentToGridList = [];
+  final List<SongCell> _songMomentNumberToSongCell = [];
 
   Widget get table => _table;
   Widget _table = const Text('empty');
@@ -599,3 +646,24 @@ class SongCell extends StatelessWidget {
 }
 
 final _emptySongCell = SongCell(richText: RichText(text: const TextSpan(text: '')));
+
+/*
+
+locationGrid
+Grid<SongCell>
+
+songMomentNumberToSongCell
+List<SongCell>
+  using List<GridCoordinate> _songMomentToGridList and Grid<SongCell> locationGrid
+
+Y to songMoment.number    for loose scrolling
+Map<double,int>
+  inverted songMomentNumberToSongCell
+
+for section bump:
+lyricSection to Y
+	Map<lyricSection,firstSongCell>     or  List[songMoment] by section index
+	    generated from songMomentNumberToSongCell using songMoment.lyricsSection
+Y to lyricSection
+	y to songMoment -> songMoment.lyricSection
+ */

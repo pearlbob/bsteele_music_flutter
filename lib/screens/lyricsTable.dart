@@ -106,7 +106,7 @@ class LyricsTable {
                   _colorBySectionVersion(chordSection.sectionVersion);
                   richText = appWidgetHelper.chordSection(
                     chordSection,
-                    style: _coloredBackgroundLyricsTextStyle,
+                    style: _coloredBackgroundSectionTextStyle,
                   );
                 }
                 break;
@@ -195,7 +195,8 @@ class LyricsTable {
             if (cell == null) {
               continue;
             }
-            double width = cell.width;
+            Size cellSize = cell._computeBuildSize();
+            double width = cellSize.width;
             switch (_appOptions.userDisplayStyle) {
               case UserDisplayStyle.both:
               case UserDisplayStyle.player:
@@ -217,12 +218,12 @@ class LyricsTable {
               case MeasureNodeType.measure:
               case MeasureNodeType.decoration:
               case MeasureNodeType.repeat:
-                rowMeasureHeight = max(rowHeight, cell.height + 2 * _marginSize);
+                rowMeasureHeight = max(rowHeight, cellSize.height + 2 * _marginSize);
                 break;
               default:
                 break;
             }
-            rowHeight = max(rowHeight, cell.height + 2 * _marginSize);
+            rowHeight = max(rowHeight, cellSize.height + 2 * _marginSize);
           }
 
           rowHeights[r] = rowHeight;
@@ -262,13 +263,13 @@ class LyricsTable {
               Size size;
               switch (songCell.measureNode?.measureNodeType) {
                 case MeasureNodeType.section:
-                  size = songCell._buildSize;
+                  size = songCell._computeBuildSize();
                   break;
                 case MeasureNodeType.measure:
                   size = Size(columnWidths[c], rowMeasureHeights[r]);
                   break;
                 case MeasureNodeType.decoration:
-                  size = Size(songCell._buildSize.width, rowMeasureHeights[r]);
+                  size = Size(songCell._computeBuildSize().width, rowMeasureHeights[r]);
                   break;
                 default:
                   size = Size(columnWidths[c], rowHeights[r]);
@@ -425,6 +426,8 @@ class LyricsTable {
       backgroundColor: _sectionBackgroundColor,
     );
     _coloredBackgroundLyricsTextStyle = _lyricsTextStyle.copyWith(backgroundColor: _sectionBackgroundColor);
+    _coloredBackgroundSectionTextStyle =
+        _coloredBackgroundLyricsTextStyle.copyWith(fontSize: _sectionTextStyle.fontSize);
   }
 
   /// compute screen size values used here and on other screens
@@ -441,6 +444,7 @@ class LyricsTable {
 
     //  text styles
     _chordTextStyle = generateChordTextStyle(fontSize: _chordFontSize);
+    _sectionTextStyle = generateChordTextStyle(fontSize: _chordFontSize * 0.75);
     _lyricsTextStyle = generateLyricsTextStyle(fontSize: _lyricsFontSize);
   }
 
@@ -478,12 +482,16 @@ class LyricsTable {
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();
 
+  TextStyle get sectionTextStyle => _sectionTextStyle;
+  TextStyle _sectionTextStyle = generateAppTextStyle();
+
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
 
   Color _sectionBackgroundColor = Colors.white;
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
 
+  TextStyle _coloredBackgroundSectionTextStyle = generateLyricsTextStyle();
   TextStyle _coloredBackgroundLyricsTextStyle = generateLyricsTextStyle();
 
   List<GridCoordinate> get songMomentToGridList => _songMomentToGridList;
@@ -533,7 +541,7 @@ class SongCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size buildSize = _computeBuildSize();
-    if (width < columnWidth ?? 0) {
+    if ((size?.width ?? 0) < (columnWidth ?? 0)) {
       //  put the narrow column width on the left of a container
       //  do the following row element is aligned in the next column
       return Container(
@@ -552,7 +560,7 @@ class SongCell extends StatelessWidget {
       );
     }
     return Container(
-      width: buildSize.width,
+      width: columnWidth ?? buildSize.width,
       height: buildSize.height,
       margin: _margin,
       padding: _padding,
@@ -561,6 +569,7 @@ class SongCell extends StatelessWidget {
     );
   }
 
+  ///  efficiency compromised for const StatelessWidget song cell
   Size _computeBuildSize() {
     return _computeTextSize() + Offset(_paddingSize, _paddingSize) * 2;
   }
@@ -572,16 +581,10 @@ class SongCell extends StatelessWidget {
     return textPainter.size;
   }
 
-  Size get _buildSize => (size ?? _computeBuildSize()); //  efficiency compromised for const StatelessWidget song cell
-
   get rect {
-    return Rect.fromLTWH(point?.x ?? 0.0, point?.y ?? 0.0, _buildSize.width, _buildSize.height);
+    Size buildSize = size ?? _computeBuildSize();
+    return Rect.fromLTWH(point?.x ?? 0.0, point?.y ?? 0.0, buildSize.width, buildSize.height);
   }
-
-  //  efficiency compromised for const song cell
-  get width => _buildSize.width;
-
-  get height => _buildSize.height;
 
   @override
   String toString({DiagnosticLevel? minLevel}) {

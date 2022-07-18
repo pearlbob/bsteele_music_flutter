@@ -351,8 +351,10 @@ class LyricsTable {
             spacing: _marginSize,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: [
-              SizedBox(
+              Container(
                 width: _chordFontSize * _scaleFactor,
+                height: locationGrid.get(r, 0)?.size?.height,
+                alignment: Alignment.centerLeft,
                 child: selectThisRow ? arrowWidget : null,
               ),
               ...cellRow
@@ -504,7 +506,26 @@ class LyricsTable {
 
   double songMomentToY(SongMoment songMoment) {
     assert(songMoment.momentNumber >= 0 && songMoment.momentNumber < _songMomentNumberToSongCell.length);
+    if (songMoment.momentNumber == 0) {
+      return 0; //  lock the scroll to the top on the first item
+    }
     return _songMomentNumberToSongCell[songMoment.momentNumber].point?.y ?? 0;
+  }
+
+  int yToSongMomentNumber(double y) {
+    if (_songMomentNumberToSongCell.isEmpty || y < 0) {
+      return 0;
+    }
+
+    //  use a fancier log2(O) algorithm if performance is an issue
+    for (var i = 0; i < _songMomentNumberToSongCell.length; i++) {
+      var rect = _songMomentNumberToSongCell[i].rect;
+      logger.v('yToSongMomentNumber: $y vs ${rect.bottom}');
+      if (y <= rect.bottom) {
+        return i;
+      }
+    }
+    return 0;
   }
 
   static final emptyRichText = RichText(text: const TextSpan(text: ''));
@@ -628,7 +649,7 @@ class SongCell extends StatelessWidget {
     return textPainter.size;
   }
 
-  get rect {
+  Rect get rect {
     Size buildSize = size ?? _computeBuildSize();
     return Rect.fromLTWH(point?.x ?? 0.0, point?.y ?? 0.0, buildSize.width, buildSize.height);
   }

@@ -9,7 +9,7 @@ foreach f ( DebugProfile.entitlements Release.entitlements )
 	echo $f
 	grep -q $entitlement $f
 	if ( $status != 0 ) then
-		sed -e "s:</dict>:$entitlement</dict>:" $f > tmp_file
+		sed -e "s:</dict>:$entitlement</dict>:" $f > tmp_file	# replace tag end with required entitlements and a new tag end
 		mv tmp_file $f
 		echo "     updated $f"
 	endif

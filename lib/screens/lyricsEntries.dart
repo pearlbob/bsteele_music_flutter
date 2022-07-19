@@ -334,8 +334,6 @@ class _LyricsLine {
       inherit: true,
       color: textStyle?.color,
       backgroundColor: null,
-      fontFamily: textStyle?.fontFamily,
-      fontFamilyFallback: textStyle?.fontFamilyFallback,
       fontSize: textStyle?.fontSize,
       fontWeight: textStyle?.fontWeight,
       fontStyle: textStyle?.fontStyle,

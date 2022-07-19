@@ -1457,9 +1457,7 @@ GestureDetector appGestureDetector(
   );
 }
 
-const String appDefaultFontFamily = 'Roboto';
 const List<String> appFontFamilyFallback = [
-  appDefaultFontFamily,
   'DejaVu', //  deals with "tofu" for flat and sharp symbols
   //'Bravura',  // music symbols are over sized in the vertical
 ];
@@ -1478,7 +1476,6 @@ TextStyle generateAppTextStyle({
   FontWeight? fontWeight,
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
-  String? fontFamily = appDefaultFontFamily,
   TextDecoration? decoration,
   TextDecorationStyle? decorationStyle,
   bool nullBackground = false,
@@ -1493,7 +1490,6 @@ TextStyle generateAppTextStyle({
     fontWeight: fontWeight ?? _fontWeightValue(_universalFontWeightProperty),
     fontStyle: fontStyle ?? _fontStyle(_getPropertyValue(_universalFontStyleProperty)),
     textBaseline: textBaseline,
-    fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration ?? TextDecoration.none,
     decorationStyle: decorationStyle,
@@ -1508,7 +1504,6 @@ TextStyle generateAppTextFieldStyle({
   FontWeight? fontWeight,
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
-  String? fontFamily = appDefaultFontFamily,
   TextDecoration? decoration,
 }) {
   return generateAppTextStyle(
@@ -1517,7 +1512,6 @@ TextStyle generateAppTextFieldStyle({
       fontSize: fontSize,
       fontWeight: fontWeight,
       fontStyle: fontStyle,
-      fontFamily: fontFamily,
       textBaseline: textBaseline,
       decoration: decoration,
       nullBackground: true //  force a null background for mouse text selection

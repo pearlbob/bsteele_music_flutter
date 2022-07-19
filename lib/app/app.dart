@@ -554,7 +554,6 @@ class AppWidgetHelper {
   RichText transpose(final Measure measure, final music_key.Key key, final int halfSteps,
       {required final TextStyle style}) {
     TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize).copyWith(
-      // fontFamily: 'Roboto', //  fixme
       backgroundColor: style.backgroundColor,
     );
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(

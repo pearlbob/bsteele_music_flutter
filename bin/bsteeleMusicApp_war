@@ -109,6 +109,7 @@ jar -uf $war -C build/web .
 #	update the local allSongs to the latest
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
 jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
+jar -uf $war -C ~/github/allSongs.songlyrics allSongPerformances.songperformances
 
 set dst=~/lib/${warName}_$tag.war
 mv $war $dst

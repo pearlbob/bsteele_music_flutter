@@ -465,7 +465,7 @@ class ListsState extends State<Lists> {
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     logger.i('_saveMetadata message: $message');
     setState(() {
-      app.infoMessage('.songmetadata $message');
+      app.infoMessage = '.songmetadata $message';
     });
   }
 
@@ -474,7 +474,7 @@ class ListsState extends State<Lists> {
 
     setState(() {
       if (content.isEmpty) {
-        app.infoMessage('No metadata read');
+        app.infoMessage = 'No metadata read';
       } else {
         SongMetadata.fromJson(content);
         AppOptions().storeSongMetadata();

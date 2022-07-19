@@ -226,7 +226,9 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
   void _scrollControllerListener() {
     _resetIdleTimer();
 
-    logger.i('scrollControllerListener: ${_scrollController.offset}'
+    logger.log(
+        _playerLogScroll,
+        'scrollControllerListener: ${_scrollController.offset}'
         ', number: ${_lyricsTable.yToSongMomentNumber(_scrollController.offset)}'
         '/${_song.songMoments.length}');
     if (songUpdateService.isLeader && !_isAnimated) {
@@ -245,21 +247,6 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
       });
     }
     scrollWasZero = scrollIsZero;
-
-    //  follow the leader
-    logger.i('fixme: _scrollControllerCompletionCallback()');
-    //   double stopAt = max(_lyricsTable.songMomentToY(_song.songMoments.last) , 0);
-    //   if (_scrollController.offset > stopAt) {
-    //     //  cancels any animation
-    //     logger.log(_playerLogScroll, 'scrollController.offset stop at: $stopAt');
-    //     _scrollController.jumpTo(stopAt);
-    //   }
-
-    //  distribute the leader's scroll
-    if (songUpdateService.isLeader && !_isPlaying) {
-      logger.i('leader at: ${_scrollController.offset}'
-          ', momentNumber: ${_lyricsTable.yToSongMomentNumber(_scrollController.offset)}');
-    }
   }
 
   //  update the song update service status
@@ -280,11 +267,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
         setState(() {
           {
             setSelectedSongMoment(songMoment);
-            // _selectedSongMoment = _song.getSongMoment(songMaster.momentNumber!);
-            // setTargetYToSongMoment(_selectedSongMoment);
-            // leaderSongUpdate(songMaster.momentNumber!);
           }
-          //logger.i('songMaster event:  $_selectedSongMoment');
         });
       }
     } else if (_isPlaying != _songMaster.isPlaying) {
@@ -328,13 +311,15 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
     _table = _lyricsTable.lyricsTable(
       _song, context,
-      musicKey: _displaySongKey, expanded: !compressRepeats, selectedSongMoment: _selectedSongMoment,
+      musicKey: _displaySongKey,
+      expanded: !compressRepeats,
+      selectedSongMoment: _isPlaying ? null : _selectedSongMoment,
       //  givenSelectedSongMoments: selectedSongMoments
     );
 
     _selectedSongMoment ??= _song.songMoments.first;
 
-    final fontSize = _lyricsTable.lyricsFontSize;
+    final fontSize = app.screenInfo.fontSize;
     headerTextStyle = headerTextStyle.copyWith(fontSize: fontSize);
 
     final List<DropdownMenuItem<music_key.Key>> keyDropDownMenuList = [];
@@ -460,7 +445,6 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     }
 
     boxCenter = boxCenterHeight();
-    final double boxOffset = boxCenter;
 
     final hoverColor = Colors.blue[700]; //  fixme with css
 
@@ -542,7 +526,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
               children: <Widget>[
                 //  smooth background
                 Positioned(
-                  top: boxCenter - boxOffset,
+                  top: kBottomNavigationBarHeight,
                   child: Container(
                     constraints: BoxConstraints.loose(Size(_lyricsTable.screenWidth, app.screenInfo.mediaHeight)),
                     decoration: BoxDecoration(
@@ -991,6 +975,17 @@ With escape, the app goes back to the play list.''',
                               ]),
                             const AppSpace(),
                             Stack(children: [
+                              if (appOptions.userDisplayStyle != UserDisplayStyle.proPlayer)
+                                CustomPaint(
+                                  painter: _ChordHighlightPainter(), //  fixme: optimize with builder
+                                  isComplex: true,
+                                  willChange: false,
+                                  child: SizedBox(
+                                    width: app.screenInfo.mediaWidth,
+                                    height: max(app.screenInfo.mediaHeight, 200),
+                                  ),
+                                ),
+
                               //  diagnostic for location grid to the table
                               if (kDebugMode && _logLocationGrid.index >= Level.info.index)
                                 CustomPaint(
@@ -1059,7 +1054,9 @@ With escape, the app goes back to the play list.''',
                           if (_isPlaying) {
                             performStop();
                           } else {
-                            _scrollController.jumpTo(0);
+                            setState(() {
+                              setSelectedSongMoment(_song.songMoments.first);
+                            });
                           }
                         },
                         child: AppTooltip(
@@ -1141,15 +1138,19 @@ With escape, the app goes back to the play list.''',
       if (e.isControlPressed) {
         tempoTap();
       } else {
-        if (!_isPlaying) {
-          var nowMs = DateTime.now().millisecondsSinceEpoch;
-          logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
-          if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
-            _lastBumpTimeMs = nowMs;
-            sectionBump(1);
-          }
+        if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+          _scrollController.jumpTo(boxCenter + kBottomNavigationBarHeight); //  rash
         } else {
-          pauseToggle();
+          if (!_isPlaying) {
+            var nowMs = DateTime.now().millisecondsSinceEpoch;
+            logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
+            if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
+              _lastBumpTimeMs = nowMs;
+              sectionBump(1);
+            }
+          } else {
+            pauseToggle();
+          }
         }
       }
       return KeyEventResult.handled;
@@ -1817,7 +1818,7 @@ With escape, the app goes back to the play list.''',
   void _resetIdleTimer() {
     _cancelIdleTimer();
     _idleTimer = Timer(const Duration(minutes: 60), () {
-      logger.i('idleTimer fired');
+      logger.v('idleTimer fired');
       Navigator.of(context).pop();
     });
   }
@@ -1889,36 +1890,34 @@ class _ChordHighlightPainter extends CustomPainter {
 
     logger.v('_ChordHighlightPainter.paint: _isPlaying: $_isPlaying');
 
-    // var margin = _lyricsTable.marginSize;
-    logger.i('fixme: _ChordHighlightPainter()');
-    // if (_isPlaying && _songMomentChordRectangles.isNotEmpty && _selectedSongMoment != null) {
-    //   int index = _selectedSongMoment!.momentNumber;
-    //   final rect = _songMomentChordRectangles[index];
-    //   final outlineRect =
-    //       Rect.fromLTWH(rect.left - margin, rect.top - margin, rect.width + 2 * margin, rect.height + 2 * margin);
-    //   canvas.drawRect(outlineRect, highlightColor);
-    //   // if (index < _songMomentChordRectangles.length - 1) {
-    //   //   final nextRect = _songMomentChordRectangles[index + 1];
-    //   //   if (rect.bottom < nextRect.bottom) {
-    //   //     // we're moving down
-    //   //     //canvas.drawRect(Rect.fromLTRB(0, rect.bottom, rect.left - overlap, nextRect.bottom), highlightColor);
-    //   //     var vertices = ui.Vertices(VertexMode.triangles,
-    //   //         [Offset(0, rect.bottom), Offset(nextRect.left, rect.bottom), Offset(nextRect.left / 2, nextRect.bottom)]);
-    //   //     canvas.drawVertices(vertices, BlendMode.srcOver, highlightColor);
-    //   //   }
-    //   // }
-    //   canvas.drawRect(
-    //       Rect.fromLTWH(
-    //           0,
-    //           rect.top + margin,
-    //           _songMomentChordRectangles[0].left + margin, //  used as a width
-    //           rect.height *
-    //                   (_selectedSongMoment!.repeatMax == 0
-    //                       ? 1.0
-    //                       : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax) -
-    //               2 * margin),
-    //       highlightColor);
-    // }
+    var margin = _lyricsTable.marginSize;
+    if (_isPlaying && _selectedSongMoment != null) {
+      final rect = _lyricsTable.songCellAtSongMoment(_selectedSongMoment!).rect;
+      final outlineRect =
+          Rect.fromLTWH(rect.left - margin, rect.top - margin, rect.width + 4 * margin, rect.height + 2 * margin);
+      canvas.drawRect(outlineRect, highlightColor);
+      // if (index < _songMomentChordRectangles.length - 1) {
+      //   final nextRect = _songMomentChordRectangles[index + 1];
+      //   if (rect.bottom < nextRect.bottom) {
+      //     // we're moving down
+      //     //canvas.drawRect(Rect.fromLTRB(0, rect.bottom, rect.left - overlap, nextRect.bottom), highlightColor);
+      //     var vertices = ui.Vertices(VertexMode.triangles,
+      //         [Offset(0, rect.bottom), Offset(nextRect.left, rect.bottom), Offset(nextRect.left / 2, nextRect.bottom)]);
+      //     canvas.drawVertices(vertices, BlendMode.srcOver, highlightColor);
+      //   }
+      // }
+      canvas.drawRect(
+          Rect.fromLTWH(
+              margin,
+              rect.top + margin,
+              _lyricsTable.chordFontSize + 2 * margin, //  used as a width   fixme
+              rect.height *
+                      (_selectedSongMoment!.repeatMax == 0
+                          ? 1.0
+                          : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax) -
+                  2 * margin),
+          highlightColor);
+    }
   }
 
   @override

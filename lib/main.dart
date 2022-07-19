@@ -112,6 +112,7 @@ import 'util/openLink.dart';
 //  diagnostic logging enables
 const Level _mainLogScroll = Level.debug;
 
+String host = Uri.base.host;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
@@ -146,6 +147,21 @@ void main() async {
   //  read the css theme data prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
+
+  //  use the webserver's host as the websocket server if appropriate
+  if (host.isEmpty //  likely a native app
+          ||
+          host == 'www.bsteele.com' //  websocket will never be provided by the cloud server
+          ||
+          (host == 'localhost' && Uri.base.port != 8080) //  defend against the debugger
+      ) {
+    //  do nothing!
+  } else {
+    //  default to the expected websocket server
+    AppOptions().websocketHost = host; //  auto-magically choose the local websocket server
+    logger.i('auto-magic websocket: $host');
+  }
+
   await AppTheme().init(css: cssFileName!); //  init the singleton
 
   //  run the app
@@ -159,10 +175,13 @@ done:
 
 beta short list:
 figure out the temperamental tomcat server.
+____the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
+____the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
+
 I've restarted my research to put DNS on the pi to ease the configuration. Say "park.local" instead of "192.168.1.205".
-the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
-the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
 and of course i'm working full speed on the player resizing and following... without getting lost.
+follower should stop playing when leader stops play
+pro display scale horizontal for lyric sections and vertical for chords,  remove top data?
 
 fix song: Handlebar
 
@@ -642,14 +661,11 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _readExternalSongList() async {
-    if (appOptions.isInThePark()) {
-      logger.i('internal songList only in the park');
-      _readInternalSongList();
-      return;
-    }
+    var externalHost = host.isEmpty
+        ? 'www.bsteele.com' //  likely a native app with web access
+        : '$host:${Uri.base.port}'; //  port for potential app server
     {
-      const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songlyrics';
-
+      final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songlyrics';
       String allSongsAsString;
       try {
         allSongsAsString = await fetchString(url);
@@ -672,8 +688,7 @@ class MyHomePageState extends State<MyHomePage> {
       }
     }
     {
-      const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongs.songmetadata';
-
+      final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songmetadata';
       String metadataAsString;
       try {
         metadataAsString = await fetchString(url);
@@ -693,8 +708,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
 
     {
-      const String url = 'http://www.bsteele.com/bsteeleMusicApp/allSongPerformances.songperformances';
-
+      final String url = 'http://$externalHost/bsteeleMusicApp/allSongPerformances.songperformances';
       String dataAsString;
       try {
         dataAsString = await fetchString(url);

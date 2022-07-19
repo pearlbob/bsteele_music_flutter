@@ -49,6 +49,26 @@ double _marginSize = _marginSizeMax;
 
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 
+///  The trick of the game: Figure the text size prior to boxing it
+Size _computeTextSize(String text, {TextStyle? style, double textScaleFactor = 1.0}) {
+  return _computeRichTextSize(
+      RichText(
+        text: TextSpan(
+          text: text,
+          style: style,
+        ),
+      ),
+      textScaleFactor: textScaleFactor);
+}
+
+///  The trick of the game: Figure the text size prior to boxing it
+Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
+  TextPainter textPainter =
+      TextPainter(text: richText.text, textDirection: TextDirection.ltr, textScaleFactor: textScaleFactor)
+        ..layout(minWidth: 0, maxWidth: double.infinity);
+  return textPainter.size;
+}
+
 /// compute a lyrics table
 class LyricsTable {
   Widget lyricsTable(
@@ -355,7 +375,7 @@ class LyricsTable {
                 width: _chordFontSize * _scaleFactor,
                 height: locationGrid.get(r, 0)?.size?.height,
                 alignment: Alignment.centerLeft,
-                child: selectThisRow ? arrowWidget : null,
+                child: selectedSongMoment != null && selectThisRow ? arrowWidget : null,
               ),
               ...cellRow
             ],
@@ -372,30 +392,65 @@ class LyricsTable {
           key: GlobalKey(), margin: EdgeInsets.only(left: _marginSize), child: Column(children: <Widget>[_table]));
     } else {
       //  don't show any lyrics, i.e. pro player
+      assert(_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer);
+
+      var chordGrid = song.chordSectionGrid;
+      double proScaleFactor;
+      {
+        //  compute the adaptive font size
+        var height = (1 + chordGrid.getRowCount()) * (_chordFontSize + marginSize);
+        assert(height > 0);
+        proScaleFactor = Util.doubleLimit(0.5 * app.screenInfo.mediaHeight / height, 0.005, 1.0);
+      }
 
       //  list the lyrics sections
+      _chordTextStyle =
+          _chordTextStyle.copyWith(fontSize: (_chordTextStyle.fontSize ?? app.screenInfo.fontSize) * proScaleFactor);
       var sections = <Widget>[];
-      for (var lyricSection in song.lyricSections) {
-        _colorBySectionVersion(lyricSection.sectionVersion);
-        sections.add(
-          Container(
-            padding: const EdgeInsets.all(15.0),
-            margin: const EdgeInsets.all(4.0),
-            color: _coloredChordTextStyle.backgroundColor,
-            child: Text(
-              lyricSection.sectionVersion.toString().replaceAll(
-                    ':',
-                    '',
-                  ),
-              style: _coloredChordTextStyle,
+      {
+        const sectionPaddingSize = 15.0;
+        const sectionMarginSize = 4.0;
+
+        //  size the section width
+        double width = 0.0;
+        for (var lyricSection in song.lyricSections) {
+          _colorBySectionVersion(lyricSection.sectionVersion);
+          width += 2 * sectionMarginSize +
+              2 * sectionPaddingSize +
+              _computeTextSize(lyricSection.sectionVersion.toString().replaceAll(':', ''),
+                      style: _coloredChordTextStyle)
+                  .width;
+        }
+        proScaleFactor *= Util.doubleLimit(app.screenInfo.mediaWidth / width, 0.005, 1.0);
+        proScaleFactor *= 0.97; //  some safety   fixme: limits largest size
+        logger.v('section width: $width/${app.screenInfo.mediaWidth}, scale: $proScaleFactor');
+        _chordTextStyle =
+            _chordTextStyle.copyWith(fontSize: (_chordTextStyle.fontSize ?? app.screenInfo.fontSize) * proScaleFactor);
+
+        //  list the sections
+        final sectionPadding = EdgeInsets.all(sectionPaddingSize * proScaleFactor);
+        final sectionMargin = EdgeInsets.all(sectionMarginSize * proScaleFactor);
+        for (var lyricSection in song.lyricSections) {
+          _colorBySectionVersion(lyricSection.sectionVersion);
+          sections.add(
+            Container(
+              padding: sectionPadding,
+              margin: sectionMargin,
+              color: _coloredChordTextStyle.backgroundColor,
+              child: Text(
+                lyricSection.sectionVersion.toString().replaceAll(
+                      ':',
+                      '',
+                    ),
+                style: _coloredChordTextStyle,
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
 
       //  show the chord table
       List<TableRow> tableRows = [];
-      var chordGrid = song.chordSectionGrid;
       int maxCols = 0;
       for (int r = 0; r < chordGrid.getRowCount(); r++) {
         maxCols = max(maxCols, chordGrid.getRow(r)?.length ?? 0);
@@ -416,28 +471,29 @@ class LyricsTable {
 
           final richText = data.isMeasure
               ? appWidgetHelper.transpose(
-                  data.measure!,
-                  musicKey ?? music_key.Key.C,
-                  transpositionOffset,
-                  style: _coloredChordTextStyle,
-                )
+            data.measure!,
+            musicKey ?? music_key.Key.C,
+            transpositionOffset,
+            style: _coloredChordTextStyle,
+          )
               : RichText(
-                  text: TextSpan(
-                      text: data.transpose(musicKey ?? music_key.Key.C, transpositionOffset),
-                      style: _coloredChordTextStyle),
-                  //  don't allow the rich text to wrap:
-                  textWidthBasis: TextWidthBasis.longestLine,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
-                  textDirection: TextDirection.ltr,
-                  textScaleFactor: 1.0,
-                  textAlign: TextAlign.start,
-                  textHeightBehavior: const TextHeightBehavior(),
-                );
+            text: TextSpan(
+                text: data.transpose(musicKey ?? music_key.Key.C, transpositionOffset),
+                style: _coloredChordTextStyle),
+            //  don't allow the rich text to wrap:
+            textWidthBasis: TextWidthBasis.longestLine,
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            softWrap: false,
+            textDirection: TextDirection.ltr,
+            textScaleFactor: 1.0,
+            textAlign: TextAlign.start,
+            textHeightBehavior: const TextHeightBehavior(),
+          );
 
           chordRow.add(SongCell(richText: richText));
         }
+        //  fixme: fontsize doesn't shrink based on total cell width
         while (chordRow.length < maxCols) {
           chordRow.add(_emptySongCell);
         }
@@ -504,7 +560,17 @@ class LyricsTable {
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
   }
 
+  SongCell songCellAtSongMoment(SongMoment songMoment) {
+    if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+      return _emptySongCell;
+    }
+    return _songMomentNumberToSongCell[songMoment.momentNumber];
+  }
+
   double songMomentToY(SongMoment songMoment) {
+    if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+      return 0.0;
+    }
     assert(songMoment.momentNumber >= 0 && songMoment.momentNumber < _songMomentNumberToSongCell.length);
     if (songMoment.momentNumber == 0) {
       return 0; //  lock the scroll to the top on the first item
@@ -539,7 +605,7 @@ class LyricsTable {
   double get lyricsFontSize => _lyricsFontSize * _scaleFactor;
   double _lyricsFontSize = 18;
 
-  double? get chordFontSize => _chordFontSize;
+  double get chordFontSize => _chordFontSize * _scaleFactor;
   double _chordFontSize = appDefaultFontSize;
 
   double get marginSize => _marginSize;
@@ -639,14 +705,7 @@ class SongCell extends StatelessWidget {
 
   ///  efficiency compromised for const StatelessWidget song cell
   Size _computeBuildSize() {
-    return _computeTextSize() + Offset(_paddingSize, _paddingSize) * 2;
-  }
-
-  Size _computeTextSize() {
-    TextPainter textPainter =
-        TextPainter(text: richText.text, textDirection: TextDirection.ltr, textScaleFactor: scaleFactor)
-          ..layout(minWidth: 0, maxWidth: double.infinity);
-    return textPainter.size;
+    return _computeRichTextSize(richText, textScaleFactor: scaleFactor) + Offset(_paddingSize, _paddingSize) * 2;
   }
 
   Rect get rect {

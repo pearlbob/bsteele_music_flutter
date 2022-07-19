@@ -33,7 +33,7 @@ class SongPerformanceDaemon {
         '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}${AllSongPerformances.fileExtension}';
     String message = await UtilWorkaround().writeFileContents(fileName, contents); //  fixme: should be async
     logger.d('saveSingersSongList message: \'$message\'');
-    app.infoMessage(message);
+    app.infoMessage = message;
   }
 
   void _initialize() async {

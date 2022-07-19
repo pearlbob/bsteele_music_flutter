@@ -116,7 +116,7 @@ class SongsState extends State<Songs> {
     UtilWorkaround().writeFileContents(fileName, contents);
 
     setState(() {
-      app.infoMessage('wrote file: $fileName to $fileLocation folder');
+      app.infoMessage = 'wrote file: $fileName to $fileLocation folder';
     });
   }
 

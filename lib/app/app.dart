@@ -110,7 +110,7 @@ class App {
   }
 
   /// Enter an informational message to the user
-  void infoMessage(String message) {
+  set infoMessage(String message) {
     _messageType = MessageType.info;
     _message = message;
   }

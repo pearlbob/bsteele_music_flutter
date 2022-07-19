@@ -1324,10 +1324,10 @@ class SingersState extends State<Singers> {
 
     setState(() {
       if (content.isEmpty) {
-        app.infoMessage('No singer file read');
+        app.infoMessage = 'No singer file read';
       } else {
         int count = _allSongPerformances.updateFromJsonString(content);
-        app.infoMessage('Performances updated: $count');
+        app.infoMessage = 'Performances updated: $count';
         logger.d('filePickUpdate: $count');
         _allSongPerformances.loadSongs(app.allSongs);
         if (count > 0) {

@@ -262,7 +262,7 @@ class EditState extends State<Edit> {
       if (message.toLowerCase().contains('error')) {
         app.errorMessage(message);
       } else {
-        app.infoMessage(message);
+        app.infoMessage = message;
       }
     });
 

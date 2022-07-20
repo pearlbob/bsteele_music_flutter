@@ -681,6 +681,7 @@ enum AppKeyEnum {
   playerBack,
   playerBPM,
   playerCapo,
+  playerCapoLabel,
   playerCompressRepeats,
   playerCompressRepeatsLabel,
   playerCopyNinjamChords,

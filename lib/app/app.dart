@@ -294,11 +294,10 @@ class AppSpaceViewportWidth extends StatelessWidget {
     assert(width > 0);
 
     if (space == null) {
-      assert((horizontalSpace ?? 0) >= 0);
-      assert((verticalSpace ?? 0) >= 0);
+      assert((horizontalSpace ?? 0) >= 0 || (verticalSpace ?? 0) >= 0);
       return SizedBox(
-        height: (verticalSpace ?? 1) / 100 * width,
-        width: (horizontalSpace ?? 1) / 100 * width,
+        height: (verticalSpace ?? 0) / 100 * width,
+        width: (horizontalSpace ?? 0) / 100 * width,
       );
     }
     var fixedSpace = max(space ?? 0, 0);

@@ -309,6 +309,8 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(_playerLogBuild, '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}');
     logger.log(_playerLogBuild, 'table rebuild: selectedSongMoment: $_selectedSongMoment');
 
+    _selectedSongMoment ??= _song.songMoments.first;
+
     _table = _lyricsTable.lyricsTable(
       _song, context,
       musicKey: _displaySongKey,
@@ -316,8 +318,6 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
       selectedSongMoment: _isPlaying ? null : _selectedSongMoment,
       //  givenSelectedSongMoments: selectedSongMoments
     );
-
-    _selectedSongMoment ??= _song.songMoments.first;
 
     final fontSize = app.screenInfo.fontSize;
     headerTextStyle = headerTextStyle.copyWith(fontSize: fontSize);
@@ -526,7 +526,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
               children: <Widget>[
                 //  smooth background
                 Positioned(
-                  top: kBottomNavigationBarHeight,
+                  top: 0,
                   child: Container(
                     constraints: BoxConstraints.loose(Size(_lyricsTable.screenWidth, app.screenInfo.mediaHeight)),
                     decoration: BoxDecoration(
@@ -840,7 +840,8 @@ With escape, the app goes back to the play list.''',
                                   const AppSpace(),
                                   if (displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
                                     Text(
-                                      ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
+                                      ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}'
+                                      '${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
                                       style: headerTextStyle,
                                     ),
                                 ],
@@ -917,7 +918,7 @@ With escape, the app goes back to the play list.''',
                                       ? (songUpdateService.isLeader
                                           ? 'leading ${songUpdateService.host}'
                                           : (songUpdateService.leaderName == AppOptions.unknownUser
-                                              ? 'on ${songUpdateService.host}'
+                                              ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
                                               : 'following ${songUpdateService.leaderName}'))
                                       : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
                                   style: !songUpdateService.isConnected && !songUpdateService.isIdle
@@ -1612,61 +1613,66 @@ With escape, the app goes back to the play list.''',
                               ),
                             ]),
                           ]),
-                      const AppSpaceViewportWidth(),
-                      AppWrapFullWidth(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                        AppWrap(
+                      //  const AppSpaceViewportWidth(),
+                      AppWrapFullWidth(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: viewportWidth(0.5),
                           children: [
-                            AppTooltip(
-                              message: 'For a guitar, show the capo location and\n'
-                                  'chords to match the current key.',
-                              child: Text(
-                                'Capo',
-                                style: boldStyle,
-                                softWrap: false,
-                              ),
-                            ),
-                            appSwitch(
-                              appKeyEnum: AppKeyEnum.playerCapo,
-                              onChanged: (value) {
+                            appTextButton(
+                              'Repeats:',
+                              appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
+                              onPressed: () {
                                 setState(() {
-                                  _isCapo = !_isCapo;
-                                  setSelectedSongKey(_selectedSongKey);
+                                  compressRepeats = !compressRepeats;
                                   forceTableRedisplay();
                                 });
                               },
-                              value: _isCapo,
+                              style: boldStyle,
                             ),
-                          ],
-                        ),
-                        const AppSpaceViewportWidth(space: 1),
-                        appTextButton(
-                          'Repeats:',
-                          appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
-                          onPressed: () {
-                            setState(() {
-                              compressRepeats = !compressRepeats;
-                              forceTableRedisplay();
-                            });
-                          },
-                          style: boldStyle,
-                        ),
-                        AppTooltip(
-                          message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
-                          child: appIconButton(
-                            appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                            icon: appIcon(
-                              compressRepeats ? Icons.expand : Icons.compress,
+                            AppTooltip(
+                              message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
+                              child: appIconButton(
+                                appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                                icon: appIcon(
+                                  compressRepeats ? Icons.expand : Icons.compress,
+                                ),
+                                value: compressRepeats,
+                                onPressed: () {
+                                  setState(() {
+                                    compressRepeats = !compressRepeats;
+                                    forceTableRedisplay();
+                                  });
+                                },
+                              ),
                             ),
-                            value: compressRepeats,
-                            onPressed: () {
-                              setState(() {
-                                compressRepeats = !compressRepeats;
-                                forceTableRedisplay();
-                              });
-                            },
-                          ),
-                        ),
-                      ]),
+                            const AppSpace(),
+                            if (appOptions.userDisplayStyle != UserDisplayStyle.singer)
+                              AppWrap(
+                                alignment: WrapAlignment.start,
+                                children: [
+                                  AppTooltip(
+                                    message: 'For a guitar, show the capo location and\n'
+                                        'chords to match the current key.',
+                                    child: Text(
+                                      'Capo',
+                                      style: boldStyle,
+                                      softWrap: false,
+                                    ),
+                                  ),
+                                  appSwitch(
+                                    appKeyEnum: AppKeyEnum.playerCapo,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _isCapo = !_isCapo;
+                                        setSelectedSongKey(_selectedSongKey);
+                                        forceTableRedisplay();
+                                      });
+                                    },
+                                    value: _isCapo,
+                                  ),
+                                ],
+                              ),
+                          ]),
                       const AppSpace(),
                       if (app.isScreenBig) _drums,
                       const AppSpace(),

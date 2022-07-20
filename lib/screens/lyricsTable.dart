@@ -40,6 +40,7 @@ get it right next time:  repeats in measure column
 const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLayout = Level.debug;
+const Level _logLocationGrid = Level.debug;
 
 const double _paddingSizeMax = 10;
 double _paddingSize = _paddingSizeMax;
@@ -92,8 +93,6 @@ class LyricsTable {
         _appOptions.userDisplayStyle == UserDisplayStyle.proPlayer ||
         _appOptions.userDisplayStyle == UserDisplayStyle.both;
     bool showLyrics = _appOptions.userDisplayStyle != UserDisplayStyle.proPlayer;
-    bool showFullLyrics = _appOptions.userDisplayStyle == UserDisplayStyle.singer ||
-        _appOptions.userDisplayStyle == UserDisplayStyle.both;
 
     //  compute transposition offset from base key
     int transpositionOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
@@ -136,15 +135,9 @@ class LyricsTable {
                   var lyric = measureNode as Lyric;
 
                   if (lyric.line.isEmpty) {
-                  } else if (showFullLyrics) {
-                    richText = RichText(text: TextSpan(text: lyric.line, style: _coloredBackgroundLyricsTextStyle));
                   } else {
-                    //  short lyrics
-                    richText = RichText(
-                      text: TextSpan(text: lyric.line, style: _coloredBackgroundLyricsTextStyle),
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                    );
+                    //  note short lyrics for player only mode will be adjusted once we've computed the required size
+                    richText = RichText(text: TextSpan(text: lyric.line, style: _coloredBackgroundLyricsTextStyle));
                   }
                 }
                 break;
@@ -193,6 +186,7 @@ class LyricsTable {
       final rowMeasureHeights = List<double>.filled(locationGrid.getRowCount(), 0);
       if (locationGrid.getRowCount() > 0) {
         final int rowLength = locationGrid.getRow(0)?.length ?? 1;
+        final lastColumn = rowLength - 1;
         columnWidths = List<double>.filled(rowLength, 0);
         assert(rowLength > 0);
         double maxChordWidth = 0;
@@ -217,6 +211,8 @@ class LyricsTable {
               continue;
             }
             Size cellSize = cell._computeBuildSize();
+
+            //  widths
             double width = cellSize.width;
             switch (_appOptions.userDisplayStyle) {
               case UserDisplayStyle.both:
@@ -235,6 +231,8 @@ class LyricsTable {
                 break;
             }
             columnWidths[c] = max(columnWidths[c], width);
+
+            //  heights
             switch (cell.measureNode?.measureNodeType) {
               case MeasureNodeType.measure:
               case MeasureNodeType.decoration:
@@ -263,22 +261,42 @@ class LyricsTable {
         _scaleFactor = 1.0;
         double arrowIndicatorWidth = _chordFontSize;
         {
-          var width = 3 * _marginSize + arrowIndicatorWidth * _scaleFactor;
-          for (var w in columnWidths) {
-            width += w + 3 * _marginSize;
+          var width = 3 * _marginSize + arrowIndicatorWidth;
+
+          switch (_appOptions.userDisplayStyle) {
+            case UserDisplayStyle.player:
+              //  skip the last column of lyrics in scale calculation
+              for (var c = 0; c < lastColumn; c++) {
+                var w = columnWidths[c];
+                width += w + 3 * _marginSize;
+              }
+              //  aim for most of the screen
+              const chordFraction = 0.75;
+              _scaleFactor = Util.doubleLimit(chordFraction * screenWidth / width, 0.10, 1.0);
+              break;
+            case UserDisplayStyle.both:
+            case UserDisplayStyle.singer: //  section headers count as "chords"
+            case UserDisplayStyle.proPlayer:
+              for (var w in columnWidths) {
+                width += w + 3 * _marginSize;
+              }
+              _scaleFactor = Util.doubleLimit(screenWidth / width, 0.10, 1.0);
+              break;
           }
           logger.log(
               _logFontSizeDetail,
               'column width/display width: $width/$screenWidth'
               ' = ${(width / screenWidth).toStringAsFixed(3)}');
-          _scaleFactor = Util.doubleLimit(screenWidth / width, 0.10, 1.0);
         }
         logger.log(_logFontSizeDetail, 'scaleFactor: $_scaleFactor');
         _scaleComponents(scaleFactor: _scaleFactor);
 
         //  fill the location grid
+        //  and calculate the cell point
         {
           double y = 0;
+          final lastColumn = columnWidths.length - 1;
+          double? scaledLastColumnWidth;
           for (var r = 0; r < rowHeights.length; r++) {
             double x = 2 * _marginSize + arrowIndicatorWidth * _scaleFactor;
             for (var c = 0; c < columnWidths.length; c++) {
@@ -300,15 +318,48 @@ class LyricsTable {
                   size = Size(columnWidths[c], rowHeights[r]);
                   break;
               }
-              logger.v('($r,$c): type: ${songCell.measureNode?.measureNodeType}: ($x,$y): size: $size');
-              locationGrid.set(
-                  r,
-                  c,
-                  songCell.copyWith(
-                      size: size * _scaleFactor,
-                      point: Point<double>(x, y), //  already scaled
-                      columnWidth: columnWidths[c] * _scaleFactor, //  for even column widths
-                      scaleFactor: _scaleFactor));
+
+              logger.log(
+                  _logLocationGrid, '($r,$c): type: ${songCell.measureNode?.measureNodeType}: ($x,$y): size: $size');
+
+              var cell = songCell.copyWith(
+                  size: size * _scaleFactor,
+                  point: Point<double>(x, y), //  already scaled
+                  columnWidth: columnWidths[c] * _scaleFactor, //  for even column widths
+                  scaleFactor: _scaleFactor);
+
+              if (_appOptions.userDisplayStyle == UserDisplayStyle.player &&
+                  c == lastColumn &&
+                  cell.measureNode?.measureNodeType == MeasureNodeType.lyric) {
+                //  fix the last column of lyrics in player only mode
+                //  by resizing the cells
+                scaledLastColumnWidth ??= 0.9 * //  fixme: temp?
+                    min(screenWidth - x - _marginSize, columnWidths[lastColumn]);
+                scaledLastColumnWidth = max(10, scaledLastColumnWidth); //  safety only
+                columnWidths[lastColumn] = scaledLastColumnWidth;
+                //  retroactively apply the width to the lyrics
+                locationGrid.set(
+                    r, c, cell.shortenWithEllipsis(Size(scaledLastColumnWidth, rowMeasureHeights[r] * _scaleFactor)));
+              } else if (_appOptions.userDisplayStyle == UserDisplayStyle.singer &&
+                  c == lastColumn &&
+                  locationGrid.get(r, 0)?.measureNode?.measureNodeType == MeasureNodeType.section) {
+                var sectionCell = locationGrid.get(r, 0)!;
+                ChordSection? chordSection = sectionCell.measureNode as ChordSection;
+                locationGrid.set(
+                    r,
+                    c,
+                    cell.copyWith().shortenWithEllipsis(
+                        Size(columnWidths[lastColumn] * _scaleFactor, app.screenInfo.fontSize + 2 * _paddingSize),
+                        textSpan: TextSpan(
+                            text: chordSection.phrasesToString(),
+                            style: sectionCell.richText.text.style?.copyWith(
+                              color: Colors.black54,
+                              backgroundColor: Colors.grey.shade300,
+                              fontSize: app.screenInfo.fontSize,
+                            ))));
+              } else {
+                locationGrid.set(r, c, cell);
+              }
               x += columnWidths[c] * _scaleFactor + 3 * _marginSize;
               logger.v('   x = $x');
             }
@@ -369,7 +420,9 @@ class LyricsTable {
           }
           rows.add(AppWrapFullWidth(
             spacing: _marginSize,
-            crossAxisAlignment: WrapCrossAlignment.start,
+            crossAxisAlignment: locationGrid.get(r, 0)?.measureNode?.measureNodeType == MeasureNodeType.section
+                ? WrapCrossAlignment.end
+                : WrapCrossAlignment.start,
             children: [
               Container(
                 width: _chordFontSize * _scaleFactor,
@@ -411,7 +464,7 @@ class LyricsTable {
         const sectionPaddingSize = 15.0;
         const sectionMarginSize = 4.0;
 
-        //  size the section width
+        //  size the section widths
         double width = 0.0;
         for (var lyricSection in song.lyricSections) {
           _colorBySectionVersion(lyricSection.sectionVersion);
@@ -471,25 +524,25 @@ class LyricsTable {
 
           final richText = data.isMeasure
               ? appWidgetHelper.transpose(
-            data.measure!,
-            musicKey ?? music_key.Key.C,
-            transpositionOffset,
-            style: _coloredChordTextStyle,
-          )
+                  data.measure!,
+                  musicKey ?? music_key.Key.C,
+                  transpositionOffset,
+                  style: _coloredChordTextStyle,
+                )
               : RichText(
-            text: TextSpan(
-                text: data.transpose(musicKey ?? music_key.Key.C, transpositionOffset),
-                style: _coloredChordTextStyle),
-            //  don't allow the rich text to wrap:
-            textWidthBasis: TextWidthBasis.longestLine,
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            softWrap: false,
-            textDirection: TextDirection.ltr,
-            textScaleFactor: 1.0,
-            textAlign: TextAlign.start,
-            textHeightBehavior: const TextHeightBehavior(),
-          );
+                  text: TextSpan(
+                      text: data.transpose(musicKey ?? music_key.Key.C, transpositionOffset),
+                      style: _coloredChordTextStyle),
+                  //  don't allow the rich text to wrap:
+                  textWidthBasis: TextWidthBasis.longestLine,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                  textDirection: TextDirection.ltr,
+                  textScaleFactor: 1.0,
+                  textAlign: TextAlign.start,
+                  textHeightBehavior: const TextHeightBehavior(),
+                );
 
           chordRow.add(SongCell(richText: richText));
         }
@@ -536,7 +589,7 @@ class LyricsTable {
     _screenHeight = app.screenInfo.mediaHeight;
 
     //  rough in the basic fontsize
-    _chordFontSize = 80; // max for hdmi resolution
+    _chordFontSize = 90; // max for hdmi resolution
 
     _scaleComponents();
     _lyricsFontSize = _chordFontSize * 0.55;
@@ -650,6 +703,7 @@ class SongCell extends StatelessWidget {
       this.size,
       this.point,
       this.columnWidth,
+      this.withEllipsis,
       this.scaleFactor = 1.0});
 
   SongCell copyWith({Size? size, Point<double>? point, double? columnWidth, double scaleFactor = 1.0}) {
@@ -666,11 +720,29 @@ class SongCell extends StatelessWidget {
       point: point,
       columnWidth: columnWidth,
       scaleFactor: scaleFactor,
+      withEllipsis: withEllipsis,
     );
   }
 
-  final RichText richText;
-  final MeasureNode? measureNode;
+  /// convert a lyrics cell to a limited with lyrics cell with an ellipsis if required
+  SongCell shortenWithEllipsis(Size size, {TextSpan? textSpan}) {
+    return SongCell(
+      richText: RichText(
+        text: textSpan ?? richText.text,
+        textScaleFactor: scaleFactor,
+        key: richText.key,
+        softWrap: false,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      measureNode: measureNode,
+      size: size,
+      //  function should be used prior to point location calculated
+      point: point,
+      scaleFactor: scaleFactor,
+      withEllipsis: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -705,7 +777,9 @@ class SongCell extends StatelessWidget {
 
   ///  efficiency compromised for const StatelessWidget song cell
   Size _computeBuildSize() {
-    return _computeRichTextSize(richText, textScaleFactor: scaleFactor) + Offset(_paddingSize, _paddingSize) * 2;
+    return (withEllipsis ?? false)
+        ? size!
+        : _computeRichTextSize(richText, textScaleFactor: scaleFactor) + Offset(_paddingSize, _paddingSize) * 2;
   }
 
   Rect get rect {
@@ -719,6 +793,9 @@ class SongCell extends StatelessWidget {
         ', type: ${measureNode?.measureNodeType}, size: $size, point: $point}';
   }
 
+  final bool? withEllipsis;
+  final RichText richText;
+  final MeasureNode? measureNode;
   final double scaleFactor;
   final Size? size;
   final double? columnWidth;

@@ -177,24 +177,23 @@ beta short list:
 figure out the temperamental tomcat server.
 ____the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
 ____the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
+____and of course i'm working full speed on the player resizing and following... without getting lost.
+____follower should stop playing when leader stops play
+____pro display scale horizontal for lyric sections and vertical for chords,  remove top data?
+
+button to adjust leader/follower when dis-connected
 
 I've restarted my research to put DNS on the pi to ease the configuration. Say "park.local" instead of "192.168.1.205".
-and of course i'm working full speed on the player resizing and following... without getting lost.
-follower should stop playing when leader stops play
-pro display scale horizontal for lyric sections and vertical for chords,  remove top data?
+____leader/follower will not follow scrolling!
 
 fix song: Handlebar
 
-leader/follower will not follow scrolling!
-play tally off space bar: what?Do I have to pay attention?....
+play tally off space bar: what?  Do I have to pay attention?....
 freezing? do you mean always displaying the play button, key and beats per measure? capo is in that category. Bodhi wants to change bpm while in play.
 drum: note: the default volume is zero. did you slide the volume up?i hear it on my system. I'll try the mac to see if it's a permission thing.
 for the moment, the drums only work on 4 beats per measure songs. what?!!! yeah i know.
 song not selected on main list after a file read and return to main list
 insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
-
-look for the flutter widget rebuild tool in intellij idea
-
 
 consistent arrow on leader and follower
 share the "sung by" in the follower update
@@ -204,7 +203,6 @@ drums json
 drums other than 4/4
 standard drum list
 test following after a local scroll
-session history... to the web!
 fun: key guess
 larger font on player only mode
 improve player: Tap to tempo

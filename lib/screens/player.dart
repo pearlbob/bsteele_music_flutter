@@ -64,15 +64,16 @@ SongMoment? _selectedSongMoment;
 const int _minimumSpaceBarGapMs = 750; //  milliseconds
 
 //  diagnostic logging enables
-const Level _playerLogBuild = Level.debug;
-const Level _playerLogScroll = Level.debug;
-const Level _playerLogMode = Level.debug;
-const Level _playerLogKeyboard = Level.debug;
-const Level _playerLogMusicKey = Level.debug;
-const Level _playerLogLeaderFollower = Level.debug;
-const Level _playerLogFontResize = Level.debug;
-const Level _playerLogBPM = Level.debug;
-const Level _playerLogSongMaster = Level.debug;
+const Level _logBuild = Level.debug;
+const Level _logScroll = Level.debug;
+const Level _logScrollControllerListener = Level.debug;
+const Level _logMode = Level.debug;
+const Level _logKeyboard = Level.debug;
+const Level _logMusicKey = Level.debug;
+const Level _logLeaderFollower = Level.debug;
+const Level _logFontResize = Level.debug;
+const Level _logBPM = Level.debug;
+const Level _logSongMaster = Level.debug;
 const Level _logLocationGrid = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
@@ -81,7 +82,7 @@ const Level _logLocationGrid = Level.debug;
 /// Likely the implementation here will require adjustments.
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   logger.log(
-      _playerLogLeaderFollower,
+      _logLeaderFollower,
       'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
       ', pbm: ${songUpdate.currentBeatsPerMinute} vs ${songUpdate.song.beatsPerMinute}');
 
@@ -103,12 +104,12 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
-    logger.log(_playerLogLeaderFollower, 'playerUpdate timer');
+    logger.log(_logLeaderFollower, 'playerUpdate timer');
     _player?.setPlayState();
   });
 
   logger.log(
-      _playerLogLeaderFollower,
+      _logLeaderFollower,
       'playerUpdate(): end:   ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
       ', pbm: $playerSelectedBpm');
 }
@@ -122,7 +123,7 @@ class Player extends StatefulWidget {
     playerSelectedBpm = bpm ?? _song.beatsPerMinute;
     playerSinger = singer;
 
-    logger.log(_playerLogBPM, 'Player(bpm: $playerSelectedBpm)');
+    logger.log(_logBPM, 'Player(bpm: $playerSelectedBpm)');
   }
 
   @override
@@ -165,7 +166,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     _selectedSongMoment = null;
     sectionSongMoments.clear();
 
-    logger.log(_playerLogBPM, 'initState() bpm: $playerSelectedBpm');
+    logger.log(_logBPM, 'initState() bpm: $playerSelectedBpm');
 
     leaderSongUpdate(-1);
 
@@ -227,23 +228,35 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     _resetIdleTimer();
 
     logger.log(
-        _playerLogScroll,
+        _logScrollControllerListener,
         'scrollControllerListener: ${_scrollController.offset}'
         ', number: ${_lyricsTable.yToSongMomentNumber(_scrollController.offset)}'
-        '/${_song.songMoments.length}');
-    if (songUpdateService.isLeader && !_isAnimated) {
-      setSelectedSongMoment(_song.songMoments[_lyricsTable.yToSongMomentNumber(_scrollController.offset)]);
+        '/${_song.songMoments.length}, _isAnimated: $_isAnimated'
+        ', dur: ${_durationSinceScrollEvent()}');
+    if (songUpdateService.isLeader && !_isAnimated && _durationSinceScrollEvent() > scrollDuration) {
+      var songMoment = _song.songMoments[_lyricsTable.yToSongMomentNumber(_scrollController.offset)];
+      logger.log(
+          _logScroll,
+          '_scrollControllerListener: leader: ${songMoment.momentNumber}'
+          ', _isAnimated: $_isAnimated, offset: ${_scrollController.offset}'
+          ', dur: ${_durationSinceScrollEvent()}');
+      setSelectedSongMoment(songMoment);
     }
   }
 
+  Duration _durationSinceScrollEvent() {
+    return Duration(microseconds: DateTime.now().microsecondsSinceEpoch - _lastScrollAnimationTimeUs);
+  }
+
   void _scrollControllerCompletionCallback() {
+    logger.log(_logScroll, 'scrollController animation complete: $_isAnimated, offset: ${_scrollController.offset}');
     _isAnimated = false;
 
     //  worry about when to update the floating button
     bool scrollIsZero = _scrollController.offset == 0; //  no check for has client in a client!... we are the client
     if (scrollWasZero != scrollIsZero) {
       setState(() {
-        logger.log(_playerLogScroll, 'scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
+        logger.log(_logScroll, 'scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
       });
     }
     scrollWasZero = scrollIsZero;
@@ -251,13 +264,13 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
   //  update the song update service status
   void songUpdateServiceListener() {
-    logger.log(_playerLogLeaderFollower, 'songUpdateServiceListener():');
+    logger.log(_logLeaderFollower, 'songUpdateServiceListener():');
     setState(() {});
   }
 
   void songMasterListener() {
     logger.log(
-        _playerLogSongMaster,
+        _logSongMaster,
         'songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}'
         ', moment: ${_songMaster.momentNumber}');
 
@@ -284,8 +297,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
 
-    logger.log(
-        _playerLogBuild, 'player build: $_song, selectedSongMoment: $_selectedSongMoment, isPlaying: $_isPlaying');
+    logger.log(_logBuild, 'player build: $_song, selectedSongMoment: $_selectedSongMoment, isPlaying: $_isPlaying');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -306,8 +318,8 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
     final lyricsTextStyle = _lyricsTable.lyricsTextStyle;
 
-    logger.log(_playerLogBuild, '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}');
-    logger.log(_playerLogBuild, 'table rebuild: selectedSongMoment: $_selectedSongMoment');
+    logger.log(_logBuild, '_lyricsTextStyle.fontSize: ${lyricsTextStyle.fontSize?.toStringAsFixed(2)}');
+    logger.log(_logBuild, 'table rebuild: selectedSongMoment: $_selectedSongMoment');
 
     _selectedSongMoment ??= _song.songMoments.first;
 
@@ -357,7 +369,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
           value = _selectedSongKey;
         }
 
-        //logger.log(_playerLogMusicKey, 'key value: $value');
+        //logger.log(_logMusicKey, 'key value: $value');
 
         int relativeOffset = halfOctave - i;
         String valueString =
@@ -449,10 +461,10 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     final hoverColor = Colors.blue[700]; //  fixme with css
 
     logger.log(
-        _playerLogScroll,
+        _logScroll,
         ' scrollTarget: $scrollTarget, '
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
-    logger.log(_playerLogMode, 'playing: $_isPlaying, pause: $_isPaused');
+    logger.log(_logMode, 'playing: $_isPlaying, pause: $_isPaused');
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
     _isCapo = _isCapo && showCapo; //  can't be capo if you cannot show it
@@ -713,19 +725,20 @@ With escape, the app goes back to the play list.''',
                                       ),
                                     ]),
                                   if (app.isEditReady) const AppSpace(horizontalSpace: 35),
-                                  if (app.isEditReady)
-                                    AppTooltip(
-                                      message: 'Edit the song',
-                                      child: appIconButton(
-                                        appKeyEnum: AppKeyEnum.playerEdit,
-                                        icon: appIcon(
-                                          Icons.edit,
+                                  if (!songUpdateService.isFollowing)
+                                    if (app.isEditReady)
+                                      AppTooltip(
+                                        message: 'Edit the song',
+                                        child: appIconButton(
+                                          appKeyEnum: AppKeyEnum.playerEdit,
+                                          icon: appIcon(
+                                            Icons.edit,
+                                          ),
+                                          onPressed: () {
+                                            navigateToEdit(context, _song);
+                                          },
                                         ),
-                                        onPressed: () {
-                                          navigateToEdit(context, _song);
-                                        },
                                       ),
-                                    ),
                                   const AppSpaceViewportWidth(horizontalSpace: 3.0),
                                   AppTooltip(
                                     message: 'Player settings',
@@ -871,8 +884,7 @@ With escape, the app goes back to the play list.''',
                                             if (value != null) {
                                               setState(() {
                                                 playerSelectedBpm = value;
-                                                logger.log(
-                                                    _playerLogBPM, '_bpmDropDownMenuList: bpm: $playerSelectedBpm');
+                                                logger.log(_logBPM, '_bpmDropDownMenuList: bpm: $playerSelectedBpm');
                                               });
                                             }
                                           },
@@ -892,7 +904,7 @@ With escape, the app goes back to the play list.''',
                                         onPressed: () {
                                           setState(() {
                                             playerSelectedBpm = MusicConstants.maxBpm;
-                                            logger.log(_playerLogBPM, 'speed: bpm: $playerSelectedBpm');
+                                            logger.log(_logBPM, 'speed: bpm: $playerSelectedBpm');
                                           });
                                         },
                                       ),
@@ -1116,7 +1128,7 @@ With escape, the app goes back to the play list.''',
   }
 
   KeyEventResult playerOnKey(FocusNode node, RawKeyEvent value) {
-    logger.log(_playerLogKeyboard, '_playerOnKey(): event: $value');
+    logger.log(_logKeyboard, '_playerOnKey(): event: $value');
 
     if (!_playerIsOnTop) {
       return KeyEventResult.ignored;
@@ -1126,7 +1138,7 @@ With escape, the app goes back to the play list.''',
     }
     RawKeyDownEvent e = value as RawKeyDownEvent;
     logger.log(
-        _playerLogKeyboard,
+        _logKeyboard,
         '_playerOnKey(): ${e.data.logicalKey}'
         ', ctl: ${e.isControlPressed}'
         ', shf: ${e.isShiftPressed}'
@@ -1162,14 +1174,14 @@ With escape, the app goes back to the play list.''',
       return KeyEventResult.handled;
     } else if ((!_isPlaying || _isPaused) &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
-      logger.log(_playerLogKeyboard, 'arrowUp');
+      logger.log(_logKeyboard, 'arrowUp');
       sectionBump(-1);
       return KeyEventResult.handled;
     } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
       if (_isPlaying) {
         performStop();
       } else {
-        logger.log(_playerLogKeyboard, 'player: pop the navigator');
+        logger.log(_logKeyboard, 'player: pop the navigator');
         _songMaster.stop();
         _cancelIdleTimer();
         Navigator.pop(context);
@@ -1195,15 +1207,14 @@ With escape, the app goes back to the play list.''',
       return;
     }
     logger.log(
-        _playerLogScroll,
+        _logScroll,
         'sectionBump(): bump = $bump'
-        ', lyricSection.index: ${_selectedSongMoment!.lyricSection.index}');
+        ', lyricSection.index: ${_selectedSongMoment!.lyricSection.index}, _isAnimated: $_isAnimated');
     scrollToLyricsSectionIndex(_selectedSongMoment!.lyricSection.index + bump);
   }
 
   /// Scroll to the given section
   void scrollToLyricsSectionIndex(int index) {
-    logger.log(_playerLogScroll, 'scrollToLyricsSectionIndex(): index: $index');
     if (sectionSongMoments.isEmpty) {
       //  lazy eval
       LyricSection? lastLyricSection;
@@ -1214,10 +1225,12 @@ With escape, the app goes back to the play list.''',
         }
       }
     }
-    logger.log(
-        _playerLogScroll, 'scrollToLyricsSectionIndex(): sectionSongMoments.length: ${sectionSongMoments.length}');
     index = Util.intLimit(index, 0, sectionSongMoments.length - 1);
     sectionIndex = index;
+    logger.log(
+        _logScroll,
+        'scrollToLyricsSectionIndex(): index: $index'
+        ', momentNumber: ${sectionSongMoments[index].momentNumber}');
     setSelectedSongMoment(sectionSongMoments[index]);
   }
 
@@ -1225,24 +1238,23 @@ With escape, the app goes back to the play list.''',
   bool scrollToTargetY(double targetY) {
     double adjustedTarget = max(0, targetY);
     if (scrollTarget != adjustedTarget) {
-      logger.log(
-          _playerLogScroll, 'scrollToTargetY(): scrollTarget != adjustedTarget, $scrollTarget != $adjustedTarget');
-      // logger.log(_playerLogScroll, '    boxCenter: $boxCenter/${app.screenInfo.mediaHeight}');
+      logger.log(_logScroll, 'scrollToTargetY(): scrollTarget != adjustedTarget, $scrollTarget != $adjustedTarget');
+      // logger.log(_logScroll, '    boxCenter: $boxCenter/${app.screenInfo.mediaHeight}');
       setState(() {
         // selectedTargetY = targetY;
         scrollTarget = adjustedTarget;
         if (_scrollController.hasClients && _scrollController.offset != adjustedTarget) {
-          logger.log(_playerLogScroll, 'scrollToTargetY(): isScrolling to: $scrollTarget');
+          logger.log(_logScroll, 'scrollToTargetY(): isScrolling to: $scrollTarget');
           _isAnimated = true;
+          _lastScrollAnimationTimeUs = DateTime.now().microsecondsSinceEpoch;
           _scrollController.animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.ease).whenComplete(() {
             _scrollControllerCompletionCallback();
-            logger.log(_playerLogScroll, 'scrollController animation complete.`');
           }).onError((error, stackTrace) => _scrollControllerCompletionCallback());
         }
       });
       return true;
     }
-    logger.log(_playerLogScroll, 'scrollToTargetY(): false'
+    logger.log(_logScroll, 'scrollToTargetY(): false'
         // ', $selectedTargetY == $targetY'
         );
     return false;
@@ -1250,7 +1262,7 @@ With escape, the app goes back to the play list.''',
 
   /// send a leader song update to the followers
   void leaderSongUpdate(int momentNumber) {
-    logger.log(_playerLogLeaderFollower, 'leaderSongUpdate($momentNumber):');
+    logger.log(_logLeaderFollower, 'leaderSongUpdate($momentNumber):');
     if (!songUpdateService.isLeader) {
       _lastSongUpdateSent = null;
       return;
@@ -1276,7 +1288,7 @@ With escape, the app goes back to the play list.''',
     update.setState(state);
     songUpdateService.issueSongUpdate(update);
 
-    logger.log(_playerLogLeaderFollower, 'leadSongUpdate: momentNumber: $momentNumber');
+    logger.log(_logLeaderFollower, 'leadSongUpdate: momentNumber: $momentNumber');
   }
 
   IconData get playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
@@ -1287,7 +1299,7 @@ With escape, the app goes back to the play list.''',
       setSelectedSongMoment(_song.songMoments.first);
       sectionBump(0);
       leaderSongUpdate(-1);
-      logger.log(_playerLogMode, 'play:');
+      logger.log(_logMode, 'play:');
       if (!songUpdateService.isFollowing) {
         _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
       }
@@ -1313,7 +1325,7 @@ With escape, the app goes back to the play list.''',
       assert(momentNumber < _song.songMoments.length);
       setSelectedSongMoment(_song.songMoments[momentNumber]);
       logger.log(
-          _playerLogLeaderFollower,
+          _logLeaderFollower,
           'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
           ', moment: ${_songUpdate?.momentNumber}'
           ', scroll: ${_scrollController.offset}');
@@ -1336,19 +1348,19 @@ With escape, the app goes back to the play list.''',
     _isPaused = true;
     // scrollController.jumpTo(0);   //  too rash
     _songMaster.stop();
-    logger.log(_playerLogMode, 'simpleStop()');
-    logger.log(_playerLogScroll, 'simpleStop():');
+    logger.log(_logMode, 'simpleStop()');
+    logger.log(_logScroll, 'simpleStop():');
   }
 
   void pauseToggle() {
-    logger.log(_playerLogMode, '_pauseToggle():  pre: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
+    logger.log(_logMode, '_pauseToggle():  pre: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
     setState(() {
       if (_isPlaying) {
         _isPaused = !_isPaused;
         if (_isPaused) {
           _songMaster.pause();
           _scrollController.jumpTo(_scrollController.offset);
-          logger.log(_playerLogScroll, 'pause():');
+          logger.log(_logScroll, 'pause():');
         } else {
           _songMaster.resume();
         }
@@ -1358,22 +1370,22 @@ With escape, the app goes back to the play list.''',
         _isPaused = false;
       }
     });
-    logger.log(_playerLogMode, '_pauseToggle(): post: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
+    logger.log(_logMode, '_pauseToggle(): post: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
   }
 
   /// Adjust the displayed
   setSelectedSongKey(music_key.Key key) {
-    logger.log(_playerLogMusicKey, 'key: $key');
+    logger.log(_logMusicKey, 'key: $key');
 
     //  add any offset
     music_key.Key newDisplayKey = key.nextKeyByHalfSteps(displayKeyOffset);
-    logger.log(_playerLogMusicKey, 'offsetKey: $newDisplayKey');
+    logger.log(_logMusicKey, 'offsetKey: $newDisplayKey');
 
     //  deal with capo
     if (capoIsAvailable() && _isCapo) {
       _capoLocation = newDisplayKey.capoLocation;
       newDisplayKey = newDisplayKey.capoKey;
-      logger.log(_playerLogMusicKey, 'capo: $newDisplayKey + $_capoLocation');
+      logger.log(_logMusicKey, 'capo: $newDisplayKey + $_capoLocation');
     }
 
     //  don't process unless there was a change
@@ -1383,8 +1395,8 @@ With escape, the app goes back to the play list.''',
     _selectedSongKey = key;
     playerSelectedSongKey = key;
     _displaySongKey = newDisplayKey;
-    logger.log(_playerLogMusicKey,
-        '_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
+    logger.log(
+        _logMusicKey, '_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
 
     forceTableRedisplay();
 
@@ -1420,7 +1432,7 @@ With escape, the app goes back to the play list.''',
   }
 
   void forceTableRedisplay() {
-    logger.log(_playerLogFontResize, '_forceTableRedisplay');
+    logger.log(_logFontResize, '_forceTableRedisplay');
     setState(() {});
   }
 
@@ -1451,9 +1463,13 @@ With escape, the app goes back to the play list.''',
   }
 
   void setSelectedSongMoment(SongMoment? songMoment, {force = false}) {
-    logger.log(_playerLogScroll, 'setSelectedSongMoment(): $songMoment, _selectedSongMoment: $_selectedSongMoment');
-    // logger.log(_playerLogScroll, 'setSelectedSongMoment():  selectedTargetY: $selectedTargetY');
+    logger.log(
+        _logScroll,
+        'setSelectedSongMoment(): ${songMoment?.momentNumber}'
+        ', _selectedSongMoment: ${_selectedSongMoment?.momentNumber}');
+
     if (songMoment == null || (force == false && _selectedSongMoment == songMoment)) {
+      logger.log(_logScroll, 'setSelectedSongMoment(): duplicate rejected: $songMoment');
       return;
     }
     _selectedSongMoment = songMoment;
@@ -1466,11 +1482,11 @@ With escape, the app goes back to the play list.''',
     var y = _lyricsTable.songMomentToY(_selectedSongMoment!);
     scrollToTargetY(y);
     logger.log(
-        _playerLogScroll,
+        _logScroll,
         'scrollToSectionByMoment: ${songMoment.momentNumber}: '
         '$songMoment => section #${songMoment.lyricSection.index} => $y');
 
-    logger.log(_playerLogScroll, 'selectedSongMoment: $_selectedSongMoment');
+    logger.log(_logScroll, 'selectedSongMoment: $_selectedSongMoment');
   }
 
   bool capoIsAvailable() {
@@ -1766,14 +1782,14 @@ With escape, the app goes back to the play list.''',
       if (playerSelectedBpm != bpm) {
         setState(() {
           playerSelectedBpm = bpm;
-          logger.log(_playerLogBPM, 'tempoTap(): bpm: $playerSelectedBpm');
+          logger.log(_logBPM, 'tempoTap(): bpm: $playerSelectedBpm');
         });
       }
     } else {
       //  delta too small or too large
       _tempoRollingAverage = null;
       playerSelectedBpm = null; //  default to song beats per minute
-      logger.log(_playerLogBPM, 'tempoTap(): default: bpm: $playerSelectedBpm');
+      logger.log(_logBPM, 'tempoTap(): default: bpm: $playerSelectedBpm');
     }
   }
 
@@ -1864,6 +1880,9 @@ With escape, the app goes back to the play list.''',
 
   final ScrollController _scrollController = ScrollController();
   bool _isAnimated = false;
+
+  //  used to keep the animation feedback honest:
+  int _lastScrollAnimationTimeUs = 0;
   bool scrollWasZero = true;
   static const scrollDuration = Duration(milliseconds: 850);
 

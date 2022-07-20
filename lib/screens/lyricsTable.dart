@@ -351,7 +351,7 @@ class LyricsTable {
                     cell.copyWith().shortenWithEllipsis(
                         Size(columnWidths[lastColumn] * _scaleFactor, app.screenInfo.fontSize + 2 * _paddingSize),
                         textSpan: TextSpan(
-                            text: chordSection.phrasesToString(),
+                            text: chordSection.phrasesToMarkup(),
                             style: sectionCell.richText.text.style?.copyWith(
                               color: Colors.black54,
                               backgroundColor: Colors.grey.shade300,
@@ -637,14 +637,22 @@ class LyricsTable {
     }
 
     //  use a fancier log2(O) algorithm if performance is an issue
+    double error = double.maxFinite;
+    int? best;
     for (var i = 0; i < _songMomentNumberToSongCell.length; i++) {
       var rect = _songMomentNumberToSongCell[i].rect;
-      logger.v('yToSongMomentNumber: $y vs ${rect.bottom}');
-      if (y <= rect.bottom) {
+      logger.v('yToSongMomentNumber: $i: $y vs ${rect.bottom}, top: ${rect.top}');
+      if (y >= rect.top - rect.height / 2 && y <= rect.top + rect.height / 2) {
+        logger.v('yToSongMomentNumber: found $i: $y vs ${rect.bottom}, top: ${rect.top}, height: ${rect.height}');
         return i;
       }
+      var e = min((y - rect.top).abs(), (y - rect.bottom).abs());
+      if (e < error) {
+        error = e;
+        best = i;
+      }
     }
-    return 0;
+    return best ?? 0;
   }
 
   static final emptyRichText = RichText(text: const TextSpan(text: ''));

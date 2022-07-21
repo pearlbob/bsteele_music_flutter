@@ -44,6 +44,9 @@ class OptionsState extends State<Options> {
     _websocketHostEditingController.text = _appOptions.websocketHost;
 
     _songUpdateService.addListener(_songUpdateServiceCallback);
+
+    appLogMessage('options: service host: ${_songUpdateService.host}'
+        ', _appOptions.websocketHost: ${_appOptions.websocketHost}');
   }
 
   void _songUpdateServiceCallback() {

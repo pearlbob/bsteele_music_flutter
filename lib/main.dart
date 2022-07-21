@@ -149,6 +149,7 @@ void main() async {
   await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
+  appLogMessage('host: "$host", port: ${Uri.base.port}');
   if (host.isEmpty //  likely a native app
           ||
           host == 'www.bsteele.com' //  websocket will never be provided by the cloud server
@@ -156,10 +157,11 @@ void main() async {
           (host == 'localhost' && Uri.base.port != 8080) //  defend against the debugger
       ) {
     //  do nothing!
+    appLogMessage('no websocket: $host:${Uri.base.port}');
   } else {
     //  default to the expected websocket server
     AppOptions().websocketHost = host; //  auto-magically choose the local websocket server
-    logger.i('auto-magic websocket: $host');
+    appLogMessage('auto-magic websocket: $host');
   }
 
   await AppTheme().init(css: cssFileName!); //  init the singleton
@@ -175,6 +177,7 @@ done:
 
 beta short list:
 figure out the temperamental tomcat server.
+escape from player to singers and no more
 ____the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
 ____the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
 ____and of course i'm working full speed on the player resizing and following... without getting lost.
@@ -615,7 +618,9 @@ class MyHomePageState extends State<MyHomePage> {
 
   void _readInternalSongList() async {
     {
-      String songListAsString = await loadString('lib/assets/allSongs.songlyrics');
+      var allSongsAsset = 'lib/assets/allSongs.songlyrics';
+      appLogMessage('InternalSongList: $allSongsAsset');
+      String songListAsString = await loadString(allSongsAsset);
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(songListAsString));
@@ -664,6 +669,7 @@ class MyHomePageState extends State<MyHomePage> {
         : '$host:${Uri.base.port}'; //  port for potential app server
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songlyrics';
+      appLogMessage('ExternalSongList: $url');
       String allSongsAsString;
       try {
         allSongsAsString = await fetchString(url);
@@ -1351,7 +1357,7 @@ class MyHomePageState extends State<MyHomePage> {
                       );
                     }),
                     const AppSpace(space: 50),
-                    appButton('This is exciting! I will test the beta.', appKeyEnum: AppKeyEnum.mainCancelBeta,
+                    appButton('This is exciting! I will test the beta.', appKeyEnum: AppKeyEnum.mainAcceptBeta,
                         onPressed: () {
                       Navigator.of(context).pop();
                     }),

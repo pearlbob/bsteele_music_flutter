@@ -641,7 +641,7 @@ enum AppKeyEnum {
   lyricsEntryLineDelete,
   lyricsEntryLineDown,
   lyricsEntryLineUp,
-  mainCancelBeta,
+  mainAcceptBeta,
   mainClearSearch,
   mainDrawerAbout,
   mainDrawerCssDemo,
@@ -1119,6 +1119,10 @@ List<String> appLog() {
 
 void appLogKeyCallback(ValueKey<String> key) {
   _appLog.add(key.value);
+}
+
+void appLogMessage(String message) {
+  _appLog.add('// $message');
 }
 
 typedef KeyCallback = void Function();

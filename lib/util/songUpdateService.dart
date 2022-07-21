@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/uri_helper.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -158,13 +159,15 @@ class SongUpdateService extends ChangeNotifier {
       host = Uri.base.authority;
       if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
         //  there is never a websocket on the web
-        logger.log(_log, 'webSocketChannel exception: never going to be at: "$_host"');
+        appLogMessage( 'webSocketChannel exception: never going to be at: "$host"');
         //  do nothing
         host = '';
       }
     }
     var uri = extractUri(host);
-    return uri?.host ?? '';
+    host = uri?.host ?? '';
+    appLogMessage( 'webSocket host: "$host"');
+    return host;
   }
 
   void _closeWebSocketChannel() async {

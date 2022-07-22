@@ -57,6 +57,7 @@ class SongUpdateService extends ChangeNotifier {
         //  assume that the authority is good, or at least worth trying
         var url = 'ws://$_host$_port/bsteeleMusicApp/bsteeleMusic';
         logger.log(_log, 'trying: $url');
+        appLogMessage('webSocket try host: "$host"');
 
         try {
           //  or re-try
@@ -89,9 +90,11 @@ class SongUpdateService extends ChangeNotifier {
           }, onError: (Object error) {
             logger.log(_log, 'webSocketChannel error: $error at $uri'); //  fixme: retry later
             _closeWebSocketChannel();
+            appLogMessage('webSocketChannel error: $error at $uri');
           }, onDone: () {
             logger.log(_log, 'webSocketChannel onDone: at $uri');
             _closeWebSocketChannel();
+            appLogMessage('webSocketChannel onDone: at $uri');
           });
 
           if (lastHost != _host) {
@@ -107,6 +110,7 @@ class SongUpdateService extends ChangeNotifier {
 
             if (lastHost != _findTheHost()) {
               logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
+              appLogMessage('webSocketChannel new host: $uri');
               _closeWebSocketChannel();
               _delaySeconds = 0;
               notifyListeners();
@@ -155,18 +159,23 @@ class SongUpdateService extends ChangeNotifier {
     var host = '';
     if (_appOptions.websocketHost.isNotEmpty) {
       host = _appOptions.websocketHost;
+      if (_appOptions.websocketHost == AppOptions.idleHost) {
+        host = ''; //  never a real host
+      }
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       host = Uri.base.authority;
       if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
         //  there is never a websocket on the web
-        appLogMessage( 'webSocketChannel exception: never going to be at: "$host"');
+        appLogMessage('webSocketChannel exception: never going to be at: "$host"');
         //  do nothing
         host = '';
+      } else {
+        //  clean host errors
+        var uri = extractUri(host);
+        host = uri?.host ?? '';
       }
     }
-    var uri = extractUri(host);
-    host = uri?.host ?? '';
-    appLogMessage( 'webSocket host: "$host"');
+
     return host;
   }
 

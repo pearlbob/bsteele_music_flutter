@@ -34,6 +34,9 @@ a thousand miles
 babylon: long lyrics
 dear mr. fantasy:  repeats at end of row don't align with each other
 get it right next time:  repeats in measure column
+
+
+
  */
 
 //  diagnostic logging enables
@@ -144,8 +147,15 @@ class LyricsTable {
               default:
                 if (showChords) {
                   switch (measureNode.runtimeType) {
-                    case MeasureRepeatMarker:
                     case MeasureRepeatExtension:
+                      richText = RichText(
+                          text: TextSpan(
+                        text: measureNode.toString(),
+                        style: _coloredChordTextStyle.copyWith(
+                            fontFamily: 'DejaVu', fontWeight: FontWeight.bold), //  fixme: a font failure workaround
+                      ));
+                      break;
+                    case MeasureRepeatMarker:
                     case Measure:
                       richText = appWidgetHelper.transpose(
                         measureNode as Measure,
@@ -595,9 +605,10 @@ class LyricsTable {
     _lyricsFontSize = _chordFontSize * 0.55;
 
     //  text styles
-    _chordTextStyle = generateChordTextStyle(fontSize: _chordFontSize);
-    _sectionTextStyle = generateChordTextStyle(fontSize: _chordFontSize * 0.75);
-    _lyricsTextStyle = generateLyricsTextStyle(fontSize: _lyricsFontSize);
+    _chordTextStyle =
+        generateChordTextStyle(fontFamily: appFontFamily, fontSize: _chordFontSize, fontWeight: FontWeight.bold);
+    _sectionTextStyle = _chordTextStyle.copyWith(fontSize: _chordFontSize * 0.75);
+    _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSize, fontWeight: FontWeight.normal);
   }
 
   _scaleComponents({double scaleFactor = 1.0}) {

@@ -43,7 +43,8 @@ class CssDemoState extends State<CssDemo> {
           for (var index = 0; index <= 8; index++) {
             var sectionVersion = SectionVersion(Section.get(section), index);
             var color = getBackgroundColorForSectionVersion(sectionVersion);
-            var coloredChordTextStyle = generateChordTextStyle(fontSize: fontSize, backgroundColor: color);
+            var coloredChordTextStyle =
+                generateChordTextStyle(fontSize: fontSize, fontWeight: FontWeight.w500, backgroundColor: color);
             sectionContainers.add(Container(
                 margin: getMeasureMargin(),
                 padding: getMeasurePadding(),

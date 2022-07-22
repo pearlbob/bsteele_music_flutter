@@ -285,6 +285,7 @@ class AppOptions extends ChangeNotifier {
   /// An empty string will indicate the web socket should remain idle.
   String get websocketHost => _websocketHost;
   String _websocketHost = ''; //  initialize idle
+  static String idleHost = 'idleHost';
 
   bool isInThePark() {
     return _websocketHost == parkFixedIpAddress;

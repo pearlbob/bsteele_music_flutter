@@ -102,12 +102,9 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-    - family: Roboto
-      fonts:
-        - asset: fonts/Roboto-Regular.ttf
     - family: DejaVu
       fonts:
-        - asset: fonts/DejaVuSans.ttf
+        - asset: fonts/DejaVuSans.ttf   # a fill in for font failures from above with chorus repeat brackets
     - family: Bravura
       fonts:
         - asset: fonts/Bravura.otf

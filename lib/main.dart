@@ -113,6 +113,7 @@ import 'util/openLink.dart';
 const Level _mainLogScroll = Level.debug;
 
 String host = Uri.base.host;
+bool hostIsWebsocketHost = false;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
@@ -157,10 +158,12 @@ void main() async {
           (host == 'localhost' && Uri.base.port != 8080) //  defend against the debugger
       ) {
     //  do nothing!
+    hostIsWebsocketHost = false;
     appLogMessage('no websocket: $host:${Uri.base.port}');
   } else {
     //  default to the expected websocket server
     AppOptions().websocketHost = host; //  auto-magically choose the local websocket server
+    hostIsWebsocketHost = true;
     appLogMessage('auto-magic websocket: $host');
   }
 
@@ -787,7 +790,7 @@ class MyHomePageState extends State<MyHomePage> {
     final fontSize = searchTextStyle.fontSize ?? 25;
     logger.d('fontSize: $fontSize in ${app.screenInfo.mediaWidth} px');
 
-    artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
+    final artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     //  generate the sort selection

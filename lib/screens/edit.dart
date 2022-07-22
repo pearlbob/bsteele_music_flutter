@@ -3652,7 +3652,6 @@ class EditState extends State<Edit> {
     return AppTooltip(
       key: key,
       message: message,
-      fontSize: chordFontSize,
       child: child,
     );
   }

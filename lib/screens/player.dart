@@ -725,20 +725,19 @@ With escape, the app goes back to the play list.''',
                                       ),
                                     ]),
                                   if (app.isEditReady) const AppSpace(horizontalSpace: 35),
-                                  if (!songUpdateService.isFollowing)
-                                    if (app.isEditReady)
-                                      AppTooltip(
-                                        message: 'Edit the song',
-                                        child: appIconButton(
-                                          appKeyEnum: AppKeyEnum.playerEdit,
-                                          icon: appIcon(
-                                            Icons.edit,
-                                          ),
-                                          onPressed: () {
-                                            navigateToEdit(context, _song);
-                                          },
+                                  if (!_isPlaying && !songUpdateService.isFollowing && app.isEditReady)
+                                    AppTooltip(
+                                      message: 'Edit the song',
+                                      child: appIconButton(
+                                        appKeyEnum: AppKeyEnum.playerEdit,
+                                        icon: appIcon(
+                                          Icons.edit,
                                         ),
+                                        onPressed: () {
+                                          navigateToEdit(context, _song);
+                                        },
                                       ),
+                                    ),
                                   const AppSpaceViewportWidth(horizontalSpace: 3.0),
                                   AppTooltip(
                                     message: 'Player settings',

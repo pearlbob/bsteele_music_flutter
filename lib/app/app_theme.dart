@@ -60,19 +60,6 @@ TextAlign? textAlignParse(String value) {
   return Util.enumFromString(value, TextAlign.values);
 }
 
-FontWeight? _fontWeightValue(CssProperty property) {
-  var value = _getPropertyValue(property);
-  if (value == null) {
-    return null;
-  }
-
-  switch (value.runtimeType) {
-    case String:
-      return _fontWeight(value);
-  }
-  return null;
-}
-
 FontWeight? _fontWeight(String? value) {
   switch (value) {
     case 'normal':
@@ -676,6 +663,7 @@ enum AppKeyEnum {
   optionsWebsocketIP,
   optionsWebsocketNone,
   optionsWebsocketPark,
+  optionsWebsocketThisHost,
   performanceHistoryBack,
   performanceHistoryErrorMessage,
   playerBack,
@@ -1121,8 +1109,13 @@ void appLogKeyCallback(ValueKey<String> key) {
   _appLog.add(key.value);
 }
 
+int _lastMessageEpochUs = DateTime.now().microsecondsSinceEpoch;
+
 void appLogMessage(String message) {
-  _appLog.add('// $message');
+  var t = DateTime.now();
+  var duration = Duration(microseconds: t.microsecondsSinceEpoch - _lastMessageEpochUs);
+  _lastMessageEpochUs = t.microsecondsSinceEpoch;
+  _appLog.add('// $t +$duration: $message');
 }
 
 typedef KeyCallback = void Function();
@@ -1243,7 +1236,7 @@ ElevatedButton appNoteButton(
       child: Text(
         character,
         style: TextStyle(
-          fontFamily: 'Bravura',
+          fontFamily: noteFontFamily,
           fontSize: fontSize,
           height: height ?? 0.5,
         ),
@@ -1462,12 +1455,13 @@ GestureDetector appGestureDetector(
   );
 }
 
+const appFontFamily = 'DejaVu';
+const noteFontFamily = 'Bravura'; // the music symbols are over sized in the vertical!
 const List<String> appFontFamilyFallback = [
-  'DejaVu', //  deals with "tofu" for flat and sharp symbols
-  //'Bravura',  // music symbols are over sized in the vertical
+  appFontFamily,
+  noteFontFamily,
 ];
 
-/// style used to get DejaVu as a fallback family for musical sharps and flats
 /// Creates the app's text style.
 ///
 /// The `package` argument must be non-null if the font family is defined in a
@@ -1477,6 +1471,7 @@ const List<String> appFontFamilyFallback = [
 TextStyle generateAppTextStyle({
   Color? color,
   Color? backgroundColor,
+  String? fontFamily,
   double? fontSize,
   FontWeight? fontWeight,
   FontStyle? fontStyle,
@@ -1492,9 +1487,10 @@ TextStyle generateAppTextStyle({
     //  watch out: backgroundColor interferes with mouse text select on textFields!
     backgroundColor: nullBackground ? null : backgroundColor ?? _getColor(_universalBackgroundColorProperty),
     fontSize: fontSize,
-    fontWeight: fontWeight ?? _fontWeightValue(_universalFontWeightProperty),
+    fontWeight: fontWeight ?? FontWeight.normal,
     fontStyle: fontStyle ?? _fontStyle(_getPropertyValue(_universalFontStyleProperty)),
     textBaseline: textBaseline,
+    fontFamily: fontFamily ?? appFontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration ?? TextDecoration.none,
     decorationStyle: decorationStyle,
@@ -1549,14 +1545,17 @@ TextStyle generateTooltipTextStyle({double? fontSize}) {
   );
 }
 
-TextStyle generateChordTextStyle({double? fontSize, Color? backgroundColor}) {
+TextStyle generateChordTextStyle(
+    {String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
   return generateAppTextStyle(
     color: _getPropertyValue(_chordNoteColorProperty),
     backgroundColor: backgroundColor ??
         _getPropertyValue(_chordNoteBackgroundColorProperty) ??
         _getPropertyValue(_universalBackgroundColorProperty),
+    fontFamily: fontFamily,
     fontSize: fontSize ?? _sizeLookup(_chordNoteFontSizeProperty),
-    fontWeight: _fontWeight(_getPropertyValue(_chordNoteFontWeightProperty)) ??
+    fontWeight: fontWeight ??
+        _fontWeight(_getPropertyValue(_chordNoteFontWeightProperty)) ??
         _fontWeight(_getPropertyValue(_universalFontWeightProperty)),
     fontStyle: _fontStyle(_getPropertyValue(_chordNoteFontStyleProperty)) ??
         _fontStyle(_getPropertyValue(_universalFontStyleProperty)),
@@ -1577,14 +1576,15 @@ TextStyle generateLyricsTextStyle({double? fontSize, Color? backgroundColor}) {
   );
 }
 
-TextStyle generateChordDescriptorTextStyle({double? fontSize}) {
+TextStyle generateChordDescriptorTextStyle({double? fontSize, FontWeight? fontWeight}) {
   return generateAppTextStyle(
     color: _getPropertyValue(_chordDescriptorColorProperty) ?? _getPropertyValue(_universalForegroundColorProperty),
     backgroundColor: _getPropertyValue(_chordDescriptorBackgroundColorProperty) ??
         _getPropertyValue(_chordNoteBackgroundColorProperty) ??
         _getPropertyValue(_universalBackgroundColorProperty),
     fontSize: fontSize ?? _sizeLookup(_chordDescriptorFontSizeProperty) ?? _sizeLookup(_chordNoteFontSizeProperty),
-    fontWeight: _fontWeight(_getPropertyValue(_chordDescriptorFontWeightProperty)) ??
+    fontWeight: fontWeight ??
+        _fontWeight(_getPropertyValue(_chordDescriptorFontWeightProperty)) ??
         _fontWeight(_getPropertyValue(_chordNoteFontWeightProperty)) ??
         _fontWeight(_getPropertyValue(_universalFontWeightProperty)),
     fontStyle: _fontStyle(_getPropertyValue(_chordDescriptorFontStyleProperty)) ??

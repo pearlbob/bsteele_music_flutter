@@ -1,0 +1,44 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+echo $0\:
+
+set flut=bsteele_music_flutter
+set rel=bsteeleMusicRelease
+set lib=bsteeleMusicLib
+set server=/home/bob/github/bsteeleMusicServer
+#	war: web archive.  from java since the server is java
+set warName=bsteeleMusicApp
+set war=$warName.war
+set dst=$CATALINA_BASE/webapps
+
+
+#	build the server war file
+echo assume the server has been built: 
+ls -l $server/target/$war
+
+if ( ! -e $server/target/$war ) then
+	echo cannot find pre-built $server/target/$war
+	exit -1
+endif
+
+cd build
+mkdir -p war
+cd war
+
+#	add the app to the server war file
+cp $server/target/$war .	#	clobber old version if there
+jar -uf $war -C ../web .
+
+#	update the local allSongs to the latest
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
+jar -uf $war -C ~/github/allSongs.songlyrics allSongPerformances.songperformances
+
+sudo cp $war $dst
+
+sleep 5
+ll -d $CATALINA_BASE/webapps/$warName
+echo test http://localhost:8080/bsteeleMusicApp
+
+exit 0

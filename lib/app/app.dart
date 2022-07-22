@@ -337,11 +337,11 @@ class AppVerticalSpace extends StatelessWidget {
 /// helper function to generate tool tips
 @immutable
 class AppTooltip extends StatelessWidget {
-  const AppTooltip({super.key, required this.message, required this.child, this.fontSize});
+  const AppTooltip({super.key, required this.message, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = generateTooltipTextStyle(fontSize: fontSize);
+    var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
     return Tooltip(
         key: key,
         message: message,
@@ -355,7 +355,6 @@ class AppTooltip extends StatelessWidget {
 
   final String message;
   final Widget child;
-  final double? fontSize;
 }
 
 BoxDecoration appTooltipBoxDecoration(final Color? color) {
@@ -552,12 +551,11 @@ class AppWidgetHelper {
 
   RichText transpose(final Measure measure, final music_key.Key key, final int halfSteps,
       {required final TextStyle style}) {
-    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize).copyWith(
-      backgroundColor: style.backgroundColor,
-    );
+    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize)
+        .copyWith(backgroundColor: style.backgroundColor, fontWeight: FontWeight.bold);
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-      fontSize: 0.8 * (style.fontSize ?? _defaultFontSize),
-    ).copyWith(
+            fontSize: 0.8 * (style.fontSize ?? _defaultFontSize), fontWeight: FontWeight.normal)
+        .copyWith(
       backgroundColor: style.backgroundColor,
     );
 

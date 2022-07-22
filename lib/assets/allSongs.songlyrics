@@ -72795,12 +72795,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1655878077685, "song": 
+{ "file": "", "lastModifiedDate": 1658440916648, "song": 
 {
 "title": "Little Broken Hearts",
 "artist": "Norah Jones",
 "user": "Shari",
-"lastModifiedDate": 1655878077685,
+"lastModifiedDate": 1658440916648,
 "copyright": "2011 Blue Note",
 "key": "G",
 "defaultBpm": 77,
@@ -72859,7 +72859,7 @@
 	"",
 	"V:",
 	"Did the darkness of their ",
-	"Days, make them make them let go of their ",
+	"Days, make them let go of their ",
 	"Light? Will they want to find a ",
 	"Way to make it all right?",
 	"",
@@ -117090,12 +117090,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1658037672816, "song": 
+{ "file": "", "lastModifiedDate": 1658441521438, "song": 
 {
 "title": "Takin' it to the Streets",
 "artist": "Doobie Brothers",
 "user": "Shari",
-"lastModifiedDate": 1658037672816,
+"lastModifiedDate": 1658441521438,
 "copyright": "1976 Warner Bros",
 "key": "C",
 "defaultBpm": 145,
@@ -117107,7 +117107,7 @@
 	"I2:",
 	"Fm6/G F/GC/G.. D7/G Dm7/G x4",
 	"V:",
-	"Fm6/G F/GC/G.. D7/G Dm7/G x2",
+	"Fm6/G F/GC/G.. D7/G Dm7/G x4",
 	"PC:",
 	"C C/A# C/A C/G#C/G x2",
 	"C:",
@@ -135189,16 +135189,16 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1648857077022, "song": 
+{ "file": "", "lastModifiedDate": 1658441308897, "song": 
 {
 "title": "You Can't Hurry Love",
 "artist": "Supremes, The",
 "user": "Shari",
-"lastModifiedDate": 1648857077022,
+"lastModifiedDate": 1658441308897,
 "copyright": "1966 Motown",
 "key": "Bb",
 "defaultBpm": 192,
-"timeSignature": "4/4",
+"timeSignature": "2/4",
 "chords": 
     [
 	"I:",

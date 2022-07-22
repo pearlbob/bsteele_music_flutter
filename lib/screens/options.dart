@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
+import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,8 @@ class OptionsState extends State<Options> {
       }
     });
 
-    _websocketHostEditingController.text = _appOptions.websocketHost;
+    _websocketHostEditingController.text =
+        _appOptions.websocketHost == AppOptions.idleHost ? '' : _appOptions.websocketHost;
 
     _songUpdateService.addListener(_songUpdateServiceCallback);
 
@@ -173,63 +175,74 @@ class OptionsState extends State<Options> {
                     ],
                   ),
                   const AppSpace(),
-                  AppWrapFullWidth(children: [
-                    const Text('Hosts:'),
-                    const AppSpace(),
-                    AppTooltip(
-                      message: 'No leader/follower',
-                      child: appEnumeratedButton(
-                        'None',
-                        appKeyEnum: AppKeyEnum.optionsWebsocketNone,
-                        onPressed: () {
-                          _appOptions.websocketHost = '';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        },
+                  AppWrapFullWidth(
+                    spacing: 15,
+                    children: [
+                      const Text('Hosts:'),
+                      AppTooltip(
+                        message: 'No leader/follower',
+                        child: appEnumeratedButton(
+                          'None',
+                          appKeyEnum: AppKeyEnum.optionsWebsocketNone,
+                          onPressed: () {
+                            _appOptions.websocketHost = AppOptions.idleHost;
+                            _websocketHostEditingController.text = '';
+                          },
+                        ),
                       ),
-                    ),
-                    const AppSpace(),
-                    AppTooltip(
-                      message: 'You are in the Community Jams studio.',
-                      child: appEnumeratedButton(
-                        'Studio',
-                        appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
-                        onPressed: () {
-                          _appOptions.websocketHost = 'cj.local';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        },
+                      AppTooltip(
+                        message: 'You are in the Community Jams studio.',
+                        child: appEnumeratedButton(
+                          'Studio',
+                          appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
+                          onPressed: () {
+                            _appOptions.websocketHost = 'cj.local';
+                            _websocketHostEditingController.text = _appOptions.websocketHost;
+                          },
+                        ),
                       ),
-                    ),
-                    const AppSpace(),
-                    AppTooltip(
-                      message: 'You are in the Community Jams studio with an old ipad.',
-                      child: appEnumeratedButton(
-                        'Studio and old Ipad',
-                        appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
-                        onPressed: () {
-                          _appOptions.websocketHost = '10.1.10.50';
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        },
+                      AppTooltip(
+                        message: 'You are in the Community Jams studio with an old ipad.',
+                        child: appEnumeratedButton(
+                          'Studio and old Ipad',
+                          appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
+                          onPressed: () {
+                            _appOptions.websocketHost = '10.1.10.50';
+                            _websocketHostEditingController.text = _appOptions.websocketHost;
+                          },
+                        ),
                       ),
-                    ),
-                    const AppSpace(),
-                    AppTooltip(
-                      message: 'You are in the park.',
-                      child: appEnumeratedButton(
-                        'Park',
-                        appKeyEnum: AppKeyEnum.optionsWebsocketPark,
-                        onPressed: () {
-                          _appOptions.websocketHost = parkFixedIpAddress;
-                          _websocketHostEditingController.text = _appOptions.websocketHost;
-                        },
+                      AppTooltip(
+                        message: 'You are in the park.',
+                        child: appEnumeratedButton(
+                          'Park',
+                          appKeyEnum: AppKeyEnum.optionsWebsocketPark,
+                          onPressed: () {
+                            _appOptions.websocketHost = parkFixedIpAddress;
+                            _websocketHostEditingController.text = _appOptions.websocketHost;
+                          },
+                        ),
                       ),
-                    ),
-                    if (kDebugMode) const AppSpace(),
-                    if (kDebugMode)
-                      appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
-                        _appOptions.websocketHost = 'bob64.local'; //'bobspi.local';
-                        _websocketHostEditingController.text = _appOptions.websocketHost;
-                      }),
-                  ]),
+                      if (hostIsWebsocketHost)
+                        AppTooltip(
+                          message: 'Your web server should have a leader/follower connection.'
+                              '\nClick here to use it.',
+                          child: appEnumeratedButton(
+                            'This host',
+                            appKeyEnum: AppKeyEnum.optionsWebsocketThisHost,
+                            onPressed: () {
+                              _appOptions.websocketHost = host;
+                              _websocketHostEditingController.text = _appOptions.websocketHost;
+                            },
+                          ),
+                        ),
+                      if (kDebugMode)
+                        appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
+                          _appOptions.websocketHost = 'bob64.local'; //'bobspi.local';
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
+                        }),
+                    ],
+                  ),
                   const AppSpace(),
                   Row(children: <Widget>[
                     const Text(

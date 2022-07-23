@@ -1103,7 +1103,7 @@ With escape, the app goes back to the play list.''',
                 AppWrap(
                   children: [
                     const AppSpace(
-                      horizontalSpace: 10,
+                      horizontalSpace: 60,
                     ),
                     //
                     Text(

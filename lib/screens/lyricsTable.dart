@@ -152,7 +152,8 @@ class LyricsTable {
                           text: TextSpan(
                         text: measureNode.toString(),
                         style: _coloredChordTextStyle.copyWith(
-                            fontFamily: 'DejaVu', fontWeight: FontWeight.bold), //  fixme: a font failure workaround
+                            fontFamily: appFontFamily,
+                            fontWeight: FontWeight.bold), //  fixme: a font failure workaround
                       ));
                       break;
                     case MeasureRepeatMarker:

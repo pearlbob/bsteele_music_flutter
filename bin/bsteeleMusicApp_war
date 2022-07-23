@@ -92,7 +92,8 @@ sed -i -e "s/^version: *\([0-9]*\.[0-9]*\.[0-9]*\).*/version: \1+$versionCode/;"
 if ( $status != 0 ) exit $status
 #	record the build date
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
-flutter build web --web-renderer html --release
+#   canvaskit fixes rendering errors, included in app for the park
+flutter build web --release --web-renderer=canvaskit
 if ( $status != 0 ) exit $status
 
 #	build the server war file

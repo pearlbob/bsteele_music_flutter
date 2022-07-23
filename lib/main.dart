@@ -179,13 +179,15 @@ void main() async {
 done:
 
 beta short list:
-figure out the temperamental tomcat server.
+????? figure out the temperamental tomcat server.
 escape from player to singers and no more
 ____the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
 ____the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
 ____and of course i'm working full speed on the player resizing and following... without getting lost.
 ____follower should stop playing when leader stops play
 ____pro display scale horizontal for lyric sections and vertical for chords,  remove top data?
+
+re-download canvaskit on staging
 
 button to adjust leader/follower when dis-connected
 

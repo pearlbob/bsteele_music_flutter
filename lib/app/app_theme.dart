@@ -1455,10 +1455,11 @@ GestureDetector appGestureDetector(
   );
 }
 
-const appFontFamily = 'DejaVu';
+const appFontFamily = 'Roboto';
 const noteFontFamily = 'Bravura'; // the music symbols are over sized in the vertical!
 const List<String> appFontFamilyFallback = [
   appFontFamily,
+  'DejaVu',
   noteFontFamily,
 ];
 

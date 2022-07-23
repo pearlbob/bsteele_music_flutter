@@ -56,8 +56,8 @@ set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
 flutter clean
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
-#	note: use web-render to run on the pi in park mode
-flutter build web --web-renderer html --release
+#   canvaskit fixes rendering errors, included in app for the park
+flutter build web --release --web-renderer=canvaskit
 
 # install beta lib util
 cd bsteeleMusicLib

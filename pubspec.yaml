@@ -112,17 +112,6 @@ flutter:
       fonts:
         - asset: fonts/Bravura.otf
 
-  #  FormatException: Invalid number (at character 1)
-  #
-  #  I just got the same error and fixed it by manually setting the minSdkVersion in
-  #   android/app/build.gradle
-  #
-  #  defaultConfig {
-  #  ...
-  #  minSdkVersion 25 // <<== set this
-  #
-  #  flutter pub get; flutter pub run flutter_launcher_icons:main
-
 flutter_icons:
   android: "launcher_icon"
   ios: true

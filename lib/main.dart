@@ -113,6 +113,7 @@ import 'util/openLink.dart';
 const Level _mainLogScroll = Level.debug;
 
 String host = Uri.base.host;
+Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
 bool hostIsWebsocketHost = false;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
@@ -136,10 +137,13 @@ in linux/my_application.cc, line 50 or so
 void main() async {
   Logger.level = Level.info;
 
+  //logger.i('Uri: ${Uri.base}, path: "${Uri.base.path}", fragment: "${Uri.base.fragment}"');
+  logger.i('uri: "$uri", path: "${uri.path}", fragment: "${uri.fragment}"');
+
   //  holiday override
-  var cssFileName = _cssFileName.isNotEmpty ? _cssFileName : Uri.base.queryParameters['css'];
+  var cssFileName = _cssFileName.isNotEmpty ? _cssFileName : uri.queryParameters['css'];
   cssFileName = (cssFileName?.isEmpty ?? true) ? 'app.css' : cssFileName;
-  bool holidayOverride = _holidayOverride.isNotEmpty || Uri.base.queryParameters.containsKey('holiday');
+  bool holidayOverride = _holidayOverride.isNotEmpty || uri.queryParameters.containsKey('holiday');
   if (holidayOverride) {
     //  override the css as well
     cssFileName = 'holiday.css';
@@ -150,16 +154,16 @@ void main() async {
   await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
-  appLogMessage('host: "$host", port: ${Uri.base.port}');
+  appLogMessage('host: "$host", port: ${uri.port}');
   if (host.isEmpty //  likely a native app
           ||
           host == 'www.bsteele.com' //  websocket will never be provided by the cloud server
           ||
-          (host == 'localhost' && Uri.base.port != 8080) //  defend against the debugger
+          (host == 'localhost' && uri.port != 8080) //  defend against the debugger
       ) {
     //  do nothing!
     hostIsWebsocketHost = false;
-    appLogMessage('no websocket: $host:${Uri.base.port}');
+    appLogMessage('no websocket: $host:${uri.port}');
   } else {
     //  default to the expected websocket server
     AppOptions().websocketHost = host; //  auto-magically choose the local websocket server
@@ -552,7 +556,7 @@ class BSteeleMusicApp extends StatelessWidget {
               initialRoute: Navigator.defaultRouteName,
               routes: {
                 // When navigating to the "/" route, build the FirstScreen widget.
-                //'/': (context) => MyApp(),
+                // '/': (context) => BSteeleMusicApp(),
                 // When navigating to the "/second" route, build the SecondScreen widget.
                 Player.routeName: playerPageRoute.builder,
                 Options.routeName: (context) => const Options(),
@@ -611,10 +615,10 @@ class MyHomePageState extends State<MyHomePage> {
       appTextFieldListener(AppKeyEnum.mainSearchText, _searchTextFieldController);
     });
 
-    //logger.i('uri: ${Uri.base}, ${Uri.base.queryParameters.keys.contains('follow')}');
+    //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
 
     //  give the beta warning
-    if (Uri.base.toString().contains('beta')) {
+    if (uri.toString().contains('beta')) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         _betaWarningPopup();
       });
@@ -671,7 +675,7 @@ class MyHomePageState extends State<MyHomePage> {
   void _readExternalSongList() async {
     var externalHost = host.isEmpty
         ? 'www.bsteele.com' //  likely a native app with web access
-        : '$host:${Uri.base.port}'; //  port for potential app server
+        : '$host:${uri.port}'; //  port for potential app server
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songlyrics';
       appLogMessage('ExternalSongList: $url');
@@ -1354,7 +1358,7 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                     const AppSpace(),
                     appButton('Send me to the real version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
-                      var s = Uri.base.toString();
+                      var s = uri.toString();
                       s = s.substring(0, s.indexOf('beta'));
                       openLink(
                         s,

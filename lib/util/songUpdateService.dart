@@ -15,6 +15,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../app/appOptions.dart';
 
 const Level _log = Level.debug;
+const Level _logJson = Level.debug;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
@@ -197,7 +198,9 @@ class SongUpdateService extends ChangeNotifier {
   void issueSongUpdate(SongUpdate songUpdate) {
     if (_isLeader) {
       songUpdate.setUser(_appOptions.user);
-      _webSocketSink?.add(songUpdate.toJson());
+      var jsonText = songUpdate.toJson();
+      _webSocketSink?.add(jsonText);
+      logger.log(_logJson, jsonText);
       _songUpdateCount++;
       logger.v("leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
     }

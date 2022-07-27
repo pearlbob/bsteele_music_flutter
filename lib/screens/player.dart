@@ -172,6 +172,10 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
+    if (kDebugMode) {
+      _scrollTimer = Timer.periodic(const Duration(milliseconds: 500), _scrollTimerCallback);
+    }
+
     app.clearMessage();
   }
 
@@ -213,6 +217,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
   void dispose() {
     logger.d('player: dispose()');
     _cancelIdleTimer();
+    _scrollTimer?.cancel();
     _player = null;
     _playerIsOnTop = false;
     _songUpdate = null;
@@ -226,6 +231,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
 
   void _scrollControllerListener() {
     _resetIdleTimer();
+    _lastScrollControllerOffset = _scrollController.offset;
 
     logger.log(
         _logScrollControllerListener,
@@ -241,6 +247,15 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
           ', _isAnimated: $_isAnimated, offset: ${_scrollController.offset}'
           ', dur: ${_durationSinceScrollEvent()}');
       setSelectedSongMoment(songMoment);
+    }
+  }
+
+  void _scrollTimerCallback(Timer timer) {
+    double error = _scrollController.offset - _lastScrollControllerOffset;
+    if (error != 0.0) {
+      logger.log(
+          Level.warning, //fixme!!!!!!!!!!!!!!!
+          '_scrollTimerCallback: ${_scrollController.offset} - $_lastScrollControllerOffset = $error');
     }
   }
 
@@ -599,27 +614,6 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                               padding: const EdgeInsets.all(12),
                               child: AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                                 //  hints
-                                AppTooltip(
-                                  message: '''
-Space bar or clicking the song area starts "play" mode.
-    Selected section is in the top or middle of the display.
-Another space bar or song area hit advances one section.
-Down or right arrow also advances one section.
-Up or left arrow backs up one section.
-Scrolling with the mouse wheel works as well.
-Enter ends the "play" mode.
-With escape, the app goes back to the play list.''',
-                                  child: TextButton(
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.all(8),
-                                    ),
-                                    child: Text(
-                                      'Hints',
-                                      style: headerTextStyle,
-                                    ),
-                                    onPressed: () {},
-                                  ),
-                                ),
                                 beatStatefulWidget,
                                 if (showCapo)
                                   AppWrap(
@@ -756,25 +750,38 @@ With escape, the app goes back to the play list.''',
                               ]),
                             ),
                             AppWrapFullWidth(alignment: WrapAlignment.spaceAround, children: [
+                              if (!songUpdateService.isFollowing)
+                                AppTooltip(
+                                  message: '''
+Click the play button for autoplay.
+Space bar or clicking the song area starts manual mode.
+Selected section is in the top of the display with a red indicator.
+Another space bar or song area hit below the middle advances one section.
+Down or right arrow also advances one section.
+Up or left arrow backs up one section.
+A click or touch above the middle backs up one section.
+Scrolling with the mouse wheel selects individual rows.
+Enter ends the "play" mode.
+With escape, the app goes back to the play list.''',
+                                  child: Container(
+                                    padding: const EdgeInsets.only(left: 8, right: 8),
+                                    child: appIconButton(
+                                      appKeyEnum: AppKeyEnum.playerPlay,
+                                      icon: appIcon(
+                                        playStopIcon,
+                                        size: 2 * fontSize,
+                                      ),
+                                      onPressed: () {
+                                        _isPlaying ? performStop() : performPlay();
+                                      },
+                                    ),
+                                  ),
+                                ),
                               if (app.fullscreenEnabled && !app.isFullScreen)
                                 appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
                                     onPressed: () {
                                   app.requestFullscreen();
                                 }),
-                              if (!songUpdateService.isFollowing)
-                                Container(
-                                  padding: const EdgeInsets.only(left: 8, right: 8),
-                                  child: appIconButton(
-                                    appKeyEnum: AppKeyEnum.playerPlay,
-                                    icon: appIcon(
-                                      playStopIcon,
-                                      size: 2 * fontSize,
-                                    ),
-                                    onPressed: () {
-                                      _isPlaying ? performStop() : performPlay();
-                                    },
-                                  ),
-                                ),
                               AppWrap(
                                 alignment: WrapAlignment.spaceBetween,
                                 children: [
@@ -1284,6 +1291,7 @@ With escape, the app goes back to the play list.''',
     update.currentBeatsPerMinute = playerSelectedBpm ?? update.song.beatsPerMinute;
     update.momentNumber = momentNumber;
     update.user = appOptions.user;
+    update.singer = playerSinger ?? 'unknown';
     update.setState(state);
     songUpdateService.issueSongUpdate(update);
 
@@ -1846,6 +1854,7 @@ With escape, the app goes back to the play list.''',
 
   void _cancelIdleTimer() {
     _idleTimer?.cancel();
+    _idleTimer = null;
   }
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
@@ -1879,6 +1888,7 @@ With escape, the app goes back to the play list.''',
 
   final ScrollController _scrollController = ScrollController();
   bool _isAnimated = false;
+  double _lastScrollControllerOffset = 0.0;
 
   //  used to keep the animation feedback honest:
   int _lastScrollAnimationTimeUs = 0;
@@ -1899,6 +1909,7 @@ With escape, the app goes back to the play list.''',
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   Timer? _idleTimer;
+  Timer? _scrollTimer;
 
   late AppWidgetHelper appWidgetHelper;
 
@@ -2003,7 +2014,6 @@ class _BeatState extends State<BeatStatefulWidget> with SingleTickerProviderStat
         _elapsed = elapsed;
       });
     });
-    // 5. start ticker
     _ticker.start();
   }
 

@@ -148,15 +148,26 @@ class LyricsTable {
                 if (showChords) {
                   switch (measureNode.runtimeType) {
                     case MeasureRepeatExtension:
-                      richText = RichText(
-                          text: TextSpan(
-                        text: measureNode.toString(),
-                        style: _coloredChordTextStyle.copyWith(
-                            fontFamily: appFontFamily,
-                            fontWeight: FontWeight.bold), //  fixme: a font failure workaround
-                      ));
+                      if (!expanded) {
+                        richText = RichText(
+                            text: TextSpan(
+                          text: measureNode.toString(),
+                          style: _coloredChordTextStyle.copyWith(
+                              fontFamily: appFontFamily,
+                              fontWeight: FontWeight.bold), //  fixme: a font failure workaround
+                        ));
+                      }
                       break;
                     case MeasureRepeatMarker:
+                      if (!expanded) {
+                        richText = appWidgetHelper.transpose(
+                          measureNode as Measure,
+                          displayMusicKey,
+                          transpositionOffset,
+                          style: _coloredChordTextStyle,
+                        );
+                      }
+                      break;
                     case Measure:
                       richText = appWidgetHelper.transpose(
                         measureNode as Measure,
@@ -224,7 +235,7 @@ class LyricsTable {
             Size cellSize = cell._computeBuildSize();
 
             //  widths
-            double width = cellSize.width;
+            double width = cellSize.width * 1.02; //  fudge a little for safety
             switch (_appOptions.userDisplayStyle) {
               case UserDisplayStyle.both:
               case UserDisplayStyle.player:

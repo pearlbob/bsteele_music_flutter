@@ -61,6 +61,8 @@ DrumParts _drumParts = DrumParts(); //  temp
 
 SongMoment? _selectedSongMoment;
 
+ValueNotifier<SongMoment?> _selectedSongMomentNotifier = ValueNotifier(null);
+
 const int _minimumSpaceBarGapMs = 750; //  milliseconds
 
 //  diagnostic logging enables
@@ -71,7 +73,6 @@ const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
-const Level _logFontResize = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logLocationGrid = Level.debug;
@@ -94,10 +95,11 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   //  listen if anyone else is talking
   _player?.songUpdateService.isLeader = false;
 
-  _songUpdate = songUpdate;
   if (!songUpdate.song.songBaseSameContent(_songUpdate?.song)) {
     _player?.adjustDisplay();
   }
+  _songUpdate = songUpdate;
+
   _lastSongUpdateSent = null;
   _player?.setSelectedSongKey(songUpdate.currentKey);
   playerSelectedBpm = songUpdate.currentBeatsPerMinute;
@@ -270,9 +272,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     //  worry about when to update the floating button
     bool scrollIsZero = _scrollController.offset == 0; //  no check for has client in a client!... we are the client
     if (scrollWasZero != scrollIsZero) {
-      setState(() {
-        logger.log(_logScroll, 'scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
-      });
+      logger.log(_logScroll, 'scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
     }
     scrollWasZero = scrollIsZero;
   }
@@ -292,11 +292,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     if (_songMaster.momentNumber != null) {
       var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
       if (songMoment != null && _selectedSongMoment != songMoment) {
-        setState(() {
-          {
-            setSelectedSongMoment(songMoment);
-          }
-        });
+        setSelectedSongMoment(songMoment);
       }
     } else if (_isPlaying != _songMaster.isPlaying) {
       setState(() {
@@ -337,13 +333,13 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
     logger.log(_logBuild, 'table rebuild: selectedSongMoment: $_selectedSongMoment');
 
     _selectedSongMoment ??= _song.songMoments.first;
+    _selectedSongMomentNotifier.value = _selectedSongMoment;
 
     _table = _lyricsTable.lyricsTable(
-      _song, context,
+      _song,
+      context,
       musicKey: _displaySongKey,
       expanded: !compressRepeats,
-      selectedSongMoment: _isPlaying ? null : _selectedSongMoment,
-      //  givenSelectedSongMoments: selectedSongMoments
     );
 
     final fontSize = app.screenInfo.fontSize;
@@ -612,9 +608,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                                   child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
                             Container(
                               padding: const EdgeInsets.all(12),
-                              child: AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                                //  hints
-                                beatStatefulWidget,
+                              child: AppWrapFullWidth(alignment: WrapAlignment.end, spacing: fontSize, children: [
                                 if (showCapo)
                                   AppWrap(
                                     children: [
@@ -732,20 +726,7 @@ class PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver 
                                         },
                                       ),
                                     ),
-                                  const AppSpaceViewportWidth(horizontalSpace: 3.0),
-                                  AppTooltip(
-                                    message: 'Player settings',
-                                    child: appIconButton(
-                                      appKeyEnum: AppKeyEnum.playerSettings,
-                                      icon: appIcon(
-                                        Icons.settings,
-                                        size: 1.5 * fontSize,
-                                      ),
-                                      onPressed: () {
-                                        _settingsPopup();
-                                      },
-                                    ),
-                                  ),
+                                  AppSpace(horizontalSpace: 3.5 * fontSize),
                                 ]),
                               ]),
                             ),
@@ -994,16 +975,7 @@ With escape, the app goes back to the play list.''',
                               ]),
                             const AppSpace(),
                             Stack(children: [
-                              if (appOptions.userDisplayStyle != UserDisplayStyle.proPlayer)
-                                CustomPaint(
-                                  painter: _ChordHighlightPainter(), //  fixme: optimize with builder
-                                  isComplex: true,
-                                  willChange: false,
-                                  child: SizedBox(
-                                    width: app.screenInfo.mediaWidth,
-                                    height: max(app.screenInfo.mediaHeight, 200),
-                                  ),
-                                ),
+                              if (appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) _ChordHighlightWidget(),
 
                               //  diagnostic for location grid to the table
                               if (kDebugMode && _logLocationGrid.index >= Level.info.index)
@@ -1128,6 +1100,31 @@ With escape, the app goes back to the play list.''',
                 ),
               ],
             ),
+          Column(
+            children: [
+              AppSpace(
+                verticalSpace: AppBar().preferredSize.height,
+              ),
+              AppWrapFullWidth(alignment: WrapAlignment.end, children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: AppTooltip(
+                    message: 'Player settings',
+                    child: appIconButton(
+                      appKeyEnum: AppKeyEnum.playerSettings,
+                      icon: appIcon(
+                        Icons.settings,
+                        size: 1.5 * fontSize,
+                      ),
+                      onPressed: () {
+                        _settingsPopup();
+                      },
+                    ),
+                  ),
+                ),
+              ]),
+            ],
+          ),
         ],
       ),
     );
@@ -1246,18 +1243,18 @@ With escape, the app goes back to the play list.''',
     if (scrollTarget != adjustedTarget) {
       logger.log(_logScroll, 'scrollToTargetY(): scrollTarget != adjustedTarget, $scrollTarget != $adjustedTarget');
       // logger.log(_logScroll, '    boxCenter: $boxCenter/${app.screenInfo.mediaHeight}');
-      setState(() {
-        // selectedTargetY = targetY;
-        scrollTarget = adjustedTarget;
-        if (_scrollController.hasClients && _scrollController.offset != adjustedTarget) {
-          logger.log(_logScroll, 'scrollToTargetY(): isScrolling to: $scrollTarget');
-          _isAnimated = true;
-          _lastScrollAnimationTimeUs = DateTime.now().microsecondsSinceEpoch;
-          _scrollController.animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.ease).whenComplete(() {
-            _scrollControllerCompletionCallback();
-          }).onError((error, stackTrace) => _scrollControllerCompletionCallback());
-        }
-      });
+      // selectedTargetY = targetY;
+      scrollTarget = adjustedTarget;
+      if (_scrollController.hasClients && _scrollController.offset != adjustedTarget) {
+        logger.log(_logScroll, 'scrollToTargetY(): isScrolling to: $scrollTarget');
+        _isAnimated = true;
+        _lastScrollAnimationTimeUs = DateTime.now().microsecondsSinceEpoch;
+        _scrollController
+            .animateTo(adjustedTarget, duration: scrollDuration, curve: Curves.easeInOutSine)
+            .whenComplete(() {
+          _scrollControllerCompletionCallback();
+        }).onError((error, stackTrace) => _scrollControllerCompletionCallback());
+      }
       return true;
     }
     logger.log(_logScroll, 'scrollToTargetY(): false'
@@ -1315,15 +1312,15 @@ With escape, the app goes back to the play list.''',
 
   /// Workaround to avoid calling setState() outside of the framework classes
   void setPlayState() {
-    if (_songUpdate == null) {
-      return;
-    }
-    setState(() {
+    if (_songUpdate != null) {
       switch (_songUpdate!.state) {
         case SongUpdateState.playing:
-          setPlayMode();
+          if (!_isPlaying) {
+            setPlayMode();
+          }
           break;
         default:
+          _isPlaying = false;
           break;
       }
 
@@ -1336,7 +1333,7 @@ With escape, the app goes back to the play list.''',
           'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
           ', moment: ${_songUpdate?.momentNumber}'
           ', scroll: ${_scrollController.offset}');
-    });
+    }
   }
 
   void setPlayMode() {
@@ -1439,12 +1436,13 @@ With escape, the app goes back to the play list.''',
   }
 
   void forceTableRedisplay() {
-    logger.log(_logFontResize, '_forceTableRedisplay');
+    logger.log(_logBuild, '_forceTableRedisplay()');
     setState(() {});
   }
 
   //  for use in popup
   void forcePlayerSetState() {
+    logger.log(_logBuild, 'forcePlayerSetState()');
     setState(() {});
   }
 
@@ -1480,12 +1478,12 @@ With escape, the app goes back to the play list.''',
       return;
     }
     _selectedSongMoment = songMoment;
+    _selectedSongMomentNotifier.value = _selectedSongMoment;
 
     if (songUpdateService.isLeader) {
       leaderSongUpdate(_selectedSongMoment!.momentNumber);
     }
 
-    forceTableRedisplay();
     var y = _lyricsTable.songMomentToY(_selectedSongMoment!);
     scrollToTargetY(y);
     logger.log(
@@ -1917,13 +1915,68 @@ With escape, the app goes back to the play list.''',
   final SongUpdateService songUpdateService = SongUpdateService();
 }
 
+class _ChordHighlightWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _ChordHighlightState();
+  }
+}
+
+class _ChordHighlightState extends State<_ChordHighlightWidget> {
+  _ChordHighlightState() {
+    _selectedSongMomentNotifier.addListener(_update);
+  }
+
+  @override
+  void dispose() {
+    _selectedSongMomentNotifier.removeListener(_update);
+    super.dispose();
+  }
+
+  void _update() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var selectedMoment = _selectedSongMomentNotifier.value;
+    if (selectedMoment == null) {
+      return const Text('');
+    }
+
+    if (_isPlaying) {
+      return CustomPaint(
+        painter: _ChordHighlightPainter(), //  fixme: optimize with builder
+        isComplex: true,
+        willChange: false,
+        child: SizedBox(
+          width: app.screenInfo.mediaWidth,
+          height: max(app.screenInfo.mediaHeight, 200),
+        ),
+      );
+    }
+
+    final rect = _lyricsTable.songCellAtSongMoment(selectedMoment).rect;
+    final size = rect.left; // a trick to get the indicator to fit in the space allocated
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppVerticalSpace(space: rect.top + (rect.height - size) / 2), //  center vertically
+        appIcon(
+          Icons.play_arrow,
+          size: size,
+          color: Colors.redAccent,
+        ),
+      ],
+    );
+  }
+}
+
 class _ChordHighlightPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     //  clear the layer
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
-
-    logger.v('_ChordHighlightPainter.paint: _isPlaying: $_isPlaying');
 
     var margin = _lyricsTable.marginSize;
     if (_isPlaying && _selectedSongMoment != null) {
@@ -2045,22 +2098,3 @@ class _BeatState extends State<BeatStatefulWidget> with SingleTickerProviderStat
   Duration _elapsed = Duration.zero;
   late final Ticker _ticker;
 }
-
-// class ShowBeatWidget extends StatefulWidget {
-//   const ShowBeatWidget({Key? key}) : super(key: key);
-//
-//   @override
-//   State<ShowBeatWidget> createState() => ShowBeatState();
-// }
-//
-// class ShowBeatState extends State<ShowBeatWidget> {
-//   final _textStyle = generateAppTextStyle(backgroundColor: Colors.transparent, fontSize: 30);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Text(
-//       'beat here',
-//       style: _textStyle,
-//     );
-//   }
-// }

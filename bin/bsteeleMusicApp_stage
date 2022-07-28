@@ -3,6 +3,8 @@
 
 echo $0\:
 
+sudo echo sudo required for local app server install: 
+
 set debug=0
 #   default is beta:
 set isBeta=1

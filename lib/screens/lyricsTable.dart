@@ -80,7 +80,6 @@ class LyricsTable {
     BuildContext context, {
     music_key.Key? musicKey,
     expanded = false,
-    SongMoment? selectedSongMoment,
   }) {
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
@@ -417,15 +416,8 @@ class LyricsTable {
         }
 
         //  generate widget rows from grid
-        var arrowWidget = appIcon(
-          Icons.play_arrow,
-          size: _chordFontSize * _scaleFactor,
-          color: Colors.redAccent,
-        );
-        var selectedArrowCell = _songMomentNumberToSongCell[selectedSongMoment?.momentNumber ?? 0];
         var rows = <Widget>[];
         for (var r = 0; r < locationGrid.getRowCount(); r++) {
-          bool selectThisRow = false;
           var row = locationGrid.getRow(r);
           assert(row != null);
           row = row!;
@@ -436,9 +428,6 @@ class LyricsTable {
             var cell = locationGrid.get(r, c);
             assert(cell != null);
             cellRow.add(cell!);
-            if (selectedArrowCell == cell) {
-              selectThisRow = true;
-            }
           }
           rows.add(AppWrapFullWidth(
             spacing: _marginSize,
@@ -446,11 +435,12 @@ class LyricsTable {
                 ? WrapCrossAlignment.end
                 : WrapCrossAlignment.start,
             children: [
+              //  create a hole for the section indicator
               Container(
                 width: _chordFontSize * _scaleFactor,
                 height: locationGrid.get(r, 0)?.size?.height,
                 alignment: Alignment.centerLeft,
-                child: selectedSongMoment != null && selectThisRow ? arrowWidget : null,
+                child: null,
               ),
               ...cellRow
             ],

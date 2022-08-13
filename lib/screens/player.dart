@@ -1440,12 +1440,6 @@ With escape, the app goes back to the play list.''',
     setState(() {});
   }
 
-  //  for use in popup
-  void forcePlayerSetState() {
-    logger.log(_logBuild, 'forcePlayerSetState()');
-    setState(() {});
-  }
-
   void adjustDisplay() {
     sectionSongMoments.clear();
     forceTableRedisplay();
@@ -1538,7 +1532,7 @@ With escape, the app goes back to the play list.''',
                                   setState(() {
                                     if (value != null) {
                                       appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
+                                      adjustDisplay();
                                     }
                                   });
                                 },
@@ -1549,7 +1543,7 @@ With escape, the app goes back to the play list.''',
                                 onPressed: () {
                                   setState(() {
                                     appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
-                                    forceTableRedisplay();
+                                    adjustDisplay();
                                   });
                                 },
                                 style: popupStyle,
@@ -1564,7 +1558,7 @@ With escape, the app goes back to the play list.''',
                                   setState(() {
                                     if (value != null) {
                                       appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
+                                      adjustDisplay();
                                     }
                                   });
                                 },
@@ -1575,7 +1569,7 @@ With escape, the app goes back to the play list.''',
                                 onPressed: () {
                                   setState(() {
                                     appOptions.userDisplayStyle = UserDisplayStyle.player;
-                                    forceTableRedisplay();
+                                    adjustDisplay();
                                   });
                                 },
                                 style: popupStyle,
@@ -1590,7 +1584,7 @@ With escape, the app goes back to the play list.''',
                                   setState(() {
                                     if (value != null) {
                                       appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
+                                      adjustDisplay();
                                     }
                                   });
                                 },
@@ -1601,7 +1595,7 @@ With escape, the app goes back to the play list.''',
                                 onPressed: () {
                                   setState(() {
                                     appOptions.userDisplayStyle = UserDisplayStyle.both;
-                                    forceTableRedisplay();
+                                    adjustDisplay();
                                   });
                                 },
                                 style: popupStyle,
@@ -1616,7 +1610,7 @@ With escape, the app goes back to the play list.''',
                                   setState(() {
                                     if (value != null) {
                                       appOptions.userDisplayStyle = value;
-                                      forceTableRedisplay();
+                                      adjustDisplay();
                                     }
                                   });
                                 },
@@ -1627,7 +1621,7 @@ With escape, the app goes back to the play list.''',
                                 onPressed: () {
                                   setState(() {
                                     appOptions.userDisplayStyle = UserDisplayStyle.singer;
-                                    forceTableRedisplay();
+                                    adjustDisplay();
                                   });
                                 },
                                 style: popupStyle,
@@ -1645,7 +1639,7 @@ With escape, the app goes back to the play list.''',
                               onPressed: () {
                                 setState(() {
                                   compressRepeats = !compressRepeats;
-                                  forceTableRedisplay();
+                                  adjustDisplay();
                                 });
                               },
                               style: boldStyle,
@@ -1661,7 +1655,7 @@ With escape, the app goes back to the play list.''',
                                 onPressed: () {
                                   setState(() {
                                     compressRepeats = !compressRepeats;
-                                    forceTableRedisplay();
+                                    adjustDisplay();
                                   });
                                 },
                               ),
@@ -1686,7 +1680,7 @@ With escape, the app goes back to the play list.''',
                                       setState(() {
                                         _isCapo = !_isCapo;
                                         setSelectedSongKey(_selectedSongKey);
-                                        forceTableRedisplay();
+                                        adjustDisplay();
                                       });
                                     },
                                     value: _isCapo,
@@ -1713,7 +1707,7 @@ With escape, the app goes back to the play list.''',
                               onPressed: () {
                                 setState(() {
                                   appOptions.ninJam = false;
-                                  forcePlayerSetState();
+                                  adjustDisplay();
                                 });
                               },
                               style: popupStyle),
@@ -1725,7 +1719,7 @@ With escape, the app goes back to the play list.''',
                               onPressed: () {
                                 setState(() {
                                   appOptions.ninJam = true;
-                                  forcePlayerSetState();
+                                  adjustDisplay();
                                 });
                               },
                               style: popupStyle),
@@ -1744,7 +1738,7 @@ With escape, the app goes back to the play list.''',
                             if (value != null) {
                               setState(() {
                                 app.displayKeyOffset = value;
-                                forcePlayerSetState();
+                                adjustDisplay();
                               });
                             }
                           },

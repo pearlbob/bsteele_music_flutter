@@ -629,7 +629,7 @@ class MyHomePageState extends State<MyHomePage> {
     {
       var allSongsAsset = 'lib/assets/allSongs.songlyrics';
       appLogMessage('InternalSongList: $allSongsAsset');
-      String songListAsString = await loadString(allSongsAsset);
+      String songListAsString = await loadAssetString(allSongsAsset);
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(songListAsString));
@@ -647,7 +647,7 @@ class MyHomePageState extends State<MyHomePage> {
       }
     }
     {
-      String songMetadataAsString = await loadString('lib/assets/allSongs.songmetadata');
+      String songMetadataAsString = await loadAssetString('lib/assets/allSongs.songmetadata');
 
       try {
         SongMetadata.fromJson(songMetadataAsString);
@@ -658,7 +658,7 @@ class MyHomePageState extends State<MyHomePage> {
       }
     }
     {
-      String dataAsString = await loadString('lib/assets/allSongPerformances.songperformances');
+      String dataAsString = await loadAssetString('lib/assets/allSongPerformances.songperformances');
 
       try {
         var allPerformances = AllSongPerformances();

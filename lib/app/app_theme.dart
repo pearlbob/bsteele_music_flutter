@@ -906,7 +906,7 @@ class AppTheme {
     _initDocs();
 
     //  read the css file
-    String cssAsString = await loadString('lib/assets/$css');
+    String cssAsString = await loadAssetString('lib/assets/$css');
     List<parser.Message> errors = [];
     var stylesheet = parser.parse(cssAsString, errors: errors);
     for (var error in errors) {

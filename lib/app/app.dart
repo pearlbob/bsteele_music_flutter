@@ -51,7 +51,7 @@ NameValue get myBadSongNameValue => NameValue(userName, 'bad');
 const defaultTableGap = 3.0;
 
 /// workaround for rootBundle.loadString() failures in flutter test
-Future<String> loadString(String assetPath) async {
+Future<String> loadAssetString(String assetPath) async {
   //return rootBundle.loadString(assetPath, cache: false);
   ByteData data = await rootBundle.load(assetPath);
   logger.v('data.lengthInBytes: ${data.lengthInBytes}');
@@ -202,9 +202,9 @@ class App {
     return false;
   }
 
-  Future<String> releaseUtcDate() async {
-    return await rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
-      return Future.value(value.replaceAll('\n', ''));
+  Future<String> releaseUtcDate() {
+    return rootBundle.loadString('lib/assets/utcDate.txt').then((value) {
+      return value.replaceAll('\n', '');
     });
   }
 

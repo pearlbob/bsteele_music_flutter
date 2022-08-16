@@ -1977,7 +1977,7 @@ class _ChordHighlightPainter extends CustomPainter {
     if (_isPlaying && _selectedSongMoment != null) {
       final rect = _lyricsTable.songCellAtSongMoment(_selectedSongMoment!).rect;
       final outlineRect =
-          Rect.fromLTWH(rect.left - margin, rect.top - margin, rect.width + 4 * margin, rect.height + 2 * margin);
+          Rect.fromLTWH(rect.left - margin, rect.top - margin, rect.width + 4 * margin, rect.height + 4 * margin);
       canvas.drawRect(outlineRect, highlightColor);
       // if (index < _songMomentChordRectangles.length - 1) {
       //   final nextRect = _songMomentChordRectangles[index + 1];
@@ -1995,10 +1995,9 @@ class _ChordHighlightPainter extends CustomPainter {
               rect.top + margin,
               _lyricsTable.chordFontSize + 2 * margin, //  used as a width   fixme
               rect.height *
-                      (_selectedSongMoment!.repeatMax == 0
-                          ? 1.0
-                          : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax) -
-                  2 * margin),
+                  (_selectedSongMoment!.repeatMax == 0
+                      ? 1.0
+                      : (_selectedSongMoment!.repeat + 1) / _selectedSongMoment!.repeatMax)),
           highlightColor);
     }
   }
@@ -2110,7 +2109,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
   }
 
   void _scrollControllerListener() {
-    logger.i('offset: ${_scrollController.offset}');
+    logger.v('offset: ${_scrollController.offset}');
     bool showDataReminder = _computeDataReminder;
     if (showDataReminder != _showDataReminder) {
       _showDataReminder = showDataReminder;
@@ -2129,7 +2128,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
   @override
   Widget build(BuildContext context) {
     _showDataReminder = _computeDataReminder;
-    logger.i('_DataReminderState.build(): $_showDataReminder');
+    logger.v('_DataReminderState.build(): $_showDataReminder');
     return _showDataReminder
         ? Column(
             children: [

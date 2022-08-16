@@ -1952,7 +1952,8 @@ class _ChordHighlightState extends State<_ChordHighlightWidget> {
     }
 
     final rect = _lyricsTable.songCellAtSongMoment(selectedMoment).rect;
-    final size = rect.left; // a trick to get the indicator to fit in the space allocated
+    final size = _lyricsTable.rowOffset; // a trick to get the indicator to fit in the space allocated
+    logger.i('_ChordHighlightState: $selectedMoment, rect: $rect, size: $size}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2120,12 +2121,6 @@ class _DataReminderState extends State<_DataReminderWidget> {
   bool get _computeDataReminder => _scrollController.hasClients && _scrollController.offset > 0;
 
   @override
-  void dispose() {
-    _scrollController.removeListener(_scrollControllerListener);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     _showDataReminder = _computeDataReminder;
     logger.v('_DataReminderState.build(): $_showDataReminder');
@@ -2156,6 +2151,12 @@ class _DataReminderState extends State<_DataReminderWidget> {
             ],
           )
         : NullWidget();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollControllerListener);
+    super.dispose();
   }
 
   bool _showDataReminder = false;

@@ -430,6 +430,7 @@ class LyricsTable {
 
         //  generate widget rows from grid
         var rows = <Widget>[];
+        _rowOffset = _chordFontSize * _scaleFactor;
         for (var r = 0; r < locationGrid.getRowCount(); r++) {
           var row = locationGrid.getRow(r);
           assert(row != null);
@@ -455,7 +456,7 @@ class LyricsTable {
             children: [
               //  create a hole for the section indicator, i.e. the red play arrow or repeat block
               Container(
-                width: _chordFontSize * _scaleFactor,
+                width: _rowOffset,
                 height: locationGrid.get(r, 0)?.size?.height,
                 alignment: Alignment.centerLeft,
                 child: null,
@@ -713,6 +714,9 @@ class LyricsTable {
   double get marginSize => _marginSize;
 
   Grid<SongCell> locationGrid = Grid();
+
+  double get rowOffset => _rowOffset;
+  double _rowOffset = 10;
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();

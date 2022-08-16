@@ -183,13 +183,20 @@ void main() async {
 done:
 
 beta short list:
+escape from player to singers and no more ,.
+Jumping jack flash,
+silly love songs spacing ,
+master scroll got lost(after space? Likely after open link)
+re-locate on change of display mode or repeat expansion
 ????? figure out the temperamental tomcat server.
 escape from player to singers and no more
-____the app should look at its URI and figure out how to get the songlist and other files from the pi and not bsteele.com.
-____the app should look at its URI and figure out that if it's in the park, it should configure itself to follow the park leader
-____and of course i'm working full speed on the player resizing and following... without getting lost.
-____follower should stop playing when leader stops play
-____pro display scale horizontal for lyric sections and vertical for chords,  remove top data?
+(the blank spacing between the section and the lyrics is a problem i know of and am working on)
+
+1) The list of songs would be more readable in sans serif
+2) Any way to allow zoom on play screen so one might read the lyrics?
+3) Browsing our list is super unfriendly without sorting function
+4) If the phone version cannot be user-friendly, I suggest we redirect users to a webpage like the searchable,
+ sortable Beginner list generated from the spreadsheet. http://communityjams.org/index.php/beginner-jam-song-list/
 
 re-download canvaskit on staging
 
@@ -198,7 +205,14 @@ button to adjust leader/follower when dis-connected
 I've restarted my research to put DNS on the pi to ease the configuration. Say "park.local" instead of "192.168.1.205".
 ____leader/follower will not follow scrolling!
 
-fix song: Handlebar
+____fix song: Handlebars
+
+F# and gb,. # override for guitar players (not persistent),
+notes for song transcriptions,
+ pop songs from history list,
+ key guess,
+
+ spreadsheet stuff
 
 play tally off space bar: what?  Do I have to pay attention?....
 freezing? do you mean always displaying the play button, key and beats per measure? capo is in that category. Bodhi wants to change bpm while in play.

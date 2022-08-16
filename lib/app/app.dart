@@ -520,6 +520,7 @@ class AppWidgetHelper {
       final Widget? titleWidget,
       final Widget? leading,
       final List<Widget>? actions}) {
+    _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
       key: appKeyEnum != null ? appKey(appKeyEnum) : null,
       title: titleWidget ??
@@ -534,7 +535,7 @@ class AppWidgetHelper {
       leading: leading,
       centerTitle: false,
       actions: actions,
-      toolbarHeight: (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6),
+      toolbarHeight: _toolbarHeight,
       //  trim for cell phone overrun
       leadingWidth: 2.5 * app.screenInfo.fontSize,
     );
@@ -635,6 +636,9 @@ class AppWidgetHelper {
       textHeightBehavior: const TextHeightBehavior(),
     );
   }
+
+  double get toolbarHeight => _toolbarHeight;
+  double _toolbarHeight = kToolbarHeight;
 
   ///  should be set on every build!
   final BuildContext context;

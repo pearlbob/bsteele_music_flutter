@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
-import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyric.dart';
@@ -107,11 +106,12 @@ class LyricsTable {
 
     _songMomentNumberToSongCell.clear();
     if (showLyrics) {
+      //    var songMomentToGridCoordinates = song.songMomentToChordGrid(expanded: expanded);
+
       //  build the table from the song lyrics and chords
       locationGrid = Grid();
       {
-        Grid<MeasureNode> grid = song.toGrid(expanded: expanded);
-        _songMomentToGridList = song.songMomentToGrid(expanded: expanded);
+        Grid<MeasureNode> grid = song.toLyricsGrid(expanded: expanded);
 
         for (int r = 0; r < grid.getRowCount(); r++) {
           var row = grid.getRow(r);
@@ -141,6 +141,7 @@ class LyricsTable {
                   var lyric = measureNode as Lyric;
 
                   if (lyric.line.isEmpty) {
+                    //  default to empty
                   } else {
                     //  note short lyrics for player only mode will be adjusted once we've computed the required size
                     richText = RichText(text: TextSpan(text: lyric.line, style: _coloredBackgroundLyricsTextStyle));
@@ -403,12 +404,18 @@ class LyricsTable {
       } else {
         //  generate lookup data
         _songMomentNumberToSongCell.clear();
+
+        var songMomentToGridCoordinates = song.songMomentToChordGrid(expanded: expanded); //fixme: this is wrong!!!!!
         for (var songMoment in song.songMoments) {
           assert(songMoment.momentNumber >= 0);
-          assert(songMoment.momentNumber < _songMomentToGridList.length);
-          var gridCoordinate = _songMomentToGridList[songMoment.momentNumber];
+          //assert(songMoment.momentNumber < songMomentToGridCoordinates.length);
+          var gridCoordinate = songMomentToGridCoordinates[songMoment.momentNumber];
           var cell = locationGrid.get(gridCoordinate.row, gridCoordinate.col);
           assert(cell != null);
+          if (cell?.measureNode == null) {
+            logger.i('null cell?.measureNode here');
+          }
+          assert(cell?.measureNode != null);
           _songMomentNumberToSongCell.add(cell ?? _emptySongCell);
         }
         assert(song.songMoments.length == _songMomentNumberToSongCell.length);
@@ -416,8 +423,8 @@ class LyricsTable {
           //   test the mapping
           for (var songMoment in song.songMoments) {
             var cell = _songMomentNumberToSongCell[songMoment.momentNumber];
-            assert(cell.measureNode == songMoment.measure);
             logger.log(_logLayoutDetail, 'songMoment: ${songMoment.momentNumber}: ${cell.point} ${cell.rect}');
+            assert(cell.measureNode == songMoment.measure);
           }
         }
 
@@ -722,8 +729,6 @@ class LyricsTable {
   TextStyle _coloredBackgroundSectionTextStyle = generateLyricsTextStyle();
   TextStyle _coloredBackgroundLyricsTextStyle = generateLyricsTextStyle();
 
-  List<GridCoordinate> get songMomentToGridList => _songMomentToGridList;
-  List<GridCoordinate> _songMomentToGridList = [];
   final List<SongCell> _songMomentNumberToSongCell = [];
 
   Widget _tableWidget = const Text('empty');

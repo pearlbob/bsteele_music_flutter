@@ -51,11 +51,13 @@ SongUpdate? _lastSongUpdateSent;
 PlayerState? _player;
 
 //  package level variables
+Song _song = Song.createEmptySong();
 bool _isPlaying = false;
 final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
 
 bool _isCapo = false; //  package level for persistence across player invocations
+int _capoLocation = 0;
 
 DrumParts _drumParts = DrumParts(); //  temp
 
@@ -63,7 +65,10 @@ SongMoment? _selectedSongMoment;
 
 ValueNotifier<SongMoment?> _selectedSongMomentNotifier = ValueNotifier(null);
 
-const int _minimumSpaceBarGapMs = 750; //  milliseconds
+const int _minimumSpaceBarGapMs = 350; //  milliseconds
+
+final ScrollController _scrollController = ScrollController();
+music_key.Key _selectedSongKey = music_key.Key.C;
 
 //  diagnostic logging enables
 const Level _logBuild = Level.debug;
@@ -1125,6 +1130,7 @@ With escape, the app goes back to the play list.''',
               ]),
             ],
           ),
+          _DataReminderWidget(appWidgetHelper.toolbarHeight),
         ],
       ),
     );
@@ -1862,7 +1868,6 @@ With escape, the app goes back to the play list.''',
 
   bool get compressRepeats => appOptions.compressRepeats;
 
-  music_key.Key _selectedSongKey = music_key.Key.C;
   music_key.Key _displaySongKey = music_key.Key.C;
   int displayKeyOffset = 0;
 
@@ -1873,12 +1878,8 @@ With escape, the app goes back to the play list.''',
   int _lastTempoTap = DateTime.now().microsecondsSinceEpoch;
   RollingAverage? _tempoRollingAverage;
 
-  int _capoLocation = 0;
-
-  Song _song = Song.createEmptySong();
   final SongMaster _songMaster = SongMaster();
 
-  final ScrollController _scrollController = ScrollController();
   bool _isAnimated = false;
   double _lastScrollControllerOffset = 0.0;
 
@@ -2073,12 +2074,11 @@ class _BeatState extends State<BeatStatefulWidget> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    if (!_isPlaying || _player?._song == null) {
+    if (!_isPlaying) {
       return NullWidget();
     }
-    final period = Duration.microsecondsPerSecond *
-        Duration.secondsPerMinute ~/
-        (playerSelectedBpm ?? _player!._song.beatsPerMinute);
+    final period =
+        Duration.microsecondsPerSecond * Duration.secondsPerMinute ~/ (playerSelectedBpm ?? _song.beatsPerMinute);
     assert(period > 0);
     var phase = (_elapsed.inMicroseconds % period) / period;
     // return Text(phase.toStringAsPrecision(6));
@@ -2091,4 +2091,73 @@ class _BeatState extends State<BeatStatefulWidget> with SingleTickerProviderStat
 
   Duration _elapsed = Duration.zero;
   late final Ticker _ticker;
+}
+
+class _DataReminderWidget extends StatefulWidget {
+  const _DataReminderWidget(this._toolbarHeight);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DataReminderState();
+  }
+
+  final double _toolbarHeight;
+}
+
+class _DataReminderState extends State<_DataReminderWidget> {
+  _DataReminderState() {
+    _scrollController.addListener(_scrollControllerListener);
+  }
+
+  void _scrollControllerListener() {
+    logger.i('offset: ${_scrollController.offset}');
+    bool showDataReminder = _computeDataReminder;
+    if (showDataReminder != _showDataReminder) {
+      _showDataReminder = showDataReminder;
+      setState(() {});
+    }
+  }
+
+  bool get _computeDataReminder => _scrollController.hasClients && _scrollController.offset > 0;
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollControllerListener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _showDataReminder = _computeDataReminder;
+    logger.i('_DataReminderState.build(): $_showDataReminder');
+    return _showDataReminder
+        ? Column(
+            children: [
+              AppSpace(
+                verticalSpace: widget._toolbarHeight + 2,
+              ),
+              AppWrap(
+                children: [
+                  const AppSpace(
+                    horizontalSpace: 60,
+                  ),
+                  Text(
+                    'Key $_selectedSongKey'
+                    '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
+                    '    ${_song.timeSignature.beatsPerBar} beats per measure'
+                    '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
+                    '  ', //  padding at the end
+                    style: generateAppTextStyle(
+                      decoration: TextDecoration.none,
+                      backgroundColor: const Color(0xe0eff4fd), //  fake a blended color, semi-opaque
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          )
+        : NullWidget();
+  }
+
+  bool _showDataReminder = false;
 }

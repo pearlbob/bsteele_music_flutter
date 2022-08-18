@@ -534,6 +534,52 @@ build release:
 % flutter build linux
 executable (without assets) is in ./build/linux/release/bundle/${project}
 
+
+song
+  title, artist, cover-artist, key, bpm, time signature
+  chords
+  lyrics
+  display grid
+    user type: pro, player, player singer, singer
+    grid
+      grid item
+        item type: (measure node?) section, empty, measure, measure marker, lyric
+        moment number, nullable
+        lyric section
+        lyric section number
+        lyrics
+          lines
+            moment number
+            chord row first moment
+          by beat
+          syllables
+        grid coordinates (r,c), identical to widget grid
+    moments
+      moment
+        moment number
+        measure
+          chords
+            chord, beat count
+              scale note, chord descriptor, slash note, anticipation
+        section moment number (first measure)
+        chord section
+        phrase index
+        measure index
+        accompaniments
+          accompaniment
+            type
+            sheet notes
+        time from start in seconds
+        duration
+    widget grid
+      widget
+        grid coordinates (r,c), identical to grid
+        widget coordinates (x,y)
+        grid item
+
+map time to moment
+map moment to grid
+
  */
 
 const _searchTextTooltipText = 'Enter search text here.\n Title, artist and cover artist will be searched.';

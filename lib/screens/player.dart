@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/ninjam.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
@@ -1952,8 +1953,9 @@ class _ChordHighlightState extends State<_ChordHighlightWidget> {
     }
 
     final rect = _lyricsTable.songCellAtSongMoment(selectedMoment).rect;
-    final size = _lyricsTable.rowOffset; // a trick to get the indicator to fit in the space allocated
-    logger.i('_ChordHighlightState: $selectedMoment, rect: $rect, size: $size}');
+    // a trick to get the indicator to fit in the space allocated in the space at the beginning of the row:
+    final size = _lyricsTable.rowOffset;
+    logger.d('_ChordHighlightState: $selectedMoment, rect: $rect, size: $size}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

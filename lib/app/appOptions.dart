@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -10,20 +11,7 @@ import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Selection of the user's display style for the player screen.
-enum UserDisplayStyle {
-  /// For a player, the lyrics can be abbreviated.
-  player,
 
-  /// For a singer, most if not all chords will not be required.
-  singer,
-
-  /// For an audience of both singers and players, both chords and lyrics will be fully displayed.
-  both,
-
-  /// White board style minimum player mode
-  proPlayer,
-}
 
 enum StorageValue {
   //  only partial at the moment

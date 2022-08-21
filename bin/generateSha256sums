@@ -1,5 +1,5 @@
 #!/bin/tcsh
-set echo; set verbose
+#set echo; set verbose
 
 set src=~/github/bsteele_music_flutter
 set app=bsteeleMusicApp

@@ -1,6 +1,5 @@
 #!/bin/tcsh
-set echo
-set verbose
+#set echo; set verbose
 
 set git=~/github/bsteeleMusicFlutter
 cd $git

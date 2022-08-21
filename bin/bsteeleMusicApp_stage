@@ -59,7 +59,8 @@ flutter clean
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 #   canvaskit fixes rendering errors, included in app for the park
-flutter build web --release --web-renderer=canvaskit
+#flutter build web --release --web-renderer=html
+flutter build web --release --web-renderer=canvaskit #	see web/index.html for offline workaround URL trick
 
 # install beta lib util
 cd bsteeleMusicLib

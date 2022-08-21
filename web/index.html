@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9,6 +9,13 @@
     <title>bsteele_music_flutter</title>
     <script src="js/AudioFilePlayer.js">
     </script>
+    <script type="application/javascript">
+        <!-- offline workaround	-->
+        window.flutterConfiguration = {
+            canvasKitBaseUrl: "/bsteeleMusicApp/canvaskit/"
+        };
+    </script>
+
 </head>
 <body>
 <script src="main.dart.js" type="application/javascript"></script>

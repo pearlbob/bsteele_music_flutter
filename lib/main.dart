@@ -754,7 +754,7 @@ class MyHomePageState extends State<MyHomePage> {
         setState(() {
           _refilterSongs();
         });
-        app.warningMessage = 'SongList read from: $url';
+        //  don't warn on standard behavior:   app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
         logger.i("external songList parse error: $fe");
         _readInternalSongList();

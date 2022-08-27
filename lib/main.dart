@@ -192,11 +192,14 @@ re-locate on change of display mode or repeat expansion
 escape from player to singers and no more
 (the blank spacing between the section and the lyrics is a problem i know of and am working on)
 
-1) The list of songs would be more readable in sans serif
 2) Any way to allow zoom on play screen so one might read the lyrics?
 3) Browsing our list is super unfriendly without sorting function
 4) If the phone version cannot be user-friendly, I suggest we redirect users to a webpage like the searchable,
  sortable Beginner list generated from the spreadsheet. http://communityjams.org/index.php/beginner-jam-song-list/
+
+  triples in the drums
+  show lists to followers (main and singer)
+  jump to follow location without motion from leader
 
 re-download canvaskit on staging
 

@@ -1,0 +1,124 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+
+echo $0\:
+
+sudo echo sudo required for local app server install: 
+
+set debug=0
+#   default is beta:
+set isBeta=1
+set app=bsteeleMusicApp
+set dst=gs://www.bsteele.com/$app
+set flavor=beta
+set git=~/github/bsteele_music_flutter
+set bsteeleMusicLib=~/github/bsteeleMusicLib
+set server=/home/bob/github/bsteeleMusicServer
+
+while ( $#argv > 0 )
+	switch ( $1 )
+	case '-a':
+	case '-alpha':
+		set isBeta=1
+		set flavor=alpha
+		shift
+		continue;
+	case '-beta':
+		set isBeta=1
+		shift
+		continue;
+	case '-d':		#	debug
+	case '-debug':
+		set debug=1
+		shift
+		continue;
+	default:
+		echo unknown argument: $1
+		exit -1;
+		breaksw;
+	endsw
+
+	break;
+end
+
+
+if ( $debug != 0 ) then
+	set echo; set verbose
+endif
+
+gcloud --quiet components update
+
+#	test
+cd $git
+flutter test test
+if ( $status != 0 ) exit -1
+
+#	beta to local static host
+set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
+#	war: web archive.  from java since the server is java
+set warName=bsteeleMusicApp
+set war=$warName.war
+
+##	build the release version of the beta
+flutter clean
+date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
+#flutter config --enable-web
+#	see web/index.html for offline workaround URL trick
+flutter build web --release --web-renderer=html		#	fixme: temp for park!  Thu Aug 25 08:42:31 AM PDT 2022
+
+# install beta lib util
+cd bsteeleMusicLib
+bin/bsteeleMusicUtil_install
+cd $git
+
+#	clear the last one
+mkdir -p $betaDir
+rm  -rf $betaDir/*
+
+#	copy to localhost website
+cp -r build/web/* $betaDir
+
+
+##	send to flavor's web location
+#set gs=gs://www.bsteele.com/$app/$flavor
+#bsteele_auth
+#gsutil -m -q rsync -d -R \
+#    -x 'allSongs\.songlyrics$' \
+#    -x 'allSongs\.songmetadata$' \
+#    -x 'allSongPerformances\.songperformances$' \
+#    $betaDir/ $gs 	#	source needs the /
+#gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
+#gsutil -m -q acl -r ch -u AllUsers:R $gs
+#
+#echo test http://www.bsteele.com/$app/$flavor
+#
+##	deploy to local tomcat
+#cd $git
+#bin/bsteeleMusicApp_beta_war
+#
+## print some facts
+#bin/bsteeleMusicApp_codeLineCount
+#cat lib/assets/utcDate.txt
+
+cd build
+
+#	add the app to the server war file
+cp $server/target/$war .
+jar -uf $war -C web .
+
+#	update the local allSongs to the latest
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songlyrics
+jar -uf $war -C ~/github/allSongs.songlyrics allSongs.songmetadata
+jar -uf $war -C ~/github/allSongs.songlyrics allSongPerformances.songperformances
+
+#	copy to the web server
+bsteele_auth
+mv $war ${app}Park.war
+set war=${app}Park.war
+gsutil cp $war $dst
+if ( $status != 0 ) exit -1
+gsutil -q setmeta -h "Cache-Control:public, max-age=60" -r $dst
+if ( $status != 0 ) exit -1
+gsutil -q acl -r ch -u AllUsers:R $dst
+if ( $status != 0 ) exit -1

@@ -88,3 +88,6 @@ echo try:  http://bsteele.com/$app
 #	put something in the beta
 cd $git
 bin/bsteeleMusicApp_stage
+
+echo temporary park deployment to avoid the renderer issue
+bin/bsteeleMusicApp_park

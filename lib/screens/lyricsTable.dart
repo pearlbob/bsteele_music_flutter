@@ -38,7 +38,7 @@ get it right next time:  repeats in measure column
  */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.info;
+const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLayout = Level.debug;
 const Level _logLayoutDetail = Level.debug;
@@ -631,6 +631,11 @@ class LyricsTable {
     var grid = song.toDisplayGrid(_appOptions.userDisplayStyle);
     var cellGrid = Grid<SongCell>();
 
+    //  compute transposition offset from base key
+
+    displayMusicKey = musicKey ?? song.key;
+    int transpositionOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
+
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
         for (var r = 0; r < grid.getRowCount(); r++) {
@@ -693,11 +698,11 @@ class LyricsTable {
                   SongCell(
                     richText: RichText(
                       text: TextSpan(
-                        text: chordSection.phrasesToMarkup(),
+                        text: chordSection.transpose(displayMusicKey, transpositionOffset),
                         style: _coloredChordTextStyle,
                       ),
                     ),
-                    type: SongCellType.columnFill,
+                    type: SongCellType.columnMinimum,
                   ),
                 );
                 break;
@@ -749,7 +754,7 @@ class LyricsTable {
                     SongCell(
                       richText: RichText(
                         text: TextSpan(
-                          text: chordSection.phrasesToMarkup(),
+                          text: chordSection.transpose(displayMusicKey, transpositionOffset),
                           style: _coloredChordTextStyle.copyWith(
                             color: Colors.black54,
                             backgroundColor: Colors.grey.shade300,
@@ -760,8 +765,7 @@ class LyricsTable {
                       type: SongCellType.columnMinimum,
                     ),
                   );
-                } else if (mn?.measureNodeType == MeasureNodeType.lyric) {
-                  Lyric lyric = mn as Lyric;
+                } else if (mn is Lyric) {
                   //  color done by prior chord section
                   cellGrid.set(
                     r,
@@ -769,7 +773,7 @@ class LyricsTable {
                     SongCell(
                       richText: RichText(
                         text: TextSpan(
-                          text: lyric.toMarkup(),
+                          text: mn.toMarkup(),
                           style: _coloredChordTextStyle,
                         ),
                       ),

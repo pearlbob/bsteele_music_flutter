@@ -981,7 +981,7 @@ With escape, the app goes back to the play list.''',
                               ]),
                             const AppSpace(),
                             Stack(children: [
-                              if (appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) _ChordHighlightWidget(),
+                              _ChordHighlightWidget(),
 
                               //  diagnostic for location grid to the table
                               if (kDebugMode && _logLocationGrid.index >= Level.info.index)

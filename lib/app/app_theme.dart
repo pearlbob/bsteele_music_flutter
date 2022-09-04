@@ -1855,7 +1855,7 @@ List<CssAction> cssActions = [
     app.themeData = app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
             style: (app.themeData.elevatedButtonTheme.style == null
-                ? ElevatedButton.styleFrom(primary: value)
+                ? ElevatedButton.styleFrom(foregroundColor: value)
                 : app.themeData.elevatedButtonTheme.style!
                     .copyWith(backgroundColor: MaterialStateProperty.all(value)))));
     _setPropertyValue(p, value);
@@ -1865,7 +1865,7 @@ List<CssAction> cssActions = [
     app.themeData = app.themeData.copyWith(
         elevatedButtonTheme: ElevatedButtonThemeData(
             style: (app.themeData.elevatedButtonTheme.style == null
-                ? ElevatedButton.styleFrom(onPrimary: value)
+                ? ElevatedButton.styleFrom(foregroundColor: value)
                 : app.themeData.elevatedButtonTheme.style!
                     .copyWith(foregroundColor: MaterialStateProperty.all(value)))));
     _setPropertyValue(p, value);

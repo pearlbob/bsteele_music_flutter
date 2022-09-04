@@ -1954,15 +1954,14 @@ class _ChordHighlightState extends State<_ChordHighlightWidget> {
 
     final rect = _lyricsTable.songCellAtSongMoment(selectedMoment).rect;
     // a trick to get the indicator to fit in the space allocated in the space at the beginning of the row:
-    final size = _lyricsTable.rowOffset;
-    logger.d('_ChordHighlightState: $selectedMoment, rect: $rect, size: $size}');
+    logger.d('_ChordHighlightState: $selectedMoment, rect: $rect}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppVerticalSpace(space: rect.top + (rect.height - size) / 2), //  center vertically
+        AppVerticalSpace(space: rect.top + (rect.height) / 2), //  center vertically
         appIcon(
           Icons.play_arrow,
-          size: size,
+          size: 20, //  fixme
           color: Colors.redAccent,
         ),
       ],

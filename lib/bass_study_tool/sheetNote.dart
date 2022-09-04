@@ -82,14 +82,13 @@ bool isUpNote(Clef clef, Pitch pitch) {
 }
 
 class SheetNoteSymbol {
-  SheetNoteSymbol.glyphBBoxes(
-      final this._name, final this._character, final Point<double> bBoxNE, final Point<double> bBoxSW,
+  SheetNoteSymbol.glyphBBoxes(this._name, this._character, final Point<double> bBoxNE, final Point<double> bBoxSW,
       {double? staffPosition, this.isUp = true, double? fontSizeOnStaffs})
       : bounds = Rect.fromLTRB(bBoxSW.x, -bBoxNE.y, bBoxNE.x, -bBoxSW.y),
         staffPosition = staffPosition ?? 0,
         fontSizeOnStaffs = fontSizeOnStaffs ?? 4;
 
-  SheetNoteSymbol.fixed(final this._name, final this._character, final Point<double> bBoxNE, final Point<double> bBoxSW,
+  SheetNoteSymbol.fixed(this._name, this._character, final Point<double> bBoxNE, final Point<double> bBoxSW,
       {double? staffPosition, double? fontSizeOnStaffs})
       : bounds = Rect.fromLTRB(bBoxSW.x, -bBoxNE.y, bBoxNE.x, -bBoxSW.y),
         staffPosition = staffPosition ?? 0,

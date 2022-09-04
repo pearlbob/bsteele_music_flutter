@@ -485,7 +485,7 @@ class SingersState extends State<Singers> {
       singerList.addAll(_allSongPerformances.setOfSingers()); //  fixme: temp
     }
 
-    void _onReorder(int oldIndex, int newIndex) {
+    void onReorder(int oldIndex, int newIndex) {
       setState(() {
         logger.d('_onReorder($oldIndex, $newIndex)');
         var singer = _sessionSingers.removeAt(oldIndex);
@@ -509,7 +509,7 @@ class SingersState extends State<Singers> {
             ),
             child: AppWrapFullWidth(children: [
               ReorderableWrap(
-                  onReorder: _onReorder,
+                  onReorder: onReorder,
                   padding: const EdgeInsets.all(10),
                   spacing: 20,
                   children: _sessionSingers.map((singer) {

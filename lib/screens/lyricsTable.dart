@@ -517,6 +517,7 @@ class LyricsTable {
     _coloredLyricTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
       fontSize: lyricsFontSize,
+      fontWeight: FontWeight.normal,
     );
   }
 

@@ -191,6 +191,7 @@ re-locate on change of display mode or repeat expansion
 ????? figure out the temperamental tomcat server.
 escape from player to singers and no more
 (the blank spacing between the section and the lyrics is a problem i know of and am working on)
+re-search main list on song file read
 
 2) Any way to allow zoom on play screen so one might read the lyrics?
 3) Browsing our list is super unfriendly without sorting function

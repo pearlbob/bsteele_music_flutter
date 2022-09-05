@@ -1415,7 +1415,7 @@ With escape, the app goes back to the play list.''',
   }
 
   String titleAnchor() {
-    return anchorUrlStart + Uri.encodeFull('${widget._song.title} ${widget._song.artist}');
+    return anchorUrlStart + Uri.encodeFull('${widget._song.title} ${widget._song.artist} ${widget._song.coverArtist}');
   }
 
   String artistAnchor() {

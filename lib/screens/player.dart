@@ -1958,10 +1958,10 @@ class _ChordHighlightState extends State<_ChordHighlightWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppVerticalSpace(space: rect.top + (rect.height) / 2), //  center vertically
+        AppVerticalSpace(space: rect.top + (rect.height - _lyricsTable.chordFontSize) / 2), //  center vertically
         appIcon(
           Icons.play_arrow,
-          size: 20, //  fixme
+          size: _lyricsTable.chordFontSize,
           color: Colors.redAccent,
         ),
       ],

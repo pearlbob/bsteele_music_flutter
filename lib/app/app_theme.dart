@@ -24,7 +24,7 @@ const Level _cssLog = Level.debug;
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
 
-const _defaultBackgroundColor = Color(0xff2196f3);
+const _defaultBackgroundColor = Color(0xff2654c6);
 const _defaultForegroundColor = Colors.white;
 
 Map<String, List<String>> _propertyLiterals = {
@@ -1203,7 +1203,8 @@ TextButton appIconButton({
       appLogKeyCallback(key);
       onPressed();
     },
-    style: app.themeData.elevatedButtonTheme.style,
+    style: app.themeData.elevatedButtonTheme.style
+        ?.copyWith(backgroundColor: MaterialStateProperty.all(_defaultBackgroundColor)),
   );
 }
 

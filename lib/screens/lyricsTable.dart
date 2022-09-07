@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/grid.dart';
+import 'package:bsteeleMusicLib/gridCoordinate.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/lyric.dart';
@@ -43,6 +44,7 @@ EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
 const double _marginSizeMax = 4; //  note: vertical and horizontal are identical //  fixme: can't be less than 2
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
+const _highlightColor = Colors.redAccent;
 
 ///  The trick of the game: Figure the text size prior to boxing it
 Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
@@ -464,10 +466,22 @@ class LyricsTable {
       }
     }
 
+    //  map from song moment to cell grid
+    _songMomentNumberToLocationGrid.clear();
+    for (var songMoment in song.songMoments) {
+      logger.v('map: ${songMoment.momentNumber}:'
+          ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
+      _songMomentNumberToLocationGrid.add(song.songMomentToGridCoordinate[songMoment.momentNumber]);
+    }
+    if (selectedSongMoment != null) {
+      var gc = song.songMomentToGridCoordinate[selectedSongMoment!];
+      _locationGrid.setAt(gc, _locationGrid.at(gc)?.copyWith(selected: true));
+    }
+
     //  box up the children, applying necessary widths and heights
     List<Row> columnChildren = [];
-    for (var r = 0; r < displayGrid.getRowCount(); r++) {
-      var row = displayGrid.getRow(r);
+    for (var r = 0; r < _locationGrid.getRowCount(); r++) {
+      var row = _locationGrid.getRow(r);
       assert(row != null);
       row = row!;
       List<Widget> children = [];
@@ -493,14 +507,6 @@ class LyricsTable {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: children,
       ));
-    }
-
-    //  map from song moment to cell grid
-    _songMomentNumberToSongCell.clear();
-    for (var songMoment in song.songMoments) {
-      logger.v('map: ${songMoment.momentNumber}:'
-          ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
-      _songMomentNumberToSongCell.add(_locationGrid.at(song.songMomentToGridCoordinate[songMoment.momentNumber])!);
     }
 
     return Column(children: columnChildren);
@@ -550,40 +556,42 @@ class LyricsTable {
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
   }
 
-  SongCell songCellAtSongMoment(SongMoment songMoment) {
-    return _songMomentNumberToSongCell[songMoment.momentNumber];
+  SongCell? songCellAtSongMoment(SongMoment songMoment) {
+    return _locationGrid.at(_songMomentNumberToLocationGrid[songMoment.momentNumber]);
   }
 
   double songMomentToY(SongMoment songMoment) {
     if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
       return 0.0;
     }
-    assert(songMoment.momentNumber >= 0 && songMoment.momentNumber < _songMomentNumberToSongCell.length);
+    assert(songMoment.momentNumber >= 0 && songMoment.momentNumber < _songMomentNumberToLocationGrid.length);
     if (songMoment.momentNumber == 0) {
       return 0; //  lock the scroll to the top on the first item
     }
-    return _songMomentNumberToSongCell[songMoment.momentNumber].point?.y ?? 0;
+    return _locationGrid.at(_songMomentNumberToLocationGrid[songMoment.momentNumber])?.point?.y ?? 0;
   }
 
   int yToSongMomentNumber(double y) {
-    if (_songMomentNumberToSongCell.isEmpty || y < 0) {
+    if (_songMomentNumberToLocationGrid.isEmpty || y < 0) {
       return 0;
     }
 
     //  use a fancier log2(O) algorithm if performance is an issue
     double error = double.maxFinite;
     int? best;
-    for (var i = 0; i < _songMomentNumberToSongCell.length; i++) {
-      var rect = _songMomentNumberToSongCell[i].rect;
-      logger.v('yToSongMomentNumber: $i: $y vs ${rect.bottom}, top: ${rect.top}');
-      if (y >= rect.top - rect.height / 2 && y <= rect.top + rect.height / 2) {
-        logger.v('yToSongMomentNumber: found $i: $y vs ${rect.bottom}, top: ${rect.top}, height: ${rect.height}');
-        return i;
-      }
-      var e = min((y - rect.top).abs(), (y - rect.bottom).abs());
-      if (e < error) {
-        error = e;
-        best = i;
+    for (var i = 0; i < _songMomentNumberToLocationGrid.length; i++) {
+      var rect = _locationGrid.at(_songMomentNumberToLocationGrid[i])?.rect;
+      if (rect != null) {
+        logger.v('yToSongMomentNumber: $i: $y vs ${rect.bottom}, top: ${rect.top}');
+        if (y >= rect.top - rect.height / 2 && y <= rect.top + rect.height / 2) {
+          logger.v('yToSongMomentNumber: found $i: $y vs ${rect.bottom}, top: ${rect.top}, height: ${rect.height}');
+          return i;
+        }
+        var e = min((y - rect.top).abs(), (y - rect.bottom).abs());
+        if (e < error) {
+          error = e;
+          best = i;
+        }
       }
     }
     return best ?? 0;
@@ -621,7 +629,8 @@ class LyricsTable {
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
 
-  final List<SongCell> _songMomentNumberToSongCell = [];
+  final List<GridCoordinate> _songMomentNumberToLocationGrid = [];
+  int? selectedSongMoment = 0;
 
   double _scaleFactor = 1.0;
 
@@ -651,25 +660,33 @@ class SongCell extends StatelessWidget {
     this.columnWidth,
     this.withEllipsis,
     this.textScaleFactor = 1.0,
+    this.selected = false,
   });
 
-  SongCell copyWith({Size? size, Point<double>? point, double? columnWidth, double textScaleFactor = 1.0}) {
+  SongCell copyWith({
+    Size? size,
+    Point<double>? point,
+    double? columnWidth,
+    double? textScaleFactor,
+    bool? selected,
+  }) {
     //  count on package level margin and padding to have been scaled elsewhere
     return SongCell(
       key: key,
       richText: RichText(
         text: richText.text,
-        textScaleFactor: textScaleFactor,
+        textScaleFactor: textScaleFactor ?? this.textScaleFactor,
         key: richText.key,
         softWrap: richText.softWrap,
       ),
       type: type,
       measureNode: measureNode,
-      size: size,
+      size: size ?? this.size,
       point: point,
       columnWidth: columnWidth,
       withEllipsis: withEllipsis,
-      textScaleFactor: textScaleFactor,
+      textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+      selected: selected ?? this.selected,
     );
   }
 
@@ -725,6 +742,14 @@ class SongCell extends StatelessWidget {
           width: buildSize.width,
           height: buildSize.height,
           padding: _padding,
+          foregroundDecoration: selected
+              ? BoxDecoration(
+                  border: Border.all(
+                    width: _marginSize,
+                    color: _highlightColor,
+                  ),
+                )
+              : null,
           color: richText.text.style?.backgroundColor ?? Colors.transparent,
           child: richText,
         ),
@@ -735,7 +760,14 @@ class SongCell extends StatelessWidget {
       height: buildSize.height,
       margin: _margin,
       padding: _padding,
-      //  decoration:const BoxDecoration(color:Colors.black), //  debug, remove color when used
+      foregroundDecoration: selected
+          ? BoxDecoration(
+              border: Border.all(
+                width: _marginSize,
+                color: _highlightColor,
+              ),
+            )
+          : null,
       color: richText.text.style?.backgroundColor ?? Colors.transparent,
       child: richText,
     );
@@ -774,4 +806,5 @@ class SongCell extends StatelessWidget {
   final Size? size;
   final double? columnWidth;
   final Point<double>? point;
+  final bool selected;
 }

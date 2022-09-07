@@ -1952,7 +1952,10 @@ class _ChordHighlightState extends State<_ChordHighlightWidget> {
       );
     }
 
-    final rect = _lyricsTable.songCellAtSongMoment(selectedMoment).rect;
+    final rect = _lyricsTable.songCellAtSongMoment(selectedMoment)?.rect;
+    if (rect == null) {
+      return const Text('missing');
+    }
     // a trick to get the indicator to fit in the space allocated in the space at the beginning of the row:
     logger.d('_ChordHighlightState: $selectedMoment, rect: $rect}');
     return Column(
@@ -1977,7 +1980,10 @@ class _ChordHighlightPainter extends CustomPainter {
 
     var margin = _lyricsTable.marginSize;
     if (_isPlaying && _selectedSongMoment != null) {
-      final rect = _lyricsTable.songCellAtSongMoment(_selectedSongMoment!).rect;
+      final rect = _lyricsTable.songCellAtSongMoment(_selectedSongMoment!)?.rect;
+      if (rect == null) {
+        return;
+      }
       final outlineRect =
           Rect.fromLTWH(rect.left - margin, rect.top - margin, rect.width + 4 * margin, rect.height + 4 * margin);
       canvas.drawRect(outlineRect, highlightColor);

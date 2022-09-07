@@ -11,8 +11,11 @@
     </script>
     <!-- offline workaround	-->
     <script type="application/javascript">
+        console.log("host: " + window.location.host);
         window.flutterConfiguration = {
-            canvasKitBaseUrl: "/bsteeleMusicApp/canvaskit/"
+            canvasKitBaseUrl: window.location.host.includes(":8080")
+            || window.location.host.includes("www.bsteele.com") //  beta as well
+                ? "/bsteeleMusicApp/canvaskit/" : "/canvaskit/"
         };
     </script>
 

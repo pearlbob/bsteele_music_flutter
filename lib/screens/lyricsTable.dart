@@ -98,6 +98,7 @@ class LyricsTable {
                       ),
                     ),
                     type: SongCellType.flow,
+                    measureNode: chordSection,
                   ),
                 );
               }
@@ -123,6 +124,7 @@ class LyricsTable {
                       ),
                     ),
                     type: SongCellType.columnFill,
+                    measureNode: chordSection,
                   ),
                 );
                 break;
@@ -140,6 +142,7 @@ class LyricsTable {
                       ),
                     ),
                     type: SongCellType.columnMinimum,
+                    measureNode: chordSection,
                   ),
                 );
                 break;
@@ -175,6 +178,7 @@ class LyricsTable {
                         ),
                       ),
                       type: SongCellType.columnMinimum,
+                      measureNode: chordSection,
                     ),
                   );
                 } else {
@@ -200,6 +204,7 @@ class LyricsTable {
                         ),
                       ),
                       type: SongCellType.columnMinimum,
+                      measureNode: chordSection,
                     ),
                   );
                 } else if (mn is Lyric) {
@@ -215,6 +220,7 @@ class LyricsTable {
                         ),
                       ),
                       type: SongCellType.columnFill,
+                      measureNode: mn,
                     ),
                   );
                 } else {
@@ -256,6 +262,7 @@ class LyricsTable {
                         ),
                       ),
                       type: SongCellType.columnMinimum,
+                      measureNode: mn,
                     ),
                   );
                 }
@@ -273,6 +280,7 @@ class LyricsTable {
                       ),
                     ),
                     type: SongCellType.columnFill,
+                    measureNode: mn,
                   ),
                 );
                 break;
@@ -323,6 +331,7 @@ class LyricsTable {
                     SongCell(
                       richText: richText,
                       type: SongCellType.columnFill,
+                      measureNode: mn,
                     ),
                   );
                 }
@@ -341,6 +350,7 @@ class LyricsTable {
                       ),
                     ),
                     type: SongCellType.columnFill,
+                    measureNode: mn,
                   ),
                 );
                 break;
@@ -480,6 +490,7 @@ class LyricsTable {
       }
 
       columnChildren.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: children,
       ));
     }
@@ -705,7 +716,7 @@ class SongCell extends StatelessWidget {
       }
 
       return Container(
-        alignment: Alignment.centerLeft,
+        alignment: Alignment.topLeft,
         width: columnWidth,
         height: buildSize.height,
         color: color,

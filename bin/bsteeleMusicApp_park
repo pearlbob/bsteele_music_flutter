@@ -65,7 +65,9 @@ flutter clean
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 #	see web/index.html for offline workaround URL trick
-flutter build web --release --web-renderer=html		#	fixme: temp for park!  Thu Aug 25 08:42:31 AM PDT 2022
+flutter build web --release --web-renderer=auto
+echo  fixme: test web-renderer=auto for park!   Sep  6 09:26:45 AM PDT 2022
+bsteeleMusicApp_canvaskit # offline canvas kit update
 
 # install beta lib util
 cd bsteeleMusicLib

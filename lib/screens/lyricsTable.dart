@@ -17,6 +17,7 @@ import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
@@ -54,6 +55,18 @@ Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
   return textPainter.size;
 }
 
+class SongMomentNotifier extends ChangeNotifier {
+  set songMoment(final SongMoment? songMoment) {
+    if (songMoment != _songMoment) {
+      _songMoment = songMoment;
+      notifyListeners();
+    }
+  }
+
+  SongMoment? get songMoment => _songMoment;
+  SongMoment? _songMoment;
+}
+
 /// compute a lyrics table
 class LyricsTable {
   Widget lyricsTable(
@@ -68,7 +81,7 @@ class LyricsTable {
     _computeScreenSizes();
 
     var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle, expanded: expanded);
-    _locationGrid = Grid<SongCell>();
+    _locationGrid = Grid<SongCellWidget>();
 
     //  compute transposition offset from base key
 
@@ -92,7 +105,7 @@ class LyricsTable {
                 _locationGrid.set(
                   r,
                   c,
-                  SongCell(
+                  SongCellWidget(
                     richText: RichText(
                       text: TextSpan(
                         text: chordSection.sectionVersion.toString().replaceAll(':', ''),
@@ -118,7 +131,7 @@ class LyricsTable {
                 _locationGrid.set(
                   r,
                   c,
-                  SongCell(
+                  SongCellWidget(
                     richText: RichText(
                       text: TextSpan(
                         text: chordSection.sectionVersion.toString(),
@@ -136,7 +149,7 @@ class LyricsTable {
                 _locationGrid.set(
                   r,
                   c,
-                  SongCell(
+                  SongCellWidget(
                     richText: RichText(
                       text: TextSpan(
                         text: chordSection.transpose(displayMusicKey, transpositionOffset),
@@ -172,7 +185,7 @@ class LyricsTable {
                   _locationGrid.set(
                     r,
                     c,
-                    SongCell(
+                    SongCellWidget(
                       richText: RichText(
                         text: TextSpan(
                           text: chordSection.sectionVersion.toString(),
@@ -194,7 +207,7 @@ class LyricsTable {
                   _locationGrid.set(
                     r,
                     c,
-                    SongCell(
+                    SongCellWidget(
                       richText: RichText(
                         text: TextSpan(
                           text: chordSection.transpose(displayMusicKey, transpositionOffset),
@@ -214,7 +227,7 @@ class LyricsTable {
                   _locationGrid.set(
                     r,
                     c,
-                    SongCell(
+                    SongCellWidget(
                       richText: RichText(
                         text: TextSpan(
                           text: mn.toMarkup(),
@@ -256,7 +269,7 @@ class LyricsTable {
                   _locationGrid.set(
                     r,
                     c,
-                    SongCell(
+                    SongCellWidget(
                       richText: RichText(
                         text: TextSpan(
                           text: chordSection.sectionVersion.toString(),
@@ -274,7 +287,7 @@ class LyricsTable {
                 _locationGrid.set(
                   r,
                   c,
-                  SongCell(
+                  SongCellWidget(
                     richText: RichText(
                       text: TextSpan(
                         text: mn.toMarkup(),
@@ -330,7 +343,7 @@ class LyricsTable {
                   _locationGrid.set(
                     r,
                     c,
-                    SongCell(
+                    SongCellWidget(
                       richText: richText,
                       type: SongCellType.columnFill,
                       measureNode: mn,
@@ -344,7 +357,7 @@ class LyricsTable {
                 _locationGrid.set(
                   r,
                   c,
-                  SongCell(
+                  SongCellWidget(
                     richText: RichText(
                       text: TextSpan(
                         text: mn.toMarkup(),
@@ -473,10 +486,6 @@ class LyricsTable {
           ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
       _songMomentNumberToLocationGrid.add(song.songMomentToGridCoordinate[songMoment.momentNumber]);
     }
-    if (selectedSongMoment != null) {
-      var gc = song.songMomentToGridCoordinate[selectedSongMoment!];
-      _locationGrid.setAt(gc, _locationGrid.at(gc)?.copyWith(selected: true));
-    }
 
     //  box up the children, applying necessary widths and heights
     List<Row> columnChildren = [];
@@ -556,7 +565,7 @@ class LyricsTable {
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
   }
 
-  SongCell? songCellAtSongMoment(SongMoment songMoment) {
+  SongCellWidget? songCellAtSongMoment(SongMoment songMoment) {
     return _locationGrid.at(_songMomentNumberToLocationGrid[songMoment.momentNumber]);
   }
 
@@ -613,8 +622,8 @@ class LyricsTable {
 
   double get marginSize => _marginSize;
 
-  Grid<SongCell> get locationGrid => _locationGrid;
-  Grid<SongCell> _locationGrid = Grid();
+  Grid<SongCellWidget> get locationGrid => _locationGrid;
+  Grid<SongCellWidget> _locationGrid = Grid();
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();
@@ -649,8 +658,13 @@ enum SongCellType {
   flow;
 }
 
-class SongCell extends StatelessWidget {
-  const SongCell({
+class SongCellWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _SongCellState();
+  }
+
+  const SongCellWidget({
     super.key,
     required this.richText,
     this.type = SongCellType.columnFill,
@@ -660,18 +674,16 @@ class SongCell extends StatelessWidget {
     this.columnWidth,
     this.withEllipsis,
     this.textScaleFactor = 1.0,
-    this.selected = false,
   });
 
-  SongCell copyWith({
+  SongCellWidget copyWith({
     Size? size,
     Point<double>? point,
     double? columnWidth,
     double? textScaleFactor,
-    bool? selected,
   }) {
     //  count on package level margin and padding to have been scaled elsewhere
-    return SongCell(
+    return SongCellWidget(
       key: key,
       richText: RichText(
         text: richText.text,
@@ -686,13 +698,12 @@ class SongCell extends StatelessWidget {
       columnWidth: columnWidth,
       withEllipsis: withEllipsis,
       textScaleFactor: textScaleFactor ?? this.textScaleFactor,
-      selected: selected ?? this.selected,
     );
   }
 
   /// convert a lyrics cell to a limited with lyrics cell with an ellipsis if required
-  SongCell shortenWithEllipsis(Size size, {TextSpan? textSpan}) {
-    return SongCell(
+  SongCellWidget shortenWithEllipsis(Size size, {TextSpan? textSpan}) {
+    return SongCellWidget(
       richText: RichText(
         key: richText.key,
         //  fixme: will this be a mistake? an error?  not currently used
@@ -712,64 +723,6 @@ class SongCell extends StatelessWidget {
       columnWidth: columnWidth,
       withEllipsis: true,
       textScaleFactor: textScaleFactor,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Size buildSize = _computeBuildSize();
-    if ((size?.width ?? 0) < (columnWidth ?? 0)) {
-      //  put the narrow column width on the left of a container
-      //  do the following row element is aligned in the next column
-
-      Color color;
-      switch (type) {
-        case SongCellType.columnMinimum:
-          color = Colors.transparent;
-          break;
-        default:
-          color = richText.text.style?.backgroundColor ?? Colors.transparent;
-          break;
-      }
-
-      return Container(
-        alignment: Alignment.topLeft,
-        width: columnWidth,
-        height: buildSize.height,
-        color: color,
-        margin: _margin,
-        child: Container(
-          width: buildSize.width,
-          height: buildSize.height,
-          padding: _padding,
-          foregroundDecoration: selected
-              ? BoxDecoration(
-                  border: Border.all(
-                    width: _marginSize,
-                    color: _highlightColor,
-                  ),
-                )
-              : null,
-          color: richText.text.style?.backgroundColor ?? Colors.transparent,
-          child: richText,
-        ),
-      );
-    }
-    return Container(
-      width: columnWidth ?? buildSize.width,
-      height: buildSize.height,
-      margin: _margin,
-      padding: _padding,
-      foregroundDecoration: selected
-          ? BoxDecoration(
-              border: Border.all(
-                width: _marginSize,
-                color: _highlightColor,
-              ),
-            )
-          : null,
-      color: richText.text.style?.backgroundColor ?? Colors.transparent,
-      child: richText,
     );
   }
 
@@ -794,7 +747,7 @@ class SongCell extends StatelessWidget {
 
   @override
   String toString({DiagnosticLevel? minLevel}) {
-    return 'SongCell{richText: $richText, type: ${type.name}, measureNode: $measureNode'
+    return 'SongCellWidget{richText: $richText, type: ${type.name}, measureNode: $measureNode'
         ', type: ${measureNode?.measureNodeType}, size: $size, point: $point}';
   }
 
@@ -806,5 +759,79 @@ class SongCell extends StatelessWidget {
   final Size? size;
   final double? columnWidth;
   final Point<double>? point;
-  final bool selected;
+}
+
+class _SongCellState extends State<SongCellWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SongMomentNotifier>(
+      builder: (context, songMomentNumber, child) {
+        logger.i('_SongCellState: songMoment: ${songMomentNumber.songMoment}');
+        if (child != null) {
+          return child;
+        }
+        return childBuilder(context);
+      },
+      child: Builder(builder: childBuilder),
+    );
+  }
+
+  Widget childBuilder(BuildContext context) {
+    var selected = true;
+    logger.i('_SongCellState: childBuilder: selected: $selected');
+    Size buildSize = widget._computeBuildSize();
+    if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {
+      //  put the narrow column width on the left of a container
+      //  do the following row element is aligned in the next column
+
+      Color color;
+      switch (widget.type) {
+        case SongCellType.columnMinimum:
+          color = Colors.transparent;
+          break;
+        default:
+          color = widget.richText.text.style?.backgroundColor ?? Colors.transparent;
+          break;
+      }
+
+      return Container(
+        alignment: Alignment.topLeft,
+        width: widget.columnWidth,
+        height: buildSize.height,
+        color: color,
+        margin: _margin,
+        child: Container(
+          width: buildSize.width,
+          height: buildSize.height,
+          padding: _padding,
+          foregroundDecoration: selected
+              ? BoxDecoration(
+                  border: Border.all(
+                    width: _marginSize,
+                    color: _highlightColor,
+                  ),
+                )
+              : null,
+          color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
+          child: widget.richText,
+        ),
+      );
+    }
+    return Container(
+      width: widget.columnWidth ?? buildSize.width,
+      height: buildSize.height,
+      margin: _margin,
+      padding: _padding,
+      foregroundDecoration: selected
+          ? BoxDecoration(
+              border: Border.all(
+                width: _marginSize,
+                color: _highlightColor,
+              ),
+            )
+          : null,
+      color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
+      child: widget.richText,
+    );
+  }
 }

@@ -183,6 +183,7 @@ void main() async {
 done:
 
 beta short list:
+Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
 escape from player to singers and no more ,.
 Jumping jack flash,
 silly love songs spacing ,

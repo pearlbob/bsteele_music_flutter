@@ -334,8 +334,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     logger.log(_logBuild, 'table rebuild: selectedSongMoment: $_songMomentNotifier.songMoment');
 
-    _songMomentNotifier.songMoment ??= _song.songMoments.first;
-
     final fontSize = app.screenInfo.fontSize;
     headerTextStyle = headerTextStyle.copyWith(fontSize: fontSize);
 
@@ -1201,7 +1199,7 @@ With escape, the app goes back to the play list.''',
   /// bump from one section to the next
   sectionBump(int bump) {
     if (_songMomentNotifier.songMoment == null) {
-      assert(false);
+      //fixme:  assert(false);
       return;
     }
     logger.log(
@@ -1462,11 +1460,11 @@ With escape, the app goes back to the play list.''',
         'setSelectedSongMoment(): ${songMoment?.momentNumber}'
         ', _songPlayerChangeNotifier.songMoment: ${_songMomentNotifier.songMoment?.momentNumber}');
 
+    _songMomentNotifier.songMoment = songMoment;
     if (songMoment == null || (force == false && _songMomentNotifier.songMoment == songMoment)) {
       logger.log(_logScroll, 'setSelectedSongMoment(): duplicate rejected: $songMoment');
       return;
     }
-    _songMomentNotifier.songMoment = songMoment;
 
     if (songUpdateService.isLeader) {
       leaderSongUpdate(_songMomentNotifier.songMoment!.momentNumber);

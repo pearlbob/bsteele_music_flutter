@@ -60,6 +60,7 @@ class SongMomentNotifier extends ChangeNotifier {
     if (songMoment != _songMoment) {
       _songMoment = songMoment;
       notifyListeners();
+      logger.i('songMoment: $_songMoment');
     }
   }
 
@@ -432,7 +433,6 @@ class LyricsTable {
         _logFontSize,
         'totalWidth: $totalWidth, totalHeight: $totalHeight, screenWidth: $screenWidth'
         ', scaled width: ${totalWidth * _scaleFactor}');
-
     if (_scaleFactor < 1.0) {
       //  rescale the grid to fit the window
       _scaleComponents(scaleFactor: _scaleFactor);
@@ -445,6 +445,7 @@ class LyricsTable {
       }
     }
 
+    //  set the location grid
     final double xMargin = 2.0 * _marginSize;
     final double yMargin = xMargin;
     {
@@ -484,7 +485,12 @@ class LyricsTable {
     for (var songMoment in song.songMoments) {
       logger.v('map: ${songMoment.momentNumber}:'
           ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
-      _songMomentNumberToLocationGrid.add(song.songMomentToGridCoordinate[songMoment.momentNumber]);
+      var gc = song.songMomentToGridCoordinate[songMoment.momentNumber];
+      _songMomentNumberToLocationGrid.add(gc);
+      _locationGrid.setAt(
+        gc,
+        _locationGrid.at(gc)?.copyWith(songMoment: songMoment),
+      );
     }
 
     //  box up the children, applying necessary widths and heights
@@ -674,6 +680,7 @@ class SongCellWidget extends StatefulWidget {
     this.columnWidth,
     this.withEllipsis,
     this.textScaleFactor = 1.0,
+    this.songMoment,
   });
 
   SongCellWidget copyWith({
@@ -681,6 +688,7 @@ class SongCellWidget extends StatefulWidget {
     Point<double>? point,
     double? columnWidth,
     double? textScaleFactor,
+    SongMoment? songMoment,
   }) {
     //  count on package level margin and padding to have been scaled elsewhere
     return SongCellWidget(
@@ -694,10 +702,11 @@ class SongCellWidget extends StatefulWidget {
       type: type,
       measureNode: measureNode,
       size: size ?? this.size,
-      point: point,
-      columnWidth: columnWidth,
+      point: point ?? this.point,
+      columnWidth: columnWidth ?? this.columnWidth,
       withEllipsis: withEllipsis,
       textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+      songMoment: songMoment,
     );
   }
 
@@ -759,17 +768,21 @@ class SongCellWidget extends StatefulWidget {
   final Size? size;
   final double? columnWidth;
   final Point<double>? point;
+  final SongMoment? songMoment;
 }
 
 class _SongCellState extends State<SongCellWidget> {
   @override
   Widget build(BuildContext context) {
     return Consumer<SongMomentNotifier>(
-      builder: (context, songMomentNumber, child) {
-        logger.i('_SongCellState: songMoment: ${songMomentNumber.songMoment}');
-        if (child != null) {
+      builder: (context, songMomentNotifier, child) {
+        var isNowSelected = songMomentNotifier.songMoment != null &&
+            songMomentNotifier.songMoment?.momentNumber == widget.songMoment?.momentNumber;
+        // logger.i('_SongCellState: songMoment: ${widget.songMoment} vs $songMomentNumber');
+        if (isNowSelected == selected && child != null) {
           return child;
         }
+        selected = isNowSelected;
         return childBuilder(context);
       },
       child: Builder(builder: childBuilder),
@@ -777,9 +790,21 @@ class _SongCellState extends State<SongCellWidget> {
   }
 
   Widget childBuilder(BuildContext context) {
-    var selected = true;
-    logger.i('_SongCellState: childBuilder: selected: $selected');
     Size buildSize = widget._computeBuildSize();
+    var maxWidth = max(widget.columnWidth ?? buildSize.width, (widget.size?.width ?? 0));
+    double width = maxWidth;
+    switch (widget.type) {
+      case SongCellType.columnMinimum:
+        width = buildSize.width;
+        break;
+      default:
+        break;
+    }
+    logger.v('_SongCellState: childBuilder: selected: $selected, songMoment: ${widget.songMoment?.momentNumber}'
+        ', text: "${widget.richText.text.toPlainText()}"'
+        ', width: $width/$maxWidth'
+        ', columnWidth: ${widget.columnWidth}');
+
     if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {
       //  put the narrow column width on the left of a container
       //  do the following row element is aligned in the next column
@@ -796,12 +821,12 @@ class _SongCellState extends State<SongCellWidget> {
 
       return Container(
         alignment: Alignment.topLeft,
-        width: widget.columnWidth,
+        width: maxWidth,
         height: buildSize.height,
         color: color,
         margin: _margin,
         child: Container(
-          width: buildSize.width,
+          width: width,
           height: buildSize.height,
           padding: _padding,
           foregroundDecoration: selected
@@ -818,7 +843,7 @@ class _SongCellState extends State<SongCellWidget> {
       );
     }
     return Container(
-      width: widget.columnWidth ?? buildSize.width,
+      width: maxWidth,
       height: buildSize.height,
       margin: _margin,
       padding: _padding,
@@ -834,4 +859,6 @@ class _SongCellState extends State<SongCellWidget> {
       child: widget.richText,
     );
   }
+
+  var selected = false; //  indicates the cell is currently selected, i.e. highlighted
 }

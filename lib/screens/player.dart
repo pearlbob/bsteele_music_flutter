@@ -180,11 +180,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
     playerItemPositionsListener.itemPositions.addListener(() {
-      logger.i('playerItemPositionsListener.Listener() callback:');
       var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
         return e1.index.compareTo(e2.index);
       })
         ..addAll(playerItemPositionsListener.itemPositions.value);
+      logger.i('playerItemPositionsListener.Listener() callback:  length: ${orderedSet.length}');
       logger.i('   ${orderedSet.first.toString()}');
       logger.i('   ${orderedSet.last.toString()}');
     });

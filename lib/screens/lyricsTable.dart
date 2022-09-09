@@ -76,6 +76,15 @@ class LyricsTable {
     music_key.Key? musicKey,
     expanded = false,
   }) {
+    return Column(children: lyricsTableItems(song, context, musicKey: musicKey, expanded: expanded));
+  }
+
+  List<Widget> lyricsTableItems(
+    Song song,
+    BuildContext context, {
+    music_key.Key? musicKey,
+    expanded = false,
+  }) {
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
 
@@ -284,7 +293,7 @@ class LyricsTable {
                 }
                 break;
               case MeasureNodeType.lyric:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 _locationGrid.set(
                   r,
                   c,
@@ -301,7 +310,7 @@ class LyricsTable {
                 );
                 break;
               case MeasureNodeType.measure:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 {
                   Measure measure = mn as Measure;
                   RichText richText = RichText(
@@ -354,7 +363,7 @@ class LyricsTable {
                 break;
 
               default:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 _locationGrid.set(
                   r,
                   c,
@@ -415,7 +424,7 @@ class LyricsTable {
     _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
-        //  fit everything vertically
+      //  fit everything vertically
         _scaleFactor = min(
             _scaleFactor,
             screenHeight *
@@ -524,7 +533,13 @@ class LyricsTable {
       ));
     }
 
-    return Column(children: columnChildren);
+    columnChildren.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(
+        'Copyright: ${song.copyright}',
+        style: _lyricsTextStyle,
+      )
+    ]));
+    return columnChildren;
   }
 
   void _colorBySectionVersion(SectionVersion sectionVersion) {

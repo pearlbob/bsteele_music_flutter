@@ -183,6 +183,8 @@ void main() async {
 done:
 
 beta short list:
+singer and requester on one singer/requester
+Singer + requester: mode as last set, default/preference for singer
 Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
 escape from player to singers and no more ,.
 Jumping jack flash,

@@ -59,10 +59,10 @@ Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
 
 class SongMomentNotifier extends ChangeNotifier {
   set songMoment(final SongMoment? songMoment) {
+    logger.i('songMoment: $_songMoment');
     if (songMoment != _songMoment) {
       _songMoment = songMoment;
       notifyListeners();
-      logger.v('songMoment: $_songMoment');
     }
   }
 
@@ -761,7 +761,6 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
 }
 
 class SongCellWidget extends StatefulWidget {
-
   const SongCellWidget({
     super.key,
     required this.richText,
@@ -883,10 +882,10 @@ class _SongCellState extends State<SongCellWidget> {
                     //  deal with compressed repeats
                     !(widget.expanded ?? true) &&
                         moment.lyricSection == widget.songMoment?.lyricSection &&
+                        moment.phraseIndex == widget.songMoment?.phraseIndex &&
                         moment.phrase.repeats > 1 &&
                         widget.songMoment?.measureIndex != null &&
-                        (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.repeats ==
-                            0)); // fixme: repeats broken!!!
+                        (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
         logger.v('_SongCellState: songMoment: ${widget.songMoment} vs ${moment?.momentNumber}');
         if (isNowSelected == selected && child != null) {
           return child;

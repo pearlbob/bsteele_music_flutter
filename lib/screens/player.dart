@@ -78,7 +78,6 @@ final _lyricSectionNotifier = LyricSectionNotifier();
 
 const int _minimumSpaceBarGapMs = 350; //  milliseconds
 
-final ScrollController _scrollController = ScrollController();
 music_key.Key _selectedSongKey = music_key.Key.C;
 
 //  diagnostic logging enables
@@ -188,6 +187,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
     playerItemPositionsListener.itemPositions.addListener(() {
+      logger.v('_isAnimated: $_isAnimated, _isPlaying: $_isPlaying');
       if (_isAnimated || _isPlaying) {
         return;
       }
@@ -197,10 +197,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         ..addAll(playerItemPositionsListener.itemPositions.value);
       if (orderedSet.isNotEmpty) {
         var item = orderedSet.first;
-        _lyricSectionNotifier.index = item.index + (item.itemLeadingEdge < 0 ? 1 : 0);
+        _lyricSectionNotifier.index = item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0);
         logger.v('playerItemPositionsListener:  length: ${orderedSet.length}'
             ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
-        logger.v('   ${item.toString()}');
+        logger.v('   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}, ');
       }
     });
 
@@ -245,6 +245,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   void dispose() {
     logger.d('player: dispose()');
     _cancelIdleTimer();
+
     _player = null;
     _playerIsOnTop = false;
     _songUpdate = null;
@@ -265,7 +266,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
         _logSongMaster,
         'songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}'
-        ', moment: ${_songMaster.momentNumber}');
+        ', moment: ${_songMaster.momentNumber}'
+        ', lyricSection: ${_song.getSongMoment(_songMaster.momentNumber ?? 0)?.lyricSection.index}');
 
     if (_songMaster.momentNumber != null) {
       var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
@@ -278,6 +280,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     } else if (_isPlaying != _songMaster.isPlaying) {
       setState(() {
         _isPlaying = _songMaster.isPlaying;
+        if (!_isPlaying) {
+          //  cancel the cell highlight
+          _songMomentNotifier.songMoment = null;
+        }
         songPlayMode = _isPlaying ? _SongPlayMode.autoPlay : _SongPlayMode.idle;
       });
     }
@@ -799,9 +805,11 @@ With escape, the app goes back to the play list.''',
                                                       Icons.arrow_upward,
                                                     ),
                                                     onPressed: () {
-                                                      setState(() {
-                                                        setSelectedSongKey(_selectedSongKey.nextKeyByHalfStep());
-                                                      });
+                                                      if (!_isAnimated) {
+                                                        setState(() {
+                                                          setSelectedSongKey(_selectedSongKey.nextKeyByHalfStep());
+                                                        });
+                                                      }
                                                     },
                                                   ),
                                                 ),
@@ -815,9 +823,11 @@ With escape, the app goes back to the play list.''',
                                                       Icons.arrow_downward,
                                                     ),
                                                     onPressed: () {
-                                                      setState(() {
-                                                        setSelectedSongKey(_selectedSongKey.previousKeyByHalfStep());
-                                                      });
+                                                      if (!_isAnimated) {
+                                                        setState(() {
+                                                          setSelectedSongKey(_selectedSongKey.previousKeyByHalfStep());
+                                                        });
+                                                      }
                                                     },
                                                   ),
                                                 ),
@@ -1030,7 +1040,7 @@ With escape, the app goes back to the play list.''',
                               ),
                               mini: !app.isScreenBig,
                             ))
-                      : (_scrollController.hasClients && _scrollController.offset > 0
+                      : (_lyricSectionNotifier.index > 0
                           ? appFloatingActionButton(
                               appKeyEnum: AppKeyEnum.playerFloatingTop,
                               onPressed: () {
@@ -1065,34 +1075,7 @@ With escape, the app goes back to the play list.''',
                               mini: !app.isScreenBig,
                             )),
                 ),
-                //  player data while in play
-                if (_scrollController.hasClients && _scrollController.offset > 0)
-                  Column(
-                    children: [
-                      AppSpace(
-                        verticalSpace: AppBar().preferredSize.height,
-                      ),
-                      AppWrap(
-                        children: [
-                          const AppSpace(
-                            horizontalSpace: 60,
-                          ),
-                          //
-                          Text(
-                            'Key $_selectedSongKey'
-                            '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
-                            '    ${_song.timeSignature.beatsPerBar} beats per measure'
-                            '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
-                            '  ', //  padding at the end
-                            style: generateAppTextStyle(
-                              decoration: TextDecoration.none,
-                              backgroundColor: const Color(0xe0eff4fd), //  fake a blended color, semi-opaque
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+
                 //  player settings
                 Column(
                   children: [
@@ -1150,27 +1133,23 @@ With escape, the app goes back to the play list.''',
       if (e.isControlPressed) {
         tempoTap();
       } else {
-        if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
-          _scrollController.jumpTo(boxCenter + kBottomNavigationBarHeight); //  rash
-        } else {
-          if (!_isPlaying) {
-            var nowMs = DateTime.now().millisecondsSinceEpoch;
-            logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
-            if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
-              _lastBumpTimeMs = nowMs;
+        if (!_isPlaying) {
+          var nowMs = DateTime.now().millisecondsSinceEpoch;
+          logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
+          if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
+            _lastBumpTimeMs = nowMs;
 
-              if (songPlayMode != _SongPlayMode.manualPlay) {
-                scrollToLyricSection(0); //  always start manual play from the beginning
-                setState(() {
-                  songPlayMode = _SongPlayMode.manualPlay;
-                });
-              } else {
-                sectionBump(1);
-              }
+            if (songPlayMode != _SongPlayMode.manualPlay) {
+              scrollToLyricSection(0); //  always start manual play from the beginning
+              setState(() {
+                songPlayMode = _SongPlayMode.manualPlay;
+              });
+            } else {
+              sectionBump(1);
             }
-          } else {
-            pauseToggle();
           }
+        } else {
+          pauseToggle();
         }
       }
       return KeyEventResult.handled;
@@ -1212,25 +1191,31 @@ With escape, the app goes back to the play list.''',
     scrollToLyricSection(_lyricSectionNotifier.index + bump);
   }
 
-  scrollToLyricSection(int index) {
+  scrollToLyricSection(int index, {final bool force = false}) {
     index = Util.intLimit(index, 0, widget._song.lyricSections.length - 1); //  safety
-    if (_lyricSectionNotifier.index == index) {
+
+    final priorIndex = _lyricSectionNotifier.index;
+    logger.log(_logScroll, 'scrollToLyricSection(): $index from $priorIndex, _isAnimated: $_isAnimated');
+    if (_lyricSectionNotifier.index == index && !force) {
       //  nothing to do
       return;
     }
-    final priorIndex = _lyricSectionNotifier.index;
-    logger.log(_logScroll, 'scrollToLyricSection(): $index from $priorIndex, _isAnimated: $_isAnimated');
 
     if (_itemScrollController.isAttached) {
       _lyricSectionNotifier.index = index;
       _isAnimated = true;
+      var duration = force
+          ? const Duration(milliseconds: 20)
+          : index >= priorIndex
+              ? const Duration(milliseconds: 1400)
+              : const Duration(milliseconds: 400);
       _itemScrollController
-          .scrollTo(
-              index: index,
-              duration: index > priorIndex ? const Duration(milliseconds: 1400) : const Duration(milliseconds: 400),
-              curve: Curves.fastLinearToSlowEaseIn)
+          .scrollTo(index: index, duration: duration, curve: Curves.fastLinearToSlowEaseIn)
           .then((value) {
-        _isAnimated = false;
+        Future.delayed(duration).then((_) {
+          //  fixme: the scrollTo returns prior to the completion of the animation!
+          _isAnimated = false;
+        });
       });
     }
   }
@@ -1273,7 +1258,6 @@ With escape, the app goes back to the play list.''',
     setState(() {
       setPlayMode();
       setSelectedSongMoment(_song.songMoments.first);
-      sectionBump(0);
       leaderSongUpdate(-1);
       logger.log(_logMode, 'play:');
       if (!songUpdateService.isFollowing) {
@@ -1304,8 +1288,7 @@ With escape, the app goes back to the play list.''',
       logger.log(
           _logLeaderFollower,
           'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
-          ', moment: ${_songUpdate?.momentNumber}'
-          ', scroll: ${_scrollController.offset}');
+          ', moment: ${_songUpdate?.momentNumber}');
     }
   }
 
@@ -1339,7 +1322,6 @@ With escape, the app goes back to the play list.''',
         if (_isPaused) {
           _songMaster.pause();
           songPlayMode = _SongPlayMode.pause;
-          _scrollController.jumpTo(_scrollController.offset);
           logger.log(_logScroll, 'pause():');
         } else {
           _songMaster.resume();
@@ -1380,6 +1362,10 @@ With escape, the app goes back to the play list.''',
     logger.log(
         _logMusicKey, '_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
 
+    Future.delayed(const Duration(milliseconds: 30)).then((_) {
+      logger.v('after delay: ');
+      scrollToLyricSection(_lyricSectionNotifier.index, force: true);
+    });
     forceTableRedisplay();
 
     leaderSongUpdate(-1);
@@ -1418,7 +1404,7 @@ With escape, the app goes back to the play list.''',
     int index = _lyricSectionNotifier.index;
     logger.log(_logBuild, '_forceTableRedisplay()');
     setState(() {});
-    _lyricSectionNotifier.index = index;
+    scrollToLyricSection(index, force: true);
   }
 
   void adjustDisplay() {
@@ -1448,11 +1434,13 @@ With escape, the app goes back to the play list.''',
         'setSelectedSongMoment(): ${songMoment?.momentNumber}'
         ', _songPlayerChangeNotifier.songMoment: ${_songMomentNotifier.songMoment?.momentNumber}');
 
-    _songMomentNotifier.songMoment = songMoment;
-    _lyricSectionNotifier.index = songMoment?.lyricSection.index ?? 0;
+    if (_songMomentNotifier.songMoment != songMoment) {
+      _songMomentNotifier.songMoment = songMoment;
+      scrollToLyricSection(songMoment?.lyricSection.index ?? 0);
 
-    if (songUpdateService.isLeader) {
-      leaderSongUpdate(_songMomentNotifier.songMoment!.momentNumber);
+      if (songUpdateService.isLeader) {
+        leaderSongUpdate(_songMomentNotifier.songMoment?.momentNumber ?? 0); //  fixme
+      }
     }
   }
 

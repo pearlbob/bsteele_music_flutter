@@ -25,7 +25,6 @@ import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +56,12 @@ Song _song = Song.createEmptySong();
 bool _isPlaying = false;
 final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
+// enum _SongPlayState {
+//   idle,
+//   manualPlay,
+//   autoPlay,
+//   pause,
+// }
 
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0;
@@ -74,7 +79,6 @@ music_key.Key _selectedSongKey = music_key.Key.C;
 //  diagnostic logging enables
 const Level _logBuild = Level.debug;
 const Level _logScroll = Level.debug;
-const Level _logScrollControllerListener = Level.debug;
 const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
@@ -145,9 +149,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _PlayerState() {
     _player = this;
 
-    //  as leader, distribute current location
-    _scrollController.addListener(_scrollControllerListener);
-
     //  show the update service status
     songUpdateService.addListener(songUpdateServiceListener);
 
@@ -181,7 +182,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
     playerItemPositionsListener.itemPositions.addListener(() {
-      if (_isAnimated) {
+      if (_isAnimated || _isPlaying) {
         return;
       }
       var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
@@ -241,49 +242,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _player = null;
     _playerIsOnTop = false;
     _songUpdate = null;
-    _scrollController.removeListener(_scrollControllerListener);
     songUpdateService.removeListener(songUpdateServiceListener);
     _songMaster.removeListener(songMasterListener);
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-
-  void _scrollControllerListener() {
-    _resetIdleTimer();
-
-    logger.log(
-        _logScrollControllerListener,
-        'scrollControllerListener: ${_scrollController.offset}'
-        ', number: ${_lyricsTable.yToSongMomentNumber(_scrollController.offset)}'
-        '/${_song.songMoments.length}, _isAnimated: $_isAnimated'
-        ', dur: ${_durationSinceScrollEvent()}');
-    if (songUpdateService.isLeader && !_isAnimated && _durationSinceScrollEvent() > scrollDuration) {
-      var songMoment = _song.songMoments[_lyricsTable.yToSongMomentNumber(_scrollController.offset)];
-      logger.log(
-          _logScroll,
-          '_scrollControllerListener: leader: ${songMoment.momentNumber}'
-          ', _isAnimated: $_isAnimated, offset: ${_scrollController.offset}'
-          ', dur: ${_durationSinceScrollEvent()}');
-      setSelectedSongMoment(songMoment);
-    }
-  }
-
-  Duration _durationSinceScrollEvent() {
-    return Duration(microseconds: DateTime.now().microsecondsSinceEpoch - _lastScrollAnimationTimeUs);
-  }
-
-  // void _scrollControllerCompletionCallback() {
-  //   logger.log(_logScroll, 'scrollController animation complete: $_isAnimated, offset: ${_scrollController.offset}');
-  //   _isAnimated = false;
-  //
-  //   //  worry about when to update the floating button
-  //   bool scrollIsZero = _scrollController.offset == 0; //  no check for has client in a client!... we are the client
-  //   if (scrollWasZero != scrollIsZero) {
-  //     logger.log(_logScroll, 'scrollWasZero != scrollIsZero: $scrollWasZero vs. $scrollIsZero');
-  //   }
-  //   scrollWasZero = scrollIsZero;
-  // }
 
   //  update the song update service status
   void songUpdateServiceListener() {
@@ -1330,8 +1294,8 @@ With escape, the app goes back to the play list.''',
   void simpleStop() {
     _isPlaying = false;
     _isPaused = true;
-    // scrollController.jumpTo(0);   //  too rash
     _songMaster.stop();
+    _songMomentNotifier.songMoment = null;
     logger.log(_logMode, 'simpleStop()');
     logger.log(_logScroll, 'simpleStop():');
   }
@@ -1452,23 +1416,10 @@ With escape, the app goes back to the play list.''',
 
     _songMomentNotifier.songMoment = songMoment;
     _lyricSectionNotifier.index = songMoment?.lyricSection.index ?? 0;
-    // if (songMoment == null || (force == false && _songMomentNotifier.songMoment == songMoment)) {
-    //   logger.log(_logScroll, 'setSelectedSongMoment(): duplicate rejected: $songMoment');
-    //   return;
-    // }
-    //
+
     if (songUpdateService.isLeader) {
       leaderSongUpdate(_songMomentNotifier.songMoment!.momentNumber);
     }
-    //
-    // var y = _lyricsTable.songMomentToY(_songMomentNotifier.songMoment!);
-    // scrollToTargetY(y);
-    // logger.log(
-    //     _logScroll,
-    //     'scrollToSectionByMoment: ${songMoment.momentNumber}: '
-    //     '$songMoment => section #${songMoment.lyricSection.index} => $y');
-    //
-    // logger.log(_logScroll, 'selectedSongMoment: $_songMomentNotifier.songMoment');
   }
 
   bool capoIsAvailable() {
@@ -1839,8 +1790,6 @@ With escape, the app goes back to the play list.''',
 
   late final FocusNode _rawKeyboardListenerFocusNode;
 
-  BeatStatefulWidget beatStatefulWidget = const BeatStatefulWidget();
-
   set compressRepeats(bool value) => appOptions.compressRepeats = value;
 
   bool get compressRepeats => appOptions.compressRepeats;
@@ -1858,11 +1807,6 @@ With escape, the app goes back to the play list.''',
   final SongMaster _songMaster = SongMaster();
 
   bool _isAnimated = false;
-
-  //  used to keep the animation feedback honest:
-  int _lastScrollAnimationTimeUs = 0;
-  bool scrollWasZero = true;
-  static const scrollDuration = Duration(milliseconds: 850);
 
   int sectionIndex = 0; //  index for current lyric section, fixme temp?
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
@@ -1886,88 +1830,6 @@ With escape, the app goes back to the play list.''',
 
   static final appOptions = AppOptions();
   final SongUpdateService songUpdateService = SongUpdateService();
-}
-
-// class _LocationGridDebugPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     //  clear the layer
-//     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.transparent);
-//
-//     Offset lyricsTableOffset = Offset(_lyricsTable.marginSize, _lyricsTable.marginSize);
-//
-//     //  paint around the lyrics table components for debug diagnostic
-//     var grid = _lyricsTable.locationGrid;
-//     for (var r = 0; r < grid.getRowCount(); r++) {
-//       var cLen = grid.rowLength(r);
-//       for (var c = 0; c < cLen; c++) {
-//         var cell = grid.get(r, c);
-//         if (cell == null) {
-//           continue;
-//         }
-//         canvas.drawRect(cell.rect.shift(lyricsTableOffset).inflate(1.0), highlightColor);
-//       }
-//     }
-//   }
-//
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-//     return true; //  fixme optimize?
-//   }
-//
-// // static final highlightColor = Paint()..color = Colors.lightBlueAccent..color.withAlpha( 100)..style = PaintingStyle.stroke;
-//   static final highlightColor = Paint()
-//     ..color = Colors.yellowAccent //.withAlpha(200)
-//     ..style = PaintingStyle.stroke;
-// }
-
-class BeatStatefulWidget extends StatefulWidget {
-  const BeatStatefulWidget({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() {
-    return _BeatState();
-  }
-}
-
-class _BeatState extends State<BeatStatefulWidget> with SingleTickerProviderStateMixin {
-  @override
-  void initState() {
-    super.initState();
-    _ticker = createTicker((elapsed) {
-      setState(() {
-        _elapsed = elapsed;
-      });
-    });
-    _ticker.start();
-  }
-
-  @override
-  void dispose() {
-    //  don't forget to dispose it
-    _ticker.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isPlaying) {
-      return NullWidget();
-    }
-    final period =
-        Duration.microsecondsPerSecond * Duration.secondsPerMinute ~/ (playerSelectedBpm ?? _song.beatsPerMinute);
-    assert(period > 0);
-    var phase = (_elapsed.inMicroseconds % period) / period;
-    // return Text(phase.toStringAsPrecision(6));
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: ColoredBox(color: Colors.red.withOpacity(phase > 0.33 ? 0.0 : 1.0)),
-    );
-  }
-
-  Duration _elapsed = Duration.zero;
-  late final Ticker _ticker;
 }
 
 class _DataReminderWidget extends StatefulWidget {

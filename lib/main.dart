@@ -183,9 +183,21 @@ void main() async {
 done:
 
 beta short list:
+_____repeated chords not highlighted on compressed chords in auto play
+_____stop of auto play: remove moment highlight
+auto scroll in auto play
+indicator should be on current chord row
+manual play should eliminate top of player while active
+pro display sequencing
+singer display sequencing
+player only lyrics abreviated
+
 singer and requester on one singer/requester
 Singer + requester: mode as last set, default/preference for singer
 Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
+
+
+
 escape from player to singers and no more ,.
 Jumping jack flash,
 silly love songs spacing ,

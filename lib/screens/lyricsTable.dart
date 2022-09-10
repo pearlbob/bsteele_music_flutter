@@ -62,7 +62,7 @@ class SongMomentNotifier extends ChangeNotifier {
     if (songMoment != _songMoment) {
       _songMoment = songMoment;
       notifyListeners();
-      logger.i('songMoment: $_songMoment');
+      logger.v('songMoment: $_songMoment');
     }
   }
 
@@ -76,7 +76,7 @@ class LyricSectionNotifier extends ChangeNotifier {
     if (index != _index) {
       _index = index;
       notifyListeners();
-      logger.v('lyricSection: $_index');
+      logger.i('lyricSection: $_index');
     }
   }
 
@@ -309,6 +309,7 @@ class LyricsTable {
                     ),
                     type: SongCellType.columnFill,
                     measureNode: measureNode,
+                    expanded: expanded,
                   ),
                 );
                 break;
@@ -360,6 +361,7 @@ class LyricsTable {
                       richText: richText,
                       type: SongCellType.columnFill,
                       measureNode: measureNode,
+                      expanded: expanded,
                     ),
                   );
                 }
@@ -493,12 +495,10 @@ class LyricsTable {
     }
 
     //  map from song moment to cell grid
-    _songMomentNumberToLocationGrid.clear();
     for (var songMoment in song.songMoments) {
       logger.v('map: ${songMoment.momentNumber}:'
           ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
       var gc = song.songMomentToGridCoordinate[songMoment.momentNumber];
-      _songMomentNumberToLocationGrid.add(gc);
       _locationGrid.setAt(
         gc,
         _locationGrid.at(gc)?.copyWith(songMoment: songMoment),
@@ -546,8 +546,9 @@ class LyricsTable {
                   horizontalSpace: arrowIndicatorWidth * _scaleFactor,
                 )
               : LyricSectionCellWidget(
-                  lyricSection: lyricSection!,
+            lyricSection: lyricSection!,
                   width: arrowIndicatorWidth * _scaleFactor,
+                  height: heights[r],
                   fontSize: _chordFontSize * _scaleFactor,
                 );
 
@@ -659,49 +660,6 @@ class LyricsTable {
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
   }
 
-  SongCellWidget? songCellAtSongMoment(SongMoment songMoment) {
-    return _locationGrid.at(_songMomentNumberToLocationGrid[songMoment.momentNumber]);
-  }
-
-  double songMomentToY(SongMoment songMoment) {
-    if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
-      return 0.0;
-    }
-    assert(songMoment.momentNumber >= 0 && songMoment.momentNumber < _songMomentNumberToLocationGrid.length);
-    if (songMoment.momentNumber == 0) {
-      return 0; //  lock the scroll to the top on the first item
-    }
-    return _locationGrid.at(_songMomentNumberToLocationGrid[songMoment.momentNumber])?.point?.y ?? 0;
-  }
-
-  int yToSongMomentNumber(double y) {
-    if (_songMomentNumberToLocationGrid.isEmpty || y < 0) {
-      return 0;
-    }
-
-    //  use a fancier log2(O) algorithm if performance is an issue
-    double error = double.maxFinite;
-    int? best;
-    for (var i = 0; i < _songMomentNumberToLocationGrid.length; i++) {
-      var rect = _locationGrid.at(_songMomentNumberToLocationGrid[i])?.rect;
-      if (rect != null) {
-        logger.v('yToSongMomentNumber: $i: $y vs ${rect.bottom}, top: ${rect.top}');
-        if (y >= rect.top - rect.height / 2 && y <= rect.top + rect.height / 2) {
-          logger.v('yToSongMomentNumber: found $i: $y vs ${rect.bottom}, top: ${rect.top}, height: ${rect.height}');
-          return i;
-        }
-        var e = min((y - rect.top).abs(), (y - rect.bottom).abs());
-        if (e < error) {
-          error = e;
-          best = i;
-        }
-      }
-    }
-    return best ?? 0;
-  }
-
-  static final emptyRichText = RichText(text: const TextSpan(text: ''));
-
   double get screenWidth => _screenWidth;
   double _screenWidth = 100;
 
@@ -716,7 +674,6 @@ class LyricsTable {
 
   double get marginSize => _marginSize;
 
-  Grid<SongCellWidget> get locationGrid => _locationGrid;
   Grid<SongCellWidget> _locationGrid = Grid();
 
   TextStyle get chordTextStyle => _chordTextStyle;
@@ -731,9 +688,6 @@ class LyricsTable {
   Color _sectionBackgroundColor = Colors.white;
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
-
-  final List<GridCoordinate> _songMomentNumberToLocationGrid = [];
-  int? selectedSongMoment = 0;
 
   double _scaleFactor = 1.0;
 
@@ -754,7 +708,11 @@ enum SongCellType {
 
 class LyricSectionCellWidget extends StatefulWidget {
   LyricSectionCellWidget(
-      {super.key, required this.lyricSection, required this.width, this.fontSize = appDefaultFontSize})
+      {super.key,
+      required this.lyricSection,
+      required this.width,
+      required this.height,
+      this.fontSize = appDefaultFontSize})
       : index = lyricSection.index;
 
   @override
@@ -765,6 +723,7 @@ class LyricSectionCellWidget extends StatefulWidget {
   final LyricSection lyricSection;
   final double fontSize;
   final double width;
+  final double height;
   final int index;
 }
 
@@ -794,7 +753,7 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
               size: widget.fontSize,
               color: Colors.redAccent,
             )
-          : null, // empty box
+          : null, //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
   }
 
@@ -802,10 +761,6 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
 }
 
 class SongCellWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _SongCellState();
-  }
 
   const SongCellWidget({
     super.key,
@@ -818,6 +773,7 @@ class SongCellWidget extends StatefulWidget {
     this.withEllipsis,
     this.textScaleFactor = 1.0,
     this.songMoment,
+    this.expanded,
   });
 
   SongCellWidget copyWith({
@@ -844,7 +800,13 @@ class SongCellWidget extends StatefulWidget {
       withEllipsis: withEllipsis,
       textScaleFactor: textScaleFactor ?? this.textScaleFactor,
       songMoment: songMoment,
+      expanded: expanded,
     );
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    return _SongCellState();
   }
 
   /// convert a lyrics cell to a limited with lyrics cell with an ellipsis if required
@@ -906,6 +868,7 @@ class SongCellWidget extends StatefulWidget {
   final double? columnWidth;
   final Point<double>? point;
   final SongMoment? songMoment;
+  final bool? expanded;
 }
 
 class _SongCellState extends State<SongCellWidget> {
@@ -913,9 +876,18 @@ class _SongCellState extends State<SongCellWidget> {
   Widget build(BuildContext context) {
     return Consumer<SongMomentNotifier>(
       builder: (context, songMomentNotifier, child) {
-        var isNowSelected = songMomentNotifier.songMoment != null &&
-            songMomentNotifier.songMoment?.momentNumber == widget.songMoment?.momentNumber; // fixme: repeats broken!!!
-        // logger.i('_SongCellState: songMoment: ${widget.songMoment} vs $songMomentNumber');
+        var moment = songMomentNotifier.songMoment;
+        var isNowSelected = moment != null &&
+            (moment.momentNumber == widget.songMoment?.momentNumber ||
+                (
+                    //  deal with compressed repeats
+                    !(widget.expanded ?? true) &&
+                        moment.lyricSection == widget.songMoment?.lyricSection &&
+                        moment.phrase.repeats > 1 &&
+                        widget.songMoment?.measureIndex != null &&
+                        (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.repeats ==
+                            0)); // fixme: repeats broken!!!
+        logger.v('_SongCellState: songMoment: ${widget.songMoment} vs ${moment?.momentNumber}');
         if (isNowSelected == selected && child != null) {
           return child;
         }

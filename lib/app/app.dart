@@ -346,7 +346,7 @@ class AppTooltip extends StatelessWidget {
         key: key,
         message: message,
         textStyle: textStyle,
-        waitDuration: const Duration(seconds: 1, milliseconds: 200),
+        waitDuration: const Duration(seconds: 2, milliseconds: 500),
         verticalOffset: 75,
         decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
         padding: const EdgeInsets.all(8),

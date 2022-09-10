@@ -76,7 +76,7 @@ class LyricSectionNotifier extends ChangeNotifier {
     if (index != _index) {
       _index = index;
       notifyListeners();
-      logger.i('lyricSection: $_index');
+      logger.v('lyricSection: $_index');
     }
   }
 

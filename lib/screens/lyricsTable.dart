@@ -39,6 +39,7 @@ get it right next time:  repeats in measure column
 
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
+const Level _logLyricSectionCellState = Level.debug;
 
 const double _paddingSizeMax = 5; //  fixme: can't be 0
 double _paddingSize = _paddingSizeMax;
@@ -70,16 +71,17 @@ class SongMomentNotifier extends ChangeNotifier {
 }
 
 class LyricSectionNotifier extends ChangeNotifier {
-  set lyricSection(final LyricSection? lyricSection) {
-    if (lyricSection != _lyricSection) {
-      _lyricSection = lyricSection;
+  set index(int index) {
+    index = max(index, 0);
+    if (index != _index) {
+      _index = index;
       notifyListeners();
-      logger.i('lyricSection: $_lyricSection');
+      logger.v('lyricSection: $_index');
     }
   }
 
-  LyricSection? get lyricSection => _lyricSection;
-  LyricSection? _lyricSection;
+  int get index => _index;
+  int _index = 0;
 }
 
 /// compute a lyrics table
@@ -543,12 +545,10 @@ class LyricsTable {
               ? AppSpace(
                   horizontalSpace: arrowIndicatorWidth * _scaleFactor,
                 )
-              : SizedBox(
+              : LyricSectionCellWidget(
+                  lyricSection: lyricSection!,
                   width: arrowIndicatorWidth * _scaleFactor,
-                  child: LyricSectionCellWidget(
-                    lyricSection: lyricSection!,
-                    fontSize: _chordFontSize * _scaleFactor,
-                  ),
+                  fontSize: _chordFontSize * _scaleFactor,
                 );
 
           rowWidget = Row(
@@ -578,20 +578,19 @@ class LyricsTable {
       }
     }
 
-    logger.i('lyricsTable items length: ${items.length}');
-
     //  show copyright
     items.add(Padding(
       padding: EdgeInsets.all(_lyricsFontSize),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppSpace(space: _lyricsFontSize),
+          AppSpace(verticalSpace: _lyricsFontSize),
           Text(
             'Copyright: ${song.copyright}',
-            style: _lyricsTextStyle,
+            style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSize * _scaleFactor),
           ),
-          AppSpace(space: _lyricsFontSize),
+          //  give the scrolling some stuff to scroll the bottom up on
+          AppSpace(verticalSpace: screenHeight / 2),
         ],
       ),
     ));
@@ -754,7 +753,9 @@ enum SongCellType {
 }
 
 class LyricSectionCellWidget extends StatefulWidget {
-  const LyricSectionCellWidget({super.key, required this.lyricSection, this.fontSize = appDefaultFontSize});
+  LyricSectionCellWidget(
+      {super.key, required this.lyricSection, required this.width, this.fontSize = appDefaultFontSize})
+      : index = lyricSection.index;
 
   @override
   State<StatefulWidget> createState() {
@@ -763,17 +764,41 @@ class LyricSectionCellWidget extends StatefulWidget {
 
   final LyricSection lyricSection;
   final double fontSize;
+  final double width;
+  final int index;
 }
 
 class _LyricSectionCellState extends State<LyricSectionCellWidget> {
   @override
   Widget build(BuildContext context) {
-    return appIcon(
-      Icons.play_arrow,
-      size: widget.fontSize,
-      color: Colors.redAccent,
+    return Consumer<LyricSectionNotifier>(
+      builder: (context, lyricSectionNotifier, child) {
+        var isNowSelected = lyricSectionNotifier.index == widget.index;
+        if (isNowSelected == selected && child != null) {
+          return child;
+        }
+        selected = isNowSelected;
+        return childBuilder(context);
+      },
+      child: Builder(builder: childBuilder),
     );
   }
+
+  Widget childBuilder(BuildContext context) {
+    logger.log(_logLyricSectionCellState, '_LyricSectionCellState.childBuilder: run: selected: $selected');
+    return SizedBox(
+      width: widget.width,
+      child: selected
+          ? appIcon(
+              Icons.play_arrow,
+              size: widget.fontSize,
+              color: Colors.redAccent,
+            )
+          : null, // empty box
+    );
+  }
+
+  var selected = false;
 }
 
 class SongCellWidget extends StatefulWidget {
@@ -889,7 +914,7 @@ class _SongCellState extends State<SongCellWidget> {
     return Consumer<SongMomentNotifier>(
       builder: (context, songMomentNotifier, child) {
         var isNowSelected = songMomentNotifier.songMoment != null &&
-            songMomentNotifier.songMoment?.momentNumber == widget.songMoment?.momentNumber;
+            songMomentNotifier.songMoment?.momentNumber == widget.songMoment?.momentNumber; // fixme: repeats broken!!!
         // logger.i('_SongCellState: songMoment: ${widget.songMoment} vs $songMomentNumber');
         if (isNowSelected == selected && child != null) {
           return child;

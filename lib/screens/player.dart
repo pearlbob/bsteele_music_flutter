@@ -1210,6 +1210,15 @@ With escape, the app goes back to the play list.''',
 
     if (_itemScrollController.isAttached) {
       _lyricSectionNotifier.index = index;
+
+      //  remote scroll
+      if (songUpdateService.isLeader) {
+        var lyricSection = _song.lyricSections[index];
+        assert(lyricSection != null);
+        leaderSongUpdate(_song.firstMomentInLyricSection(lyricSection).momentNumber);
+      }
+
+      //  local scroll
       _isAnimated = true;
       var duration = force
           ? const Duration(milliseconds: 20)
@@ -1276,26 +1285,29 @@ With escape, the app goes back to the play list.''',
   /// Workaround to avoid calling setState() outside of the framework classes
   void setPlayState() {
     if (_songUpdate != null) {
+      int momentNumber = Util.intLimit(_songUpdate!.momentNumber, 0, _song.songMoments.length - 1);
+      assert(momentNumber >= 0);
+      assert(momentNumber < _song.songMoments.length);
+      var songMoment = _song.songMoments[momentNumber];
+
       switch (_songUpdate!.state) {
         case SongUpdateState.playing:
           if (!_isPlaying) {
             setPlayMode();
           }
+          setSelectedSongMoment(songMoment);
           break;
         default:
           _isPlaying = false;
           songPlayMode = _SongPlayMode.idle;
+          scrollToLyricSection(songMoment.lyricSection.index);
           break;
       }
 
-      int momentNumber = Util.intLimit(_songUpdate!.momentNumber, 0, _song.songMoments.length - 1);
-      assert(momentNumber >= 0);
-      assert(momentNumber < _song.songMoments.length);
-      setSelectedSongMoment(_song.songMoments[momentNumber]);
       logger.log(
           _logLeaderFollower,
           'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
-          ', moment: ${_songUpdate?.momentNumber}');
+              ', moment: ${_songUpdate?.momentNumber}');
     }
   }
 

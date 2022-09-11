@@ -316,7 +316,8 @@ class LyricsTable {
             switch (measureNode.measureNodeType) {
               case MeasureNodeType.lyricSection:
                 _displayChordSection(GridCoordinate(r, c),
-                    song.findChordSectionByLyricSection(measureNode as LyricSection)!, measureNode);
+                    song.findChordSectionByLyricSection(measureNode as LyricSection)!, measureNode,
+                    selectable: false);
                 break;
               case MeasureNodeType.section:
                 _displayChordSection(GridCoordinate(r, c), measureNode as ChordSection, measureNode);
@@ -634,7 +635,7 @@ class LyricsTable {
     return items;
   }
 
-  void _displayChordSection(GridCoordinate gc, ChordSection chordSection, MeasureNode measureNode) {
+  void _displayChordSection(GridCoordinate gc, ChordSection chordSection, MeasureNode measureNode, {bool? selectable}) {
     _colorBySectionVersion(chordSection.sectionVersion);
     _locationGrid.setAt(
       gc,
@@ -647,6 +648,7 @@ class LyricsTable {
         ),
         type: SongCellType.columnMinimum,
         measureNode: measureNode,
+        selectable: selectable,
       ),
     );
   }

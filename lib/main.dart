@@ -181,8 +181,12 @@ void main() async {
 
 /*
 done:
+leader/follower fixes required
+verify the "The " processing
+beta short list:Prodigal Son: something is way wrong with song deletion and song renaming.   i will have to fix it for the next release!
 
-beta short list:
+i found "3 am.songlyrics" as a file name for "3 am" (not surprising) but also: "Ashes to Ashes", "Crawling from the Wreckage", "Here Comes Your Man", and "Rain".I'll investigate but is there anything you can think of in your behavior that might trigger this?
+
 _____repeated chords not highlighted on compressed chords in auto play
 _____stop of auto play: remove moment highlight
 auto scroll in auto play

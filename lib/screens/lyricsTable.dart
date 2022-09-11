@@ -59,7 +59,7 @@ Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
 
 class SongMomentNotifier extends ChangeNotifier {
   set songMoment(final SongMoment? songMoment) {
-    logger.i('songMoment: $_songMoment');
+    logger.v('songMoment: $_songMoment');
     if (songMoment != _songMoment) {
       _songMoment = songMoment;
       notifyListeners();
@@ -125,8 +125,11 @@ class LyricsTable {
             //  list all sections in order
             {
               //  list the sections
+              assert(row.length == song.lyricSections.length);
               for (var c = 0; c < row.length; c++) {
                 var chordSection = displayGrid.get(r, c) as ChordSection;
+                var lyricSection = song.lyricSections[c];
+                assert(chordSection == song.findChordSectionByLyricSection(lyricSection));
                 _colorBySectionVersion(chordSection.sectionVersion);
                 _locationGrid.set(
                   r,
@@ -139,7 +142,7 @@ class LyricsTable {
                       ),
                     ),
                     type: SongCellType.flow,
-                    measureNode: chordSection,
+                    measureNode: lyricSection,
                   ),
                 );
               }
@@ -205,7 +208,29 @@ class LyricsTable {
             MeasureNode? mn = displayGrid.get(r, c);
             switch (c) {
               case 0:
-                if (mn?.measureNodeType == MeasureNodeType.section) {
+                if (mn?.measureNodeType == MeasureNodeType.lyricSection) {
+                  var lyricSection = mn as LyricSection;
+                  ChordSection? chordSection = song.findChordSectionByLyricSection(lyricSection);
+                  if (chordSection != null) {
+                    _colorBySectionVersion(chordSection.sectionVersion);
+                    _locationGrid.set(
+                      r,
+                      c,
+                      SongCellWidget(
+                        richText: RichText(
+                          text: TextSpan(
+                            text: chordSection.sectionVersion.toString(),
+                            style: _coloredChordTextStyle,
+                          ),
+                        ),
+                        type: SongCellType.columnMinimum,
+                        measureNode: lyricSection,
+                      ),
+                    );
+                  } else {
+                    assert(false);
+                  }
+                } else if (mn?.measureNodeType == MeasureNodeType.section) {
                   ChordSection chordSection = mn as ChordSection;
                   _colorBySectionVersion(chordSection.sectionVersion);
                   _locationGrid.set(
@@ -246,6 +271,7 @@ class LyricsTable {
                       ),
                       type: SongCellType.columnMinimum,
                       measureNode: chordSection,
+                      selectable: false,
                     ),
                   );
                 } else if (mn is Lyric) {
@@ -307,7 +333,9 @@ class LyricsTable {
                         style: _coloredLyricTextStyle,
                       ),
                     ),
-                    type: SongCellType.columnFill,
+                    type: _appOptions.userDisplayStyle == UserDisplayStyle.both
+                        ? SongCellType.lyric
+                        : SongCellType.lyricEllipsis,
                     measureNode: measureNode,
                     expanded: expanded,
                   ),
@@ -420,6 +448,11 @@ class LyricsTable {
     //  discover the overall total width and height
     double arrowIndicatorWidth = _chordFontSize;
     var totalWidth = widths.fold<double>(arrowIndicatorWidth, (previous, e) => previous + e + 2.0 * _marginSize);
+    //  allocate space for player lyrics
+    if (_appOptions.userDisplayStyle == UserDisplayStyle.player && widths.last == 0) {
+      widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
+      totalWidth += widths.last;
+    }
     var totalHeight = heights.fold<double>(0.0, (previous, e) => previous + e + 2.0 * _marginSize);
 
     assert(totalWidth > 0);
@@ -429,7 +462,7 @@ class LyricsTable {
     _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
-      //  fit everything vertically
+        //  fit everything vertically
         _scaleFactor = min(
             _scaleFactor,
             screenHeight *
@@ -459,7 +492,7 @@ class LyricsTable {
       }
     }
 
-    //  set the location grid
+    //  set the location grid sizing
     final double xMargin = 2.0 * _marginSize;
     final double yMargin = xMargin;
     {
@@ -494,6 +527,8 @@ class LyricsTable {
       }
     }
 
+    List<Widget> items = [];
+
     //  map from song moment to cell grid
     for (var songMoment in song.songMoments) {
       logger.v('map: ${songMoment.momentNumber}:'
@@ -504,8 +539,6 @@ class LyricsTable {
         _locationGrid.at(gc)?.copyWith(songMoment: songMoment),
       );
     }
-
-    List<Widget> items = [];
 
     //  box up the children, applying necessary widths and heights
     {
@@ -578,6 +611,8 @@ class LyricsTable {
         ));
       }
     }
+
+    logger.v(_locationGrid.toString());
 
     //  show copyright
     items.add(Padding(
@@ -773,6 +808,7 @@ class SongCellWidget extends StatefulWidget {
     this.textScaleFactor = 1.0,
     this.songMoment,
     this.expanded,
+    this.selectable,
   });
 
   SongCellWidget copyWith({
@@ -782,15 +818,32 @@ class SongCellWidget extends StatefulWidget {
     double? textScaleFactor,
     SongMoment? songMoment,
   }) {
-    //  count on package level margin and padding to have been scaled elsewhere
-    return SongCellWidget(
-      key: key,
-      richText: RichText(
+    RichText copyOfRichText;
+
+    if (type == SongCellType.lyricEllipsis && columnWidth != null) {
+      copyOfRichText = RichText(
+        key: richText.key,
+        //  fixme: will this be a mistake? an error?  not currently used
+        text: //  default to one line
+            TextSpan(text: richText.text.toPlainText().replaceAll('\n', ', '), style: richText.text.style),
+        textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+        softWrap: false,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    } else {
+      copyOfRichText = RichText(
         text: richText.text,
         textScaleFactor: textScaleFactor ?? this.textScaleFactor,
         key: richText.key,
         softWrap: richText.softWrap,
-      ),
+      );
+    }
+
+    //  count on package level margin and padding to have been scaled elsewhere
+    return SongCellWidget(
+      key: key,
+      richText: copyOfRichText,
       type: type,
       measureNode: measureNode,
       size: size ?? this.size,
@@ -800,37 +853,13 @@ class SongCellWidget extends StatefulWidget {
       textScaleFactor: textScaleFactor ?? this.textScaleFactor,
       songMoment: songMoment,
       expanded: expanded,
+      selectable: selectable,
     );
   }
 
   @override
   State<StatefulWidget> createState() {
     return _SongCellState();
-  }
-
-  /// convert a lyrics cell to a limited with lyrics cell with an ellipsis if required
-  SongCellWidget shortenWithEllipsis(Size size, {TextSpan? textSpan}) {
-    return SongCellWidget(
-      richText: RichText(
-        key: richText.key,
-        //  fixme: will this be a mistake? an error?  not currently used
-        text: textSpan ??
-            //  default to one line
-            TextSpan(text: richText.text.toPlainText().replaceAll('\n', ', '), style: richText.text.style),
-        textScaleFactor: textScaleFactor,
-        softWrap: false,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      type: SongCellType.lyricEllipsis,
-      measureNode: measureNode,
-      size: size,
-      //  function should be used prior to point location calculated
-      point: point,
-      columnWidth: columnWidth,
-      withEllipsis: true,
-      textScaleFactor: textScaleFactor,
-    );
   }
 
   ///  efficiency compromised for const StatelessWidget song cell
@@ -868,6 +897,7 @@ class SongCellWidget extends StatefulWidget {
   final Point<double>? point;
   final SongMoment? songMoment;
   final bool? expanded;
+  final bool? selectable;
 }
 
 class _SongCellState extends State<SongCellWidget> {
@@ -876,16 +906,27 @@ class _SongCellState extends State<SongCellWidget> {
     return Consumer<SongMomentNotifier>(
       builder: (context, songMomentNotifier, child) {
         var moment = songMomentNotifier.songMoment;
-        var isNowSelected = moment != null &&
-            (moment.momentNumber == widget.songMoment?.momentNumber ||
-                (
-                    //  deal with compressed repeats
-                    !(widget.expanded ?? true) &&
-                        moment.lyricSection == widget.songMoment?.lyricSection &&
-                        moment.phraseIndex == widget.songMoment?.phraseIndex &&
-                        moment.phrase.repeats > 1 &&
-                        widget.songMoment?.measureIndex != null &&
-                        (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+        var isNowSelected = false;
+        if (moment != null && (widget.selectable ?? true)) {
+          switch (widget.measureNode.runtimeType) {
+            case LyricSection:
+              isNowSelected = moment.lyricSection == widget.measureNode;
+              break;
+            case ChordSection:
+              isNowSelected = moment.chordSection == widget.measureNode;
+              break;
+            default:
+              isNowSelected = (moment.momentNumber == widget.songMoment?.momentNumber ||
+                  (
+                      //  deal with compressed repeats
+                      !(widget.expanded ?? true) &&
+                          moment.lyricSection == widget.songMoment?.lyricSection &&
+                          moment.phraseIndex == widget.songMoment?.phraseIndex &&
+                          moment.phrase.repeats > 1 &&
+                          widget.songMoment?.measureIndex != null &&
+                          (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+          }
+        }
         logger.v('_SongCellState: songMoment: ${widget.songMoment} vs ${moment?.momentNumber}');
         if (isNowSelected == selected && child != null) {
           return child;

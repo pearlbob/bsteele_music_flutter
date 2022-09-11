@@ -1194,6 +1194,13 @@ With escape, the app goes back to the play list.''',
   scrollToLyricSection(int index, {final bool force = false}) {
     index = Util.intLimit(index, 0, widget._song.lyricSections.length - 1); //  safety
 
+    switch (appOptions.userDisplayStyle) {
+      case UserDisplayStyle.proPlayer:
+        index = 0;
+        break;
+      default:
+    }
+
     final priorIndex = _lyricSectionNotifier.index;
     logger.log(_logScroll, 'scrollToLyricSection(): $index from $priorIndex, _isAnimated: $_isAnimated');
     if (_lyricSectionNotifier.index == index && !force) {
@@ -1873,30 +1880,34 @@ class _DataReminderState extends State<_DataReminderWidget> {
   Widget build(BuildContext context) {
     logger.v('_DataReminderState.build(): ${widget.songIsInPlay}');
     return widget.songIsInPlay
-        ? Column(
-            children: [
-              AppSpace(
-                verticalSpace: widget._toolbarHeight + 2,
-              ),
-              AppWrap(
-                children: [
-                  const AppSpace(
-                    horizontalSpace: 60,
-                  ),
-                  Text(
-                    'Key $_selectedSongKey'
-                    '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
-                    '    ${_song.timeSignature.beatsPerBar} beats per measure'
-                    '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
-                    '  ', //  padding at the end
-                    style: generateAppTextStyle(
-                      decoration: TextDecoration.none,
-                      backgroundColor: const Color(0xe0eff4fd), //  fake a blended color, semi-opaque
+        ? SizedBox.expand(
+            child: Column(
+              children: [
+                AppSpace(
+                  verticalSpace: widget._toolbarHeight + 2,
+                ),
+                AppWrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    const AppSpace(
+                      horizontalSpace: 60,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Text(
+                      'Key $_selectedSongKey'
+                      '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
+                      '    ${_song.timeSignature.beatsPerBar} beats per measure'
+                      '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
+                      '  ', //  padding at the end
+                      style: generateAppTextStyle(
+                        decoration: TextDecoration.none,
+                        backgroundColor: const Color(0xe0eff4fd), //  fake a blended color, semi-opaque
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           )
         : NullWidget();
   }

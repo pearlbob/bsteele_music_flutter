@@ -180,16 +180,12 @@ void main() async {
 }
 
 /*
-done:
-leader/follower fixes required
-verify the "The " processing
-beta short list:Prodigal Son: something is way wrong with song deletion and song renaming.   i will have to fix it for the next release!
-
+beta short list:
+leader/follower will not follow scrolling!
+_______verify the "The " processing
+_______Prodigal Son: something is way wrong with song deletion and song renaming.   i will have to fix it for the next release!
 i found "3 am.songlyrics" as a file name for "3 am" (not surprising) but also: "Ashes to Ashes", "Crawling from the Wreckage", "Here Comes Your Man", and "Rain".I'll investigate but is there anything you can think of in your behavior that might trigger this?
 
-_____repeated chords not highlighted on compressed chords in auto play
-_____stop of auto play: remove moment highlight
-auto scroll in auto play
 indicator should be on current chord row
 manual play should eliminate top of player while active
 pro display sequencing
@@ -226,7 +222,7 @@ re-download canvaskit on staging
 button to adjust leader/follower when dis-connected
 
 I've restarted my research to put DNS on the pi to ease the configuration. Say "park.local" instead of "192.168.1.205".
-____leader/follower will not follow scrolling!
+
 
 ____fix song: Handlebars
 

@@ -186,23 +186,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
-    playerItemPositionsListener.itemPositions.addListener(() {
-      logger.v('_isAnimated: $_isAnimated, _isPlaying: $_isPlaying');
-      if (_isAnimated || _isPlaying) {
-        return;
-      }
-      var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-        return e1.index.compareTo(e2.index);
-      })
-        ..addAll(playerItemPositionsListener.itemPositions.value);
-      if (orderedSet.isNotEmpty) {
-        var item = orderedSet.first;
-        _lyricSectionNotifier.index = item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0);
-        logger.v('playerItemPositionsListener:  length: ${orderedSet.length}'
-            ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
-        logger.v('   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}, ');
-      }
-    });
+    playerItemPositionsListener.itemPositions.addListener(itemPositionsListener);
 
     app.clearMessage();
   }
@@ -305,9 +289,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _song = _songUpdate!.song;
         widget._song = _song;
         _songMomentNotifier.songMoment = _songUpdate?.songMoment;
-        _lyricSectionNotifier.index = _songUpdate?.songMoment?.lyricSection.index //
+        selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
             ??
-            _lyricSectionNotifier.index; //  safer to stay on the current index
+            _lyricSectionNotifier.index); //  safer to stay on the current index
         adjustDisplay();
         if (_songUpdate!.state == SongUpdateState.playing) {
           performPlay();
@@ -643,7 +627,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                                 onPressed: () {
                                                   widget._song = previousSongInTheList();
                                                   _song = widget._song;
-                                                  _lyricSectionNotifier.index = 0;
+                                                  selectLyricSection(0);
                                                   setSelectedSongKey(_song.key);
                                                   _songMomentNotifier.songMoment = null;
                                                   adjustDisplay();
@@ -661,7 +645,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                                 onPressed: () {
                                                   widget._song = nextSongInTheList();
                                                   _song = widget._song;
-                                                  _lyricSectionNotifier.index = 0;
+                                                  selectLyricSection(0);
                                                   setSelectedSongKey(_song.key);
                                                   _songMomentNotifier.songMoment = null;
                                                   adjustDisplay();
@@ -1191,6 +1175,24 @@ With escape, the app goes back to the play list.''',
     scrollToLyricSection(_lyricSectionNotifier.index + bump);
   }
 
+  void itemPositionsListener() {
+    logger.v('_isAnimated: $_isAnimated, _isPlaying: $_isPlaying');
+    if (_isAnimated || _isPlaying) {
+      return; //  don't follow scrolling when animated or playing
+    }
+    var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+      return e1.index.compareTo(e2.index);
+    })
+      ..addAll(playerItemPositionsListener.itemPositions.value);
+    if (orderedSet.isNotEmpty) {
+      var item = orderedSet.first;
+      selectLyricSection(item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0));
+      logger.v('playerItemPositionsListener:  length: ${orderedSet.length}'
+          ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
+      logger.v('   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}, ');
+    }
+  }
+
   scrollToLyricSection(int index, {final bool force = false}) {
     index = Util.intLimit(index, 0, widget._song.lyricSections.length - 1); //  safety
 
@@ -1209,14 +1211,7 @@ With escape, the app goes back to the play list.''',
     }
 
     if (_itemScrollController.isAttached) {
-      _lyricSectionNotifier.index = index;
-
-      //  remote scroll
-      if (songUpdateService.isLeader) {
-        var lyricSection = _song.lyricSections[index];
-        assert(lyricSection != null);
-        leaderSongUpdate(_song.firstMomentInLyricSection(lyricSection).momentNumber);
-      }
+      selectLyricSection(index);
 
       //  local scroll
       _isAnimated = true;
@@ -1233,6 +1228,19 @@ With escape, the app goes back to the play list.''',
           _isAnimated = false;
         });
       });
+    }
+  }
+
+  selectLyricSection(int index) {
+    index = Util.intLimit(index, 0, _song.lyricSections.length); //  safety
+
+    //  update the widgets
+    _lyricSectionNotifier.index = index;
+
+    //  remote scroll for followers
+    if (songUpdateService.isLeader) {
+      var lyricSection = _song.lyricSections[index];
+      leaderSongUpdate(_song.firstMomentInLyricSection(lyricSection).momentNumber);
     }
   }
 
@@ -1307,7 +1315,7 @@ With escape, the app goes back to the play list.''',
       logger.log(
           _logLeaderFollower,
           'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
-              ', moment: ${_songUpdate?.momentNumber}');
+          ', moment: ${_songUpdate?.momentNumber}');
     }
   }
 

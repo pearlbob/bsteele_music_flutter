@@ -181,25 +181,22 @@ void main() async {
 
 /*
 beta short list:
-leader/follower will not follow scrolling!
+_______leader/follower will not follow scrolling!
 _______verify the "The " processing
 _______Prodigal Son: something is way wrong with song deletion and song renaming.   i will have to fix it for the next release!
 i found "3 am.songlyrics" as a file name for "3 am" (not surprising) but also: "Ashes to Ashes", "Crawling from the Wreckage", "Here Comes Your Man", and "Rain".I'll investigate but is there anything you can think of in your behavior that might trigger this?
+_______manual play should eliminate top of player while active
+_______singer display sequencing
+______pro display sequencing
+______player only lyrics abreviated
+_____escape from player to singers and no more ,.
 
 indicator should be on current chord row
-manual play should eliminate top of player while active
-pro display sequencing
-singer display sequencing
-player only lyrics abreviated
 
 singer and requester on one singer/requester
 Singer + requester: mode as last set, default/preference for singer
 Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
 
-
-
-escape from player to singers and no more ,.
-Jumping jack flash,
 silly love songs spacing ,
 master scroll got lost(after space? Likely after open link)
 re-locate on change of display mode or repeat expansion

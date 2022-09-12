@@ -34,6 +34,7 @@ String _selectedSinger = _unknownSinger;
 bool _selectedSingerIsRequester = false;
 String _selectedVolunteerSinger = _unknownSinger;
 bool _searchForSelectedSingerOnly = true;
+Map<String, bool> _singerIsRequesterMap = {};
 
 enum SingersSongOrder { singer, title, recentOnTop, oldestFirst }
 
@@ -181,7 +182,7 @@ class SingersState extends State<Singers> {
       if (searchForSelectedSingerOnly) {
         songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
             .where((e) =>
-        e.requester == _selectedSinger && e.song != null && _songSearchMatcher.matchesOrEmptySearch(e.song!))
+                e.requester == _selectedSinger && e.song != null && _songSearchMatcher.matchesOrEmptySearch(e.song!))
             .map((e) => e.song)
             .whereType<Song>());
         logger.log(_singerRequester, 'songRequests.length: ${songRequests.length}');
@@ -286,10 +287,10 @@ class SingersState extends State<Singers> {
                       appKeyEnum: AppKeyEnum.singersRequestVolunteer,
                       style: _selectedVolunteerSinger == singer ? selectedButtonTextStyle : buttonTextStyle,
                       onPressed: () {
-                        setState(() {
-                          _selectedVolunteerSinger = singer;
-                        });
-                      }));
+                    setState(() {
+                      _selectedVolunteerSinger = singer;
+                    });
+                  }));
                 }
               }
               songWidgetList.add(AppWrapFullWidth(
@@ -372,12 +373,12 @@ class SingersState extends State<Singers> {
     logger.d(
         '${(performancesFromSinger.length + performancesFromSingerMatching.length + performancesFromSingerNotMatching.length + performancesFromSessionSingers.length + otherSongs.length)}       /${app.allSongs.length}');
     assert((performancesFromSinger.length +
-        performancesFromSingerMatching.length +
-        performancesFromSingerNotMatching.length +
-        performancesFromSessionSingers.length +
-        otherMatchingSongs.length +
-        otherSongs.length +
-        songRequests.length) >=
+            performancesFromSingerMatching.length +
+            performancesFromSingerNotMatching.length +
+            performancesFromSessionSingers.length +
+            otherMatchingSongs.length +
+            otherSongs.length +
+            songRequests.length) >=
         app.allSongs.length);
 
     {
@@ -497,61 +498,61 @@ class SingersState extends State<Singers> {
 
     var todaysReorderableSingersWidgetWrap = _sessionSingers.isEmpty
         ? Text(
-      '(none)',
-      style: singerTextStyle,
-    )
+            '(none)',
+            style: singerTextStyle,
+          )
         : Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: appBackgroundColor(),
-          width: 2,
-        ),
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      child: AppWrapFullWidth(children: [
-        ReorderableWrap(
-            onReorder: onReorder,
-            padding: const EdgeInsets.all(10),
-            spacing: 20,
-            children: _sessionSingers.map((singer) {
-              return AppWrap(children: [
-                Container(
-                  child: appTextButton(
-                    singer,
-                    appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
-                    onPressed: () {
-                      setState(() {
-                        _setSelectedSinger(singer);
-                      });
-                    },
-                    style: singer == _selectedSinger
-                        ? selectedButtonTextStyle
-                        : (requesters.contains(singer) ? inactiveRequesterButtonTextStyle : buttonTextStyle),
-                  ),
-                ),
-                if (!_isInSingingMode)
-                  AppInkWell(
-                    appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
-                    // value: singer,
-                    onTap: () {
-                      setState(() {
-                        _sessionSingers.remove(singer);
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: appBackgroundColor(),
+                width: 2,
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            child: AppWrapFullWidth(children: [
+              ReorderableWrap(
+                  onReorder: onReorder,
+                  padding: const EdgeInsets.all(10),
+                  spacing: 20,
+                  children: _sessionSingers.map((singer) {
+                    return AppWrap(children: [
+                      Container(
+                        child: appTextButton(
+                          singer,
+                          appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
+                          onPressed: () {
+                            setState(() {
+                              _setSelectedSinger(singer);
+                            });
+                          },
+                          style: singer == _selectedSinger
+                              ? selectedButtonTextStyle
+                              : (requesters.contains(singer) ? inactiveRequesterButtonTextStyle : buttonTextStyle),
+                        ),
+                      ),
+                      if (!_isInSingingMode)
+                        AppInkWell(
+                          appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
+                          // value: singer,
+                          onTap: () {
+                            setState(() {
+                              _sessionSingers.remove(singer);
                               appOptions.sessionSingers = _sessionSingers;
                             });
-                    },
-                    child: appCircledIcon(
-                      Icons.remove,
-                      'Remove $singer from today\'s session.',
-                      margin: appendInsets,
-                      padding: appendPadding,
-                      color: removeColor,
-                      size: fontSize * 0.7,
-                    ),
-                  ),
-              ]);
-            }).toList(growable: false)),
-      ]),
-    );
+                          },
+                          child: appCircledIcon(
+                            Icons.remove,
+                            'Remove $singer from today\'s session.',
+                            margin: appendInsets,
+                            padding: appendPadding,
+                            color: removeColor,
+                            size: fontSize * 0.7,
+                          ),
+                        ),
+                    ]);
+                  }).toList(growable: false)),
+            ]),
+          );
 
     var allSingersWidgetWrap = Container(
       padding: const EdgeInsets.all(8.0),
@@ -645,7 +646,7 @@ class SingersState extends State<Singers> {
                             controller: searchTextFieldController,
                             focusNode: _searchFocusNode,
                             hintText:
-                            'enter song search${_selectedSinger != _unknownSinger ? ' for $_selectedSinger' : ''}',
+                                'enter song search${_selectedSinger != _unknownSinger ? ' for $_selectedSinger' : ''}',
                             onChanged: (text) {
                               setState(() {
                                 scrollController.jumpTo(0);
@@ -754,13 +755,13 @@ class SingersState extends State<Singers> {
                               showDialog(
                                   context: context,
                                   builder: (_) => AlertDialog(
-                                    title: Text(
-                                      'Do you really want to delete the singer $_selectedSinger?',
-                                      style: TextStyle(fontSize: songPerformanceStyle.fontSize),
-                                    ),
-                                    actions: [
-                                      appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                          appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                        title: Text(
+                                          'Do you really want to delete the singer $_selectedSinger?',
+                                          style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                                        ),
+                                        actions: [
+                                          appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
+                                              appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
                                             logger.d('delete: $_selectedSinger');
                                             setState(() {
                                               _allSongPerformances.removeSinger(_selectedSinger);
@@ -772,14 +773,14 @@ class SingersState extends State<Singers> {
                                             });
                                             Navigator.of(context).pop();
                                           }),
-                                      const AppSpace(space: 100),
-                                      appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                          appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                          const AppSpace(space: 100),
+                                          appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
+                                              appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
                                             Navigator.of(context).pop();
                                           }),
-                                    ],
-                                    elevation: 24.0,
-                                  ));
+                                        ],
+                                        elevation: 24.0,
+                                      ));
                             },
                           ),
                         const AppVerticalSpace(),
@@ -851,6 +852,7 @@ class SingersState extends State<Singers> {
                           if (value != null) {
                             setState(() {
                               _selectedSingerIsRequester = value;
+                              _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
                               logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
                             });
                           }
@@ -859,18 +861,31 @@ class SingersState extends State<Singers> {
                       ),
                       AppTooltip(
                           message: 'Check here to make this individual a requester\n'
-                              ' of songs from the active singers above.\n'
+                              ' of songs from the singers list above.\n'
                               'Uncheck to see the songs the singer has sung.',
                           child: TextButton(
                               onPressed: () {
                                 setState(() {
                                   _selectedSingerIsRequester = !_selectedSingerIsRequester;
+                                  _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
+                                  _searchForSelectedSingerOnly = false;
                                   logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
                                 });
                               },
                               child: Text('As requester:', style: songPerformanceStyle))),
                       if (_selectedSingerIsRequester)
                         AppWrap(spacing: 10, alignment: WrapAlignment.spaceBetween, children: [
+                          AppRadio<bool>(
+                              text: 'from the active singers above',
+                              appKeyEnum: AppKeyEnum.optionsNinJam,
+                              value: false,
+                              groupValue: searchForSelectedSingerOnly,
+                              onPressed: () {
+                                setState(() {
+                                  searchForSelectedSingerOnly = false;
+                                });
+                              },
+                              style: singerTextStyle),
                           if (_selectedSinger != _unknownSinger)
                             AppRadio<bool>(
                                 text: 'just $_selectedSinger requests',
@@ -883,17 +898,6 @@ class SingersState extends State<Singers> {
                                   });
                                 },
                                 style: singerTextStyle),
-                          AppRadio<bool>(
-                              text: 'from the active singers above',
-                              appKeyEnum: AppKeyEnum.optionsNinJam,
-                              value: false,
-                              groupValue: searchForSelectedSingerOnly,
-                              onPressed: () {
-                                setState(() {
-                                  searchForSelectedSingerOnly = false;
-                                });
-                              },
-                              style: singerTextStyle),
                         ]),
                     ]),
                     AppWrap(children: [
@@ -995,8 +999,8 @@ class SingersState extends State<Singers> {
             if (!_isInSingingMode)
               Expanded(
                   child: ListView(controller: ScrollController(), children: [
-                    allSingersWidgetWrap,
-                  ])),
+                allSingersWidgetWrap,
+              ])),
             const AppVerticalSpace(),
             if (_isInSingingMode)
               Expanded(
@@ -1398,17 +1402,25 @@ class SingersState extends State<Singers> {
   void _setSelectedSinger(String? singer) {
     if (singer != _selectedSinger) {
       _selectedSinger = singer ?? _unknownSinger;
-      _selectedSingerIsRequester = _hasRequests(_selectedSinger);
+
+      //  find last requester choice or default to singer if there are songs to sing
+      bool isRequester = _singerIsRequesterMap[_selectedSinger] ?? !_hasSongsToSing(_selectedSinger);
+      _searchForSelectedSingerOnly = false;
+
+      _selectedSingerIsRequester = isRequester;
       _searchForSelectedSingerOnly = !_selectedSingerIsRequester;
       _selectedVolunteerSinger = _unknownSinger;
       searchClear();
       if (scrollController.hasClients) {
         scrollController.jumpTo(0);
       }
+      logger.d('_setSelectedSinger(): $singer isRequester: $isRequester');
     }
   }
 
-  final AllSongPerformances _allSongPerformances = AllSongPerformances();
+  bool _hasSongsToSing(String singer) {
+    return _allSongPerformances.bySinger(singer).isNotEmpty;
+  }
 
   bool _hasRequests(String participant) {
     try {
@@ -1418,6 +1430,8 @@ class SingersState extends State<Singers> {
       return false;
     }
   }
+
+  final AllSongPerformances _allSongPerformances = AllSongPerformances();
 
   static const inactiveBackgroundColor = Color(0xFFe0e0e0);
   static const disabledColor = Color(0xFFa0a0a0);

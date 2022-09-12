@@ -11,7 +11,11 @@ import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
+/*
+on linux:
+  $XDG_DATA_HOME defines the base directory relative to which user-specific data files should be stored.
+  If $XDG_DATA_HOME is either not set or empty, a default equal to $HOME/.local/share should be used.
+ */
 
 enum StorageValue {
   //  only partial at the moment
@@ -318,7 +322,7 @@ class AppOptions extends ChangeNotifier {
   void _updateAllSongPerformances() async {
     var jsonString = await _readString(StorageValue.allSongPerformances.name, defaultValue: '');
     logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
-    //logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
+    logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
     if (jsonString.isNotEmpty) {
       int count = allSongPerformances.updateFromJsonString(jsonString);
       logger.i('_updateAllSongPerformances() update count: $count');

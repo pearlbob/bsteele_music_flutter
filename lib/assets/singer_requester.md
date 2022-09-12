@@ -6,6 +6,26 @@ Feature:  Remember individual singers and the songs they sing.
 
 Start:  Main screen, Menu (hamburger), Singer
 
+Initially the page will be in setup mode as indicated by the "Singer Setup" label.
+Known singers, based on prior singing will be listed alphabetically in the "All Singers"
+section. They can be searched for on the "enter singer search" line.
+Select a singer for the current session by clicking the plus sign in the green circle.
+Clicking the minus sign from the red circle will remove them from the list of current
+session singers. New singers can be added using the "enter a new singer's name" line.
+Note: The singer will be forgotten if no song has been associated with the singer prior
+to app termination.
+
+By convention, singers are identified by first name and last name initial.
+
+Clicking the toggle or the "Singing" button will move the page from setup to singing mode.
+When singing, the current list of singers in the session is shown. The one with the green
+background is the selected singer for the moment and their songs will be listed
+with the keys they most recently sang them in. Additional songs can be added by
+a combination of the song search entry at the page top and scrolling to the "Other songs"
+list below their sung songs. Clicking the other song's empty box will add the song to the
+singer's list. Songs can be removed from the singer's
+list by clicking the checkbox.
+
 # Requester
 
 Start:  Main screen, Menu (hamburger), Singer
@@ -28,7 +48,7 @@ When a singer volunteers to sing a song, a click on that song displays it
 for singing by the singer in the singer’s key. When the song is done, the requester’s turn
 has ended and the next singer or requester is shown.
 
-Notice that the singer is logged as having sung the song but has not lost their position
+Notice that the singer is logged as having sung the song but has not lost their turn
 in the singer list. They might get to sing two songs in a row!
 
 ## Create a new requester
@@ -69,6 +89,6 @@ in the singer list. They might get to sing two songs in a row!
 
 ## A complication…
 
-A singer can also be a requester!   If a singer has any requests in the app,
-they will default to a requester. Uncheck the “As requester” checkbox.  (note: there is an error here. All the current
-singer’s songs are shown, not just the requester as a singer… there is always something to fix.)
+A singer can also be a requester!   If a participant has any songs sung in the app,
+they will initially default to a singer. Check the “As requester” checkbox to see their requested songs.
+When the singer/requester is selected again, the prior “As requester” selection will be used. Toggle if necessary.

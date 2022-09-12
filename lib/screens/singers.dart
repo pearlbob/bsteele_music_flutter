@@ -672,7 +672,7 @@ class SingersState extends State<Singers> {
                       ]),
                     if (!_isInSingingMode)
                       Text(
-                        '       Make adjustments:',
+                        '       Singer setup:',
                         style: singerTextStyle,
                         softWrap: false,
                       ),
@@ -1422,14 +1422,14 @@ class SingersState extends State<Singers> {
     return _allSongPerformances.bySinger(singer).isNotEmpty;
   }
 
-  bool _hasRequests(String participant) {
-    try {
-      _allSongPerformances.allSongPerformanceRequests.firstWhere((element) => element.requester == participant);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  // bool _hasRequests(String participant) {
+  //   try {
+  //     _allSongPerformances.allSongPerformanceRequests.firstWhere((element) => element.requester == participant);
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
   final AllSongPerformances _allSongPerformances = AllSongPerformances();
 

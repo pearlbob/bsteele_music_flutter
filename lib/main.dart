@@ -190,12 +190,14 @@ _______singer display sequencing
 ______pro display sequencing
 ______player only lyrics abreviated
 _____escape from player to singers and no more ,.
+______Singer + requester: mode as last set, default/preference for singer
+_____Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
 
 indicator should be on current chord row
 
 singer and requester on one singer/requester
-Singer + requester: mode as last set, default/preference for singer
-Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
+
+
 
 silly love songs spacing ,
 master scroll got lost(after space? Likely after open link)

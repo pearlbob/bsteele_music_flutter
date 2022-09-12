@@ -5,6 +5,18 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' as md;
 
+const _fontSize = 44.0;
+const _minTextStyle = TextStyle(fontSize: _fontSize / 2);
+final _markdownStyleSheet = md.MarkdownStyleSheet(
+  h1: const TextStyle(fontSize: _fontSize, fontWeight: FontWeight.bold),
+  h2: const TextStyle(fontSize: _fontSize / 1.8, fontWeight: FontWeight.bold),
+  h3: const TextStyle(fontSize: _fontSize / 2, fontWeight: FontWeight.bold),
+  listBullet: _minTextStyle,
+  p: _minTextStyle,
+  tableBody: _minTextStyle,
+  em: _minTextStyle,
+);
+
 /// Display the application's songlyrics file specification
 class Documentation extends StatefulWidget {
   const Documentation({Key? key}) : super(key: key);
@@ -23,8 +35,29 @@ class DocumentationState extends State<Documentation> {
   Widget build(BuildContext context) {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
-    TextStyle style = generateAppTextStyle(color: Colors.black87);
+    TextStyle style = generateAppTextStyle(fontSize: 32, color: Colors.black87);
 
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Documentation'),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            MarkdownAssetWidget('singer_requester.md'),
+            md.Markdown(
+              data: fileSpec(),
+              styleSheet: _markdownStyleSheet,
+              shrinkWrap: true,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.documentationBack),
+    );
+  }
+
+  /// old stuff... fixme?
+  String fileSpec() {
     StringBuffer desc = StringBuffer();
     desc.write(
         //  note: for entry purposes of very long lines, single quotes are used to wrap
@@ -36,129 +69,129 @@ class DocumentationState extends State<Documentation> {
         'This includes characters like \'"\', \'\\\\\',  \'\'\', and other special characters.\n'
         '\n'
         'Multiple songs can be written in a single file as a JSON array of songs.\n'
-        '\n'
-        'File information for songs can be written as a JSON object with the following name/value pairs:\n'
-        '\n'
-        '| Name |	Type |	Value Description\n'
-        '|------|-------|----------------------------------------------------\n'
-        '|file	|JSON String|	File name of the song\'s file as it exists in the local operating system.\n'
-        '|lastModifiedDate|JavaScript JSDate|The number of milliseconds from '
-        'the Unix epoch (00:00:00 UTC on 1 January 1970). See javascript File.lastModified.\n'
-        '|song|	JSON object|	The song attributes as described below.\n'
-        '|song|	JSON object|	The song attributes as described below.\n'
-        '\n'
-        '\n'
-        'Musical notes or keys can be noted with either the lowercase \'b\' '
-        'or the Unicode music flat sign \'♭\' (U+266D).\n'
-        'Musical notes or keys can be noted with either the sharp \'#\' '
-        'or the Unicode music sharp sign \'♯\' (U+266F).\n'
-        '\n'
-        'Song unique identifiers are built from the song\'s title and artist'
-        ' without concern for capitalization or white space. '
-        'Songs with the same song id will be over written by new songs.\n'
-        '\n'
-        '# Song Specifications\n'
-        'Song attributes for songs are be written as a JSON object with the following name/value pairs:\n'
-        '\n'
-        '| Name |	Type |	Value Description	| Notes |\n'
-        '|----|----|:------------------:|---|\n'
-        '| title |	JSON String |	The song\'s title as the user would know it. '
-        '|For search purposes, titles beginning with "The" will have the preposition swapped '
-        'to the end of the title after a comma.|\n'
-        'artist|	JSON String|	The artist of the song.	'
-        '|For search purposes, artist names beginning with "The" will have the preposition swapped'
-        ' to the end of the title after a comma.|\n'
-        'lastModifiedDate|	JavaScript JSDate	|The number of milliseconds from since the Unix epoch'
-        ' (00:00:00 UTC on 1 January 1970). |This represents the last time the song (not the file)'
-        ' was modified. See javascript File.lastModified.\n'
-        'copyright	|JSON String	|The copyright notice of the owner.	'
-        '|Copyrights are often difficult to find and may not be proper legally. '
-        'I would appreciate all users to provide a reasonable effort to find the proper copyright. '
-        'At the moment, the software only insists that it be non-null. Please do make an effort. '
-        'If you Google the song title plus the word "lyrics", Google will often provide a copyright.\n'
-        'key|	JSON String|	The major key the song is provided in designated as one of the following:'
-        ' G♭, D♭, A♭, E♭, B♭, F, C, G, D, A, E, B, F♯'
-        '|	This will be extended to minor keys eventually.\n'
-        'defaultBpm	|integer	|The song\'s default beats per minute, i.e. the song\'s tempo.	'
-        '|The term default indicates my intention to eventually allow section tempo changes. '
-        'Currently the tempo is restricted between 50 and 400 BPM inclusive.\n'
-        'timeSignature|	int + "/" + int'
-        '|	The song\'s time signature in the common form of the number of beats in a measure'
-        ' over which note value gets the beatbeats per minute.'
-        '|	Known signatures include "2/4", "3/4", "4/4" (the default), and "6/8".\n'
-        'chords|	JSON array of strings'
-        '|	The song\'s chord structure written in the chord markup language described below.	'
-        '|Generally speaking, each string represents the section identifiers and chords as they '
-        'are to be presented to the user. Do not include the carriage return or newline character'
-        ' within the quoted JSON lines. The application may adjust their presentation.\n'
-        'lyrics|	JSON array of strings	'
-        '|The song\'s lyric sections written in temporal order '
-        'and in the lyric markup language described below.'
-        '|	Do not include the carriage return or newline character. '
-        'The application may adjust their presentation\n'
-        '\n'
-        '# Chord Markup Language\n'
-        'The chord markup language typically has a format of:\n'
-        '\n'
-        '    (section version? \':\' measure*)+\n'
-        '\n'
-        'Measures need to be separated from each other by whitespace. '
-        'There are exceptions for repeats as described below.\n'
-        '\n'
-        '# Sections\n'
-        'Sections can be identified by either their name or abreviation as follows:\n'
-        '\n'
-        'Name|	Abbreviation	|Formal Name|	Description\n'
-        '|----|----|--------------|---|\n'
-        'intro	|I|	Intro|	A section that introduces the song.\n'
-        'verse	|V	|Verse	'
-        '|A repeating section of the song that typically has new lyrics for each instance.\n'
-        'preChorus|	PC	|Prechorus'
-        '|	A section that precedes the chorus but may not be used to lead all chorus sections.\n'
-        'chorus|	C|	Chorus'
-        '|	A repeating section of the song that typically has'
-        ' lyrics that repeat to enforce the song\'s theme.\n'
-        'a	|A	|A	'
-        '|A section labeled "A" to be used in contrast the "B" section. '
-        'A concept borrowed from jazz.\n'
-        'b	|B	|B	'
-        '|A section labeled "B" to be used in contrast the "A" section. '
-        'A concept borrowed from jazz.\n'
-        'bridge|	Br|	Bridge'
-        '|	A non-repeating section often used once to break the repeated section patterns'
-        ' prior to the last sections of a song.\n'
-        'coda	|Co|	Coda'
-        '|	A section used to jump to for an ending or repeat.\n'
-        'tag	|T|	Tag'
-        '|	A short section that repeats or closely resembles a number of measures from the end'
-        ' of a previous section. Typically used to end a song.\n'
-        'outro|	O|	Outro	|The ending section of many songs.\n'
-        '\n'
-        'Capitalization is not significant to section identification.\n'
-        '\n'
-        'Section versions can be identified by a single digit ( 1 - 9 )'
-        ' immediately following the section. '
-        'Sections without a version id will be considered an additional section.\n'
-        '\n'
-        '# Measures\n'
-        'Measures are collections of chords meant to be played within the beats'
-        ' defined by the time signature. They are separated by whitespace. '
-        'Chords not separated by whitespace are meant to be played within the same measure of time.'
-        ' Rules for their sharing of this time across the beats will be described below.\n'
-        '\n'
-        'Chords are in the form of:\n'
-        '\n'
-        '       scaleNote chordDescriptor\n'
-        '\n'
-        'A scaleNote is one of:'
-        ' A, A♯, B, C, C♯, D, D♯, E, F, F♯, G, G♯, G♭, E♭, D♭, B♭, A♭, C♭, E♯, B♯, F♭.\n'
-        '\n'
-        'A chordDescriptor is one of: '
-        // '7sus4, 7sus2, 7sus, maug, 13, 11, mmaj7, m7b5, msus2, msus4, add9, jazz7b9, 7#5, '
-        // 'flat5, 7b5, 7#9, 7b9, 9, 69, 6, dim7, º7, dim, º, aug5, aug7, aug, sus7, sus4, '
-        // 'sus2, sus, m9, m11, m13, m6, maj7, Δ, Maj7, maj9, maj, M9, M7, 2, 4, 5, m7, '
-        // '7, m, M, º, major. '
-        );
+            '\n'
+            'File information for songs can be written as a JSON object with the following name/value pairs:\n'
+            '\n'
+            '| Name |	Type |	Value Description\n'
+            '|------|-------|----------------------------------------------------\n'
+            '|file	|JSON String|	File name of the song\'s file as it exists in the local operating system.\n'
+            '|lastModifiedDate|JavaScript JSDate|The number of milliseconds from '
+            'the Unix epoch (00:00:00 UTC on 1 January 1970). See javascript File.lastModified.\n'
+            '|song|	JSON object|	The song attributes as described below.\n'
+            '|song|	JSON object|	The song attributes as described below.\n'
+            '\n'
+            '\n'
+            'Musical notes or keys can be noted with either the lowercase \'b\' '
+            'or the Unicode music flat sign \'♭\' (U+266D).\n'
+            'Musical notes or keys can be noted with either the sharp \'#\' '
+            'or the Unicode music sharp sign \'♯\' (U+266F).\n'
+            '\n'
+            'Song unique identifiers are built from the song\'s title and artist'
+            ' without concern for capitalization or white space. '
+            'Songs with the same song id will be over written by new songs.\n'
+            '\n'
+            '# Song Specifications\n'
+            'Song attributes for songs are be written as a JSON object with the following name/value pairs:\n'
+            '\n'
+            '| Name |	Type |	Value Description	| Notes |\n'
+            '|----|----|:------------------:|---|\n'
+            '| title |	JSON String |	The song\'s title as the user would know it. '
+            '|For search purposes, titles beginning with "The" will have the preposition swapped '
+            'to the end of the title after a comma.|\n'
+            'artist|	JSON String|	The artist of the song.	'
+            '|For search purposes, artist names beginning with "The" will have the preposition swapped'
+            ' to the end of the title after a comma.|\n'
+            'lastModifiedDate|	JavaScript JSDate	|The number of milliseconds from since the Unix epoch'
+            ' (00:00:00 UTC on 1 January 1970). |This represents the last time the song (not the file)'
+            ' was modified. See javascript File.lastModified.\n'
+            'copyright	|JSON String	|The copyright notice of the owner.	'
+            '|Copyrights are often difficult to find and may not be proper legally. '
+            'I would appreciate all users to provide a reasonable effort to find the proper copyright. '
+            'At the moment, the software only insists that it be non-null. Please do make an effort. '
+            'If you Google the song title plus the word "lyrics", Google will often provide a copyright.\n'
+            'key|	JSON String|	The major key the song is provided in designated as one of the following:'
+            ' G♭, D♭, A♭, E♭, B♭, F, C, G, D, A, E, B, F♯'
+            '|	This will be extended to minor keys eventually.\n'
+            'defaultBpm	|integer	|The song\'s default beats per minute, i.e. the song\'s tempo.	'
+            '|The term default indicates my intention to eventually allow section tempo changes. '
+            'Currently the tempo is restricted between 50 and 400 BPM inclusive.\n'
+            'timeSignature|	int + "/" + int'
+            '|	The song\'s time signature in the common form of the number of beats in a measure'
+            ' over which note value gets the beatbeats per minute.'
+            '|	Known signatures include "2/4", "3/4", "4/4" (the default), and "6/8".\n'
+            'chords|	JSON array of strings'
+            '|	The song\'s chord structure written in the chord markup language described below.	'
+            '|Generally speaking, each string represents the section identifiers and chords as they '
+            'are to be presented to the user. Do not include the carriage return or newline character'
+            ' within the quoted JSON lines. The application may adjust their presentation.\n'
+            'lyrics|	JSON array of strings	'
+            '|The song\'s lyric sections written in temporal order '
+            'and in the lyric markup language described below.'
+            '|	Do not include the carriage return or newline character. '
+            'The application may adjust their presentation\n'
+            '\n'
+            '# Chord Markup Language\n'
+            'The chord markup language typically has a format of:\n'
+            '\n'
+            '    (section version? \':\' measure*)+\n'
+            '\n'
+            'Measures need to be separated from each other by whitespace. '
+            'There are exceptions for repeats as described below.\n'
+            '\n'
+            '# Sections\n'
+            'Sections can be identified by either their name or abreviation as follows:\n'
+            '\n'
+            'Name|	Abbreviation	|Formal Name|	Description\n'
+            '|----|----|--------------|---|\n'
+            'intro	|I|	Intro|	A section that introduces the song.\n'
+            'verse	|V	|Verse	'
+            '|A repeating section of the song that typically has new lyrics for each instance.\n'
+            'preChorus|	PC	|Prechorus'
+            '|	A section that precedes the chorus but may not be used to lead all chorus sections.\n'
+            'chorus|	C|	Chorus'
+            '|	A repeating section of the song that typically has'
+            ' lyrics that repeat to enforce the song\'s theme.\n'
+            'a	|A	|A	'
+            '|A section labeled "A" to be used in contrast the "B" section. '
+            'A concept borrowed from jazz.\n'
+            'b	|B	|B	'
+            '|A section labeled "B" to be used in contrast the "A" section. '
+            'A concept borrowed from jazz.\n'
+            'bridge|	Br|	Bridge'
+            '|	A non-repeating section often used once to break the repeated section patterns'
+            ' prior to the last sections of a song.\n'
+            'coda	|Co|	Coda'
+            '|	A section used to jump to for an ending or repeat.\n'
+            'tag	|T|	Tag'
+            '|	A short section that repeats or closely resembles a number of measures from the end'
+            ' of a previous section. Typically used to end a song.\n'
+            'outro|	O|	Outro	|The ending section of many songs.\n'
+            '\n'
+            'Capitalization is not significant to section identification.\n'
+            '\n'
+            'Section versions can be identified by a single digit ( 1 - 9 )'
+            ' immediately following the section. '
+            'Sections without a version id will be considered an additional section.\n'
+            '\n'
+            '# Measures\n'
+            'Measures are collections of chords meant to be played within the beats'
+            ' defined by the time signature. They are separated by whitespace. '
+            'Chords not separated by whitespace are meant to be played within the same measure of time.'
+            ' Rules for their sharing of this time across the beats will be described below.\n'
+            '\n'
+            'Chords are in the form of:\n'
+            '\n'
+            '       scaleNote chordDescriptor\n'
+            '\n'
+            'A scaleNote is one of:'
+            ' A, A♯, B, C, C♯, D, D♯, E, F, F♯, G, G♯, G♭, E♭, D♭, B♭, A♭, C♭, E♯, B♯, F♭.\n'
+            '\n'
+            'A chordDescriptor is one of: '
+      // '7sus4, 7sus2, 7sus, maug, 13, 11, mmaj7, m7b5, msus2, msus4, add9, jazz7b9, 7#5, '
+      // 'flat5, 7b5, 7#9, 7b9, 9, 69, 6, dim7, º7, dim, º, aug5, aug7, aug, sus7, sus4, '
+      // 'sus2, sus, m9, m11, m13, m6, maj7, Δ, Maj7, maj9, maj, M9, M7, 2, 4, 5, m7, '
+      // '7, m, M, º, major. '
+    );
     {
       //  find all the chord descriptors
       bool first = true;
@@ -252,25 +285,30 @@ class DocumentationState extends State<Documentation> {
         'Any sequence of measures can be bracketed, if it\'s a repeat or not. '
         'That is started with \'[\' and ended with \']\'.'
         '\n');
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Documentation'),
-      body: DefaultTextStyle(
-        style: style,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                md.MarkdownBody(styleSheet: md.MarkdownStyleSheet.fromTheme(appDocsThemeData), data: desc.toString())
-              ]),
-        ),
-      ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.documentationBack),
-    );
+    return desc.toString();
   }
+}
+
+class MarkdownAssetWidget extends StatelessWidget {
+  const MarkdownAssetWidget(this.fileName, {super.key});
+
+  @override
+  Widget build(context) {
+    return FutureBuilder<String>(
+        future: loadAssetString('lib/assets/$fileName'),
+        builder: (context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.hasData) {
+            var data = snapshot.data ?? 'empty';
+            return md.Markdown(
+              data: data,
+              styleSheet: _markdownStyleSheet,
+              shrinkWrap: true,
+            );
+          } else {
+            return const CircularProgressIndicator();
+          }
+        });
+  }
+
+  final String fileName;
 }

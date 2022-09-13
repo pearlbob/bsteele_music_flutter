@@ -24,6 +24,7 @@ import '../app/app.dart';
 const Level _singerLogBuild = Level.debug;
 const Level _singerRequester = Level.debug;
 const Level _singerLogHistory = Level.debug;
+const Level _logSongUpdate = Level.debug;
 
 final List<String> _sessionSingers =
     AppOptions().sessionSingers; //  in session order, stored locally to persist over screen reentry.
@@ -1351,6 +1352,7 @@ class SingersState extends State<Singers> {
   }
 
   void _songUpdateServiceCallback() {
+    logger.log(_logSongUpdate, '_songUpdateServiceCallback()');
     setState(() {});
   }
 

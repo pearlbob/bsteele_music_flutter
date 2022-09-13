@@ -15,6 +15,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../app/appOptions.dart';
 
 const Level _log = Level.debug;
+const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
 
 class SongUpdateService extends ChangeNotifier {
@@ -83,7 +84,10 @@ class SongUpdateService extends ChangeNotifier {
           _subscription = _webSocketChannel!.stream.listen((message) {
             _songUpdate = SongUpdate.fromJson(message as String);
             if (_songUpdate != null) {
-              // logger.d('received: ${songUpdate.song.title} at moment: ${songUpdate.momentNumber}');
+              logger.log(
+                  _logMessage,
+                  'received: song: ${_songUpdate?.song.title}'
+                  ' at moment: ${_songUpdate?.momentNumber}');
               playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
               _delaySeconds = 0;
               _songUpdateCount++;
@@ -104,11 +108,10 @@ class SongUpdateService extends ChangeNotifier {
           lastHost = _host;
 
           for (_idleCount = 0;; _idleCount++) {
-            await Future.delayed(const Duration(seconds: kIsWeb ? 5 : 1));
-            if (kIsWeb) {
-              notifyListeners();
-            }
+            //  idle
+            await Future.delayed(const Duration(seconds: 1));
 
+            //  check connection status
             if (lastHost != _findTheHost()) {
               logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
               appLogMessage('webSocketChannel new host: $uri');

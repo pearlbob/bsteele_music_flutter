@@ -16,6 +16,8 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_flutter/util/usTimer.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +42,9 @@ get it right next time:  repeats in measure column
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
+const Level _logSongCell = Level.debug;
+const Level _logLyricsBuild = Level.debug;
+const Level _logLyricsTableItems = Level.debug;
 
 const double _paddingSizeMax = 5; //  fixme: can't be 0
 double _paddingSize = _paddingSizeMax;
@@ -101,12 +106,15 @@ class LyricsTable {
     music_key.Key? musicKey,
     expanded = false,
   }) {
+    var usTimer = UsTimer();
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
 
     _computeScreenSizes();
 
     var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle, expanded: expanded);
+    logger.log(_logLyricsBuild, 'lyricsBuild: displayGrid: ${usTimer.deltaToString()}');
+
     _locationGrid = Grid<SongCellWidget>();
 
     //  compute transposition offset from base key
@@ -323,7 +331,7 @@ class LyricsTable {
                 _displayChordSection(GridCoordinate(r, c), measureNode as ChordSection, measureNode);
                 break;
               case MeasureNodeType.lyric:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 _locationGrid.set(
                   r,
                   c,
@@ -348,19 +356,19 @@ class LyricsTable {
                   Measure measure = measureNode as Measure;
                   RichText richText = RichText(
                       text: TextSpan(
-                    text: '($r,$c)', //  diagnostic only!
-                    style: _lyricsTextStyle,
-                  ));
+                        text: '($r,$c)', //  diagnostic only!
+                        style: _lyricsTextStyle,
+                      ));
                   switch (measure.runtimeType) {
                     case MeasureRepeatExtension:
                       if (!expanded) {
                         richText = RichText(
                             text: TextSpan(
-                          text: measure.toString(),
-                          style: _coloredChordTextStyle.copyWith(
-                              fontFamily: appFontFamily,
-                              fontWeight: FontWeight.bold), //  fixme: a font failure workaround
-                        ));
+                              text: measure.toString(),
+                              style: _coloredChordTextStyle.copyWith(
+                                  fontFamily: appFontFamily,
+                                  fontWeight: FontWeight.bold), //  fixme: a font failure workaround
+                            ));
                       }
                       break;
                     case MeasureRepeatMarker:
@@ -419,6 +427,8 @@ class LyricsTable {
         break;
     }
 
+    logger.log(_logLyricsBuild, 'lyricsBuild: _locationGrid: ${usTimer.deltaToString()}');
+
     //  look for column widths and heights
     var widths = List<double>.filled(displayGrid.maxColumnCount, 0);
     var heights = List<double>.filled(displayGrid.getRowCount(), 0);
@@ -463,7 +473,7 @@ class LyricsTable {
     _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
-        //  fit everything vertically
+      //  fit everything vertically
         _scaleFactor = min(
             _scaleFactor,
             screenHeight *
@@ -480,7 +490,7 @@ class LyricsTable {
     logger.log(
         _logFontSize,
         'totalWidth: $totalWidth, totalHeight: $totalHeight, screenWidth: $screenWidth'
-        ', scaled width: ${totalWidth * _scaleFactor}');
+            ', scaled width: ${totalWidth * _scaleFactor}');
     if (_scaleFactor < 1.0) {
       //  rescale the grid to fit the window
       _scaleComponents(scaleFactor: _scaleFactor);
@@ -527,6 +537,7 @@ class LyricsTable {
         y += heights[r] + yMargin;
       }
     }
+    logger.log(_logLyricsBuild, 'lyricsBuild: scaling: ${usTimer.deltaToString()}');
 
     List<Widget> items = [];
 
@@ -540,6 +551,7 @@ class LyricsTable {
         _locationGrid.at(gc)?.copyWith(songMoment: songMoment),
       );
     }
+    logger.log(_logLyricsBuild, 'lyricsBuild: songMoment mapping: ${usTimer.deltaToString()}');
 
     //  box up the children, applying necessary widths and heights
     {
@@ -577,14 +589,14 @@ class LyricsTable {
         {
           var firstWidget = (lastLyricSection == lyricSection)
               ? AppSpace(
-                  horizontalSpace: arrowIndicatorWidth * _scaleFactor,
-                )
+            horizontalSpace: arrowIndicatorWidth * _scaleFactor,
+          )
               : LyricSectionCellWidget(
             lyricSection: lyricSection!,
-                  width: arrowIndicatorWidth * _scaleFactor,
-                  height: heights[r],
-                  fontSize: _chordFontSize * _scaleFactor,
-                );
+            width: arrowIndicatorWidth * _scaleFactor,
+            height: heights[r],
+            fontSize: _chordFontSize * _scaleFactor,
+          );
 
           rowWidget = Row(
             children: [firstWidget, ...rowChildren],
@@ -631,6 +643,10 @@ class LyricsTable {
         ],
       ),
     ));
+
+    logger.log(_logLyricsBuild, 'lyricsBuild: boxing: ${usTimer.deltaToString()}');
+
+    logger.log(_logLyricsTableItems, 'lyricsTable usTimer: $usTimer');
 
     return items;
   }
@@ -771,6 +787,7 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
       builder: (context, lyricSectionNotifier, child) {
         var isNowSelected = lyricSectionNotifier.index == widget.index;
         if (isNowSelected == selected && child != null) {
+          logger.log(_logLyricSectionCellState, '_LyricSectionCellState.child returned: ${widget.index}: $child');
           return child;
         }
         selected = isNowSelected;
@@ -781,7 +798,11 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
   }
 
   Widget childBuilder(BuildContext context) {
-    logger.log(_logLyricSectionCellState, '_LyricSectionCellState.childBuilder: run: selected: $selected');
+    logger.log(
+        _logLyricSectionCellState,
+        '_LyricSectionCellState.childBuilder: run: '
+        '${widget.index}:'
+        ' selected: $selected');
     return SizedBox(
       width: widget.width,
       child: selected
@@ -790,7 +811,7 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
               size: widget.fontSize,
               color: Colors.redAccent,
             )
-          : null, //Container( color:  Colors.cyan,height: widget.height), // empty box
+          : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
   }
 
@@ -951,7 +972,9 @@ class _SongCellState extends State<SongCellWidget> {
       default:
         break;
     }
-    logger.v('_SongCellState: childBuilder: selected: $selected, songMoment: ${widget.songMoment?.momentNumber}'
+    logger.log(
+        _logSongCell,
+        '_SongCellState: childBuilder: selected: $selected, songMoment: ${widget.songMoment?.momentNumber}'
         ', text: "${widget.richText.text.toPlainText()}"'
         ', width: $width/$maxWidth'
         ', columnWidth: ${widget.columnWidth}');

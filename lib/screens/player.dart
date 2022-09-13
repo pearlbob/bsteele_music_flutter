@@ -281,7 +281,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _song = widget._song; //  default only
 
     logger.log(
-        _logBuild, 'player build: $_song, selectedSongMoment: $_songMomentNotifier.songMoment, isPlaying: $_isPlaying');
+        _logBuild,
+        'player build: $_song, selectedSongMoment: ${_songMomentNotifier.songMoment?.momentNumber}'
+        ', isPlaying: $_isPlaying');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -303,8 +305,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
 
     displayKeyOffset = app.displayKeyOffset;
-
-    logger.log(_logBuild, 'table rebuild: selectedSongMoment: $_songMomentNotifier.songMoment');
 
     final fontSize = app.screenInfo.fontSize;
     headerTextStyle = headerTextStyle.copyWith(fontSize: fontSize);
@@ -465,6 +465,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       itemBuilder: (context, index) {
         return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
       },
+      //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
     );
 
     return MultiProvider(
@@ -1246,13 +1247,13 @@ With escape, the app goes back to the play list.''',
 
   /// send a leader song update to the followers
   void leaderSongUpdate(int momentNumber) {
-    logger.log(_logLeaderFollower, 'leaderSongUpdate($momentNumber):');
     if (!songUpdateService.isLeader) {
       _lastSongUpdateSent = null;
       return;
     }
 
     SongUpdateState state = _isPlaying ? SongUpdateState.playing : SongUpdateState.none;
+    //  don't send the update unless we have to
     if (_lastSongUpdateSent != null) {
       if (_lastSongUpdateSent!.song == widget._song &&
           _lastSongUpdateSent!.momentNumber == momentNumber &&
@@ -1273,7 +1274,7 @@ With escape, the app goes back to the play list.''',
     update.setState(state);
     songUpdateService.issueSongUpdate(update);
 
-    logger.log(_logLeaderFollower, 'leadSongUpdate: momentNumber: $momentNumber');
+    logger.log(_logLeaderFollower, 'leaderSongUpdate: momentNumber: $momentNumber');
   }
 
   IconData get playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
@@ -1314,7 +1315,7 @@ With escape, the app goes back to the play list.''',
 
       logger.log(
           _logLeaderFollower,
-          'post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
+          'setPlayState: post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
           ', moment: ${_songUpdate?.momentNumber}');
     }
   }

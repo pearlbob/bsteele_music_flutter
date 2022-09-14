@@ -536,6 +536,7 @@ enum AppKeyEnum {
   cssDemoBack(Null),
   cssDemoButton(Null),
   cssDemoIconButton(Null),
+  debugWriteLog(Null),
   detailBack(Null),
   detailCloseOptions(Null),
   detailLoop1(Null),
@@ -659,7 +660,7 @@ enum AppKeyEnum {
   optionsUserName(String),
   optionsWebsocketBob(Null),
   optionsWebsocketCJ(Null),
-  optionsWebsocketIP(Null),
+  optionsWebsocketIP(String),
   optionsWebsocketNone(Null),
   optionsWebsocketPark(Null),
   optionsWebsocketThisHost(Null),
@@ -799,44 +800,90 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
 
 //  the weakly typed storage here is strongly enforced by the strongly typed construction of the registration
 //  i.e. by the app key enum argument type
-//  fixme: probably should be cleared on page change
+//  fixme: should be cleared on page change
 Map<AppKeyEnum, Function> _appKeyRegisterCallbacks = {};
 
 void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function? callback}) {
+  if (!kDebugMode) //fixme: temp
+  {
+    return;
+  }
   if (voidCallback != null) {
+    assert(e.argType == Null);
     _appKeyRegisterCallbacks[e] = voidCallback;
   } else if (callback != null) {
+    assert(e.argType != Null);
     _appKeyRegisterCallbacks[e] = callback;
   }
 }
 
-void debugLoggerAppKeyRegisterCallbacks() {
-  logger.i('debugLoggerAppKeyRegisterCallbacks:');
-  {
-    //  fixme: sample only
-    var appKeyEnum = AppKeyEnum.optionsWebsocketBob;
-    var callback = _appKeyRegisterCallbacks[appKeyEnum];
-    if (callback != null) {
-      logger.i('call back: $appKeyEnum: ${callback.runtimeType}');
+Map<String, AppKeyEnum>? _appKeyLookupMap;
 
-      if (callback is VoidCallback) {
-        logger.i('VoidCallback: $callback called');
-        callback.call();
+bool appKeyExecute(String logString) {
+  if (_appKeyLookupMap == null) {
+    _appKeyLookupMap = {};
+    for (var e in AppKeyEnum.values) {
+      _appKeyLookupMap![e.name] = e;
+    }
+  }
+
+  String? eString;
+  String? value;
+  var m = _appKeyLogRegexp.firstMatch(logString);
+  if (m != null) {
+    eString = m.group(1);
+    if (m.groupCount >= 2) {
+      value = m.group(2); //  may be null!
+    }
+  }
+  logger.v('eString: "$eString", value: $value');
+
+  if (eString != null) {
+    var e = _appKeyLookupMap![eString];
+    if (e != null) {
+      var callback = _appKeyRegisterCallbacks[e];
+      if (callback != null) {
+        if (callback is VoidCallback) {
+          assert(value == null);
+          appLogKeyCallback(appKey(e));
+          callback.call();
+          return true;
+        } else {
+          assert(value != null);
+          if (e.argType == String) {
+            //  optimization
+            appLogKeyCallback(appKey(e, value: value));
+            Function.apply(callback, [value]);
+            return true;
+          } else {
+            //  parse string to correct value type
+            logger.i('fixme: for type: ${e.argType}: ${callback.runtimeType}("$value")');
+          }
+        }
       } else {
-        logger.i('not VoidCallback: $callback');
+        logger.i('callback not found registered for: $e');
       }
+    } else {
+      logger.i('appKeyEnum not found: $eString');
     }
+  } else {
+    logger.i('appKeyEnum not found in logString: $logString');
   }
-  {
-    //  fixme: sample only
-    var appKeyEnum = AppKeyEnum.optionsUserName;
-    var function = _appKeyRegisterCallbacks[appKeyEnum];
-    if (function != null) {
-      logger.i('call back: $appKeyEnum: ${function.runtimeType}');
+  return false;
+}
 
-      Function.apply(function, ['fun_arg']);
-    }
+final _appKeyLogRegexp = RegExp(r'^([^.]*)(?:\.?(.+?))?$'); // second group may be null!
+
+void testAppKeyCallbacks() {
+  if (!kDebugMode) //fixme: temp
+  {
+    logger.i('debugLoggerAppKeyRegisterCallbacks:  NOT DEBUG');
+    return;
   }
+  //  fixme: sample only
+  logger.i('debugLoggerAppKeyRegisterCallbacks:');
+  logger.i('appKeyParse: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
+  logger.i('appKeyParse: optionsUserName.bob: ${appKeyExecute('optionsUserName.bob')}');
 }
 
 class _CssColor extends Color {

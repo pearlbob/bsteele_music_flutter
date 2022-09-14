@@ -1,3 +1,4 @@
+import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -22,23 +23,34 @@ class DebugState extends State<Debug> {
   Widget build(BuildContext context) {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
-    TextStyle style = generateAppTextStyle(color: Colors.black87);
+    TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: appDefaultFontSize * 2);
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'bsteele Music App Debug'),
       body: DefaultTextStyle(
         style: style,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
+        child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                for (var log in appLog()) Text(log),
-              ]),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              appButton('Write Log', appKeyEnum: AppKeyEnum.debugWriteLog, onPressed: () {
+                logger.i('write log: ${appLog().toString()}');
+              }),
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    textDirection: TextDirection.ltr,
+                    children: <Widget>[
+                      for (var log in appLog()) Text(log, textAlign: TextAlign.start),
+                    ]),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.documentationBack),

@@ -1249,7 +1249,7 @@ class MyHomePageState extends State<MyHomePage> {
                 if (kDebugMode)
                   TextButton(
                       onPressed: () {
-                        debugLoggerAppKeyRegisterCallbacks();
+                        testAppKeyCallbacks();
                       },
                       child: Text(
                         'test',

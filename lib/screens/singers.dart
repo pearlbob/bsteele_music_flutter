@@ -979,7 +979,7 @@ class SingersState extends State<Singers> {
                   //  new singer stuff
                   width: 16 * app.screenInfo.fontSize,
                   //  limit text entry display length
-                  child: AppTextField(
+                  child: AppTextField.onSubmitted(
                     appKeyEnum: AppKeyEnum.singersNameEntry,
                     controller: singerTextFieldController,
                     hintText: "enter a new singer's name",

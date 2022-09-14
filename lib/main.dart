@@ -1246,6 +1246,15 @@ class MyHomePageState extends State<MyHomePage> {
                         });
                       }),
                     )),
+                if (kDebugMode)
+                  TextButton(
+                      onPressed: () {
+                        debugLoggerAppKeyRegisterCallbacks();
+                      },
+                      child: Text(
+                        'test',
+                        style: searchDropDownStyle,
+                      ))
               ]),
               if (app.isScreenBig)
                 AppWrap(

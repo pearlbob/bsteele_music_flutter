@@ -136,10 +136,10 @@ class DropDownFinderByAppKey extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
-    //logger.i( 'DropDownFinderByAppKey(): try $candidate');
+    logger.v('DropDownFinderByAppKey(): try $candidate');
     return (candidate.widget is DropdownButton &&
         candidate.widget.key is ValueKey<String> &&
-        (candidate.widget.key as ValueKey<String>).value == _appKey.name);
+        (candidate.widget.key as ValueKey<String>).value.startsWith(_appKey.name)); //  fixme
   }
 
   final AppKeyEnum _appKey;

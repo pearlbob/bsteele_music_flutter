@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:developer';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -1317,7 +1316,7 @@ class EditState extends State<Edit> {
         // var sectionVersion = location.sectionVersion;
         var measureNode = chordSong.findMeasureNodeByLocation(location);
         if (measureNode == null) {
-          debugger(when: measureNode == null);
+          assert(false);
           continue;
         }
 
@@ -1963,9 +1962,8 @@ class EditState extends State<Edit> {
 
         if (lastSectionVersion != null) {
           logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
-          sb.write(song
-              .findChordSectionBySectionVersion(lastSectionVersion)
-              ?.toMarkupInRows(lineCount, expanded: !appOptions.compressRepeats));
+          sb.write(
+              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false));
           lineCount = 1;
         }
 
@@ -1976,9 +1974,7 @@ class EditState extends State<Edit> {
     }
     if (lastSectionVersion != null) {
       logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
-      sb.write(song
-          .findChordSectionBySectionVersion(lastSectionVersion)
-          ?.toMarkupInRows(lineCount, expanded: !appOptions.compressRepeats));
+      sb.write(song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false));
     }
     return sb.toString();
   }

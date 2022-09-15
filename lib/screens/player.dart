@@ -731,7 +731,7 @@ Up or left arrow backs up one section.
 A click or touch above the middle backs up one section.
 Scrolling with the mouse wheel selects individual rows.
 Enter ends the "play" mode.
-With escape, the app goes back to the play list.''',
+With z or q, the app goes back to the play list.''',
                                         child: Container(
                                           padding: const EdgeInsets.only(left: 8, right: 8),
                                           child: appIconButton(
@@ -1021,7 +1021,7 @@ With escape, the app goes back to the play list.''',
                                 performStop();
                               },
                               child: AppTooltip(
-                                message: 'Escape to stop the play\nor space to next section',
+                                message: 'Type Z or Q to stop the play\nor space to next section',
                                 child: appIcon(
                                   Icons.stop,
                                 ),
@@ -1151,7 +1151,7 @@ With escape, the app goes back to the play list.''',
       logger.log(_logKeyboard, 'arrowUp');
       sectionBump(-1);
       return KeyEventResult.handled;
-    } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
+    } else if (e.isKeyPressed(LogicalKeyboardKey.keyZ) || e.isKeyPressed(LogicalKeyboardKey.keyQ)) {
       if (_isPlaying || songIsInPlay) {
         performStop();
       } else {

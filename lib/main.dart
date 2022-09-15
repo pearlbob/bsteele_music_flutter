@@ -193,6 +193,10 @@ _____escape from player to singers and no more ,.
 ______Singer + requester: mode as last set, default/preference for singer
 _____Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
 
+follower jumps somewhere and back when adjusting the key when not on the first section
+
+find a replacement for the escape key... too many overloads!  q?
+
 indicator should be on current chord row
 
 singer and requester on one singer/requester

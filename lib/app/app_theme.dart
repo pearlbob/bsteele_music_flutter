@@ -773,6 +773,8 @@ class Id {
     return id;
   }
 
+  static parse(String s) => Id(s);
+
   String id;
 }
 
@@ -803,6 +805,29 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
 //  fixme: should be cleared on page change
 Map<AppKeyEnum, Function> _appKeyRegisterCallbacks = {};
 
+appKeyCallbacksClear() {
+  _appKeyRegisterCallbacks.clear(); //  can't run callbacks if the widget tree is now gone
+}
+
+//  fixme: can't figure a better way to do this since generic constructors can't reference their type
+typedef TypeParser<T> = T? Function(String s);
+
+Map<Type, TypeParser> _appKeyParsers = {
+  Null: (s) => null,
+  String: (s) => s,
+
+  bool: (s) => s == 'true',
+  ChordSection: (s) => logger.i('ChordSection value for: "$s"'), //  void
+  ChordSectionLocation: (s) => logger.i('ChordSectionLocation value for: "$s"'), //  void
+  MainSortType: (s) => MainSortType.values.firstWhere((e) => e.name == s),
+  music_key.Key: (s) => music_key.Key.parseString(s),
+  Id: (s) => Id.parse(s),
+  int: (s) => int.parse(s),
+  ScaleChord: (s) => ScaleChord.parseString(s),
+  ScaleNote: (s) => ScaleNote.parseString(s),
+  TimeSignature: (s) => TimeSignature.parse(s),
+};
+
 void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function? callback}) {
   if (!kDebugMode) //fixme: temp
   {
@@ -817,48 +842,61 @@ void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function
   }
 }
 
-Map<String, AppKeyEnum>? _appKeyLookupMap;
+Map<String, AppKeyEnum>? _appKeyEnumLookupMap;
 
 bool appKeyExecute(String logString) {
-  if (_appKeyLookupMap == null) {
-    _appKeyLookupMap = {};
+  //  lazy eval up type lookup
+  if (_appKeyEnumLookupMap == null) {
+    _appKeyEnumLookupMap = {};
     for (var e in AppKeyEnum.values) {
-      _appKeyLookupMap![e.name] = e;
+      _appKeyEnumLookupMap![e.name] = e;
+      //  assure that we can convert everything
+      //  fixme: should be done at compile time
+      assert(_appKeyParsers[e.argType] != null);
     }
   }
 
+  //  find the app key and value string... if it exists
   String? eString;
-  String? value;
+  String? valueString;
   var m = _appKeyLogRegexp.firstMatch(logString);
   if (m != null) {
     eString = m.group(1);
     if (m.groupCount >= 2) {
-      value = m.group(2); //  may be null!
+      valueString = m.group(2); //  may be null!
     }
   }
-  logger.v('eString: "$eString", value: $value');
+  logger.v('eString: "$eString", value: $valueString');
 
+  //  execute the app key
   if (eString != null) {
-    var e = _appKeyLookupMap![eString];
+    var e = _appKeyEnumLookupMap![eString];
     if (e != null) {
       var callback = _appKeyRegisterCallbacks[e];
       if (callback != null) {
-        if (callback is VoidCallback) {
-          assert(value == null);
-          appLogKeyCallback(appKey(e));
-          callback.call();
-          return true;
-        } else {
-          assert(value != null);
-          if (e.argType == String) {
-            //  optimization
-            appLogKeyCallback(appKey(e, value: value));
-            Function.apply(callback, [value]);
+        try {
+          if (callback is VoidCallback) {
+            assert(valueString == null);
+            appLogKeyCallback(appKey(e));
+            callback.call();
             return true;
           } else {
-            //  parse string to correct value type
-            logger.i('fixme: for type: ${e.argType}: ${callback.runtimeType}("$value")');
+            assert(valueString != null);
+            if (e.argType == String) {
+              //  optimization
+              appLogKeyCallback(appKey(e, value: valueString));
+              Function.apply(callback, [valueString]);
+              return true;
+            } else {
+              //  parse string to correct value type
+              var value = _appKeyParsers[e.argType]?.call(valueString!);
+              logger.i('$e ${e.argType}.$valueString => $value');
+              callback.call(value);
+              return true;
+            }
           }
+        } catch (ex) {
+          logger.w('callback threw exception: $ex');
         }
       } else {
         logger.i('callback not found registered for: $e');
@@ -881,9 +919,12 @@ void testAppKeyCallbacks() {
     return;
   }
   //  fixme: sample only
-  logger.i('debugLoggerAppKeyRegisterCallbacks:');
-  logger.i('appKeyParse: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
-  logger.i('appKeyParse: optionsUserName.bob: ${appKeyExecute('optionsUserName.bob')}');
+  logger.i('testAppKeyCallbacks:');
+  // logger.i('appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
+  // logger.i('appKeyExecute: optionsUserName.bob: ${appKeyExecute('optionsUserName.bob')}');
+  logger.i('appKeyExecute: mainSortType.byComplexity: ${appKeyExecute('mainSortType.byComplexity')}');
+  // setState() called after dispose():
+  logger.i('appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
 }
 
 class _CssColor extends Color {
@@ -1337,6 +1378,7 @@ IconButton appEnumeratedIconButton({
 
 DropdownButton<T> appDropdownButton<T>(AppKeyEnum appKeyEnum, List<DropdownMenuItem<T>> items,
     {T? value, ValueChanged<T?>? onChanged, Widget? hint, TextStyle? style}) {
+  _appKeyRegisterCallback(appKeyEnum, callback: onChanged);
   return DropdownButton<T>(
     key: appKey(appKeyEnum, value: value),
     value: value,

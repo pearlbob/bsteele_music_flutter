@@ -230,6 +230,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.d('player: dispose()');
     _cancelIdleTimer();
 
+    appKeyCallbacksClear();
+
     _player = null;
     _playerIsOnTop = false;
     _songUpdate = null;
@@ -765,8 +767,9 @@ With escape, the app goes back to the play list.''',
                                                   softWrap: false,
                                                 ),
                                               ),
-                                              DropdownButton<music_key.Key>(
-                                                items: keyDropDownMenuList,
+                                              appDropdownButton<music_key.Key>(
+                                                AppKeyEnum.playerMusicKey,
+                                                keyDropDownMenuList,
                                                 onChanged: (value) {
                                                   setState(() {
                                                     if (value != null) {
@@ -776,9 +779,9 @@ With escape, the app goes back to the play list.''',
                                                 },
                                                 value: _selectedSongKey,
                                                 style: headerTextStyle,
-                                                iconSize: lookupIconSize(),
-                                                itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
-                                                    kMinInteractiveDimension),
+                                                // iconSize: lookupIconSize(),
+                                                // itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
+                                                //     kMinInteractiveDimension),
                                               ),
                                               if (app.isScreenBig) const AppSpace(),
                                               if (app.isScreenBig)

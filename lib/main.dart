@@ -608,7 +608,7 @@ enum MainSortType {
   byArtist,
   byLastChange,
   byComplexity,
-  byYear,
+  byYear;
 }
 
 /// Display the master list of songs to choose from.

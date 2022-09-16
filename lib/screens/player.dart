@@ -1674,6 +1674,56 @@ With z or q, the app goes back to the play list.''',
                                   ),
                                 ],
                               ),
+                            const AppSpace(),
+                            AppWrap(
+                              alignment: WrapAlignment.start,
+                              children: [
+                                AppTooltip(
+                                  message: 'Show Nashville notation.',
+                                  child: Text(
+                                    'Nashville: ',
+                                    style: boldStyle,
+                                    softWrap: false,
+                                  ),
+                                ),
+                                AppRadio<NashvilleSelection>(
+                                    text: 'Off',
+                                    appKeyEnum: AppKeyEnum.optionsNashville,
+                                    value: NashvilleSelection.off,
+                                    groupValue: appOptions.nashvilleSelection,
+                                    onPressed: () {
+                                      setState(() {
+                                        appOptions.nashvilleSelection = NashvilleSelection.off;
+                                        adjustDisplay();
+                                      });
+                                    },
+                                    style: popupStyle),
+                                AppRadio<NashvilleSelection>(
+                                    text: 'add',
+                                    appKeyEnum: AppKeyEnum.optionsNashville,
+                                    value: NashvilleSelection.add,
+                                    groupValue: appOptions.nashvilleSelection,
+                                    onPressed: () {
+                                      setState(() {
+                                        appOptions.nashvilleSelection = NashvilleSelection.add;
+                                        adjustDisplay();
+                                      });
+                                    },
+                                    style: popupStyle),
+                                AppRadio<NashvilleSelection>(
+                                    text: 'only',
+                                    appKeyEnum: AppKeyEnum.optionsNashville,
+                                    value: NashvilleSelection.only,
+                                    groupValue: appOptions.nashvilleSelection,
+                                    onPressed: () {
+                                      setState(() {
+                                        appOptions.nashvilleSelection = NashvilleSelection.only;
+                                        adjustDisplay();
+                                      });
+                                    },
+                                    style: popupStyle),
+                              ],
+                            ),
                           ]),
                       const AppSpace(),
                       if (app.isScreenBig) _drums,

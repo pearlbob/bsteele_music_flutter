@@ -657,6 +657,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsFullScreen(Null),
   optionsHoliday(String),
   optionsLeadership(Null),
+  optionsNashville(NashvilleSelection),
   optionsNinJam(String),
   optionsUserDisplayStyle(String),
   optionsUserName(String),
@@ -741,7 +742,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   singersSaveSelected(Null),
   singersSearchSingle(bool),
   singersSearchSingleSwitch(Null),
-  singersSearchText(Null),
+  singersSearchText(String),
   singersSessionSingerSelect(String),
   singersShowOtherActions(Null),
   singersSingerClearSearch(Null),
@@ -838,6 +839,7 @@ Map<Type, TypeParser> _appKeyParsers = {
   ChordSection: (s) => ChordSection.parseString(s, 4), //  fixme: not always 4!
   ChordSectionLocation: (s) => ChordSectionLocation.parseString(s), //  void
   MainSortType: (s) => MainSortType.values.firstWhere((e) => e.name == s),
+  NashvilleSelection: (s) => NashvilleSelection.values.firstWhere((e) => e.name == s),
   music_key.Key: (s) => music_key.Key.parseString(s),
   Id: (s) => Id.parse(s),
   int: (s) => int.parse(s),
@@ -1286,8 +1288,9 @@ TextButton appTextButton(
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
   TextStyle? style,
+  dynamic value,
 }) {
-  var key = appKey(appKeyEnum, value: text);
+  var key = appKey(appKeyEnum, value: value ?? text);
   return TextButton(
     key: key,
     onPressed: () {
@@ -1508,7 +1511,7 @@ class AppTextField extends StatelessWidget {
     required this.appKeyEnum,
     this.controller,
     this.focusNode,
-    this.onChanged,
+    required this.onChanged,
     this.hintText,
     this.style,
     this.fontSize, //  fixme: overridden by non-null style above

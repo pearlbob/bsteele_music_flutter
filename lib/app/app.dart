@@ -38,6 +38,12 @@ enum MessageType {
   error,
 }
 
+enum NashvilleSelection {
+  off,
+  add,
+  only;
+}
+
 enum CommunityJamsSongList {
   all,
   jams,
@@ -427,7 +433,7 @@ class AppRadio<T> extends StatelessWidget {
             onPressed?.call();
           },
         ),
-        appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style),
+        appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style, value: value),
       ],
     );
   }

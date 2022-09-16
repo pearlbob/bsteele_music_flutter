@@ -17063,58 +17063,77 @@
     ]
 }
 },
-{ "file": "Bullet with Butterfly Wings.songlyrics", "lastModifiedDate": 1560730466477, "song": 
+{ "file": "Bullet with Butterfly Wings.songlyrics", "lastModifiedDate": 1663316997313, "song": 
 {
 "title": "Bullet with Butterfly Wings",
 "artist": "Smashing Pumpkins, The",
-"user": "Unknown",
-"lastModifiedDate": 1560730466477,
+"user": "Shari",
+"lastModifiedDate": 1663316997313,
 "copyright": "1995 Virgin",
 "key": "Db",
 "defaultBpm": 122,
-"timeSignature": "4/4",
+"timeSignature": "2/4",
 "chords": 
     [
 	"I1:",
-	"FAb Ab Ab",
+	"FEb Ab Ab Ab Ab",
 	"I2:",
-	"BbEb BbDb BbEb BbDb",
-	"BbEb BbDb BbEb BbDb",
+	"Gm Bb F Ab x4",
+	"I3:",
+	"F F F F",
 	"V:",
-	"BbGb EbAb BbGb EbAb x4",
+	"BbmBbm/A BbmF#maj7 Ebm Bbm/A x4",
+	"V2:",
+	"BbmBbm/Ab BbmF#maj7 Ebsus2 Bbm/Ab",
+	"BbmBbm/Ab BbmF#maj7 Ebsus2 Bbm/Ab",
+	"BbmBbm/Ab BbmF#maj7 Ebsus2 Bbm/Ab",
+	"Bbm F#maj7 Ebsus2 Bbm",
 	"PC:",
-	"BbEb GbAb BbEb GbAb x2",
+	"Bbm/Ab Ebsus2 F#maj7 Bbm/Ab",
+	"Bbm/Ab Ebsus2 F#maj7 Bbm/Ab",
+	"Bbm/Ab Ebsus2 F#maj7 Bbm/Ab",
+	"Bbm Ebm F#maj7 F#maj7",
 	"C1:",
-	"BbGb DbAb EbGb x4",
+	"Bbm Gb Db Ab EbmX Gb5 x4",
 	"C2:",
-	"BbGb DbAb EbGb",
-	"BbGb DbAb EbGb",
-	"BbGb DbAb EbGb",
-	"BbGb DbAb",
+	"Bbm Gb Db Ab EbmX Gb5",
+	"Bbm Gb Db Ab EbmX Gb5",
+	"Bbm Gb Db Ab EbmX Gb5",
+	"Bbm Gb Db Ab",
 	"C3:",
-	"BbGb DbAb BbGb DbAb",
-	"BbGb DbAb BbGb DbAb",
+	"Bb5 Gb Db Ab Ebm Gb x4",
+	"C4:",
+	"Bb5 Gb Db Ab x4",
 	"Br1:",
-	"EbGb F5Ab EbGb F5Ab",
-	"EbGb F5Ab EbGb F5Ab",
-	"EbGb F5Ab EbGb F5",
-	"F5",
+	"Ebm Gb FEb Ab",
+	"Ebm Gb FEb Ab",
+	"Ebm Gb FEb Ab",
+	"Ebm Gb FEb Ab",
+	"Ebm Gb FEb Ab",
+	"Ebm Gb",
 	"O:",
-	"BbGb DbAb BbGb DbAb",
-	"BbGb DbAb BbGb DbAb",
-	"EbGb F5"
+	"Bbm Gb Db Ab x4",
+	"Ebm GbX F F"
     ],
 "lyrics": 
     [
 	"V:",
-	"The world is a vampire, sent to drain",
-	"Secret destroyers, hold you up to the flames",
-	"And what do I get, for my pain?",
-	"Betrayed desires, and a piece of the game",
+	"(The world is a vampire)...sent to drain",
+	"...Secret destroyers",
+	"...Hold you up to the ",
+	"Flames",
+	"",
+	"V2:",
+	"(And what do I get) for my pain?",
+	"...Betrayed desires",
+	"...And a piece of the ",
+	"Game",
 	"",
 	"PC:",
-	"Even though I know - I suppose I’ll show",
-	"All my cool and cold - like old Job",
+	"(Even) though I know, I ",
+	"Suppose I’ll show, all my ",
+	"Cool and cold, like old ",
+	"Job",
 	"",
 	"C1:",
 	"Despite all my rage I am still just a rat in a cage",
@@ -17124,14 +17143,18 @@
 	"",
 	"I1:",
 	"(Instrumental)",
-	"Now I'm naked",
 	"",
 	"V:",
-	"Nothing but an animal",
-	"But can you fake it, for just one more show?",
-	"And what do you want?",
-	"I want to change",
-	"And what have you got, when you feel the same?",
+	"(Now I'm naked)...Nothing but an ",
+	"Animal, but can you fake it",
+	"...For just one more ",
+	"Show?",
+	"",
+	"V2:",
+	"(And what do you want?)...I want to change",
+	"...and what do you got?",
+	"...When you feel the ",
+	"Same?",
 	"",
 	"PC:",
 	"Even though I know - I suppose I’ll show",
@@ -17151,23 +17174,29 @@
 	"Tell me there’s no other one",
 	"Jesus was the only son, yeah",
 	"Tell me I’m the chosen one",
-	"Jesus was the only son for you",
+	"Jesus was the only son for ",
+	"You",
 	"",
-	"C1:",
+	"I3:",
+	"(instrumental)",
+	"",
+	"C3:",
 	"Despite all my rage I am still just a rat in a cage",
 	"Despite all my rage I am still just a rat in a cage",
 	"And someone will say what is lost can never be saved",
 	"Despite all my rage I am still just a rat in a CAGE",
 	"",
-	"C3:",
+	"C4:",
 	"Despite all my rage I am still just a rat in a",
 	"Despite all my rage I am still just a rat in a",
-	"Despite all my rage I am still just a rat in a cage",
+	"Despite all my rage I am still just a rat in a ",
+	"Cage",
 	"",
-	"C3:",
+	"C4:",
 	"Tell me I’m the only one",
 	"Tell me there’s no other one",
-	"Jesus was the only son for you",
+	"Jesus was the only son for ",
+	"You",
 	"",
 	"O:",
 	"And I still believe that I cannot be saved",
@@ -26061,7 +26090,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1662874835756, "song": 
+{ "file": "", "lastModifiedDate": 1662874835756, "song": 
 {
 "title": "Cruel to Be Kind",
 "artist": "Nick Lowe",
@@ -58448,12 +58477,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1660095499807, "song": 
+{ "file": "", "lastModifiedDate": 1663272003130, "song": 
 {
 "title": "I Hate Myself For Loving You",
 "artist": "Joan Jett and The Blackhearts",
 "user": "Shari",
-"lastModifiedDate": 1660095499807,
+"lastModifiedDate": 1663272003130,
 "copyright": "1988 Blackheart",
 "key": "A",
 "defaultBpm": 118,
@@ -58461,10 +58490,10 @@
 "chords": 
     [
 	"I:",
-	"X X X X",
-	"E5D5/AE5. D5/AE5 D5/A D5/AE5..",
+	"X X X X..E5",
+	"E5D5/AE5. D5/AE5.. D5/A D5/AE5.. x2",
 	"I2:",
-	"E5D5/AE5. D5/AE5 D5/A D5/AE5.. x2",
+	"E5D5/AE5. D5/AE5.. D5/A D5/AE5.. x2",
 	"V:",
 	"E5 E5 A5 A5",
 	"B5 B5",
@@ -58478,7 +58507,7 @@
 	"X X X X",
 	"X X X X",
 	"O:",
-	"E5D5/AE5. D5/AE5 D5/A D5/AE5.. x4"
+	"E5D5/AE5. D5/AE5.. D5/A D5/AE5.. x4"
     ],
 "lyrics": 
     [
@@ -67872,12 +67901,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1658784181304, "song": 
+{ "file": "", "lastModifiedDate": 1663297566756, "song": 
 {
 "title": "Johnny",
 "artist": "Sarah Jarosz",
 "user": "Shari",
-"lastModifiedDate": 1658784181304,
+"lastModifiedDate": 1663297566756,
 "copyright": "2020 Rounder Records",
 "key": "E",
 "defaultBpm": 99,
@@ -67898,7 +67927,7 @@
 	"V2:",
 	"F# F# C#m B",
 	"F# F# C#m B",
-	"E E B A",
+	"E BE B A",
 	"F# F# G D",
 	"C:",
 	"F# F# G D",
@@ -67917,7 +67946,7 @@
 "lyrics": 
     [
 	"I:",
-	"(instrumental)",
+	"(instrumental) KEY CHANGE DURING BRIDGE",
 	"",
 	"V1:",
 	"Johnny's on the back porch drinkin' red wine, he ",
@@ -98981,12 +99010,12 @@
     ]
 }
 },
-{ "file": "3 am.songlyrics", "lastModifiedDate": 1661152908063, "song": 
+{ "file": "3 am.songlyrics", "lastModifiedDate": 1663308566682, "song": 
 {
 "title": "Rain",
 "artist": "Beatles, The",
 "user": "Shari",
-"lastModifiedDate": 1661152908063,
+"lastModifiedDate": 1663308566682,
 "copyright": "1966 Capitol Records",
 "key": "G",
 "defaultBpm": 108,
@@ -99010,7 +99039,7 @@
     ],
 "lyrics": 
     [
-	"I:(instrumental)",
+	"I:(instrumental) NOTE: Two-beat interval in v2",
 	"",
 	"V:",
 	"(If the) rain comes they run and hide their ",
@@ -103755,12 +103784,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1633841548912, "song": 
+{ "file": "", "lastModifiedDate": 1663308355885, "song": 
 {
 "title": "Ruby Falls",
 "artist": "Guster",
 "user": "Shari",
-"lastModifiedDate": 1633841548912,
+"lastModifiedDate": 1663308355885,
 "copyright": "2006 Reprise",
 "key": "F",
 "defaultBpm": 127,
@@ -103779,11 +103808,15 @@
 	"Dm Dm A7 A7 |",
 	"Bb Bb F F | x2",
 	"V:",
-	"F Dm A Bb |",
-	"F Eb Bb Bb | x2",
+	"F Dm AA7 Bb",
+	"FF/A EbEb/G Bb Bb",
+	"F Dm AA7 Bb",
+	"FF/A EbEb/G Bb Bb",
 	"V2:",
-	"F Dm A Bb |",
-	"F Eb Bb Bb | x2",
+	"F Dm A Bb",
+	"FF/A EbEb/G Bb Bb",
+	"F Dm A Bb",
+	"FF/A EbEb/G Bb Bb",
 	"F Eb Bb DbBb",
 	"C:",
 	"Dm Dm A7 A7",
@@ -109413,12 +109446,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1662875942853, "song": 
+{ "file": "", "lastModifiedDate": 1663308830630, "song": 
 {
 "title": "Shine",
 "artist": "Collective Soul",
 "user": "Shari",
-"lastModifiedDate": 1662875942853,
+"lastModifiedDate": 1663308830630,
 "copyright": "1993 Atlantic Records",
 "key": "D",
 "defaultBpm": 75,
@@ -109435,14 +109468,14 @@
 	"C# C# C# C#",
 	"B B F# F#",
 	"PC:",
-	"C#E C#EX C#E C#EF#X x2",
+	"C#E C#EX C#E C#EF#G x2",
 	"C:",
 	"BF# C# BF# C# x2",
 	"C2:",
 	"BF# C# BF# C#",
 	"BF# C# BF#",
 	"O:",
-	"C#E C#EX C#E C#EF#X x2"
+	"C#E C#EX C#E C#EF#G x2"
     ],
 "lyrics": 
     [
@@ -135191,7 +135224,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1662868605127, "song": 
+{ "file": "", "lastModifiedDate": 1662868605127, "song": 
 {
 "title": "What's The Frequency, Kenneth?",
 "artist": "R.E.M.",
@@ -140241,7 +140274,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1663132643941, "song": 
+{ "file": "", "lastModifiedDate": 1663132643941, "song": 
 {
 "title": "Wrong Band, The",
 "artist": "Tori Amos",

@@ -11,6 +11,7 @@ import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatMarker.dart';
+import 'package:bsteeleMusicLib/songs/nashvilleNote.dart';
 import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
@@ -24,6 +25,8 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
+
+const _slashColor = Color(0xff8b0000);
 
 /*
 songs with issues?
@@ -53,14 +56,6 @@ const double _marginSizeMax = 4; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _highlightColor = Colors.redAccent;
-
-enum NashvilleSelection {
-  off,
-  add,
-  only;
-}
-
-NashvilleSelection _nashvilleSelection = NashvilleSelection.off;
 
 ///  The trick of the game: Figure the text size prior to boxing it
 Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
@@ -117,6 +112,7 @@ class LyricsTable {
     var usTimer = UsTimer();
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
+    _nashvilleSelection = _appOptions.nashvilleSelection;
 
     _computeScreenSizes();
 
@@ -197,7 +193,7 @@ class LyricsTable {
                   c,
                   SongCellWidget(
                     richText: RichText(
-                      text: measureNodeTextSpan(chordSection, song.key, transpositionOffset),
+                      text: _chordSectionTextSpan(chordSection, song.key, transpositionOffset),
                     ),
                     type: SongCellType.columnMinimum,
                     measureNode: chordSection,
@@ -275,7 +271,7 @@ class LyricsTable {
                     c,
                     SongCellWidget(
                       richText: RichText(
-                        text: measureNodeTextSpan(
+                        text: _chordSectionTextSpan(
                           chordSection,
                           song.key,
                           transpositionOffset,
@@ -679,7 +675,8 @@ class LyricsTable {
   }
 
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
-  TextSpan measureNodeTextSpan(final MeasureNode measureNode, final music_key.Key originalKey, int transpositionOffset,
+  TextSpan _chordSectionTextSpan(
+      final ChordSection chordSection, final music_key.Key originalKey, int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     TextSpan? nashvilleTextSpan;
 
@@ -694,8 +691,8 @@ class LyricsTable {
         case NashvilleSelection.add:
         case NashvilleSelection.only:
           nashvilleTextSpan = TextSpan(
-            text: '$newLine${measureNode.toNashville(originalKey)}',
-            style: style.copyWith(fontSize: (style.fontSize ?? _chordFontSize) * 0.7, color: Colors.black87),
+            text: '$newLine${chordSection.toNashville(originalKey)}',
+            style: style,
           );
           break;
       }
@@ -707,7 +704,7 @@ class LyricsTable {
       case NashvilleSelection.off:
       case NashvilleSelection.add:
         textSpan = TextSpan(
-          text: measureNode.transpose(displayMusicKey ?? originalKey, transpositionOffset),
+          text: chordSection.transpose(displayMusicKey ?? originalKey, transpositionOffset),
           style: style,
           children: nashvilleTextSpan == null ? [] : [nashvilleTextSpan],
         );
@@ -720,43 +717,66 @@ class LyricsTable {
     return textSpan;
   }
 
-  TextSpan measureTextSpan(final Measure measure, final music_key.Key originalKey, int transpositionOffset,
+  TextSpan measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
-    TextSpan? nashvilleTextSpan;
+    final List<TextSpan> nashvilleChildren = [];
+    final keyOffset = originalKey.getHalfStep();
 
     style = style ?? _coloredChordTextStyle;
+    final TextStyle slashStyle = style.copyWith(color: _slashColor, fontWeight: FontWeight.bold);
 
-    //  text span for nashville, if required
-    {
-      String newLine = _nashvilleSelection == NashvilleSelection.add ? '\n' : '';
-      switch (_nashvilleSelection) {
-        case NashvilleSelection.off:
-          break;
-        case NashvilleSelection.add:
-        case NashvilleSelection.only:
-          nashvilleTextSpan = TextSpan(
-            text: '$newLine${measure.toNashville(originalKey)}',
-            style: style.copyWith(fontSize: (style.fontSize ?? _chordFontSize) * 0.7, color: Colors.black87),
-          );
-          break;
-      }
-    }
-
-    TextSpan textSpan;
-    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize)
-        .copyWith(backgroundColor: style.backgroundColor, fontWeight: FontWeight.bold);
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
             fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
         .copyWith(
       backgroundColor: style.backgroundColor,
     );
 
+    //  text span for nashville, if required
+    {
+      if (_nashvilleSelection == NashvilleSelection.add) {
+        nashvilleChildren.add(TextSpan(text: '\n', style: style)); //  separation from non-nashville chords
+      }
+      switch (_nashvilleSelection) {
+        case NashvilleSelection.off:
+          break;
+        case NashvilleSelection.add:
+        case NashvilleSelection.only:
+          if (measure.chords.isNotEmpty) {
+            bool first = true;
+            for (final chord in measure.chords) {
+              //  space the next chord in the measure
+              if (first) {
+                first = false;
+              } else {
+                nashvilleChildren.add(TextSpan(text: ' ', style: style));
+              }
+
+              nashvilleChildren.add(TextSpan(
+                  text: NashvilleNote.byHalfStep(chord.scaleChord.scaleNote.halfStep - keyOffset).toString(),
+                  style: style));
+              nashvilleChildren
+                  .add(TextSpan(text: chord.scaleChord.chordDescriptor.toNashville(), style: chordDescriptorStyle));
+              // nashvilleChildren.add(TextSpan(text: '${chord.anticipationOrDelay}', style: style));
+
+              if (chord.slashScaleNote != null) {
+                nashvilleChildren.add(TextSpan(
+                  //  notice the final space for italics  and readability
+                  text: '/${NashvilleNote.byHalfStep(chord.slashScaleNote!.halfStep - keyOffset)} ',
+                  style: slashStyle,
+                ));
+              }
+            }
+          }
+          break;
+      }
+    }
+
     //  figure the text span
+    final List<TextSpan> children = [];
     switch (_nashvilleSelection) {
       case NashvilleSelection.off:
       case NashvilleSelection.add:
         if (measure.chords.isNotEmpty) {
-          final List<TextSpan> children = [];
           for (final chord in measure.chords) {
             var transposedChord = chord.transpose(displayMusicKey ?? originalKey, transpositionOffset);
             var isSlash = transposedChord.slashScaleNote != null;
@@ -786,34 +806,32 @@ class LyricsTable {
             ));
             if (isSlash) {
               var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
+              //  and readability
               children.add(TextSpan(
                 text: s,
                 style: slashStyle,
               ));
             }
           }
-
-          textSpan = TextSpan(children: children, style: style);
         } else {
           //  no chord measures such as repeats, repeat markers and comments
-          textSpan = TextSpan(
+          children.add(TextSpan(
             text: measure.toString(),
             style: style,
-          );
+          ));
         }
-
-        textSpan = TextSpan(
-          text: measure.transpose(displayMusicKey ?? originalKey, transpositionOffset),
-          style: style,
-          children: nashvilleTextSpan == null ? [] : [nashvilleTextSpan],
-        );
         break;
       case NashvilleSelection.only:
-        textSpan = nashvilleTextSpan!;
         break;
     }
 
-    return textSpan;
+    if (nashvilleChildren.isNotEmpty) {
+      children.addAll(nashvilleChildren);
+    }
+    return TextSpan(
+      style: style,
+      children: children,
+    );
   }
 
   void _displayChordSection(GridCoordinate gc, ChordSection chordSection, MeasureNode measureNode, {bool? selectable}) {
@@ -877,6 +895,8 @@ class LyricsTable {
         ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
   }
+
+  NashvilleSelection _nashvilleSelection = NashvilleSelection.off;
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 100;

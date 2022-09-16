@@ -635,6 +635,7 @@ class EditState extends State<Edit> {
                           controller: titleTextEditingController,
                           hintText: 'Enter the song title.',
                           fontSize: _defaultChordFontSize,
+                          onChanged: (value) {}, //  fixme: ignored
                         ),
                       ),
                     ]),
@@ -655,6 +656,7 @@ class EditState extends State<Edit> {
                           controller: artistTextEditingController,
                           hintText: 'Enter the song\'s artist.',
                           fontSize: _defaultChordFontSize,
+                          onChanged: (value) {}, //  fixme: ignored
                         ),
                       ),
                     ]),
@@ -675,6 +677,7 @@ class EditState extends State<Edit> {
                           controller: coverArtistTextEditingController,
                           hintText: 'Enter the song\'s cover artist.',
                           fontSize: _defaultChordFontSize,
+                          onChanged: (value) {}, //  fixme: ignored
                         ),
                       ),
                     ]),
@@ -695,6 +698,7 @@ class EditState extends State<Edit> {
                           controller: copyrightTextEditingController,
                           hintText: 'Enter the song\'s copyright. Required.',
                           fontSize: _defaultChordFontSize,
+                          onChanged: (value) {}, //  fixme: ignored
                         ),
                       ),
                     ]),
@@ -753,6 +757,7 @@ class EditState extends State<Edit> {
                           controller: bpmTextEditingController,
                           hintText: 'Enter the song\'s tempo in beats per minute.',
                           fontSize: _defaultChordFontSize,
+                          onChanged: (value) {}, //  fixme: ignored
                         ),
                       ),
                     ]),
@@ -788,6 +793,7 @@ class EditState extends State<Edit> {
                           controller: userTextEditingController,
                           hintText: 'Enter your user name.',
                           fontSize: _defaultChordFontSize,
+                          onChanged: (value) {}, //  fixme: ignored
                         ),
                       ),
                       const AppSpace(),

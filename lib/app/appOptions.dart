@@ -21,6 +21,8 @@ enum StorageValue {
   //  only partial at the moment
   songMetadata,
   allSongPerformances,
+  nashvilleSelection,
+  userDisplayStyle,
 }
 
 /// Application level, persistent, shared values.
@@ -40,9 +42,13 @@ class AppOptions extends ChangeNotifier {
     _holidayOverride = holidayOverride;
     _prefs = await SharedPreferences.getInstance();
     _userDisplayStyle = Util.enumFromString(
-            await _readString('userDisplayStyle', defaultValue: UserDisplayStyle.both.toString()),
+            await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
             UserDisplayStyle.values) ??
         UserDisplayStyle.both;
+    _nashvilleSelection = Util.enumFromString(
+            await _readString(StorageValue.nashvilleSelection.name, defaultValue: NashvilleSelection.off.name),
+            NashvilleSelection.values) ??
+        NashvilleSelection.off;
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     _countIn = await _readBool('countIn', defaultValue: _countIn);
     _dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions', defaultValue: _dashAllMeasureRepetitions);
@@ -228,13 +234,6 @@ class AppOptions extends ChangeNotifier {
   bool _holiday = false;
   bool _holidayOverride = false;
 
-  set userDisplayStyle(UserDisplayStyle value) {
-    if (_userDisplayStyle != value) {
-      _userDisplayStyle = value;
-      _saveString('userDisplayStyle', value.name);
-    }
-  }
-
   bool get isSinger => _userDisplayStyle == UserDisplayStyle.singer;
 
   set compressRepeats(bool value) {
@@ -265,6 +264,24 @@ class AppOptions extends ChangeNotifier {
   /// The user's selected style of player display.
   UserDisplayStyle get userDisplayStyle => _userDisplayStyle;
   UserDisplayStyle _userDisplayStyle = UserDisplayStyle.both;
+
+  set userDisplayStyle(UserDisplayStyle value) {
+    if (_userDisplayStyle != value) {
+      _userDisplayStyle = value;
+      _saveString(StorageValue.userDisplayStyle.name, value.name);
+    }
+  }
+
+  /// The user's selected style of player display.
+  NashvilleSelection get nashvilleSelection => _nashvilleSelection;
+  NashvilleSelection _nashvilleSelection = NashvilleSelection.off;
+
+  set nashvilleSelection(NashvilleSelection value) {
+    if (_nashvilleSelection != value) {
+      _nashvilleSelection = value;
+      _saveString(StorageValue.nashvilleSelection.name, value.name);
+    }
+  }
 
   set websocketHost(String value) {
     if (_websocketHost != value) {

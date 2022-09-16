@@ -181,27 +181,13 @@ void main() async {
 
 /*
 beta short list:
-_______leader/follower will not follow scrolling!
-_______verify the "The " processing
-_______Prodigal Son: something is way wrong with song deletion and song renaming.   i will have to fix it for the next release!
-i found "3 am.songlyrics" as a file name for "3 am" (not surprising) but also: "Ashes to Ashes", "Crawling from the Wreckage", "Here Comes Your Man", and "Rain".I'll investigate but is there anything you can think of in your behavior that might trigger this?
-_______manual play should eliminate top of player while active
-_______singer display sequencing
-______pro display sequencing
-______player only lyrics abreviated
-_____escape from player to singers and no more ,.
-______Singer + requester: mode as last set, default/preference for singer
-_____Uncheck the “As requester” checkbox.  (note: there is an error here. All the current singer’s songs are shown, not just the requester as a singer… )
-
 follower jumps somewhere and back when adjusting the key when not on the first section
+Jumping jack flash, fix in bloom,
 
-find a replacement for the escape key... too many overloads!  q?
-
-indicator should be on current chord row
-
-singer and requester on one singer/requester
+if No song match:. Try close matches
 
 
+??? singer and requester on one singer/requester
 
 silly love songs spacing ,
 master scroll got lost(after space? Likely after open link)
@@ -1035,7 +1021,9 @@ class MyHomePageState extends State<MyHomePage> {
         ],
       ),
 
-      drawer: Drawer(
+      drawer: appDrawer(
+        appKeyEnum: AppKeyEnum.mainDrawer,
+        voidCallback: _openDrawer,
         child: ListView(
           padding: const EdgeInsets.all(4.0),
           children: <Widget>[

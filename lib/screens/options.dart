@@ -135,13 +135,17 @@ class OptionsState extends State<Options> {
                             'User name: ',
                           ),
                         ),
-                        AppTextField(
+                        AppTextField.onSubmitted(
                           appKeyEnum: AppKeyEnum.optionsUserName,
                           controller: _userTextEditingController,
                           hintText: 'Enter your user name.',
-                          onChanged: (value) {
+                          width: appDefaultFontSize * 40,
+                          onSubmitted: (value) {
                             if (value.isNotEmpty) {
-                              _appOptions.user = value;
+                              logger.v('user name onChanged: $value');
+                              setState(() {
+                                _appOptions.user = value;
+                              });
                             }
                           },
                         ),

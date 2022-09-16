@@ -20,6 +20,7 @@ import '../main.dart';
 import 'app.dart';
 
 const Level _cssLog = Level.debug;
+const Level _logAppKey = Level.debug;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
@@ -522,7 +523,7 @@ EdgeInsetsGeometry? getMeasurePadding() {
 }
 
 /// Application keys to select all application actions. See [ appKey() ]
-enum AppKeyEnum {
+enum AppKeyEnum implements Comparable<AppKeyEnum> {
   ///  Return from the about screen
   aboutBack(Null),
   aboutErrorMessage(Null),
@@ -630,6 +631,7 @@ enum AppKeyEnum {
   lyricsEntryLineUp(int),
   mainAcceptBeta(Null),
   mainClearSearch(Null),
+  mainDrawer(Null),
   mainDrawerAbout(Null),
   mainDrawerCssDemo(Null),
   mainDrawerDebug(Null),
@@ -669,7 +671,7 @@ enum AppKeyEnum {
   playerBack(Null),
   playerBPM(int),
   playerCapoLabel(Null),
-  playerCapo(Null),
+  playerCapo(bool),
   playerCompressRepeats(bool),
   playerCompressRepeatsLabel(String),
   playerCopyNinjamBPM(Null),
@@ -762,6 +764,14 @@ enum AppKeyEnum {
 
   const AppKeyEnum(this.argType);
 
+  @override
+  int compareTo(AppKeyEnum other) {
+    if (identical(this, other)) {
+      return 0;
+    }
+    return index.compareTo(other.index);
+  }
+
   final Type argType;
 }
 
@@ -806,7 +816,15 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
 Map<AppKeyEnum, Function> _appKeyRegisterCallbacks = {};
 
 appKeyCallbacksClear() {
+  logger.log(_logAppKey, 'appKeyCallbacksClear: ');
   _appKeyRegisterCallbacks.clear(); //  can't run callbacks if the widget tree is now gone
+}
+
+_appKeyCallbacksDebugLog() {
+  logger.log(_logAppKey, '_appKeyCallbacksDebugLog:');
+  for (var e in SplayTreeSet<AppKeyEnum>()..addAll(_appKeyRegisterCallbacks.keys)) {
+    logger.log(_logAppKey, '  registered $e: ${_appKeyRegisterCallbacks[e].runtimeType}');
+  }
 }
 
 //  fixme: can't figure a better way to do this since generic constructors can't reference their type
@@ -817,8 +835,8 @@ Map<Type, TypeParser> _appKeyParsers = {
   String: (s) => s,
 
   bool: (s) => s == 'true',
-  ChordSection: (s) => logger.i('ChordSection value for: "$s"'), //  void
-  ChordSectionLocation: (s) => logger.i('ChordSectionLocation value for: "$s"'), //  void
+  ChordSection: (s) => ChordSection.parseString(s, 4), //  fixme: not always 4!
+  ChordSectionLocation: (s) => ChordSectionLocation.parseString(s), //  void
   MainSortType: (s) => MainSortType.values.firstWhere((e) => e.name == s),
   music_key.Key: (s) => music_key.Key.parseString(s),
   Id: (s) => Id.parse(s),
@@ -890,7 +908,7 @@ bool appKeyExecute(String logString) {
             } else {
               //  parse string to correct value type
               var value = _appKeyParsers[e.argType]?.call(valueString!);
-              logger.i('$e ${e.argType}.$valueString => $value');
+              logger.log(_logAppKey, '$e ${e.argType}.$valueString => $value');
               callback.call(value);
               return true;
             }
@@ -899,32 +917,46 @@ bool appKeyExecute(String logString) {
           logger.w('callback threw exception: $ex');
         }
       } else {
-        logger.i('callback not found registered for: $e');
+        logger.w('callback not found registered for: $e');
       }
     } else {
-      logger.i('appKeyEnum not found: $eString');
+      logger.w('appKeyEnum not found: $eString');
     }
   } else {
-    logger.i('appKeyEnum not found in logString: $logString');
+    logger.w('appKeyEnum not found in logString: $logString');
   }
   return false;
 }
 
 final _appKeyLogRegexp = RegExp(r'^([^.]*)(?:\.?(.+?))?$'); // second group may be null!
 
-void testAppKeyCallbacks() {
+void testAppKeyCallbacks() async {
   if (!kDebugMode) //fixme: temp
   {
-    logger.i('debugLoggerAppKeyRegisterCallbacks:  NOT DEBUG');
+    logger.log(_logAppKey, 'debugLoggerAppKeyRegisterCallbacks:  NOT DEBUG');
     return;
   }
   //  fixme: sample only
-  logger.i('testAppKeyCallbacks:');
-  // logger.i('appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
-  // logger.i('appKeyExecute: optionsUserName.bob: ${appKeyExecute('optionsUserName.bob')}');
-  logger.i('appKeyExecute: mainSortType.byComplexity: ${appKeyExecute('mainSortType.byComplexity')}');
+  logger.log(_logAppKey, 'testAppKeyCallbacks:');
+
+  //logger.log(_logAppKey,'appKeyExecute: mainSortType.byComplexity: ${appKeyExecute('mainSortType.byComplexity')}');
   // setState() called after dispose():
-  logger.i('appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
+  _appKeyCallbacksDebugLog();
+  logger.log(_logAppKey, 'appKeyExecute: mainDrawer: ${appKeyExecute('mainDrawer')}');
+  await Future.delayed(const Duration(seconds: 1));
+  _appKeyCallbacksDebugLog();
+
+  logger.log(_logAppKey, 'appKeyExecute: mainDrawerOptions: ${appKeyExecute('mainDrawerOptions')}');
+  await Future.delayed(const Duration(seconds: 1));
+  logger.log(_logAppKey, 'appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
+  await Future.delayed(const Duration(seconds: 1));
+  logger.log(_logAppKey, 'appKeyExecute: optionsUserName.myfirst: ${appKeyExecute('optionsUserName.myfirst')}');
+  // await Future.delayed(const Duration(seconds: 8));
+  // logger.log(_logAppKey,'appKeyExecute: optionsUserName.bobstuff: ${appKeyExecute('optionsUserName.bobstuff')}');
+  await Future.delayed(const Duration(seconds: 4));
+  logger.log(_logAppKey, 'appKeyExecute: done');
+
+  // logger.log(_logAppKey,'appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
 }
 
 class _CssColor extends Color {
@@ -1438,8 +1470,15 @@ void appTextFieldListener(AppKeyEnum appKeyEnum, TextEditingController controlle
   logger.d('appLogListener( $appKeyEnum:\'${controller.text}\':${controller.selection} )');
 }
 
+Drawer appDrawer({Key? key, required AppKeyEnum appKeyEnum, required Widget child, VoidCallback? voidCallback}) {
+  _appKeyRegisterCallback(appKeyEnum, voidCallback: voidCallback);
+  logger.log(_logAppKey, 'appDrawer: ');
+  return Drawer(key: key ?? appKey(appKeyEnum), child: child);
+}
+
 ListTile appListTile({required AppKeyEnum appKeyEnum, required Widget title, required GestureTapCallback onTap}) {
   var key = appKey(appKeyEnum);
+  _appKeyRegisterCallback(appKeyEnum, voidCallback: onTap);
   return ListTile(
     key: key,
     title: title,

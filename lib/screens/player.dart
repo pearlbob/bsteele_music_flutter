@@ -928,7 +928,10 @@ With z or q, the app goes back to the play list.''',
                               ),
 
                             const AppSpace(),
-                            if (app.isScreenBig && appOptions.ninJam && _ninJam.isNinJamReady)
+                            if (app.isScreenBig &&
+                                appOptions.ninJam &&
+                                _ninJam.isNinJamReady &&
+                                songPlayMode == _SongPlayMode.idle)
                               AppWrapFullWidth(spacing: 20, children: [
                                 const AppSpace(),
                                 AppWrap(spacing: 10, children: [
@@ -1631,23 +1634,117 @@ With z or q, the app goes back to the play list.''',
                               },
                               style: boldStyle,
                             ),
-                            AppTooltip(
-                              message: '${compressRepeats ? 'Expand' : 'Compress'} the repeats on this song',
-                              child: appIconButton(
-                                appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                                icon: appIcon(
-                                  compressRepeats ? Icons.expand : Icons.compress,
-                                ),
-                                value: compressRepeats,
-                                onPressed: () {
+                            AppWrap(children: [
+                              Radio<bool>(
+                                value: true,
+                                groupValue: appOptions.compressRepeats,
+                                onChanged: (value) {
                                   setState(() {
-                                    compressRepeats = !compressRepeats;
-                                    adjustDisplay();
+                                    setState(() {
+                                      compressRepeats = true;
+                                      adjustDisplay();
+                                    });
                                   });
                                 },
                               ),
+                              AppTooltip(
+                                message: 'Compress the repeats on this song',
+                                child: appIconButton(
+                                  appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                                  icon: appIcon(Icons.compress),
+                                  value: compressRepeats,
+                                  onPressed: () {
+                                    setState(() {
+                                      compressRepeats = true;
+                                      adjustDisplay();
+                                    });
+                                  },
+                                ),
+                              ),
+                            ]),
+                            AppWrap(children: [
+                              Radio<bool>(
+                                value: false,
+                                groupValue: appOptions.compressRepeats,
+                                onChanged: (value) {
+                                  setState(() {
+                                    setState(() {
+                                      compressRepeats = false;
+                                      adjustDisplay();
+                                    });
+                                  });
+                                },
+                              ),
+                              AppTooltip(
+                                message: 'Expand the repeats on this song',
+                                child: appIconButton(
+                                  appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                                  icon: appIcon(Icons.expand),
+                                  value: compressRepeats,
+                                  onPressed: () {
+                                    setState(() {
+                                      compressRepeats = false;
+                                      adjustDisplay();
+                                    });
+                                  },
+                                ),
+                              ),
+                            ]),
+                            const AppSpace(
+                              horizontalSpace: 20,
                             ),
-                            const AppSpace(),
+                            AppWrap(
+                              alignment: WrapAlignment.start,
+                              children: [
+                                AppTooltip(
+                                  message: 'Show Nashville notation.',
+                                  child: Text(
+                                    'Nashville: ',
+                                    style: boldStyle,
+                                    softWrap: false,
+                                  ),
+                                ),
+                                AppRadio<NashvilleSelection>(
+                                    text: 'Off',
+                                    appKeyEnum: AppKeyEnum.optionsNashville,
+                                    value: NashvilleSelection.off,
+                                    groupValue: appOptions.nashvilleSelection,
+                                    onPressed: () {
+                                      setState(() {
+                                        appOptions.nashvilleSelection = NashvilleSelection.off;
+                                        adjustDisplay();
+                                      });
+                                    },
+                                    style: popupStyle),
+                                AppRadio<NashvilleSelection>(
+                                    text: 'both',
+                                    appKeyEnum: AppKeyEnum.optionsNashville,
+                                    value: NashvilleSelection.both,
+                                    groupValue: appOptions.nashvilleSelection,
+                                    onPressed: () {
+                                      setState(() {
+                                        appOptions.nashvilleSelection = NashvilleSelection.both;
+                                        adjustDisplay();
+                                      });
+                                    },
+                                    style: popupStyle),
+                                AppRadio<NashvilleSelection>(
+                                    text: 'only',
+                                    appKeyEnum: AppKeyEnum.optionsNashville,
+                                    value: NashvilleSelection.only,
+                                    groupValue: appOptions.nashvilleSelection,
+                                    onPressed: () {
+                                      setState(() {
+                                        appOptions.nashvilleSelection = NashvilleSelection.only;
+                                        adjustDisplay();
+                                      });
+                                    },
+                                    style: popupStyle),
+                              ],
+                            ),
+                            const AppSpace(
+                              horizontalSpace: 20,
+                            ),
                             if (appOptions.userDisplayStyle != UserDisplayStyle.singer)
                               AppWrap(
                                 alignment: WrapAlignment.start,
@@ -1674,56 +1771,6 @@ With z or q, the app goes back to the play list.''',
                                   ),
                                 ],
                               ),
-                            const AppSpace(),
-                            AppWrap(
-                              alignment: WrapAlignment.start,
-                              children: [
-                                AppTooltip(
-                                  message: 'Show Nashville notation.',
-                                  child: Text(
-                                    'Nashville: ',
-                                    style: boldStyle,
-                                    softWrap: false,
-                                  ),
-                                ),
-                                AppRadio<NashvilleSelection>(
-                                    text: 'Off',
-                                    appKeyEnum: AppKeyEnum.optionsNashville,
-                                    value: NashvilleSelection.off,
-                                    groupValue: appOptions.nashvilleSelection,
-                                    onPressed: () {
-                                      setState(() {
-                                        appOptions.nashvilleSelection = NashvilleSelection.off;
-                                        adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle),
-                                AppRadio<NashvilleSelection>(
-                                    text: 'add',
-                                    appKeyEnum: AppKeyEnum.optionsNashville,
-                                    value: NashvilleSelection.add,
-                                    groupValue: appOptions.nashvilleSelection,
-                                    onPressed: () {
-                                      setState(() {
-                                        appOptions.nashvilleSelection = NashvilleSelection.add;
-                                        adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle),
-                                AppRadio<NashvilleSelection>(
-                                    text: 'only',
-                                    appKeyEnum: AppKeyEnum.optionsNashville,
-                                    value: NashvilleSelection.only,
-                                    groupValue: appOptions.nashvilleSelection,
-                                    onPressed: () {
-                                      setState(() {
-                                        appOptions.nashvilleSelection = NashvilleSelection.only;
-                                        adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle),
-                              ],
-                            ),
                           ]),
                       const AppSpace(),
                       if (app.isScreenBig) _drums,

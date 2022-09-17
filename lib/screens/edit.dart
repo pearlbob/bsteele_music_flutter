@@ -635,7 +635,9 @@ class EditState extends State<Edit> {
                           controller: titleTextEditingController,
                           hintText: 'Enter the song title.',
                           fontSize: _defaultChordFontSize,
-                          onChanged: (value) {}, //  fixme: ignored
+                          onChanged: (value) {
+                            logger.i('fixme: AppKeyEnum.editTitle.onChanged');
+                          }, //  fixme: ignored
                         ),
                       ),
                     ]),
@@ -656,7 +658,9 @@ class EditState extends State<Edit> {
                           controller: artistTextEditingController,
                           hintText: 'Enter the song\'s artist.',
                           fontSize: _defaultChordFontSize,
-                          onChanged: (value) {}, //  fixme: ignored
+                          onChanged: (value) {
+                            logger.i('fixme: AppKeyEnum.editArtist.onChanged');
+                          }, //  fixme: ignored
                         ),
                       ),
                     ]),

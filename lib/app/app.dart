@@ -40,7 +40,7 @@ enum MessageType {
 
 enum NashvilleSelection {
   off,
-  add,
+  both,
   only;
 }
 

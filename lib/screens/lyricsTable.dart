@@ -27,6 +27,7 @@ import '../app/app.dart';
 import '../app/appOptions.dart';
 
 const _slashColor = Color(0xff8b0000);
+const _middleDot = '\u00b7';
 
 /*
 songs with issues?
@@ -399,7 +400,7 @@ class LyricsTable {
                       break;
                     case Measure:
                       richText = RichText(
-                        text: measureTextSpan(measure, song.key, transpositionOffset,
+                        text: _measureNashvilleSelectionTextSpan(measure, song.key, transpositionOffset,
                             style: _coloredChordTextStyle, displayMusicKey: displayMusicKey),
                         //  don't allow the rich text to wrap:
                         textWidthBasis: TextWidthBasis.longestLine,
@@ -674,164 +675,229 @@ class LyricsTable {
     return items;
   }
 
-  /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
+  /// Transcribe the chord section to a text span, adding Nashville notation when appropriate.
   TextSpan _chordSectionTextSpan(
       final ChordSection chordSection, final music_key.Key originalKey, int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
-    TextSpan? nashvilleTextSpan;
-
     style = style ?? _coloredChordTextStyle;
 
-    //  text span for nashville, if required
-    {
-      String newLine = _nashvilleSelection == NashvilleSelection.add ? '\n' : '';
-      switch (_nashvilleSelection) {
-        case NashvilleSelection.off:
-          break;
-        case NashvilleSelection.add:
-        case NashvilleSelection.only:
-          nashvilleTextSpan = TextSpan(
-            text: '$newLine${chordSection.toNashville(originalKey)}',
-            style: style,
-          );
-          break;
-      }
-    }
-
-    //  figure text span
-    TextSpan textSpan;
+    final List<TextSpan> children = [];
     switch (_nashvilleSelection) {
       case NashvilleSelection.off:
-      case NashvilleSelection.add:
-        textSpan = TextSpan(
-          text: chordSection.transpose(displayMusicKey ?? originalKey, transpositionOffset),
-          style: style,
-          children: nashvilleTextSpan == null ? [] : [nashvilleTextSpan],
-        );
+      case NashvilleSelection.both:
+        for (var phrase in chordSection.phrases) {
+          for (var measure in phrase.measures) {
+            var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
+                displayMusicKey: displayMusicKey, style: style);
+            children.add(TextSpan(text: ' ', style: style));
+            children.add(textSpan);
+            if (measure.endOfRow) {
+              children.add(TextSpan(text: '  $_middleDot  ', style: style));
+            }
+          }
+          if (phrase.isRepeat()) {
+            children.add(TextSpan(text: '  x${phrase.repeats}   ', style: style));
+          } else {
+            children.add(TextSpan(text: '   ', style: style));
+          }
+        }
         break;
-      case NashvilleSelection.only:
-        textSpan = nashvilleTextSpan!;
+      default:
         break;
     }
 
-    return textSpan;
+    final List<TextSpan> nashvilleChildren = [];
+    switch (_nashvilleSelection) {
+      case NashvilleSelection.both:
+      case NashvilleSelection.only:
+        for (var phrase in chordSection.phrases) {
+          if (nashvilleChildren.isNotEmpty) {
+            //  space the nashville children with a dot
+            nashvilleChildren.add(TextSpan(text: _middleDot, style: style));
+          }
+          for (var measure in phrase.measures) {
+            var textSpan = _nashvilleMeasureTextSpan(measure, originalKey, transpositionOffset,
+                displayMusicKey: displayMusicKey, style: style);
+            nashvilleChildren.add(TextSpan(text: ' ', style: style));
+            nashvilleChildren.add(textSpan);
+            if (measure.endOfRow) {
+              nashvilleChildren.add(TextSpan(text: '  $_middleDot  ', style: style));
+            }
+          }
+          if (phrase.isRepeat()) {
+            nashvilleChildren.add(TextSpan(text: '  x${phrase.repeats}   ', style: style));
+          } else {
+            nashvilleChildren.add(TextSpan(text: '   ', style: style));
+          }
+        }
+        break;
+      case NashvilleSelection.off:
+        break;
+    }
+
+    if (nashvilleChildren.isNotEmpty && children.isNotEmpty) {
+      //  add nashville on new row
+      children.add(TextSpan(text: '\n', style: style));
+    }
+
+    //  combine the lists
+    children.addAll(nashvilleChildren);
+
+    return TextSpan(children: children, style: style);
   }
 
-  TextSpan measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
+  /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
+  TextSpan _measureNashvilleSelectionTextSpan(final Measure measure, final music_key.Key originalKey,
+      int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
+    style = style ?? _coloredChordTextStyle;
+
+    final List<TextSpan> children = [];
+    switch (_nashvilleSelection) {
+      case NashvilleSelection.off:
+      case NashvilleSelection.both:
+        var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
+            displayMusicKey: displayMusicKey, style: style);
+        children.add(TextSpan(text: ' ', style: style));
+        children.add(textSpan);
+        break;
+      default:
+        break;
+    }
+
     final List<TextSpan> nashvilleChildren = [];
+    switch (_nashvilleSelection) {
+      case NashvilleSelection.both:
+      case NashvilleSelection.only:
+        var textSpan = _nashvilleMeasureTextSpan(measure, originalKey, transpositionOffset,
+            displayMusicKey: displayMusicKey, style: style);
+        nashvilleChildren.add(TextSpan(text: ' ', style: style));
+        nashvilleChildren.add(textSpan);
+        break;
+      case NashvilleSelection.off:
+        break;
+    }
+
+    if (nashvilleChildren.isNotEmpty && children.isNotEmpty) {
+      //  add nashville on new row
+      children.add(TextSpan(text: '\n', style: style));
+    }
+
+    //  combine the lists
+    children.addAll(nashvilleChildren);
+
+    return TextSpan(children: children, style: style);
+  }
+
+  TextSpan _measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
+      {final music_key.Key? displayMusicKey, TextStyle? style}) {
+    style = style ?? _coloredChordTextStyle;
+    final TextStyle slashStyle = style.copyWith(color: _slashColor, fontWeight: FontWeight.bold);
+
+    TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
+        fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
+        .copyWith(
+      backgroundColor: style.backgroundColor,
+    );
+
+    //  figure the chord text span
+    final List<TextSpan> children = [];
+
+    if (measure.chords.isNotEmpty) {
+      for (final chord in measure.chords) {
+        var transposedChord = chord.transpose(displayMusicKey ?? originalKey, transpositionOffset);
+        var isSlash = transposedChord.slashScaleNote != null;
+
+        //  chord note
+        children.add(TextSpan(
+          text: transposedChord.scaleChord.scaleNote.toString(),
+          style: style,
+        ));
+        {
+          //  chord descriptor
+          var name = transposedChord.scaleChord.chordDescriptor.shortName;
+          if (name.isNotEmpty) {
+            children.add(
+              TextSpan(
+                text: name,
+                style: chordDescriptorStyle,
+              ),
+            );
+          }
+        }
+
+        //  other stuff
+        children.add(TextSpan(
+          text: transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
+          style: style,
+        ));
+        if (isSlash) {
+          var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
+          //  and readability
+          children.add(TextSpan(
+            text: s,
+            style: slashStyle,
+          ));
+        }
+      }
+    } else {
+      //  no chord measures such as repeats, repeat markers and comments
+      children.add(TextSpan(
+        text: measure.toString(),
+        style: style,
+      ));
+    }
+
+    return TextSpan(
+      style: style,
+      children: children,
+    );
+  }
+
+  TextSpan _nashvilleMeasureTextSpan(final Measure measure, final music_key.Key originalKey,
+      final int transpositionOffset,
+      {final music_key.Key? displayMusicKey, TextStyle? style}) {
     final keyOffset = originalKey.getHalfStep();
 
     style = style ?? _coloredChordTextStyle;
     final TextStyle slashStyle = style.copyWith(color: _slashColor, fontWeight: FontWeight.bold);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-            fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
+        fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
         .copyWith(
       backgroundColor: style.backgroundColor,
     );
 
     //  text span for nashville, if required
-    {
-      if (_nashvilleSelection == NashvilleSelection.add) {
-        nashvilleChildren.add(TextSpan(text: '\n', style: style)); //  separation from non-nashville chords
-      }
-      switch (_nashvilleSelection) {
-        case NashvilleSelection.off:
-          break;
-        case NashvilleSelection.add:
-        case NashvilleSelection.only:
-          if (measure.chords.isNotEmpty) {
-            bool first = true;
-            for (final chord in measure.chords) {
-              //  space the next chord in the measure
-              if (first) {
-                first = false;
-              } else {
-                nashvilleChildren.add(TextSpan(text: ' ', style: style));
-              }
+    final List<TextSpan> nashvilleChildren = [];
 
-              nashvilleChildren.add(TextSpan(
-                  text: NashvilleNote.byHalfStep(chord.scaleChord.scaleNote.halfStep - keyOffset).toString(),
-                  style: style));
-              nashvilleChildren
-                  .add(TextSpan(text: chord.scaleChord.chordDescriptor.toNashville(), style: chordDescriptorStyle));
-              // nashvilleChildren.add(TextSpan(text: '${chord.anticipationOrDelay}', style: style));
-
-              if (chord.slashScaleNote != null) {
-                nashvilleChildren.add(TextSpan(
-                  //  notice the final space for italics  and readability
-                  text: '/${NashvilleNote.byHalfStep(chord.slashScaleNote!.halfStep - keyOffset)} ',
-                  style: slashStyle,
-                ));
-              }
-            }
-          }
-          break;
-      }
-    }
-
-    //  figure the text span
-    final List<TextSpan> children = [];
-    switch (_nashvilleSelection) {
-      case NashvilleSelection.off:
-      case NashvilleSelection.add:
-        if (measure.chords.isNotEmpty) {
-          for (final chord in measure.chords) {
-            var transposedChord = chord.transpose(displayMusicKey ?? originalKey, transpositionOffset);
-            var isSlash = transposedChord.slashScaleNote != null;
-
-            //  chord note
-            children.add(TextSpan(
-              text: transposedChord.scaleChord.scaleNote.toString(),
-              style: style,
-            ));
-            {
-              //  chord descriptor
-              var name = transposedChord.scaleChord.chordDescriptor.shortName;
-              if (name.isNotEmpty) {
-                children.add(
-                  TextSpan(
-                    text: name,
-                    style: chordDescriptorStyle,
-                  ),
-                );
-              }
-            }
-
-            //  other stuff
-            children.add(TextSpan(
-              text: transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
-              style: style,
-            ));
-            if (isSlash) {
-              var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
-              //  and readability
-              children.add(TextSpan(
-                text: s,
-                style: slashStyle,
-              ));
-            }
-          }
+    if (measure.chords.isNotEmpty) {
+      bool first = true;
+      for (final chord in measure.chords) {
+        //  space the next chord in the measure
+        if (first) {
+          first = false;
         } else {
-          //  no chord measures such as repeats, repeat markers and comments
-          children.add(TextSpan(
-            text: measure.toString(),
-            style: style,
+          nashvilleChildren.add(TextSpan(text: ' ', style: style));
+        }
+
+        nashvilleChildren.add(TextSpan(
+            text: NashvilleNote.byHalfStep(chord.scaleChord.scaleNote.halfStep - keyOffset).toString(), style: style));
+        nashvilleChildren
+            .add(TextSpan(text: chord.scaleChord.chordDescriptor.toNashville(), style: chordDescriptorStyle));
+        // nashvilleChildren.add(TextSpan(text: '${chord.anticipationOrDelay}', style: style));
+
+        if (chord.slashScaleNote != null) {
+          nashvilleChildren.add(TextSpan(
+            //  notice the final space for italics  and readability
+            text: '/${NashvilleNote.byHalfStep(chord.slashScaleNote!.halfStep - keyOffset)} ',
+            style: slashStyle,
           ));
         }
-        break;
-      case NashvilleSelection.only:
-        break;
+      }
     }
 
-    if (nashvilleChildren.isNotEmpty) {
-      children.addAll(nashvilleChildren);
-    }
-    return TextSpan(
-      style: style,
-      children: children,
-    );
+    return TextSpan(style: style, children: nashvilleChildren);
   }
 
   void _displayChordSection(GridCoordinate gc, ChordSection chordSection, MeasureNode measureNode, {bool? selectable}) {

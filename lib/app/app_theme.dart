@@ -556,9 +556,9 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   editAddChordRow(ChordSectionLocation),
   editAddChordRowNew(ChordSectionLocation),
   editAddChordRowRepeat(ChordSectionLocation),
-  editArtist(Null),
+  editArtist(String),
   editBack(Null),
-  editBPM(Null),
+  editBPM(String),
   editCancelChordModification(Null),
   editChordDataPoint(ChordSectionLocation),
   editChordPlusAppend(ChordSectionLocation),
@@ -569,8 +569,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   editChordSectionDelete(ChordSection),
   editChordSectionLocation(ChordSectionLocation),
   editClearSong(Null),
-  editCopyright(Null),
-  editCoverArtist(Null),
+  editCopyright(String),
+  editCoverArtist(String),
   editDeleteChordMeasure(Null),
   editDeleteLyricsSection(Null),
   editDeleteRepeat(ChordSectionLocation),
@@ -607,9 +607,9 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   editScreenDetail(Null),
   editSilentChord(Null),
   editSingleChildScrollView(Null),
-  editTitle(Null),
+  editTitle(String),
   editUndo(Null),
-  editUserName(Null),
+  editUserName(String),
   editValidateChords(Null),
   listsBack(Null),
   listsCancelDeleteList(Null),
@@ -805,6 +805,7 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
       return ValueKey<String>('${e.name}.${(value as music_key.Key).toMarkup()}');
     default:
       if (value.runtimeType != type) {
+        logger.w('appKey(): $e.value.runtimeType = ${value.runtimeType} != $type');
         assert(value.runtimeType == type);
       }
       return ValueKey<String>('${e.name}.${value.toString()}');
@@ -857,7 +858,10 @@ void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function
     assert(e.argType == Null);
     _appKeyRegisterCallbacks[e] = voidCallback;
   } else if (callback != null) {
-    assert(e.argType != Null);
+    if (e.argType == Null) {
+      logger.w('_appKeyRegisterCallback: $e.argType == ${e.argType}');
+      assert(e.argType != Null);
+    }
     _appKeyRegisterCallbacks[e] = callback;
   }
 }

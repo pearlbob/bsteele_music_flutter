@@ -17,7 +17,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
-import '../main.dart';
 import 'app.dart';
 
 const Level _cssLog = Level.debug;

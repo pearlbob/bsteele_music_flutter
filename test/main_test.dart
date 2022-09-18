@@ -49,7 +49,7 @@ void main() {
       List<Widget> widgets = Find.findValueKeyContains('Song_', findSome: false);
       logger
           .d('     widgets.length: ${widgets.length}, type:  ${widgets.isEmpty ? 'none' : widgets[0].key.runtimeType}');
-      if (widgets.isNotEmpty) {
+     if (false) if (widgets.isNotEmpty) {
         final regExp = RegExp(searchString, caseSensitive: false);
         for (var w in widgets) {
           logger.d('     ${(w.key as ValueKey<String>).value}');

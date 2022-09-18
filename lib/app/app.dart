@@ -32,6 +32,15 @@ const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
+/// Song list sort types
+enum MainSortType {
+  byTitle,
+  byArtist,
+  byLastChange,
+  byComplexity,
+  byYear;
+}
+
 enum MessageType {
   info,
   warning,
@@ -261,7 +270,9 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
 
 @immutable
 class AppSpace extends StatelessWidget {
-  const AppSpace({super.key, this.space, this.horizontalSpace, this.verticalSpace});
+  const AppSpace({super.key, this.space, this.spaceFactor = 1.0, this.horizontalSpace, this.verticalSpace});
+
+  static const double defaultSpace = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -269,8 +280,8 @@ class AppSpace extends StatelessWidget {
       assert((horizontalSpace ?? 0) >= 0);
       assert((verticalSpace ?? 0) >= 0);
       return SizedBox(
-        height: verticalSpace ?? 10,
-        width: horizontalSpace ?? 10,
+        height: verticalSpace ?? (spaceFactor * defaultSpace),
+        width: horizontalSpace ?? (spaceFactor * defaultSpace),
       );
     }
     final double maxSpace = max(space ?? 0, 0);
@@ -281,6 +292,7 @@ class AppSpace extends StatelessWidget {
   }
 
   final double? space;
+  final double spaceFactor;
   final double? horizontalSpace;
   final double? verticalSpace;
 }

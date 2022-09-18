@@ -10,7 +10,6 @@ import 'package:bsteeleMusicLib/songs/ninjam.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -32,7 +31,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
-import '../main.dart';
 
 /// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
@@ -617,86 +615,86 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
                                       //  player options
                                       AppWrap(children: [
-                                        if (kDebugMode && app.isScreenBig)
-                                          AppWrap(children: [
-                                            //  fixme: there should be a better way.  wrap with flex?
-                                            AppTooltip(
-                                              message: 'Back to the previous song in the list',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerPreviousSong,
-                                                icon: appIcon(
-                                                  Icons.navigate_before,
-                                                ),
-                                                onPressed: () {
-                                                  widget._song = previousSongInTheList();
-                                                  _song = widget._song;
-                                                  selectLyricSection(0);
-                                                  setSelectedSongKey(_song.key);
-                                                  _songMomentNotifier.songMoment = null;
-                                                  adjustDisplay();
-                                                },
-                                              ),
-                                            ),
-                                            const AppSpace(space: 5),
-                                            AppTooltip(
-                                              message: 'Advance to the next song in the list',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerNextSong,
-                                                icon: appIcon(
-                                                  Icons.navigate_next,
-                                                ),
-                                                onPressed: () {
-                                                  widget._song = nextSongInTheList();
-                                                  _song = widget._song;
-                                                  selectLyricSection(0);
-                                                  setSelectedSongKey(_song.key);
-                                                  _songMomentNotifier.songMoment = null;
-                                                  adjustDisplay();
-                                                },
-                                              ),
-                                            ),
-                                          ]),
-                                        if (kDebugMode && app.isScreenBig)
-                                          AppWrap(children: [
-                                            const AppSpace(horizontalSpace: 35),
-                                            AppTooltip(
-                                              message: 'Mark the song as good.'
-                                                  '\nYou will find it in the'
-                                                  ' "${myGoodSongNameValue.toShortString()}" list.',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerSongGood,
-                                                icon: appIcon(
-                                                  Icons.thumb_up,
-                                                ),
-                                                onPressed: () {
-                                                  SongMetadata.addSong(_song, myGoodSongNameValue);
-                                                  SongMetadata.removeSong(_song, myGoodSongNameValue);
-                                                  appOptions.storeSongMetadata();
-                                                  app.errorMessage('${_song.title} added to'
-                                                      ' ${myGoodSongNameValue.toShortString()}');
-                                                },
-                                              ),
-                                            ),
-                                            const AppSpace(space: 5),
-                                            AppTooltip(
-                                              message: 'Mark the song as bad, that is, in need of correction.'
-                                                  '\nYou will find it in the'
-                                                  ' "${myBadSongNameValue.toShortString()}" list.',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerSongBad,
-                                                icon: appIcon(
-                                                  Icons.thumb_down,
-                                                ),
-                                                onPressed: () {
-                                                  SongMetadata.addSong(_song, myBadSongNameValue);
-                                                  appOptions.storeSongMetadata();
-                                                  _songMaster.stop();
-                                                  _cancelIdleTimer();
-                                                  Navigator.pop(context); //  return to main list
-                                                },
-                                              ),
-                                            ),
-                                          ]),
+                                        // if (kDebugMode && app.isScreenBig)
+                                        //   AppWrap(children: [
+                                        //     //  fixme: there should be a better way.  wrap with flex?
+                                        //     AppTooltip(
+                                        //       message: 'Back to the previous song in the list',
+                                        //       child: appIconButton(
+                                        //         appKeyEnum: AppKeyEnum.playerPreviousSong,
+                                        //         icon: appIcon(
+                                        //           Icons.navigate_before,
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           widget._song = previousSongInTheList();
+                                        //           _song = widget._song;
+                                        //           selectLyricSection(0);
+                                        //           setSelectedSongKey(_song.key);
+                                        //           _songMomentNotifier.songMoment = null;
+                                        //           adjustDisplay();
+                                        //         },
+                                        //       ),
+                                        //     ),
+                                        //     const AppSpace(space: 5),
+                                        //     AppTooltip(
+                                        //       message: 'Advance to the next song in the list',
+                                        //       child: appIconButton(
+                                        //         appKeyEnum: AppKeyEnum.playerNextSong,
+                                        //         icon: appIcon(
+                                        //           Icons.navigate_next,
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           widget._song = nextSongInTheList();
+                                        //           _song = widget._song;
+                                        //           selectLyricSection(0);
+                                        //           setSelectedSongKey(_song.key);
+                                        //           _songMomentNotifier.songMoment = null;
+                                        //           adjustDisplay();
+                                        //         },
+                                        //       ),
+                                        //     ),
+                                        //   ]),
+                                        // if (kDebugMode && app.isScreenBig)
+                                        //   AppWrap(children: [
+                                        //     const AppSpace(horizontalSpace: 35),
+                                        //     AppTooltip(
+                                        //       message: 'Mark the song as good.'
+                                        //           '\nYou will find it in the'
+                                        //           ' "${myGoodSongNameValue.toShortString()}" list.',
+                                        //       child: appIconButton(
+                                        //         appKeyEnum: AppKeyEnum.playerSongGood,
+                                        //         icon: appIcon(
+                                        //           Icons.thumb_up,
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           SongMetadata.addSong(_song, myGoodSongNameValue);
+                                        //           SongMetadata.removeSong(_song, myGoodSongNameValue);
+                                        //           appOptions.storeSongMetadata();
+                                        //           app.errorMessage('${_song.title} added to'
+                                        //               ' ${myGoodSongNameValue.toShortString()}');
+                                        //         },
+                                        //       ),
+                                        //     ),
+                                        //     const AppSpace(space: 5),
+                                        //     AppTooltip(
+                                        //       message: 'Mark the song as bad, that is, in need of correction.'
+                                        //           '\nYou will find it in the'
+                                        //           ' "${myBadSongNameValue.toShortString()}" list.',
+                                        //       child: appIconButton(
+                                        //         appKeyEnum: AppKeyEnum.playerSongBad,
+                                        //         icon: appIcon(
+                                        //           Icons.thumb_down,
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           SongMetadata.addSong(_song, myBadSongNameValue);
+                                        //           appOptions.storeSongMetadata();
+                                        //           _songMaster.stop();
+                                        //           _cancelIdleTimer();
+                                        //           Navigator.pop(context); //  return to main list
+                                        //         },
+                                        //       ),
+                                        //     ),
+                                        //   ]),
                                         if (app.isEditReady) const AppSpace(horizontalSpace: 35),
                                         //  song edit
                                         if (!_isPlaying && !songUpdateService.isFollowing && app.isEditReady)

@@ -67,15 +67,12 @@
 library main;
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/cssDemo.dart';
@@ -92,15 +89,12 @@ import 'package:bsteele_music_flutter/screens/singers.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
-import 'package:bsteele_music_flutter/util/songSearchMatcher.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:universal_io/io.dart';
 
 //import 'package:wakelock/wakelock.dart';
@@ -111,7 +105,7 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 //  diagnostic logging enables
-const Level _mainLogScroll = Level.debug;
+//const Level _mainLogScroll = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -182,8 +176,13 @@ void main() async {
 
 /*
 beta short list:
+thumbs up and down on song... now that metadata functions
+select search text on return from player in PlayList
+move search from main to PlayList
 finish PlayList
 listViewChildren remove from main.dart
+capo toggle on click to Capo label
+player key up/down move on changes 12 bar blues - minor
 follower jumps somewhere and back when adjusting the key when not on the first section
 Jumping jack flash, fix in bloom,
 
@@ -593,17 +592,6 @@ map moment to grid
 
  */
 
-const _searchTextTooltipText = 'Enter search text here.\n Title, artist and cover artist will be searched.';
-
-/// Song list sort types
-enum MainSortType {
-  byTitle,
-  byArtist,
-  byLastChange,
-  byComplexity,
-  byYear;
-}
-
 /// Display the master list of songs to choose from.
 class BSteeleMusicApp extends StatelessWidget {
   BSteeleMusicApp({Key? key}) : super(key: key) {
@@ -665,8 +653,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   MyHomePageState()
-      : _searchFocusNode = FocusNode(),
-        appOptions = AppOptions();
+      : appOptions = AppOptions();
 
   @override
   void initState() {
@@ -680,11 +667,6 @@ class MyHomePageState extends State<MyHomePage> {
       //  testing:  read the internal list
       _readInternalSongList();
     }
-    _refilterSongs();
-
-    _searchTextFieldController.addListener(() {
-      appTextFieldListener(AppKeyEnum.mainSearchText, _searchTextFieldController);
-    });
 
     //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
 
@@ -704,13 +686,7 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(songListAsString));
-        try {
-          app.selectedSong = _filteredSongs.first;
-        } catch (e) {
-          app.selectedSong = app.emptySong;
-        }
         setState(() {
-          _refilterSongs();
         });
         app.warningMessage = 'internal songList used, dated: ${await app.releaseUtcDate()}';
       } catch (fe) {
@@ -763,7 +739,6 @@ class MyHomePageState extends State<MyHomePage> {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(allSongsAsString));
         setState(() {
-          _refilterSongs();
         });
         //  don't warn on standard behavior:   app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
@@ -814,11 +789,6 @@ class MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _refilterSongs() {
-    //  or at least induce the re-filtering
-    _filteredSongs.clear();
-  }
-
   @override
   Widget build(BuildContext context) {
     logger.d('main build: ${app.selectedSong}');
@@ -826,8 +796,6 @@ class MyHomePageState extends State<MyHomePage> {
     appOptions = Provider.of<AppOptions>(context);
 
     app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
-
-    final titleBarFontSize = app.screenInfo.fontSize;
 
     //  figure the configuration when the values are established
     app.isEditReady = (kIsWeb
@@ -850,16 +818,7 @@ class MyHomePageState extends State<MyHomePage> {
       fontWeight: FontWeight.bold,
       textBaseline: TextBaseline.alphabetic,
     );
-    final TextStyle searchDropDownStyle = generateAppTextStyle(
-      fontWeight: FontWeight.normal,
-      textBaseline: TextBaseline.alphabetic,
-    );
     titleTextStyle = generateAppTextStyle(
-      fontWeight: FontWeight.bold,
-      textBaseline: TextBaseline.alphabetic,
-      color: Colors.black,
-    );
-    final TextStyle titleTextFieldStyle = generateAppTextFieldStyle(
       fontWeight: FontWeight.bold,
       textBaseline: TextBaseline.alphabetic,
       color: Colors.black,
@@ -867,97 +826,7 @@ class MyHomePageState extends State<MyHomePage> {
     final fontSize = searchTextStyle.fontSize ?? 25;
     logger.d('fontSize: $fontSize in ${app.screenInfo.mediaWidth} px');
 
-    final artistTextStyle = titleTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
-
-    //  generate the sort selection
-    _sortTypesDropDownMenuList.clear();
-    for (final e in MainSortType.values) {
-      var s = e.toString();
-      _sortTypesDropDownMenuList.add(appDropdownMenuItem<MainSortType>(
-        appKeyEnum: AppKeyEnum.mainSortTypeSelection,
-        value: e,
-        child: Text(
-          Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
-          style: searchDropDownStyle,
-        ),
-      ));
-    }
-
-    //  re-search filtered list on data changes
-    if (_filteredSongs.isEmpty) {
-      _searchSongs(_searchTextFieldController.text);
-    }
-
-    listViewChildren.clear();
-    addSongsToListView(_filteredSongs);
-    listViewChildren.add(const AppSpace(
-      space: 20,
-    ));
-    listViewChildren.add(Text(
-      'Count: ${_filteredSongs.length}',
-      style: artistTextStyle,
-    ));
-
-    if (_filteredSongsNotInSelectedList.isNotEmpty) {
-      listViewChildren.add(const Divider(
-        thickness: 10,
-        color: Colors.blue,
-      ));
-      listViewChildren.add(const AppSpace(space: 40));
-      listViewChildren.add(Text(
-        'Songs not in ${_selectedListNameValue?.toShortString()}:',
-        style: artistTextStyle,
-      ));
-
-      addSongsToListView(_filteredSongsNotInSelectedList);
-      listViewChildren.add(const AppSpace(
-        space: 20,
-      ));
-      listViewChildren.add(Text(
-        'Count: ${_filteredSongsNotInSelectedList.length}',
-        style: artistTextStyle,
-      ));
-    }
-
-    List<DropdownMenuItem<NameValue>> metadataDropDownMenuList = [];
-    {
-      SplayTreeSet<NameValue> nameValues = SplayTreeSet();
-      nameValues.add(allSongsMetadataNameValue); // default all value
-      for (var songIdMetadata in SongMetadata.idMetadata) {
-        for (var nameValue in songIdMetadata.nameValues) {
-          nameValues.add(nameValue);
-        }
-      }
-      for (var nameValue in nameValues) {
-        if (nameValue.name == holidayMetadataNameValue.name) {
-          continue;
-        }
-        metadataDropDownMenuList.add(DropdownMenuItem<NameValue>(
-          value: nameValue,
-          child: Text(
-            '${nameValue.name}: ${nameValue.value}',
-            style: searchDropDownStyle,
-          ),
-          onTap: () {
-            setState(() {
-              _selectedListNameValue = nameValue;
-              _refilterSongs();
-            });
-          },
-        ));
-      }
-    }
-
-    //  find the last selected song
-    if (_filteredSongs.contains(_lastSelectedSong)) {
-      var index = _filteredSongs.toList(growable: false).indexOf(_lastSelectedSong!);
-      _itemScrollController.jumpTo(index: index);
-      _rollIndex = index;
-      logger.d('index $index: $_lastSelectedSong');
-    } else {
-      _lastSelectedSong = null;
-    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -1184,171 +1053,39 @@ class MyHomePageState extends State<MyHomePage> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
-        AppWrapFullWidth(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                AppTooltip(
-                  message: _searchTextTooltipText,
-                  child: IconButton(
-                    icon: const Icon(Icons.search),
-                    iconSize: fontSize,
-                    onPressed: (() {
-                      setState(() {
-                        _searchSongs(_searchTextFieldController.text);
-                      });
-                    }),
-                  ),
-                ),
-                SizedBox(
-                  width: 12 * titleBarFontSize,
-                  //  limit text entry display length
-                  child: TextField(
-                    key: appKey(AppKeyEnum.mainSearchText),
-                    //  for testing
-                    controller: _searchTextFieldController,
-                    focusNode: _searchFocusNode,
-                    decoration: InputDecoration(
-                      hintText: 'enter search text',
-                      hintStyle: searchTextStyle,
-                    ),
-                    autofocus: true,
-                    style: titleTextFieldStyle,
-                    onChanged: (text) {
-                      setState(() {
-                        logger.v('search text: "$text"');
-                        _searchSongs(_searchTextFieldController.text);
-                        app.clearMessage();
-                      });
-                    },
-                  ),
-                ),
-                AppTooltip(
-                    message:
-                        _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                    child: appEnumeratedIconButton(
-                      icon: const Icon(Icons.clear),
-                      appKeyEnum: AppKeyEnum.mainClearSearch,
-                      iconSize: 1.5 * fontSize,
-                      onPressed: (() {
-                        _searchTextFieldController.clear();
-                        app.clearMessage();
-                        setState(() {
-                          FocusScope.of(context).requestFocus(_searchFocusNode);
-                          _lastSelectedSong = null;
-                          _searchSongs(null);
-                        });
-                      }),
-                    )),
-                if (kDebugMode)
-                  TextButton(
-                      onPressed: () {
-                        testAppKeyCallbacks();
-                      },
-                      child: Text(
-                        'test',
-                        style: searchDropDownStyle,
-                      ))
-              ]),
-              if (app.isScreenBig)
-                AppWrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: app.screenInfo.fontSize / 2,
-                  children: [
-                    AppTooltip(
-                      message: 'Select the order of the song list.',
-                      child: Text(
-                        'Order',
-                        style: searchDropDownStyle,
-                      ),
-                    ),
-                    appDropdownButton<MainSortType>(
-                      AppKeyEnum.mainSortType,
-                      _sortTypesDropDownMenuList,
-                      onChanged: (value) {
-                        if (_selectedSortType != value) {
-                          setState(() {
-                            _selectedSortType = value ?? MainSortType.byTitle;
-                            _searchSongs(_searchTextFieldController.text);
-                            app.clearMessage();
-                          });
-                        }
-                      },
-                      value: _selectedSortType,
-                      style: searchDropDownStyle,
-                    ),
-                  ],
-                ),
-              if (appOptions.holiday)
-                AppWrap(children: [
-                  AppTooltip(
-                    message: 'Change the holiday selection in the general options (☰, Options).',
-                    child: Text(
-                      'Happy Holidays!  ',
-                      style: searchDropDownStyle.copyWith(color: Colors.green),
-                    ),
-                  ),
-                ]),
-              if (!appOptions.holiday && app.isScreenBig)
-                AppWrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: app.screenInfo.fontSize / 2,
-                  children: [
-                    AppTooltip(
-                      message: 'Select which song list to show.',
-                      child: Text(
-                        'List',
-                        style: searchDropDownStyle,
-                      ),
-                    ),
-                    DropdownButton<NameValue>(
-                      items: metadataDropDownMenuList,
-                      onChanged: (value) {
-                        logger.v('metadataDropDownMenuList selection: $value');
-                        app.clearMessage();
-                      },
-                      value: _selectedListNameValue ?? allSongsMetadataNameValue,
-                      style: searchDropDownStyle,
-                      elevation: 8,
-                      itemHeight: null,
-                    ),
-                  ],
-                ),
-            ]),
+        // if (kDebugMode)
+        //   TextButton(
+        //       onPressed: () {
+        //         testAppKeyCallbacks();
+        //       },
+        //       child: Text(
+        //         'test',
+        //         style: searchDropDownStyle,
+        //       )),
         PlayList(
           style: titleTextStyle,
         ),
-        // if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
-        //   Expanded(
-        //       child: ScrollablePositionedList.builder(
-        //     itemCount: listViewChildren.length,
-        //     itemScrollController: _itemScrollController,
-        //     itemBuilder: (context, index) {
-        //       return listViewChildren[Util.limit(index, 0, listViewChildren.length) as int];
-        //     },
-        //   )),
       ]),
 
-      floatingActionButton: AppTooltip(
-        message: 'Back to the list top',
-        child: appFloatingActionButton(
-          appKeyEnum: AppKeyEnum.mainUp,
-          onPressed: () {
-            if (_itemScrollController.isAttached) {
-              _itemScrollController.scrollTo(
-                index: 0,
-                curve: Curves.easeOut,
-                duration: const Duration(milliseconds: 500),
-              );
-            }
-          },
-          child: appIcon(
-            Icons.arrow_upward,
-          ),
-          mini: !app.isScreenBig,
-        ),
-      ),
+      // floatingActionButton: AppTooltip(    //  fixme: move to playList?
+      //   message: 'Back to the list top',
+      //   child: appFloatingActionButton(
+      //     appKeyEnum: AppKeyEnum.mainUp,
+      //     onPressed: () {
+      //       if (_itemScrollController.isAttached) {
+      //         _itemScrollController.scrollTo(
+      //           index: 0,
+      //           curve: Curves.easeOut,
+      //           duration: const Duration(milliseconds: 500),
+      //         );
+      //       }
+      //     },
+      //     child: appIcon(
+      //       Icons.arrow_upward,
+      //     ),
+      //     mini: !app.isScreenBig,
+      //   ),
+      // ),
     );
   }
 
@@ -1396,247 +1133,14 @@ class MyHomePageState extends State<MyHomePage> {
             ));
   }
 
-  void addSongsToListView(Iterable<Song> list) {
-    bool oddEven = true;
-    final oddTitle = oddTitleTextStyle(from: titleTextStyle);
-    final evenTitle = evenTitleTextStyle(from: titleTextStyle);
-    final oddText = oddTitleTextStyle(from: artistTextStyle);
-    final evenText = evenTitleTextStyle(from: artistTextStyle);
-
-    for (final Song song in list) {
-      oddEven = !oddEven;
-      var oddEvenTitleTextStyle = oddEven ? oddTitle : evenTitle;
-      var oddEvenTextStyle = oddEven ? oddText : evenText;
-      logger.d('song.songId: ${song.songId}, key: ${appKey(AppKeyEnum.mainSong, value: Id(song.songId.toString()))}');
-      listViewChildren.add(AppInkWell(
-        appKeyEnum: AppKeyEnum.mainSong,
-        value: Id(song.songId.toString()),
-        child: Container(
-          color: oddEvenTitleTextStyle.backgroundColor,
-          padding: const EdgeInsets.all(8.0),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-            if (app.isScreenBig)
-              AppWrapFullWidth(
-                alignment: WrapAlignment.spaceBetween,
-                children: <Widget>[
-                  AppWrap(
-                    children: <Widget>[
-                      if (_selectedSortType == MainSortType.byYear)
-                        Text(
-                          '${song.getCopyrightYearAsString()}: ',
-                          style: oddEvenTitleTextStyle,
-                        ),
-                      Text(
-                        song.title,
-                        style: oddEvenTitleTextStyle,
-                      ),
-                      Text(
-                        '    ${song.getArtist()}',
-                        style: oddEvenTextStyle,
-                      ),
-                      if (song.coverArtist.isNotEmpty)
-                        Text(
-                          ', cover by ${song.coverArtist}',
-                          style: oddEvenTextStyle,
-                        ),
-                      //  Text( song.getComplexity().toString()),
-                    ],
-                  ),
-                  Text(
-                    '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime))}',
-                    style: oddEvenTextStyle,
-                  ),
-                ],
-              ),
-            if (app.isPhone)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    song.title,
-                    style: oddEvenTitleTextStyle,
-                  ),
-                  Text(
-                    '      ${song.getArtist()}',
-                    style: oddEvenTextStyle,
-                  ),
-                ],
-              ),
-          ]),
-        ),
-        onTap: () {
-          _navigateToPlayer(context, song);
-        },
-      ));
-    }
-  }
-
   // void _closeDrawer() {
   //   Navigator.of(context).pop();
   // }
-
-  void _searchSongs(String? search) {
-    //  apply complexity filter
-//    TreeSet<Song> allSongsFiltered = allSongs;
-//    if (complexityFilter != ComplexityFilter.all) {
-//      TreeSet<Song> sortedSongs =  TreeSet<>(Song.getComparatorByType(Song.ComparatorType.complexity));
-//      sortedSongs.addAll(allSongs);
-//      double factor = 1.0;
-//      switch (complexityFilter) {
-//        case veryEasy:
-//          factor = 1.0 / 4;
-//          break;
-//        case easy:
-//          factor = 2.0 / 4;
-//          break;
-//        case moderate:
-//          factor = 3.0 / 4;
-//          break;
-//      }
-//      int limit = (int) (factor * sortedSongs.size());
-//      Song[] allSongsFilteredList = sortedSongs.toArray( Song[0]);
-//      allSongsFiltered =  TreeSet<>();
-//      for (int i = 0; i < limit; i++)
-//        allSongsFiltered.add(allSongsFilteredList[i]);
-//    }
-
-    // select order
-    int Function(Song key1, Song key2)? compare;
-    switch (_selectedSortType) {
-      case MainSortType.byArtist:
-        compare = (Song song1, Song song2) {
-          var ret = song1.artist.compareTo(song2.artist);
-          if (ret != 0) {
-            return ret;
-          }
-          return song1.compareTo(song2);
-        };
-        break;
-      case MainSortType.byLastChange:
-        compare = (Song song1, Song song2) {
-          var ret = -song1.lastModifiedTime.compareTo(song2.lastModifiedTime);
-          if (ret != 0) {
-            return ret;
-          }
-          return song1.compareTo(song2);
-        };
-        break;
-      case MainSortType.byComplexity:
-        compare = (Song song1, Song song2) {
-          var ret = song1.getComplexity().compareTo(song2.getComplexity());
-          if (ret != 0) {
-            return ret;
-          }
-          return song1.compareTo(song2);
-        };
-        break;
-      case MainSortType.byYear:
-        compare = (Song song1, Song song2) {
-          var ret = song1.getCopyrightYear().compareTo(song2.getCopyrightYear());
-          if (ret != 0) {
-            return ret;
-          }
-          return song1.compareTo(song2);
-        };
-        break;
-      case MainSortType.byTitle:
-      default:
-        compare = (Song song1, Song song2) {
-          return song1.compareTo(song2);
-        };
-        break;
-    }
-
-    logger.d('_selectedListNameValue: $_selectedListNameValue');
-
-    //  apply search filter
-    _filteredSongs = SplayTreeSet(compare);
-    _filteredSongsNotInSelectedList = SplayTreeSet(compare);
-    var matcher = SongSearchMatcher(search);
-    for (final Song song in app.allSongs) {
-      if (matcher.matchesOrEmptySearch(song, year: _selectedSortType == MainSortType.byYear)) {
-        //  if holiday and song is holiday, we're good
-        if (appOptions.holiday) {
-          if (isHoliday(song)) {
-            _filteredSongs.add(song);
-          }
-          continue; //  toss the others
-        } else
-        //  if song is holiday and we're not, nope
-        if (isHoliday(song)) {
-          continue;
-        }
-
-        //  otherwise try some other qualification
-        if (_selectedListNameValue != null && _selectedListNameValue != allSongsMetadataNameValue) {
-          {
-            var found = SongMetadata.where(idIs: song.songId.songId, nameValue: _selectedListNameValue);
-            if (found.isNotEmpty) {
-              logger.d('found: ${song.songId.songId}: $found');
-            }
-            if (found.isEmpty) {
-              _filteredSongsNotInSelectedList.add(song);
-              continue; //  not a match
-            }
-          }
-        }
-
-        //  not filtered
-        _filteredSongs.add(song);
-      }
-    }
-
-    //  on new search, start the list at the first location
-    if (matcher.isNotEmpty) {
-      _rollIndex = 0;
-      if (_itemScrollController.isAttached && _filteredSongs.isNotEmpty) {
-        _itemScrollController.jumpTo(index: _rollIndex);
-      }
-    } else if (_filteredSongs.isNotEmpty) {
-      switch (_selectedSortType) {
-        case MainSortType.byTitle:
-          _rollUnfilteredSongs();
-          break;
-        case MainSortType.byLastChange:
-          _rollIndex = 0;
-          if (_itemScrollController.isAttached) {
-            _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
-          }
-          break;
-        default:
-          break;
-      }
-    }
-  }
 
   bool isHoliday(Song song) {
     return holidayRexExp.hasMatch(song.title) ||
         holidayRexExp.hasMatch(song.artist) ||
         holidayRexExp.hasMatch(song.coverArtist);
-  }
-
-  void _rollUnfilteredSongs() {
-    const int rollStep = 15;
-
-    //  skip if searching for something
-    if (_searchTextFieldController.text.isNotEmpty || _filteredSongs.isEmpty) {
-      return;
-    }
-
-    List<Song> list = _filteredSongs.toList();
-
-    if (_rollIndex < 0) {
-      //  start with a random location
-      _rollIndex = _random.nextInt(list.length);
-    }
-    _rollIndex = _rollIndex + rollStep;
-    if (_rollIndex >= list.length) {
-      _rollIndex = 0;
-    }
-
-    if (_itemScrollController.isAttached) {
-      _itemScrollController.scrollTo(index: _rollIndex, duration: _itemScrollDuration);
-    }
   }
 
   void _navigateToSongs() async {
@@ -1649,7 +1153,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop();
-    _reApplySearch();
   }
 
   void _navigateToLists() async {
@@ -1662,39 +1165,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop();
-    _reApplySearch();
-  }
-
-  void _reApplySearch() {
-    setState(() {
-      _selectSearchText(context); //  select all text on a navigation pop
-      _refilterSongs();
-    });
-  }
-
-  void _selectSearchText(BuildContext context) {
-    _searchTextFieldController.selection =
-        TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-    FocusScope.of(context).requestFocus(_searchFocusNode);
-    logger.v('_selectSearchText: ${_searchTextFieldController.selection}');
-  }
-
-  _navigateToPlayer(BuildContext context, Song song) async {
-    if (song.getTitle().isEmpty) {
-      logger.log(_mainLogScroll, 'song title is empty: $song');
-      return;
-    }
-    app.clearMessage();
-    app.selectedSong = song;
-    _lastSelectedSong = song;
-
-    logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
-    await Navigator.pushNamed(
-      context,
-      Player.routeName,
-    );
-
-    _reApplySearch();
   }
 
   _navigateToEdit() async {
@@ -1707,7 +1177,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToOptions() async {
@@ -1719,7 +1188,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToSingers() async {
@@ -1731,7 +1199,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToPerformanceHistory() async {
@@ -1743,7 +1210,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToDebug() async {
@@ -1768,7 +1234,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToCommunityJams() async {
@@ -1781,7 +1246,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToCssDemo() async {
@@ -1793,7 +1257,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToDocumentation() async {
@@ -1805,7 +1268,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToTheory() async {
@@ -1817,7 +1279,6 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   _navigateToPrivacyPolicy() async {
@@ -1829,27 +1290,14 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
-    _reApplySearch();
   }
 
   List<Widget> listViewChildren = [];
   TextStyle titleTextStyle = appTextStyle; //  initial place holder
   TextStyle artistTextStyle = appTextStyle; //  initial place holder
 
-  final List<DropdownMenuItem<MainSortType>> _sortTypesDropDownMenuList = [];
-  var _selectedSortType = MainSortType.byTitle;
-
-  final TextEditingController _searchTextFieldController = TextEditingController();
-  final FocusNode _searchFocusNode;
-  NameValue? _selectedListNameValue;
-
-  final ItemScrollController _itemScrollController = ItemScrollController();
-  final Duration _itemScrollDuration = const Duration(milliseconds: 500);
-  int _rollIndex = -1;
-
   AppOptions appOptions;
 
-  final _random = Random();
   static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
 }
 
@@ -1862,40 +1310,4 @@ Future<String> fetchString(String uriString) async {
     // If that call was not successful, throw an error.
     throw Exception('Failed to load url: $uriString');
   }
-}
-
-SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
-SplayTreeSet<Song> _filteredSongsNotInSelectedList = SplayTreeSet();
-Song? _lastSelectedSong;
-
-//  for external consumption
-Song previousSongInTheList() {
-  if (_filteredSongs.isEmpty) {
-    return Song.createEmptySong();
-  }
-  if (_lastSelectedSong == null) {
-    _lastSelectedSong = _filteredSongs.first;
-    return _lastSelectedSong!;
-  }
-  var list = _filteredSongs.toList(growable: false);
-  var index = list.indexOf(_lastSelectedSong!) - 1; //  will be -2 if not found
-  index = index % list.length;
-  _lastSelectedSong = list[index];
-  return _lastSelectedSong!;
-}
-
-//  for external consumption
-Song nextSongInTheList() {
-  if (_filteredSongs.isEmpty) {
-    return Song.createEmptySong();
-  }
-  if (_lastSelectedSong == null) {
-    _lastSelectedSong = _filteredSongs.first;
-    return _lastSelectedSong!;
-  }
-  var list = _filteredSongs.toList(growable: false);
-  var index = list.indexOf(_lastSelectedSong!) + 1; //  will be zero if not found
-  index = index % list.length;
-  _lastSelectedSong = list[index];
-  return _lastSelectedSong!;
 }

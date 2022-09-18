@@ -85,6 +85,7 @@ import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lists.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/performanceHistory.dart';
+import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/singers.dart';
@@ -181,6 +182,8 @@ void main() async {
 
 /*
 beta short list:
+finish PlayList
+listViewChildren remove from main.dart
 follower jumps somewhere and back when adjusting the key when not on the first section
 Jumping jack flash, fix in bloom,
 
@@ -1313,15 +1316,18 @@ class MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
             ]),
-        if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
-          Expanded(
-              child: ScrollablePositionedList.builder(
-            itemCount: listViewChildren.length,
-            itemScrollController: _itemScrollController,
-            itemBuilder: (context, index) {
-              return listViewChildren[Util.limit(index, 0, listViewChildren.length) as int];
-            },
-          )),
+        PlayList(
+          style: titleTextStyle,
+        ),
+        // if (listViewChildren.isNotEmpty) //  ScrollablePositionedList messes up otherwise
+        //   Expanded(
+        //       child: ScrollablePositionedList.builder(
+        //     itemCount: listViewChildren.length,
+        //     itemScrollController: _itemScrollController,
+        //     itemBuilder: (context, index) {
+        //       return listViewChildren[Util.limit(index, 0, listViewChildren.length) as int];
+        //     },
+        //   )),
       ]),
 
       floatingActionButton: AppTooltip(

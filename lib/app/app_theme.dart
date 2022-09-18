@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:csslib/parser.dart' as parser;
@@ -669,6 +670,9 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsWebsocketThisHost(Null),
   performanceHistoryBack(Null),
   performanceHistoryErrorMessage(Null),
+  playListMetadataRemove(NameValue),
+  playListMetadata(String),
+  playListFilter(NameValue),
   playerBack(Null),
   playerBPM(int),
   playerCapoLabel(Null),
@@ -731,7 +735,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   singersErrorMessage(Null),
   singersMoveSingerEarlierInSession(Null),
   singersMoveSingerLaterInSession(Null),
-  singersNameEntry(Null),
+  singersNameEntry(String),
   singersReadASingleSinger(Null),
   singersReadSingers(Null),
   singersRemoveAllSingers(Null),
@@ -746,8 +750,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   singersSessionSingerSelect(String),
   singersShowOtherActions(Null),
   singersSingerClearSearch(Null),
-  singersSingerSearchText(Null),
-  singersSinging(Null),
+  singersSingerSearchText(String),
+  singersSinging(bool),
   singersSingingTextButton(String),
   singersSortTypeSelection(String),
   songsAcceptAllSongReads(Null),
@@ -1261,7 +1265,7 @@ ElevatedButton appButton(
   String commandName, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
-  final TextStyle? textStyle,
+  final TextStyle? style,
   Color? backgroundColor,
   double? fontSize,
   dynamic value,
@@ -1281,9 +1285,9 @@ ElevatedButton appButton(
     style:
         app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
     child: Text(commandName,
-        style: textStyle ??
-            app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ??
-            TextStyle(fontSize: fontSize)),
+        style: style ??
+            //  app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ??
+            TextStyle(fontSize: fontSize, backgroundColor: backgroundColor)),
   );
 }
 
@@ -1295,6 +1299,7 @@ TextButton appTextButton(
   dynamic value,
 }) {
   var key = appKey(appKeyEnum, value: value ?? text);
+  _appKeyRegisterCallback(appKeyEnum, callback: onPressed);
   return TextButton(
     key: key,
     onPressed: () {
@@ -1314,13 +1319,15 @@ TextButton appIconButton({
   required Widget icon,
   required VoidCallback onPressed,
   dynamic value,
+  TextStyle? style,
+  double? fontSize,
   String? label,
 }) {
   var key = appKey(appKeyEnum, value: value);
   return TextButton.icon(
     key: key,
     icon: icon,
-    label: Text(label ?? ''),
+    label: Text(label ?? '', style: style ?? TextStyle(fontSize: fontSize)),
     onPressed: () {
       appLogKeyCallback(key);
       onPressed();

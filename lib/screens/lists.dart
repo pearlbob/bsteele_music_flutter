@@ -312,10 +312,10 @@ class ListsState extends State<Lists> {
               const AppSpace(
                 space: 20,
               ),
-              AppWrap(
-                alignment: WrapAlignment.spaceEvenly,
-                children: metadataWidgets,
-              ),
+              // AppWrap(
+              //   alignment: WrapAlignment.spaceEvenly,
+              //   children: metadataWidgets,
+              // ),
               AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                 //  search line
                 AppWrap(children: [

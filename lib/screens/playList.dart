@@ -17,15 +17,114 @@ import '../util/songSearchMatcher.dart';
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
 
+bool _isEditing = false;
+double _textFontSize = appDefaultFontSize;
+late TextStyle _indexTitleStyle;
+late TextStyle _indexTextStyle;
+
+typedef SongItemAction = Function(Song song);
+
 /// Allow the mechanics to use either a song or a song performance
 class _SongItem implements Comparable<_SongItem> {
   _SongItem(this.song) : songPerformance = null;
 
   _SongItem.fromPerformance(this.songPerformance) : song = songPerformance!.song!;
 
-  String get singerSang => songPerformance != null ? '${songPerformance!.singer} sang: ' : '';
+  Widget toWidget(SongItemAction songItemAction) {
+    AppWrap appWrap;
+    if (songPerformance != null) {
+      appWrap = AppWrap(children: [
+        Text(
+          '${songPerformance!.singer} sang: ',
+          style: _indexTextStyle,
+        ),
+        Text(
+          song.title,
+          style: _indexTitleStyle,
+        ),
+        Text(
+          '  by ${song.artist}',
+          style: _indexTextStyle,
+        ),
+        if (song.coverArtist.isNotEmpty)
+          Text(
+            ', cover by ${song.coverArtist}',
+            style: _indexTextStyle,
+          ),
+        Text(
+          ' in ${songPerformance!.key}',
+          style: _indexTextStyle,
+        ),
+      ]);
+    } else {
+      //  song
+      appWrap = AppWrap(children: [
+        Text(
+          song.title,
+          style: _indexTitleStyle,
+        ),
+        Text(
+          '  by ${song.artist}',
+          style: _indexTextStyle,
+        ),
+        if (song.coverArtist.isNotEmpty)
+          Text(
+            ', cover by ${song.coverArtist}',
+            style: _indexTextStyle,
+          ),
+      ]);
+    }
 
-  String get inKey => songPerformance != null ? ' in ${songPerformance!.key}' : '';
+    List<Widget> metadataWidgets = [const AppSpace()];
+    if (_isEditing) {
+      for (var id in SongMetadata.where(idIs: song.songId.toString())) {
+        logger.i('$this: ${id.id}: md#: ${id.nameValues.length}');
+        for (var nv in id.nameValues) {
+          metadataWidgets.add(
+            appButton(
+              '${nv.name}: ${nv.value}',
+              appKeyEnum: AppKeyEnum.playListMetadata,
+              value: '${id.id}:${nv.name}=${nv.value}',
+              fontSize: _textFontSize,
+              onPressed: () {
+                logger.i('pressed: ${nv.name}: ${nv.value}');
+              },
+            ),
+          );
+        }
+      }
+    }
+
+    return AppInkWell(
+      appKeyEnum: AppKeyEnum.mainSong,
+      value: Id(song.songId.toString()),
+      onTap: () {
+        if (!_isEditing) {
+          songItemAction(song);
+          //  _navigateToPlayer(context, song);
+        }
+      },
+      child: Container(
+        color: _indexTextStyle.backgroundColor,
+        padding: const EdgeInsets.all(5.0),
+        child: AppWrapFullWidth(
+          spacing: _textFontSize,
+          alignment: _isEditing ? WrapAlignment.start : WrapAlignment.spaceBetween,
+          children: [
+            appWrap,
+            AppWrap(spacing: _textFontSize, children: [
+              if (!_isEditing)
+                Text(
+                  '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime))}',
+                  style: _indexTextStyle,
+                ),
+              if (_isEditing) ...metadataWidgets
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   int compareTo(_SongItem other) {
@@ -61,8 +160,8 @@ class _PlayListState extends State<PlayList> {
   Widget build(BuildContext context) {
     var titleStyle = widget.style ?? generateAppTextStyle();
     var titleFontSize = widget.style?.fontSize ?? appDefaultFontSize;
-    var fontSize = 0.75 * titleFontSize;
-    var artistStyle = titleStyle.copyWith(fontSize: fontSize, fontWeight: FontWeight.normal);
+    _textFontSize = 0.75 * titleFontSize;
+    var artistStyle = titleStyle.copyWith(fontSize: _textFontSize, fontWeight: FontWeight.normal);
 
     final oddTitle = oddTitleTextStyle(from: titleStyle);
     final evenTitle = evenTitleTextStyle(from: titleStyle);
@@ -101,7 +200,7 @@ class _PlayListState extends State<PlayList> {
             Icons.clear,
           ),
           label: '${nv.name}: ${nv.value}',
-          fontSize: fontSize,
+          fontSize: _textFontSize,
           appKeyEnum: AppKeyEnum.playListMetadataRemove,
           value: nv,
           onPressed: () {
@@ -248,7 +347,7 @@ class _PlayListState extends State<PlayList> {
                   ),
                   //  search text
                   SizedBox(
-                    width: 12 * fontSize,
+                    width: 12 * _textFontSize,
                     //  limit text entry display length
                     child: TextField(
                       key: appKey(AppKeyEnum.mainSearchText),
@@ -291,7 +390,7 @@ class _PlayListState extends State<PlayList> {
                     spaceFactor: 2.0,
                   ),
                   //  filters
-                  AppWrap(spacing: fontSize, children: [
+                  AppWrap(spacing: _textFontSize, children: [
                     DropdownButton<NameValue?>(
                       value: null,
                       hint: Text('Filters:', style: artistStyle),
@@ -318,7 +417,7 @@ class _PlayListState extends State<PlayList> {
                 ]),
 
                 //  filters and order
-                AppWrap(spacing: fontSize, alignment: WrapAlignment.spaceBetween, children: [
+                AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
                   //  filters and order
                   if (app.isScreenBig)
                     AppWrap(
@@ -352,85 +451,19 @@ class _PlayListState extends State<PlayList> {
               ]),
           const AppSpace(),
           Expanded(
+            // this expanded is required as well
             child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: filteredSongs.length,
                 itemBuilder: (BuildContext context, int index) {
                   logger.v('_PlayListState: index: $index');
-                  var indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
-                  var indexTextStyle = (index & 1) == 1 ? oddText : evenText;
+                  _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
+                  _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
                   var songItem = filteredSongs[index];
 
-                  List<Widget> metadataWidgets = [const AppSpace()];
-                  if (isEditing) {
-                    for (var id in SongMetadata.where(idIs: songItem.song.songId.toString())) {
-                      logger.i('$index: $songItem: ${id.id}: md#: ${id.nameValues.length}');
-                      for (var nv in id.nameValues) {
-                        metadataWidgets.add(
-                          appButton(
-                            '${nv.name}: ${nv.value}',
-                            appKeyEnum: AppKeyEnum.playListMetadata,
-                            value: '${id.id}:${nv.name}=${nv.value}',
-                            fontSize: fontSize,
-                            onPressed: () {
-                              logger.i('pressed: ${nv.name}: ${nv.value}');
-                            },
-                          ),
-                        );
-                      }
-                    }
-                  }
-
-                  return AppInkWell(
-                    appKeyEnum: AppKeyEnum.mainSong,
-                    value: Id(songItem.song.songId.toString()),
-                    onTap: () {
-                      if (!isEditing) {
-                        _navigateToPlayer(context, songItem.song);
-                      }
-                    },
-                    child: Container(
-                      color: indexTextStyle.backgroundColor,
-                      padding: const EdgeInsets.all(5.0),
-                      child: AppWrapFullWidth(
-                        spacing: fontSize,
-                        alignment: isEditing ? WrapAlignment.start : WrapAlignment.spaceBetween,
-                        children: [
-                          AppWrap(children: [
-                            Text(
-                              songItem.singerSang,
-                              style: indexTextStyle,
-                            ),
-                            Text(
-                              songItem.song.title,
-                              style: indexTitleStyle,
-                            ),
-                            Text(
-                              '  by ${songItem.song.artist}',
-                              style: indexTextStyle,
-                            ),
-                            if (songItem.song.coverArtist.isNotEmpty)
-                              Text(
-                                ', cover by ${songItem.song.coverArtist}',
-                                style: indexTextStyle,
-                              ),
-                            Text(
-                              songItem.inKey,
-                              style: indexTextStyle,
-                            ),
-                          ]),
-                          AppWrap(spacing: fontSize, children: [
-                            if (!isEditing)
-                              Text(
-                                '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(songItem.song.lastModifiedTime))}',
-                                style: indexTextStyle,
-                              ),
-                            if (isEditing) ...metadataWidgets
-                          ]),
-                        ],
-                      ),
-                    ),
-                  );
+                  return songItem.toWidget((Song song) {
+                    _navigateToPlayer(context, song);
+                  });
                 }),
           ),
         ]),
@@ -464,8 +497,6 @@ class _PlayListState extends State<PlayList> {
     FocusScope.of(context).requestFocus(_searchFocusNode);
     logger.i('_selectSearchText: ${_searchTextFieldController.selection}');
   }
-
-  bool isEditing = false;
 
   final List<DropdownMenuItem<MainSortType>> _sortTypesDropDownMenuList = [];
   var _selectedSortType = MainSortType.byTitle;

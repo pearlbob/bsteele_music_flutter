@@ -176,12 +176,18 @@ void main() async {
 
 /*
 beta short list:
-thumbs up and down on song... now that metadata functions
+____move search from main to PlayList
+____capo toggle on click to Capo label
+
 select search text on return from player in PlayList
-move search from main to PlayList
+Follower scroll update too brutal on section transitions.
+Follower display while leader choosing a song
+
+thumbs up and down on song... now that metadata functions
+
+
 finish PlayList
-listViewChildren remove from main.dart
-capo toggle on click to Capo label
+
 player key up/down move on changes 12 bar blues - minor
 follower jumps somewhere and back when adjusting the key when not on the first section
 Jumping jack flash, fix in bloom,

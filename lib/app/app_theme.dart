@@ -674,7 +674,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   playListFilter(NameValue),
   playerBack(Null),
   playerBPM(int),
-  playerCapoLabel(Null),
+  playerCapoLabel(bool),
   playerCapo(bool),
   playerCompressRepeats(bool),
   playerCompressRepeatsLabel(String),

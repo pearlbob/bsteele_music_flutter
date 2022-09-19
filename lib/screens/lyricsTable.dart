@@ -794,9 +794,8 @@ class LyricsTable {
     style = style ?? _coloredChordTextStyle;
     final TextStyle slashStyle = style.copyWith(color: _slashColor, fontWeight: FontWeight.bold);
 
-    TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-        fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
-        .copyWith(
+    TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(fontSize: (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
+            .copyWith(
       backgroundColor: style.backgroundColor,
     );
 

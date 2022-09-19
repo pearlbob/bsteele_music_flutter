@@ -1750,14 +1750,22 @@ With z or q, the app goes back to the play list.''',
                                   AppTooltip(
                                     message: 'For a guitar, show the capo location and\n'
                                         'chords to match the current key.',
-                                    child: Text(
-                                      'Capo',
-                                      style: boldStyle,
-                                      softWrap: false,
-                                    ),
+                                    child: appTextButton('Capo',
+                                        appKeyEnum: AppKeyEnum.playerCapoLabel,
+                                        value: _isCapo,
+                                        style: boldStyle, onPressed: () {
+                                      setState(() {
+                                        _isCapo = !_isCapo;
+                                        setSelectedSongKey(_selectedSongKey);
+                                        adjustDisplay();
+                                      });
+                                    }
+                                        //softWrap: false,
+                                        ),
                                   ),
                                   appSwitch(
                                     appKeyEnum: AppKeyEnum.playerCapo,
+                                    value: _isCapo,
                                     onChanged: (value) {
                                       setState(() {
                                         _isCapo = !_isCapo;
@@ -1765,7 +1773,6 @@ With z or q, the app goes back to the play list.''',
                                         adjustDisplay();
                                       });
                                     },
-                                    value: _isCapo,
                                   ),
                                 ],
                               ),

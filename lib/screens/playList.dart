@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 
@@ -16,16 +17,40 @@ import '../util/songSearchMatcher.dart';
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
 
+/// Allow the mechanics to use either a song or a song performance
+class _SongItem implements Comparable<_SongItem> {
+  _SongItem(this.song) : songPerformance = null;
+
+  _SongItem.fromPerformance(this.songPerformance) : song = songPerformance!.song!;
+
+  String get singerSang => songPerformance != null ? '${songPerformance!.singer} sang: ' : '';
+
+  String get inKey => songPerformance != null ? ' in ${songPerformance!.key}' : '';
+
+  @override
+  int compareTo(_SongItem other) {
+    if (songPerformance != null && other.songPerformance != null) {
+      return songPerformance!.compareTo(other.songPerformance!);
+    }
+    return song.compareTo(other.song);
+  }
+
+  final Song song;
+  final SongPerformance? songPerformance;
+}
+
 class PlayList extends StatefulWidget {
-  PlayList({super.key, SplayTreeSet<Song>? songs, this.style})
-      : songs = (songs ?? app.allSongs).toList(growable: false);
+  PlayList({super.key, List<Song>? songs, List<SongPerformance>? songPerformances, this.style})
+      : _songItems = (songPerformances != null
+            ? songPerformances.map((e) => _SongItem.fromPerformance(e)).toList(growable: false)
+            : (songs ?? app.allSongs).map((e) => _SongItem(e)).toList(growable: false));
 
   @override
   State<StatefulWidget> createState() {
     return _PlayListState();
   }
 
-  final List<Song> songs;
+  final List<_SongItem> _songItems;
   final TextStyle? style;
 }
 
@@ -45,11 +70,7 @@ class _PlayListState extends State<PlayList> {
     final evenText = evenTitleTextStyle(from: artistStyle);
 
     final TextStyle searchDropDownStyle = artistStyle;
-    final TextStyle searchTextStyle = titleStyle.copyWith(
-      color: Colors.black45,
-      fontWeight: FontWeight.bold,
-      // textBaseline: TextBaseline.alphabetic,
-    );
+    final TextStyle searchTextStyle = titleStyle;
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
@@ -120,11 +141,11 @@ class _PlayListState extends State<PlayList> {
     }
 
     // select order
-    int Function(Song key1, Song key2)? compare;
+    int Function(_SongItem key1, _SongItem key2)? compare;
     switch (_selectedSortType) {
       case MainSortType.byArtist:
-        compare = (Song song1, Song song2) {
-          var ret = song1.artist.compareTo(song2.artist);
+        compare = (_SongItem song1, _SongItem song2) {
+          var ret = song1.song.artist.compareTo(song2.song.artist);
           if (ret != 0) {
             return ret;
           }
@@ -132,8 +153,8 @@ class _PlayListState extends State<PlayList> {
         };
         break;
       case MainSortType.byLastChange:
-        compare = (Song song1, Song song2) {
-          var ret = -song1.lastModifiedTime.compareTo(song2.lastModifiedTime);
+        compare = (_SongItem song1, _SongItem song2) {
+          var ret = -song1.song.lastModifiedTime.compareTo(song2.song.lastModifiedTime);
           if (ret != 0) {
             return ret;
           }
@@ -141,8 +162,8 @@ class _PlayListState extends State<PlayList> {
         };
         break;
       case MainSortType.byComplexity:
-        compare = (Song song1, Song song2) {
-          var ret = song1.getComplexity().compareTo(song2.getComplexity());
+        compare = (_SongItem song1, _SongItem song2) {
+          var ret = song1.song.getComplexity().compareTo(song2.song.getComplexity());
           if (ret != 0) {
             return ret;
           }
@@ -150,8 +171,8 @@ class _PlayListState extends State<PlayList> {
         };
         break;
       case MainSortType.byYear:
-        compare = (Song song1, Song song2) {
-          var ret = song1.getCopyrightYear().compareTo(song2.getCopyrightYear());
+        compare = (_SongItem song1, _SongItem song2) {
+          var ret = song1.song.getCopyrightYear().compareTo(song2.song.getCopyrightYear());
           if (ret != 0) {
             return ret;
           }
@@ -160,33 +181,33 @@ class _PlayListState extends State<PlayList> {
         break;
       case MainSortType.byTitle:
       default:
-        compare = (Song song1, Song song2) {
+        compare = (_SongItem song1, _SongItem song2) {
           return song1.compareTo(song2);
         };
         break;
     }
 
-    List<Song> filteredSongs = [];
+    List<_SongItem> filteredSongs = [];
     {
       //  apply search
-      SplayTreeSet<Song> searchedSet = SplayTreeSet();
+      SplayTreeSet<_SongItem> searchedSet = SplayTreeSet();
       var matcher = SongSearchMatcher(_searchTextFieldController.text);
-      for (final Song song in app.allSongs) {
-        if (matcher.matchesOrEmptySearch(song)) {
-          searchedSet.add(song);
+      for (final songItem in widget._songItems) {
+        if (matcher.matchesOrEmptySearch(songItem.song)) {
+          searchedSet.add(songItem);
         }
       }
 
       //  apply filters and order
-      SplayTreeSet<Song> filteredSet = SplayTreeSet(compare);
+      SplayTreeSet<_SongItem> filteredSet = SplayTreeSet(compare);
       if (_filterNameValues.isEmpty) {
         //  apply no filter
         filteredSet.addAll(searchedSet);
       } else {
         //  filter the songs for the correct metadata
-        for (var song in searchedSet) {
+        for (var songItem in searchedSet) {
           var matched = true;
-          var idString = song.songId.toString();
+          var idString = songItem.song.songId.toString();
           for (var nv in _filterNameValues) {
             if (SongMetadata.where(idIs: idString, nameIs: nv.name, valueIs: nv.value).isEmpty) {
               matched = false;
@@ -194,7 +215,7 @@ class _PlayListState extends State<PlayList> {
             }
           }
           if (matched) {
-            filteredSet.add(song);
+            filteredSet.add(songItem);
           }
         }
       }
@@ -236,7 +257,7 @@ class _PlayListState extends State<PlayList> {
                       focusNode: _searchFocusNode,
                       decoration: InputDecoration(
                         hintText: 'enter search text',
-                        hintStyle: searchTextStyle,
+                        hintStyle: artistStyle,
                       ),
                       autofocus: true,
                       style: searchTextStyle,
@@ -338,12 +359,12 @@ class _PlayListState extends State<PlayList> {
                   logger.v('_PlayListState: index: $index');
                   var indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
                   var indexTextStyle = (index & 1) == 1 ? oddText : evenText;
-                  var song = filteredSongs[index];
+                  var songItem = filteredSongs[index];
 
                   List<Widget> metadataWidgets = [const AppSpace()];
                   if (isEditing) {
-                    for (var id in SongMetadata.where(idIs: song.songId.toString())) {
-                      logger.i('$index: $song: ${id.id}: md#: ${id.nameValues.length}');
+                    for (var id in SongMetadata.where(idIs: songItem.song.songId.toString())) {
+                      logger.i('$index: $songItem: ${id.id}: md#: ${id.nameValues.length}');
                       for (var nv in id.nameValues) {
                         metadataWidgets.add(
                           appButton(
@@ -362,10 +383,10 @@ class _PlayListState extends State<PlayList> {
 
                   return AppInkWell(
                     appKeyEnum: AppKeyEnum.mainSong,
-                    value: Id(song.songId.toString()),
+                    value: Id(songItem.song.songId.toString()),
                     onTap: () {
                       if (!isEditing) {
-                        _navigateToPlayer(context, song);
+                        _navigateToPlayer(context, songItem.song);
                       }
                     },
                     child: Container(
@@ -377,23 +398,31 @@ class _PlayListState extends State<PlayList> {
                         children: [
                           AppWrap(children: [
                             Text(
-                              song.title,
+                              songItem.singerSang,
+                              style: indexTextStyle,
+                            ),
+                            Text(
+                              songItem.song.title,
                               style: indexTitleStyle,
                             ),
                             Text(
-                              '  by ${song.artist}',
+                              '  by ${songItem.song.artist}',
                               style: indexTextStyle,
                             ),
-                            if (song.coverArtist.isNotEmpty)
+                            if (songItem.song.coverArtist.isNotEmpty)
                               Text(
-                                ', cover by ${song.coverArtist}',
+                                ', cover by ${songItem.song.coverArtist}',
                                 style: indexTextStyle,
                               ),
+                            Text(
+                              songItem.inKey,
+                              style: indexTextStyle,
+                            ),
                           ]),
                           AppWrap(spacing: fontSize, children: [
                             if (!isEditing)
                               Text(
-                                '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime))}',
+                                '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(songItem.song.lastModifiedTime))}',
                                 style: indexTextStyle,
                               ),
                             if (isEditing) ...metadataWidgets

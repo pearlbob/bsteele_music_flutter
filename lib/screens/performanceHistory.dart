@@ -51,6 +51,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     {
       List<SongList> songLists = [];
       String lastSungDateString = '';
+      int lastSung = 0;
       List<SongListItem> items = [];
       SongPerformance? lastPerformance;
       for (var performance in performanceHistory) {
@@ -59,11 +60,12 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
         if (lastSungDateString != performance.lastSungDateString) {
           if (items.isNotEmpty) {
             songLists.add(SongList(
-                DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung)), items,
+                DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
                 songItemAction: _navigateSongListToPlayer));
             items = [];
           }
           lastSungDateString = performance.lastSungDateString;
+          lastSung = performance.lastSung;
         }
         items.add(SongListItem.fromPerformance(
           performance,
@@ -71,7 +73,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       }
       if (items.isNotEmpty) {
         songLists.add(SongList(
-            DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastPerformance!.lastSung)), items,
+            DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
             songItemAction: _navigateSongListToPlayer));
       }
 

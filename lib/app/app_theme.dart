@@ -649,8 +649,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   mainHamburger(Null),
   mainSearchText(String),
   mainSong(Id),
-  mainSortType(MainSortType),
-  mainSortTypeSelection(MainSortType),
+  mainSortType(PlayListSortType),
+  mainSortTypeSelection(PlayListSortType),
   mainUp(Null),
   optionsBack(Null),
   optionsExpandRepeats(String),
@@ -842,7 +842,7 @@ Map<Type, TypeParser> _appKeyParsers = {
   bool: (s) => s == 'true',
   ChordSection: (s) => ChordSection.parseString(s, 4), //  fixme: not always 4!
   ChordSectionLocation: (s) => ChordSectionLocation.parseString(s), //  void
-  MainSortType: (s) => MainSortType.values.firstWhere((e) => e.name == s),
+  PlayListSortType: (s) => PlayListSortType.values.firstWhere((e) => e.name == s),
   NashvilleSelection: (s) => NashvilleSelection.values.firstWhere((e) => e.name == s),
   music_key.Key: (s) => music_key.Key.parseString(s),
   Id: (s) => Id.parse(s),

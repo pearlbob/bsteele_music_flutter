@@ -112,61 +112,6 @@ class ListsState extends State<Lists> {
           ],
         ));
       }
-
-      metadataWidgets.add(AppWrap(
-        children: [
-          const AppSpace(space: 20),
-          Radio(
-            value: NameValue(_nameTextFieldController.text, _valueTextFieldController.text),
-            groupValue: _selectedNameValue,
-            onChanged: (NameValue? value) {
-              if (value != null) {
-                setState(() {
-                  _selectedNameValue = value;
-                });
-              }
-            },
-          ),
-          SizedBox(
-            width: 5 * app.screenInfo.fontSize,
-            //  limit text entry display length
-            child: AppTextField(
-              appKeyEnum: AppKeyEnum.listsNameEntry,
-              controller: _nameTextFieldController,
-              hintText: "name...",
-              onChanged: (text) {
-                setState(() {
-                  if (_nameTextFieldController.text.isNotEmpty) {
-                    _selectedNameValue = NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
-                  }
-                });
-              },
-              fontSize: fontSize,
-            ),
-          ),
-          Text(
-            ':',
-            style: metadataStyle,
-          ),
-          SizedBox(
-            width: 5 * app.screenInfo.fontSize,
-            //  limit text entry display length
-            child: AppTextField(
-              appKeyEnum: AppKeyEnum.listsValueEntry,
-              controller: _valueTextFieldController,
-              hintText: "value...",
-              onChanged: (text) {
-                setState(() {
-                  if (_nameTextFieldController.text.isNotEmpty) {
-                    _selectedNameValue = NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
-                  }
-                });
-              },
-              fontSize: fontSize,
-            ),
-          ),
-        ],
-      ));
     }
 
     List<Widget> songWidgetList = [];
@@ -312,10 +257,75 @@ class ListsState extends State<Lists> {
               const AppSpace(
                 space: 20,
               ),
-              // AppWrap(
-              //   alignment: WrapAlignment.spaceEvenly,
-              //   children: metadataWidgets,
-              // ),
+              AppWrap(
+                crossAxisAlignment: WrapCrossAlignment.start,
+                children: [
+                  const AppSpace(space: 20),
+                  Radio(
+                    value: NameValue(_nameTextFieldController.text, _valueTextFieldController.text),
+                    groupValue: _selectedNameValue,
+                    onChanged: (NameValue? value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedNameValue = value;
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    width: 5 * app.screenInfo.fontSize,
+                    //  limit text entry display length
+                    child: AppTextField(
+                      appKeyEnum: AppKeyEnum.listsNameEntry,
+                      controller: _nameTextFieldController,
+                      hintText: "name...",
+                      onChanged: (text) {
+                        setState(() {
+                          if (_nameTextFieldController.text.isNotEmpty) {
+                            _selectedNameValue =
+                                NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                          }
+                        });
+                      },
+                      fontSize: fontSize,
+                    ),
+                  ),
+                  Text(
+                    ':',
+                    style: metadataStyle,
+                  ),
+                  SizedBox(
+                    width: 5 * app.screenInfo.fontSize,
+                    //  limit text entry display length
+                    child: AppTextField(
+                      appKeyEnum: AppKeyEnum.listsValueEntry,
+                      controller: _valueTextFieldController,
+                      hintText: "value...",
+                      onChanged: (text) {
+                        setState(() {
+                          if (_nameTextFieldController.text.isNotEmpty) {
+                            _selectedNameValue =
+                                NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                          }
+                        });
+                      },
+                      fontSize: fontSize,
+                    ),
+                  ),
+                  const AppSpace(
+                    horizontalSpace: 20,
+                  ),
+                  //  metadata Widgets
+                  SizedBox(
+                    width: app.screenInfo.mediaWidth / 3,
+                    height: app.screenInfo.mediaHeight / 4,
+                    child: ListView(
+                      semanticChildCount: metadataWidgets.length,
+                      children: metadataWidgets,
+                    ),
+                  ),
+                ],
+              ),
               AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                 //  search line
                 AppWrap(children: [

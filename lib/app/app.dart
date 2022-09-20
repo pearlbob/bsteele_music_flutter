@@ -33,12 +33,13 @@ const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
 /// Song list sort types
-enum MainSortType {
+enum PlayListSortType {
   byTitle,
   byArtist,
   byLastChange,
   byComplexity,
-  byYear;
+  byYear,
+  byLastSung;
 }
 
 enum MessageType {

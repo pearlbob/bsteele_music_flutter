@@ -124,9 +124,9 @@ void main() async {
             assert(parts.length >= 2);
             finder = find.byKey(appKey(appKeyEnum, value: int.parse(parts[1])), skipOffstage: false);
             break;
-          case MainSortType:
+          case PlayListSortType:
             assert(parts.length >= 2);
-            finder = find.byKey(appKey(appKeyEnum, value: Util.enumFromString(parts[1], MainSortType.values)),
+            finder = find.byKey(appKey(appKeyEnum, value: Util.enumFromString(parts[1], PlayListSortType.values)),
                 skipOffstage: false);
             break;
           case music_key.Key:

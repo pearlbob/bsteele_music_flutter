@@ -658,8 +658,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  MyHomePageState()
-      : appOptions = AppOptions();
+  MyHomePageState() : appOptions = AppOptions();
 
   @override
   void initState() {
@@ -692,8 +691,7 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(songListAsString));
-        setState(() {
-        });
+        setState(() {});
         app.warningMessage = 'internal songList used, dated: ${await app.releaseUtcDate()}';
       } catch (fe) {
         logger.i("internal songList parse error: $fe");
@@ -744,8 +742,7 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(allSongsAsString));
-        setState(() {
-        });
+        setState(() {});
         //  don't warn on standard behavior:   app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
         logger.i("external songList parse error: $fe");
@@ -1069,6 +1066,8 @@ class MyHomePageState extends State<MyHomePage> {
         //         style: searchDropDownStyle,
         //       )),
         PlayList(
+          songList: SongList('Main list', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
+              songItemAction: _navigateToPlayerbySongItem),
           style: titleTextStyle,
         ),
       ]),
@@ -1147,6 +1146,24 @@ class MyHomePageState extends State<MyHomePage> {
     return holidayRexExp.hasMatch(song.title) ||
         holidayRexExp.hasMatch(song.artist) ||
         holidayRexExp.hasMatch(song.coverArtist);
+  }
+
+  _navigateToPlayerbySongItem(BuildContext context, SongListItem songListItem) async {
+    if (songListItem.song.getTitle().isEmpty) {
+      // logger.log(_mainLogScroll, 'song title is empty: $song');
+      return;
+    }
+    app.clearMessage();
+    app.selectedSong = songListItem.song;
+    //_lastSelectedSong = song;
+
+    //logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
+    await Navigator.pushNamed(
+      context,
+      Player.routeName,
+    );
+
+    setState(() {});
   }
 
   void _navigateToSongs() async {

@@ -1,17 +1,16 @@
 import 'dart:collection';
 
-import 'package:bsteeleMusicLib/songs/songPerformance.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
-import 'package:bsteele_music_flutter/screens/player.dart';
-
-import '../app/app.dart';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/songs/songPerformance.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
+import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
 
 //  persistent selection
@@ -22,15 +21,15 @@ double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
 late TextStyle _indexTextStyle;
 
-typedef SongItemAction = Function(Song song);
+typedef SongItemAction = Function(BuildContext context, SongListItem songListItem);
 
 /// Allow the mechanics to use either a song or a song performance
-class _SongItem implements Comparable<_SongItem> {
-  _SongItem(this.song) : songPerformance = null;
+class SongListItem implements Comparable<SongListItem> {
+  SongListItem.fromSong(this.song) : songPerformance = null;
 
-  _SongItem.fromPerformance(this.songPerformance) : song = songPerformance!.song!;
+  SongListItem.fromPerformance(this.songPerformance) : song = songPerformance!.performedSong;
 
-  Widget toWidget(SongItemAction songItemAction) {
+  Widget toWidget(BuildContext context, SongItemAction? songItemAction) {
     AppWrap appWrap;
     if (songPerformance != null) {
       appWrap = AppWrap(children: [
@@ -100,8 +99,9 @@ class _SongItem implements Comparable<_SongItem> {
       value: Id(song.songId.toString()),
       onTap: () {
         if (!_isEditing) {
-          songItemAction(song);
-          //  _navigateToPlayer(context, song);
+          if (songItemAction != null) {
+            songItemAction(context, this);
+          }
         }
       },
       child: Container(
@@ -115,7 +115,9 @@ class _SongItem implements Comparable<_SongItem> {
             AppWrap(spacing: _textFontSize, children: [
               if (!_isEditing)
                 Text(
-                  '   ${intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime))}',
+                  songPerformance != null
+                      ? intl.DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
+                      : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
                   style: _indexTextStyle,
                 ),
               if (_isEditing) ...metadataWidgets
@@ -127,7 +129,7 @@ class _SongItem implements Comparable<_SongItem> {
   }
 
   @override
-  int compareTo(_SongItem other) {
+  int compareTo(SongListItem other) {
     if (songPerformance != null && other.songPerformance != null) {
       return songPerformance!.compareTo(other.songPerformance!);
     }
@@ -138,23 +140,96 @@ class _SongItem implements Comparable<_SongItem> {
   final SongPerformance? songPerformance;
 }
 
+class SongList {
+  const SongList(this.label, this.songListItems, {this.songItemAction});
+
+  int get length => 1 + songListItems.length;
+
+  Widget indexToWidget(BuildContext context, int index) {
+    assert(index >= 0 && index - 1 < songListItems.length);
+
+    //  index 0 is the label
+    if (index == 0) {
+      return label.isEmpty
+          ? NullWidget()
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const AppSpace(
+                  verticalSpace: 20,
+                ),
+                Text(
+                  label,
+                  style: _indexTitleStyle,
+                ),
+                const Divider(
+                  thickness: 10,
+                ),
+              ],
+            );
+    }
+
+    //  other indices are the song items
+    return songListItems[index - 1].toWidget(context, songItemAction);
+  }
+
+  final String label;
+  final List<SongListItem> songListItems;
+  final SongItemAction? songItemAction;
+}
+
+class SongListGroup {
+  const SongListGroup(this.group);
+
+  int get length => group.fold<int>(0, (i, e) {
+        return i + e.length;
+      });
+
+  Widget indexToWidget(BuildContext context, int index) {
+    for (var songList in group) {
+      if (index >= songList.length) {
+        index -= songList.length;
+      } else {
+        return songList.indexToWidget(context, index);
+      }
+    }
+    return Text('index too long for group: $index', style: _indexTitleStyle);
+  }
+
+  final List<SongList> group;
+}
+
 class PlayList extends StatefulWidget {
-  PlayList({super.key, List<Song>? songs, List<SongPerformance>? songPerformances, this.style})
-      : _songItems = (songPerformances != null
-            ? songPerformances.map((e) => _SongItem.fromPerformance(e)).toList(growable: false)
-            : (songs ?? app.allSongs).map((e) => _SongItem(e)).toList(growable: false));
+  PlayList({super.key, required SongList songList, this.style, this.includeByLastSung = false})
+      : group = SongListGroup([songList]);
+
+  const PlayList.byGroup(this.group, {super.key, this.style, this.includeByLastSung = false});
 
   @override
   State<StatefulWidget> createState() {
     return _PlayListState();
   }
 
-  final List<_SongItem> _songItems;
+  final SongListGroup group;
   final TextStyle? style;
+  final bool includeByLastSung;
 }
 
 class _PlayListState extends State<PlayList> {
   _PlayListState() : _searchFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.includeByLastSung) {
+      //  preference for last sung (performance) lists
+      _selectedSortType = PlayListSortType.byLastSung;
+    } else if (_selectedSortType == PlayListSortType.byLastSung) {
+      //  replace invalid preference for song lists
+      _selectedSortType = PlayListSortType.byTitle;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,16 +248,23 @@ class _PlayListState extends State<PlayList> {
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
-    for (final e in MainSortType.values) {
-      var s = e.toString();
-      _sortTypesDropDownMenuList.add(appDropdownMenuItem<MainSortType>(
+    for (final e in PlayListSortType.values) {
+      _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
         appKeyEnum: AppKeyEnum.mainSortTypeSelection,
         value: e,
         child: Text(
-          Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
+          Util.camelCaseToLowercaseSpace(e.name),
           style: searchDropDownStyle,
         ),
       ));
+    }
+
+    //  fool with the drop down options
+    //  if a song play list, by last sung should be removed
+    var byLastSungDropdownMenuItem = _sortTypesDropDownMenuList.removeAt(PlayListSortType.byLastSung.index);
+    // if a performance play list, by last sung should be first, the default
+    if (widget.includeByLastSung) {
+      _sortTypesDropDownMenuList.insert(0, byLastSungDropdownMenuItem);
     }
 
     //  find all the metadata values
@@ -240,85 +322,100 @@ class _PlayListState extends State<PlayList> {
     }
 
     // select order
-    int Function(_SongItem key1, _SongItem key2)? compare;
+    int Function(SongListItem key1, SongListItem key2)? compare;
     switch (_selectedSortType) {
-      case MainSortType.byArtist:
-        compare = (_SongItem song1, _SongItem song2) {
-          var ret = song1.song.artist.compareTo(song2.song.artist);
+      case PlayListSortType.byArtist:
+        compare = (SongListItem item1, SongListItem item2) {
+          var ret = item1.song.artist.compareTo(item2.song.artist);
           if (ret != 0) {
             return ret;
           }
-          return song1.compareTo(song2);
+          return item1.compareTo(item2);
         };
         break;
-      case MainSortType.byLastChange:
-        compare = (_SongItem song1, _SongItem song2) {
-          var ret = -song1.song.lastModifiedTime.compareTo(song2.song.lastModifiedTime);
+      case PlayListSortType.byLastChange:
+        compare = (SongListItem item1, SongListItem item2) {
+          var ret = -item1.song.lastModifiedTime.compareTo(item2.song.lastModifiedTime);
           if (ret != 0) {
             return ret;
           }
-          return song1.compareTo(song2);
+          return item1.compareTo(item2);
         };
         break;
-      case MainSortType.byComplexity:
-        compare = (_SongItem song1, _SongItem song2) {
-          var ret = song1.song.getComplexity().compareTo(song2.song.getComplexity());
+      case PlayListSortType.byComplexity:
+        compare = (SongListItem item1, SongListItem item2) {
+          var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
           if (ret != 0) {
             return ret;
           }
-          return song1.compareTo(song2);
+          return item1.compareTo(item2);
         };
         break;
-      case MainSortType.byYear:
-        compare = (_SongItem song1, _SongItem song2) {
-          var ret = song1.song.getCopyrightYear().compareTo(song2.song.getCopyrightYear());
+      case PlayListSortType.byLastSung:
+        compare = (SongListItem item1, SongListItem item2) {
+          if (item1.songPerformance != null && item2.songPerformance != null) {
+            return -SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
+          }
+          return item1.compareTo(item2);
+        };
+        break;
+      case PlayListSortType.byYear:
+        compare = (SongListItem item1, SongListItem item2) {
+          var ret = item1.song.getCopyrightYear().compareTo(item2.song.getCopyrightYear());
           if (ret != 0) {
             return ret;
           }
-          return song1.compareTo(song2);
+          return item1.compareTo(item2);
         };
         break;
-      case MainSortType.byTitle:
-      default:
-        compare = (_SongItem song1, _SongItem song2) {
-          return song1.compareTo(song2);
+      case PlayListSortType.byTitle:
+        compare = (SongListItem item1, SongListItem item2) {
+          return item1.compareTo(item2);
         };
         break;
     }
 
-    List<_SongItem> filteredSongs = [];
+    SongListGroup filteredGroup;
     {
       //  apply search
-      SplayTreeSet<_SongItem> searchedSet = SplayTreeSet();
+      List<SongList> filteredSongLists = [];
       var matcher = SongSearchMatcher(_searchTextFieldController.text);
-      for (final songItem in widget._songItems) {
-        if (matcher.matchesOrEmptySearch(songItem.song)) {
-          searchedSet.add(songItem);
+      for (final songList in widget.group.group) {
+        //  find the possible items
+        SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
+        for (final songItem in songList.songListItems) {
+          if (matcher.matchesOrEmptySearch(songItem.song)) {
+            searchedSet.add(songItem);
+          }
         }
-      }
 
-      //  apply filters and order
-      SplayTreeSet<_SongItem> filteredSet = SplayTreeSet(compare);
-      if (_filterNameValues.isEmpty) {
-        //  apply no filter
-        filteredSet.addAll(searchedSet);
-      } else {
-        //  filter the songs for the correct metadata
-        for (var songItem in searchedSet) {
-          var matched = true;
-          var idString = songItem.song.songId.toString();
-          for (var nv in _filterNameValues) {
-            if (SongMetadata.where(idIs: idString, nameIs: nv.name, valueIs: nv.value).isEmpty) {
-              matched = false;
-              break;
+        //  apply filters and order
+        SplayTreeSet<SongListItem> filteredSet = SplayTreeSet(compare);
+        if (_filterNameValues.isEmpty) {
+          //  apply no filter
+          filteredSet.addAll(searchedSet);
+        } else {
+          //  filter the songs for the correct metadata
+          for (var songItem in searchedSet) {
+            var matched = true;
+            var idString = songItem.song.songId.toString();
+            for (var nv in _filterNameValues) {
+              if (SongMetadata.where(idIs: idString, nameIs: nv.name, valueIs: nv.value).isEmpty) {
+                matched = false;
+                break;
+              }
+            }
+            if (matched) {
+              filteredSet.add(songItem);
             }
           }
-          if (matched) {
-            filteredSet.add(songItem);
-          }
+        }
+        if (filteredSet.isNotEmpty) {
+          filteredSongLists.add(
+              SongList(songList.label, filteredSet.toList(growable: false), songItemAction: songList.songItemAction));
         }
       }
-      filteredSongs.addAll(filteredSet);
+      filteredGroup = SongListGroup(filteredSongLists);
     }
 
     return Expanded(
@@ -431,13 +528,13 @@ class _PlayListState extends State<PlayList> {
                             style: searchDropDownStyle,
                           ),
                         ),
-                        appDropdownButton<MainSortType>(
+                        appDropdownButton<PlayListSortType>(
                           AppKeyEnum.mainSortType,
                           _sortTypesDropDownMenuList,
                           onChanged: (value) {
                             if (_selectedSortType != value) {
                               setState(() {
-                                _selectedSortType = value ?? MainSortType.byTitle;
+                                _selectedSortType = value ?? PlayListSortType.byTitle;
                                 app.clearMessage();
                               });
                             }
@@ -454,16 +551,12 @@ class _PlayListState extends State<PlayList> {
             // this expanded is required as well
             child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: filteredSongs.length,
+                itemCount: filteredGroup.length,
                 itemBuilder: (BuildContext context, int index) {
                   logger.v('_PlayListState: index: $index');
                   _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
                   _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
-                  var songItem = filteredSongs[index];
-
-                  return songItem.toWidget((Song song) {
-                    _navigateToPlayer(context, song);
-                  });
+                  return filteredGroup.indexToWidget(context, index);
                 }),
           ),
         ]),
@@ -471,35 +564,8 @@ class _PlayListState extends State<PlayList> {
     );
   }
 
-  _navigateToPlayer(BuildContext context, Song song) async {
-    if (song.getTitle().isEmpty) {
-      // logger.log(_mainLogScroll, 'song title is empty: $song');
-      return;
-    }
-    app.clearMessage();
-    app.selectedSong = song;
-    //_lastSelectedSong = song;
-
-    //logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
-    await Navigator.pushNamed(
-      context,
-      Player.routeName,
-    );
-
-    setState(() {
-      _selectSearchText(context); //  select all text on a navigation pop
-    });
-  }
-
-  void _selectSearchText(BuildContext context) {
-    _searchTextFieldController.selection =
-        TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-    FocusScope.of(context).requestFocus(_searchFocusNode);
-    logger.i('_selectSearchText: ${_searchTextFieldController.selection}');
-  }
-
-  final List<DropdownMenuItem<MainSortType>> _sortTypesDropDownMenuList = [];
-  var _selectedSortType = MainSortType.byTitle;
+  final List<DropdownMenuItem<PlayListSortType>> _sortTypesDropDownMenuList = [];
+  var _selectedSortType = PlayListSortType.byTitle;
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode;

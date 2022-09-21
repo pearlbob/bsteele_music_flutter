@@ -9,6 +9,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
@@ -23,16 +24,26 @@ late TextStyle _indexTextStyle;
 
 typedef SongItemAction = Function(BuildContext context, SongListItem songListItem);
 
+class PlayListRefresh {
+  const PlayListRefresh(this.voidCallback);
+
+  void action() {
+    voidCallback.call();
+  }
+
+  final VoidCallback voidCallback;
+}
+
 /// Allow the mechanics to use either a song or a song performance
 class SongListItem implements Comparable<SongListItem> {
-  SongListItem.fromSong(this.song) : songPerformance = null;
+  SongListItem.fromSong(this.song, {this.customWidget}) : songPerformance = null;
 
-  SongListItem.fromPerformance(this.songPerformance) : song = songPerformance!.performedSong;
+  SongListItem.fromPerformance(this.songPerformance, {this.customWidget}) : song = songPerformance!.performedSong;
 
-  Widget toWidget(BuildContext context, SongItemAction? songItemAction) {
-    AppWrap appWrap;
+  Widget _toWidget(BuildContext context, SongItemAction? songItemAction) {
+    AppWrap songWidget;
     if (songPerformance != null) {
-      appWrap = AppWrap(children: [
+      songWidget = AppWrap(children: [
         Text(
           '${songPerformance!.singer} sang: ',
           style: _indexTextStyle,
@@ -57,7 +68,7 @@ class SongListItem implements Comparable<SongListItem> {
       ]);
     } else {
       //  song
-      appWrap = AppWrap(children: [
+      songWidget = AppWrap(children: [
         Text(
           song.title,
           style: _indexTitleStyle,
@@ -77,16 +88,22 @@ class SongListItem implements Comparable<SongListItem> {
     List<Widget> metadataWidgets = [const AppSpace()];
     if (_isEditing) {
       for (var id in SongMetadata.where(idIs: song.songId.toString())) {
-        logger.i('$this: ${id.id}: md#: ${id.nameValues.length}');
-        for (var nv in id.nameValues) {
+        logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
+        for (var nameValue in id.nameValues) {
           metadataWidgets.add(
-            appButton(
-              '${nv.name}: ${nv.value}',
+            appIconButton(
+              icon: appIcon(
+                Icons.clear,
+              ),
+              label: '${nameValue.name}:${nameValue.value}',
               appKeyEnum: AppKeyEnum.playListMetadata,
-              value: '${id.id}:${nv.name}=${nv.value}',
+              value: '${id.id}:${nameValue.name}=${nameValue.value}',
               fontSize: _textFontSize,
               onPressed: () {
-                logger.i('pressed: ${nv.name}: ${nv.value}');
+                logger.i('pressed: ${nameValue.name}: ${nameValue.value}');
+                logger.e('SongMetadata.removeFromSong: removes all song metadata!!!!!!!fixme');
+                SongMetadata.removeFromSong(song, nameValue);
+                Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
               },
             ),
           );
@@ -109,19 +126,26 @@ class SongListItem implements Comparable<SongListItem> {
         padding: const EdgeInsets.all(5.0),
         child: AppWrapFullWidth(
           spacing: _textFontSize,
-          alignment: _isEditing ? WrapAlignment.start : WrapAlignment.spaceBetween,
+          alignment: WrapAlignment.spaceBetween,
           children: [
-            appWrap,
-            AppWrap(spacing: _textFontSize, children: [
-              if (!_isEditing)
-                Text(
-                  songPerformance != null
-                      ? intl.DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
-                      : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
-                  style: _indexTextStyle,
-                ),
-              if (_isEditing) ...metadataWidgets
+            AppWrap(children: [
+              songWidget,
+              const AppSpace(),
+              customWidget ?? NullWidget(),
             ]),
+            AppWrap(
+                spacing: _textFontSize,
+                alignment: _isEditing ? WrapAlignment.end : WrapAlignment.spaceBetween,
+                children: [
+                  if (!_isEditing)
+                    Text(
+                      songPerformance != null
+                          ? intl.DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
+                          : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
+                      style: _indexTextStyle,
+                    ),
+                  if (_isEditing) AppWrap(spacing: _textFontSize, children: metadataWidgets),
+                ]),
           ],
         ),
       ),
@@ -138,6 +162,7 @@ class SongListItem implements Comparable<SongListItem> {
 
   final Song song;
   final SongPerformance? songPerformance;
+  final Widget? customWidget;
 }
 
 class SongList {
@@ -145,7 +170,7 @@ class SongList {
 
   int get length => 1 + songListItems.length;
 
-  Widget indexToWidget(BuildContext context, int index) {
+  Widget _indexToWidget(BuildContext context, int index) {
     assert(index >= 0 && index - 1 < songListItems.length);
 
     //  index 0 is the label
@@ -170,7 +195,7 @@ class SongList {
     }
 
     //  other indices are the song items
-    return songListItems[index - 1].toWidget(context, songItemAction);
+    return songListItems[index - 1]._toWidget(context, songItemAction);
   }
 
   final String label;
@@ -185,12 +210,12 @@ class SongListGroup {
         return i + e.length;
       });
 
-  Widget indexToWidget(BuildContext context, int index) {
+  Widget _indexToWidget(BuildContext context, int index) {
     for (var songList in group) {
       if (index >= songList.length) {
         index -= songList.length;
       } else {
-        return songList.indexToWidget(context, index);
+        return songList._indexToWidget(context, index);
       }
     }
     return Text('index too long for group: $index', style: _indexTitleStyle);
@@ -200,10 +225,14 @@ class SongListGroup {
 }
 
 class PlayList extends StatefulWidget {
-  PlayList({super.key, required SongList songList, this.style, this.includeByLastSung = false})
-      : group = SongListGroup([songList]);
+  PlayList({super.key, required SongList songList, this.style, this.includeByLastSung = false, bool isEditing = false})
+      : group = SongListGroup([songList]) {
+    _isEditing = isEditing;
+  }
 
-  const PlayList.byGroup(this.group, {super.key, this.style, this.includeByLastSung = false});
+  PlayList.byGroup(this.group, {super.key, this.style, this.includeByLastSung = false, bool isEditing = false}) {
+    _isEditing = isEditing;
+  }
 
   @override
   State<StatefulWidget> createState() {
@@ -418,148 +447,156 @@ class _PlayListState extends State<PlayList> {
       filteredGroup = SongListGroup(filteredSongLists);
     }
 
-    return Expanded(
-      // for some reason, this is Expanded is very required,
-      // otherwise the Column is unlimited and the list view fails
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          AppWrapFullWidth(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              alignment: WrapAlignment.spaceBetween,
-              children: [
-                AppWrap(children: [
-                  //  search icon
-                  AppTooltip(
-                    message: _searchTextTooltipText,
-                    child: IconButton(
-                      icon: const Icon(Icons.search),
-                      iconSize: titleFontSize,
-                      onPressed: (() {
-                        setState(() {
-                          //fixme: _searchSongs(_searchTextFieldController.text);
-                        });
-                      }),
-                    ),
-                  ),
-                  //  search text
-                  SizedBox(
-                    width: 12 * _textFontSize,
-                    //  limit text entry display length
-                    child: TextField(
-                      key: appKey(AppKeyEnum.mainSearchText),
-                      //  for testing
-                      controller: _searchTextFieldController,
-                      focusNode: _searchFocusNode,
-                      decoration: InputDecoration(
-                        hintText: 'enter search text',
-                        hintStyle: artistStyle,
-                      ),
-                      autofocus: true,
-                      style: searchTextStyle,
-                      onChanged: (text) {
-                        setState(() {
-                          logger.v('search text: "$text"');
-                          //_searchSongs(_searchTextFieldController.text);
-                          app.clearMessage();
-                        });
-                      },
-                    ),
-                  ),
-                  //  search clear
-                  AppTooltip(
-                      message:
-                          _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                      child: appEnumeratedIconButton(
-                        icon: const Icon(Icons.clear),
-                        appKeyEnum: AppKeyEnum.mainClearSearch,
-                        iconSize: 1.25 * titleFontSize,
+    return Provider<PlayListRefresh>(
+      create: (BuildContext context) {
+        return PlayListRefresh(() {
+          setState(() {});
+        });
+      },
+      child: Expanded(
+        // for some reason, this is Expanded is very required,
+        // otherwise the Column is unlimited and the list view fails
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            AppWrapFullWidth(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  AppWrap(children: [
+                    //  search icon
+                    AppTooltip(
+                      message: _searchTextTooltipText,
+                      child: IconButton(
+                        icon: const Icon(Icons.search),
+                        iconSize: titleFontSize,
                         onPressed: (() {
-                          _searchTextFieldController.clear();
-                          app.clearMessage();
                           setState(() {
-                            FocusScope.of(context).requestFocus(_searchFocusNode);
-                            //_lastSelectedSong = null;
+                            //fixme: _searchSongs(_searchTextFieldController.text);
                           });
                         }),
-                      )),
-                  const AppSpace(
-                    spaceFactor: 2.0,
-                  ),
-                  //  filters
-                  AppWrap(spacing: _textFontSize, children: [
-                    DropdownButton<NameValue?>(
-                      value: null,
-                      hint: Text('Filters:', style: artistStyle),
-                      items: dropdownMenuItems,
-                      style: artistStyle,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value != null) {
-                            setState(() {
-                              logger.i('fixme: DropdownButton<NameValue?>: $value');
-                              if (value == allNameValue) {
-                                _filterNameValues.clear();
-                              } else {
-                                _filterNameValues.add(value);
-                              }
-                            });
-                          }
-                        });
-                      },
-                      itemHeight: null,
+                      ),
                     ),
-                    ...filterWidgets,
-                  ]),
-                ]),
-
-                //  filters and order
-                AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
-                  //  filters and order
-                  if (app.isScreenBig)
-                    AppWrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: app.screenInfo.fontSize / 2,
-                      children: [
-                        AppTooltip(
-                          message: 'Select the order of the song list.',
-                          child: Text(
-                            'Order',
-                            style: searchDropDownStyle,
-                          ),
+                    //  search text
+                    SizedBox(
+                      width: 12 * _textFontSize,
+                      //  limit text entry display length
+                      child: TextField(
+                        key: appKey(AppKeyEnum.mainSearchText),
+                        //  for testing
+                        controller: _searchTextFieldController,
+                        focusNode: _searchFocusNode,
+                        decoration: InputDecoration(
+                          hintText: 'enter search text',
+                          hintStyle: artistStyle,
                         ),
-                        appDropdownButton<PlayListSortType>(
-                          AppKeyEnum.mainSortType,
-                          _sortTypesDropDownMenuList,
-                          onChanged: (value) {
-                            if (_selectedSortType != value) {
+                        autofocus: true,
+                        style: searchTextStyle,
+                        onChanged: (text) {
+                          setState(() {
+                            logger.v('search text: "$text"');
+                            //_searchSongs(_searchTextFieldController.text);
+                            app.clearMessage();
+                          });
+                        },
+                      ),
+                    ),
+                    //  search clear
+                    AppTooltip(
+                        message: _searchTextFieldController.text.isEmpty
+                            ? 'Scroll the list some.'
+                            : 'Clear the search text.',
+                        child: appEnumeratedIconButton(
+                          icon: const Icon(Icons.clear),
+                          appKeyEnum: AppKeyEnum.mainClearSearch,
+                          iconSize: 1.25 * titleFontSize,
+                          onPressed: (() {
+                            _searchTextFieldController.clear();
+                            app.clearMessage();
+                            setState(() {
+                              FocusScope.of(context).requestFocus(_searchFocusNode);
+                              //_lastSelectedSong = null;
+                            });
+                          }),
+                        )),
+                    const AppSpace(
+                      spaceFactor: 2.0,
+                    ),
+                    //  filters
+                    AppWrap(spacing: _textFontSize, children: [
+                      DropdownButton<NameValue?>(
+                        value: null,
+                        hint: Text('Filters:', style: artistStyle),
+                        items: dropdownMenuItems,
+                        style: artistStyle,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value != null) {
                               setState(() {
-                                _selectedSortType = value ?? PlayListSortType.byTitle;
-                                app.clearMessage();
+                                logger.i('fixme: DropdownButton<NameValue?>: $value');
+                                if (value == allNameValue) {
+                                  _filterNameValues.clear();
+                                } else {
+                                  _filterNameValues.add(value);
+                                }
                               });
                             }
-                          },
-                          value: _selectedSortType,
-                          style: searchDropDownStyle,
-                        ),
-                      ],
-                    ),
+                          });
+                        },
+                        itemHeight: null,
+                      ),
+                      ...filterWidgets,
+                    ]),
+                  ]),
+
+                  //  filters and order
+                  AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
+                    //  filters and order
+                    if (app.isScreenBig)
+                      AppWrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: app.screenInfo.fontSize / 2,
+                        children: [
+                          AppTooltip(
+                            message: 'Select the order of the song list.',
+                            child: Text(
+                              'Order',
+                              style: searchDropDownStyle,
+                            ),
+                          ),
+                          appDropdownButton<PlayListSortType>(
+                            AppKeyEnum.mainSortType,
+                            _sortTypesDropDownMenuList,
+                            onChanged: (value) {
+                              if (_selectedSortType != value) {
+                                setState(() {
+                                  _selectedSortType = value ?? PlayListSortType.byTitle;
+                                  app.clearMessage();
+                                });
+                              }
+                            },
+                            value: _selectedSortType,
+                            style: searchDropDownStyle,
+                          ),
+                        ],
+                      ),
+                  ]),
                 ]),
-              ]),
-          const AppSpace(),
-          Expanded(
-            // this expanded is required as well
-            child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: filteredGroup.length,
-                itemBuilder: (BuildContext context, int index) {
-                  logger.v('_PlayListState: index: $index');
-                  _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
-                  _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
-                  return filteredGroup.indexToWidget(context, index);
-                }),
-          ),
-        ]),
+            const AppSpace(),
+            Expanded(
+              // this expanded is required as well
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: filteredGroup.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    logger.v('_PlayListState: index: $index');
+                    _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
+                    _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
+                    return filteredGroup._indexToWidget(context, index);
+                  }),
+            ),
+          ]),
+        ),
       ),
     );
   }

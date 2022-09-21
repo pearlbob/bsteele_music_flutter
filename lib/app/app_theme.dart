@@ -617,6 +617,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   listsClearSearch(Null),
   listsDeleteList(Null),
   listsErrorMessage(Null),
+  listsMetadataAdd(String),
   listsNameEntry(String),
   listsRadio(Null),
   listsReadLists(Null),
@@ -1321,6 +1322,7 @@ TextButton appIconButton({
   TextStyle? style,
   double? fontSize,
   String? label,
+  Color? backgroundColor,
 }) {
   var key = appKey(appKeyEnum, value: value);
   return TextButton.icon(
@@ -1332,7 +1334,7 @@ TextButton appIconButton({
       onPressed();
     },
     style: app.themeData.elevatedButtonTheme.style
-        ?.copyWith(backgroundColor: MaterialStateProperty.all(_defaultBackgroundColor)),
+        ?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor ?? _defaultBackgroundColor)),
   );
 }
 

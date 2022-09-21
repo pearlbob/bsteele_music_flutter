@@ -53,9 +53,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       String lastSungDateString = '';
       int lastSung = 0;
       List<SongListItem> items = [];
-      SongPerformance? lastPerformance;
       for (var performance in performanceHistory) {
-        lastPerformance = performance; //  fixme: figure a better algorithm
         logger.v('perf: ${performance.performedSong.title}, sung: ${performance.lastSungDateString}');
         if (lastSungDateString != performance.lastSungDateString) {
           if (items.isNotEmpty) {

@@ -1066,7 +1066,7 @@ class MyHomePageState extends State<MyHomePage> {
         //         style: searchDropDownStyle,
         //       )),
         PlayList(
-          songList: SongList('Main list', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
+          songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
               songItemAction: _navigateToPlayerbySongItem),
           style: titleTextStyle,
         ),

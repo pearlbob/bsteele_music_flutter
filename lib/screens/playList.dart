@@ -9,15 +9,18 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
 
+const Level _logBuild = Level.info;
+const Level _logConstruct = Level.info;
+
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
 
-bool _isEditing = false;
 double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
 late TextStyle _indexTextStyle;
@@ -40,7 +43,7 @@ class SongListItem implements Comparable<SongListItem> {
 
   SongListItem.fromPerformance(this.songPerformance, {this.customWidget}) : song = songPerformance!.performedSong;
 
-  Widget _toWidget(BuildContext context, SongItemAction? songItemAction) {
+  Widget _toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing) {
     AppWrap songWidget;
     if (songPerformance != null) {
       songWidget = AppWrap(children: [
@@ -86,7 +89,7 @@ class SongListItem implements Comparable<SongListItem> {
     }
 
     List<Widget> metadataWidgets = [const AppSpace()];
-    if (_isEditing) {
+    if (isEditing) {
       for (var id in SongMetadata.where(idIs: song.songId.toString())) {
         logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
         for (var nameValue in id.nameValues) {
@@ -115,7 +118,7 @@ class SongListItem implements Comparable<SongListItem> {
       appKeyEnum: AppKeyEnum.mainSong,
       value: Id(song.songId.toString()),
       onTap: () {
-        if (!_isEditing) {
+        if (!isEditing) {
           if (songItemAction != null) {
             songItemAction(context, this);
           }
@@ -135,16 +138,16 @@ class SongListItem implements Comparable<SongListItem> {
             ]),
             AppWrap(
                 spacing: _textFontSize,
-                alignment: _isEditing ? WrapAlignment.end : WrapAlignment.spaceBetween,
+                alignment: isEditing ? WrapAlignment.end : WrapAlignment.spaceBetween,
                 children: [
-                  if (!_isEditing)
+                  if (!isEditing)
                     Text(
                       songPerformance != null
                           ? intl.DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
                           : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
                       style: _indexTextStyle,
                     ),
-                  if (_isEditing) AppWrap(spacing: _textFontSize, children: metadataWidgets),
+                  if (isEditing) AppWrap(spacing: _textFontSize, children: metadataWidgets),
                 ]),
           ],
         ),
@@ -170,7 +173,7 @@ class SongList {
 
   int get length => 1 + songListItems.length;
 
-  Widget _indexToWidget(BuildContext context, int index) {
+  Widget _indexToWidget(BuildContext context, int index, bool isEditing) {
     assert(index >= 0 && index - 1 < songListItems.length);
 
     //  index 0 is the label
@@ -195,7 +198,7 @@ class SongList {
     }
 
     //  other indices are the song items
-    return songListItems[index - 1]._toWidget(context, songItemAction);
+    return songListItems[index - 1]._toWidget(context, songItemAction, isEditing);
   }
 
   final String label;
@@ -210,12 +213,12 @@ class SongListGroup {
         return i + e.length;
       });
 
-  Widget _indexToWidget(BuildContext context, int index) {
+  Widget _indexToWidget(BuildContext context, int index, bool isEditing) {
     for (var songList in group) {
       if (index >= songList.length) {
         index -= songList.length;
       } else {
-        return songList._indexToWidget(context, index);
+        return songList._indexToWidget(context, index, isEditing);
       }
     }
     return Text('index too long for group: $index', style: _indexTitleStyle);
@@ -225,13 +228,13 @@ class SongListGroup {
 }
 
 class PlayList extends StatefulWidget {
-  PlayList({super.key, required SongList songList, this.style, this.includeByLastSung = false, bool isEditing = false})
+  PlayList({super.key, required SongList songList, this.style, this.includeByLastSung = false, this.isEditing = false})
       : group = SongListGroup([songList]) {
-    _isEditing = isEditing;
+    logger.log(_logConstruct, 'PlayList(): _isEditing: $isEditing');
   }
 
-  PlayList.byGroup(this.group, {super.key, this.style, this.includeByLastSung = false, bool isEditing = false}) {
-    _isEditing = isEditing;
+  PlayList.byGroup(this.group, {super.key, this.style, this.includeByLastSung = false, this.isEditing = false}) {
+    logger.log(_logConstruct, 'PlayList.byGroup(): _isEditing: $isEditing');
   }
 
   @override
@@ -242,6 +245,7 @@ class PlayList extends StatefulWidget {
   final SongListGroup group;
   final TextStyle? style;
   final bool includeByLastSung;
+  final bool isEditing;
 }
 
 class _PlayListState extends State<PlayList> {
@@ -262,6 +266,8 @@ class _PlayListState extends State<PlayList> {
 
   @override
   Widget build(BuildContext context) {
+    logger.log(_logBuild, 'PlayList.build(): _isEditing: ${widget.isEditing}');
+
     var titleStyle = widget.style ?? generateAppTextStyle();
     var titleFontSize = widget.style?.fontSize ?? appDefaultFontSize;
     _textFontSize = 0.75 * titleFontSize;
@@ -326,8 +332,8 @@ class _PlayListState extends State<PlayList> {
 
     //  create drop down list of name/values not in use in the filter
     const allNameValue = NameValue('All', '');
-    List<DropdownMenuItem<NameValue>> dropdownMenuItems = [];
-    dropdownMenuItems.add(appDropdownMenuItem<NameValue>(
+    List<DropdownMenuItem<NameValue>> filterDropdownMenuItems = [];
+    filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
         appKeyEnum: AppKeyEnum.playListFilter,
         value: allNameValue,
         child: Text(
@@ -341,7 +347,7 @@ class _PlayListState extends State<PlayList> {
         continue;
       }
       var nvString = '${nv.name}: ${nv.value}';
-      dropdownMenuItems.add(appDropdownMenuItem<NameValue>(
+      filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
           appKeyEnum: AppKeyEnum.playListFilter,
           value: nv,
           child: Text(
@@ -527,21 +533,19 @@ class _PlayListState extends State<PlayList> {
                       DropdownButton<NameValue?>(
                         value: null,
                         hint: Text('Filters:', style: artistStyle),
-                        items: dropdownMenuItems,
+                        items: filterDropdownMenuItems,
                         style: artistStyle,
                         onChanged: (value) {
-                          setState(() {
-                            if (value != null) {
-                              setState(() {
-                                logger.i('fixme: DropdownButton<NameValue?>: $value');
-                                if (value == allNameValue) {
-                                  _filterNameValues.clear();
-                                } else {
-                                  _filterNameValues.add(value);
-                                }
-                              });
-                            }
-                          });
+                          if (value != null) {
+                            setState(() {
+                              logger.i('fixme: DropdownButton<NameValue?>: $value');
+                              if (value == allNameValue) {
+                                _filterNameValues.clear();
+                              } else {
+                                _filterNameValues.add(value);
+                              }
+                            });
+                          }
                         },
                         itemHeight: null,
                       ),
@@ -592,7 +596,7 @@ class _PlayListState extends State<PlayList> {
                     logger.v('_PlayListState: index: $index');
                     _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
                     _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
-                    return filteredGroup._indexToWidget(context, index);
+                    return filteredGroup._indexToWidget(context, index, widget.isEditing);
                   }),
             ),
           ]),

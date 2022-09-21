@@ -105,7 +105,7 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 //  diagnostic logging enables
-//const Level _mainLogScroll = Level.debug;
+const Level _logBuild = Level.info;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -176,8 +176,6 @@ void main() async {
 
 /*
 beta short list:
-____move search from main to PlayList
-____capo toggle on click to Capo label
 
 select search text on return from player in PlayList
 Follower scroll update too brutal on section transitions.
@@ -794,7 +792,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('main build: ${app.selectedSong}');
+    logger.log(_logBuild, 'main build: ${app.selectedSong}');
 
     appOptions = Provider.of<AppOptions>(context);
 

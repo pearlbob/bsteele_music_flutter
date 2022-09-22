@@ -14,6 +14,8 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 
+//const Level _logBuild = Level.info;
+
 /// Allow the user to manage metadata for all available songs.
 /// Name and value pairs are assigned to songs identified by their song id.
 /// The value portion may be empty.
@@ -109,13 +111,16 @@ class ListsState extends State<Lists> {
         SongMetadata.contains(_selectedNameValue) ? _selectedNameValue.toShortString() : 'Name:Values';
 
     return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return PlayListRefresh(() {
-        setState(() {});
+      return //widget.playListRefresh ??
+          PlayListRefresh(() {
+        setState(() {
+          logger.i('PlayList: PlayListRefresh()');
+        });
       });
     }, builder: (context, child) {
       return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Lists'),
+        appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Metadata'),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -130,14 +135,14 @@ class ListsState extends State<Lists> {
                 //  file stuff
                 AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                   appEnumeratedButton(
-                    'Write all to file',
+                    'Write all metadata to file',
                     appKeyEnum: AppKeyEnum.listsSave,
                     onPressed: () {
                       _saveSongMetadata();
                     },
                   ),
                   appEnumeratedButton(
-                    'Read lists from file',
+                    'Read metadata from file',
                     appKeyEnum: AppKeyEnum.listsReadLists,
                     onPressed: () {
                       setState(() {
@@ -145,17 +150,17 @@ class ListsState extends State<Lists> {
                       });
                     },
                   ),
-                  if (_selectedNameValue != _emptySelectedNameValue)
-                    appEnumeratedButton(
-                      'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
-                      appKeyEnum: AppKeyEnum.listsSaveSelected,
-                      onPressed: () {
-                        _saveNameValueSongMetadata(_selectedNameValue);
-                        logger.i('save selection: $_selectedNameValue');
-                      },
-                    ),
+                  // if (_selectedNameValue != _emptySelectedNameValue)
+                  //   appEnumeratedButton(
+                  //     'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
+                  //     appKeyEnum: AppKeyEnum.listsSaveSelected,
+                  //     onPressed: () {
+                  //       _saveNameValueSongMetadata(_selectedNameValue);
+                  //       logger.i('save selection: $_selectedNameValue');
+                  //     },
+                  //   ),
                   appEnumeratedButton(
-                    'Delete the list',
+                    'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toShortString() : 'is disabled'}',
                     appKeyEnum: AppKeyEnum.listsClearLists,
                     onPressed: nameValueIsDeletable(_selectedNameValue)
                         ? () {
@@ -163,25 +168,27 @@ class ListsState extends State<Lists> {
                                 context: context,
                                 builder: (_) => AlertDialog(
                                       title: Text(
-                                        'Do you really want to delete the list?',
+                                        'Do you really want to delete the metadata ${_selectedNameValue.toShortString()}?',
                                         style: TextStyle(fontSize: metadataStyle.fontSize),
                                       ),
                                       actions: [
-                                        appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
-                                            appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
-                                          logger.i('delete: ${_selectedNameValue.toShortString()}');
-                                          setState(() {
-                                            SongMetadata.removeAll(_selectedNameValue);
-                                            _selectedNameValue = _emptySelectedNameValue;
-                                            AppOptions().storeSongMetadata();
-                                          });
-                                          Navigator.of(context).pop();
-                                        }),
-                                        const AppSpace(space: 100),
-                                        appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList,
-                                            onPressed: () {
-                                          Navigator.of(context).pop();
-                                        }),
+                                        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+                                          appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
+                                              appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                                            logger.i('delete: ${_selectedNameValue.toShortString()}');
+                                            setState(() {
+                                              SongMetadata.removeAll(_selectedNameValue);
+                                              _selectedNameValue = _emptySelectedNameValue;
+                                              AppOptions().storeSongMetadata();
+                                            });
+                                            Navigator.of(context).pop();
+                                          }),
+                                          const AppSpace(space: 100),
+                                          appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList,
+                                              onPressed: () {
+                                            Navigator.of(context).pop();
+                                          }),
+                                        ])
                                       ],
                                       elevation: 24.0,
                                     ));
@@ -193,7 +200,8 @@ class ListsState extends State<Lists> {
                 const AppSpace(
                   verticalSpace: 20,
                 ),
-                Text('Name:Values', style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
+                Text('Set or clear metadata Name:Value pairs:',
+                    style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
                 const AppSpace(),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,25 +217,44 @@ class ListsState extends State<Lists> {
                             });
                           }
                         }),
-                    const AppSpace(
-                      horizontalSpace: 20,
-                    ),
+                    const AppSpace(spaceFactor: 4),
                     Text('New: ', style: metadataStyle),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: 10 * app.screenInfo.fontSize,
-                          //  limit text entry display length
-                          child: AppTextField(
-                            appKeyEnum: AppKeyEnum.listsNameEntry,
-                            controller: _nameTextFieldController,
-                            hintText: "enter name...",
-                            onChanged: (text) {
-                              setState(() {});
-                            },
-                            fontSize: fontSize,
-                          ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10 * app.screenInfo.fontSize,
+                              //  limit text entry display length
+                              child: AppTextField(
+                                appKeyEnum: AppKeyEnum.listsNameEntry,
+                                controller: _nameTextFieldController,
+                                hintText: "enter name...",
+                                //                 hintStyle: metadataStyle.copyWith(color: Colors.black54),
+                                onChanged: (text) {
+                                  setState(() {});
+                                },
+                                fontSize: fontSize,
+                              ),
+                            ),
+                            const AppSpace(),
+                            //  search clear
+                            AppTooltip(
+                                message: 'Clear the name text.',
+                                child: appEnumeratedIconButton(
+                                  icon: const Icon(Icons.clear),
+                                  appKeyEnum: AppKeyEnum.listsNameClear,
+                                  iconSize: metadataStyle.fontSize,
+                                  onPressed: (() {
+                                    setState(() {
+                                      _nameTextFieldController.clear();
+                                      app.clearMessage();
+                                      // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                    });
+                                  }),
+                                )),
+                          ],
                         ),
                         const AppSpace(),
                         DropdownButton<String>(
@@ -251,23 +278,43 @@ class ListsState extends State<Lists> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: 10 * app.screenInfo.fontSize,
-                          //  limit text entry display length
-                          child: AppTextField(
-                            appKeyEnum: AppKeyEnum.listsValueEntry,
-                            controller: _valueTextFieldController,
-                            hintText: "enter value...",
-                            onChanged: (text) {
-                              setState(() {
-                                if (_nameTextFieldController.text.isNotEmpty) {
-                                  _selectedNameValue =
-                                      NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
-                                }
-                              });
-                            },
-                            fontSize: fontSize,
-                          ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10 * app.screenInfo.fontSize,
+                              //  limit text entry display length
+                              child: AppTextField(
+                                appKeyEnum: AppKeyEnum.listsValueEntry,
+                                controller: _valueTextFieldController,
+                                hintText: "enter value...",
+                                onChanged: (text) {
+                                  setState(() {
+                                    if (_nameTextFieldController.text.isNotEmpty) {
+                                      _selectedNameValue =
+                                          NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                                    }
+                                  });
+                                },
+                                fontSize: fontSize,
+                              ),
+                            ),
+                            const AppSpace(),
+                            //  search clear
+                            AppTooltip(
+                                message: 'Clear the value text.',
+                                child: appEnumeratedIconButton(
+                                  icon: const Icon(Icons.clear),
+                                  appKeyEnum: AppKeyEnum.listsValueClear,
+                                  iconSize: metadataStyle.fontSize,
+                                  onPressed: (() {
+                                    setState(() {
+                                      _valueTextFieldController.clear();
+                                      app.clearMessage();
+                                      // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                    });
+                                  }),
+                                )),
+                          ],
                         ),
                         const AppSpace(),
                         if (_nameTextFieldController.text.isNotEmpty)
@@ -287,35 +334,36 @@ class ListsState extends State<Lists> {
                 ),
 
                 PlayList.byGroup(
-                    SongListGroup([
-                      SongList(
-                          '',
-                          app.allSongs
-                              .map((song) => SongListItem.fromSong(song,
-                                  customWidget: _selectedNameValue != _emptySelectedNameValue &&
-                                          !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
-                                      ? appIconButton(
-                                          icon: appIcon(
-                                            Icons.add,
-                                          ),
-                                          label: _selectedNameValue.toShortString(),
-                                          appKeyEnum: AppKeyEnum.listsMetadataAdd,
-                                          value: // '${id.id}:'  fixme
-                                              '${_selectedNameValue.name}=${_selectedNameValue.value}',
-                                          fontSize: 0.75 * app.screenInfo.fontSize,
-                                          backgroundColor: Colors.lightGreen,
-                                          onPressed: () {
-                                            logger.i('pressed: ${_selectedNameValue.toShortString()} to $song');
-                                            SongMetadata.addSong(song, _selectedNameValue);
-                                            //  re-build this screen with the new data
-                                            Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
-                                          },
-                                        )
-                                      : null))
-                              .toList(growable: false))
-                    ]),
-                    style: metadataStyle,
-                    isEditing: true),
+                  SongListGroup([
+                    SongList(
+                        '',
+                        app.allSongs
+                            .map((song) => SongListItem.fromSong(song,
+                                customWidget: _selectedNameValue != _emptySelectedNameValue &&
+                                        !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
+                                    ? appIconButton(
+                                        icon: appIcon(
+                                          Icons.add,
+                                        ),
+                                        label: _selectedNameValue.toShortString(),
+                                        appKeyEnum: AppKeyEnum.listsMetadataAdd,
+                                        value: // '${id.id}:'  fixme
+                                            '${_selectedNameValue.name}=${_selectedNameValue.value}',
+                                        fontSize: 0.75 * app.screenInfo.fontSize,
+                                        backgroundColor: Colors.lightGreen,
+                                        onPressed: () {
+                                          logger.i('pressed: ${_selectedNameValue.toShortString()} to $song');
+                                          SongMetadata.addSong(song, _selectedNameValue);
+                                          //  re-build this screen with the new data
+                                          Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
+                                        },
+                                      )
+                                    : null))
+                            .toList(growable: false))
+                  ]),
+                  style: metadataStyle,
+                  isEditing: true,
+                ),
               ]),
         ),
         floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
@@ -371,11 +419,6 @@ class ListsState extends State<Lists> {
 
   void _saveSongMetadata() async {
     _saveMetadata('allSongs', SongMetadata.toJson());
-  }
-
-  void _saveNameValueSongMetadata(NameValue nameValue) async {
-    String contents = SongMetadata.toJsonAt(nameValue: nameValue);
-    _saveMetadata('${_selectedNameValue.name}_${_selectedNameValue.value}', contents);
   }
 
   void _saveMetadata(String prefix, String contents) async {

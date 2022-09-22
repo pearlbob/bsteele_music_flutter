@@ -8,6 +8,7 @@ import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 import '../app/app.dart';
@@ -82,18 +83,26 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       songListGroup = SongListGroup(songLists);
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
-      body: Container(
-        padding: const EdgeInsets.all(36.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              PlayList.byGroup(songListGroup, style: _songPerformanceStyle, includeByLastSung: true),
-              // if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
-              // AppWrapFullWidth(children: [
+    return Provider<PlayListRefresh>(create: (BuildContext context) {
+      return //widget.playListRefresh ??
+          PlayListRefresh(() {
+        setState(() {
+          logger.i('PlayList: PlayListRefresh()');
+        });
+      });
+    }, builder: (context, child) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
+        appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
+        body: Container(
+          padding: const EdgeInsets.all(36.0),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                PlayList.byGroup(songListGroup, style: _songPerformanceStyle, includeByLastSung: true),
+                // if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
+                // AppWrapFullWidth(children: [
               //   //  search line
               //   AppTooltip(
               //     message: 'Search for songs',
@@ -185,17 +194,18 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
               //               }),
               //         ]);
               //       }),
-              // ),
-              // //     ...history,
-              // const AppSpace(),
-              Text(
-                'Performance count:  ${performanceHistory.length}',
-                style: generateAppTextStyle(),
-              ),
-            ]),
-      ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
-    );
+                // ),
+                // //     ...history,
+                // const AppSpace(),
+                Text(
+                  'Performance count:  ${performanceHistory.length}',
+                  style: generateAppTextStyle(),
+                ),
+              ]),
+        ),
+        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
+      );
+    });
   }
 
   Song bestSongMatch(SongPerformance performance) {

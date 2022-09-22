@@ -736,7 +736,7 @@ With z or q, the app goes back to the play list.''',
                                             appKeyEnum: AppKeyEnum.playerPlay,
                                             icon: appIcon(
                                               playStopIcon,
-                                              size: 2 * fontSize,
+                                              size: 1.25 * fontSize,
                                             ),
                                             onPressed: () {
                                               _isPlaying ? performStop() : performPlay();

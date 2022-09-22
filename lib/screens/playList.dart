@@ -104,7 +104,6 @@ class SongListItem implements Comparable<SongListItem> {
               fontSize: _textFontSize,
               onPressed: () {
                 logger.i('pressed: ${nameValue.name}: ${nameValue.value}');
-                logger.e('SongMetadata.removeFromSong: removes all song metadata!!!!!!!fixme');
                 SongMetadata.removeFromSong(song, nameValue);
                 Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
               },
@@ -228,8 +227,13 @@ class SongListGroup {
 }
 
 class PlayList extends StatefulWidget {
-  PlayList({super.key, required SongList songList, this.style, this.includeByLastSung = false, this.isEditing = false})
-      : group = SongListGroup([songList]) {
+  PlayList({
+    super.key,
+    required SongList songList,
+    this.style,
+    this.includeByLastSung = false,
+    this.isEditing = false,
+  }) : group = SongListGroup([songList]) {
     logger.log(_logConstruct, 'PlayList(): _isEditing: $isEditing');
   }
 
@@ -266,7 +270,10 @@ class _PlayListState extends State<PlayList> {
 
   @override
   Widget build(BuildContext context) {
-    logger.log(_logBuild, 'PlayList.build(): _isEditing: ${widget.isEditing}');
+    logger.log(
+        _logBuild,
+        'PlayList.build(): _isEditing: ${widget.isEditing}'
+        ', text: "${_searchTextFieldController.text}"');
 
     var titleStyle = widget.style ?? generateAppTextStyle();
     var titleFontSize = widget.style?.fontSize ?? appDefaultFontSize;
@@ -453,154 +460,143 @@ class _PlayListState extends State<PlayList> {
       filteredGroup = SongListGroup(filteredSongLists);
     }
 
-    return Provider<PlayListRefresh>(
-      create: (BuildContext context) {
-        return PlayListRefresh(() {
-          setState(() {});
-        });
-      },
-      child: Expanded(
-        // for some reason, this is Expanded is very required,
-        // otherwise the Column is unlimited and the list view fails
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppWrapFullWidth(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  AppWrap(children: [
-                    //  search icon
-                    AppTooltip(
-                      message: _searchTextTooltipText,
-                      child: IconButton(
-                        icon: const Icon(Icons.search),
-                        iconSize: titleFontSize,
+    return Expanded(
+      // for some reason, this is Expanded is very required,
+      // otherwise the Column is unlimited and the list view fails
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          AppWrapFullWidth(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              alignment: WrapAlignment.spaceBetween,
+              children: [
+                AppWrap(children: [
+                  //  search icon
+                  AppTooltip(
+                    message: _searchTextTooltipText,
+                    child: IconButton(
+                      icon: const Icon(Icons.search),
+                      iconSize: titleFontSize,
+                      onPressed: (() {
+                        setState(() {
+                          //fixme: _searchSongs(_searchTextFieldController.text);
+                        });
+                      }),
+                    ),
+                  ),
+                  //  search text
+                  SizedBox(
+                    width: 12 * _textFontSize,
+                    //  limit text entry display length
+                    child: TextField(
+                      key: appKey(AppKeyEnum.mainSearchText),
+                      //  for testing
+                      controller: _searchTextFieldController,
+                      focusNode: _searchFocusNode,
+                      decoration: InputDecoration(
+                        hintText: 'enter search text',
+                        hintStyle: artistStyle.copyWith(color: Colors.black54),
+                      ),
+                      autofocus: true,
+                      style: searchTextStyle,
+                      onChanged: (text) {
+                        setState(() {
+                          logger.v('search text: "$text"');
+                          app.clearMessage();
+                        });
+                      },
+                    ),
+                  ),
+                  //  search clear
+                  AppTooltip(
+                      message:
+                          _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                      child: appEnumeratedIconButton(
+                        icon: const Icon(Icons.clear),
+                        appKeyEnum: AppKeyEnum.mainClearSearch,
+                        iconSize: 1.25 * titleFontSize,
                         onPressed: (() {
+                          _searchTextFieldController.clear();
+                          app.clearMessage();
                           setState(() {
-                            //fixme: _searchSongs(_searchTextFieldController.text);
+                            FocusScope.of(context).requestFocus(_searchFocusNode);
+                            //_lastSelectedSong = null;
                           });
                         }),
-                      ),
-                    ),
-                    //  search text
-                    SizedBox(
-                      width: 12 * _textFontSize,
-                      //  limit text entry display length
-                      child: TextField(
-                        key: appKey(AppKeyEnum.mainSearchText),
-                        //  for testing
-                        controller: _searchTextFieldController,
-                        focusNode: _searchFocusNode,
-                        decoration: InputDecoration(
-                          hintText: 'enter search text',
-                          hintStyle: artistStyle,
-                        ),
-                        autofocus: true,
-                        style: searchTextStyle,
-                        onChanged: (text) {
+                      )),
+                  const AppSpace(spaceFactor: 2.0),
+                  //  filters
+                  AppWrap(spacing: _textFontSize, children: [
+                    DropdownButton<NameValue?>(
+                      value: null,
+                      hint: Text('Filters:', style: artistStyle),
+                      items: filterDropdownMenuItems,
+                      style: artistStyle,
+                      onChanged: (value) {
+                        if (value != null) {
                           setState(() {
-                            logger.v('search text: "$text"');
-                            //_searchSongs(_searchTextFieldController.text);
-                            app.clearMessage();
+                            logger.i('fixme: DropdownButton<NameValue?>: $value');
+                            if (value == allNameValue) {
+                              _filterNameValues.clear();
+                            } else {
+                              _filterNameValues.add(value);
+                            }
                           });
-                        },
-                      ),
+                        }
+                      },
+                      itemHeight: null,
                     ),
-                    //  search clear
-                    AppTooltip(
-                        message: _searchTextFieldController.text.isEmpty
-                            ? 'Scroll the list some.'
-                            : 'Clear the search text.',
-                        child: appEnumeratedIconButton(
-                          icon: const Icon(Icons.clear),
-                          appKeyEnum: AppKeyEnum.mainClearSearch,
-                          iconSize: 1.25 * titleFontSize,
-                          onPressed: (() {
-                            _searchTextFieldController.clear();
-                            app.clearMessage();
-                            setState(() {
-                              FocusScope.of(context).requestFocus(_searchFocusNode);
-                              //_lastSelectedSong = null;
-                            });
-                          }),
-                        )),
-                    const AppSpace(
-                      spaceFactor: 2.0,
-                    ),
-                    //  filters
-                    AppWrap(spacing: _textFontSize, children: [
-                      DropdownButton<NameValue?>(
-                        value: null,
-                        hint: Text('Filters:', style: artistStyle),
-                        items: filterDropdownMenuItems,
-                        style: artistStyle,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              logger.i('fixme: DropdownButton<NameValue?>: $value');
-                              if (value == allNameValue) {
-                                _filterNameValues.clear();
-                              } else {
-                                _filterNameValues.add(value);
-                              }
-                            });
-                          }
-                        },
-                        itemHeight: null,
-                      ),
-                      ...filterWidgets,
-                    ]),
-                  ]),
-
-                  //  filters and order
-                  AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
-                    //  filters and order
-                    if (app.isScreenBig)
-                      AppWrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: app.screenInfo.fontSize / 2,
-                        children: [
-                          AppTooltip(
-                            message: 'Select the order of the song list.',
-                            child: Text(
-                              'Order',
-                              style: searchDropDownStyle,
-                            ),
-                          ),
-                          appDropdownButton<PlayListSortType>(
-                            AppKeyEnum.mainSortType,
-                            _sortTypesDropDownMenuList,
-                            onChanged: (value) {
-                              if (_selectedSortType != value) {
-                                setState(() {
-                                  _selectedSortType = value ?? PlayListSortType.byTitle;
-                                  app.clearMessage();
-                                });
-                              }
-                            },
-                            value: _selectedSortType,
-                            style: searchDropDownStyle,
-                          ),
-                        ],
-                      ),
+                    ...filterWidgets,
                   ]),
                 ]),
-            const AppSpace(),
-            Expanded(
-              // this expanded is required as well
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: filteredGroup.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    logger.v('_PlayListState: index: $index');
-                    _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
-                    _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
-                    return filteredGroup._indexToWidget(context, index, widget.isEditing);
-                  }),
-            ),
-          ]),
-        ),
+
+                //  filters and order
+                AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
+                  //  filters and order
+                  if (app.isScreenBig)
+                    AppWrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: app.screenInfo.fontSize / 2,
+                      children: [
+                        AppTooltip(
+                          message: 'Select the order of the song list.',
+                          child: Text(
+                            'Order',
+                            style: searchDropDownStyle,
+                          ),
+                        ),
+                        appDropdownButton<PlayListSortType>(
+                          AppKeyEnum.mainSortType,
+                          _sortTypesDropDownMenuList,
+                          onChanged: (value) {
+                            if (_selectedSortType != value) {
+                              setState(() {
+                                _selectedSortType = value ?? PlayListSortType.byTitle;
+                                app.clearMessage();
+                              });
+                            }
+                          },
+                          value: _selectedSortType,
+                          style: searchDropDownStyle,
+                        ),
+                      ],
+                    ),
+                ]),
+              ]),
+          const AppSpace(),
+          Expanded(
+            // this expanded is required as well
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: filteredGroup.length,
+                itemBuilder: (BuildContext context, int index) {
+                  logger.v('_PlayListState: index: $index');
+                  _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
+                  _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
+                  return filteredGroup._indexToWidget(context, index, widget.isEditing);
+                }),
+          ),
+        ]),
       ),
     );
   }

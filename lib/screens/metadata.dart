@@ -21,14 +21,16 @@ import '../app/app.dart';
 /// The value portion may be empty.
 ///
 /// Export of this file to the master release will make it the app's default set of sub-lists.
-class Lists extends StatefulWidget {
-  const Lists({Key? key}) : super(key: key);
+class MetadataScreen extends StatefulWidget {
+  const MetadataScreen({Key? key}) : super(key: key);
 
   @override
-  ListsState createState() => ListsState();
+  MetadataScreenState createState() => MetadataScreenState();
+
+  static const String routeName = '/metadata';
 }
 
-class ListsState extends State<Lists> {
+class MetadataScreenState extends State<MetadataScreen> {
   @override
   initState() {
     super.initState();
@@ -395,7 +397,7 @@ class ListsState extends State<Lists> {
               });
             }
           },
-          fontSize: metadataStyle.fontSize,
+          style: metadataStyle,
         ),
         const AppSpace(space: 12),
         TextButton(

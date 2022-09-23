@@ -25,17 +25,17 @@ class SongSearchMatcher {
     }
     var song = songPerformance.song;
     if (song != null) {
-      return matches(song, year: year);
+      return matchesSong(song, year: year);
     }
     //  try to match a song id without a song
     return _searchRegex.hasMatch(SongId.asReadableString(songPerformance.songIdAsString));
   }
 
   bool matchesOrEmptySearch(Song song, {year = false}) {
-    return isEmpty || matches(song, year: year);
+    return isEmpty || matchesSong(song, year: year);
   }
 
-  bool matches(Song song, {year = false}) {
+  bool matchesSong(Song song, {year = false}) {
     return isNotEmpty &&
         (_searchRegex.hasMatch(song.getTitle()) ||
             _searchRegex.hasMatch(song.getArtist()) ||

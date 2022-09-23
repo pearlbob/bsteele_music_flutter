@@ -34,12 +34,14 @@ const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's p
 
 /// Song list sort types
 enum PlayListSortType {
+  byHistory, //  by convention: should be first
+  byLastSung, //  by convention: should be second
   byTitle,
   byArtist,
   byLastChange,
   byComplexity,
   byYear,
-  byLastSung;
+  ;
 }
 
 enum MessageType {
@@ -61,6 +63,7 @@ enum CommunityJamsSongList {
 }
 
 NameValue get myGoodSongNameValue => NameValue(userName, 'good');
+
 NameValue get myBadSongNameValue => NameValue(userName, 'bad');
 
 const defaultTableGap = 3.0;
@@ -559,13 +562,28 @@ class AppWidgetHelper {
     );
   }
 
-  Widget checkbox({required final bool? value, final ValueChanged<bool?>? onChanged, final double? fontSize}) {
-    ThemeData themeData = Theme.of(context);
-    return Transform.scale(
-      scale: 0.7 * (fontSize ?? _defaultFontSize) / Checkbox.width,
-      child: Checkbox(
-          checkColor: Colors.white, fillColor: themeData.checkboxTheme.fillColor, value: value, onChanged: onChanged),
-    );
+  Widget checkbox(
+      {required final bool? value, final ValueChanged<bool?>? onChanged, final TextStyle? style, final String? label}) {
+    var checkbox = Checkbox(
+        checkColor: Colors.white,
+        fillColor: MaterialStateProperty.all(appBackgroundColor),
+        value: value,
+        onChanged: onChanged);
+    if (label != null) {
+      return AppWrap(
+        children: [
+          checkbox,
+          const AppSpace(
+            spaceFactor: 0.5,
+          ),
+          Text(
+            label,
+            style: style,
+          )
+        ],
+      );
+    }
+    return checkbox;
   }
 
   RichText transpose(final Measure measure, final music_key.Key key, final int halfSteps,

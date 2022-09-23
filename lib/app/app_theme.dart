@@ -25,8 +25,10 @@ const Level _logAppKey = Level.debug;
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
 
+const appBackgroundColor = Color(0xff2196f3);
 const _defaultBackgroundColor = Color(0xff2654c6);
 const _defaultForegroundColor = Colors.white;
+const screenBackgroundColor = Colors.white;
 
 Map<String, List<String>> _propertyLiterals = {
   'text-align': [
@@ -154,11 +156,6 @@ void _initUniversal() {
   // _init(_universalFontSizeProperty);
   _init(_universalFontWeightProperty);
   _init(_universalFontStyleProperty);
-}
-
-//  app background
-Color appBackgroundColor() {
-  return _getColor(_iconBackgroundColorProperty) ?? _defaultBackgroundColor;
 }
 
 //  app bar
@@ -341,15 +338,12 @@ void _initLyrics() {
 //  icons
 final _iconColorProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'color', Color,
     defaultValue: Colors.white, description: 'icon foreground color');
-final _iconBackgroundColorProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'background-color', Color,
-    defaultValue: _defaultBackgroundColor, description: 'icon background color');
 final _iconSizeProperty = CssProperty.fromCssClass(CssClassEnum.icon, 'size', visitor.UnitTerm,
     defaultValue: null, //  let the dynamic sizing be the default size
     description: 'icon size');
 
 void _initIcons() {
   _init(_iconColorProperty);
-  _init(_iconBackgroundColorProperty);
   _init(_iconSizeProperty);
 }
 
@@ -1475,7 +1469,7 @@ FloatingActionButton appFloatingActionButton({
       onPressed();
     },
     mini: mini,
-    backgroundColor: _getColor(_iconBackgroundColorProperty) ?? _getColor(_appbarBackgroundColorProperty),
+    backgroundColor: appBackgroundColor,
     heroTag: null,
     child: child, //  workaround in case there are more than one per route.
   );

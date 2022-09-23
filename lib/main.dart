@@ -79,7 +79,7 @@ import 'package:bsteele_music_flutter/screens/cssDemo.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
-import 'package:bsteele_music_flutter/screens/lists.dart';
+import 'package:bsteele_music_flutter/screens/metadata.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/performanceHistory.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
@@ -176,40 +176,42 @@ void main() async {
 
 /*
 beta short list:
-Follower jumpy
-finish PlayList
+requester list change update fails to update UI
 _______X for name.value name entry and value entry
+_____thumbs up and down on song... now that metadata functions
+_____playlist extended to singers screen
+_____test Player play button size
+_____slash chords always faded
+_____deleting metadata on song in metadata should do a full setstate on the playlist
+____singers searched for in history & singing?
+finish PlayList
+    ____actions on song hit in singers
+    requester editing broken
+    add playlist "or" on multiple metadata
+    song count on bottom?
+    fix history song count to show only displayed songs
+    requested song, no singer, click selection?
+change of singer => playlist scroll to zero
+select all of search text on return to playlist
 player: Tablet change to manual play
 Singer mode chords proportional to chord font, limit length
-Player play button size
-deleting metadata on song in lists should do a full setstate on the playlist
-singers searched for in history & singing?
-requester editing broken
-generate decade metadata from year
-add closest matches if songlist is empty
-add playlist or on multiple metadata
 
-Drums on horizontal scroll
-
-_____playlist extended to singers screen
-metadata vs list vs name.value
-select search text on return from player in PlayList
-
-Follower scroll update too brutal on section transitions.
-Follower display while leader choosing a song
-
-thumbs up and down on song... now that metadata functions
-
-
-
-player key up/down move on changes 12 bar blues - minor
-follower jumps somewhere and back when adjusting the key when not on the first section
-Jumping jack flash, fix in bloom,
-
+fontsize on song lyrics?  lyrics multi-lines?
 if No song match:. Try close matches
+      add closest matches if songlist is empty
+Drums on horizontal scroll
+select search text on return from player in PlayList
+Follower display while leader choosing a song
+test singer and requester on one singer/requester
+Follower jumpy,
+    Follower scroll update too brutal on section transitions.
+    player key up/down move on changes 12 bar blues - minor
+    follower jumps somewhere and back when adjusting the key when not on the first section
 
+generate decade metadata from year
+metadata vs list vs name.value
 
-??? singer and requester on one singer/requester
+Jumping jack flash, fix in bloom,
 
 silly love songs spacing ,
 master scroll got lost(after space? Likely after open link)
@@ -641,7 +643,7 @@ class BSteeleMusicApp extends StatelessWidget {
                 Options.routeName: (context) => const Options(),
                 '/songs': (context) => const Songs(),
                 Singers.routeName: (context) => const Singers(),
-                '/lists': (context) => const Lists(),
+                MetadataScreen.routeName: (context) => const MetadataScreen(),
                 '/edit': (context) => Edit(initialSong: app.selectedSong),
                 PerformanceHistory.routeName: (context) => const PerformanceHistory(),
                 '/privacy': (context) => const Privacy(),
@@ -1033,7 +1035,7 @@ class MyHomePageState extends State<MyHomePage> {
                     style: navTextStyle,
                   ),
                   onTap: () {
-                    _navigateToLists();
+                    _navigateToMetadata();
                   },
                 ),
               if (kDebugMode)
@@ -1090,7 +1092,7 @@ class MyHomePageState extends State<MyHomePage> {
           //       )),
           PlayList(
             songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
-                songItemAction: _navigateToPlayerbySongItem),
+                songItemAction: _navigateToPlayerBySongItem),
             style: titleTextStyle,
           ),
         ]),
@@ -1172,7 +1174,7 @@ class MyHomePageState extends State<MyHomePage> {
         holidayRexExp.hasMatch(song.coverArtist);
   }
 
-  _navigateToPlayerbySongItem(BuildContext context, SongListItem songListItem) async {
+  _navigateToPlayerBySongItem(BuildContext context, SongListItem songListItem) async {
     if (songListItem.song.getTitle().isEmpty) {
       // logger.log(_mainLogScroll, 'song title is empty: $song');
       return;
@@ -1202,10 +1204,10 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop();
   }
 
-  void _navigateToLists() async {
+  void _navigateToMetadata() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Lists()),
+      MaterialPageRoute(builder: (context) => const MetadataScreen()),
     );
 
     if (!mounted) {

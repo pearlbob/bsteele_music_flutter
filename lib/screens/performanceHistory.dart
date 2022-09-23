@@ -224,7 +224,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     if (songListItem.songPerformance != null) {
       var songPerformance = songListItem.songPerformance!;
       app.selectedSong = songPerformance.performedSong;
-      logger.i('navigateToPlayer: $songPerformance');
+      logger.v('navigateToPlayer: $songPerformance');
       await Navigator.push(
         context,
         MaterialPageRoute(

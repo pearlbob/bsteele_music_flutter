@@ -15,8 +15,8 @@ import 'package:provider/provider.dart';
 import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
 
-const Level _logBuild = Level.info;
-const Level _logConstruct = Level.info;
+const Level _logBuild = Level.debug;
+const Level _logConstruct = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
@@ -39,16 +39,17 @@ class PlayListRefresh {
 
 /// Allow the mechanics to use either a song or a song performance
 class SongListItem implements Comparable<SongListItem> {
-  SongListItem.fromSong(this.song, {this.customWidget}) : songPerformance = null;
+  SongListItem.fromSong(this.song, {this.customWidget, this.firstWidget}) : songPerformance = null;
 
-  SongListItem.fromPerformance(this.songPerformance, {this.customWidget}) : song = songPerformance!.performedSong;
+  SongListItem.fromPerformance(this.songPerformance, {this.customWidget, this.firstWidget})
+      : song = songPerformance!.performedSong;
 
   Widget _toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing) {
     AppWrap songWidget;
     if (songPerformance != null) {
       songWidget = AppWrap(children: [
         Text(
-          '${songPerformance!.singer} sang: ',
+          '${songPerformance!.singer}:  ',
           style: _indexTextStyle,
         ),
         Text(
@@ -131,6 +132,8 @@ class SongListItem implements Comparable<SongListItem> {
           alignment: WrapAlignment.spaceBetween,
           children: [
             AppWrap(children: [
+              if (firstWidget != null) firstWidget!,
+              if (firstWidget != null) const AppSpace(spaceFactor: 1.0),
               songWidget,
               const AppSpace(),
               customWidget ?? NullWidget(),
@@ -167,6 +170,7 @@ class SongListItem implements Comparable<SongListItem> {
   final Song song;
   final SongPerformance? songPerformance;
   final Widget? customWidget;
+  final Widget? firstWidget;
 }
 
 class SongList {
@@ -265,10 +269,16 @@ class _PlayListState extends State<PlayList> {
 
     if (widget.includeByLastSung) {
       //  preference for last sung (performance) lists
-      _selectedSortType = PlayListSortType.byLastSung;
-    } else if (_selectedSortType == PlayListSortType.byLastSung) {
-      //  replace invalid preference for song lists
-      _selectedSortType = PlayListSortType.byTitle;
+      _selectedSortType = PlayListSortType.byHistory;
+    } else {
+      switch (_selectedSortType) {
+        case PlayListSortType.byLastSung:
+        case PlayListSortType.byHistory:
+          //  replace invalid preference for song lists
+          _selectedSortType = PlayListSortType.byTitle;
+          break;
+        default:
+      }
     }
   }
 
@@ -283,6 +293,7 @@ class _PlayListState extends State<PlayList> {
     var titleFontSize = widget.style?.fontSize ?? appDefaultFontSize;
     _textFontSize = 0.75 * titleFontSize;
     var artistStyle = titleStyle.copyWith(fontSize: _textFontSize, fontWeight: FontWeight.normal);
+    titleStyle = titleStyle.copyWith(fontWeight: FontWeight.bold);
 
     final oddTitle = oddTitleTextStyle(from: titleStyle);
     final evenTitle = evenTitleTextStyle(from: titleStyle);
@@ -294,7 +305,18 @@ class _PlayListState extends State<PlayList> {
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
+
     for (final e in PlayListSortType.values) {
+      //  fool with the drop down options
+      if (!widget.includeByLastSung) {
+        switch (e) {
+          case PlayListSortType.byHistory:
+          case PlayListSortType.byLastSung:
+            //  if in a song play list, by last sung and history should be removed
+            continue;
+          default:
+        }
+      }
       _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
         appKeyEnum: AppKeyEnum.mainSortTypeSelection,
         value: e,
@@ -303,14 +325,6 @@ class _PlayListState extends State<PlayList> {
           style: searchDropDownStyle,
         ),
       ));
-    }
-
-    //  fool with the drop down options
-    //  if a song play list, by last sung should be removed
-    var byLastSungDropdownMenuItem = _sortTypesDropDownMenuList.removeAt(PlayListSortType.byLastSung.index);
-    // if a performance play list, by last sung should be first, the default
-    if (widget.includeByLastSung) {
-      _sortTypesDropDownMenuList.insert(0, byLastSungDropdownMenuItem);
     }
 
     //  find all the metadata values
@@ -397,10 +411,18 @@ class _PlayListState extends State<PlayList> {
           return item1.compareTo(item2);
         };
         break;
-      case PlayListSortType.byLastSung:
+      case PlayListSortType.byHistory:
         compare = (SongListItem item1, SongListItem item2) {
           if (item1.songPerformance != null && item2.songPerformance != null) {
             return -SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
+          }
+          return item1.compareTo(item2);
+        };
+        break;
+      case PlayListSortType.byLastSung:
+        compare = (SongListItem item1, SongListItem item2) {
+          if (item1.songPerformance != null && item2.songPerformance != null) {
+            return SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
           }
           return item1.compareTo(item2);
         };
@@ -430,7 +452,9 @@ class _PlayListState extends State<PlayList> {
         //  find the possible items
         SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
         for (final songItem in songList.songListItems) {
-          if (matcher.matchesOrEmptySearch(songItem.song)) {
+          if ((songItem.songPerformance != null &&
+                  matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
+              matcher.matchesOrEmptySearch(songItem.song)) {
             searchedSet.add(songItem);
           }
         }

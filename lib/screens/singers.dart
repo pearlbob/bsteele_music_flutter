@@ -81,7 +81,6 @@ class SingersState extends State<Singers> {
     final inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
     final selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);
     final singerTextStyle = generateAppTextFieldStyle(fontSize: fontSize, backgroundColor: inactiveBackgroundColor);
-    final backgroundColor = appBackgroundColor();
 
     List<Widget> sessionSingerWidgets = [];
     songLists = [];
@@ -124,7 +123,7 @@ class SingersState extends State<Singers> {
     }
 
     //  fill the stores
-        {
+    {
       SplayTreeSet<Song> songsSungBySingers = SplayTreeSet();
 
       //  songs sung by selected singer
@@ -160,24 +159,29 @@ class SingersState extends State<Singers> {
         // 		search text empty
         if (_selectedSingerIsRequester) {
           if (searchForSelectedSingerOnly) {
+            //  edit the requester's request list
             addSongWidgets('Songs $_selectedSinger would like to request:', songRequests,
-                whenPressed: false, color: backgroundColor);
+                color: appBackgroundColor, inRequesterList: true);
+            addSongWidgets(
+                'Other songs $_selectedSinger might request:', app.allSongs.where((e) => !songRequests.contains(e)),
+                color: appBackgroundColor, inRequesterList: false);
 
             //   - all other matching songs
             addPerformanceWidgets('Other matching songs:', performancesFromSessionSingers);
           } else {
             //  requester matches
-            addPerformanceWidgets('$_selectedSinger would like to hear:', performancesFromSessionSingers,
-                color: backgroundColor);
+            addPerformanceWidgets('$_selectedSinger would like to hear:',
+                performancesFromSessionSingers.where((e) => songRequests.contains(e.song)),
+                color: appBackgroundColor);
 
             //  requester volunteers
             //  add a diver line
             // songWidgetList.add(Divider(
             //   thickness: 10,
-            //   color: backgroundColor,
+            //   color: appBackgroundColor,
             // ));
             // songWidgetList.add(Text('Songs $_selectedSinger would like a volunteer singer:',
-            //     style: songPerformanceStyle.copyWith(color: backgroundColor)));
+            //     style: songPerformanceStyle.copyWith(color: appBackgroundColor)));
             // songWidgetList.add(const AppSpace());
             // {
             //   List<Widget> list = [];
@@ -202,10 +206,7 @@ class SingersState extends State<Singers> {
             addSongWidgets(
               '$_selectedSinger would like a volunteer singer for these favorites:',
               songRequests,
-              color: backgroundColor,
-              divider: false,
-              checkbox: false,
-              whenPressed: _selectedVolunteerSinger != _unknownSinger,
+              color: appBackgroundColor,
             );
             addSongWidgets('Other matching songs:', otherMatchingSongs);
           }
@@ -213,18 +214,19 @@ class SingersState extends State<Singers> {
           // 			search single singer selected
           // 			search for single singer selected
           // 				- performances from singer that match search
-          addPerformanceWidgets('$_selectedSinger sings:', performancesFromSinger, color: backgroundColor);
+          addPerformanceWidgets('$_selectedSinger sings:', performancesFromSinger, color: appBackgroundColor);
           // 				matching performances from singer
         } else {
           // 			search all singers selected
           // 				- performances from session singers
-          addPerformanceWidgets('Today\'s singers sing:', performancesFromSessionSingers, color: backgroundColor);
+          addPerformanceWidgets('Today\'s singers sing:', performancesFromSessionSingers, color: appBackgroundColor);
         }
       } else {
         //   selected singer NOT known
         // 			search all session singers
         // 				- performances from session singers that match
-        addPerformanceWidgets('Today\'s session singers sing:', performancesFromSessionSingers, color: backgroundColor);
+        addPerformanceWidgets('Today\'s session singers sing:', performancesFromSessionSingers,
+            color: appBackgroundColor);
         //   - all other matching songs
         addSongWidgets('Other matching songs:', otherMatchingSongs);
       }
@@ -232,22 +234,21 @@ class SingersState extends State<Singers> {
       //   - all the other songs not otherwise listed
       if (_selectedSingerIsRequester) {
         if (searchForSelectedSingerOnly) {
-          addSongWidgets('Songs $_selectedSinger might request:', otherMatchingSongs,
-              whenPressed: false, color: backgroundColor);
+          addSongWidgets('Songs $_selectedSinger might request:', otherMatchingSongs, color: appBackgroundColor);
         }
       } else {
         addSongWidgets('Other matching songs:', otherMatchingSongs);
       }
     }
 
-    logger.d(
-        'all songs: ${(performancesFromSinger.length + performancesFromSessionSingers.length + otherMatchingSongs.length + otherSongs.length)}/${app.allSongs.length}');
+    logger.d('all songs: '
+        '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherMatchingSongs.length + otherSongs.length)}/${app.allSongs.length}');
     logger.d('performancesFromSinger: ${performancesFromSinger.length}'
         ', performancesFromSessionSingers:${performancesFromSessionSingers.length}'
         ', otherMatchingSongs:${otherMatchingSongs.length}'
         ', otherSongs:${otherSongs.length}');
     logger.d(
-        '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}       /${app.allSongs.length}');
+        '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}');
     assert((performancesFromSinger.length +
             performancesFromSessionSingers.length +
             otherMatchingSongs.length +
@@ -275,7 +276,7 @@ class SingersState extends State<Singers> {
               sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
               sessionSingerWidgets.add(Text(
                 '$firstInitial:',
-                style: songPerformanceStyle.copyWith(color: backgroundColor),
+                style: songPerformanceStyle.copyWith(color: appBackgroundColor),
               ));
               sessionSingerWidgets.add(const AppSpace(horizontalSpace: 40));
             }
@@ -367,7 +368,7 @@ class SingersState extends State<Singers> {
         : Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: backgroundColor,
+                color: appBackgroundColor,
                 width: 2,
               ),
               borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -444,6 +445,7 @@ class SingersState extends State<Singers> {
     }
 
     final songListGroup = SongListGroup(songLists);
+    logger.i('singers: songListGroup.length: ${songListGroup.length}');
 
     return Provider<PlayListRefresh>(create: (BuildContext context) {
       return PlayListRefresh(() {
@@ -453,7 +455,7 @@ class SingersState extends State<Singers> {
       });
     }, builder: (context, child) {
       return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: screenBackgroundColor,
         appBar: appWidgetHelper.backBar(title: 'bsteele Music App Singers'),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -697,7 +699,7 @@ class SingersState extends State<Singers> {
                               });
                             }
                           },
-                          fontSize: songPerformanceStyle.fontSize,
+                          style: songPerformanceStyle,
                         ),
                         AppTooltip(
                             message: 'Check here to make this individual a requester\n'
@@ -846,23 +848,70 @@ class SingersState extends State<Singers> {
         songListItems.add(SongListItem.fromPerformance(performance));
       }
 
-      songLists.add(SongList(text, songListItems, color: color));
+      songLists.add(SongList(text, songListItems, color: color, songItemAction: _navigateSongListToPlayer));
     }
   }
 
   void addSongWidgets(String text, Iterable<Song> songs,
-      {Color? color = Colors.black, divider = true, final checkbox = true, final whenPressed = true}) {
+      {Color? color = Colors.black, bool? inRequesterList, Widget? customWidget}) {
     List<SongListItem> songListItems = [];
     if (songs.isNotEmpty) {
       for (var song in songs) {
-        songListItems.add(SongListItem.fromSong(song));
+        songListItems.add(SongListItem.fromSong(song,
+            firstWidget: (inRequesterList != null ? requesterListEditCustomWidget(song, inRequesterList) : null),
+            customWidget: customWidget));
       }
 
       songLists.add(SongList(text, songListItems, color: color));
     }
   }
 
-  Widget mapSongToWidget(final Song song, {final enable = true, final checkbox = true, final whenPressed = true}) {
+  requesterListEditCustomWidget(Song song, bool checked) {
+    return appWidgetHelper.checkbox(
+        value: checked,
+        label: 'for $_selectedSinger',
+        style: appTextStyle,
+        onChanged: (value) {
+          if (value != null) {
+            if (value) {
+              _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
+            } else {
+              _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
+            }
+          }
+          Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
+        });
+
+    Text(
+      'requesterListEditCustomWidget here',
+      style: appTextStyle,
+    );
+
+    // customWidget:
+    // _selectedNameValue != _emptySelectedNameValue &&
+    //     !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
+    //     ? appIconButton(
+    //   icon: appIcon(
+    //     Icons.add,
+    //   ),
+    //   label: _selectedNameValue.toShortString(),
+    //   appKeyEnum: AppKeyEnum.listsMetadataAdd,
+    //   value: // '${id.id}:'  fixme
+    //   '${_selectedNameValue.name}=${_selectedNameValue.value}',
+    //   fontSize: 0.75 * app.screenInfo.fontSize,
+    //   backgroundColor: Colors.lightGreen,
+    //   onPressed: () {
+    //     logger.i('pressed: ${_selectedNameValue.toShortString()} to $song');
+    //     SongMetadata.addSong(song, _selectedNameValue);
+    //     //  re-build this screen with the new data
+    //     Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
+    //   },
+    // )
+    //     : null
+    // );
+  }
+
+  Widget _mapSongToWidget(final Song song, {final enable = true, final checkbox = true, final whenPressed = true}) {
     return AppWrapFullWidth(
       children: [
         appWrapSongExplicit(
@@ -968,7 +1017,7 @@ class SingersState extends State<Singers> {
           appWidgetHelper.checkbox(
             value: checkboxValue,
             onChanged: onChanged,
-            fontSize: songPerformanceStyle.fontSize,
+            style: songPerformanceStyle,
           ),
         if (onChanged != null) const AppSpace(space: 12),
         TextButton(
@@ -985,7 +1034,7 @@ class SingersState extends State<Singers> {
                         _setSelectedSinger(songPerformance.singer);
                       }
                       if (_selectedSinger != _unknownSinger) {
-                        navigateToPlayer(context, songPerformance.copy());
+                        _navigateToPlayer(context, songPerformance.copy());
                       }
                     });
                   }
@@ -1055,7 +1104,7 @@ class SingersState extends State<Singers> {
     }
   }
 
-  void navigateToPlayer(BuildContext context, SongPerformance songPerformance) async {
+  void _navigateToPlayer(BuildContext context, SongPerformance songPerformance) async {
     if (songPerformance.song == null) {
       return;
     }
@@ -1064,13 +1113,41 @@ class SingersState extends State<Singers> {
       context,
       MaterialPageRoute(
           builder: (context) => Player(
-            songPerformance.song!,
+                songPerformance.song!,
                 //  adjust song to singer's last performance
                 musicKey: songPerformance.key,
                 bpm: songPerformance.bpm,
                 singer: songPerformance.singer,
               )),
     );
+    _nextSinger(songPerformance);
+  }
+
+  _navigateSongListToPlayer(BuildContext context, SongListItem songListItem) async {
+    app.clearMessage();
+
+    if (songListItem.songPerformance == null) {
+      return;
+    }
+
+    var songPerformance = songListItem.songPerformance!;
+    app.selectedSong = songPerformance.performedSong;
+    logger.v('navigateToPlayer: $songPerformance');
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Player(
+                app.selectedSong,
+                //  adjust song to singer's last performance
+                musicKey: songPerformance.key,
+                bpm: songPerformance.bpm,
+                singer: songPerformance.singer,
+              )),
+    );
+    _nextSinger(songPerformance);
+  }
+
+  _nextSinger(SongPerformance songPerformance) {
     setState(() {
       //  fixme: song may have been edited in the player screen!!!!
       //  update the last sung date and the key if it has been changed

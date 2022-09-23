@@ -540,7 +540,7 @@ class EditState extends State<Edit> {
                       fontSize: _defaultChordFontSize,
                       onPressed: () {
                         setState(() {
-                          navigateToDetail(context);
+                          _navigateToDetail(context);
                         });
                       },
                     ),
@@ -3669,7 +3669,7 @@ class EditState extends State<Edit> {
     }
   }
 
-  navigateToDetail(BuildContext context) async {
+  _navigateToDetail(BuildContext context) async {
     app.selectedSong = song;
     app.selectedMomentNumber = 0;
     await Navigator.push(

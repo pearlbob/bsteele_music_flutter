@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 import '../app/app.dart';
 import '../app/appOptions.dart';
 
+const _slashColor = Color(0xffcb4931);
 const _fadedSlashColor = Color(0xffe27e65);
 const _middleDot = '\u00b7';
 
@@ -795,7 +796,10 @@ class LyricsTable {
   TextSpan _measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     style = style ?? _coloredChordTextStyle;
-    final TextStyle slashStyle = style.copyWith(color: _fadedSlashColor, fontWeight: FontWeight.bold);
+    logger.v('_measureTextSpan: style.color: ${style.color}'
+        ', black: ${Colors.black}, ==: ${style.color?.value == Colors.black.value}');
+    var slashColor = style.color?.value == Colors.black.value ? _slashColor : _fadedSlashColor;
+    final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: FontWeight.bold);
 
     TextStyle chordDescriptorStyle =
         style.copyWith(fontSize: (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal).copyWith(
@@ -862,7 +866,8 @@ class LyricsTable {
     final keyOffset = originalKey.getHalfStep();
 
     style = style ?? _coloredChordTextStyle;
-    final TextStyle slashStyle = style.copyWith(color: _fadedSlashColor, fontWeight: FontWeight.bold);
+    var slashColor = style.color == Colors.black ? _slashColor : _fadedSlashColor;
+    final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: FontWeight.bold);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
             fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)

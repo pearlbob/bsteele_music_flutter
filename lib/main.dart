@@ -177,16 +177,21 @@ void main() async {
 /*
 beta short list:
 Follower jumpy
+finish PlayList
 _______X for name.value name entry and value entry
 player: Tablet change to manual play
 Singer mode chords proportional to chord font, limit length
 Player play button size
 deleting metadata on song in lists should do a full setstate on the playlist
 singers searched for in history & singing?
+requester editing broken
+generate decade metadata from year
+add closest matches if songlist is empty
+add playlist or on multiple metadata
 
 Drums on horizontal scroll
 
-playlist extended to singers screen
+_____playlist extended to singers screen
 metadata vs list vs name.value
 select search text on return from player in PlayList
 
@@ -196,7 +201,6 @@ Follower display while leader choosing a song
 thumbs up and down on song... now that metadata functions
 
 
-finish PlayList
 
 player key up/down move on changes 12 bar blues - minor
 follower jumps somewhere and back when adjusting the key when not on the first section
@@ -842,8 +846,7 @@ class MyHomePageState extends State<MyHomePage> {
     final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return //widget.playListRefresh ??
-          PlayListRefresh(() {
+      return PlayListRefresh(() {
         setState(() {
           logger.i('PlayList: PlayListRefresh()');
         });

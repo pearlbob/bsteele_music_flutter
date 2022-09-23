@@ -71,8 +71,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
         ));
       }
       if (items.isNotEmpty) {
-        songLists.add(SongList(
-            DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
+        songLists.add(SongList(DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
             songItemAction: _navigateSongListToPlayer));
       }
 
@@ -84,10 +83,9 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     }
 
     return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return //widget.playListRefresh ??
-          PlayListRefresh(() {
+      return PlayListRefresh(() {
         setState(() {
-          logger.i('PlayList: PlayListRefresh()');
+          logger.v('PerformanceHistory PlayList: PlayListRefresh()');
         });
       });
     }, builder: (context, child) {
@@ -103,97 +101,97 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                 PlayList.byGroup(songListGroup, style: _songPerformanceStyle, includeByLastSung: true),
                 // if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
                 // AppWrapFullWidth(children: [
-              //   //  search line
-              //   AppTooltip(
-              //     message: 'Search for songs',
-              //     child: IconButton(
-              //       icon: const Icon(Icons.search),
-              //       iconSize: fontSize,
-              //       onPressed: (() {}),
-              //     ),
-              //   ),
-              //   SizedBox(
-              //     width: 20 * fontSize,
-              //     //  limit text entry display length
-              //     child: AppTextField(
-              //       appKeyEnum: AppKeyEnum.singersSearchText,
-              //       enabled: true,
-              //       controller: _searchTextFieldController,
-              //       hintText: 'enter song search',
-              //       onChanged: (text) {
-              //         setState(() {});
-              //       },
-              //       fontSize: fontSize,
-              //     ),
-              //   ),
-              //   AppTooltip(
-              //     message: 'Clear the search text',
-              //     child: appEnumeratedIconButton(
-              //       appKeyEnum: AppKeyEnum.singersClearSearch,
-              //       icon: const Icon(Icons.clear),
-              //       iconSize: 1.5 * fontSize,
-              //       onPressed: (() {
-              //         setState(() {
-              //           searchClear();
-              //           FocusScope.of(context).requestFocus(_searchFocusNode);
-              //         });
-              //       }),
-              //     ),
-              //   ),
-              // ]),
-              // const AppSpace(),
-              // Flexible(
-              //   child: ListView.builder(
-              //       scrollDirection: Axis.vertical,
-              //       shrinkWrap: true,
-              //       padding: const EdgeInsets.all(8),
-              //       itemCount: performanceHistory.length,
-              //       itemBuilder: (BuildContext context, int index) {
-              //         var performance = performanceHistory.elementAt(index);
-              //         var singer = performance.singer;
-              //         bool missing = performance.song == null;
-              //         var song = performance.song ?? bestSongMatch(performance);
-              //         var title = '${song.title} by ${song.artist}'
-              //             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-              //             '${missing ? ' (a match?)' : ''}';
-              //         var key = performance.key;
-              //
-              //         return AppWrapFullWidth(children: [
-              //           if (index == 0 ||
-              //               (index > 0 &&
-              //                   performance.lastSungDateString !=
-              //                       performanceHistory.elementAt(index - 1).lastSungDateString))
-              //             AppWrapFullWidth(children: [
-              //               const AppSpace(verticalSpace: 40),
-              //               Text(
-              //                 DateFormat.yMd()
-              //                     .add_EEEE()
-              //                     .format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung)),
-              //                 style: _songPerformanceStyle.copyWith(color: appBackgroundColor()),
-              //               ),
-              //               Divider(
-              //                 thickness: 10,
-              //                 color: appBackgroundColor(),
-              //               )
-              //             ]),
-              //           TextButton(
-              //               style: const ButtonStyle(alignment: Alignment.topLeft),
-              //               child: Text(
-              //                 //'${performance.lastSungDateString}'
-              //                 ' ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung))}'
-              //                 ' $singer sang: $title'
-              //                 ' in $key'
-              //                 // ' at $bpm'
-              //                 ,
-              //                 style: _songPerformanceStyle,
-              //               ),
-              //               onPressed: () {
-              //                 setState(() {
-              //                   _navigateToPlayer(context, performance, matchingSong: song);
-              //                 });
-              //               }),
-              //         ]);
-              //       }),
+                //   //  search line
+                //   AppTooltip(
+                //     message: 'Search for songs',
+                //     child: IconButton(
+                //       icon: const Icon(Icons.search),
+                //       iconSize: fontSize,
+                //       onPressed: (() {}),
+                //     ),
+                //   ),
+                //   SizedBox(
+                //     width: 20 * fontSize,
+                //     //  limit text entry display length
+                //     child: AppTextField(
+                //       appKeyEnum: AppKeyEnum.singersSearchText,
+                //       enabled: true,
+                //       controller: _searchTextFieldController,
+                //       hintText: 'enter song search',
+                //       onChanged: (text) {
+                //         setState(() {});
+                //       },
+                //       fontSize: fontSize,
+                //     ),
+                //   ),
+                //   AppTooltip(
+                //     message: 'Clear the search text',
+                //     child: appEnumeratedIconButton(
+                //       appKeyEnum: AppKeyEnum.singersClearSearch,
+                //       icon: const Icon(Icons.clear),
+                //       iconSize: 1.5 * fontSize,
+                //       onPressed: (() {
+                //         setState(() {
+                //           searchClear();
+                //           FocusScope.of(context).requestFocus(_searchFocusNode);
+                //         });
+                //       }),
+                //     ),
+                //   ),
+                // ]),
+                // const AppSpace(),
+                // Flexible(
+                //   child: ListView.builder(
+                //       scrollDirection: Axis.vertical,
+                //       shrinkWrap: true,
+                //       padding: const EdgeInsets.all(8),
+                //       itemCount: performanceHistory.length,
+                //       itemBuilder: (BuildContext context, int index) {
+                //         var performance = performanceHistory.elementAt(index);
+                //         var singer = performance.singer;
+                //         bool missing = performance.song == null;
+                //         var song = performance.song ?? bestSongMatch(performance);
+                //         var title = '${song.title} by ${song.artist}'
+                //             '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+                //             '${missing ? ' (a match?)' : ''}';
+                //         var key = performance.key;
+                //
+                //         return AppWrapFullWidth(children: [
+                //           if (index == 0 ||
+                //               (index > 0 &&
+                //                   performance.lastSungDateString !=
+                //                       performanceHistory.elementAt(index - 1).lastSungDateString))
+                //             AppWrapFullWidth(children: [
+                //               const AppSpace(verticalSpace: 40),
+                //               Text(
+                //                 DateFormat.yMd()
+                //                     .add_EEEE()
+                //                     .format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung)),
+                //                 style: _songPerformanceStyle.copyWith(color: appBackgroundColor()),
+                //               ),
+                //               Divider(
+                //                 thickness: 10,
+                //                 color: appBackgroundColor(),
+                //               )
+                //             ]),
+                //           TextButton(
+                //               style: const ButtonStyle(alignment: Alignment.topLeft),
+                //               child: Text(
+                //                 //'${performance.lastSungDateString}'
+                //                 ' ${DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(performance.lastSung))}'
+                //                 ' $singer sang: $title'
+                //                 ' in $key'
+                //                 // ' at $bpm'
+                //                 ,
+                //                 style: _songPerformanceStyle,
+                //               ),
+                //               onPressed: () {
+                //                 setState(() {
+                //                   _navigateToPlayer(context, performance, matchingSong: song);
+                //                 });
+                //               }),
+                //         ]);
+                //       }),
                 // ),
                 // //     ...history,
                 // const AppSpace(),

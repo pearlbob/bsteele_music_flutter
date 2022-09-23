@@ -111,10 +111,9 @@ class ListsState extends State<Lists> {
         SongMetadata.contains(_selectedNameValue) ? _selectedNameValue.toShortString() : 'Name:Values';
 
     return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return //widget.playListRefresh ??
-          PlayListRefresh(() {
+      return PlayListRefresh(() {
         setState(() {
-          logger.i('PlayList: PlayListRefresh()');
+          logger.v('Lists PlayList: PlayListRefresh()');
         });
       });
     }, builder: (context, child) {

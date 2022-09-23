@@ -142,7 +142,9 @@ class SongListItem implements Comparable<SongListItem> {
                   if (!isEditing)
                     Text(
                       songPerformance != null
-                          ? intl.DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
+                          ? intl.DateFormat.yMMMd()
+                              .add_jm()
+                              .format(DateTime.fromMillisecondsSinceEpoch(songPerformance!.lastSung))
                           : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
                       style: _indexTextStyle,
                     ),
@@ -168,7 +170,7 @@ class SongListItem implements Comparable<SongListItem> {
 }
 
 class SongList {
-  const SongList(this.label, this.songListItems, {this.songItemAction});
+  const SongList(this.label, this.songListItems, {this.songItemAction, this.color});
 
   int get length => 1 + songListItems.length;
 
@@ -187,10 +189,11 @@ class SongList {
                 ),
                 Text(
                   label,
-                  style: _indexTitleStyle,
+                  style: _indexTitleStyle.copyWith(color: color ?? _indexTitleStyle.color),
                 ),
-                const Divider(
+                Divider(
                   thickness: 10,
+                  color: color,
                 ),
               ],
             );
@@ -203,6 +206,7 @@ class SongList {
   final String label;
   final List<SongListItem> songListItems;
   final SongItemAction? songItemAction;
+  final Color? color;
 }
 
 class SongListGroup {
@@ -453,8 +457,8 @@ class _PlayListState extends State<PlayList> {
           }
         }
         if (filteredSet.isNotEmpty) {
-          filteredSongLists.add(
-              SongList(songList.label, filteredSet.toList(growable: false), songItemAction: songList.songItemAction));
+          filteredSongLists.add(SongList(songList.label, filteredSet.toList(growable: false),
+              songItemAction: songList.songItemAction, color: songList.color));
         }
       }
       filteredGroup = SongListGroup(filteredSongLists);

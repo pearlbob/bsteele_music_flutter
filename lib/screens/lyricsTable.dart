@@ -26,7 +26,7 @@ import 'package:provider/provider.dart';
 import '../app/app.dart';
 import '../app/appOptions.dart';
 
-const _slashColor = Color(0xff8b0000);
+const _fadedSlashColor = Color(0xffe27e65);
 const _middleDot = '\u00b7';
 
 /*
@@ -221,6 +221,7 @@ class LyricsTable {
             switch (c) {
               case 0:
                 if (mn?.measureNodeType == MeasureNodeType.lyricSection) {
+                  //  show the section version
                   var lyricSection = mn as LyricSection;
                   ChordSection? chordSection = song.findChordSectionByLyricSection(lyricSection);
                   if (chordSection != null) {
@@ -263,8 +264,10 @@ class LyricsTable {
                   assert(mn == null);
                 }
                 break;
+
               case 1:
                 if (mn?.measureNodeType == MeasureNodeType.section) {
+                  //   show the chords
                   ChordSection chordSection = mn as ChordSection;
                   _colorBySectionVersion(chordSection.sectionVersion);
                   _locationGrid.set(
@@ -280,7 +283,7 @@ class LyricsTable {
                           style: _coloredLyricTextStyle.copyWith(
                             color: Colors.black54,
                             backgroundColor: Colors.grey.shade300,
-                            fontSize: app.screenInfo.fontSize,
+                            fontSize: _coloredLyricTextStyle.fontSize ?? app.screenInfo.fontSize,
                           ),
                         ),
                       ),
@@ -692,7 +695,7 @@ class LyricsTable {
             children.add(TextSpan(text: ' ', style: style));
             children.add(textSpan);
             if (measure.endOfRow) {
-              children.add(TextSpan(text: '  $_middleDot  ', style: style));
+              children.add(TextSpan(text: '   ', style: style));
             }
           }
           if (phrase.isRepeat()) {
@@ -747,8 +750,8 @@ class LyricsTable {
   }
 
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
-  TextSpan _measureNashvilleSelectionTextSpan(final Measure measure, final music_key.Key originalKey,
-      int transpositionOffset,
+  TextSpan _measureNashvilleSelectionTextSpan(
+      final Measure measure, final music_key.Key originalKey, int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     style = style ?? _coloredChordTextStyle;
 
@@ -756,8 +759,8 @@ class LyricsTable {
     switch (_nashvilleSelection) {
       case NashvilleSelection.off:
       case NashvilleSelection.both:
-        var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
-            displayMusicKey: displayMusicKey, style: style);
+        var textSpan =
+            _measureTextSpan(measure, originalKey, transpositionOffset, displayMusicKey: displayMusicKey, style: style);
         children.add(TextSpan(text: ' ', style: style));
         children.add(textSpan);
         break;
@@ -792,12 +795,12 @@ class LyricsTable {
   TextSpan _measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     style = style ?? _coloredChordTextStyle;
-    final TextStyle slashStyle = style.copyWith(color: _slashColor, fontWeight: FontWeight.bold);
+    final TextStyle slashStyle = style.copyWith(color: _fadedSlashColor, fontWeight: FontWeight.bold);
 
-    TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(fontSize: (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
-            .copyWith(
-      backgroundColor: style.backgroundColor,
-    );
+    TextStyle chordDescriptorStyle =
+        style.copyWith(fontSize: (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal).copyWith(
+              backgroundColor: style.backgroundColor,
+            );
 
     //  figure the chord text span
     final List<TextSpan> children = [];
@@ -853,16 +856,16 @@ class LyricsTable {
     );
   }
 
-  TextSpan _nashvilleMeasureTextSpan(final Measure measure, final music_key.Key originalKey,
-      final int transpositionOffset,
+  TextSpan _nashvilleMeasureTextSpan(
+      final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     final keyOffset = originalKey.getHalfStep();
 
     style = style ?? _coloredChordTextStyle;
-    final TextStyle slashStyle = style.copyWith(color: _slashColor, fontWeight: FontWeight.bold);
+    final TextStyle slashStyle = style.copyWith(color: _fadedSlashColor, fontWeight: FontWeight.bold);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-        fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
+            fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
         .copyWith(
       backgroundColor: style.backgroundColor,
     );

@@ -10,6 +10,7 @@ import 'package:bsteeleMusicLib/songs/ninjam.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
+import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -654,47 +655,48 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         //       ),
                                         //     ),
                                         //   ]),
-                                        // if (kDebugMode && app.isScreenBig)
-                                        //   AppWrap(children: [
-                                        //     const AppSpace(horizontalSpace: 35),
-                                        //     AppTooltip(
-                                        //       message: 'Mark the song as good.'
-                                        //           '\nYou will find it in the'
-                                        //           ' "${myGoodSongNameValue.toShortString()}" list.',
-                                        //       child: appIconButton(
-                                        //         appKeyEnum: AppKeyEnum.playerSongGood,
-                                        //         icon: appIcon(
-                                        //           Icons.thumb_up,
-                                        //         ),
-                                        //         onPressed: () {
-                                        //           SongMetadata.addSong(_song, myGoodSongNameValue);
-                                        //           SongMetadata.removeSong(_song, myGoodSongNameValue);
-                                        //           appOptions.storeSongMetadata();
-                                        //           app.errorMessage('${_song.title} added to'
-                                        //               ' ${myGoodSongNameValue.toShortString()}');
-                                        //         },
-                                        //       ),
-                                        //     ),
-                                        //     const AppSpace(space: 5),
-                                        //     AppTooltip(
-                                        //       message: 'Mark the song as bad, that is, in need of correction.'
-                                        //           '\nYou will find it in the'
-                                        //           ' "${myBadSongNameValue.toShortString()}" list.',
-                                        //       child: appIconButton(
-                                        //         appKeyEnum: AppKeyEnum.playerSongBad,
-                                        //         icon: appIcon(
-                                        //           Icons.thumb_down,
-                                        //         ),
-                                        //         onPressed: () {
-                                        //           SongMetadata.addSong(_song, myBadSongNameValue);
-                                        //           appOptions.storeSongMetadata();
-                                        //           _songMaster.stop();
-                                        //           _cancelIdleTimer();
-                                        //           Navigator.pop(context); //  return to main list
-                                        //         },
-                                        //       ),
-                                        //     ),
-                                        //   ]),
+                                        if (app.isScreenBig)
+                                          AppWrap(children: [
+                                            const AppSpace(horizontalSpace: 35),
+                                            AppTooltip(
+                                              message: 'Mark the song as good.'
+                                                  '\nYou will find it in the'
+                                                  ' "${myGoodSongNameValue.toShortString()}" list.',
+                                              child: appIconButton(
+                                                appKeyEnum: AppKeyEnum.playerSongGood,
+                                                icon: appIcon(
+                                                  Icons.thumb_up,
+                                                ),
+                                                onPressed: () {
+                                                  SongMetadata.addSong(_song, myGoodSongNameValue);
+                                                  SongMetadata.removeFromSong(_song, myBadSongNameValue);
+                                                  appOptions.storeSongMetadata();
+                                                  app.errorMessage('${_song.title} added to'
+                                                      ' ${myGoodSongNameValue.toShortString()}');
+                                                },
+                                              ),
+                                            ),
+                                            const AppSpace(space: 5),
+                                            AppTooltip(
+                                              message: 'Mark the song as bad, that is, in need of correction.'
+                                                  '\nYou will find it in the'
+                                                  ' "${myBadSongNameValue.toShortString()}" list.',
+                                              child: appIconButton(
+                                                appKeyEnum: AppKeyEnum.playerSongBad,
+                                                icon: appIcon(
+                                                  Icons.thumb_down,
+                                                ),
+                                                onPressed: () {
+                                                  SongMetadata.addSong(_song, myBadSongNameValue);
+                                                  SongMetadata.removeFromSong(_song, myGoodSongNameValue);
+                                                  appOptions.storeSongMetadata();
+                                                  _songMaster.stop();
+                                                  _cancelIdleTimer();
+                                                  Navigator.pop(context); //  return to main list
+                                                },
+                                              ),
+                                            ),
+                                          ]),
                                         if (app.isEditReady) const AppSpace(horizontalSpace: 35),
                                         //  song edit
                                         if (!_isPlaying && !songUpdateService.isFollowing && app.isEditReady)

@@ -61,7 +61,6 @@ enum CommunityJamsSongList {
 }
 
 NameValue get myGoodSongNameValue => NameValue(userName, 'good');
-
 NameValue get myBadSongNameValue => NameValue(userName, 'bad');
 
 const defaultTableGap = 3.0;

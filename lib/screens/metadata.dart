@@ -112,17 +112,10 @@ class MetadataScreenState extends State<MetadataScreen> {
     var selectedNameValueString =
         SongMetadata.contains(_selectedNameValue) ? _selectedNameValue.toShortString() : 'Name:Values';
 
-    return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return PlayListRefresh(() {
-        setState(() {
-          logger.v('Lists PlayList: PlayListRefresh()');
-        });
-      });
-    }, builder: (context, child) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Metadata'),
-        body: Padding(
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Metadata'),
+      body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -334,42 +327,42 @@ class MetadataScreenState extends State<MetadataScreen> {
                   ],
                 ),
 
-                PlayList.byGroup(
-                  SongListGroup([
-                    SongList(
-                        '',
-                        app.allSongs
-                            .map((song) => SongListItem.fromSong(song,
-                                customWidget: _selectedNameValue != _emptySelectedNameValue &&
-                                        !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
-                                    ? appIconButton(
-                                        icon: appIcon(
-                                          Icons.add,
-                                        ),
-                                        label: _selectedNameValue.toShortString(),
-                                        appKeyEnum: AppKeyEnum.listsMetadataAdd,
-                                        value: // '${id.id}:'  fixme
-                                            '${_selectedNameValue.name}=${_selectedNameValue.value}',
-                                        fontSize: 0.75 * app.screenInfo.fontSize,
-                                        backgroundColor: Colors.lightGreen,
-                                        onPressed: () {
-                                          logger.i('pressed: ${_selectedNameValue.toShortString()} to $song');
-                                          SongMetadata.addSong(song, _selectedNameValue);
-                                          //  re-build this screen with the new data
-                                          Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
-                                        },
-                                      )
-                                    : null))
-                            .toList(growable: false))
-                  ]),
-                  style: metadataStyle,
-                  isEditing: true,
+                Consumer<PlayListRefreshNotifier>(
+                  builder: (context, playListRefreshNotifier, child) => PlayList.byGroup(
+                    SongListGroup([
+                      SongList(
+                          '',
+                          app.allSongs
+                              .map((song) => SongListItem.fromSong(song,
+                                  customWidget: _selectedNameValue != _emptySelectedNameValue &&
+                                          !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
+                                      ? appIconButton(
+                                          icon: appIcon(
+                                            Icons.add,
+                                          ),
+                                          label: _selectedNameValue.toShortString(),
+                                          appKeyEnum: AppKeyEnum.listsMetadataAdd,
+                                          value: // '${id.id}:'  fixme
+                                              '${_selectedNameValue.name}=${_selectedNameValue.value}',
+                                          fontSize: 0.75 * app.screenInfo.fontSize,
+                                          backgroundColor: Colors.lightGreen,
+                                          onPressed: () {
+                                            logger.i('pressed: ${_selectedNameValue.toShortString()} to $song');
+                                            SongMetadata.addSong(song, _selectedNameValue);
+                                            playListRefreshNotifier.refresh();
+                                          },
+                                        )
+                                      : null))
+                              .toList(growable: false))
+                    ]),
+                    style: metadataStyle,
+                    isEditing: true,
+                    selectedSortType: PlayListSortType.byTitle,
+                  ),
                 ),
-              ]),
-        ),
-        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
-      );
-    });
+              ])),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
+    );
   }
 
   Widget mapSongToWidget(Song song) {

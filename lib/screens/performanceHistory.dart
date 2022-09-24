@@ -8,7 +8,6 @@ import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 import '../app/app.dart';
@@ -82,13 +81,6 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       songListGroup = SongListGroup(songLists);
     }
 
-    return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return PlayListRefresh(() {
-        setState(() {
-          logger.v('PerformanceHistory PlayList: PlayListRefresh()');
-        });
-      });
-    }, builder: (context, child) {
       return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
@@ -98,18 +90,19 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                PlayList.byGroup(songListGroup, style: _songPerformanceStyle, includeByLastSung: true),
-                // if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
-                // AppWrapFullWidth(children: [
-                //   //  search line
-                //   AppTooltip(
-                //     message: 'Search for songs',
-                //     child: IconButton(
-                //       icon: const Icon(Icons.search),
-                //       iconSize: fontSize,
-                //       onPressed: (() {}),
-                //     ),
-                //   ),
+              PlayList.byGroup(songListGroup,
+                  style: _songPerformanceStyle, includeByLastSung: true, selectedSortType: PlayListSortType.byHistory),
+              // if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.performanceHistoryErrorMessage),
+              // AppWrapFullWidth(children: [
+              //   //  search line
+              //   AppTooltip(
+              //     message: 'Search for songs',
+              //     child: IconButton(
+              //       icon: const Icon(Icons.search),
+              //       iconSize: fontSize,
+              //       onPressed: (() {}),
+              //     ),
+              //   ),
                 //   SizedBox(
                 //     width: 20 * fontSize,
                 //     //  limit text entry display length
@@ -203,7 +196,6 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
         ),
         floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
       );
-    });
   }
 
   Song bestSongMatch(SongPerformance performance) {

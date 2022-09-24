@@ -13,7 +13,7 @@ import 'test_util.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
 
   group('general integration test', () {
     testWidgets('smoke test', (WidgetTester tester) async {

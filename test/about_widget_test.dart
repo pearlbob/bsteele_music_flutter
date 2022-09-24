@@ -15,12 +15,12 @@ import 'test_util.dart';
 
 
 void main() async {
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
   logger.d('main()');
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('about test', (WidgetTester tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(2*1920, 2*1080); //  fixme: why so big?
+    tester.binding.window.physicalSizeTestValue = const Size(2 * 1920, 2 * 1080); //  fixme: why so big?
 
     await tester.runAsync(() async {
       // Build our app and trigger a frame.

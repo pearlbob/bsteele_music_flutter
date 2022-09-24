@@ -43,7 +43,7 @@ import 'test_util.dart';
 // }
 
 void main() async {
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
 
   TestWidgetsFlutterBinding.ensureInitialized();
 

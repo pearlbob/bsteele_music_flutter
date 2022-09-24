@@ -105,7 +105,7 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 //  diagnostic logging enables
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -184,29 +184,34 @@ _____test Player play button size
 _____slash chords always faded
 _____deleting metadata on song in metadata should do a full setstate on the playlist
 ____singers searched for in history & singing?
+____actions on song hit in singers
+____force order by title on singer screen when editing requests
+____change of singer => playlist scroll to zero
 finish PlayList
-    ____actions on song hit in singers
-    requester editing broken
-    add playlist "or" on multiple metadata
-    song count on bottom?
-    fix history song count to show only displayed songs
-    requested song, no singer, click selection?
-change of singer => playlist scroll to zero
+    requested song, no singer, click selection?  singer popup?
+    fix christmas
+singer requester editing not remembered
+    requester list change should provide a "write file" button
+    should not let user leave singing screen without warning and opportunity to write
 select all of search text on return to playlist
-player: Tablet change to manual play
-Singer mode chords proportional to chord font, limit length
-
+player: Tablet change to manual play.  on menu bar tally icon?
 fontsize on song lyrics?  lyrics multi-lines?
-if No song match:. Try close matches
-      add closest matches if songlist is empty
-Drums on horizontal scroll
-select search text on return from player in PlayList
-Follower display while leader choosing a song
-test singer and requester on one singer/requester
 Follower jumpy,
     Follower scroll update too brutal on section transitions.
     player key up/down move on changes 12 bar blues - minor
     follower jumps somewhere and back when adjusting the key when not on the first section
+
+PlayList:  song count on bottom?
+fix history song count to show only displayed songs
+Singer mode chords proportional to chord font, limit length
+add playlist "or" on multiple metadata
+if No song match:. Try close matches
+      add closest matches if songlist is empty
+Drums
+    on horizontal scroll
+    drums on 2/4, 3/4, 6/8
+Follower display while leader choosing a song
+test singer and requester on one singer/requester
 
 generate decade metadata from year
 metadata vs list vs name.value
@@ -624,37 +629,41 @@ class BSteeleMusicApp extends StatelessWidget {
   Widget build(BuildContext context) {
     logger.v('main: build()');
 
-    return ChangeNotifierProvider<AppOptions>(
-        create: (_) => AppOptions(),
-        builder: (context, _) => MaterialApp(
-              title: 'bsteele Music App',
-              theme: app.themeData,
-              home: const MyHomePage(title: 'bsteele Music App'),
-              navigatorObservers: [playerRouteObserver],
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AppOptions>(create: (_) => AppOptions()),
+          //  has to be a widget level above it's use
+          ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
+        ],
+        child: MaterialApp(
+          title: 'bsteele Music App',
+          theme: app.themeData,
+          home: const MyHomePage(title: 'bsteele Music App'),
+          navigatorObservers: [playerRouteObserver],
 
-              // Start the app with the "/" named route. In this case, the app starts
-              // on the FirstScreen widget.
-              initialRoute: Navigator.defaultRouteName,
-              routes: {
-                // When navigating to the "/" route, build the FirstScreen widget.
-                // '/': (context) => BSteeleMusicApp(),
-                // When navigating to the "/second" route, build the SecondScreen widget.
-                Player.routeName: playerPageRoute.builder,
-                Options.routeName: (context) => const Options(),
-                '/songs': (context) => const Songs(),
-                Singers.routeName: (context) => const Singers(),
-                MetadataScreen.routeName: (context) => const MetadataScreen(),
-                '/edit': (context) => Edit(initialSong: app.selectedSong),
-                PerformanceHistory.routeName: (context) => const PerformanceHistory(),
-                '/privacy': (context) => const Privacy(),
-                '/documentation': (context) => const Documentation(),
-                Debug.routeName: (context) => const Debug(),
-                '/about': (context) => const About(),
-                CommunityJams.routeName: (context) => const Debug(),
-                '/cssDemo': (context) => const CssDemo(),
-                '/theory': (context) => const TheoryWidget(),
-              },
-            ));
+          // Start the app with the "/" named route. In this case, the app starts
+          // on the FirstScreen widget.
+          initialRoute: Navigator.defaultRouteName,
+          routes: {
+            // When navigating to the "/" route, build the FirstScreen widget.
+            // '/': (context) => BSteeleMusicApp(),
+            // When navigating to the "/second" route, build the SecondScreen widget.
+            Player.routeName: playerPageRoute.builder,
+            Options.routeName: (context) => const Options(),
+            '/songs': (context) => const Songs(),
+            Singers.routeName: (context) => const Singers(),
+            MetadataScreen.routeName: (context) => const MetadataScreen(),
+            '/edit': (context) => Edit(initialSong: app.selectedSong),
+            PerformanceHistory.routeName: (context) => const PerformanceHistory(),
+            '/privacy': (context) => const Privacy(),
+            '/documentation': (context) => const Documentation(),
+            Debug.routeName: (context) => const Debug(),
+            '/about': (context) => const About(),
+            CommunityJams.routeName: (context) => const Debug(),
+            '/cssDemo': (context) => const CssDemo(),
+            '/theory': (context) => const TheoryWidget(),
+          },
+        ));
   }
 }
 
@@ -847,25 +856,18 @@ class MyHomePageState extends State<MyHomePage> {
 
     final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
-    return Provider<PlayListRefresh>(create: (BuildContext context) {
-      return PlayListRefresh(() {
-        setState(() {
-          logger.i('PlayList: PlayListRefresh()');
-        });
-      });
-    }, builder: (context, child) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        key: _scaffoldKey,
-        appBar: AppWidgetHelper(context).appBar(
-          title: widget.title,
-          leading: AppTooltip(
-            message: MaterialLocalizations.of(context).openAppDrawerTooltip,
-            child: appIconButton(
-              appKeyEnum: AppKeyEnum.mainHamburger,
-              onPressed: _openDrawer,
-              icon: appIcon(
-                Icons.menu, size: app.screenInfo.fontSize, //  fixme: why is this required?
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      key: _scaffoldKey,
+      appBar: AppWidgetHelper(context).appBar(
+        title: widget.title,
+        leading: AppTooltip(
+          message: MaterialLocalizations.of(context).openAppDrawerTooltip,
+          child: appIconButton(
+            appKeyEnum: AppKeyEnum.mainHamburger,
+            onPressed: _openDrawer,
+            icon: appIcon(
+              Icons.menu, size: app.screenInfo.fontSize, //  fixme: why is this required?
               ),
             ),
           ),
@@ -1117,7 +1119,6 @@ class MyHomePageState extends State<MyHomePage> {
         //   ),
         // ),
       );
-    });
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

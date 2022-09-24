@@ -16,7 +16,7 @@ import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
 
 const Level _logBuild = Level.debug;
-const Level _logConstruct = Level.debug;
+const Level _logConstruct = Level.info;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
@@ -27,14 +27,10 @@ late TextStyle _indexTextStyle;
 
 typedef SongItemAction = Function(BuildContext context, SongListItem songListItem);
 
-class PlayListRefresh {
-  const PlayListRefresh(this.voidCallback);
-
-  void action() {
-    voidCallback.call();
+class PlayListRefreshNotifier extends ChangeNotifier {
+  void refresh() {
+    notifyListeners();
   }
-
-  final VoidCallback voidCallback;
 }
 
 /// Allow the mechanics to use either a song or a song performance
@@ -89,31 +85,6 @@ class SongListItem implements Comparable<SongListItem> {
       ]);
     }
 
-    List<Widget> metadataWidgets = [const AppSpace()];
-    if (isEditing) {
-      for (var id in SongMetadata.where(idIs: song.songId.toString())) {
-        logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
-        for (var nameValue in id.nameValues) {
-          metadataWidgets.add(
-            appIconButton(
-              icon: appIcon(
-                Icons.clear,
-              ),
-              label: '${nameValue.name}:${nameValue.value}',
-              appKeyEnum: AppKeyEnum.playListMetadata,
-              value: '${id.id}:${nameValue.name}=${nameValue.value}',
-              fontSize: _textFontSize,
-              onPressed: () {
-                logger.i('pressed: ${nameValue.name}: ${nameValue.value}');
-                SongMetadata.removeFromSong(song, nameValue);
-                Provider.of<PlayListRefresh>(context, listen: false).voidCallback();
-              },
-            ),
-          );
-        }
-      }
-    }
-
     return AppInkWell(
       appKeyEnum: AppKeyEnum.mainSong,
       value: Id(song.songId.toString()),
@@ -151,7 +122,32 @@ class SongListItem implements Comparable<SongListItem> {
                           : intl.DateFormat.yMMMd().format(DateTime.fromMillisecondsSinceEpoch(song.lastModifiedTime)),
                       style: _indexTextStyle,
                     ),
-                  if (isEditing) AppWrap(spacing: _textFontSize, children: metadataWidgets),
+                  if (isEditing)
+                    Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
+                      List<Widget> metadataWidgets = [const AppSpace()];
+
+                      for (var id in SongMetadata.where(idIs: song.songId.toString())) {
+                        logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
+                        for (var nameValue in id.nameValues) {
+                          metadataWidgets.add(
+                            appIconButton(
+                              icon: appIcon(
+                                Icons.clear,
+                              ),
+                              label: '${nameValue.name}:${nameValue.value}',
+                              appKeyEnum: AppKeyEnum.playListMetadata,
+                              value: '${id.id}:${nameValue.name}=${nameValue.value}',
+                              fontSize: _textFontSize,
+                              onPressed: () {
+                                SongMetadata.removeFromSong(song, nameValue);
+                                playListRefreshNotifier.refresh();
+                              },
+                            ),
+                          );
+                        }
+                      }
+                      return AppWrap(spacing: _textFontSize, children: metadataWidgets);
+                    }),
                 ]),
           ],
         ),
@@ -241,12 +237,20 @@ class PlayList extends StatefulWidget {
     this.style,
     this.includeByLastSung = false,
     this.isEditing = false,
+    this.selectedSortType,
   }) : group = SongListGroup([songList]) {
-    logger.log(_logConstruct, 'PlayList(): _isEditing: $isEditing');
+    logger.log(_logConstruct, 'PlayList(): construction: _isEditing: $isEditing');
   }
 
-  PlayList.byGroup(this.group, {super.key, this.style, this.includeByLastSung = false, this.isEditing = false}) {
-    logger.log(_logConstruct, 'PlayList.byGroup(): _isEditing: $isEditing');
+  PlayList.byGroup(
+    this.group, {
+    super.key,
+    this.style,
+    this.includeByLastSung = false,
+    this.isEditing = false,
+    this.selectedSortType,
+  }) {
+    logger.log(_logConstruct, 'PlayList.byGroup(): construction: _isEditing: $isEditing');
   }
 
   @override
@@ -258,6 +262,7 @@ class PlayList extends StatefulWidget {
   final TextStyle? style;
   final bool includeByLastSung;
   final bool isEditing;
+  final PlayListSortType? selectedSortType;
 }
 
 class _PlayListState extends State<PlayList> {
@@ -267,15 +272,17 @@ class _PlayListState extends State<PlayList> {
   void initState() {
     super.initState();
 
-    if (widget.includeByLastSung) {
+    if (widget.selectedSortType != null) {
+      selectedSortType = widget.selectedSortType!;
+    } else if (widget.includeByLastSung) {
       //  preference for last sung (performance) lists
-      _selectedSortType = PlayListSortType.byHistory;
+      selectedSortType = PlayListSortType.byHistory;
     } else {
-      switch (_selectedSortType) {
+      switch (selectedSortType) {
         case PlayListSortType.byLastSung:
         case PlayListSortType.byHistory:
           //  replace invalid preference for song lists
-          _selectedSortType = PlayListSortType.byTitle;
+          selectedSortType = PlayListSortType.byTitle;
           break;
         default:
       }
@@ -347,7 +354,7 @@ class _PlayListState extends State<PlayList> {
           value: nv,
           onPressed: () {
             setState(() {
-              logger.i('remove: ${nv.name}: ${nv.value}');
+              logger.d('remove: ${nv.name}: ${nv.value}');
               _filterNameValues.remove(nv);
             });
           },
@@ -383,7 +390,7 @@ class _PlayListState extends State<PlayList> {
 
     // select order
     int Function(SongListItem key1, SongListItem key2)? compare;
-    switch (_selectedSortType) {
+    switch (selectedSortType) {
       case PlayListSortType.byArtist:
         compare = (SongListItem item1, SongListItem item2) {
           var ret = item1.song.artist.compareTo(item2.song.artist);
@@ -488,6 +495,15 @@ class _PlayListState extends State<PlayList> {
       filteredGroup = SongListGroup(filteredSongLists);
     }
 
+    //  reset an old list view
+    logger.v('scrollController: $scrollController');
+    if (scrollController.hasClients) {
+      //  fixme: why is this delay required?
+      Future.delayed(const Duration(milliseconds: 20), () {
+        scrollController.jumpTo(0);
+      });
+    }
+
     return Expanded(
       // for some reason, this is Expanded is very required,
       // otherwise the Column is unlimited and the list view fails
@@ -563,7 +579,6 @@ class _PlayListState extends State<PlayList> {
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {
-                            logger.i('fixme: DropdownButton<NameValue?>: $value');
                             if (value == allNameValue) {
                               _filterNameValues.clear();
                             } else {
@@ -597,14 +612,14 @@ class _PlayListState extends State<PlayList> {
                           AppKeyEnum.mainSortType,
                           _sortTypesDropDownMenuList,
                           onChanged: (value) {
-                            if (_selectedSortType != value) {
+                            if (selectedSortType != value) {
                               setState(() {
-                                _selectedSortType = value ?? PlayListSortType.byTitle;
+                                selectedSortType = value ?? PlayListSortType.byTitle;
                                 app.clearMessage();
                               });
                             }
                           },
-                          value: _selectedSortType,
+                          value: selectedSortType,
                           style: searchDropDownStyle,
                         ),
                       ],
@@ -615,14 +630,16 @@ class _PlayListState extends State<PlayList> {
           Expanded(
             // this expanded is required as well
             child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: filteredGroup.length,
-                itemBuilder: (BuildContext context, int index) {
-                  logger.v('_PlayListState: index: $index');
-                  _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
-                  _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
-                  return filteredGroup._indexToWidget(context, index, widget.isEditing);
-                }),
+              shrinkWrap: true,
+              itemCount: filteredGroup.length,
+              controller: scrollController,
+              itemBuilder: (BuildContext context, int index) {
+                logger.v('_PlayListState: index: $index');
+                _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
+                _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
+                return filteredGroup._indexToWidget(context, index, widget.isEditing);
+              },
+            ),
           ),
         ]),
       ),
@@ -630,7 +647,8 @@ class _PlayListState extends State<PlayList> {
   }
 
   final List<DropdownMenuItem<PlayListSortType>> _sortTypesDropDownMenuList = [];
-  var _selectedSortType = PlayListSortType.byTitle;
+  var selectedSortType = PlayListSortType.byTitle;
+  final ScrollController scrollController = ScrollController();
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode;

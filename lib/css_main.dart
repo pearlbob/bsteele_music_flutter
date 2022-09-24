@@ -12,15 +12,14 @@ final Map<String, String> cssSamplePropertyMap = {
 };
 
 void main() async {
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
 
   //  read the css theme data prior to the first build
   WidgetsFlutterBinding.ensureInitialized();
   await AppTheme().init(); //  init the singleton
   generateCssDocumentation();
 
-  Future.delayed(const Duration(seconds: 1), ()
-  {
+  Future.delayed(const Duration(seconds: 1), () {
     SystemChannels.platform.invokeMethod('SystemNavigator.pop');
   });
 }

@@ -2028,6 +2028,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                       '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                       '  ', //  padding at the end
                       style: generateAppTextStyle(
+                        fontSize: app.screenInfo.fontSize * 0.7,
                         decoration: TextDecoration.none,
                         backgroundColor: const Color(0xe0eff4fd), //  fake a blended color, semi-opaque
                       ),

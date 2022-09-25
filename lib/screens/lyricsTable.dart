@@ -58,12 +58,22 @@ const double _marginSizeMax = 4; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _highlightColor = Colors.redAccent;
+var _maxLines = 1;
 
 ///  The trick of the game: Figure the text size prior to boxing it
-Size _computeRichTextSize(RichText richText, {double textScaleFactor = 1.0}) {
-  TextPainter textPainter =
-      TextPainter(text: richText.text, textDirection: TextDirection.ltr, textScaleFactor: textScaleFactor)
-        ..layout(minWidth: 0, maxWidth: double.infinity);
+Size _computeRichTextSize(
+  RichText richText, {
+  double textScaleFactor = 1.0,
+  int? maxLines,
+  double? maxWidth,
+}) {
+  logger.v('_computeRichTextSize: textScaleFactor: $textScaleFactor, maxWidth: $maxWidth');
+  TextPainter textPainter = TextPainter(
+    text: richText.text,
+    textDirection: TextDirection.ltr,
+    maxLines: maxLines ?? _maxLines,
+    textScaleFactor: textScaleFactor,
+  )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
   return textPainter.size;
 }
 
@@ -115,6 +125,7 @@ class LyricsTable {
     appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
     _nashvilleSelection = _appOptions.nashvilleSelection;
+    _maxLines = 1;
 
     _computeScreenSizes();
 
@@ -343,27 +354,31 @@ class LyricsTable {
                 _displayChordSection(GridCoordinate(r, c), measureNode as ChordSection, measureNode);
                 break;
               case MeasureNodeType.lyric:
-              //  color done by prior chord section
-                _locationGrid.set(
-                  r,
-                  c,
-                  SongCellWidget(
-                    richText: RichText(
-                      text: TextSpan(
-                        text: measureNode.toMarkup(),
-                        style: _coloredLyricTextStyle,
+                //  color done by prior chord section
+                {
+                  var songCellType = _appOptions.userDisplayStyle == UserDisplayStyle.both
+                      ? SongCellType.lyric
+                      : SongCellType.lyricEllipsis;
+                  _locationGrid.set(
+                    r,
+                    c,
+                    SongCellWidget(
+                      richText: RichText(
+                        text: TextSpan(
+                          text: measureNode.toMarkup(),
+                          style: _coloredLyricTextStyle,
+                        ),
+                        maxLines: songCellType == SongCellType.lyricEllipsis ? 1 : _maxLines,
                       ),
+                      type: songCellType,
+                      measureNode: measureNode,
+                      expanded: expanded,
                     ),
-                    type: _appOptions.userDisplayStyle == UserDisplayStyle.both
-                        ? SongCellType.lyric
-                        : SongCellType.lyricEllipsis,
-                    measureNode: measureNode,
-                    expanded: expanded,
-                  ),
-                );
+                  );
+                }
                 break;
               case MeasureNodeType.measure:
-              //  color done by prior chord section
+                //  color done by prior chord section
                 {
                   Measure measure = measureNode as Measure;
                   RichText richText = RichText(
@@ -408,7 +423,6 @@ class LyricsTable {
                             style: _coloredChordTextStyle, displayMusicKey: displayMusicKey),
                         //  don't allow the rich text to wrap:
                         textWidthBasis: TextWidthBasis.longestLine,
-                        maxLines: 1,
                         overflow: TextOverflow.clip,
                         softWrap: false,
                         textDirection: TextDirection.ltr,
@@ -476,22 +490,35 @@ class LyricsTable {
           case SongCellType.lyricEllipsis:
             break;
           default:
-            widths[c] = max(widths[c], cell.rect.width);
+            widths[c] = max(widths[c], cell.buildSize.width);
             break;
         }
 
-        heights[r] = max(heights[r], cell.rect.height);
+        heights[r] = max(heights[r], cell.buildSize.height);
       }
     }
 
     //  discover the overall total width and height
-    double arrowIndicatorWidth = _chordFontSize;
+    double arrowIndicatorWidth = _chordFontSizeUnscaled;
     var totalWidth = widths.fold<double>(arrowIndicatorWidth, (previous, e) => previous + e + 2.0 * _marginSize);
-    //  allocate space for player lyrics
+    var chordWidth = totalWidth - widths.last;
+    logger.log(_logFontSize, 'chord ratio: $chordWidth/$totalWidth = ${chordWidth / totalWidth}');
+
+    //  limit space for player lyrics
     if (_appOptions.userDisplayStyle == UserDisplayStyle.player && widths.last == 0) {
       widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
       totalWidth += widths.last;
     }
+    logger.log(_logFontSize, 'raw widths.last: ${widths.last}/$totalWidth');
+    logger.log(_logFontSize, 'raw widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
+
+    logger.log(
+        _logFontSize,
+        'raw:'
+        ' _chordFontSize: ${_chordFontSizeUnscaled.toStringAsFixed(2)}'
+        ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
+        ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
+        ', padding: ${_paddingSize.toStringAsFixed(2)}');
     var totalHeight = heights.fold<double>(0.0, (previous, e) => previous + e + 2.0 * _marginSize);
 
     assert(totalWidth > 0);
@@ -501,7 +528,7 @@ class LyricsTable {
     _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
-      //  fit everything vertically
+        //  fit everything vertically
         _scaleFactor = min(
             _scaleFactor,
             screenHeight *
@@ -530,6 +557,16 @@ class LyricsTable {
         heights[i] = heights[i] * _scaleFactor;
       }
     }
+    logger.log(_logFontSize, 'scaled widths.last: ${widths.last}');
+    logger.log(_logFontSize, 'scaled widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
+    logger.log(
+        _logFontSize,
+        'scaled:'
+        ' _chordFontSize: ${_chordFontSizeUnscaled.toStringAsFixed(2)}'
+        ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
+        ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
+        ', padding: ${_paddingSize.toStringAsFixed(2)}');
+    _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : 8;
 
     //  set the location grid sizing
     final double xMargin = 2.0 * _marginSize;
@@ -613,7 +650,7 @@ class LyricsTable {
           }
           rowChildren.add(child);
         }
-        Row rowWidget;
+        Widget rowWidget;
         {
           var firstWidget = (lastLyricSection == lyricSection)
               ? AppSpace(
@@ -623,12 +660,15 @@ class LyricsTable {
                   lyricSection: lyricSection!,
                   width: arrowIndicatorWidth * _scaleFactor,
                   height: heights[r],
-                  fontSize: _chordFontSize * _scaleFactor,
+                  fontSize: _chordFontSizeUnscaled * _scaleFactor,
                 );
 
-          rowWidget = Row(
-            children: [firstWidget, ...rowChildren],
-          );
+          if (r == 0 && _appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+            //  put the first row of pro in a wrap
+            rowWidget = AppWrap(children: [firstWidget, ...rowChildren]);
+          } else {
+            rowWidget = Row(children: [firstWidget, ...rowChildren]);
+          }
         }
 
         if (lastLyricSection != lyricSection) {
@@ -657,14 +697,14 @@ class LyricsTable {
 
     //  show copyright
     items.add(Padding(
-      padding: EdgeInsets.all(_lyricsFontSize),
+      padding: EdgeInsets.all(_lyricsFontSizeUnscaled),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppSpace(verticalSpace: _lyricsFontSize),
+          AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
           Text(
             'Copyright: ${song.copyright}',
-            style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSize * _scaleFactor),
+            style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled * _scaleFactor),
           ),
           //  give the scrolling some stuff to scroll the bottom up on
           AppSpace(verticalSpace: screenHeight / 2),
@@ -802,7 +842,7 @@ class LyricsTable {
     final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: FontWeight.bold);
 
     TextStyle chordDescriptorStyle =
-        style.copyWith(fontSize: (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal).copyWith(
+    style.copyWith(fontSize: (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal).copyWith(
               backgroundColor: style.backgroundColor,
             );
 
@@ -870,7 +910,7 @@ class LyricsTable {
     final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: FontWeight.bold);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-            fontSize: 0.8 * (style.fontSize ?? _chordFontSize), fontWeight: FontWeight.normal)
+            fontSize: 0.8 * (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal)
         .copyWith(
       backgroundColor: style.backgroundColor,
     );
@@ -932,7 +972,7 @@ class LyricsTable {
     );
     _coloredLyricTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
-      fontSize: lyricsFontSize,
+      fontSize: _lyricsFontSizeUnscaled,
       fontWeight: FontWeight.normal,
     );
   }
@@ -944,16 +984,16 @@ class LyricsTable {
     _screenHeight = app.screenInfo.mediaHeight;
 
     //  rough in the basic fontsize
-    _chordFontSize = 90; // max for hdmi resolution
+    _chordFontSizeUnscaled = 90; // max for hdmi resolution
 
     _scaleComponents();
-    _lyricsFontSize = _chordFontSize * 0.55;
+    _lyricsFontSizeUnscaled = _chordFontSizeUnscaled * 0.75;
 
     //  text styles
-    _chordTextStyle =
-        generateChordTextStyle(fontFamily: appFontFamily, fontSize: _chordFontSize, fontWeight: FontWeight.bold);
-    _sectionTextStyle = _chordTextStyle.copyWith(fontSize: _chordFontSize * 0.75);
-    _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSize, fontWeight: FontWeight.normal);
+    _chordTextStyle = generateChordTextStyle(
+        fontFamily: appFontFamily, fontSize: _chordFontSizeUnscaled, fontWeight: FontWeight.bold);
+    _sectionTextStyle = _chordTextStyle.copyWith(fontSize: _chordFontSizeUnscaled * 0.75);
+    _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
   _scaleComponents({double scaleFactor = 1.0}) {
@@ -961,27 +1001,18 @@ class LyricsTable {
     _padding = EdgeInsets.all(_paddingSize);
     _marginSize = _marginSizeMax * scaleFactor;
     _margin = EdgeInsets.all(_marginSize);
-
-    logger.log(
-        _logFontSize,
-        '_scaleComponents(): _chordFontSize: ${_chordFontSize.toStringAsFixed(2)}'
-        ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
-        ', padding: ${_paddingSize.toStringAsFixed(2)}');
   }
 
   NashvilleSelection _nashvilleSelection = NashvilleSelection.off;
 
   double get screenWidth => _screenWidth;
-  double _screenWidth = 100;
+  double _screenWidth = 1920; //  initial value only
 
   double get screenHeight => _screenHeight;
-  double _screenHeight = 50;
+  double _screenHeight = 1080; //  initial value only
 
-  double get lyricsFontSize => _lyricsFontSize * _scaleFactor;
-  double _lyricsFontSize = 18;
-
-  double get chordFontSize => _chordFontSize * _scaleFactor;
-  double _chordFontSize = appDefaultFontSize;
+  double _chordFontSizeUnscaled = appDefaultFontSize;
+  double _lyricsFontSizeUnscaled = 18; //  initial value only
 
   double get marginSize => _marginSize;
 
@@ -1122,6 +1153,7 @@ class SongCellWidget extends StatefulWidget {
         text: richText.text,
         textScaleFactor: textScaleFactor ?? this.textScaleFactor,
         softWrap: richText.softWrap,
+        maxLines: _maxLines, //richText.maxLines,
       );
     }
 
@@ -1151,20 +1183,14 @@ class SongCellWidget extends StatefulWidget {
   Size _computeBuildSize() {
     return (withEllipsis ?? false)
         ? size!
-        : _computeRichTextSize(richText, textScaleFactor: textScaleFactor) +
+        : _computeRichTextSize(richText,
+                textScaleFactor: textScaleFactor,
+                maxLines: _maxLines,
+                maxWidth: columnWidth ?? app.screenInfo.mediaWidth) +
             Offset(_paddingSize + 2.0 * _marginSize, 2.0 * _marginSize);
   }
 
-  Rect get rect {
-    //  fixme: should be lazy eval
-    Size buildSize = size ?? _computeBuildSize();
-    return Rect.fromLTWH(
-        point?.x ?? 0.0,
-        point?.y ?? 0.0,
-        ((size?.width ?? 0) < (columnWidth ?? 0) ? columnWidth! : buildSize.width), //  width
-        buildSize.height //  height
-        );
-  }
+  Size get buildSize => size ?? _computeBuildSize();
 
   @override
   String toString({DiagnosticLevel? minLevel}) {
@@ -1213,9 +1239,9 @@ class _SongCellState extends State<SongCellWidget> {
           }
         }
         logger.v('_SongCellState: songMoment: ${widget.songMoment} vs ${moment?.momentNumber}');
-        if (isNowSelected == selected && child != null) {
-          return child;
-        }
+        // if (isNowSelected == selected && child != null) {
+        //   return child;  fixme for efficiency?
+        // }
         selected = isNowSelected;
         return childBuilder(context);
       },
@@ -1234,12 +1260,19 @@ class _SongCellState extends State<SongCellWidget> {
       default:
         break;
     }
-    logger.log(
-        _logSongCell,
-        '_SongCellState: childBuilder: selected: $selected, songMoment: ${widget.songMoment?.momentNumber}'
-        ', text: "${widget.richText.text.toPlainText()}"'
-        ', width: $width/$maxWidth'
-        ', columnWidth: ${widget.columnWidth}');
+    // if (widget.type == SongCellType.lyric) {
+    //   logger.log(
+    //       _logSongCell,
+    //       '_SongCellState: childBuilder: '
+    //       ', textScaleFactor: ${widget.textScaleFactor}'
+    //       //  'selected: $selected, songMoment: ${widget.songMoment?.momentNumber}'
+    //       // ', text: "${widget.richText.text.toPlainText() /*.substring(0, 10)*/}"'
+    //       // ', len: ${widget.richText.text.toPlainText().length}'
+    //       ', maxLines: ${widget.richText.maxLines}'
+    //       // ', width: $width/$maxWidth'
+    //       ', size: $buildSize'
+    //       ', columnWidth: ${widget.columnWidth}');
+    // }
 
     RichText richText = widget.richText;
     if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {

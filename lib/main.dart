@@ -176,8 +176,8 @@ void main() async {
 
 /*
 beta short list:
-requester list change update fails to update UI
-_______X for name.value name entry and value entry
+_____requester list change update fails to update UI
+_____X for name.value name entry and value entry
 _____thumbs up and down on song... now that metadata functions
 _____playlist extended to singers screen
 _____test Player play button size
@@ -187,20 +187,24 @@ ____singers searched for in history & singing?
 ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
 ____change of singer => playlist scroll to zero
+____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
 finish PlayList
     requested song, no singer, click selection?  singer popup?
     fix christmas
+generate CSV for metadata updates to CJ website
 singer requester editing not remembered
     requester list change should provide a "write file" button
     should not let user leave singing screen without warning and opportunity to write
-select all of search text on return to playlist
+select all of search text on return from playlist
 player: Tablet change to manual play.  on menu bar tally icon?
-fontsize on song lyrics?  lyrics multi-lines?
 Follower jumpy,
     Follower scroll update too brutal on section transitions.
     player key up/down move on changes 12 bar blues - minor
     follower jumps somewhere and back when adjusting the key when not on the first section
+reset singer search when singer added to session
 
+very small screens, chord font size is too large relative to lyrics
+very small screens, menu title stuff too large
 PlayList:  song count on bottom?
 fix history song count to show only displayed songs
 Singer mode chords proportional to chord font, limit length

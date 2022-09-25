@@ -47,7 +47,6 @@ get it right next time:  repeats in measure column
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
-const Level _logSongCell = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
 

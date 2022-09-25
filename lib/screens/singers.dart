@@ -889,41 +889,6 @@ class SingersState extends State<Singers> {
     });
   }
 
-  Widget _mapSongToWidget(final Song song, {final enable = true, final checkbox = true, final whenPressed = true}) {
-    return AppWrapFullWidth(
-      children: [
-        appWrapSongExplicit(
-          song,
-          enable: enable,
-          onChanged: enable && checkbox
-              ? (bool? value) {
-                  if (value != null) {
-                    setState(() {
-                      if (_selectedSingerIsRequester) {
-                        if (value) {
-                          _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
-                        } else {
-                          _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
-                        }
-                      } else if (_selectedSinger != _unknownSinger) {
-                        //  not a requester
-                        if (value) {
-                          _allSongPerformances.addSongPerformance(SongPerformance.fromSong(song, _selectedSinger));
-                        } else {
-                          _allSongPerformances.removeSingerSong(_selectedSinger, song.songId.toString());
-                        }
-                      }
-                      AppOptions().storeAllSongPerformances();
-                    });
-                  }
-                }
-              : null,
-          whenPressed: whenPressed,
-        ),
-      ],
-    );
-  }
-
   Widget mapSongPerformanceToSingerWidget(SongPerformance songPerformance, {final whenPressed = true}) {
     if (songPerformance.song == null) {
       return Text('null song for ${songPerformance.songIdAsString}');

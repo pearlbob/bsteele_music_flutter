@@ -30,7 +30,7 @@ void main() {
         8 * 1080);
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(BSteeleMusicApp());
+    await tester.pumpWidget(const BSteeleMusicApp());
     await tester.pumpAndSettle();
 
     var mainSearchText = find.byKey(appKey(AppKeyEnum.mainSearchText));
@@ -49,13 +49,13 @@ void main() {
       List<Widget> widgets = Find.findValueKeyContains('Song_', findSome: false);
       logger
           .d('     widgets.length: ${widgets.length}, type:  ${widgets.isEmpty ? 'none' : widgets[0].key.runtimeType}');
-     if (false) if (widgets.isNotEmpty) {
-        final regExp = RegExp(searchString, caseSensitive: false);
-        for (var w in widgets) {
-          logger.d('     ${(w.key as ValueKey<String>).value}');
-          assert(regExp.hasMatch((w.key as ValueKey<String>).value));
-        }
-      }
+      // if (widgets.isNotEmpty) {  //  fixme
+      //     final regExp = RegExp(searchString, caseSensitive: false);
+      //     for (var w in widgets) {
+      //       logger.d('     ${(w.key as ValueKey<String>).value}');
+      //       assert(regExp.hasMatch((w.key as ValueKey<String>).value));
+      //     }
+      //   }
     }
 
     {

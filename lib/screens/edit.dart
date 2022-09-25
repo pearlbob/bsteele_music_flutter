@@ -946,7 +946,6 @@ class EditState extends State<Edit> {
                         ),
                         TextSpan(
                           text:
-                              //  todo: fix the font, ♭ is not represented properly
                               'Notice that this can get problematic around the lower case b. Should the entry "bbm7"'
                               ' be a B♭m7 or the chord B followed by a Bm7?'
                               ' The app will assume a B♭m7 but you can force a BBm7 by entering either "BBm7" or "bBm7".\n\n'

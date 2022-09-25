@@ -25,7 +25,7 @@ void main() {
           8 * 1080);
 
       // Build our app and trigger a frame.
-      await tester.pumpWidget(BSteeleMusicApp());
+      await tester.pumpWidget(const BSteeleMusicApp());
       await tester.pumpAndSettle();
 
       List<Widget> widgets;
@@ -45,9 +45,10 @@ void main() {
         await tester.pumpAndSettle();
       }
 
-      if (false) {
-        widgets = Find.findValueKeyContains('Song_', findSome: false);
-        expect(widgets, isEmpty);
+      {
+        //  fixme
+        // widgets = Find.findValueKeyContains('Song_', findSome: false);
+        // expect(widgets, isEmpty);
       }
 
       {
@@ -60,14 +61,14 @@ void main() {
       widgets = Find.findValueKeyContains('Song_', findSome: false);
       expect(widgets, isNotEmpty);
 
-      if (false) {
-        var searchString = 'this will not match any song';
-        await tester.enterText(mainSearchText, searchString);
-        await tester.testTextInput.receiveAction(TextInputAction.done);
-        await tester.pumpAndSettle();
-        widgets = Find.findValueKeyContains('Song_', findSome: false);
-        expect(widgets, isEmpty);
-      }
+      // {//  fixme
+      //   var searchString = 'this will not match any song';
+      //   await tester.enterText(mainSearchText, searchString);
+      //   await tester.testTextInput.receiveAction(TextInputAction.done);
+      //   await tester.pumpAndSettle();
+      //   widgets = Find.findValueKeyContains('Song_', findSome: false);
+      //   expect(widgets, isEmpty);
+      // }
       {
         var searchString = 'Chicago';
         await tester.enterText(mainSearchText, searchString);

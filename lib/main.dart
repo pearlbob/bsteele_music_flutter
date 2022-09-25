@@ -170,12 +170,13 @@ void main() async {
 
   //  run the app
   runApp(
-    BSteeleMusicApp(),
+    const BSteeleMusicApp(),
   );
 }
 
 /*
 beta short list:
+_____re-setstate() on main after return from metadata
 _____requester list change update fails to update UI
 _____X for name.value name entry and value entry
 _____thumbs up and down on song... now that metadata functions
@@ -188,10 +189,10 @@ ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
 ____change of singer => playlist scroll to zero
 ____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
+____generate CSV for metadata updates to CJ website
 finish PlayList
     requested song, no singer, click selection?  singer popup?
     fix christmas
-generate CSV for metadata updates to CJ website
 singer requester editing not remembered
     requester list change should provide a "write file" button
     should not let user leave singing screen without warning and opportunity to write
@@ -203,6 +204,9 @@ Follower jumpy,
     follower jumps somewhere and back when adjusting the key when not on the first section
 reset singer search when singer added to session
 
+todo: test todo
+
+OR list for multiple filters
 very small screens, chord font size is too large relative to lyrics
 very small screens, menu title stuff too large
 PlayList:  song count on bottom?
@@ -625,9 +629,7 @@ map moment to grid
 
 /// Display the master list of songs to choose from.
 class BSteeleMusicApp extends StatelessWidget {
-  BSteeleMusicApp({Key? key}) : super(key: key) {
-    Logger.level = Level.info;
-  }
+  const BSteeleMusicApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1219,6 +1221,10 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop();
+
+    setState(() {
+      //  read any metadata changes into the list
+    });
   }
 
   _navigateToEdit() async {

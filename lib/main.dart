@@ -174,6 +174,23 @@ void main() async {
 
 /*
 beta short list:
+Follower jumpy,
+    Follower scroll update too brutal on section transitions.
+    player key up/down move on changes 12 bar blues - minor
+    follower jumps somewhere and back when adjusting the key when not on the first section
+finish PlayList
+    requested song, no singer, click selection?  singer popup?
+    fix christmas
+singer requester editing not remembered
+    requester list change should provide a "write file" button
+    should not let user leave singing screen without warning and opportunity to write
+select all of search text on return from playlist
+player: Tablet change to manual play.  on menu bar tally icon?
+change of singer => playlist scroll to zero
+
+reset singer search when singer added to session
+____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
+____generate CSV for metadata updates to CJ website
 _____re-setstate() on main after return from metadata
 _____requester list change update fails to update UI
 _____X for name.value name entry and value entry
@@ -185,22 +202,6 @@ _____deleting metadata on song in metadata should do a full setstate on the play
 ____singers searched for in history & singing?
 ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
-____change of singer => playlist scroll to zero
-____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
-____generate CSV for metadata updates to CJ website
-finish PlayList
-    requested song, no singer, click selection?  singer popup?
-    fix christmas
-singer requester editing not remembered
-    requester list change should provide a "write file" button
-    should not let user leave singing screen without warning and opportunity to write
-select all of search text on return from playlist
-player: Tablet change to manual play.  on menu bar tally icon?
-Follower jumpy,
-    Follower scroll update too brutal on section transitions.
-    player key up/down move on changes 12 bar blues - minor
-    follower jumps somewhere and back when adjusting the key when not on the first section
-reset singer search when singer added to session
 ____metadata jumps to top of list on change
 
 OR list for multiple filters

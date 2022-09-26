@@ -8,13 +8,13 @@ import 'package:bsteele_music_flutter/screens/popupSubMenuItem.dart';
 import 'package:flutter/material.dart';
 
 class MetadataPopupMenuButton {
-  static Widget button({final String? title, TextStyle? style}) {
+  static Widget button({final String? title, TextStyle? style, PopupMenuItemSelected<NameValue>? onSelected}) {
     style = style ?? generateAppTextStyle();
     return PopupMenuButton<NameValue>(
       //initialValue: const NameValue('name0', 'value0'),
       tooltip: '', //'Parent menu',
       onSelected: (value) {
-        logger.i('selected parent: $value');
+        logger.i('selected parent: $value'); //fixme: not used
       },
       itemBuilder: (BuildContext context) {
         //  find all name/values in use
@@ -35,9 +35,10 @@ class MetadataPopupMenuButton {
             itemLabelFunction: (e) => e.value.isNotEmpty ? e.value : e.toShortString(),
             style: style,
             offset: offset,
-            onSelected: (value) {
-              logger.i('selected: $value');
-            },
+            onSelected: onSelected ??
+                (value) {
+                  logger.i('selected: $value');
+                },
           ));
         }
         return items;

@@ -596,28 +596,23 @@ class _PlayListState extends State<PlayList> {
                         )),
                     const AppSpace(spaceFactor: 2.0),
                     //  filters
-                    AppWrap(spacing: _textFontSize, children: [
-                      DropdownButton<NameValue?>(
-                        value: null,
-                        hint: Text('Filters:', style: artistStyle),
-                        items: filterDropdownMenuItems,
-                        style: artistStyle,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              if (value == allNameValue) {
-                                _filterNameValues.clear();
-                              } else {
-                                _filterNameValues.add(value);
-                              }
-                            });
+                    MetadataPopupMenuButton.button(
+                      title: 'Filters',
+                      style: artistStyle,
+                      onSelected: (value) {
+                        setState(() {
+                          if (value == allNameValue) {
+                            _filterNameValues.clear();
+                          } else {
+                            _filterNameValues.add(value);
                           }
-                        },
-                        itemHeight: null,
-                      ),
-                      ...filterWidgets,
-                    ]),
-                    MetadataPopupMenuButton.button(title: 'Filters', style: artistStyle),
+                        });
+                      },
+                    ),
+                    AppWrap(
+                      spacing: _textFontSize,
+                      children: filterWidgets,
+                    ),
                   ]),
 
                   //  filters and order

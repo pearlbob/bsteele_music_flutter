@@ -5,6 +5,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
@@ -64,7 +65,6 @@ class MetadataScreenState extends State<MetadataScreen> {
 
     logger.v('_selectedNameValue: $_selectedNameValue');
 
-    List<DropdownMenuItem<NameValue>> nameValueDropdownMenuItems = [];
     List<DropdownMenuItem<String>> nameDropdownMenuItems = [];
     List<DropdownMenuItem<String>> valueDropdownMenuItems = [];
     {
@@ -75,9 +75,6 @@ class MetadataScreenState extends State<MetadataScreen> {
       }
       logger.v('lists.build: ${SongMetadata.idMetadata}');
 
-      nameValueDropdownMenuItems = nameValues
-          .map((e) => DropdownMenuItem<NameValue>(value: e, child: Text(e.toShortString(), style: metadataStyle)))
-          .toList(growable: false);
       {
         //  clear the selected of old values
         List<NameValue> removal = [];
@@ -112,8 +109,6 @@ class MetadataScreenState extends State<MetadataScreen> {
     _selectedNameValue = (_nameTextFieldController.text.isNotEmpty && _valueTextFieldController.text.isNotEmpty)
         ? NameValue(_nameTextFieldController.text, _valueTextFieldController.text)
         : _emptySelectedNameValue;
-    var selectedNameValueString =
-        SongMetadata.contains(_selectedNameValue) ? _selectedNameValue.toShortString() : 'Name:Values';
 
     return MultiProvider(
         providers: [
@@ -200,26 +195,23 @@ class MetadataScreenState extends State<MetadataScreen> {
                             : null,
                       ),
                     ]),
-                    const AppSpace(
-                      verticalSpace: 20,
-                    ),
+                    const AppSpace(spaceFactor: 2),
                     Text('Set or clear metadata Name:Value pairs:',
                         style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
-                    const AppSpace(),
+                    const AppSpace(spaceFactor: 2),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DropdownButton<NameValue>(
-                            hint: Text('Existing $selectedNameValueString', style: metadataStyle),
-                            items: nameValueDropdownMenuItems,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  _nameTextFieldController.text = value.name;
-                                  _valueTextFieldController.text = value.value;
-                                });
-                              }
-                            }),
+                        MetadataPopupMenuButton.button(
+                          title: 'Existing metadata',
+                          style: metadataStyle,
+                          onSelected: (value) {
+                            setState(() {
+                              _nameTextFieldController.text = value.name;
+                              _valueTextFieldController.text = value.value;
+                            });
+                          },
+                        ),
                         const AppSpace(spaceFactor: 4),
                         Text('New: ', style: metadataStyle),
                         Column(
@@ -259,7 +251,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     )),
                               ],
                             ),
-                            const AppSpace(),
+                            const AppSpace(spaceFactor: 1),
                             DropdownButton<String>(
                                 hint: Text('Existing names', style: metadataStyle),
                                 items: nameDropdownMenuItems,
@@ -301,7 +293,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     fontSize: fontSize,
                                   ),
                                 ),
-                                const AppSpace(),
+                                const AppSpace(spaceFactor: 2),
                                 //  search clear
                                 AppTooltip(
                                     message: 'Clear the value text.',
@@ -319,7 +311,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     )),
                               ],
                             ),
-                            const AppSpace(),
+                            const AppSpace(spaceFactor: 2),
                             if (_nameTextFieldController.text.isNotEmpty)
                               DropdownButton<String>(
                                   hint: Text('Values of ${_nameTextFieldController.text}', style: metadataStyle),

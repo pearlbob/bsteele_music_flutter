@@ -97,8 +97,6 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_io/io.dart';
 
-//import 'package:wakelock/wakelock.dart';
-
 import 'app/app.dart';
 import 'app/appOptions.dart';
 import 'app/app_theme.dart';
@@ -873,257 +871,257 @@ class MyHomePageState extends State<MyHomePage> {
             onPressed: _openDrawer,
             icon: appIcon(
               Icons.menu, size: app.screenInfo.fontSize, //  fixme: why is this required?
-              ),
             ),
           ),
-          actions: <Widget>[
-            if (!app.screenInfo.isWayTooNarrow)
-              AppTooltip(
-                message: "Visit bsteele.com, the provider of this app.",
-                child: InkWell(
-                  onTap: () {
-                    openLink('http://www.bsteele.com');
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.all(Radius.circular(14)),
-                      color: Colors.white,
-                    ),
-                    child: const Image(
-                      image: AssetImage('lib/assets/runningMan.png'),
-                      width: kToolbarHeight,
-                      height: kToolbarHeight,
-                      semanticLabel: "bsteele.com website",
-                    ),
+        ),
+        actions: <Widget>[
+          if (!app.screenInfo.isWayTooNarrow)
+            AppTooltip(
+              message: "Visit bsteele.com, the provider of this app.",
+              child: InkWell(
+                onTap: () {
+                  openLink('http://www.bsteele.com');
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    color: Colors.white,
+                  ),
+                  child: const Image(
+                    image: AssetImage('lib/assets/runningMan.png'),
+                    width: kToolbarHeight,
+                    height: kToolbarHeight,
+                    semanticLabel: "bsteele.com website",
                   ),
                 ),
               ),
-            if (!app.screenInfo.isWayTooNarrow)
-              AppTooltip(
-                message: "Visit Community Jams, the motivation and main user for this app.",
-                child: InkWell(
-                  onTap: () {
-                    openLink('http://communityjams.org');
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.all(Radius.circular(14)),
-                      color: Colors.white,
-                    ),
-                    child: const Image(
-                      image: AssetImage('lib/assets/cjLogo.png'),
-                      width: kToolbarHeight,
-                      height: kToolbarHeight,
-                      semanticLabel: "community jams",
-                    ),
+            ),
+          if (!app.screenInfo.isWayTooNarrow)
+            AppTooltip(
+              message: "Visit Community Jams, the motivation and main user for this app.",
+              child: InkWell(
+                onTap: () {
+                  openLink('http://communityjams.org');
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    color: Colors.white,
+                  ),
+                  child: const Image(
+                    image: AssetImage('lib/assets/cjLogo.png'),
+                    width: kToolbarHeight,
+                    height: kToolbarHeight,
+                    semanticLabel: "community jams",
                   ),
                 ),
               ),
+            ),
+        ],
+      ),
+
+      drawer: appDrawer(
+        appKeyEnum: AppKeyEnum.mainDrawer,
+        voidCallback: _openDrawer,
+        child: ListView(
+          padding: const EdgeInsets.all(4.0),
+          children: <Widget>[
+            Container(
+              height: 50,
+            ), //  filler for notched phones
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerOptions,
+              title: Text(
+                "Options",
+                style: navTextStyle,
+              ),
+              onTap: () {
+                _navigateToOptions();
+              },
+            ),
+            if (app.isEditReady)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerSingers,
+                title: Text(
+                  "Singers",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToSingers();
+                },
+              ),
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerPerformanceHistory,
+              title: Text(
+                "History",
+                style: navTextStyle,
+              ),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToPerformanceHistory();
+              },
+            ),
+            if (app.isEditReady) //  no files on phones!
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerSongs,
+                title: Text(
+                  "Songs",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToSongs();
+                },
+              ),
+
+            if (app.isEditReady)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerNewSong,
+                title: Text(
+                  "New Song",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToEdit();
+                },
+              ),
+            if (!app.screenInfo.isTooNarrow)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerTheory,
+                title: Text(
+                  "Theory",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToTheory();
+                },
+              ),
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerPrivacy,
+              title: Text(
+                "Privacy",
+                style: navTextStyle,
+              ),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToPrivacyPolicy();
+              },
+            ),
+            if (app.isScreenBig)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerDocs,
+                title: Text(
+                  "Docs",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToDocumentation();
+                },
+              ),
+            if (kDebugMode)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
+                title: Text(
+                  "CSS Demo",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToCssDemo();
+                },
+              ),
+            if (app.isEditReady)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerLists,
+                title: Text(
+                  "Metadata",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToMetadata();
+                },
+              ),
+            if (kDebugMode)
+              appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerDebug,
+                title: Text(
+                  "Debug",
+                  style: navTextStyle,
+                ),
+                onTap: () {
+                  _navigateToDebug();
+                },
+              ),
+
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerAbout,
+              title: Text(
+                'CJ',
+                style: navTextStyle,
+              ),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToCommunityJams();
+              },
+            ),
+
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerAbout,
+              title: Text(
+                'About',
+                style: navTextStyle,
+              ),
+              //trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                _navigateToAbout();
+              },
+            ),
           ],
         ),
+      ),
 
-        drawer: appDrawer(
-          appKeyEnum: AppKeyEnum.mainDrawer,
-          voidCallback: _openDrawer,
-          child: ListView(
-            padding: const EdgeInsets.all(4.0),
-            children: <Widget>[
-              Container(
-                height: 50,
-              ), //  filler for notched phones
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerOptions,
-                title: Text(
-                  "Options",
-                  style: navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToOptions();
-                },
-              ),
-              if (app.isEditReady)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerSingers,
-                  title: Text(
-                    "Singers",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToSingers();
-                  },
-                ),
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerPerformanceHistory,
-                title: Text(
-                  "History",
-                  style: navTextStyle,
-                ),
-                //trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  _navigateToPerformanceHistory();
-                },
-              ),
-              if (app.isEditReady) //  no files on phones!
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerSongs,
-                  title: Text(
-                    "Songs",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToSongs();
-                  },
-                ),
-
-              if (app.isEditReady)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerNewSong,
-                  title: Text(
-                    "New Song",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToEdit();
-                  },
-                ),
-              if (!app.screenInfo.isTooNarrow)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerTheory,
-                  title: Text(
-                    "Theory",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToTheory();
-                  },
-                ),
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerPrivacy,
-                title: Text(
-                  "Privacy",
-                  style: navTextStyle,
-                ),
-                //trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  _navigateToPrivacyPolicy();
-                },
-              ),
-              if (app.isScreenBig)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerDocs,
-                  title: Text(
-                    "Docs",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToDocumentation();
-                  },
-                ),
-              if (kDebugMode)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
-                  title: Text(
-                    "CSS Demo",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToCssDemo();
-                  },
-                ),
-              if (app.isEditReady)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerLists,
-                  title: Text(
-                    "Metadata",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToMetadata();
-                  },
-                ),
-              if (kDebugMode)
-                appListTile(
-                  appKeyEnum: AppKeyEnum.mainDrawerDebug,
-                  title: Text(
-                    "Debug",
-                    style: navTextStyle,
-                  ),
-                  onTap: () {
-                    _navigateToDebug();
-                  },
-                ),
-
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerAbout,
-                title: Text(
-                  'CJ',
-                  style: navTextStyle,
-                ),
-                //trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  _navigateToCommunityJams();
-                },
-              ),
-
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerAbout,
-                title: Text(
-                  'About',
-                  style: navTextStyle,
-                ),
-                //trailing: Icon(Icons.arrow_forward),
-                onTap: () {
-                  _navigateToAbout();
-                },
-              ),
-            ],
-          ),
+      /// Navigate to song player when song tapped.
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        if (app.message.isNotEmpty)
+          Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
+        // if (kDebugMode)
+        //   TextButton(
+        //       onPressed: () {
+        //         testAppKeyCallbacks();
+        //       },
+        //       child: Text(
+        //         'test',
+        //         style: searchDropDownStyle,
+        //       )),
+        PlayList(
+          songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
+              songItemAction: _navigateToPlayerBySongItem),
+          style: titleTextStyle,
         ),
+      ]),
 
-        /// Navigate to song player when song tapped.
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-          if (app.message.isNotEmpty)
-            Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
-          // if (kDebugMode)
-          //   TextButton(
-          //       onPressed: () {
-          //         testAppKeyCallbacks();
-          //       },
-          //       child: Text(
-          //         'test',
-          //         style: searchDropDownStyle,
-          //       )),
-          PlayList(
-            songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
-                songItemAction: _navigateToPlayerBySongItem),
-            style: titleTextStyle,
-          ),
-        ]),
-
-        // floatingActionButton: AppTooltip(    //  fixme: move to playList?
-        //   message: 'Back to the list top',
-        //   child: appFloatingActionButton(
-        //     appKeyEnum: AppKeyEnum.mainUp,
-        //     onPressed: () {
-        //       if (_itemScrollController.isAttached) {
-        //         _itemScrollController.scrollTo(
-        //           index: 0,
-        //           curve: Curves.easeOut,
-        //           duration: const Duration(milliseconds: 500),
-        //         );
-        //       }
-        //     },
-        //     child: appIcon(
-        //       Icons.arrow_upward,
-        //     ),
-        //     mini: !app.isScreenBig,
-        //   ),
-        // ),
-      );
+      // floatingActionButton: AppTooltip(    //  fixme: move to playList?
+      //   message: 'Back to the list top',
+      //   child: appFloatingActionButton(
+      //     appKeyEnum: AppKeyEnum.mainUp,
+      //     onPressed: () {
+      //       if (_itemScrollController.isAttached) {
+      //         _itemScrollController.scrollTo(
+      //           index: 0,
+      //           curve: Curves.easeOut,
+      //           duration: const Duration(milliseconds: 500),
+      //         );
+      //       }
+      //     },
+      //     child: appIcon(
+      //       Icons.arrow_upward,
+      //     ),
+      //     mini: !app.isScreenBig,
+      //   ),
+      // ),
+    );
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

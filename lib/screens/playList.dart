@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -616,6 +617,7 @@ class _PlayListState extends State<PlayList> {
                       ),
                       ...filterWidgets,
                     ]),
+                    MetadataPopupMenuButton.button(title: 'Filters', style: artistStyle),
                   ]),
 
                   //  filters and order

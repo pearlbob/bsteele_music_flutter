@@ -10,7 +10,7 @@ class Debug extends StatefulWidget {
   @override
   DebugState createState() => DebugState();
 
-  static const String routeName = '/debug';
+  static const String routeName = 'debug';
 }
 
 class DebugState extends State<Debug> {

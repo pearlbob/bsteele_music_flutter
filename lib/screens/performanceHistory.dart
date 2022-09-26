@@ -20,7 +20,7 @@ class PerformanceHistory extends StatefulWidget {
   @override
   PerformanceHistoryState createState() => PerformanceHistoryState();
 
-  static const String routeName = '/history';
+  static const String routeName = 'history';
 }
 
 class PerformanceHistoryState extends State<PerformanceHistory> {

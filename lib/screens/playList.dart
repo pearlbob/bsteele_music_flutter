@@ -17,8 +17,9 @@ import 'package:provider/provider.dart';
 import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
 
-const Level _logBuild = Level.debug;
 const Level _logConstruct = Level.debug;
+const Level _logInitState = Level.info;
+const Level _logBuild = Level.info;
 const Level _logPosition = Level.debug;
 
 //  persistent selection
@@ -238,16 +239,20 @@ class SongListGroup {
 
 class PlayList extends StatefulWidget {
   PlayList({
-    super.key,
+    key,
     required SongList songList,
-    this.style,
-    this.includeByLastSung = false,
-    this.isEditing = false,
-    this.selectedSortType,
-    this.isFromTheTop = false,
-  }) : group = SongListGroup([songList]) {
-    logger.log(_logConstruct, 'PlayList(): construction: _isEditing: $isEditing');
-  }
+    style,
+    includeByLastSung = false,
+    isEditing = false,
+    selectedSortType,
+    isFromTheTop = false,
+  }) : this.byGroup(SongListGroup([songList]),
+            key: key,
+            style: style,
+            includeByLastSung: includeByLastSung,
+            isEditing: isEditing,
+            selectedSortType: selectedSortType,
+            isFromTheTop: isFromTheTop);
 
   PlayList.byGroup(
     this.group, {
@@ -257,8 +262,16 @@ class PlayList extends StatefulWidget {
     this.isEditing = false,
     this.selectedSortType,
     this.isFromTheTop = false,
-  }) {
-    logger.log(_logConstruct, 'PlayList.byGroup(): construction: _isEditing: $isEditing');
+  }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
+    //
+    titleFontSize = style?.fontSize ?? appDefaultFontSize;
+    _textFontSize = 0.75 * titleFontSize;
+    artistStyle = titleStyle.copyWith(fontSize: _textFontSize, fontWeight: FontWeight.normal);
+
+    searchDropDownStyle = artistStyle;
+    searchTextStyle = titleStyle;
+
+    logger.log(_logConstruct, 'PlayList: constructor: _isEditing: $isEditing');
   }
 
   @override
@@ -272,12 +285,25 @@ class PlayList extends StatefulWidget {
   final bool isEditing;
   final PlayListSortType? selectedSortType;
   final bool isFromTheTop;
+
+  final TextStyle titleStyle;
+  late final double titleFontSize;
+  late final TextStyle artistStyle;
+  late final TextStyle searchDropDownStyle;
+  late final TextStyle searchTextStyle;
+
+  late final TextStyle oddTitle = oddTitleTextStyle(from: titleStyle);
+  late final TextStyle evenTitle = evenTitleTextStyle(from: titleStyle);
+  late final TextStyle oddText = oddTitleTextStyle(from: artistStyle);
+  late final TextStyle evenText = evenTitleTextStyle(from: artistStyle);
 }
 
 class _PlayListState extends State<PlayList> {
   @override
   void initState() {
     super.initState();
+
+    logger.log(_logInitState, 'PlayList.initState():');
 
     if (widget.selectedSortType != null) {
       selectedSortType = widget.selectedSortType!;
@@ -293,6 +319,29 @@ class _PlayListState extends State<PlayList> {
           break;
         default:
       }
+    }
+
+    //  generate the sort selection
+    _sortTypesDropDownMenuList.clear();
+    for (final e in PlayListSortType.values) {
+      //  fool with the drop down options
+      if (!widget.includeByLastSung) {
+        switch (e) {
+          case PlayListSortType.byHistory:
+          case PlayListSortType.byLastSung:
+            //  if in a song play list, by last sung and history should be removed
+            continue;
+          default:
+        }
+      }
+      _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
+        appKeyEnum: AppKeyEnum.mainSortTypeSelection,
+        value: e,
+        child: Text(
+          Util.camelCaseToLowercaseSpace(e.name),
+          style: widget.searchDropDownStyle,
+        ),
+      ));
     }
   }
 
@@ -311,45 +360,11 @@ class _PlayListState extends State<PlayList> {
     logger.log(
         _logBuild,
         'PlayList.build(): _isEditing: ${widget.isEditing}'
-        ', text: "${_searchTextFieldController.text}"');
-
-    var titleStyle = widget.style ?? generateAppTextStyle();
-    var titleFontSize = widget.style?.fontSize ?? appDefaultFontSize;
-    _textFontSize = 0.75 * titleFontSize;
-    var artistStyle = titleStyle.copyWith(fontSize: _textFontSize, fontWeight: FontWeight.normal);
-    titleStyle = titleStyle.copyWith(fontWeight: FontWeight.bold);
-
-    final oddTitle = oddTitleTextStyle(from: titleStyle);
-    final evenTitle = evenTitleTextStyle(from: titleStyle);
-    final oddText = oddTitleTextStyle(from: artistStyle);
-    final evenText = evenTitleTextStyle(from: artistStyle);
-
-    final TextStyle searchDropDownStyle = artistStyle;
-    final TextStyle searchTextStyle = titleStyle;
-
-    //  generate the sort selection
-    _sortTypesDropDownMenuList.clear();
-
-    for (final e in PlayListSortType.values) {
-      //  fool with the drop down options
-      if (!widget.includeByLastSung) {
-        switch (e) {
-          case PlayListSortType.byHistory:
-          case PlayListSortType.byLastSung:
-            //  if in a song play list, by last sung and history should be removed
-            continue;
-          default:
-        }
-      }
-      _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
-        appKeyEnum: AppKeyEnum.mainSortTypeSelection,
-        value: e,
-        child: Text(
-          Util.camelCaseToLowercaseSpace(e.name),
-          style: searchDropDownStyle,
-        ),
-      ));
-    }
+        // ', text: "${_searchTextFieldController.text}"'
+        //   ', _searchTextFieldController: ${identityHashCode(_searchTextFieldController)}'
+        //    ' (${_searchTextFieldController.selection.base.offset}'
+        //    ',${_searchTextFieldController.selection.extent.offset})'
+        ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
 
     //  find all the metadata values
     SplayTreeSet<NameValue> nameValues = SplayTreeSet();
@@ -387,7 +402,7 @@ class _PlayListState extends State<PlayList> {
         value: allNameValue,
         child: Text(
           'Filters:',
-          style: artistStyle,
+          style: widget.artistStyle,
         )));
     for (var nv in nameValues) {
       logger.v('$nv');
@@ -401,7 +416,7 @@ class _PlayListState extends State<PlayList> {
           value: nv,
           child: Text(
             nvString,
-            style: artistStyle,
+            style: widget.artistStyle,
           )));
     }
 
@@ -477,7 +492,7 @@ class _PlayListState extends State<PlayList> {
         SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
         for (final songItem in songList.songListItems) {
           if ((songItem.songPerformance != null &&
-                  matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
+              matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
               matcher.matchesOrEmptySearch(songItem.song)) {
             searchedSet.add(songItem);
           }
@@ -545,7 +560,7 @@ class _PlayListState extends State<PlayList> {
                       message: _searchTextTooltipText,
                       child: IconButton(
                         icon: const Icon(Icons.search),
-                        iconSize: titleFontSize,
+                        iconSize: widget.titleFontSize,
                         onPressed: (() {
                           setState(() {
                             //fixme: _searchSongs(_searchTextFieldController.text);
@@ -564,10 +579,10 @@ class _PlayListState extends State<PlayList> {
                         focusNode: _searchFocusNode,
                         decoration: InputDecoration(
                           hintText: 'enter search text',
-                          hintStyle: artistStyle.copyWith(color: Colors.black54),
+                          hintStyle: widget.artistStyle.copyWith(color: Colors.black54),
                         ),
                         autofocus: true,
-                        style: searchTextStyle,
+                        style: widget.searchTextStyle,
                         onChanged: (text) {
                           setState(() {
                             logger.v('search text: "$text"');
@@ -584,7 +599,7 @@ class _PlayListState extends State<PlayList> {
                         child: appEnumeratedIconButton(
                           icon: const Icon(Icons.clear),
                           appKeyEnum: AppKeyEnum.mainClearSearch,
-                          iconSize: 1.25 * titleFontSize,
+                          iconSize: 1.25 * widget.titleFontSize,
                           onPressed: (() {
                             _searchTextFieldController.clear();
                             app.clearMessage();
@@ -598,7 +613,7 @@ class _PlayListState extends State<PlayList> {
                     //  filters
                     MetadataPopupMenuButton.button(
                       title: 'Filters',
-                      style: artistStyle,
+                      style: widget.artistStyle,
                       onSelected: (value) {
                         setState(() {
                           if (value == allNameValue) {
@@ -627,7 +642,7 @@ class _PlayListState extends State<PlayList> {
                             message: 'Select the order of the song list.',
                             child: Text(
                               'Order',
-                              style: searchDropDownStyle,
+                              style: widget.searchDropDownStyle,
                             ),
                           ),
                           appDropdownButton<PlayListSortType>(
@@ -642,7 +657,7 @@ class _PlayListState extends State<PlayList> {
                               }
                             },
                             value: selectedSortType,
-                            style: searchDropDownStyle,
+                            style: widget.searchDropDownStyle,
                           ),
                         ],
                       ),
@@ -660,11 +675,12 @@ class _PlayListState extends State<PlayList> {
                   playListRefreshNotifier.positionPixels = scrollController.position.pixels;
                   logger.log(
                       _logPosition,
-                      '_PlayListState: index: $index, pos: ${playListRefreshNotifier.positionPixels}'
-                      ', id: ${identityHashCode(playListRefreshNotifier)}'
+                      '_PlayListState: index: $index, pos:'
+                      ' ${playListRefreshNotifier.positionPixels}'
+                      ', id:F ${identityHashCode(playListRefreshNotifier)}'
                       ', isFromTheTop: ${widget.isFromTheTop}');
-                  _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
-                  _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
+                  _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
+                  _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
                   return filteredGroup._indexToWidget(context, index, widget.isEditing);
                 },
               ),

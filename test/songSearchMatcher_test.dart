@@ -5,7 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Logger.level = Level.debug;
+  Logger.level = Level.info;
 
   test('test SongSearchMatcher', () {
     SongSearchMatcher songSearchMatcher = SongSearchMatcher('s');

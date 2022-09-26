@@ -103,7 +103,7 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 //  diagnostic logging enables
-const Level _logBuild = Level.debug;
+const Level _logBuild = Level.info;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -174,6 +174,7 @@ void main() async {
 
 /*
 beta short list:
+search text not selectable
 Follower jumpy,
     Follower scroll update too brutal on section transitions.
     player key up/down move on changes 12 bar blues - minor
@@ -187,6 +188,8 @@ singer requester editing not remembered
 select all of search text on return from playlist
 player: Tablet change to manual play.  on menu bar tally icon?
 change of singer => playlist scroll to zero
+menu bar overload on small screens and large song titles/artists/coverArtist
+csv metadata export in app
 
 reset singer search when singer added to session
 ____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
@@ -204,6 +207,8 @@ ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
 ____metadata jumps to top of list on change
 
+random songlist locations on startup
+random songlist locations on search clear
 OR list for multiple filters
 very small screens, chord font size is too large relative to lyrics
 very small screens, menu title stuff too large
@@ -633,39 +638,40 @@ class BSteeleMusicApp extends StatelessWidget {
   Widget build(BuildContext context) {
     logger.v('main: build()');
 
+    const mainList = 'mainList';
+
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<AppOptions>(create: (_) => AppOptions()),
           //  has to be a widget level above it's use
           ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
         ],
         child: MaterialApp(
           title: 'bsteele Music App',
           theme: app.themeData,
-          home: const MyHomePage(title: 'bsteele Music App'),
           navigatorObservers: [playerRouteObserver],
 
           // Start the app with the "/" named route. In this case, the app starts
           // on the FirstScreen widget.
-          initialRoute: Navigator.defaultRouteName,
+          initialRoute: mainList,
           routes: {
             // When navigating to the "/" route, build the FirstScreen widget.
             // '/': (context) => BSteeleMusicApp(),
             // When navigating to the "/second" route, build the SecondScreen widget.
+            mainList: (context) => const MyHomePage(title: 'bsteele Music App'),
             Player.routeName: playerPageRoute.builder,
             Options.routeName: (context) => const Options(),
-            '/songs': (context) => const Songs(),
+            'songs': (context) => const Songs(),
             Singers.routeName: (context) => const Singers(),
             MetadataScreen.routeName: (context) => const MetadataScreen(),
-            '/edit': (context) => Edit(initialSong: app.selectedSong),
+            'edit': (context) => Edit(initialSong: app.selectedSong),
             PerformanceHistory.routeName: (context) => const PerformanceHistory(),
-            '/privacy': (context) => const Privacy(),
-            '/documentation': (context) => const Documentation(),
+            'privacy': (context) => const Privacy(),
+            'documentation': (context) => const Documentation(),
             Debug.routeName: (context) => const Debug(),
-            '/about': (context) => const About(),
+            'about': (context) => const About(),
             CommunityJams.routeName: (context) => const Debug(),
-            '/cssDemo': (context) => const CssDemo(),
-            '/theory': (context) => const TheoryWidget(),
+            'cssDemo': (context) => const CssDemo(),
+            'theory': (context) => const TheoryWidget(),
           },
         ));
   }
@@ -687,8 +693,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  MyHomePageState() : appOptions = AppOptions();
-
   @override
   void initState() {
     super.initState();
@@ -823,9 +827,10 @@ class MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.log(_logBuild, 'main build: ${app.selectedSong}');
-
-    appOptions = Provider.of<AppOptions>(context);
+    logger.log(
+        _logBuild,
+        'main build: ${app.selectedSong}'
+        ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
 
     app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
@@ -1353,8 +1358,6 @@ class MyHomePageState extends State<MyHomePage> {
   List<Widget> listViewChildren = [];
   TextStyle titleTextStyle = appTextStyle; //  initial place holder
   TextStyle artistTextStyle = appTextStyle; //  initial place holder
-
-  AppOptions appOptions;
 
   static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
 }

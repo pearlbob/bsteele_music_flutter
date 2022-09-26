@@ -145,7 +145,7 @@ class Player extends StatefulWidget {
 
   Song _song; //  fixme: not const due to song updates!
 
-  static const String routeName = '/player';
+  static const String routeName = 'player';
 }
 
 class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver {

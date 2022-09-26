@@ -13,7 +13,7 @@ import 'package:logger/logger.dart';
 var defaultFontSize = 24.0;
 
 void main() async {
-  Logger.level = Level.debug;
+  Logger.level = Level.info;
 
   TestWidgetsFlutterBinding.ensureInitialized();
 

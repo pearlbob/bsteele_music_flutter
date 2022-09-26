@@ -47,7 +47,7 @@ class Singers extends StatefulWidget {
   @override
   SingersState createState() => SingersState();
 
-  static const String routeName = '/singers';
+  static const String routeName = 'singers';
 }
 
 class SingersState extends State<Singers> {
@@ -63,7 +63,6 @@ class SingersState extends State<Singers> {
   @override
   Widget build(BuildContext context) {
     return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
-      final AppOptions appOptions = Provider.of(context, listen: false);
       appWidgetHelper = AppWidgetHelper(context);
 
       logger.log(_singerLogBuild, 'singer build:  message: ${app.message}');
@@ -1225,4 +1224,6 @@ class SingersState extends State<Singers> {
   static const removeColor = Color(0xFFE57373); //var c = Colors.red[300]: Color(0xFFE57373),
   static const EdgeInsets appendInsets = EdgeInsets.all(3);
   static const EdgeInsets appendPadding = EdgeInsets.all(3);
+
+  final appOptions = AppOptions();
 }

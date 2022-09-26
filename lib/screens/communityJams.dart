@@ -13,7 +13,7 @@ class CommunityJams extends StatefulWidget {
   @override
   CommunityJamsState createState() => CommunityJamsState();
 
-  static const String routeName = '/communityJams';
+  static const String routeName = 'communityJams';
 }
 
 class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserver {

@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 
 
 void main() {
-  Logger.level = Level.debug;
+  Logger.level = Level.info;
 
   test('sheet display encode/decode', () {
     {

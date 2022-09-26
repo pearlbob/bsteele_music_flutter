@@ -14,6 +14,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/logger.dart';
 
 import 'test_util.dart';
 
@@ -22,6 +23,7 @@ import 'test_util.dart';
 void main() {
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
+    Logger.level = Level.info;
   });
 
   testWidgets('Search for song test', (WidgetTester tester) async {

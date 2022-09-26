@@ -19,6 +19,8 @@ import '../app/appOptions.dart';
 
 //  diagnostic logging enables
 const Level _optionLogAudio = Level.debug;
+const Level _logBuild = Level.debug;
+const Level _logUserNameEntry = Level.debug;
 
 /// A screen to display controls for the user to manage some of the app's options.
 class Options extends StatefulWidget {
@@ -27,7 +29,7 @@ class Options extends StatefulWidget {
   @override
   OptionsState createState() => OptionsState();
 
-  static const String routeName = '/options';
+  static const String routeName = 'options';
 }
 
 class OptionsState extends State<Options> {
@@ -61,7 +63,7 @@ class OptionsState extends State<Options> {
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
 
-    logger.v('options build: ${_songUpdateService.isConnected}');
+    logger.log(_logBuild, 'options build: ${_songUpdateService.isConnected}');
     var style = generateAppTextStyle();
 
     return Scaffold(
@@ -135,14 +137,14 @@ class OptionsState extends State<Options> {
                             'User name: ',
                           ),
                         ),
-                        AppTextField.onSubmitted(
+                        AppTextField(
                           appKeyEnum: AppKeyEnum.optionsUserName,
                           controller: _userTextEditingController,
                           hintText: 'Enter your user name.',
                           width: appDefaultFontSize * 40,
-                          onSubmitted: (value) {
+                          onChanged: (value) {
                             if (value.isNotEmpty) {
-                              logger.v('user name onChanged: $value');
+                              logger.log(_logUserNameEntry, 'user name onChanged: $value');
                               setState(() {
                                 _appOptions.user = value;
                               });

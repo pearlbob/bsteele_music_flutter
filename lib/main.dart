@@ -203,8 +203,7 @@ Follower jumpy,
     player key up/down move on changes 12 bar blues - minor
     follower jumps somewhere and back when adjusting the key when not on the first section
 reset singer search when singer added to session
-
-todo: test todo
+____metadata jumps to top of list on change
 
 OR list for multiple filters
 very small screens, chord font size is too large relative to lyrics

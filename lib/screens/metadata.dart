@@ -10,11 +10,14 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 
 //const Level _logBuild = Level.info;
+const Level _logAddSong = Level.debug;
+const Level _logDeleteSong = Level.debug;
 
 /// Allow the user to manage metadata for all available songs.
 /// Name and value pairs are assigned to songs identified by their song id.
@@ -112,257 +115,269 @@ class MetadataScreenState extends State<MetadataScreen> {
     var selectedNameValueString =
         SongMetadata.contains(_selectedNameValue) ? _selectedNameValue.toShortString() : 'Name:Values';
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Metadata'),
-      body: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const AppSpace(),
-                Text(app.message,
-                    style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                    key: const ValueKey('errorMessage')),
-                const AppSpace(),
-                //  file stuff
-                AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                  appEnumeratedButton(
-                    'Write all metadata to file',
-                    appKeyEnum: AppKeyEnum.listsSave,
-                    onPressed: () {
-                      _saveSongMetadata();
-                    },
-                  ),
-                  appEnumeratedButton(
-                    'Read metadata from file',
-                    appKeyEnum: AppKeyEnum.listsReadLists,
-                    onPressed: () {
-                      setState(() {
-                        _filePick(context);
-                      });
-                    },
-                  ),
-                  // if (_selectedNameValue != _emptySelectedNameValue)
-                  //   appEnumeratedButton(
-                  //     'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
-                  //     appKeyEnum: AppKeyEnum.listsSaveSelected,
-                  //     onPressed: () {
-                  //       _saveNameValueSongMetadata(_selectedNameValue);
-                  //       logger.i('save selection: $_selectedNameValue');
-                  //     },
-                  //   ),
-                  appEnumeratedButton(
-                    'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toShortString() : 'is disabled'}',
-                    appKeyEnum: AppKeyEnum.listsClearLists,
-                    onPressed: nameValueIsDeletable(_selectedNameValue)
-                        ? () {
-                            showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                      title: Text(
-                                        'Do you really want to delete the metadata ${_selectedNameValue.toShortString()}?',
-                                        style: TextStyle(fontSize: metadataStyle.fontSize),
-                                      ),
-                                      actions: [
-                                        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                                          appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
-                                              appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
-                                            logger.i('delete: ${_selectedNameValue.toShortString()}');
-                                            setState(() {
-                                              SongMetadata.removeAll(_selectedNameValue);
-                                              _selectedNameValue = _emptySelectedNameValue;
-                                              AppOptions().storeSongMetadata();
-                                            });
-                                            Navigator.of(context).pop();
-                                          }),
-                                          const AppSpace(space: 100),
-                                          appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList,
-                                              onPressed: () {
-                                            Navigator.of(context).pop();
-                                          }),
-                                        ])
-                                      ],
-                                      elevation: 24.0,
-                                    ));
-                            // SongMetadata.clear();
-                          }
-                        : null,
-                  ),
-                ]),
-                const AppSpace(
-                  verticalSpace: 20,
-                ),
-                Text('Set or clear metadata Name:Value pairs:',
-                    style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
-                const AppSpace(),
-                Row(
+    return MultiProvider(
+        providers: [
+          //  fixme: has to be a widget level above it's use????
+          ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
+        ],
+        child: Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Metadata'),
+          body: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButton<NameValue>(
-                        hint: Text('Existing $selectedNameValueString', style: metadataStyle),
-                        items: nameValueDropdownMenuItems,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _nameTextFieldController.text = value.name;
-                              _valueTextFieldController.text = value.value;
-                            });
-                          }
-                        }),
-                    const AppSpace(spaceFactor: 4),
-                    Text('New: ', style: metadataStyle),
-                    Column(
+                  children: <Widget>[
+                    const AppSpace(),
+                    Text(app.message,
+                        style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                        key: const ValueKey('errorMessage')),
+                    const AppSpace(),
+                    //  file stuff
+                    AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+                      appEnumeratedButton(
+                        'Write all metadata to file',
+                        appKeyEnum: AppKeyEnum.listsSave,
+                        onPressed: () {
+                          _saveSongMetadata();
+                        },
+                      ),
+                      appEnumeratedButton(
+                        'Read metadata from file',
+                        appKeyEnum: AppKeyEnum.listsReadLists,
+                        onPressed: () {
+                          setState(() {
+                            _filePick(context);
+                          });
+                        },
+                      ),
+                      // if (_selectedNameValue != _emptySelectedNameValue)
+                      //   appEnumeratedButton(
+                      //     'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
+                      //     appKeyEnum: AppKeyEnum.listsSaveSelected,
+                      //     onPressed: () {
+                      //       _saveNameValueSongMetadata(_selectedNameValue);
+                      //       logger.i('save selection: $_selectedNameValue');
+                      //     },
+                      //   ),
+                      appEnumeratedButton(
+                        'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toShortString() : 'is disabled'}',
+                        appKeyEnum: AppKeyEnum.listsClearLists,
+                        onPressed: nameValueIsDeletable(_selectedNameValue)
+                            ? () {
+                                showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                          title: Text(
+                                            'Do you really want to delete the metadata ${_selectedNameValue.toShortString()}?',
+                                            style: TextStyle(fontSize: metadataStyle.fontSize),
+                                          ),
+                                          actions: [
+                                            AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+                                              appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
+                                                  appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                                                logger.log(
+                                                    _logDeleteSong, 'delete: ${_selectedNameValue.toShortString()}');
+                                                setState(() {
+                                                  SongMetadata.removeAll(_selectedNameValue);
+                                                  _selectedNameValue = _emptySelectedNameValue;
+                                                  AppOptions().storeSongMetadata();
+                                                });
+                                                Navigator.of(context).pop();
+                                              }),
+                                              const AppSpace(space: 100),
+                                              appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList,
+                                                  onPressed: () {
+                                                Navigator.of(context).pop();
+                                              }),
+                                            ])
+                                          ],
+                                          elevation: 24.0,
+                                        ));
+                                // SongMetadata.clear();
+                              }
+                            : null,
+                      ),
+                    ]),
+                    const AppSpace(
+                      verticalSpace: 20,
+                    ),
+                    Text('Set or clear metadata Name:Value pairs:',
+                        style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
+                    const AppSpace(),
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 10 * app.screenInfo.fontSize,
-                              //  limit text entry display length
-                              child: AppTextField(
-                                appKeyEnum: AppKeyEnum.listsNameEntry,
-                                controller: _nameTextFieldController,
-                                hintText: "enter name...",
-                                //                 hintStyle: metadataStyle.copyWith(color: Colors.black54),
-                                onChanged: (text) {
-                                  setState(() {});
-                                },
-                                fontSize: fontSize,
-                              ),
-                            ),
-                            const AppSpace(),
-                            //  search clear
-                            AppTooltip(
-                                message: 'Clear the name text.',
-                                child: appEnumeratedIconButton(
-                                  icon: const Icon(Icons.clear),
-                                  appKeyEnum: AppKeyEnum.listsNameClear,
-                                  iconSize: metadataStyle.fontSize,
-                                  onPressed: (() {
-                                    setState(() {
-                                      _nameTextFieldController.clear();
-                                      app.clearMessage();
-                                      // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
-                                    });
-                                  }),
-                                )),
-                          ],
-                        ),
-                        const AppSpace(),
-                        DropdownButton<String>(
-                            hint: Text('Existing names', style: metadataStyle),
-                            items: nameDropdownMenuItems,
+                        DropdownButton<NameValue>(
+                            hint: Text('Existing $selectedNameValueString', style: metadataStyle),
+                            items: nameValueDropdownMenuItems,
                             onChanged: (value) {
-                              if (value != null && _nameTextFieldController.text != value) {
+                              if (value != null) {
                                 setState(() {
-                                  _nameTextFieldController.text = value;
-                                  _valueTextFieldController.text = ''; //  suppose the value is now wrong
+                                  _nameTextFieldController.text = value.name;
+                                  _valueTextFieldController.text = value.value;
                                 });
                               }
                             }),
-                      ],
-                    ),
-                    Text(
-                      '  :  ',
-                      style: metadataStyle,
-                    ),
-                    //  value entry
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                        const AppSpace(spaceFactor: 4),
+                        Text('New: ', style: metadataStyle),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: 10 * app.screenInfo.fontSize,
-                              //  limit text entry display length
-                              child: AppTextField(
-                                appKeyEnum: AppKeyEnum.listsValueEntry,
-                                controller: _valueTextFieldController,
-                                hintText: "enter value...",
-                                onChanged: (text) {
-                                  setState(() {
-                                    if (_nameTextFieldController.text.isNotEmpty) {
-                                      _selectedNameValue =
-                                          NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
-                                    }
-                                  });
-                                },
-                                fontSize: fontSize,
-                              ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 10 * app.screenInfo.fontSize,
+                                  //  limit text entry display length
+                                  child: AppTextField(
+                                    appKeyEnum: AppKeyEnum.listsNameEntry,
+                                    controller: _nameTextFieldController,
+                                    hintText: "enter name...",
+                                    //                 hintStyle: metadataStyle.copyWith(color: Colors.black54),
+                                    onChanged: (text) {
+                                      setState(() {});
+                                    },
+                                    fontSize: fontSize,
+                                  ),
+                                ),
+                                const AppSpace(),
+                                //  search clear
+                                AppTooltip(
+                                    message: 'Clear the name text.',
+                                    child: appEnumeratedIconButton(
+                                      icon: const Icon(Icons.clear),
+                                      appKeyEnum: AppKeyEnum.listsNameClear,
+                                      iconSize: metadataStyle.fontSize,
+                                      onPressed: (() {
+                                        setState(() {
+                                          _nameTextFieldController.clear();
+                                          app.clearMessage();
+                                          // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                        });
+                                      }),
+                                    )),
+                              ],
                             ),
                             const AppSpace(),
-                            //  search clear
-                            AppTooltip(
-                                message: 'Clear the value text.',
-                                child: appEnumeratedIconButton(
-                                  icon: const Icon(Icons.clear),
-                                  appKeyEnum: AppKeyEnum.listsValueClear,
-                                  iconSize: metadataStyle.fontSize,
-                                  onPressed: (() {
+                            DropdownButton<String>(
+                                hint: Text('Existing names', style: metadataStyle),
+                                items: nameDropdownMenuItems,
+                                onChanged: (value) {
+                                  if (value != null && _nameTextFieldController.text != value) {
                                     setState(() {
-                                      _valueTextFieldController.clear();
-                                      app.clearMessage();
-                                      // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                      _nameTextFieldController.text = value;
+                                      _valueTextFieldController.text = ''; //  suppose the value is now wrong
                                     });
-                                  }),
-                                )),
+                                  }
+                                }),
                           ],
                         ),
-                        const AppSpace(),
-                        if (_nameTextFieldController.text.isNotEmpty)
-                          DropdownButton<String>(
-                              hint: Text('Values of ${_nameTextFieldController.text}', style: metadataStyle),
-                              items: valueDropdownMenuItems,
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _valueTextFieldController.text = value;
-                                  });
-                                }
-                              }),
+                        Text(
+                          '  :  ',
+                          style: metadataStyle,
+                        ),
+                        //  value entry
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 10 * app.screenInfo.fontSize,
+                                  //  limit text entry display length
+                                  child: AppTextField(
+                                    appKeyEnum: AppKeyEnum.listsValueEntry,
+                                    controller: _valueTextFieldController,
+                                    hintText: "enter value...",
+                                    onChanged: (text) {
+                                      setState(() {
+                                        if (_nameTextFieldController.text.isNotEmpty) {
+                                          _selectedNameValue =
+                                              NameValue(_nameTextFieldController.text, _valueTextFieldController.text);
+                                        }
+                                      });
+                                    },
+                                    fontSize: fontSize,
+                                  ),
+                                ),
+                                const AppSpace(),
+                                //  search clear
+                                AppTooltip(
+                                    message: 'Clear the value text.',
+                                    child: appEnumeratedIconButton(
+                                      icon: const Icon(Icons.clear),
+                                      appKeyEnum: AppKeyEnum.listsValueClear,
+                                      iconSize: metadataStyle.fontSize,
+                                      onPressed: (() {
+                                        setState(() {
+                                          _valueTextFieldController.clear();
+                                          app.clearMessage();
+                                          // FocusScope.of(context).requestFocus(_searchFocusNode);  fixme?
+                                        });
+                                      }),
+                                    )),
+                              ],
+                            ),
+                            const AppSpace(),
+                            if (_nameTextFieldController.text.isNotEmpty)
+                              DropdownButton<String>(
+                                  hint: Text('Values of ${_nameTextFieldController.text}', style: metadataStyle),
+                                  items: valueDropdownMenuItems,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        _valueTextFieldController.text = value;
+                                      });
+                                    }
+                                  }),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
 
-                Consumer<PlayListRefreshNotifier>(
-                  builder: (context, playListRefreshNotifier, child) => PlayList.byGroup(
-                    SongListGroup([
-                      SongList(
-                          '',
-                          app.allSongs
-                              .map((song) => SongListItem.fromSong(song,
-                                  customWidget: _selectedNameValue != _emptySelectedNameValue &&
-                                          !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ?? false)
-                                      ? appIconButton(
-                                          icon: appIcon(
-                                            Icons.add,
-                                          ),
-                                          label: _selectedNameValue.toShortString(),
-                                          appKeyEnum: AppKeyEnum.listsMetadataAdd,
-                                          value: // '${id.id}:'  fixme
-                                              '${_selectedNameValue.name}=${_selectedNameValue.value}',
-                                          fontSize: 0.75 * app.screenInfo.fontSize,
-                                          backgroundColor: Colors.lightGreen,
-                                          onPressed: () {
-                                            logger.i('pressed: ${_selectedNameValue.toShortString()} to $song');
-                                            SongMetadata.addSong(song, _selectedNameValue);
-                                            playListRefreshNotifier.refresh();
-                                          },
-                                        )
-                                      : null))
-                              .toList(growable: false))
-                    ]),
-                    style: metadataStyle,
-                    isEditing: true,
-                    selectedSortType: PlayListSortType.byTitle,
-                  ),
-                ),
-              ])),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
-    );
+                    Consumer<PlayListRefreshNotifier>(
+                      builder: (context, playListRefreshNotifier, child) => PlayList.byGroup(
+                        SongListGroup([
+                          SongList(
+                              '',
+                              app.allSongs
+                                  .map((song) => SongListItem.fromSong(song,
+                                      customWidget: _selectedNameValue != _emptySelectedNameValue &&
+                                              !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ??
+                                                  false)
+                                          ? appIconButton(
+                                              icon: appIcon(
+                                                Icons.add,
+                                              ),
+                                              label: _selectedNameValue.toShortString(),
+                                              appKeyEnum: AppKeyEnum.listsMetadataAdd,
+                                              value: // '${id.id}:'  fixme
+                                                  '${_selectedNameValue.name}=${_selectedNameValue.value}',
+                                              fontSize: 0.75 * app.screenInfo.fontSize,
+                                              backgroundColor: Colors.lightGreen,
+                                              onPressed: () {
+                                                logger.log(_logAddSong,
+                                                    'pressed: ${_selectedNameValue.toShortString()} to $song');
+                                                SongMetadata.addSong(song, _selectedNameValue);
+                                                playListRefreshNotifier.refresh();
+                                                logger.log(
+                                                    _logAddSong,
+                                                    'metadata: playListRefreshNotifier.positionPixels: '
+                                                    '${playListRefreshNotifier.positionPixels}');
+                                              },
+                                            )
+                                          : null))
+                                  .toList(growable: false))
+                        ]),
+                        style: metadataStyle,
+                        isEditing: true,
+                        selectedSortType: PlayListSortType.byTitle,
+                      ),
+                    ),
+                  ])),
+          floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
+        ));
   }
 
   Widget mapSongToWidget(Song song) {

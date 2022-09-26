@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ import '../util/songSearchMatcher.dart';
 
 const Level _logBuild = Level.debug;
 const Level _logConstruct = Level.debug;
+const Level _logPosition = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
@@ -29,8 +31,11 @@ typedef SongItemAction = Function(BuildContext context, SongListItem songListIte
 
 class PlayListRefreshNotifier extends ChangeNotifier {
   void refresh() {
+    logger.log(_logPosition, 'PlayListRefreshNotifier: ${identityHashCode(this)}');
     notifyListeners();
   }
+
+  double? positionPixels;
 }
 
 /// Allow the mechanics to use either a song or a song performance
@@ -238,6 +243,7 @@ class PlayList extends StatefulWidget {
     this.includeByLastSung = false,
     this.isEditing = false,
     this.selectedSortType,
+    this.isFromTheTop = false,
   }) : group = SongListGroup([songList]) {
     logger.log(_logConstruct, 'PlayList(): construction: _isEditing: $isEditing');
   }
@@ -249,6 +255,7 @@ class PlayList extends StatefulWidget {
     this.includeByLastSung = false,
     this.isEditing = false,
     this.selectedSortType,
+    this.isFromTheTop = false,
   }) {
     logger.log(_logConstruct, 'PlayList.byGroup(): construction: _isEditing: $isEditing');
   }
@@ -263,6 +270,7 @@ class PlayList extends StatefulWidget {
   final bool includeByLastSung;
   final bool isEditing;
   final PlayListSortType? selectedSortType;
+  final bool isFromTheTop;
 }
 
 class _PlayListState extends State<PlayList> {
@@ -503,17 +511,23 @@ class _PlayListState extends State<PlayList> {
       filteredGroup = SongListGroup(filteredSongLists);
     }
 
-    //  reset an old list view
-    logger.v('scrollController: $scrollController');
-    if (scrollController.hasClients) {
-      //  fixme: why is this delay required?
-      Future.delayed(const Duration(milliseconds: 20), () {
-        scrollController.jumpTo(0);
-      });
-    }
-
     return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
-      focus(context);
+      //  jump to proper location for the initial position
+      if (scrollController.hasClients && playListRefreshNotifier.positionPixels != null) {
+        double pixels = widget.isFromTheTop ? 0 : playListRefreshNotifier.positionPixels ?? 0;
+        pixels = Util.doubleLimit(pixels, 0, scrollController.position.maxScrollExtent);
+        playListRefreshNotifier.positionPixels = null;
+        logger.log(_logPosition, 'pixels: $pixels');
+        if (scrollController.position.pixels != pixels) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            logger.log(_logPosition, 'pixels: jumpTo($pixels)  ${identityHashCode(playListRefreshNotifier)}');
+            scrollController.jumpTo(pixels);
+          });
+        }
+      } else {
+        logger.log(_logPosition, 'pixels: no clients');
+      }
+
       return Expanded(
         // for some reason, this is Expanded is very required,
         // otherwise the Column is unlimited and the list view fails
@@ -645,7 +659,13 @@ class _PlayListState extends State<PlayList> {
                 itemCount: filteredGroup.length,
                 controller: scrollController,
                 itemBuilder: (BuildContext context, int index) {
-                  logger.v('_PlayListState: index: $index');
+                  //  keep track of scroll position
+                  playListRefreshNotifier.positionPixels = scrollController.position.pixels;
+                  logger.log(
+                      _logPosition,
+                      '_PlayListState: index: $index, pos: ${playListRefreshNotifier.positionPixels}'
+                      ', id: ${identityHashCode(playListRefreshNotifier)}'
+                      ', isFromTheTop: ${widget.isFromTheTop}');
                   _indexTitleStyle = (index & 1) == 1 ? oddTitle : evenTitle;
                   _indexTextStyle = (index & 1) == 1 ? oddText : evenText;
                   return filteredGroup._indexToWidget(context, index, widget.isEditing);

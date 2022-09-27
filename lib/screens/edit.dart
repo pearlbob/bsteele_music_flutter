@@ -269,7 +269,7 @@ class EditState extends State<Edit> {
   }
 
   /// return true if the song is original or the user has acknowledged that their edits will be lost.
-  bool canPop() {
+  bool _canPop() {
     checkSong();
     if (!songHasChanged) {
       return true;
@@ -481,7 +481,7 @@ class EditState extends State<Edit> {
         appKeyEnum: AppKeyEnum.appBarBack,
         title: 'Edit: ${song.title}',
         leading: appWidgetHelper.back(
-            canPop: canPop,
+            canPop: _canPop,
             onPressed: () {
               app.clearMessage();
             }),

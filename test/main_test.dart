@@ -69,13 +69,6 @@ void main() {
       }));
       logger.i('allSongsSongIds.length: ${allSongsSongIds.length}');
 
-      var notHoliday = SplayTreeSet<String>();
-      var holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
-      notHoliday.addAll(allSongsSongIds.where((e) {
-        return !holidayRexExp.hasMatch(e);
-      }));
-      logger.i('notHoliday.length: ${notHoliday.length}');
-
       //  find all
       await tester.enterText(mainSearchText, '');
       await tester.testTextInput.receiveAction(TextInputAction.done);
@@ -85,54 +78,7 @@ void main() {
       var widgetSongIds = SplayTreeSet<String>();
       widgetSongIds.addAll(widgets.map((w) => (w.key as ValueKey<String>).value));
       logger.i('widgetSongIds.length: ${widgetSongIds.length}');
-
-      var missingNotHolidaySongIds = notHoliday.difference(widgetSongIds);
-      logger.i('missing notHoliday diff widgetSongIds:  ${missingNotHolidaySongIds.length}');
-      // for ( var id  in missingSongIds){
-      //   logger.i('missing: $id');
-      // }
-
-      var missingWidgetSongIds = widgetSongIds.difference(notHoliday);
-      //expect(missingWidgetSongIds.length, 0);
-      logger.i('missing widgetSongIds  diff notHoliday:  ${missingWidgetSongIds.length}');
-      // for (var id in missingWidgetSongIds) {
-      //   logger.i('missingWidgetSongIds: $id');
-      // }
-
-      //  assure that the start of the elements found match the not holiday list
-      for (var i = 0; i < widgetSongIds.length; i++) {
-        expect(widgetSongIds.elementAt(i), 'mainSong.${notHoliday.elementAt(i)}');
-      }
-      logger.i('notHoliday.elementAt(${widgetSongIds.length - 1}):'
-          '       ${notHoliday.elementAt(widgetSongIds.length - 1)}');
-      logger.i('widgetSongIds.last:  ${widgetSongIds.last}');
-
-      // for ( var id  in missingWidgetSongIds){
-      //   logger.i('missingWidgetSongIds: $id');
-      // }
     }
-// var songsFinder = find.textContaining( RegExp('25'), skipOffstage: false);
-//     expect(songsFinder, findsWidgets);
-//     logger.i('songsFinder.evaluate().length: ${songsFinder.evaluate().length}');
-//     logger.i('songsFinder.first: ${songsFinder.first}');
-//     logger.i('songsFinder.last: ${songsFinder.last}');
-
-    // var testValue = 'love';
-    // await tester.enterText(textField, testValue);
-    // expect(find.text(testValue), findsOneWidget);
-    // logger.i(testValue);
-    // expect(find.text('1'), findsNothing);
-    //
-    // // Tap the '+' icon and trigger a frame.
-    // await tester.tap(find.byIcon(Icons.add));
-    // await tester.pump();
-    //
-    // // Verify that our counter has incremented.
-    // expect(find.text('0'), findsNothing);
-    // expect(find.text('1'), findsOneWidget);
-
-//  wait a while
-//     await tester.pump(new Duration(milliseconds: 50));
 
     testUtilShutdown(tester);
   });

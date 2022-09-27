@@ -41,7 +41,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'About the bsteele Music App'),
+      appBar: appWidgetHelper.backBar(title: 'About the bsteeleMusicApp'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: screenInfo.fontSize),
         child: Container(
@@ -53,7 +53,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
                 const AppSpace(),
                 const Text(
-                  'The bsteele Music App has been written by bob.',
+                  'The bsteeleMusicApp has been written by bob.',
                 ),
                 Image(
                   image: const AssetImage('lib/assets/app_qr_code.png'),

@@ -31,7 +31,7 @@ class CssToCssFileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'bsteele Music App',
+      title: 'bsteeleMusicApp',
       theme: App().themeData,
       routes: const {},
     );

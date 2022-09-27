@@ -68,7 +68,7 @@ class OptionsState extends State<Options> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Options'),
+      appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Options'),
       body: DefaultTextStyle(
         //  fixme: necessary?
         style: style,
@@ -90,41 +90,6 @@ class OptionsState extends State<Options> {
                         }),
                       ],
                     ),
-
-                  const AppSpace(),
-                  const Text(
-                    'Holiday choice: ',
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 30.0),
-                    child: AppWrapFullWidth(
-                      spacing: 30,
-                      children: <Widget>[
-                        AppRadio<bool>(
-                            text: 'Not in a holiday mood',
-                            appKeyEnum: AppKeyEnum.optionsHoliday,
-                            value: false,
-                            groupValue: _appOptions.holiday,
-                            onPressed: () {
-                              setState(() {
-                                _appOptions.holiday = false;
-                              });
-                            },
-                            style: style),
-                        AppRadio<bool>(
-                            text: 'All holiday, all the time!',
-                            appKeyEnum: AppKeyEnum.optionsHoliday,
-                            value: true,
-                            groupValue: _appOptions.holiday,
-                            onPressed: () {
-                              setState(() {
-                                _appOptions.holiday = true;
-                              });
-                            },
-                            style: style),
-                      ],
-                    ),
-                  ),
 
                   const AppSpace(),
                   Row(

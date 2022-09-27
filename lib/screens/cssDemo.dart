@@ -66,7 +66,7 @@ class CssDemoState extends State<CssDemo> {
     var verseBackgroundColor = getBackgroundColorForSectionVersion(null);
 
     return Scaffold(
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App CSS demo'),
+      appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp CSS demo'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87),
         child: Container(

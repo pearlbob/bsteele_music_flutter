@@ -46,7 +46,7 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
                   space: 200,
                 ),
                 const Text(
-                  'The bsteele Music App has been motivated by Community Jams.',
+                  'The bsteeleMusicApp has been motivated by Community Jams.',
                 ),
                 Image(
                   image: const AssetImage('lib/assets/cj_qr_code.png'),

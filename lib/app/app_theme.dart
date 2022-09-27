@@ -649,10 +649,12 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   mainSortType(PlayListSortType),
   mainSortTypeSelection(PlayListSortType),
   mainUp(Null),
+  metadataCancelTheReturn(Null),
+  metadataDiscardAllChanges(Null),
+  metadataWriteAllChanges(Null),
   optionsBack(Null),
   optionsExpandRepeats(String),
   optionsFullScreen(Null),
-  optionsHoliday(String),
   optionsLeadership(Null),
   optionsNashville(NashvilleSelection),
   optionsNinJam(String),
@@ -1956,7 +1958,7 @@ String _documentCssProperties(final Iterable<CssProperty>? properties) {
 
   var sb = StringBuffer('''
 /*
-  bsteele Music App CSS style commands documentation
+  bsteeleMusicApp CSS style commands documentation
   
   Selectors are listed in increasing priority order.
   Note that many, many CSS features are missing in this mapping.

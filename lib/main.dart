@@ -1,4 +1,4 @@
-/// # The bSteele Music App.
+/// # The bsteeleMusicApp.
 ///
 /// ## The primary functions for the app:
 ///
@@ -103,7 +103,7 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 //  diagnostic logging enables
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -112,11 +112,7 @@ const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 
-//  for holiday display: in Additional run args: --dart-define=holiday=true
-//  note: not much effect due to hard-wiring of colors!
-const _holidayOverride = String.fromEnvironment('holiday', defaultValue: '');
-
-//  for holiday display: in Additional run args: --dart-define=css=test.css
+//  for alternate display: in Additional run args: --dart-define=css=test.css
 //  note: not much effect due to hard-wiring of colors!
 const _cssFileName = String.fromEnvironment('css', defaultValue: '');
 
@@ -133,18 +129,13 @@ void main() async {
   //logger.i('Uri: ${Uri.base}, path: "${Uri.base.path}", fragment: "${Uri.base.fragment}"');
   logger.i('uri: "$uri", path: "${uri.path}", fragment: "${uri.fragment}"');
 
-  //  holiday override
+  //  override
   var cssFileName = _cssFileName.isNotEmpty ? _cssFileName : uri.queryParameters['css'];
   cssFileName = (cssFileName?.isEmpty ?? true) ? 'app.css' : cssFileName;
-  bool holidayOverride = _holidayOverride.isNotEmpty || uri.queryParameters.containsKey('holiday');
-  if (holidayOverride) {
-    //  override the css as well
-    cssFileName = 'holiday.css';
-  }
 
   //  read the css theme data prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
-  await AppOptions().init(holidayOverride: holidayOverride); //  initialize the options from the stored values
+  await AppOptions().init(); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
   appLogMessage('host: "$host", port: ${uri.port}');
@@ -180,16 +171,17 @@ Follower jumpy,
     follower jumps somewhere and back when adjusting the key when not on the first section
 finish PlayList
     requested song, no singer, click selection?  singer popup?
-debug only: move metadata in bulk
-fix christmas
+
 singer requester editing not remembered
     requester list change should provide a "write file" button
     should not let user leave singing screen without warning and opportunity to write
 change of singer => playlist scroll to zero
-menu bar overload on small screens and large song titles/artists/coverArtist
+
 
 reset singer search when singer added to session
 
+____fix christmas
+____should not let user leave metadata screen without warning and opportunity to write
 ____csv metadata export in app
 ____search text not selectable
 ____player: Tablet change to manual play.  one tap to start
@@ -209,6 +201,9 @@ ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
 ____metadata jumps to top of list on change
 
+menu bar overload on small screens and large song titles/artists/coverArtist (currently only partial fix)
+undo-redo in metadata editing
+metadata editing change summary, file read change summary
 select all of search text on return from playlist from singers page
 random songlist locations on startup
 random songlist locations on search clear
@@ -649,7 +644,7 @@ class BSteeleMusicApp extends StatelessWidget {
           ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
         ],
         child: MaterialApp(
-          title: 'bsteele Music App',
+          title: 'bsteeleMusicApp',
           theme: app.themeData,
           navigatorObservers: [playerRouteObserver],
 
@@ -660,7 +655,7 @@ class BSteeleMusicApp extends StatelessWidget {
             // When navigating to the "/" route, build the FirstScreen widget.
             // '/': (context) => BSteeleMusicApp(),
             // When navigating to the "/second" route, build the SecondScreen widget.
-            mainList: (context) => const MyHomePage(title: 'bsteele Music App'),
+            mainList: (context) => const MyHomePage(title: 'bsteeleMusicApp'),
             Player.routeName: playerPageRoute.builder,
             Options.routeName: (context) => const Options(),
             'songs': (context) => const Songs(),
@@ -1181,12 +1176,6 @@ class MyHomePageState extends State<MyHomePage> {
   //   Navigator.of(context).pop();
   // }
 
-  bool isHoliday(Song song) {
-    return holidayRexExp.hasMatch(song.title) ||
-        holidayRexExp.hasMatch(song.artist) ||
-        holidayRexExp.hasMatch(song.coverArtist);
-  }
-
   _navigateToPlayerBySongItem(BuildContext context, SongListItem songListItem) async {
     if (songListItem.song.getTitle().isEmpty) {
       // logger.log(_mainLogScroll, 'song title is empty: $song');
@@ -1361,8 +1350,6 @@ class MyHomePageState extends State<MyHomePage> {
   List<Widget> listViewChildren = [];
   TextStyle titleTextStyle = appTextStyle; //  initial place holder
   TextStyle artistTextStyle = appTextStyle; //  initial place holder
-
-  static final RegExp holidayRexExp = RegExp(holidayMetadataNameValue.name, caseSensitive: false);
 }
 
 Future<String> fetchString(String uriString) async {

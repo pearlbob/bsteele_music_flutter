@@ -28,7 +28,6 @@ final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
 const double appDefaultFontSize = 10.0; //  based on phone
 
 const NameValue allSongsMetadataNameValue = NameValue('all', '');
-const NameValue holidayMetadataNameValue = NameValue('christmas', '');
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
@@ -545,6 +544,7 @@ class AppWidgetHelper {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
       key: appKeyEnum != null ? appKey(appKeyEnum) : null,
+      leading: leading,
       title: titleWidget ??
           Text(
             title ?? 'unknown',
@@ -554,7 +554,6 @@ class AppWidgetHelper {
               backgroundColor: Colors.transparent,
             ),
           ),
-      leading: leading,
       centerTitle: false,
       actions: actions,
       toolbarHeight: _toolbarHeight,

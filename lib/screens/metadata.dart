@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 
-//const Level _logBuild = Level.info;
+const Level _logBuild = Level.info;
 const Level _logAddSong = Level.debug;
 const Level _logDeleteSong = Level.debug;
 
@@ -32,7 +32,7 @@ class MetadataScreen extends StatefulWidget {
   @override
   MetadataScreenState createState() => MetadataScreenState();
 
-  static const String routeName = '/metadata';
+  static const String routeName = 'metadata';
 }
 
 class MetadataScreenState extends State<MetadataScreen> {
@@ -40,6 +40,7 @@ class MetadataScreenState extends State<MetadataScreen> {
   initState() {
     super.initState();
 
+    SongMetadata.isDirty = false; //  assume it is what it is
     app.clearMessage();
     logger.d("_Songs.initState()");
   }
@@ -57,6 +58,8 @@ class MetadataScreenState extends State<MetadataScreen> {
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
+
+    logger.log(_logBuild, 'metadata build: $_selectedNameValue');
 
     final double fontSize = app.screenInfo.fontSize;
     metadataStyle = generateAppTextStyle(
@@ -118,7 +121,14 @@ class MetadataScreenState extends State<MetadataScreen> {
         ],
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
-          appBar: appWidgetHelper.backBar(title: 'bsteele Music App Song Metadata'),
+          appBar: appWidgetHelper.appBar(
+            title: 'bsteeleMusicApp Song Metadata',
+            leading: appWidgetHelper.back(
+                canPop: _canPop,
+                onPressed: () {
+                  app.clearMessage();
+                }),
+          ),
           body: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -198,7 +208,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                                           ],
                                           elevation: 24.0,
                                         ));
-                                // SongMetadata.clear();
                               }
                             : null,
                       ),
@@ -426,6 +435,44 @@ class MetadataScreenState extends State<MetadataScreen> {
     );
   }
 
+  /// return true if the metadata has changed
+  bool _canPop() {
+    if (!isDirty) {
+      return true;
+    }
+
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Text(
+                'Do you really want discard all of your metadata changes?',
+                style: appWarningTextStyle,
+              ),
+              actions: [
+                appButton('Don\'t write my changes!', appKeyEnum: AppKeyEnum.metadataDiscardAllChanges, onPressed: () {
+                  app.clearMessage();
+                  Navigator.of(context).pop(); //  the dialog
+                  Navigator.of(context).pop(); //  the screen
+                }),
+                const AppSpace(),
+                appButton('Write the metadata to a file and return', appKeyEnum: AppKeyEnum.metadataWriteAllChanges,
+                    onPressed: () {
+                  _saveSongMetadata();
+                  app.clearMessage();
+                  Navigator.of(context).pop(); //  the dialog
+                  Navigator.of(context).pop(); //  the screen
+                }),
+                const AppSpace(),
+                appButton('Cancel the return... I need to work some more on this.',
+                    appKeyEnum: AppKeyEnum.metadataCancelTheReturn, onPressed: () {
+                  Navigator.of(context).pop();
+                }),
+              ],
+              elevation: 24.0,
+            ));
+    return false;
+  }
+
   void _saveSongMetadata() async {
     _saveMetadata('allSongs', SongMetadata.toJson());
   }
@@ -435,6 +482,7 @@ class MetadataScreenState extends State<MetadataScreen> {
     String message = await UtilWorkaround().writeFileContents(fileName, contents);
     logger.i('_saveMetadata message: $message');
     setState(() {
+      SongMetadata.isDirty = false;
       app.infoMessage = '.songmetadata $message';
     });
   }
@@ -480,6 +528,7 @@ class MetadataScreenState extends State<MetadataScreen> {
       if (content.isEmpty) {
         app.infoMessage = 'No metadata read';
       } else {
+        SongMetadata.clear(); // wow!
         SongMetadata.fromJson(content);
         AppOptions().storeSongMetadata();
       }
@@ -487,7 +536,7 @@ class MetadataScreenState extends State<MetadataScreen> {
   }
 
   bool nameValueIsDeletable(NameValue nameValue) {
-    logger.d('selectionIsDeletable(): $nameValue');
+    logger.i('nameValueIsDeletable(): $nameValue');
 
     if (nameValue == _emptySelectedNameValue) {
       return false;
@@ -495,7 +544,6 @@ class MetadataScreenState extends State<MetadataScreen> {
 
     switch (nameValue.name) {
       case '':
-      case 'christmas':
         return false;
       case 'cj':
         return kDebugMode;
@@ -509,6 +557,8 @@ class MetadataScreenState extends State<MetadataScreen> {
   }
 
   TextStyle metadataStyle = generateAppTextStyle();
+
+  bool get isDirty => SongMetadata.isDirty;
 
   static const NameValue _emptySelectedNameValue = NameValue('', '');
   NameValue _selectedNameValue = _emptySelectedNameValue;

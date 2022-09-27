@@ -449,7 +449,7 @@ class SingersState extends State<Singers> {
 
       return Scaffold(
         backgroundColor: screenBackgroundColor,
-        appBar: appWidgetHelper.backBar(title: 'bsteele Music App Singers'),
+        appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Singers'),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(

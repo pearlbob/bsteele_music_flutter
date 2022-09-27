@@ -38,8 +38,7 @@ class AppOptions extends ChangeNotifier {
 
   /// Must be called and waited for prior to appOptions first use!
   /// fixme: this arrangement should be improved!
-  Future<void> init({holidayOverride = false}) async {
-    _holidayOverride = holidayOverride;
+  Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
     _userDisplayStyle = Util.enumFromString(
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
@@ -62,7 +61,6 @@ class AppOptions extends ChangeNotifier {
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
     _proEditInput = await _readBool('proEditInput', defaultValue: _proEditInput);
-    _holiday = await _readBool('holiday', defaultValue: _holiday);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     user = await _readString('user', defaultValue: userName);
@@ -223,17 +221,6 @@ class AppOptions extends ChangeNotifier {
   bool get proEditInput => _proEditInput;
   bool _proEditInput = false;
 
-  set holiday(bool value) {
-    if (_holiday == value) return;
-    _holiday = value;
-    _saveBool('holiday', value);
-  }
-
-  /// True if the user wants only holiday songs.
-  bool get holiday => _holiday || _holidayOverride;
-  bool _holiday = false;
-  bool _holidayOverride = false;
-
   bool get isSinger => _userDisplayStyle == UserDisplayStyle.singer;
 
   set compressRepeats(bool value) {
@@ -348,26 +335,7 @@ class AppOptions extends ChangeNotifier {
   }
 
   void storeSongMetadata() {
-    final storageSongMetadata = <SongIdMetadata>[];
-
-    //  remove the default name values
-    for (var metadata in SongMetadata.idMetadata) {
-      final nameValues = <NameValue>[];
-      for (var nameValue in metadata.nameValues) {
-        switch (nameValue.name) {
-          case 'cj':
-          case 'christmas':
-            break;
-          default:
-            nameValues.add(nameValue);
-        }
-      }
-      if (nameValues.isNotEmpty) {
-        storageSongMetadata.add(SongIdMetadata(metadata.id, metadata: nameValues));
-      }
-    }
-
-    String storage = SongMetadata.toJson(values: storageSongMetadata);
+    String storage = SongMetadata.toJson();
     logger.d('storeSongMetadata(): ${StorageValue.songMetadata.name}: $storage');
     _saveString(StorageValue.songMetadata.name, storage);
   }

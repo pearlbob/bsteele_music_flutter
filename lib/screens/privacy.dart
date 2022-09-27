@@ -25,13 +25,13 @@ class PrivacyState extends State<Privacy> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Privacy Policy'),
+      appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Privacy Policy'),
       body: DefaultTextStyle(
         style: style,
         child: const SingleChildScrollView(
           scrollDirection: Axis.vertical,
           padding: EdgeInsets.all(8.0),
-          child: Text('The bsteele Music App is a client side application.  '
+          child: Text('The bsteeleMusicApp is a client side application.  '
               'In normal circumstances, neither the phone app nor the web application has '
               'any contact with the server after initialization.  '
               'If used in a local display sharing mode (leader/follower), no data '

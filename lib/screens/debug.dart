@@ -27,7 +27,7 @@ class DebugState extends State<Debug> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appWidgetHelper.backBar(title: 'bsteele Music App Debug'),
+      appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Debug'),
       body: DefaultTextStyle(
         style: style,
         child: Padding(

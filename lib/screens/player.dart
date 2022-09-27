@@ -490,50 +490,52 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             size: appBarTextStyle.fontSize,
                           ),
                           const AppSpace(),
-                          AppTooltip(
-                            message: 'Click to hear the song on youtube.com',
-                            child: InkWell(
-                              onTap: () {
-                                openLink(titleAnchor());
-                              },
-                              hoverColor: hoverColor,
-                              child: Text(
-                                _song.titleWithCover,
-                                style: appBarTextStyle,
+                          Flexible(
+                            child: AppTooltip(
+                              message: 'Click to hear the song on youtube.com',
+                              child: InkWell(
+                                onTap: () {
+                                  openLink(titleAnchor());
+                                },
+                                hoverColor: hoverColor,
+                                child: Text(
+                                  _song.titleWithCover,
+                                  style: appBarTextStyle,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
                       actions: [
-                        AppTooltip(
-                          message: 'Click to hear the artist on youtube.com',
-                          child: InkWell(
-                            onTap: () {
-                              openLink(artistAnchor());
-                            },
-                            hoverColor: hoverColor,
-                            child: Text(
-                              ' by  ${_song.artist}',
-                              style: appBarTextStyle,
-                              softWrap: false,
+                        //  fix: on small screens, only the title flexes
+                        Flexible(
+                          child: AppTooltip(
+                            message: 'Click to hear the artist on youtube.com',
+                            child: InkWell(
+                              onTap: () {
+                                openLink(artistAnchor());
+                              },
+                              hoverColor: hoverColor,
+                              child: Text(
+                                ' by  ${_song.artist}',
+                                style: appBarTextStyle,
+                                softWrap: false,
+                              ),
                             ),
                           ),
                         ),
                         if (playerSinger != null)
-                          Text(
-                            ', sung by $playerSinger',
-                            style: appBarTextStyle,
-                            softWrap: false,
-                          ),
-                        if (_isPlaying && _isCapo)
-                          Text(
-                            ',  Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}',
-                            style: appBarTextStyle,
-                            softWrap: false,
+                          Flexible(
+                            child: Text(
+                              ', sung by $playerSinger',
+                              style: appBarTextStyle,
+                              softWrap: false,
+                            ),
                           ),
                         const AppSpace(),
                       ],
+                      //  for the leading, i.e. the left most icon
                       onPressed: () {
                         _songMaster
                             .removeListener(songMasterListener); //  avoid race condition with the listener notification
@@ -1757,33 +1759,44 @@ With z or q, the app goes back to the play list.''',
                               AppWrap(
                                 alignment: WrapAlignment.start,
                                 children: [
-                                  AppTooltip(
-                                    message: 'For a guitar, show the capo location and\n'
-                                        'chords to match the current key.',
-                                    child: appTextButton('Capo',
+                                  if (!songUpdateService.isLeader)
+                                    AppTooltip(
+                                      message: 'For a guitar, show the capo location and\n'
+                                          'chords to match the current key.',
+                                      child: appTextButton(
+                                        'Capo',
                                         appKeyEnum: AppKeyEnum.playerCapoLabel,
                                         value: _isCapo,
-                                        style: boldStyle, onPressed: () {
-                                      setState(() {
-                                        _isCapo = !_isCapo;
-                                        setSelectedSongKey(_selectedSongKey);
-                                        adjustDisplay();
-                                      });
-                                    }
+                                        style: boldStyle,
+                                        onPressed: () {
+                                          setState(
+                                            () {
+                                              _isCapo = !_isCapo;
+                                              setSelectedSongKey(_selectedSongKey);
+                                              adjustDisplay();
+                                            },
+                                          );
+                                        },
                                         //softWrap: false,
-                                        ),
-                                  ),
-                                  appSwitch(
-                                    appKeyEnum: AppKeyEnum.playerCapo,
-                                    value: _isCapo,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _isCapo = !_isCapo;
-                                        setSelectedSongKey(_selectedSongKey);
-                                        adjustDisplay();
-                                      });
-                                    },
-                                  ),
+                                      ),
+                                    ),
+                                  if (!songUpdateService.isLeader)
+                                    appSwitch(
+                                      appKeyEnum: AppKeyEnum.playerCapo,
+                                      value: _isCapo,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _isCapo = !_isCapo;
+                                          setSelectedSongKey(_selectedSongKey);
+                                          adjustDisplay();
+                                        });
+                                      },
+                                    ),
+                                  if (songUpdateService.isLeader)
+                                    Text(
+                                      'Capo: not available to the leader',
+                                      style: popupStyle,
+                                    ),
                                 ],
                               ),
                           ]),

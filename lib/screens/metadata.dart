@@ -8,6 +8,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
+import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -136,6 +137,13 @@ class MetadataScreenState extends State<MetadataScreen> {
                         appKeyEnum: AppKeyEnum.listsSave,
                         onPressed: () {
                           _saveSongMetadata();
+                        },
+                      ),
+                      appEnumeratedButton(
+                        'Write all metadata to CSV',
+                        appKeyEnum: AppKeyEnum.listsSaveCSV,
+                        onPressed: () {
+                          _saveSongMetadataAsCSV();
                         },
                       ),
                       appEnumeratedButton(
@@ -428,6 +436,40 @@ class MetadataScreenState extends State<MetadataScreen> {
     logger.i('_saveMetadata message: $message');
     setState(() {
       app.infoMessage = '.songmetadata $message';
+    });
+  }
+
+  _saveSongMetadataAsCSV() async {
+    String fileName = 'allSongsMetadata_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.csv';
+    var converter = const ListToCsvConverter();
+    List<List> rows = [];
+    rows.add(['Title', 'Artist', 'Cover Artist', 'Year', 'Jam', 'Genre', 'Subgenre', 'Status']);
+    for (var song in app.allSongs) {
+      var md = SongMetadata.songMetadata(song, 'year');
+      var year = md.isNotEmpty ? md.first.value : '';
+      md = SongMetadata.songMetadata(song, 'jam');
+      var jam = md.isNotEmpty ? md.first.value : '';
+      md = SongMetadata.songMetadata(song, 'genre');
+      var genre = md.isNotEmpty ? md.first.value : '';
+      md = SongMetadata.songMetadata(song, 'subgenre');
+      var subgenre = md.isNotEmpty ? md.first.value : '';
+      md = SongMetadata.songMetadata(song, 'status');
+      var status = md.isNotEmpty ? md.first.value : '';
+      rows.add([
+        song.title,
+        song.artist,
+        song.coverArtist,
+        year,
+        jam,
+        genre,
+        subgenre,
+        status,
+      ]);
+    }
+    String message = await UtilWorkaround().writeFileContents(fileName, converter.convert(rows));
+    logger.i('_saveMetadata message: $message');
+    setState(() {
+      app.infoMessage = '.csv $message';
     });
   }
 

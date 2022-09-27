@@ -40,6 +40,7 @@ dependencies:
   pretty_diff_text:
   http:
   js:
+  csv:
   string_similarity:
   bsteeleMusicLib:
     path: ../bsteeleMusicLib/bsteele_music_lib

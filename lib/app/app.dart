@@ -362,16 +362,17 @@ class AppTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
-    return Tooltip(
-        key: key,
-        message: message,
-        textStyle: textStyle,
-        waitDuration: const Duration(seconds: 2, milliseconds: 500),
-        verticalOffset: 75,
-        decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
-        padding: const EdgeInsets.all(8),
-        child: child);
+    return child; //  fixme: AppTooltip disabled!!!!
+    // var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
+    // return Tooltip(
+    //     key: key,
+    //     message: message,
+    //     textStyle: textStyle,
+    //     waitDuration: const Duration(seconds: 2, milliseconds: 500),
+    //     verticalOffset: 75,
+    //     decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
+    //     padding: const EdgeInsets.all(8),
+    //     child: child);
   }
 
   final String message;

@@ -174,24 +174,26 @@ void main() async {
 
 /*
 beta short list:
-search text not selectable
 Follower jumpy,
     Follower scroll update too brutal on section transitions.
     player key up/down move on changes 12 bar blues - minor
     follower jumps somewhere and back when adjusting the key when not on the first section
 finish PlayList
     requested song, no singer, click selection?  singer popup?
-    fix christmas
+debug only: move metadata in bulk
+fix christmas
 singer requester editing not remembered
     requester list change should provide a "write file" button
     should not let user leave singing screen without warning and opportunity to write
-select all of search text on return from playlist
-player: Tablet change to manual play.  on menu bar tally icon?
 change of singer => playlist scroll to zero
 menu bar overload on small screens and large song titles/artists/coverArtist
-csv metadata export in app
 
 reset singer search when singer added to session
+
+____csv metadata export in app
+____search text not selectable
+____player: Tablet change to manual play.  one tap to start
+____player: Tablet change to manual play.  one tap to start
 ____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
 ____generate CSV for metadata updates to CJ website
 _____re-setstate() on main after return from metadata
@@ -207,6 +209,7 @@ ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
 ____metadata jumps to top of list on change
 
+select all of search text on return from playlist from singers page
 random songlist locations on startup
 random songlist locations on search clear
 OR list for multiple filters

@@ -20,7 +20,7 @@ import '../util/songSearchMatcher.dart';
 const Level _logConstruct = Level.debug;
 const Level _logInitState = Level.info;
 const Level _logBuild = Level.info;
-const Level _logPosition = Level.debug;
+const Level _logPosition = Level.info;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
@@ -47,7 +47,7 @@ class SongListItem implements Comparable<SongListItem> {
   SongListItem.fromPerformance(this.songPerformance, {this.customWidget, this.firstWidget})
       : song = songPerformance!.performedSong;
 
-  Widget _toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing) {
+  Widget _toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
     AppWrap songWidget;
     if (songPerformance != null) {
       songWidget = AppWrap(children: [
@@ -99,6 +99,8 @@ class SongListItem implements Comparable<SongListItem> {
         if (!isEditing) {
           if (songItemAction != null) {
             songItemAction(context, this);
+            //  expect return to play list
+            refocus?.call();
           }
         }
       },
@@ -181,7 +183,7 @@ class SongList {
 
   int get length => 1 + songListItems.length;
 
-  Widget _indexToWidget(BuildContext context, int index, bool isEditing) {
+  Widget _indexToWidget(BuildContext context, int index, bool isEditing, VoidCallback? refocus) {
     assert(index >= 0 && index - 1 < songListItems.length);
 
     //  index 0 is the label
@@ -207,7 +209,7 @@ class SongList {
     }
 
     //  other indices are the song items
-    return songListItems[index - 1]._toWidget(context, songItemAction, isEditing);
+    return songListItems[index - 1]._toWidget(context, songItemAction, isEditing, refocus);
   }
 
   final String label;
@@ -223,12 +225,12 @@ class SongListGroup {
         return i + e.length;
       });
 
-  Widget _indexToWidget(BuildContext context, int index, bool isEditing) {
+  Widget _indexToWidget(BuildContext context, int index, bool isEditing, VoidCallback? refocus) {
     for (var songList in group) {
       if (index >= songList.length) {
         index -= songList.length;
       } else {
-        return songList._indexToWidget(context, index, isEditing);
+        return songList._indexToWidget(context, index, isEditing, refocus);
       }
     }
     return Text('index too long for group: $index', style: _indexTitleStyle);
@@ -346,13 +348,11 @@ class _PlayListState extends State<PlayList> {
   }
 
   void focus(BuildContext context) {
-    if (_searchFocusNode.children.isNotEmpty) {
       if (_searchTextFieldController.text.isNotEmpty) {
         _searchTextFieldController.selection =
             TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
       }
       FocusScope.of(context).requestFocus(_searchFocusNode);
-    }
   }
 
   @override
@@ -492,7 +492,7 @@ class _PlayListState extends State<PlayList> {
         SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
         for (final songItem in songList.songListItems) {
           if ((songItem.songPerformance != null &&
-              matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
+                  matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
               matcher.matchesOrEmptySearch(songItem.song)) {
             searchedSet.add(songItem);
           }
@@ -569,27 +569,18 @@ class _PlayListState extends State<PlayList> {
                       ),
                     ),
                     //  search text
-                    SizedBox(
-                      width: 12 * _textFontSize,
-                      //  limit text entry display length
-                      child: TextField(
-                        key: appKey(AppKeyEnum.mainSearchText),
-                        //  for testing
-                        controller: _searchTextFieldController,
-                        focusNode: _searchFocusNode,
-                        decoration: InputDecoration(
-                          hintText: 'enter search text',
-                          hintStyle: widget.artistStyle.copyWith(color: Colors.black54),
-                        ),
-                        autofocus: true,
-                        style: widget.searchTextStyle,
-                        onChanged: (text) {
-                          setState(() {
-                            logger.v('search text: "$text"');
-                            app.clearMessage();
-                          });
-                        },
-                      ),
+                    AppTextField(
+                      appKeyEnum: AppKeyEnum.playListSearch,
+                      controller: _searchTextFieldController,
+                      focusNode: _searchFocusNode,
+                      hintText: 'Search terms here...',
+                      width: appDefaultFontSize * 40,
+                      onChanged: (value) {
+                        setState(() {
+                          logger.v('search text: "$value"');
+                          app.clearMessage();
+                        });
+                      },
                     ),
                     //  search clear
                     AppTooltip(
@@ -681,7 +672,9 @@ class _PlayListState extends State<PlayList> {
                       ', isFromTheTop: ${widget.isFromTheTop}');
                   _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
                   _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
-                  return filteredGroup._indexToWidget(context, index, widget.isEditing);
+                  return filteredGroup._indexToWidget(context, index, widget.isEditing, () {
+                    focus(context);
+                  });
                 },
               ),
             ),

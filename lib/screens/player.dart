@@ -986,13 +986,21 @@ With z or q, the app goes back to the play list.''',
                                       onTapDown: (details) {
                                         //  respond to taps above and below the middle of the screen
                                         if (!_isPlaying && appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
-                                          //  don't respond above the player song table
-                                          var offset = _tableGlobalOffset();
-                                          if (details.globalPosition.dy > offset.dy) {
-                                            if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
-                                              sectionBump(1); //  fixme: when not in play
-                                            } else {
-                                              sectionBump(-1); //  fixme: when not in play
+                                          if (songPlayMode != _SongPlayMode.manualPlay) {
+                                            //  start manual play
+                                            scrollToLyricSection(0); //  always start manual play from the beginning
+                                            setState(() {
+                                              songPlayMode = _SongPlayMode.manualPlay;
+                                            });
+                                          } else {
+                                            //  don't respond above the player song table
+                                            var offset = _tableGlobalOffset();
+                                            if (details.globalPosition.dy > offset.dy) {
+                                              if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
+                                                sectionBump(1); //  fixme: when not in play
+                                              } else {
+                                                sectionBump(-1); //  fixme: when not in play
+                                              }
                                             }
                                           }
                                         }

@@ -35,7 +35,7 @@ void main() {
     await tester.pumpWidget(const BSteeleMusicApp());
     await tester.pumpAndSettle();
 
-    var mainSearchText = find.byKey(appKey(AppKeyEnum.mainSearchText));
+    var mainSearchText = find.byKey(appKey(AppKeyEnum.playListSearch));
     expect(mainSearchText, findsOneWidget);
 
     for (var searchString in ['love', '25', 'the', 'asdf', '']) {
@@ -43,7 +43,7 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
       {
-        final searchTextField = Find.findTextFieldByAppKey(AppKeyEnum.mainSearchText);
+        final searchTextField = Find.findTextFieldByAppKey(AppKeyEnum.playListSearch);
         expect(searchTextField.controller!.text, searchString);
       }
 

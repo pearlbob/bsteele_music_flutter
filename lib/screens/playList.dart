@@ -18,9 +18,9 @@ import '../app/app.dart';
 import '../util/songSearchMatcher.dart';
 
 const Level _logConstruct = Level.debug;
-const Level _logInitState = Level.info;
-const Level _logBuild = Level.info;
-const Level _logPosition = Level.info;
+const Level _logInitState = Level.debug;
+const Level _logBuild = Level.debug;
+const Level _logPosition = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();

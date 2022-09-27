@@ -645,7 +645,6 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   mainErrorMessage(Null),
   mainGoToRelease(Null),
   mainHamburger(Null),
-  mainSearchText(String),
   mainSong(Id),
   mainSortType(PlayListSortType),
   mainSortTypeSelection(PlayListSortType),

@@ -35,7 +35,7 @@ void main() {
         expect(finder, findsOneWidget);
       }
 
-      var mainSearchText = find.byKey(appKey(AppKeyEnum.mainSearchText));
+      var mainSearchText = find.byKey(appKey(AppKeyEnum.playListSearch));
       expect(mainSearchText, findsOneWidget);
 
       {

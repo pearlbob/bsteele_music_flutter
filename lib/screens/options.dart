@@ -127,11 +127,11 @@ class OptionsState extends State<Options> {
                       ),
                       SizedBox(
                         width: app.screenInfo.mediaWidth / 3,
-                        child: AppTextField.onSubmitted(
+                        child: AppTextField(
                           appKeyEnum: AppKeyEnum.optionsWebsocketIP,
                           controller: _websocketHostEditingController,
                           hintText: 'Enter the websocket host IP address.',
-                          onSubmitted: (value) {
+                          onChanged: (value) {
                             _appOptions.websocketHost = value;
                           },
                         ),

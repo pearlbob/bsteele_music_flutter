@@ -1310,7 +1310,10 @@ With z or q, the app goes back to the play list.''',
     update.state = state;
     songUpdateService.issueSongUpdate(update);
 
-    logger.log(_logLeaderFollower, 'leaderSongUpdate: momentNumber: $momentNumber');
+    logger.log(
+        _logLeaderFollower,
+        'leaderSongUpdate: momentNumber: $momentNumber'
+        ', state: $state');
   }
 
   IconData get playStopIcon => _isPlaying ? Icons.stop : Icons.play_arrow;
@@ -1336,24 +1339,30 @@ With z or q, the app goes back to the play list.''',
       var songMoment = _song.songMoments[momentNumber];
 
       //  map state to mode   fixme: should reconcile the enums
+      _SongPlayMode newSongPlayMode = _SongPlayMode.idle;
       switch (_songUpdate!.state) {
         case SongUpdateState.playing:
           if (!_isPlaying) {
             setPlayMode();
           }
-          songPlayMode = _SongPlayMode.autoPlay;
+          newSongPlayMode = _SongPlayMode.autoPlay;
           setSelectedSongMoment(songMoment);
           break;
         case SongUpdateState.manualPlay:
           _isPlaying = false;
-          songPlayMode = _SongPlayMode.manualPlay;
+          newSongPlayMode = _SongPlayMode.manualPlay;
           scrollToLyricSection(songMoment.lyricSection.index);
           break;
         default:
           _isPlaying = false;
-          songPlayMode = _SongPlayMode.idle;
+          newSongPlayMode = _SongPlayMode.idle;
           scrollToLyricSection(songMoment.lyricSection.index);
           break;
+      }
+      if (songPlayMode != newSongPlayMode) {
+        setState(() {
+          songPlayMode = newSongPlayMode;
+        });
       }
 
       logger.log(

@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 const Level _logAddSong = Level.debug;
 const Level _logDeleteSong = Level.debug;
 

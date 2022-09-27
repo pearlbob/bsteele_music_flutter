@@ -295,12 +295,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
             ??
             _lyricSectionNotifier.index); //  safer to stay on the current index
-        adjustDisplay();
+
         if (_songUpdate!.state == SongUpdateState.playing) {
           performPlay();
         } else {
           simpleStop();
         }
+
+        logger.log(
+            _logLeaderFollower,
+            'player follower: $_song, selectedSongMoment: ${_songMomentNotifier.songMoment?.momentNumber}'
+            ' songPlayMode: $songPlayMode'
+            ', isPlaying: $_isPlaying');
       }
       setSelectedSongKey(_songUpdate!.currentKey);
     }
@@ -1268,7 +1274,21 @@ With z or q, the app goes back to the play list.''',
       return;
     }
 
-    SongUpdateState state = _isPlaying ? SongUpdateState.playing : SongUpdateState.none;
+    SongUpdateState state = SongUpdateState.none;
+    switch (songPlayMode) {
+      //  fixme: reconcile the enums
+      case _SongPlayMode.autoPlay:
+        state = SongUpdateState.playing;
+        break;
+      case _SongPlayMode.pause:
+      case _SongPlayMode.manualPlay:
+        state = SongUpdateState.manualPlay;
+        break;
+      case _SongPlayMode.idle:
+        state = SongUpdateState.idle;
+        break;
+    }
+
     //  don't send the update unless we have to
     if (_lastSongUpdateSent != null) {
       if (_lastSongUpdateSent!.song == widget._song &&
@@ -1287,7 +1307,7 @@ With z or q, the app goes back to the play list.''',
     update.momentNumber = momentNumber;
     update.user = appOptions.user;
     update.singer = playerSinger ?? 'unknown';
-    update.setState(state);
+    update.state = state;
     songUpdateService.issueSongUpdate(update);
 
     logger.log(_logLeaderFollower, 'leaderSongUpdate: momentNumber: $momentNumber');
@@ -1315,12 +1335,19 @@ With z or q, the app goes back to the play list.''',
       assert(momentNumber < _song.songMoments.length);
       var songMoment = _song.songMoments[momentNumber];
 
+      //  map state to mode   fixme: should reconcile the enums
       switch (_songUpdate!.state) {
         case SongUpdateState.playing:
           if (!_isPlaying) {
             setPlayMode();
           }
+          songPlayMode = _SongPlayMode.autoPlay;
           setSelectedSongMoment(songMoment);
+          break;
+        case SongUpdateState.manualPlay:
+          _isPlaying = false;
+          songPlayMode = _SongPlayMode.manualPlay;
+          scrollToLyricSection(songMoment.lyricSection.index);
           break;
         default:
           _isPlaying = false;
@@ -1331,8 +1358,9 @@ With z or q, the app goes back to the play list.''',
 
       logger.log(
           _logLeaderFollower,
-          'setPlayState: post songUpdate?.state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
-          ', moment: ${_songUpdate?.momentNumber}');
+          'setPlayState: post state: ${_songUpdate?.state}, isPlaying: $_isPlaying'
+          ', moment: ${_songUpdate?.momentNumber}'
+          ', songPlayMode: $songPlayMode');
     }
   }
 

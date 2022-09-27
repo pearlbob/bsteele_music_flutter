@@ -89,7 +89,7 @@ class SongUpdateService extends ChangeNotifier {
                   'received: song: ${_songUpdate?.song.title}'
                   ' at moment: ${_songUpdate?.momentNumber}');
               playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
-              _delaySeconds = 0;
+              _delayMilliseconds = 0;
               _songUpdateCount++;
             }
           }, onError: (Object error) {
@@ -109,20 +109,20 @@ class SongUpdateService extends ChangeNotifier {
 
           for (_idleCount = 0;; _idleCount++) {
             //  idle
-            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(const Duration(milliseconds: _idleMilliseconds));
 
             //  check connection status
             if (lastHost != _findTheHost()) {
               logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
               appLogMessage('webSocketChannel new host: $uri');
               _closeWebSocketChannel();
-              _delaySeconds = 0;
+              _delayMilliseconds = 0;
               notifyListeners();
               break;
             }
             if (!_isOpen) {
               logger.log(_log, 'on close: $lastHost');
-              _delaySeconds = 0;
+              _delayMilliseconds = 0;
               notifyListeners();
               break;
             }
@@ -140,17 +140,17 @@ class SongUpdateService extends ChangeNotifier {
         }
       }
 
-      if (_delaySeconds > 0) {
+      if (_delayMilliseconds > 0) {
         //  wait a while
-        if (_delaySeconds < maxDelaySeconds) {
-          logger.log(_log, 'wait a while... before retrying websocket: $_delaySeconds s');
+        if (_delayMilliseconds < maxDelayMilliseconds) {
+          logger.log(_log, 'wait a while... before retrying websocket: $_delayMilliseconds s');
         }
-        await Future.delayed(Duration(seconds: _delaySeconds));
+        await Future.delayed(Duration(seconds: _delayMilliseconds));
       }
 
       //  backoff bothering the server with repeated failures
-      if (_delaySeconds < maxDelaySeconds) {
-        _delaySeconds++;
+      if (_delayMilliseconds < maxDelayMilliseconds) {
+        _delayMilliseconds += _idleMilliseconds;
       }
     }
   }
@@ -250,10 +250,11 @@ class SongUpdateService extends ChangeNotifier {
   int _songUpdateCount = 0;
   int _idleCount = 0;
   WebSocketSink? _webSocketSink;
-  static const int maxDelaySeconds = 10;
+  static const int _idleMilliseconds = 500;
+  static const int maxDelayMilliseconds = 10 * Duration.millisecondsPerSecond;
 
-  static int get delaySeconds => _singleton._delaySeconds;
-  var _delaySeconds = 0;
+  static int get delayMilliseconds => _singleton._delayMilliseconds;
+  var _delayMilliseconds = 0;
   StreamSubscription<dynamic>? _subscription;
   final AppOptions _appOptions = AppOptions();
 }

@@ -171,15 +171,12 @@ Follower jumpy,
     follower jumps somewhere and back when adjusting the key when not on the first section
 finish PlayList
     requested song, no singer, click selection?  singer popup?
-
 singer requester editing not remembered
     requester list change should provide a "write file" button
     should not let user leave singing screen without warning and opportunity to write
-change of singer => playlist scroll to zero
 
-
-reset singer search when singer added to session
-
+____change of singer => playlist scroll to zero
+____reset singer search when singer added to session
 ____fix christmas
 ____should not let user leave metadata screen without warning and opportunity to write
 ____csv metadata export in app

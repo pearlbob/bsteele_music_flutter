@@ -243,7 +243,7 @@ class RegexpTextFinder extends MatchFinder {
 testUtilShutdown(WidgetTester tester) async {
   //  wait for song update service to close
   SongUpdateService.close();
-  if (SongUpdateService.delaySeconds > 0) {
-    await tester.pumpAndSettle(Duration(seconds: SongUpdateService.delaySeconds));
+  if (SongUpdateService.delayMilliseconds > 0) {
+    await tester.pumpAndSettle(Duration(seconds: SongUpdateService.delayMilliseconds));
   }
 }

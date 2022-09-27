@@ -303,6 +303,7 @@ class SingersState extends State<Singers> {
                           _sessionSingers.add(performer);
                           appOptions.sessionSingers = _sessionSingers;
                           _setSelectedSinger(performer);
+                          singerSearchTextFieldController.text = '';
                         });
                       },
                       child: appCircledIcon(
@@ -387,6 +388,7 @@ class SingersState extends State<Singers> {
                             onPressed: () {
                               setState(() {
                                 _setSelectedSinger(singer);
+                                Provider.of<PlayListRefreshNotifier>(context, listen: false).positionPixels = 0;
                               });
                             },
                             style: singer == _selectedSinger
@@ -1198,22 +1200,13 @@ class SingersState extends State<Singers> {
       _selectedSingerIsRequester = isRequester;
       _searchForSelectedSingerOnly = !_selectedSingerIsRequester;
       _selectedVolunteerSinger = _unknownSinger;
-      logger.d('_setSelectedSinger(): $singer isRequester: $isRequester');
+      logger.d('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }
   }
 
   bool _hasSongsToSing(String singer) {
     return _allSongPerformances.bySinger(singer).isNotEmpty;
   }
-
-  // bool _hasRequests(String participant) {
-  //   try {
-  //     _allSongPerformances.allSongPerformanceRequests.firstWhere((element) => element.requester == participant);
-  //     return true;
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
 
   final AllSongPerformances _allSongPerformances = AllSongPerformances();
 

@@ -746,6 +746,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   singersSearchSingleSwitch(Null),
   singersSessionSingerSelect(String),
   singersVolunteerSingerSelect(String),
+  singersVolunteerSingerSelectClear(Null),
   singersShowOtherActions(Null),
   singersSingerClearSearch(Null),
   singersSingerSearchText(String),

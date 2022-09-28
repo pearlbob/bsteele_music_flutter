@@ -9,6 +9,7 @@ import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
@@ -79,8 +80,8 @@ class SingersState extends State<Singers> {
       );
       disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: disabledColor);
       buttonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveBackgroundColor);
-      final inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
-      final selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);
+      inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
+      selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);
       final singerTextStyle = generateAppTextFieldStyle(fontSize: fontSize, backgroundColor: inactiveBackgroundColor);
 
       List<Widget> sessionSingerWidgets = [];
@@ -171,16 +172,23 @@ class SingersState extends State<Singers> {
               addPerformanceItems('Other matching songs:', performancesFromSessionSingers);
             } else {
               //  requester matches
-              addPerformanceItems('$_selectedSinger would like to hear:',
-                  performancesFromSessionSingers.where((e) => songRequests.contains(e.song)),
-                  color: appBackgroundColor);
+              if (_selectedVolunteerSinger == _unknownSinger) {
+                addPerformanceItems('$_selectedSinger would like to hear:',
+                    performancesFromSessionSingers.where((e) => songRequests.contains(e.song)),
+                    color: appBackgroundColor);
+              }
 
-              addSongItems(
-                '$_selectedSinger would like a volunteer singer for these favorites:',
-                songRequests,
-                color: appBackgroundColor,
-                songItemAction: _volunteerSingerPopup,
-              );
+              if (_selectedVolunteerSinger != _unknownSinger) {
+                var volunteerPerformances = performancesFromSessionSingers
+                    .where((e) => songRequests.contains(e.song) && e.singer == _selectedVolunteerSinger);
+                addPerformanceItems(
+                    '$_selectedSinger would like to hear $_selectedVolunteerSinger sing:', volunteerPerformances,
+                    color: appBackgroundColor);
+                var volunteerSongs = volunteerPerformances.map((performance) => performance.performedSong);
+                addSongItems('Other songs $_selectedVolunteerSinger might sing for $_selectedSinger:',
+                    songRequests.where((song) => !volunteerSongs.contains(song)),
+                    color: appBackgroundColor, songItemAction: _navigateVolunteerToPlayer);
+              }
               addSongItems('Other matching songs:', otherMatchingSongs);
             }
           } else if (searchForSelectedSingerOnly) {
@@ -430,6 +438,7 @@ class SingersState extends State<Singers> {
         body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (app.message.isNotEmpty)
                 Text(
@@ -570,13 +579,13 @@ class SingersState extends State<Singers> {
                             showDialog(
                                 context: context,
                                 builder: (_) => AlertDialog(
-                                      title: Text(
-                                        'Do you really want to delete the singer $_selectedSinger?',
-                                        style: TextStyle(fontSize: songPerformanceStyle.fontSize),
-                                      ),
-                                      actions: [
-                                        appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                            appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                  title: Text(
+                                    'Do you really want to delete the singer $_selectedSinger?',
+                                    style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                                  ),
+                                  actions: [
+                                    appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
+                                        appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
                                           logger.d('delete: $_selectedSinger');
                                           setState(() {
                                             _allSongPerformances.removeSinger(_selectedSinger);
@@ -588,14 +597,14 @@ class SingersState extends State<Singers> {
                                           });
                                           Navigator.of(context).pop();
                                         }),
-                                        const AppSpace(space: 100),
-                                        appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                            appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                    const AppSpace(space: 100),
+                                    appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
+                                        appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
                                           Navigator.of(context).pop();
                                         }),
-                                      ],
-                                      elevation: 24.0,
-                                    ));
+                                  ],
+                                  elevation: 24.0,
+                                ));
                           },
                         ),
                       const AppVerticalSpace(),
@@ -723,7 +732,7 @@ class SingersState extends State<Singers> {
                   ]),
                 ]),
               if (!_isInSingingMode)
-                //  singers
+              //  singers
                 AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                   Text(
                     'All Singers:',
@@ -799,6 +808,7 @@ class SingersState extends State<Singers> {
                   allSingersWidgetWrap,
                 ])),
               const AppVerticalSpace(),
+              _volunteersWidget(),
               if (_isInSingingMode)
                 PlayList.byGroup(songListGroup,
                     style: singerTextStyle, includeByLastSung: true, selectedSortType: PlayListSortType.byTitle),
@@ -1044,46 +1054,102 @@ class SingersState extends State<Singers> {
     _nextSinger(songPerformance);
   }
 
-  _volunteerSingerPopup(BuildContext context, SongListItem songListItem) {
-    logger.i('temp: _volunteerSingerPopup($context,  $songListItem)');
-    List<Widget> singerSelections = [];
-    for (var singer in _sessionSingers) {
-      if (singer == _selectedSinger) {
-        continue;
-      }
-      singerSelections.add(
-        appTextButton(
-          singer,
-          appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
-          onPressed: () async {
-            logger.i('volunteer: $singer');
-            var performance = SongPerformance.fromSong(songListItem.song, singer);
-            await _navigatePerformanceToPlayer(context, performance);
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          style: buttonTextStyle,
-        ),
-      );
+  Widget _volunteersWidget() {
+    if (!_isInSingingMode || !_selectedSingerIsRequester || searchForSelectedSingerOnly) {
+      return NullWidget();
     }
+    return AppWrapFullWidth(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(
+          'Volunteer Singer:',
+          style: songPerformanceStyle,
+        ),
+        const AppSpace(),
+        ..._potentialVolunteers().map(
+          (singer) => appTextButton(
+            singer,
+            appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
+            onPressed: () {
+              setState(() {
+                _selectedVolunteerSinger = singer;
+              });
+            },
+            style: _selectedVolunteerSinger == singer ? selectedButtonTextStyle : buttonTextStyle,
+          ),
+        ),
+        AppTooltip(
+          message: 'Clear the volunteer selection.',
+          child: appEnumeratedIconButton(
+            appKeyEnum: AppKeyEnum.singersVolunteerSingerSelectClear,
+            icon: const Icon(Icons.clear),
+            iconSize: 1.5 * app.screenInfo.fontSize,
+            onPressed: (() {
+              setState(() {
+                _selectedVolunteerSinger = _unknownSinger;
+              });
+            }),
+          ),
+        ),
+      ],
+    );
+  }
 
-    showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                'Select a volunteer singer from:',
-                style: songPerformanceStyle,
-              ),
-              actions: [
-                AppWrapFullWidth(alignment: WrapAlignment.spaceAround, children: singerSelections),
-                const AppSpace(space: 100),
-                appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
-                  Navigator.of(context).pop();
-                }),
-              ],
-              elevation: 24.0,
-            ));
+  List<String> _potentialVolunteers() {
+    List<String> volunteers = [];
+
+    for (var singer in _sessionSingers) {
+      if (singer != _selectedSinger && _allSongPerformances.bySinger(singer).isNotEmpty) {
+        volunteers.add(singer);
+      }
+    }
+    return volunteers;
+  }
+
+  // _volunteerSingerPopup(BuildContext context, SongListItem songListItem) {
+  //   logger.v('temp: _volunteerSingerPopup($context,  $songListItem)');
+  //   List<Widget> singerSelections = [];
+  //   for (var singer in _sessionSingers) {
+  //     if (singer == _selectedSinger) {
+  //       continue;
+  //     }
+  //     singerSelections.add(
+  //       appTextButton(
+  //         singer,
+  //         appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
+  //         onPressed: () async {
+  //           logger.v('volunteer: $singer');
+  //           var performance = SongPerformance.fromSong(songListItem.song, singer);
+  //           await _navigatePerformanceToPlayer(context, performance);
+  //           if (mounted) {
+  //             Navigator.of(context).pop();
+  //           }
+  //         },
+  //         style: buttonTextStyle,
+  //       ),
+  //     );
+  //   }
+  //
+  //   showDialog(
+  //       context: context,
+  //       builder: (_) => AlertDialog(
+  //             title: Text(
+  //               'Select a volunteer singer from:',
+  //               style: songPerformanceStyle,
+  //             ),
+  //             actions: [
+  //               AppWrapFullWidth(alignment: WrapAlignment.spaceAround, children: singerSelections),
+  //               const AppSpace(space: 100),
+  //               appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               }),
+  //             ],
+  //             elevation: 24.0,
+  //           ));
+  // }
+
+  _navigateVolunteerToPlayer(BuildContext context, SongListItem songListItem) async {
+    _navigatePerformanceToPlayer(context, SongPerformance.fromSong(songListItem.song, _selectedVolunteerSinger));
   }
 
   _navigateSongListToPlayer(BuildContext context, SongListItem songListItem) async {
@@ -1182,6 +1248,8 @@ class SingersState extends State<Singers> {
   TextStyle songPerformanceStyle = const TextStyle();
   TextStyle disabledSongPerformanceStyle = const TextStyle();
   TextStyle buttonTextStyle = const TextStyle();
+  TextStyle inactiveRequesterButtonTextStyle = const TextStyle();
+  TextStyle selectedButtonTextStyle = const TextStyle();
 
   var selectedSongPerformances = SplayTreeSet<SongPerformance>();
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
@@ -1226,7 +1294,7 @@ class SingersState extends State<Singers> {
       //  reset the singer's list
       Provider.of<PlayListRefreshNotifier>(context, listen: false).requestSearchClear();
 
-      logger.i('_setSelectedSinger(): $singer, isRequester: $isRequester');
+      logger.v('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }
   }
 

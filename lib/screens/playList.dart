@@ -35,7 +35,7 @@ typedef SongItemAction = Function(BuildContext context, SongListItem songListIte
 class PlayListRefreshNotifier extends ChangeNotifier {
   void refresh() {
     logger.log(_logPosition, 'PlayListRefreshNotifier: ${identityHashCode(this)}');
-    //   notifyListeners();
+    notifyListeners();
   }
 
   void requestSearchClear() {
@@ -389,7 +389,9 @@ class _PlayListState extends State<PlayList> {
       if (playListRefreshNotifier.searchClearQuery()) {
         _searchTextFieldController.text = '';
         playListRefreshNotifier.positionPixels = 0.0;
-        logger.i('_PlayListState: playListRefreshNotifier.searchClearQuery()'
+        logger.log(
+            _logBuild,
+            '_PlayListState: playListRefreshNotifier.searchClearQuery()'
             ', positionPixels: ${playListRefreshNotifier.positionPixels}');
         focus(context);
       }
@@ -700,9 +702,9 @@ class _PlayListState extends State<PlayList> {
                   logger.log(
                       _logPosition,
                       '_PlayListState: index: $index, pos:'
-                          ' ${playListRefreshNotifier.positionPixels}'
-                          ', id:F ${identityHashCode(playListRefreshNotifier)}'
-                          ', isFromTheTop: ${widget.isFromTheTop}');
+                      ' ${playListRefreshNotifier.positionPixels}'
+                      ', id:F ${identityHashCode(playListRefreshNotifier)}'
+                      ', isFromTheTop: ${widget.isFromTheTop}');
                   _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
                   _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
                   return filteredGroup._indexToWidget(context, index, widget.isEditing, () {

@@ -536,20 +536,13 @@ class MetadataScreenState extends State<MetadataScreen> {
   }
 
   bool nameValueIsDeletable(NameValue nameValue) {
-    logger.i('nameValueIsDeletable(): $nameValue');
+    logger.v('nameValueIsDeletable(): $nameValue');
 
     if (nameValue == _emptySelectedNameValue) {
       return false;
     }
 
-    switch (nameValue.name) {
-      case '':
-        return false;
-      case 'cj':
-        return kDebugMode;
-      default:
-        return true;
-    }
+    return nameValue.name.isNotEmpty;
   }
 
   int _compareDropdownMenuItemString(DropdownMenuItem<String> key1, DropdownMenuItem<String> key2) {

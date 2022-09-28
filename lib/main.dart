@@ -104,6 +104,7 @@ import 'util/openLink.dart';
 
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
+//  global regex search:       logger.i\(
 const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
@@ -167,16 +168,16 @@ void main() async {
 /*
 beta short list:
 
+
+
+singer without requests as requester shows blank list.  warning notice?
+singer requester editing not remembered...immediately
+
 _____singer session search, singer entry currently clears singer search term but does not focus on search
-
-
 _____clear playlist search term on singer change, include auto increment
 
-
-
-singer requester editing not remembered...immediately
-    requester list edit change should provide a "write file" button
-    should not let user leave requester edit without warning and opportunity to write
+____requester list edit change should provide a "write file" button   Save button
+____singers: should not let user leave requester edit without warning and opportunity to write
 
 ____requested song, no singer, click selection?  singer popup?
 ____Follower jumpy,

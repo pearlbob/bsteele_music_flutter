@@ -165,16 +165,19 @@ void main() async {
 
 /*
 beta short list:
-Follower jumpy,
-    Follower scroll update too brutal on section transitions.
-    player key up/down move on changes 12 bar blues - minor
-    follower jumps somewhere and back when adjusting the key when not on the first section
-finish PlayList
-    requested song, no singer, click selection?  singer popup?
-singer requester editing not remembered
-    requester list change should provide a "write file" button
-    should not let user leave singing screen without warning and opportunity to write
 
+
+
+
+singer requester editing not remembered...immediately
+    requester list edit change should provide a "write file" button
+    should not let user leave requester edit without warning and opportunity to write
+
+____requested song, no singer, click selection?  singer popup?
+____Follower jumpy,
+    ____Follower scroll update too brutal on section transitions.
+    ____player key up/down move on changes 12 bar blues - minor
+    ____follower jumps somewhere and back when adjusting the key when not on the first section
 ____change of singer => playlist scroll to zero
 ____reset singer search when singer added to session
 ____fix christmas
@@ -198,6 +201,7 @@ ____actions on song hit in singers
 ____force order by title on singer screen when editing requests
 ____metadata jumps to top of list on change
 
+select requester's volunteer singer prior to song selection?
 menu bar overload on small screens and large song titles/artists/coverArtist (currently only partial fix)
 undo-redo in metadata editing
 metadata editing change summary, file read change summary

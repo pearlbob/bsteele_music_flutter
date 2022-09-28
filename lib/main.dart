@@ -165,7 +165,7 @@ void main() async {
 
 /*
 beta short list:
-
+_____clear playlist search term on singer change, include auto increment
 
 
 

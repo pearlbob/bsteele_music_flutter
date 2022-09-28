@@ -21,6 +21,7 @@ import 'package:reorderables/reorderables.dart';
 import '../app/app.dart';
 
 //  diagnostic logging enables
+//  global regex search:       const Level _.* \= Level\.info
 const Level _singerLogBuild = Level.debug;
 const Level _singerRequester = Level.debug;
 const Level _singerLogHistory = Level.debug;
@@ -66,7 +67,7 @@ class SingersState extends State<Singers> {
     return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
       appWidgetHelper = AppWidgetHelper(context);
 
-      logger.log(_singerLogBuild, 'singer build:  message: ${app.message}');
+      logger.log(_singerLogBuild, 'singer build: _selectedSinger: $_selectedSinger,  message: ${app.message}');
 
       if (_selectedSinger == _unknownSinger && _sessionSingers.isNotEmpty) {
         _setSelectedSinger(_sessionSingers.first);
@@ -624,7 +625,7 @@ class SingersState extends State<Singers> {
                     'Warning: you are not a leader!',
                     style: singerTextStyle,
                   ),
-                  const AppVerticalSpace(),
+                  const AppSpace(),
                   if (_songUpdateService.isConnected)
                     appEnumeratedButton(
                       '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.host}',
@@ -1220,9 +1221,11 @@ class SingersState extends State<Singers> {
       _selectedVolunteerSinger = _unknownSinger;
 
       //  reset the singer's list
-      Provider.of<PlayListRefreshNotifier>(context, listen: false).positionPixels = 0;
+      var playListRefreshNotifier = Provider.of<PlayListRefreshNotifier>(context, listen: false);
+      playListRefreshNotifier.positionPixels = 0;
+      playListRefreshNotifier.requestSearchClear();
 
-      logger.d('_setSelectedSinger(): $singer, isRequester: $isRequester');
+      logger.i('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }
   }
 

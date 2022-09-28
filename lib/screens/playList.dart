@@ -37,6 +37,21 @@ class PlayListRefreshNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void requestSearchClear() {
+    _requestSearchClear = true;
+    // notifyListeners();  //  fixme: this ends up double notifying the listeners
+  }
+
+  //  return true if a search clear has been requested
+  //  request is reset once queried
+  bool searchClearQuery() {
+    var ret = _requestSearchClear;
+    _requestSearchClear = false;
+    return ret;
+  }
+
+  bool _requestSearchClear = false;
+
   double? positionPixels;
 }
 
@@ -348,186 +363,191 @@ class _PlayListState extends State<PlayList> {
   }
 
   void focus(BuildContext context) {
-      if (_searchTextFieldController.text.isNotEmpty) {
-        _searchTextFieldController.selection =
-            TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-      }
-      FocusScope.of(context).requestFocus(_searchFocusNode);
+    if (_searchTextFieldController.text.isNotEmpty) {
+      _searchTextFieldController.selection =
+          TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
+    }
+    FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 
   @override
   Widget build(BuildContext context) {
-    logger.log(
-        _logBuild,
-        'PlayList.build(): _isEditing: ${widget.isEditing}'
-        // ', text: "${_searchTextFieldController.text}"'
-        //   ', _searchTextFieldController: ${identityHashCode(_searchTextFieldController)}'
-        //    ' (${_searchTextFieldController.selection.base.offset}'
-        //    ',${_searchTextFieldController.selection.extent.offset})'
-        ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
+    return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
+      logger.log(
+          _logBuild,
+          'PlayList.build(): _isEditing: ${widget.isEditing}'
+          ', text: "${_searchTextFieldController.text}"'
+          //   ', _searchTextFieldController: ${identityHashCode(_searchTextFieldController)}'
+          //    ' (${_searchTextFieldController.selection.base.offset}'
+          //    ',${_searchTextFieldController.selection.extent.offset})'
+          ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
 
-    //  find all the metadata values
-    SplayTreeSet<NameValue> nameValues = SplayTreeSet();
-    for (var id in SongMetadata.where()) {
-      nameValues.addAll(id.nameValues);
-    }
-
-    //  generate list of current filters
-    List<Widget> filterWidgets = [];
-    for (var nv in _filterNameValues) {
-      filterWidgets.add(
-        appIconButton(
-          icon: appIcon(
-            Icons.clear,
-          ),
-          label: '${nv.name}: ${nv.value}',
-          fontSize: _textFontSize,
-          appKeyEnum: AppKeyEnum.playListMetadataRemove,
-          value: nv,
-          onPressed: () {
-            setState(() {
-              logger.d('remove: ${nv.name}: ${nv.value}');
-              _filterNameValues.remove(nv);
-            });
-          },
-        ),
-      );
-    }
-
-    //  create drop down list of name/values not in use in the filter
-    const allNameValue = NameValue('All', '');
-    List<DropdownMenuItem<NameValue>> filterDropdownMenuItems = [];
-    filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
-        appKeyEnum: AppKeyEnum.playListFilter,
-        value: allNameValue,
-        child: Text(
-          'Filters:',
-          style: widget.artistStyle,
-        )));
-    for (var nv in nameValues) {
-      logger.v('$nv');
-      //  skip existing filters
-      if (_filterNameValues.contains(nv)) {
-        continue;
+      if (playListRefreshNotifier.searchClearQuery()) {
+        _searchTextFieldController.text = '';
+        focus(context);
       }
-      var nvString = '${nv.name}: ${nv.value}';
+
+      //  find all the metadata values
+      SplayTreeSet<NameValue> nameValues = SplayTreeSet();
+      for (var id in SongMetadata.where()) {
+        nameValues.addAll(id.nameValues);
+      }
+
+      //  generate list of current filters
+      List<Widget> filterWidgets = [];
+      for (var nv in _filterNameValues) {
+        filterWidgets.add(
+          appIconButton(
+            icon: appIcon(
+              Icons.clear,
+            ),
+            label: '${nv.name}: ${nv.value}',
+            fontSize: _textFontSize,
+            appKeyEnum: AppKeyEnum.playListMetadataRemove,
+            value: nv,
+            onPressed: () {
+              setState(() {
+                logger.d('remove: ${nv.name}: ${nv.value}');
+                _filterNameValues.remove(nv);
+              });
+            },
+          ),
+        );
+      }
+
+      //  create drop down list of name/values not in use in the filter
+      const allNameValue = NameValue('All', '');
+      List<DropdownMenuItem<NameValue>> filterDropdownMenuItems = [];
       filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
           appKeyEnum: AppKeyEnum.playListFilter,
-          value: nv,
+          value: allNameValue,
           child: Text(
-            nvString,
+            'Filters:',
             style: widget.artistStyle,
           )));
-    }
-
-    // select order
-    int Function(SongListItem key1, SongListItem key2)? compare;
-    switch (selectedSortType) {
-      case PlayListSortType.byArtist:
-        compare = (SongListItem item1, SongListItem item2) {
-          var ret = item1.song.artist.compareTo(item2.song.artist);
-          if (ret != 0) {
-            return ret;
-          }
-          return item1.compareTo(item2);
-        };
-        break;
-      case PlayListSortType.byLastChange:
-        compare = (SongListItem item1, SongListItem item2) {
-          var ret = -item1.song.lastModifiedTime.compareTo(item2.song.lastModifiedTime);
-          if (ret != 0) {
-            return ret;
-          }
-          return item1.compareTo(item2);
-        };
-        break;
-      case PlayListSortType.byComplexity:
-        compare = (SongListItem item1, SongListItem item2) {
-          var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
-          if (ret != 0) {
-            return ret;
-          }
-          return item1.compareTo(item2);
-        };
-        break;
-      case PlayListSortType.byHistory:
-        compare = (SongListItem item1, SongListItem item2) {
-          if (item1.songPerformance != null && item2.songPerformance != null) {
-            return -SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
-          }
-          return item1.compareTo(item2);
-        };
-        break;
-      case PlayListSortType.byLastSung:
-        compare = (SongListItem item1, SongListItem item2) {
-          if (item1.songPerformance != null && item2.songPerformance != null) {
-            return SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
-          }
-          return item1.compareTo(item2);
-        };
-        break;
-      case PlayListSortType.byYear:
-        compare = (SongListItem item1, SongListItem item2) {
-          var ret = item1.song.getCopyrightYear().compareTo(item2.song.getCopyrightYear());
-          if (ret != 0) {
-            return ret;
-          }
-          return item1.compareTo(item2);
-        };
-        break;
-      case PlayListSortType.byTitle:
-        compare = (SongListItem item1, SongListItem item2) {
-          return item1.compareTo(item2);
-        };
-        break;
-    }
-
-    SongListGroup filteredGroup;
-    {
-      //  apply search
-      List<SongList> filteredSongLists = [];
-      var matcher = SongSearchMatcher(_searchTextFieldController.text);
-      for (final songList in widget.group.group) {
-        //  find the possible items
-        SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
-        for (final songItem in songList.songListItems) {
-          if ((songItem.songPerformance != null &&
-                  matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
-              matcher.matchesOrEmptySearch(songItem.song)) {
-            searchedSet.add(songItem);
-          }
+      for (var nv in nameValues) {
+        logger.v('$nv');
+        //  skip existing filters
+        if (_filterNameValues.contains(nv)) {
+          continue;
         }
+        var nvString = '${nv.name}: ${nv.value}';
+        filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
+            appKeyEnum: AppKeyEnum.playListFilter,
+            value: nv,
+            child: Text(
+              nvString,
+              style: widget.artistStyle,
+            )));
+      }
 
-        //  apply filters and order
-        SplayTreeSet<SongListItem> filteredSet = SplayTreeSet(compare);
-        if (_filterNameValues.isEmpty) {
-          //  apply no filter
-          filteredSet.addAll(searchedSet);
-        } else {
-          //  filter the songs for the correct metadata
-          for (var songItem in searchedSet) {
-            var matched = true;
-            var idString = songItem.song.songId.toString();
-            for (var nv in _filterNameValues) {
-              if (SongMetadata.where(idIs: idString, nameIs: nv.name, valueIs: nv.value).isEmpty) {
-                matched = false;
-                break;
+      // select order
+      int Function(SongListItem key1, SongListItem key2)? compare;
+      switch (selectedSortType) {
+        case PlayListSortType.byArtist:
+          compare = (SongListItem item1, SongListItem item2) {
+            var ret = item1.song.artist.compareTo(item2.song.artist);
+            if (ret != 0) {
+              return ret;
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.byLastChange:
+          compare = (SongListItem item1, SongListItem item2) {
+            var ret = -item1.song.lastModifiedTime.compareTo(item2.song.lastModifiedTime);
+            if (ret != 0) {
+              return ret;
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.byComplexity:
+          compare = (SongListItem item1, SongListItem item2) {
+            var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
+            if (ret != 0) {
+              return ret;
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.byHistory:
+          compare = (SongListItem item1, SongListItem item2) {
+            if (item1.songPerformance != null && item2.songPerformance != null) {
+              return -SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.byLastSung:
+          compare = (SongListItem item1, SongListItem item2) {
+            if (item1.songPerformance != null && item2.songPerformance != null) {
+              return SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.byYear:
+          compare = (SongListItem item1, SongListItem item2) {
+            var ret = item1.song.getCopyrightYear().compareTo(item2.song.getCopyrightYear());
+            if (ret != 0) {
+              return ret;
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.byTitle:
+          compare = (SongListItem item1, SongListItem item2) {
+            return item1.compareTo(item2);
+          };
+          break;
+      }
+
+      SongListGroup filteredGroup;
+      {
+        //  apply search
+        List<SongList> filteredSongLists = [];
+        var matcher = SongSearchMatcher(_searchTextFieldController.text);
+        for (final songList in widget.group.group) {
+          //  find the possible items
+          SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
+          for (final songItem in songList.songListItems) {
+            if ((songItem.songPerformance != null &&
+                    matcher.performanceMatchesOrEmptySearch(songItem.songPerformance!)) ||
+                matcher.matchesOrEmptySearch(songItem.song)) {
+              searchedSet.add(songItem);
+            }
+          }
+
+          //  apply filters and order
+          SplayTreeSet<SongListItem> filteredSet = SplayTreeSet(compare);
+          if (_filterNameValues.isEmpty) {
+            //  apply no filter
+            filteredSet.addAll(searchedSet);
+          } else {
+            //  filter the songs for the correct metadata
+            for (var songItem in searchedSet) {
+              var matched = true;
+              var idString = songItem.song.songId.toString();
+              for (var nv in _filterNameValues) {
+                if (SongMetadata.where(idIs: idString, nameIs: nv.name, valueIs: nv.value).isEmpty) {
+                  matched = false;
+                  break;
+                }
+              }
+              if (matched) {
+                filteredSet.add(songItem);
               }
             }
-            if (matched) {
-              filteredSet.add(songItem);
-            }
+          }
+          if (filteredSet.isNotEmpty) {
+            filteredSongLists.add(SongList(songList.label, filteredSet.toList(growable: false),
+                songItemAction: songList.songItemAction, color: songList.color));
           }
         }
-        if (filteredSet.isNotEmpty) {
-          filteredSongLists.add(SongList(songList.label, filteredSet.toList(growable: false),
-              songItemAction: songList.songItemAction, color: songList.color));
-        }
+        filteredGroup = SongListGroup(filteredSongLists);
       }
-      filteredGroup = SongListGroup(filteredSongLists);
-    }
 
-    return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
       //  jump to proper location for the initial position
       if (scrollController.hasClients && playListRefreshNotifier.positionPixels != null) {
         double pixels = widget.isFromTheTop ? 0 : playListRefreshNotifier.positionPixels ?? 0;
@@ -573,7 +593,7 @@ class _PlayListState extends State<PlayList> {
                       appKeyEnum: AppKeyEnum.playListSearch,
                       controller: _searchTextFieldController,
                       focusNode: _searchFocusNode,
-                      hintText: 'Search terms here...',
+                      hintText: 'Search here...',
                       width: appDefaultFontSize * 40,
                       onChanged: (value) {
                         setState(() {
@@ -655,8 +675,9 @@ class _PlayListState extends State<PlayList> {
                   ]),
                 ]),
             const AppSpace(),
+
+            // this expanded is required as well
             Expanded(
-              // this expanded is required as well
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: filteredGroup.length,

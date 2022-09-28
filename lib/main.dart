@@ -166,6 +166,10 @@ void main() async {
 
 /*
 beta short list:
+
+_____singer session search, singer entry currently clears singer search term but does not focus on search
+
+
 _____clear playlist search term on singer change, include auto increment
 
 

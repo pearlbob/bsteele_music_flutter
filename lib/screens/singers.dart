@@ -277,6 +277,7 @@ class SingersState extends State<Singers> {
                           appOptions.sessionSingers = _sessionSingers;
                           _setSelectedSinger(performer);
                           singerSearchTextFieldController.text = '';
+                          FocusScope.of(context).requestFocus(_singerSearchFocusNode);
                         });
                       },
                       child: appCircledIcon(
@@ -296,6 +297,8 @@ class SingersState extends State<Singers> {
                         setState(() {
                           _sessionSingers.remove(performer);
                           appOptions.sessionSingers = _sessionSingers;
+                          singerSearchTextFieldController.text = '';
+                          FocusScope.of(context).requestFocus(_singerSearchFocusNode);
                         });
                       },
                       child: appCircledIcon(
@@ -780,6 +783,7 @@ class SingersState extends State<Singers> {
                           if (singerTextFieldController.text.isNotEmpty) {
                             _setSelectedSinger(Util.firstToUpper(singerTextFieldController.text));
                             singerTextFieldController.text = '';
+                            FocusScope.of(context).requestFocus(_singerSearchFocusNode);
                           }
                         });
                       },

@@ -21,6 +21,7 @@ const Level _logConstruct = Level.debug;
 const Level _logInitState = Level.debug;
 const Level _logBuild = Level.debug;
 const Level _logPosition = Level.debug;
+const Level _logJump = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
@@ -34,10 +35,11 @@ typedef SongItemAction = Function(BuildContext context, SongListItem songListIte
 class PlayListRefreshNotifier extends ChangeNotifier {
   void refresh() {
     logger.log(_logPosition, 'PlayListRefreshNotifier: ${identityHashCode(this)}');
-    notifyListeners();
+    //   notifyListeners();
   }
 
   void requestSearchClear() {
+    positionPixels = 0.0;
     _requestSearchClear = true;
     // notifyListeners();  //  fixme: this ends up double notifying the listeners
   }
@@ -262,7 +264,7 @@ class PlayList extends StatefulWidget {
     includeByLastSung = false,
     isEditing = false,
     selectedSortType,
-    isFromTheTop = false,
+    isFromTheTop = true,
   }) : this.byGroup(SongListGroup([songList]),
             key: key,
             style: style,
@@ -278,7 +280,7 @@ class PlayList extends StatefulWidget {
     this.includeByLastSung = false,
     this.isEditing = false,
     this.selectedSortType,
-    this.isFromTheTop = false,
+    this.isFromTheTop = true,
   }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
     //
     titleFontSize = style?.fontSize ?? appDefaultFontSize;
@@ -377,13 +379,18 @@ class _PlayListState extends State<PlayList> {
           _logBuild,
           'PlayList.build(): _isEditing: ${widget.isEditing}'
           ', text: "${_searchTextFieldController.text}"'
+          ', positionPixels: ${playListRefreshNotifier.positionPixels}'
           //   ', _searchTextFieldController: ${identityHashCode(_searchTextFieldController)}'
           //    ' (${_searchTextFieldController.selection.base.offset}'
           //    ',${_searchTextFieldController.selection.extent.offset})'
-          ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
+          // ', ModalRoute: ${ModalRoute.of(context)?.settings.name}'
+          );
 
       if (playListRefreshNotifier.searchClearQuery()) {
         _searchTextFieldController.text = '';
+        playListRefreshNotifier.positionPixels = 0.0;
+        logger.i('_PlayListState: playListRefreshNotifier.searchClearQuery()'
+            ', positionPixels: ${playListRefreshNotifier.positionPixels}');
         focus(context);
       }
 
@@ -549,14 +556,17 @@ class _PlayListState extends State<PlayList> {
       }
 
       //  jump to proper location for the initial position
-      if (scrollController.hasClients && playListRefreshNotifier.positionPixels != null) {
+      if (scrollController.hasClients
+          // && playListRefreshNotifier.positionPixels != null
+          ) {
         double pixels = widget.isFromTheTop ? 0 : playListRefreshNotifier.positionPixels ?? 0;
-        pixels = Util.doubleLimit(pixels, 0, scrollController.position.maxScrollExtent);
         playListRefreshNotifier.positionPixels = null;
-        logger.log(_logPosition, 'pixels: $pixels');
+        pixels = Util.doubleLimit(pixels, 0, scrollController.position.maxScrollExtent);
+
+        logger.log(_logJump, 'pixels: $pixels');
         if (scrollController.position.pixels != pixels) {
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            logger.log(_logPosition, 'pixels: jumpTo($pixels)  ${identityHashCode(playListRefreshNotifier)}');
+            logger.log(_logJump, 'pixels: jumpTo($pixels)  ${identityHashCode(playListRefreshNotifier)}');
             scrollController.jumpTo(pixels);
           });
         }
@@ -684,13 +694,15 @@ class _PlayListState extends State<PlayList> {
                 controller: scrollController,
                 itemBuilder: (BuildContext context, int index) {
                   //  keep track of scroll position
-                  playListRefreshNotifier.positionPixels = scrollController.position.pixels;
+                  if (!widget.isFromTheTop) {
+                    playListRefreshNotifier.positionPixels = scrollController.position.pixels;
+                  }
                   logger.log(
                       _logPosition,
                       '_PlayListState: index: $index, pos:'
-                      ' ${playListRefreshNotifier.positionPixels}'
-                      ', id:F ${identityHashCode(playListRefreshNotifier)}'
-                      ', isFromTheTop: ${widget.isFromTheTop}');
+                          ' ${playListRefreshNotifier.positionPixels}'
+                          ', id:F ${identityHashCode(playListRefreshNotifier)}'
+                          ', isFromTheTop: ${widget.isFromTheTop}');
                   _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
                   _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
                   return filteredGroup._indexToWidget(context, index, widget.isEditing, () {

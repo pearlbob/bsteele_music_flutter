@@ -21,7 +21,6 @@ import 'package:reorderables/reorderables.dart';
 import '../app/app.dart';
 
 //  diagnostic logging enables
-//  global regex search:       const Level _.* \= Level\.info
 const Level _singerLogBuild = Level.debug;
 const Level _singerRequester = Level.debug;
 const Level _singerLogHistory = Level.debug;
@@ -1221,9 +1220,7 @@ class SingersState extends State<Singers> {
       _selectedVolunteerSinger = _unknownSinger;
 
       //  reset the singer's list
-      var playListRefreshNotifier = Provider.of<PlayListRefreshNotifier>(context, listen: false);
-      playListRefreshNotifier.positionPixels = 0;
-      playListRefreshNotifier.requestSearchClear();
+      Provider.of<PlayListRefreshNotifier>(context, listen: false).requestSearchClear();
 
       logger.i('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }

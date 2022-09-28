@@ -1217,7 +1217,10 @@ With z or q, the app goes back to the play list.''',
   }
 
   scrollToLyricSection(int index, {final bool force = false}) {
-    index = Util.intLimit(index, 0, widget._song.lyricSections.length - 1); //  safety
+    if (widget._song.lyricSections.isEmpty) {
+      return; //  safety
+    }
+    index = Util.indexLimit(index, widget._song.lyricSections); //  safety
 
     switch (appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
@@ -1255,7 +1258,10 @@ With z or q, the app goes back to the play list.''',
   }
 
   selectLyricSection(int index) {
-    index = Util.intLimit(index, 0, _song.lyricSections.length); //  safety
+    if (_song.lyricSections.isEmpty) {
+      return; //  safety
+    }
+    index = Util.indexLimit(index, _song.lyricSections); //  safety
 
     //  update the widgets
     _lyricSectionNotifier.index = index;
@@ -1332,8 +1338,8 @@ With z or q, the app goes back to the play list.''',
 
   /// Workaround to avoid calling setState() outside of the framework classes
   void setPlayState() {
-    if (_songUpdate != null) {
-      int momentNumber = Util.intLimit(_songUpdate!.momentNumber, 0, _song.songMoments.length - 1);
+    if (_songUpdate != null && _song.songMoments.isNotEmpty) {
+      int momentNumber = Util.indexLimit(_songUpdate!.momentNumber, _song.songMoments);
       assert(momentNumber >= 0);
       assert(momentNumber < _song.songMoments.length);
       var songMoment = _song.songMoments[momentNumber];

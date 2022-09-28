@@ -103,6 +103,7 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 //  diagnostic logging enables
+//  global regex search:       const Level _.* = Level\.info;
 const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
@@ -1104,6 +1105,7 @@ class MyHomePageState extends State<MyHomePage> {
           songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
               songItemAction: _navigateToPlayerBySongItem),
           style: titleTextStyle,
+          isFromTheTop: false,
         ),
       ]),
 

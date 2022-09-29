@@ -35,6 +35,7 @@ const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's p
 enum PlayListSortType {
   byHistory, //  by convention: should be first
   byLastSung, //  by convention: should be second
+  bySinger,
   byTitle,
   byArtist,
   byLastChange,

@@ -92,7 +92,6 @@ class SingersState extends State<Singers> {
       var songRequests = SplayTreeSet<Song>();
       SplayTreeSet<SongPerformance> performancesFromSinger = SplayTreeSet();
       SplayTreeSet<SongPerformance> performancesFromSessionSingers = SplayTreeSet();
-      SplayTreeSet<Song> otherMatchingSongs = SplayTreeSet();
       SplayTreeSet<Song> otherSongs = SplayTreeSet();
       if (_selectedSingerIsRequester) {
         SplayTreeSet<SongRequest> songRequestsFromRequester = SplayTreeSet<SongRequest>()
@@ -189,14 +188,14 @@ class SingersState extends State<Singers> {
                     songRequests.where((song) => !volunteerSongs.contains(song)),
                     color: appBackgroundColor, songItemAction: _navigateVolunteerToPlayer);
               }
-              addSongItems('Other matching songs:', otherMatchingSongs);
             }
           } else if (searchForSelectedSingerOnly) {
-            // 			search single singer selected
-            // 			search for single singer selected
-            // 				- performances from singer that match search
-            addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: appBackgroundColor);
             // 				matching performances from singer
+            addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: appBackgroundColor);
+
+            //  all other songs
+            //  note that the filtering is done by the play list
+            addSongItems('Songs $_selectedSinger might sing:', otherSongs, color: appBackgroundColor);
           } else {
             // 			search all singers selected
             // 				- performances from session singers
@@ -208,31 +207,18 @@ class SingersState extends State<Singers> {
           // 				- performances from session singers that match
           addPerformanceItems('Today\'s session singers sing:', performancesFromSessionSingers,
               color: appBackgroundColor);
-          //   - all other matching songs
-          addSongItems('Other matching songs:', otherMatchingSongs);
-        }
-
-        //   - all the other songs not otherwise listed
-        if (_selectedSingerIsRequester) {
-          if (searchForSelectedSingerOnly) {
-            addSongItems('Songs $_selectedSinger might request:', otherMatchingSongs, color: appBackgroundColor);
-          }
-        } else {
-          addSongItems('Other matching songs:', otherMatchingSongs);
         }
       }
 
       logger.d('all songs: '
-          '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherMatchingSongs.length + otherSongs.length)}/${app.allSongs.length}');
+          '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}');
       logger.d('performancesFromSinger: ${performancesFromSinger.length}'
           ', performancesFromSessionSingers:${performancesFromSessionSingers.length}'
-          ', otherMatchingSongs:${otherMatchingSongs.length}'
           ', otherSongs:${otherSongs.length}');
       logger.d(
           '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}');
       assert((performancesFromSinger.length +
               performancesFromSessionSingers.length +
-              otherMatchingSongs.length +
               otherSongs.length +
               songRequests.length) >=
           app.allSongs.length);
@@ -579,13 +565,13 @@ class SingersState extends State<Singers> {
                             showDialog(
                                 context: context,
                                 builder: (_) => AlertDialog(
-                                  title: Text(
-                                    'Do you really want to delete the singer $_selectedSinger?',
-                                    style: TextStyle(fontSize: songPerformanceStyle.fontSize),
-                                  ),
-                                  actions: [
-                                    appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                        appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                      title: Text(
+                                        'Do you really want to delete the singer $_selectedSinger?',
+                                        style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                                      ),
+                                      actions: [
+                                        appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
+                                            appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
                                           logger.d('delete: $_selectedSinger');
                                           setState(() {
                                             _allSongPerformances.removeSinger(_selectedSinger);
@@ -597,14 +583,14 @@ class SingersState extends State<Singers> {
                                           });
                                           Navigator.of(context).pop();
                                         }),
-                                    const AppSpace(space: 100),
-                                    appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                        appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                        const AppSpace(space: 100),
+                                        appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
+                                            appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
                                           Navigator.of(context).pop();
                                         }),
-                                  ],
-                                  elevation: 24.0,
-                                ));
+                                      ],
+                                      elevation: 24.0,
+                                    ));
                           },
                         ),
                       const AppVerticalSpace(),
@@ -681,6 +667,7 @@ class SingersState extends State<Singers> {
                       },
                       style: songPerformanceStyle,
                     ),
+                    //  requester enable
                     AppTooltip(
                         message: 'Check here to make this individual a requester\n'
                             'of songs from the singers list above\n'

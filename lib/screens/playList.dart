@@ -324,6 +324,18 @@ class _PlayListState extends State<PlayList> {
 
     logger.log(_logInitState, 'PlayList.initState():');
 
+    _generateSortTypesDropDownMenuList();
+  }
+
+  void focus(BuildContext context) {
+    if (_searchTextFieldController.text.isNotEmpty) {
+      _searchTextFieldController.selection =
+          TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
+    }
+    FocusScope.of(context).requestFocus(_searchFocusNode);
+  }
+
+  _generateSortTypesDropDownMenuList() {
     if (widget.selectedSortType != null) {
       selectedSortType = widget.selectedSortType!;
     } else if (widget.includeByLastSung) {
@@ -333,10 +345,16 @@ class _PlayListState extends State<PlayList> {
       switch (selectedSortType) {
         case PlayListSortType.byLastSung:
         case PlayListSortType.byHistory:
+        case PlayListSortType.bySinger:
           //  replace invalid preference for song lists
           selectedSortType = PlayListSortType.byTitle;
           break;
-        default:
+        case PlayListSortType.byTitle:
+        case PlayListSortType.byArtist:
+        case PlayListSortType.byLastChange:
+        case PlayListSortType.byComplexity:
+        case PlayListSortType.byYear:
+          break;
       }
     }
 
@@ -348,9 +366,15 @@ class _PlayListState extends State<PlayList> {
         switch (e) {
           case PlayListSortType.byHistory:
           case PlayListSortType.byLastSung:
-            //  if in a song play list, by last sung and history should be removed
+          case PlayListSortType.bySinger:
+            //  if in a song play list, these should be removed
             continue;
-          default:
+          case PlayListSortType.byTitle:
+          case PlayListSortType.byArtist:
+          case PlayListSortType.byLastChange:
+          case PlayListSortType.byComplexity:
+          case PlayListSortType.byYear:
+            break;
         }
       }
       _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
@@ -362,14 +386,6 @@ class _PlayListState extends State<PlayList> {
         ),
       ));
     }
-  }
-
-  void focus(BuildContext context) {
-    if (_searchTextFieldController.text.isNotEmpty) {
-      _searchTextFieldController.selection =
-          TextSelection(baseOffset: 0, extentOffset: _searchTextFieldController.text.length);
-    }
-    FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 
   @override
@@ -492,6 +508,14 @@ class _PlayListState extends State<PlayList> {
           compare = (SongListItem item1, SongListItem item2) {
             if (item1.songPerformance != null && item2.songPerformance != null) {
               return SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
+            }
+            return item1.compareTo(item2);
+          };
+          break;
+        case PlayListSortType.bySinger:
+          compare = (SongListItem item1, SongListItem item2) {
+            if (item1.songPerformance != null && item2.songPerformance != null) {
+              return SongPerformance.compareBySinger(item1.songPerformance!, item2.songPerformance!);
             }
             return item1.compareTo(item2);
           };

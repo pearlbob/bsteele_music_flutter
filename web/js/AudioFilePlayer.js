@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018 Robert Steele at bsteele.com
+ *
  */
 
 "use strict";

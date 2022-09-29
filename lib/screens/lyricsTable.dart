@@ -446,7 +446,7 @@ class LyricsTable {
                 break;
 
               default:
-              //  color done by prior chord section
+                //  color done by prior chord section
                 _locationGrid.set(
                   r,
                   c,
@@ -838,10 +838,11 @@ class LyricsTable {
     logger.v('_measureTextSpan: style.color: ${style.color}'
         ', black: ${Colors.black}, ==: ${style.color?.value == Colors.black.value}');
     var slashColor = style.color?.value == Colors.black.value ? _slashColor : _fadedSlashColor;
-    final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: FontWeight.bold);
+    final TextStyle slashStyle =
+        style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
 
     TextStyle chordDescriptorStyle =
-    style.copyWith(fontSize: (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal).copyWith(
+        style.copyWith(fontSize: (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal).copyWith(
               backgroundColor: style.backgroundColor,
             );
 
@@ -906,11 +907,12 @@ class LyricsTable {
 
     style = style ?? _coloredChordTextStyle;
     var slashColor = style.color == Colors.black ? _slashColor : _fadedSlashColor;
-    final TextStyle slashStyle = style.copyWith(color: slashColor, fontWeight: FontWeight.bold);
+    final TextStyle slashStyle =
+        style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-            fontSize: 0.8 * (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal)
-        .copyWith(
+      fontSize: 0.8 * (style.fontSize ?? _chordFontSizeUnscaled),
+      fontWeight: FontWeight.normal,
       backgroundColor: style.backgroundColor,
     );
 

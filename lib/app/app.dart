@@ -3,10 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
@@ -24,7 +21,7 @@ final App app = App();
 String userName =
     Platform.environment['USER'] ?? Platform.environment['USERNAME'] ?? Platform.environment['LOGNAME'] ?? 'my';
 
-final Color appDisabledColor = Colors.grey[400] ?? Colors.grey;
+final Color appDisabledColor = Colors.grey.shade300;
 const double appDefaultFontSize = 10.0; //  based on phone
 
 const NameValue allSongsMetadataNameValue = NameValue('all', '');
@@ -585,78 +582,6 @@ class AppWidgetHelper {
       );
     }
     return checkbox;
-  }
-
-  RichText transpose(final Measure measure, final music_key.Key key, final int halfSteps,
-      {required final TextStyle style}) {
-    TextStyle slashStyle = generateChordSlashNoteTextStyle(fontSize: style.fontSize)
-        .copyWith(backgroundColor: style.backgroundColor, fontWeight: FontWeight.bold);
-    TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
-            fontSize: 0.8 * (style.fontSize ?? _defaultFontSize), fontWeight: FontWeight.normal)
-        .copyWith(
-      backgroundColor: style.backgroundColor,
-    );
-
-    TextSpan textSpan;
-    if (measure.chords.isNotEmpty) {
-      final List<TextSpan> children = [];
-      for (final Chord chord in measure.chords) {
-        var transposedChord = chord.transpose(key, halfSteps);
-        var isSlash = transposedChord.slashScaleNote != null;
-
-        //  chord note
-        children.add(TextSpan(
-          text: transposedChord.scaleChord.scaleNote.toString(),
-          style: style,
-        ));
-        {
-          //  chord descriptor
-          var name = transposedChord.scaleChord.chordDescriptor.shortName;
-          if (name.isNotEmpty) {
-            children.add(
-              TextSpan(
-                text: name,
-                style: chordDescriptorStyle,
-              ),
-            );
-          }
-        }
-
-        //  other stuff
-        children.add(TextSpan(
-          text: transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
-          style: style,
-        ));
-        if (isSlash) {
-          var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
-          children.add(TextSpan(
-            text: s,
-            style: slashStyle,
-          ));
-        }
-      }
-
-      textSpan = TextSpan(children: children, style: style);
-    } else {
-      //  no chord measures such as repeats, repeat markers and comments
-      textSpan = TextSpan(
-        text: measure.toString(),
-        style: style,
-      );
-    }
-
-    return RichText(
-      text: textSpan,
-      //  don't allow the rich text to wrap:
-      textWidthBasis: TextWidthBasis.longestLine,
-      maxLines: 1,
-      overflow: TextOverflow.clip,
-      softWrap: false,
-      textDirection: TextDirection.ltr,
-      textScaleFactor: 1.0,
-      textAlign: TextAlign.start,
-      textHeightBehavior: const TextHeightBehavior(),
-    );
   }
 
   RichText chordSection(final ChordSection chordSection, {required final TextStyle style}) {

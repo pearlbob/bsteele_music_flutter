@@ -88,7 +88,6 @@ import 'package:bsteele_music_flutter/screens/privacy.dart';
 import 'package:bsteele_music_flutter/screens/singers.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +104,7 @@ import 'util/openLink.dart';
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(
-const Level _logBuild = Level.debug;
+const Level _logBuild = Level.info;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -113,10 +112,6 @@ bool hostIsWebsocketHost = false;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
-
-//  for alternate display: in Additional run args: --dart-define=css=test.css
-//  note: not much effect due to hard-wiring of colors!
-const _cssFileName = String.fromEnvironment('css', defaultValue: '');
 
 /*
 linux start size and location:
@@ -131,11 +126,7 @@ void main() async {
   //logger.i('Uri: ${Uri.base}, path: "${Uri.base.path}", fragment: "${Uri.base.fragment}"');
   logger.i('uri: "$uri", path: "${uri.path}", fragment: "${uri.fragment}"');
 
-  //  override
-  var cssFileName = _cssFileName.isNotEmpty ? _cssFileName : uri.queryParameters['css'];
-  cssFileName = (cssFileName?.isEmpty ?? true) ? 'app.css' : cssFileName;
-
-  //  read the css theme data prior to the first build
+  //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   await AppOptions().init(); //  initialize the options from the stored values
 
@@ -157,7 +148,7 @@ void main() async {
     appLogMessage('auto-magic websocket: $host');
   }
 
-  await AppTheme().init(css: cssFileName!); //  init the singleton
+  await AppTheme().init(); //  init the singleton
 
   //  run the app
   runApp(
@@ -317,7 +308,6 @@ research if the song id is case sensitive: e.g.: "I shall be released" vs "I Sha
 studio instructions for personal tablets
 //  no auto 4 measures per row
 edit mod at end of repeat row broken
-css for repeat markers
 ______blank edit page from options page
 ______song enter confirmation after edit page
 ______repeat expand/compress on player page, non persistent
@@ -467,8 +457,6 @@ timing delay of mic to headphones?
 //  fixme: player chord display elevations trash on mac, b, minor, slash notes
 //  fixme: util: beginner list songlist to google doc format: title, artist, original key
 //  fixme: delete metadata when reading file
-//  fixme: lyrics under chords, css break between chord/lyrics and next chord/lyrics
-//  fixme: Gb argument vs F#   with a disclaimer!!!!
 //  fixme: baseline wrong on chrome on mac
 //  fixme: beta: lyrics in one block area
 //  fixme: align all repeats in a single column of the edit screen
@@ -832,20 +820,20 @@ class MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    app.screenInfo.refresh(context);
+
     logger.log(
         _logBuild,
         'main build: ${app.selectedSong}'
         ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
-
-    app.screenInfo = ScreenInfo(context); //  dynamically adjust to screen size changes  fixme: should be event driven
 
     //  figure the configuration when the values are established
     app.isEditReady = (kIsWeb
             //  if is web, Platform doesn't exist!  not evaluated here in the expression
             ||
             Platform.isLinux ||
-            Platform.isMacOS ||
-            Platform.isWindows) &&
+        Platform.isMacOS ||
+        Platform.isWindows) &&
         !app.screenInfo.isTooNarrow;
     logger.v('isEditReady: $app.isEditReady');
 
@@ -860,7 +848,7 @@ class MyHomePageState extends State<MyHomePage> {
       fontWeight: FontWeight.bold,
       textBaseline: TextBaseline.alphabetic,
     );
-    titleTextStyle = generateAppTextStyle(
+    _titleTextStyle = generateAppTextStyle(
       fontWeight: FontWeight.bold,
       textBaseline: TextBaseline.alphabetic,
       color: Colors.black,
@@ -946,121 +934,103 @@ class MyHomePageState extends State<MyHomePage> {
             ), //  filler for notched phones
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerOptions,
-              title: Text(
-                "Options",
-                style: navTextStyle,
-              ),
+              title: "Options",
+              style: navTextStyle,
               onTap: () {
                 _navigateToOptions();
               },
             ),
-            if (app.isEditReady)
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerSingers,
-                title: Text(
-                  "Singers",
-                  style: navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToSingers();
-                },
-              ),
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerSingers,
+              title: "Singers",
+              style: navTextStyle,
+              enabled: app.isEditReady,
+              //  no files on phones!
+              onTap: () {
+                _navigateToSingers();
+              },
+            ),
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerPerformanceHistory,
-              title: Text(
-                "History",
-                style: navTextStyle,
-              ),
+              title: "History",
+              style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 _navigateToPerformanceHistory();
               },
             ),
-            if (app.isEditReady) //  no files on phones!
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerSongs,
-                title: Text(
-                  "Songs",
-                  style: navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToSongs();
-                },
-              ),
+            //     if (app.isEditReady)
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerSongs,
+              title: "Songs",
+              style: navTextStyle,
+              enabled: app.isEditReady,
+              //  no files on phones!
+              onTap: () {
+                _navigateToSongs();
+              },
+            ),
 
-            if (app.isEditReady)
-              appListTile(
+            appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerNewSong,
-                title: Text(
-                  "New Song",
-                  style: navTextStyle,
-                ),
+                title: "New Song",
+                style: navTextStyle,
+                enabled: app.isEditReady,
+                //  no files on phones!
                 onTap: () {
                   _navigateToEdit();
-                },
-              ),
-            if (!app.screenInfo.isTooNarrow)
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerTheory,
-                title: Text(
-                  "Theory",
-                  style: navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToTheory();
-                },
-              ),
+                }),
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerTheory,
+              title: "Theory",
+              style: navTextStyle,
+              enabled: !app.screenInfo.isTooNarrow,
+              onTap: () {
+                _navigateToTheory();
+              },
+            ),
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerPrivacy,
-              title: Text(
-                "Privacy",
-                style: navTextStyle,
-              ),
+              title: "Privacy",
+              style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 _navigateToPrivacyPolicy();
               },
             ),
-            if (app.isScreenBig)
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerDocs,
-                title: Text(
-                  "Docs",
-                  style: navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToDocumentation();
-                },
-              ),
+            // if (app.isScreenBig)
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerDocs,
+              title: "Docs",
+              style: navTextStyle,
+              enabled: app.isScreenBig,
+              onTap: () {
+                _navigateToDocumentation();
+              },
+            ),
             if (kDebugMode)
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
-                title: Text(
-                  "CSS Demo",
-                  style: navTextStyle,
-                ),
+                title: "CSS Demo",
+                style: navTextStyle,
                 onTap: () {
                   _navigateToCssDemo();
                 },
               ),
-            if (app.isEditReady)
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerLists,
-                title: Text(
-                  "Metadata",
-                  style: navTextStyle,
-                ),
-                onTap: () {
-                  _navigateToMetadata();
-                },
-              ),
+            appListTile(
+              appKeyEnum: AppKeyEnum.mainDrawerLists,
+              title: "Metadata",
+              style: navTextStyle,
+              enabled: app.isEditReady,
+              onTap: () {
+                _navigateToMetadata();
+              },
+            ),
             if (kDebugMode)
               appListTile(
                 appKeyEnum: AppKeyEnum.mainDrawerDebug,
-                title: Text(
-                  "Debug",
-                  style: navTextStyle,
-                ),
+                title: "Debug",
+                style: navTextStyle,
                 onTap: () {
                   _navigateToDebug();
                 },
@@ -1068,10 +1038,8 @@ class MyHomePageState extends State<MyHomePage> {
 
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerAbout,
-              title: Text(
-                'CJ',
-                style: navTextStyle,
-              ),
+              title: 'CJ',
+              style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 _navigateToCommunityJams();
@@ -1080,10 +1048,8 @@ class MyHomePageState extends State<MyHomePage> {
 
             appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerAbout,
-              title: Text(
-                'About',
-                style: navTextStyle,
-              ),
+              title: 'About',
+              style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 _navigateToAbout();
@@ -1109,7 +1075,7 @@ class MyHomePageState extends State<MyHomePage> {
         PlayList(
           songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
               songItemAction: _navigateToPlayerBySongItem),
-          style: titleTextStyle,
+          style: _titleTextStyle,
           isFromTheTop: false,
         ),
       ]),
@@ -1355,9 +1321,7 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop(); //  drawer
   }
 
-  List<Widget> listViewChildren = [];
-  TextStyle titleTextStyle = appTextStyle; //  initial place holder
-  TextStyle artistTextStyle = appTextStyle; //  initial place holder
+  TextStyle _titleTextStyle = appTextStyle; //  initial place holder
 }
 
 Future<String> fetchString(String uriString) async {

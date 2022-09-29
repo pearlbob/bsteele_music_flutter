@@ -19,7 +19,8 @@ class PrivacyState extends State<Privacy> {
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
-    final double fontSize = App().screenInfo.fontSize;
+    app.screenInfo.refresh(context);
+    final double fontSize = app.screenInfo.fontSize;
 
     TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
 

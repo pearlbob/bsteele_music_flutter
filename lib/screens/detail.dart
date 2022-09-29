@@ -118,6 +118,7 @@ class DetailState extends State<Detail> {
   @override
   Widget build(BuildContext context) {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
+    app.screenInfo.refresh(context);
 
     _fontSize = App().screenInfo.fontSize * 2 / 3;
 

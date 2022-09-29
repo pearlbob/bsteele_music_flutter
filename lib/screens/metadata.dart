@@ -57,6 +57,7 @@ class MetadataScreenState extends State<MetadataScreen> {
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
+    app.screenInfo.refresh(context);
 
     logger.log(_logBuild, 'metadata build: $_selectedNameValue');
 

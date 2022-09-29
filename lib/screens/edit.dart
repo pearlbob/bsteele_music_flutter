@@ -32,7 +32,7 @@ import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
+
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -247,6 +247,7 @@ class EditState extends State<Edit> {
     lyricsEntries = lyricsEntriesFromSong(song);
 
     checkSongChangeStatus();
+    _wasSongLoaded = true;
   }
 
   void saveSong() async {
@@ -391,41 +392,34 @@ class EditState extends State<Edit> {
   @override
   Widget build(BuildContext context) {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
+    app.screenInfo.refresh(context);
 
     logger.d('edit build: "${song.toMarkup()}"');
     logger.d('edit build: "${song.rawLyrics}"');
     logger.d('edit build: ');
 
     //  adjust to screen size
-    if (screenInfo == null) {
-      screenInfo = ScreenInfo(context);
-      final double screenWidth = screenInfo!.mediaWidth;
+    chordFontSize = _defaultChordFontSize * app.screenInfo.mediaWidth / 800;
+    chordFontSize = min(_defaultChordFontSize, max(12, chordFontSize));
+    appendFontSize = chordFontSize * 0.75;
 
-      chordFontSize = _defaultChordFontSize * screenWidth / 800;
-      chordFontSize = min(_defaultChordFontSize, max(12, chordFontSize));
-      appendFontSize = chordFontSize * 0.75;
-
-      chordBoldTextStyle = generateAppTextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: chordFontSize,
-      );
-      chordTextStyle = generateAppTextStyle(
-        fontSize: appendFontSize,
-        color: Colors.black87,
-      );
-      lyricsTextStyle = generateAppTextStyle(
-        fontWeight: FontWeight.normal,
-        fontSize: chordFontSize,
-        color: Colors.black87,
-      );
-      addRowRepeatTextStyle = generateAppTextStyle(
-        fontSize: chordFontSize,
-        backgroundColor: _addColor,
-      );
-
-      //  don't load the song until we know its font sizes
-      loadSong(song);
-    }
+    chordBoldTextStyle = generateAppTextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: chordFontSize,
+    );
+    chordTextStyle = generateAppTextStyle(
+      fontSize: appendFontSize,
+      color: Colors.black87,
+    );
+    lyricsTextStyle = generateAppTextStyle(
+      fontWeight: FontWeight.normal,
+      fontSize: chordFontSize,
+      color: Colors.black87,
+    );
+    addRowRepeatTextStyle = generateAppTextStyle(
+      fontSize: chordFontSize,
+      backgroundColor: _addColor,
+    );
 
     //  generate edit text styles
     _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
@@ -439,6 +433,13 @@ class EditState extends State<Edit> {
 
     //  build the chords display based on the song chord section grid
     tableKeyId = 0;
+
+    if (!_wasSongLoaded) {
+      _wasSongLoaded = true;
+
+      //  don't load the song until we know its font sizes
+      loadSong(song);
+    }
 
     //  convert a selected edit point of arbitrary edit mode to a replacement
     //  this simplifies the tricky corner conditions on the display formatting in the grid.
@@ -867,7 +868,6 @@ class EditState extends State<Edit> {
                 ]),
                 const Divider(
                   thickness: 8,
-                  //color: ,  fixme: should be from css!!!
                 ),
                 if (!isProEditInput)
                   Container(
@@ -3246,9 +3246,8 @@ class EditState extends State<Edit> {
     //  generate the widgets
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
-      var sectionChordTextStyle = chordTextStyle.copyWith(
-          backgroundColor: getBackgroundColorForSectionVersion(sectionVersion),
-          color: getForegroundColorForSection(sectionVersion.section));
+      var sectionChordTextStyle =
+          chordTextStyle.copyWith(backgroundColor: getBackgroundColorForSectionVersion(sectionVersion));
 
       //fixme: deal with selectedSectionVersion;
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
@@ -3677,7 +3676,7 @@ class EditState extends State<Edit> {
     );
   }
 
-  ScreenInfo? screenInfo;
+  bool _wasSongLoaded = false;
   Song song;
   late SongEditManager songEditManager;
 

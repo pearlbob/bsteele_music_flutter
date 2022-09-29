@@ -6,7 +6,6 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,13 +36,13 @@ class AboutState extends State<About> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
-    ScreenInfo screenInfo = App().screenInfo;
+    app.screenInfo.refresh(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'About the bsteeleMusicApp'),
       body: DefaultTextStyle(
-        style: generateAppTextStyle(color: Colors.black87, fontSize: screenInfo.fontSize),
+        style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),
         child: Container(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -57,8 +56,8 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 ),
                 Image(
                   image: const AssetImage('lib/assets/app_qr_code.png'),
-                  width: max(150, screenInfo.mediaWidth / 5),
-                  height: max(150, screenInfo.mediaWidth / 5),
+                  width: max(150, app.screenInfo.mediaWidth / 5),
+                  height: max(150, app.screenInfo.mediaWidth / 5),
                   semanticLabel: "bsteele.com website",
                 ),
                 Row(
@@ -72,7 +71,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                       },
                       child: Text(
                         'bsteele.com',
-                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                        style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                       ),
                     ),
                     const Text(
@@ -85,7 +84,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                       },
                       child: Text(
                         'Download the app.',
-                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                        style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                       ),
                     ),
                   ],
@@ -116,7 +115,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                       },
                       child: Text(
                         'beta',
-                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                        style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                       ),
                     ),
                     const Text(
@@ -128,10 +127,10 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 ),
                 const Text(''),
                 Text(
-                  'screen: (${screenInfo.mediaWidth.toStringAsFixed(0)}'
-                  ',${screenInfo.mediaHeight.toStringAsFixed(0)})'
-                  // ', fontSize: ${screenInfo.fontSize}'
-                  // ', titleScaleFactor: ${screenInfo.titleScaleFactor.toStringAsFixed(2)}'
+                  'screen: (${app.screenInfo.mediaWidth.toStringAsFixed(0)}'
+                  ',${app.screenInfo.mediaHeight.toStringAsFixed(0)})'
+                  // ', fontSize: ${app.screenInfo.fontSize}'
+                  // ', titleScaleFactor: ${app.screenInfo.titleScaleFactor.toStringAsFixed(2)}'
                   ,
                 ),
                 Text(

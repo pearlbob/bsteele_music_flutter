@@ -66,7 +66,7 @@ class CssDemoState extends State<CssDemo> {
     var verseBackgroundColor = getBackgroundColorForSectionVersion(null);
 
     return Scaffold(
-      appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp CSS demo'),
+      appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Color demo'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87),
         child: Container(
@@ -82,7 +82,7 @@ class CssDemoState extends State<CssDemo> {
                 ),
                 const AppSpace(),
                 Container(
-                  color: appbarBackgroundColor(),
+                  color: appbarBackgroundColor,
                   padding: const EdgeInsets.all(8),
                   child: Text(
                     'App Bar Text Style',
@@ -105,7 +105,7 @@ class CssDemoState extends State<CssDemo> {
                 ),
                 const AppSpace(),
                 Container(
-                  color: measureContainerBackgroundColor(),
+                  color: measureContainerBackgroundColor,
                   child: sections,
                 ),
                 const AppSpace(),

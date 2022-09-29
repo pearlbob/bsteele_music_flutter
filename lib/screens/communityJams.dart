@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/material.dart';
 
 /// Show some data about the app and it's environment.
@@ -27,14 +26,13 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
   @override
   Widget build(BuildContext context) {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
-
-    ScreenInfo screenInfo = App().screenInfo;
+    app.screenInfo.refresh(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'Community Jams'),
       body: DefaultTextStyle(
-        style: generateAppTextStyle(color: Colors.black87, fontSize: screenInfo.fontSize),
+        style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),
         child: Column(
           // padding: const EdgeInsets.all(8.0),
           children: [
@@ -50,8 +48,8 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
                 ),
                 Image(
                   image: const AssetImage('lib/assets/cj_qr_code.png'),
-                  width: max(200, screenInfo.mediaWidth / 5),
-                  height: max(200, screenInfo.mediaWidth / 5),
+                  width: max(200, app.screenInfo.mediaWidth / 5),
+                  height: max(200, app.screenInfo.mediaWidth / 5),
                   semanticLabel: "communityjams.org website",
                   alignment: Alignment.topLeft,
                 ),
@@ -66,7 +64,7 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
                       },
                       child: Text(
                         'CommunityJams.org',
-                        style: generateAppLinkTextStyle(fontSize: screenInfo.fontSize),
+                        style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                       ),
                     ),
                     const Text(
@@ -101,8 +99,8 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
                 ),
                 Image(
                   image: const AssetImage('lib/assets/cj_park_qr_code.png'),
-                  width: max(200, screenInfo.mediaWidth / 5),
-                  height: max(200, screenInfo.mediaWidth / 5),
+                  width: max(200, app.screenInfo.mediaWidth / 5),
+                  height: max(200, app.screenInfo.mediaWidth / 5),
                   semanticLabel: "Community Jams website in the park",
                   alignment: Alignment.topLeft,
                 ),

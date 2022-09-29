@@ -440,7 +440,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     boxCenter = boxCenterHeight();
 
-    final hoverColor = Colors.blue[700]; //  fixme with css
+    const hoverColor = universalAccentColor;
 
     logger.log(
         _logScroll,
@@ -561,9 +561,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               end: Alignment.bottomCenter,
                               colors: <Color>[
                                 theme.backgroundColor,
-                                measureContainerBackgroundColor(),
-                                measureContainerBackgroundColor(),
-                                measureContainerBackgroundColor(),
+                                measureContainerBackgroundColor,
+                                measureContainerBackgroundColor,
+                                measureContainerBackgroundColor,
                               ],
                             ),
                           ),
@@ -882,7 +882,7 @@ With z or q, the app goes back to the play list.''',
                                                 },
                                                 value: playerSelectedBpm ?? _song.beatsPerMinute,
                                                 style: headerTextStyle,
-                                                iconSize: lookupIconSize(),
+                                                iconSize: headerTextStyle.fontSize ?? appDefaultFontSize,
                                                 itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
                                                     kMinInteractiveDimension),
                                               ),

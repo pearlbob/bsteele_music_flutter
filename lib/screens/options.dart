@@ -62,6 +62,7 @@ class OptionsState extends State<Options> {
   @override
   Widget build(BuildContext context) {
     appWidgetHelper = AppWidgetHelper(context);
+    app.screenInfo.refresh(context);
 
     logger.log(_logBuild, 'options build: ${_songUpdateService.isConnected}');
     var style = generateAppTextStyle();

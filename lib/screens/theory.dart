@@ -52,7 +52,7 @@ class TheoryState extends State<TheoryWidget> {
       appBar: appWidgetHelper.backBar(title: 'Music Theory'),
       body: Stack(children: [
         Container(
-          color: measureContainerBackgroundColor(),
+          color: measureContainerBackgroundColor,
         ),
         SingleChildScrollView(
           //controller: _scrollController,

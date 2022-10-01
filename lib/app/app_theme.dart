@@ -23,9 +23,9 @@ TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for thi
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
 
 const appBackgroundColor = Color(0xff2196f3);
+const screenBackgroundColor = Colors.white;
 const _defaultBackgroundColor = Color(0xff2654c6);
 const _defaultForegroundColor = Colors.white;
-const screenBackgroundColor = Colors.white;
 
 //  universal
 const _universalBackgroundColor = Colors.white;
@@ -604,7 +604,10 @@ class AppTheme {
     {
       // var iconTheme = IconThemeData(color: _defaultForegroundColor); fixme
       // var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor)); fixme
-      var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ?? const ButtonStyle();
+      var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ??
+          ButtonStyle(
+              foregroundColor: MaterialStateProperty.all(_defaultForegroundColor),
+              backgroundColor: MaterialStateProperty.all(_defaultBackgroundColor));
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
       //  hassle with mapping Color to MaterialColor

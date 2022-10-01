@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
@@ -241,6 +242,10 @@ class SongListGroup {
   int get length => group.fold<int>(0, (i, e) {
         return i + e.length;
       });
+
+  bool get isEmpty => group.isEmpty;
+
+  bool get isNotEmpty => group.isNotEmpty;
 
   Widget _indexToWidget(BuildContext context, int index, bool isEditing, VoidCallback? refocus) {
     for (var songList in group) {
@@ -714,27 +719,31 @@ class _PlayListState extends State<PlayList> {
 
             // this expanded is required as well
             Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: filteredGroup.length,
+              child: Scrollbar(
+                thickness: max(16.0, 0.0125 * app.screenInfo.mediaWidth),
                 controller: scrollController,
-                itemBuilder: (BuildContext context, int index) {
-                  //  keep track of scroll position
-                  if (!widget.isFromTheTop) {
-                    playListRefreshNotifier.positionPixels = scrollController.position.pixels;
-                  }
-                  logger.log(
-                      _logPosition,
-                      '_PlayListState: index: $index, pos:'
-                      ' ${playListRefreshNotifier.positionPixels}'
-                      ', id:F ${identityHashCode(playListRefreshNotifier)}'
-                      ', isFromTheTop: ${widget.isFromTheTop}');
-                  _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
-                  _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
-                  return filteredGroup._indexToWidget(context, index, widget.isEditing, () {
-                    focus(context);
-                  });
-                },
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: filteredGroup.length,
+                  controller: scrollController,
+                  itemBuilder: (BuildContext context, int index) {
+                    //  keep track of scroll position
+                    if (!widget.isFromTheTop) {
+                      playListRefreshNotifier.positionPixels = scrollController.position.pixels;
+                    }
+                    logger.log(
+                        _logPosition,
+                        '_PlayListState: index: $index, pos:'
+                        ' ${playListRefreshNotifier.positionPixels}'
+                        ', id:F ${identityHashCode(playListRefreshNotifier)}'
+                        ', isFromTheTop: ${widget.isFromTheTop}');
+                    _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
+                    _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
+                    return filteredGroup._indexToWidget(context, index, widget.isEditing, () {
+                      focus(context);
+                    });
+                  },
+                ),
               ),
             ),
           ]),

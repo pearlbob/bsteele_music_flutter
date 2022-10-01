@@ -158,10 +158,15 @@ void main() async {
 
 /*
 beta short list:
+verify singers list is retained on web
+________scroll thumb width
+_______songs not yet sung by singer
+_______fullscreen on singers
+______font for existing metadata
+______add new song for requester, leave scrolling in the general location
 
+______singer without requests as requester shows blank list.  warning notice?
 
-
-singer without requests as requester shows blank list.  warning notice?
 singer requester editing not remembered...immediately
 
 _____singer session search, singer entry currently clears singer search term but does not focus on search

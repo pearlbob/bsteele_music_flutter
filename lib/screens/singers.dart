@@ -803,7 +803,7 @@ class SingersState extends State<Singers> {
               const AppVerticalSpace(),
               if (_isInSingingMode && songListGroup.isEmpty)
                 Text(
-                  'The requester ${_selectedSinger} has an empty request list.  Edit the requests!',
+                  'The requester $_selectedSinger has an empty request list.  Edit the requests!',
                   style: singerTextStyle.copyWith(color: Colors.red),
                 ),
               if (_isInSingingMode && songListGroup.isNotEmpty) _volunteersWidget(),

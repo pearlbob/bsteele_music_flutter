@@ -17,7 +17,7 @@ import 'package:logger/logger.dart';
 
 import 'app.dart';
 
-const Level _logAppKey = Level.debug;
+const Level _logAppKey = Level.info;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
@@ -448,9 +448,10 @@ Map<Type, TypeParser> _appKeyParsers = {
   ScaleChord: (s) => ScaleChord.parseString(s),
   ScaleNote: (s) => ScaleNote.parseString(s),
   TimeSignature: (s) => TimeSignature.parse(s),
+  NameValue: (s) => NameValue.parse(s),
 };
 
-void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function? callback}) {
+void _appKeyRegisterVoidCallback(AppKeyEnum e, {VoidCallback? voidCallback}) {
   if (!kDebugMode) //fixme: temp
   {
     return;
@@ -458,7 +459,15 @@ void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function
   if (voidCallback != null) {
     assert(e.argType == Null);
     _appKeyRegisterCallbacks[e] = voidCallback;
-  } else if (callback != null) {
+  }
+}
+
+void _appKeyRegisterCallback(AppKeyEnum e, {Function? callback}) {
+  if (!kDebugMode) //fixme: temp
+  {
+    return;
+  }
+  if (callback != null) {
     if (e.argType == Null) {
       logger.w('_appKeyRegisterCallback: $e.argType == ${e.argType}');
       assert(e.argType != Null);
@@ -470,6 +479,8 @@ void _appKeyRegisterCallback(AppKeyEnum e, {VoidCallback? voidCallback, Function
 Map<String, AppKeyEnum>? _appKeyEnumLookupMap;
 
 bool appKeyExecute(String logString) {
+  logger.i('appKeyExecute("$logString"):');
+
   //  lazy eval up type lookup
   if (_appKeyEnumLookupMap == null) {
     _appKeyEnumLookupMap = {};
@@ -477,6 +488,7 @@ bool appKeyExecute(String logString) {
       _appKeyEnumLookupMap![e.name] = e;
       //  assure that we can convert everything
       //  fixme: should be done at compile time
+      //logger.i('  test type for $e: ${e.argType}');
       assert(_appKeyParsers[e.argType] != null);
     }
   }
@@ -525,6 +537,7 @@ bool appKeyExecute(String logString) {
         }
       } else {
         logger.w('callback not found registered for: $e');
+        _appKeyCallbacksDebugLog();
       }
     } else {
       logger.w('appKeyEnum not found: $eString');
@@ -558,6 +571,11 @@ void testAppKeyCallbacks() async {
   logger.log(_logAppKey, 'appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
   await Future.delayed(const Duration(seconds: 1));
   logger.log(_logAppKey, 'appKeyExecute: optionsUserName.myfirst: ${appKeyExecute('optionsUserName.myfirst')}');
+  await Future.delayed(const Duration(seconds: 1));
+
+  AppKeyEnum e = AppKeyEnum.appBack;
+  logger.log(_logAppKey, 'appKeyExecute: $e: ${appKeyExecute(e.name)}');
+
   // await Future.delayed(const Duration(seconds: 8));
   // logger.log(_logAppKey,'appKeyExecute: optionsUserName.bobstuff: ${appKeyExecute('optionsUserName.bobstuff')}');
   await Future.delayed(const Duration(seconds: 4));
@@ -668,7 +686,7 @@ ElevatedButton appEnumeratedButton(
   Color? backgroundColor,
   double? fontSize,
 }) {
-  _appKeyRegisterCallback(appKeyEnum, voidCallback: onPressed);
+  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: onPressed);
   return appButton(
     commandName,
     appKeyEnum: appKeyEnum,
@@ -742,6 +760,7 @@ TextButton appIconButton({
   Color? backgroundColor,
 }) {
   var key = appKey(appKeyEnum, value: value);
+  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: onPressed);
   return TextButton.icon(
     key: key,
     icon: icon,
@@ -901,7 +920,7 @@ void appTextFieldListener(AppKeyEnum appKeyEnum, TextEditingController controlle
 }
 
 Drawer appDrawer({Key? key, required AppKeyEnum appKeyEnum, required Widget child, VoidCallback? voidCallback}) {
-  _appKeyRegisterCallback(appKeyEnum, voidCallback: voidCallback);
+  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: voidCallback);
   logger.log(_logAppKey, 'appDrawer: ');
   return Drawer(key: key ?? appKey(appKeyEnum), child: child);
 }
@@ -914,7 +933,7 @@ ListTile appListTile({
   final bool enabled = true,
 }) {
   var key = appKey(appKeyEnum);
-  _appKeyRegisterCallback(appKeyEnum, voidCallback: onTap);
+  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: onTap);
   style = style ?? appTextStyle;
   if (!enabled) {
     style == style.copyWith(color: appDisabledColor);

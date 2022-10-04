@@ -47,7 +47,7 @@ class SongsState extends State<Songs> {
             children: <Widget>[
               app.messageTextWidget(AppKeyEnum.songsErrorMessage),
               const AppSpace(),
-              appEnumeratedButton(
+              appButton(
                 'Read local file',
                 appKeyEnum: AppKeyEnum.songsReadFiles,
                 onPressed: () {
@@ -57,7 +57,7 @@ class SongsState extends State<Songs> {
               const AppSpace(
                 space: 20,
               ),
-              appEnumeratedButton(
+              appButton(
                 'Write all songs to the local file: $fileLocation',
                 appKeyEnum: AppKeyEnum.songsWriteFiles,
                 onPressed: () {
@@ -69,7 +69,7 @@ class SongsState extends State<Songs> {
               ),
               AppTooltip(
                 message: 'A reload of the application will return them all.',
-                child: appEnumeratedButton(
+                child: appButton(
                   'Remove all songs from the current list',
                   appKeyEnum: AppKeyEnum.songsRemoveAll,
                   onPressed: () {

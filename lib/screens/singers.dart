@@ -163,10 +163,10 @@ class SingersState extends State<Singers> {
             if (searchForSelectedSingerOnly) {
               //  edit the requester's request list
               addSongItems('Songs $_selectedSinger would like to request:', songRequests,
-                  color: appBackgroundColor, inRequesterList: true);
+                  color: App.appBackgroundColor, inRequesterList: true);
               addSongItems(
                   'Other songs $_selectedSinger might request:', app.allSongs.where((e) => !songRequests.contains(e)),
-                  color: appBackgroundColor, inRequesterList: false);
+                  color: App.appBackgroundColor, inRequesterList: false);
 
               //   - all other matching songs
               addPerformanceItems('Other matching songs:', performancesFromSessionSingers);
@@ -175,7 +175,7 @@ class SingersState extends State<Singers> {
               if (_selectedVolunteerSinger == _unknownSinger) {
                 addPerformanceItems('$_selectedSinger would like to hear:',
                     performancesFromSessionSingers.where((e) => songRequests.contains(e.song)),
-                    color: appBackgroundColor);
+                    color: App.appBackgroundColor);
               }
 
               if (_selectedVolunteerSinger != _unknownSinger) {
@@ -183,32 +183,33 @@ class SingersState extends State<Singers> {
                     .where((e) => songRequests.contains(e.song) && e.singer == _selectedVolunteerSinger);
                 addPerformanceItems(
                     '$_selectedSinger would like to hear $_selectedVolunteerSinger sing:', volunteerPerformances,
-                    color: appBackgroundColor);
+                    color: App.appBackgroundColor);
                 var volunteerSongs = volunteerPerformances.map((performance) => performance.performedSong);
                 addSongItems('Other songs $_selectedVolunteerSinger might sing for $_selectedSinger:',
                     songRequests.where((song) => !volunteerSongs.contains(song)),
-                    color: appBackgroundColor, songItemAction: _navigateSelectedVolunteerToPlayer);
+                    color: App.appBackgroundColor, songItemAction: _navigateSelectedVolunteerToPlayer);
               }
             }
           } else if (searchForSelectedSingerOnly) {
             // 				matching performances from singer
-            addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: appBackgroundColor);
+            addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: App.appBackgroundColor);
 
             //  all other songs
             //  note that the filtering is done by the play list
             addSongItems('Songs $_selectedSinger might sing:', otherSongs,
-                color: appBackgroundColor, songItemAction: _navigateSelectedSingerToPlayer);
+                color: App.appBackgroundColor, songItemAction: _navigateSelectedSingerToPlayer);
           } else {
             // 			search all singers selected
             // 				- performances from session singers
-            addPerformanceItems('Today\'s singers sing:', performancesFromSessionSingers, color: appBackgroundColor);
+            addPerformanceItems('Today\'s singers sing:', performancesFromSessionSingers,
+                color: App.appBackgroundColor);
           }
         } else {
           //   selected singer NOT known
           // 			search all session singers
           // 				- performances from session singers that match
           addPerformanceItems('Today\'s session singers sing:', performancesFromSessionSingers,
-              color: appBackgroundColor);
+              color: App.appBackgroundColor);
         }
       }
 
@@ -245,7 +246,7 @@ class SingersState extends State<Singers> {
                 sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
                 sessionSingerWidgets.add(Text(
                   '$firstInitial:',
-                  style: songPerformanceStyle.copyWith(color: appBackgroundColor),
+                  style: songPerformanceStyle.copyWith(color: App.appBackgroundColor),
                 ));
                 sessionSingerWidgets.add(const AppSpace(horizontalSpace: 40));
               }
@@ -341,7 +342,7 @@ class SingersState extends State<Singers> {
           : Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: appBackgroundColor,
+                  color: App.appBackgroundColor,
                   width: 2,
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -421,7 +422,7 @@ class SingersState extends State<Singers> {
       logger.d('singers: songListGroup.length: ${songListGroup.length}');
 
       return Scaffold(
-        backgroundColor: screenBackgroundColor,
+        backgroundColor: App.screenBackgroundColor,
         appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Singers'),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -494,7 +495,7 @@ class SingersState extends State<Singers> {
                     });
                   }),
                 if (_isInSingingMode && app.fullscreenEnabled && !app.isFullScreen)
-                  appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.singersFullScreen, onPressed: () {
+                  appButton('Fullscreen', appKeyEnum: AppKeyEnum.singersFullScreen, onPressed: () {
                     app.requestFullscreen();
                   }),
               ]),
@@ -509,7 +510,7 @@ class SingersState extends State<Singers> {
                         AppTooltip(
                             message: 'For safety reasons you cannot remove all singers\n'
                                 'without first having written them all.',
-                            child: appEnumeratedButton(
+                            child: appButton(
                               'Write all singer songs to a local file',
                               appKeyEnum: AppKeyEnum.singersSave,
                               onPressed: () {
@@ -526,7 +527,7 @@ class SingersState extends State<Singers> {
                             )),
                       const AppVerticalSpace(),
                       if (_selectedSinger != _unknownSinger)
-                        appEnumeratedButton(
+                        appButton(
                           'Write singer $_selectedSinger\'s songs to a local file',
                           appKeyEnum: AppKeyEnum.singersSaveSelected,
                           onPressed: () {
@@ -538,7 +539,7 @@ class SingersState extends State<Singers> {
                       AppTooltip(
                         message: 'Singer performance updates read from a local file\n'
                             'will be added to the singers.',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Read singer performance updates from a local file',
                           appKeyEnum: AppKeyEnum.singersReadASingleSinger,
                           onPressed: () {
@@ -551,7 +552,7 @@ class SingersState extends State<Singers> {
                       const AppVerticalSpace(),
                       AppTooltip(
                         message: 'Convenience operation to clear all the singers from today\'s session.',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Clear the current session singers',
                           appKeyEnum: AppKeyEnum.singersReadASingleSinger,
                           onPressed: () {
@@ -564,7 +565,7 @@ class SingersState extends State<Singers> {
                       ),
                       const AppVerticalSpace(space: 25),
                       if (_selectedSinger != _unknownSinger)
-                        appEnumeratedButton(
+                        appButton(
                           'Delete the singer $_selectedSinger',
                           appKeyEnum: AppKeyEnum.singersDeleteSinger,
                           onPressed: () {
@@ -606,7 +607,7 @@ class SingersState extends State<Singers> {
                           style: singerTextStyle,
                         ),
                       if (allHaveBeenWritten)
-                        appEnumeratedButton(
+                        appButton(
                           'Remove all singers',
                           appKeyEnum: AppKeyEnum.singersRemoveAllSingers,
                           onPressed: () {
@@ -630,7 +631,7 @@ class SingersState extends State<Singers> {
                   ),
                   const AppSpace(),
                   if (_songUpdateService.isConnected)
-                    appEnumeratedButton(
+                    appButton(
                       '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.host}',
                       appKeyEnum: AppKeyEnum.optionsLeadership,
                       onPressed: () {

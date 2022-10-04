@@ -44,7 +44,7 @@ class StyleDemoState extends State<StyleDemo> {
           var sectionContainers = <Widget>[];
           for (var index = 0; index <= 8; index++) {
             var sectionVersion = SectionVersion(Section.get(section), index);
-            var color = getBackgroundColorForSectionVersion(sectionVersion);
+            var color = App.getBackgroundColorForSectionVersion(sectionVersion);
             var coloredChordTextStyle =
                 generateChordTextStyle(fontSize: fontSize, fontWeight: FontWeight.w500, backgroundColor: color);
             sectionContainers.add(Container(
@@ -65,7 +65,7 @@ class StyleDemoState extends State<StyleDemo> {
     }
 
     TextStyle toolTipTextStyle = generateTooltipTextStyle();
-    var verseBackgroundColor = getBackgroundColorForSectionVersion(null);
+    var verseBackgroundColor = App.getBackgroundColorForSectionVersion(null);
 
     return Scaffold(
       appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Color demo'),
@@ -85,7 +85,7 @@ class StyleDemoState extends State<StyleDemo> {
                   ),
                   const AppSpace(),
                   Container(
-                    color: appbarBackgroundColor,
+                    color: App.appbarBackgroundColor,
                     padding: const EdgeInsets.all(8),
                     child: Text(
                       'App Bar Text Style',
@@ -108,7 +108,7 @@ class StyleDemoState extends State<StyleDemo> {
                   ),
                   const AppSpace(),
                   Container(
-                    color: measureContainerBackgroundColor,
+                    color: App.measureContainerBackgroundColor,
                     child: sections,
                   ),
                   const AppSpace(),

@@ -85,8 +85,7 @@ class OptionsState extends State<Options> {
                   if (app.fullscreenEnabled)
                     Row(
                       children: <Widget>[
-                        appEnumeratedButton('Enter fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen,
-                            onPressed: () {
+                        appButton('Enter fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen, onPressed: () {
                           app.requestFullscreen();
                         }),
                       ],
@@ -153,7 +152,7 @@ class OptionsState extends State<Options> {
                       const Text('Hosts:'),
                       AppTooltip(
                         message: 'No leader/follower',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'None',
                           appKeyEnum: AppKeyEnum.optionsWebsocketNone,
                           onPressed: () {
@@ -164,7 +163,7 @@ class OptionsState extends State<Options> {
                       ),
                       AppTooltip(
                         message: 'You are in the Community Jams studio.',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Studio',
                           appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
                           onPressed: () {
@@ -175,7 +174,7 @@ class OptionsState extends State<Options> {
                       ),
                       AppTooltip(
                         message: 'You are in the Community Jams studio with an old ipad.',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Studio and old Ipad',
                           appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
                           onPressed: () {
@@ -186,7 +185,7 @@ class OptionsState extends State<Options> {
                       ),
                       AppTooltip(
                         message: 'You are in the park.',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Park',
                           appKeyEnum: AppKeyEnum.optionsWebsocketPark,
                           onPressed: () {
@@ -199,7 +198,7 @@ class OptionsState extends State<Options> {
                         AppTooltip(
                           message: 'Your web server should have a leader/follower connection.'
                               '\nClick here to use it.',
-                          child: appEnumeratedButton(
+                          child: appButton(
                             'This host',
                             appKeyEnum: AppKeyEnum.optionsWebsocketThisHost,
                             onPressed: () {
@@ -209,7 +208,7 @@ class OptionsState extends State<Options> {
                           ),
                         ),
                       if (kDebugMode)
-                        appEnumeratedButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
+                        appButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
                           _appOptions.websocketHost = 'bob64.local'; //'bobspi.local';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
@@ -233,7 +232,7 @@ class OptionsState extends State<Options> {
                     ),
                     const AppSpace(),
                     if (_songUpdateService.isConnected)
-                      appEnumeratedButton(
+                      appButton(
                         _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
                         appKeyEnum: AppKeyEnum.optionsLeadership,
                         onPressed: () {

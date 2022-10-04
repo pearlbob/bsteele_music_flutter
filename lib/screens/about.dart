@@ -190,7 +190,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
     // "version": ${jsonEncode(_packageInfo.version)},
 
     bool first = true;
-    for (var s in appLog()) {
+    for (var s in appLog) {
       if (first) {
         first = false;
       } else {

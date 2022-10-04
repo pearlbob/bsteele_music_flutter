@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/section.dart';
+import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
@@ -85,6 +87,89 @@ class App {
 
   //  parameters to be evaluated before use
   ThemeData themeData = ThemeData(); //  start with the default theme
+
+  //  colors
+  static const appBackgroundColor = Color(0xff2196f3);
+  static const screenBackgroundColor = Colors.white;
+  static const defaultBackgroundColor = Color(0xff2654c6);
+  static const defaultForegroundColor = Colors.white;
+
+  //  universal
+  static const universalBackgroundColor = Colors.white;
+  static const universalForegroundColor = Colors.black;
+  static const universalAccentColor = Color(0xff57a9ff);
+
+  // const _universalFontWeight = FontWeight.normal;
+  static const universalFontStyle = FontStyle.normal;
+
+  //  app bar
+  static const appbarBackgroundColor = defaultBackgroundColor;
+
+  //  button
+  static const oddTitleTextColor = Colors.black;
+  static const oddTitleTextBackgroundColor = Color(0xfff5f5f5); //  whitesmoke
+  static const evenTitleTextColor = Colors.black;
+  static const evenTitleTextBackgroundColor = Colors.white;
+
+  //  tooltip
+  static const tooltipBackgroundColor = Color(0xffdcedc8);
+  static const tooltipColor = Colors.black;
+
+  //  chord note
+  static const measureContainerBackgroundColor = Color(0xff598aea);
+  static const chordNoteColor = Colors.black;
+  static const chordNoteBackgroundColor = Colors.white;
+  static const chordNoteFontWeight = FontWeight.bold;
+  static const chordNoteFontStyle = FontStyle.normal;
+
+  //  chord descriptor
+  static const chordDescriptorColor = Colors.black87;
+
+  //  icons
+  static const iconColor = Colors.white;
+
+  static Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
+    sectionVersion ??= SectionVersion.defaultInstance;
+
+    var index = sectionVersion.version <= 0 ? 0 : sectionVersion.version - 1;
+    var colorInts = _sectionColorMap[sectionVersion.section.sectionEnum] ?? [0xf0f0f0];
+    var color = Color(0xff000000 | (colorInts[index % colorInts.length] & 0xffffff));
+
+    return color;
+  }
+
+//  all section versions 1 will be the same color as the section without a version number
+//  section version color cycle will be determined by the number of colors added here for each section
+  static const Map<SectionEnum, List<int>> _sectionColorMap = {
+    SectionEnum.intro: [
+      // 0&1     2         3
+      0xccfcc3, 0xb5e6ad, 0xa3cf9b
+    ],
+    SectionEnum.verse: [
+      // 0 & 1     2         3
+      0xfcf99d, 0xeaea7a, 0xd1d16d,
+    ],
+    SectionEnum.preChorus: [
+      // 0 & 1     2
+      0xf4dcf2, 0xe1bee7, 0xdaa8e5
+    ],
+    SectionEnum.chorus: [
+      // 0 & 1     2         3
+      0xf0f0f0, 0xd1d2d3, 0xbdbebf
+    ],
+    SectionEnum.a: [
+      // 0 & 1     2         3
+      0xfcf99d, 0xeaea7a, 0xd1d16d,
+    ],
+    SectionEnum.b: [0xdfd9ff, 0xcabbff, 0xaca0ef],
+    SectionEnum.bridge: [0xdfd9ff, 0xcabbff, 0xaca0ef],
+    SectionEnum.coda: [0xd7e5ff, 0xb6d2fc, 0x92b8ef],
+    SectionEnum.tag: [0xf4dcf2, 0xe1bee7, 0xdaa8e5],
+    SectionEnum.outro: [
+      // 0 & 1
+      0xd7e5ff, 0xb6d2fc, 0x92b8ef
+    ],
+  };
 
   /// A single instance of the screen information class for common use.
   ScreenInfo screenInfo = ScreenInfo.defaultValue(); //  refresh often for window size changes
@@ -564,7 +649,7 @@ class AppWidgetHelper {
       {required final bool? value, final ValueChanged<bool?>? onChanged, final TextStyle? style, final String? label}) {
     var checkbox = Checkbox(
         checkColor: Colors.white,
-        fillColor: MaterialStateProperty.all(appBackgroundColor),
+        fillColor: MaterialStateProperty.all(App.appBackgroundColor),
         value: value,
         onChanged: onChanged);
     if (label != null) {

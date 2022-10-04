@@ -440,7 +440,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     boxCenter = boxCenterHeight();
 
-    const hoverColor = universalAccentColor;
+    const hoverColor = App.universalAccentColor;
 
     logger.log(
         _logScroll,
@@ -561,9 +561,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               end: Alignment.bottomCenter,
                               colors: <Color>[
                                 theme.backgroundColor,
-                                measureContainerBackgroundColor,
-                                measureContainerBackgroundColor,
-                                measureContainerBackgroundColor,
+                                App.measureContainerBackgroundColor,
+                                App.measureContainerBackgroundColor,
+                                App.measureContainerBackgroundColor,
                               ],
                             ),
                           ),
@@ -755,8 +755,7 @@ With z or q, the app goes back to the play list.''',
                                         ),
                                       ),
                                     if (app.fullscreenEnabled && !app.isFullScreen)
-                                      appEnumeratedButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen,
-                                          onPressed: () {
+                                      appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
                                         app.requestFullscreen();
                                       }),
                                     AppWrap(

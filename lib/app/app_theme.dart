@@ -6,8 +6,6 @@ import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/scaleChord.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
-import 'package:bsteeleMusicLib/songs/section.dart';
-import 'package:bsteeleMusicLib/songs/sectionVersion.dart';
 import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/timeSignature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -18,91 +16,10 @@ import 'package:logger/logger.dart';
 import 'app.dart';
 
 const Level _logAppKey = Level.info;
+const Level _logAllCallbacks = Level.debug;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
-
-const appBackgroundColor = Color(0xff2196f3);
-const screenBackgroundColor = Colors.white;
-const _defaultBackgroundColor = Color(0xff2654c6);
-const _defaultForegroundColor = Colors.white;
-
-//  universal
-const _universalBackgroundColor = Colors.white;
-const _universalForegroundColor = Colors.black;
-const universalAccentColor = Color(0xff57a9ff);
-
-// const _universalFontWeight = FontWeight.normal;
-const _universalFontStyle = FontStyle.normal;
-
-//  app bar
-const appbarBackgroundColor = _defaultBackgroundColor;
-
-//  button
-const _oddTitleTextColor = Colors.black;
-const _oddTitleTextBackgroundColor = Color(0xfff5f5f5); //  whitesmoke
-const _evenTitleTextColor = Colors.black;
-const _evenTitleTextBackgroundColor = Colors.white;
-
-//  tooltip
-const _tooltipBackgroundColor = Color(0xffdcedc8);
-const _tooltipColor = Colors.black;
-
-//  chord note
-const measureContainerBackgroundColor = Color(0xff598aea);
-const _chordNoteColor = Colors.black;
-const _chordNoteBackgroundColor = Colors.white;
-const _chordNoteFontWeight = FontWeight.bold;
-const _chordNoteFontStyle = FontStyle.normal;
-
-//  chord descriptor
-const _chordDescriptorColor = Colors.black87;
-
-//  icons
-const _iconColor = Colors.white;
-
-Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
-  sectionVersion ??= SectionVersion.defaultInstance;
-
-  var index = sectionVersion.version <= 0 ? 0 : sectionVersion.version - 1;
-  var colorInts = _sectionColorMap[sectionVersion.section.sectionEnum] ?? [0xf0f0f0];
-  var color = Color(0xff000000 | (colorInts[index % colorInts.length] & 0xffffff));
-
-  return color;
-}
-
-//  all section versions 1 will be the same color as the section without a version number
-//  section version color cycle will be determined by the number of colors added here for each section
-Map<SectionEnum, List<int>> _sectionColorMap = {
-  SectionEnum.intro: [
-    // 0&1     2         3
-    0xccfcc3, 0xb5e6ad, 0xa3cf9b
-  ],
-  SectionEnum.verse: [
-    // 0 & 1     2         3
-    0xfcf99d, 0xeaea7a, 0xd1d16d,
-  ],
-  SectionEnum.preChorus: [
-    // 0 & 1     2
-    0xf4dcf2, 0xe1bee7, 0xdaa8e5
-  ],
-  SectionEnum.chorus: [
-    // 0 & 1     2         3
-    0xf0f0f0, 0xd1d2d3, 0xbdbebf
-  ],
-  SectionEnum.a: [
-    // 0 & 1     2         3
-    0xfcf99d, 0xeaea7a, 0xd1d16d,
-  ],
-  SectionEnum.b: [0xdfd9ff, 0xcabbff, 0xaca0ef],
-  SectionEnum.bridge: [0xdfd9ff, 0xcabbff, 0xaca0ef],
-  SectionEnum.coda: [0xd7e5ff, 0xb6d2fc, 0x92b8ef],
-  SectionEnum.tag: [0xf4dcf2, 0xe1bee7, 0xdaa8e5],
-  SectionEnum.outro: [
-    // 0 & 1
-    0xd7e5ff, 0xb6d2fc, 0x92b8ef
-  ],
-};
 
 EdgeInsetsGeometry getMeasureMargin() {
   return const EdgeInsets.all(3);
@@ -390,7 +307,14 @@ class Id {
   String id;
 }
 
-typedef AppKey = ValueKey<String>;
+class AppKey extends ValueKey<String> implements Comparable<AppKey> {
+  const AppKey(String s) : super(s);
+
+  @override
+  int compareTo(AppKey other) {
+    return value.compareTo(other.value);
+  }
+}
 
 /// Generate an application key from the enumeration and an optional value
 AppKey appKey(AppKeyEnum e, {dynamic value}) {
@@ -398,25 +322,25 @@ AppKey appKey(AppKeyEnum e, {dynamic value}) {
   switch (type) {
     case Null:
       assert(value == null);
-      return ValueKey<String>(e.name);
+      return AppKey(e.name);
     case String:
-      return ValueKey<String>(e.name + (value == null ? '' : '.$value'));
+      return AppKey(e.name + (value == null ? '' : '.$value'));
     case music_key.Key:
       assert(value.runtimeType == type);
-      return ValueKey<String>('${e.name}.${(value as music_key.Key).toMarkup()}');
+      return AppKey('${e.name}.${(value as music_key.Key).toMarkup()}');
     default:
       if (value.runtimeType != type) {
-        logger.w('appKey(): $e.value.runtimeType = ${value.runtimeType} != $type');
+        logger.i('appKey(): $e.value.runtimeType = ${value.runtimeType} != $type');
         assert(value.runtimeType == type);
       }
-      return ValueKey<String>('${e.name}.${value.toString()}');
+      return AppKey('${e.name}.${value.toString()}');
   }
 }
 
 //  the weakly typed storage here is strongly enforced by the strongly typed construction of the registration
 //  i.e. by the app key enum argument type
 //  fixme: should be cleared on page change
-Map<AppKeyEnum, Function> _appKeyRegisterCallbacks = {};
+Map<AppKey, Function> _appKeyRegisterCallbacks = {};
 
 appKeyCallbacksClear() {
   logger.log(_logAppKey, 'appKeyCallbacksClear: ');
@@ -424,9 +348,9 @@ appKeyCallbacksClear() {
 }
 
 _appKeyCallbacksDebugLog() {
-  logger.log(_logAppKey, '_appKeyCallbacksDebugLog:');
-  for (var e in SplayTreeSet<AppKeyEnum>()..addAll(_appKeyRegisterCallbacks.keys)) {
-    logger.log(_logAppKey, '  registered $e: ${_appKeyRegisterCallbacks[e].runtimeType}');
+  logger.log(_logAllCallbacks, '_appKeyCallbacksDebugLog:');
+  for (var k in SplayTreeSet<AppKey>()..addAll(_appKeyRegisterCallbacks.keys)) {
+    logger.log(_logAllCallbacks, '  registered $k: ${_appKeyRegisterCallbacks[k].runtimeType}');
   }
 }
 
@@ -451,34 +375,29 @@ Map<Type, TypeParser> _appKeyParsers = {
   NameValue: (s) => NameValue.parse(s),
 };
 
-void _appKeyRegisterVoidCallback(AppKeyEnum e, {VoidCallback? voidCallback}) {
+void _appKeyRegisterVoidCallback(AppKey key, {VoidCallback? voidCallback}) {
   if (!kDebugMode) //fixme: temp
   {
     return;
   }
   if (voidCallback != null) {
-    assert(e.argType == Null);
-    _appKeyRegisterCallbacks[e] = voidCallback;
+    _appKeyRegisterCallbacks[key] = voidCallback;
   }
 }
 
-void _appKeyRegisterCallback(AppKeyEnum e, {Function? callback}) {
+void _appKeyRegisterCallback(AppKey key, {Function? callback}) {
   if (!kDebugMode) //fixme: temp
   {
     return;
   }
   if (callback != null) {
-    if (e.argType == Null) {
-      logger.w('_appKeyRegisterCallback: $e.argType == ${e.argType}');
-      assert(e.argType != Null);
-    }
-    _appKeyRegisterCallbacks[e] = callback;
+    _appKeyRegisterCallbacks[key] = callback;
   }
 }
 
 Map<String, AppKeyEnum>? _appKeyEnumLookupMap;
 
-bool appKeyExecute(String logString) {
+Future<bool> appKeyExecute(final String logString, {final Duration? delay}) async {
   logger.i('appKeyExecute("$logString"):');
 
   //  lazy eval up type lookup
@@ -493,59 +412,78 @@ bool appKeyExecute(String logString) {
     }
   }
 
-  //  find the app key and value string... if it exists
-  String? eString;
-  String? valueString;
-  var m = _appKeyLogRegexp.firstMatch(logString);
-  if (m != null) {
-    eString = m.group(1);
-    if (m.groupCount >= 2) {
-      valueString = m.group(2); //  may be null!
+  for (var cmd in logString.split('\n')) {
+    //  find the app key and value string... if it exists
+    String? eString;
+    String? valueString;
+    var m = _appKeyLogRegexp.firstMatch(cmd);
+    if (m != null) {
+      eString = m.group(1);
+      if (m.groupCount >= 2) {
+        valueString = m.group(2); //  may be null!
+      }
     }
-  }
-  logger.v('eString: "$eString", value: $valueString');
+    logger.i('eString: "$eString", value: $valueString');
 
-  //  execute the app key
-  if (eString != null) {
-    var e = _appKeyEnumLookupMap![eString];
-    if (e != null) {
-      var callback = _appKeyRegisterCallbacks[e];
-      if (callback != null) {
-        try {
-          if (callback is VoidCallback) {
-            assert(valueString == null);
-            appLogKeyCallback(appKey(e));
-            callback.call();
-            return true;
-          } else {
-            assert(valueString != null);
-            if (e.argType == String) {
-              //  optimization
-              appLogKeyCallback(appKey(e, value: valueString));
-              Function.apply(callback, [valueString]);
-              return true;
+    //  execute the app key
+    if (eString != null) {
+      var e = _appKeyEnumLookupMap![eString];
+      if (e != null) {
+        var key =
+            appKey(e, value: valueString == null ? null : _appKeyParsers[e.argType]!.call(valueString)); // fixme: Null?
+        var callback = _appKeyRegisterCallbacks[key];
+        if (callback != null) {
+          try {
+            if (e.argType == Null) {
+              if (callback is VoidCallback) {
+                assert(valueString == null);
+                appLogKeyCallback(appKey(e));
+                logger.log(_logAppKey, '$e: VoidCallback');
+                callback.call();
+              } else {
+                logger.w('non-null callback for null argType: $e');
+                return false;
+              }
+            } else if (e.argType == String) {
+              //  an optimization
+              assert(valueString != null);
+              if (e.argType == String) {
+                appLogKeyCallback(appKey(e, value: valueString));
+                logger.log(_logAppKey, '$e ${e.argType}.$valueString => "$valueString"');
+                Function.apply(callback, [valueString]);
+              }
             } else {
               //  parse string to correct value type
               var value = _appKeyParsers[e.argType]?.call(valueString!);
               logger.log(_logAppKey, '$e ${e.argType}.$valueString => $value');
-              callback.call(value);
-              return true;
+              if (callback is VoidCallback) {
+                callback.call();
+              } else {
+                callback.call(value);
+              }
             }
+          } catch (ex) {
+            logger.w('callback threw exception: $ex');
+            return false;
           }
-        } catch (ex) {
-          logger.w('callback threw exception: $ex');
+        } else {
+          logger.w('callback not found registered for: $e');
+          _appKeyCallbacksDebugLog();
+          return false;
         }
       } else {
-        logger.w('callback not found registered for: $e');
-        _appKeyCallbacksDebugLog();
+        logger.w('appKeyEnum not found: "$eString"');
+        return false;
       }
     } else {
-      logger.w('appKeyEnum not found: $eString');
+      logger.w('appKeyEnum not found in logString: "$cmd"');
+      return false;
     }
-  } else {
-    logger.w('appKeyEnum not found in logString: $logString');
+    if (delay != null) {
+      await Future.delayed(delay);
+    }
   }
-  return false;
+  return true;
 }
 
 final _appKeyLogRegexp = RegExp(r'^([^.]*)(?:\.?(.+?))?$'); // second group may be null!
@@ -556,32 +494,47 @@ void testAppKeyCallbacks() async {
     logger.log(_logAppKey, 'debugLoggerAppKeyRegisterCallbacks:  NOT DEBUG');
     return;
   }
-  //  fixme: sample only
-  logger.log(_logAppKey, 'testAppKeyCallbacks:');
-
-  //logger.log(_logAppKey,'appKeyExecute: mainSortType.byComplexity: ${appKeyExecute('mainSortType.byComplexity')}');
-  // setState() called after dispose():
   _appKeyCallbacksDebugLog();
-  logger.log(_logAppKey, 'appKeyExecute: mainDrawer: ${appKeyExecute('mainDrawer')}');
-  await Future.delayed(const Duration(seconds: 1));
-  _appKeyCallbacksDebugLog();
+  await appKeyExecute(
+      'mainSong.Song_12_Bar_Jazz_Blues_by_Any'
+//       '''mainSong.Song_12_Bar_Jazz_Blues_by_Any
+// playerKeyDown
+// playerKeyDown
+// playerKeyDown
+// playerKeyDown
+// playerKeyUp
+// playerKeyUp
+// playerKeyUp
+// appBack'''
+      ,
+      delay: const Duration(seconds: 1));
 
-  logger.log(_logAppKey, 'appKeyExecute: mainDrawerOptions: ${appKeyExecute('mainDrawerOptions')}');
-  await Future.delayed(const Duration(seconds: 1));
-  logger.log(_logAppKey, 'appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
-  await Future.delayed(const Duration(seconds: 1));
-  logger.log(_logAppKey, 'appKeyExecute: optionsUserName.myfirst: ${appKeyExecute('optionsUserName.myfirst')}');
-  await Future.delayed(const Duration(seconds: 1));
-
-  AppKeyEnum e = AppKeyEnum.appBack;
-  logger.log(_logAppKey, 'appKeyExecute: $e: ${appKeyExecute(e.name)}');
-
-  // await Future.delayed(const Duration(seconds: 8));
-  // logger.log(_logAppKey,'appKeyExecute: optionsUserName.bobstuff: ${appKeyExecute('optionsUserName.bobstuff')}');
-  await Future.delayed(const Duration(seconds: 4));
-  logger.log(_logAppKey, 'appKeyExecute: done');
-
-  // logger.log(_logAppKey,'appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
+  // //  fixme: sample only
+  // logger.log(_logAppKey, 'testAppKeyCallbacks:');
+  //
+  // //logger.log(_logAppKey,'appKeyExecute: mainSortType.byComplexity: ${appKeyExecute('mainSortType.byComplexity')}');
+  // // setState() called after dispose():
+  // _appKeyCallbacksDebugLog();
+  // logger.log(_logAppKey, 'appKeyExecute: mainDrawer: ${appKeyExecute('mainDrawer')}');
+  // await Future.delayed(const Duration(seconds: 1));
+  // _appKeyCallbacksDebugLog();
+  //
+  // logger.log(_logAppKey, 'appKeyExecute: mainDrawerOptions: ${appKeyExecute('mainDrawerOptions')}');
+  // await Future.delayed(const Duration(seconds: 1));
+  // logger.log(_logAppKey, 'appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
+  // await Future.delayed(const Duration(seconds: 1));
+  // logger.log(_logAppKey, 'appKeyExecute: optionsUserName.myfirst: ${appKeyExecute('optionsUserName.myfirst')}');
+  // await Future.delayed(const Duration(seconds: 1));
+  //
+  // AppKeyEnum e = AppKeyEnum.appBack;
+  // logger.log(_logAppKey, 'appKeyExecute: $e: ${appKeyExecute(e.name)}');
+  //
+  // // await Future.delayed(const Duration(seconds: 8));
+  // // logger.log(_logAppKey,'appKeyExecute: optionsUserName.bobstuff: ${appKeyExecute('optionsUserName.bobstuff')}');
+  // await Future.delayed(const Duration(seconds: 4));
+  // logger.log(_logAppKey, 'appKeyExecute: done');
+  //
+  // // logger.log(_logAppKey,'appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
 }
 
 Widget appCircledIcon(IconData iconData, String toolTip,
@@ -606,7 +559,7 @@ Widget appCircledIcon(IconData iconData, String toolTip,
 Icon appIcon(IconData icon, {Key? key, Color? color, double? size}) {
   return Icon(icon,
       key: key,
-      color: color ?? _iconColor,
+      color: color ?? App.iconColor,
       size: size ?? app.screenInfo.fontSize //  let the algorithm figure the size dynamically
       );
 }
@@ -626,12 +579,12 @@ class AppTheme {
       // var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor)); fixme
       var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ??
           ButtonStyle(
-              foregroundColor: MaterialStateProperty.all(_defaultForegroundColor),
-              backgroundColor: MaterialStateProperty.all(_defaultBackgroundColor));
+              foregroundColor: MaterialStateProperty.all(App.defaultForegroundColor),
+              backgroundColor: MaterialStateProperty.all(App.defaultBackgroundColor));
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
 
       //  hassle with mapping Color to MaterialColor
-      var color = appbarBackgroundColor;
+      var color = App.appbarBackgroundColor;
       Map<int, Color> colorCodes = {
         50: color.withOpacity(.1),
         100: color.withOpacity(.2),
@@ -645,14 +598,14 @@ class AppTheme {
         900: color.withOpacity(1),
       };
       MaterialColor materialColor = MaterialColor(color.value, colorCodes);
-      color = _universalBackgroundColor;
+      color = App.universalBackgroundColor;
 
       app.themeData = app.themeData.copyWith(
         backgroundColor: color,
         primaryColor: color,
         disabledColor: Colors.grey.shade300,
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: materialColor, accentColor: universalAccentColor),
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: materialColor, accentColor: App.universalAccentColor),
       );
     }
   }
@@ -660,10 +613,9 @@ class AppTheme {
 
 List<String> _appLog = [];
 
-List<String> appLog() {
-  return _appLog;
-}
+List<String> get appLog => _appLog;
 
+//  log in invocation of the callback being done
 void appLogKeyCallback(ValueKey<String> key) {
   _appLog.add(key.value);
 }
@@ -679,33 +631,15 @@ void appLogMessage(String message) {
 
 typedef KeyCallback = void Function();
 
-ElevatedButton appEnumeratedButton(
-  String commandName, {
-  required AppKeyEnum appKeyEnum,
-  required VoidCallback? onPressed,
-  Color? backgroundColor,
-  double? fontSize,
-}) {
-  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: onPressed);
-  return appButton(
-    commandName,
-    appKeyEnum: appKeyEnum,
-    onPressed: onPressed,
-    backgroundColor: backgroundColor,
-    fontSize: fontSize,
-  );
-}
-
 ElevatedButton appButton(
   String commandName, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
   final TextStyle? style,
-  Color? backgroundColor,
-  double? fontSize,
-  dynamic value,
+  final Color? backgroundColor,
+  final double? fontSize,
+  final dynamic value,
 }) {
-  fontSize ??= app.screenInfo.fontSize;
   var key = appKey(appKeyEnum, value: value);
 
   return ElevatedButton(
@@ -722,7 +656,7 @@ ElevatedButton appButton(
     child: Text(commandName,
         style: style ??
             //  app.themeData.elevatedButtonTheme.style?.textStyle?.resolve({}) ??
-            TextStyle(fontSize: fontSize, backgroundColor: backgroundColor)),
+            TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: backgroundColor)),
   );
 }
 
@@ -734,7 +668,7 @@ TextButton appTextButton(
   dynamic value,
 }) {
   var key = appKey(appKeyEnum, value: value ?? text);
-  _appKeyRegisterCallback(appKeyEnum, callback: onPressed);
+  _appKeyRegisterCallback(key, callback: onPressed);
   return TextButton(
     key: key,
     onPressed: () {
@@ -760,7 +694,7 @@ TextButton appIconButton({
   Color? backgroundColor,
 }) {
   var key = appKey(appKeyEnum, value: value);
-  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: onPressed);
+  _appKeyRegisterVoidCallback(key, voidCallback: onPressed);
   return TextButton.icon(
     key: key,
     icon: icon,
@@ -770,7 +704,7 @@ TextButton appIconButton({
       onPressed();
     },
     style: app.themeData.elevatedButtonTheme.style
-        ?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor ?? _defaultBackgroundColor)),
+        ?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor ?? App.defaultBackgroundColor)),
   );
 }
 
@@ -814,16 +748,17 @@ ElevatedButton appNoteButton(
 
 @immutable
 class AppInkWell extends StatelessWidget {
-  const AppInkWell({super.key, required this.appKeyEnum, this.backgroundColor, this.onTap, this.child, this.value});
+  AppInkWell({required this.appKeyEnum, this.backgroundColor, this.onTap, this.child, this.value})
+      : super(key: appKey(appKeyEnum, value: value)) {
+    _appKeyRegisterCallback(super.key as AppKey, callback: onTap);
+  }
 
   @override
   Widget build(BuildContext context) {
-    var key = appKey(appKeyEnum, value: value);
-
     return InkWell(
-      key: key,
+      key: super.key,
       onTap: () {
-        appLogKeyCallback(key);
+        appLogKeyCallback(super.key as AppKey);
         onTap?.call();
       },
       child: child,
@@ -859,9 +794,10 @@ IconButton appEnumeratedIconButton({
 
 DropdownButton<T> appDropdownButton<T>(AppKeyEnum appKeyEnum, List<DropdownMenuItem<T>> items,
     {T? value, ValueChanged<T?>? onChanged, Widget? hint, TextStyle? style}) {
-  _appKeyRegisterCallback(appKeyEnum, callback: onChanged);
+  AppKey key = appKey(appKeyEnum, value: value);
+  _appKeyRegisterCallback(key, callback: onChanged);
   return DropdownButton<T>(
-    key: appKey(appKeyEnum, value: value),
+    key: key,
     value: value,
     items: items,
     onChanged: onChanged,
@@ -909,7 +845,7 @@ FloatingActionButton appFloatingActionButton({
       onPressed();
     },
     mini: mini,
-    backgroundColor: appBackgroundColor,
+    backgroundColor: App.appBackgroundColor,
     heroTag: null,
     child: child, //  workaround in case there are more than one per route.
   );
@@ -919,10 +855,11 @@ void appTextFieldListener(AppKeyEnum appKeyEnum, TextEditingController controlle
   logger.d('appLogListener( $appKeyEnum:\'${controller.text}\':${controller.selection} )');
 }
 
-Drawer appDrawer({Key? key, required AppKeyEnum appKeyEnum, required Widget child, VoidCallback? voidCallback}) {
-  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: voidCallback);
+Drawer appDrawer({required AppKeyEnum appKeyEnum, required Widget child, VoidCallback? voidCallback}) {
+  var key = appKey(appKeyEnum);
+  _appKeyRegisterVoidCallback(key, voidCallback: voidCallback);
   logger.log(_logAppKey, 'appDrawer: ');
-  return Drawer(key: key ?? appKey(appKeyEnum), child: child);
+  return Drawer(key: key, child: child);
 }
 
 ListTile appListTile({
@@ -933,7 +870,7 @@ ListTile appListTile({
   final bool enabled = true,
 }) {
   var key = appKey(appKeyEnum);
-  _appKeyRegisterVoidCallback(appKeyEnum, voidCallback: onTap);
+  _appKeyRegisterVoidCallback(key, voidCallback: onTap);
   style = style ?? appTextStyle;
   if (!enabled) {
     style == style.copyWith(color: appDisabledColor);
@@ -964,7 +901,6 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
 @immutable
 class AppTextField extends StatelessWidget {
   AppTextField({
-    super.key,
     required this.appKeyEnum,
     this.controller,
     this.focusNode,
@@ -978,12 +914,12 @@ class AppTextField extends StatelessWidget {
     this.maxLines,
     this.border,
     this.width = 200,
-  }) : onSubmitted = null {
-    _appKeyRegisterCallback(appKeyEnum, callback: onChanged);
+  })  : onSubmitted = null,
+        super(key: appKey(appKeyEnum)) {
+    _appKeyRegisterCallback(super.key as AppKey, callback: onChanged);
   }
 
   AppTextField.onSubmitted({
-    super.key,
     required this.appKeyEnum,
     this.controller,
     this.focusNode,
@@ -997,8 +933,9 @@ class AppTextField extends StatelessWidget {
     this.maxLines,
     this.border,
     this.width = 200,
-  }) : onChanged = null {
-    _appKeyRegisterCallback(appKeyEnum, callback: onSubmitted);
+  })  : onChanged = null,
+        super(key: appKey(appKeyEnum)) {
+    _appKeyRegisterCallback(super.key as AppKey, callback: onSubmitted);
   }
 
   @override
@@ -1089,12 +1026,12 @@ TextStyle generateAppTextStyle({
   fontSize ??= app.screenInfo.fontSize;
   fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
   return TextStyle(
-    color: color ?? _universalForegroundColor,
+    color: color ?? App.universalForegroundColor,
     //  watch out: backgroundColor interferes with mouse text select on textFields!
-    backgroundColor: nullBackground ? null : backgroundColor ?? _universalBackgroundColor,
+    backgroundColor: nullBackground ? null : backgroundColor ?? App.universalBackgroundColor,
     fontSize: fontSize,
     fontWeight: fontWeight ?? FontWeight.normal,
-    fontStyle: fontStyle ?? _universalFontStyle,
+    fontStyle: fontStyle ?? App.universalFontStyle,
     textBaseline: textBaseline,
     fontFamily: fontFamily ?? appFontFamily,
     fontFamilyFallback: appFontFamilyFallback,
@@ -1128,7 +1065,7 @@ TextStyle generateAppTextFieldStyle({
 TextStyle generateAppBarLinkTextStyle() {
   return generateAppTextStyle(
     fontWeight: FontWeight.bold,
-    color: _defaultForegroundColor,
+    color: App.defaultForegroundColor,
     backgroundColor: Colors.transparent,
   );
 }
@@ -1145,8 +1082,8 @@ TextStyle generateAppLinkTextStyle({
 
 TextStyle generateTooltipTextStyle({double? fontSize}) {
   return generateAppTextStyle(
-    color: _tooltipColor,
-    backgroundColor: _tooltipBackgroundColor,
+    color: App.tooltipColor,
+    backgroundColor: App.tooltipBackgroundColor,
     fontSize: fontSize,
   );
 }
@@ -1154,40 +1091,40 @@ TextStyle generateTooltipTextStyle({double? fontSize}) {
 TextStyle generateChordTextStyle(
     {String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
   return generateAppTextStyle(
-    color: _chordNoteColor,
-    backgroundColor: backgroundColor ?? _chordNoteBackgroundColor,
+    color: App.chordNoteColor,
+    backgroundColor: backgroundColor ?? App.chordNoteBackgroundColor,
     fontFamily: fontFamily,
     fontSize: fontSize,
-    fontWeight: fontWeight ?? _chordNoteFontWeight,
-    fontStyle: _chordNoteFontStyle,
+    fontWeight: fontWeight ?? App.chordNoteFontWeight,
+    fontStyle: App.chordNoteFontStyle,
   );
 }
 
 TextStyle generateLyricsTextStyle({double? fontSize, Color? backgroundColor}) {
   return generateAppTextStyle(
-    backgroundColor: backgroundColor ?? _universalBackgroundColor,
+    backgroundColor: backgroundColor ?? App.universalBackgroundColor,
     fontSize: fontSize,
   );
 }
 
 TextStyle generateChordDescriptorTextStyle({double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
   return generateAppTextStyle(
-    color: _chordDescriptorColor,
+    color: App.chordDescriptorColor,
     backgroundColor: backgroundColor,
     fontSize: fontSize,
-    fontWeight: fontWeight ?? _chordNoteFontWeight,
-    fontStyle: _chordNoteFontStyle,
+    fontWeight: fontWeight ?? App.chordNoteFontWeight,
+    fontStyle: App.chordNoteFontStyle,
   );
 }
 
 TextStyle oddTitleTextStyle({TextStyle? from}) {
   return (from ?? generateAppTextStyle())
-      .copyWith(backgroundColor: _oddTitleTextBackgroundColor, color: _oddTitleTextColor);
+      .copyWith(backgroundColor: App.oddTitleTextBackgroundColor, color: App.oddTitleTextColor);
 }
 
 TextStyle evenTitleTextStyle({TextStyle? from}) {
   return (from ?? generateAppTextStyle())
-      .copyWith(backgroundColor: _evenTitleTextBackgroundColor, color: _evenTitleTextColor);
+      .copyWith(backgroundColor: App.evenTitleTextBackgroundColor, color: App.evenTitleTextColor);
 }
 
 ThemeData generateDocsThemeData() {

@@ -967,7 +967,7 @@ class LyricsTable {
   }
 
   void _colorBySectionVersion(SectionVersion sectionVersion) {
-    _sectionBackgroundColor = getBackgroundColorForSectionVersion(sectionVersion);
+    _sectionBackgroundColor = App.getBackgroundColorForSectionVersion(sectionVersion);
     _coloredChordTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
     );

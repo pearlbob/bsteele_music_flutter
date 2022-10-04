@@ -32,7 +32,6 @@ import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
-
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -501,7 +500,7 @@ class EditState extends State<Edit> {
               child: Column(children: [
                 const AppVerticalSpace(space: 10),
                 AppWrapFullWidth(alignment: WrapAlignment.spaceAround, spacing: 10, children: <Widget>[
-                  appEnumeratedButton(
+                  appButton(
                     songHasChanged
                         ? (isValidSong ? 'Save song on local drive' : 'Fix the song')
                         : 'Nothing has changed',
@@ -519,14 +518,14 @@ class EditState extends State<Edit> {
                   AppWrap(alignment: WrapAlignment.spaceBetween, spacing: 25, children: <Widget>[
                     editTooltip(
                       message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                      child: appEnumeratedButton('Undo',
-                          appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize, onPressed: () {
+                      child: appButton('Undo', appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize,
+                          onPressed: () {
                         undo();
                       }),
                     ),
                     editTooltip(
                       message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
-                      child: appEnumeratedButton(
+                      child: appButton(
                         'Redo',
                         appKeyEnum: AppKeyEnum.editRedo,
                         fontSize: _defaultChordFontSize,
@@ -548,7 +547,7 @@ class EditState extends State<Edit> {
                     editTooltip(
                       message: 'Clear all song values to\n'
                           'start entering a new song.',
-                      child: appEnumeratedButton(
+                      child: appButton(
                         'Clear',
                         appKeyEnum: AppKeyEnum.editClearSong,
                         fontSize: _defaultChordFontSize,
@@ -565,7 +564,7 @@ class EditState extends State<Edit> {
                     if (song.songId == originalSong.songId)
                       editTooltip(
                         message: 'Remove this song from the list of songs.',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Remove',
                           appKeyEnum: AppKeyEnum.editRemoveSong,
                           fontSize: _defaultChordFontSize,
@@ -578,7 +577,7 @@ class EditState extends State<Edit> {
                       editTooltip(
                         message: 'Rename this song.'
                             '${kDebugMode ? '\n${song.songId} vs ${originalSong.songId}' : ''}',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Rename the song',
                           appKeyEnum: AppKeyEnum.editRenameSong,
                           fontSize: _defaultChordFontSize,
@@ -821,7 +820,7 @@ class EditState extends State<Edit> {
                     if (isProEditInput)
                       editTooltip(
                         message: 'Validate the chord input',
-                        child: appEnumeratedButton('Validate',
+                        child: appButton('Validate',
                             appKeyEnum: AppKeyEnum.editValidateChords, fontSize: _defaultChordFontSize, onPressed: () {
                           setState(() {
                             validateSongChords(select: true);
@@ -831,8 +830,8 @@ class EditState extends State<Edit> {
                     editTooltip(
                       message: (selectedEditPoint != null ? 'Click outside the chords to cancel editing\n' : '') +
                           (showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                      child: appEnumeratedButton('Hints',
-                          appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize, onPressed: () {
+                      child: appButton('Hints', appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize,
+                          onPressed: () {
                         setState(() {
                           showHints = !showHints;
                         });
@@ -840,7 +839,7 @@ class EditState extends State<Edit> {
                     ),
                     editTooltip(
                       message: proMessage,
-                      child: appEnumeratedButton(
+                      child: appButton(
                         isProEditInput ? 'Assisted Input' : 'Pro Input',
                         appKeyEnum: AppKeyEnum.editRedo,
                         fontSize: _defaultChordFontSize,
@@ -1081,7 +1080,7 @@ class EditState extends State<Edit> {
                     if (!isProEditInput)
                       editTooltip(
                         message: 'Import lyrics from a text file',
-                        child: appEnumeratedButton(
+                        child: appButton(
                           'Import',
                           appKeyEnum: AppKeyEnum.editImportLyrics,
                           fontSize: _defaultChordFontSize,
@@ -1608,7 +1607,7 @@ class EditState extends State<Edit> {
           style: generateAppTextStyle(
               fontSize: chordFontSize,
               fontWeight: FontWeight.bold,
-              backgroundColor: getBackgroundColorForSectionVersion(chordSection.sectionVersion)),
+              backgroundColor: App.getBackgroundColorForSectionVersion(chordSection.sectionVersion)),
         ),
       );
     }).toList();
@@ -1659,7 +1658,7 @@ class EditState extends State<Edit> {
 
       //  chord section headers
       var chordSection = song.getChordSection(entry.lyricSection.sectionVersion);
-      var sectionBackgroundColor = getBackgroundColorForSectionVersion(chordSection?.sectionVersion);
+      var sectionBackgroundColor = App.getBackgroundColorForSectionVersion(chordSection?.sectionVersion);
       var sectionLyricsBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionBackgroundColor);
       {
         var children = <Widget>[];
@@ -2185,7 +2184,7 @@ class EditState extends State<Edit> {
     }
 
     ChordSection chordSection = measureNode as ChordSection;
-    var sectionColor = getBackgroundColorForSectionVersion(chordSection.sectionVersion);
+    var sectionColor = App.getBackgroundColorForSectionVersion(chordSection.sectionVersion);
     var sectionChordTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
 
     if (editPoint.matches(selectedEditPoint)) {
@@ -2418,7 +2417,7 @@ class EditState extends State<Edit> {
       //  note: can be a chord section location!
     }
 
-    Color sectionColor = getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
+    Color sectionColor = App.getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
     var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
 
@@ -2515,7 +2514,7 @@ class EditState extends State<Edit> {
 
       Widget majorChordButton = editTooltip(
           message: 'Enter the major chord.',
-          child: appEnumeratedButton(
+          child: appButton(
             keyChordNote.toString(),
             appKeyEnum: AppKeyEnum.editMajorChord,
             onPressed: () {
@@ -2534,7 +2533,7 @@ class EditState extends State<Edit> {
         );
         minorChordButton = editTooltip(
             message: 'Enter the minor chord.',
-            child: appEnumeratedButton(
+            child: appButton(
               sc.toString(),
               appKeyEnum: AppKeyEnum.editMinorChord,
               onPressed: () {
@@ -2550,7 +2549,7 @@ class EditState extends State<Edit> {
         ScaleChord sc = ScaleChord(keyChordNote, ChordDescriptor.dominant7);
         dominant7ChordButton = editTooltip(
             message: 'Enter the dominant7 chord.',
-            child: appEnumeratedButton(
+            child: appButton(
               sc.toString(),
               appKeyEnum: AppKeyEnum.editDominant7Chord,
               onPressed: () {
@@ -2664,7 +2663,7 @@ class EditState extends State<Edit> {
                   dominant7ChordButton,
                   editTooltip(
                     message: 'Enter a silent chord.',
-                    child: appEnumeratedButton(
+                    child: appButton(
                       'X',
                       appKeyEnum: AppKeyEnum.editSilentChord,
                       onPressed: () {
@@ -2883,7 +2882,7 @@ class EditState extends State<Edit> {
     }
     MeasureRepeat repeat = measureNode as MeasureRepeat;
 
-    Color sectionColor = getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
+    Color sectionColor = App.getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
 
     if (editPoint.matches(selectedEditPoint)) {
       var sectionAppTextStyle = appTextStyle.copyWith(backgroundColor: sectionColor);
@@ -3022,7 +3021,7 @@ class EditState extends State<Edit> {
       return NullWidget();
     }
 
-    var sectionColor = getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
+    var sectionColor = App.getBackgroundColorForSectionVersion(editPoint.location.sectionVersion);
     var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
 
     //  not editing this measureNode
@@ -3247,13 +3246,13 @@ class EditState extends State<Edit> {
     List<DropdownMenuItem<SectionVersion>> ret = [];
     for (final SectionVersion sectionVersion in sectionVersions) {
       var sectionChordTextStyle =
-          chordTextStyle.copyWith(backgroundColor: getBackgroundColorForSectionVersion(sectionVersion));
+          chordTextStyle.copyWith(backgroundColor: App.getBackgroundColorForSectionVersion(sectionVersion));
 
       //fixme: deal with selectedSectionVersion;
       DropdownMenuItem<SectionVersion> dropdownMenuItem = DropdownMenuItem<SectionVersion>(
         value: sectionVersion,
         child: Container(
-          color: getBackgroundColorForSectionVersion(sectionVersion),
+          color: App.getBackgroundColorForSectionVersion(sectionVersion),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -3287,7 +3286,7 @@ class EditState extends State<Edit> {
         });
       },
       style: generateAppTextStyle(
-        color: getBackgroundColorForSectionVersion(selectedSectionVersion),
+        color: App.getBackgroundColorForSectionVersion(selectedSectionVersion),
         textBaseline: TextBaseline.alphabetic,
       ),
       itemHeight: null,

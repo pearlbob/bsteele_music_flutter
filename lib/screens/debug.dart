@@ -36,18 +36,23 @@ class DebugState extends State<Debug> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               appButton('Write Log', appKeyEnum: AppKeyEnum.debugWriteLog, onPressed: () {
-                logger.i('write log: ${appLog().toString()}');
+                StringBuffer sb = StringBuffer();
+                for (var s in appLog) {
+                  sb.writeln(s);
+                }
+                logger.i('write log: $sb');
               }),
-              SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.ltr,
-                    children: <Widget>[
-                      for (var log in appLog()) Text(log, textAlign: TextAlign.start),
-                    ]),
+                    children: appLog.map((e) => Text(e, textAlign: TextAlign.start)).toList(growable: false),
+                  ),
+                ),
               ),
             ],
           ),

@@ -142,21 +142,21 @@ class MetadataScreenState extends State<MetadataScreen> {
                     const AppSpace(),
                     //  file stuff
                     AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                      appEnumeratedButton(
+                      appButton(
                         'Write all metadata to file',
                         appKeyEnum: AppKeyEnum.listsSave,
                         onPressed: () {
                           _saveSongMetadata();
                         },
                       ),
-                      appEnumeratedButton(
+                      appButton(
                         'Write all metadata to CSV',
                         appKeyEnum: AppKeyEnum.listsSaveCSV,
                         onPressed: () {
                           _saveSongMetadataAsCSV();
                         },
                       ),
-                      appEnumeratedButton(
+                      appButton(
                         'Read metadata from file',
                         appKeyEnum: AppKeyEnum.listsReadLists,
                         onPressed: () {
@@ -166,7 +166,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         },
                       ),
                       // if (_selectedNameValue != _emptySelectedNameValue)
-                      //   appEnumeratedButton(
+                      //   appButton(
                       //     'Write ${_selectedNameValue.name}:${_selectedNameValue.value} to file',
                       //     appKeyEnum: AppKeyEnum.listsSaveSelected,
                       //     onPressed: () {
@@ -174,7 +174,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                       //       logger.i('save selection: $_selectedNameValue');
                       //     },
                       //   ),
-                      appEnumeratedButton(
+                      appButton(
                         'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toShortString() : 'is disabled'}',
                         appKeyEnum: AppKeyEnum.listsClearLists,
                         onPressed: nameValueIsDeletable(_selectedNameValue)

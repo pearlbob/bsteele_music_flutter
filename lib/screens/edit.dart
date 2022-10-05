@@ -88,12 +88,14 @@ odd sized repeats
 ///   It is expected that it will only be used on a desktop only
 ///   and will not be displayed to the musicians on a large screen display.
 class Edit extends StatefulWidget {
-  Edit({super.key, required initialSong}) {
-    _initialSong = initialSong;
+  Edit({super.key, Song? initialSong}) {
+    _initialSong = initialSong ?? Song.createEmptySong();
   }
 
   @override
   EditState createState() => EditState();
+
+  static const String routeName = 'edit';
 }
 
 class EditState extends State<Edit> {

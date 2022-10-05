@@ -21,6 +21,8 @@ class Songs extends StatefulWidget {
 
   @override
   SongsState createState() => SongsState();
+
+  static const String routeName = 'songs';
 }
 
 class SongsState extends State<Songs> {

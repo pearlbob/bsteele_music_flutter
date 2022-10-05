@@ -156,14 +156,16 @@ class SongListItem implements Comparable<SongListItem> {
                       for (var id in SongMetadata.where(idIs: song.songId.toString())) {
                         logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
                         for (var nameValue in id.nameValues) {
+                          logger.v('    value: ${id.id}:${nameValue.name}=${nameValue.value}');
+
                           metadataWidgets.add(
                             appIconButton(
                               icon: appIcon(
                                 Icons.clear,
                               ),
                               label: '${nameValue.name}:${nameValue.value}',
-                              appKeyEnum: AppKeyEnum.playListMetadata,
-                              value: '${id.id}:${nameValue.name}=${nameValue.value}',
+                              appKeyEnum: AppKeyEnum.playListMetadataRemoveFromSong,
+                              value: SongIdMetadataItem(song, nameValue),
                               fontSize: _textFontSize,
                               onPressed: () {
                                 SongMetadata.removeFromSong(song, nameValue);
@@ -188,6 +190,11 @@ class SongListItem implements Comparable<SongListItem> {
       return songPerformance!.compareTo(other.songPerformance!);
     }
     return song.compareTo(other.song);
+  }
+
+  @override
+  String toString() {
+    return 'SongListItem: ${song.songId.toString()}${songPerformance != null ? ', $songPerformance' : ''}';
   }
 
   final Song song;
@@ -433,7 +440,7 @@ class _PlayListState extends State<PlayList> {
             ),
             label: '${nv.name}: ${nv.value}',
             fontSize: _textFontSize,
-            appKeyEnum: AppKeyEnum.playListMetadataRemove,
+            appKeyEnum: AppKeyEnum.playListMetadataRemoveFromFilter,
             value: nv,
             onPressed: () {
               setState(() {
@@ -445,31 +452,7 @@ class _PlayListState extends State<PlayList> {
         );
       }
 
-      //  create drop down list of name/values not in use in the filter
       const allNameValue = NameValue('All', '');
-      List<DropdownMenuItem<NameValue>> filterDropdownMenuItems = [];
-      filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
-          appKeyEnum: AppKeyEnum.playListFilter,
-          value: allNameValue,
-          child: Text(
-            'Filters:',
-            style: widget.artistStyle,
-          )));
-      for (var nv in nameValues) {
-        logger.v('$nv');
-        //  skip existing filters
-        if (_filterNameValues.contains(nv)) {
-          continue;
-        }
-        var nvString = '${nv.name}: ${nv.value}';
-        filterDropdownMenuItems.add(appDropdownMenuItem<NameValue>(
-            appKeyEnum: AppKeyEnum.playListFilter,
-            value: nv,
-            child: Text(
-              nvString,
-              style: widget.artistStyle,
-            )));
-      }
 
       // select order
       int Function(SongListItem key1, SongListItem key2)? compare;

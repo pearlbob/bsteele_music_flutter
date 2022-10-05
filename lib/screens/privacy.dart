@@ -8,6 +8,8 @@ class Privacy extends StatefulWidget {
 
   @override
   PrivacyState createState() => PrivacyState();
+
+  static const String routeName = 'privacy';
 }
 
 class PrivacyState extends State<Privacy> {

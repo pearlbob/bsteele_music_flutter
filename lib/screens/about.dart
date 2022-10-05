@@ -17,6 +17,8 @@ class About extends StatefulWidget {
 
   @override
   AboutState createState() => AboutState();
+
+  static const String routeName = 'about';
 }
 
 class AboutState extends State<About> with WidgetsBindingObserver {

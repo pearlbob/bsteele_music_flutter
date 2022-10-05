@@ -24,6 +24,8 @@ class Documentation extends StatefulWidget {
 
   @override
   DocumentationState createState() => DocumentationState();
+
+  static const String routeName = 'documentation';
 }
 
 class DocumentationState extends State<Documentation> {

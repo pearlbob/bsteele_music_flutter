@@ -158,6 +158,7 @@ void main() async {
 
 /*
 beta short list:
+RouteObserver<R extends Route> class
 ____verify singers list is retained on web
 ____fix git access from the command line
 
@@ -665,18 +666,18 @@ class BSteeleMusicApp extends StatelessWidget {
               mainList: (context) => const MyHomePage(title: 'bsteeleMusicApp'),
               Player.routeName: playerPageRoute.builder,
               Options.routeName: (context) => const Options(),
-              'songs': (context) => const Songs(),
+              Songs.routeName: (context) => const Songs(),
               Singers.routeName: (context) => const Singers(),
               MetadataScreen.routeName: (context) => const MetadataScreen(),
-              'edit': (context) => Edit(initialSong: app.selectedSong),
+              Edit.routeName: (context) => Edit(initialSong: app.selectedSong),
               PerformanceHistory.routeName: (context) => const PerformanceHistory(),
-              'privacy': (context) => const Privacy(),
-              'documentation': (context) => const Documentation(),
+              Privacy.routeName: (context) => const Privacy(),
+              Documentation.routeName: (context) => const Documentation(),
               Debug.routeName: (context) => const Debug(),
-              'about': (context) => const About(),
+              About.routeName: (context) => const About(),
               CommunityJams.routeName: (context) => const Debug(),
               StyleDemo.routeName: (context) => const StyleDemo(),
-              'theory': (context) => const TheoryWidget(),
+              TheoryWidget.routeName: (context) => const TheoryWidget(),
             },
           );
         });
@@ -1182,9 +1183,9 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _navigateToSongs() async {
-    await Navigator.push(
+    await Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => const Songs()),
+      Songs.routeName,
     );
 
     if (!mounted) {
@@ -1194,9 +1195,9 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _navigateToMetadata() async {
-    await Navigator.push(
+    await Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => const MetadataScreen()),
+      MetadataScreen.routeName,
     );
 
     if (!mounted) {

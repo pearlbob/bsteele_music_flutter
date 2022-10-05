@@ -360,9 +360,8 @@ class MetadataScreenState extends State<MetadataScreen> {
                                                 Icons.add,
                                               ),
                                               label: _selectedNameValue.toShortString(),
-                                              appKeyEnum: AppKeyEnum.listsMetadataAdd,
-                                              value: // '${id.id}:'  fixme
-                                                  '${_selectedNameValue.name}=${_selectedNameValue.value}',
+                                              appKeyEnum: AppKeyEnum.listsMetadataAddToSong,
+                                              value: SongIdMetadataItem(song, _selectedNameValue),
                                               fontSize: 0.75 * app.screenInfo.fontSize,
                                               backgroundColor: Colors.lightGreen,
                                               onPressed: () {
@@ -445,8 +444,10 @@ class MetadataScreenState extends State<MetadataScreen> {
         context: context,
         builder: (_) => AlertDialog(
               title: Text(
-                'Do you really want discard all of your metadata changes?',
-                style: appWarningTextStyle,
+                '''Do you really want discard all of your metadata changes?
+Your changes will not be remembered when you restart.
+Writing a file will allow you to reload your changes later.''',
+                style: metadataStyle,
               ),
               actions: [
                 appButton('Don\'t write my changes!', appKeyEnum: AppKeyEnum.metadataDiscardAllChanges, onPressed: () {

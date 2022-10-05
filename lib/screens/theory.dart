@@ -22,6 +22,8 @@ class TheoryWidget extends StatefulWidget {
 
   @override
   TheoryState createState() => TheoryState();
+
+  static const String routeName = 'theoryWidget';
 }
 
 class TheoryState extends State<TheoryWidget> {

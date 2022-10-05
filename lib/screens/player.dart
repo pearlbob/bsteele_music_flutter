@@ -1468,10 +1468,11 @@ With z or q, the app goes back to the play list.''',
   void navigateToEdit(BuildContext context, Song song) async {
     _playerIsOnTop = false;
     _cancelIdleTimer();
-    await Navigator.push(
+    await Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => Edit(initialSong: song)),
+      Edit.routeName,
     );
+
     //  return to list if song was removed
     if (!app.allSongs.contains(_song)) {
       if (!mounted) return;
@@ -1677,7 +1678,8 @@ With z or q, the app goes back to the play list.''',
                           children: [
                             appTextButton(
                               'Repeats:',
-                              appKeyEnum: AppKeyEnum.playerCompressRepeatsLabel,
+                              appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
+                              value: appOptions.compressRepeats,
                               onPressed: () {
                                 setState(() {
                                   compressRepeats = !compressRepeats;
@@ -1947,47 +1949,47 @@ With z or q, the app goes back to the play list.''',
   }
 
   final List<DropdownMenuItem<int>> keyOffsetItems = [
-    DropdownMenuItem(key: appKey(AppKeyEnum.playerKeyOffset0), value: 0, child: const Text('normal: (no key offset)')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset1),
+    appDropdownMenuItem(appKeyEnum: AppKeyEnum.playerKeyOffset, value: 0, child: const Text('normal: (no key offset)')),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 1,
         child: const Text('+1   (-11) halfsteps = scale  ${MusicConstants.flatChar}2')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset2),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 2,
         child: const Text('+2   (-10) halfsteps = scale   2, B${MusicConstants.flatChar} instrument')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset3),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 3,
         child: const Text('+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset4), value: 4, child: const Text('+4   (-8)   halfsteps = scale   3')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset5),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 4, child: const Text('+4   (-8)   halfsteps = scale   3')),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 5,
         child: const Text('+5   (-7)   halfsteps = scale   4, baritone guitar')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset6),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 6,
         child: const Text('+6   (-6)   halfsteps = scale  ${MusicConstants.flatChar}5')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset7),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 7,
         child: const Text('+7   (-5)   halfsteps = scale   5, F instrument')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset8),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 8,
         child: const Text('+8   (-4)   halfsteps = scale  ${MusicConstants.flatChar}6')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset9),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 9,
         child: const Text('+9   (-3)   halfsteps = scale   6, E${MusicConstants.flatChar} instrument')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset10),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 10,
         child: const Text('+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7')),
-    DropdownMenuItem(
-        key: appKey(AppKeyEnum.playerKeyOffset11), value: 11, child: const Text('+11 (-1)   halfsteps = scale   7')),
+    appDropdownMenuItem(
+        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 11, child: const Text('+11 (-1)   halfsteps = scale   7')),
   ];
 
   void _resetIdleTimer() {

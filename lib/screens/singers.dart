@@ -433,7 +433,7 @@ class SingersState extends State<Singers> {
                 Text(
                   app.message,
                   style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                  key: appKey(AppKeyEnum.singersErrorMessage),
+                  key: appKeyCreate(AppKeyEnum.singersErrorMessage),
                 ),
 
               //  singing / setup

@@ -276,10 +276,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
+    appKeyCallbacksClear();
     _resetIdleTimer();
     app.screenInfo.refresh(context);
     appWidgetHelper = AppWidgetHelper(context);
     _song = widget._song; //  default only
+
+    logger.log(_logBuild, 'player build: ModalRoute: ${ModalRoute.of(context)?.settings.name}');
 
     logger.log(
         _logBuild,
@@ -305,8 +308,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         logger.log(
             _logLeaderFollower,
             'player follower: $_song, selectedSongMoment: ${_songMomentNotifier.songMoment?.momentNumber}'
-            ' songPlayMode: $songPlayMode'
-            ', isPlaying: $_isPlaying');
+                ' songPlayMode: $songPlayMode'
+                ', isPlaying: $_isPlaying');
       }
       setSelectedSongKey(_songUpdate!.currentKey);
     }
@@ -355,7 +358,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
         int relativeOffset = halfOctave - i;
         String valueString =
-            value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+        value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
         String offsetString = '';
         if (relativeOffset > 0) {
           offsetString = '+${relativeOffset.toString()}';
@@ -445,7 +448,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
         _logScroll,
         ' scrollTarget: $scrollTarget, '
-        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+            ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_logMode, 'playing: $_isPlaying, pause: $_isPaused');
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
@@ -554,7 +557,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         top: 0,
                         child: Container(
                           constraints:
-                              BoxConstraints.loose(Size(app.screenInfo.mediaWidth, app.screenInfo.mediaHeight)),
+                          BoxConstraints.loose(Size(app.screenInfo.mediaWidth, app.screenInfo.mediaHeight)),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
@@ -762,7 +765,7 @@ With z or q, the app goes back to the play list.''',
                                       alignment: WrapAlignment.spaceBetween,
                                       children: [
                                         if (!songUpdateService.isFollowing)
-                                          //  key change
+                                        //  key change
                                           AppWrap(
                                             alignment: WrapAlignment.spaceBetween,
                                             children: [
@@ -831,7 +834,7 @@ With z or q, the app goes back to the play list.''',
                                         if (songUpdateService.isFollowing)
                                           AppTooltip(
                                             message:
-                                                'When following the leader, the leader will select the key for you.\n'
+                                            'When following the leader, the leader will select the key for you.\n'
                                                 'To correct this from the main screen: hamburger, Options, Hosts: None',
                                             child: Text(
                                               'Key: $_selectedSongKey',
@@ -843,13 +846,13 @@ With z or q, the app goes back to the play list.''',
                                         if (displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
                                           Text(
                                             ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}'
-                                            '${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
+                                                '${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
                                             style: headerTextStyle,
                                           ),
                                       ],
                                     ),
                                     if (app.isScreenBig && !songUpdateService.isFollowing)
-                                      //  tempo change
+                                    //  tempo change
                                       AppWrap(
                                         alignment: WrapAlignment.spaceBetween,
                                         children: [
@@ -904,7 +907,7 @@ With z or q, the app goes back to the play list.''',
                                     if (app.isScreenBig && songUpdateService.isFollowing)
                                       AppTooltip(
                                         message:
-                                            'When following the leader, the leader will select the tempo for you.\n'
+                                        'When following the leader, the leader will select the tempo for you.\n'
                                             'To correct this from the main screen: hamburger, Options, Hosts: None',
                                         child: Text(
                                           'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
@@ -917,14 +920,14 @@ With z or q, the app goes back to the play list.''',
                                       softWrap: false,
                                     ),
                                     if (app.isScreenBig)
-                                      //  leader/follower status
+                                    //  leader/follower status
                                       Text(
                                         songUpdateService.isConnected
                                             ? (songUpdateService.isLeader
-                                                ? 'leading ${songUpdateService.host}'
-                                                : (songUpdateService.leaderName == AppOptions.unknownUser
-                                                    ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
-                                                    : 'following ${songUpdateService.leaderName}'))
+                                            ? 'leading ${songUpdateService.host}'
+                                            : (songUpdateService.leaderName == AppOptions.unknownUser
+                                            ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
+                                            : 'following ${songUpdateService.leaderName}'))
                                             : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
                                         style: !songUpdateService.isConnected && !songUpdateService.isIdle
                                             ? headerTextStyle.copyWith(color: Colors.red)
@@ -1019,67 +1022,67 @@ With z or q, the app goes back to the play list.''',
                   ),
                   floatingActionButton: songIsInPlay
                       ? (_isPaused && songPlayMode == _SongPlayMode.autoPlay
-                          ? appFloatingActionButton(
-                              appKeyEnum: AppKeyEnum.playerFloatingPlay,
-                              onPressed: () {
-                                pauseToggle();
-                              },
-                              child: AppTooltip(
-                                message: 'Stop.  Space bar will continue the play.',
-                                child: appIcon(
-                                  Icons.play_arrow,
-                                ),
-                                // fontSize: headerTextStyle.fontSize,
-                              ),
-                              mini: !app.isScreenBig,
-                            )
-                          : appFloatingActionButton(
-                              appKeyEnum: AppKeyEnum.playerFloatingStop,
-                              onPressed: () {
-                                performStop();
-                              },
-                              child: AppTooltip(
-                                message: 'Type Z or Q to stop the play\nor space to next section',
-                                child: appIcon(
-                                  Icons.stop,
-                                ),
-                              ),
-                              mini: !app.isScreenBig,
-                            ))
+                      ? appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerFloatingPlay,
+                    onPressed: () {
+                      pauseToggle();
+                    },
+                    child: AppTooltip(
+                      message: 'Stop.  Space bar will continue the play.',
+                      child: appIcon(
+                        Icons.play_arrow,
+                      ),
+                      // fontSize: headerTextStyle.fontSize,
+                    ),
+                    mini: !app.isScreenBig,
+                  )
+                      : appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerFloatingStop,
+                    onPressed: () {
+                      performStop();
+                    },
+                    child: AppTooltip(
+                      message: 'Type Z or Q to stop the play\nor space to next section',
+                      child: appIcon(
+                        Icons.stop,
+                      ),
+                    ),
+                    mini: !app.isScreenBig,
+                  ))
                       : (_lyricSectionNotifier.index > 0
-                          ? appFloatingActionButton(
-                              appKeyEnum: AppKeyEnum.playerFloatingTop,
-                              onPressed: () {
-                                if (_isPlaying) {
-                                  performStop();
-                                } else {
-                                  setState(() {
-                                    setSelectedSongMoment(_song.songMoments.first);
-                                  });
-                                }
-                              },
-                              child: AppTooltip(
-                                message: 'Top of song',
-                                child: appIcon(
-                                  Icons.arrow_upward,
-                                ),
-                              ),
-                              mini: !app.isScreenBig,
-                            )
-                          : appFloatingActionButton(
-                              appKeyEnum: AppKeyEnum.playerBack,
-                              onPressed: () {
-                                _songMaster.stop();
-                                Navigator.pop(context);
-                              },
-                              child: AppTooltip(
-                                message: 'Back to song list',
-                                child: appIcon(
-                                  Icons.arrow_back,
-                                ),
-                              ),
-                              mini: !app.isScreenBig,
-                            )),
+                      ? appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerFloatingTop,
+                    onPressed: () {
+                      if (_isPlaying) {
+                        performStop();
+                      } else {
+                        setState(() {
+                          setSelectedSongMoment(_song.songMoments.first);
+                        });
+                      }
+                    },
+                    child: AppTooltip(
+                      message: 'Top of song',
+                      child: appIcon(
+                        Icons.arrow_upward,
+                      ),
+                    ),
+                    mini: !app.isScreenBig,
+                  )
+                      : appFloatingActionButton(
+                    appKeyEnum: AppKeyEnum.playerBack,
+                    onPressed: () {
+                      _songMaster.stop();
+                      Navigator.pop(context);
+                    },
+                    child: AppTooltip(
+                      message: 'Back to song list',
+                      child: appIcon(
+                        Icons.arrow_back,
+                      ),
+                    ),
+                    mini: !app.isScreenBig,
+                  )),
                 ),
 
                 //  player settings

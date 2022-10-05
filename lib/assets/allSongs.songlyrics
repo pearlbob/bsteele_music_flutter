@@ -46318,12 +46318,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1650506505304, "song": 
+{ "file": "", "lastModifiedDate": 1664923359171, "song": 
 {
 "title": "Gold Dust Woman",
 "artist": "Fleetwood Mac",
-"user": "Shari",
-"lastModifiedDate": 1650506505304,
+"user": "my",
+"lastModifiedDate": 1664923359171,
 "copyright": "1977 Warner Bros",
 "key": "Bb",
 "defaultBpm": 123,
@@ -46331,13 +46331,13 @@
 "chords": 
     [
 	"I1:",
-	"Dsus2 Bb Dsus2 Bb",
-	"Dsus2 Bb Dsus2 Bb",
+	"Dsus2 Bb/D Dsus2 Bb/D",
+	"Dsus2 Bb/D Dsus2 Bb/D",
 	"I2:",
-	"Dsus2 Bb Dsus2 Bb",
+	"Dsus2 Bb/D Dsus2 Bb/D",
 	"Dsus2 Dsus2 Dsus2 Dsus2",
 	"I3:",
-	"Dsus2 Bb Dsus2 Bb x4",
+	"Dsus2 Bb/D Dsus2 Bb/D x4",
 	"V:",
 	"Dsus2 G C G",
 	"Dsus2 Bb/D Dsus2 Bb/D",
@@ -46350,7 +46350,7 @@
 	"Bb G/B C Dsus2",
 	"Bb G/B C Dsus2",
 	"O:",
-	"Dsus2 Bb Dsus2 Bb x12"
+	"Dsus2 Bb/D Dsus2 Bb/D x12"
     ],
 "lyrics": 
     [
@@ -52106,12 +52106,12 @@
     ]
 }
 },
-{ "file": "Here Comes The Rain Again.songlyrics", "lastModifiedDate": 1590005608006, "song": 
+{ "file": "Here Comes The Rain Again.songlyrics", "lastModifiedDate": 1664950665174, "song": 
 {
 "title": "Here Comes The Rain Again",
 "artist": "Eurythmics",
 "user": "Shari",
-"lastModifiedDate": 1590005608006,
+"lastModifiedDate": 1664950665174,
 "copyright": "1983 RCA",
 "key": "C",
 "defaultBpm": 126,
@@ -52119,14 +52119,14 @@
 "chords": 
     [
 	"I:",
-	"Am9 Am9 F/A F/A",
+	"Am9 Am9 Fmaj9 Fmaj9",
 	"G G Am9 Am9",
-	"Am9 Am9 F/A F/A",
+	"Am9 Am9 Fmaj9 Fmaj9",
 	"G G Am9 Am9",
 	"V:",
-	"Am9 Am9 F/A F/A",
+	"Am9 Am9 Fmaj9 Fmaj9",
 	"G G Am9 Am9",
-	"Am9 Am9 F/A F/A",
+	"Am9 Am9 Fmaj9 Fmaj9",
 	"G G Am9 Am9",
 	"C:",
 	"F F C C",
@@ -52140,7 +52140,7 @@
 	"Em F Am Am",
 	"Em F G G",
 	"O:",
-	"Am9 Am9 F/A F/A",
+	"Am9 Am9 Fmaj9 Fmaj9",
 	"G G Am9 Am9",
 	"Am9"
     ],
@@ -92087,132 +92087,10 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1664577831425, "song": 
+{ "file": "", "lastModifiedDate": 1664577168094, "song": 
 {
 "title": "One of These Nights",
 "artist": "Eagles, The",
-"user": "Shari",
-"lastModifiedDate": 1664577831425,
-"copyright": "1975 Asylum",
-"key": "G",
-"defaultBpm": 108,
-"timeSignature": "4/4",
-"chords": 
-    [
-	"I:",
-	"Em Em/D Cmaj7 Cmaj7",
-	"Am Am Em Em",
-	"Em Em/D Cmaj7 Cmaj7",
-	"Am Am Em BmX",
-	"I2:",
-	"Em Em/D Cmaj7 Cmaj7",
-	"Am Am Em Bm",
-	"Em Em/D Cmaj7 Cmaj7",
-	"Am Am Em BmX",
-	"V1:",
-	"Em Em/D Cmaj7 Cmaj7",
-	"Am Am Em Bm",
-	"V2:",
-	"Em Em/D Cmaj7 Cmaj7",
-	"Am Am Em BmX",
-	"C:",
-	"Cmaj7 Cmaj7 Gmaj7 Gmaj7",
-	"Cmaj7 Cmaj7 Am BmX",
-	"C2:",
-	"Cmaj7 Cmaj7 Gmaj7 Gmaj7 x2",
-	"O:",
-	"Cmaj7 Cmaj7 Gmaj7 Gmaj7",
-	"Cmaj7"
-    ],
-"lyrics": 
-    [
-	"I:",
-	"(instrumental)",
-	"",
-	"V1:",
-	"(One of these) nights, one of these ",
-	"Crazy old nights, we're gonna",
-	"Find out pretty mama, what turns ",
-	"On your lights",
-	"",
-	"V2:",
-	"The full moon is calling, the fever is high, and the",
-	"Wicked wind whispers and moans",
-	"You got your demons and you got desires, well",
-	"I got a few of my own",
-	"",
-	"C:",
-	"Ooh someone to be kind to ",
-	"In between the dark and the light",
-	"Ooh coming right behind you",
-	"Swear I'm gonna find you one of these nights",
-	"",
-	"V1:",
-	"One of these dreams, one of these ",
-	"Lost and lonely dreams now",
-	"We're gonna find one, one that",
-	"Really screams",
-	"",
-	"V2:",
-	"(I've been) searching for the daughter of the devil himself, I've been ",
-	"Searching for an angel in white, I've been ",
-	"Waiting for a woman who's a little of both and I can ",
-	"Feel her but she's nowhere in sight",
-	"",
-	"C:",
-	"Ooh, loneliness will blind you",
-	"In between the wrong and the right",
-	"Ooh, coming right behind you",
-	"Swear I'm gonna find you one of these nights",
-	"",
-	"I2:",
-	"(instrumental solo)",
-	"",
-	"C2:",
-	"(One of these nights)",
-	"In between the dark and the light",
-	"Coming right behind you, swear I'm gonna find you",
-	"Get you baby one of these nights",
-	"",
-	"C2:",
-	"(One of these nights) ",
-	"Ooh ooh, ooh ooh (One of these ",
-	"nights)",
-	"I can feel it, I can feel it",
-	"",
-	"C2:",
-	"(One of these nights) Coming right behind you",
-	"Swear I'm gonna find you now (One of these",
-	"nights) And it gets so ",
-	"Dark, so dark in the cold",
-	"",
-	"C2:",
-	"(One of these nights) One of these ",
-	"Crazy, crazy, crazy nights (one of these ",
-	"Nights)",
-	"Swear I'm gonna find you coming right behind you ",
-	"",
-	"C2:",
-	"(One of these nights) Ooh ",
-	"Ooh (one of these ",
-	"Nights) ah and I wanna say ",
-	"Ahhh",
-	"",
-	"C2:",
-	"(One of these nights)",
-	"One of these, one of these (one of these",
-	"nights) ah",
-	"Coming right behind you, swear I'm gonna find you",
-	"",
-	"O:",
-	"(One of these nights)"
-    ]
-}
-},
-{ "file": null, "lastModifiedDate": 1664577168094, "song": 
-{
-"title": "One of These Nights",
-"artist": "Eagles, The ",
 "user": "Shari",
 "lastModifiedDate": 1664577168094,
 "copyright": "1975 Asylum",
@@ -101196,7 +101074,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1664594361869, "song": 
+{ "file": "", "lastModifiedDate": 1664594361869, "song": 
 {
 "title": "Reflex, The",
 "artist": "Duran Duran",

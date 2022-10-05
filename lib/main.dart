@@ -835,6 +835,7 @@ class MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     app.screenInfo.refresh(context);
+    appKeyCallbacksClear();
 
     logger.log(
         _logBuild,

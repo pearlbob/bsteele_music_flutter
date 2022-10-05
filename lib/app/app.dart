@@ -238,7 +238,8 @@ class App {
   /// Generate a message display widget
   Widget messageTextWidget(AppKeyEnum appKeyEnum) {
     return Text(_message,
-        style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle, key: appKey(appKeyEnum));
+        style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
+        key: appKeyCreate(appKeyEnum));
   }
 
   String get message => _message;
@@ -626,7 +627,7 @@ class AppWidgetHelper {
       final List<Widget>? actions}) {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
-      key: appKeyEnum != null ? appKey(appKeyEnum) : null,
+      key: appKeyEnum != null ? appKeyCreate(appKeyEnum) : null,
       leading: leading,
       title: titleWidget ??
           Text(

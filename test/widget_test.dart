@@ -31,11 +31,12 @@ void main() {
       List<Widget> widgets;
 
       {
-        var finder = find.byKey(const ValueKey<String>('mainSong.Song_12_Bar_Blues_by_Any'));
+        var appKey = appKeyCreate(AppKeyEnum.mainSong, value: Id('Song_12_Bar_Blues_by_Any'));
+        var finder = find.byKey(appKey);
         expect(finder, findsOneWidget);
       }
 
-      var mainSearchText = find.byKey(appKey(AppKeyEnum.playListSearch));
+      var mainSearchText = find.byKey(appKeyCreate(AppKeyEnum.playListSearch));
       expect(mainSearchText, findsOneWidget);
 
       {
@@ -52,7 +53,7 @@ void main() {
       }
 
       {
-        var clearSearch = find.byKey(appKey(AppKeyEnum.mainClearSearch));
+        var clearSearch = find.byKey(appKeyCreate(AppKeyEnum.playListClearSearch));
         expect(clearSearch, findsOneWidget);
         await tester.tap(clearSearch);
         await tester.pumpAndSettle();
@@ -76,13 +77,14 @@ void main() {
         await tester.pumpAndSettle();
         widgets = Find.findValueKeyContains('Song_', findSome: false);
         expect(widgets, isNotEmpty);
-        var song25Or6To4ByChicago = find.byKey(const ValueKey<String>('mainSong.Song_25_or_6_to_4_by_Chicago'));
+        var song25Or6To4ByChicago =
+            find.byKey(appKeyCreate(AppKeyEnum.mainSong, value: Id('Song_25_or_6_to_4_by_Chicago')));
         expect(song25Or6To4ByChicago, findsOneWidget);
         // await tester.tap(song25Or6To4ByChicago);
         // await tester.pumpAndSettle(); //  fixme: error here.  why?  because it transitions to another screen
       }
       {
-        var clearSearch = find.byKey(appKey(AppKeyEnum.mainClearSearch));
+        var clearSearch = find.byKey(appKeyCreate(AppKeyEnum.playListClearSearch));
         expect(clearSearch, findsOneWidget);
         await tester.tap(clearSearch);
         await tester.pumpAndSettle();

@@ -633,7 +633,7 @@ class _PlayListState extends State<PlayList> {
                             : 'Clear the search text.',
                         child: appEnumeratedIconButton(
                           icon: const Icon(Icons.clear),
-                          appKeyEnum: AppKeyEnum.mainClearSearch,
+                          appKeyEnum: AppKeyEnum.playListClearSearch,
                           iconSize: 1.25 * widget.titleFontSize,
                           onPressed: (() {
                             _searchTextFieldController.clear();

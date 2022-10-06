@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:bsteeleMusicLib/appLogger.dart';
 import 'package:bsteeleMusicLib/songs/chordSection.dart';
 import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
@@ -259,7 +257,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   singersSingingTextButton(String),
   singersSortTypeSelection(String),
   singersVolunteerSingerSelectClear(Null),
-  singersVolunteerSingerSelect(String),
+  singersVolunteerSingerSelect(Id),
   songsAcceptAllSongReads(Null),
   songsAcceptSongRead(Null),
   songsBack(Null),
@@ -381,12 +379,12 @@ appKeyCallbacksClear() {
   _appKeyRegisterCallbacks.clear(); //  can't run callbacks if the widget tree is now gone
 }
 
-_appKeyCallbacksDebugLog() {
-  logger.log(_logAppKey, '_appKeyCallbacksDebugLog: ${_appKeyRegisterCallbacks.length}');
-  for (var k in SplayTreeSet<AppKey>()..addAll(_appKeyRegisterCallbacks.keys)) {
-    logger.log(_logAllCallbacks, '  registered $k: ${_appKeyRegisterCallbacks[k].runtimeType}');
-  }
-}
+// _appKeyCallbacksDebugLog() {
+//   logger.log(_logAppKey, '_appKeyCallbacksDebugLog: ${_appKeyRegisterCallbacks.length}');
+//   for (var k in SplayTreeSet<AppKey>()..addAll(_appKeyRegisterCallbacks.keys)) {
+//     logger.log(_logAllCallbacks, '  registered $k: ${_appKeyRegisterCallbacks[k].runtimeType}');
+//   }
+// }
 
 //  fixme: can't figure a better way to do this since generic constructors can't reference their type
 typedef TypeParser<T> = T? Function(String s);
@@ -722,6 +720,23 @@ ElevatedButton appButton(
   );
 }
 
+//  insist on an Id
+TextButton appIdButton(
+  String text, {
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback? onPressed,
+  TextStyle? style,
+  required Id id,
+}) {
+  return appTextButton(
+    text,
+    appKeyEnum: appKeyEnum,
+    onPressed: onPressed,
+    style: style,
+    value: id,
+  );
+}
+
 TextButton appTextButton(
   String text, {
   required AppKeyEnum appKeyEnum,
@@ -729,7 +744,7 @@ TextButton appTextButton(
   TextStyle? style,
   dynamic value,
 }) {
-  var key = appKeyCreate(appKeyEnum, value: value ?? text);
+  var key = appKeyCreate(appKeyEnum, value: value ?? Id(text));
   _appKeyRegisterVoidCallback(key, voidCallback: onPressed);
   return TextButton(
     key: key,

@@ -158,60 +158,25 @@ void main() async {
 
 /*
 beta short list:
-RouteObserver<R extends Route> class
+____singer with no songs: can't add to list
+___sort of fix:  assure all null performance songs are null safe
+    find the closest songId for history songs without non-null song
+    Beta fails on song title change from history
+
+default empty singer songs and requests to singer add
+_____Font for existing metadata,. Scroll width, full screen on singers
+"close" songs on a misspelling
 ____verify singers list is retained on web
 ____fix git access from the command line
 
+edit a song that's on the history list, what version gets shown when?
 
+click on singer label should toggle session membership
+leader shouldn't be allowed to have a key offset
 edit metadata from the edit screen
 data management documentation
 
-________scroll thumb width
-_______songs not yet sung by singer
-_______fullscreen on singers
-______font for existing metadata
-______add new song for requester, leave scrolling in the general location
-
-______singer without requests as requester shows blank list.  warning notice?
-
 singer requester editing not remembered...immediately
-
-_____singer session search, singer entry currently clears singer search term but does not focus on search
-_____clear playlist search term on singer change, include auto increment
-
-____requester list edit change should provide a "write file" button   Save button
-____singers: should not let user leave requester edit without warning and opportunity to write
-
-____requested song, no singer, click selection?  singer popup?
-____Follower jumpy,
-    ____Follower scroll update too brutal on section transitions.
-    ____player key up/down move on changes 12 bar blues - minor
-    ____follower jumps somewhere and back when adjusting the key when not on the first section
-____change of singer => playlist scroll to zero
-____reset singer search when singer added to session
-____fix christmas
-____should not let user leave metadata screen without warning and opportunity to write
-____csv metadata export in app
-____search text not selectable
-____player: Tablet change to manual play.  one tap to start
-____player: Tablet change to manual play.  one tap to start
-____fontsize too small on song lyrics?  on phones? lyrics multi-lines?  half fixed
-____generate CSV for metadata updates to CJ website
-_____re-setstate() on main after return from metadata
-_____requester list change update fails to update UI
-_____X for name.value name entry and value entry
-_____thumbs up and down on song... now that metadata functions
-_____playlist extended to singers screen
-_____test Player play button size
-_____slash chords always faded
-_____deleting metadata on song in metadata should do a full setstate on the playlist
-____singers searched for in history & singing?
-____actions on song hit in singers
-____force order by title on singer screen when editing requests
-____metadata jumps to top of list on change
-
-select requester's volunteer singer prior to song selection?
-menu bar overload on small screens and large song titles/artists/coverArtist (currently only partial fix)
 undo-redo in metadata editing
 metadata editing change summary, file read change summary
 select all of search text on return from playlist from singers page

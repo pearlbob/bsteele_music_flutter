@@ -190,7 +190,7 @@ class SingersState extends State<Singers> {
                     color: App.appBackgroundColor, songItemAction: _navigateSelectedVolunteerToPlayer);
               }
             }
-          } else if (searchForSelectedSingerOnly) {
+          } else {
             // 				matching performances from singer
             addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: App.appBackgroundColor);
 
@@ -198,11 +198,6 @@ class SingersState extends State<Singers> {
             //  note that the filtering is done by the play list
             addSongItems('Songs $_selectedSinger might sing:', otherSongs,
                 color: App.appBackgroundColor, songItemAction: _navigateSelectedSingerToPlayer);
-          } else {
-            // 			search all singers selected
-            // 				- performances from session singers
-            addPerformanceItems('Today\'s singers sing:', performancesFromSessionSingers,
-                color: App.appBackgroundColor);
           }
         } else {
           //   selected singer NOT known
@@ -464,9 +459,7 @@ class SingersState extends State<Singers> {
                       value: _isInSingingMode,
                     ),
                   ),
-                  const AppSpace(
-                    horizontalSpace: 30,
-                  ),
+                  const AppSpace(horizontalSpace: 30),
                   if (!_isInSingingMode)
                     Text(
                       '       Singer setup:',
@@ -795,13 +788,11 @@ class SingersState extends State<Singers> {
                     ),
                   ),
                 ]),
-              const AppVerticalSpace(),
               if (!_isInSingingMode)
                 Expanded(
                     child: ListView(controller: ScrollController(), children: [
                   allSingersWidgetWrap,
                 ])),
-              const AppVerticalSpace(),
               if (_isInSingingMode && songListGroup.isEmpty)
                 Text(
                   'The requester $_selectedSinger has an empty request list.  Edit the requests!',
@@ -809,14 +800,13 @@ class SingersState extends State<Singers> {
                 ),
               if (_isInSingingMode && songListGroup.isNotEmpty) _volunteersWidget(),
               if (_isInSingingMode && songListGroup.isNotEmpty)
-                if (_isInSingingMode)
-                  PlayList.byGroup(
-                    songListGroup,
-                    style: singerTextStyle,
-                    includeByLastSung: true,
-                    selectedSortType: PlayListSortType.byTitle,
-                    isFromTheTop: false,
-                  ),
+                PlayList.byGroup(
+                  songListGroup,
+                  style: singerTextStyle,
+                  includeByLastSung: true,
+                  selectedSortType: PlayListSortType.byTitle,
+                  isFromTheTop: false,
+                ),
             ],
           ),
         ),
@@ -1072,9 +1062,10 @@ class SingersState extends State<Singers> {
         ),
         const AppSpace(),
         ..._potentialVolunteers().map(
-          (singer) => appTextButton(
+              (singer) => appIdButton(
             singer,
             appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
+            id: Id(singer),
             onPressed: () {
               setState(() {
                 _selectedVolunteerSinger = singer;
@@ -1101,14 +1092,14 @@ class SingersState extends State<Singers> {
   }
 
   List<String> _potentialVolunteers() {
-    List<String> volunteers = [];
+    SplayTreeSet<String> volunteers = SplayTreeSet();
 
     for (var singer in _sessionSingers) {
       if (singer != _selectedSinger && _allSongPerformances.bySinger(singer).isNotEmpty) {
         volunteers.add(singer);
       }
     }
-    return volunteers;
+    return volunteers.toList(growable: false);
   }
 
   // _volunteerSingerPopup(BuildContext context, SongListItem songListItem) {
@@ -1303,7 +1294,7 @@ class SingersState extends State<Singers> {
       //  reset the singer's list
       Provider.of<PlayListRefreshNotifier>(context, listen: false).requestSearchClear();
 
-      logger.v('_setSelectedSinger(): $singer, isRequester: $isRequester');
+      logger.i('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }
   }
 

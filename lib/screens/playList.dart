@@ -529,6 +529,7 @@ class _PlayListState extends State<PlayList> {
         //  apply search
         List<SongList> filteredSongLists = [];
         var matcher = SongSearchMatcher(_searchTextFieldController.text);
+        SongItemAction? bestSongItemAction; //  fixme: this can't be the best way to find an action!
         for (final songList in widget.group.group) {
           //  find the possible items
           SplayTreeSet<SongListItem> searchedSet = SplayTreeSet();
@@ -564,8 +565,26 @@ class _PlayListState extends State<PlayList> {
           if (filteredSet.isNotEmpty) {
             filteredSongLists.add(SongList(songList.label, filteredSet.toList(growable: false),
                 songItemAction: songList.songItemAction, color: songList.color));
+          } else {
+            bestSongItemAction ??= songList.songItemAction;
           }
         }
+        // //  try the closest match?
+        // if (filteredSongLists.isEmpty && _searchTextFieldController.text.isNotEmpty && bestSongItemAction != null) {
+        //   final songTitles = app.allSongs.map((e) => e.title).toList(growable: false);
+        //   BestMatch bestMatch = StringSimilarity.findBestMatch(_searchTextFieldController.text, songTitles);
+        //   logger.i('playList: $bestMatch, $bestSongItemAction');
+        //   Song song = app.allSongs.toList(growable: false)[bestMatch.bestMatchIndex];
+        //   app.selectedSong = song;
+        //   var performance = SongPerformance(song.songId.toString(), 'unknown');
+        //   filteredSongLists.add(SongList(
+        //     'Did you mean?',
+        //     [SongListItem.fromPerformance(performance)],
+        //     songItemAction: ,
+        //     color: App.appBackgroundColor,
+        //   ));
+        // }
+        logger.v('playlist: filteredSongLists.length: ${filteredSongLists.length}');
         filteredGroup = SongListGroup(filteredSongLists);
       }
 
@@ -592,7 +611,7 @@ class _PlayListState extends State<PlayList> {
         // for some reason, this is Expanded is very required,
         // otherwise the Column is unlimited and the list view fails
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             AppWrapFullWidth(
                 crossAxisAlignment: WrapCrossAlignment.center,

@@ -1,6 +1,6 @@
 # bsteele_music_flutter
 
-This is the GUI source for the bsteele Music App.
+This is the GUI source for the bsteeleMusicApp.
 For usage, see http://www.bsteele.com or http://communityjams.org.
 
 Note: Compilation requires the bsteeleMusicLib library available

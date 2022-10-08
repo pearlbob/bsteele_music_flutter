@@ -54,6 +54,13 @@ if ( $status != 0 ) exit -1
 #	beta to local static host
 set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
 
+# 
+echo test the library
+cd $bsteeleMusicLib/bsteele_music_lib
+dart test >& /dev/null
+if ( $status != 0 ) exit -1
+cd $git
+
 ##	build the release version of the beta
 flutter clean
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt

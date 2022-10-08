@@ -17,7 +17,7 @@ import 'app.dart';
 const Level _logAppKey = Level.debug;
 const Level _logAppKeyCreation = Level.debug;
 const Level _logAllRegistrations = Level.debug;
-const Level _logAllCallbacks = Level.debug;
+// const Level _logAllCallbacks = Level.debug;
 const Level _logCallbacks = Level.debug;
 const Level _appKeyExecute = Level.info;
 

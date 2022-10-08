@@ -45,7 +45,7 @@ get it right next time:  repeats in measure column
  */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.debug;
+const Level _logFontSize = Level.info;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
@@ -993,7 +993,6 @@ class LyricsTable {
     //  text styles
     _chordTextStyle = generateChordTextStyle(
         fontFamily: appFontFamily, fontSize: _chordFontSizeUnscaled, fontWeight: FontWeight.bold);
-    _sectionTextStyle = _chordTextStyle.copyWith(fontSize: _chordFontSizeUnscaled * 0.75);
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
@@ -1021,9 +1020,6 @@ class LyricsTable {
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();
-
-  TextStyle get sectionTextStyle => _sectionTextStyle;
-  TextStyle _sectionTextStyle = generateAppTextStyle();
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();

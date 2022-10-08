@@ -101,10 +101,26 @@ import 'app/appOptions.dart';
 import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
+/*
+android fix:
+  adb: insufficient permissions for device: missing udev rules? user is in the plugdev group
+
+  settings, system,  Developer options,  usb debugging on
+  https://developer.android.com/studio/run/device
+    sudo usermod -aG plugdev $LOGNAME
+    sudo apt-get install android-sdk-platform-tools-common
+
+in bsteele_music_flutter/android/app/src/main/AndroidManifest.xml:
+<manifest...>
+  ...
+  <uses-permission android:name="android.permission.INTERNET"/>
+</manifest...>
+ */
+
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -175,6 +191,8 @@ click on singer label should toggle session membership
 leader shouldn't be allowed to have a key offset
 edit metadata from the edit screen
 data management documentation
+
+small screen chord fontsize too large
 
 singer requester editing not remembered...immediately
 undo-redo in metadata editing

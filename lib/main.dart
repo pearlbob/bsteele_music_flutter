@@ -174,25 +174,45 @@ void main() async {
 
 /*
 beta short list:
-____singer with no songs: can't add to list
 ___sort of fix:  assure all null performance songs are null safe
     find the closest songId for history songs without non-null song
     Beta fails on song title change from history
 
 default empty singer songs and requests to singer add
-_____Font for existing metadata,. Scroll width, full screen on singers
-"close" songs on a misspelling
+"close" songs on a misspelling on playlist search
 ____verify singers list is retained on web
-____fix git access from the command line
-
 edit a song that's on the history list, what version gets shown when?
-
-click on singer label should toggle session membership
+  remember mapping?
+add playlist "or" on multiple metadata
+singer setup: click on singer label should toggle session membership
 leader shouldn't be allowed to have a key offset
 edit metadata from the edit screen
 data management documentation
-
+drums on 2/4, 3/4, 6/8
 small screen chord fontsize too large
+
+
+release planning
+a)
+  _____fix pro display mode manual play
+  history from server log
+  banner display mode (lyric to measure mapping)
+  named & stored drum accompaniments (basic)
+  better documentation screen structure
+b)
+  bsteeleBox recording
+  verify/fix auto playback
+  drums completion
+c)
+  recording in banner display mode
+  looping
+  mp3 in banner display mode
+  sheet music in banner
+  piano chords one ear, mp3 in other
+d)
+  banner mode editing
+  noise to notes in banner
+  octaves in bsteeleBox
 
 singer requester editing not remembered...immediately
 undo-redo in metadata editing
@@ -206,12 +226,12 @@ very small screens, menu title stuff too large
 PlayList:  song count on bottom?
 fix history song count to show only displayed songs
 Singer mode chords proportional to chord font, limit length
-add playlist "or" on multiple metadata
+
 if No song match:. Try close matches
       add closest matches if songlist is empty
 Drums
     on horizontal scroll
-    drums on 2/4, 3/4, 6/8
+
 Follower display while leader choosing a song
 test singer and requester on one singer/requester
 
@@ -237,14 +257,9 @@ re-search main list on song file read
   show lists to followers (main and singer)
   jump to follow location without motion from leader
 
-re-download canvaskit on staging
-
 button to adjust leader/follower when dis-connected
 
 I've restarted my research to put DNS on the pi to ease the configuration. Say "park.local" instead of "192.168.1.205".
-
-
-____fix song: Handlebars
 
 F# and gb,. # override for guitar players (not persistent),
 notes for song transcriptions,
@@ -260,7 +275,6 @@ for the moment, the drums only work on 4 beats per measure songs. what?!!! yeah 
 song not selected on main list after a file read and return to main list
 insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 
-consistent arrow on leader and follower
 share the "sung by" in the follower update
 eliminate singer needs a song requirement
 drums to library

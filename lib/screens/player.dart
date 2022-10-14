@@ -308,8 +308,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         logger.log(
             _logLeaderFollower,
             'player follower: $_song, selectedSongMoment: ${_songMomentNotifier.songMoment?.momentNumber}'
-                ' songPlayMode: $songPlayMode'
-                ', isPlaying: $_isPlaying');
+            ' songPlayMode: $songPlayMode'
+            ', isPlaying: $_isPlaying');
       }
       setSelectedSongKey(_songUpdate!.currentKey);
     }
@@ -358,7 +358,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
         int relativeOffset = halfOctave - i;
         String valueString =
-        value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
+            value.toMarkup().padRight(2); //  fixme: required by drop down list font bug!  (see the "on ..." below)
         String offsetString = '';
         if (relativeOffset > 0) {
           offsetString = '+${relativeOffset.toString()}';
@@ -448,7 +448,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
         _logScroll,
         ' scrollTarget: $scrollTarget, '
-            ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_logMode, 'playing: $_isPlaying, pause: $_isPaused');
 
     bool showCapo = capoIsAvailable() && app.isScreenBig;
@@ -475,6 +475,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       itemBuilder: (context, index) {
         return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
       },
+      scrollDirection: appOptions.userDisplayStyle == UserDisplayStyle.banner ? Axis.horizontal : Axis.vertical,
       //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
     );
 
@@ -557,7 +558,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         top: 0,
                         child: Container(
                           constraints:
-                          BoxConstraints.loose(Size(app.screenInfo.mediaWidth, app.screenInfo.mediaHeight)),
+                              BoxConstraints.loose(Size(app.screenInfo.mediaWidth, app.screenInfo.mediaHeight)),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
@@ -666,49 +667,49 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         //       ),
                                         //     ),
                                         //   ]),
-                                        if (app.isScreenBig)
-                                          AppWrap(children: [
-                                            const AppSpace(horizontalSpace: 35),
-                                            AppTooltip(
-                                              message: 'Mark the song as good.'
-                                                  '\nYou will find it in the'
-                                                  ' "${myGoodSongNameValue.toShortString()}" list.',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerSongGood,
-                                                icon: appIcon(
-                                                  Icons.thumb_up,
-                                                ),
-                                                onPressed: () {
-                                                  SongMetadata.addSong(_song, myGoodSongNameValue);
-                                                  SongMetadata.removeFromSong(_song, myBadSongNameValue);
-                                                  appOptions.storeSongMetadata();
-                                                  app.errorMessage('${_song.title} added to'
-                                                      ' ${myGoodSongNameValue.toShortString()}');
-                                                },
-                                              ),
-                                            ),
-                                            const AppSpace(space: 5),
-                                            AppTooltip(
-                                              message: 'Mark the song as bad, that is, in need of correction.'
-                                                  '\nYou will find it in the'
-                                                  ' "${myBadSongNameValue.toShortString()}" list.',
-                                              child: appIconButton(
-                                                appKeyEnum: AppKeyEnum.playerSongBad,
-                                                icon: appIcon(
-                                                  Icons.thumb_down,
-                                                ),
-                                                onPressed: () {
-                                                  SongMetadata.addSong(_song, myBadSongNameValue);
-                                                  SongMetadata.removeFromSong(_song, myGoodSongNameValue);
-                                                  appOptions.storeSongMetadata();
-                                                  _songMaster.stop();
-                                                  _cancelIdleTimer();
-                                                  Navigator.pop(context); //  return to main list
-                                                },
-                                              ),
-                                            ),
-                                          ]),
-                                        if (app.isEditReady) const AppSpace(horizontalSpace: 35),
+                                        // if (app.isScreenBig)
+                                        //   AppWrap(children: [
+                                        //     const AppSpace(horizontalSpace: 35),
+                                        //     AppTooltip(
+                                        //       message: 'Mark the song as good.'
+                                        //           '\nYou will find it in the'
+                                        //           ' "${myGoodSongNameValue.toShortString()}" list.',
+                                        //       child: appIconButton(
+                                        //         appKeyEnum: AppKeyEnum.playerSongGood,
+                                        //         icon: appIcon(
+                                        //           Icons.thumb_up,
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           SongMetadata.addSong(_song, myGoodSongNameValue);
+                                        //           SongMetadata.removeFromSong(_song, myBadSongNameValue);
+                                        //           appOptions.storeSongMetadata();
+                                        //           app.errorMessage('${_song.title} added to'
+                                        //               ' ${myGoodSongNameValue.toShortString()}');
+                                        //         },
+                                        //       ),
+                                        //     ),
+                                        //     const AppSpace(space: 5),
+                                        //     AppTooltip(
+                                        //       message: 'Mark the song as bad, that is, in need of correction.'
+                                        //           '\nYou will find it in the'
+                                        //           ' "${myBadSongNameValue.toShortString()}" list.',
+                                        //       child: appIconButton(
+                                        //         appKeyEnum: AppKeyEnum.playerSongBad,
+                                        //         icon: appIcon(
+                                        //           Icons.thumb_down,
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           SongMetadata.addSong(_song, myBadSongNameValue);
+                                        //           SongMetadata.removeFromSong(_song, myGoodSongNameValue);
+                                        //           appOptions.storeSongMetadata();
+                                        //           _songMaster.stop();
+                                        //           _cancelIdleTimer();
+                                        //           Navigator.pop(context); //  return to main list
+                                        //         },
+                                        //       ),
+                                        //     ),
+                                        //   ]),
+                                        //  if (app.isEditReady) const AppSpace(horizontalSpace: 35),
                                         //  song edit
                                         if (!_isPlaying && !songUpdateService.isFollowing && app.isEditReady)
                                           AppTooltip(
@@ -846,7 +847,7 @@ With z or q, the app goes back to the play list.''',
                                         if (displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
                                           Text(
                                             ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}'
-                                                '${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
+                                            '${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
                                             style: headerTextStyle,
                                           ),
                                       ],
@@ -924,10 +925,10 @@ With z or q, the app goes back to the play list.''',
                                       Text(
                                         songUpdateService.isConnected
                                             ? (songUpdateService.isLeader
-                                            ? 'leading ${songUpdateService.host}'
-                                            : (songUpdateService.leaderName == AppOptions.unknownUser
-                                            ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
-                                            : 'following ${songUpdateService.leaderName}'))
+                                                ? 'leading ${songUpdateService.host}'
+                                                : (songUpdateService.leaderName == AppOptions.unknownUser
+                                                    ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
+                                                    : 'following ${songUpdateService.leaderName}'))
                                             : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
                                         style: !songUpdateService.isConnected && !songUpdateService.isIdle
                                             ? headerTextStyle.copyWith(color: Colors.red)
@@ -1022,67 +1023,67 @@ With z or q, the app goes back to the play list.''',
                   ),
                   floatingActionButton: songIsInPlay
                       ? (_isPaused && songPlayMode == _SongPlayMode.autoPlay
-                      ? appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerFloatingPlay,
-                    onPressed: () {
-                      pauseToggle();
-                    },
-                    child: AppTooltip(
-                      message: 'Stop.  Space bar will continue the play.',
-                      child: appIcon(
-                        Icons.play_arrow,
-                      ),
-                      // fontSize: headerTextStyle.fontSize,
-                    ),
-                    mini: !app.isScreenBig,
-                  )
-                      : appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerFloatingStop,
-                    onPressed: () {
-                      performStop();
-                    },
-                    child: AppTooltip(
-                      message: 'Type Z or Q to stop the play\nor space to next section',
-                      child: appIcon(
-                        Icons.stop,
-                      ),
-                    ),
-                    mini: !app.isScreenBig,
-                  ))
+                          ? appFloatingActionButton(
+                              appKeyEnum: AppKeyEnum.playerFloatingPlay,
+                              onPressed: () {
+                                pauseToggle();
+                              },
+                              child: AppTooltip(
+                                message: 'Stop.  Space bar will continue the play.',
+                                child: appIcon(
+                                  Icons.play_arrow,
+                                ),
+                                // fontSize: headerTextStyle.fontSize,
+                              ),
+                              mini: !app.isScreenBig,
+                            )
+                          : appFloatingActionButton(
+                              appKeyEnum: AppKeyEnum.playerFloatingStop,
+                              onPressed: () {
+                                performStop();
+                              },
+                              child: AppTooltip(
+                                message: 'Type Z or Q to stop the play\nor space to next section',
+                                child: appIcon(
+                                  Icons.stop,
+                                ),
+                              ),
+                              mini: !app.isScreenBig,
+                            ))
                       : (_lyricSectionNotifier.index > 0
-                      ? appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerFloatingTop,
-                    onPressed: () {
-                      if (_isPlaying) {
-                        performStop();
-                      } else {
-                        setState(() {
-                          setSelectedSongMoment(_song.songMoments.first);
-                        });
-                      }
-                    },
-                    child: AppTooltip(
-                      message: 'Top of song',
-                      child: appIcon(
-                        Icons.arrow_upward,
-                      ),
-                    ),
-                    mini: !app.isScreenBig,
-                  )
-                      : appFloatingActionButton(
-                    appKeyEnum: AppKeyEnum.playerBack,
-                    onPressed: () {
-                      _songMaster.stop();
-                      Navigator.pop(context);
-                    },
-                    child: AppTooltip(
-                      message: 'Back to song list',
-                      child: appIcon(
-                        Icons.arrow_back,
-                      ),
-                    ),
-                    mini: !app.isScreenBig,
-                  )),
+                          ? appFloatingActionButton(
+                              appKeyEnum: AppKeyEnum.playerFloatingTop,
+                              onPressed: () {
+                                if (_isPlaying) {
+                                  performStop();
+                                } else {
+                                  setState(() {
+                                    setSelectedSongMoment(_song.songMoments.first);
+                                  });
+                                }
+                              },
+                              child: AppTooltip(
+                                message: 'Top of song',
+                                child: appIcon(
+                                  Icons.arrow_upward,
+                                ),
+                              ),
+                              mini: !app.isScreenBig,
+                            )
+                          : appFloatingActionButton(
+                              appKeyEnum: AppKeyEnum.playerBack,
+                              onPressed: () {
+                                _songMaster.stop();
+                                Navigator.pop(context);
+                              },
+                              child: AppTooltip(
+                                message: 'Back to song list',
+                                child: appIcon(
+                                  Icons.arrow_back,
+                                ),
+                              ),
+                              mini: !app.isScreenBig,
+                            )),
                 ),
 
                 //  player settings
@@ -1224,13 +1225,6 @@ With z or q, the app goes back to the play list.''',
     }
     index = Util.indexLimit(index, widget._song.lyricSections); //  safety
 
-    switch (appOptions.userDisplayStyle) {
-      case UserDisplayStyle.proPlayer:
-        index = 0;
-        break;
-      default:
-    }
-
     final priorIndex = _lyricSectionNotifier.index;
     logger.log(_logScroll, 'scrollToLyricSection(): $index from $priorIndex, _isAnimated: $_isAnimated');
     if (_lyricSectionNotifier.index == index && !force) {
@@ -1238,9 +1232,13 @@ With z or q, the app goes back to the play list.''',
       return;
     }
 
-    if (_itemScrollController.isAttached) {
-      selectLyricSection(index);
+    selectLyricSection(index);
 
+    if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+      return; //  pro's never scroll!
+    }
+
+    if (_itemScrollController.isAttached) {
       //  local scroll
       _isAnimated = true;
       var duration = force
@@ -1673,6 +1671,33 @@ With z or q, the app goes back to the play list.''',
                                 style: popupStyle,
                               ),
                             ]),
+                            //  banner
+                            if (kDebugMode)
+                              AppWrap(children: [
+                                Radio<UserDisplayStyle>(
+                                  value: UserDisplayStyle.banner,
+                                  groupValue: appOptions.userDisplayStyle,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        appOptions.userDisplayStyle = value;
+                                        adjustDisplay();
+                                      }
+                                    });
+                                  },
+                                ),
+                                appTextButton(
+                                  'Banner',
+                                  appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                  onPressed: () {
+                                    setState(() {
+                                      appOptions.userDisplayStyle = UserDisplayStyle.banner;
+                                      adjustDisplay();
+                                    });
+                                  },
+                                  style: popupStyle,
+                                ),
+                              ]),
                           ]),
                       //  const AppSpaceViewportWidth(),
                       AppWrapFullWidth(

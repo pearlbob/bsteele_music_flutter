@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:bsteeleMusicLib/appLogger.dart';
@@ -45,7 +46,7 @@ get it right next time:  repeats in measure column
  */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.info;
+const Level _logFontSize = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
@@ -60,8 +61,7 @@ const _highlightColor = Colors.redAccent;
 var _maxLines = 1;
 
 ///  The trick of the game: Figure the text size prior to boxing it
-Size _computeRichTextSize(
-  RichText richText, {
+Size _computeRichTextSize(RichText richText, {
   double textScaleFactor = 1.0,
   int? maxLines,
   double? maxWidth,
@@ -101,18 +101,24 @@ class LyricSectionNotifier extends ChangeNotifier {
 
   int get index => _index;
   int _index = 0;
+  LyricSection? lyricSection;
 }
 
 /// compute a lyrics table
 class LyricsTable {
-  Widget lyricsTable(
-    Song song,
-    BuildContext context, {
-    music_key.Key? musicKey,
-    expanded = false,
-  }) {
-    return Column(children: lyricsTableItems(song, context, musicKey: musicKey, expanded: expanded));
-  }
+  // Widget lyricsTable(
+  //   Song song,
+  //   BuildContext context, {
+  //   music_key.Key? musicKey,
+  //   expanded = false,
+  // }) {
+  //   switch (_appOptions.userDisplayStyle) {
+  //     case UserDisplayStyle.banner:
+  //       return Row(children: lyricsTableItems(song, context, musicKey: musicKey, expanded: true));
+  //     default:
+  //       return Column(children: lyricsTableItems(song, context, musicKey: musicKey, expanded: expanded));
+  //   }
+  // }
 
   List<Widget> lyricsTableItems(
     Song song,
@@ -167,6 +173,7 @@ class LyricsTable {
                     ),
                     type: SongCellType.flow,
                     measureNode: lyricSection,
+                    lyricSectionIndex: lyricSection.index,
                   ),
                 );
               }
@@ -193,12 +200,21 @@ class LyricsTable {
                     ),
                     type: SongCellType.columnFill,
                     measureNode: chordSection,
+                    //  skip highlight on section heading
                   ),
                 );
                 break;
               case 1:
                 chordSection = displayGrid.get(r, c) as ChordSection;
                 _colorBySectionVersion(chordSection.sectionVersion);
+
+                //  generate the lyric section set of matching lyric sections
+                SplayTreeSet<int> set = SplayTreeSet();
+                for (var i = 0; i < song.lyricSections.length; i++) {
+                  if (song.lyricSections[i].sectionVersion == chordSection.sectionVersion) {
+                    set.add(i);
+                  }
+                }
 
                 _locationGrid.set(
                   r,
@@ -209,6 +225,7 @@ class LyricsTable {
                     ),
                     type: SongCellType.columnMinimum,
                     measureNode: chordSection,
+                    lyricSectionSet: set,
                   ),
                 );
 
@@ -312,7 +329,7 @@ class LyricsTable {
                       richText: RichText(
                         text: TextSpan(
                           text: mn.toMarkup(),
-                          style: _coloredLyricTextStyle,
+                          style: _coloredChordTextStyle,
                         ),
                       ),
                       type: SongCellType.columnFill,
@@ -327,6 +344,43 @@ class LyricsTable {
                 assert(false); //  should not happen
                 break;
             }
+          }
+        }
+        break;
+
+      case UserDisplayStyle.banner:
+        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+          var row = displayGrid.getRow(r);
+          assert(row != null);
+          row = row!;
+
+          const chordSectionRow = 0;
+          for (var c = 0; c < row.length; c++) {
+            MeasureNode? mn = displayGrid.get(r, c);
+            {
+              //  color by chord section
+              var chordSection = displayGrid.get(chordSectionRow, c);
+              if (chordSection is ChordSection) {
+                _colorBySectionVersion(chordSection.sectionVersion);
+              }
+            }
+
+            _locationGrid.set(
+              r,
+              c,
+              mn == null
+                  ? null
+                  : SongCellWidget(
+                      richText: RichText(
+                        text: TextSpan(
+                          text: mn is ChordSection ? mn.sectionVersion.toString() : mn.toString(),
+                          style: _coloredChordTextStyle,
+                        ),
+                      ),
+                      type: SongCellType.columnFill,
+                      measureNode: mn,
+                    ),
+            );
           }
         }
         break;
@@ -353,7 +407,7 @@ class LyricsTable {
                 _displayChordSection(GridCoordinate(r, c), measureNode as ChordSection, measureNode);
                 break;
               case MeasureNodeType.lyric:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 {
                   var songCellType = _appOptions.userDisplayStyle == UserDisplayStyle.both
                       ? SongCellType.lyric
@@ -377,24 +431,24 @@ class LyricsTable {
                 }
                 break;
               case MeasureNodeType.measure:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 {
                   Measure measure = measureNode as Measure;
                   RichText richText = RichText(
                       text: TextSpan(
-                    text: '($r,$c)', //  diagnostic only!
-                    style: _lyricsTextStyle,
-                  ));
+                        text: '($r,$c)', //  diagnostic only!
+                        style: _lyricsTextStyle,
+                      ));
                   switch (measure.runtimeType) {
                     case MeasureRepeatExtension:
                       if (!expanded) {
                         richText = RichText(
                             text: TextSpan(
-                          text: measure.toString(),
-                          style: _coloredChordTextStyle.copyWith(
-                              fontFamily: appFontFamily,
-                              fontWeight: FontWeight.bold), //  fixme: a font failure workaround
-                        ));
+                              text: measure.toString(),
+                              style: _coloredChordTextStyle.copyWith(
+                                  fontFamily: appFontFamily,
+                                  fontWeight: FontWeight.bold), //  fixme: a font failure workaround
+                            ));
                       }
                       break;
                     case MeasureRepeatMarker:
@@ -446,7 +500,7 @@ class LyricsTable {
                 break;
 
               default:
-                //  color done by prior chord section
+              //  color done by prior chord section
                 _locationGrid.set(
                   r,
                   c,
@@ -496,6 +550,32 @@ class LyricsTable {
         heights[r] = max(heights[r], cell.buildSize.height);
       }
     }
+    switch (_appOptions.userDisplayStyle) {
+      case UserDisplayStyle.banner:
+        //  even up the banner width's
+        var width = 0.0;
+        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+          var row = displayGrid.getRow(r);
+          assert(row != null);
+          row = row!;
+
+          for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+            width = max(width, widths[c]);
+          }
+        }
+        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+          var row = displayGrid.getRow(r);
+          assert(row != null);
+          row = row!;
+
+          for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+            widths[c] = width;
+          }
+        }
+        break;
+      default:
+        break;
+    }
 
     //  discover the overall total width and height
     double arrowIndicatorWidth = _chordFontSizeUnscaled;
@@ -523,8 +603,15 @@ class LyricsTable {
     assert(totalWidth > 0);
     assert(totalHeight > 0);
 
-    //  fit the horizontal by scaling
-    _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
+    switch (_appOptions.userDisplayStyle) {
+      case UserDisplayStyle.banner:
+        break;
+      default:
+        //  fit the horizontal by scaling
+        _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
+        break;
+    }
+
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:
         //  fit everything vertically
@@ -544,7 +631,7 @@ class LyricsTable {
     logger.log(
         _logFontSize,
         'totalWidth: $totalWidth, totalHeight: $totalHeight, screenWidth: $screenWidth'
-        ', scaled width: ${totalWidth * _scaleFactor}');
+            ', scaled width: ${totalWidth * _scaleFactor}');
     if (_scaleFactor < 1.0) {
       //  rescale the grid to fit the window
       _scaleComponents(scaleFactor: _scaleFactor);
@@ -561,10 +648,10 @@ class LyricsTable {
     logger.log(
         _logFontSize,
         'scaled:'
-        ' _chordFontSize: ${_chordFontSizeUnscaled.toStringAsFixed(2)}'
-        ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
-        ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
-        ', padding: ${_paddingSize.toStringAsFixed(2)}');
+            ' _chordFontSize: ${_chordFontSizeUnscaled.toStringAsFixed(2)}'
+            ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
+            ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
+            ', padding: ${_paddingSize.toStringAsFixed(2)}');
     _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : 8;
 
     //  set the location grid sizing
@@ -618,7 +705,7 @@ class LyricsTable {
     logger.log(_logLyricsBuild, 'lyricsBuild: songMoment mapping: ${usTimer.deltaToString()}');
 
     //  box up the children, applying necessary widths and heights
-    {
+        {
       List<Widget> sectionChildren = [];
       LyricSection? lastLyricSection;
       for (var r = 0; r < _locationGrid.getRowCount(); r++) {
@@ -653,14 +740,14 @@ class LyricsTable {
         {
           var firstWidget = (lastLyricSection == lyricSection)
               ? AppSpace(
-                  horizontalSpace: arrowIndicatorWidth * _scaleFactor,
-                )
+            horizontalSpace: arrowIndicatorWidth * _scaleFactor,
+          )
               : LyricSectionCellWidget(
-                  lyricSection: lyricSection!,
-                  width: arrowIndicatorWidth * _scaleFactor,
-                  height: heights[r],
-                  fontSize: _chordFontSizeUnscaled * _scaleFactor,
-                );
+            lyricSection: lyricSection!,
+            width: arrowIndicatorWidth * _scaleFactor,
+            height: heights[r],
+            fontSize: _chordFontSizeUnscaled * _scaleFactor,
+          );
 
           if (r == 0 && _appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
             //  put the first row of pro in a wrap
@@ -695,21 +782,31 @@ class LyricsTable {
     logger.v(_locationGrid.toString());
 
     //  show copyright
-    items.add(Padding(
-      padding: EdgeInsets.all(_lyricsFontSizeUnscaled),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
-          Text(
-            'Copyright: ${song.copyright}',
-            style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled * _scaleFactor),
+    switch (_appOptions.userDisplayStyle) {
+      case UserDisplayStyle.banner:
+        items.add(Text(
+          'Copyright: ${song.copyright}',
+          style: _coloredChordTextStyle,
+        ));
+        break;
+      default:
+        items.add(Padding(
+          padding: EdgeInsets.all(_lyricsFontSizeUnscaled),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
+              Text(
+                'Copyright: ${song.copyright}',
+                style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled * _scaleFactor),
+              ),
+              //  give the scrolling some stuff to scroll the bottom up on
+              AppSpace(verticalSpace: screenHeight / 2),
+            ],
           ),
-          //  give the scrolling some stuff to scroll the bottom up on
-          AppSpace(verticalSpace: screenHeight / 2),
-        ],
-      ),
-    ));
+        ));
+        break;
+    }
 
     logger.log(_logLyricsBuild, 'lyricsBuild: boxing: ${usTimer.deltaToString()}');
 
@@ -719,8 +816,7 @@ class LyricsTable {
   }
 
   /// Transcribe the chord section to a text span, adding Nashville notation when appropriate.
-  TextSpan _chordSectionTextSpan(
-      final ChordSection chordSection, final music_key.Key originalKey, int transpositionOffset,
+  TextSpan _chordSectionTextSpan(final ChordSection chordSection, final music_key.Key originalKey, int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     style = style ?? _coloredChordTextStyle;
 
@@ -790,8 +886,7 @@ class LyricsTable {
   }
 
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
-  TextSpan _measureNashvilleSelectionTextSpan(
-      final Measure measure, final music_key.Key originalKey, int transpositionOffset,
+  TextSpan _measureNashvilleSelectionTextSpan(final Measure measure, final music_key.Key originalKey, int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     style = style ?? _coloredChordTextStyle;
 
@@ -800,7 +895,7 @@ class LyricsTable {
       case NashvilleSelection.off:
       case NashvilleSelection.both:
         var textSpan =
-            _measureTextSpan(measure, originalKey, transpositionOffset, displayMusicKey: displayMusicKey, style: style);
+        _measureTextSpan(measure, originalKey, transpositionOffset, displayMusicKey: displayMusicKey, style: style);
         children.add(TextSpan(text: ' ', style: style));
         children.add(textSpan);
         break;
@@ -839,12 +934,12 @@ class LyricsTable {
         ', black: ${Colors.black}, ==: ${style.color?.value == Colors.black.value}');
     var slashColor = style.color?.value == Colors.black.value ? _slashColor : _fadedSlashColor;
     final TextStyle slashStyle =
-        style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
+    style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
 
     TextStyle chordDescriptorStyle =
-        style.copyWith(fontSize: (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal).copyWith(
-              backgroundColor: style.backgroundColor,
-            );
+    style.copyWith(fontSize: (style.fontSize ?? _chordFontSizeUnscaled), fontWeight: FontWeight.normal).copyWith(
+      backgroundColor: style.backgroundColor,
+    );
 
     //  figure the chord text span
     final List<TextSpan> children = [];
@@ -900,15 +995,14 @@ class LyricsTable {
     );
   }
 
-  TextSpan _nashvilleMeasureTextSpan(
-      final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
+  TextSpan _nashvilleMeasureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     final keyOffset = originalKey.getHalfStep();
 
     style = style ?? _coloredChordTextStyle;
     var slashColor = style.color == Colors.black ? _slashColor : _fadedSlashColor;
     final TextStyle slashStyle =
-        style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
+    style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
 
     TextStyle chordDescriptorStyle = generateChordDescriptorTextStyle(
       fontSize: 0.8 * (style.fontSize ?? _chordFontSizeUnscaled),
@@ -1046,12 +1140,11 @@ enum SongCellType {
 }
 
 class LyricSectionCellWidget extends StatefulWidget {
-  LyricSectionCellWidget(
-      {super.key,
-      required this.lyricSection,
-      required this.width,
-      required this.height,
-      this.fontSize = appDefaultFontSize})
+  LyricSectionCellWidget({super.key,
+    required this.lyricSection,
+    required this.width,
+    required this.height,
+    this.fontSize = appDefaultFontSize})
       : index = lyricSection.index;
 
   @override
@@ -1087,16 +1180,16 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
     logger.log(
         _logLyricSectionCellState,
         '_LyricSectionCellState.childBuilder: run: '
-        '${widget.index}:'
-        ' selected: $selected');
+            '${widget.index}:'
+            ' selected: $selected');
     return SizedBox(
       width: widget.width,
       child: selected
           ? appIcon(
-              Icons.play_arrow,
-              size: widget.fontSize,
-              color: Colors.redAccent,
-            )
+        Icons.play_arrow,
+        size: widget.fontSize,
+        color: Colors.redAccent,
+      )
           : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
   }
@@ -1110,6 +1203,8 @@ class SongCellWidget extends StatefulWidget {
     required this.richText,
     this.type = SongCellType.columnFill,
     this.measureNode,
+    this.lyricSectionIndex,
+    this.lyricSectionSet,
     this.size,
     this.point,
     this.columnWidth,
@@ -1138,7 +1233,7 @@ class SongCellWidget extends StatefulWidget {
       copyOfRichText = RichText(
         key: richText.key,
         text: //  default to one line
-            TextSpan(text: richText.text.toPlainText(), style: richText.text.style),
+        TextSpan(text: richText.text.toPlainText(), style: richText.text.style),
         textScaleFactor: textScaleFactor ?? this.textScaleFactor,
         softWrap: false,
         maxLines: 1,
@@ -1160,6 +1255,8 @@ class SongCellWidget extends StatefulWidget {
       richText: copyOfRichText,
       type: type,
       measureNode: measureNode,
+      lyricSectionIndex: lyricSectionIndex,
+      lyricSectionSet: lyricSectionSet,
       size: size ?? this.size,
       point: point ?? this.point,
       columnWidth: columnWidth ?? this.columnWidth,
@@ -1181,10 +1278,10 @@ class SongCellWidget extends StatefulWidget {
     return (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText,
-                textScaleFactor: textScaleFactor,
-                maxLines: _maxLines,
-                maxWidth: columnWidth ?? app.screenInfo.mediaWidth) +
-            Offset(_paddingSize + 2.0 * _marginSize, 2.0 * _marginSize);
+        textScaleFactor: textScaleFactor,
+        maxLines: _maxLines,
+        maxWidth: columnWidth ?? app.screenInfo.mediaWidth) +
+        Offset(_paddingSize + 2.0 * _marginSize, 2.0 * _marginSize);
   }
 
   Size get buildSize => size ?? _computeBuildSize();
@@ -1199,6 +1296,8 @@ class SongCellWidget extends StatefulWidget {
   final bool? withEllipsis;
   final RichText richText;
   final MeasureNode? measureNode;
+  final int? lyricSectionIndex;
+  final SplayTreeSet<int>? lyricSectionSet;
   final double textScaleFactor;
   final Size? size;
   final double? columnWidth;
@@ -1211,31 +1310,47 @@ class SongCellWidget extends StatefulWidget {
 class _SongCellState extends State<SongCellWidget> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<SongMomentNotifier>(
-      builder: (context, songMomentNotifier, child) {
+    return Consumer2<SongMomentNotifier, LyricSectionNotifier>(
+      builder: (context, songMomentNotifier, lyricSectionNotifier, child) {
         var moment = songMomentNotifier.songMoment;
         var isNowSelected = false;
-        if (moment != null && (widget.selectable ?? true)) {
+
+        if (widget.selectable ?? true) {
           switch (widget.measureNode.runtimeType) {
             case LyricSection:
-              isNowSelected = moment.lyricSection == widget.measureNode;
+              isNowSelected = lyricSectionNotifier.index == widget.lyricSectionIndex;
+              logger.log(
+                  _logLyricSectionCellState,
+                  '_SongCellState: $isNowSelected'
+                  ', ${moment?.lyricSection} == ${widget.measureNode}'
+                  //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
+                  );
               break;
             case ChordSection:
-              isNowSelected = moment.chordSection == widget.measureNode;
+              isNowSelected = widget.lyricSectionSet?.contains(lyricSectionNotifier.index) ?? false;
+              logger.log(
+                  _logLyricSectionCellState,
+                  '_SongCellState: ChordSection: $isNowSelected'
+                  ', ${widget.measureNode}'
+                  ', lyricSectionNotifier.index: ${lyricSectionNotifier.index}'
+                  ', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
+                  //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
+                  );
               break;
             default:
-              isNowSelected = (moment.momentNumber == widget.songMoment?.momentNumber ||
-                  (
-                      //  deal with compressed repeats
-                      !(widget.expanded ?? true) &&
-                          moment.lyricSection == widget.songMoment?.lyricSection &&
-                          moment.phraseIndex == widget.songMoment?.phraseIndex &&
-                          moment.phrase.repeats > 1 &&
-                          widget.songMoment?.measureIndex != null &&
-                          (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+              isNowSelected = moment != null &&
+                  (moment.momentNumber == widget.songMoment?.momentNumber ||
+                      (
+                          //  deal with compressed repeats
+                          !(widget.expanded ?? true) &&
+                              moment.lyricSection == widget.songMoment?.lyricSection &&
+                              moment.phraseIndex == widget.songMoment?.phraseIndex &&
+                              moment.phrase.repeats > 1 &&
+                              widget.songMoment?.measureIndex != null &&
+                              (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
           }
         }
-        logger.v('_SongCellState: songMoment: ${widget.songMoment} vs ${moment?.momentNumber}');
+
         // if (isNowSelected == selected && child != null) {
         //   return child;  fixme for efficiency?
         // }
@@ -1298,11 +1413,11 @@ class _SongCellState extends State<SongCellWidget> {
           padding: _padding,
           foregroundDecoration: selected
               ? BoxDecoration(
-                  border: Border.all(
-                    width: _marginSize,
-                    color: _highlightColor,
-                  ),
-                )
+            border: Border.all(
+              width: _marginSize,
+              color: _highlightColor,
+            ),
+          )
               : null,
           color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
           child: richText,
@@ -1316,11 +1431,11 @@ class _SongCellState extends State<SongCellWidget> {
       padding: _padding,
       foregroundDecoration: selected
           ? BoxDecoration(
-              border: Border.all(
-                width: _marginSize,
-                color: _highlightColor,
-              ),
-            )
+        border: Border.all(
+          width: _marginSize,
+          color: _highlightColor,
+        ),
+      )
           : null,
       color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
       child: richText,

@@ -10,7 +10,6 @@ import 'package:bsteeleMusicLib/songs/ninjam.dart';
 import 'package:bsteeleMusicLib/songs/scaleNote.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/songBase.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
 import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -468,16 +467,27 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       musicKey: _displaySongKey,
       expanded: !compressRepeats,
     );
-    var scrollablePositionedList = ScrollablePositionedList.builder(
-      itemCount: lyricsTableItems.length,
-      itemScrollController: _itemScrollController,
-      itemPositionsListener: playerItemPositionsListener,
-      itemBuilder: (context, index) {
-        return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
-      },
-      scrollDirection: appOptions.userDisplayStyle == UserDisplayStyle.banner ? Axis.horizontal : Axis.vertical,
-      //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
-    );
+    var scrollablePositionedList = appOptions.userDisplayStyle == UserDisplayStyle.banner
+        ? ScrollablePositionedList.builder(
+            itemCount: _song.songMoments.length + 1,
+            itemScrollController: _itemScrollController,
+            itemPositionsListener: playerItemPositionsListener,
+            itemBuilder: (context, index) {
+              return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
+            },
+            scrollDirection: Axis.horizontal,
+            //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
+          )
+        : ScrollablePositionedList.builder(
+            itemCount: lyricsTableItems.length,
+            itemScrollController: _itemScrollController,
+            itemPositionsListener: playerItemPositionsListener,
+            itemBuilder: (context, index) {
+              return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
+            },
+            scrollDirection: Axis.vertical,
+            //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
+          );
 
     return MultiProvider(
         providers: [
@@ -1198,24 +1208,42 @@ With z or q, the app goes back to the play list.''',
 
   /// bump from one section to the next
   sectionBump(int bump) {
-    scrollToLyricSection(_lyricSectionNotifier.index + bump);
+    switch (appOptions.userDisplayStyle) {
+      case UserDisplayStyle.banner:
+        //  banner units are measure
+        var index = Util.indexLimit((_songMomentNotifier.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
+        setSelectedSongMoment(_song.songMoments[index]);
+        _itemScrollTo(index);
+        logger.v('banner bump: $bump to $index: ${_song.songMoments[index]}');
+        break;
+      default:
+        //  units are usually by section
+        scrollToLyricSection(_lyricSectionNotifier.index + bump);
+        break;
+    }
   }
 
   void itemPositionsListener() {
-    logger.v('_isAnimated: $_isAnimated, _isPlaying: $_isPlaying');
-    if (_isAnimated || _isPlaying) {
-      return; //  don't follow scrolling when animated or playing
-    }
-    var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-      return e1.index.compareTo(e2.index);
-    })
-      ..addAll(playerItemPositionsListener.itemPositions.value);
-    if (orderedSet.isNotEmpty) {
-      var item = orderedSet.first;
-      selectLyricSection(item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0));
-      logger.v('playerItemPositionsListener:  length: ${orderedSet.length}'
-          ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
-      logger.v('   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}, ');
+    switch (appOptions.userDisplayStyle) {
+      case UserDisplayStyle.banner:
+        break;
+      default:
+        logger.v('_isAnimated: $_isAnimated, _isPlaying: $_isPlaying');
+        if (_isAnimated || _isPlaying) {
+          return; //  don't follow scrolling when animated or playing
+        }
+        var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+          return e1.index.compareTo(e2.index);
+        })
+          ..addAll(playerItemPositionsListener.itemPositions.value);
+        if (orderedSet.isNotEmpty) {
+          var item = orderedSet.first;
+          selectLyricSection(item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0));
+          logger.v('playerItemPositionsListener:  length: ${orderedSet.length}'
+              ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
+          logger.v('   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}, ');
+        }
+        break;
     }
   }
 
@@ -1237,13 +1265,16 @@ With z or q, the app goes back to the play list.''',
     if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
       return; //  pro's never scroll!
     }
+    _itemScrollTo(index, force: force, priorIndex: priorIndex);
+  }
 
+  _itemScrollTo(int index, {final bool force = false, int? priorIndex}) {
     if (_itemScrollController.isAttached) {
       //  local scroll
       _isAnimated = true;
       var duration = force
           ? const Duration(milliseconds: 20)
-          : index >= priorIndex
+          : index >= (priorIndex ?? 0)
               ? const Duration(milliseconds: 1400)
               : const Duration(milliseconds: 400);
       _itemScrollController

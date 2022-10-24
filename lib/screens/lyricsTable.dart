@@ -10,7 +10,6 @@ import 'package:bsteeleMusicLib/songs/lyric.dart';
 import 'package:bsteeleMusicLib/songs/lyricSection.dart';
 import 'package:bsteeleMusicLib/songs/measure.dart';
 import 'package:bsteeleMusicLib/songs/measureNode.dart';
-import 'package:bsteeleMusicLib/songs/measureRepeat.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatExtension.dart';
 import 'package:bsteeleMusicLib/songs/measureRepeatMarker.dart';
 import 'package:bsteeleMusicLib/songs/nashvilleNote.dart';
@@ -50,6 +49,7 @@ get it right next time:  repeats in measure column
 const Level _logFontSize = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
+const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
 
 const double _paddingSizeMax = 5; //  fixme: can't be 0
@@ -59,6 +59,7 @@ const double _marginSizeMax = 4; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _highlightColor = Colors.redAccent;
+const _defaultMaxLines = 8;
 var _maxLines = 1;
 
 ///  The trick of the game: Figure the text size prior to boxing it
@@ -68,13 +69,13 @@ Size _computeRichTextSize(
   int? maxLines,
   double? maxWidth,
 }) {
-  logger.v('_computeRichTextSize: textScaleFactor: $textScaleFactor, maxWidth: $maxWidth');
   TextPainter textPainter = TextPainter(
     text: richText.text,
     textDirection: TextDirection.ltr,
     maxLines: maxLines ?? _maxLines,
     textScaleFactor: textScaleFactor,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
+  logger.v('_computeRichTextSize: textScaleFactor: $textScaleFactor, maxWidth: $maxWidth, size: ${textPainter.size}');
   return textPainter.size;
 }
 
@@ -108,19 +109,6 @@ class LyricSectionNotifier extends ChangeNotifier {
 
 /// compute a lyrics table
 class LyricsTable {
-  // Widget lyricsTable(
-  //   Song song,
-  //   BuildContext context, {
-  //   music_key.Key? musicKey,
-  //   expanded = false,
-  // }) {
-  //   switch (_appOptions.userDisplayStyle) {
-  //     case UserDisplayStyle.banner:
-  //       return Row(children: lyricsTableItems(song, context, musicKey: musicKey, expanded: true));
-  //     default:
-  //       return Column(children: lyricsTableItems(song, context, musicKey: musicKey, expanded: expanded));
-  //   }
-  // }
 
   List<Widget> lyricsTableItems(
     Song song,
@@ -367,7 +355,7 @@ class LyricsTable {
                   banner.index,
                   momentNumber,
                   chordSection == null
-                      ? null
+                      ? SongCellWidget.empty()
                       : SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -375,7 +363,7 @@ class LyricsTable {
                               style: _coloredChordTextStyle,
                             ),
                           ),
-                          type: SongCellType.columnFill,
+                          type: SongCellType.columnMinimum,
                           measureNode: mn,
                         ),
                 );
@@ -386,7 +374,7 @@ class LyricsTable {
                   banner.index,
                   momentNumber,
                   marker == null
-                      ? null
+                      ? SongCellWidget.empty()
                       : SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -394,7 +382,7 @@ class LyricsTable {
                               style: _coloredLyricTextStyle,
                             ),
                           ),
-                          type: SongCellType.columnFill,
+                          type: SongCellType.columnMinimum,
                           measureNode: mn,
                         ),
                 );
@@ -405,7 +393,7 @@ class LyricsTable {
                   banner.index,
                   momentNumber,
                   lyric == null
-                      ? null
+                      ? SongCellWidget.empty()
                       : SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -423,7 +411,7 @@ class LyricsTable {
                   banner.index,
                   momentNumber,
                   mn == null
-                      ? null
+                      ? SongCellWidget.empty()
                       : SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -606,28 +594,76 @@ class LyricsTable {
         heights[r] = max(heights[r], cell.buildSize.height);
       }
     }
+    logger.log(_logHeights, 'heights: $heights');
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
         //  even up the banner width's
         var width = 0.0;
-        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+        var r = BannerColumn.chords.index;
+        var row = _locationGrid.getRow(r);
+        assert(row != null);
+        row = row!;
+
+        for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+          width = max(width, row[c]!.buildSize.width);
+        }
+
+        if (width < app.screenInfo.mediaWidth / 5) {
+          width = app.screenInfo.mediaWidth / 5;
+        }
+
+        for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+          widths[c] = width;
+        }
+
+        //  even all the banner lyric widths
+        _maxLines = _defaultMaxLines;
+        {
+          int r = BannerColumn.lyrics.index;
           var row = displayGrid.getRow(r);
           assert(row != null);
           row = row!;
 
           for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-            width = max(width, widths[c]);
+            var cell = _locationGrid.get(r, c);
+            if (cell != null) {
+              _locationGrid.set(r, c, cell.copyWith(columnWidth: width));
+            }
           }
         }
-        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+
+        //  re-compute max lyric height after width change
+        double height = app.screenInfo.fontSize; //  safety
+        {
+          int r = BannerColumn.lyrics.index;
           var row = displayGrid.getRow(r);
           assert(row != null);
           row = row!;
 
           for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-            widths[c] = width;
+            var cell = _locationGrid.get(r, c);
+            if (cell != null) {
+              height = max(height, cell.computedBuildSize.height);
+              logger.log(
+                  _logHeights,
+                  'banner computedBuildSize: ${cell.computedBuildSize}'
+                  ', columnWidth: ${cell.columnWidth}');
+            }
+          }
+          logger.log(_logHeights, 'banner new height: $height');
+
+          //  apply the new height
+          heights[r] = height;
+          for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+            var cell = _locationGrid.get(r, c);
+            if (cell != null) {
+              _locationGrid.set(r, c, cell.copyWith(size: Size(cell.buildSize.width, height)));
+            }
           }
         }
+
+        logger.log(_logHeights, 'banner widths: $widths');
+        logger.log(_logHeights, 'banner heights: $heights');
         break;
       default:
         break;
@@ -661,6 +697,7 @@ class LyricsTable {
 
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
+        _scaleFactor = 0.65;
         break;
       default:
         //  fit the horizontal by scaling
@@ -699,6 +736,7 @@ class LyricsTable {
         heights[i] = heights[i] * _scaleFactor;
       }
     }
+    logger.log(_logHeights, 'scaled heights: $heights');
     logger.log(_logFontSize, 'scaled widths.last: ${widths.last}');
     logger.log(_logFontSize, 'scaled widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
     logger.log(
@@ -733,17 +771,17 @@ class LyricsTable {
                 break;
             }
 
-            _locationGrid.set(
-              r,
-              c,
-              cell.copyWith(textScaleFactor: _scaleFactor, columnWidth: width, point: Point(x, y)),
-            );
+            cell = cell.copyWith(textScaleFactor: _scaleFactor, columnWidth: width, point: Point(x, y));
+            _locationGrid.set(r, c, cell);
+            // logger.log(_logHeights, 'heights: ${heights[r]} vs ${cell.buildSize.height}');
+            heights[r] = max(heights[r], cell.buildSize.height); //  for banner mode
           }
           x += widths[c] + xMargin;
         }
         y += heights[r] + yMargin;
       }
     }
+
     logger.log(_logLyricsBuild, 'lyricsBuild: scaling: ${usTimer.deltaToString()}');
 
     List<Widget> items = [];
@@ -765,21 +803,25 @@ class LyricsTable {
         //  box up the children, applying necessary widths and heights
         {
           for (var c = 0; c < song.songMoments.length; c++) {
-            List<Widget> columnChildren = [];
+            List<SongCellWidget> columnChildren = [];
             for (var r = 0; r < BannerColumn.values.length; r++) {
-              Widget child;
               var cell = _locationGrid.get(r, c);
-              if (cell == null) {
-                child = AppSpace(
-                  verticalSpace: heights[r] + xMargin,
-                );
-              } else {
-                child = cell;
-              }
-              columnChildren.add(child);
+              assert(cell != null);
+              columnChildren.add(cell!.copyWith(size: Size(widths[c], heights[r])));
             }
-            Widget columnWidget = Column(children: columnChildren);
+            Widget columnWidget = Column(crossAxisAlignment: CrossAxisAlignment.start, children: columnChildren);
+            logger.i('banner columnChildren: ${columnChildren.map((c) => c.size)}');
             items.add(columnWidget);
+          }
+        }
+        logger.log(_logHeights, 'banner scaled heights: $heights');
+
+        for (var c = 0; c < song.songMoments.length; c++) {
+          for (var r = 0; r < BannerColumn.values.length; r++) {
+            var cell = _locationGrid.get(r, c);
+            // logger.i( 'banner cell: ($r,$c): $cell');
+            // assert(cell != null );
+            if (cell != null) {}
           }
         }
         break;
@@ -836,6 +878,7 @@ class LyricsTable {
               } else {
                 rowWidget = Row(children: [firstWidget, ...rowChildren]);
               }
+              // logger.v('rowChildren: $rowChildren');
             }
 
             if (lastLyricSection != lyricSection) {
@@ -1302,6 +1345,22 @@ class SongCellWidget extends StatefulWidget {
     this.selectable,
   });
 
+  SongCellWidget.empty({
+    super.key,
+    this.type = SongCellType.columnFill,
+    this.measureNode,
+    this.lyricSectionIndex,
+    this.lyricSectionSet,
+    this.size,
+    this.point,
+    this.columnWidth,
+    this.withEllipsis,
+    this.textScaleFactor = 1.0,
+    this.songMoment,
+    this.expanded,
+    this.selectable,
+  }) : richText = _emptyRichText;
+
   // : richText = RichText(key: richText.key,
   //         text: TextSpan(text: '${richText.text} nash', style: richText.text.style, ),
   //         textScaleFactor: textScaleFactor,
@@ -1349,7 +1408,7 @@ class SongCellWidget extends StatefulWidget {
       columnWidth: columnWidth ?? this.columnWidth,
       withEllipsis: withEllipsis,
       textScaleFactor: textScaleFactor ?? this.textScaleFactor,
-      songMoment: songMoment,
+      songMoment: songMoment ?? this.songMoment,
       expanded: expanded,
       selectable: selectable,
     );
@@ -1361,7 +1420,8 @@ class SongCellWidget extends StatefulWidget {
   }
 
   ///  efficiency compromised for const StatelessWidget song cell
-  Size _computeBuildSize() {
+  Size get computedBuildSize {
+    //logger.i('computedBuildSize: columnWidth: $columnWidth, $_maxLines');
     return (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText,
@@ -1371,7 +1431,7 @@ class SongCellWidget extends StatefulWidget {
             Offset(_paddingSize + 2.0 * _marginSize, 2.0 * _marginSize);
   }
 
-  Size get buildSize => size ?? _computeBuildSize();
+  Size get buildSize => size ?? computedBuildSize;
 
   @override
   String toString({DiagnosticLevel? minLevel}) {
@@ -1392,6 +1452,9 @@ class SongCellWidget extends StatefulWidget {
   final SongMoment? songMoment;
   final bool? expanded;
   final bool? selectable;
+  static final _emptyRichText = RichText(
+    text: const TextSpan(text: ''),
+  );
 }
 
 class _SongCellState extends State<SongCellWidget> {
@@ -1449,14 +1512,14 @@ class _SongCellState extends State<SongCellWidget> {
   }
 
   Widget childBuilder(BuildContext context) {
-    Size buildSize = widget._computeBuildSize();
-    var maxWidth = max(widget.columnWidth ?? buildSize.width, (widget.size?.width ?? 0));
-    double width = maxWidth;
+    Size buildSize = widget.computedBuildSize;
+    double width = 10; //  safety only
     switch (widget.type) {
       case SongCellType.columnMinimum:
         width = buildSize.width;
         break;
       default:
+        width = widget.columnWidth ?? buildSize.width;
         break;
     }
     // if (widget.type == SongCellType.lyric) {
@@ -1490,7 +1553,7 @@ class _SongCellState extends State<SongCellWidget> {
 
       return Container(
         alignment: Alignment.topLeft,
-        width: maxWidth,
+        width: width,
         height: buildSize.height,
         color: color,
         margin: _margin,
@@ -1511,9 +1574,10 @@ class _SongCellState extends State<SongCellWidget> {
         ),
       );
     }
+
     return Container(
-      width: maxWidth,
-      height: buildSize.height,
+      width: width,
+      height: widget.size?.height ?? buildSize.height,
       margin: _margin,
       padding: _padding,
       foregroundDecoration: selected

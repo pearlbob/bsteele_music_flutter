@@ -115,6 +115,12 @@ in bsteele_music_flutter/android/app/src/main/AndroidManifest.xml:
   ...
   <uses-permission android:name="android.permission.INTERNET"/>
 </manifest...>
+
+mac size fix:
+globally change:
+width="800" height="600"
+to
+width="1280" height="720"
  */
 
 //  diagnostic logging enables

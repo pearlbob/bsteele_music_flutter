@@ -134,7 +134,7 @@ Song attributes for songs are be written as a JSON object with the following nam
         'The application may adjust their presentation\n'
         '''# Chord Markup Language
 The chord markup language typically has a format of:
->    (section version? ':' measure*)+
+> (section version? ':' measure*)+
 
 Measures need to be separated from each other by whitespace.
 There are exceptions for repeats as described below.
@@ -164,6 +164,7 @@ Section versions can be identified by a single digit ( 1 - 9 )
 Sections without a version id will be considered an additional section.
 
 # Measures
+
 Measures are collections of chords meant to be played within the beats
  defined by the time signature. They are separated by whitespace.
 Chords not separated by whitespace are meant to be played within the same measure of time.
@@ -171,7 +172,7 @@ Chords not separated by whitespace are meant to be played within the same measur
 
 Chords are in the form of:
 
->       scaleNote chordDescriptor
+> scaleNote chordDescriptor
 
 A scaleNote is one of:
  A, A♯, B, C, C♯, D, D♯, E, F, F♯, G, G♯, G♭, E♭, D♭, B♭, A♭, C♭, E♯, B♯, F♭.
@@ -243,7 +244,7 @@ The multi-line separator bar '|' should not be used.
 
 For example:
 
->        V: D C G G [ D C D D G B D C] x4 B G C G
+> V: D C G G [ D C D D G B D C] x4 B G C G
 
 # Multiline Repeats
 If a measure line ends with a vertical bar '|' it will be included with the following line
@@ -255,7 +256,7 @@ and retired in favor of the bracketed format.
 Lyric Markup Language
 The lyric markup language is of the form:
 
->        sectionVersion: lyrics
+> sectionVersion: lyrics
 
 The sectionVersion is to be the sectionVersion name or abbreviated name as defined above.
 Section versions used in the lyrics should be defined in the chords.

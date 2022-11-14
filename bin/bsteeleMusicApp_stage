@@ -49,7 +49,7 @@ gcloud --quiet components update
 #	test
 cd $git
 flutter test test
-if ( $status != 0 ) exit -1
+if ( $status != 0 ) echo test status: $status
 
 #	beta to local static host
 set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor

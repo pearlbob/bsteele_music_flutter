@@ -35,7 +35,7 @@ BsteeleMusicApp Singer Requester Lesson
 ## Motivation:
 
 When Community Jams went singer centric, I was frustrated as only a player that I
-didn’t get to request songs any more. I created a requester role that suggests
+didn’t get to request songs anymore. I created a requester role that suggests
 songs the current singers might sing.
 
 ## Functionality:

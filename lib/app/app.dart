@@ -309,6 +309,12 @@ class App {
     });
   }
 
+  @override
+  String toString() {
+    return 'App{screenInfo: $screenInfo, isPhone: $isPhone'
+        ', _selectedSong: $_selectedSong, _selectedMomentNumber: $_selectedMomentNumber}';
+  }
+
   //  an experiment
   // clearWidgets() {
   //   _widgetMap.clear();

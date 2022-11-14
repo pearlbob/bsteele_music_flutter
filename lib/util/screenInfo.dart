@@ -46,6 +46,13 @@ class ScreenInfo {
     _fontSize = 16;
   }
 
+  @override
+  String toString() {
+    return 'ScreenInfo{_fontSize: $_fontSize, _mediaWidth: $_mediaWidth'
+        ', _mediaHeight: $_mediaHeight, _isTooNarrow: $_isTooNarrow'
+        ', _isWayTooNarrow: $_isWayTooNarrow, _titleScaleFactor: $_titleScaleFactor}';
+  }
+
   /// Computed optimal font size.
   double get fontSize => _fontSize;
   late double _fontSize;

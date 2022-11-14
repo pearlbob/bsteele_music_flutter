@@ -11,7 +11,13 @@
     </script>
     <!-- offline workaround	-->
     <script type="application/javascript">
-        console.log("host: " + window.location.host);
+
+        if (window.location.hash.length > 0) {
+            //  strip the hash to protect flutter from reentrancy
+            window.location.replace(window.location.href.substring(0,
+                window.location.href.length - window.location.hash.length));
+        }
+
         window.flutterConfiguration = {
             canvasKitBaseUrl: window.location.host.includes(":8080")
             || window.location.host.includes("www.bsteele.com") //  beta as well

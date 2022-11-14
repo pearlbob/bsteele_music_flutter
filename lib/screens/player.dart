@@ -926,7 +926,7 @@ With z or q, the app goes back to the play list.''',
                                         ),
                                       ),
                                     Text(
-                                      '${_song.timeSignature.beatsPerBar} beats per measure',
+                                      'Beats: ${_song.timeSignature.beatsPerBar}',
                                       style: headerTextStyle,
                                       softWrap: false,
                                     ),
@@ -1703,7 +1703,6 @@ With z or q, the app goes back to the play list.''',
                               ),
                             ]),
                             //  banner
-                            if (kDebugMode)
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.banner,
@@ -2148,7 +2147,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                     Text(
                       'Key $_selectedSongKey'
                       '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
-                      '    ${_song.timeSignature.beatsPerBar} beats per measure'
+                      '    Beats: ${_song.timeSignature.beatsPerBar}'
                       '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                       '  ', //  padding at the end
                       style: generateAppTextStyle(

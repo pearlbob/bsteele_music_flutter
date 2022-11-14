@@ -15,7 +15,7 @@ publish_to: none
 version: 0.0.2+3
 
 environment:
-  sdk: ^2.18.2
+  sdk: ^2.18.4
 
 dependencies:
   flutter:
@@ -23,7 +23,7 @@ dependencies:
   filesystem_picker:
   logger:
   shared_preferences:
-  url_launcher:
+  url_launcher: ^6.1.6  # fixme: why is this required?
   intl:
   path_provider:
   flutter_markdown:

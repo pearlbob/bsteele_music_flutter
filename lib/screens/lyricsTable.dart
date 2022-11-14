@@ -810,7 +810,7 @@ class LyricsTable {
               columnChildren.add(cell!.copyWith(size: Size(widths[c], heights[r])));
             }
             Widget columnWidget = Column(crossAxisAlignment: CrossAxisAlignment.start, children: columnChildren);
-            logger.i('banner columnChildren: ${columnChildren.map((c) => c.size)}');
+            logger.v('banner columnChildren: ${columnChildren.map((c) => c.size)}');
             items.add(columnWidget);
           }
         }

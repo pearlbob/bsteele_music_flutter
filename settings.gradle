@@ -8,4 +8,4 @@ include ':bsteelemusicflutter'
  * in the user manual at https://docs.gradle.org/5.4.1/userguide/multi_project_builds.html
  */
 
-rootProject.name = 'bsteeleMusicFlutter'
+rootProject.name = 'bsteele_music_flutter'

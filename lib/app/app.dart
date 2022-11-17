@@ -184,6 +184,7 @@ class App {
     logger.v('addSong( ${song.toString()} )');
     _allSongs.remove(song); // any prior version of same song
     _allSongs.add(song);
+    SongMetadata.generateDecade(song);
     selectedSong = song;
   }
 
@@ -197,6 +198,7 @@ class App {
   /// Remove all songs from the master song list
   void removeAllSongs() {
     _allSongs.clear();
+    SongMetadata.clear();
     selectedSong = _emptySong;
   }
 

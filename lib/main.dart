@@ -671,15 +671,15 @@ class MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-        if (kDebugMode)
-          TextButton(
-              onPressed: () {
-                testAppKeyCallbacks();
-              },
-              child: Text(
-                'test',
-                style: _titleTextStyle,
-              )),
+        // if (kDebugMode)
+        //   TextButton(
+        //       onPressed: () {
+        //         testAppKeyCallbacks();
+        //       },
+        //       child: Text(
+        //         'test',
+        //         style: _titleTextStyle,
+        //       )),
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
         PlayList(
@@ -736,7 +736,7 @@ class MyHomePageState extends State<MyHomePage> {
                       style: TextStyle(fontSize: 22),
                     ),
                     const AppSpace(),
-                    appButton('Send me to the real version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
+                    appButton('Send me to the release version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
                       var s = uri.toString();
                       s = s.substring(0, s.indexOf('beta'));
                       openLink(

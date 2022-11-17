@@ -51,6 +51,7 @@ const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
+const Level _logChildBuilder = Level.debug;
 
 const double _paddingSizeMax = 5; //  fixme: can't be 0
 double _paddingSize = _paddingSizeMax;
@@ -1501,9 +1502,10 @@ class _SongCellState extends State<SongCellWidget> {
           }
         }
 
-        // if (isNowSelected == selected && child != null) {
-        //   return child;  fixme for efficiency?
-        // }
+        // for efficiency
+        if (isNowSelected == selected && child != null) {
+          return child;
+        }
         selected = isNowSelected;
         return childBuilder(context);
       },
@@ -1512,6 +1514,7 @@ class _SongCellState extends State<SongCellWidget> {
   }
 
   Widget childBuilder(BuildContext context) {
+    logger.log(_logChildBuilder, 'builder: ${widget.songMoment?.momentNumber}: ${widget.richText.text.toPlainText()}');
     Size buildSize = widget.computedBuildSize;
     double width = 10; //  safety only
     switch (widget.type) {
@@ -1563,11 +1566,11 @@ class _SongCellState extends State<SongCellWidget> {
           padding: _padding,
           foregroundDecoration: selected
               ? BoxDecoration(
-                  border: Border.all(
-                    width: _marginSize,
-                    color: _highlightColor,
-                  ),
-                )
+            border: Border.all(
+              width: _marginSize,
+              color: _highlightColor,
+            ),
+          )
               : null,
           color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
           child: richText,
@@ -1582,11 +1585,11 @@ class _SongCellState extends State<SongCellWidget> {
       padding: _padding,
       foregroundDecoration: selected
           ? BoxDecoration(
-              border: Border.all(
-                width: _marginSize,
-                color: _highlightColor,
-              ),
-            )
+        border: Border.all(
+          width: _marginSize,
+          color: _highlightColor,
+        ),
+      )
           : null,
       color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
       child: richText,

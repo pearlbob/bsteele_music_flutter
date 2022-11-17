@@ -19,6 +19,10 @@
 * player: in pause, reposition play with up/down arrows or scroll, continue from new location with space bar hit
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 
+### Fixme
+
+* generate decade after editing
+
 ## Completed
 
 * browser reload on subsequent pages

@@ -19,7 +19,7 @@ class SongMaster extends ChangeNotifier {
   }
 
   SongMaster._internal() {
-    _ticker = Ticker((duration) {
+    _ticker = Ticker((elapsed) {
       double time = _appAudioPlayer.getCurrentTime();
       double dt = time - _lastTime;
 
@@ -30,7 +30,7 @@ class SongMaster extends ChangeNotifier {
             _songStart = time - (_song?.getSongTimeAtMoment(_momentNumber!) ?? 0);
           }
         } else if (_isPlaying) {
-          double songTime = time - (_songStart ?? 0);
+          double songTime = time - (_songStart ?? 0) - (60.0 / _song!.beatsPerMinute).floor();
           int? newMomentNumber = _song!.getSongMomentNumberAtSongTime(songTime);
           if (newMomentNumber == null) {
             _momentNumber = null;
@@ -44,14 +44,15 @@ class SongMaster extends ChangeNotifier {
           } else {
             if (newMomentNumber != _momentNumber) {
               _momentNumber = newMomentNumber;
-              if (_drumParts != null) {
-                _playDrumParts(time, _bpm, _drumParts!); //fixme: one moment late?
+              if (_drumParts != null && _momentNumber != null) {
+                _playDrumParts((_songStart ?? 0) + _song!.getSongTimeAtMoment(_momentNumber!), _bpm,
+                    _drumParts!); //fixme: one moment late?
               }
               logger.log(
                   _songMasterLogTicker,
-                  //   'songTime: ${songTime.toStringAsFixed(3)}'
+                  'songTime: ${songTime.toStringAsFixed(3)}'
                   'time: ${time.toStringAsFixed(3)}'
-                  ', dt: ${dt.toStringAsFixed(3)}'
+                  //  ', dt: ${dt.toStringAsFixed(3)}'
                   ', moment: ${newMomentNumber.toString()}');
               notifyListeners();
             }
@@ -65,7 +66,7 @@ class SongMaster extends ChangeNotifier {
         notifyListeners();
       }
 
-      if (dt > 0.04) {
+      if (dt > 0.2) {
         logger.log(_songMasterLogTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
       }
       _lastTime = time;
@@ -116,9 +117,13 @@ class SongMaster extends ChangeNotifier {
       for (var timing in drumPart.timings(time, bpm)) {
         logger.log(
             _songMasterLogTicker,
-            'beat: ${drumPart.drumType}: '
-            ', time: $time, timing: $timing'
-            ', path: $filePath');
+            'beat: ${drumPart.drumType.name}: '
+            ' time: $time'
+            ', timing: $timing'
+            // ', path: $filePath'
+            ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
+            //
+            );
         _appAudioPlayer.play(filePath,
             when: timing,
             duration: 0.25, //fixme: temp

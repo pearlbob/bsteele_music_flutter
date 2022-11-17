@@ -57,7 +57,7 @@ set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
 # 
 echo test the library
 cd $bsteeleMusicLib/bsteele_music_lib
-dart test >& /dev/null
+flutter test >& /dev/null
 if ( $status != 0 ) exit -1
 cd $git
 

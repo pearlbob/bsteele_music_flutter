@@ -3105,7 +3105,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1667796685958, "song": 
+{ "file": "", "lastModifiedDate": 1667796685958, "song": 
 {
 "title": "Alive and Kicking",
 "artist": "Simple Minds",
@@ -3385,7 +3385,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1667975534515, "song": 
+{ "file": "", "lastModifiedDate": 1667975534515, "song": 
 {
 "title": "All Day and All of the Night",
 "artist": "Kinks, The",
@@ -34350,12 +34350,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1652848419196, "song": 
+{ "file": "", "lastModifiedDate": 1668756115218, "song": 
 {
 "title": "Down by the Water",
 "artist": "Decemberists, The",
 "user": "Shari",
-"lastModifiedDate": 1652848419196,
+"lastModifiedDate": 1668756115218,
 "copyright": "2010 Capitol",
 "key": "G",
 "defaultBpm": 122,
@@ -34363,6 +34363,7 @@
 "chords": 
     [
 	"I:",
+	"X X",
 	"C Em C EmD",
 	"I2:",
 	"Em G D C",
@@ -34382,7 +34383,8 @@
     ],
 "lyrics": 
     [
-	"i: (instrumental) original G harp",
+	"i: ",
+	"(instrumental harmonica riff) original G harp",
 	"v:",
 	"See this ancient riverbed",
 	"See where all our follies are led",
@@ -34401,6 +34403,7 @@
 	"Down by the water and down by the old main drag",
 	"",
 	"i:",
+	"(instrumental harmonica riff)",
 	"",
 	"v:",
 	"Sweet descend this rabble round",
@@ -34420,7 +34423,7 @@
 	"Down by the water and down by the old main drag",
 	"",
 	"i:",
-	"(instrumental)",
+	"(instrumental harmonica riff)",
 	"",
 	"i2:",
 	"(instrumental)",
@@ -34428,6 +34431,7 @@
 	"pc:",
 	"The season rubs me wrong",
 	"The summer swells anon",
+	"",
 	"c:",
 	"So knock me down, tear me up but I would",
 	"Bear it all broken just to fill my cup",
@@ -35197,7 +35201,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1668134698969, "song": 
+{ "file": "", "lastModifiedDate": 1668134698969, "song": 
 {
 "title": "Drive",
 "artist": "Cars, The",
@@ -53335,7 +53339,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1667806834377, "song": 
+{ "file": "", "lastModifiedDate": 1667806834377, "song": 
 {
 "title": "Here I Go Again",
 "artist": "Whitesnake",
@@ -55483,7 +55487,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1668317917771, "song": 
+{ "file": "", "lastModifiedDate": 1668317917771, "song": 
 {
 "title": "Hold the Line",
 "artist": "TOTO",
@@ -70769,7 +70773,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1668291771192, "song": 
+{ "file": "", "lastModifiedDate": 1668291771192, "song": 
 {
 "title": "Just Remember I Love You",
 "artist": "Firefall",
@@ -71056,6 +71060,150 @@
 	"Phew, for a minute there I lost myself, I lost myself",
 	"",
 	"O: (instrumental)"
+    ]
+}
+},
+{ "file": "Kashmir (5) (1).songlyrics", "lastModifiedDate": 1668734669293, "song": 
+{
+"title": "Kashmir - 2",
+"artist": "Led Zeppelin",
+"user": "Unknown",
+"lastModifiedDate": 1668734669293,
+"copyright": "1975 Swan Song Records",
+"key": "D",
+"defaultBpm": 81,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"D5.. Bb.. Bm.. Csus2.. x2",
+	"I1:",
+	"GDFCDA CGBbFBm GDFCDA CGBbFBm",
+	"I2:",
+	"Bb. Bm.. Csus2..",
+	"I3:",
+	"GDFCDA CGBbFBmX",
+	"V:",
+	"D5.. Bb.. Bm.. Csus2.. x2",
+	"C:",
+	"G5 G5 A5 A5 x5",
+	"B:",
+	"A5 A5 A5 A5 x5",
+	"O:",
+	"G5 G5 A5 A5 x10",
+	"G5"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental strings 3/4) NOTE: drums stay 4/4",
+	"",
+	"V:",
+	"Oh let the sun beat down upon my face ",
+	"With stars to fill my dream",
+	"I am a traveler of both time and space ",
+	"To be where I have been",
+	"",
+	"V:",
+	"Sit with elders of the gentle race",
+	"This world has seldom seen",
+	"Talk of days for which they sit and wait",
+	"And all will be revealed",
+	"",
+	"I1:",
+	"(orchestral stabs 4/4)",
+	"",
+	"I2:",
+	"(instrumental strings 2 beats then 3/4)",
+	"",
+	"V:",
+	"Talk and song from tongues of lilting grace",
+	"Sounds caress my ear ",
+	"But not a word I heard could I relate",
+	"The story was quite clear ",
+	"",
+	"I:",
+	"Whoa",
+	"Whoa",
+	"",
+	"I1:",
+	"(orchestral stabs 4/4)",
+	"",
+	"I2:",
+	"(instrumental strings 2 beats then 3/4)",
+	"",
+	"I3:",
+	"(orchestral stabs 4/4 plus 1+e beat)",
+	"",
+	"B:",
+	"(instrumental stabs, 4/4)...Oooh..baby, I been ",
+	"Flying...no yeah, mama",
+	"There ain't no denying",
+	"Oooh, yeah, I've been flying",
+	"Mama, mama, ain't no denying, no denying",
+	"",
+	"I1:",
+	"(orchestral stabs 4/4)",
+	"",
+	"C:",
+	"(4/4) All I see turns to brown",
+	"As the sun burns the ground",
+	"And my eyes fill with sand",
+	"As I scan this wasted land",
+	"Trying to find, trying to find where I've been",
+	"",
+	"I:",
+	"(instrumental strings 3/4)",
+	"",
+	"V:",
+	"Pilot of the storm who leaves no trace",
+	"Like thoughts inside a dream",
+	"Heed the path that led me to that place",
+	"Yellow desert stream",
+	"",
+	"V:",
+	"My Shangri-La beneath the summer moon",
+	"I will return again",
+	"Sure as the dust that floats high in June",
+	"When movin' through Kashmir",
+	"",
+	"I1:",
+	"(orchestral stabs 4/4)",
+	"",
+	"I2:",
+	"(instrumental strings 2 beats then 3/4)",
+	"",
+	"V:",
+	"Oh father of the four winds, fill my sails",
+	"Across the sea of years",
+	"With no provision but an open face",
+	"Along the straits of fear",
+	"",
+	"I:",
+	"Whoa",
+	"Whoa",
+	"",
+	"I1:",
+	"(orchestral stabs 4/4)",
+	"",
+	"I2:",
+	"(instrumental strings 2 beats then 3/4)",
+	"",
+	"I1:",
+	"(orchestral stabs 4/4)",
+	"",
+	"O:",
+	"When I'm on, when I'm on my way",
+	"When I see, when I see the way, you stay",
+	"-",
+	"-",
+	"Ooh yeah, when I'm down",
+	"Ooh yeah, when I'm down, so down",
+	"Ooh, my baby, ooh, my baby, let me take you there",
+	"-",
+	"Come on, oh, let me take you there, let me take you there",
+	"Ooh yeah, ooh yeah",
+	""
     ]
 }
 },
@@ -89283,7 +89431,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1667969866188, "song": 
+{ "file": "", "lastModifiedDate": 1667969866188, "song": 
 {
 "title": "My Life",
 "artist": "Billy Joel",
@@ -95675,7 +95823,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1668394297404, "song": 
+{ "file": "", "lastModifiedDate": 1668394297404, "song": 
 {
 "title": "Overpass Graffiti",
 "artist": "Ed Sheeran",
@@ -114982,12 +115130,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1667804330417, "song": 
+{ "file": "", "lastModifiedDate": 1668756262235, "song": 
 {
 "title": "Sledgehammer",
 "artist": "Peter Gabriel",
 "user": "Shari",
-"lastModifiedDate": 1667804330417,
+"lastModifiedDate": 1668756262235,
 "copyright": "1986 Charisma, Virgin, Geffen",
 "key": "Eb",
 "defaultBpm": 96,
@@ -115010,9 +115158,13 @@
 	"Eb7 Eb7 Eb7 Eb7 x2",
 	"C:",
 	"Cm7Db.. Fm Cm7Db.. Fm x2",
-	"O:",
-	"Eb5 Eb5 B Ab7 x10",
-	"Eb5"
+	"O1:",
+	"Eb5 Eb5 B Ab7 x4",
+	"O2:",
+	"Eb5 Eb5 B Ab7 x4",
+	"O3:",
+	"Eb5 Eb5 B Ab7 x4",
+	"Eb"
     ],
 "lyrics": 
     [
@@ -115071,7 +115223,7 @@
 	"(instrumental riff)",
 	"I get it right",
 	"",
-	"O:",
+	"O1:",
 	"I've kicked the habit (kicked the habit, kicked the habit)",
 	"Shed my skin (shed my skin)",
 	"This is the new stuff (this is the new stuff), I go",
@@ -115080,10 +115232,14 @@
 	"Show for you (show for you)",
 	"Show for me (show for me) I will ",
 	"Show for you, yeah yeah yeah yeah yeah yeah I do mean ",
+	"",
+	"O2:",
 	"You (show for me) only you, you've been coming ",
 	"Through (show for you) going to build that power build, build up that ",
 	"Power (show for me) come on, come on help me do, come on come on ",
 	"Help me (show for you) yeah yeah yeah yeah yeah yeah yeah yeah",
+	"",
+	"O3:",
 	"You (show for me) I've been feeding the rhythm, I've been feeding the",
 	"Rhythm (show for you) it's what we're doing, all day and ",
 	"Night (show for me) come on, come on, help me do"
@@ -116029,12 +116185,12 @@
     ]
 }
 },
-{ "file": "Solsbury Hill.songlyrics", "lastModifiedDate": 1655700738544, "song": 
+{ "file": "Solsbury Hill.songlyrics", "lastModifiedDate": 1668756651504, "song": 
 {
 "title": "Solsbury Hill",
 "artist": "Peter Gabriel",
 "user": "Shari",
-"lastModifiedDate": 1655700738544,
+"lastModifiedDate": 1668756651504,
 "copyright": "1977 Atco Records",
 "key": "B",
 "defaultBpm": 102,
@@ -116048,11 +116204,11 @@
 	"I3:",
 	"EB BF# EB BF# x2",
 	"V:",
-	"B.F#B B. B.F#B B.",
-	"G#m.F#G#m G#m. G#m.F#G#m G#m.",
+	"B.F#B B.. B.F#B B..",
+	"G#m.F#G#m G#m.. G#m.F#G#m G#m..",
 	"C:",
-	"Emaj7.F#Emaj7 Emaj7. Emaj7.F#Emaj7 Emaj7.",
-	"G#m.F#G#m G#m. G#m.F#G#m Emaj7C#mG#mF#",
+	"Emaj7.F#Emaj7 Emaj7.. Emaj7.F#Emaj7 Emaj7..",
+	"G#m.F#G#m G#m.. G#m.F#G#m Emaj7C#mG#mF#",
 	"O:",
 	"EB BF# EB BF# x8"
     ],
@@ -120893,7 +121049,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1668407883080, "song": 
+{ "file": "", "lastModifiedDate": 1668407883080, "song": 
 {
 "title": "Story, The",
 "artist": "Brandi Carlile",
@@ -121977,7 +122133,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1668406518328, "song": 
+{ "file": "", "lastModifiedDate": 1668406518328, "song": 
 {
 "title": "Suds in the Bucket",
 "artist": "Sara Evans",
@@ -123134,14 +123290,14 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1647561778922, "song": 
+{ "file": "", "lastModifiedDate": 1668755953612, "song": 
 {
 "title": "Sunny Afternoon",
 "artist": "Kinks, The",
 "user": "Shari",
-"lastModifiedDate": 1647561778922,
+"lastModifiedDate": 1668755953612,
 "copyright": "1966 Reprise",
-"key": "D",
+"key": "F",
 "defaultBpm": 124,
 "timeSignature": "2/4",
 "chords": 
@@ -125331,12 +125487,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1615179744672, "song": 
+{ "file": "", "lastModifiedDate": 1668755763376, "song": 
 {
 "title": "Take Me Home, Country Roads",
 "artist": "John Denver",
 "user": "Shari",
-"lastModifiedDate": 1615179744672,
+"lastModifiedDate": 1668755763376,
 "copyright": "1971 RCA, written by Bill Danoff, Taffy Nivert and John Denver",
 "key": "A",
 "defaultBpm": 83,
@@ -125381,7 +125537,6 @@
 	"ch:",
 	"Country roads, take me home to the place I belong",
 	"West Virginia, mountain mama, take me home, country roads",
-	"",
 	"",
 	"T:",
 	"Take me home, down country roads",
@@ -134885,7 +135040,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1667809383926, "song": 
+{ "file": "", "lastModifiedDate": 1667809383926, "song": 
 {
 "title": "View to a Kill",
 "artist": "Duran Duran",
@@ -146396,7 +146551,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1667972616158, "song": 
+{ "file": "", "lastModifiedDate": 1667972616158, "song": 
 {
 "title": "You Make Loving Fun",
 "artist": "Fleetwood Mac",

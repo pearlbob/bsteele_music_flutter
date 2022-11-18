@@ -90,7 +90,7 @@ class MetadataScreenState extends State<MetadataScreen> {
       {
         SplayTreeSet<DropdownMenuItem<String>> itemSet = SplayTreeSet(_compareDropdownMenuItemString);
         for (var nameValue in nameValues) {
-          if (nameValue.name.isEmpty) {
+          if (nameValue.name.isEmpty || SongMetadataGeneratedValue.isGenerated(nameValue)) {
             continue;
           }
           itemSet

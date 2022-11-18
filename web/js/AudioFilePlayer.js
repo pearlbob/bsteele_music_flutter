@@ -6,7 +6,7 @@
 
 function AudioFilePlayer() {
     this.fileMap = new Map();
-  let offset;
+    let offset;
 
     //  setup audio output
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -18,16 +18,16 @@ function AudioFilePlayer() {
     this.gain.connect(this.audioContext.destination);
 
     // create Oscillator node to keep the timer running permanently
-  // this.oscillator = this.audioContext.createOscillator();
-  // this.oscillator.type = 'sine';
-  // this.oscillator.frequency.setValueAtTime(20, 0); // value in hertz
-  // this.oscillator.start();
+    // this.oscillator = this.audioContext.createOscillator();
+    // this.oscillator.type = 'sine';
+    // this.oscillator.frequency.setValueAtTime(20, 0); // value in hertz
+    // this.oscillator.start();
 
 
     this.bufferFile = function (filePath) {
         let buffer = this.fileMap.get(filePath);
         if (buffer === undefined) {
-            //  fixme: audio data buffering should likely be on a webworker
+            //  fixme: audio data buffering should likely be on a webWorker
             // Async
             let req = new XMLHttpRequest();
 
@@ -50,7 +50,7 @@ function AudioFilePlayer() {
         return false;
     };
 
-    this.oscillate = function ( frequency, when, duration, volume ){
+    this.oscillate = function (frequency, when, duration, volume) {
         let oscillator = this.audioContext.createOscillator();
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, 0); // value in hertz
@@ -62,7 +62,7 @@ function AudioFilePlayer() {
         oscillator.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
 
-        gainNode.gain.setValueAtTime(0, when );
+        gainNode.gain.setValueAtTime(0, when);
         gainNode.gain.linearRampToValueAtTime(volume, when + rampDuration);
 
         // Important! Setting a scheduled parameter value
@@ -70,7 +70,7 @@ function AudioFilePlayer() {
         gainNode.gain.linearRampToValueAtTime(0.001, end);
 
         oscillator.start(when);
-        oscillator.stop(end+0.001 );
+        oscillator.stop(end + 0.001);
         return true;
     }
 
@@ -79,9 +79,9 @@ function AudioFilePlayer() {
         if (buffer === undefined) {
             return false;
         }
-    if (when === 0) {
-      when = this.audioContext.currentTime;
-    }
+        if (when === 0) {
+            when = this.audioContext.currentTime;
+        }
 
         //  a throwaway source object!  by api design
         //  completed buffer sources will be garbage collected
@@ -93,23 +93,23 @@ function AudioFilePlayer() {
         let end = when + duration;
         source.connect(gainNode);
         source.onended = function () {
-                    gainNode.disconnect();
-                    gainNode = undefined;
-                    //  fixme: dispose of source???
-                };
+            gainNode.disconnect();
+            gainNode = undefined;
+            //  fixme: dispose of source???
+        };
         gainNode.connect(this.audioContext.destination);
 
 //        console.log( '@'+this.audioContext.currentTime
 //            +': '+filePath +' at '+when+' for '+duration+' to: '+end+' vol: '+volume);
 
-        gainNode.gain.setValueAtTime(volume, when ); //  rely on a smooth recording start
+        gainNode.gain.setValueAtTime(volume, when); //  rely on a smooth recording start
 
         // Important! Setting a scheduled parameter value
         gainNode.gain.linearRampToValueAtTime(volume, end - rampDuration);
         gainNode.gain.linearRampToValueAtTime(0.005, end);
 
         source.start(when, 0, duration);
-        source.stop(end+0.005 );
+        source.stop(end + 0.005);
 
         this.mp3Sources.push(source);
         return true;
@@ -135,18 +135,17 @@ function AudioFilePlayer() {
     };
 
     this.test = function () {
-    //  intentionally copied to variables to limit the delay between the two readings
-    let now = window.performance.now();
-    let off = this.audioContext.currentTime ;
+        //  intentionally copied to variables to limit the delay between the two readings
+        let now = window.performance.now();
+        let off = this.audioContext.currentTime;
 
-    //  calc the offset
-    off = off * 1000 - now;
-    if (offset === undefined) {
-      offset = off;
-    }
+        //  calc the offset
+        off = off * 1000 - now;
+        if (offset === undefined) {
+            offset = off;
+        }
 
-    let drift = off - offset
-    return drift;
+        return off - offset;
     };
 
 }

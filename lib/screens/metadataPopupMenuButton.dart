@@ -20,7 +20,7 @@ class MetadataPopupMenuButton {
         //  find all name/values in use
         SplayTreeSet<NameValue> nameValues = SplayTreeSet();
         for (var songIdMetadata in SongMetadata.idMetadata) {
-          nameValues.addAll(songIdMetadata.nameValues);
+          nameValues.addAll(songIdMetadata.nameValues.where((nv) => !SongMetadataGeneratedValue.isGenerated(nv)));
         }
         logger.v('lists.build: ${SongMetadata.idMetadata}');
         SplayTreeSet<String> names = SplayTreeSet()..addAll(nameValues.map((e) => e.name));

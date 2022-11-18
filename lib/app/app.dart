@@ -184,7 +184,7 @@ class App {
     logger.v('addSong( ${song.toString()} )');
     _allSongs.remove(song); // any prior version of same song
     _allSongs.add(song);
-    SongMetadata.generateDecade(song);
+    SongMetadata.generateSongMetadata(song);
     selectedSong = song;
   }
 

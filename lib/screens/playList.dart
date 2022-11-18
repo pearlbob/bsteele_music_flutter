@@ -152,10 +152,18 @@ class SongListItem implements Comparable<SongListItem> {
                   if (isEditing)
                     Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
                       List<Widget> metadataWidgets = [const AppSpace()];
+                      // List<Widget> generatedMetadataWidgets = [const AppSpace()];
 
                       for (var id in SongMetadata.where(idIs: song.songId.toString())) {
                         logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
                         for (var nameValue in id.nameValues) {
+                          if (SongMetadataGeneratedValue.isGenerated(nameValue)) {
+                            // generatedMetadataWidgets.add(Text(
+                            //   '${nameValue.name}:${nameValue.value}',
+                            //   style: _indexTextStyle,
+                            // ));
+                            continue;
+                          }
                           logger.v('    value: ${id.id}:${nameValue.name}=${nameValue.value}');
 
                           metadataWidgets.add(
@@ -175,7 +183,10 @@ class SongListItem implements Comparable<SongListItem> {
                           );
                         }
                       }
-                      return AppWrap(spacing: _textFontSize, children: metadataWidgets);
+                      return AppWrap(spacing: _textFontSize, children: [
+                        ...metadataWidgets,
+                        // ...generatedMetadataWidgets
+                      ]);
                     }),
                 ]),
           ],
@@ -414,6 +425,7 @@ class _PlayListState extends State<PlayList> {
           // ', ModalRoute: ${ModalRoute.of(context)?.settings.name}'
           );
 
+      //  clear the search if asked
       if (playListRefreshNotifier.searchClearQuery()) {
         _searchTextFieldController.text = '';
         playListRefreshNotifier.positionPixels = 0.0;
@@ -428,28 +440,6 @@ class _PlayListState extends State<PlayList> {
       SplayTreeSet<NameValue> nameValues = SplayTreeSet();
       for (var id in SongMetadata.where()) {
         nameValues.addAll(id.nameValues);
-      }
-
-      //  generate list of current filters
-      List<Widget> filterWidgets = [];
-      for (var nv in _filterNameValues) {
-        filterWidgets.add(
-          appIconButton(
-            icon: appIcon(
-              Icons.clear,
-            ),
-            label: '${nv.name}: ${nv.value}',
-            fontSize: _textFontSize,
-            appKeyEnum: AppKeyEnum.playListMetadataRemoveFromFilter,
-            value: nv,
-            onPressed: () {
-              setState(() {
-                logger.d('remove: ${nv.name}: ${nv.value}');
-                _filterNameValues.remove(nv);
-              });
-            },
-          ),
-        );
       }
 
       const allNameValue = NameValue('All', '');
@@ -524,6 +514,40 @@ class _PlayListState extends State<PlayList> {
           break;
       }
 
+      //  generate list of current filters
+      List<Widget> filterWidgets = [];
+      var filter = NameValueFilter(_filterNameValues);
+      {
+        String lastName = '';
+        for (var nv in filter.nameValues()) {
+          if (lastName.isNotEmpty) {
+            filterWidgets.add(Text(
+              lastName == nv.name && filter.isOr(nv) ? 'OR' : 'AND',
+              style: _indexTextStyle,
+            ));
+          }
+          filterWidgets.add(
+            appIconButton(
+              icon: appIcon(
+                Icons.clear,
+              ),
+              label: '${nv.name}: ${nv.value}',
+              fontSize: _textFontSize,
+              appKeyEnum: AppKeyEnum.playListMetadataRemoveFromFilter,
+              value: nv,
+              backgroundColor: filter.isOr(nv) ? Colors.lightGreen : null,
+              onPressed: () {
+                setState(() {
+                  logger.d('remove: ${nv.name}: ${nv.value}');
+                  _filterNameValues.remove(nv);
+                });
+              },
+            ),
+          );
+          lastName = nv.name;
+        }
+      }
+
       SongListGroup filteredGroup;
       {
         //  apply search
@@ -549,15 +573,7 @@ class _PlayListState extends State<PlayList> {
           } else {
             //  filter the songs for the correct metadata
             for (var songItem in searchedSet) {
-              var matched = true;
-              var idString = songItem.song.songId.toString();
-              for (var nv in _filterNameValues) {
-                if (SongMetadata.where(idIs: idString, nameIs: nv.name, valueIs: nv.value).isEmpty) {
-                  matched = false;
-                  break;
-                }
-              }
-              if (matched) {
+              if (filter.testAll(SongMetadata.songIdMetadata(songItem.song)?.nameValues)) {
                 filteredSet.add(songItem);
               }
             }
@@ -679,7 +695,7 @@ class _PlayListState extends State<PlayList> {
                       },
                     ),
                     AppWrap(
-                      spacing: _textFontSize,
+                      spacing: _textFontSize / 2,
                       children: filterWidgets,
                     ),
                   ]),

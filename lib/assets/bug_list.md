@@ -158,6 +158,8 @@ this with him.
 
 ## General Fixes
 
+* fix linux run from compile: 'FlutterEngineInitialize' returned 'kInvalidArguments'.
+  Not running in AOT mode but could not resolve the kernel binary.
 * Local song history, independent of CJ
 * fix key guess
 * edit: assisted edit slash note dropdown: make smarter

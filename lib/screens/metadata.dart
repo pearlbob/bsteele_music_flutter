@@ -222,6 +222,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         MetadataPopupMenuButton.button(
                           title: 'Existing metadata',
                           style: metadataStyle,
+                          showAll: false,
                           onSelected: (value) {
                             setState(() {
                               _nameTextFieldController.text = value.name;

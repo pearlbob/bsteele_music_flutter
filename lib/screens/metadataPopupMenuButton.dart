@@ -8,7 +8,8 @@ import 'package:bsteele_music_flutter/screens/popupSubMenuItem.dart';
 import 'package:flutter/material.dart';
 
 class MetadataPopupMenuButton {
-  static Widget button({final String? title, TextStyle? style, PopupMenuItemSelected<NameValue>? onSelected}) {
+  static Widget button(
+      {final String? title, TextStyle? style, PopupMenuItemSelected<NameValue>? onSelected, bool showAll = true}) {
     style = style ?? generateAppTextStyle();
     return PopupMenuButton<NameValue>(
       //initialValue: const NameValue('name0', 'value0'),
@@ -20,7 +21,8 @@ class MetadataPopupMenuButton {
         //  find all name/values in use
         SplayTreeSet<NameValue> nameValues = SplayTreeSet();
         for (var songIdMetadata in SongMetadata.idMetadata) {
-          nameValues.addAll(songIdMetadata.nameValues.where((nv) => !SongMetadataGeneratedValue.isGenerated(nv)));
+          nameValues
+              .addAll(songIdMetadata.nameValues.where((nv) => showAll || !SongMetadataGeneratedValue.isGenerated(nv)));
         }
         logger.v('lists.build: ${SongMetadata.idMetadata}');
         SplayTreeSet<String> names = SplayTreeSet()..addAll(nameValues.map((e) => e.name));

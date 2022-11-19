@@ -67,7 +67,8 @@ date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 #	see web/index.html for offline workaround URL trick
 if ( $debug ) then
-	flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	#flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	flutter build web --web-renderer=auto	#	fixme: temp
 else
 	flutter build web --release --web-renderer=auto
 endif

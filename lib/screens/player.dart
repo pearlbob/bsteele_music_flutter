@@ -22,7 +22,6 @@ import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
-import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1586,11 +1585,7 @@ With z or q, the app goes back to the play list.''',
   Future<void> _settingsPopup() async {
     var popupStyle = headerTextStyle.copyWith(fontSize: (headerTextStyle.fontSize ?? app.screenInfo.fontSize) * 0.7);
     var boldStyle = popupStyle.copyWith(fontWeight: FontWeight.bold);
-    _drums = DrumsWidget(
-      drumParts: _drumParts,
-      beats: _song.timeSignature.beatsPerBar,
-      headerStyle: boldStyle,
-    );
+
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -2107,8 +2102,6 @@ With z or q, the app goes back to the play list.''',
 
   music_key.Key _displaySongKey = music_key.Key.C;
   int displayKeyOffset = 0;
-
-  DrumsWidget _drums = DrumsWidget();
 
   NinJam _ninJam = NinJam.empty();
 

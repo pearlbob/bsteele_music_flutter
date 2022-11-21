@@ -1,10 +1,59 @@
 import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/songPerformance.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/drums.dart';
+
+class DrumListItem implements SongListItem {
+  DrumListItem(this.drumParts);
+
+  @override
+  int compareTo(SongListItem other) {
+    if (identical(this, other)) {
+      return 0;
+    }
+    if (other is DrumListItem) {
+      return drumParts.compareTo(other.drumParts);
+    }
+    return -1;
+  }
+
+  @override
+  Widget toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
+    return AppInkWell(
+        appKeyEnum: AppKeyEnum.drumsSelection,
+        value: Id(drumParts.name),
+        onTap: () {
+          if (songItemAction != null) {
+            songItemAction(context, this);
+          }
+        },
+        child: Text(drumParts.toString()));
+  }
+
+  @override
+  // TODO: implement customWidget
+  Widget? get customWidget => const Text('DrumListItem');
+
+  @override
+  // TODO: implement firstWidget
+  Widget? get firstWidget => throw UnimplementedError();
+
+  @override
+  Song get song => Song.theEmptySong;
+
+  @override
+  SongPerformance? get songPerformance => null;
+
+  final DrumParts drumParts;
+}
+
+int _beats = 4; //  fixme temp
 
 /// Show some data about the app and it's environment.
 class DrumScreen extends StatefulWidget {
@@ -26,9 +75,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     _lastSize = WidgetsBinding.instance.window.physicalSize;
     WidgetsBinding.instance.addObserver(this);
 
-    _drums = DrumsWidget(
-      beats: widget.song?.timeSignature.beatsPerBar ?? 4, //  fixme temp
-    );
+    _drums = DrumsWidget();
 
     logger.i('song: ${widget.song?.toString()}');
 
@@ -37,23 +84,45 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    logger.i('DrumScreenState build: ${_drums.drumParts}');
+
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     app.screenInfo.refresh(context);
+
+    List<SongListItem> tempDrumListItems = [
+      DrumListItem(DrumParts(
+          name: 'test1', beats: _beats, parts: [DrumPart(DrumTypeEnum.closedHighHat, beats: _beats)..addBeat(0)])),
+      DrumListItem(
+          DrumParts(name: 'test2', beats: _beats, parts: [DrumPart(DrumTypeEnum.bass, beats: _beats)..addBeat(1)])),
+    ];
+
+    var style = generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize);
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appWidgetHelper.backBar(title: 'Drums'),
       body: DefaultTextStyle(
-          style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-                child: ListView(children: [
-              _drums,
-            ])),
-          ])),
+        style: style,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _drums,
+          PlayList(
+            songList: SongList('DrumList label', tempDrumListItems, songItemAction: loadDrumListItem),
+            style: style,
+            isFromTheTop: false,
+          ),
+        ]),
+      ),
       floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.aboutBack),
     );
+  }
+
+  loadDrumListItem(BuildContext context, SongListItem songListItem) async {
+    DrumParts drumParts = (songListItem as DrumListItem).drumParts;
+
+    setState(() {
+      _drums = DrumsWidget(key: UniqueKey(), drumParts: drumParts);
+    });
   }
 
   @override

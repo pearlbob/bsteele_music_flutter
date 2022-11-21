@@ -65,7 +65,7 @@ class SongListItem implements Comparable<SongListItem> {
   SongListItem.fromPerformance(this.songPerformance, {this.customWidget, this.firstWidget})
       : song = songPerformance!.performedSong;
 
-  Widget _toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
+  Widget toWidget(BuildContext context, SongItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
     AppWrap songWidget;
     if (songPerformance != null) {
       songWidget = AppWrap(children: [
@@ -245,7 +245,7 @@ class SongList {
     }
 
     //  other indices are the song items
-    return songListItems[index - 1]._toWidget(context, songItemAction, isEditing, refocus);
+    return songListItems[index - 1].toWidget(context, songItemAction, isEditing, refocus);
   }
 
   final String label;

@@ -18,12 +18,11 @@ final TextStyle _boldSmallStyle = _smallStyle.copyWith(fontWeight: FontWeight.bo
 
 /// Show some data about the app and it's environment.
 class DrumsWidget extends StatefulWidget {
-  DrumsWidget({super.key, this.beats = 4, DrumParts? drumParts, TextStyle? headerStyle})
-      : _drumParts = drumParts ?? DrumParts(beats: beats),
+  DrumsWidget({super.key, DrumParts? drumParts, TextStyle? headerStyle})
+      : drumParts = drumParts ?? DrumParts(beats: 4),
         _headerStyle = headerStyle ?? _style;
 
-  final int beats;
-  final DrumParts _drumParts;
+  final DrumParts drumParts;
   final TextStyle _headerStyle;
 
   @override
@@ -31,13 +30,11 @@ class DrumsWidget extends StatefulWidget {
 }
 
 class DrumsState extends State<DrumsWidget> {
-
   @override
   initState() {
     super.initState();
 
-    _beats = widget.beats;
-    _drumParts = widget._drumParts;
+    _drumParts = widget.drumParts;
   }
 
   @override
@@ -59,7 +56,7 @@ class DrumsState extends State<DrumsWidget> {
           ),
         ));
 
-        for (var beat = 0; beat < _beats; beat++) {
+        for (var beat = 0; beat < _drumParts.beats; beat++) {
           for (var subBeat in DrumSubBeatEnum.values) {
             var name = drumShortSubBeatName(subBeat);
             children.add(Text(
@@ -85,7 +82,7 @@ class DrumsState extends State<DrumsWidget> {
           ),
         ));
 
-        for (var b = 0; b < _beats; b++) {
+        for (var b = 0; b < _drumParts.beats; b++) {
           for (var subBeat in DrumSubBeatEnum.values) {
             children.add(Checkbox(
               value: drumPart.beatSelection(b, subBeat),
@@ -104,7 +101,7 @@ class DrumsState extends State<DrumsWidget> {
 
       //  skip the drum titles
       columnWidths[0] = const FlexColumnWidth(3.0);
-      for (var col = 1; col < _beats * drumSubBeatsPerBeat; col++) {
+      for (var col = 1; col < _drumParts.beats * drumSubBeatsPerBeat; col++) {
         columnWidths[col] = const FlexColumnWidth();
       }
 
@@ -119,10 +116,25 @@ class DrumsState extends State<DrumsWidget> {
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(
-        'Drums: ${_drumParts.name}',
-        style: widget._headerStyle,
-      ),
+      const AppSpace(),
+      AppWrapFullWidth(spacing: 10, children: [
+        Text(
+          'Drums: ${_drumParts.name}',
+          style: widget._headerStyle,
+        ),
+        AppTooltip(
+          message: 'Clear the drum selections',
+          child: appButton(
+            'Clear',
+            appKeyEnum: AppKeyEnum.drumsSelectionClear,
+            onPressed: () {
+              setState(() {
+                _drumParts.clear();
+              });
+            },
+          ),
+        ),
+      ]),
       AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
         Text(
           'Volume:',
@@ -131,10 +143,10 @@ class DrumsState extends State<DrumsWidget> {
         SizedBox(
           width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
           child: Slider(
-            value: widget._drumParts.volume * 10,
+            value: widget.drumParts.volume * 10,
             onChanged: (value) {
               setState(() {
-                widget._drumParts.volume = value / 10;
+                widget.drumParts.volume = value / 10;
               });
             },
             min: 0,
@@ -217,6 +229,5 @@ class DrumsState extends State<DrumsWidget> {
     ]);
   }
 
-  late int _beats;
   late DrumParts _drumParts;
 }

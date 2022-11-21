@@ -14,6 +14,7 @@ import 'package:bsteeleMusicLib/songs/songMoment.dart';
 import 'package:bsteeleMusicLib/songs/songUpdate.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
@@ -1519,6 +1520,21 @@ With z or q, the app goes back to the play list.''',
     _resetIdleTimer();
   }
 
+  void navigateToDrums(BuildContext context, Song song) async {
+    _playerIsOnTop = false;
+    _cancelIdleTimer();
+    await Navigator.pushNamed(
+      context,
+      DrumScreen.routeName,
+    );
+    _playerIsOnTop = true;
+    widget._song = app.selectedSong;
+    _song = widget._song;
+    _lyricSectionNotifier.index = 0;
+    forceTableRedisplay();
+    _resetIdleTimer();
+  }
+
   void forceTableRedisplay() {
     int index = _lyricSectionNotifier.index;
     logger.log(_logBuild, '_forceTableRedisplay()');
@@ -1903,7 +1919,20 @@ With z or q, the app goes back to the play list.''',
                               ),
                           ]),
                       const AppSpace(),
-                      if (app.isScreenBig) _drums,
+                      AppTooltip(
+                        message: 'Edit the drums',
+                        child: appIconButton(
+                          appKeyEnum: AppKeyEnum.playerEditDrums,
+                          label: 'Drums',
+                          fontSize: popupStyle.fontSize,
+                          icon: appIcon(
+                            Icons.edit,
+                          ),
+                          onPressed: () {
+                            navigateToDrums(context, _song);
+                          },
+                        ),
+                      ),
                       const AppSpace(),
                       AppWrapFullWidth(
                         crossAxisAlignment: WrapCrossAlignment.center,

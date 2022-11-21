@@ -21,7 +21,10 @@
 
 ### Fixme
 
-* generate decade after editing
+* regenerate generated metadata after editing
+* songs don't always have drums on start/restart
+* drums on pause then play
+* video alignment with audio current time
 
 ## Completed
 

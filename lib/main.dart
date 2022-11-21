@@ -77,6 +77,7 @@ import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
+import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/metadata.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
@@ -273,6 +274,7 @@ class BSteeleMusicApp extends StatelessWidget {
               CommunityJams.routeName: (context) => const Debug(),
               StyleDemo.routeName: (context) => const StyleDemo(),
               TheoryWidget.routeName: (context) => const TheoryWidget(),
+              DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong),
             },
           );
         });
@@ -591,6 +593,14 @@ class MyHomePageState extends State<MyHomePage> {
                   _navigateToEdit();
                 }),
             appListTile(
+                appKeyEnum: AppKeyEnum.mainDrawerDrums,
+                title: 'Drums',
+                style: navTextStyle,
+                enabled: app.isEditReady,
+                onTap: () {
+                  _navigateToDrums();
+                }),
+            appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerTheory,
               title: 'Theory',
               style: navTextStyle,
@@ -902,6 +912,17 @@ class MyHomePageState extends State<MyHomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Documentation()),
+    );
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
+  }
+
+  _navigateToDrums() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DrumScreen()),
     );
     if (!mounted) {
       return;

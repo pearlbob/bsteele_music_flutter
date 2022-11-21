@@ -12,13 +12,14 @@ Map<DrumTypeEnum, String> drumTypeToFileMap = {
   DrumTypeEnum.bass: 'audio/kick_4516.mp3',
 };
 
-TextStyle _style = generateAppTextStyle();
-TextStyle _smallStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize * 2 / 3);
+final TextStyle _style = generateAppTextStyle();
+final TextStyle _smallStyle = generateAppTextStyle(fontSize: app.screenInfo.fontSize * 2 / 3);
+final TextStyle _boldSmallStyle = _smallStyle.copyWith(fontWeight: FontWeight.bold);
 
 /// Show some data about the app and it's environment.
 class DrumsWidget extends StatefulWidget {
   DrumsWidget({super.key, this.beats = 4, DrumParts? drumParts, TextStyle? headerStyle})
-      : _drumParts = drumParts ?? DrumParts(),
+      : _drumParts = drumParts ?? DrumParts(beats: beats),
         _headerStyle = headerStyle ?? _style;
 
   final int beats;
@@ -30,7 +31,6 @@ class DrumsWidget extends StatefulWidget {
 }
 
 class DrumsState extends State<DrumsWidget> {
-  DrumsState({int? beats}) : _beats = beats ?? 4;
 
   @override
   initState() {
@@ -54,16 +54,17 @@ class DrumsState extends State<DrumsWidget> {
         children.add(Center(
           child: Text(
             'Drum',
-            style: _smallStyle,
+            style: _boldSmallStyle,
             textAlign: TextAlign.right,
           ),
         ));
 
         for (var beat = 0; beat < _beats; beat++) {
           for (var subBeat in DrumSubBeatEnum.values) {
+            var name = drumShortSubBeatName(subBeat);
             children.add(Text(
-              '${beat + 1}${drumShortSubBeatName(subBeat)}',
-              style: _smallStyle,
+              '${name.isEmpty ? beat + 1 : name}',
+              style: name.isEmpty ? _boldSmallStyle : _smallStyle,
               textAlign: TextAlign.center,
             ));
           }
@@ -73,32 +74,30 @@ class DrumsState extends State<DrumsWidget> {
 
       //  for each drum
       for (var part in DrumTypeEnum.values) {
-        DrumPart? drumPart = _drumParts.at(part);
-        if (drumPart != null) {
-          children = [];
-          children.add(Center(
-            heightFactor: 1.0,
-            child: Text(
-              Util.camelCaseToLowercaseSpace(part.name),
-              style: _smallStyle,
-              textAlign: TextAlign.right,
-            ),
-          ));
+        DrumPart drumPart = _drumParts.at(part);
+        children = [];
+        children.add(Center(
+          heightFactor: 1.0,
+          child: Text(
+            Util.camelCaseToLowercaseSpace(part.name),
+            style: _smallStyle,
+            textAlign: TextAlign.right,
+          ),
+        ));
 
-          for (var b = 0; b < _beats; b++) {
-            for (var subBeat in DrumSubBeatEnum.values) {
-              children.add(Checkbox(
-                value: drumPart.beatSelection(b, subBeat),
-                onChanged: (value) {
-                  setState(() {
-                    drumPart.setBeatSelection(b, subBeat, value ?? false);
-                  });
-                },
-              ));
-            }
+        for (var b = 0; b < _beats; b++) {
+          for (var subBeat in DrumSubBeatEnum.values) {
+            children.add(Checkbox(
+              value: drumPart.beatSelection(b, subBeat),
+              onChanged: (value) {
+                setState(() {
+                  drumPart.setBeatSelection(b, subBeat, value ?? false);
+                });
+              },
+            ));
           }
-          rows.add(TableRow(children: children));
         }
+        rows.add(TableRow(children: children));
       }
 
       Map<int, TableColumnWidth>? columnWidths = {};
@@ -121,7 +120,7 @@ class DrumsState extends State<DrumsWidget> {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
-        'Drums:',
+        'Drums: ${_drumParts.name}',
         style: widget._headerStyle,
       ),
       AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
@@ -218,6 +217,6 @@ class DrumsState extends State<DrumsWidget> {
     ]);
   }
 
-  int _beats;
+  late int _beats;
   late DrumParts _drumParts;
 }

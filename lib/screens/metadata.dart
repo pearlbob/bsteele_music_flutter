@@ -382,6 +382,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         style: metadataStyle,
                         isEditing: true,
                         selectedSortType: PlayListSortType.byTitle,
+                        isFromTheTop: false,
                       ),
                     ),
                   ])),

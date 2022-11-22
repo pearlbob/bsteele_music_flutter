@@ -1,10 +1,10 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
-import 'package:bsteeleMusicLib/songs/songPerformance.dart';
+import 'package:bsteeleMusicLib/songs/song_metadata.dart';
+import 'package:bsteeleMusicLib/songs/song_performance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';

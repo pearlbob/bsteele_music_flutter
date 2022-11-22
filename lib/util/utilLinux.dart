@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/chordPro.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/chord_pro.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
+import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';

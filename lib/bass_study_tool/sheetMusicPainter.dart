@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicFontParameters.dart';

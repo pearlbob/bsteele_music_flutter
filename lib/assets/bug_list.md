@@ -9,7 +9,7 @@
 * history from tomcat server log
 * drum regularity
 
-### Fixes
+### Fix
 
 * drums on 2/4, 3/4, 6/8
 * fix startup delay based on history. isolate the startup history processing so it doesn't impact the normal boot.
@@ -21,6 +21,7 @@
 
 ### Fixme
 
+* connect player popup volume slider to volume
 * regenerate generated metadata after editing
 * songs don't always have drums on start/restart
 * drums on pause then play

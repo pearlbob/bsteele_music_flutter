@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/ninjam.dart';
-import 'package:bsteeleMusicLib/songs/scaleNote.dart';
+import 'package:bsteeleMusicLib/songs/scale_note.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songBase.dart';
-import 'package:bsteeleMusicLib/songs/songMoment.dart';
-import 'package:bsteeleMusicLib/songs/songUpdate.dart';
+import 'package:bsteeleMusicLib/songs/song_base.dart';
+import 'package:bsteeleMusicLib/songs/song_moment.dart';
+import 'package:bsteeleMusicLib/songs/song_update.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
@@ -1913,6 +1913,26 @@ With z or q, the app goes back to the play list.''',
                                 ],
                               ),
                           ]),
+                      const AppSpace(),
+                      AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                        Text(
+                          'Volume:',
+                          style: popupStyle,
+                        ),
+                        SizedBox(
+                          width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
+                          child: Slider(
+                            value: appOptions.volume * 10,
+                            onChanged: (value) {
+                              setState(() {
+                                appOptions.volume = value / 10;
+                              });
+                            },
+                            min: 0,
+                            max: 10.0,
+                          ),
+                        ),
+                      ]),
                       const AppSpace(),
                       AppTooltip(
                         message: 'Edit the drums',

@@ -1,4 +1,5 @@
-import 'package:bsteeleMusicLib/songs/drumMeasure.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -35,6 +36,7 @@ class DrumsState extends State<DrumsWidget> {
     super.initState();
 
     _drumParts = widget.drumParts;
+    _drumNameTextFieldController.text = widget.drumParts.name;
   }
 
   @override
@@ -117,11 +119,44 @@ class DrumsState extends State<DrumsWidget> {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const AppSpace(),
-      AppWrapFullWidth(spacing: 10, children: [
+      AppWrapFullWidth(spacing: app.screenInfo.mediaWidth / 80, children: [
         Text(
-          'Drums: ${_drumParts.name}',
+          'Drums:',
           style: widget._headerStyle,
         ),
+        AppWrap(children: [
+          //  enter name text
+          AppTextField(
+            appKeyEnum: AppKeyEnum.drumNameEntry,
+            controller: _drumNameTextFieldController,
+            focusNode: _drumFocusNode,
+            hintText: 'Drum name here...',
+            width: appDefaultFontSize * 40,
+            onChanged: (value) {
+              setState(() {
+                logger.v('drum name: "$value"');
+                app.clearMessage();
+              });
+            },
+          ),
+          //  name text clear
+          AppTooltip(
+              message: 'Clear the name text.',
+              child: appEnumeratedIconButton(
+                icon: const Icon(Icons.clear),
+                appKeyEnum: AppKeyEnum.drumNameClear,
+                iconSize: 1.25 * (_style.fontSize ?? appDefaultFontSize),
+                onPressed: (() {
+                  _drumNameTextFieldController.clear();
+                  app.clearMessage();
+                  setState(() {
+                    FocusScope.of(context).requestFocus(_drumFocusNode);
+                    //_lastSelectedSong = null;
+                  });
+                }),
+              )),
+        ]),
+        const AppSpace(),
         AppTooltip(
           message: 'Clear the drum selections',
           child: appButton(
@@ -134,26 +169,22 @@ class DrumsState extends State<DrumsWidget> {
             },
           ),
         ),
-      ]),
-      AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-        Text(
-          'Volume:',
-          style: _smallStyle,
-        ),
-        SizedBox(
-          width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
-          child: Slider(
-            value: widget.drumParts.volume * 10,
-            onChanged: (value) {
+        AppTooltip(
+          message: 'Save the drum part',
+          child: appButton(
+            'Save',
+            appKeyEnum: AppKeyEnum.drumsSelectionSave,
+            onPressed: () {
               setState(() {
-                widget.drumParts.volume = value / 10;
+                logger.i('fixme: drums save');
+                logger.i(_drumParts.toString());
+                logger.i(_drumParts.toJson());
               });
             },
-            min: 0,
-            max: 10.0,
           ),
         ),
       ]),
+      const AppSpace(),
       Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -230,4 +261,7 @@ class DrumsState extends State<DrumsWidget> {
   }
 
   late DrumParts _drumParts;
+
+  final TextEditingController _drumNameTextFieldController = TextEditingController();
+  final FocusNode _drumFocusNode = FocusNode();
 }

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/chordDescriptor.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/chord_descriptor.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
-import 'package:bsteeleMusicLib/songs/musicConstants.dart';
+import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 

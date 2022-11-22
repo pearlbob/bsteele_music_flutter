@@ -5,7 +5,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,12 +1,12 @@
-import 'package:bsteeleMusicLib/appLogger.dart';
-import 'package:bsteeleMusicLib/songs/chordSection.dart';
-import 'package:bsteeleMusicLib/songs/chordSectionLocation.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/chord_section.dart';
+import 'package:bsteeleMusicLib/songs/chord_section_location.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/scaleChord.dart';
-import 'package:bsteeleMusicLib/songs/scaleNote.dart';
+import 'package:bsteeleMusicLib/songs/scale_chord.dart';
+import 'package:bsteeleMusicLib/songs/scale_note.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
-import 'package:bsteeleMusicLib/songs/timeSignature.dart';
+import 'package:bsteeleMusicLib/songs/song_metadata.dart';
+import 'package:bsteeleMusicLib/songs/time_signature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -60,8 +60,11 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   detailPlay(Null),
   detailStop(Null),
   documentationBack(Null),
+  drumNameEntry(String),
+  drumNameClear(Null),
   drumsSelection(Id),
   drumsSelectionClear(Null),
+  drumsSelectionSave(String),
   editAcceptChordModificationAndExtendRow(Null),
   editAcceptChordModificationAndFinish(Null),
   editAcceptChordModificationAndStartNewRow(Null),

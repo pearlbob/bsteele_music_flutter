@@ -1,6 +1,6 @@
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songId.dart';
-import 'package:bsteeleMusicLib/songs/songPerformance.dart';
+import 'package:bsteeleMusicLib/songs/song_id.dart';
+import 'package:bsteeleMusicLib/songs/song_performance.dart';
 
 class SongSearchMatcher {
   SongSearchMatcher(final String? search) {

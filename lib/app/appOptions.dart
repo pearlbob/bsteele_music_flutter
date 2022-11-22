@@ -1,10 +1,10 @@
 import 'dart:collection';
 
-import 'package:bsteeleMusicLib/appLogger.dart';
+import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/songBase.dart';
-import 'package:bsteeleMusicLib/songs/songMetadata.dart';
-import 'package:bsteeleMusicLib/songs/songPerformance.dart';
+import 'package:bsteeleMusicLib/songs/song_base.dart';
+import 'package:bsteeleMusicLib/songs/song_metadata.dart';
+import 'package:bsteeleMusicLib/songs/song_performance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
@@ -69,6 +69,7 @@ class AppOptions extends ChangeNotifier {
     _readSongMetadata();
     _lastAllSongPerformancesStoreMillisecondsSinceEpoch =
         await _readInt('lastAllSongPerformancesStoreMillisecondsSinceEpoch', defaultValue: 0);
+    _volume = await _readDouble('volume', defaultValue: 1.0);
     _updateAllSongPerformances();
     notifyListeners();
   }
@@ -93,6 +94,12 @@ class AppOptions extends ChangeNotifier {
     return value;
   }
 
+  Future<double> _readDouble(final String key, {defaultValue = 0.0}) async {
+    var value = _prefs.getDouble(key) ?? defaultValue;
+    notifyListeners();
+    return value;
+  }
+
   Future<String> _readString(final String key, {defaultValue = ''}) async {
     var value = _prefs.getString(key) ?? defaultValue;
     notifyListeners();
@@ -106,6 +113,11 @@ class AppOptions extends ChangeNotifier {
 
   _saveInt(final String key, final int value) async {
     await _prefs.setInt(key, value);
+    notifyListeners();
+  }
+
+  _saveDouble(final String key, final double value) async {
+    await _prefs.setDouble(key, value);
     notifyListeners();
   }
 
@@ -395,6 +407,17 @@ class AppOptions extends ChangeNotifier {
 
   int get lastAllSongPerformancesStoreMillisecondsSinceEpoch => _lastAllSongPerformancesStoreMillisecondsSinceEpoch;
   int _lastAllSongPerformancesStoreMillisecondsSinceEpoch = 0;
+
+  set volume(double volume) {
+    if (_volume == volume) {
+      return;
+    }
+    _volume = volume;
+    _saveDouble('volume', _volume);
+  }
+
+  double get volume => _volume;
+  double _volume = 1.0;
 
   /// A list of the names of sheet music displays that are currently active.
   HashSet<SheetDisplay> get sheetDisplays => _sheetDisplays;

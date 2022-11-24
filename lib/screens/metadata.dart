@@ -556,7 +556,7 @@ Writing a file will allow you to reload your changes later.''',
 
   bool get isDirty => SongMetadata.isDirty;
 
-  static const NameValue _emptySelectedNameValue = NameValue('', '');
+  static final NameValue _emptySelectedNameValue = NameValue('', '');
   NameValue _selectedNameValue = _emptySelectedNameValue;
 
   final TextEditingController _nameTextFieldController = TextEditingController();

@@ -4,6 +4,9 @@ import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../screens/playList.dart';
 
 Map<DrumTypeEnum, String> drumTypeToFileMap = {
   DrumTypeEnum.closedHighHat: 'audio/hihat1.mp3',
@@ -117,147 +120,199 @@ class DrumsState extends State<DrumsWidget> {
       );
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const AppSpace(),
-      AppWrapFullWidth(spacing: app.screenInfo.mediaWidth / 80, children: [
-        Text(
-          'Drums:',
-          style: widget._headerStyle,
-        ),
-        AppWrap(children: [
-          //  enter name text
-          AppTextField(
-            appKeyEnum: AppKeyEnum.drumNameEntry,
-            controller: _drumNameTextFieldController,
-            focusNode: _drumFocusNode,
-            hintText: 'Drum name here...',
-            width: appDefaultFontSize * 40,
+    return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const AppSpace(),
+        AppWrapFullWidth(spacing: app.screenInfo.mediaWidth / 80, children: [
+          Text(
+            'Drums:',
+            style: widget._headerStyle,
+          ),
+          AppWrap(children: [
+            //  enter name text
+            AppTextField(
+              appKeyEnum: AppKeyEnum.drumNameEntry,
+              controller: _drumNameTextFieldController,
+              focusNode: _drumFocusNode,
+              hintText: 'drum name here...',
+              width: appDefaultFontSize * 40,
+              onChanged: (value) {
+                setState(() {
+                  logger.v('drum name: "$value"');
+                  _drumParts.name = value;
+                  app.clearMessage();
+                });
+              },
+            ),
+            //  name text clear
+            AppTooltip(
+                message: 'Clear the name text.',
+                child: appEnumeratedIconButton(
+                  icon: const Icon(Icons.clear),
+                  appKeyEnum: AppKeyEnum.drumNameClear,
+                  iconSize: 1.25 * (_style.fontSize ?? appDefaultFontSize),
+                  onPressed: (() {
+                    _drumNameTextFieldController.clear();
+                    _drumParts.name = '';
+                    app.clearMessage();
+                    setState(() {
+                      FocusScope.of(context).requestFocus(_drumFocusNode);
+                      //_lastSelectedSong = null;
+                    });
+                  }),
+                )),
+          ]),
+          const AppSpace(),
+          const Text('Beats:'),
+          appDropdownButton<int>(
+            AppKeyEnum.drumsBeatsDropDownList,
+            _beatsDropDownMenuList,
             onChanged: (value) {
               setState(() {
-                logger.v('drum name: "$value"');
-                app.clearMessage();
+                if (value != null) {
+                  _drumParts.beats = value;
+                }
               });
             },
+            style: widget._headerStyle,
+            value: _drumParts.beats,
+            // hint: const Text('Beats'),
           ),
-          //  name text clear
-          AppTooltip(
-              message: 'Clear the name text.',
-              child: appEnumeratedIconButton(
-                icon: const Icon(Icons.clear),
-                appKeyEnum: AppKeyEnum.drumNameClear,
-                iconSize: 1.25 * (_style.fontSize ?? appDefaultFontSize),
-                onPressed: (() {
-                  _drumNameTextFieldController.clear();
-                  app.clearMessage();
+          const AppSpace(),
+          if (_drumParts.parts.isNotEmpty)
+            AppTooltip(
+              message: 'Clear the drum selections',
+              child: appButton(
+                'Clear',
+                appKeyEnum: AppKeyEnum.drumsSelectionClear,
+                onPressed: () {
                   setState(() {
-                    FocusScope.of(context).requestFocus(_drumFocusNode);
-                    //_lastSelectedSong = null;
+                    _drumParts.clear();
                   });
-                }),
-              )),
+                },
+              ),
+            ),
+          AppTooltip(
+            message: 'Cancel the drum edit.',
+            child: appButton(
+              'Cancel',
+              appKeyEnum: AppKeyEnum.drumsSelectionClear,
+              onPressed: () {
+                setState(() {
+                  playListRefreshNotifier.requestSearchClear();
+                  playListRefreshNotifier.refresh(); // fixme: why is this required?
+                });
+              },
+            ),
+          ),
+          if (_drumParts.name.isNotEmpty)
+            AppTooltip(
+              message: 'Save the drum part',
+              child: appButton(
+                'Save',
+                appKeyEnum: AppKeyEnum.drumsSelectionSave,
+                onPressed: () {
+                  setState(() {
+                    logger.v('save: $_drumParts');
+                    DrumPartsList().add(_drumParts);
+                    playListRefreshNotifier.requestSearchClear();
+                    playListRefreshNotifier.refresh(); // fixme: why is this required?
+                  });
+                },
+              ),
+            ),
+          const AppSpace(horizontalSpace: 20),
+          if (_drumParts.name.isNotEmpty)
+            AppTooltip(
+              message: 'Delete this drum part',
+              child: appButton(
+                'Delete',
+                appKeyEnum: AppKeyEnum.drumsSelectionDelete,
+                onPressed: () {
+                  setState(() {
+                    DrumPartsList().remove(_drumParts);
+                    playListRefreshNotifier.requestSearchClear();
+                    playListRefreshNotifier.refresh(); // fixme: why is this required?
+                  });
+                },
+              ),
+            ),
         ]),
         const AppSpace(),
-        AppTooltip(
-          message: 'Clear the drum selections',
-          child: appButton(
-            'Clear',
-            appKeyEnum: AppKeyEnum.drumsSelectionClear,
-            onPressed: () {
-              setState(() {
-                _drumParts.clear();
-              });
-            },
-          ),
-        ),
-        AppTooltip(
-          message: 'Save the drum part',
-          child: appButton(
-            'Save',
-            appKeyEnum: AppKeyEnum.drumsSelectionSave,
-            onPressed: () {
-              setState(() {
-                logger.i('fixme: drums save');
-                logger.i(_drumParts.toString());
-                logger.i(_drumParts.toJson());
-              });
-            },
-          ),
-        ),
-      ]),
-      const AppSpace(),
-      Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppWrapFullWidth(children: [
-              // appNoteButton(
-              //   noteQuarterUp.character,
-              //   appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,
-              //   onPressed: () {
-              //     logger.i('noteQuarterUp pressed');
-              //   },
-              // ),
-              //         const AppSpace(),
-              //         appNoteButton(
-              //           note8thUp.character,
-              //           appKeyEnum: AppKeyEnum.sheetMusic8thNoteUp,
-              //           onPressed: () {
-              //             logger.i('note8thUp pressed');
-              //           },
-              //         ),
-              //         const AppSpace(),
-              //         appNoteButton(
-              //           note16thUp.character,
-              //           appKeyEnum: AppKeyEnum.sheetMusic16thNoteUp,
-              //           onPressed: () {
-              //             logger.i('note16thUp pressed');
-              //           },
-              //         ),
-              //       ]),
-              // //       appNoteButton(note8thUp.character, appKeyEnum: AppKeyEnum.aboutBack, onPressed: () {
-              // // logger.i('note8thUp.character here');
-              // // }),
-              //       appInkWell(
-              //           appKeyEnum: AppKeyEnum.editBack,
-              //           child: Baseline(
-              //             baselineType: TextBaseline.alphabetic,
-              //             baseline: 45,
-              //             child: Text(
-              //               note8thUp.character,
-              //               style: const TextStyle(
-              //                 fontFamily: 'Bravura',
-              //                 fontSize: 45,
-              //                 height: 0.5,
-              //                 // leadingDistribution: ui.TextLeadingDistribution.proportional,
-              //                 // fontFeatures:  [ui.FontFeature.stylisticAlternates()],
-              //               ),
-              //             ),
-              //           ),
-              //           onTap: () {
-              //             logger.i('fix me here');
-              //           }),
-              //       Container(
-              //         color: Colors.black12,
-              //         width: fontsize ,
-              //         height: fontsize,
-              //         child: Align(
-              //         alignment: symbol.isUp ? Alignment.bottomCenter : Alignment.topCenter,
-              //           child:
-              //           Text(
-              //             symbol.character,
-              //             style:  TextStyle(
-              //               fontFamily: 'Bravura',
-              //               fontSize: fontsize,
-              //              height: 1,
-              //             //  leadingDistribution: TextLeadingDistribution.proportional,
-              //             //  fontFeatures:  [ui.FontFeature.stylisticAlternates()],
-              //             ),
-              //           ),
-              //         ),
-              //     ),
-              table,
-            ]),
-          ]))
-    ]);
+        Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              AppWrapFullWidth(children: [
+                // appNoteButton(
+                //   noteQuarterUp.character,
+                //   appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,
+                //   onPressed: () {
+                //     logger.i('noteQuarterUp pressed');
+                //   },
+                // ),
+                //         const AppSpace(),
+                //         appNoteButton(
+                //           note8thUp.character,
+                //           appKeyEnum: AppKeyEnum.sheetMusic8thNoteUp,
+                //           onPressed: () {
+                //             logger.i('note8thUp pressed');
+                //           },
+                //         ),
+                //         const AppSpace(),
+                //         appNoteButton(
+                //           note16thUp.character,
+                //           appKeyEnum: AppKeyEnum.sheetMusic16thNoteUp,
+                //           onPressed: () {
+                //             logger.i('note16thUp pressed');
+                //           },
+                //         ),
+                //       ]),
+                // //       appNoteButton(note8thUp.character, appKeyEnum: AppKeyEnum.aboutBack, onPressed: () {
+                // // logger.i('note8thUp.character here');
+                // // }),
+                //       appInkWell(
+                //           appKeyEnum: AppKeyEnum.editBack,
+                //           child: Baseline(
+                //             baselineType: TextBaseline.alphabetic,
+                //             baseline: 45,
+                //             child: Text(
+                //               note8thUp.character,
+                //               style: const TextStyle(
+                //                 fontFamily: 'Bravura',
+                //                 fontSize: 45,
+                //                 height: 0.5,
+                //                 // leadingDistribution: ui.TextLeadingDistribution.proportional,
+                //                 // fontFeatures:  [ui.FontFeature.stylisticAlternates()],
+                //               ),
+                //             ),
+                //           ),
+                //           onTap: () {
+                //             logger.i('fix me here');
+                //           }),
+                //       Container(
+                //         color: Colors.black12,
+                //         width: fontsize ,
+                //         height: fontsize,
+                //         child: Align(
+                //         alignment: symbol.isUp ? Alignment.bottomCenter : Alignment.topCenter,
+                //           child:
+                //           Text(
+                //             symbol.character,
+                //             style:  TextStyle(
+                //               fontFamily: 'Bravura',
+                //               fontSize: fontsize,
+                //              height: 1,
+                //             //  leadingDistribution: TextLeadingDistribution.proportional,
+                //             //  fontFeatures:  [ui.FontFeature.stylisticAlternates()],
+                //             ),
+                //           ),
+                //         ),
+                //     ),
+                table,
+              ]),
+            ]))
+      ]);
+    });
   }
 
   late DrumParts _drumParts;
@@ -265,3 +320,23 @@ class DrumsState extends State<DrumsWidget> {
   final TextEditingController _drumNameTextFieldController = TextEditingController();
   final FocusNode _drumFocusNode = FocusNode();
 }
+
+//  make the key selection drop down list
+const List<DropdownMenuItem<int>> _beatsDropDownMenuList = [
+  DropdownMenuItem<int>(
+    value: 2,
+    child: Text('2'),
+  ),
+  DropdownMenuItem<int>(
+    value: 3,
+    child: Text('3'),
+  ),
+  DropdownMenuItem<int>(
+    value: 4,
+    child: Text('4'),
+  ),
+  DropdownMenuItem<int>(
+    value: 6,
+    child: Text('6'),
+  ),
+];

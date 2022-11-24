@@ -288,13 +288,15 @@ class PlayList extends StatefulWidget {
     isEditing = false,
     selectedSortType,
     isFromTheTop = true,
+    isOrderBy = true,
   }) : this.byGroup(SongListGroup([songList]),
             key: key,
             style: style,
             includeByLastSung: includeByLastSung,
             isEditing: isEditing,
             selectedSortType: selectedSortType,
-            isFromTheTop: isFromTheTop);
+            isFromTheTop: isFromTheTop,
+            isOrderBy: isOrderBy);
 
   PlayList.byGroup(
     this.group, {
@@ -304,6 +306,7 @@ class PlayList extends StatefulWidget {
     this.isEditing = false,
     this.selectedSortType,
     this.isFromTheTop = true,
+    this.isOrderBy = true,
   }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
     //
     titleFontSize = style?.fontSize ?? appDefaultFontSize;
@@ -327,6 +330,7 @@ class PlayList extends StatefulWidget {
   final bool isEditing;
   final PlayListSortType? selectedSortType;
   final bool isFromTheTop;
+  final bool isOrderBy;
 
   final TextStyle titleStyle;
   late final double titleFontSize;
@@ -383,18 +387,19 @@ class _PlayListState extends State<PlayList> {
 
     //  generate the sort selection
     _sortTypesDropDownMenuList.clear();
-    for (final e in PlayListSortType.values) {
-      //  fool with the drop down options
-      if (!widget.includeByLastSung) {
-        switch (e) {
-          case PlayListSortType.byHistory:
-          case PlayListSortType.byLastSung:
-          case PlayListSortType.bySinger:
-            //  if in a song play list, these should be removed
-            continue;
-          case PlayListSortType.byTitle:
-          case PlayListSortType.byArtist:
-          case PlayListSortType.byLastChange:
+    if (widget.isOrderBy) {
+      for (final e in PlayListSortType.values) {
+        //  fool with the drop down options
+        if (!widget.includeByLastSung) {
+          switch (e) {
+            case PlayListSortType.byHistory:
+            case PlayListSortType.byLastSung:
+            case PlayListSortType.bySinger:
+              //  if in a song play list, these should be removed
+              continue;
+            case PlayListSortType.byTitle:
+            case PlayListSortType.byArtist:
+            case PlayListSortType.byLastChange:
           case PlayListSortType.byComplexity:
           case PlayListSortType.byYear:
             break;
@@ -408,6 +413,7 @@ class _PlayListState extends State<PlayList> {
           style: widget.searchDropDownStyle,
         ),
       ));
+    }
     }
   }
 
@@ -442,76 +448,79 @@ class _PlayListState extends State<PlayList> {
         nameValues.addAll(id.nameValues);
       }
 
-      const allNameValue = NameValue('All', '');
+      final allNameValue = NameValue('All', '');
 
       // select order
       int Function(SongListItem key1, SongListItem key2)? compare;
-      switch (selectedSortType) {
-        case PlayListSortType.byArtist:
-          compare = (SongListItem item1, SongListItem item2) {
-            var ret = item1.song.artist.compareTo(item2.song.artist);
-            if (ret != 0) {
-              return ret;
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.byLastChange:
-          compare = (SongListItem item1, SongListItem item2) {
-            var ret = -item1.song.lastModifiedTime.compareTo(item2.song.lastModifiedTime);
-            if (ret != 0) {
-              return ret;
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.byComplexity:
-          compare = (SongListItem item1, SongListItem item2) {
-            var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
-            if (ret != 0) {
-              return ret;
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.byHistory:
-          compare = (SongListItem item1, SongListItem item2) {
-            if (item1.songPerformance != null && item2.songPerformance != null) {
-              return -SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.byLastSung:
-          compare = (SongListItem item1, SongListItem item2) {
-            if (item1.songPerformance != null && item2.songPerformance != null) {
-              return SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.bySinger:
-          compare = (SongListItem item1, SongListItem item2) {
-            if (item1.songPerformance != null && item2.songPerformance != null) {
-              return SongPerformance.compareBySinger(item1.songPerformance!, item2.songPerformance!);
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.byYear:
-          compare = (SongListItem item1, SongListItem item2) {
-            var ret = item1.song.getCopyrightYear().compareTo(item2.song.getCopyrightYear());
-            if (ret != 0) {
-              return ret;
-            }
-            return item1.compareTo(item2);
-          };
-          break;
-        case PlayListSortType.byTitle:
-          compare = (SongListItem item1, SongListItem item2) {
-            return item1.compareTo(item2);
-          };
-          break;
+      if (widget.isOrderBy) {
+        switch (selectedSortType) {
+          case PlayListSortType.byArtist:
+            compare = (SongListItem item1, SongListItem item2) {
+              var ret = item1.song.artist.compareTo(item2.song.artist);
+              if (ret != 0) {
+                return ret;
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.byLastChange:
+            compare = (SongListItem item1, SongListItem item2) {
+              var ret = -item1.song.lastModifiedTime.compareTo(item2.song.lastModifiedTime);
+              if (ret != 0) {
+                return ret;
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.byComplexity:
+            compare = (SongListItem item1, SongListItem item2) {
+              var ret = item1.song.getComplexity().compareTo(item2.song.getComplexity());
+              if (ret != 0) {
+                return ret;
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.byHistory:
+            compare = (SongListItem item1, SongListItem item2) {
+              if (item1.songPerformance != null && item2.songPerformance != null) {
+                return -SongPerformance.compareByLastSungSongIdAndSinger(
+                    item1.songPerformance!, item2.songPerformance!);
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.byLastSung:
+            compare = (SongListItem item1, SongListItem item2) {
+              if (item1.songPerformance != null && item2.songPerformance != null) {
+                return SongPerformance.compareByLastSungSongIdAndSinger(item1.songPerformance!, item2.songPerformance!);
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.bySinger:
+            compare = (SongListItem item1, SongListItem item2) {
+              if (item1.songPerformance != null && item2.songPerformance != null) {
+                return SongPerformance.compareBySinger(item1.songPerformance!, item2.songPerformance!);
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.byYear:
+            compare = (SongListItem item1, SongListItem item2) {
+              var ret = item1.song.getCopyrightYear().compareTo(item2.song.getCopyrightYear());
+              if (ret != 0) {
+                return ret;
+              }
+              return item1.compareTo(item2);
+            };
+            break;
+          case PlayListSortType.byTitle:
+            compare = (SongListItem item1, SongListItem item2) {
+              return item1.compareTo(item2);
+            };
+            break;
+        }
       }
 
       //  generate list of current filters
@@ -703,7 +712,7 @@ class _PlayListState extends State<PlayList> {
                   //  filters and order
                   AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
                     //  filters and order
-                    if (app.isScreenBig)
+                    if (app.isScreenBig && widget.isOrderBy)
                       AppWrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         spacing: app.screenInfo.fontSize / 2,

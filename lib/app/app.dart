@@ -26,7 +26,7 @@ String userName =
 final Color appDisabledColor = Colors.grey.shade300;
 const double appDefaultFontSize = 10.0; //  based on phone
 
-const NameValue allSongsMetadataNameValue = NameValue('all', '');
+final NameValue allSongsMetadataNameValue = NameValue('All', '');
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 

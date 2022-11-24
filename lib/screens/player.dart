@@ -2055,43 +2055,43 @@ With z or q, the app goes back to the play list.''',
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 1,
-        child: const Text('+1   (-11) halfsteps = scale  ${MusicConstants.flatChar}2')),
+        child: const Text('+1   (-11) half steps = scale  ${MusicConstants.flatChar}2')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 2,
-        child: const Text('+2   (-10) halfsteps = scale   2, B${MusicConstants.flatChar} instrument')),
+        child: const Text('+2   (-10) half steps = scale   2, B${MusicConstants.flatChar} instrument')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 3,
-        child: const Text('+3   (-9)   halfsteps = scale  ${MusicConstants.flatChar}3')),
+        child: const Text('+3   (-9)   half steps = scale  ${MusicConstants.flatChar}3')),
     appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 4, child: const Text('+4   (-8)   halfsteps = scale   3')),
+        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 4, child: const Text('+4   (-8)   half steps = scale   3')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 5,
-        child: const Text('+5   (-7)   halfsteps = scale   4, baritone guitar')),
+        child: const Text('+5   (-7)   half steps = scale   4, baritone guitar')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 6,
-        child: const Text('+6   (-6)   halfsteps = scale  ${MusicConstants.flatChar}5')),
+        child: const Text('+6   (-6)   half steps = scale  ${MusicConstants.flatChar}5')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 7,
-        child: const Text('+7   (-5)   halfsteps = scale   5, F instrument')),
+        child: const Text('+7   (-5)   half steps = scale   5, F instrument')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 8,
-        child: const Text('+8   (-4)   halfsteps = scale  ${MusicConstants.flatChar}6')),
+        child: const Text('+8   (-4)   half steps = scale  ${MusicConstants.flatChar}6')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 9,
-        child: const Text('+9   (-3)   halfsteps = scale   6, E${MusicConstants.flatChar} instrument')),
+        child: const Text('+9   (-3)   half steps = scale   6, E${MusicConstants.flatChar} instrument')),
     appDropdownMenuItem(
         appKeyEnum: AppKeyEnum.playerKeyOffset,
         value: 10,
-        child: const Text('+10 (-2)   halfsteps = scale  ${MusicConstants.flatChar}7')),
+        child: const Text('+10 (-2)   half steps = scale  ${MusicConstants.flatChar}7')),
     appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 11, child: const Text('+11 (-1)   halfsteps = scale   7')),
+        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 11, child: const Text('+11 (-1)   half steps = scale   7')),
   ];
 
   void _resetIdleTimer() {

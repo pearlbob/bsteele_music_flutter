@@ -18,6 +18,7 @@
 * insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 * player: in pause, reposition play with up/down arrows or scroll, continue from new location with space bar hit
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
+* Back to player from song preview on youtube.com, fullscreen button missing
 
 ### Fixme
 

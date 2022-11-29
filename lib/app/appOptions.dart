@@ -8,6 +8,7 @@ import 'package:bsteeleMusicLib/songs/song_performance.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
+import 'package:bsteele_music_flutter/util/usTimer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +24,7 @@ enum StorageValue {
   allSongPerformances,
   nashvilleSelection,
   userDisplayStyle,
+  drumPartsListJson,
 }
 
 /// Application level, persistent, shared values.
@@ -39,6 +41,7 @@ class AppOptions extends ChangeNotifier {
   /// Must be called and waited for prior to appOptions first use!
   /// fixme: this arrangement should be improved!
   Future<void> init() async {
+    var usTimer = UsTimer();
     _prefs = await SharedPreferences.getInstance();
     _userDisplayStyle = Util.enumFromString(
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
@@ -48,6 +51,7 @@ class AppOptions extends ChangeNotifier {
             await _readString(StorageValue.nashvilleSelection.name, defaultValue: NashvilleSelection.off.name),
             NashvilleSelection.values) ??
         NashvilleSelection.off;
+    _drumPartsListJson = await _readString(StorageValue.drumPartsListJson.name, defaultValue: '');
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     _countIn = await _readBool('countIn', defaultValue: _countIn);
     _dashAllMeasureRepetitions = await _readBool('dashAllMeasureRepetitions', defaultValue: _dashAllMeasureRepetitions);
@@ -72,6 +76,7 @@ class AppOptions extends ChangeNotifier {
     _volume = await _readDouble('volume', defaultValue: 1.0);
     _updateAllSongPerformances();
     notifyListeners();
+    logger.v('AppOptions: ${usTimer.seconds} s');
   }
 
   /// A persistent debug flag for internal software development use.
@@ -268,6 +273,17 @@ class AppOptions extends ChangeNotifier {
     if (_userDisplayStyle != value) {
       _userDisplayStyle = value;
       _saveString(StorageValue.userDisplayStyle.name, value.name);
+    }
+  }
+
+  /// The user's drum parts list JSON
+  String get drumPartsListJson => _drumPartsListJson;
+  String _drumPartsListJson = '';
+
+  set drumPartsListJson(String value) {
+    if (_drumPartsListJson != value) {
+      _drumPartsListJson = value;
+      _saveString(StorageValue.drumPartsListJson.name, value);
     }
   }
 

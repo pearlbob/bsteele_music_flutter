@@ -3,9 +3,11 @@ import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/appOptions.dart';
 import '../screens/playList.dart';
 
 Map<DrumTypeEnum, String> drumTypeToFileMap = {
@@ -44,7 +46,7 @@ class DrumsState extends State<DrumsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Table table;
+    Table? table;
 
     {
       List<TableRow> rows = [];
@@ -120,10 +122,12 @@ class DrumsState extends State<DrumsWidget> {
       );
     }
 
+    var spacing = app.screenInfo.mediaWidth / 80;
+
     return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const AppSpace(),
-        AppWrapFullWidth(spacing: app.screenInfo.mediaWidth / 80, children: [
+        AppWrapFullWidth(spacing: spacing, children: [
           Text(
             'Drums:',
             style: widget._headerStyle,
@@ -134,7 +138,7 @@ class DrumsState extends State<DrumsWidget> {
               appKeyEnum: AppKeyEnum.drumNameEntry,
               controller: _drumNameTextFieldController,
               focusNode: _drumFocusNode,
-              hintText: 'drum name here...',
+              hintText: 'drum part name here...',
               width: appDefaultFontSize * 40,
               onChanged: (value) {
                 setState(() {
@@ -179,32 +183,6 @@ class DrumsState extends State<DrumsWidget> {
             // hint: const Text('Beats'),
           ),
           const AppSpace(),
-          if (_drumParts.parts.isNotEmpty)
-            AppTooltip(
-              message: 'Clear the drum selections',
-              child: appButton(
-                'Clear',
-                appKeyEnum: AppKeyEnum.drumsSelectionClear,
-                onPressed: () {
-                  setState(() {
-                    _drumParts.clear();
-                  });
-                },
-              ),
-            ),
-          AppTooltip(
-            message: 'Cancel the drum edit.',
-            child: appButton(
-              'Cancel',
-              appKeyEnum: AppKeyEnum.drumsSelectionClear,
-              onPressed: () {
-                setState(() {
-                  playListRefreshNotifier.requestSearchClear();
-                  playListRefreshNotifier.refresh(); // fixme: why is this required?
-                });
-              },
-            ),
-          ),
           if (_drumParts.name.isNotEmpty)
             AppTooltip(
               message: 'Save the drum part',
@@ -214,29 +192,59 @@ class DrumsState extends State<DrumsWidget> {
                 onPressed: () {
                   setState(() {
                     logger.v('save: $_drumParts');
-                    DrumPartsList().add(_drumParts);
+                    _drumPartsList.add(_drumParts);
                     playListRefreshNotifier.requestSearchClear();
                     playListRefreshNotifier.refresh(); // fixme: why is this required?
+                    _appOptions.drumPartsListJson = _drumPartsList.toJson();
                   });
                 },
               ),
             ),
-          const AppSpace(horizontalSpace: 20),
-          if (_drumParts.name.isNotEmpty)
+          AppSpace(horizontalSpace: spacing),
+          AppWrap(spacing: spacing, children: [
+            if (_drumParts.parts.isNotEmpty)
+              AppTooltip(
+                message: 'Clear the drum selections',
+                child: appButton(
+                  'Clear',
+                  appKeyEnum: AppKeyEnum.drumsSelectionClear,
+                  onPressed: () {
+                    setState(() {
+                      _drumParts.clear();
+                    });
+                  },
+                ),
+              ),
             AppTooltip(
-              message: 'Delete this drum part',
+              message: 'Cancel the drum edit.',
               child: appButton(
-                'Delete',
-                appKeyEnum: AppKeyEnum.drumsSelectionDelete,
+                'Cancel',
+                appKeyEnum: AppKeyEnum.drumsSelectionClear,
                 onPressed: () {
                   setState(() {
-                    DrumPartsList().remove(_drumParts);
                     playListRefreshNotifier.requestSearchClear();
                     playListRefreshNotifier.refresh(); // fixme: why is this required?
                   });
                 },
               ),
             ),
+            if (_drumParts.name.isNotEmpty)
+              AppTooltip(
+                message: 'Delete this drum part',
+                child: appButton(
+                  'Delete',
+                  appKeyEnum: AppKeyEnum.drumsSelectionDelete,
+                  onPressed: () {
+                    setState(() {
+                      _drumPartsList.remove(_drumParts);
+                      playListRefreshNotifier.requestSearchClear();
+                      playListRefreshNotifier.refresh(); // fixme: why is this required?
+                      _appOptions.drumPartsListJson = _drumPartsList.toJson();
+                    });
+                  },
+                ),
+              ),
+          ]),
         ]),
         const AppSpace(),
         Container(
@@ -308,7 +316,7 @@ class DrumsState extends State<DrumsWidget> {
                 //           ),
                 //         ),
                 //     ),
-                table,
+                table ?? NullWidget(),
               ]),
             ]))
       ]);
@@ -316,6 +324,9 @@ class DrumsState extends State<DrumsWidget> {
   }
 
   late DrumParts _drumParts;
+
+  final _drumPartsList = DrumPartsList();
+  final _appOptions = AppOptions();
 
   final TextEditingController _drumNameTextFieldController = TextEditingController();
   final FocusNode _drumFocusNode = FocusNode();

@@ -70,6 +70,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/song_performance.dart';
@@ -164,6 +165,9 @@ void main() async {
     hostIsWebsocketHost = true;
     appLogMessage('auto-magic websocket: $host');
   }
+
+  //  read the local drum parts list
+  DrumPartsList().fromJson(AppOptions().drumPartsListJson);
 
   await AppTheme().init(); //  init the singleton
 
@@ -274,7 +278,7 @@ class BSteeleMusicApp extends StatelessWidget {
               CommunityJams.routeName: (context) => const Debug(),
               StyleDemo.routeName: (context) => const StyleDemo(),
               TheoryWidget.routeName: (context) => const TheoryWidget(),
-              DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong),
+              DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong, isEditing: true),
             },
           );
         });
@@ -922,7 +926,10 @@ class MyHomePageState extends State<MyHomePage> {
   _navigateToDrums() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const DrumScreen()),
+      MaterialPageRoute(
+          builder: (context) => const DrumScreen(
+                isEditing: true,
+              )),
     );
     if (!mounted) {
       return;

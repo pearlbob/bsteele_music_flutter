@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/chord_section.dart';
+import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/section_version.dart';
@@ -264,6 +265,8 @@ class App {
   }
 
   Song get selectedSong => _selectedSong;
+
+  DrumParts? selectedDrumParts;
 
   int _selectedMomentNumber = 0;
 

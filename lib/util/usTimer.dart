@@ -1,6 +1,11 @@
 class UsTimer {
+  /// Microseconds since construction
   int get us => DateTime.now().microsecondsSinceEpoch - _initialEpochUs;
 
+  /// Seconds since construction
+  double get seconds => (DateTime.now().microsecondsSinceEpoch - _initialEpochUs) / Duration.microsecondsPerSecond;
+
+  /// Microseconds since construction or last call
   int get delta {
     int lastUs = _lastEpochUs ?? _initialEpochUs;
     int us = DateTime.now().microsecondsSinceEpoch;

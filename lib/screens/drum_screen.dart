@@ -61,16 +61,15 @@ class DrumListItem implements SongListItem {
   final DrumParts drumParts;
 }
 
-int _beats = 4; //  fixme temp
-
 /// Show some data about the app and it's environment.
 class DrumScreen extends StatefulWidget {
-  const DrumScreen({Key? key, this.song}) : super(key: key);
+  const DrumScreen({Key? key, this.song, this.isEditing = false}) : super(key: key);
 
   @override
   DrumScreenState createState() => DrumScreenState();
 
   final Song? song;
+  final bool isEditing;
 
   static const String routeName = 'drumScreen';
 }
@@ -79,6 +78,8 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   @override
   initState() {
     super.initState();
+
+    _isEditing = widget.isEditing;
 
     _lastSize = WidgetsBinding.instance.window.physicalSize;
     WidgetsBinding.instance.addObserver(this);
@@ -97,11 +98,21 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     app.screenInfo.refresh(context);
 
     if (_drumPartsList.isEmpty) {
-      // fixme temp
-      _drumPartsList.add(DrumParts(
-          name: 'test1', beats: _beats, parts: [DrumPart(DrumTypeEnum.closedHighHat, beats: _beats)..addBeat(0)]));
-      _drumPartsList.add(
-          DrumParts(name: 'test2', beats: _beats, parts: [DrumPart(DrumTypeEnum.bass, beats: _beats)..addBeat(1)]));
+      //  fill with something meaningful if empty
+      const beats = 4;
+      _drumPartsList.add(DrumParts(name: 'minimum', beats: beats, parts: [
+        DrumPart(DrumTypeEnum.closedHighHat, beats: beats)
+          ..addBeat(0) //  beats here count from zero!
+          ..addBeat(2)
+      ]));
+      _drumPartsList.add(DrumParts(name: 'snare', beats: beats, parts: [
+        DrumPart(DrumTypeEnum.closedHighHat, beats: beats)
+          ..addBeat(0)
+          ..addBeat(2),
+        DrumPart(DrumTypeEnum.snare, beats: beats)
+          ..addBeat(1)
+          ..addBeat(3),
+      ]));
     }
 
     var style = generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize);
@@ -117,22 +128,24 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
         body: DefaultTextStyle(
           style: style,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            _drums ??
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AppTooltip(
-                    message: 'Create a new drum part',
-                    child: appButton(
-                      'Create new drums',
-                      appKeyEnum: AppKeyEnum.drumScreenNew,
-                      onPressed: () {
-                        setState(() {
-                          _drums = DrumsWidget(key: UniqueKey(), drumParts: DrumParts()..name = '');
-                        });
-                      },
-                    ),
-                  ),
-                ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _isEditing
+                  ? (_drums ??
+                      AppTooltip(
+                        message: 'Create a new drum part',
+                        child: appButton(
+                          'Create new drums',
+                          appKeyEnum: AppKeyEnum.drumScreenNew,
+                          onPressed: () {
+                            setState(() {
+                              _drums = DrumsWidget(key: UniqueKey(), drumParts: DrumParts()..name = '');
+                            });
+                          },
+                        ),
+                      ))
+                  : Text('Select drums for: ${songToString(widget.song)}'),
+            ),
             PlayList(
               songList: SongList('DrumList', _drumPartsList.drumParts.map((e) => DrumListItem(e)).toList(),
                   songItemAction: loadDrumListItem),
@@ -147,12 +160,24 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     });
   }
 
-  loadDrumListItem(BuildContext context, SongListItem songListItem) async {
-    DrumParts drumParts = (songListItem as DrumListItem).drumParts.copyWith();
+  String songToString(final Song? song) {
+    return song == null
+        ? ''
+        : '${song.title} by ${song.artist}${song.coverArtist.isEmpty ? '' : ' cover by ${song.coverArtist}'}';
+  }
 
-    setState(() {
-      _drums = DrumsWidget(key: UniqueKey(), drumParts: drumParts);
-    });
+  loadDrumListItem(BuildContext context, SongListItem songListItem) async {
+    if (_isEditing) {
+      //  edit the selection
+      DrumParts drumParts = (songListItem as DrumListItem).drumParts.copyWith();
+      setState(() {
+        _drums = DrumsWidget(key: UniqueKey(), drumParts: drumParts);
+      });
+    } else {
+      //  complete the selection
+      app.selectedDrumParts = (songListItem as DrumListItem).drumParts;
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -172,6 +197,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  bool _isEditing = false;
   DrumsWidget? _drums;
   late Size _lastSize;
 

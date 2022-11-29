@@ -69,7 +69,7 @@ enum _SongPlayMode {
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0;
 
-DrumParts _drumParts = DrumParts(); //  temp
+DrumParts? _drumParts = DrumParts(); //  temp
 
 final _songMomentNotifier = SongMomentNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
@@ -174,6 +174,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _song = widget._song;
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
     playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
+    _drumParts = _drumPartsList.songMatch(_song);
     _songMomentNotifier.songMoment = null;
     _lyricSectionNotifier.index = 0;
     sectionSongMoments.clear();
@@ -1519,19 +1520,33 @@ With z or q, the app goes back to the play list.''',
     _resetIdleTimer();
   }
 
-  void navigateToDrums(BuildContext context, Song song) async {
+  Future<void> navigateToDrums(BuildContext context, Song song) {
     _playerIsOnTop = false;
     _cancelIdleTimer();
-    await Navigator.pushNamed(
+
+    return Navigator.push(
       context,
-      DrumScreen.routeName,
-    );
-    _playerIsOnTop = true;
-    widget._song = app.selectedSong;
-    _song = widget._song;
-    _lyricSectionNotifier.index = 0;
-    forceTableRedisplay();
-    _resetIdleTimer();
+      MaterialPageRoute(
+          builder: (context) => DrumScreen(
+                song: song,
+                isEditing: false,
+              )),
+    ).then((value) {
+      _drumPartsList.match(song, app.selectedDrumParts);
+      appOptions.drumPartsListJson = _drumPartsList.toJson();
+      _drumParts = app.selectedDrumParts;
+
+      logger.i('app.selectedDrumParts: ${app.selectedDrumParts}');
+      logger.i('songMatch: ${_drumPartsList.songMatch(song)?.name}');
+      logger.v('_drumPartsList: ${_drumPartsList.toJson()}');
+
+      _playerIsOnTop = true;
+      widget._song = app.selectedSong;
+      _song = widget._song;
+      _lyricSectionNotifier.index = 0;
+      forceTableRedisplay();
+      _resetIdleTimer();
+    });
   }
 
   void forceTableRedisplay() {
@@ -1589,131 +1604,132 @@ With z or q, the app goes back to the play list.''',
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
-              insetPadding: EdgeInsets.zero,
+          insetPadding: EdgeInsets.zero,
               title: Text(
                 'Player settings:',
                 style: boldStyle,
               ),
-              content: SizedBox(
-                width: app.screenInfo.mediaWidth * 0.7,
-                child: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppWrapFullWidth(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: viewportWidth(0.5),
-                          children: [
-                            Text(
-                              'User style: ',
-                              style: boldStyle,
-                            ),
-                            //  pro player
-                            AppWrap(children: [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.proPlayer,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
+              content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+                logger.i('StatefulBuilder.build:');
+                return SizedBox(
+                    width: app.screenInfo.mediaWidth * 0.7,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppWrapFullWidth(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: viewportWidth(0.5),
+                            children: [
+                              Text(
+                                'User style: ',
+                                style: boldStyle,
+                              ),
+                              //  pro player
+                              AppWrap(children: [
+                                Radio<UserDisplayStyle>(
+                                  value: UserDisplayStyle.proPlayer,
+                                  groupValue: appOptions.userDisplayStyle,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        appOptions.userDisplayStyle = value;
+                                        adjustDisplay();
+                                      }
+                                    });
+                                  },
+                                ),
+                                appTextButton(
+                                  'Pro',
+                                  appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                  onPressed: () {
+                                    setState(() {
+                                      appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
                                       adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Pro',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
-                                    adjustDisplay();
-                                  });
-                                },
-                                style: popupStyle,
-                              ),
-                            ]),
-                            //  player
-                            AppWrap(children: [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.player,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
+                                    });
+                                  },
+                                  style: popupStyle,
+                                ),
+                              ]),
+                              //  player
+                              AppWrap(children: [
+                                Radio<UserDisplayStyle>(
+                                  value: UserDisplayStyle.player,
+                                  groupValue: appOptions.userDisplayStyle,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        appOptions.userDisplayStyle = value;
+                                        adjustDisplay();
+                                      }
+                                    });
+                                  },
+                                ),
+                                appTextButton(
+                                  'Player',
+                                  appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                  onPressed: () {
+                                    setState(() {
+                                      appOptions.userDisplayStyle = UserDisplayStyle.player;
                                       adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Player',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.player;
-                                    adjustDisplay();
-                                  });
-                                },
-                                style: popupStyle,
-                              ),
-                            ]),
-                            //  both
-                            AppWrap(children: [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.both,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
+                                    });
+                                  },
+                                  style: popupStyle,
+                                ),
+                              ]),
+                              //  both
+                              AppWrap(children: [
+                                Radio<UserDisplayStyle>(
+                                  value: UserDisplayStyle.both,
+                                  groupValue: appOptions.userDisplayStyle,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        appOptions.userDisplayStyle = value;
+                                        adjustDisplay();
+                                      }
+                                    });
+                                  },
+                                ),
+                                appTextButton(
+                                  'Both Player and Singer',
+                                  appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                  onPressed: () {
+                                    setState(() {
+                                      appOptions.userDisplayStyle = UserDisplayStyle.both;
                                       adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Both Player and Singer',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.both;
-                                    adjustDisplay();
-                                  });
-                                },
-                                style: popupStyle,
-                              ),
-                            ]),
-                            //  singer
-                            AppWrap(children: [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.singer,
-                                groupValue: appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      appOptions.userDisplayStyle = value;
+                                    });
+                                  },
+                                  style: popupStyle,
+                                ),
+                              ]),
+                              //  singer
+                              AppWrap(children: [
+                                Radio<UserDisplayStyle>(
+                                  value: UserDisplayStyle.singer,
+                                  groupValue: appOptions.userDisplayStyle,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value != null) {
+                                        appOptions.userDisplayStyle = value;
+                                        adjustDisplay();
+                                      }
+                                    });
+                                  },
+                                ),
+                                appTextButton(
+                                  'Singer',
+                                  appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                  onPressed: () {
+                                    setState(() {
+                                      appOptions.userDisplayStyle = UserDisplayStyle.singer;
                                       adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              appTextButton(
-                                'Singer',
-                                appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                onPressed: () {
-                                  setState(() {
-                                    appOptions.userDisplayStyle = UserDisplayStyle.singer;
-                                    adjustDisplay();
-                                  });
-                                },
-                                style: popupStyle,
-                              ),
-                            ]),
-                            //  banner
+                                    });
+                                  },
+                                  style: popupStyle,
+                                ),
+                              ]),
+                              //  banner
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.banner,
@@ -1739,276 +1755,280 @@ With z or q, the app goes back to the play list.''',
                                   style: popupStyle,
                                 ),
                               ]),
-                          ]),
-                      //  const AppSpaceViewportWidth(),
-                      AppWrapFullWidth(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: viewportWidth(0.5),
-                          children: [
-                            appTextButton(
-                              'Repeats:',
-                              appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
-                              value: appOptions.compressRepeats,
-                              onPressed: () {
-                                setState(() {
-                                  compressRepeats = !compressRepeats;
-                                  adjustDisplay();
-                                });
-                              },
-                              style: boldStyle,
-                            ),
-                            AppWrap(children: [
-                              Radio<bool>(
-                                value: true,
-                                groupValue: appOptions.compressRepeats,
-                                onChanged: (value) {
+                            ]),
+                        //  const AppSpaceViewportWidth(),
+                        AppWrapFullWidth(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: viewportWidth(0.5),
+                            children: [
+                              appTextButton(
+                                'Repeats:',
+                                appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
+                                value: appOptions.compressRepeats,
+                                onPressed: () {
                                   setState(() {
-                                    setState(() {
-                                      compressRepeats = true;
-                                      adjustDisplay();
-                                    });
+                                    compressRepeats = !compressRepeats;
+                                    adjustDisplay();
                                   });
                                 },
+                                style: boldStyle,
                               ),
-                              AppTooltip(
-                                message: 'Compress the repeats on this song',
-                                child: appIconButton(
-                                  appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                                  icon: appIcon(Icons.compress),
-                                  value: compressRepeats,
-                                  onPressed: () {
+                              AppWrap(children: [
+                                Radio<bool>(
+                                  value: true,
+                                  groupValue: appOptions.compressRepeats,
+                                  onChanged: (value) {
                                     setState(() {
-                                      compressRepeats = true;
-                                      adjustDisplay();
+                                      setState(() {
+                                        compressRepeats = true;
+                                        adjustDisplay();
+                                      });
                                     });
                                   },
                                 ),
-                              ),
-                            ]),
-                            AppWrap(children: [
-                              Radio<bool>(
-                                value: false,
-                                groupValue: appOptions.compressRepeats,
-                                onChanged: (value) {
-                                  setState(() {
-                                    setState(() {
-                                      compressRepeats = false;
-                                      adjustDisplay();
-                                    });
-                                  });
-                                },
-                              ),
-                              AppTooltip(
-                                message: 'Expand the repeats on this song',
-                                child: appIconButton(
-                                  appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                                  icon: appIcon(Icons.expand),
-                                  value: compressRepeats,
-                                  onPressed: () {
-                                    setState(() {
-                                      compressRepeats = false;
-                                      adjustDisplay();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ]),
-                            const AppSpace(
-                              horizontalSpace: 20,
-                            ),
-                            AppWrap(
-                              alignment: WrapAlignment.start,
-                              children: [
                                 AppTooltip(
-                                  message: 'Show Nashville notation.',
-                                  child: Text(
-                                    'Nashville: ',
-                                    style: boldStyle,
-                                    softWrap: false,
+                                  message: 'Compress the repeats on this song',
+                                  child: appIconButton(
+                                    appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                                    icon: appIcon(Icons.compress),
+                                    value: compressRepeats,
+                                    onPressed: () {
+                                      setState(() {
+                                        compressRepeats = true;
+                                        adjustDisplay();
+                                      });
+                                    },
                                   ),
                                 ),
-                                AppRadio<NashvilleSelection>(
-                                    text: 'Off',
-                                    appKeyEnum: AppKeyEnum.optionsNashville,
-                                    value: NashvilleSelection.off,
-                                    groupValue: appOptions.nashvilleSelection,
+                              ]),
+                              AppWrap(children: [
+                                Radio<bool>(
+                                  value: false,
+                                  groupValue: appOptions.compressRepeats,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      setState(() {
+                                        compressRepeats = false;
+                                        adjustDisplay();
+                                      });
+                                    });
+                                  },
+                                ),
+                                AppTooltip(
+                                  message: 'Expand the repeats on this song',
+                                  child: appIconButton(
+                                    appKeyEnum: AppKeyEnum.playerCompressRepeats,
+                                    icon: appIcon(Icons.expand),
+                                    value: compressRepeats,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.nashvilleSelection = NashvilleSelection.off;
+                                        compressRepeats = false;
                                         adjustDisplay();
                                       });
                                     },
-                                    style: popupStyle),
-                                AppRadio<NashvilleSelection>(
-                                    text: 'both',
-                                    appKeyEnum: AppKeyEnum.optionsNashville,
-                                    value: NashvilleSelection.both,
-                                    groupValue: appOptions.nashvilleSelection,
-                                    onPressed: () {
-                                      setState(() {
-                                        appOptions.nashvilleSelection = NashvilleSelection.both;
-                                        adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle),
-                                AppRadio<NashvilleSelection>(
-                                    text: 'only',
-                                    appKeyEnum: AppKeyEnum.optionsNashville,
-                                    value: NashvilleSelection.only,
-                                    groupValue: appOptions.nashvilleSelection,
-                                    onPressed: () {
-                                      setState(() {
-                                        appOptions.nashvilleSelection = NashvilleSelection.only;
-                                        adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle),
-                              ],
-                            ),
-                            const AppSpace(
-                              horizontalSpace: 20,
-                            ),
-                            if (appOptions.userDisplayStyle != UserDisplayStyle.singer)
+                                  ),
+                                ),
+                              ]),
+                              const AppSpace(
+                                horizontalSpace: 20,
+                              ),
                               AppWrap(
                                 alignment: WrapAlignment.start,
                                 children: [
-                                  if (!songUpdateService.isLeader)
-                                    AppTooltip(
-                                      message: 'For a guitar, show the capo location and\n'
-                                          'chords to match the current key.',
-                                      child: appTextButton(
-                                        'Capo',
-                                        appKeyEnum: AppKeyEnum.playerCapoLabel,
-                                        value: _isCapo,
-                                        style: boldStyle,
-                                        onPressed: () {
-                                          setState(
-                                            () {
-                                              _isCapo = !_isCapo;
-                                              setSelectedSongKey(_selectedSongKey);
-                                              adjustDisplay();
-                                            },
-                                          );
-                                        },
-                                        //softWrap: false,
-                                      ),
+                                  AppTooltip(
+                                    message: 'Show Nashville notation.',
+                                    child: Text(
+                                      'Nashville: ',
+                                      style: boldStyle,
+                                      softWrap: false,
                                     ),
-                                  if (!songUpdateService.isLeader)
-                                    appSwitch(
-                                      appKeyEnum: AppKeyEnum.playerCapo,
-                                      value: _isCapo,
-                                      onChanged: (value) {
+                                  ),
+                                  AppRadio<NashvilleSelection>(
+                                      text: 'Off',
+                                      appKeyEnum: AppKeyEnum.optionsNashville,
+                                      value: NashvilleSelection.off,
+                                      groupValue: appOptions.nashvilleSelection,
+                                      onPressed: () {
                                         setState(() {
-                                          _isCapo = !_isCapo;
-                                          setSelectedSongKey(_selectedSongKey);
+                                          appOptions.nashvilleSelection = NashvilleSelection.off;
                                           adjustDisplay();
                                         });
                                       },
-                                    ),
-                                  if (songUpdateService.isLeader)
-                                    Text(
-                                      'Capo: not available to the leader',
-                                      style: popupStyle,
-                                    ),
+                                      style: popupStyle),
+                                  AppRadio<NashvilleSelection>(
+                                      text: 'both',
+                                      appKeyEnum: AppKeyEnum.optionsNashville,
+                                      value: NashvilleSelection.both,
+                                      groupValue: appOptions.nashvilleSelection,
+                                      onPressed: () {
+                                        setState(() {
+                                          appOptions.nashvilleSelection = NashvilleSelection.both;
+                                          adjustDisplay();
+                                        });
+                                      },
+                                      style: popupStyle),
+                                  AppRadio<NashvilleSelection>(
+                                      text: 'only',
+                                      appKeyEnum: AppKeyEnum.optionsNashville,
+                                      value: NashvilleSelection.only,
+                                      groupValue: appOptions.nashvilleSelection,
+                                      onPressed: () {
+                                        setState(() {
+                                          appOptions.nashvilleSelection = NashvilleSelection.only;
+                                          adjustDisplay();
+                                        });
+                                      },
+                                      style: popupStyle),
                                 ],
                               ),
-                          ]),
-                      const AppSpace(),
-                      AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                        Text(
-                          'Volume:',
-                          style: popupStyle,
-                        ),
-                        SizedBox(
-                          width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
-                          child: Slider(
-                            value: appOptions.volume * 10,
-                            onChanged: (value) {
-                              setState(() {
-                                appOptions.volume = value / 10;
-                              });
-                            },
-                            min: 0,
-                            max: 10.0,
-                          ),
-                        ),
-                      ]),
-                      const AppSpace(),
-                      AppTooltip(
-                        message: 'Edit the drums',
-                        child: appIconButton(
-                          appKeyEnum: AppKeyEnum.playerEditDrums,
-                          label: 'Drums',
-                          fontSize: popupStyle.fontSize,
-                          icon: appIcon(
-                            Icons.edit,
-                          ),
-                          onPressed: () {
-                            navigateToDrums(context, _song);
-                          },
-                        ),
-                      ),
-                      const AppSpace(),
-                      AppWrapFullWidth(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: viewportWidth(1),
-                        children: [
+                              const AppSpace(
+                                horizontalSpace: 20,
+                              ),
+                              if (appOptions.userDisplayStyle != UserDisplayStyle.singer)
+                                AppWrap(
+                                  alignment: WrapAlignment.start,
+                                  children: [
+                                    if (!songUpdateService.isLeader)
+                                      AppTooltip(
+                                        message: 'For a guitar, show the capo location and\n'
+                                            'chords to match the current key.',
+                                        child: appTextButton(
+                                          'Capo',
+                                          appKeyEnum: AppKeyEnum.playerCapoLabel,
+                                          value: _isCapo,
+                                          style: boldStyle,
+                                          onPressed: () {
+                                            setState(
+                                              () {
+                                                _isCapo = !_isCapo;
+                                                setSelectedSongKey(_selectedSongKey);
+                                                adjustDisplay();
+                                              },
+                                            );
+                                          },
+                                          //softWrap: false,
+                                        ),
+                                      ),
+                                    if (!songUpdateService.isLeader)
+                                      appSwitch(
+                                        appKeyEnum: AppKeyEnum.playerCapo,
+                                        value: _isCapo,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _isCapo = !_isCapo;
+                                            setSelectedSongKey(_selectedSongKey);
+                                            adjustDisplay();
+                                          });
+                                        },
+                                      ),
+                                    if (songUpdateService.isLeader)
+                                      Text(
+                                        'Capo: not available to the leader',
+                                        style: popupStyle,
+                                      ),
+                                  ],
+                                ),
+                            ]),
+                        const AppSpace(),
+                        AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                           Text(
-                            'NinJam choice:',
+                            'Volume:',
+                            style: popupStyle,
+                          ),
+                          SizedBox(
+                            width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
+                            child: Slider(
+                              value: appOptions.volume * 10,
+                              onChanged: (value) {
+                                setState(() {
+                                  appOptions.volume = value / 10;
+                                });
+                              },
+                              min: 0,
+                              max: 10.0,
+                            ),
+                          ),
+                        ]),
+                        const AppSpace(),
+                        AppWrapFullWidth(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: viewportWidth(1),
+                            children: [
+                              AppTooltip(
+                                message: 'Select the drums',
+                                child: appIconButton(
+                                    appKeyEnum: AppKeyEnum.playerEditDrums,
+                                    label: 'Drums',
+                                    fontSize: popupStyle.fontSize,
+                                    icon: appIcon(
+                                      Icons.edit,
+                                    ),
+                                    onPressed: () {
+                                      navigateToDrums(context, _song).then((value) => setState(() {}));
+                                    }),
+                              ),
+                              Text(_drumParts?.name ?? 'no drum parts', style: popupStyle)
+                            ]),
+                        const AppSpace(),
+                        AppWrapFullWidth(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: viewportWidth(1),
+                          children: [
+                            Text(
+                              'NinJam choice:',
+                              style: boldStyle,
+                            ),
+                            AppRadio<bool>(
+                                text: 'No NinJam aids',
+                                appKeyEnum: AppKeyEnum.optionsNinJam,
+                                value: false,
+                                groupValue: appOptions.ninJam,
+                                onPressed: () {
+                                  setState(() {
+                                    appOptions.ninJam = false;
+                                    adjustDisplay();
+                                  });
+                                },
+                                style: popupStyle),
+                            AppRadio<bool>(
+                                text: 'Show NinJam aids',
+                                appKeyEnum: AppKeyEnum.optionsNinJam,
+                                value: true,
+                                groupValue: appOptions.ninJam,
+                                onPressed: () {
+                                  setState(() {
+                                    appOptions.ninJam = true;
+                                    adjustDisplay();
+                                  });
+                                },
+                                style: popupStyle),
+                          ],
+                        ),
+                        const AppVerticalSpace(),
+                        AppWrapFullWidth(children: <Widget>[
+                          Text(
+                            'Display key offset: ',
                             style: boldStyle,
                           ),
-                          AppRadio<bool>(
-                              text: 'No NinJam aids',
-                              appKeyEnum: AppKeyEnum.optionsNinJam,
-                              value: false,
-                              groupValue: appOptions.ninJam,
-                              onPressed: () {
+                          appDropdownButton<int>(
+                            AppKeyEnum.playerKeyOffset,
+                            keyOffsetItems,
+                            onChanged: (value) {
+                              if (value != null) {
                                 setState(() {
-                                  appOptions.ninJam = false;
+                                  app.displayKeyOffset = value;
                                   adjustDisplay();
                                 });
-                              },
-                              style: popupStyle),
-                          AppRadio<bool>(
-                              text: 'Show NinJam aids',
-                              appKeyEnum: AppKeyEnum.optionsNinJam,
-                              value: true,
-                              groupValue: appOptions.ninJam,
-                              onPressed: () {
-                                setState(() {
-                                  appOptions.ninJam = true;
-                                  adjustDisplay();
-                                });
-                              },
-                              style: popupStyle),
-                        ],
-                      ),
-                      const AppVerticalSpace(),
-                      AppWrapFullWidth(children: <Widget>[
-                        Text(
-                          'Display key offset: ',
-                          style: boldStyle,
-                        ),
-                        appDropdownButton<int>(
-                          AppKeyEnum.playerKeyOffset,
-                          keyOffsetItems,
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                app.displayKeyOffset = value;
-                                adjustDisplay();
-                              });
-                            }
-                          },
-                          style: popupStyle,
-                          value: app.displayKeyOffset,
-                        ),
-                      ]),
-                      const AppVerticalSpace(space: 35),
-                    ],
-                  );
-                }),
-              ),
+                              }
+                            },
+                            style: popupStyle,
+                            value: app.displayKeyOffset,
+                          ),
+                        ]),
+                        const AppVerticalSpace(space: 35),
+                      ],
+                    ));
+              }),
               actions: [
                 const AppSpace(),
                 AppWrapFullWidth(spacing: viewportWidth(1), alignment: WrapAlignment.end, children: [
@@ -2149,6 +2169,8 @@ With z or q, the app goes back to the play list.''',
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   Timer? _idleTimer;
+
+  final _drumPartsList = DrumPartsList();
 
   late AppWidgetHelper appWidgetHelper;
 

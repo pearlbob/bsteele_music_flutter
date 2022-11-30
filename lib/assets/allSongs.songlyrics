@@ -2971,59 +2971,78 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1595380405726, "song": 
+{ "file": "", "lastModifiedDate": 1669790335397, "song": 
 {
 "title": "Ain't No Sunshine",
 "artist": "Bill Withers",
 "user": "Shari",
-"lastModifiedDate": 1595380405726,
+"lastModifiedDate": 1669790335397,
 "copyright": "1971 Sussex",
 "key": "C",
 "defaultBpm": 75,
-"timeSignature": "4/4",
+"timeSignature": "2/4",
 "chords": 
     [
 	"I:",
-	"Am7 EmG Am7 Am7 x2",
-	"V:",
-	"Am7 EmG Am7 Am7 x2",
-	"Em Em Dm Dm",
-	"Am7 EmG Am7 Am7",
+	"Am7 Em7G Am7 Am7 x2",
+	"V1:",
+	"Am7 Em7G Am7 Am7",
+	"Am7 Em7G Am7 Am7",
+	"Em7 Em7 Dm7 Dm7",
+	"Am7 Em7G Am7 Am7",
+	"V2:",
+	"Am7 Em7G Am7 Am7",
+	"Am7 Em7G Am7 Am7",
+	"Em7 Em7 Dm7 Dm7",
+	"Am7 Em7G",
 	"Br:",
-	"Am Am Am Am",
-	"Am Am Am Am",
-	"Am Am Am Am"
+	"Am7 Am7 Am7 Am7",
+	"Am7 Am7 Am7 Am7",
+	"Am7 Am7 Am7X X",
+	"X X",
+	"T:",
+	"Am7 Em7G Am7 Am7",
+	"O:",
+	"Am7 Em7G Am7 Am7",
+	"Am7 Em7G Am7 Am7",
+	"Am7 Em7G Am7 Am7",
+	"Am7 Em7G Am7 Am7"
     ],
 "lyrics": 
     [
 	"",
 	"In:",
-	"V:",
-	"(Ain't no sunshine when she's) gone",
-	"It's not warm when she's away",
-	"Ain't no sunshine when she's gone",
-	"And she's always gone too long, anytime she goes away",
-	"V:",
-	"Wonder this time where she's gone",
-	"Wonder if she's gone to stay",
-	"Ain't no sunshine when she's gone",
-	"And this house just ain't no home, anytime she goes away",
-	"(and I know, I know, I know, I know",
+	"V1:",
+	"(Ain't no sunshine when she's) gone, it's not warm when she's ",
+	"Away, ain't no sunshine when she's ",
+	"Gone, and she's always gone too long, anytime she goes ",
+	"Away",
+	"V2:",
+	"(Wonder this time where she's) gone, wonder if she's gone to ",
+	"Stay, ain't no sunshine when she's ",
+	"Gone, and this house just ain't no home, anytime she goes ",
+	"Away ",
 	"Br:",
-	"I know, I know, I know, I know, I know",
-	"I know, I know, I know, I know, I know",
-	"I know, I know, I know, I know, I know",
-	"I know, I know, I know, I know, I know",
-	"I know, I know...Hey, I oughta leave",
-	"Young thing alone (but ain't no sunshine when she's)",
-	"V: gone",
-	"Only darkness everyday",
-	"Ain't no sunshine when she's gone",
-	"And this house just ain't no home, anytime she goes away",
-	"i:",
-	"Anytime, she goes away",
-	"Anytime, she goes away",
-	"i:Anytime, she goes away"
+	"And I know, I know, I know, I know, I know, I know, I know, I know",
+	"I know, I know, I know, I know, I know, I know, I know, I know",
+	"I know, I know, I know, I know, I know, I know, I know, I know",
+	"I know, I know...Hey, I oughta leave young thing ",
+	"Alone",
+	"",
+	"T:",
+	"(But ain't no sunshine when she's) gone",
+	"",
+	"V1: ",
+	"(Ain't no sunshine when she's) gone, only darkness ",
+	"Everyday, ain't no sunshine when she's ",
+	"Gone, and this house just ain't no home, anytime she goes ",
+	"Away",
+	"",
+	"O:",
+	"(Anytime, she goes) away, anytime, she goes ",
+	"Away, anytime, she goes ",
+	"Away, anytime, she goes ",
+	"Away"
     ]
 }
 },
@@ -87567,16 +87586,16 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1663140215292, "song": 
+{ "file": "", "lastModifiedDate": 1669790472227, "song": 
 {
 "title": "Moonage Daydream",
 "artist": "David Bowie",
-"user": "Shari",
-"lastModifiedDate": 1663140215292,
+"user": "Ben",
+"lastModifiedDate": 1669790472227,
 "copyright": "1972 RCA",
 "key": "D",
-"defaultBpm": 144,
-"timeSignature": "4/4",
+"defaultBpm": 72,
+"timeSignature": "2/4",
 "chords": 
     [
 	"V:",
@@ -87591,9 +87610,11 @@
 	"G Bm E E",
 	"D D E E",
 	"Br:",
-	"Bm A G F# x2",
+	"Bm Bm A A |",
+	"G G F# F# | x2",
 	"O:",
-	"Bm A G F# x6"
+	"Bm Bm A A |",
+	"G G F# F# | x6"
     ],
 "lyrics": 
     [
@@ -87617,7 +87638,8 @@
 	"Put your ray gun to my head",
 	"Press your space face close to mine, love",
 	"Freak out in a moonage daydream, oh yeah",
-	"Br: (Instrumental)",
+	"",
+	"Br: (instrumental)",
 	"",
 	"C: Keep your electric eye on me, babe",
 	"Put your ray gun to my head",
@@ -87627,7 +87649,7 @@
 	"Put your ray gun to my head",
 	"Press your space face close to mine, love",
 	"Freak out in a moonage daydream, oh yeah",
-	"O: (Instrumental)",
+	"O: (instrumental)",
 	"Freak out, far out, in out"
     ]
 }

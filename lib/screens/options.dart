@@ -244,21 +244,33 @@ class OptionsState extends State<Options> {
                         },
                       ),
                   ]),
+                  const AppSpace(verticalSpace: 30),
+                  AppWrap(children: [
+                    AppTooltip(
+                      message: 'Enable Tooltips',
+                      child: appButton(
+                        'Tooltips',
+                        appKeyEnum: AppKeyEnum.optionsToolTipsTextButton,
+                        onPressed: () {
+                          setState(() {
+                            _appOptions.toolTips = !_appOptions.toolTips;
+                          });
+                        },
+                        // softWrap: false,
+                      ),
+                    ),
+                    appSwitch(
+                      appKeyEnum: AppKeyEnum.optionsToolTips,
+                      value: _appOptions.toolTips,
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.toolTips = value;
+                        });
+                      },
+                    ),
+                  ]),
 
-                  // Row(children: <Widget>[
-                  //   appWidget.checkbox(
-                  //     value: _appOptions.debug,
-                  //     onChanged: (value) {
-                  //       _appOptions.debug = value;
-                  //       Logger.level = _appOptions.debug ? Level.debug : Level.info;
-                  //       setState(() {});
-                  //     },
-                  //   ),
-                  //   const Text(
-                  //     'debug: ',
-                  //   ),
-                  // ]),
-                  //  fixme: audio!
+                                //  fixme: audio!
                   if (kDebugMode) const AppSpace(verticalSpace: 30),
                   if (kDebugMode)
                     Row(children: <Widget>[
@@ -317,6 +329,20 @@ class OptionsState extends State<Options> {
                           Icons.play_arrow,
                           size: app.screenInfo.fontSize * 2,
                         ),
+                      ),
+                    ]),
+                  if (kDebugMode)
+                    Row(children: <Widget>[
+                      appWidgetHelper.checkbox(
+                        value: _appOptions.debug,
+                        onChanged: (value) {
+                          _appOptions.debug = value;
+                          Logger.level = _appOptions.debug ? Level.debug : Level.info;
+                          setState(() {});
+                        },
+                      ),
+                      const Text(
+                        'debug',
                       ),
                     ]),
                 ]),

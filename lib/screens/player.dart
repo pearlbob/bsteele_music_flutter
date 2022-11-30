@@ -777,7 +777,7 @@ With z or q, the app goes back to the play list.''',
                                       alignment: WrapAlignment.spaceBetween,
                                       children: [
                                         if (!songUpdateService.isFollowing)
-                                        //  key change
+                                          //  key change
                                           AppWrap(
                                             alignment: WrapAlignment.spaceBetween,
                                             children: [
@@ -846,7 +846,7 @@ With z or q, the app goes back to the play list.''',
                                         if (songUpdateService.isFollowing)
                                           AppTooltip(
                                             message:
-                                            'When following the leader, the leader will select the key for you.\n'
+                                                'When following the leader, the leader will select the key for you.\n'
                                                 'To correct this from the main screen: hamburger, Options, Hosts: None',
                                             child: Text(
                                               'Key: $_selectedSongKey',
@@ -864,7 +864,7 @@ With z or q, the app goes back to the play list.''',
                                       ],
                                     ),
                                     if (app.isScreenBig && !songUpdateService.isFollowing)
-                                    //  tempo change
+                                      //  tempo change
                                       AppWrap(
                                         alignment: WrapAlignment.spaceBetween,
                                         children: [
@@ -919,7 +919,7 @@ With z or q, the app goes back to the play list.''',
                                     if (app.isScreenBig && songUpdateService.isFollowing)
                                       AppTooltip(
                                         message:
-                                        'When following the leader, the leader will select the tempo for you.\n'
+                                            'When following the leader, the leader will select the tempo for you.\n'
                                             'To correct this from the main screen: hamburger, Options, Hosts: None',
                                         child: Text(
                                           'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
@@ -932,7 +932,7 @@ With z or q, the app goes back to the play list.''',
                                       softWrap: false,
                                     ),
                                     if (app.isScreenBig)
-                                    //  leader/follower status
+                                      //  leader/follower status
                                       Text(
                                         songUpdateService.isConnected
                                             ? (songUpdateService.isLeader
@@ -1098,31 +1098,32 @@ With z or q, the app goes back to the play list.''',
                 ),
 
                 //  player settings
-                Column(
-                  children: [
-                    AppSpace(
-                      verticalSpace: AppBar().preferredSize.height,
-                    ),
-                    AppWrapFullWidth(alignment: WrapAlignment.end, children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: AppTooltip(
-                          message: 'Player settings',
-                          child: appIconButton(
-                            appKeyEnum: AppKeyEnum.playerSettings,
-                            icon: appIcon(
-                              Icons.settings,
-                              size: 1.5 * fontSize,
+                if (!_isPlaying)
+                  Column(
+                    children: [
+                      AppSpace(
+                        verticalSpace: AppBar().preferredSize.height,
+                      ),
+                      AppWrapFullWidth(alignment: WrapAlignment.end, children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: AppTooltip(
+                            message: 'Show the player settings dialog.',
+                            child: appIconButton(
+                              appKeyEnum: AppKeyEnum.playerSettings,
+                              icon: appIcon(
+                                Icons.settings,
+                                size: 1.5 * fontSize,
+                              ),
+                              onPressed: () {
+                                _settingsPopup();
+                              },
                             ),
-                            onPressed: () {
-                              _settingsPopup();
-                            },
                           ),
                         ),
-                      ),
-                    ]),
-                  ],
-                ),
+                      ]),
+                    ],
+                  ),
                 _DataReminderWidget(songIsInPlay, appWidgetHelper.toolbarHeight),
               ],
             ),
@@ -1536,8 +1537,8 @@ With z or q, the app goes back to the play list.''',
       appOptions.drumPartsListJson = _drumPartsList.toJson();
       _drumParts = app.selectedDrumParts;
 
-      logger.i('app.selectedDrumParts: ${app.selectedDrumParts}');
-      logger.i('songMatch: ${_drumPartsList.songMatch(song)?.name}');
+      logger.v('app.selectedDrumParts: ${app.selectedDrumParts}');
+      logger.v('songMatch: ${_drumPartsList.songMatch(song)?.name}');
       logger.v('_drumPartsList: ${_drumPartsList.toJson()}');
 
       _playerIsOnTop = true;
@@ -1604,13 +1605,12 @@ With z or q, the app goes back to the play list.''',
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          insetPadding: EdgeInsets.zero,
+              insetPadding: EdgeInsets.zero,
               title: Text(
                 'Player settings:',
                 style: boldStyle,
               ),
               content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
-                logger.i('StatefulBuilder.build:');
                 return SizedBox(
                     width: app.screenInfo.mediaWidth * 0.7,
                     child: Column(

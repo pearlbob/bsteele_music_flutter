@@ -181,6 +181,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsLeadership(Null),
   optionsNashville(NashvilleSelection),
   optionsNinJam(bool),
+  optionsToolTips(bool),
+  optionsToolTipsTextButton(Null),
   optionsUserDisplayStyle(String), //fixme
   optionsUserName(String),
   optionsWebsocketBob(Null),

@@ -34,7 +34,6 @@ class SongMaster extends ChangeNotifier {
         } else if (_isPlaying) {
           {
             //  fixme: deal with a changing cadence!
-            const double advanceS = 1.0;
             double songTime = time - (_songStart ?? 0) - (60.0 / _song!.beatsPerMinute).floor() + advanceS;
             logger.log(
                 _songMasterLogTicker,
@@ -133,7 +132,7 @@ class SongMaster extends ChangeNotifier {
     _drumParts = drumParts; //  fixme: temp
     _isPlaying = true;
     _isPaused = false;
-    _songStart = _appAudioPlayer.getCurrentTime();
+    _songStart = _appAudioPlayer.getCurrentTime() + advanceS;
     _momentNumber = null;
     notifyListeners();
     logger.d('playSong: _bpm: $_bpm');
@@ -202,6 +201,7 @@ class SongMaster extends ChangeNotifier {
   bool _isPaused = false;
   Song? _song;
   double? _songStart;
+  static const double advanceS = 1.0;
   int _bpm = MusicConstants.minBpm; //  default value only
 
   DrumParts? _drumParts;

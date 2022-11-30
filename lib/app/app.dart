@@ -17,9 +17,11 @@ import 'package:universal_html/html.dart' as html;
 import 'package:universal_io/io.dart';
 
 import '../util/songPerformanceDaemon.dart';
+import 'appOptions.dart';
 import 'app_theme.dart';
 
 final App app = App();
+final AppOptions _appOptions = AppOptions();
 
 String userName =
     Platform.environment['USER'] ?? Platform.environment['USERNAME'] ?? Platform.environment['LOGNAME'] ?? 'my';
@@ -456,17 +458,21 @@ class AppTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return child; //  fixme: AppTooltip disabled!!!!
-    // var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
-    // return Tooltip(
-    //     key: key,
-    //     message: message,
-    //     textStyle: textStyle,
-    //     waitDuration: const Duration(seconds: 2, milliseconds: 500),
-    //     verticalOffset: 75,
-    //     decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
-    //     padding: const EdgeInsets.all(8),
-    //     child: child);
+    if ( _appOptions.toolTips){
+      var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
+      return Tooltip(
+          key: key,
+          message: message,
+          textStyle: textStyle,
+          waitDuration: const Duration(seconds: 2, milliseconds: 500),
+          verticalOffset: 75,
+          decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
+          padding: const EdgeInsets.all(8),
+          child: child);
+    } else {
+      return child;
+    }
+
   }
 
   final String message;

@@ -25,6 +25,7 @@ enum StorageValue {
   nashvilleSelection,
   userDisplayStyle,
   drumPartsListJson,
+  toolTips,
 }
 
 /// Application level, persistent, shared values.
@@ -67,6 +68,7 @@ class AppOptions extends ChangeNotifier {
     _proEditInput = await _readBool('proEditInput', defaultValue: _proEditInput);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
+    _toolTips =  await _readBool(StorageValue.toolTips.name, defaultValue: false);
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
@@ -252,6 +254,19 @@ class AppOptions extends ChangeNotifier {
   /// If false, the fractional display will be shown.
   bool get compressRepeats => _compressRepeats;
   bool _compressRepeats = true;
+
+
+  set toolTips(bool value) {
+    if (_toolTips == value) {
+      return;
+    }
+    _toolTips = value;
+    _saveBool(StorageValue.toolTips.name, value);
+  }
+
+  /// True if the user wants NinJam aids shown
+  bool get toolTips => _toolTips;
+  bool _toolTips = false;
 
   set ninJam(bool value) {
     if (_ninJam == value) {

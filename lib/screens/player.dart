@@ -69,8 +69,6 @@ enum _SongPlayMode {
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0;
 
-DrumParts? _drumParts = DrumParts(); //  temp
-
 final _songMomentNotifier = SongMomentNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
 
@@ -174,7 +172,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _song = widget._song;
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
     playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
-    _drumParts = _drumPartsList.songMatch(_song);
+    _drumParts = _drumPartsList.songMatch(_song) ?? defaultDrumParts;
     _songMomentNotifier.songMoment = null;
     _lyricSectionNotifier.index = 0;
     sectionSongMoments.clear();
@@ -931,6 +929,12 @@ With z or q, the app goes back to the play list.''',
                                       style: headerTextStyle,
                                       softWrap: false,
                                     ),
+                                    if (app.isScreenBig && _drumParts != null)
+                                      Text(
+                                        'Drums: ${_drumParts!.name}',
+                                        style: headerTextStyle,
+                                        softWrap: false,
+                                      ),
                                     if (app.isScreenBig)
                                       //  leader/follower status
                                       Text(
@@ -1516,6 +1520,7 @@ With z or q, the app goes back to the play list.''',
     _playerIsOnTop = true;
     widget._song = app.selectedSong;
     _song = widget._song;
+    _drumParts = _drumPartsList.songMatch(_song) ?? defaultDrumParts;
     _lyricSectionNotifier.index = 0;
     forceTableRedisplay();
     _resetIdleTimer();
@@ -1535,7 +1540,6 @@ With z or q, the app goes back to the play list.''',
     ).then((value) {
       _drumPartsList.match(song, app.selectedDrumParts);
       appOptions.drumPartsListJson = _drumPartsList.toJson();
-      _drumParts = app.selectedDrumParts;
 
       logger.v('app.selectedDrumParts: ${app.selectedDrumParts}');
       logger.v('songMatch: ${_drumPartsList.songMatch(song)?.name}');
@@ -1544,6 +1548,7 @@ With z or q, the app goes back to the play list.''',
       _playerIsOnTop = true;
       widget._song = app.selectedSong;
       _song = widget._song;
+      _drumParts = app.selectedDrumParts ?? defaultDrumParts;
       _lyricSectionNotifier.index = 0;
       forceTableRedisplay();
       _resetIdleTimer();
@@ -1967,7 +1972,7 @@ With z or q, the app goes back to the play list.''',
                                       navigateToDrums(context, _song).then((value) => setState(() {}));
                                     }),
                               ),
-                              Text(_drumParts?.name ?? 'no drum parts', style: popupStyle)
+                              Text(_drumParts?.name ?? 'No drum parts', style: popupStyle)
                             ]),
                         const AppSpace(),
                         AppWrapFullWidth(
@@ -2127,6 +2132,8 @@ With z or q, the app goes back to the play list.''',
     _idleTimer = null;
   }
 
+  DrumParts? get defaultDrumParts => _drumPartsList.findByName(DrumPartsList.defaultName);
+
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
   bool get songIsInPlay => songPlayMode == _SongPlayMode.autoPlay || songPlayMode == _SongPlayMode.manualPlay;
@@ -2171,6 +2178,7 @@ With z or q, the app goes back to the play list.''',
   Timer? _idleTimer;
 
   final _drumPartsList = DrumPartsList();
+  DrumParts? _drumParts;
 
   late AppWidgetHelper appWidgetHelper;
 

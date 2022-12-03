@@ -48,38 +48,39 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       return -SongPerformance.compareByLastSungSongIdAndSinger(first, other);
     });
     performanceHistory.addAll(allSongPerformances.allSongPerformanceHistory);
-    SongListGroup songListGroup;
+    PlayListGroup songListGroup;
     {
-      List<SongList> songLists = [];
+      List<PlayListItemList> songLists = [];
       String lastSungDateString = '';
       int lastSung = 0;
-      List<SongListItem> items = [];
+      List<PlayListItem> items = [];
       for (var performance in performanceHistory) {
         logger.v('perf: ${performance.performedSong.title}, sung: ${performance.lastSungDateString}');
         if (lastSungDateString != performance.lastSungDateString) {
           if (items.isNotEmpty) {
-            songLists.add(SongList(
+            songLists.add(PlayListItemList(
                 DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
-                songItemAction: _navigateSongListToPlayer));
+                playListItemAction: _navigateSongListToPlayer));
             items = [];
           }
           lastSungDateString = performance.lastSungDateString;
           lastSung = performance.lastSung;
         }
-        items.add(SongListItem.fromPerformance(
+        items.add(SongPlayListItem.fromPerformance(
           performance,
         ));
       }
       if (items.isNotEmpty) {
-        songLists.add(SongList(DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
-            songItemAction: _navigateSongListToPlayer));
+        songLists.add(PlayListItemList(
+            DateFormat.yMd().add_EEEE().format(DateTime.fromMillisecondsSinceEpoch(lastSung)), items,
+            playListItemAction: _navigateSongListToPlayer));
       }
 
       // songListGroup: SongList(
-      //   '', allSongPerformances.allSongPerformanceHistory.map((e) => SongListItem.fromPerformance(e)).toList(growable: false),
+      //   '', allSongPerformances.allSongPerformanceHistory.map((e) => PlayListItem.fromPerformance(e)).toList(growable: false),
       //   songItemAction: _navigateSongListToPlayer,
       // ),
-      songListGroup = SongListGroup(songLists);
+      songListGroup = PlayListGroup(songLists);
     }
 
       return Scaffold(
@@ -117,11 +118,11 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     });
   }
 
-  _navigateSongListToPlayer(BuildContext context, SongListItem songListItem) async {
+  _navigateSongListToPlayer(BuildContext context, PlayListItem playListItem) async {
     app.clearMessage();
 
-    if (songListItem.songPerformance != null) {
-      var songPerformance = songListItem.songPerformance!;
+    if (playListItem is SongPlayListItem && playListItem.songPerformance != null) {
+      var songPerformance = playListItem.songPerformance!;
       app.selectedSong = songPerformance.performedSong;
       logger.v('navigateToPlayer: $songPerformance');
       await Navigator.push(

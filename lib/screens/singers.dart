@@ -413,7 +413,7 @@ class SingersState extends State<Singers> {
         ));
       }
 
-      final songListGroup = SongListGroup(songLists);
+      final songListGroup = PlayListGroup(songLists);
       logger.d('singers: songListGroup.length: ${songListGroup.length}');
 
       return Scaffold(
@@ -827,27 +827,27 @@ class SingersState extends State<Singers> {
 
   void addPerformanceItems(String text, Iterable<SongPerformance> performances, {Color? color = Colors.black}) {
     if (performances.isNotEmpty) {
-      List<SongListItem> songListItems = [];
+      List<PlayListItem> songListItems = [];
 
       for (var performance in performances) {
-        songListItems.add(SongListItem.fromPerformance(performance));
+        songListItems.add(SongPlayListItem.fromPerformance(performance));
       }
 
-      songLists.add(SongList(text, songListItems, color: color, songItemAction: _navigateSongListToPlayer));
+      songLists.add(PlayListItemList(text, songListItems, color: color, playListItemAction: _navigateSongListToPlayer));
     }
   }
 
   void addSongItems(String text, Iterable<Song> songs,
-      {Color? color = Colors.black, bool? inRequesterList, Widget? customWidget, SongItemAction? songItemAction}) {
-    List<SongListItem> songListItems = [];
+      {Color? color = Colors.black, bool? inRequesterList, Widget? customWidget, PlayListItemAction? songItemAction}) {
+    List<PlayListItem> songListItems = [];
     if (songs.isNotEmpty) {
       for (var song in songs) {
-        songListItems.add(SongListItem.fromSong(song,
+        songListItems.add(SongPlayListItem.fromSong(song,
             firstWidget: (inRequesterList != null ? requesterListEditCustomWidget(song, inRequesterList) : null),
             customWidget: customWidget));
       }
 
-      songLists.add(SongList(text, songListItems, color: color, songItemAction: songItemAction));
+      songLists.add(PlayListItemList(text, songListItems, color: color, playListItemAction: songItemAction));
     }
   }
 
@@ -1102,8 +1102,8 @@ class SingersState extends State<Singers> {
     return volunteers.toList(growable: false);
   }
 
-  // _volunteerSingerPopup(BuildContext context, SongListItem songListItem) {
-  //   logger.v('temp: _volunteerSingerPopup($context,  $songListItem)');
+  // _volunteerSingerPopup(BuildContext context, PlayListItem playListItem) {
+  //   logger.v('temp: _volunteerSingerPopup($context,  $playListItem)');
   //   List<Widget> singerSelections = [];
   //   for (var singer in _sessionSingers) {
   //     if (singer == _selectedSinger) {
@@ -1115,7 +1115,7 @@ class SingersState extends State<Singers> {
   //         appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
   //         onPressed: () async {
   //           logger.v('volunteer: $singer');
-  //           var performance = SongPerformance.fromSong(songListItem.song, singer);
+  //           var performance = SongPerformance.fromSong(playListItem.song, singer);
   //           await _navigatePerformanceToPlayer(context, performance);
   //           if (mounted) {
   //             Navigator.of(context).pop();
@@ -1144,17 +1144,21 @@ class SingersState extends State<Singers> {
   //           ));
   // }
 
-  _navigateSelectedSingerToPlayer(BuildContext context, SongListItem songListItem) async {
-    _navigatePerformanceToPlayer(context, SongPerformance.fromSong(songListItem.song, _selectedSinger));
+  _navigateSelectedSingerToPlayer(BuildContext context, PlayListItem playListItem) async {
+    if (playListItem is SongPlayListItem) {
+      _navigatePerformanceToPlayer(context, SongPerformance.fromSong(playListItem.song, _selectedSinger));
+    }
   }
 
-  _navigateSelectedVolunteerToPlayer(BuildContext context, SongListItem songListItem) async {
-    _navigatePerformanceToPlayer(context, SongPerformance.fromSong(songListItem.song, _selectedVolunteerSinger));
+  _navigateSelectedVolunteerToPlayer(BuildContext context, PlayListItem playListItem) async {
+    if (playListItem is SongPlayListItem) {
+      _navigatePerformanceToPlayer(context, SongPerformance.fromSong(playListItem.song, _selectedVolunteerSinger));
+    }
   }
 
-  _navigateSongListToPlayer(BuildContext context, SongListItem songListItem) async {
-    if (songListItem.songPerformance != null) {
-      _navigatePerformanceToPlayer(context, songListItem.songPerformance!);
+  _navigateSongListToPlayer(BuildContext context, PlayListItem playListItem) async {
+    if (playListItem is SongPlayListItem && playListItem.songPerformance != null) {
+      _navigatePerformanceToPlayer(context, playListItem.songPerformance!);
     }
   }
 
@@ -1254,7 +1258,7 @@ class SingersState extends State<Singers> {
   var selectedSongPerformances = SplayTreeSet<SongPerformance>();
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
 
-  List<SongList> songLists = [];
+  List<PlayListItemList> songLists = [];
 
   final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
 
@@ -1294,7 +1298,7 @@ class SingersState extends State<Singers> {
       //  reset the singer's list
       Provider.of<PlayListRefreshNotifier>(context, listen: false).requestSearchClear();
 
-      logger.i('_setSelectedSinger(): $singer, isRequester: $isRequester');
+      logger.v('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }
   }
 

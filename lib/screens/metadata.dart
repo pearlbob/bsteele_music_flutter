@@ -348,11 +348,11 @@ class MetadataScreenState extends State<MetadataScreen> {
 
                     Consumer<PlayListRefreshNotifier>(
                       builder: (context, playListRefreshNotifier, child) => PlayList.byGroup(
-                        SongListGroup([
-                          SongList(
+                        PlayListGroup([
+                          PlayListItemList(
                               '',
                               app.allSongs
-                                  .map((song) => SongListItem.fromSong(song,
+                                  .map((song) => SongPlayListItem.fromSong(song,
                                       customWidget: _selectedNameValue != _emptySelectedNameValue &&
                                               !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ??
                                                   false)

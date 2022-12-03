@@ -90,12 +90,13 @@ class DrumsState extends State<DrumsWidget> {
         ));
 
         for (var b = 0; b < _drumParts.beats; b++) {
+          final beat = DrumBeat.values[b];
           for (var subBeat in DrumSubBeatEnum.values) {
             children.add(Checkbox(
-              value: drumPart.beatSelection(b, subBeat),
+              value: drumPart.beatSelection(beat, subBeat),
               onChanged: (value) {
                 setState(() {
-                  drumPart.setBeatSelection(b, subBeat, value ?? false);
+                  drumPart.setBeatSelection(beat, subBeat, value ?? false);
                 });
               },
             ));

@@ -8,6 +8,7 @@
 
 * history from tomcat server log
 * drum regularity
+* Named drum parts attached to songs
 
 ### Fix
 
@@ -19,6 +20,7 @@
 * player: in pause, reposition play with up/down arrows or scroll, continue from new location with space bar hit
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * Back to player from song preview on youtube.com, fullscreen button missing
+*
 
 ### Fixme
 
@@ -27,6 +29,7 @@
 * songs don't always have drums on start/restart
 * drums on pause then play
 * video alignment with audio current time
+* playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
 
 ## Completed
 

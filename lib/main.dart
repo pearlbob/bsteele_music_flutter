@@ -697,8 +697,8 @@ class MyHomePageState extends State<MyHomePage> {
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
         PlayList(
-          songList: SongList('', app.allSongs.map((e) => SongListItem.fromSong(e)).toList(growable: false),
-              songItemAction: _navigateToPlayerBySongItem),
+          itemList: PlayListItemList('', app.allSongs.map((e) => SongPlayListItem.fromSong(e)).toList(growable: false),
+              playListItemAction: _navigateToPlayerBySongItem),
           style: _titleTextStyle,
           isFromTheTop: false,
         ),
@@ -774,22 +774,24 @@ class MyHomePageState extends State<MyHomePage> {
   //   Navigator.of(context).pop();
   // }
 
-  _navigateToPlayerBySongItem(BuildContext context, SongListItem songListItem) async {
-    if (songListItem.song.getTitle().isEmpty) {
-      // logger.log(_mainLogScroll, 'song title is empty: $song');
-      return;
+  _navigateToPlayerBySongItem(BuildContext context, PlayListItem playListItem) async {
+    if (playListItem is SongPlayListItem) {
+      if (playListItem.song.getTitle().isEmpty) {
+        // logger.log(_mainLogScroll, 'song title is empty: $song');
+        return;
+      }
+      app.clearMessage();
+      app.selectedSong = playListItem.song;
+      //_lastSelectedSong = song;
+
+      //logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
+      await Navigator.pushNamed(
+        context,
+        Player.routeName,
+      );
+
+      setState(() {});
     }
-    app.clearMessage();
-    app.selectedSong = songListItem.song;
-    //_lastSelectedSong = song;
-
-    //logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
-    await Navigator.pushNamed(
-      context,
-      Player.routeName,
-    );
-
-    setState(() {});
   }
 
   void _navigateToSongs() async {

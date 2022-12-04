@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/music_constants.dart';
@@ -38,10 +40,10 @@ class SongMaster extends ChangeNotifier {
             logger.log(
                 _songMasterLogTicker,
                 'advance: ${songTime.toStringAsFixed(3)}'
-                ' - ${(time - (_songStart ?? 0)).toStringAsFixed(3)}'
-                ' = ${(songTime - (time - (_songStart ?? 0))).toStringAsFixed(3)}'
-                //
-                );
+                    ' - ${(time - (_songStart ?? 0)).toStringAsFixed(3)}'
+                    ' = ${(songTime - (time - (_songStart ?? 0))).toStringAsFixed(3)}'
+              //
+            );
             //  fixme: fix the start of playing!!!!!  after pause?
             int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(songTime);
             while (_advancedMomentNumber == null ||
@@ -54,7 +56,7 @@ class SongMaster extends ChangeNotifier {
               logger.log(
                   _songMasterLogTicker,
                   '${(time - (_songStart ?? 0)).toStringAsFixed(3)}: _advancedMomentNumber: $_advancedMomentNumber'
-                  ' upto $newAdvancedMomentNumber');
+                      ' upto $newAdvancedMomentNumber');
               _advancedMomentNumber = _advancedMomentNumber! + 1;
             }
           }
@@ -69,8 +71,8 @@ class SongMaster extends ChangeNotifier {
               logger.log(
                   _songMasterLogTicker,
                   'SongMaster stop: ${songTime.toStringAsFixed(3)}'
-                  ', dt: ${dt.toStringAsFixed(3)}'
-                  ', moment: ${newMomentNumber.toString()}');
+                      ', dt: ${dt.toStringAsFixed(3)}'
+                      ', moment: ${newMomentNumber.toString()}');
             } else {
               // advance
               if (newMomentNumber != _momentNumber) {
@@ -82,9 +84,9 @@ class SongMaster extends ChangeNotifier {
                 logger.log(
                     _songMasterLogTicker,
                     'songTime: ${songTime.toStringAsFixed(3)}'
-                    ' time: ${time.toStringAsFixed(3)}'
+                        ' time: ${time.toStringAsFixed(3)}'
                     //  ', dt: ${dt.toStringAsFixed(3)}'
-                    ', moment: ${newMomentNumber.toString()}');
+                        ', moment: ${newMomentNumber.toString()}');
                 notifyListeners();
               }
             }
@@ -111,7 +113,7 @@ class SongMaster extends ChangeNotifier {
             _songMasterLogMaxDelta,
             '_maxDelta: ${_maxDelta.toDouble() / Duration.microsecondsPerMillisecond} ms'
             //  ', dt: ${dt.toStringAsFixed(3)}'
-            ', _isPlaying: $_isPlaying');
+                ', _isPlaying: $_isPlaying');
         if (_maxDelta > 60 * Duration.microsecondsPerMillisecond) {
           _maxDelta = 0;
         }
@@ -124,8 +126,8 @@ class SongMaster extends ChangeNotifier {
   }
 
   void playSong(final Song song, //
-      {DrumParts? drumParts, //  fixme: temp
-      int? bpm}) {
+          {DrumParts? drumParts, //  fixme: temp
+        int? bpm}) {
     _song = song.copySong(); //  allow for play modifications
     _bpm = bpm ?? song.beatsPerMinute;
     _song?.setBeatsPerMinute(_bpm);
@@ -160,9 +162,11 @@ class SongMaster extends ChangeNotifier {
   }
 
   void _playDrumParts(double time, int bpm, final DrumParts drumParts) {
+    //  fixme:  even beat parts likely don't work on 3/4 or 6/8
+    int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);
     for (var drumPart in drumParts.parts) {
       var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
-      for (var timing in drumPart.timings(time, bpm)) {
+      for (var timing in drumPart.timings(time, bpm, beats)) {
         logger.log(
             _songMasterLogTicker,
             'beat: ${drumPart.drumType.name}: '

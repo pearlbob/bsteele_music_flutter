@@ -170,7 +170,7 @@ class DrumsState extends State<DrumsWidget> {
           const AppSpace(),
           const Text('Beats:'),
           appDropdownButton<int>(
-            AppKeyEnum.drumsBeatsDropDownList,
+            AppKeyEnum.drumBeatsDropDownList,
             _beatsDropDownMenuList,
             onChanged: (value) {
               setState(() {
@@ -189,7 +189,7 @@ class DrumsState extends State<DrumsWidget> {
               message: 'Save the drum part',
               child: appButton(
                 'Save',
-                appKeyEnum: AppKeyEnum.drumsSelectionSave,
+                appKeyEnum: AppKeyEnum.drumSelectionSave,
                 onPressed: () {
                   setState(() {
                     logger.v('save: $_drumParts');
@@ -208,7 +208,7 @@ class DrumsState extends State<DrumsWidget> {
                 message: 'Clear the drum selections',
                 child: appButton(
                   'Clear',
-                  appKeyEnum: AppKeyEnum.drumsSelectionClear,
+                  appKeyEnum: AppKeyEnum.drumSelectionClearButton,
                   onPressed: () {
                     setState(() {
                       _drumParts.clear();
@@ -220,7 +220,7 @@ class DrumsState extends State<DrumsWidget> {
               message: 'Cancel the drum edit.',
               child: appButton(
                 'Cancel',
-                appKeyEnum: AppKeyEnum.drumsSelectionClear,
+                appKeyEnum: AppKeyEnum.drumSelectionClear,
                 onPressed: () {
                   setState(() {
                     playListRefreshNotifier.requestSearchClear();
@@ -234,7 +234,7 @@ class DrumsState extends State<DrumsWidget> {
                 message: 'Delete this drum part',
                 child: appButton(
                   'Delete',
-                  appKeyEnum: AppKeyEnum.drumsSelectionDelete,
+                  appKeyEnum: AppKeyEnum.drumSelectionDelete,
                   onPressed: () {
                     setState(() {
                       _drumPartsList.remove(_drumParts);

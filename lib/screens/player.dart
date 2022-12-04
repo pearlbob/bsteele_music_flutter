@@ -762,6 +762,7 @@ With z or q, the app goes back to the play list.''',
                                               size: 1.25 * fontSize,
                                             ),
                                             onPressed: () {
+                                              app.clearMessage();
                                               _isPlaying ? performStop() : performPlay();
                                             },
                                           ),

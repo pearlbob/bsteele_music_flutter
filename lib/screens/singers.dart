@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../app/app.dart';
+import '../util/play_list_search_matcher.dart';
 
 //  diagnostic logging enables
 const Level _singerLogBuild = Level.debug;
@@ -806,6 +807,7 @@ class SingersState extends State<Singers> {
                   includeByLastSung: true,
                   selectedSortType: PlayListSortType.byTitle,
                   isFromTheTop: false,
+                  playListSearchMatcher: SongPlayListSearchMatcher(),
                 ),
             ],
           ),

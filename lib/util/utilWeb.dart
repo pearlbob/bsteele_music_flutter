@@ -1,7 +1,6 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:convert';
-
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:typed_data';
@@ -70,7 +69,7 @@ class UtilWeb implements UtilWorkaround {
       files = input.files;
       if (files != null) {
         Iterable<Future<NameValue>> resultsFutures = files!.map((file) {
-          logger.d('file: ${file.name}');
+          logger.v('file: ${file.name}');
           final reader = FileReader();
           reader.readAsDataUrl(file);
           reader.onError.listen((error) => completer.completeError(error));

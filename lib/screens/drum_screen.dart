@@ -2,13 +2,16 @@ import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:provider/provider.dart';
 
+import '../util/utilWorkaround.dart';
 import '../widgets/drums.dart';
 
 class DrumPlayListItem implements PlayListItem {
@@ -29,7 +32,7 @@ class DrumPlayListItem implements PlayListItem {
   Widget toWidget(BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
     var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);
     return AppInkWell(
-        appKeyEnum: AppKeyEnum.drumsSelection,
+        appKeyEnum: AppKeyEnum.drumScreenSelection,
         value: Id(drumParts.name),
         onTap: () {
           if (songItemAction != null) {
@@ -71,7 +74,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     _lastSize = WidgetsBinding.instance.window.physicalSize;
     WidgetsBinding.instance.addObserver(this);
 
-    logger.i('song: ${widget.song?.toString()}');
+    logger.v('song: ${widget.song?.toString()}');
 
     app.clearMessage();
 
@@ -109,6 +112,14 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (app.message.isNotEmpty)
+                AppWrapFullWidth(alignment: WrapAlignment.start, children: [
+                  Text(
+                    app.message,
+                    style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                    key: appKeyCreate(AppKeyEnum.singersErrorMessage),
+                  ),
+                ]),
               AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                 if (_isEditing)
                   AppTooltip(
@@ -118,6 +129,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                       appKeyEnum: AppKeyEnum.drumScreenNew,
                       onPressed: () {
                         setState(() {
+                          app.clearMessage();
                           _drums = DrumsWidget(key: UniqueKey(), drumParts: DrumParts()..name = '');
                         });
                       },
@@ -129,9 +141,10 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     message: 'Switch back to selection mode if finished editing.',
                     child: appButton(
                       'Return from editing to drum selection.',
-                      appKeyEnum: AppKeyEnum.drumScreenNew,
+                      appKeyEnum: AppKeyEnum.drumScreenBackToSelection,
                       onPressed: () {
                         setState(() {
+                          app.clearMessage();
                           _isEditing = false;
                         });
                       },
@@ -142,7 +155,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     message: 'Edit drum parts prior to selection.',
                     child: appButton(
                       'Edit',
-                      appKeyEnum: AppKeyEnum.drumScreenNew,
+                      appKeyEnum: AppKeyEnum.drumScreenEditDuringSelection,
                       onPressed: () {
                         setState(() {
                           _isEditing = true;
@@ -150,7 +163,52 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                       },
                     ),
                   ),
+                appButton('Other Actions', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
+                  setState(() {
+                    app.clearMessage();
+                    showOtherActions = !showOtherActions;
+                  });
+                }),
               ]),
+              if (showOtherActions)
+                AppWrapFullWidth(alignment: WrapAlignment.end, children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const AppVerticalSpace(),
+                      AppTooltip(
+                        message: 'Write all drum parts and their metadata to a local file.',
+                        child: appButton(
+                          'Save drum parts to a local file',
+                          appKeyEnum: AppKeyEnum.drumScreenWrite,
+                          onPressed: () {
+                            setState(() {
+                              logger.v('write drum file');
+                              app.clearMessage();
+                              _saveDrumPartsList('allDrums', _drumPartsList.toJson());
+                            });
+                          },
+                        ),
+                      ),
+                      const AppVerticalSpace(),
+                      AppTooltip(
+                        message: 'Read all drum parts and their metadata from a local file.',
+                        child: appButton(
+                          'Read all drum parts from a local file',
+                          appKeyEnum: AppKeyEnum.drumScreenRead,
+                          onPressed: () {
+                            setState(() {
+                              app.clearMessage();
+                              logger.v('read drum file');
+                              _filePickReadDrumPartsList(context);
+                              _appOptions.drumPartsListJson = _drumPartsList.toJson();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ]),
               if (_isEditing) _drums ?? NullWidget(),
               PlayList(
                 itemList: PlayListItemList(
@@ -164,7 +222,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
             ]),
           ),
         ),
-        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.aboutBack),
+        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.drumScreenBack),
       );
     });
   }
@@ -189,6 +247,33 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     }
   }
 
+  void _filePickReadDrumPartsList(BuildContext context) async {
+    app.clearMessage();
+    var content = await UtilWorkaround().filePickByExtension(context, DrumPartsList.fileExtension);
+
+    setState(() {
+      if (content.isEmpty) {
+        app.infoMessage = 'No drum parts file read';
+      } else {
+        logger.v('read drum parts from: "$content"');
+        try {
+          _drumPartsList.fromJson(content);
+          app.infoMessage = 'All drum parts and matching songs read.';
+        } catch (e) {
+          app.error = 'Error during drum file read: $e.';
+        }
+      }
+    });
+  }
+
+  Future<void> _saveDrumPartsList(String prefix, String contents) async {
+    String fileName = '${prefix}_${intl.DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}'
+        '${DrumPartsList.fileExtension}';
+    String message = await UtilWorkaround().writeFileContents(fileName, contents); //  fixme: should be async
+    logger.d('saveSingersSongList message: \'$message\'');
+    app.infoMessage = message;
+  }
+
   @override
   void didChangeMetrics() {
     //  used to keep the window size data current
@@ -209,6 +294,8 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   bool _isEditing = false;
   DrumsWidget? _drums;
   late Size _lastSize;
+  bool showOtherActions = false;
 
   final DrumPartsList _drumPartsList = DrumPartsList();
+  final _appOptions = AppOptions();
 }

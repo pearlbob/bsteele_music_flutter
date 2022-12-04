@@ -90,6 +90,7 @@ import 'package:bsteele_music_flutter/screens/singers.dart';
 import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/styleDemo.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
+import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -701,6 +702,7 @@ class MyHomePageState extends State<MyHomePage> {
               playListItemAction: _navigateToPlayerBySongItem),
           style: _titleTextStyle,
           isFromTheTop: false,
+          playListSearchMatcher: SongPlayListSearchMatcher(),
         ),
       ]),
 

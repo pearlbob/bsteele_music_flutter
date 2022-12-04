@@ -305,7 +305,7 @@ class PlayList extends StatefulWidget {
     selectedSortType,
     isFromTheTop = true,
     isOrderBy = true,
-    PlayListSearchMatcher? playListSearchMatcher,
+    required PlayListSearchMatcher playListSearchMatcher,
   }) : this.byGroup(PlayListGroup([itemList]),
             key: key,
             style: style,
@@ -325,9 +325,8 @@ class PlayList extends StatefulWidget {
     this.selectedSortType,
     this.isFromTheTop = true,
     this.isOrderBy = true,
-    PlayListSearchMatcher? playListSearchMatcher,
-  })  : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold),
-        playListSearchMatcher = playListSearchMatcher ?? SongPlayListSearchMatcher() {
+    required this.playListSearchMatcher,
+  }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
     //
     titleFontSize = style?.fontSize ?? appDefaultFontSize;
     _textFontSize = 0.75 * titleFontSize;

@@ -48800,12 +48800,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1646206268217, "song": 
+{ "file": "", "lastModifiedDate": 1670022904266, "song": 
 {
 "title": "Goodbye Stranger",
 "artist": "Supertramp",
-"user": "Shari",
-"lastModifiedDate": 1646206268217,
+"user": "Unknown",
+"lastModifiedDate": 1670022904266,
 "copyright": "1979 A&M",
 "key": "Ab",
 "defaultBpm": 116,
@@ -48819,15 +48819,15 @@
 	"I3:",
 	"Ab Ab7/F# Db/F BbmEb x2",
 	"I4:",
-	"Ab7/F# Ab7/F# Ab7/F# Ab7/F#",
-	"Ab7/F# Ab7/F# Ab7/F#.",
+	"Ab7 Ab7 Ab7 Ab7",
+	"Ab7 Ab7 Ab7.",
 	"V:",
 	"Ab. Fm6/Ab Db/Ab Ab Ab x2",
 	"PC1:",
 	"Ab7/F# Fm7 Db Bbm7",
 	"PC2:",
 	"Ab7/F#X Fm7X DbX Bbm7X",
-	"Ab7/F#X Fm7X DbX Bbm7 Bbm7.",
+	"Ab7X Ab7/GbX DbX Bbm7 Bbm7.",
 	"C1:",
 	"Ab Ab7/F# Db/F BbmEb x2",
 	"C2:",
@@ -87193,12 +87193,12 @@
     ]
 }
 },
-{ "file": "Money (5).songlyrics", "lastModifiedDate": 1669359333946, "song": 
+{ "file": "Money (5).songlyrics", "lastModifiedDate": 1670091228347, "song": 
 {
 "title": "Money",
 "artist": "Pink Floyd",
 "user": "Shari",
-"lastModifiedDate": 1669359333946,
+"lastModifiedDate": 1670091228347,
 "copyright": "1973 Harvest",
 "key": "D",
 "defaultBpm": 123,
@@ -87233,8 +87233,9 @@
 	"F#m F#m Bm Bm",
 	"I8:",
 	"Bm7 Bm7 Bm7 Bm7",
+	"I9:",
 	"Bm7 Bm7 Bm7 Bm7",
-	"Em Em Em Em",
+	"Bm7 Bm7 Bm7 Bm7",
 	"Em Em Em Em",
 	"Bm7 Bm7 Bm7 Bm7",
 	"F#m F#m Bm Bm",
@@ -87289,7 +87290,9 @@
 	"",
 	"I7: (4 timing guitar, leggiero)",
 	"",
-	"i8: (4 timing guitar solo)",
+	"i8: (4 timing break)",
+	"",
+	"i9: (4 timing guitar solo)",
 	"",
 	"i2: (7 timing)",
 	"",

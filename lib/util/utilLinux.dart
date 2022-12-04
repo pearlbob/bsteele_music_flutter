@@ -30,10 +30,10 @@ class UtilLinux implements UtilWorkaround {
         return 'Error: $e';
       }
     }
-    logger.i('writeFileContents directory: $path');
+    logger.v('writeFileContents directory: $path');
 
     File file = File('$path/$fileName');
-    logger.i('file: $file');
+    logger.v('file: $file');
 
     try {
       await file.writeAsString(contents, flush: true);

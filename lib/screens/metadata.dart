@@ -15,6 +15,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app.dart';
+import '../util/play_list_search_matcher.dart';
 
 const Level _logBuild = Level.debug;
 const Level _logAddSong = Level.debug;
@@ -383,6 +384,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         isEditing: true,
                         selectedSortType: PlayListSortType.byTitle,
                         isFromTheTop: false,
+                        playListSearchMatcher: SongPlayListSearchMatcher(),
                       ),
                     ),
                   ])),

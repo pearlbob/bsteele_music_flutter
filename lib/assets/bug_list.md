@@ -12,15 +12,12 @@
 
 ### Fix
 
-* drums on 2/4, 3/4, 6/8
 * fix startup delay based on history. isolate the startup history processing so it doesn't impact the normal boot.
 * Metadata scroll after metadata change
 * declare the metadata as caseless and allow the software to Capitalize All Fields As Required.
 * insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 * player: in pause, reposition play with up/down arrows or scroll, continue from new location with space bar hit
-* generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * Back to player from song preview on youtube.com, fullscreen button missing
-*
 
 ### Fixme
 
@@ -33,6 +30,8 @@
 
 ## Completed
 
+* generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
+* drums on 2/4, 3/4, 6/8
 * browser reload on subsequent pages
 * find the closest songId for history songs without non-null song
 * Beta fails on song title change from history
@@ -166,6 +165,7 @@ this with him.
 
 ## General Fixes
 
+* metadata entry for drum parts
 * fix linux run from compile: 'FlutterEngineInitialize' returned 'kInvalidArguments'.
   Not running in AOT mode but could not resolve the kernel binary.
 * Local song history, independent of CJ

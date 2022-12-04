@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 import '../app/app.dart';
+import '../util/play_list_search_matcher.dart';
 
 /// Provide a number of song related actions for the user.
 /// This includes reading song files, clearing all songs from the current song list, and the like.
@@ -83,27 +84,32 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       songListGroup = PlayListGroup(songLists);
     }
 
-      return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
-        body: Container(
-          padding: const EdgeInsets.all(36.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-              PlayList.byGroup(songListGroup,
-                  style: _songPerformanceStyle, includeByLastSung: true, selectedSortType: PlayListSortType.byHistory),
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
+      body: Container(
+        padding: const EdgeInsets.all(36.0),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              PlayList.byGroup(
+                songListGroup,
+                style: _songPerformanceStyle,
+                includeByLastSung: true,
+                selectedSortType: PlayListSortType.byHistory,
+                playListSearchMatcher: SongPlayListSearchMatcher(),
+              ),
 
               // const AppSpace(),
-                Text(
-                  'Performance count:  ${performanceHistory.length}',
+              Text(
+                'Performance count:  ${performanceHistory.length}',
                 style: generateLyricsTextStyle().copyWith(fontSize: app.screenInfo.fontSize * 0.75),
               ),
-              ]),
-        ),
-        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
-      );
+            ]),
+      ),
+      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
+    );
   }
 
   Song bestSongMatch(SongPerformance performance) {

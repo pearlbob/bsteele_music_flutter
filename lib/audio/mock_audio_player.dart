@@ -7,6 +7,9 @@ class MockAudioPlayer implements AppAudioPlayer {
   }
 
   @override
+  double get latency => 0.0;
+
+  @override
   bool play(String filePath, {required double when, required double duration, required double volume}) {
     return false;
   }

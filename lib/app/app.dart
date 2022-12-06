@@ -458,7 +458,7 @@ class AppTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if ( _appOptions.toolTips){
+    if (_appOptions.toolTips) {
       var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
       return Tooltip(
           key: key,
@@ -472,7 +472,6 @@ class AppTooltip extends StatelessWidget {
     } else {
       return child;
     }
-
   }
 
   final String message;

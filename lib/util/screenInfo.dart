@@ -23,17 +23,17 @@ class ScreenInfo {
 
     _fontSize = 2 * appDefaultFontSize * min(2.25, max(1, _mediaWidth / minLogicalPixels));
     _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
-    _isWayTooNarrow = _mediaWidth <= 400;
+    _isWayTooNarrow = _mediaWidth <= 425;
     _titleScaleFactor = 1.25 * max(1, _mediaWidth / minLogicalPixels);
     logger.log(
         _screenInfoLogFontsize,
         'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $fontSize'
-            ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
+        ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
     logger.log(
         _screenInfoLogFontsize,
         'devicePixelRatio: $devicePixelRatio,'
-            ' ($_mediaWidth,$_mediaHeight)');
+        ' ($_mediaWidth,$_mediaHeight)');
   }
 
   ScreenInfo.defaultValue()

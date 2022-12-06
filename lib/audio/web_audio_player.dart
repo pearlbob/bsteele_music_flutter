@@ -2,7 +2,6 @@
 import 'dart:html';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
-//import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
 
@@ -30,7 +29,7 @@ class WebAudioPlayer implements AppAudioPlayer {
       _audioFilePlayer.bufferFile('audio/snare_4405.mp3');
       _audioFilePlayer.bufferFile('audio/snare_4406.mp3');
 
-      logger.i('audio: getBaseLatency="${_audioFilePlayer.getBaseLatency()}"');
+      logger.i('audio: getBaseLatency= ${_audioFilePlayer.getBaseLatency()}');
     } catch (e) {
       logger.e('exception: ${e.toString()}');
     }
@@ -44,6 +43,9 @@ class WebAudioPlayer implements AppAudioPlayer {
   double getCurrentTime() {
     return _audioFilePlayer.getCurrentTime();
   }
+
+  @override
+  double get latency => _audioFilePlayer.getBaseLatency();
 
   @override
   bool play(String filePath, {required double when, required double duration, required double volume}) {

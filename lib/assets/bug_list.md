@@ -12,12 +12,18 @@
 
 ### Fix
 
+* Time player selected measure in play mode
+* Drum edit preview, include bpm
 * fix startup delay based on history. isolate the startup history processing so it doesn't impact the normal boot.
 * Metadata scroll after metadata change
 * declare the metadata as caseless and allow the software to Capitalize All Fields As Required.
 * insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
 * player: in pause, reposition play with up/down arrows or scroll, continue from new location with space bar hit
 * Back to player from song preview on youtube.com, fullscreen button missing
+* On Raindrops Keep Fallin, I was trying to make the last line of chorus read:
+* Minor bug: I can't change/save the user name without making other changes (that engage the save button).
+* And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
+  definable.
 
 ### Fixme
 
@@ -97,6 +103,9 @@
   sortable Beginner list generated from the spreadsheet. http://communityjams.org/index.php/beginner-jam-song-list/
 
 ### Shari:
+
+* Bb/CCX Bb/CCX - two beats of Bb and a stab on the C. But the app insists on adding a dot to the Bb like this: Bb./CCX
+  Bb./CCx Still can't put in the X after the C without it forcing a dot, but it will work.
 
 I continue to have intermittent trouble if I have to scroll back up during the play mode. Here is the sequence:
 

@@ -19,7 +19,7 @@ const Level _logAppKeyCreation = Level.debug;
 const Level _logAllRegistrations = Level.debug;
 // const Level _logAllCallbacks = Level.debug;
 const Level _logCallbacks = Level.debug;
-const Level _appKeyExecute = Level.info;
+const Level _appKeyExecute = Level.debug;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed

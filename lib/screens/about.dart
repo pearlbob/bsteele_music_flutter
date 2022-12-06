@@ -11,6 +11,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../main.dart';
+
 /// Show some data about the app and it's environment.
 class About extends StatefulWidget {
   const About({Key? key}) : super(key: key);
@@ -94,9 +96,9 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 // Text(
                 //   'appName: ${_packageInfo.appName}',
                 // ),
-                // Text(
-                //   'version: ${_packageInfo.version}',
-                // ),
+                Text(
+                  'version: ${packageInfo.version}+${packageInfo.buildNumber}',
+                ),
                 // Text(
                 //   'buildNumber: ${_packageInfo.buildNumber}',
                 // ),
@@ -168,10 +170,6 @@ class AboutState extends State<About> with WidgetsBindingObserver {
   }
 
   void _readPackageInfo() async {
-    // final info = await PackageInfo.fromPlatform();
-    // setState(() {
-    //   _packageInfo = info;
-    // });
     try {
       final applicationDocumentsDirectory = await getApplicationDocumentsDirectory();
       _applicationDocumentsPath = applicationDocumentsDirectory.path;
@@ -188,8 +186,8 @@ class AboutState extends State<About> with WidgetsBindingObserver {
     "user": ${jsonEncode(userName)},
     "versionUtcDate": ${jsonEncode(_utcDateAsString ?? 'unknown')},
     "nowUtc": ${jsonEncode(utcNow)},
+    "version": ${jsonEncode(packageInfo.version)},
     "log": [''');
-    // "version": ${jsonEncode(_packageInfo.version)},
 
     bool first = true;
     for (var s in appLog) {

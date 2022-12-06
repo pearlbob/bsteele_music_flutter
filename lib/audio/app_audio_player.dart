@@ -14,6 +14,8 @@ abstract class AppAudioPlayer {
   /// current audio time in seconds
   double getCurrentTime();
 
+  double get latency;
+
   String test();
 
   /// factory constructor to return the correct implementation.

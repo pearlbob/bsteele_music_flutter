@@ -2011,26 +2011,27 @@ With z or q, the app goes back to the play list.''',
                           ],
                         ),
                         const AppVerticalSpace(),
-                        AppWrapFullWidth(children: <Widget>[
-                          Text(
-                            'Display key offset: ',
-                            style: boldStyle,
-                          ),
-                          appDropdownButton<int>(
-                            AppKeyEnum.playerKeyOffset,
-                            keyOffsetItems,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  app.displayKeyOffset = value;
-                                  adjustDisplay();
-                                });
-                              }
-                            },
-                            style: popupStyle,
-                            value: app.displayKeyOffset,
-                          ),
-                        ]),
+                        if (!app.screenInfo.isWayTooNarrow)
+                          AppWrapFullWidth(children: <Widget>[
+                            Text(
+                              'Display key offset: ',
+                              style: boldStyle,
+                            ),
+                            appDropdownButton<int>(
+                              AppKeyEnum.playerKeyOffset,
+                              keyOffsetItems,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    app.displayKeyOffset = value;
+                                    adjustDisplay();
+                                  });
+                                }
+                              },
+                              style: popupStyle,
+                              value: app.displayKeyOffset,
+                            ),
+                          ]),
                         const AppVerticalSpace(space: 35),
                       ],
                     ));

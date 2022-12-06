@@ -18,6 +18,7 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_moment.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/usTimer.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
+import '../audio/app_audio_player.dart';
 
 const _slashColor = Color(0xffcb4931);
 const _fadedSlashColor = Color(0xffe27e65);
@@ -110,7 +112,6 @@ class LyricSectionNotifier extends ChangeNotifier {
 
 /// compute a lyrics table
 class LyricsTable {
-
   List<Widget> lyricsTableItems(
     Song song,
     BuildContext context, {
@@ -1514,7 +1515,14 @@ class _SongCellState extends State<SongCellWidget> {
   }
 
   Widget childBuilder(BuildContext context) {
-    logger.log(_logChildBuilder, 'builder: ${widget.songMoment?.momentNumber}: ${widget.richText.text.toPlainText()}');
+    if (selected) {
+      logger.log(
+          _logChildBuilder,
+          '_SongCellState: ${widget.songMoment?.momentNumber}'
+          ': ${widget.richText.text.toPlainText()}'
+          ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
+          ', songTime: ${SongMaster().songTime}');
+    }
     Size buildSize = widget.computedBuildSize;
     double width = 10; //  safety only
     switch (widget.type) {
@@ -1564,14 +1572,15 @@ class _SongCellState extends State<SongCellWidget> {
           width: width,
           height: buildSize.height,
           padding: _padding,
-          foregroundDecoration: selected
-              ? BoxDecoration(
-            border: Border.all(
-              width: _marginSize,
-              color: _highlightColor,
-            ),
-          )
-              : null,
+          foregroundDecoration: //
+              selected
+                  ? BoxDecoration(
+                      border: Border.all(
+                        width: _marginSize,
+                        color: _highlightColor,
+                      ),
+                    )
+                  : null,
           color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
           child: richText,
         ),
@@ -1583,14 +1592,15 @@ class _SongCellState extends State<SongCellWidget> {
       height: widget.size?.height ?? buildSize.height,
       margin: _margin,
       padding: _padding,
-      foregroundDecoration: selected
-          ? BoxDecoration(
-        border: Border.all(
-          width: _marginSize,
-          color: _highlightColor,
-        ),
-      )
-          : null,
+      foregroundDecoration: //
+          selected
+              ? BoxDecoration(
+                  border: Border.all(
+                    width: _marginSize,
+                    color: _highlightColor,
+                  ),
+                )
+              : null,
       color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
       child: richText,
     );

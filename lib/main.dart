@@ -96,6 +96,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_io/io.dart';
 
@@ -131,6 +132,7 @@ bool hostIsWebsocketHost = false;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
+late PackageInfo packageInfo;
 
 /*
 linux start size and location:
@@ -171,6 +173,7 @@ void main() async {
   DrumPartsList().fromJson(AppOptions().drumPartsListJson);
 
   await AppTheme().init(); //  init the singleton
+  packageInfo = await PackageInfo.fromPlatform();
 
   //  run the app
   runApp(

@@ -35,11 +35,6 @@ import '../app/appOptions.dart';
 /// Route identifier for this screen.
 final playerPageRoute = MaterialPageRoute(builder: (BuildContext context) => Player(App().selectedSong));
 
-//  intentionally global to share with singer screen    fixme?
-music_key.Key? playerSelectedSongKey;
-int? playerSelectedBpm;
-String? playerSinger;
-
 /// An observer used to respond to a song update server request.
 final RouteObserver<PageRoute> playerRouteObserver = RouteObserver<PageRoute>();
 

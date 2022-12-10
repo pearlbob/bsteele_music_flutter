@@ -11,11 +11,13 @@ import 'package:logger/logger.dart';
 
 import 'audio/app_audio_player.dart';
 
-const Level _songMasterLogTicker = Level.debug;
+const Level _songMasterLogTicker = Level.info;
+const Level _songMasterLogTickerDetails = Level.debug;
 const Level _songMasterLogDelta = Level.debug;
 const Level _songMasterLogMaxDelta = Level.debug;
 const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
+const Level _logDrums = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -29,6 +31,16 @@ class SongMaster extends ChangeNotifier {
       double time = _appAudioPlayer.getCurrentTime();
       double dt = time - _lastTime;
 
+      // int beats = _song?.timeSignature.beatsPerBar ?? _drumParts?.beats ?? 4;
+      // int tempMomentNumber = //
+      //     _songStart == null
+      //         ? -4
+      //         : (_songStart! > time
+      //             ? // preroll, should be negative
+      //             ((time - _songStart!) ~/ (_song?.secondsPerMeasure ?? (60.0 * beats / _bpm)))
+      //             : _song?.getSongMomentNumberAtSongTime(time-_songStart!) ?? 0);
+      // logger.i('tempMomentNumber: $tempMomentNumber, songtime: ${time-(_songStart??0)}');
+
       if (_song != null) {
         if (_isPaused) {
           //  prepare for the eventual restart
@@ -41,20 +53,22 @@ class SongMaster extends ChangeNotifier {
 
             //  pre-load the song audio by the advance time
             double advanceTime = time - (_songStart ?? 0) - (60.0 / _song!.beatsPerMinute).floor() + _advanceS;
+
+            //  fixme: fix the start of playing!!!!!  after pause?
+            int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime);
             logger.log(
                 _songMasterLogAdvance,
-                'advance: ${advanceTime.toStringAsFixed(3)}'
+                'new: $newAdvancedMomentNumber'
+                ', advance: ${advanceTime.toStringAsFixed(3)}'
                 ' - ${(time - (_songStart ?? 0)).toStringAsFixed(3)}'
                 ' = ${(advanceTime - (time - (_songStart ?? 0))).toStringAsFixed(3)}'
                 //
                 );
-            //  fixme: fix the start of playing!!!!!  after pause?
-            int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime);
             while (_advancedMomentNumber == null ||
                 (newAdvancedMomentNumber != null && newAdvancedMomentNumber >= _advancedMomentNumber!)) {
               _advancedMomentNumber ??= 0;
               if (_drumParts != null) {
-                _playDrumParts(
+                _performDrumParts(
                     (_songStart ?? 0) + _song!.getSongTimeAtMoment(_advancedMomentNumber!), _bpm, _drumParts!);
               } else {
                 logger.i('no _drumParts!');
@@ -106,6 +120,17 @@ class SongMaster extends ChangeNotifier {
         notifyListeners();
       }
 
+      //  play drums only
+      if (_song == null && _drumParts != null) {
+        var drumTime = time - (_songStart ?? time);
+        var measureDuration = 60.0 / _bpm * _drumParts!.beats;
+        if (drumTime > measureDuration) {
+          _songStart = (_songStart ?? time) + measureDuration;
+          logger.log(_logDrums, 'play: $_drumParts at $_bpm at ${_songStart! + _advanceS} from $time');
+          _performDrumParts(_songStart! + _advanceS, _bpm, _drumParts!);
+        }
+      }
+
       if (dt > 0.2) {
         logger.log(_songMasterLogTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
       }
@@ -150,12 +175,26 @@ class SongMaster extends ChangeNotifier {
     logger.d('playSong: _bpm: $_bpm');
   }
 
+  /// Play a drums in real time
+  void playDrums(DrumParts? drumParts, {int? bpm}) {
+    _song = null;
+    _bpm = bpm ?? MusicConstants.defaultBpm;
+    _drumParts = drumParts;
+    _songStart ??= _appAudioPlayer.getCurrentTime(); //   sync with existing if it's running
+    _clearMomentNumber();
+    _isPaused = false;
+    _isPlaying = true;
+    notifyListeners();
+    logger.d('playSong: _bpm: $_bpm');
+  }
+
   void stop() {
     if (_isPlaying) {
       _isPlaying = false;
       _clearMomentNumber();
       notifyListeners();
     }
+    _drumParts = null; //  stop the drums
   }
 
   void pause() {
@@ -172,14 +211,14 @@ class SongMaster extends ChangeNotifier {
     }
   }
 
-  void _playDrumParts(double time, int bpm, final DrumParts drumParts) {
+  void _performDrumParts(double time, int bpm, final DrumParts drumParts) {
     //  fixme:  even beat parts likely don't work on 3/4 or 6/8
     int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);
     for (var drumPart in drumParts.parts) {
       var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
       for (var timing in drumPart.timings(time, bpm, beats)) {
         logger.log(
-            _songMasterLogTicker,
+            _songMasterLogTickerDetails,
             'beat: ${drumPart.drumType.name}: '
             ' time: $time'
             ', timing: $timing'
@@ -193,6 +232,15 @@ class SongMaster extends ChangeNotifier {
             volume: drumParts.volume);
       }
     }
+    logger.log(
+        _songMasterLogTicker,
+        ' time: $time'
+        ', beats: $beats'
+        ', bpm: $_bpm'
+        ', $drumParts'
+        ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
+        //
+        );
   }
 
   double? get songTime {

@@ -1,6 +1,8 @@
 import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/drum_measure.dart';
+import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -9,47 +11,14 @@ import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
+import '../songMaster.dart';
 import '../util/utilWorkaround.dart';
 import '../widgets/drums.dart';
 
-class DrumPlayListItem implements PlayListItem {
-  DrumPlayListItem(this.drumParts);
-
-  @override
-  int compareTo(PlayListItem other) {
-    if (identical(this, other)) {
-      return 0;
-    }
-    if (other is DrumPlayListItem) {
-      return drumParts.compareTo(other.drumParts);
-    }
-    return -1;
-  }
-
-  @override
-  Widget toWidget(BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
-    var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);
-    return AppInkWell(
-        appKeyEnum: AppKeyEnum.drumScreenSelection,
-        value: Id(drumParts.name),
-        onTap: () {
-          if (songItemAction != null) {
-            songItemAction(context, this);
-          }
-        },
-        child: AppWrap(children: [
-          Text(
-            '${drumParts.name}:',
-            style: boldStyle,
-          ),
-          Text(' ${drumParts.beats}: ${drumParts.partsToString()}'),
-        ]));
-  }
-
-  final DrumParts drumParts;
-}
+const Level _logBPM = Level.debug;
 
 /// Show some data about the app and it's environment.
 class DrumScreen extends StatefulWidget {
@@ -106,7 +75,11 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
       }
       return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: appWidgetHelper.backBar(title: 'Drums'),
+        appBar: appWidgetHelper.backBar(
+            title: 'Drums',
+            onPressed: () {
+              _songMaster.stop();
+            }),
         body: DefaultTextStyle(
           style: style,
           child: Padding(
@@ -209,6 +182,85 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     ],
                   ),
                 ]),
+              const AppVerticalSpace(),
+              if (_isEditing)
+                AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                  Text(
+                    'Volume:',
+                    style: style,
+                  ),
+                  SizedBox(
+                    width: app.screenInfo.mediaWidth * 0.4, // fixme: too fiddly
+                    child: Slider(
+                      value: _appOptions.volume * 10,
+                      onChanged: (value) {
+                        setState(() {
+                          _appOptions.volume = value / 10;
+                        });
+                      },
+                      min: 0,
+                      max: 10.0,
+                    ),
+                  ),
+                  if (app.isScreenBig)
+                    //  tempo change
+                    AppWrap(
+                      children: [
+                        const AppSpace(
+                          horizontalSpace: 50,
+                        ),
+                        AppTooltip(
+                          message: 'Beats per minute.  Tap here or hold control and tap space\n'
+                              ' for tap to tempo.',
+                          child: appButton(
+                            'Tempo:',
+                            appKeyEnum: AppKeyEnum.playerTempoTap,
+                            onPressed: () {
+                              tempoTap();
+                            },
+                          ),
+                        ),
+                        const AppSpace(
+                          horizontalSpace: 20,
+                        ),
+                        appIconButton(
+                          appKeyEnum: AppKeyEnum.drumScreenTempoDown,
+                          onPressed: () {
+                            setState(() {
+                              playerSelectedBpm = Util.intLimit(
+                                  (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) - 1,
+                                  MusicConstants.minBpm,
+                                  MusicConstants.maxBpm);
+                              _playDrums();
+                            });
+                          },
+                          icon: Icon(
+                            Icons.remove,
+                            size: style.fontSize,
+                          ),
+                        ),
+                        const AppSpace(),
+                        Text((playerSelectedBpm ?? MusicConstants.defaultBpm).toString(), style: style),
+                        const AppSpace(),
+                        appIconButton(
+                          appKeyEnum: AppKeyEnum.drumScreenTempoUp,
+                          onPressed: () {
+                            setState(() {
+                              playerSelectedBpm = Util.intLimit(
+                                  (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) + 1,
+                                  MusicConstants.minBpm,
+                                  MusicConstants.maxBpm);
+                              _playDrums();
+                            });
+                          },
+                          icon: Icon(
+                            Icons.add,
+                            size: style.fontSize,
+                          ),
+                        ),
+                      ],
+                    ),
+                ]),
               if (_isEditing) _drums ?? NullWidget(),
               PlayList(
                 itemList: PlayListItemList(
@@ -233,18 +285,48 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
         : '${song.title} by ${song.artist}${song.coverArtist.isEmpty ? '' : ' cover by ${song.coverArtist}'}';
   }
 
+  void tempoTap() {
+    //  tap to tempo
+    final tempoTap = DateTime.now().microsecondsSinceEpoch;
+    double delta = (tempoTap - _lastTempoTap) / Duration.microsecondsPerSecond;
+    _lastTempoTap = tempoTap;
+
+    if (delta < 60 / 30 && delta > 60 / 200) {
+      int bpm = (_tempoRollingAverage ??= RollingAverage()).average(60 / delta).round();
+      if (playerSelectedBpm != bpm) {
+        setState(() {
+          playerSelectedBpm = bpm;
+          _playDrums();
+          logger.log(_logBPM, 'tempoTap(): bpm: $playerSelectedBpm');
+        });
+      }
+    } else {
+      //  delta too small or too large
+      _tempoRollingAverage = null;
+      playerSelectedBpm = null; //  default to song beats per minute
+      logger.log(_logBPM, 'tempoTap(): default: bpm: $playerSelectedBpm');
+    }
+  }
+
   loadDrumListItem(BuildContext context, PlayListItem playListItem) async {
     if (_isEditing) {
       //  edit the selection
-      DrumParts drumParts = (playListItem as DrumPlayListItem).drumParts.copyWith();
+      _drumParts = (playListItem as DrumPlayListItem).drumParts.copyWith();
       setState(() {
-        _drums = DrumsWidget(key: UniqueKey(), drumParts: drumParts);
+        _drums = DrumsWidget(key: UniqueKey(), drumParts: _drumParts);
+        _playDrums();
       });
     } else {
       //  complete the selection
       app.selectedDrumParts = (playListItem as DrumPlayListItem).drumParts;
+      _songMaster.stop();
       Navigator.of(context).pop();
     }
+  }
+
+  _playDrums() {
+    _songMaster.playDrums(_drumParts,
+        bpm: playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm);
   }
 
   void _filePickReadDrumPartsList(BuildContext context) async {
@@ -292,10 +374,53 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   }
 
   bool _isEditing = false;
+  DrumParts? _drumParts;
   DrumsWidget? _drums;
   late Size _lastSize;
   bool showOtherActions = false;
 
+  int _lastTempoTap = DateTime.now().microsecondsSinceEpoch;
+  RollingAverage? _tempoRollingAverage;
+
+  final SongMaster _songMaster = SongMaster();
+
   final DrumPartsList _drumPartsList = DrumPartsList();
   final _appOptions = AppOptions();
+}
+
+class DrumPlayListItem implements PlayListItem {
+  DrumPlayListItem(this.drumParts);
+
+  @override
+  int compareTo(PlayListItem other) {
+    if (identical(this, other)) {
+      return 0;
+    }
+    if (other is DrumPlayListItem) {
+      return drumParts.compareTo(other.drumParts);
+    }
+    return -1;
+  }
+
+  @override
+  Widget toWidget(BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
+    var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);
+    return AppInkWell(
+        appKeyEnum: AppKeyEnum.drumScreenSelection,
+        value: Id(drumParts.name),
+        onTap: () {
+          if (songItemAction != null) {
+            songItemAction(context, this);
+          }
+        },
+        child: AppWrap(children: [
+          Text(
+            '${drumParts.name}:',
+            style: boldStyle,
+          ),
+          Text(' ${drumParts.beats}: ${drumParts.partsToString()}'),
+        ]));
+  }
+
+  final DrumParts drumParts;
 }

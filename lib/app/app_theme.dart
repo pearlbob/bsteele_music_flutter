@@ -73,6 +73,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   drumScreenNew(Null),
   drumScreenRead(Null),
   drumScreenSelection(Id),
+  drumScreenTempoDown(Null),
+  drumScreenTempoUp(Null),
   drumScreenWrite(Null),
   editAcceptChordModificationAndExtendRow(Null),
   editAcceptChordModificationAndFinish(Null),

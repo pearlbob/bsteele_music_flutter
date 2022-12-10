@@ -6,10 +6,12 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteele_music_flutter/main.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'test_util.dart';
 
@@ -18,6 +20,7 @@ void main() async {
   Logger.level = Level.debug;
   logger.d('main()');
   TestWidgetsFlutterBinding.ensureInitialized();
+  packageInfo = await PackageInfo.fromPlatform();
 
   testWidgets('about test', (WidgetTester tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(2 * 1920, 2 * 1080); //  fixme: why so big?

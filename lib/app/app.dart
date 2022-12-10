@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/chord_section.dart';
 import 'package:bsteeleMusicLib/songs/drum_measure.dart';
+import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
 import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/section_version.dart';
@@ -25,6 +26,11 @@ final AppOptions _appOptions = AppOptions();
 
 String userName =
     Platform.environment['USER'] ?? Platform.environment['USERNAME'] ?? Platform.environment['LOGNAME'] ?? 'my';
+
+//  intentionally global to share with singer screen    fixme?
+music_key.Key? playerSelectedSongKey;
+int? playerSelectedBpm = MusicConstants.defaultBpm;
+String? playerSinger;
 
 final Color appDisabledColor = Colors.grey.shade300;
 const double appDefaultFontSize = 10.0; //  based on phone

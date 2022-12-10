@@ -1,4 +1,5 @@
 import 'package:bsteeleMusicLib/songs/key.dart';
+import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
@@ -10,8 +11,8 @@ void main() {
 
   test('test SongSearchMatcher', () {
     PlayListSearchMatcher songSearchMatcher = SongPlayListSearchMatcher(search: 's');
-    var song = Song.createSong('A blue tune', 'bob', 'copyright nobody', Key.getDefault(), 106, 4, 4, 'bob',
-        'v: G C G G, C C G G, D C G D c: G C G G, C C G G, D C G D', 'v: bob, bob, bob berand');
+    var song = Song.createSong('A blue tune', 'bob', 'copyright nobody', Key.getDefault(), MusicConstants.defaultBpm, 4,
+        4, 'bob', 'v: G C G G, C C G G, D C G D c: G C G G, C C G G, D C G D', 'v: bob, bob, bob berand');
     song.coverArtist = 'Barbara';
     var item = SongPlayListItem.fromSong(song);
     songSearchMatcher = SongPlayListSearchMatcher(search: 's');

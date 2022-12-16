@@ -46,20 +46,10 @@ _PlayerState? _player;
 
 //  package level variables
 Song _song = Song.createEmptySong();
+@deprecated
 bool _isPlaying = false;
 final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
-
-enum _SongPlayMode {
-  idle(Icons.stop),
-  manualPlay(Icons.forward),
-  autoPlay(Icons.play_arrow),
-  pause(Icons.pause);
-
-  const _SongPlayMode(this.iconData);
-
-  final IconData iconData;
-}
 
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0;
@@ -79,7 +69,7 @@ const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
-const Level _logSongMaster = Level.debug;
+const Level _logSongMaster = Level.info;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -153,7 +143,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _rawKeyboardListenerFocusNode = FocusNode(onKey: playerOnKey);
 
     _isPlaying = false;
-    songPlayMode = _SongPlayMode.idle;
+    songPlayMode = SongPlayMode.idle;
   }
 
   @override
@@ -247,24 +237,33 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         ', moment: ${_songMaster.momentNumber}'
         ', lyricSection: ${_song.getSongMoment(_songMaster.momentNumber ?? 0)?.lyricSection.index}');
 
-    if (_songMaster.momentNumber != null) {
-      var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
-      if (songMoment != null) {
-        if (_songMomentNotifier.songMoment != songMoment) {
-          setSelectedSongMoment(songMoment);
+    //  follow the song master moment number
+    switch (_songMaster.songPlayMode) {
+      case SongPlayMode.pause: //  fixme: this is not correct
+      case SongPlayMode.idle:
+        if (_isPlaying) {
+          //  follow the song master's play mode
+          setState(() {
+            _isPlaying = false;
+            //  cancel the cell highlight
+            _songMomentNotifier.songMoment = null;
+          });
         }
-        scrollToLyricSection(songMoment.lyricSection.index);
-      }
-    } else if (_isPlaying != _songMaster.isPlaying) {
-      setState(() {
-        _isPlaying = _songMaster.isPlaying;
-        if (!_isPlaying) {
-          //  cancel the cell highlight
-          _songMomentNotifier.songMoment = null;
+        break;
+      case SongPlayMode.manualPlay:
+      case SongPlayMode.autoPlay:
+        if (_songMaster.momentNumber != null) {
+          var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
+          if (songMoment != null) {
+            if (_songMomentNotifier.songMoment != songMoment) {
+              setSelectedSongMoment(songMoment);
+            }
+            scrollToLyricSection(songMoment.lyricSection.index);
+          }
         }
-        songPlayMode = _isPlaying ? _SongPlayMode.autoPlay : _SongPlayMode.idle;
-      });
+        break;
     }
+    songPlayMode = _songMaster.songPlayMode;
   }
 
   @override
@@ -551,8 +550,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ],
                       //  for the leading, i.e. the left most icon
                       onPressed: () {
-                        _songMaster
-                            .removeListener(songMasterListener); //  avoid race condition with the listener notification
+                        //  avoid race condition with the listener notification
+                        _songMaster.removeListener(songMasterListener);
                         _songMaster.stop();
                       }),
                   body: Stack(
@@ -600,7 +599,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   padding: const EdgeInsets.all(6.0),
                                   child: app.messageTextWidget(AppKeyEnum.playerErrorMessage)),
                             //  top section when idle
-                            if (songPlayMode == _SongPlayMode.idle)
+                            if (songPlayMode == SongPlayMode.idle)
                               Column(
                                 children: [
                                   Container(
@@ -953,7 +952,7 @@ With z or q, the app goes back to the play list.''',
                             if (app.isScreenBig &&
                                 appOptions.ninJam &&
                                 _ninJam.isNinJamReady &&
-                                songPlayMode == _SongPlayMode.idle)
+                                songPlayMode == SongPlayMode.idle)
                               AppWrapFullWidth(spacing: 20, children: [
                                 const AppSpace(),
                                 AppWrap(spacing: 10, children: [
@@ -1008,11 +1007,11 @@ With z or q, the app goes back to the play list.''',
                                       onTapDown: (details) {
                                         //  respond to taps above and below the middle of the screen
                                         if (!_isPlaying && appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
-                                          if (songPlayMode != _SongPlayMode.manualPlay) {
+                                          if (songPlayMode != SongPlayMode.manualPlay) {
                                             //  start manual play
                                             scrollToLyricSection(0); //  always start manual play from the beginning
                                             setState(() {
-                                              songPlayMode = _SongPlayMode.manualPlay;
+                                              songPlayMode = SongPlayMode.manualPlay;
                                             });
                                           } else {
                                             //  don't respond above the player song table
@@ -1033,7 +1032,7 @@ With z or q, the app goes back to the play list.''',
                     ],
                   ),
                   floatingActionButton: songIsInPlay
-                      ? (_isPaused && songPlayMode == _SongPlayMode.autoPlay
+                      ? (_isPaused && songPlayMode == SongPlayMode.autoPlay
                           ? appFloatingActionButton(
                               appKeyEnum: AppKeyEnum.playerFloatingPlay,
                               onPressed: () {
@@ -1161,10 +1160,11 @@ With z or q, the app goes back to the play list.''',
           if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
             _lastBumpTimeMs = nowMs;
 
-            if (songPlayMode != _SongPlayMode.manualPlay) {
+            if (songPlayMode != SongPlayMode.manualPlay) {
               scrollToLyricSection(0); //  always start manual play from the beginning
+              playDrums();
               setState(() {
-                songPlayMode = _SongPlayMode.manualPlay;
+                songPlayMode = SongPlayMode.manualPlay;
               });
             } else {
               sectionBump(1);
@@ -1202,6 +1202,10 @@ With z or q, the app goes back to the play list.''',
       }
     }
     return KeyEventResult.ignored;
+  }
+
+  playDrums() {
+    _songMaster.playDrums(_drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
   double boxCenterHeight() {
@@ -1316,14 +1320,14 @@ With z or q, the app goes back to the play list.''',
     SongUpdateState state = SongUpdateState.none;
     switch (songPlayMode) {
       //  fixme: reconcile the enums
-      case _SongPlayMode.autoPlay:
+      case SongPlayMode.autoPlay:
         state = SongUpdateState.playing;
         break;
-      case _SongPlayMode.pause:
-      case _SongPlayMode.manualPlay:
+      case SongPlayMode.pause:
+      case SongPlayMode.manualPlay:
         state = SongUpdateState.manualPlay;
         break;
-      case _SongPlayMode.idle:
+      case SongPlayMode.idle:
         state = SongUpdateState.idle;
         break;
     }
@@ -1378,23 +1382,23 @@ With z or q, the app goes back to the play list.''',
       var songMoment = _song.songMoments[momentNumber];
 
       //  map state to mode   fixme: should reconcile the enums
-      _SongPlayMode newSongPlayMode = _SongPlayMode.idle;
+      SongPlayMode newSongPlayMode = SongPlayMode.idle;
       switch (_songUpdate!.state) {
         case SongUpdateState.playing:
           if (!_isPlaying) {
             setPlayMode();
           }
-          newSongPlayMode = _SongPlayMode.autoPlay;
+          newSongPlayMode = SongPlayMode.autoPlay;
           setSelectedSongMoment(songMoment);
           break;
         case SongUpdateState.manualPlay:
           _isPlaying = false;
-          newSongPlayMode = _SongPlayMode.manualPlay;
+          newSongPlayMode = SongPlayMode.manualPlay;
           scrollToLyricSection(songMoment.lyricSection.index);
           break;
         default:
           _isPlaying = false;
-          newSongPlayMode = _SongPlayMode.idle;
+          newSongPlayMode = SongPlayMode.idle;
           scrollToLyricSection(songMoment.lyricSection.index);
           break;
       }
@@ -1415,7 +1419,7 @@ With z or q, the app goes back to the play list.''',
   void setPlayMode() {
     _isPaused = false;
     _isPlaying = true;
-    songPlayMode = _SongPlayMode.autoPlay;
+    songPlayMode = SongPlayMode.autoPlay;
   }
 
   void performStop() {
@@ -1427,7 +1431,7 @@ With z or q, the app goes back to the play list.''',
   void simpleStop() {
     _isPlaying = false;
     _isPaused = true;
-    songPlayMode = _SongPlayMode.idle;
+    songPlayMode = SongPlayMode.idle;
     _songMaster.stop();
     _songMomentNotifier.songMoment = null;
     logger.log(_logMode, 'simpleStop()');
@@ -1441,17 +1445,17 @@ With z or q, the app goes back to the play list.''',
         _isPaused = !_isPaused;
         if (_isPaused) {
           _songMaster.pause();
-          songPlayMode = _SongPlayMode.pause;
+          songPlayMode = SongPlayMode.pause;
           logger.log(_logScroll, 'pause():');
         } else {
           _songMaster.resume();
-          songPlayMode = _SongPlayMode.autoPlay;
+          songPlayMode = SongPlayMode.autoPlay;
         }
       } else {
         _songMaster.resume();
         _isPlaying = true;
         _isPaused = false;
-        songPlayMode = _SongPlayMode.autoPlay;
+        songPlayMode = SongPlayMode.autoPlay;
       }
     });
     logger.log(_logMode, '_pauseToggle(): post: _isPlaying: $_isPlaying, _isPaused: $_isPaused');
@@ -2133,8 +2137,8 @@ With z or q, the app goes back to the play list.''',
 
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
-  bool get songIsInPlay => songPlayMode == _SongPlayMode.autoPlay || songPlayMode == _SongPlayMode.manualPlay;
-  _SongPlayMode songPlayMode = _SongPlayMode.idle;
+  bool get songIsInPlay => songPlayMode == SongPlayMode.autoPlay || songPlayMode == SongPlayMode.manualPlay;
+  SongPlayMode songPlayMode = SongPlayMode.idle;
   bool _isPaused = false;
   int _lastBumpTimeMs = 0;
 

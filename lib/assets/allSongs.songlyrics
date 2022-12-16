@@ -1032,6 +1032,87 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1670827063478, "song": 
+{
+"title": "A Common Disaster",
+"artist": "Cowboy Junkies",
+"user": "Shari",
+"lastModifiedDate": 1670827063478,
+"copyright": "1996 Geffen",
+"key": "Eb",
+"defaultBpm": 125,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Cm Cm Cm Cm",
+	"I2:",
+	"Cm Cm Cm Cm",
+	"Cm Cm Cm Cm",
+	"F Eb6",
+	"V:",
+	"Cm Cm Cm Cm",
+	"Cm Cm Cm Cm",
+	"Bbadd9 Bbadd9 Bbadd9 Bbadd9",
+	"Cm Cm Cm Cm",
+	"C:",
+	"F Eb6 Cm Cm",
+	"Eb6 Dm7 Bbadd9 Bbadd9",
+	"Dm7 Eb",
+	"O:",
+	"CmX"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"A candle burning for everything I've ever wanted",
+	"A tattoo burned for everything I've ever wanted and lost",
+	"I had a long list of names that I kept in my back pocket, but I've",
+	"Cut it down to one and your name's at the top",
+	"",
+	"C:",
+	"Won't you share a common disaster?",
+	"Share with me a common disaster",
+	"Aah, a common disaster",
+	"",
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"I found myself a friend but he's crooked as a stick in water, so now I'm",
+	"Writing fairy tales to catch the spirit of revenge",
+	"He's got a plan to steal my little sister, but I'm ",
+	"Not too concerned 'cause I will get him in the end",
+	"",
+	"C:",
+	"Won't you share a common disaster?",
+	"Share with me a common disaster",
+	"Aah, a common disaster",
+	"",
+	"I:",
+	"(instrumental)",
+	"",
+	"I2:",
+	"(instrumental solo)",
+	"",
+	"V:",
+	"Gonna to find me someone to share a common disaster",
+	"Run away with me from a life so cramped and dull",
+	"Not to worry too much about the happily-ever-after, just",
+	"Keep the caddy moving 'til we're well beyond that hill",
+	"",
+	"C:",
+	"Won't you share a common disaster?",
+	"Share with me a common disaster",
+	"Aah, a common disaster",
+	"",
+	"O:"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1619582103480, "song": 
 {
 "title": "A Community Jams Theme",
@@ -6228,14 +6309,14 @@
     ]
 }
 },
-{ "file": "Angels We Have Heard on High.songlyrics", "lastModifiedDate": 1574700954000, "song": 
+{ "file": "Angels We Have Heard on High.songlyrics", "lastModifiedDate": 1670837126389, "song": 
 {
 "title": "Angels We Have Heard on High",
 "artist": "Traditional Christmas",
-"user": "Paul",
-"lastModifiedDate": 1574700954000,
+"user": "Shari",
+"lastModifiedDate": 1670837126389,
 "copyright": "Public Domain (from trad. French carol, lyrics Bishop James Chadwick [1862])",
-"key": "C",
+"key": "D",
 "defaultBpm": 106,
 "timeSignature": "2/4",
 "chords": 
@@ -6245,10 +6326,11 @@
 	"D D A7 D",
 	"Bm Bm A7 D",
 	"D D A7 D",
-	"C:",
+	"C1:",
 	"D B7 Em A7",
 	"D G A A",
 	"DA DG D A",
+	"C2:",
 	"D B7 Em A7",
 	"D G A A",
 	"DA DG D A",
@@ -6261,26 +6343,41 @@
 	"Sweetly singing o'er the plains",
 	"And the mountains in reply",
 	"Echoing their joyous strains",
-	"ch:",
-	"Gloria in excelsis Deo",
-	"Gloria in excelsis Deo",
+	"c1:",
+	"Gloo-",
+	"ooria ",
+	"In excelsis Deo",
+	"c2:",
+	"Gloo-",
+	"ooria ",
+	"In excelsis Deo",
 	"",
 	"v:",
 	"Oh shepherds, why this jubilee?",
 	"Why your joyous strains prolong?",
 	"What the gladsome tidings be",
 	"Which inspire your heavenly song?",
-	"ch:",
-	"Gloria in excelsis Deo",
-	"Gloria in excelsis Deo",
+	"c1:",
+	"Gloo-",
+	"ooria ",
+	"In excelsis Deo",
+	"c2:",
+	"Gloo-",
+	"ooria ",
+	"In excelsis Deo",
 	"v:",
 	"Come to Bethlehem and see",
 	"Him whose birth the angels sing",
 	"Come adore on bended knee",
 	"Christ the Lord the newborn King",
-	"ch:",
-	"Gloria in excelsis Deo",
-	"Gloria in excelsis Deo"
+	"c1:",
+	"Gloo-",
+	"ooria ",
+	"In excelsis Deo",
+	"c2:",
+	"Gloo-",
+	"ooria ",
+	"In excelsis Deo"
     ]
 }
 },
@@ -7642,12 +7739,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1667367956419, "song": 
+{ "file": "", "lastModifiedDate": 1670827213385, "song": 
 {
 "title": "As Tears Go By",
 "artist": "Rolling Stones, The",
 "user": "Shari",
-"lastModifiedDate": 1667367956419,
+"lastModifiedDate": 1670827213385,
 "copyright": "1965 London",
 "key": "G",
 "defaultBpm": 115,
@@ -7657,15 +7754,18 @@
 	"I:",
 	"G A C D",
 	"I2:",
-	"G A C D x2",
+	"G A C D",
+	"G A C D",
 	"C D GD/F# Em",
 	"C C D D",
 	"V:",
-	"G A C D x2",
+	"G A C D",
+	"G A C D",
 	"C D GD/F# Em",
 	"C C D D",
 	"O:",
-	"G A C D x2",
+	"G A C D",
+	"G A C D",
 	"C D GD/F# Em",
 	"C C D D",
 	"G"
@@ -8113,12 +8213,12 @@
     ]
 }
 },
-{ "file": "Away in a Manger.songlyrics", "lastModifiedDate": 1575342214000, "song": 
+{ "file": "Away in a Manger.songlyrics", "lastModifiedDate": 1670836681956, "song": 
 {
 "title": "Away in a Manger",
 "artist": "traditional Christmas",
-"user": "Paul",
-"lastModifiedDate": 1575342214000,
+"user": "Shari",
+"lastModifiedDate": 1670836681956,
 "copyright": "Public Domain (late 19th century America)",
 "key": "D",
 "defaultBpm": 110,
@@ -8135,19 +8235,19 @@
     [
 	"v:",
 	"Away in a manger, no crib for His bed",
-	"The little Lord Jesus laid down His sweet head.",
-	"The stars in the heavens looked down where He lay,",
-	"The little Lord Jesus asleep on the hay.",
+	"The little Lord Jesus laid down His sweet head",
+	"The stars in the heavens looked down where He lay",
+	"The little Lord Jesus asleep on the hay",
 	"v:",
-	"The cattle are lowing, the poor Baby awakes,",
-	"But little Lord Jesus, no crying He makes.",
-	"I love Thee, Lord Jesus! Look down from the sky",
-	"And stay by my cradle till morning is nigh.",
+	"The cattle are lowing, the poor Baby awakes",
+	"But little Lord Jesus, no crying He makes",
+	"I love Thee, Lord Jesus, look down from the sky",
+	"And stay by my cradle till morning is nigh",
 	"v:",
-	"Be near me, Lord Jesus; I ask Thee to stay",
-	"Close by me forever, and love me I pray.",
+	"Be near me, Lord Jesus, I ask Thee to stay",
+	"Close by me forever, and love me I pray",
 	"Bless all the dear children in Thy tender care",
-	"And take us to Heaven to live with Thee there."
+	"And take us to Heaven to live with Thee there"
     ]
 }
 },
@@ -9489,12 +9589,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1664339410867, "song": 
+{ "file": "", "lastModifiedDate": 1671151517231, "song": 
 {
 "title": "Baker Street",
 "artist": "Gerry Rafferty",
 "user": "Shari",
-"lastModifiedDate": 1664339410867,
+"lastModifiedDate": 1671151517231,
 "copyright": "1978 United Artists Records",
 "key": "G",
 "defaultBpm": 113,
@@ -9502,9 +9602,7 @@
 "chords": 
     [
 	"I1:",
-	"A7sus4 F7sus4 G7sus4 G7sus4",
-	"A7sus4 F7sus4 G7sus4 G7sus4",
-	"A7sus4 F7sus4 G7sus4 G7sus4",
+	"A7sus4 F7sus4 G7sus4 G7sus4 x3",
 	"I2:",
 	"D DF D DF",
 	"C A7sus4 G G",
@@ -9523,7 +9621,7 @@
     [
 	"I1:",
 	"(Instrumental stabs in orig G key - G/A | Eb/F | F/G | F/G)",
-	"(Instrumental stabs in C key - C/D | Ab/C | Bb/C | Bb/C)",
+	"(Instrumental stabs in C key - C/D | Ab/Bb | Bb/C | Bb/C)",
 	"",
 	"I2:",
 	"(Instrumental sax)",
@@ -9578,7 +9676,7 @@
 	"",
 	"I1:",
 	"(Instrumental stabs, piano G/A | Eb/F | F/G | F/G)",
-	"(Instrumental stabs in C key - C/D | Ab/C | Bb/C | Bb/C)",
+	"(Instrumental stabs in C key - C/D | Ab/Bb | Bb/C | Bb/C)",
 	"",
 	"I2:",
 	"(Instrumental sax) ",
@@ -10504,12 +10602,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1666763712427, "song": 
+{ "file": "", "lastModifiedDate": 1670827742258, "song": 
 {
 "title": "Before He Cheats",
 "artist": "Carrie Underwood",
 "user": "Shari",
-"lastModifiedDate": 1666763712427,
+"lastModifiedDate": 1670827742258,
 "copyright": "2005 Arista Nashville,19",
 "key": "A",
 "defaultBpm": 74,
@@ -10532,8 +10630,7 @@
 	"D F#m D F#m",
 	"D F#m C# C#",
 	"D F#m D F#m",
-	"D C# F#m E",
-	"D C#",
+	"D C#X",
 	"C2:",
 	"D F#m D F#m",
 	"D F#m C# C#",
@@ -10567,12 +10664,9 @@
 	"...And he don't know",
 	"",
 	"C1:",
-	"(I) dug my key into the side of his ",
-	"Pretty little souped-up four-wheel drive",
-	"Carved my name into his leather ",
-	"Seats, I took a ",
-	"Louisville slugger to both headlights",
-	"Slashed a hole in all four tires",
+	"(I) dug my key into the side of this pretty little souped-up four-wheel drive",
+	"Carved my name into his leather seats, I took a ",
+	"Louisville slugger to both headlights, slashed a hole in all four tires",
 	"Maybe next time he'll think before he cheats",
 	"",
 	"I2:",
@@ -10581,38 +10675,31 @@
 	"V:",
 	"Right now, she's probably up singing some ",
 	"White trash version of Shania karaoke",
-	"Right now, she's probably sayin' I'm drunk and",
+	"Right now, she's probably sayin' \"I'm drunk\" and ",
 	"He's thinking that he's gonna get lucky",
 	"Right now, he's probably dabbin' on three",
 	"Dollars worth of that bathroom Polo",
 	"...Oh and he don't know, oh",
 	"",
 	"C2:",
-	"(I) dug my key into the side of his ",
-	"Pretty little souped-up four-wheel drive",
-	"Carved my name into his leather ",
-	"Seats, I took a ",
-	"Louisville slugger to both headlights",
-	"Slashed a hole in all four tires",
+	"(That I) dug my key into the side of this pretty little souped-up four-wheel drive",
+	"Carved my name into his leather seats, I took a ",
+	"Louisville slugger to both headlights, slashed a hole in all four tires",
 	"Maybe next time he'll think before he cheats",
 	"",
 	"B:",
-	"I mighta saved a little trouble for the ",
-	"Next girl, cause the ",
-	"Next time that he cheats ",
-	"Oh you know it won't be on ",
+	"I mighta saved a little trouble for the next girl, 'cause the ",
+	"Next time that he cheats, oh you know it won't be on me ",
 	"",
 	"I3:",
-	"Me, no not on ",
+	"(leggiero)",
+	"...No not on ",
 	"Me",
 	"",
 	"C3:",
-	"('Cause I) dug my key into the side of his ",
-	"Pretty little souped-up four-wheel drive",
-	"Carved my name into his leather ",
-	"Seats, I took a ",
-	"Louisville slugger to both headlights",
-	"Slashed a hole in all four tires",
+	"(That I) dug my key into the side of this pretty little souped-up four-wheel drive",
+	"Carved my name into his leather seats, I took a ",
+	"Louisville slugger to both headlights, slashed a hole in all four tires",
 	"Maybe next time he'll think before he cheats",
 	"Maybe next time he'll think...before he cheats",
 	"",
@@ -12541,80 +12628,6 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 0, "song": 
-{
-"title": "Black Velvet Band",
-"artist": "Dubliners, The",
-"user": "Unknown",
-"lastModifiedDate": 0,
-"copyright": "Carlin America Inc",
-"key": "C",
-"defaultBpm": 100,
-"timeSignature": "4/4",
-"chords": 
-    [
-	"V:",
-	"G G G D",
-	"G Em CD G",
-	"C:",
-	"G G G D",
-	"G Em CD G"
-    ],
-"lyrics": 
-    [
-	"v:",
-	"Well, I was out strolling one evening ",
-	"Not intending to stay very long ",
-	"When I met a frolicsome damsel",
-	"As she came tripping along",
-	"v:",
-	"A watch she pulled out her pocket",
-	"And slipped it right into my hand ",
-	"On the very first night that I met her,",
-	"Bad luck to the black velvet band ",
-	"c:",
-	"Her eyes they shone like the diamonds ",
-	"You'd think she was queen of the land ",
-	"And her hair hung over her shoulder ",
-	"Tied up in a black velvet band",
-	"v:",
-	"Before judge and jury next morning ",
-	"Both of us did appear ",
-	"A gentleman claimed his jewelry",
-	"And the case against us was clear ",
-	"v:",
-	"Now seven long years transportation ",
-	"Right down to Van Dieman's land ",
-	"Far away from my friends and companions ",
-	"To follow the black velvet band ",
-	"c:",
-	"Her eyes they shone like the diamonds ",
-	"You'd think she was queen of the land ",
-	"And her hair hung over her shoulder ",
-	"Tied up with a black velvet band ",
-	"v:",
-	"So come all you jolly young fellows ",
-	"I'd have you take warning by me ",
-	"Whenever you're out on the liquor ",
-	"Beware of the pretty colleen",
-	"v:",
-	"She'll fill you with whiskey and porter ",
-	"Until you're not able to stand",
-	"And the very next thing you'd know",
-	"You've landed in Van Dieman's Land. ",
-	"c:",
-	"Her eyes they shone like the diamonds ",
-	"You'd think she was queen of the land ",
-	"And her hair hung over her shoulder ",
-	"Tied up with a black velvet band ",
-	"c:",
-	"Her eyes they shone like the diamonds ",
-	"You'd think she was queen of the land ",
-	"And her hair hung over her shoulder ",
-	"Tied up with a black velvet band"
-    ]
-}
-},
 { "file": "", "lastModifiedDate": 1615346730739, "song": 
 {
 "title": "Black Velvet Band, cover by The Dubliners",
@@ -13542,51 +13555,6 @@
 	"",
 	"v2:  (Lyrics for both)",
 	"v4:  (Lyrics for both)"
-    ]
-}
-},
-{ "file": "", "lastModifiedDate": 1606711509103, "song": 
-{
-"title": "Blue Christmas",
-"artist": "Elvis Presley",
-"user": "Shari",
-"lastModifiedDate": 1606711509103,
-"copyright": "Universal Music Publishing Group",
-"key": "E",
-"defaultBpm": 100,
-"timeSignature": "4/4",
-"chords": 
-    [
-	"V:",
-	"A A E E",
-	"E7 E7 A A",
-	"A A7 D D",
-	"B7 B7 E7 E7",
-	"V1:",
-	"A A E E",
-	"E7 E7 A A",
-	"A A7 D Ebdim",
-	"E7 E7 A A",
-	"O:",
-	"E7 E7 A A"
-    ],
-"lyrics": 
-    [
-	"V: I'll have a Blue Christmas without you",
-	"I'll be so blue just thinking about you",
-	"Decorations of red on a green Christmas tree",
-	"Won't be the same dear, if you're not here with me",
-	"",
-	"V1: And when those blue snowflakes start falling",
-	"That's when those blue memories start calling",
-	"You'll be doin' all right, with your Christmas of white",
-	"But I'll have a blue, blue blue blue Christmas",
-	"",
-	"V1: (instrumental) +",
-	"You'll be doin' all right, with your Christmas of white",
-	"But I'll have a blue, blue blue blue Christmas",
-	"",
-	"O: Yes, I'll have a blue, blue blue blue Christmas."
     ]
 }
 },
@@ -16529,12 +16497,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1605070643570, "song": 
+{ "file": "", "lastModifiedDate": 1670827282625, "song": 
 {
 "title": "Breathe (2 am)",
 "artist": "Anna Nalick",
 "user": "Shari",
-"lastModifiedDate": 1605070643570,
+"lastModifiedDate": 1670827282625,
 "copyright": "2005 Columbia",
 "key": "A",
 "defaultBpm": 171,
@@ -16542,15 +16510,20 @@
 "chords": 
     [
 	"V:",
-	"A A G G |",
-	"D D A A | x2",
+	"A A G G",
+	"D D A A",
+	"A A G G",
+	"D D A A",
 	"PC:",
-	"Bm D A E x2",
+	"Bm D A E",
+	"Bm D A E",
 	"E",
 	"C:",
-	"G D A A x2",
+	"G D A A",
+	"G D A A",
 	"O:",
-	"G D A A x2",
+	"G D A A",
+	"G D A A",
 	"G D A"
     ],
 "lyrics": 
@@ -29601,25 +29574,25 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1638925415783, "song": 
+{ "file": "", "lastModifiedDate": 1670834500599, "song": 
 {
 "title": "Deck the Halls",
 "artist": "Traditional Christmas",
 "user": "Shari",
-"lastModifiedDate": 1638925415783,
+"lastModifiedDate": 1670834500599,
 "copyright": "16th cent. Welsh tune; lyrics Thomas Oliphant (1862)",
 "key": "C",
 "defaultBpm": 106,
-"timeSignature": "2/4",
+"timeSignature": "4/4",
 "chords": 
     [
 	"I:",
-	"C Am G G",
+	"C AmC G7C GC",
 	"V:",
-	"C Am GC FGCC",
-	"C Am GC FGCC",
-	"G C CAm GDGG",
-	"C Am FC FGCC"
+	"C AmC G7C GC",
+	"C AmC G7C GC",
+	"G7 C CAm G7G",
+	"C AmC FC G7C"
     ],
 "lyrics": 
     [
@@ -31178,12 +31151,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1607913521804, "song": 
+{ "file": "", "lastModifiedDate": 1670835122663, "song": 
 {
 "title": "Do They Know It's Christmas",
 "artist": "Band Aid",
 "user": "Shari",
-"lastModifiedDate": 1607913521804,
+"lastModifiedDate": 1670835122663,
 "copyright": "1984 Columbia",
 "key": "C",
 "defaultBpm": 120,
@@ -31194,6 +31167,8 @@
 	"C C",
 	"I2:",
 	"C C",
+	"I3:",
+	"C FC/E FC/E DmG x2",
 	"V1:",
 	"F G C C",
 	"F G C C",
@@ -31212,7 +31187,7 @@
 	"F G C F",
 	"Dm G",
 	"Br:",
-	"Am G Am G",
+	"AmX GX AmX GX",
 	"F G",
 	"O:",
 	"C FC/E FC/E DmG x6",
@@ -31231,11 +31206,8 @@
 	"V2:",
 	"But say a prayer, pray for the other ones",
 	"At Christmas time it's hard, but when you're having fun",
-	"There's a world outside your window",
-	"And it's a world of dread and fear",
-	"",
-	"Where the only water flowing ",
-	"Is the bitter sting of tears",
+	"There's a world outside your window and it's a world of dread and fear",
+	"Where the only water flowing is the bitter sting of tears",
 	"And the Christmas bells that ring there are the clanging chimes of doom",
 	"Well tonight thank God it's them instead of you",
 	"",
@@ -31245,17 +31217,20 @@
 	"Where nothing ever grows, no rain nor rivers flow",
 	"Do they know it's Christmas time at all?",
 	"",
-	"I2: Instrumental",
+	"I2: (instrumental riff)",
 	"",
 	"Br:",
 	"Here's to you, raise a glass for everyone",
 	"Here's to them, underneath that burning sun",
 	"Do they know it's Christmas time at all?",
 	"",
+	"I3: (instrumental riff)",
+	"",
 	"O:",
-	"-",
 	"Feed the world ",
-	"Let them know it's Christmas time again x4"
+	"Feed the world",
+	"Feed the world, let them know it's Christmas time again",
+	"Feed the world, let them know it's Christmas time again"
     ]
 }
 },
@@ -31366,12 +31341,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1607914130813, "song": 
+{ "file": "", "lastModifiedDate": 1670834621765, "song": 
 {
 "title": "Do You Hear What I Hear",
 "artist": "Bing Crosby at Christmas",
 "user": "Shari",
-"lastModifiedDate": 1607914130813,
+"lastModifiedDate": 1670834621765,
 "copyright": "Christmas",
 "key": "C",
 "defaultBpm": 106,
@@ -31392,7 +31367,7 @@
 "lyrics": 
     [
 	"v:",
-	"Said the night wind to the little lamb",
+	"(Said the) night wind to the little lamb",
 	"Do you see what I see?",
 	"Way up in the sky, little lamb",
 	"Do you see what I see?",
@@ -31401,7 +31376,7 @@
 	"With a tail as big as a kite",
 	"With a tail as big as a kite",
 	"v:",
-	"Said the little lamb to the shepherd boy",
+	"(Said the) little lamb to the shepherd boy",
 	"Do you hear what I hear?",
 	"Ringing through the sky, shepherd boy",
 	"Do you hear what I hear?",
@@ -31412,7 +31387,7 @@
 	"With a voice as big as the sea",
 	"",
 	"v:",
-	"Said the shepherd boy to the mighty king",
+	"(Said the) shepherd boy to the mighty king",
 	"Do you know what I know?",
 	"In your palace warm, mighty king",
 	"Do you know what I know?",
@@ -31422,7 +31397,7 @@
 	"Let us bring Him silver and gold",
 	"Let us bring Him silver and gold",
 	"v:",
-	"Said the king to the people everywhere",
+	"(Said the) king to the people everywhere",
 	"Listen to what I say",
 	"Pray for peace, people everywhere",
 	"Listen to what I say",
@@ -33531,12 +33506,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1646613999610, "song": 
+{ "file": "", "lastModifiedDate": 1670822872637, "song": 
 {
 "title": "Don't Talk",
 "artist": "10,000 Maniacs",
 "user": "Shari",
-"lastModifiedDate": 1646613999610,
+"lastModifiedDate": 1670822872637,
 "copyright": "1987 Elektra",
 "key": "D",
 "defaultBpm": 133,
@@ -33557,7 +33532,8 @@
 	"O:",
 	"EmD A EmD A |",
 	"EmD A D G |",
-	"D G A A | x2"
+	"D G A A | x2",
+	"D"
     ],
 "lyrics": 
     [
@@ -36113,6 +36089,113 @@
     ]
 }
 },
+{ "file": null, "lastModifiedDate": 1670832130220, "song": 
+{
+"title": "Early Morning Rain",
+"artist": "Gordon Lightfoot",
+"user": "Shari",
+"lastModifiedDate": 1670832130220,
+"copyright": "1966 United Artists",
+"key": "F",
+"defaultBpm": 103,
+"timeSignature": "2/4",
+"chords": 
+    [
+	"I:",
+	"F F Bb Bb",
+	"C Bb F Bb",
+	"F F",
+	"I2:",
+	"F Bb C Bb",
+	"F Bb F F",
+	"V1:",
+	"C C C Bb",
+	"F Bb F F",
+	"Gm Gm Gm Gm",
+	"F Bb F F",
+	"V2:",
+	"Gm Gm C C",
+	"F Bb F F",
+	"C C C Bb",
+	"F Bb F F",
+	"V3:",
+	"Gm Gm C C",
+	"F Bb F F",
+	"C C C Bb",
+	"T:",
+	"Gm Gm C C",
+	"F Bb F F",
+	"C C C Bb",
+	"O:",
+	"F Bb C Bb",
+	"F Bb F F"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V1:",
+	"(In the early morning) rain with a dollar in my ",
+	"Hand, with an aching in my ",
+	"Heart and my pockets full of ",
+	"Sand",
+	"",
+	"V2:",
+	"(I'm a long way from) home, Lord, I miss my loved ones ",
+	"So, in the early morning ",
+	"Rain with no place to ",
+	"Go",
+	"",
+	"V1:",
+	"(Out on runway number) nine, big 707 set to ",
+	"Go, and I'm stuck here in the",
+	"Grass where the pavement never ",
+	"Grows",
+	"",
+	"V3: (Now the liquor tasted) good, and the women all were ",
+	"Fast, well there she goes my ",
+	"Friend, she'll be rolling down at last",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V1:",
+	"(Hear the mighty engines) roar, see the silver wing on ",
+	"High, she's away and westward ",
+	"Bound, far above the clouds she'll ",
+	"Fly",
+	"",
+	"V3:",
+	" (There the morning rain don't) fall and the sun always ",
+	"Shines, she'll be flying over my ",
+	"Home in about three hours time",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V1:",
+	"(This old airport's got me) down, it's no earthly good to ",
+	"Me, and I'm stuck here on the ",
+	"Ground as cold and drunk as I can ",
+	"Be",
+	"",
+	"V2:",
+	"(You can't jump a jet) plane like you can a freight ",
+	"Train, so I'd best be on my ",
+	"Way in the early morning ",
+	"Rain",
+	"",
+	"T:",
+	"(You can't jump a jet) plane like you can a freight ",
+	"Train, so I'd best be on my ",
+	"Way in the early morning rain",
+	"",
+	"O:",
+	"(instrumental)"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1641801887820, "song": 
 {
 "title": "Earth Angel (Will You Be Mine)",
@@ -36611,15 +36694,15 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1620173809231, "song": 
+{ "file": "", "lastModifiedDate": 1671153300321, "song": 
 {
 "title": "Eight Days a Week",
 "artist": "Beatles, The",
 "user": "Shari",
-"lastModifiedDate": 1620173809231,
+"lastModifiedDate": 1671153300321,
 "copyright": "1964 Capitol",
 "key": "D",
-"defaultBpm": 100,
+"defaultBpm": 139,
 "timeSignature": "4/4",
 "chords": 
     [
@@ -36698,10 +36781,8 @@
 	"",
 	"C2:",
 	"Hold me, love me, hold me, love me",
-	"Ain't got nothing but love, babe",
-	"Eight days a week",
-	"Eight days a week",
-	"Eight days a week",
+	"I ain't got nothing but love, babe, eight days a week",
+	"Eight days a week, eight days a week",
 	"",
 	"O:",
 	"(instrumental)"
@@ -40750,14 +40831,14 @@
     ]
 }
 },
-{ "file": "Feliz Navidad.songlyrics", "lastModifiedDate": 1575343554000, "song": 
+{ "file": "Feliz Navidad.songlyrics", "lastModifiedDate": 1670837568306, "song": 
 {
 "title": "Feliz Navidad",
 "artist": "José Feliciano et al at Christmas",
-"user": "Paul",
-"lastModifiedDate": 1575343554000,
+"user": "Shari",
+"lastModifiedDate": 1670837568306,
 "copyright": "© BMG Rights Management  (written by José Feliciano, 1970)",
-"key": "C",
+"key": "G",
 "defaultBpm": 106,
 "timeSignature": "4/4",
 "chords": 
@@ -41617,36 +41698,45 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1636049000438, "song": 
+{ "file": "", "lastModifiedDate": 1671153123808, "song": 
 {
 "title": "Fire on the Mountain",
 "artist": "Marshall Tucker Band, The",
 "user": "Shari",
-"lastModifiedDate": 1636049000438,
+"lastModifiedDate": 1671153123808,
 "copyright": "1975 Capricorn",
 "key": "G",
-"defaultBpm": 102,
+"defaultBpm": 100,
 "timeSignature": "4/4",
 "chords": 
     [
 	"I:",
-	"Em C Em C x2",
+	"GX DX AmX CXGX X.",
 	"I2:",
+	"Em Em C C x2",
+	"I3:",
+	"Em C Em C",
+	"I4:",
 	"G D Am C. G",
 	"G D Am C.",
+	"I5:",
+	"Em C Em C x2",
 	"V:",
 	"Em C Em C x2",
 	"C:",
 	"G D Am Am.",
-	"Em C Em C",
-	"O:",
+	"C2:",
 	"G D Am Am. G",
 	"G D Am Am.",
-	"Em C G G"
+	"O:",
+	"EmX CX GX"
     ],
 "lyrics": 
     [
 	"I:",
+	"(instrumental leggiero)",
+	"",
+	"I2:",
 	"(instrumental)",
 	"",
 	"V:",
@@ -41657,8 +41747,10 @@
 	"",
 	"C:",
 	"Fire on the mountain, lightning in the air",
-	"Gold in them hills and it's waiting for me ",
-	"There",
+	"Gold in them hills and it's waiting for me there",
+	"",
+	"I3:",
+	"(instrumental)",
 	"",
 	"V:",
 	"We were digging and sifting from five to five",
@@ -41668,25 +41760,29 @@
 	"",
 	"C:",
 	"Fire on the mountain, lightning in the air",
-	"Gold in them hills and it's waiting for me ",
-	"There",
+	"Gold in them hills and it's waiting for me there",
 	"",
-	"I2:",
+	"I3:",
 	"(instrumental)",
 	"",
-	"I:",
+	"I4:",
+	"(instrumental flute solo)",
+	"",
+	"I5:",
 	"(instrumental flute solo)",
 	"",
 	"V:",
 	"Dance hall girls were the evening treat",
 	"Empty cartridges and blood lined the gutters of the street",
 	"Men were shot down for the sake of fun",
-	"Or just to hear the noise of their forty four guns, and there's",
+	"Or just to hear the noise of their forty-four guns, and there's",
 	"",
 	"C:",
 	"Fire on the mountain, lightning in the air",
-	"Gold in them hills and it's waiting for me ",
-	"There",
+	"Gold in them hills and it's waiting for me there",
+	"",
+	"I3:",
+	"(instrumental)",
 	"",
 	"V:",
 	"Now my widow she weeps by my grave",
@@ -41694,13 +41790,15 @@
 	"Shot down in cold blood by a gun that carried fame",
 	"All for a useless and no good worthless claim, and there's",
 	"",
+	"C2:",
+	"Fire on the mountain, lightning in the air",
+	"Gold in them hills and it's waiting for me there",
+	"Fire on the mountain, lightning in the air",
+	"Gold in them hills and it's waiting for me there",
+	"",
 	"O:",
-	"Fire on the mountain, lightning in the air",
-	"Gold in them hills and it's waiting for me ",
-	"There",
-	"Fire on the mountain, lightning in the air",
-	"Gold in them hills and it's waiting for me ",
-	"There, waiting for me there"
+	"(instrumental)",
+	"Waiting for me there"
     ]
 }
 },
@@ -41894,12 +41992,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1638927524440, "song": 
+{ "file": "", "lastModifiedDate": 1670832654454, "song": 
 {
 "title": "First Noel",
 "artist": "Traditional Christmas",
 "user": "Shari",
-"lastModifiedDate": 1638927524440,
+"lastModifiedDate": 1670832654454,
 "copyright": "Cornish folk melody, first published 1823",
 "key": "G",
 "defaultBpm": 100,
@@ -41907,6 +42005,8 @@
 "chords": 
     [
 	"V:",
+	"G D C G",
+	"C Bm C.D G",
 	"G D C G",
 	"C Bm C.D G",
 	"C:",
@@ -45103,14 +45203,14 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1607913918000, "song": 
+{ "file": "", "lastModifiedDate": 1670834827276, "song": 
 {
 "title": "Frosty the Snowman",
 "artist": "Gene Autrey at Christmas",
 "user": "Shari",
-"lastModifiedDate": 1607913918000,
+"lastModifiedDate": 1670834827276,
 "copyright": "© Chappell & Co., Anne Rachel Music Corp., Hill & Range Songs, Inc.",
-"key": "C",
+"key": "G",
 "defaultBpm": 106,
 "timeSignature": "4/4",
 "chords": 
@@ -45408,7 +45508,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1670542169060, "song": 
+{ "file": "", "lastModifiedDate": 1670542169060, "song": 
 {
 "title": "Funkytown",
 "artist": "Lipps Inc.",
@@ -47481,14 +47581,14 @@
     ]
 }
 },
-{ "file": "God Rest Ye Merry Gentlemen.songlyrics", "lastModifiedDate": 1543697923134, "song": 
+{ "file": "God Rest Ye Merry Gentlemen.songlyrics", "lastModifiedDate": 1670837456357, "song": 
 {
 "title": "God Rest Ye Merry Gentlemen",
 "artist": "Christmas",
-"user": "Unknown",
-"lastModifiedDate": 1543697923134,
+"user": "Shari",
+"lastModifiedDate": 1670837456357,
 "copyright": "(P) 2014 Columbia Records, a Division of Sony Music Entertainment",
-"key": "C",
+"key": "G",
 "defaultBpm": 106,
 "timeSignature": "2/4",
 "chords": 
@@ -50906,16 +51006,16 @@
     ]
 }
 },
-{ "file": "Happy Christmas War is Over.songlyrics", "lastModifiedDate": 1575344382000, "song": 
+{ "file": "Happy Christmas War is Over.songlyrics", "lastModifiedDate": 1671152229543, "song": 
 {
 "title": "Happy Christmas War is Over",
 "artist": "John Lennon",
-"user": "Paul",
-"lastModifiedDate": 1575344382000,
-"copyright": "© Downtown Music Publishing, BMG Rights Management",
-"key": "C",
-"defaultBpm": 106,
-"timeSignature": "4/4",
+"user": "Shari",
+"lastModifiedDate": 1671152229543,
+"copyright": "1972 Apple",
+"key": "A",
+"defaultBpm": 150,
+"timeSignature": "6/8",
 "chords": 
     [
 	"V:",
@@ -50937,55 +51037,55 @@
 "lyrics": 
     [
 	"v:",
-	"So this is Xmas",
-	"And what have you done",
-	"Another year over",
-	"And a new one just begun",
+	"(So this is) Xmas, and what have you",
+	"Done, another year ",
+	"Over, and a new one just ",
+	"Begun",
 	"v1:",
-	"And so this is Xmas",
-	"I hope you have fun",
-	"The near and the dear one",
-	"The old and the young",
+	"(And so this is) Xmas, I hope you have",
+	"Fun, the near and the ",
+	"Dear ones, the old and the ",
+	"Young",
 	"ch:",
-	"A very Merry Xmas",
-	"And a happy New Year",
-	"Let's hope it's a good one",
-	"Without any fear",
+	"(A very Merry) Xmas, and a happy New ",
+	"Year, let's hope it's a ",
+	"Good one, without any ",
+	"Fear",
 	"v:",
-	"And so this is Xmas (war is over)",
-	"For weak and for strong (if you want it)",
-	"For rich and the poor ones (war is over)",
-	"The world is so wrong (now)",
+	"(And so this is) Xmas (war is over) for weak and for ",
+	"Strong (if you want it), for rich and the ",
+	"Poor ones (war is over), the world is so ",
+	"Wrong (now)",
 	"v1:",
-	"And so happy Xmas (war is over)",
-	"For black and for white (if you want it)",
-	"For yellow and red ones (war is over)",
-	"Let's stop all the fight (now)",
+	"(And so happy) Xmas (war is over), for black and for ",
+	"White (if you want it), for yellow and ",
+	"Red ones (war is over), let's stop all the ",
+	"Fight (now)",
 	"ch:",
-	"A very Merry Xmas",
-	"And a happy New Year",
-	"Let's hope it's a good one",
-	"Without any fear",
+	"(A very Merry) Xmas, and a happy New ",
+	"Year, let's hope it's a ",
+	"Good one, without any ",
+	"Fear",
 	"v:",
-	"And so this is Xmas (war is over)",
-	"And what have we done (if you want it)",
-	"Another year over (war is over)",
-	"A new one just begun (now)",
+	"(And so this is) Xmas (war is over) and what have we ",
+	"Done (if you want it), another year ",
+	"Over (war is over), and a new one just ",
+	"Begun (now)",
 	"v1:",
-	"And so happy Xmas (war is over)",
-	"We hope you have fun (if you want it)",
-	"The near and the dear one (war is over)",
-	"The old and the young (now)",
+	"(And so happy) Xmas (war is over), we hope you have ",
+	"Fun (if you want it), the near and the ",
+	"Dear ones (war is over), the old and the ",
+	"Young (now)",
 	"ch:",
-	"A very Merry Xmas",
-	"And a happy New Year",
-	"Let's hope it's a good one",
-	"Without any fear",
+	"(A very Merry) Xmas and a happy New ",
+	"Year, let's hope it's a ",
+	"Good one, without any ",
+	"Fear",
 	"v:",
-	"War is over, ",
-	"if you want it",
+	"War is over",
+	"If you want it",
 	"War is over ",
-	"now"
+	"Now"
     ]
 }
 },
@@ -51286,16 +51386,16 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1655353631435, "song": 
+{ "file": "", "lastModifiedDate": 1671151668632, "song": 
 {
 "title": "Hard Sun, cover by Eddie Vedder",
 "artist": "Indio",
 "user": "Shari",
-"lastModifiedDate": 1655353631435,
+"lastModifiedDate": 1671151668632,
 "copyright": "1989 A&M",
 "key": "Eb",
-"defaultBpm": 144,
-"timeSignature": "4/4",
+"defaultBpm": 72,
+"timeSignature": "2/4",
 "chords": 
     [
 	"I:",
@@ -51322,7 +51422,7 @@
 "lyrics": 
     [
 	"i:",
-	"(intro)",
+	"(instrumental)",
 	"v:",
 	"When I walk beside her, I am the better man",
 	"When I look to leave her, I always stagger back again",
@@ -51330,9 +51430,9 @@
 	"When I climbed down to be set free, she took me in again",
 	"",
 	"ch:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world",
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world",
+	"",
 	"v:",
 	"When she comes to greet me, she is mercy at my feet",
 	"When I see her bitter charm, she just throws it back at me",
@@ -51340,14 +51440,12 @@
 	"She just smiled and laughed at me and took her blues back again",
 	"",
 	"ch:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world",
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world",
 	"",
 	"ch:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world",
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world",
 	"",
 	"i2:",
 	"(instrumental)",
@@ -51360,9 +51458,8 @@
 	"Ooh, aah",
 	"",
 	"ch:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world",
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world",
 	"",
 	"i2:",
 	"(instrumental)",
@@ -51374,19 +51471,16 @@
 	"Forty days and forty nights and it's still coming down on me",
 	"",
 	"ch:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world",
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world",
 	"",
 	"ch:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world",
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world",
 	"",
 	"O:",
-	"There's a big, a big hard sun",
-	"Beating on the big people",
-	"In the big hard world"
+	"(There's a) big, a big hard sun, beating on the big ",
+	"People, in the big hard world"
     ]
 }
 },
@@ -51563,12 +51657,12 @@
     ]
 }
 },
-{ "file": "Hark, the Herald Angels Sing.songlyrics", "lastModifiedDate": 1575344692000, "song": 
+{ "file": "Hark, the Herald Angels Sing.songlyrics", "lastModifiedDate": 1670836244045, "song": 
 {
 "title": "Hark, the Herald Angels Sing",
 "artist": "traditional Christmas",
-"user": "Paul",
-"lastModifiedDate": 1575344692000,
+"user": "Shari",
+"lastModifiedDate": 1670836244045,
 "copyright": "Public domain (words by Charles Wesley (1739); music by Felix Mendelsshon (1840)",
 "key": "C",
 "defaultBpm": 110,
@@ -51585,16 +51679,16 @@
 "lyrics": 
     [
 	"v:",
-	"'Hark,' the herald angels sing!",
-	"Glory to the new born King!",
-	"Peace on Earth and mercy mild;",
-	"God and sinners reconciled.",
-	"Joyful all ye nations rise!",
-	"Join the triumph of the skies!",
-	"With angelic host proclaim,",
-	"Christ is born in Beth-le-hem.",
-	"'Hark,' the herald angels sing!",
-	"Glory to the new born King!"
+	"'Hark,' the herald angels sing",
+	"Glory to the new born King",
+	"Peace on Earth and mercy mild",
+	"God and sinners reconciled",
+	"Joyful all ye nations rise",
+	"Join the triumph of the skies",
+	"With angelic host proclaim",
+	"Christ is born in Beth-le-hem",
+	"'Hark,' the herald angels sing",
+	"Glory to the new born King"
     ]
 }
 },
@@ -51732,16 +51826,16 @@
     ]
 }
 },
-{ "file": "Have Yourself a Merry Little Christmas.songlyrics", "lastModifiedDate": 1575345056000, "song": 
+{ "file": "Have Yourself a Merry Little Christmas.songlyrics", "lastModifiedDate": 1670836188098, "song": 
 {
 "title": "Have Yourself a Merry Little Christmas",
 "artist": "Judy Garland",
-"user": "Paul",
-"lastModifiedDate": 1575345056000,
+"user": "Shari",
+"lastModifiedDate": 1670836188098,
 "copyright": "© Sony/ATV Music Publishing LLC (Hugh Martin/Ralph Blane, 1944)",
-"key": "C",
+"key": "G",
 "defaultBpm": 106,
-"timeSignature": "4/4",
+"timeSignature": "2/4",
 "chords": 
     [
 	"V:",
@@ -51771,36 +51865,38 @@
     [
 	"v:Have yourself a merry little Christmas",
 	"Let your heart be light",
-	"From now on our troubles",
-	"Will be out of sight",
+	"From now on our troubles will be out of ",
+	"Sight",
 	"v1:",
 	"Have yourself a merry little Christmas",
 	"Make the Yuletide gay",
-	"From now on our troubles",
-	"Will be miles away, oh ooh",
+	"From now on our troubles will be miles ",
+	"Away, oh ooh",
 	"b:",
 	"Here we are as in olden days",
 	"Happy golden days of yore, ah",
-	"Faithful friends who are dear to us",
-	"Gather near to us, once more, ooh",
+	"Faithful friends who are dear to us, gather",
+	"Near to us once more, ooh",
 	"v2:",
 	"Through the years we all will be together",
 	"If the fates allow",
-	"Hang a shining star upon the highest bough,",
-	"And have yourself a merry little Christmas now,",
+	"Hang a shining star upon the highest ",
+	"Bough, and",
+	"Have yourself a merry little Christmas ",
+	"Now",
 	"",
+	"b:",
 	"Here we are as in olden days",
-	"Happy golden days of yore,",
-	"Faithful friends who are dear to us",
-	"Gather near to us, once more",
-	"",
+	"Happy golden days of yore, ah",
+	"Faithful friends who are dear to us, gather",
+	"Near to us once more, ooh",
+	"v2:",
 	"Through the years we all will be together",
 	"If the fates allow",
-	"Hang a shining star upon the highest bough, oh",
-	"And have yourself a merry little Christmas now, ooh",
-	"",
-	"Merry Christmas",
-	"Merry Christmas"
+	"Hang a shining star upon the highest ",
+	"Bough, and",
+	"Have yourself a merry little Christmas ",
+	"Now"
     ]
 }
 },
@@ -58922,15 +59018,15 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1592710749988, "song": 
+{ "file": "", "lastModifiedDate": 1671152124332, "song": 
 {
 "title": "I Can See Clearly Now",
 "artist": "Johnny Nash",
 "user": "Shari",
-"lastModifiedDate": 1592710749988,
+"lastModifiedDate": 1671152124332,
 "copyright": "1972 Epic",
 "key": "D",
-"defaultBpm": 123,
+"defaultBpm": 121,
 "timeSignature": "4/4",
 "chords": 
     [
@@ -58949,10 +59045,7 @@
 	"F F C C",
 	"F F A A",
 	"C#m G C#m G",
-	"C Bm A A",
-	"O:",
-	"C G D D",
-	"C G D D"
+	"C Bm A A"
     ],
 "lyrics": 
     [
@@ -58965,8 +59058,8 @@
 	"Gone are the dark clouds that had me blind",
 	"",
 	"C1:",
-	"It's gonna be a bright (bright) bright (bright) sunshiny day",
-	"It's gonna be a bright (bright) bright (bright) sunshiny day",
+	"(It's gonna be a) bright (bright) bright (bright) sunshiny day, it's gonna be a",
+	"Bright (bright) bright (bright) sunshiny day",
 	"",
 	"V:",
 	"I think I can make it now the pain is gone",
@@ -58974,11 +59067,13 @@
 	"Here is that rainbow I've been praying for",
 	"",
 	"C2:",
-	"It's gonna be a bright (bright) bright (bright) sunshiny day",
+	"(It's gonna be a) bright (bright) bright (bright) sunshiny day",
 	"",
 	"BR:",
 	"Look all around, there's nothing but blue skies",
 	"Look straight ahead, there's nothing but blue skies",
+	"-",
+	"-",
 	"",
 	"V:",
 	"I can see clearly now the rain is gone",
@@ -58986,12 +59081,12 @@
 	"Gone are the dark clouds that had me blind",
 	"",
 	"C1:",
-	"It's gonna be a bright (bright) bright (bright) sunshiny day",
-	"It's gonna be a bright (bright) bright (bright) sunshiny day",
+	"(It's gonna be a) bright (bright) bright (bright) sunshiny day, it's gonna be a",
+	"Bright (bright) bright (bright) sunshiny day",
 	"",
-	"O:",
-	"It's gonna be a bright (bright) bright (bright) sunshiny day",
-	"Oh what a bright (bright) bright (bright) sunshiny day"
+	"C1:",
+	"(Gonna be a) bright (bright) bright (bright) sunshiny day, it's gonna be a",
+	"Bright (bright) bright (bright) sunshiny day"
     ]
 }
 },
@@ -73740,6 +73835,116 @@
     ]
 }
 },
+{ "file": "L.A. Freeway.songlyrics", "lastModifiedDate": 1670822483518, "song": 
+{
+"title": "L.A. Freeway",
+"artist": "Jerry Jeff Walker",
+"user": "Shari",
+"lastModifiedDate": 1670822483518,
+"copyright": "1972 Decca, written by Guy Clark",
+"key": "Bb",
+"defaultBpm": 115,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Bb Bb Eb Eb",
+	"Bb Bb F F",
+	"I2:",
+	"BbBb/A GmGm/F Cm F7",
+	"V1:",
+	"Bb Bb Eb Eb",
+	"Bb Bb F F",
+	"V2:",
+	"Bb Bb Eb Eb",
+	"Bb Bb F F F.EbF",
+	"C:",
+	"Eb F Bb Eb",
+	"BbBb/A GmGm/F Cm F7",
+	"Eb F Bb Eb",
+	"Br:",
+	"Bb Eb Bb Eb x3",
+	"O:",
+	"Bb Eb Bb Eb x4",
+	"Bb"
+    ],
+"lyrics": 
+    [
+	"I: (instrumental)",
+	"",
+	"V1: ",
+	"Pack up all your dishes",
+	"Make note of all good wishes",
+	"Say goodbye to the landlord for me",
+	"Son-of-bitches have always bored me",
+	"",
+	"V2:",
+	"Throw out those LA papers ",
+	"Moldy box of vanilla wafers",
+	"Adios to all this concrete",
+	"Gonna get me some dirt road back street",
+	"",
+	"C:",
+	"(If I can) just get off of that LA freeway ",
+	"Without getting killed or caught",
+	"Down that road baby, down the road ",
+	"For land some land that I ain't bought, bought, bought, if I",
+	"Just get off of that LA freeway ",
+	"Without getting killed or caught",
+	"",
+	"I2: (instrumental)\t\t",
+	"",
+	"V1:",
+	"Here's to you old skinny Dennis",
+	"Only one I think I will miss",
+	"I can hear your old bass notes ringing so",
+	"Deep and low like a gift you're bringing",
+	"",
+	"V2:",
+	"Play it for me now one more time friend",
+	"Got to give it all we can now",
+	"I believe everything you're been saying",
+	"Just keep on, keep on playing",
+	"",
+	"C:",
+	"(If I can) just get off of that LA freeway ",
+	"Without getting killed or caught",
+	"Down that road in a cloud of smoke for some",
+	"Land that I ain't bought, bought, bought, if I",
+	"Just get off of that LA freeway ",
+	"Without getting killed or caught",
+	"",
+	"I2: (instrumental)\t\t",
+	"",
+	"V1:",
+	"Put the pink slip in the mailbox",
+	"Leave the key in the old front door lock",
+	"They will find it all likely as not",
+	"With all the things that we have forgot",
+	"",
+	"V2:",
+	"Oh my lady now don't you cry hey",
+	"Love's a gift that's truly handmade",
+	"We've got something that we believe in",
+	"Now don't you think it's time we're leavin'?",
+	"",
+	"C:\t(If I can) just get off of this LA freeway ",
+	"Without getting killed or caught",
+	"Down the road in a cloud of smoke for some",
+	"Land that I ain't bought, bought, bought, if I",
+	"Just get off of that LA freeway",
+	"Without getting killed or caught",
+	"",
+	"I2: (instrumental)\t\t",
+	"",
+	"BR:",
+	"(instrumental, harmonica and piano)",
+	"",
+	"O: (instrumental)",
+	"Hey hey hey, yeah (repeat and fade)"
+    ]
+}
+},
 { "file": "L.A. Freeway.songlyrics", "lastModifiedDate": 1580162536000, "song": 
 {
 "title": "L.A. Freeway",
@@ -75925,14 +76130,14 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1607482229363, "song": 
+{ "file": "", "lastModifiedDate": 1670835231788, "song": 
 {
 "title": "Let It Snow",
 "artist": "Vaughn Monroe and Everybody at Christmas",
 "user": "Shari",
-"lastModifiedDate": 1607482229363,
+"lastModifiedDate": 1670835231788,
 "copyright": " © Sony/ATV Melody, Cahn Music Co., Cahn Music Company, Quaytor Productions LLC, Chappell & Co. O/B/o Producers Music Publishing Co. (written by lyricist Sammy Cahn & composer Jule Styne, 1945)",
-"key": "D",
+"key": "G",
 "defaultBpm": 106,
 "timeSignature": "2/4",
 "chords": 
@@ -80397,7 +80602,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1670396921086, "song": 
+{ "file": "", "lastModifiedDate": 1670396921086, "song": 
 {
 "title": "Look, The",
 "artist": "Roxette",
@@ -92463,6 +92668,121 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1670829020109, "song": 
+{
+"title": "No Surrender",
+"artist": "Bruce Springsteen",
+"user": "Jeff N.",
+"lastModifiedDate": 1670829020109,
+"copyright": "1984 Columbia",
+"key": "F",
+"defaultBpm": 156,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"X X",
+	"F C Bb Bb x4",
+	"V1:",
+	"F F C C",
+	"Bb Bb F C",
+	"F F C C",
+	"Bb Bb F C",
+	"V2:",
+	"F F C C",
+	"Bb Bb F C",
+	"F F C C",
+	"Bb Bb F C",
+	"V3:",
+	"F F C C",
+	"Bb Bb F C",
+	"F F C C",
+	"Bb Bb F C C",
+	"C1:",
+	"F C Bb F",
+	"Bb C F F",
+	"F C Bb F",
+	"Bb C F F",
+	"C2:",
+	"F C Bb F",
+	"Bb C F F",
+	"F C Bb F",
+	"Bb C Bb Bb",
+	"Bb C F F",
+	"Br:",
+	"Bb Bb C F",
+	"Bb Bb F C",
+	"Bb Bb C F",
+	"Bb Bb F C C",
+	"O:",
+	"F C Bb Bb x4",
+	"F"
+    ],
+"lyrics": 
+    [
+	"Intro:",
+	"(drum fill)",
+	"Ooh, ooh, ooh, ooh",
+	"",
+	"V1:",
+	"(Well we) busted out of class, had to get ",
+	"Away from those fools, we learned ",
+	"More from a three-minute record baby than we ",
+	"Ever learned in school, tonight I ",
+	"Hear the neighborhood drummer sound, I can ",
+	"Feel my heart begin to pound, you say you're ",
+	"Tired and you just want to close your eyes and ",
+	"Follow your dreams down",
+	"",
+	"C1:",
+	"(Well we) made a promise we swore we'd always remember, no",
+	"Retreat, baby, no surrender...like ",
+	"Soldiers in the winter's night with a vow to defend, no ",
+	"Retreat, baby, no surrender",
+	"",
+	"V2:",
+	"(Well) now young faces grow sad and old, and",
+	"Hearts of fire grow cold, we",
+	"Swore blood brothers against the wind, now I'm",
+	"Ready to grow young again, and ",
+	"Hear your sister's voice calling us home",
+	"Across the open yards, well maybe ",
+	"We'll cut someplace of our own with these ",
+	"Drums and these guitars",
+	"",
+	"C1:",
+	"(Cause we) made a promise we swore we'd always remember, no ",
+	"Retreat baby, no surrender...blood ",
+	"Brothers in the stormy night with a vow to defend, no",
+	"Retreat baby, no surrender, hey",
+	"",
+	"Bridge:",
+	"Lay lay lay lay lay lay lay lay lay lay lay lay",
+	"Lay lay lay lay lay lay lay lay lay lay lay lay",
+	"Lay lay lay lay lay lay lay lay lay lay lay lay",
+	"Lay lay lay lay lay lay lay lay lay lay lay lay",
+	"",
+	"V3:",
+	"(Now) on the street tonight the lights grow dim, the",
+	"Walls of my room are closing in, there's a ",
+	"War outside still raging, you say it ain't ",
+	"Ours anymore to win, I want to",
+	"Sleep beneath peaceful skies",
+	"In my lover's bed, with a ",
+	"Wide open country in my eyes and these ",
+	"Romantic dreams in my head",
+	"",
+	"C2:",
+	"('Cause once we) made a promise we swore we'd always remember, no ",
+	"Retreat baby, no surrender...blood ",
+	"Brothers in the stormy night with a vow to defend, no",
+	"Retreat baby, no surrender, no",
+	"Retreat baby, no surrender",
+	"O:",
+	"Ooh, ooh, ooh x4"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1616565661446, "song": 
 {
 "title": "No Woman No Cry",
@@ -104467,7 +104787,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1670394437592, "song": 
+{ "file": "", "lastModifiedDate": 1670394437592, "song": 
 {
 "title": "Reelin' In The Years",
 "artist": "Steely Dan",
@@ -108396,12 +108716,12 @@
     ]
 }
 },
-{ "file": "Rudolph the Red-Nosed Reindeer.songlyrics", "lastModifiedDate": 1575329418000, "song": 
+{ "file": "Rudolph the Red-Nosed Reindeer.songlyrics", "lastModifiedDate": 1670837352537, "song": 
 {
 "title": "Rudolph the Red-Nosed Reindeer",
 "artist": "Gene Autry and Everyone at Christmas",
-"user": "Paul",
-"lastModifiedDate": 1575329418000,
+"user": "Shari",
+"lastModifiedDate": 1670837352537,
 "copyright": "© St. Nicholas Music Inc. (John D. Marks, 1949)",
 "key": "G",
 "defaultBpm": 100,
@@ -108424,12 +108744,11 @@
     ],
 "lyrics": 
     [
-	"i:You know Dasher and Dancer",
-	"And Prancer and Vixen,",
-	"Comet and Cupid",
-	"And Donner and Blitzen.",
-	"But do you recall",
-	"The most famous reindeer of all?",
+	"i:",
+	"You know Dasher and Dancer and Prancer and Vixen",
+	"Comet and Cupid and Donner and Blitzen",
+	"But do you recall...the most ",
+	"Famous reindeer of all?",
 	"v:",
 	"Rudolph the red-nosed reindeer",
 	"Had a very shiny nose",
@@ -108449,10 +108768,7 @@
 	"Then all the reindeer loved him",
 	"And they shouted out with glee",
 	"Rudolph the red-nosed reindeer",
-	"You'll go down in history!",
-	"",
-	"(pause to breathe!)",
-	"",
+	"You'll go down in history",
 	"v:",
 	"Rudolph the red-nosed reindeer",
 	"Had a very shiny nose",
@@ -108472,10 +108788,10 @@
 	"Then all the reindeer loved him",
 	"And they shouted out with glee",
 	"Rudolph the red-nosed reindeer",
-	"You'll go down in history!",
+	"You'll go down in history",
 	"",
 	"t:",
-	"You'll go down in history!"
+	"You'll go down in history"
     ]
 }
 },
@@ -109929,18 +110245,20 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1638931343753, "song": 
+{ "file": "", "lastModifiedDate": 1670833324629, "song": 
 {
 "title": "Santa Baby",
 "artist": "Eartha Kitt et al at Christmas",
 "user": "Shari",
-"lastModifiedDate": 1638931343753,
+"lastModifiedDate": 1670833324629,
 "copyright": "© BMG Rights Management, Tamir Music (Joan Javits/Philip Springer/Tony Springer, 1953)",
 "key": "F",
 "defaultBpm": 106,
 "timeSignature": "2/4",
 "chords": 
     [
+	"I:",
+	"F Dm7 G7 C7 x2",
 	"V:",
 	"F Dm7 G7 C7",
 	"F Dm7 G7 C7",
@@ -109949,72 +110267,79 @@
 	"V1:",
 	"F Dm7 G7 C7",
 	"F Dm7 G7 C7",
-	"F Dm7 Gm7 C7",
-	"F Dm7 Gm7 C7",
+	"F Dm7 Gm7X C7X",
 	"C:",
 	"A A A A",
 	"D7 D7 D7 D7",
 	"G7 G7 G7 G7",
 	"C7 C7 C7 C7",
 	"T:",
-	"F Dm7 Gm7 C7"
+	"F Dm7 Gm7X C7X",
+	"F Dm7 Gm7X C7X",
+	"F"
     ],
 "lyrics": 
     [
+	"I:",
+	"",
 	"v:",
-	"Santa Baby, just slip a sable under the tree, for me",
-	"Been an awful good girl, Santa baby",
-	"So hurry down the chimney tonight",
+	"Santa Baby, just slip a sable under the ",
+	"Tree, for me, been an awful good ",
+	"Girl, Santa baby, so hurry down the chimney ",
+	"Tonight",
+	"",
 	"v:",
-	"Santa baby, a 54 convertible too",
-	"Light blue",
-	"I'll wait up for you dear",
-	"Santa baby, so hurry down the chimney tonight",
+	"Santa baby, a 54 convertible ",
+	"Too, light blue, I'll wait up for you ",
+	"Dear, Santa baby, so hurry down the chimney ",
+	"Tonight",
+	"",
 	"ch:",
 	"Think of all the fun I've missed",
 	"Think of all the fellas that I haven't kissed",
-	"Next year I could be just as good",
-	"If you'll check off my Christmas list",
+	"Next year I could be just as good, if",
+	"You'll check off my Christmas list",
 	"v:",
-	"Santa baby, I wanna yacht",
-	"And really that's not a lot",
-	"Been an angel all year",
-	"Santa baby, so hurry down the chimney tonight",
+	"Santa baby, I wanna yacht and really that's ",
+	"Not a lot, been an angel all ",
+	"Year, Santa baby, so hurry down the chimney ",
+	"Tonight",
+	"",
 	"v:",
-	"Santa honey, one little thing I really need",
-	"The deed",
-	"To a platinum mine",
-	"Santa baby, so hurry down the chimney tonight",
+	"Santa honey, one little thing I really ",
+	"Need, the deed, to a platinum ",
+	"Mine, Santa baby, so hurry down the chimney ",
+	"Tonight",
 	"v:",
-	"Santa cutie, and fill my stocking with a duplex",
-	"And checks",
-	"Sign your 'X' on the line",
-	"Santa cutie, and hurry down the chimney tonight",
+	"Santa cutie, and fill my stocking with a ",
+	"Duplex and checks, sign your 'X' on the ",
+	"Line, Santa cutie, and hurry down the chimney ",
+	"Tonight",
 	"ch:",
 	"Come and trim my Christmas tree",
 	"With some decorations bought at Tiffany's",
 	"I really do believe in you",
 	"Let's see if you believe in me",
 	"v1:",
-	"Santa baby, forgot to mention one little thing",
-	"A ring",
-	"I don't mean on the phone",
-	"Santa baby, so hurry down the chimney tonight",
+	"Santa baby, forgot to mention one little ",
+	"Thing, a ring, I don't mean on the ",
+	"Phone, Santa baby, so hurry down the chimney ",
+	"",
 	"t:",
-	"Hurry down the chimney tonight",
-	"t:",
-	"Hurry, tonight"
+	"Tonight, hurry down the chimney ",
+	"Tonight, hurry",
+	"Tonight"
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1607913998801, "song": 
+{ "file": "", "lastModifiedDate": 1670834710618, "song": 
 {
 "title": "Santa Claus Is Comin' to Town",
 "artist": "Eddie Cantor et al at Christmas",
 "user": "Shari",
-"lastModifiedDate": 1607913998801,
+"lastModifiedDate": 1670834710618,
 "copyright": "© Emi Feist Catalog Inc., Emi Music Publishing France (John Frederick Coots and Haven Gillespie, 1934)",
-"key": "C",
+"key": "G",
 "defaultBpm": 106,
 "timeSignature": "2/4",
 "chords": 
@@ -115269,14 +115594,14 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1638925617316, "song": 
+{ "file": "", "lastModifiedDate": 1670833650915, "song": 
 {
 "title": "Silent Night",
 "artist": "Traditional Christmas",
 "user": "Shari",
-"lastModifiedDate": 1638925617316,
+"lastModifiedDate": 1670833650915,
 "copyright": "Public Domain (composed in 1818 by Franz Xaver Gruber to lyrics by Joseph Mohr)",
-"key": "C",
+"key": "G",
 "defaultBpm": 100,
 "timeSignature": "6/8",
 "chords": 
@@ -115421,14 +115746,14 @@
     ]
 }
 },
-{ "file": "Silver Bells.songlyrics", "lastModifiedDate": 1575339336000, "song": 
+{ "file": "Silver Bells.songlyrics", "lastModifiedDate": 1670836795692, "song": 
 {
 "title": "Silver Bells",
 "artist": "Bing Crosby, Bob Hope et al at Christmas",
-"user": "Paul",
-"lastModifiedDate": 1575339336000,
+"user": "Shari",
+"lastModifiedDate": 1670836795692,
 "copyright": "© Sony/ATV Music Publishing LLC (Ray Evans/Jay Livingston, 1950)",
-"key": "C",
+"key": "G",
 "defaultBpm": 110,
 "timeSignature": "3/4",
 "chords": 
@@ -115436,11 +115761,15 @@
 	"I:",
 	"G G G D",
 	"V:",
-	"G G7 C C |",
-	"D D7 G D | x2",
+	"G G7 C C",
+	"D D7 G D",
+	"G G7 C C",
+	"D D7 G D",
 	"C:",
-	"G G7 C C |",
-	"D D7 G D | x2",
+	"G G7 C C",
+	"D D7 G D",
+	"G G7 C C",
+	"D D7 G D",
 	"C1:",
 	"G G C C",
 	"D D G D",
@@ -115455,32 +115784,26 @@
     [
 	"i:",
 	"v:",
-	"City sidewalks",
-	"Busy sidewalks",
-	"Dressed in holiday style",
-	"In the air there's",
-	"A feeling of Christmas",
-	"Children laughing",
-	"People passing",
-	"Meeting smile after smile",
-	"And on every",
-	"Street corner you'll hear",
+	"City sidewalks, busy sidewalks",
+	"Dressed in holiday style, in the",
+	"Air there's a feeling of ",
+	"Christmas",
+	"Children laughing, people passing",
+	"Meeting smile after smile, and on",
+	"Every street corner you'll hear",
 	"ch:",
 	"Silver Bells, Silver Bells",
 	"It's Christmas time in the city",
 	"Ring-a-ling, hear them sing",
 	"Soon it will be Christmas Day",
 	"v:",
-	"Strings of street lights",
-	"Even stoplights",
+	"Strings of street lights, even stoplights",
 	"Blink a bright red and green",
-	"As the shoppers rush home",
-	"With their treasures",
-	"Hear the snow crunch",
-	"See the kids bunch",
-	"This is Santa's big scene",
-	"And above all",
-	"This bustle you'll hear",
+	"As the shoppers rush home with their ",
+	"Treasures",
+	"Hear the snow crunch,see the kids bunch",
+	"This is Santa's big scene, and",
+	"Above all this bustle you'll hear",
 	"ch:",
 	"Silver Bells, Silver Bells",
 	"It's Christmas time in the city",
@@ -131794,15 +132117,15 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1602641720205, "song": 
+{ "file": "", "lastModifiedDate": 1671151050586, "song": 
 {
 "title": "Time of the Season",
 "artist": "Zombies, The",
 "user": "Shari",
-"lastModifiedDate": 1602641720205,
+"lastModifiedDate": 1671151050586,
 "copyright": "1968 Date Record",
 "key": "G",
-"defaultBpm": 115,
+"defaultBpm": 123,
 "timeSignature": "4/4",
 "chords": 
     [
@@ -131814,11 +132137,13 @@
 	"C G/B AmE X",
 	"V:",
 	"Em Em C Em x2",
+	"PC:",
 	"G Em G Em",
 	"C:",
-	"C G/B AmE X",
+	"CX G/B AmE X",
 	"O:",
-	"Em Em C Em x4"
+	"Em Em C Em x4",
+	"Em"
     ],
 "lyrics": 
     [
@@ -131826,42 +132151,50 @@
 	"(instrumental)",
 	"",
 	"V:",
-	"It's the time of the season when love runs high",
-	"And this time, give it to me easy and let me try with pleasured ",
-	"Hands, to take you in the sun to promised lands, to show you every one, it's the ",
+	"(It's the) time of the season ",
+	"When love runs high, and this",
+	"Time, give it to me easy ",
+	"And let me try with pleasured hands",
+	"",
+	"PC:",
+	"To take you in the sun to promised lands",
+	"To show you every one, it's the ",
 	"",
 	"C:",
-	"time of the season for loving",
+	"Time of the season for loving",
 	"",
 	"I:",
 	"(instrumental)",
 	"",
 	"V:",
-	"What's your name? (What's your name) Who's your daddy? (Who's your daddy)",
-	"(He rich) Is he rich like me?",
-	"Has he taken (has he taken), any time (any time)",
-	"(To show) to show you what you need to ",
-	"Live, tell it to me slowly (tell me what)",
+	"(What's your) name? (What's your name) Who's your daddy? (Who's your daddy)",
+	"(He rich) Is he rich like me? Has he",
+	"Taken (has he taken), any time (any time)",
+	"(To show) to show you what you need to live",
+	"",
+	"PC:",
+	"Tell it to me slowly (tell me what) ",
 	"I really want to know, it's the ",
 	"",
 	"C:",
-	"time of the season for loving",
+	"Time of the season for loving",
 	"",
 	"I2: (instrumental organ solo)",
-	" (continued solo)",
 	"",
 	"I: (instrumental)",
 	"",
 	"V:",
-	"What's your name? (What's your name) Who's your daddy? (Who's your daddy)",
-	"(He rich) Is he rich like me?",
-	"Has he taken (has he taken), any time (any time)",
-	"(To show) to show you what you need to ",
-	"Live, tell it to me slowly (tell me what)",
+	"(What's your) name? (What's your name) Who's your daddy? (Who's your daddy)",
+	"(He rich) Is he rich like me? Has he",
+	"Taken (has he taken), any time (any time)",
+	"(To show) to show you what you need to live",
+	"",
+	"PC:",
+	"Tell it to me slowly (tell me what) ",
 	"I really want to know, it's the ",
 	"",
 	"C:",
-	"time of the season for loving",
+	"Time of the season for loving",
 	"",
 	"O: (instrumental organ solo)"
     ]
@@ -135422,12 +135755,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1669016157810, "song": 
+{ "file": "", "lastModifiedDate": 1671151869351, "song": 
 {
 "title": "Under the Milky Way",
 "artist": "Church, The",
 "user": "Shari",
-"lastModifiedDate": 1669016157810,
+"lastModifiedDate": 1671151869351,
 "copyright": "1988 Mushroom, Arista",
 "key": "C",
 "defaultBpm": 136,
@@ -135445,7 +135778,7 @@
 	"C1:",
 	"G G Fmaj7 Fmaj7 x2",
 	"C2:",
-	"G G Fmaj7 Fmaj7 x2",
+	"G G Fmaj7 Fmaj7 x4",
 	"T:",
 	"Am Asus4/F# Fmaj7 G6/E x3",
 	"O:",
@@ -140010,14 +140343,14 @@
     ]
 }
 },
-{ "file": "What Child Is This (jazzy).songlyrics", "lastModifiedDate": 1576462054953, "song": 
+{ "file": "What Child Is This (jazzy).songlyrics", "lastModifiedDate": 1670835790558, "song": 
 {
 "title": "What Child Is This (jazzy)",
 "artist": "Christmas",
 "user": "Suzanne",
-"lastModifiedDate": 1576462054953,
+"lastModifiedDate": 1670835790558,
 "copyright": "Public Domain (lyrics added by William Chatterton Dix, in 1865 to a traditional English folk song)",
-"key": "C",
+"key": "Eb",
 "defaultBpm": 106,
 "timeSignature": "6/8",
 "chords": 
@@ -140026,52 +140359,49 @@
 	"CmCm/Bb Cm/AbCm/G x3",
 	"CmCm/Bb Cm/AbG7",
 	"A:",
-	"CmF7 BbM7EbM7 AbM7DbM7 G7",
-	"CmF7 BbM7EbM7 AbM7G7#5 Cm",
+	"CmF7 Bbmaj7Ebmaj7 Abmaj7Dbmaj7 G7",
+	"CmF7 Bbmaj7Ebmaj7 Abmaj7G7#5 Cm",
 	"B:",
-	"EbM7 BbM7 AbM7DbM7 G7",
-	"BbM7EbM7 BbM7 AbM7G7#5 Cm"
+	"Ebmaj7 Bbmaj7 Abmaj7Dbmaj7 G7",
+	"Bbmaj7Ebmaj7 Bbmaj7 Abmaj7G7#5 Cm"
     ],
 "lyrics": 
     [
 	"I: (Instrumental)",
 	"A:",
-	"What child is this",
-	"Who laid to rest",
-	"On Mary's lap is sleeping",
-	"Whom angels greet with anthems sweet",
-	"While shepherds watch are keeping",
+	"What child is this who laid to rest on",
+	"Mary's lap is sleeping, whom",
+	"Angels greet with anthems sweet while",
+	"Shepherds watch are keeping",
 	"B:",
-	"This, this is Christ the king",
-	"Whom shepherds guard and angels sing",
-	"Haste, haste to bring him praise",
-	"The babe, the son of Mary",
+	"This, this is Christ the king whom",
+	"Shepherds guard and angels sing",
+	"Haste, haste to bring him praise, the",
+	"Babe, the son of Mary",
 	"A:",
-	"So bring him incense",
-	"Gold and myrrh",
-	"Come peasant king to love him;",
+	"So bring him incense gold and myrrh",
+	"Come peasant king to love him",
 	"The king of kings salvation brings",
 	"Let loving hearts enthrone him",
 	"B:",
 	"Raise, raise the song on high",
-	"The virgin sings her lullaby:",
-	"Joy, joy for Christ is born",
-	"The babe, the son of Mary",
+	"The virgin sings her lullaby",
+	"Joy, joy for Christ is born, the",
+	"Babe, the son of Mary",
 	"A:",
 	"(Instrumental)",
 	"B:",
 	"(Instrumental)",
 	"A:",
-	"What child is this",
-	"Who laid to rest",
-	"On Mary's lap is sleeping",
-	"Whom angels greet with anthems sweet",
-	"While shepherds watch are keeping   ",
+	"What child is this who laid to rest on",
+	"Mary's lap is sleeping, whom",
+	"Angels greet with anthems sweet while",
+	"Shepherds watch are keeping",
 	"B:",
 	"Raise, raise the song on high",
-	"The virgin sings her lullaby:",
-	"Joy, joy for Christ is born",
-	"The babe, the son of Mary",
+	"The virgin sings her lullaby",
+	"Joy, joy for Christ is born, the",
+	"Babe, the son of Mary",
 	"I: (Instrumental)"
     ]
 }
@@ -142592,16 +142922,16 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1606711437863, "song": 
+{ "file": "", "lastModifiedDate": 1670835471533, "song": 
 {
 "title": "White Christmas, cover by Bing Crosby",
 "artist": "Irving Berlin",
 "user": "Shari",
-"lastModifiedDate": 1606711437863,
+"lastModifiedDate": 1670835471533,
 "copyright": "Concord Music Publishing LLC (Irving Berlin, 1941)",
 "key": "G",
 "defaultBpm": 106,
-"timeSignature": "4/4",
+"timeSignature": "2/4",
 "chords": 
     [
 	"V:",
@@ -142619,26 +142949,24 @@
     [
 	"v:",
 	"I'm dreaming of a white Christmas",
-	"Just like the ones I used to know",
-	"Where the treetops glisten",
-	"And children listen",
-	"To hear sleigh bells in the snow",
+	"Just like the ones I used to know, where the",
+	"Treetops glisten and children listen, to",
+	"Hear sleigh bells in the snow",
 	"ch:",
 	"I'm dreaming of a white Christmas",
 	"With every Christmas card I write",
-	"May your days be merry and bright",
-	"And may all your Christmases be white",
+	"May your days be merry and bright, and may",
+	"All your Christmases be white",
 	"v:",
 	"I'm dreaming of a white Christmas",
-	"Just like the ones I used to know",
-	"Where the treetops glisten",
-	"And children listen",
-	"To hear sleigh bells in the snow",
+	"Just like the ones I used to know, where the",
+	"Treetops glisten and children listen, to",
+	"Hear sleigh bells in the snow",
 	"ch:",
 	"I'm dreaming of a white Christmas",
 	"With every Christmas card I write",
-	"May your days be merry and bright",
-	"And may all your Christmases be white"
+	"May your days be merry and bright, and may",
+	"All your Christmases be white"
     ]
 }
 },
@@ -144392,14 +144720,14 @@
     ]
 }
 },
-{ "file": "Winter Wonderland.songlyrics", "lastModifiedDate": 1575341268000, "song": 
+{ "file": "Winter Wonderland.songlyrics", "lastModifiedDate": 1670837236123, "song": 
 {
 "title": "Winter Wonderland",
 "artist": "Guy Lombardo, Johnny Mathis et al at Christmas",
-"user": "Paul",
-"lastModifiedDate": 1575341268000,
+"user": "Shari",
+"lastModifiedDate": 1670837236123,
 "copyright": "© Words & Music A Div Of Big Deal Music LLC (written in 1934 by Felix Bernard and lyricist Richard B. Smith)",
-"key": "C",
+"key": "D",
 "defaultBpm": 100,
 "timeSignature": "2/4",
 "chords": 

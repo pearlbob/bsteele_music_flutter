@@ -39,6 +39,17 @@ final NameValue allSongsMetadataNameValue = NameValue('All', '');
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
+enum SongPlayMode {
+  idle(Icons.stop),
+  manualPlay(Icons.forward),
+  autoPlay(Icons.play_arrow),
+  pause(Icons.pause);
+
+  const SongPlayMode(this.iconData);
+
+  final IconData iconData;
+}
+
 /// Song list sort types
 enum PlayListSortType {
   byHistory, //  by convention: should be first

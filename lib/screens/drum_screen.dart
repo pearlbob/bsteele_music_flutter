@@ -310,6 +310,11 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
 
   loadDrumListItem(BuildContext context, PlayListItem playListItem) async {
     if (_isEditing) {
+      //  don't step on previous changes
+      if (_drumParts?.hasChanged ?? false) {
+        logger.i('drumParts have changed!!!!');
+      }
+
       //  edit the selection
       _drumParts = (playListItem as DrumPlayListItem).drumParts.copyWith();
       setState(() {
@@ -418,7 +423,7 @@ class DrumPlayListItem implements PlayListItem {
             '${drumParts.name}:',
             style: boldStyle,
           ),
-          Text(' ${drumParts.beats}: ${drumParts.partsToString()}'),
+          Text('  ${drumParts.beats}: ${drumParts.partsToString()}'),
         ]));
   }
 

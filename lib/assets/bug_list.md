@@ -24,6 +24,8 @@
 * Minor bug: I can't change/save the user name without making other changes (that engage the save button).
 * And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
   definable.
+* drums in the background while in "manual play" mode. that is, things as they typically are now with drums playing but
+  not auto advance nor any indication of the current measure. basically a replacement for your foot pedals.
 
 ### Fixme
 
@@ -89,6 +91,7 @@
 
 ### Shari UI stuff:
 
+* Shari UI: 3 compress/expand modes:  compressed, expanded, as transcribed
 * Shari UI: easy move from player to singer
 * Shari UI: the back button doesn't take you to where you just were in the list ( mostly fixed )
 * Shari UI: When one clicks a play button at the top left and then suddenly doesn't see a stop button next to it

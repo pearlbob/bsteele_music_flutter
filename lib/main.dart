@@ -170,7 +170,9 @@ void main() async {
   }
 
   //  read the local drum parts list
-  DrumPartsList().fromJson(AppOptions().drumPartsListJson);
+  DrumPartsList drumPartsList = DrumPartsList();
+  drumPartsList.fromJson(AppOptions().drumPartsListJson);
+  drumPartsList.addDefaults();
 
   await AppTheme().init(); //  init the singleton
   packageInfo = await PackageInfo.fromPlatform();

@@ -40,7 +40,7 @@ class SongMaster extends ChangeNotifier {
           }
           break;
         case SongPlayMode.manualPlay:
-          //  play drums only
+        //  play drums only
           if (_drumParts != null) {
             var drumTime = time - (_songStart ?? time);
             var measureDuration = 60.0 / _bpm * _drumParts!.beats;
@@ -279,4 +279,24 @@ class SongMaster extends ChangeNotifier {
 
   DrumParts? _drumParts;
   final AppAudioPlayer _appAudioPlayer = AppAudioPlayer();
+}
+
+class SongMasterScheduler {
+  void drum(DrumParts drumParts, int bpm) {
+    drumParts = drumParts;
+    beats = drumParts.beats;
+    this.bpm = bpm;
+    barT = Duration.secondsPerMinute * beats / bpm;
+  }
+
+  tick(double t) {
+    logger.i('   tick: $bpm $beats t: $t s = ${(t / barT).toStringAsFixed(3)} bars'
+        ', barT: $barT');
+  }
+
+  DrumParts? drumParts;
+  double lastT = 0;
+  double barT = 1.0;
+  var beats = 4;
+  var bpm = 160;
 }

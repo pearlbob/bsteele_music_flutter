@@ -40921,24 +40921,24 @@
     ]
 }
 },
-{ "file": "Feliz Navidad.songlyrics", "lastModifiedDate": 1670837568306, "song": 
+{ "file": "Feliz Navidad.songlyrics", "lastModifiedDate": 1671576811797, "song": 
 {
 "title": "Feliz Navidad",
-"artist": "José Feliciano et al at Christmas",
+"artist": "José Feliciano",
 "user": "Shari",
-"lastModifiedDate": 1670837568306,
-"copyright": "© BMG Rights Management  (written by José Feliciano, 1970)",
-"key": "G",
-"defaultBpm": 106,
+"lastModifiedDate": 1671576811797,
+"copyright": "1970 RCA Victor Records",
+"key": "D",
+"defaultBpm": 147,
 "timeSignature": "4/4",
 "chords": 
     [
 	"V:",
-	"C D G Em |",
-	"C D G G | x2",
+	"Em7 A7 D D |",
+	"Em6 A7 D DX | x2",
 	"C:",
-	"C D G Em |",
-	"C D G G | x2"
+	"Em7 A7 D D |",
+	"Em6 A7 D DX | x2"
     ],
 "lyrics": 
     [
@@ -90193,6 +90193,93 @@
 	"C: (Ah, but) I was so much older then I’m younger than that now",
 	"",
 	"O: "
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1671604442123, "song": 
+{
+"title": "My City Was Gone",
+"artist": "Pretenders",
+"user": "Shari",
+"lastModifiedDate": 1671604442123,
+"copyright": "1982 Sire",
+"key": "E",
+"defaultBpm": 107,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Bm7A E Bm7A E x4",
+	"I2:",
+	"Bm7A E Bm7A E x2",
+	"V:",
+	"Bm7A E Bm7A E x2",
+	"C:",
+	"Bm7 Bm7 Bm7.",
+	"E Eadd9 E Eadd9",
+	"O:",
+	"Bm7A E Bm7A E x8"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"(I went) back to Ohio, but my ",
+	"City was gone, there was ",
+	"No train station, there was ",
+	"No downtown",
+	"",
+	"V:",
+	"South Howard had disappeared",
+	"All my favorite places",
+	"My city had been pulled down",
+	"Reduced to parking spaces",
+	"",
+	"C:",
+	"Ay, oh, way to go, Ohio",
+	"-",
+	"",
+	"I2:",
+	"(instrumental solo)",
+	"",
+	"V:",
+	"(Well I went) Back to Ohio, but my",
+	"Family was gone, I",
+	"Stood on the back porch, there was ",
+	"Nobody home",
+	"",
+	"V:",
+	"(I was) stunned and amazed, my",
+	"Childhood memories",
+	"Slowly swirled past, like the",
+	"Wind through the trees",
+	"",
+	"C:",
+	"Ay, oh, way to go, Ohio",
+	"-",
+	"",
+	"I:",
+	"(instrumental solo)",
+	"",
+	"V:",
+	"(I went) back to Ohio, but my",
+	"Pretty countryside, had been",
+	"Paved down the middle, by a ",
+	"Government that had no pride",
+	"",
+	"V:",
+	"The farms of Ohio, had been ",
+	"Replaced by shopping malls, and ",
+	"Muzak filled the air, from ",
+	"Seneca to Cuyahoga Falls",
+	"",
+	"C:",
+	"(Said) Ay, oh, way to go, Ohio",
+	"",
+	"O:",
+	"(instrumental solo)"
     ]
 }
 },

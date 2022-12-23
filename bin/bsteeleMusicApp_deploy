@@ -33,7 +33,7 @@ echo on bob64:
 sudo date
 
 #	assure our tools are ready
-gcloud --quiet components update
+#done by arch: gcloud --quiet components update
 flup
 
 

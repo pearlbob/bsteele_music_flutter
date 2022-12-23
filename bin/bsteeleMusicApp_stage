@@ -44,7 +44,7 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-gcloud --quiet components update
+#done by arch: gcloud --quiet components update
 
 #	test
 cd $git
@@ -52,7 +52,7 @@ flutter test test
 if ( $status != 0 ) echo test status: $status
 
 #	beta to local static host
-set betaDir=/var/www/html/public_html/bsteeleMusicApp/$flavor
+set betaDir=/srv/http/public_html/bsteeleMusicApp/$flavor
 
 # 
 echo test the library

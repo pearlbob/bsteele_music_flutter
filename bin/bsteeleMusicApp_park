@@ -47,7 +47,7 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-gcloud --quiet components update
+#done by arch: gcloud --quiet components update
 
 #	test
 cd $git

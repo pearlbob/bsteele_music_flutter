@@ -14,11 +14,13 @@ set dst=$CATALINA_BASE/webapps
 
 
 #	build the server war file
-echo assume the server has been built: 
+pushd $server
+./bin/buildPackage
 ls -l $server/target/$war
+popd
 
 if ( ! -e $server/target/$war ) then
-	echo cannot find pre-built $server/target/$war
+	echo cannot find $server/target/$war
 	exit -1
 endif
 

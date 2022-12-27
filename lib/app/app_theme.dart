@@ -210,6 +210,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   playerCopyNinjamBPM(Null),
   playerCopyNinjamChords(Null),
   playerCopyNinjamCycle(Null),
+  playerDrumsMuted(String),
+  playerDrumsUnmuted(String),
   playerEdit(Null),
   playerEditDrums(Null),
   playerErrorMessage(Null),

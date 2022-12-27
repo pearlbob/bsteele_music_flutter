@@ -26,6 +26,18 @@
   definable.
 * drums in the background while in "manual play" mode. that is, things as they typically are now with drums playing but
   not auto advance nor any indication of the current measure. basically a replacement for your foot pedals.
+* drum select vs drum edit in drums from player: turn off editing when one drum is saved
+* drum edit, no-write, safety popup
+* count off song start: style? 2 measures. Regular drums, display something
+* visual delay on mac mini? Just off, slow. correct when measured post render.
+* explain storage. Yes
+* Mute button? Display and keyboard shortcut
+* Drums: All caps first letter yes
+* Drums on in idle: synchronized song start? Yes if required.
+* Live bpm changes? First "1": phase only, subsequent 1's are tempo,
+* Live bpm changes: Smoothing?,. Real-time delay
+* Live beat 1 resets, does NOT imply new bpm
+* Test tap to tempo... Jittery or me?
 
 ### Fixme
 

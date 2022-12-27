@@ -18,7 +18,7 @@ const Level _songMasterLogDelta = Level.debug;
 const Level _songMasterLogMaxDelta = Level.debug;
 const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
-const Level _logDrums = Level.info;
+const Level _logDrums = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -40,13 +40,14 @@ class SongMaster extends ChangeNotifier {
           }
           break;
         case SongPlayMode.manualPlay:
-        //  play drums only
-          if (_drumParts != null) {
+          //  play drums only
+          if (_drumParts != null && !drumsAreMuted) {
             var drumTime = time - (_songStart ?? time);
             var measureDuration = 60.0 / _bpm * _drumParts!.beats;
             if (drumTime > measureDuration) {
               _songStart = (_songStart ?? time) + measureDuration;
-              logger.log(_logDrums, 'play: $_drumParts at $_bpm at ${_songStart! + _advanceS} from $time');
+              logger.log(_logDrums,
+                  'play: $_drumParts at $_bpm at ${_songStart! + _advanceS} from $time');
               _performDrumParts(_songStart! + _advanceS, _bpm, _drumParts!);
             }
           }
@@ -57,10 +58,14 @@ class SongMaster extends ChangeNotifier {
               //  fixme: deal with a changing cadence!
 
               //  pre-load the song audio by the advance time
-              double advanceTime = time - (_songStart ?? 0) - (60.0 / _song!.beatsPerMinute).floor() + _advanceS;
+              double advanceTime = time -
+                  (_songStart ?? 0) -
+                  (60.0 / _song!.beatsPerMinute).floor() +
+                  _advanceS;
 
               //  fixme: fix the start of playing!!!!!  after pause?
-              int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime);
+              int? newAdvancedMomentNumber =
+                  _song!.getSongMomentNumberAtSongTime(advanceTime);
               logger.log(
                   _songMasterLogAdvance,
                   'new: $newAdvancedMomentNumber'
@@ -70,12 +75,16 @@ class SongMaster extends ChangeNotifier {
                   //
                   );
               while (_advancedMomentNumber == null ||
-                  (newAdvancedMomentNumber != null && newAdvancedMomentNumber >= _advancedMomentNumber!)) {
+                  (newAdvancedMomentNumber != null &&
+                      newAdvancedMomentNumber >= _advancedMomentNumber!)) {
                 _advancedMomentNumber ??= 0;
-                if (_drumParts != null) {
+                if (_drumParts != null && !drumsAreMuted) {
                   _performDrumParts(
-                      (_songStart ?? 0) + _song!.getSongTimeAtMoment(_advancedMomentNumber!), _bpm, _drumParts!);
-                } else {
+                      (_songStart ?? 0) +
+                          _song!.getSongTimeAtMoment(_advancedMomentNumber!),
+                      _bpm,
+                      _drumParts!);
+                } else if (!drumsAreMuted) {
                   logger.i('no _drumParts!');
                 }
                 logger.log(
@@ -90,8 +99,10 @@ class SongMaster extends ChangeNotifier {
               double songTime = time -
                   (_songStart ?? 0) -
                   (60.0 / _song!.beatsPerMinute).floor() +
-                  _appAudioPlayer.latency; //  only a rude adjustment to average the appearance of being on time.
-              int? newMomentNumber = _song!.getSongMomentNumberAtSongTime(songTime);
+                  _appAudioPlayer
+                      .latency; //  only a rude adjustment to average the appearance of being on time.
+              int? newMomentNumber =
+                  _song!.getSongMomentNumberAtSongTime(songTime);
               if (newMomentNumber == null) {
                 //  stop
                 _clearMomentNumber();
@@ -122,14 +133,16 @@ class SongMaster extends ChangeNotifier {
           if (_song != null) {
             //  prepare for the eventual restart
             if (_momentNumber != null) {
-              _songStart = time - (_song?.getSongTimeAtMoment(_momentNumber!) ?? 0);
+              _songStart =
+                  time - (_song?.getSongTimeAtMoment(_momentNumber!) ?? 0);
             }
           }
           break;
       }
 
       if (dt > 0.2) {
-        logger.log(_songMasterLogTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
+        logger.log(
+            _songMasterLogTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
       }
       _lastTime = time;
       int delta = elapsed.inMicroseconds - _lastElapsedUs;
@@ -144,7 +157,8 @@ class SongMaster extends ChangeNotifier {
           _maxDelta = 0;
         }
       }
-      logger.log(_songMasterLogDelta, 'delta: $delta ms, dt: ${dt.toStringAsFixed(3)}');
+      logger.log(_songMasterLogDelta,
+          'delta: $delta ms, dt: ${dt.toStringAsFixed(3)}');
       _lastElapsedUs = elapsed.inMicroseconds;
     });
 
@@ -176,7 +190,8 @@ class SongMaster extends ChangeNotifier {
     _song = null;
     _bpm = bpm ?? MusicConstants.defaultBpm;
     _drumParts = drumParts;
-    _songStart ??= _appAudioPlayer.getCurrentTime(); //   sync with existing if it's running
+    _songStart ??= _appAudioPlayer
+        .getCurrentTime(); //   sync with existing if it's running
     _clearMomentNumber();
     songPlayMode = SongPlayMode.manualPlay;
     notifyListeners();
@@ -187,12 +202,14 @@ class SongMaster extends ChangeNotifier {
     switch (songPlayMode) {
       case SongPlayMode.autoPlay:
       case SongPlayMode.pause:
-        songPlayMode = SongPlayMode.idle;
+      songPlayMode = SongPlayMode.idle;
         _clearMomentNumber();
+        _appAudioPlayer.stop();
         notifyListeners();
         break;
       case SongPlayMode.manualPlay:
         songPlayMode = SongPlayMode.idle;
+        _appAudioPlayer.stop();
         notifyListeners();
         break;
       case SongPlayMode.idle:
@@ -217,7 +234,8 @@ class SongMaster extends ChangeNotifier {
 
   void _performDrumParts(double time, int bpm, final DrumParts drumParts) {
     //  fixme:  even beat parts likely don't work on 3/4 or 6/8
-    int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);
+    int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length,
+        drumParts.beats);
     for (var drumPart in drumParts.parts) {
       var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
       for (var timing in drumPart.timings(time, bpm, beats)) {
@@ -265,7 +283,8 @@ class SongMaster extends ChangeNotifier {
   int _lastElapsedUs = 0;
   int _maxDelta = 0;
 
-  int? get momentNumber => _momentNumber; //  can negative during preroll, will be null after the end
+  int? get momentNumber =>
+      _momentNumber; //  can negative during count in, will be null after the end
   int? _momentNumber;
   int? _advancedMomentNumber;
 
@@ -277,6 +296,7 @@ class SongMaster extends ChangeNotifier {
 
   int _bpm = MusicConstants.minBpm; //  default value only
 
+  var drumsAreMuted = true;
   DrumParts? _drumParts;
   final AppAudioPlayer _appAudioPlayer = AppAudioPlayer();
 }
@@ -290,7 +310,8 @@ class SongMasterScheduler {
   }
 
   tick(double t) {
-    logger.i('   tick: $bpm $beats t: $t s = ${(t / barT).toStringAsFixed(3)} bars'
+    logger.i(
+        '   tick: $bpm $beats t: $t s = ${(t / barT).toStringAsFixed(3)} bars'
         ', barT: $barT');
   }
 

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../app/appOptions.dart';
 import '../screens/playList.dart';
+import '../songMaster.dart';
 
 Map<DrumTypeEnum, String> drumTypeToFileMap = {
   DrumTypeEnum.closedHighHat: 'audio/hihat1.mp3',
@@ -42,6 +43,8 @@ class DrumsState extends State<DrumsWidget> {
 
     _drumParts = widget.drumParts;
     _drumNameTextFieldController.text = widget.drumParts.name;
+
+    _songMaster.drumsAreMuted = false;
   }
 
   @override
@@ -195,8 +198,10 @@ class DrumsState extends State<DrumsWidget> {
                     logger.v('save: $_drumParts');
                     _drumPartsList.add(_drumParts);
                     playListRefreshNotifier.requestSearchClear();
-                    playListRefreshNotifier.refresh(); // fixme: why is this required?
+                    playListRefreshNotifier
+                        .refresh(); // fixme: why is this required?
                     _appOptions.drumPartsListJson = _drumPartsList.toJson();
+                    _songMaster.drumsAreMuted = true;
                   });
                 },
               ),
@@ -224,7 +229,9 @@ class DrumsState extends State<DrumsWidget> {
                 onPressed: () {
                   setState(() {
                     playListRefreshNotifier.requestSearchClear();
-                    playListRefreshNotifier.refresh(); // fixme: why is this required?
+                    playListRefreshNotifier
+                        .refresh(); // fixme: why is this required?
+                    _songMaster.drumsAreMuted = true;
                   });
                 },
               ),
@@ -239,8 +246,10 @@ class DrumsState extends State<DrumsWidget> {
                     setState(() {
                       _drumPartsList.remove(_drumParts);
                       playListRefreshNotifier.requestSearchClear();
-                      playListRefreshNotifier.refresh(); // fixme: why is this required?
+                      playListRefreshNotifier
+                          .refresh(); // fixme: why is this required?
                       _appOptions.drumPartsListJson = _drumPartsList.toJson();
+                      _songMaster.drumsAreMuted = true;
                     });
                   },
                 ),
@@ -324,12 +333,14 @@ class DrumsState extends State<DrumsWidget> {
     });
   }
 
+  final SongMaster _songMaster = SongMaster();
   late DrumParts _drumParts;
 
   final _drumPartsList = DrumPartsList();
   final _appOptions = AppOptions();
 
-  final TextEditingController _drumNameTextFieldController = TextEditingController();
+  final TextEditingController _drumNameTextFieldController =
+      TextEditingController();
   final FocusNode _drumFocusNode = FocusNode();
 }
 

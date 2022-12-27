@@ -47,6 +47,9 @@ enum SongPlayMode {
 
   const SongPlayMode(this.iconData);
 
+  bool get isPlaying =>
+      this == SongPlayMode.manualPlay || this == SongPlayMode.autoPlay;
+
   final IconData iconData;
 }
 

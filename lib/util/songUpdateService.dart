@@ -14,7 +14,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
 
-const Level _log = Level.debug;
+const Level _log = Level.info;
 const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
 
@@ -68,7 +68,9 @@ class SongUpdateService extends ChangeNotifier {
 
           //  lookup the ip address
           try {
-            await InternetAddress.lookup(uri.host, type: InternetAddressType.IPv4).then((value) async {
+            await InternetAddress.lookup(uri.host,
+                    type: InternetAddressType.IPv4)
+                .then((value) async {
               for (var element in value) {
                 _ipAddress = element.address; //  just the first one will do
                 break;
@@ -81,6 +83,7 @@ class SongUpdateService extends ChangeNotifier {
 
           _webSocketSink = _webSocketChannel!.sink;
 
+          logger.log(_log, 'listen to: $_ipAddress, $uri');
           _subscription = _webSocketChannel!.stream.listen((message) {
             _songUpdate = SongUpdate.fromJson(message as String);
             if (_songUpdate != null) {
@@ -88,12 +91,14 @@ class SongUpdateService extends ChangeNotifier {
                   _logMessage,
                   'received: song: ${_songUpdate?.song.title}'
                   ' at moment: ${_songUpdate?.momentNumber}');
-              playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
+              playerUpdate(
+                  context, _songUpdate!); //  fixme:  exposure to UI internals
               _delayMilliseconds = 0;
               _songUpdateCount++;
             }
           }, onError: (Object error) {
-            logger.log(_log, 'webSocketChannel error: $error at $uri'); //  fixme: retry later
+            logger.log(_log,
+                'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
             _closeWebSocketChannel();
             appLogMessage('webSocketChannel error: $error at $uri');
           }, onDone: () {
@@ -109,11 +114,13 @@ class SongUpdateService extends ChangeNotifier {
 
           for (_idleCount = 0;; _idleCount++) {
             //  idle
-            await Future.delayed(const Duration(milliseconds: _idleMilliseconds));
+            await Future.delayed(
+                const Duration(milliseconds: _idleMilliseconds));
 
             //  check connection status
             if (lastHost != _findTheHost()) {
-              logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
+              logger.log(_log,
+                  'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
               appLogMessage('webSocketChannel new host: $uri');
               _closeWebSocketChannel();
               _delayMilliseconds = 0;
@@ -131,7 +138,8 @@ class SongUpdateService extends ChangeNotifier {
               //  notify on first idle cycle
               notifyListeners();
             }
-            logger.log(_log, 'webSocketChannel idle: $_isOpen, count: $_idleCount');
+            logger.log(
+                _log, 'webSocketChannel idle: $_isOpen, count: $_idleCount');
           }
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
@@ -143,7 +151,8 @@ class SongUpdateService extends ChangeNotifier {
       if (_delayMilliseconds > 0) {
         //  wait a while
         if (_delayMilliseconds < maxDelayMilliseconds) {
-          logger.log(_log, 'wait a while... before retrying websocket: $_delayMilliseconds s');
+          logger.log(_log,
+              'wait a while... before retrying websocket: $_delayMilliseconds s');
         }
         await Future.delayed(Duration(seconds: _delayMilliseconds));
       }
@@ -168,9 +177,11 @@ class SongUpdateService extends ChangeNotifier {
       }
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       host = Uri.base.authority;
-      if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
+      if (host.contains('bsteele.com') ||
+          (kDebugMode && host.contains('localhost'))) {
         //  there is never a websocket on the web
-        appLogMessage('webSocketChannel exception: never going to be at: "$host"');
+        appLogMessage(
+            'webSocketChannel exception: never going to be at: "$host"');
         //  do nothing
         host = '';
       } else {
@@ -205,14 +216,17 @@ class SongUpdateService extends ChangeNotifier {
       _webSocketSink?.add(jsonText);
       logger.log(_logJson, jsonText);
       _songUpdateCount++;
-      logger.v("leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
+      logger.v(
+          "leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
     }
   }
 
   bool get _isOpen => _webSocketChannel != null;
 
   bool get isConnected =>
-      _isOpen && _idleCount > 1 //  fixme: needs connection confirmation from server without a song update
+      _isOpen &&
+      _idleCount >
+          1 //  fixme: needs connection confirmation from server without a song update
       ;
 
   bool _wasConnected = false;
@@ -237,8 +251,9 @@ class SongUpdateService extends ChangeNotifier {
 
   SongUpdate? _songUpdate;
 
-  String get leaderName =>
-      (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
+  String get leaderName => (_isLeader
+      ? _appOptions.user
+      : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
   WebSocketChannel? _webSocketChannel;
 
   String get ipAddress => _ipAddress;

@@ -29,7 +29,7 @@ endif
 
 #	prep for subsequent sudo in war file install
 #	this forces the sudo early in the deployment process
-echo on bob64:
+echo on bob.local:
 sudo date
 
 #	assure our tools are ready

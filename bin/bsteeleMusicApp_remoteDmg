@@ -16,7 +16,7 @@ set src=bsteele_music_flutter
 set www=/var/www/html/public_html/$app
 
 
-if ( `hostname` == 'bob64' ) then
+if ( `hostname` == 'bob' ) then
 	#	on local host with git authentication
 	echo	on local host with git authentication
 

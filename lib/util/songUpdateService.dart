@@ -8,13 +8,12 @@ import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/status.dart' as web_socket_status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
 
-const Level _log = Level.info;
+const Level _log = Level.debug;
 const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
 
@@ -64,37 +63,37 @@ class SongUpdateService extends ChangeNotifier {
         try {
           //  or re-try
           Uri uri = Uri.parse(url);
-          _webSocketChannel = WebSocketChannel.connect(uri);
+          _responseCount = 0;
 
-          //  lookup the ip address
-          try {
-            await InternetAddress.lookup(uri.host,
-                    type: InternetAddressType.IPv4)
-                .then((value) async {
-              for (var element in value) {
-                _ipAddress = element.address; //  just the first one will do
-                break;
-              }
-            });
-          } catch (e) {
-            _ipAddress = ''; //  fixme: UnimplementedError
-          }
+          _webSocketChannel = WebSocketChannel.connect(uri);
+          _webSocketSink = _webSocketChannel!.sink;
           notifyListeners();
 
-          _webSocketSink = _webSocketChannel!.sink;
-
+          //  setup the song update service listening
           logger.log(_log, 'listen to: $_ipAddress, $uri');
           _subscription = _webSocketChannel!.stream.listen((message) {
-            _songUpdate = SongUpdate.fromJson(message as String);
-            if (_songUpdate != null) {
-              logger.log(
-                  _logMessage,
-                  'received: song: ${_songUpdate?.song.title}'
-                  ' at moment: ${_songUpdate?.momentNumber}');
-              playerUpdate(
-                  context, _songUpdate!); //  fixme:  exposure to UI internals
-              _delayMilliseconds = 0;
-              _songUpdateCount++;
+            _responseCount++;
+            if (_responseCount == 1) {
+              notifyListeners(); //  notify on change of status
+            }
+
+            if (message is String) {
+              if (message.startsWith(_timeRequest)) {
+                //  time
+                logger.i('time response: $message');
+              } else {
+                _songUpdate = SongUpdate.fromJson(message);
+                if (_songUpdate != null) {
+                  logger.log(
+                      _logMessage,
+                      'received: song: ${_songUpdate?.song.title}'
+                      ' at moment: ${_songUpdate?.momentNumber}');
+                  playerUpdate(context,
+                      _songUpdate!); //  fixme:  exposure to UI internals
+                  _delayMilliseconds = 0;
+                  _songUpdateCount++;
+                }
+              }
             }
           }, onError: (Object error) {
             logger.log(_log,
@@ -106,6 +105,10 @@ class SongUpdateService extends ChangeNotifier {
             _closeWebSocketChannel();
             appLogMessage('webSocketChannel onDone: at $uri');
           });
+
+          //  see if the server is there, that is, force a response that
+          //  confirms the connection
+          _issueTimeRequest();
 
           if (lastHost != _host) {
             notifyListeners();
@@ -130,6 +133,7 @@ class SongUpdateService extends ChangeNotifier {
             if (!_isOpen) {
               logger.log(_log, 'on close: $lastHost');
               _delayMilliseconds = 0;
+              _idleCount = 0;
               notifyListeners();
               break;
             }
@@ -138,8 +142,8 @@ class SongUpdateService extends ChangeNotifier {
               //  notify on first idle cycle
               notifyListeners();
             }
-            logger.log(
-                _log, 'webSocketChannel idle: $_isOpen, count: $_idleCount');
+            logger.log(_log,
+                'webSocketChannel open: $_isOpen, idleCount: $_idleCount');
           }
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
@@ -152,9 +156,9 @@ class SongUpdateService extends ChangeNotifier {
         //  wait a while
         if (_delayMilliseconds < maxDelayMilliseconds) {
           logger.log(_log,
-              'wait a while... before retrying websocket: $_delayMilliseconds s');
+              'wait a while... before retrying websocket: $_delayMilliseconds ms');
         }
-        await Future.delayed(Duration(seconds: _delayMilliseconds));
+        await Future.delayed(Duration(milliseconds: _delayMilliseconds));
       }
 
       //  backoff bothering the server with repeated failures
@@ -190,7 +194,6 @@ class SongUpdateService extends ChangeNotifier {
         host = uri?.host ?? '';
       }
     }
-
     return host;
   }
 
@@ -200,6 +203,7 @@ class SongUpdateService extends ChangeNotifier {
       _webSocketChannel?.sink.close(web_socket_status.normalClosure);
       _webSocketChannel = null;
       _idleCount = 0;
+      _responseCount = 0;
       _wasConnected = false;
       await _subscription?.cancel();
       _subscription = null;
@@ -207,6 +211,13 @@ class SongUpdateService extends ChangeNotifier {
       _songUpdateCount = 0;
       notifyListeners();
     }
+  }
+
+  static const _timeRequest = 't:';
+
+  void _issueTimeRequest() {
+    _webSocketSink?.add(_timeRequest);
+    logger.v('_issueTimeRequest()');
   }
 
   void issueSongUpdate(SongUpdate songUpdate) {
@@ -223,11 +234,7 @@ class SongUpdateService extends ChangeNotifier {
 
   bool get _isOpen => _webSocketChannel != null;
 
-  bool get isConnected =>
-      _isOpen &&
-      _idleCount >
-          1 //  fixme: needs connection confirmation from server without a song update
-      ;
+  bool get isConnected => _isOpen && _responseCount > 0;
 
   bool _wasConnected = false;
 
@@ -264,9 +271,10 @@ class SongUpdateService extends ChangeNotifier {
   static const String _port = ':8080';
   int _songUpdateCount = 0;
   int _idleCount = 0;
+  int _responseCount = 0;
   WebSocketSink? _webSocketSink;
-  static const int _idleMilliseconds = 500;
-  static const int maxDelayMilliseconds = 10 * Duration.millisecondsPerSecond;
+  static const int _idleMilliseconds = Duration.millisecondsPerSecond ~/ 2;
+  static const int maxDelayMilliseconds = 3 * Duration.millisecondsPerSecond;
 
   static int get delayMilliseconds => _singleton._delayMilliseconds;
   var _delayMilliseconds = 0;

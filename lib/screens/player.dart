@@ -67,7 +67,7 @@ const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
-const Level _logLeaderFollower = Level.info;
+const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 

@@ -5,11 +5,12 @@ import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/song_performance.dart';
+import 'package:bsteeleMusicLib/util/usTimer.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
-import 'package:bsteele_music_flutter/util/usTimer.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /*
@@ -17,6 +18,9 @@ on linux:
   $XDG_DATA_HOME defines the base directory relative to which user-specific data files should be stored.
   If $XDG_DATA_HOME is either not set or empty, a default equal to $HOME/.local/share should be used.
  */
+
+//  diagnostic logging enables
+const Level _logStartup = Level.info;
 
 enum StorageValue {
   //  only partial at the moment
@@ -68,7 +72,7 @@ class AppOptions extends ChangeNotifier {
     _proEditInput = await _readBool('proEditInput', defaultValue: _proEditInput);
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
-    _toolTips =  await _readBool(StorageValue.toolTips.name, defaultValue: false);
+    _toolTips = await _readBool(StorageValue.toolTips.name, defaultValue: false);
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
@@ -78,7 +82,7 @@ class AppOptions extends ChangeNotifier {
     _volume = await _readDouble('volume', defaultValue: 1.0);
     _updateAllSongPerformances();
     notifyListeners();
-    logger.v('AppOptions: ${usTimer.seconds} s');
+    logger.log(_logStartup, 'AppOptions: ${usTimer.seconds} s');
   }
 
   /// A persistent debug flag for internal software development use.
@@ -255,7 +259,6 @@ class AppOptions extends ChangeNotifier {
   bool get compressRepeats => _compressRepeats;
   bool _compressRepeats = true;
 
-
   set toolTips(bool value) {
     if (_toolTips == value) {
       return;
@@ -371,7 +374,7 @@ class AppOptions extends ChangeNotifier {
     logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
     logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
     if (jsonString.isNotEmpty) {
-      int count = allSongPerformances.updateFromJsonString(jsonString);
+      int count = await allSongPerformances.updateFromJsonString(jsonString);
       logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');

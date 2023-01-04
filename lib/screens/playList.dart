@@ -428,9 +428,12 @@ class _PlayListState extends State<PlayList> {
         _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
           appKeyEnum: AppKeyEnum.mainSortTypeSelection,
           value: e,
-          child: Text(
-            Util.camelCaseToLowercaseSpace(e.name),
-            style: widget.searchDropDownStyle,
+          child: AppTooltip(
+            message: e.toolTip,
+            child: Text(
+              Util.camelCaseToLowercaseSpace(e.name),
+              style: widget.searchDropDownStyle,
+            ),
           ),
         ));
       }
@@ -639,7 +642,8 @@ class _PlayListState extends State<PlayList> {
           filteredSongLists.add(PlayListItemList(
             'Did you mean?',
             [SongPlayListItem.fromSong(song)],
-            playListItemAction: widget.group.group.first.playListItemAction, // fixme
+            playListItemAction: widget.group.group.first.playListItemAction,
+            // fixme
             color: App.appBackgroundColor,
           ));
         }
@@ -691,18 +695,22 @@ class _PlayListState extends State<PlayList> {
                       ),
                     ),
                     //  search text
-                    AppTextField(
-                      appKeyEnum: AppKeyEnum.playListSearch,
-                      controller: _searchTextFieldController,
-                      focusNode: _searchFocusNode,
-                      hintText: 'Search here...',
-                      width: appDefaultFontSize * 40,
-                      onChanged: (value) {
-                        setState(() {
-                          logger.v('search text: "$value"');
-                          app.clearMessage();
-                        });
-                      },
+                    AppTooltip(
+                      message: 'Enter list search terms here.\n'
+                          'Regular expressions can be used.',
+                      child: AppTextField(
+                        appKeyEnum: AppKeyEnum.playListSearch,
+                        controller: _searchTextFieldController,
+                        focusNode: _searchFocusNode,
+                        hintText: 'Search here...',
+                        width: appDefaultFontSize * 40,
+                        onChanged: (value) {
+                          setState(() {
+                            logger.v('search text: "$value"');
+                            app.clearMessage();
+                          });
+                        },
+                      ),
                     ),
                     //  search clear
                     AppTooltip(
@@ -724,19 +732,23 @@ class _PlayListState extends State<PlayList> {
                         )),
                     const AppSpace(spaceFactor: 2.0),
                     //  filters
-                    MetadataPopupMenuButton.button(
-                      title: 'Filters',
-                      style: widget.artistStyle,
-                      onSelected: (value) {
-                        setState(() {
-                          if (value == allNameValue) {
-                            _filterNameValues.clear();
-                          } else {
-                            _filterNameValues.add(value);
-                          }
-                        });
-                      },
-                    ),
+                    AppTooltip(
+                        message: '''Filter the list by selected metadata.
+Selections with the same name will be OR'd together.
+Selections with different names will be AND'd.''',
+                        child: MetadataPopupMenuButton.button(
+                          title: 'Filters',
+                          style: widget.artistStyle,
+                          onSelected: (value) {
+                            setState(() {
+                              if (value == allNameValue) {
+                                _filterNameValues.clear();
+                              } else {
+                                _filterNameValues.add(value);
+                              }
+                            });
+                          },
+                        )),
                     AppWrap(
                       spacing: _textFontSize / 2,
                       children: filterWidgets,

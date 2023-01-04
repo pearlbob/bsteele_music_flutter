@@ -33,7 +33,7 @@ class _TextFieldByAppKeyFinder extends MatchFinder {
   bool matches(Element candidate) {
     logger.v(
         'candidate: ${candidate.widget.runtimeType}, key: ${candidate.widget.key.runtimeType} ${candidate.widget.key},'
-            ' match value: $_appKey');
+        ' match value: $_appKey');
     if (candidate.widget is TextField) {
       return (candidate.widget.key is ValueKey<String> &&
           (candidate.widget.key as ValueKey<String>).value == _appKey.name);

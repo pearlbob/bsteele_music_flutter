@@ -106,7 +106,7 @@ class SongUpdateService extends ChangeNotifier {
             appLogMessage('webSocketChannel onDone: at $uri');
           });
 
-          //  see if the server is there, that is, force a response that
+          //  See if the server is there, that is, force a response that
           //  confirms the connection
           _issueTimeRequest();
 

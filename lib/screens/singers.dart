@@ -303,7 +303,8 @@ class SingersState extends State<Singers> {
                         size: fontSize * 0.7,
                       ),
                     ),
-                  const AppSpace(horizontalSpace: 20), //  list singers horizontally
+                  const AppSpace(horizontalSpace: 20),
+                  //  list singers horizontally
                 ],
               ));
             }
@@ -1218,21 +1219,20 @@ class SingersState extends State<Singers> {
   void filePickUpdate(BuildContext context) async {
     app.clearMessage();
     var content = await UtilWorkaround().filePickByExtension(context, AllSongPerformances.fileExtension);
-
-    setState(() {
-      if (content.isEmpty) {
-        app.infoMessage = 'No singer file read';
-      } else {
-        int count = _allSongPerformances.updateFromJsonString(content);
-        app.infoMessage = 'Performances updated: $count';
-        logger.d('filePickUpdate: $count');
-        _allSongPerformances.loadSongs(app.allSongs);
-        if (count > 0) {
-          AppOptions().storeAllSongPerformances();
-          allHaveBeenWritten = false;
-        }
+    if (content.isEmpty) {
+      app.infoMessage = 'No singer file read';
+    } else {
+      int count = await _allSongPerformances.updateFromJsonString(content);
+      app.infoMessage = 'Performances updated: $count';
+      logger.d('filePickUpdate: $count');
+      _allSongPerformances.loadSongs(app.allSongs);
+      if (count > 0) {
+        AppOptions().storeAllSongPerformances();
+        allHaveBeenWritten = false;
       }
-    });
+    }
+
+    setState(() {});
   }
 
   void _songUpdateServiceCallback() {

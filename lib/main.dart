@@ -74,6 +74,7 @@ import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/song_performance.dart';
+import 'package:bsteeleMusicLib/util/usTimer.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
@@ -144,6 +145,8 @@ in linux/my_application.cc, line 50 or so
 void main() async {
   Logger.level = Level.info;
 
+  var usTimer = UsTimer();
+
   //logger.i('Uri: ${Uri.base}, path: "${Uri.base.path}", fragment: "${Uri.base.fragment}"');
   logger.i('uri: "$uri", path: "${uri.path}", fragment: "${uri.fragment}"');
 
@@ -176,6 +179,8 @@ void main() async {
 
   await AppTheme().init(); //  init the singleton
   packageInfo = await PackageInfo.fromPlatform();
+
+  appLogMessage('main pre-run startup: ${usTimer.seconds} s');
 
   //  run the app
   runApp(
@@ -360,7 +365,7 @@ class MyHomePageState extends State<MyHomePage> {
 
       try {
         var allPerformances = AllSongPerformances();
-        allPerformances.updateFromJsonString(dataAsString);
+        await allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
         logger.i('internal song performances used');
         setState(() {});
@@ -429,7 +434,7 @@ class MyHomePageState extends State<MyHomePage> {
 
       try {
         var allPerformances = AllSongPerformances();
-        allPerformances.updateFromJsonString(dataAsString);
+        await allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
         logger.i('external song performances read from: $url');
         setState(() {});

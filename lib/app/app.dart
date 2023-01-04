@@ -39,6 +39,8 @@ final NameValue allSongsMetadataNameValue = NameValue('All', '');
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
+const _toolTipWaitDuration = Duration(seconds: 1, milliseconds: 500);
+
 enum SongPlayMode {
   idle(Icons.stop),
   manualPlay(Icons.forward),
@@ -47,23 +49,28 @@ enum SongPlayMode {
 
   const SongPlayMode(this.iconData);
 
-  bool get isPlaying =>
-      this == SongPlayMode.manualPlay || this == SongPlayMode.autoPlay;
+  bool get isPlaying => this == SongPlayMode.manualPlay || this == SongPlayMode.autoPlay;
 
   final IconData iconData;
 }
 
 /// Song list sort types
 enum PlayListSortType {
-  byHistory, //  by convention: should be first
-  byLastSung, //  by convention: should be second
-  bySinger,
-  byTitle,
-  byArtist,
-  byLastChange,
-  byComplexity,
-  byYear,
+  byHistory('Order by when the song was last sung\n'
+      'with the most oldest singing first.'), //  by convention: should be first
+  byLastSung('Order by when the song was last sung\n'
+      'with the most recent first.'), //  by convention: should be second
+  bySinger('Order by the song performance\'s singer.'),
+  byTitle('Order by the song\'s title.'),
+  byArtist('Order by the song\'s artist.'),
+  byLastChange('Order by the date of the most recent edit.'),
+  byComplexity('Order by the song\'s complexity when compared to other songs.'),
+  byYear('Order by the song\'s year.'),
   ;
+
+  const PlayListSortType(this.toolTip);
+
+  final String toolTip;
 }
 
 enum MessageType {
@@ -484,7 +491,7 @@ class AppTooltip extends StatelessWidget {
           key: key,
           message: message,
           textStyle: textStyle,
-          waitDuration: const Duration(seconds: 2, milliseconds: 500),
+          waitDuration: _toolTipWaitDuration,
           verticalOffset: 75,
           decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
           padding: const EdgeInsets.all(8),

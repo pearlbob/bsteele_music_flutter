@@ -20,7 +20,7 @@ import 'package:bsteeleMusicLib/songs/song_moment.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteele_music_flutter/util/usTimer.dart';
+import 'package:bsteeleMusicLib/util/usTimer.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';

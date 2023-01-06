@@ -107,6 +107,13 @@ import 'app/app_theme.dart';
 import 'util/openLink.dart';
 
 /*
+linux start size and location:
+in linux/my_application.cc, line 50 or so
+  gtk_window_set_default_size(window, 1920, 1080);
+  gtk_window_move(window, 1920/16, 1080/2);
+ */
+
+/*
 android fix:
   adb: insufficient permissions for device: missing udev rules? user is in the plugdev group
 
@@ -117,8 +124,9 @@ android fix:
 
 in bsteele_music_flutter/android/app/src/main/AndroidManifest.xml:
 <manifest...>
-  ...
   <uses-permission android:name="android.permission.INTERNET"/>
+  ...
+
 </manifest...>
  */
 
@@ -134,13 +142,6 @@ const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 late PackageInfo packageInfo;
-
-/*
-linux start size and location:
-in linux/my_application.cc, line 50 or so
-  gtk_window_set_default_size(window, 1920, 1080);
-  gtk_window_move(window, 1920/16, 1080/2);
- */
 
 void main() async {
   Logger.level = Level.info;

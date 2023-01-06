@@ -12,13 +12,15 @@
 
 ### Fix
 
-* Time player selected measure in play mode
-* Drum edit preview, include bpm
-* fix startup delay based on history. isolate the startup history processing so it doesn't impact the normal boot.
+* Time player selected measure in auto play mode, adjust if required
+* fix startup delay based on history. isolate the startup history processing so
+  it doesn't impact the normal boot.
 * Metadata scroll after metadata change
 * declare the metadata as caseless and allow the software to Capitalize All Fields As Required.
-* insist on <uses-permission android:name="android.permission.INTERNET"/> in android/app/src/main/AndroidManifest.xml
-* player: in pause, reposition play with up/down arrows or scroll, continue from new location with space bar hit
+* insist on <uses-permission android:name="android.permission.INTERNET"/>
+  in android/app/src/main/AndroidManifest.xml
+* player: in pause, reposition play with up/down arrows or scroll,
+  continue from new location with space bar hit
 * Back to player from song preview on youtube.com, fullscreen button missing
 * On Raindrops Keep Fallin, I was trying to make the last line of chorus read:
 * Minor bug: I can't change/save the user name without making other changes (that engage the save button).
@@ -60,6 +62,7 @@
 * re-download canvaskit on staging
 * drum: the default volume should be max.
 * grab bar on scroll for song list
+* Drum edit preview, with bpm and volume
 
 ## Release  1.3
 

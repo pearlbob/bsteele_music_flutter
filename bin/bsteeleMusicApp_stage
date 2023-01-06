@@ -58,7 +58,10 @@ set betaDir=/srv/http/public_html/bsteeleMusicApp/$flavor
 echo test the library
 cd $bsteeleMusicLib/bsteele_music_lib
 flutter test >& /dev/null
-if ( $status != 0 ) exit -1
+if ( $status != 0 ) then
+	echo library tests failed.
+	exit -1
+endif
 cd $git
 
 ##	build the release version of the beta

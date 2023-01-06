@@ -238,7 +238,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     switch (_songMaster.songPlayMode) {
       case SongPlayMode.pause: //  fixme: this is not correct
       case SongPlayMode.idle:
-      if (songPlayMode.isPlaying) {
+        if (songPlayMode.isPlaying) {
           //  follow the song master's play mode
           setState(() {
             songPlayMode = _songMaster.songPlayMode;
@@ -1015,7 +1015,8 @@ With z or q, the app goes back to the play list.''',
                                   child: GestureDetector(
                                       onTapDown: (details) {
                                         //  respond to taps above and below the middle of the screen
-                                        if (!songPlayMode.isPlaying &&
+                                        if (appOptions.tapToAdvance &&
+                                            songPlayMode != SongPlayMode.autoPlay &&
                                             appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
                                           if (songPlayMode != SongPlayMode.manualPlay) {
                                             //  start manual play
@@ -1146,6 +1147,8 @@ With z or q, the app goes back to the play list.''',
     if (!_playerIsOnTop) {
       return KeyEventResult.ignored;
     }
+
+    //  only deal with new key down events
     if (value.runtimeType != RawKeyDownEvent) {
       return KeyEventResult.ignored;
     }
@@ -1156,7 +1159,6 @@ With z or q, the app goes back to the play list.''',
         ', ctl: ${e.isControlPressed}'
         ', shf: ${e.isShiftPressed}'
         ', alt: ${e.isAltPressed}');
-    //  only deal with new key down events
 
     if (e.isKeyPressed(LogicalKeyboardKey.space) ||
         //  workaround for cheap foot pedal... only outputs b
@@ -1962,7 +1964,6 @@ With z or q, the app goes back to the play list.''',
                                   ],
                                 ),
                             ]),
-                        const AppSpace(),
                         AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                           AppTooltip(
                             message: 'Adjust drum playback volume.',

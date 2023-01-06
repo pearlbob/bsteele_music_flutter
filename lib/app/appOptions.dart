@@ -30,6 +30,7 @@ enum StorageValue {
   userDisplayStyle,
   drumPartsListJson,
   toolTips,
+  tapToAdvance,
 }
 
 /// Application level, persistent, shared values.
@@ -48,6 +49,7 @@ class AppOptions extends ChangeNotifier {
   Future<void> init() async {
     var usTimer = UsTimer();
     _prefs = await SharedPreferences.getInstance();
+
     _userDisplayStyle = Util.enumFromString(
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
             UserDisplayStyle.values) ??
@@ -73,6 +75,7 @@ class AppOptions extends ChangeNotifier {
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     _toolTips = await _readBool(StorageValue.toolTips.name, defaultValue: false);
+    _tapToAdvance = await _readBool(StorageValue.tapToAdvance.name, defaultValue: true);
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
@@ -270,6 +273,18 @@ class AppOptions extends ChangeNotifier {
   /// True if the user wants NinJam aids shown
   bool get toolTips => _toolTips;
   bool _toolTips = false;
+
+  set tapToAdvance(bool value) {
+    if (_tapToAdvance == value) {
+      return;
+    }
+    _tapToAdvance = value;
+    _saveBool(StorageValue.tapToAdvance.name, value);
+  }
+
+  /// True if the user wants NinJam aids shown
+  bool get tapToAdvance => _tapToAdvance;
+  bool _tapToAdvance = false;
 
   set ninJam(bool value) {
     if (_ninJam == value) {

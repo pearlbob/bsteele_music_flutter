@@ -26,7 +26,7 @@ void main() {
 
       // Build our app and trigger a frame.
       await tester.pumpWidget(const BSteeleMusicApp());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 1)); //  allow for slow read of songs
 
       List<Widget> widgets;
 

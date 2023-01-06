@@ -209,10 +209,8 @@ class OptionsState extends State<Options> {
                         ),
                       if (kDebugMode)
                         appButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
-                          _appOptions.websocketHost =
-                              'bob.local'; //'bobspi.local';
-                          _websocketHostEditingController.text =
-                              _appOptions.websocketHost;
+                          _appOptions.websocketHost = 'bob.local'; //'bobspi.local';
+                          _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
                     ],
                   ),
@@ -271,8 +269,41 @@ class OptionsState extends State<Options> {
                       },
                     ),
                   ]),
+                  const AppSpace(),
+                  AppWrap(
+                    alignment: WrapAlignment.start,
+                    children: [
+                      AppTooltip(
+                        message: 'On the player screen:\n'
+                            'Tap on the bottom half of the screen to advance a section.\n'
+                            'Tap on the top half to go back a section.',
+                        child: appButton(
+                          'Tap to Advance',
+                          appKeyEnum: AppKeyEnum.optionsTapToAdvanceLabel,
+                          value: _appOptions.tapToAdvance,
+                          onPressed: () {
+                            setState(
+                              () {
+                                _appOptions.tapToAdvance = !_appOptions.tapToAdvance;
+                              },
+                            );
+                          },
+                          //softWrap: false,
+                        ),
+                      ),
+                      appSwitch(
+                        appKeyEnum: AppKeyEnum.optionsTapToAdvance,
+                        value: _appOptions.tapToAdvance,
+                        onChanged: (value) {
+                          setState(() {
+                            _appOptions.tapToAdvance = !_appOptions.tapToAdvance;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
 
-                                //  fixme: audio!
+                  //  fixme: audio!
                   if (kDebugMode) const AppSpace(verticalSpace: 30),
                   if (kDebugMode)
                     Row(children: <Widget>[

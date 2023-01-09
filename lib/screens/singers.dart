@@ -755,7 +755,7 @@ class SingersState extends State<Singers> {
                     ),
                     AppTooltip(
                       message: 'Clear the singer search text.',
-                      child: appEnumeratedIconButton(
+                      child: appIconButton(
                         appKeyEnum: AppKeyEnum.singersSingerClearSearch,
                         icon: const Icon(Icons.clear),
                         iconSize: 1.5 * fontSize,
@@ -1079,7 +1079,7 @@ class SingersState extends State<Singers> {
         ),
         AppTooltip(
           message: 'Clear the volunteer selection.',
-          child: appEnumeratedIconButton(
+          child: appIconButton(
             appKeyEnum: AppKeyEnum.singersVolunteerSingerSelectClear,
             icon: const Icon(Icons.clear),
             iconSize: 1.5 * app.screenInfo.fontSize,

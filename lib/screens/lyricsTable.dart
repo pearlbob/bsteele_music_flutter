@@ -17,10 +17,10 @@ import 'package:bsteeleMusicLib/songs/section_version.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_moment.dart';
+import 'package:bsteeleMusicLib/util/usTimer.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteeleMusicLib/util/usTimer.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -1314,6 +1314,7 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
         '_LyricSectionCellState.childBuilder: run: '
         '${widget.index}:'
         ' selected: $selected');
+
     return SizedBox(
       width: widget.width,
       child: selected
@@ -1522,6 +1523,9 @@ class _SongCellState extends State<SongCellWidget> {
           ': ${widget.richText.text.toPlainText()}'
           ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
           ', songTime: ${SongMaster().songTime}');
+
+      //  check the delay
+      //Future.delayed(Duration.zero, () => _checkTheAutoPlayDelay(context));
     }
     Size buildSize = widget.computedBuildSize;
     double width = 10; //  safety only
@@ -1605,6 +1609,12 @@ class _SongCellState extends State<SongCellWidget> {
       child: richText,
     );
   }
+
+  // FutureOr<dynamic> _checkTheAutoPlayDelay(BuildContext context) {
+  //   logger.i('_checkTheAutoPlayDelay: #${widget.songMoment?.momentNumber}, beat: ${widget.songMoment?.beatNumber}'
+  //       ', dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}');
+  //   return null;
+  // }
 
   var selected = false; //  indicates the cell is currently selected, i.e. highlighted
 }

@@ -256,7 +256,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                 //  search clear
                                 AppTooltip(
                                     message: 'Clear the name text.',
-                                    child: appEnumeratedIconButton(
+                                    child: appIconButton(
                                       icon: const Icon(Icons.clear),
                                       appKeyEnum: AppKeyEnum.listsNameClear,
                                       iconSize: metadataStyle.fontSize,
@@ -316,7 +316,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                 //  search clear
                                 AppTooltip(
                                     message: 'Clear the value text.',
-                                    child: appEnumeratedIconButton(
+                                    child: appIconButton(
                                       icon: const Icon(Icons.clear),
                                       appKeyEnum: AppKeyEnum.listsValueClear,
                                       iconSize: metadataStyle.fontSize,
@@ -357,7 +357,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                       customWidget: _selectedNameValue != _emptySelectedNameValue &&
                                               !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ??
                                                   false)
-                                          ? appIconButton(
+                                          ? appIconWithLabelButton(
                                               icon: appIcon(
                                                 Icons.add,
                                               ),

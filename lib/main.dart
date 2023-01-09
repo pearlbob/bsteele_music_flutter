@@ -493,7 +493,7 @@ class MyHomePageState extends State<MyHomePage> {
         title: widget.title,
         leading: AppTooltip(
           message: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          child: appIconButton(
+          child: appIconWithLabelButton(
             appKeyEnum: AppKeyEnum.mainHamburger,
             onPressed: _openDrawer,
             icon: appIcon(
@@ -697,15 +697,15 @@ class MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-        // if (kDebugMode)
-        //   TextButton(
-        //       onPressed: () {
-        //         testAppKeyCallbacks();
-        //       },
-        //       child: Text(
-        //         'test',
-        //         style: _titleTextStyle,
-        //       )),
+        if (kDebugMode)
+          TextButton(
+              onPressed: () {
+                testAppKeyCallbacks();
+              },
+              child: Text(
+                'test',
+                style: _titleTextStyle,
+              )),
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
         PlayList(

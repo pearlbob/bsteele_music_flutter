@@ -176,7 +176,7 @@ class SongPlayListItem implements PlayListItem {
                           logger.v('    value: ${id.id}:${nameValue.name}=${nameValue.value}');
 
                           metadataWidgets.add(
-                            appIconButton(
+                            appIconWithLabelButton(
                               icon: appIcon(
                                 Icons.clear,
                               ),
@@ -574,7 +574,7 @@ class _PlayListState extends State<PlayList> {
             ));
           }
           filterWidgets.add(
-            appIconButton(
+            appIconWithLabelButton(
               icon: appIcon(
                 Icons.clear,
               ),
@@ -706,6 +706,9 @@ class _PlayListState extends State<PlayList> {
                         width: appDefaultFontSize * 40,
                         onChanged: (value) {
                           setState(() {
+                            if (_searchTextFieldController.text != value) {
+                              _searchTextFieldController.text = value;
+                            }
                             logger.v('search text: "$value"');
                             app.clearMessage();
                           });
@@ -717,7 +720,7 @@ class _PlayListState extends State<PlayList> {
                         message: _searchTextFieldController.text.isEmpty
                             ? 'Scroll the list some.'
                             : 'Clear the search text.',
-                        child: appEnumeratedIconButton(
+                        child: appIconButton(
                           icon: const Icon(Icons.clear),
                           appKeyEnum: AppKeyEnum.playListClearSearch,
                           iconSize: 1.25 * widget.titleFontSize,

@@ -158,6 +158,11 @@ class App {
   //  icons
   static const iconColor = Colors.white;
 
+  //  margins and padding
+  EdgeInsetsGeometry get measureMargin => const EdgeInsets.all(3);
+
+  EdgeInsetsGeometry get measurePadding => const EdgeInsets.all(5);
+
   static Color getBackgroundColorForSectionVersion(SectionVersion? sectionVersion) {
     sectionVersion ??= SectionVersion.defaultInstance;
 
@@ -620,7 +625,7 @@ class AppWidgetHelper {
   Widget back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
     return AppTooltip(
       message: 'Back',
-      child: appIconButton(
+      child: appIconWithLabelButton(
         appKeyEnum: AppKeyEnum.appBack,
         onPressed: () {
           if (canPop?.call() ?? true) {

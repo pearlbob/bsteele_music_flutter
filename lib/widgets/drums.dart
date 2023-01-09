@@ -155,7 +155,7 @@ class DrumsState extends State<DrumsWidget> {
             //  name text clear
             AppTooltip(
                 message: 'Clear the name text.',
-                child: appEnumeratedIconButton(
+                child: appIconButton(
                   icon: const Icon(Icons.clear),
                   appKeyEnum: AppKeyEnum.drumNameClear,
                   iconSize: 1.25 * (_style.fontSize ?? appDefaultFontSize),

@@ -48,8 +48,8 @@ class StyleDemoState extends State<StyleDemo> {
             var coloredChordTextStyle =
                 generateChordTextStyle(fontSize: fontSize, fontWeight: FontWeight.w500, backgroundColor: color);
             sectionContainers.add(Container(
-                margin: getMeasureMargin(),
-                padding: getMeasurePadding(),
+                margin: app.measureMargin,
+                padding: app.measurePadding,
                 color: coloredChordTextStyle.backgroundColor,
                 child: Text(
                   section.name + (index > 0 ? index.toString() : '')
@@ -102,7 +102,7 @@ class StyleDemoState extends State<StyleDemo> {
                         style: generateAppTextStyle(),
                       ),
                       const AppSpace(),
-                      appIconButton(
+                      appIconWithLabelButton(
                           appKeyEnum: AppKeyEnum.cssDemoIconButton, icon: appIcon(Icons.check), onPressed: () {}),
                     ],
                   ),
@@ -113,8 +113,8 @@ class StyleDemoState extends State<StyleDemo> {
                   ),
                   const AppSpace(),
                   Container(
-                      margin: getMeasureMargin(),
-                      padding: getMeasurePadding(),
+                      margin: app.measureMargin,
+                      padding: app.measurePadding,
                       color: verseBackgroundColor,
                       child: Text(
                         'Lyrics text style',

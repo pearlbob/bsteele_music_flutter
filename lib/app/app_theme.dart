@@ -1,10 +1,14 @@
+import 'dart:collection';
+
 import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteeleMusicLib/songs/chord_section.dart';
 import 'package:bsteeleMusicLib/songs/chord_section_location.dart';
 import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
+import 'package:bsteeleMusicLib/songs/music_constants.dart';
 import 'package:bsteeleMusicLib/songs/scale_chord.dart';
 import 'package:bsteeleMusicLib/songs/scale_note.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/time_signature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
@@ -17,20 +21,12 @@ import 'app.dart';
 const Level _logAppKey = Level.debug;
 const Level _logAppKeyCreation = Level.debug;
 const Level _logAllRegistrations = Level.debug;
-// const Level _logAllCallbacks = Level.debug;
+const Level _logAllCallbacks = Level.debug;
 const Level _logCallbacks = Level.debug;
 const Level _appKeyExecute = Level.debug;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
     const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
-
-EdgeInsetsGeometry getMeasureMargin() {
-  return const EdgeInsets.all(3);
-}
-
-EdgeInsetsGeometry getMeasurePadding() {
-  return const EdgeInsets.all(5);
-}
 
 /// Application keys to select all application actions. See [ appKey() ]
 enum AppKeyEnum implements Comparable<AppKeyEnum> {
@@ -193,7 +189,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsTapToAdvance(bool),
   optionsToolTips(bool),
   optionsToolTipsTextButton(Null),
-  optionsUserDisplayStyle(String), //fixme
+  optionsUserDisplayStyle(UserDisplayStyle),
   optionsUserName(String),
   optionsWebsocketBob(Null),
   optionsWebsocketCJ(Null),
@@ -403,12 +399,12 @@ appKeyCallbacksClear() {
   _appKeyRegisterCallbacks.clear(); //  can't run callbacks if the widget tree is now gone
 }
 
-// _appKeyCallbacksDebugLog() {
-//   logger.log(_logAppKey, '_appKeyCallbacksDebugLog: ${_appKeyRegisterCallbacks.length}');
-//   for (var k in SplayTreeSet<AppKey>()..addAll(_appKeyRegisterCallbacks.keys)) {
-//     logger.log(_logAllCallbacks, '  registered $k: ${_appKeyRegisterCallbacks[k].runtimeType}');
-//   }
-// }
+_appKeyCallbacksDebugLog() {
+  logger.log(_logAppKey, '_appKeyCallbacksDebugLog: ${_appKeyRegisterCallbacks.length}');
+  for (var k in SplayTreeSet<AppKey>()..addAll(_appKeyRegisterCallbacks.keys)) {
+    logger.log(_logAllCallbacks, '  registered $k: ${_appKeyRegisterCallbacks[k].runtimeType}');
+  }
+}
 
 //  fixme: can't figure a better way to do this since generic constructors can't reference their type
 typedef TypeParser<T> = T? Function(String s);
@@ -422,6 +418,7 @@ Map<Type, TypeParser> _appKeyParsers = {
   ChordSectionLocation: (s) => ChordSectionLocation.parseString(s), //  void
   PlayListSortType: (s) => PlayListSortType.values.firstWhere((e) => e.name == s),
   NashvilleSelection: (s) => NashvilleSelection.values.firstWhere((e) => e.name == s),
+  UserDisplayStyle: (s) => UserDisplayStyle.values.firstWhere((e) => e.name == s),
   music_key.Key: (s) => music_key.Key.parseString(s),
   Id: (s) => Id.parse(s),
   int: (s) => int.parse(s),
@@ -434,7 +431,7 @@ Map<Type, TypeParser> _appKeyParsers = {
 
 void _appKeyRegisterVoidCallback(AppKey key, {VoidCallback? voidCallback}) {
   if (!kDebugMode) //fixme: temp
-  {
+      {
     return;
   }
   if (voidCallback != null) {
@@ -448,7 +445,7 @@ void _appKeyRegisterVoidCallback(AppKey key, {VoidCallback? voidCallback}) {
 
 void _appKeyRegisterCallback<T>(AppKey key, {ValueChanged<T>? callback}) {
   if (!kDebugMode) //fixme: temp
-  {
+      {
     return;
   }
   if (callback != null) {
@@ -476,9 +473,9 @@ Future<bool> appKeyExecute(final String logString, {final Duration? delay}) asyn
   }
 
   final cmds = logString.split('\n');
-  logger.i('cmds: $cmds');
+  logger.log(_appKeyExecute, 'cmds: $cmds');
   for (var cmd in cmds) {
-    //logger.i('cmd: "$cmd"');
+    logger.log(_appKeyExecute, 'cmd: "$cmd"');
     if (cmd.isEmpty) {
       continue;
     }
@@ -498,73 +495,75 @@ Future<bool> appKeyExecute(final String logString, {final Duration? delay}) asyn
         ', value: "$valueString", from: ${_appKeyRegisterCallbacks.length}  '
         'callbacks');
 
-    // //  execute the app key
-    // if (eString != null) {
-    //   var e = _appKeyEnumLookupMap![eString];
-    //   if (e != null) {
-    //     var key = appKeyCreate(e, value: valueString == null ? null : _appKeyParsers[e.argType]!.call(valueString));
-    //     var callback = _appKeyRegisterCallbacks[key];
-    //     if (callback != null) {
-    //       try {
-    //         if (e.argType == Null) {
-    //           if (callback is VoidCallback) {
-    //             assert(valueString == null);
-    //             _appLogCallback(appKeyCreate(e));
-    //             logger.log(_logAppKey, '$e: VoidCallback');
-    //             callback.call();
-    //           } else {
-    //             logger.w('non-null callback for null argType: $e');
-    //             return false;
-    //           }
-    //         } else if (e.argType == String) {
-    //           //  an optimization
-    //           assert(valueString != null);
-    //           if (e.argType == String) {
-    //             _appLogCallback(appKeyCreate(e, value: valueString));
-    //             logger.log(_logAppKey, '$e ${e.argType}.$valueString => "$valueString"');
-    //             Function.apply(callback, [valueString]);
-    //           }
-    //         } else {
-    //           //  parse string to correct value type
-    //           var value = _appKeyParsers[e.argType]?.call(valueString!);
-    //           logger.log(_logAppKey, '$e ${e.argType}.$valueString => $value');
-    //           if (callback is VoidCallback) {
-    //             callback.call();
-    //           } else {
-    //             callback.call(value);
-    //           }
-    //         }
-    //       } catch (ex) {
-    //         logger.w('callback threw exception: $ex');
-    //         return false;
-    //       }
-    //     } else {
-    //       logger.w('callback not found registered for: $key');
-    //       callback = _appKeyRegisterCallbacks[appKeyCreate(e)];
-    //       logger.w('callback for $e: $callback');
-    //       _appKeyCallbacksDebugLog();
-    //       return false;
-    //     }
-    //   } else {
-    //     logger.w('appKeyEnum not found: "$eString"');
-    //     return false;
-    //   }
-    // } else {
-    //   logger.w('appKeyEnum not found in logString: "$cmd"');
-    //   return false;
-    // }
-    //await Future.delayed(delay ?? const Duration(milliseconds: 16));
+    //  execute the app key
+    if (eString != null) {
+      var e = _appKeyEnumLookupMap![eString];
+      if (e != null) {
+        var key = appKeyCreate(e, value: valueString == null ? null : _appKeyParsers[e.argType]!.call(valueString));
+        var callback = _appKeyRegisterCallbacks[key];
+        if (callback != null) {
+          try {
+            if (e.argType == Null) {
+              if (callback is VoidCallback) {
+                assert(valueString == null);
+                _appLogCallback(appKeyCreate(e));
+                logger.log(_logAppKey, '$e: VoidCallback');
+                callback.call();
+                logger.d('back from $e');
+              } else {
+                logger.w('non-null callback for null argType: $e');
+                return false;
+              }
+            } else if (e.argType == String) {
+              //  an optimization
+              assert(valueString != null);
+              _appLogCallback(appKeyCreate(e, value: valueString));
+              logger.log(_logAppKey, '$e ${e.argType}.$valueString => "$valueString"');
+              Function.apply(callback, [valueString]);
+            } else {
+              //  parse string to correct value type
+              var value = _appKeyParsers[e.argType]?.call(valueString!);
+              logger.log(_logAppKey, '$e ${e.argType}.$valueString => $value');
+              if (callback is VoidCallback) {
+                callback.call();
+              } else {
+                callback.call(value);
+              }
+            }
+          } catch (ex) {
+            logger.w('callback threw exception: $ex');
+            return false;
+          }
+        } else {
+          logger.w('callback not found registered for: $key');
+          callback = _appKeyRegisterCallbacks[appKeyCreate(e)];
+          logger.w('callback for $e: $callback');
+          _appKeyCallbacksDebugLog();
+          return false;
+        }
+      } else {
+        logger.w('appKeyEnum not found: "$eString"');
+        return false;
+      }
+    } else {
+      logger.w('appKeyEnum not found in logString: "$cmd"');
+      return false;
+    }
+    logger.d('wait: $delay');
+    await Future.delayed(delay ?? const Duration(milliseconds: 300));
   }
-  logger.i('appKeyExecute: ended');
+  logger.d('appKeyExecute: ended');
+  // await Future.delayed(delay ?? const Duration(milliseconds: 300));
   return true;
 }
 
 final _appKeyLogRegexp = RegExp(r'^\s*([^.]*)(?:\.?(.+?))?$'); // second group may be null!
 
-void _testSearchFor(Song song) async {
-  appKeyExecute('''${AppKeyEnum.playListClearSearch.name}
+Future<void> _testSearchFor(Song song, {final Duration? delay}) async {
+  await appKeyExecute('''${AppKeyEnum.playListClearSearch.name}
 playListSearch.${song.title}
-''');
+mainSong.${song.songId}
+''', delay: delay);
 }
 
 void testAppKeyCallbacks() async {
@@ -574,25 +573,25 @@ void testAppKeyCallbacks() async {
     return;
   }
   const delay = Duration(seconds: 1);
+  const quickDelay = Duration(milliseconds: 5000 ~/ 12);
 
   {
     int count = 0;
     for (var song in app.allSongs) {
       logger.i('test: $song');
-      if (++count > 1) {
+      if (++count > 5) {
         break;
       }
-      _testSearchFor(song);
-      appKeyExecute('''
-playerKeyDown
-playerKeyDown
-playerKeyDown
-playerKeyDown
-playerKeyUp
-playerKeyUp
-appBack
-''', delay: delay);
+      await _testSearchFor(song, delay: delay);
+      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+        await appKeyExecute('playerKeyDown', delay: quickDelay);
+      }
+      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+        await appKeyExecute('playerKeyUp', delay: quickDelay);
+      }
+      await appKeyExecute('appBack', delay: delay);
     }
+    await appKeyExecute(AppKeyEnum.playListClearSearch.name);
   }
 
   // //  fixme: sample only
@@ -647,7 +646,7 @@ Icon appIcon(IconData icon, {Key? key, Color? color, double? size}) {
       key: key,
       color: color ?? App.iconColor,
       size: size ?? app.screenInfo.fontSize //  let the algorithm figure the size dynamically
-      );
+  );
 }
 
 class AppTheme {
@@ -716,8 +715,7 @@ void appLogMessage(String message) {
   _appLog.add('// $t +$duration: $message');
 }
 
-ElevatedButton appButton(
-  String commandName, {
+ElevatedButton appButton(String commandName, {
   required AppKeyEnum appKeyEnum,
   required final VoidCallback? onPressed,
   final Color? backgroundColor,
@@ -728,9 +726,9 @@ ElevatedButton appButton(
   var voidCallback = onPressed == null
       ? null //  show as disabled   //  fixme: does this work?
       : () {
-          _appLogCallback(key); //  log the click
-          onPressed.call();
-        };
+    _appLogCallback(key); //  log the click
+    onPressed.call();
+  };
   _appKeyRegisterVoidCallback(key, voidCallback: voidCallback);
 
   return ElevatedButton(
@@ -738,15 +736,14 @@ ElevatedButton appButton(
     clipBehavior: Clip.hardEdge,
     onPressed: voidCallback,
     style:
-        app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+    app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
     child: Text(commandName,
         style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: backgroundColor)),
   );
 }
 
 //  insist on an Id
-TextButton appIdButton(
-  String text, {
+TextButton appIdButton(String text, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
   TextStyle? style,
@@ -761,8 +758,7 @@ TextButton appIdButton(
   );
 }
 
-TextButton appTextButton(
-  String text, {
+TextButton appTextButton(String text, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
   TextStyle? style,
@@ -784,7 +780,28 @@ TextButton appTextButton(
   );
 }
 
-TextButton appIconButton({
+IconButton appIconButton({
+  required Widget icon,
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback onPressed, //  insist on action
+  Color? color,
+  double? iconSize,
+}) {
+  var key = appKeyCreate(appKeyEnum);
+  _appKeyRegisterVoidCallback(key, voidCallback: onPressed);
+  return IconButton(
+    icon: icon,
+    key: key,
+    onPressed: () {
+      _appLogCallback(key);
+      onPressed();
+    },
+    color: color,
+    iconSize: iconSize ?? 24.0, //  demanded by IconButton
+  );
+}
+
+TextButton appIconWithLabelButton({
   required AppKeyEnum appKeyEnum,
   required Widget icon,
   required VoidCallback onPressed,
@@ -809,15 +826,14 @@ TextButton appIconButton({
   );
 }
 
-ElevatedButton appNoteButton(
-  String character, // a note character is expected
-  {
-  required AppKeyEnum appKeyEnum,
-  required VoidCallback? onPressed,
-  Color? backgroundColor,
-  double? fontSize,
-  double? height,
-  dynamic value,
+ElevatedButton appNoteButton(String character, // a note character is expected
+        {
+      required AppKeyEnum appKeyEnum,
+      required VoidCallback? onPressed,
+      Color? backgroundColor,
+      double? fontSize,
+      double? height,
+      dynamic value,
 }) {
   fontSize ??= app.screenInfo.fontSize;
   var key = appKeyCreate(appKeyEnum, value: value);
@@ -830,9 +846,9 @@ ElevatedButton appNoteButton(
     onPressed: onPressed == null
         ? null //  show as disabled
         : () {
-            _appLogCallback(key); //  log the click
-            onPressed();
-          },
+      _appLogCallback(key); //  log the click
+      onPressed();
+    },
     child: Baseline(
       baselineType: TextBaseline.alphabetic,
       baseline: fontSize,
@@ -875,34 +891,12 @@ class AppInkWell extends StatelessWidget {
   final dynamic value;
 }
 
-IconButton appEnumeratedIconButton({
-  required Widget icon,
-  required AppKeyEnum appKeyEnum,
-  required VoidCallback onPressed, //  insist on action
-  Color? color,
-  double? iconSize,
-}) {
-  var key = appKeyCreate(appKeyEnum);
-  _appKeyRegisterVoidCallback(key, voidCallback: onPressed);
-  return IconButton(
-    icon: icon,
-    key: key,
-    onPressed: () {
-      _appLogCallback(key);
-      onPressed();
-    },
-    color: color,
-    iconSize: iconSize ?? 24.0, //  demanded by IconButton
-  );
-}
-
-DropdownButton<T> appDropdownButton<T>(
-  AppKeyEnum appKeyEnum,
-  List<DropdownMenuItem<T>> items, {
-  T? value,
-  ValueChanged<T?>? onChanged,
-  Widget? hint,
-  TextStyle? style,
+DropdownButton<T> appDropdownButton<T>(AppKeyEnum appKeyEnum,
+    List<DropdownMenuItem<T>> items, {
+      T? value,
+      ValueChanged<T?>? onChanged,
+      Widget? hint,
+      TextStyle? style,
 }) {
   AppKey key = appKeyCreate(appKeyEnum, value: value);
   _appKeyRegisterCallback(key, callback: onChanged);
@@ -1169,7 +1163,7 @@ TextStyle generateAppTextFieldStyle({
       textBaseline: textBaseline,
       decoration: decoration,
       nullBackground: true //  force a null background for mouse text selection
-      );
+  );
 }
 
 TextStyle generateAppBarLinkTextStyle() {
@@ -1198,8 +1192,7 @@ TextStyle generateTooltipTextStyle({double? fontSize}) {
   );
 }
 
-TextStyle generateChordTextStyle(
-    {String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
+TextStyle generateChordTextStyle({String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
   return generateAppTextStyle(
     color: App.chordNoteColor,
     backgroundColor: backgroundColor ?? App.chordNoteBackgroundColor,

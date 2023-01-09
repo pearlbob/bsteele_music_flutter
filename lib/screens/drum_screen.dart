@@ -246,18 +246,15 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                             const AppSpace(
                               horizontalSpace: 20,
                             ),
-                            appIconButton(
-                              appKeyEnum: AppKeyEnum.drumScreenTempoDown,
-                              onPressed: () {
-                                setState(() {
-                                  playerSelectedBpm = Util.intLimit(
-                                      (playerSelectedBpm ??
-                                              widget.song?.beatsPerMinute ??
-                                              MusicConstants.defaultBpm) -
-                                          1,
-                                      MusicConstants.minBpm,
-                                      MusicConstants.maxBpm);
-                                  _playDrums();
+                            appIconWithLabelButton(
+                          appKeyEnum: AppKeyEnum.drumScreenTempoDown,
+                          onPressed: () {
+                            setState(() {
+                              playerSelectedBpm = Util.intLimit(
+                                  (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) - 1,
+                                  MusicConstants.minBpm,
+                                  MusicConstants.maxBpm);
+                              _playDrums();
                                 });
                               },
                               icon: Icon(
@@ -271,18 +268,15 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                                     .toString(),
                                 style: style),
                             const AppSpace(),
-                            appIconButton(
-                              appKeyEnum: AppKeyEnum.drumScreenTempoUp,
-                              onPressed: () {
-                                setState(() {
-                                  playerSelectedBpm = Util.intLimit(
-                                      (playerSelectedBpm ??
-                                              widget.song?.beatsPerMinute ??
-                                              MusicConstants.defaultBpm) +
-                                          1,
-                                      MusicConstants.minBpm,
-                                      MusicConstants.maxBpm);
-                                  _playDrums();
+                            appIconWithLabelButton(
+                          appKeyEnum: AppKeyEnum.drumScreenTempoUp,
+                          onPressed: () {
+                            setState(() {
+                              playerSelectedBpm = Util.intLimit(
+                                  (playerSelectedBpm ?? widget.song?.beatsPerMinute ?? MusicConstants.defaultBpm) + 1,
+                                  MusicConstants.minBpm,
+                                  MusicConstants.maxBpm);
+                              _playDrums();
                                 });
                               },
                               icon: Icon(

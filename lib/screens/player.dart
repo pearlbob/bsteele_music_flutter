@@ -50,7 +50,8 @@ final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
 
 bool _isCapo = false; //  package level for persistence across player invocations
-int _capoLocation = 0;
+int _capoLocation = 0; //  fret number of the cap location
+bool _showCapo = false; //  package level for all classes in the package
 
 final _songMomentNotifier = SongMomentNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
@@ -208,8 +209,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   void dispose() {
     logger.d('player: dispose()');
     _cancelIdleTimer();
-
-    appKeyCallbacksClear();
 
     _player = null;
     _playerIsOnTop = false;
@@ -439,8 +438,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_logMode, 'playMode: $songPlayMode');
 
-    bool showCapo = capoIsAvailable() && app.isScreenBig;
-    _isCapo = _isCapo && showCapo; //  can't be capo if you cannot show it
+    _showCapo = capoIsPossible() && _isCapo;
 
     var theme = Theme.of(context);
     var appBarTextStyle = generateAppBarLinkTextStyle();
@@ -601,22 +599,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     child: AppWrapFullWidth(alignment: WrapAlignment.end, spacing: fontSize, children: [
-                                      if (showCapo)
-                                        AppWrap(
-                                          children: [
-                                            if (_isCapo && _capoLocation > 0)
-                                              Text(
-                                                'Capo on $_capoLocation',
-                                                style: headerTextStyle,
-                                                softWrap: false,
-                                              ),
-                                            if (_isCapo && _capoLocation == 0)
-                                              Text(
-                                                'No capo needed',
-                                                style: headerTextStyle,
-                                                softWrap: false,
-                                              ),
-                                          ],
+                                      if (_showCapo)
+                                        Text(
+                                          _capoLocation > 0 ? 'Capo on $_capoLocation' : 'No capo needed',
+                                          style: headerTextStyle,
+                                          softWrap: false,
                                         ),
                                       // //  recommend a blues harp
                                       // Text(
@@ -715,7 +702,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                             app.isEditReady)
                                           AppTooltip(
                                             message: 'Edit the song',
-                                            child: appIconButton(
+                                            child: appIconWithLabelButton(
                                               appKeyEnum: AppKeyEnum.playerEdit,
                                               icon: appIcon(
                                                 Icons.edit,
@@ -747,7 +734,7 @@ Enter ends the "play" mode.
 With z or q, the app goes back to the play list.''',
                                         child: Container(
                                           padding: const EdgeInsets.only(left: 8, right: 8),
-                                          child: appIconButton(
+                                          child: appIconWithLabelButton(
                                             appKeyEnum: AppKeyEnum.playerPlay,
                                             icon: appIcon(
                                               playStopIcon,
@@ -800,7 +787,7 @@ With z or q, the app goes back to the play list.''',
                                               if (app.isScreenBig)
                                                 AppTooltip(
                                                   message: 'Move the key one half step up.',
-                                                  child: appIconButton(
+                                                  child: appIconWithLabelButton(
                                                     appKeyEnum: AppKeyEnum.playerKeyUp,
                                                     icon: appIcon(
                                                       Icons.arrow_upward,
@@ -818,7 +805,7 @@ With z or q, the app goes back to the play list.''',
                                               if (app.isScreenBig)
                                                 AppTooltip(
                                                   message: 'Move the key one half step down.',
-                                                  child: appIconButton(
+                                                  child: appIconWithLabelButton(
                                                     appKeyEnum: AppKeyEnum.playerKeyDown,
                                                     icon: appIcon(
                                                       Icons.arrow_downward,
@@ -846,10 +833,10 @@ With z or q, the app goes back to the play list.''',
                                             ),
                                           ),
                                         const AppSpace(),
-                                        if (displayKeyOffset > 0 || (showCapo && _isCapo && _capoLocation > 0))
+                                        if (displayKeyOffset > 0 || (_showCapo && _capoLocation > 0))
                                           Text(
                                             ' ($_selectedSongKey${displayKeyOffset > 0 ? '+$displayKeyOffset' : ''}'
-                                            '${_isCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
+                                            '${_showCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
                                             style: headerTextStyle,
                                           ),
                                       ],
@@ -970,7 +957,7 @@ With z or q, the app goes back to the play list.''',
                                     style: headerTextStyle,
                                     softWrap: false,
                                   ),
-                                  appIconButton(
+                                  appIconWithLabelButton(
                                     appKeyEnum: AppKeyEnum.playerCopyNinjamBPM,
                                     icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                     onPressed: () {
@@ -985,7 +972,7 @@ With z or q, the app goes back to the play list.''',
                                     style: headerTextStyle,
                                     softWrap: false,
                                   ),
-                                  appIconButton(
+                                  appIconWithLabelButton(
                                     appKeyEnum: AppKeyEnum.playerCopyNinjamCycle,
                                     icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                     onPressed: () {
@@ -999,7 +986,7 @@ With z or q, the app goes back to the play list.''',
                                     style: headerTextStyle,
                                     softWrap: false,
                                   ),
-                                  appIconButton(
+                                  appIconWithLabelButton(
                                     appKeyEnum: AppKeyEnum.playerCopyNinjamChords,
                                     icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                                     onPressed: () {
@@ -1119,7 +1106,7 @@ With z or q, the app goes back to the play list.''',
                           padding: const EdgeInsets.all(10.0),
                           child: AppTooltip(
                             message: 'Show the player settings dialog.',
-                            child: appIconButton(
+                            child: appIconWithLabelButton(
                               appKeyEnum: AppKeyEnum.playerSettings,
                               icon: appIcon(
                                 Icons.settings,
@@ -1471,7 +1458,7 @@ With z or q, the app goes back to the play list.''',
     logger.log(_logMusicKey, 'offsetKey: $newDisplayKey');
 
     //  deal with capo
-    if (capoIsAvailable() && _isCapo) {
+    if (_showCapo) {
       _capoLocation = newDisplayKey.capoLocation;
       newDisplayKey = newDisplayKey.capoKey;
       logger.log(_logMusicKey, 'capo: $newDisplayKey + $_capoLocation');
@@ -1600,7 +1587,7 @@ With z or q, the app goes back to the play list.''',
     }
   }
 
-  bool capoIsAvailable() {
+  bool capoIsPossible() {
     return !appOptions.isSinger && !(songUpdateService.isConnected && songUpdateService.isLeader);
   }
 
@@ -1651,6 +1638,7 @@ With z or q, the app goes back to the play list.''',
                                   child: appTextButton(
                                     'Pro',
                                     appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                    value: UserDisplayStyle.proPlayer,
                                     onPressed: () {
                                       setState(() {
                                         appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
@@ -1682,6 +1670,7 @@ With z or q, the app goes back to the play list.''',
                                   child: appTextButton(
                                     'Player',
                                     appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                    value: UserDisplayStyle.player,
                                     onPressed: () {
                                       setState(() {
                                         appOptions.userDisplayStyle = UserDisplayStyle.player;
@@ -1712,6 +1701,7 @@ With z or q, the app goes back to the play list.''',
                                   child: appTextButton(
                                     'Both Player and Singer',
                                     appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                    value: UserDisplayStyle.both,
                                     onPressed: () {
                                       setState(() {
                                         appOptions.userDisplayStyle = UserDisplayStyle.both;
@@ -1742,6 +1732,7 @@ With z or q, the app goes back to the play list.''',
                                   child: appTextButton(
                                     'Singer',
                                     appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                    value: UserDisplayStyle.singer,
                                     onPressed: () {
                                       setState(() {
                                         appOptions.userDisplayStyle = UserDisplayStyle.singer;
@@ -1771,6 +1762,7 @@ With z or q, the app goes back to the play list.''',
                                   child: appTextButton(
                                     'Banner',
                                     appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                                    value: UserDisplayStyle.banner,
                                     onPressed: () {
                                       setState(() {
                                         appOptions.userDisplayStyle = UserDisplayStyle.banner;
@@ -1814,7 +1806,7 @@ With z or q, the app goes back to the play list.''',
                                 ),
                                 AppTooltip(
                                   message: 'Compress the repeats on this song',
-                                  child: appIconButton(
+                                  child: appIconWithLabelButton(
                                     appKeyEnum: AppKeyEnum.playerCompressRepeats,
                                     icon: appIcon(Icons.compress),
                                     value: compressRepeats,
@@ -1842,7 +1834,7 @@ With z or q, the app goes back to the play list.''',
                                 ),
                                 AppTooltip(
                                   message: 'Expand the repeats on this song',
-                                  child: appIconButton(
+                                  child: appIconWithLabelButton(
                                     appKeyEnum: AppKeyEnum.playerCompressRepeats,
                                     icon: appIcon(Icons.expand),
                                     value: compressRepeats,
@@ -2015,7 +2007,7 @@ With z or q, the app goes back to the play list.''',
                               if (!_areDrumsMuted)
                                 AppTooltip(
                                   message: 'Select the drums',
-                                  child: appIconButton(
+                                  child: appIconWithLabelButton(
                                       appKeyEnum: AppKeyEnum.playerEditDrums,
                                       label: 'Drums',
                                       fontSize: popupStyle.fontSize,
@@ -2289,7 +2281,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                       'Key $_selectedSongKey'
                       '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
                       '    Beats: ${_song.timeSignature.beatsPerBar}'
-                      '${_isCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
+                      '${_showCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                       '  ', //  padding at the end
                       style: generateAppTextStyle(
                         fontSize: app.screenInfo.fontSize * 0.7,

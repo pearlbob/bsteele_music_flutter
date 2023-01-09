@@ -93,18 +93,9 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                     ),
                   ],
                 ),
-                // Text(
-                //   'appName: ${_packageInfo.appName}',
-                // ),
                 Text(
-                  'version: ${packageInfo.version}+${packageInfo.buildNumber}',
+                  'version: ${packageInfo.version}',
                 ),
-                // Text(
-                //   'buildNumber: ${_packageInfo.buildNumber}',
-                // ),
-                // Text(
-                //   'packageName: ${_packageInfo.packageName}',
-                // ),
                 const Text(
                   'Mode: ${kReleaseMode ? 'release' : 'debug'}',
                 ),
@@ -222,14 +213,6 @@ class AboutState extends State<About> with WidgetsBindingObserver {
   }
 
   String? _utcDateAsString;
-
-  // PackageInfo _packageInfo = PackageInfo(
-  //   appName: 'Unknown',
-  //   packageName: 'Unknown',
-  //   version: 'Unknown',
-  //   buildNumber: 'Unknown',
-  //   buildSignature: 'Unknown',
-  // );
 
   @override
   void didChangeMetrics() {

@@ -3,18 +3,17 @@
 # Release Planning:
 
 ## Release 1.2
+### Release Date
 
 ### Features
 
-* history from tomcat server log
 * drum regularity
 * Named drum parts attached to songs
 
 ### Fix
 
-* Time player selected measure in auto play mode, adjust if required
-* fix startup delay based on history. isolate the startup history processing so
-  it doesn't impact the normal boot.
+* In player screen, capo mode can be forgotten inappropriately.
+* Time the player selected measure in auto play mode: adjust timing if required
 * Metadata scroll after metadata change
 * declare the metadata as caseless and allow the software to Capitalize All Fields As Required.
 * insist on <uses-permission android:name="android.permission.INTERNET"/>
@@ -40,9 +39,6 @@
 * Live bpm changes: Smoothing?,. Real-time delay
 * Live beat 1 resets, does NOT imply new bpm
 * Test tap to tempo... Jittery or me?
-
-### Fixme
-
 * connect player popup volume slider to volume
 * regenerate generated metadata after editing
 * songs don't always have drums on start/restart
@@ -50,8 +46,9 @@
 * video alignment with audio current time
 * playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
 
-## Completed
+## Fixes Completed
 
+* Improved startup delay based on history. More is required.
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * drums on 2/4, 3/4, 6/8
 * browser reload on subsequent pages
@@ -63,6 +60,16 @@
 * drum: the default volume should be max.
 * grab bar on scroll for song list
 * Drum edit preview, with bpm and volume
+
+## Release 1.2.1
+
+### Features
+
+* history from tomcat server log
+
+### Fix
+
+* Improve startup delay.
 
 ## Release  1.3
 

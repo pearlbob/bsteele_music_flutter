@@ -707,6 +707,7 @@ class _PlayListState extends State<PlayList> {
                         onChanged: (value) {
                           setState(() {
                             if (_searchTextFieldController.text != value) {
+                              //  programmatic text entry
                               _searchTextFieldController.text = value;
                             }
                             logger.v('search text: "$value"');

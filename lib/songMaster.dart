@@ -10,13 +10,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:logger/logger.dart';
 
+import 'app/appOptions.dart';
 import 'audio/app_audio_player.dart';
 
 const Level _songMasterLogTicker = kDebugMode ? Level.info : Level.debug;
 const Level _songMasterLogTickerDetails = Level.debug;
 const Level _songMasterLogDelta = Level.debug;
 const Level _songMasterLogMaxDelta = Level.debug;
-const Level _songMasterNotify = Level.debug;
+const Level _songMasterNotify = Level.info;
 const Level _songMasterLogAdvance = Level.debug;
 const Level _logDrums = Level.debug;
 
@@ -57,16 +58,17 @@ class SongMaster extends ChangeNotifier {
               //  fixme: deal with a changing cadence!
 
               //  pre-load the song audio by the advance time
-              double advanceTime = time - (_songStart ?? 0) - (60.0 / _song!.beatsPerMinute).floor() + _advanceS;
+              var measureDuration = 60.0 * _song!.timeSignature.beatsPerBar / _song!.beatsPerMinute;
+              double advanceTime = time - (_songStart ?? 0) + _advanceS;
 
               //  fixme: fix the start of playing!!!!!  after pause?
               int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime);
               logger.log(
                   _songMasterLogAdvance,
                   'new: $newAdvancedMomentNumber'
+                  ', measureDuration: $measureDuration'
                   ', advance: ${advanceTime.toStringAsFixed(3)}'
-                  ' - ${(time - (_songStart ?? 0)).toStringAsFixed(3)}'
-                  ' = ${(advanceTime - (time - (_songStart ?? 0))).toStringAsFixed(3)}'
+                  ', mTime: ${((time - (_songStart ?? 0)) / measureDuration).toStringAsFixed(3)}'
                   //
                   );
               while (_advancedMomentNumber == null ||
@@ -98,7 +100,7 @@ class SongMaster extends ChangeNotifier {
                 songPlayMode = SongPlayMode.idle;
                 notifyListeners();
                 logger.log(
-                    _songMasterLogTicker,
+                    _songMasterNotify,
                     'SongMaster stop: ${songTime.toStringAsFixed(3)}'
                     ', dt: ${dt.toStringAsFixed(3)}'
                     ', moment: ${newMomentNumber.toString()}');
@@ -111,7 +113,7 @@ class SongMaster extends ChangeNotifier {
                       'songTime notify: ${songTime.toStringAsFixed(3)}'
                       ' time: ${time.toStringAsFixed(3)}'
                       //  ', dt: ${dt.toStringAsFixed(3)}'
-                      ', moment: ${newMomentNumber.toString()}');
+                      ', momentNumber: ${_momentNumber.toString()}');
                   notifyListeners();
                 }
               }
@@ -162,9 +164,12 @@ class SongMaster extends ChangeNotifier {
       int? bpm}) {
     _song = song.copySong(); //  allow for play modifications
     _bpm = bpm ?? song.beatsPerMinute;
+    _measureDuration = 60 * song.timeSignature.beatsPerBar / _bpm;
     _song?.setBeatsPerMinute(_bpm);
     _drumParts = drumParts;
-    _songStart = _appAudioPlayer.getCurrentTime() + _advanceS;
+    _songStart =
+        _appAudioPlayer.getCurrentTime() + _advanceS + (_appOptions.countIn ? _measureDuration * countInCount : 0);
+
     _clearMomentNumber();
     songPlayMode = SongPlayMode.autoPlay;
     notifyListeners();
@@ -275,12 +280,16 @@ class SongMaster extends ChangeNotifier {
 
   Song? _song;
   double? _songStart;
+  static const countInCount = 2;
   static const double _advanceS = 1.0;
 
   int _bpm = MusicConstants.minBpm; //  default value only
+  double _measureDuration = 0;
 
   var drumsAreMuted = true;
   DrumParts? _drumParts;
+
+  final _appOptions = AppOptions();
   final AppAudioPlayer _appAudioPlayer = AppAudioPlayer();
 }
 

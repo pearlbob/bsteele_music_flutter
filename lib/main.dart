@@ -316,14 +316,17 @@ class MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _readSongList();
+  }
 
+  void _readSongList() async {
     //  normally read external (web) songlist and setup the websocket
     if (_environment == _environmentDefault) {
-      _readExternalSongList();
       SongUpdateService.open(context);
+      await _readExternalSongList();
     } else {
       //  testing:  read the internal list
-      _readInternalSongList();
+      await _readInternalSongList();
     }
 
     //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
@@ -331,12 +334,12 @@ class MyHomePageState extends State<MyHomePage> {
     //  give the beta warning
     if (uri.toString().contains('beta')) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        _betaWarningPopup();
+        await _betaWarningPopup();
       });
     }
   }
 
-  void _readInternalSongList() async {
+  Future<void> _readInternalSongList() async {
     {
       var allSongsAsset = 'lib/assets/allSongs.songlyrics';
       appLogMessage('InternalSongList: $allSongsAsset');
@@ -366,7 +369,7 @@ class MyHomePageState extends State<MyHomePage> {
 
       try {
         var allPerformances = AllSongPerformances();
-        await allPerformances.updateFromJsonString(dataAsString);
+        allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
         logger.i('internal song performances used');
         setState(() {});
@@ -376,7 +379,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _readExternalSongList() async {
+  Future<void> _readExternalSongList() async {
     var externalHost = host.isEmpty
         ? 'www.bsteele.com' //  likely a native app with web access
         : '$host:${uri.port}'; //  port for potential app server
@@ -388,7 +391,7 @@ class MyHomePageState extends State<MyHomePage> {
         allSongsAsString = await fetchString(url);
       } catch (e) {
         logger.i("read of url: '$url' failed: ${e.toString()}");
-        _readInternalSongList();
+        await _readInternalSongList();
         return;
       }
 
@@ -399,7 +402,7 @@ class MyHomePageState extends State<MyHomePage> {
         //  don't warn on standard behavior:   app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
         logger.i('external songList parse error: $fe');
-        _readInternalSongList();
+        await _readInternalSongList();
       }
     }
     {
@@ -409,7 +412,7 @@ class MyHomePageState extends State<MyHomePage> {
         metadataAsString = await fetchString(url);
       } catch (e) {
         logger.i("read of url: '$url' failed: ${e.toString()}");
-        _readInternalSongList();
+        await _readInternalSongList();
         return;
       }
 
@@ -429,13 +432,13 @@ class MyHomePageState extends State<MyHomePage> {
         dataAsString = await fetchString(url);
       } catch (e) {
         logger.i("read of url: '$url' failed: ${e.toString()}");
-        _readInternalSongList();
+        await _readInternalSongList();
         return;
       }
 
       try {
         var allPerformances = AllSongPerformances();
-        await allPerformances.updateFromJsonString(dataAsString);
+        allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
         logger.i('external song performances read from: $url');
         setState(() {});
@@ -745,7 +748,7 @@ class MyHomePageState extends State<MyHomePage> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
-  void _betaWarningPopup() async {
+  Future<void> _betaWarningPopup() async {
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(

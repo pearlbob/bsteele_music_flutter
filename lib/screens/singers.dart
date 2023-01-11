@@ -721,7 +721,7 @@ class SingersState extends State<Singers> {
                   ]),
                 ]),
               if (!_isInSingingMode)
-              //  singers
+                //  singers
                 AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                   Text(
                     'All Singers:',
@@ -778,6 +778,10 @@ class SingersState extends State<Singers> {
                       hintText: "enter a new singer's name",
                       onSubmitted: (value) {
                         setState(() {
+                          if (singerTextFieldController.text != value) {
+                            //  when programmatically entered
+                            singerTextFieldController.text = value;
+                          }
                           if (singerTextFieldController.text.isNotEmpty) {
                             _setSelectedSinger(Util.firstToUpper(singerTextFieldController.text));
                             singerTextFieldController.text = '';
@@ -1222,7 +1226,7 @@ class SingersState extends State<Singers> {
     if (content.isEmpty) {
       app.infoMessage = 'No singer file read';
     } else {
-      int count = await _allSongPerformances.updateFromJsonString(content);
+      int count = _allSongPerformances.updateFromJsonString(content);
       app.infoMessage = 'Performances updated: $count';
       logger.d('filePickUpdate: $count');
       _allSongPerformances.loadSongs(app.allSongs);

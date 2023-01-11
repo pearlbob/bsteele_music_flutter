@@ -389,7 +389,7 @@ class AppOptions extends ChangeNotifier {
     logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
     logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
     if (jsonString.isNotEmpty) {
-      int count = await allSongPerformances.updateFromJsonString(jsonString);
+      int count = allSongPerformances.updateFromJsonString(jsonString);
       logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');

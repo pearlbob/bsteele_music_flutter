@@ -12,17 +12,9 @@
 
 ### Fix
 
-* In player screen, capo mode can be forgotten inappropriately.
-* Time the player selected measure in auto play mode: adjust timing if required
-* Metadata scroll after metadata change
-* declare the metadata as caseless and allow the software to Capitalize All Fields As Required.
-* insist on <uses-permission android:name="android.permission.INTERNET"/>
-  in android/app/src/main/AndroidManifest.xml
 * player: in pause, reposition play with up/down arrows or scroll,
   continue from new location with space bar hit
 * Back to player from song preview on youtube.com, fullscreen button missing
-* On Raindrops Keep Fallin, I was trying to make the last line of chorus read:
-* Minor bug: I can't change/save the user name without making other changes (that engage the save button).
 * And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
   definable.
 * drums in the background while in "manual play" mode. that is, things as they typically are now with drums playing but
@@ -45,6 +37,7 @@
 * drums on pause then play
 * video alignment with audio current time
 * playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
+* A new singer/requestor without any songs sung or requested should default to a singer
 
 ## Fixes Completed
 
@@ -60,6 +53,9 @@
 * drum: the default volume should be max.
 * grab bar on scroll for song list
 * Drum edit preview, with bpm and volume
+* In player screen, capo mode can be forgotten inappropriately.
+* Metadata list shouldn't scroll after metadata change
+* Metadata fields are caseless. The software will Capitalize All Fields As Required.
 
 ## Release 1.2.1
 
@@ -69,6 +65,8 @@
 
 ### Fix
 
+* Time the player selected measure in autoplay mode: adjust timing if required
+* Minor bug: I can't change/save the username without making other changes (that engage the save button).
 * Improve startup delay.
 
 ## Release  1.3

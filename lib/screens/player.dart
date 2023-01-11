@@ -53,7 +53,7 @@ bool _isCapo = false; //  package level for persistence across player invocation
 int _capoLocation = 0; //  fret number of the cap location
 bool _showCapo = false; //  package level for all classes in the package
 
-final _songMomentNotifier = SongMomentNotifier();
+final _playMomentNotifier = PlayMomentNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
 
 const int _minimumSpaceBarGapMs = 350; //  milliseconds
@@ -156,7 +156,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     setSelectedSongKey(playerSelectedSongKey ?? _song.key);
     playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
     _drumParts = _drumPartsList.songMatch(_song) ?? defaultDrumParts;
-    _songMomentNotifier.songMoment = null;
+    _playMomentNotifier.playMoment = null;
     _lyricSectionNotifier.index = 0;
     sectionSongMoments.clear();
 
@@ -242,7 +242,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           setState(() {
             songPlayMode = _songMaster.songPlayMode;
             //  cancel the cell highlight
-            _songMomentNotifier.songMoment = null;
+            _playMomentNotifier.playMoment = null;
           });
         }
         break;
@@ -251,7 +251,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         if (_songMaster.momentNumber != null) {
           var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
           if (songMoment != null) {
-            if (_songMomentNotifier.songMoment != songMoment) {
+            if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
               setSelectedSongMoment(songMoment);
             }
             scrollToLyricSection(songMoment.lyricSection.index);
@@ -274,7 +274,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     logger.log(
         _logBuild,
-        'player build: $_song, selectedSongMoment: ${_songMomentNotifier.songMoment?.momentNumber}'
+        'player build: $_song, playMomentNumber: ${_playMomentNotifier.playMoment?.playMomentNumber}'
         ', isPlaying: ${songPlayMode.isPlaying}');
 
     //  deal with song updates
@@ -282,7 +282,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       if (!_song.songBaseSameContent(_songUpdate!.song) || displayKeyOffset != app.displayKeyOffset) {
         _song = _songUpdate!.song;
         widget._song = _song;
-        _songMomentNotifier.songMoment = _songUpdate?.songMoment;
+        _playMomentNotifier.playMoment =
+            PlayMoment(_songUpdate?.songMoment?.momentNumber ?? 0, _songUpdate!.songMoment);
         selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
             ??
             _lyricSectionNotifier.index); //  safer to stay on the current index
@@ -295,7 +296,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
         logger.log(
             _logLeaderFollower,
-            'player follower: $_song, selectedSongMoment: ${_songMomentNotifier.songMoment?.momentNumber}'
+            'player follower: $_song, selectedSongMoment: ${_playMomentNotifier.playMoment?.songMoment?.momentNumber}'
             ' songPlayMode: $songPlayMode');
       }
       setSelectedSongKey(_songUpdate!.currentKey);
@@ -478,7 +479,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider.value(value: _songMomentNotifier),
+          ChangeNotifierProvider.value(value: _playMomentNotifier),
           ChangeNotifierProvider.value(value: _lyricSectionNotifier),
         ],
         builder: (context, child) {
@@ -1220,7 +1221,8 @@ With z or q, the app goes back to the play list.''',
     switch (appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
         //  banner units are measure
-        var index = Util.indexLimit((_songMomentNotifier.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
+        var index =
+            Util.indexLimit((_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
         setSelectedSongMoment(_song.songMoments[index]);
         _itemScrollTo(index);
         logger.v('banner bump: $bump to $index: ${_song.songMoments[index]}');
@@ -1430,7 +1432,7 @@ With z or q, the app goes back to the play list.''',
   void simpleStop() {
     songPlayMode = SongPlayMode.idle;
     _songMaster.stop();
-    _songMomentNotifier.songMoment = null;
+    _playMomentNotifier.playMoment = null;
     logger.log(_logMode, 'simpleStop()');
     logger.log(_logScroll, 'simpleStop():');
   }
@@ -1575,14 +1577,14 @@ With z or q, the app goes back to the play list.''',
     logger.log(
         _logScroll,
         'setSelectedSongMoment(): ${songMoment?.momentNumber}'
-        ', _songPlayerChangeNotifier.songMoment: ${_songMomentNotifier.songMoment?.momentNumber}');
+        ', _songPlayerChangeNotifier.songMoment: ${_playMomentNotifier.playMoment?.songMoment?.momentNumber}');
 
-    if (_songMomentNotifier.songMoment != songMoment) {
-      _songMomentNotifier.songMoment = songMoment;
+    if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
+      _playMomentNotifier.playMoment = PlayMoment(songMoment?.momentNumber ?? 0, songMoment);
       scrollToLyricSection(songMoment?.lyricSection.index ?? 0);
 
       if (songUpdateService.isLeader) {
-        leaderSongUpdate(_songMomentNotifier.songMoment?.momentNumber ?? 0); //  fixme
+        leaderSongUpdate(_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0); //  fixme
       }
     }
   }

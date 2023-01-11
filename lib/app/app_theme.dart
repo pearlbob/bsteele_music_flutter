@@ -431,7 +431,7 @@ Map<Type, TypeParser> _appKeyParsers = {
 
 void _appKeyRegisterVoidCallback(AppKey key, {VoidCallback? voidCallback}) {
   if (!kDebugMode) //fixme: temp
-      {
+  {
     return;
   }
   if (voidCallback != null) {
@@ -646,7 +646,7 @@ Icon appIcon(IconData icon, {Key? key, Color? color, double? size}) {
       key: key,
       color: color ?? App.iconColor,
       size: size ?? app.screenInfo.fontSize //  let the algorithm figure the size dynamically
-  );
+      );
 }
 
 class AppTheme {
@@ -700,6 +700,10 @@ List<String> _appLog = [];
 
 List<String> get appLog => _appLog;
 
+appLogTextFieldEntry(AppKeyEnum appKeyEnum, String text) {
+  _appLog.add('${appKeyEnum.name}.$text');
+}
+
 //  log in invocation of the callback being done
 void _appLogCallback(AppKey key) {
   logger.log(_logCallbacks, '_appLogCallback: $key');
@@ -715,7 +719,8 @@ void appLogMessage(String message) {
   _appLog.add('// $t +$duration: $message');
 }
 
-ElevatedButton appButton(String commandName, {
+ElevatedButton appButton(
+  String commandName, {
   required AppKeyEnum appKeyEnum,
   required final VoidCallback? onPressed,
   final Color? backgroundColor,
@@ -726,9 +731,9 @@ ElevatedButton appButton(String commandName, {
   var voidCallback = onPressed == null
       ? null //  show as disabled   //  fixme: does this work?
       : () {
-    _appLogCallback(key); //  log the click
-    onPressed.call();
-  };
+          _appLogCallback(key); //  log the click
+          onPressed.call();
+        };
   _appKeyRegisterVoidCallback(key, voidCallback: voidCallback);
 
   return ElevatedButton(
@@ -736,14 +741,15 @@ ElevatedButton appButton(String commandName, {
     clipBehavior: Clip.hardEdge,
     onPressed: voidCallback,
     style:
-    app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+        app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
     child: Text(commandName,
         style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: backgroundColor)),
   );
 }
 
 //  insist on an Id
-TextButton appIdButton(String text, {
+TextButton appIdButton(
+  String text, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
   TextStyle? style,
@@ -758,7 +764,8 @@ TextButton appIdButton(String text, {
   );
 }
 
-TextButton appTextButton(String text, {
+TextButton appTextButton(
+  String text, {
   required AppKeyEnum appKeyEnum,
   required VoidCallback? onPressed,
   TextStyle? style,
@@ -826,14 +833,15 @@ TextButton appIconWithLabelButton({
   );
 }
 
-ElevatedButton appNoteButton(String character, // a note character is expected
-        {
-      required AppKeyEnum appKeyEnum,
-      required VoidCallback? onPressed,
-      Color? backgroundColor,
-      double? fontSize,
-      double? height,
-      dynamic value,
+ElevatedButton appNoteButton(
+  String character, // a note character is expected
+  {
+  required AppKeyEnum appKeyEnum,
+  required VoidCallback? onPressed,
+  Color? backgroundColor,
+  double? fontSize,
+  double? height,
+  dynamic value,
 }) {
   fontSize ??= app.screenInfo.fontSize;
   var key = appKeyCreate(appKeyEnum, value: value);
@@ -846,9 +854,9 @@ ElevatedButton appNoteButton(String character, // a note character is expected
     onPressed: onPressed == null
         ? null //  show as disabled
         : () {
-      _appLogCallback(key); //  log the click
-      onPressed();
-    },
+            _appLogCallback(key); //  log the click
+            onPressed();
+          },
     child: Baseline(
       baselineType: TextBaseline.alphabetic,
       baseline: fontSize,
@@ -891,12 +899,13 @@ class AppInkWell extends StatelessWidget {
   final dynamic value;
 }
 
-DropdownButton<T> appDropdownButton<T>(AppKeyEnum appKeyEnum,
-    List<DropdownMenuItem<T>> items, {
-      T? value,
-      ValueChanged<T?>? onChanged,
-      Widget? hint,
-      TextStyle? style,
+DropdownButton<T> appDropdownButton<T>(
+  AppKeyEnum appKeyEnum,
+  List<DropdownMenuItem<T>> items, {
+  T? value,
+  ValueChanged<T?>? onChanged,
+  Widget? hint,
+  TextStyle? style,
 }) {
   AppKey key = appKeyCreate(appKeyEnum, value: value);
   _appKeyRegisterCallback(key, callback: onChanged);
@@ -1050,8 +1059,14 @@ class AppTextField extends StatelessWidget {
         focusNode: focusNode,
         enabled: enabled,
         keyboardType: (minLines ?? 0) > 1 ? TextInputType.multiline : TextInputType.text,
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
+        onChanged: (String value) {
+          appLogTextFieldEntry(appKeyEnum, value);
+          onChanged?.call(value);
+        },
+        onSubmitted: (String value) {
+          appLogTextFieldEntry(appKeyEnum, value);
+          onSubmitted?.call(value);
+        },
         decoration: InputDecoration(
           border: border,
           // floatingLabelAlignment: FloatingLabelAlignment.start,
@@ -1163,7 +1178,7 @@ TextStyle generateAppTextFieldStyle({
       textBaseline: textBaseline,
       decoration: decoration,
       nullBackground: true //  force a null background for mouse text selection
-  );
+      );
 }
 
 TextStyle generateAppBarLinkTextStyle() {
@@ -1192,7 +1207,8 @@ TextStyle generateTooltipTextStyle({double? fontSize}) {
   );
 }
 
-TextStyle generateChordTextStyle({String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
+TextStyle generateChordTextStyle(
+    {String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
   return generateAppTextStyle(
     color: App.chordNoteColor,
     backgroundColor: backgroundColor ?? App.chordNoteBackgroundColor,

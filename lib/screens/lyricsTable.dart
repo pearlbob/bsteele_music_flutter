@@ -44,8 +44,7 @@ a thousand miles
 babylon: long lyrics
 dear mr. fantasy:  repeats at end of row don't align with each other
 get it right next time:  repeats in measure column
-
- */
+*/
 
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
@@ -82,17 +81,36 @@ Size _computeRichTextSize(
   return textPainter.size;
 }
 
-class SongMomentNotifier extends ChangeNotifier {
-  set songMoment(final SongMoment? songMoment) {
-    logger.v('songMoment: $_songMoment');
-    if (songMoment != _songMoment) {
-      _songMoment = songMoment;
+/// Class to hold a song moment and indicate play in the count in, prior to the first song moment.
+class PlayMoment {
+  const PlayMoment(this.playMomentNumber, this.songMoment);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlayMoment &&
+          runtimeType == other.runtimeType &&
+          playMomentNumber == other.playMomentNumber &&
+          songMoment == other.songMoment;
+
+  @override
+  int get hashCode => playMomentNumber.hashCode ^ songMoment.hashCode;
+
+  final int playMomentNumber;
+  final SongMoment? songMoment;
+}
+
+class PlayMomentNotifier extends ChangeNotifier {
+  set playMoment(final PlayMoment? newPlayMoment) {
+    logger.d('playMoment: $_playMoment');
+    if (newPlayMoment != _playMoment) {
+      _playMoment = newPlayMoment;
       notifyListeners();
     }
   }
 
-  SongMoment? get songMoment => _songMoment;
-  SongMoment? _songMoment;
+  PlayMoment? get playMoment => _playMoment;
+  PlayMoment? _playMoment;
 }
 
 class LyricSectionNotifier extends ChangeNotifier {
@@ -1463,9 +1481,10 @@ class SongCellWidget extends StatefulWidget {
 class _SongCellState extends State<SongCellWidget> {
   @override
   Widget build(BuildContext context) {
-    return Consumer2<SongMomentNotifier, LyricSectionNotifier>(
-      builder: (context, songMomentNotifier, lyricSectionNotifier, child) {
-        var moment = songMomentNotifier.songMoment;
+    return Consumer2<PlayMomentNotifier, LyricSectionNotifier>(
+      builder: (context, playMomentNotifier, lyricSectionNotifier, child) {
+        var moment = playMomentNotifier.playMoment?.songMoment;
+        var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
         var isNowSelected = false;
 
         if (widget.selectable ?? true) {
@@ -1492,7 +1511,7 @@ class _SongCellState extends State<SongCellWidget> {
               break;
             default:
               isNowSelected = moment != null &&
-                  (moment.momentNumber == widget.songMoment?.momentNumber ||
+                  (playMomentNumber == widget.songMoment?.momentNumber ||
                       (
                           //  deal with compressed repeats
                           !(widget.expanded ?? true) &&
@@ -1501,10 +1520,19 @@ class _SongCellState extends State<SongCellWidget> {
                               moment.phrase.repeats > 1 &&
                               widget.songMoment?.measureIndex != null &&
                               (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+              logger.log(
+                  _logLyricSectionCellState,
+                  '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
+                  ', ${widget.measureNode}'
+                  ', moment: ${widget.songMoment?.momentNumber}'
+                  ', playMomentNumber: $playMomentNumber'
+                  //
+                  );
+              break;
           }
         }
 
-        // for efficiency
+        // for efficiency, use the existing child
         if (isNowSelected == selected && child != null) {
           return child;
         }
@@ -1519,7 +1547,7 @@ class _SongCellState extends State<SongCellWidget> {
     if (selected) {
       logger.log(
           _logChildBuilder,
-          '_SongCellState: ${widget.songMoment?.momentNumber}'
+          '_SongCellState.childBuilder: ${widget.songMoment?.momentNumber}'
           ': ${widget.richText.text.toPlainText()}'
           ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
           ', songTime: ${SongMaster().songTime}');

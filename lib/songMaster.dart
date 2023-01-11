@@ -13,11 +13,11 @@ import 'package:logger/logger.dart';
 import 'app/appOptions.dart';
 import 'audio/app_audio_player.dart';
 
-const Level _songMasterLogTicker = kDebugMode ? Level.info : Level.debug;
+const Level _songMasterLogTicker = Level.debug; //kDebugMode ? Level.info : Level.debug;
 const Level _songMasterLogTickerDetails = Level.debug;
 const Level _songMasterLogDelta = Level.debug;
 const Level _songMasterLogMaxDelta = Level.debug;
-const Level _songMasterNotify = Level.info;
+const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
 const Level _logDrums = Level.debug;
 

@@ -12,6 +12,8 @@
 
 ### Fix
 
+* count-in drums and indicator on autoplay
+* make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
 * player: in pause, reposition play with up/down arrows or scroll,
   continue from new location with space bar hit
 * Back to player from song preview on youtube.com, fullscreen button missing
@@ -41,6 +43,7 @@
 
 ## Fixes Completed
 
+* verify/fix auto playback timing and jitter
 * Improved startup delay based on history. More is required.
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * drums on 2/4, 3/4, 6/8
@@ -74,7 +77,6 @@
 ### Features
 
 * bsteeleBox recording
-* verify/fix auto playback timing and jitter
 * drums completion push!  shaker, rimshot
 * banner display mode (lyric to measure mapping)
 * named & stored drum accompaniments (basic), drums to json, standard drum list

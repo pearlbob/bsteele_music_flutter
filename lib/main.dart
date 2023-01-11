@@ -133,7 +133,7 @@ in bsteele_music_flutter/android/app/src/main/AndroidManifest.xml:
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(
-const Level _logBuild = Level.debug;
+const Level _logBuild = Level.info;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
@@ -316,10 +316,15 @@ class MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _readSongList();
+    _awaitReadSongList();
   }
 
-  void _readSongList() async {
+  void _awaitReadSongList() async {
+    await _readSongList();
+    setState(() {});
+  }
+
+  Future<void> _readSongList() async {
     //  normally read external (web) songlist and setup the websocket
     if (_environment == _environmentDefault) {
       SongUpdateService.open(context);
@@ -347,7 +352,6 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(songListAsString));
-        setState(() {});
         app.warningMessage = 'internal songList used, dated: ${await app.releaseUtcDate()}';
       } catch (fe) {
         logger.i('internal songList parse error: $fe');
@@ -359,7 +363,6 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         SongMetadata.fromJson(songMetadataAsString);
         logger.i('internal song metadata used');
-        setState(() {});
       } catch (fe) {
         logger.i('internal song metadata parse error: $fe');
       }
@@ -372,7 +375,6 @@ class MyHomePageState extends State<MyHomePage> {
         allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
         logger.i('internal song performances used');
-        setState(() {});
       } catch (fe) {
         logger.i('internal song performance parse error: $fe');
       }
@@ -398,7 +400,6 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         app.removeAllSongs();
         app.addSongs(Song.songListFromJson(allSongsAsString));
-        setState(() {});
         //  don't warn on standard behavior:   app.warningMessage = 'SongList read from: $url';
       } catch (fe) {
         logger.i('external songList parse error: $fe');
@@ -419,7 +420,6 @@ class MyHomePageState extends State<MyHomePage> {
       try {
         SongMetadata.fromJson(metadataAsString);
         logger.i('external song metadata read from: $url');
-        setState(() {});
       } catch (fe) {
         logger.i('external song metadata parse error: $fe');
       }
@@ -441,7 +441,6 @@ class MyHomePageState extends State<MyHomePage> {
         allPerformances.updateFromJsonString(dataAsString);
         allPerformances.loadSongs(app.allSongs);
         logger.i('external song performances read from: $url');
-        setState(() {});
       } catch (fe) {
         logger.i('external song performance parse error: $fe');
       }

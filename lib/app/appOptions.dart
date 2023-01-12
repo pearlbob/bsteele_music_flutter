@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/song_performance.dart';
@@ -474,8 +473,6 @@ class AppOptions extends ChangeNotifier {
   List<String> _sessionSingers = [];
 
   AllSongPerformances allSongPerformances = AllSongPerformances();
-
-  static const String unknownUser = Song.unknownUser;
 
   /// The user's application name.
   String get user => _user;

@@ -445,8 +445,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     var appBarTextStyle = generateAppBarLinkTextStyle();
 
     if (appOptions.ninJam) {
-      _ninJam =
-          NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.getKey().getHalfStep());
+      _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
@@ -932,7 +931,7 @@ With z or q, the app goes back to the play list.''',
                                           songUpdateService.isConnected
                                               ? (songUpdateService.isLeader
                                                   ? 'leading ${songUpdateService.host}'
-                                                  : (songUpdateService.leaderName == AppOptions.unknownUser
+                                                  : (songUpdateService.leaderName == Song.defaultUser
                                                       ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
                                                       : 'following ${songUpdateService.leaderName}'))
                                               : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),

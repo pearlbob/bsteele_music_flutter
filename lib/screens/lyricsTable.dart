@@ -152,7 +152,7 @@ class LyricsTable {
     //  compute transposition offset from base key
 
     displayMusicKey = musicKey ?? song.key;
-    int transpositionOffset = displayMusicKey.getHalfStep() - song.getKey().getHalfStep();
+    int transpositionOffset = displayMusicKey.getHalfStep() - song.key.getHalfStep();
 
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.proPlayer:

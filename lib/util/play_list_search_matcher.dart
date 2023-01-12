@@ -66,8 +66,8 @@ class SongPlayListSearchMatcher extends PlayListSearchMatcher {
 
   bool _matchesSong(Song song, {year = false}) {
     return isNotEmpty &&
-        (_searchRegex!.hasMatch(song.getTitle()) ||
-            _searchRegex!.hasMatch(song.getArtist()) ||
+        (_searchRegex!.hasMatch(song.title) ||
+            _searchRegex!.hasMatch(song.artist) ||
             (song.coverArtist.isNotEmpty && _searchRegex!.hasMatch(song.coverArtist)) ||
             (year && _searchRegex!.hasMatch(song.getCopyrightYear().toString())) ||
             _searchRegex!.hasMatch(song.songId.toUnderScorelessString()) //  removes contractions

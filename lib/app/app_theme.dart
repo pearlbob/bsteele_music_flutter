@@ -176,6 +176,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   mainSong(Id),
   mainSortType(PlayListSortType),
   mainSortTypeSelection(PlayListSortType),
+  mainTest(Null),
   mainUp(Null),
   metadataCancelTheReturn(Null),
   metadataDiscardAllChanges(Null),
@@ -579,7 +580,7 @@ void testAppKeyCallbacks() async {
     int count = 0;
     for (var song in app.allSongs) {
       logger.i('test: $song');
-      if (++count > 5) {
+      if (++count > 3) {
         break;
       }
       await _testSearchFor(song, delay: delay);

@@ -700,13 +700,14 @@ class MyHomePageState extends State<MyHomePage> {
       /// Navigate to song player when song tapped.
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         if (kDebugMode)
-          TextButton(
-              onPressed: () {
-                testAppKeyCallbacks();
-              },
-              child: Text(
-                'test',
-                style: _titleTextStyle,
+          Container(
+              padding: const EdgeInsets.all(6.0),
+              child: appButton(
+                'Test',
+                appKeyEnum: AppKeyEnum.mainTest,
+                onPressed: () {
+                  testAppKeyCallbacks();
+                },
               )),
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
@@ -791,7 +792,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   _navigateToPlayerBySongItem(BuildContext context, PlayListItem playListItem) async {
     if (playListItem is SongPlayListItem) {
-      if (playListItem.song.getTitle().isEmpty) {
+      if (playListItem.song.title.isEmpty) {
         // logger.log(_mainLogScroll, 'song title is empty: $song');
         return;
       }

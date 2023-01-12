@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_update.dart';
 import 'package:bsteeleMusicLib/util/uri_helper.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -258,9 +259,8 @@ class SongUpdateService extends ChangeNotifier {
 
   SongUpdate? _songUpdate;
 
-  String get leaderName => (_isLeader
-      ? _appOptions.user
-      : (_songUpdate != null ? _songUpdate!.user : AppOptions.unknownUser));
+  String get leaderName =>
+      (_isLeader ? _appOptions.user : (_songUpdate != null ? _songUpdate!.user : Song.defaultUser));
   WebSocketChannel? _webSocketChannel;
 
   String get ipAddress => _ipAddress;

@@ -24,8 +24,10 @@ import 'app_theme.dart';
 final App app = App();
 final AppOptions _appOptions = AppOptions();
 
-String userName =
-    Platform.environment['USER'] ?? Platform.environment['USERNAME'] ?? Platform.environment['LOGNAME'] ?? 'my';
+String userName = Platform.environment['USER'] ??
+    Platform.environment['USERNAME'] ??
+    Platform.environment['LOGNAME'] ??
+    Song.defaultUser;
 
 //  intentionally global to share with singer screen    fixme?
 music_key.Key? playerSelectedSongKey;

@@ -182,12 +182,7 @@ class EditState extends State<Edit> {
     userTextEditingController.addListener(() {
       appTextFieldListener(AppKeyEnum.editUserName, userTextEditingController);
       song.user = userTextEditingController.text;
-      if (userTextEditingController.text.isNotEmpty) {
-        appOptions.user = userTextEditingController.text;
-      }
-      song.user = userTextEditingController.text;
       checkSongChangeStatus();
-      // user  will often be different  _checkSongStatus();
     });
 
     bpmTextEditingController.addListener(() {
@@ -241,7 +236,8 @@ class EditState extends State<Edit> {
     artistTextEditingController.text = song.artist;
     coverArtistTextEditingController.text = song.coverArtist;
     copyrightTextEditingController.text = song.copyright;
-    userTextEditingController.text = appOptions.user;
+    userTextEditingController.text =
+        songToLoad.user.isEmpty || songToLoad.user == Song.defaultUser ? appOptions.user : songToLoad.user;
     bpmTextEditingController.text = song.beatsPerMinute.toString();
 
     lyricsEntries.removeListener(lyricsEntriesListener);
@@ -800,7 +796,7 @@ class EditState extends State<Edit> {
                           child: AppTextField(
                             appKeyEnum: AppKeyEnum.editUserName,
                             controller: userTextEditingController,
-                            hintText: 'Enter your user name.',
+                            hintText: 'Enter the user name.',
                             fontSize: _defaultChordFontSize,
                             onChanged: (value) {}, //  fixme: ignored
                           ),
@@ -1176,7 +1172,7 @@ class EditState extends State<Edit> {
   bool validateSongChords({select = false}) {
     if (isProEditInput) {
       var markedString =
-          SongBase.validateChords(SongBase.entryToUppercase(proChordTextEditingController.text), song.getBeatsPerBar());
+          SongBase.validateChords(SongBase.entryToUppercase(proChordTextEditingController.text), song.beatsPerBar);
 
       if (markedString != null) {
         var error = markedString.remainingStringLimited(markedString.getNextWhiteSpaceIndex() - markedString.getMark());
@@ -1194,7 +1190,7 @@ class EditState extends State<Edit> {
 
       //  things look good, so format the song
       if (select) {
-        song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
+        song.chords = SongBase.entryToUppercase(proChordTextEditingController.text);
         checkSong();
         proChordTextEditingController.text = song.toMarkup(asEntry: true);
       }
@@ -3608,7 +3604,7 @@ class EditState extends State<Edit> {
 
       if (isValidSong) {
         if (isProEditInput) {
-          song.setChords(SongBase.entryToUppercase(proChordTextEditingController.text));
+          song.chords = SongBase.entryToUppercase(proChordTextEditingController.text);
           song.rawLyrics = proLyricsTextEditingController.text;
         }
         song.checkSong(); //  throws exception on entry error

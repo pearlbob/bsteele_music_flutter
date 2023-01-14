@@ -17,7 +17,7 @@ import 'package:bsteeleMusicLib/songs/section_version.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_moment.dart';
-import 'package:bsteeleMusicLib/util/usTimer.dart';
+import 'package:bsteeleMusicLib/util/us_timer.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';

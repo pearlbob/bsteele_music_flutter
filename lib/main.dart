@@ -74,7 +74,7 @@ import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/song_performance.dart';
-import 'package:bsteeleMusicLib/util/usTimer.dart';
+import 'package:bsteeleMusicLib/util/us_timer.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
@@ -346,6 +346,10 @@ class MyHomePageState extends State<MyHomePage> {
 
   Future<void> _readInternalSongList() async {
     {
+      setState(() {
+        app.infoMessage = 'Loading internal song list';
+      });
+
       var allSongsAsset = 'lib/assets/allSongs.songlyrics';
       appLogMessage('InternalSongList: $allSongsAsset');
       String songListAsString = await loadAssetString(allSongsAsset);
@@ -388,6 +392,9 @@ class MyHomePageState extends State<MyHomePage> {
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songlyrics';
       appLogMessage('ExternalSongList: $url');
+      setState(() {
+        app.infoMessage = 'Loading song list from cloud';
+      });
       String allSongsAsString;
       try {
         allSongsAsString = await fetchString(url);
@@ -409,6 +416,9 @@ class MyHomePageState extends State<MyHomePage> {
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songmetadata';
       String metadataAsString;
+      setState(() {
+        app.infoMessage = 'Loading metadata';
+      });
       try {
         metadataAsString = await fetchString(url);
       } catch (e) {
@@ -427,24 +437,33 @@ class MyHomePageState extends State<MyHomePage> {
 
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongPerformances.songperformances';
+      setState(() {
+        app.infoMessage = 'Loading history';
+      });
+
       String dataAsString;
       try {
         dataAsString = await fetchString(url);
       } catch (e) {
-        logger.i("read of url: '$url' failed: ${e.toString()}");
+        app.warningMessage = 'read of url: "$url" failed: ${e.toString()}';
         await _readInternalSongList();
         return;
       }
 
       try {
+        var usTimer = UsTimer();
         var allPerformances = AllSongPerformances();
         allPerformances.updateFromJsonString(dataAsString);
+        logger.i('perf history: ${usTimer.seconds} s');
         allPerformances.loadSongs(app.allSongs);
+        logger.i('load songs: ${usTimer.seconds} s');
         logger.i('external song performances read from: $url');
       } catch (fe) {
+        app.warningMessage = 'Loading of history failed.';
         logger.i('external song performance parse error: $fe');
       }
     }
+    app.clearMessage();
   }
 
   @override

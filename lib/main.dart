@@ -142,11 +142,10 @@ const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 late PackageInfo packageInfo;
+var _mainUsTimer = UsTimer();
 
 void main() async {
   Logger.level = Level.info;
-
-  var usTimer = UsTimer();
 
   //logger.i('Uri: ${Uri.base}, path: "${Uri.base.path}", fragment: "${Uri.base.fragment}"');
   logger.i('uri: "$uri", path: "${uri.path}", fragment: "${uri.fragment}"');
@@ -181,7 +180,7 @@ void main() async {
   await AppTheme().init(); //  init the singleton
   packageInfo = await PackageInfo.fromPlatform();
 
-  appLogMessage('main pre-run startup: ${usTimer.seconds} s');
+  appLogMessage('main pre-run startup: ${_mainUsTimer.seconds} s');
 
   //  run the app
   runApp(
@@ -334,6 +333,7 @@ class MyHomePageState extends State<MyHomePage> {
       await _readInternalSongList();
     }
 
+    appLogMessage('main pre-run end: ${_mainUsTimer.seconds} s');
     //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
 
     //  give the beta warning
@@ -392,9 +392,9 @@ class MyHomePageState extends State<MyHomePage> {
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songlyrics';
       appLogMessage('ExternalSongList: $url');
-      setState(() {
-        app.infoMessage = 'Loading song list from cloud';
-      });
+      // setState(() {
+      //   app.infoMessage = 'Loading song list from cloud';
+      // });
       String allSongsAsString;
       try {
         allSongsAsString = await fetchString(url);
@@ -403,6 +403,7 @@ class MyHomePageState extends State<MyHomePage> {
         await _readInternalSongList();
         return;
       }
+      appLogMessage('ExternalSongList: read');
 
       try {
         app.removeAllSongs();
@@ -413,12 +414,14 @@ class MyHomePageState extends State<MyHomePage> {
         await _readInternalSongList();
       }
     }
+    appLogMessage('ExternalSongList: processed');
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songmetadata';
+      appLogMessage('metadata: $url');
       String metadataAsString;
-      setState(() {
-        app.infoMessage = 'Loading metadata';
-      });
+      // setState(() {
+      //   app.infoMessage = 'Loading metadata';
+      // });
       try {
         metadataAsString = await fetchString(url);
       } catch (e) {
@@ -426,9 +429,11 @@ class MyHomePageState extends State<MyHomePage> {
         await _readInternalSongList();
         return;
       }
+      appLogMessage('metadata: read');
 
       try {
         SongMetadata.fromJson(metadataAsString);
+        appLogMessage('metadata: processed');
         logger.i('external song metadata read from: $url');
       } catch (fe) {
         logger.i('external song metadata parse error: $fe');
@@ -437,13 +442,15 @@ class MyHomePageState extends State<MyHomePage> {
 
     {
       final String url = 'http://$externalHost/bsteeleMusicApp/allSongPerformances.songperformances';
-      setState(() {
-        app.infoMessage = 'Loading history';
-      });
+      // setState(() {
+      //   app.infoMessage = 'Loading history';
+      // });
 
+      appLogMessage('performance history: $url');
       String dataAsString;
       try {
         dataAsString = await fetchString(url);
+        appLogMessage('performance history: read');
       } catch (e) {
         app.warningMessage = 'read of url: "$url" failed: ${e.toString()}';
         await _readInternalSongList();
@@ -451,13 +458,19 @@ class MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        var usTimer = UsTimer();
+        appLogMessage('readExternalSongList()');
         var allPerformances = AllSongPerformances();
         allPerformances.updateFromJsonString(dataAsString);
-        logger.i('perf history: ${usTimer.seconds} s');
-        allPerformances.loadSongs(app.allSongs);
-        logger.i('load songs: ${usTimer.seconds} s');
+        appLogMessage('performance history: processed');
+        var allSongs = app.allSongs;
+        appLogMessage('allSongs: ${allSongs.length}');
+        var corrections = allPerformances.loadSongs(allSongs);
+        appLogMessage('loaded songs: corrections: $corrections');
         logger.i('external song performances read from: $url');
+
+        //  it's very important to store corrected performances/history/requests locally
+        //  so they are not corrected at every reload
+        AppOptions().storeAllSongPerformances();
       } catch (fe) {
         app.warningMessage = 'Loading of history failed.';
         logger.i('external song performance parse error: $fe');

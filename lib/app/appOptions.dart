@@ -378,7 +378,7 @@ class AppOptions extends ChangeNotifier {
   }
 
   void storeAllSongPerformances() {
-    String storage = allSongPerformances.toJsonString();
+    String storage = _allSongPerformances.toJsonString();
     _saveString(StorageValue.allSongPerformances.name, storage);
     _lastAllSongPerformancesStoreMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
   }
@@ -388,7 +388,7 @@ class AppOptions extends ChangeNotifier {
     logger.i('_updateAllSongPerformances() length: ${jsonString.length}');
     logger.d('_updateAllSongPerformances(): ${StorageValue.allSongPerformances.name}: $jsonString');
     if (jsonString.isNotEmpty) {
-      int count = allSongPerformances.updateFromJsonString(jsonString);
+      int count = _allSongPerformances.updateFromJsonString(jsonString);
       logger.i('_updateAllSongPerformances() update count: $count');
     }
     logger.d('_readSongMetadata(): SongMetadata: ${SongMetadata.idMetadata}');
@@ -472,7 +472,7 @@ class AppOptions extends ChangeNotifier {
   HashSet<SheetDisplay> _sheetDisplays = HashSet();
   List<String> _sessionSingers = [];
 
-  AllSongPerformances allSongPerformances = AllSongPerformances();
+  AllSongPerformances _allSongPerformances = AllSongPerformances();
 
   /// The user's application name.
   String get user => _user;

@@ -717,7 +717,9 @@ void appLogMessage(String message) {
   var t = DateTime.now();
   var duration = Duration(microseconds: t.microsecondsSinceEpoch - _lastMessageEpochUs);
   _lastMessageEpochUs = t.microsecondsSinceEpoch;
-  _appLog.add('// $t +$duration: $message');
+  var m = '// $t +$duration: $message';
+  _appLog.add(m);
+  logger.i(m);
 }
 
 ElevatedButton appButton(

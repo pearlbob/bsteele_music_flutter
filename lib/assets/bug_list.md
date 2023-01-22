@@ -65,6 +65,7 @@
 ### Features
 
 * history from tomcat server log
+* history statistics:  songs sung by singer, cj top 40
 
 ### Fix
 

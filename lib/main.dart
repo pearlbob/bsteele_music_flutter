@@ -521,7 +521,7 @@ class MyHomePageState extends State<MyHomePage> {
     final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       key: _scaffoldKey,
       appBar: AppWidgetHelper(context).appBar(
         title: widget.title,

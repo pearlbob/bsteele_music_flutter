@@ -47,7 +47,7 @@ class TheoryState extends State<TheoryWidget> {
       scaleNoteValues = scaleNoteSet.toList(growable: false);
     }
 
-    var backgroundColor = Theme.of(context).backgroundColor;
+    var backgroundColor = Theme.of(context).colorScheme.background;
 
     return Scaffold(
       backgroundColor: backgroundColor,

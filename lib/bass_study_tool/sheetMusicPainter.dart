@@ -84,7 +84,8 @@ class SheetMusicPainter extends CustomPainter {
     _computeTheYOffsets();
 
     //  clear the plot
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = app.themeData.backgroundColor);
+    canvas.drawRect(
+        Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = app.themeData.colorScheme.background);
 
     _reset();
     _xSpaceAll(10);

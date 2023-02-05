@@ -472,7 +472,7 @@ class AppOptions extends ChangeNotifier {
   HashSet<SheetDisplay> _sheetDisplays = HashSet();
   List<String> _sessionSingers = [];
 
-  AllSongPerformances _allSongPerformances = AllSongPerformances();
+  final AllSongPerformances _allSongPerformances = AllSongPerformances();
 
   /// The user's application name.
   String get user => _user;

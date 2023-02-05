@@ -249,12 +249,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       case SongPlayMode.manualPlay:
       case SongPlayMode.autoPlay:
         if (_songMaster.momentNumber != null) {
-          var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
-          if (songMoment != null) {
-            if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
-              setSelectedSongMoment(songMoment);
+          if (_songMaster.momentNumber! >= 0) {
+            var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
+            if (songMoment != null) {
+              if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
+                setSelectedSongMoment(songMoment);
+              }
+              scrollToLyricSection(songMoment.lyricSection.index);
             }
-            scrollToLyricSection(songMoment.lyricSection.index);
+          } else {
+            setSelectedSongMoment(null);
           }
         }
         break;
@@ -488,7 +492,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             child: Stack(
               children: [
                 Scaffold(
-                  backgroundColor: theme.backgroundColor,
+                  backgroundColor: theme.colorScheme.background,
                   appBar: appWidgetHelper.backBar(
                       titleWidget: Row(
                         children: [
@@ -506,7 +510,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 },
                                 hoverColor: hoverColor,
                                 child: Text(
-                                  _song.titleWithCover,
+                                  _song.toString(),
                                   style: appBarTextStyle,
                                 ),
                               ),
@@ -561,7 +565,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: <Color>[
-                                theme.backgroundColor,
+                                theme.colorScheme.background,
                                 App.measureContainerBackgroundColor,
                                 App.measureContainerBackgroundColor,
                                 App.measureContainerBackgroundColor,
@@ -2279,6 +2283,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                       horizontalSpace: 60,
                     ),
                     Text(
+                      'here: '
                       'Key $_selectedSongKey'
                       '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
                       '    Beats: ${_song.timeSignature.beatsPerBar}'

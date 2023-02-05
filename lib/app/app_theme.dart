@@ -446,7 +446,7 @@ void _appKeyRegisterVoidCallback(AppKey key, {VoidCallback? voidCallback}) {
 
 void _appKeyRegisterCallback<T>(AppKey key, {ValueChanged<T>? callback}) {
   if (!kDebugMode) //fixme: temp
-      {
+  {
     return;
   }
   if (callback != null) {
@@ -687,11 +687,11 @@ class AppTheme {
       color = App.universalBackgroundColor;
 
       app.themeData = app.themeData.copyWith(
-        backgroundColor: color,
         primaryColor: color,
         disabledColor: Colors.grey.shade300,
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: materialColor, accentColor: App.universalAccentColor),
+        colorScheme: ColorScheme.fromSwatch(
+            backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
       );
     }
   }
@@ -1251,7 +1251,7 @@ TextStyle evenTitleTextStyle({TextStyle? from}) {
 
 ThemeData generateDocsThemeData() {
   return ThemeData(
-    textTheme: const TextTheme(bodyText2: TextStyle(fontSize: 24.0)),
+    textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 24.0)),
   );
 }
 

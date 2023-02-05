@@ -121,7 +121,7 @@ class MetadataScreenState extends State<MetadataScreen> {
           ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
         ],
         child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor: Theme.of(context).colorScheme.background,
           appBar: appWidgetHelper.appBar(
             title: 'bsteeleMusicApp Song Metadata',
             leading: appWidgetHelper.back(

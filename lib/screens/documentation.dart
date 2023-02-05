@@ -39,7 +39,7 @@ class DocumentationState extends State<Documentation> {
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Documentation'),
       body: SingleChildScrollView(
         child: Column(

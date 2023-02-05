@@ -77,7 +77,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
         _drums = null;
       }
       return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: appWidgetHelper.backBar(
             title: 'Drums',
             onPressed: () {
@@ -87,8 +87,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
           style: style,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (app.message.isNotEmpty)
                 AppWrapFullWidth(alignment: WrapAlignment.start, children: [
                   Text(

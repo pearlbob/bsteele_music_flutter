@@ -474,7 +474,7 @@ class EditState extends State<Edit> {
     var theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appWidgetHelper.appBar(
         appKeyEnum: AppKeyEnum.appBarBack,
         title: 'Edit: ${song.title}',
@@ -875,7 +875,7 @@ class EditState extends State<Edit> {
                       alignment: Alignment.topLeft,
                       width: double.infinity,
                       padding: const EdgeInsets.all(16.0),
-                      color: theme.backgroundColor,
+                      color: theme.colorScheme.background,
                       child: //  pre-configured table of edit widgets
                           displayChordTable,
                     ),
@@ -884,7 +884,7 @@ class EditState extends State<Edit> {
                     Container(
                         alignment: Alignment.topLeft,
                         padding: const EdgeInsets.all(16.0),
-                        color: theme.backgroundColor,
+                        color: theme.colorScheme.background,
                         child: AppTextField(
                             appKeyEnum: AppKeyEnum.editProChords,
                             controller: proChordTextEditingController,
@@ -1102,13 +1102,13 @@ class EditState extends State<Edit> {
                     Container(
                         alignment: Alignment.topLeft,
                         padding: const EdgeInsets.all(16.0),
-                        color: theme.backgroundColor,
+                        color: theme.colorScheme.background,
                         child: lyricsEntryWidget()),
                   if (isProEditInput)
                     Container(
                       alignment: Alignment.topLeft,
                       padding: const EdgeInsets.all(16.0),
-                      color: theme.backgroundColor,
+                      color: theme.colorScheme.background,
                       width: MediaQuery.of(context).size.width,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

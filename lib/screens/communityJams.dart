@@ -29,7 +29,7 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
     app.screenInfo.refresh(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appWidgetHelper.backBar(title: 'Community Jams'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),

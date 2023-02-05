@@ -26,7 +26,7 @@ class DebugState extends State<Debug> {
     TextStyle style = generateAppTextStyle(color: Colors.black87, fontSize: appDefaultFontSize * 2);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Debug'),
       body: DefaultTextStyle(
         style: style,

@@ -63,17 +63,20 @@ class SongMaster extends ChangeNotifier {
 
               //  fixme: fix the start of playing!!!!!  after pause?
               int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime);
-              logger.log(
-                  _songMasterLogAdvance,
-                  'new: $newAdvancedMomentNumber'
-                  ', measureDuration: $measureDuration'
-                  ', advance: ${advanceTime.toStringAsFixed(3)}'
-                  ', mTime: ${((time - (_songStart ?? 0)) / measureDuration).toStringAsFixed(3)}'
-                  //
-                  );
+
+              //  place audio in the audio player one moment (i.e. measure) in advance
               while (_advancedMomentNumber == null ||
                   (newAdvancedMomentNumber != null && newAdvancedMomentNumber >= _advancedMomentNumber!)) {
                 _advancedMomentNumber ??= 0;
+                logger.log(
+                    _songMasterLogAdvance,
+                    'new: $newAdvancedMomentNumber'
+                    ', measureDuration: $measureDuration'
+                    ', advance: ${advanceTime.toStringAsFixed(3)}'
+                    ', mTime: ${((time - (_songStart ?? 0)) / measureDuration).toStringAsFixed(3)}'
+                    //
+                    );
+
                 if (_drumParts != null && !drumsAreMuted) {
                   _performDrumParts(
                       (_songStart ?? 0) + _song!.getSongTimeAtMoment(_advancedMomentNumber!), _bpm, _drumParts!);
@@ -89,6 +92,7 @@ class SongMaster extends ChangeNotifier {
             }
             {
               //  notify the listeners that the play has made progress
+              //  note that this is in "realtime", i.e. slightly delayed, not advanced
               double songTime = time -
                   (_songStart ?? 0) -
                   (60.0 / _song!.beatsPerMinute).floor() +

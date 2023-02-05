@@ -115,7 +115,6 @@ class PlayMomentNotifier extends ChangeNotifier {
 
 class LyricSectionNotifier extends ChangeNotifier {
   set index(int index) {
-    index = max(index, 0);
     if (index != _index) {
       _index = index;
       notifyListeners();
@@ -124,7 +123,7 @@ class LyricSectionNotifier extends ChangeNotifier {
   }
 
   int get index => _index;
-  int _index = 0;
+  int _index = -30000; //  never expected
   LyricSection? lyricSection;
 }
 
@@ -745,8 +744,9 @@ class LyricsTable {
         _logFontSize,
         'totalWidth: $totalWidth, totalHeight: $totalHeight, screenWidth: $screenWidth'
         ', scaled width: ${totalWidth * _scaleFactor}');
+
+    //  rescale the grid to fit the window
     if (_scaleFactor < 1.0) {
-      //  rescale the grid to fit the window
       _scaleComponents(scaleFactor: _scaleFactor);
 
       for (var i = 0; i < widths.length; i++) {
@@ -1315,6 +1315,7 @@ class _LyricSectionCellState extends State<LyricSectionCellWidget> {
     return Consumer<LyricSectionNotifier>(
       builder: (context, lyricSectionNotifier, child) {
         var isNowSelected = lyricSectionNotifier.index == widget.index;
+        // logger.log(_logLyricSectionCellState, '_LyricSectionCellState widget.index: ${widget.index}');
         if (isNowSelected == selected && child != null) {
           logger.log(_logLyricSectionCellState, '_LyricSectionCellState.child returned: ${widget.index}: $child');
           return child;

@@ -177,6 +177,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   mainSortType(PlayListSortType),
   mainSortTypeSelection(PlayListSortType),
   mainTest(Null),
+  mainTestStop(Null),
   mainUp(Null),
   metadataCancelTheReturn(Null),
   metadataDiscardAllChanges(Null),
@@ -459,8 +460,12 @@ void _appKeyRegisterCallback<T>(AppKey key, {ValueChanged<T>? callback}) {
 }
 
 Map<String, AppKeyEnum>? _appKeyEnumLookupMap;
+bool _testRun = false;
 
 Future<bool> appKeyExecute(final String logString, {final Duration? delay}) async {
+  if (!_testRun) {
+    return false;
+  }
   //  lazy eval up type lookup
   if (_appKeyEnumLookupMap == null) {
     _appKeyEnumLookupMap = {};
@@ -493,8 +498,8 @@ Future<bool> appKeyExecute(final String logString, {final Duration? delay}) asyn
     logger.log(
         _appKeyExecute,
         '     _appKeyExecute: eString: "$eString"'
-        ', value: "$valueString", from: ${_appKeyRegisterCallbacks.length}  '
-        'callbacks');
+            ', value: "$valueString", from: ${_appKeyRegisterCallbacks.length}  '
+            'callbacks');
 
     //  execute the app key
     if (eString != null) {
@@ -568,6 +573,7 @@ mainSong.${song.songId}
 }
 
 void testAppKeyCallbacks() async {
+  _testRun = true;
   if (!kDebugMode) //fixme: temp
   {
     logger.log(_logAppKey, 'debugLoggerAppKeyRegisterCallbacks:  NOT DEBUG');
@@ -621,6 +627,10 @@ void testAppKeyCallbacks() async {
   // logger.log(_logAppKey, 'appKeyExecute: done');
   //
   // // logger.log(_logAppKey,'appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
+}
+
+void testAppKeyCallbacksStop() {
+  _testRun = false;
 }
 
 Widget appCircledIcon(IconData iconData, String toolTip,

@@ -20,6 +20,14 @@ void main() async {
   Logger.level = Level.debug;
   logger.d('main()');
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  PackageInfo.setMockInitialValues(
+      appName: 'appName',
+      packageName: 'packageName',
+      version: 'version',
+      buildNumber: 'buildNumber',
+      buildSignature: 'buildSignature',
+      installerStore: 'installerStore');
   packageInfo = await PackageInfo.fromPlatform();
 
   testWidgets('about test', (WidgetTester tester) async {

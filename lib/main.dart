@@ -252,7 +252,7 @@ class BSteeleMusicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.v('main: build()');
+    logger.i('main: build()');
 
     const mainList = 'mainList';
 
@@ -734,12 +734,25 @@ class MyHomePageState extends State<MyHomePage> {
         if (kDebugMode)
           Container(
               padding: const EdgeInsets.all(6.0),
-              child: appButton(
-                'Test',
-                appKeyEnum: AppKeyEnum.mainTest,
-                onPressed: () {
-                  testAppKeyCallbacks();
-                },
+              child: AppWrap(
+                spacing: 10,
+                children: [
+                  appButton(
+                    'Test',
+                    appKeyEnum: AppKeyEnum.mainTest,
+                    onPressed: () {
+                      testAppKeyCallbacks();
+                    },
+                  ),
+                  appButton(
+                    'Stop',
+                    appKeyEnum: AppKeyEnum.mainTestStop,
+                    onPressed: () {
+                      logger.i('stop');
+                      testAppKeyCallbacksStop();
+                    },
+                  ),
+                ],
               )),
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),

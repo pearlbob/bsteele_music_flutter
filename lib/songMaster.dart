@@ -67,7 +67,7 @@ class SongMaster extends ChangeNotifier {
               //  place audio in the audio player one moment (i.e. measure) in advance
               while (_advancedMomentNumber == null ||
                   (newAdvancedMomentNumber != null && newAdvancedMomentNumber >= _advancedMomentNumber!)) {
-                _advancedMomentNumber ??= 0;
+                _advancedMomentNumber ??= newAdvancedMomentNumber;
                 logger.log(
                     _songMasterLogAdvance,
                     'new: $newAdvancedMomentNumber'
@@ -79,7 +79,16 @@ class SongMaster extends ChangeNotifier {
 
                 if (_drumParts != null && !drumsAreMuted) {
                   _performDrumParts(
-                      (_songStart ?? 0) + _song!.getSongTimeAtMoment(_advancedMomentNumber!), _bpm, _drumParts!);
+                      (_songStart ?? 0) +
+                          (_advancedMomentNumber! < 0
+                              ? _advancedMomentNumber! * measureDuration
+                              : _song!.getSongTimeAtMoment(_advancedMomentNumber!)),
+                      _bpm,
+                      _drumParts!);
+                  logger.v('SongPlayMode.autoPlay: '
+                      ' _advancedMomentNumber: ${_advancedMomentNumber!}'
+                      //    '${(_songStart ?? 0)} + ${_song!.getSongTimeAtMoment(_advancedMomentNumber!)}'
+                      );
                 } else if (!drumsAreMuted) {
                   logger.i('no _drumParts!');
                 }
@@ -228,6 +237,7 @@ class SongMaster extends ChangeNotifier {
 
   void _performDrumParts(double time, int bpm, final DrumParts drumParts) {
     //  fixme:  even beat parts likely don't work on 3/4 or 6/8
+    logger.v('_performDrumParts: $time - $_songStart = ${time - (_songStart ?? 0)}');
     int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);
     for (var drumPart in drumParts.parts) {
       var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
@@ -239,8 +249,8 @@ class SongMaster extends ChangeNotifier {
             ', timing: $timing'
             // ', path: $filePath'
             ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
-            //
-            );
+          //
+        );
         _appAudioPlayer.play(filePath,
             when: timing,
             duration: 0.25, //fixme: temp
@@ -250,12 +260,12 @@ class SongMaster extends ChangeNotifier {
     logger.log(
         _songMasterLogTicker,
         ' time: $time'
-        ', beats: $beats'
-        ', bpm: $_bpm'
-        ', $drumParts'
-        ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
-        //
-        );
+            ', beats: $beats'
+            ', bpm: $_bpm'
+            ', $drumParts'
+            ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
+      //
+    );
   }
 
   double? get songTime {

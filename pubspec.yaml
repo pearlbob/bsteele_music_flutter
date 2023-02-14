@@ -15,7 +15,7 @@ publish_to: none
 version: 1.2.0+0
 
 environment:
-  sdk: ^2.19.0
+  sdk: ^2.19.2
 
 dependencies:
   flutter:
@@ -23,17 +23,14 @@ dependencies:
   filesystem_picker:
   logger:
   shared_preferences:
-  url_launcher: ^6.1.6  # fixme: why is this required?
+  url_launcher:
   intl:
-  path_provider:
+  path_provider: ^2.0.12  # fixme: why is this required?
   flutter_markdown:
   scrollable_positioned_list:
   web_socket_channel:
   enum_to_string:
-  csslib:
   provider:
-  dartdoc:
-  flutter_lints:  #not ready yet: info: Name source files using `lowercase_with_underscores`.
   universal_io:
   universal_html:
   reorderables:

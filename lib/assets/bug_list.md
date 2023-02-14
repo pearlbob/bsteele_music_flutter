@@ -72,6 +72,7 @@
 * Time the player selected measure in autoplay mode: adjust timing if required
 * Minor bug: I can't change/save the username without making other changes (that engage the save button).
 * Improve startup delay.
+* Search for song on web with & in the title
 
 ## Release  1.3
 

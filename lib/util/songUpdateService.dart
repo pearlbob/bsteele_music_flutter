@@ -89,16 +89,14 @@ class SongUpdateService extends ChangeNotifier {
                       _logMessage,
                       'received: song: ${_songUpdate?.song.title}'
                       ' at moment: ${_songUpdate?.momentNumber}');
-                  playerUpdate(context,
-                      _songUpdate!); //  fixme:  exposure to UI internals
+                  playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
                   _delayMilliseconds = 0;
                   _songUpdateCount++;
                 }
               }
             }
           }, onError: (Object error) {
-            logger.log(_log,
-                'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
+            logger.log(_log, 'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
             _closeWebSocketChannel();
             appLogMessage('webSocketChannel error: $error at $uri');
           }, onDone: () {
@@ -118,13 +116,11 @@ class SongUpdateService extends ChangeNotifier {
 
           for (_idleCount = 0;; _idleCount++) {
             //  idle
-            await Future.delayed(
-                const Duration(milliseconds: _idleMilliseconds));
+            await Future.delayed(const Duration(milliseconds: _idleMilliseconds));
 
             //  check connection status
             if (lastHost != _findTheHost()) {
-              logger.log(_log,
-                  'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
+              logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
               appLogMessage('webSocketChannel new host: $uri');
               _closeWebSocketChannel();
               _delayMilliseconds = 0;
@@ -143,8 +139,7 @@ class SongUpdateService extends ChangeNotifier {
               //  notify on first idle cycle
               notifyListeners();
             }
-            logger.log(_log,
-                'webSocketChannel open: $_isOpen, idleCount: $_idleCount');
+            logger.log(_log, 'webSocketChannel open: $_isOpen, idleCount: $_idleCount');
           }
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
@@ -156,8 +151,7 @@ class SongUpdateService extends ChangeNotifier {
       if (_delayMilliseconds > 0) {
         //  wait a while
         if (_delayMilliseconds < maxDelayMilliseconds) {
-          logger.log(_log,
-              'wait a while... before retrying websocket: $_delayMilliseconds ms');
+          logger.log(_log, 'wait a while... before retrying websocket: $_delayMilliseconds ms');
         }
         await Future.delayed(Duration(milliseconds: _delayMilliseconds));
       }
@@ -182,11 +176,12 @@ class SongUpdateService extends ChangeNotifier {
       }
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       host = Uri.base.authority;
-      if (host.contains('bsteele.com') ||
-          (kDebugMode && host.contains('localhost'))) {
+      if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
         //  there is never a websocket on the web
-        appLogMessage(
-            'webSocketChannel exception: never going to be at: "$host"');
+        if (_lastNeverHost != host) {
+          appLogMessage('webSocketChannel exception: never going to be at: "$host"');
+          _lastNeverHost = host;
+        }
         //  do nothing
         host = '';
       } else {
@@ -228,8 +223,7 @@ class SongUpdateService extends ChangeNotifier {
       _webSocketSink?.add(jsonText);
       logger.log(_logJson, jsonText);
       _songUpdateCount++;
-      logger.v(
-          "leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
+      logger.v("leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
     }
   }
 
@@ -268,6 +262,7 @@ class SongUpdateService extends ChangeNotifier {
 
   String get host => _host;
   String _host = '';
+  String? _lastNeverHost;
   static const String _port = ':8080';
   int _songUpdateCount = 0;
   int _idleCount = 0;

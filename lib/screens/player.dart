@@ -53,6 +53,8 @@ bool _isCapo = false; //  package level for persistence across player invocation
 int _capoLocation = 0; //  fret number of the cap location
 bool _showCapo = false; //  package level for all classes in the package
 
+bool _areDrumsMuted = true;
+
 final _playMomentNotifier = PlayMomentNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
 
@@ -248,7 +250,22 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       case SongPlayMode.manualPlay:
       case SongPlayMode.autoPlay:
+    //  select the current measure
         if (_songMaster.momentNumber != null) {
+          //  count in
+          if (_songMaster.momentNumber! <= 0) {
+            setState(() {
+              _countIn = -_songMaster.momentNumber!;
+              logger.v('_countIn: $_countIn');
+              _countInWidget = _countIn > 0 && _countIn <= 2
+                  ? Text('   Count in: $_countIn   ',
+                      style: _lyricsTable.lyricsTextStyle
+                          .copyWith(color: App.defaultForegroundColor, backgroundColor: App.appBackgroundColor))
+                  : NullWidget();
+              logger.v('_countInWidget.runtimeType: ${_countInWidget.runtimeType}');
+            });
+          }
+
           if (_songMaster.momentNumber! >= 0) {
             var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
             if (songMoment != null) {
@@ -1000,6 +1017,7 @@ With z or q, the app goes back to the play list.''',
                                 ]),
                               ]),
                             const AppSpace(),
+                            _countInWidget,
                             //  song chords and lyrics
                             if (lyricsTableItems.isNotEmpty) //  ScrollablePositionedList messes up otherwise
                               Expanded(
@@ -1125,6 +1143,7 @@ With z or q, the app goes back to the play list.''',
                       ]),
                     ],
                   ),
+
                 _DataReminderWidget(songPlayMode.isPlaying, appWidgetHelper.toolbarHeight),
               ],
             ),
@@ -1992,22 +2011,20 @@ With z or q, the app goes back to the play list.''',
                             crossAxisAlignment: WrapCrossAlignment.center,
                             spacing: viewportWidth(1),
                             children: [
-                              if (app.isScreenBig)
-                                AppTooltip(
-                                  message: _areDrumsMuted
-                                      ? 'Click to unmute and select the drums'
-                                      : 'Click to mute the drums',
-                                  child: appButton(_areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
-                                      appKeyEnum: _areDrumsMuted
-                                          ? AppKeyEnum.playerDrumsMuted
-                                          : AppKeyEnum.playerDrumsUnmuted, onPressed: () {
-                                    setState(() {
-                                      _areDrumsMuted = !_areDrumsMuted;
-                                      _songMaster.drumsAreMuted = _areDrumsMuted;
-                                      logger.i('drums mute: $_areDrumsMuted');
-                                    });
-                                  }, backgroundColor: _areDrumsMuted ? Colors.red : null),
-                                ),
+                              AppTooltip(
+                                message:
+                                    _areDrumsMuted ? 'Click to unmute and select the drums' : 'Click to mute the drums',
+                                child: appButton(_areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
+                                    appKeyEnum: _areDrumsMuted
+                                        ? AppKeyEnum.playerDrumsMuted
+                                        : AppKeyEnum.playerDrumsUnmuted, onPressed: () {
+                                  setState(() {
+                                    _areDrumsMuted = !_areDrumsMuted;
+                                    _songMaster.drumsAreMuted = _areDrumsMuted;
+                                    logger.i('drums mute: $_areDrumsMuted');
+                                  });
+                                }, backgroundColor: _areDrumsMuted ? Colors.red : null),
+                              ),
                               const AppSpace(),
                               if (!_areDrumsMuted)
                                 AppTooltip(
@@ -2221,6 +2238,8 @@ With z or q, the app goes back to the play list.''',
   RollingAverage? _tempoRollingAverage;
 
   final SongMaster _songMaster = SongMaster();
+  int _countIn = 0;
+  Widget _countInWidget = NullWidget();
 
   bool _isAnimated = false;
 
@@ -2243,7 +2262,7 @@ With z or q, the app goes back to the play list.''',
   Timer? _idleTimer;
 
   final _drumPartsList = DrumPartsList();
-  bool _areDrumsMuted = true;
+
   DrumParts? _drumParts;
 
   late AppWidgetHelper appWidgetHelper;
@@ -2282,8 +2301,11 @@ class _DataReminderState extends State<_DataReminderWidget> {
                     const AppSpace(
                       horizontalSpace: 60,
                     ),
+                    if (app.fullscreenEnabled && !app.isFullScreen)
+                      appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
+                        app.requestFullscreen();
+                      }),
                     Text(
-                      'here: '
                       'Key $_selectedSongKey'
                       '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
                       '    Beats: ${_song.timeSignature.beatsPerBar}'

@@ -250,18 +250,25 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       case SongPlayMode.manualPlay:
       case SongPlayMode.autoPlay:
-    //  select the current measure
+        //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  count in
           if (_songMaster.momentNumber! <= 0) {
             setState(() {
               _countIn = -_songMaster.momentNumber!;
               logger.v('_countIn: $_countIn');
-              _countInWidget = _countIn > 0 && _countIn <= 2
-                  ? Text('   Count in: $_countIn   ',
+              if (_countIn > 0 && _countIn <= 2) {
+                _countInWidget = Container(
+                  margin: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  color: App.defaultBackgroundColor,
+                  child: Text('Count in: $_countIn',
                       style: _lyricsTable.lyricsTextStyle
-                          .copyWith(color: App.defaultForegroundColor, backgroundColor: App.appBackgroundColor))
-                  : NullWidget();
+                          .copyWith(color: App.defaultForegroundColor, backgroundColor: App.defaultBackgroundColor)),
+                );
+              } else {
+                _countInWidget = NullWidget();
+              }
               logger.v('_countInWidget.runtimeType: ${_countInWidget.runtimeType}');
             });
           }

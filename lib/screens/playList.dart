@@ -24,6 +24,7 @@ const Level _logInitState = Level.debug;
 const Level _logBuild = Level.debug;
 const Level _logPosition = Level.debug;
 const Level _logJump = Level.debug;
+const Level _logFilters = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
@@ -471,8 +472,6 @@ class _PlayListState extends State<PlayList> {
         nameValues.addAll(id.nameValues);
       }
 
-      final allNameValue = NameValue('All', '');
-
       // select order
       int Function(PlayListItem key1, PlayListItem key2)? compare;
       if (widget.isOrderBy) {
@@ -561,9 +560,10 @@ class _PlayListState extends State<PlayList> {
         }
       }
 
-      //  generate list of current filters
+      //  generate display list of current filters
       List<Widget> filterWidgets = [];
       var filter = NameValueFilter(_filterNameValues);
+      logger.log(_logFilters, '_filterNameValues: $_filterNameValues');
       {
         String lastName = '';
         for (var nv in filter.nameValues()) {
@@ -737,7 +737,7 @@ class _PlayListState extends State<PlayList> {
                     const AppSpace(spaceFactor: 2.0),
                     //  filters
                     AppTooltip(
-                        message: '''Filter the list by selected metadata.
+                        message: '''Filter the list by the selected metadata.
 Selections with the same name will be OR'd together.
 Selections with different names will be AND'd.''',
                         child: MetadataPopupMenuButton.button(
@@ -828,6 +828,8 @@ Selections with different names will be AND'd.''',
       );
     });
   }
+
+  static final allNameValue = NameValue('All', '');
 
   final List<DropdownMenuItem<PlayListSortType>> _sortTypesDropDownMenuList = [];
   var selectedSortType = PlayListSortType.byTitle;

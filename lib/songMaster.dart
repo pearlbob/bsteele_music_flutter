@@ -249,12 +249,12 @@ class SongMaster extends ChangeNotifier {
             ', timing: $timing'
             // ', path: $filePath'
             ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
-          //
-        );
+            //
+            );
         _appAudioPlayer.play(filePath,
             when: timing,
             duration: 0.25, //fixme: temp
-            volume: drumParts.volume);
+            volume: _appOptions.volume);
       }
     }
     logger.log(

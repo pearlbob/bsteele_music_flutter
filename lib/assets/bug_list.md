@@ -12,41 +12,28 @@
 
 ### Fix
 
-* count-in drums and indicator on autoplay
 * make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
 * player: in pause, reposition play with up/down arrows or scroll,
   continue from new location with space bar hit
-* Back to player from song preview on youtube.com, fullscreen button missing
 * And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
   definable.
-* drums in the background while in "manual play" mode. that is, things as they typically are now with drums playing but
-  not auto advance nor any indication of the current measure. basically a replacement for your foot pedals.
-* drum select vs drum edit in drums from player: turn off editing when one drum is saved
-* drum edit, no-write, safety popup
-* count off song start: style? 2 measures. Regular drums, display something
 * visual delay on mac mini? Just off, slow. correct when measured post render.
 * explain storage. Yes
 * Mute button? Display and keyboard shortcut
-* Drums: All caps first letter yes
-* Drums on in idle: synchronized song start? Yes if required.
-* Live bpm changes? First "1": phase only, subsequent 1's are tempo,
-* Live bpm changes: Smoothing?,. Real-time delay
-* Live beat 1 resets, does NOT imply new bpm
-* Test tap to tempo... Jittery or me?
-* connect player popup volume slider to volume
 * regenerate generated metadata after editing
-* songs don't always have drums on start/restart
-* drums on pause then play
-* video alignment with audio current time
 * playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
 * A new singer/requestor without any songs sung or requested should default to a singer
 
 ## Fixes Completed
 
+* count-in drums and indicator on autoplay
 * verify/fix auto playback timing and jitter
+* Back to player from song preview on youtube.com, fullscreen button missing
 * Improved startup delay based on history. More is required.
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * drums on 2/4, 3/4, 6/8
+* drums in the background while in "manual play" mode. that is, things as they typically are now with drums playing but
+  not auto advance nor any indication of the current measure. basically a replacement for your foot pedals.
 * browser reload on subsequent pages
 * find the closest songId for history songs without non-null song
 * Beta fails on song title change from history
@@ -59,6 +46,7 @@
 * In player screen, capo mode can be forgotten inappropriately.
 * Metadata list shouldn't scroll after metadata change
 * Metadata fields are caseless. The software will Capitalize All Fields As Required.
+* connect player popup volume slider to volume
 
 ## Release 1.2.1
 
@@ -73,6 +61,16 @@
 * Minor bug: I can't change/save the username without making other changes (that engage the save button).
 * Improve startup delay.
 * Search for song on web with & in the title
+* drum select vs drum edit in drums from player: turn off editing when one drum is saved
+* drum edit, no-write, safety popup
+* Drums: All caps first letter yes
+* Drums on in idle: synchronized song start? Yes if required.
+* Live bpm changes? First "1": phase only, subsequent 1's are tempo,
+* Live bpm changes: Smoothing?,. Real-time delay
+* Live beat 1 resets, does NOT imply new bpm
+* Test tap to tempo... Jittery or me?
+* drums on pause then play
+* video alignment with audio current time
 
 ## Release  1.3
 

@@ -2309,9 +2309,11 @@ class _DataReminderState extends State<_DataReminderWidget> {
                       horizontalSpace: 60,
                     ),
                     if (app.fullscreenEnabled && !app.isFullScreen)
-                      appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
-                        app.requestFullscreen();
-                      }),
+                      Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
+                            app.requestFullscreen();
+                          })),
                     Text(
                       'Key $_selectedSongKey'
                       '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'

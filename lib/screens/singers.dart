@@ -25,6 +25,7 @@ import '../util/play_list_search_matcher.dart';
 //  diagnostic logging enables
 const Level _singerLogBuild = Level.debug;
 const Level _singerRequester = Level.debug;
+const Level _logSongList = Level.debug;
 const Level _singerLogHistory = Level.debug;
 const Level _logSongUpdate = Level.debug;
 
@@ -112,7 +113,7 @@ class SingersState extends State<Singers> {
             ..addAll(songRequestsFromRequester
                 .where((e) => e.requester == _selectedSinger && e.song != null)
                 .map<Song>((e) => e.song!));
-          logger.log(_singerRequester, 'requests: $songRequestsFromRequester');
+          logger.log(_singerRequester, 'requests: $songRequests');
           for (var singer in _sessionSingers) {
             if (singer != _selectedSinger) {
               for (var performance in _allSongPerformances.bySinger(singer)) {
@@ -416,7 +417,7 @@ class SingersState extends State<Singers> {
       }
 
       final songListGroup = PlayListGroup(songLists);
-      logger.d('singers: songListGroup.length: ${songListGroup.length}');
+      logger.log(_logSongList, 'singers: songListGroup.length: ${songListGroup.length}');
 
       return Scaffold(
         backgroundColor: App.screenBackgroundColor,
@@ -1294,7 +1295,7 @@ class SingersState extends State<Singers> {
       _selectedSinger = singer ?? _unknownSinger;
 
       //  find last requester choice or default to singer if there are songs to sing
-      bool isRequester = _singerIsRequesterMap[_selectedSinger] ?? !_hasSongsToSing(_selectedSinger);
+      bool isRequester = _singerIsRequesterMap[_selectedSinger] ?? false;
       _searchForSelectedSingerOnly = false;
 
       _selectedSingerIsRequester = isRequester;

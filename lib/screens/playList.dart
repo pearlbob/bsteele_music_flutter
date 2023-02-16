@@ -27,7 +27,7 @@ const Level _logJump = Level.debug;
 const Level _logFilters = Level.debug;
 
 //  persistent selection
-final SplayTreeSet<NameValue> _filterNameValues = SplayTreeSet();
+final SplayTreeSet<NameValueMatcher> _filterNameValues = SplayTreeSet();
 
 double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
@@ -566,7 +566,7 @@ class _PlayListState extends State<PlayList> {
       logger.log(_logFilters, '_filterNameValues: $_filterNameValues');
       {
         String lastName = '';
-        for (var nv in filter.nameValues()) {
+        for (var nv in filter.matchers()) {
           if (lastName.isNotEmpty) {
             filterWidgets.add(Text(
               lastName == nv.name && filter.isOr(nv) ? 'OR' : 'AND',
@@ -748,7 +748,7 @@ Selections with different names will be AND'd.''',
                               if (value == allNameValue) {
                                 _filterNameValues.clear();
                               } else {
-                                _filterNameValues.add(value);
+                                _filterNameValues.add(NameValueMatcher.value(value));
                               }
                             });
                           },

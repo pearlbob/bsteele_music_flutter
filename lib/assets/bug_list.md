@@ -22,7 +22,7 @@
 * Mute button? Display and keyboard shortcut
 * regenerate generated metadata after editing
 * playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
-* A new singer/requestor without any songs sung or requested should default to a singer
+
 
 ## Fixes Completed
 
@@ -47,6 +47,7 @@
 * Metadata list shouldn't scroll after metadata change
 * Metadata fields are caseless. The software will Capitalize All Fields As Required.
 * connect player popup volume slider to volume
+* A new singer/requester without any songs sung or requested should default to a singer
 
 ## Release 1.2.1
 
@@ -55,7 +56,7 @@
 * history from tomcat server log
 * history statistics:  songs sung by singer, cj top 40
 
-### Fix
+### Fixes
 
 * Time the player selected measure in autoplay mode: adjust timing if required
 * Minor bug: I can't change/save the username without making other changes (that engage the save button).

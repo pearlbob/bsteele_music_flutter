@@ -71,6 +71,7 @@ const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
+const Level _logLeaderSongUpdate = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -101,7 +102,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
-    logger.log(_logLeaderFollower, 'playerUpdate timer');
+    logger.log(_logLeaderFollower, 'playerUpdate timer:');
     _player?.setPlayState();
   });
 
@@ -164,7 +165,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     logger.log(_logBPM, 'initState() bpm: $playerSelectedBpm');
 
-    leaderSongUpdate(-1);
+    leaderSongUpdate(-3);
 
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
@@ -232,6 +233,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
         _logSongMaster,
         'songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}'
+        ', songPlayMode: ${_songMaster.songPlayMode.name}'
         ', moment: ${_songMaster.momentNumber}'
         ', lyricSection: ${_song.getSongMoment(_songMaster.momentNumber ?? 0)?.lyricSection.index}');
 
@@ -240,11 +242,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       case SongPlayMode.pause: //  fixme: this is not correct
       case SongPlayMode.idle:
         if (songPlayMode.isPlaying) {
+          //  cancel the cell highlight
+          _playMomentNotifier.playMoment = null;
+
           //  follow the song master's play mode
           setState(() {
             songPlayMode = _songMaster.songPlayMode;
-            //  cancel the cell highlight
-            _playMomentNotifier.playMoment = null;
           });
         }
         break;
@@ -252,24 +255,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       case SongPlayMode.autoPlay:
         //  select the current measure
         if (_songMaster.momentNumber != null) {
+          //  tell the followers to follow, including the count in
+          leaderSongUpdate(_songMaster.momentNumber!);
+
           //  count in
           if (_songMaster.momentNumber! <= 0) {
             setState(() {
               _countIn = -_songMaster.momentNumber!;
-              logger.v('_countIn: $_countIn');
-              if (_countIn > 0 && _countIn <= 2) {
-                _countInWidget = Container(
-                  margin: const EdgeInsets.all(12.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  color: App.defaultBackgroundColor,
-                  child: Text('Count in: $_countIn',
-                      style: _lyricsTable.lyricsTextStyle
-                          .copyWith(color: App.defaultForegroundColor, backgroundColor: App.defaultBackgroundColor)),
-                );
-              } else {
-                _countInWidget = NullWidget();
-              }
-              logger.v('_countInWidget.runtimeType: ${_countInWidget.runtimeType}');
+              _updateCountIn(_countIn);
             });
           }
 
@@ -311,7 +304,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _song = _songUpdate!.song;
         widget._song = _song;
         _playMomentNotifier.playMoment =
-            PlayMoment(_songUpdate?.songMoment?.momentNumber ?? 0, _songUpdate!.songMoment);
+            PlayMoment(_songUpdate!.state, _songUpdate?.songMoment?.momentNumber ?? 0, _songUpdate!.songMoment);
         selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
             ??
             _lyricSectionNotifier.index); //  safer to stay on the current index
@@ -941,7 +934,7 @@ With z or q, the app goes back to the play list.''',
                                         softWrap: false,
                                       ),
                                     ),
-                                    if (app.isScreenBig)
+                                    if (app.isScreenBig && !songUpdateService.isFollowing)
                                       AppTooltip(
                                         message: 'Select drums using the player setting\'s dialog, the gear icon',
                                         child: Text(
@@ -1245,6 +1238,25 @@ With z or q, the app goes back to the play list.''',
     return min(app.screenInfo.mediaHeight, 1080 /*  limit leader area to hdtv size */) * _sectionCenterLocationFraction;
   }
 
+  _updateCountIn(int countIn) {
+    _countIn = countIn;
+    logger.v('countIn: $countIn');
+    if (countIn > 0 && countIn <= 2) {
+      _countInWidget = Container(
+        margin: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        color: App.defaultBackgroundColor,
+        child: Text('Count in: $countIn',
+            style: _lyricsTable.lyricsTextStyle
+                .copyWith(color: App.defaultForegroundColor, backgroundColor: App.defaultBackgroundColor)),
+      );
+      _playMomentNotifier.playMoment = null;
+    } else {
+      _countInWidget = NullWidget();
+    }
+    logger.v('_countInWidget.runtimeType: ${_countInWidget.runtimeType}');
+  }
+
   /// bump from one section to the next
   sectionBump(int bump) {
     switch (appOptions.userDisplayStyle) {
@@ -1339,13 +1351,23 @@ With z or q, the app goes back to the play list.''',
 
     //  remote scroll for followers
     if (songUpdateService.isLeader) {
-      var lyricSection = _song.lyricSections[index];
-      leaderSongUpdate(_song.firstMomentInLyricSection(lyricSection).momentNumber);
+      switch (songPlayMode) {
+        case SongPlayMode.autoPlay:
+          break;
+        default:
+          {
+            var lyricSection = _song.lyricSections[index];
+            leaderSongUpdate(_song.firstMomentInLyricSection(lyricSection).momentNumber);
+          }
+          break;
+      }
     }
   }
 
   /// send a leader song update to the followers
   void leaderSongUpdate(int momentNumber) {
+    logger.log(_logLeaderSongUpdate, 'leaderSongUpdate( $momentNumber ), isLeader: ${songUpdateService.isLeader}');
+
     if (!songUpdateService.isLeader) {
       _lastSongUpdateSent = null;
       return;
@@ -1390,7 +1412,7 @@ With z or q, the app goes back to the play list.''',
     logger.log(
         _logLeaderFollower,
         'leaderSongUpdate: momentNumber: $momentNumber'
-        ', state: $state');
+            ', state: $state');
   }
 
   IconData get playStopIcon => songPlayMode.isPlaying ? Icons.stop : Icons.play_arrow;
@@ -1399,7 +1421,7 @@ With z or q, the app goes back to the play list.''',
     setState(() {
       setPlayMode();
       setSelectedSongMoment(_song.songMoments.first);
-      leaderSongUpdate(-1);
+      // leaderSongUpdate(-1);
       logger.log(_logMode, 'play:');
       if (!songUpdateService.isFollowing) {
         _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
@@ -1410,20 +1432,29 @@ With z or q, the app goes back to the play list.''',
   /// Workaround to avoid calling setState() outside of the framework classes
   void setPlayState() {
     if (_songUpdate != null && _song.songMoments.isNotEmpty) {
-      int momentNumber = Util.indexLimit(_songUpdate!.momentNumber, _song.songMoments);
+      var update = _songUpdate!;
+      int momentNumber = Util.indexLimit(update.momentNumber, _song.songMoments);
       assert(momentNumber >= 0);
       assert(momentNumber < _song.songMoments.length);
       var songMoment = _song.songMoments[momentNumber];
 
       //  map state to mode   fixme: should reconcile the enums
       SongPlayMode newSongPlayMode = SongPlayMode.idle;
-      switch (_songUpdate!.state) {
+      switch (update.state) {
         case SongUpdateState.playing:
           if (!songPlayMode.isPlaying) {
             setPlayMode();
           }
           newSongPlayMode = SongPlayMode.autoPlay;
-          setSelectedSongMoment(songMoment);
+          if (update.momentNumber <= 0) {
+            setState(() {
+              //  note: clear the countin if zero
+              _updateCountIn(-update.momentNumber);
+            });
+          }
+          if (update.momentNumber >= 0) {
+            setSelectedSongMoment(songMoment);
+          }
           break;
         case SongUpdateState.manualPlay:
           newSongPlayMode = SongPlayMode.manualPlay;
@@ -1439,12 +1470,13 @@ With z or q, the app goes back to the play list.''',
           songPlayMode = newSongPlayMode;
         });
       }
+      _playMomentNotifier.playMoment = PlayMoment(update.state, update.momentNumber, songMoment);
 
       logger.log(
           _logLeaderFollower,
-          'setPlayState: post state: ${_songUpdate?.state}, songPlayMode: $songPlayMode'
-          ', moment: ${_songUpdate?.momentNumber}'
-          ', songPlayMode: $songPlayMode');
+          'setPlayState: post state: ${update.state}, songPlayMode: ${songPlayMode.name}'
+          ', _countIn: $_countIn'
+          ', moment: ${update.momentNumber}');
     }
   }
 
@@ -1510,8 +1542,8 @@ With z or q, the app goes back to the play list.''',
       scrollToLyricSection(_lyricSectionNotifier.index, force: true);
     });
     forceTableRedisplay();
-
-    leaderSongUpdate(-1);
+    //
+    // leaderSongUpdate(-1);
   }
 
   String titleAnchor() {
@@ -1608,13 +1640,16 @@ With z or q, the app goes back to the play list.''',
         'setSelectedSongMoment(): ${songMoment?.momentNumber}'
         ', _songPlayerChangeNotifier.songMoment: ${_playMomentNotifier.playMoment?.songMoment?.momentNumber}');
 
-    if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
-      _playMomentNotifier.playMoment = PlayMoment(songMoment?.momentNumber ?? 0, songMoment);
-      scrollToLyricSection(songMoment?.lyricSection.index ?? 0);
-
-      if (songUpdateService.isLeader) {
-        leaderSongUpdate(_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0); //  fixme
-      }
+    if (songMoment == null) {
+      _playMomentNotifier.playMoment = null;
+    } else if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
+      _playMomentNotifier.playMoment =
+          PlayMoment(_songUpdate?.state ?? SongUpdateState.idle, songMoment.momentNumber, songMoment);
+      scrollToLyricSection(songMoment.lyricSection.index);
+      //
+      // if (songUpdateService.isLeader) {
+      //   leaderSongUpdate(_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0); //  fixme
+      // }
     }
   }
 
@@ -1987,72 +2022,75 @@ With z or q, the app goes back to the play list.''',
                                   ],
                                 ),
                             ]),
-                        AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                          AppTooltip(
-                            message: 'Adjust drum playback volume.',
-                            child: Text(
-                              'Volume:',
-                              style: popupStyle,
-                            ),
-                          ),
-                          SizedBox(
-                            width: app.screenInfo.mediaWidth * 0.4,
-                            // fixme: too fiddly
-                            child: AppTooltip(
+                        if (!songUpdateService.isFollowing)
+                          AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                            AppTooltip(
                               message: 'Adjust drum playback volume.',
-                              child: Slider(
-                                value: appOptions.volume * 10,
-                                onChanged: (value) {
-                                  setState(() {
-                                    appOptions.volume = value / 10;
-                                  });
-                                },
-                                min: 0,
-                                max: 10.0,
+                              child: Text(
+                                'Volume:',
+                                style: popupStyle,
                               ),
                             ),
-                          ),
-                        ]),
-                        const AppSpace(),
-                        AppWrapFullWidth(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: viewportWidth(1),
-                            children: [
-                              AppTooltip(
-                                message:
-                                    _areDrumsMuted ? 'Click to unmute and select the drums' : 'Click to mute the drums',
-                                child: appButton(_areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
-                                    appKeyEnum: _areDrumsMuted
-                                        ? AppKeyEnum.playerDrumsMuted
-                                        : AppKeyEnum.playerDrumsUnmuted, onPressed: () {
-                                  setState(() {
-                                    _areDrumsMuted = !_areDrumsMuted;
-                                    _songMaster.drumsAreMuted = _areDrumsMuted;
-                                    logger.i('drums mute: $_areDrumsMuted');
-                                  });
-                                }, backgroundColor: _areDrumsMuted ? Colors.red : null),
-                              ),
-                              const AppSpace(),
-                              if (!_areDrumsMuted)
-                                AppTooltip(
-                                  message: 'Select the drums',
-                                  child: appIconWithLabelButton(
-                                      appKeyEnum: AppKeyEnum.playerEditDrums,
-                                      label: 'Drums',
-                                      fontSize: popupStyle.fontSize,
-                                      icon: appIcon(
-                                        Icons.edit,
-                                      ),
-                                      onPressed: () {
-                                        navigateToDrums(context, _song).then((value) => setState(() {}));
-                                      }),
+                            SizedBox(
+                              width: app.screenInfo.mediaWidth * 0.4,
+                              // fixme: too fiddly
+                              child: AppTooltip(
+                                message: 'Adjust drum playback volume.',
+                                child: Slider(
+                                  value: appOptions.volume * 10,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      appOptions.volume = value / 10;
+                                    });
+                                  },
+                                  min: 0,
+                                  max: 10.0,
                                 ),
-                              if (!_areDrumsMuted)
+                              ),
+                            ),
+                          ]),
+                        const AppSpace(),
+                        if (!songUpdateService.isFollowing)
+                          AppWrapFullWidth(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: viewportWidth(1),
+                              children: [
                                 AppTooltip(
-                                  message: 'The currently selected drum parts for this song.',
-                                  child: Text(_drumParts?.name ?? 'No drum parts', style: popupStyle),
-                                )
-                            ]),
+                                  message: _areDrumsMuted
+                                      ? 'Click to unmute and select the drums'
+                                      : 'Click to mute the drums',
+                                  child: appButton(_areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
+                                      appKeyEnum: _areDrumsMuted
+                                          ? AppKeyEnum.playerDrumsMuted
+                                          : AppKeyEnum.playerDrumsUnmuted, onPressed: () {
+                                    setState(() {
+                                      _areDrumsMuted = !_areDrumsMuted;
+                                      _songMaster.drumsAreMuted = _areDrumsMuted;
+                                      logger.i('drums mute: $_areDrumsMuted');
+                                    });
+                                  }, backgroundColor: _areDrumsMuted ? Colors.red : null),
+                                ),
+                                const AppSpace(),
+                                if (!_areDrumsMuted)
+                                  AppTooltip(
+                                    message: 'Select the drums',
+                                    child: appIconWithLabelButton(
+                                        appKeyEnum: AppKeyEnum.playerEditDrums,
+                                        label: 'Drums',
+                                        fontSize: popupStyle.fontSize,
+                                        icon: appIcon(
+                                          Icons.edit,
+                                        ),
+                                        onPressed: () {
+                                          navigateToDrums(context, _song).then((value) => setState(() {}));
+                                        }),
+                                  ),
+                                if (!_areDrumsMuted)
+                                  AppTooltip(
+                                    message: 'The currently selected drum parts for this song.',
+                                    child: Text(_drumParts?.name ?? 'No drum parts', style: popupStyle),
+                                  )
+                              ]),
                         const AppSpace(),
                         AppWrapFullWidth(
                           crossAxisAlignment: WrapCrossAlignment.center,

@@ -17,6 +17,7 @@ import '../app/appOptions.dart';
 const Level _log = Level.debug;
 const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
+const Level _logLeader = Level.debug;
 
 class SongUpdateService extends ChangeNotifier {
   SongUpdateService.open(BuildContext context) {
@@ -85,13 +86,13 @@ class SongUpdateService extends ChangeNotifier {
               } else {
                 _songUpdate = SongUpdate.fromJson(message);
                 if (_songUpdate != null) {
+                  playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
+                  _delayMilliseconds = 0;
+                  _songUpdateCount++;
                   logger.log(
                       _logMessage,
                       'received: song: ${_songUpdate?.song.title}'
                       ' at moment: ${_songUpdate?.momentNumber}');
-                  playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
-                  _delayMilliseconds = 0;
-                  _songUpdateCount++;
                 }
               }
             }
@@ -223,7 +224,7 @@ class SongUpdateService extends ChangeNotifier {
       _webSocketSink?.add(jsonText);
       logger.log(_logJson, jsonText);
       _songUpdateCount++;
-      logger.v("leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
+      logger.log(_logLeader, "leader ${songUpdate.getUser()} issueSongUpdate #$_songUpdateCount: $songUpdate");
     }
   }
 

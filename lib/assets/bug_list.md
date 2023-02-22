@@ -12,6 +12,7 @@
 
 ### Fix
 
+* follower countin not working
 * make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
 * player: in pause, reposition play with up/down arrows or scroll,
   continue from new location with space bar hit
@@ -48,6 +49,7 @@
 * Metadata fields are caseless. The software will Capitalize All Fields As Required.
 * connect player popup volume slider to volume
 * A new singer/requester without any songs sung or requested should default to a singer
+* followers should never have drum selections
 
 ## Release 1.2.1
 

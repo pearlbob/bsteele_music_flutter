@@ -133,7 +133,7 @@ in bsteele_music_flutter/android/app/src/main/AndroidManifest.xml:
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));

@@ -19,7 +19,7 @@ on linux:
  */
 
 //  diagnostic logging enables
-const Level _logStartup = Level.info;
+const Level _logStartup = Level.debug;
 
 enum StorageValue {
   //  only partial at the moment

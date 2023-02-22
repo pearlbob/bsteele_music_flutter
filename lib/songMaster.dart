@@ -121,13 +121,13 @@ class SongMaster extends ChangeNotifier {
                 // advance
                 if (newMomentNumber != _momentNumber) {
                   _momentNumber = newMomentNumber;
+                  notifyListeners();
                   logger.log(
                       _songMasterNotify,
                       'songTime notify: ${songTime.toStringAsFixed(3)}'
                       ' time: ${time.toStringAsFixed(3)}'
                       //  ', dt: ${dt.toStringAsFixed(3)}'
                       ', momentNumber: ${_momentNumber.toString()}');
-                  notifyListeners();
                 }
               }
             }

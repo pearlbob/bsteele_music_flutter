@@ -17,6 +17,7 @@ import 'package:bsteeleMusicLib/songs/section_version.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_moment.dart';
+import 'package:bsteeleMusicLib/songs/song_update.dart';
 import 'package:bsteeleMusicLib/util/us_timer.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
@@ -53,6 +54,7 @@ const Level _logLyricsBuild = Level.debug;
 const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
 const Level _logChildBuilder = Level.debug;
+const Level _logPlayMomentNotifier = Level.debug;
 
 const double _paddingSizeMax = 5; //  fixme: can't be 0
 double _paddingSize = _paddingSizeMax;
@@ -83,27 +85,34 @@ Size _computeRichTextSize(
 
 /// Class to hold a song moment and indicate play in the count in, prior to the first song moment.
 class PlayMoment {
-  const PlayMoment(this.playMomentNumber, this.songMoment);
+  const PlayMoment(this.songUpdateState, this.playMomentNumber, this.songMoment);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is PlayMoment &&
           runtimeType == other.runtimeType &&
+          songUpdateState == other.songUpdateState &&
           playMomentNumber == other.playMomentNumber &&
           songMoment == other.songMoment;
 
   @override
+  String toString() {
+    return 'PlayMoment{songUpdateState: ${songUpdateState.name}, playMomentNumber: $playMomentNumber, songMoment: $songMoment}';
+  }
+
+  @override
   int get hashCode => playMomentNumber.hashCode ^ songMoment.hashCode;
 
+  final SongUpdateState songUpdateState;
   final int playMomentNumber;
   final SongMoment? songMoment;
 }
 
 class PlayMomentNotifier extends ChangeNotifier {
   set playMoment(final PlayMoment? newPlayMoment) {
-    logger.d('playMoment: $_playMoment');
     if (newPlayMoment != _playMoment) {
+      logger.log(_logPlayMomentNotifier, 'PlayMomentNotifier set: $_playMoment');
       _playMoment = newPlayMoment;
       notifyListeners();
     }
@@ -1488,7 +1497,9 @@ class _SongCellState extends State<SongCellWidget> {
         var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
         var isNowSelected = false;
 
-        if (widget.selectable ?? true) {
+        if ((widget.selectable ?? true) &&
+            playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&
+            (playMomentNotifier.playMoment?.playMomentNumber ?? -1) >= 0) {
           switch (widget.measureNode.runtimeType) {
             case LyricSection:
               isNowSelected = lyricSectionNotifier.index == widget.lyricSectionIndex;

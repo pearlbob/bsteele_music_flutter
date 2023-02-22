@@ -10,7 +10,7 @@ import 'package:logger/logger.dart';
 
 const Level _logLists = Level.debug;
 const Level _logItems = Level.debug;
-const Level _logSelected = Level.info;
+const Level _logSelected = Level.debug;
 
 class MetadataPopupMenuButton {
   static Widget button(

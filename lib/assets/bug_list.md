@@ -12,7 +12,8 @@
 
 ### Fix
 
-* follower countin not working
+* GET http://www.bsteele.com/bsteeleMusicApp/beta/index.html/version.json?cachebuster=1677082609728 404 (Not Found)
+* flutter.js: Exception while loading service worker: Error: Service worker not supported (or configured).
 * make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
 * player: in pause, reposition play with up/down arrows or scroll,
   continue from new location with space bar hit

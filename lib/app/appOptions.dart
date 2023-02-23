@@ -21,6 +21,8 @@ on linux:
 //  diagnostic logging enables
 const Level _logStartup = Level.debug;
 
+const int countInMax = 3;
+
 enum StorageValue {
   //  only partial at the moment
   songMetadata,

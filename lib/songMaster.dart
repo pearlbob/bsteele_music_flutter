@@ -294,7 +294,7 @@ class SongMaster extends ChangeNotifier {
 
   Song? _song;
   double? _songStart;
-  static const countInCount = 2;
+  static const countInCount = countInMax;
   static const double _advanceS = 1.0;
 
   int _bpm = MusicConstants.minBpm; //  default value only

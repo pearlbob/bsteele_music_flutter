@@ -248,12 +248,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           //  follow the song master's play mode
           setState(() {
             songPlayMode = _songMaster.songPlayMode;
+            _clearCountIn();
           });
         }
         break;
       case SongPlayMode.manualPlay:
       case SongPlayMode.autoPlay:
-        //  select the current measure
+      //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
@@ -296,7 +297,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
         _logBuild,
         'player build: $_song, playMomentNumber: ${_playMomentNotifier.playMoment?.playMomentNumber}'
-        ', isPlaying: ${songPlayMode.isPlaying}');
+        ', songPlayMode: ${songPlayMode.name}');
 
     //  deal with song updates
     if (_songUpdate != null) {
@@ -776,7 +777,7 @@ With z or q, the app goes back to the play list.''',
                                       alignment: WrapAlignment.spaceBetween,
                                       children: [
                                         if (!songUpdateService.isFollowing)
-                                          //  key change
+                                        //  key change
                                           AppWrap(
                                             alignment: WrapAlignment.spaceBetween,
                                             children: [
@@ -845,7 +846,7 @@ With z or q, the app goes back to the play list.''',
                                         if (songUpdateService.isFollowing)
                                           AppTooltip(
                                             message:
-                                                'When following the leader, the leader will select the key for you.\n'
+                                            'When following the leader, the leader will select the key for you.\n'
                                                 'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
                                             child: Text(
                                               'Key: $_selectedSongKey',
@@ -863,7 +864,7 @@ With z or q, the app goes back to the play list.''',
                                       ],
                                     ),
                                     if (app.isScreenBig && !songUpdateService.isFollowing)
-                                      //  tempo change
+                                    //  tempo change
                                       AppWrap(
                                         alignment: WrapAlignment.spaceBetween,
                                         children: [
@@ -918,7 +919,7 @@ With z or q, the app goes back to the play list.''',
                                     if (app.isScreenBig && songUpdateService.isFollowing)
                                       AppTooltip(
                                         message:
-                                            'When following the leader, the leader will select the tempo for you.\n'
+                                        'When following the leader, the leader will select the tempo for you.\n'
                                             'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
                                         child: Text(
                                           'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
@@ -944,7 +945,7 @@ With z or q, the app goes back to the play list.''',
                                         ),
                                       ),
                                     if (app.isScreenBig)
-                                      //  leader/follower status
+                                    //  leader/follower status
                                       AppTooltip(
                                         message: 'Control the leader/follower mode from the main menu:\n'
                                             'main screen: menu (hamburger), Options, Hosts',
@@ -1238,10 +1239,14 @@ With z or q, the app goes back to the play list.''',
     return min(app.screenInfo.mediaHeight, 1080 /*  limit leader area to hdtv size */) * _sectionCenterLocationFraction;
   }
 
+  _clearCountIn() {
+    _updateCountIn(-countInMax);
+  }
+
   _updateCountIn(int countIn) {
     _countIn = countIn;
     logger.v('countIn: $countIn');
-    if (countIn > 0 && countIn <= 2) {
+    if (countIn > 0 && countIn < countInMax) {
       _countInWidget = Container(
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -1261,7 +1266,7 @@ With z or q, the app goes back to the play list.''',
   sectionBump(int bump) {
     switch (appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
-        //  banner units are measure
+      //  banner units are measure
         var index =
             Util.indexLimit((_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
         setSelectedSongMoment(_song.songMoments[index]);
@@ -1269,7 +1274,7 @@ With z or q, the app goes back to the play list.''',
         logger.v('banner bump: $bump to $index: ${_song.songMoments[index]}');
         break;
       default:
-        //  units are usually by section
+      //  units are usually by section
         scrollToLyricSection(_lyricSectionNotifier.index + bump);
         break;
     }
@@ -1375,7 +1380,7 @@ With z or q, the app goes back to the play list.''',
 
     SongUpdateState state = SongUpdateState.none;
     switch (songPlayMode) {
-      //  fixme: reconcile the enums
+    //  fixme: reconcile the enums
       case SongPlayMode.autoPlay:
         state = SongUpdateState.playing;
         break;
@@ -1638,13 +1643,18 @@ With z or q, the app goes back to the play list.''',
     logger.log(
         _logScroll,
         'setSelectedSongMoment(): ${songMoment?.momentNumber}'
-        ', _songPlayerChangeNotifier.songMoment: ${_playMomentNotifier.playMoment?.songMoment?.momentNumber}');
+        ', _songPlayerChangeNotifier.songMoment: ${_playMomentNotifier.playMoment?.songMoment?.momentNumber}'
+        ', _songUpdate: $_songUpdate'
+        //
+        );
 
     if (songMoment == null) {
       _playMomentNotifier.playMoment = null;
     } else if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
-      _playMomentNotifier.playMoment =
-          PlayMoment(_songUpdate?.state ?? SongUpdateState.idle, songMoment.momentNumber, songMoment);
+      _playMomentNotifier.playMoment = PlayMoment(
+          _songUpdate?.state ?? (songPlayMode.isPlaying ? SongUpdateState.playing : SongUpdateState.idle),
+          songMoment.momentNumber,
+          songMoment);
       scrollToLyricSection(songMoment.lyricSection.index);
       //
       // if (songUpdateService.isLeader) {
@@ -1992,7 +2002,7 @@ With z or q, the app goes back to the play list.''',
                                           style: boldStyle,
                                           onPressed: () {
                                             setState(
-                                              () {
+                                                  () {
                                                 _isCapo = !_isCapo;
                                                 setSelectedSongKey(_selectedSongKey);
                                                 adjustDisplay();

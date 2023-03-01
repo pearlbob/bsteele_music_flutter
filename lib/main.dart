@@ -137,6 +137,7 @@ const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
+final bool isBeta = uri.toString().contains('beta');
 bool hostIsWebsocketHost = false;
 const _environmentDefault = 'main';
 // --dart-define=environment=test
@@ -337,7 +338,7 @@ class MyHomePageState extends State<MyHomePage> {
     //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
 
     //  give the beta warning
-    if (uri.toString().contains('beta')) {
+    if (isBeta) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _betaWarningPopup();
       });
@@ -386,11 +387,13 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _readExternalSongList() async {
-    var externalHost = host.isEmpty
-        ? 'www.bsteele.com' //  likely a native app with web access
-        : '$host:${uri.port}'; //  port for potential app server
+    var externalHost = '${host.isEmpty //
+            ? 'www.bsteele.com' //  likely a native app with web access
+            : '$host:${uri.port}' //  port for potential app server
+        }/bsteeleMusicApp';
+
     {
-      final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songlyrics';
+      final String url = 'http://$externalHost/allSongs.songlyrics';
       appLogMessage('ExternalSongList: $url');
       // setState(() {
       //   app.infoMessage = 'Loading song list from cloud';
@@ -416,7 +419,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
     appLogMessage('ExternalSongList: processed');
     {
-      final String url = 'http://$externalHost/bsteeleMusicApp/allSongs.songmetadata';
+      final String url = 'http://$externalHost/allSongs.songmetadata';
       appLogMessage('metadata: $url');
       String metadataAsString;
       // setState(() {
@@ -441,7 +444,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
 
     {
-      final String url = 'http://$externalHost/bsteeleMusicApp/allSongPerformances.songperformances';
+      final String url = 'http://$externalHost/allSongPerformances.songperformances';
       // setState(() {
       //   app.infoMessage = 'Loading history';
       // });

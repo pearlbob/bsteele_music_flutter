@@ -940,7 +940,7 @@ class LyricsTable {
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
         items.add(Text(
-          'Copyright: ${song.copyright}',
+          'Release/Copyright: ${song.copyright}',
           style: _coloredChordTextStyle,
         ));
         break;
@@ -952,7 +952,7 @@ class LyricsTable {
             children: [
               AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
               Text(
-                'Copyright: ${song.copyright}',
+                'Release/Copyright: ${song.copyright}',
                 style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled * _scaleFactor),
               ),
               //  give the scrolling some stuff to scroll the bottom up on

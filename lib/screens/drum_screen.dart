@@ -235,12 +235,12 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                                   'Beats per minute.  Tap here or hold control and tap space\n'
                                   ' for tap to tempo.',
                               child: appButton(
-                                'Tempo:',
-                                appKeyEnum: AppKeyEnum.playerTempoTap,
-                                onPressed: () {
-                                  tempoTap();
-                                },
-                              ),
+                                'BPM:',
+                            appKeyEnum: AppKeyEnum.playerTempoTap,
+                            onPressed: () {
+                              tempoTap();
+                            },
+                          ),
                             ),
                             const AppSpace(
                               horizontalSpace: 20,

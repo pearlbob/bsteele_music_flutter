@@ -749,9 +749,9 @@ class EditState extends State<Edit> {
                       ]),
                       AppWrap(children: [
                         AppTooltip(
-                          message: 'Enter the song\'s tempo in beats per minute.',
+                          message: 'Enter the song\'s tempo in beats per minute (BPM).',
                           child: Text(
-                            "   Tempo: ",
+                            "   BPM: ",
                             style: _labelTextStyle,
                           ),
                         ),
@@ -760,7 +760,6 @@ class EditState extends State<Edit> {
                           child: AppTextField(
                             appKeyEnum: AppKeyEnum.editBPM,
                             controller: bpmTextEditingController,
-                            hintText: 'Enter the song\'s tempo in beats per minute.',
                             fontSize: _defaultChordFontSize,
                             onChanged: (value) {}, //  fixme: ignored
                           ),
@@ -768,7 +767,7 @@ class EditState extends State<Edit> {
                       ]),
                       AppWrap(children: [
                         Text(
-                          "Time Signature: ",
+                          "Time: ",
                           style: _labelTextStyle,
                         ),
                         appDropdownButton<TimeSignature>(

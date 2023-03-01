@@ -66,7 +66,7 @@ music_key.Key _selectedSongKey = music_key.Key.C;
 const Level _logBuild = Level.debug;
 const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
-const Level _logKeyboard = Level.debug;
+const Level _logKeyboard = Level.info;
 const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
@@ -872,7 +872,7 @@ With z or q, the app goes back to the play list.''',
                                             message: 'Beats per minute.  Tap here or hold control and tap space\n'
                                                 ' for tap to tempo.',
                                             child: appButton(
-                                              'Tempo:',
+                                              'BPM:',
                                               appKeyEnum: AppKeyEnum.playerTempoTap,
                                               onPressed: () {
                                                 tempoTap();
@@ -919,10 +919,10 @@ With z or q, the app goes back to the play list.''',
                                     if (app.isScreenBig && songUpdateService.isFollowing)
                                       AppTooltip(
                                         message:
-                                        'When following the leader, the leader will select the tempo for you.\n'
+                                        'When following the leader, the leader will select the tempo (BPM) for you.\n'
                                             'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
                                         child: Text(
-                                          'Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}',
+                                          'BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}',
                                           style: headerTextStyle,
                                         ),
                                       ),
@@ -2364,7 +2364,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                           })),
                     Text(
                       'Key $_selectedSongKey'
-                      '     Tempo: ${playerSelectedBpm ?? _song.beatsPerMinute}'
+                      '     BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}'
                       '    Beats: ${_song.timeSignature.beatsPerBar}'
                       '${_showCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                       '  ', //  padding at the end

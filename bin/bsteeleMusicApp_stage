@@ -1,5 +1,5 @@
 #!/bin/tcsh
-#set echo; set verbose
+set echo; set verbose
 
 echo $0\:
 
@@ -12,6 +12,7 @@ set app=bsteeleMusicApp
 set flavor=beta
 set git=~/github/bsteele_music_flutter
 set bsteeleMusicLib=~/github/bsteeleMusicLib
+set allSongs=~/github/allSongs.songlyrics
 
 while ( $#argv > 0 )
 	switch ( $1 )
@@ -52,7 +53,8 @@ flutter test test
 if ( $status != 0 ) echo test status: $status
 
 #	beta to local static host
-set betaDir=/srv/http/public_html/bsteeleMusicApp/$flavor
+set rootDir=/srv/http/public_html/bsteeleMusicApp
+set betaDir=$rootDir/$flavor
 
 # 
 echo test the library
@@ -64,16 +66,17 @@ if ( $status != 0 ) then
 endif
 cd $git
 
-##	build the release version of the beta
+##	build the web version of the beta
 flutter clean
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
-#	see web/index.html for offline workaround URL trick
+set base=/bsteeleMusicApp/
+if ( $isBeta ) set base=/public_html${base}beta/
 if ( $debug ) then
-	flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
-	#flutter build web --web-renderer=auto	#	fixme: temp
+	#flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	flutter build web --base-href $base --web-renderer=auto	#	fixme: temp
 else
-	flutter build web --release --web-renderer=auto
+	flutter build web --base-href $base --release --web-renderer=auto
 endif
 bsteeleMusicApp_canvaskit # offline canvas kit update
 
@@ -88,7 +91,17 @@ rm  -rf $betaDir/*
 
 #	copy to localhost website
 cp -r build/web/* $betaDir
+cp $allSongs/allSong* $rootDir  # include song data
 
+##	build the web cloud version of the beta
+set base=/bsteeleMusicApp/
+if ( $isBeta ) set base=${base}beta/
+if ( $debug ) then
+	#flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	flutter build web --base-href $base --web-renderer=auto	#	fixme: temp
+else
+	flutter build web --base-href $base --release --web-renderer=auto
+endif
 
 #	send to flavor's web location
 set gs=gs://www.bsteele.com/$app/$flavor
@@ -97,7 +110,7 @@ gsutil -m -q rsync -d -R \
     -x 'allSongs\.songlyrics$' \
     -x 'allSongs\.songmetadata$' \
     -x 'allSongPerformances\.songperformances$' \
-    $betaDir/ $gs 	#	source needs the /
+    build/web/ $gs 	#	source needs the /
 gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
 gsutil -m -q acl -r ch -u AllUsers:R $gs
 

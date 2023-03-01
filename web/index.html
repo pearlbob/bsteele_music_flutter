@@ -16,6 +16,7 @@
 
           <base href="$FLUTTER_BASE_HREF">
     -->
+    <base href="$FLUTTER_BASE_HREF">
 
     <meta charset="UTF-8">
     <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -38,7 +39,6 @@
 
     <!-- offline workaround	-->
     <script type="application/javascript">
-
         if (window.location.hash.length > 0) {
             //  strip the hash to protect flutter from reentrancy
             window.location.replace(window.location.href.substring(0,
@@ -67,11 +67,12 @@
         _flutter.loader.loadEntrypoint({
             serviceWorker: {
                 serviceWorkerVersion: serviceWorkerVersion,
+            },
+            onEntrypointLoaded: function (engineInitializer) {
+                engineInitializer.initializeEngine().then(function (appRunner) {
+                    appRunner.runApp();
+                });
             }
-        }).then(function (engineInitializer) {
-            return engineInitializer.initializeEngine();
-        }).then(function (appRunner) {
-            return appRunner.runApp();
         });
     });
 </script>

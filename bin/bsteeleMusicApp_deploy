@@ -51,16 +51,16 @@ bin/bsteeleMusicApp_localWarInstall
 #if ( $status != 0 ) exit -1
 
 #	compile for native arm64
-bin/bsteeleMusicApp_remotePi
-if ( $status != 0 ) exit -1
+#bin/bsteeleMusicApp_remotePi
+#if ( $status != 0 ) exit -1
 
 #	compile for native macos x86
 bin/bsteeleMusicApp_remoteDmg
 if ( $status != 0 ) exit -1
 
 #	compile for native linux x86
-bin/bsteeleMusicApp_linux
-if ( $status != 0 ) exit -1
+#bin/bsteeleMusicApp_linux
+#if ( $status != 0 ) exit -1
 
 #	deploy locally the download page
 bin/bsteeleMusicApp_downloadPage

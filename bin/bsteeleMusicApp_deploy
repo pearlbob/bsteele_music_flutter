@@ -47,8 +47,8 @@ if ( $status != 0 ) exit -1
 bin/bsteeleMusicApp_localWarInstall
 
 #	compile for android
-bin/bsteeleMusicApp_apk
-if ( $status != 0 ) exit -1
+#bin/bsteeleMusicApp_apk
+#if ( $status != 0 ) exit -1
 
 #	compile for native arm64
 bin/bsteeleMusicApp_remotePi

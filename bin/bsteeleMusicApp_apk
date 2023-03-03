@@ -3,6 +3,10 @@
 
 echo $0\:
 
+echo fixme!
+
+exit 0
+
 set app=bsteeleMusicApp
 set src=~/github/bsteele_music_flutter
 set www=/var/www/html/public_html/$app

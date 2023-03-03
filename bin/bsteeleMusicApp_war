@@ -93,7 +93,7 @@ if ( $status != 0 ) exit $status
 #	record the build date
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #   canvaskit fixes rendering errors, included in app for the park
-flutter build web --release --web-renderer=auto  #	see web/index.html for offline workaround URL trick
+flutter build web --release --base-href /$warName/ --web-renderer=auto
 if ( $status != 0 ) exit $status
 bsteeleMusicApp_canvaskit # offline canvas kit update
 

@@ -1,5 +1,5 @@
 #!/bin/tcsh
-set echo; set verbose
+#set echo; set verbose
 
 echo $0\:
 
@@ -73,8 +73,8 @@ date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 set base=/bsteeleMusicApp/
 if ( $isBeta ) set base=/public_html${base}beta/
 if ( $debug ) then
-	#flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
-	flutter build web --base-href $base --web-renderer=auto	#	fixme: temp
+	#flutter uild web --profile --base-href $base --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	lutter build web --base-href $base --web-renderer=auto	#	fixme: temp
 else
 	flutter build web --base-href $base --release --web-renderer=auto
 endif
@@ -97,7 +97,7 @@ cp $allSongs/allSong* $rootDir  # include song data
 set base=/bsteeleMusicApp/
 if ( $isBeta ) set base=${base}beta/
 if ( $debug ) then
-	#flutter build web --profile --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	#flutter build web --profile --base-href $base --web-renderer=auto --dart-define=Dart2jsOptimization=O0
 	flutter build web --base-href $base --web-renderer=auto	#	fixme: temp
 else
 	flutter build web --base-href $base --release --web-renderer=auto

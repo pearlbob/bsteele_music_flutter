@@ -113,7 +113,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677464321061, "song": 
+{ "file": "", "lastModifiedDate": 1677464321061, "song": 
 {
 "title": "1234",
 "artist": "Feist",
@@ -8066,7 +8066,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677561107193, "song": 
+{ "file": "", "lastModifiedDate": 1677561107193, "song": 
 {
 "title": "As It Was",
 "artist": "Harry Styles",
@@ -32227,12 +32227,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677564092674, "song": 
+{ "file": "", "lastModifiedDate": 1677635346448, "song": 
 {
-"title": "Do I Wanna Know",
+"title": "Do I Wanna Know?",
 "artist": "Arctic Monkeys",
 "user": "Shari",
-"lastModifiedDate": 1677564092674,
+"lastModifiedDate": 1677635346448,
 "copyright": "2013 Domino",
 "key": "Bb",
 "defaultBpm": 86,
@@ -48156,6 +48156,93 @@
 	"Get back to where you once belonged",
 	"Get back, get back",
 	"Get back to where you once belonged"
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1677653452026, "song": 
+{
+"title": "Get Closer",
+"artist": "Seals and Crofts",
+"user": "Shari",
+"lastModifiedDate": 1677653452026,
+"copyright": "1976 Warner Records",
+"key": "G",
+"defaultBpm": 97,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"G Em F C.",
+	"G Em F C. G",
+	"V:",
+	"A DA DA F#m7.",
+	"GD E",
+	"A DA DA F#m7.",
+	"GD E",
+	"PC:",
+	"D A DA F#m7.",
+	"GD E",
+	"C:",
+	"G C/G G C/G",
+	"G C/G G C/G",
+	"G C/G G C/G",
+	"G C/G G E",
+	"Br:",
+	"D A Bm7 A",
+	"D A DC#m F#m7.",
+	"GD E",
+	"O:",
+	"E A E A",
+	"E A E A",
+	"E A E DADA",
+	"E A E A",
+	"E"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental) KEY CHANGE IN O",
+	"",
+	"C:",
+	"Darlin' if you want me to be closer to you, get closer to me",
+	"Darlin' if you want me to be closer to you, get closer to me",
+	"Darlin' if you want me to love, love only you, then love only me",
+	"Darlin' if you want me to see, see only you, then see only me",
+	"",
+	"V:",
+	"(There's a) line, I can't cross over, it's no good for me and it's no good for ",
+	"You",
+	"And there's a feelin', deep down inside me, I can't explain it and you're wondering ",
+	"Why",
+	"",
+	"PC:",
+	"You say we've been like strangers, but I'm not the others you can wrap 'round your ",
+	"Fingers",
+	"",
+	"C:",
+	"Darlin' if you want me to be closer to you, get closer to me",
+	"Darlin' if you want me to be closer to you, get closer to me",
+	"Darlin' if you want me to love, love only you, then love only me",
+	"Darlin' if you want me to see, see only you, then see only me",
+	"",
+	"V:",
+	"(There was a) time, when I would come runnin', I'd drop everything for the touch of your ",
+	"Hand in mine, you were ",
+	"Blind, and now you regret it, 'cause I can't forget it, it's locked in my ",
+	"Mind",
+	"",
+	"BR:",
+	"I can't go on livin' day to ",
+	"Day wondering if you'll be here tomorrow",
+	"People change and you're changin' and I've ",
+	"Given you my all there's no more to ",
+	"Borrow",
+	"",
+	"O:",
+	"Darlin' if you want me to be closer to you, get closer to me",
+	"Darlin' if you want me to be (if you want me to be) closer to you, get closer to me",
+	"Darlin' if you want me to be (if you want me to be) closer to you, get closer to me (closer closer)",
+	"Darlin' if you want me to be (if you want me to be) closer to you, get closer to me"
     ]
 }
 },
@@ -91179,7 +91266,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677481514874, "song": 
+{ "file": "", "lastModifiedDate": 1677481514874, "song": 
 {
 "title": "Mmm Mmm Mmm Mmm",
 "artist": "Crash Test Dummies",
@@ -94715,6 +94802,104 @@
     ]
 }
 },
+{ "file": null, "lastModifiedDate": 1677637034766, "song": 
+{
+"title": "Never Let Me Down Again",
+"artist": "Depeche Mode",
+"user": "Shari",
+"lastModifiedDate": 1677637034766,
+"copyright": "1987 Mute",
+"key": "F",
+"defaultBpm": 106,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Gsus4 Gsus4",
+	"Dm C F Eb",
+	"Dm C F Eb",
+	"Dm C G G",
+	"I2:",
+	"Dm C G G",
+	"I3:",
+	"Dm C F Eb",
+	"V:",
+	"Dm C G G",
+	"Dm C G G",
+	"Dm C G Bb",
+	"Dm C G G",
+	"C:",
+	"Cm Bb Gm F",
+	"Cm Bb Gm F",
+	"Br:",
+	"Dm C Am Gm x2",
+	"O1:",
+	"Dm C Am Gm x2",
+	"O2:",
+	"Dm C Am Gm x4",
+	"O3:",
+	"Dm C Am Gm x2"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"I'm taking a ride with my best friend",
+	"I hope he never lets me down again",
+	"He knows where he's taking me, taking me where I want to be",
+	"I'm taking a ride with my best friend",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"C:",
+	"We're flying high, we're watching the ",
+	"World pass us by",
+	"Never want to come down, never want to put my ",
+	"Feet back down on the ground",
+	"",
+	"I3:",
+	"(instrumental)",
+	"",
+	"V:",
+	"I'm taking a ride with my best friend",
+	"I hope he never lets me down again",
+	"Promises me I'm as safe as houses, as long as I remember who's wearing the trousers",
+	"I hope he never lets me down again",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"C:",
+	"We're flying high, we're watching the ",
+	"World pass us by",
+	"Never want to come down, never want to put my ",
+	"Feet back down on the ground",
+	"",
+	"C:",
+	"We're flying high, we're watching the ",
+	"World pass us by",
+	"Never want to come down, never want to put my ",
+	"Feet back down on the ground",
+	"",
+	"BR:",
+	"(instrumental)",
+	"",
+	"O1:",
+	"Never let me down, never let me down",
+	"Never let me down, never let me down",
+	"",
+	"O2:",
+	"[Never let me down (See the stars, they're shining bright)",
+	"Never let me down (Everything's alright tonight)] - x4",
+	"",
+	"O3:",
+	"(instrumental)"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1646536799378, "song": 
 {
 "title": "Never Tear Us Apart",
@@ -97055,7 +97240,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677547453558, "song": 
+{ "file": "", "lastModifiedDate": 1677547453558, "song": 
 {
 "title": "Nowhere Man",
 "artist": "Beatles, The",
@@ -104542,7 +104727,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677457592466, "song": 
+{ "file": "", "lastModifiedDate": 1677457592466, "song": 
 {
 "title": "Policy of Truth",
 "artist": "Depeche Mode",
@@ -130875,7 +131060,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677311340040, "song": 
+{ "file": "", "lastModifiedDate": 1677311340040, "song": 
 {
 "title": "Suspicious Minds",
 "artist": "Mark James",
@@ -143600,7 +143785,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677555477905, "song": 
+{ "file": "", "lastModifiedDate": 1677555477905, "song": 
 {
 "title": "Walk of Life",
 "artist": "Dire Straits",
@@ -148399,7 +148584,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677561526775, "song": 
+{ "file": "", "lastModifiedDate": 1677561526775, "song": 
 {
 "title": "Where Is My Mind",
 "artist": "Pixies",
@@ -152570,7 +152755,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1677462710611, "song": 
+{ "file": "", "lastModifiedDate": 1677462710611, "song": 
 {
 "title": "Wrecking Ball",
 "artist": "Miley Cyrus",

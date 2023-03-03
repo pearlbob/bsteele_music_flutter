@@ -3,7 +3,7 @@
 
 echo $0\:
 
-set flut=bsteele_music_flutter
+set flutter=bsteele_music_flutter
 set rel=bsteeleMusicRelease
 set lib=bsteeleMusicLib
 set server=/home/bob/github/bsteeleMusicServer
@@ -14,6 +14,8 @@ set dst=$CATALINA_BASE/webapps
 
 
 #	build the server war file
+cd ~/github/$flutter
+flutter build web --base-href /$warName/ --release --web-renderer=auto
 pushd $server
 ./bin/buildPackage
 ls -l $server/target/$war
@@ -41,6 +43,6 @@ sudo cp $war $dst
 
 sleep 5
 ll -d $CATALINA_BASE/webapps/$warName
-echo test http://localhost:8080/bsteeleMusicApp
+echo test http://localhost:8080/$warName
 
 exit 0

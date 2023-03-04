@@ -2,32 +2,18 @@
 
 # Release Planning:
 
-## Release 1.2
-### Release Date
+## Release 1.2.0
+
+### Release Date: Mar  3, 2023
 
 ### Features
 
 * drum regularity
 * Named drum parts attached to songs
 
-### Fix
-
-* GET http://www.bsteele.com/bsteeleMusicApp/beta/index.html/version.json?cachebuster=1677082609728 404 (Not Found)
-* flutter.js: Exception while loading service worker: Error: Service worker not supported (or configured).
-* make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
-* player: in pause, reposition play with up/down arrows or scroll,
-  continue from new location with space bar hit
-* And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
-  definable.
-* visual delay on mac mini? Just off, slow. correct when measured post render.
-* explain storage. Yes
-* Mute button? Display and keyboard shortcut
-* regenerate generated metadata after editing
-* playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
-
-
 ## Fixes Completed
 
+* bsteeleMusicServer update
 * count-in drums and indicator on autoplay
 * verify/fix auto playback timing and jitter
 * Back to player from song preview on youtube.com, fullscreen button missing
@@ -47,7 +33,6 @@
 * Drum edit preview, with bpm and volume
 * In player screen, capo mode can be forgotten inappropriately.
 * Metadata list shouldn't scroll after metadata change
-* Metadata fields are caseless. The software will Capitalize All Fields As Required.
 * connect player popup volume slider to volume
 * A new singer/requester without any songs sung or requested should default to a singer
 * followers should never have drum selections
@@ -59,8 +44,21 @@
 * history from tomcat server log
 * history statistics:  songs sung by singer, cj top 40
 
-### Fixes
+### Fix
 
+* GET http://www.bsteele.com/bsteeleMusicApp/beta/index.html/version.json?cachebuster=1677082609728 404 (Not Found)
+* flutter.js: Exception while loading service worker: Error: Service worker not supported (or configured).
+* make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
+* player: in pause, reposition play with up/down arrows or scroll,
+  continue from new location with space bar hit
+* And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
+  definable.
+* Metadata fields are caseless. The software will Capitalize All Fields As Required.
+* visual delay on mac mini? Just off, slow. correct when measured post render.
+* explain storage. Yes
+* Mute button? Display and keyboard shortcut
+* regenerate generated metadata after editing
+* playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
 * Time the player selected measure in autoplay mode: adjust timing if required
 * Minor bug: I can't change/save the username without making other changes (that engage the save button).
 * Improve startup delay.

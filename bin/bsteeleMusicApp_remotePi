@@ -62,7 +62,7 @@ else
 
 	echo on machine `hostname`
 	cd ~/junk/$bsDir/$src
-	flup
+	flup -y
 
 	rm -rf .gradle
 	rm -rf linux

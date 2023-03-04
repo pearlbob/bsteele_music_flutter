@@ -16,13 +16,13 @@ echo $warSum
 set dmgSum=`sha256sum $app.dmg`
 echo $dmgSum
 
-set apkSum='0' #`sha256sum $app.apk`
+set apkSum=`sha256sum $app.apk`
 echo $apkSum
 
 set piSum='0' #`sha256sum ${app}Pi.tgz`
 echo $piSum
 
-set linuxSum='0' #`sha256sum ${app}X64Linux.tgz`
+set linuxSum=`sha256sum ${app}X64Linux.tgz`
 echo $linuxSum
 
 #	write the download page

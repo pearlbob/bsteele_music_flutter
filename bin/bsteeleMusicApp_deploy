@@ -34,7 +34,7 @@ sudo date
 
 #	assure our tools are ready
 #done by arch: gcloud --quiet components update
-flup
+flup -y
 
 
 #	compile for release
@@ -47,8 +47,8 @@ if ( $status != 0 ) exit -1
 bin/bsteeleMusicApp_localWarInstall
 
 #	compile for android
-#bin/bsteeleMusicApp_apk
-#if ( $status != 0 ) exit -1
+bin/bsteeleMusicApp_apk
+if ( $status != 0 ) exit -1
 
 #	compile for native arm64
 #bin/bsteeleMusicApp_remotePi
@@ -59,8 +59,8 @@ bin/bsteeleMusicApp_remoteDmg
 if ( $status != 0 ) exit -1
 
 #	compile for native linux x86
-#bin/bsteeleMusicApp_linux
-#if ( $status != 0 ) exit -1
+bin/bsteeleMusicApp_linux
+if ( $status != 0 ) exit -1
 
 #	deploy locally the download page
 bin/bsteeleMusicApp_downloadPage

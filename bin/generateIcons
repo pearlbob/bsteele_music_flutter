@@ -1,0 +1,23 @@
+#!/bin/tcsh
+set echo; set verbose
+
+#	android
+set src=lib/assets/runningMan.png
+set res=android/app/src/main/res
+#	PNG image data, 32 x 32, 8-bit/color RGBA, non-interlaced
+convert $src -geometry 32x32 $res/mipmap-mdpi/ic_launcher.png
+
+#    PNG image data, 48 x 48, 8-bit/color RGBA, non-interlaced
+convert $src -geometry 48x48 $res/mipmap-hdpi/ic_launcher.png
+
+#	PNG image data, 64 x 64, 8-bit/color RGBA, non-interlaced
+convert $src -geometry 64x64 $res/mipmap-xhdpi/ic_launcher.png
+
+#	PNG image data, 96 x 96, 8-bit/color RGBA, non-interlaced
+convert $src -geometry 96x96 $res/mipmap-xxhdpi/ic_launcher.png
+
+#	PNG image data, 128 x 128, 8-bit/color RGBA, non-interlaced
+convert $src -geometry 128x128 $res/mipmap-xxxhdpi/ic_launcher.png
+
+cd $res
+file */*.png

@@ -53,7 +53,7 @@ else
 
 	#	global update
 	npm update -g
-	flup
+	flup -y
 
 	rm -rf .gradle
 	flutter clean

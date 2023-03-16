@@ -34,6 +34,8 @@ enum StorageValue {
   tapToAdvance,
 }
 
+enum TapToAdvance { never, upOrDown, alwaysDown }
+
 /// Application level, persistent, shared values.
 class AppOptions extends ChangeNotifier {
   static final AppOptions _singleton = AppOptions._internal();
@@ -76,7 +78,7 @@ class AppOptions extends ChangeNotifier {
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     _toolTips = await _readBool(StorageValue.toolTips.name, defaultValue: false);
-    _tapToAdvance = await _readBool(StorageValue.tapToAdvance.name, defaultValue: true);
+    _tapToAdvance = await _readTapToAdvance();
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
@@ -95,6 +97,20 @@ class AppOptions extends ChangeNotifier {
   set debug(debug) {
     _debug = debug;
     _saveBool('debug', debug);
+  }
+
+  Future<TapToAdvance> _readTapToAdvance() async {
+    var key = StorageValue.tapToAdvance.name;
+    Object? object = _prefs.get(key);
+    TapToAdvance ret;
+    if (object is bool) {
+      ret = object ? TapToAdvance.upOrDown : TapToAdvance.never;
+    } else {
+      ret = Util.enumFromString(_prefs.getString(key) ?? '', TapToAdvance.values) ?? TapToAdvance.never;
+    }
+    await _prefs.setString(key, ret.name);
+    notifyListeners();
+    return ret;
   }
 
   Future<bool> _readBool(final String key, {defaultValue = false}) async {
@@ -275,17 +291,17 @@ class AppOptions extends ChangeNotifier {
   bool get toolTips => _toolTips;
   bool _toolTips = false;
 
-  set tapToAdvance(bool value) {
+  set tapToAdvance(TapToAdvance value) {
     if (_tapToAdvance == value) {
       return;
     }
     _tapToAdvance = value;
-    _saveBool(StorageValue.tapToAdvance.name, value);
+    _saveString(StorageValue.tapToAdvance.name, value.name);
   }
 
   /// True if the user wants NinJam aids shown
-  bool get tapToAdvance => _tapToAdvance;
-  bool _tapToAdvance = false;
+  TapToAdvance get tapToAdvance => _tapToAdvance;
+  TapToAdvance _tapToAdvance = TapToAdvance.never;
 
   set ninJam(bool value) {
     if (_ninJam == value) {

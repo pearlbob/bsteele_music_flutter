@@ -812,7 +812,6 @@ class SingersState extends State<Singers> {
                   style: singerTextStyle,
                   includeByLastSung: true,
                   selectedSortType: PlayListSortType.byTitle,
-                  isFromTheTop: false,
                   playListSearchMatcher: SongPlayListSearchMatcher(),
                 ),
             ],

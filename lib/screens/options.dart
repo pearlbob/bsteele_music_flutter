@@ -6,6 +6,7 @@ import 'package:bsteeleMusicLib/songs/chord.dart';
 import 'package:bsteeleMusicLib/songs/chord_descriptor.dart';
 import 'package:bsteeleMusicLib/songs/pitch.dart';
 import 'package:bsteeleMusicLib/songs/scale_chord.dart';
+import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/main.dart';
@@ -126,11 +127,11 @@ class OptionsState extends State<Options> {
                         ),
                       ),
                       SizedBox(
-                        width: app.screenInfo.mediaWidth / 3,
+                        width: app.screenInfo.mediaWidth / 2,
                         child: AppTextField(
                           appKeyEnum: AppKeyEnum.optionsWebsocketIP,
                           controller: _websocketHostEditingController,
-                          hintText: 'Enter the websocket host IP address.',
+                          hintText: 'address here',
                           onChanged: (value) {
                             _appOptions.websocketHost = value;
                           },
@@ -172,17 +173,18 @@ class OptionsState extends State<Options> {
                           },
                         ),
                       ),
-                      AppTooltip(
-                        message: 'You are in the Community Jams studio with an old ipad.',
-                        child: appButton(
-                          'Studio and old Ipad',
-                          appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
-                          onPressed: () {
-                            _appOptions.websocketHost = '10.1.10.50';
-                            _websocketHostEditingController.text = _appOptions.websocketHost;
-                          },
-                        ),
-                      ),
+                      //  no longer appropriate:
+                      // AppTooltip(
+                      //   message: 'You are in the Community Jams studio with an old ipad.',
+                      //   child: appButton(
+                      //     'Studio and old Ipad',
+                      //     appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
+                      //     onPressed: () {
+                      //       _appOptions.websocketHost = '10.1.10.50';
+                      //       _websocketHostEditingController.text = _appOptions.websocketHost;
+                      //     },
+                      //   ),
+                      // ),
                       AppTooltip(
                         message: 'You are in the park.',
                         child: appButton(
@@ -273,33 +275,49 @@ class OptionsState extends State<Options> {
                   AppWrap(
                     alignment: WrapAlignment.start,
                     children: [
+                      const Text('Player Clicks:'),
+                      const AppSpace(),
                       AppTooltip(
-                        message: 'On the player screen:\n'
-                            'Tap on the bottom half of the screen to advance a section.\n'
-                            'Tap on the top half to go back a section.',
-                        child: appButton(
-                          'Tap to Advance',
-                          appKeyEnum: AppKeyEnum.optionsTapToAdvanceLabel,
-                          value: _appOptions.tapToAdvance,
-                          onPressed: () {
-                            setState(
-                              () {
-                                _appOptions.tapToAdvance = !_appOptions.tapToAdvance;
-                              },
+                        message: 'On the player screen:\n\n'
+                            'Never: never advance the section on a click or tap\n'
+                            'Up or down: Tap on the bottom half of the screen to advance a section.\n'
+                            '     Tap on the top half to go back a section.\n'
+                            'Always down: advance the section on any click or tap, anywhere',
+                        child: DropdownButton<TapToAdvance>(
+                          items: TapToAdvance.values.toList().map((TapToAdvance value) {
+                            return DropdownMenuItem<TapToAdvance>(
+                              key: ValueKey(value.name),
+                              value: value,
+                              child: Text(
+                                Util.firstToUpper(Util.camelCaseToLowercaseSpace(value.name)),
+                                style: style,
+                              ),
                             );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null && value != _appOptions.tapToAdvance) {
+                              setState(() {
+                                _appOptions.tapToAdvance = value;
+                              });
+                            }
                           },
-                          //softWrap: false,
+                          value: _appOptions.tapToAdvance,
+                          style: generateAppTextStyle(
+                            color: Colors.black,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                          itemHeight: null,
                         ),
                       ),
-                      appSwitch(
-                        appKeyEnum: AppKeyEnum.optionsTapToAdvance,
-                        value: _appOptions.tapToAdvance,
-                        onChanged: (value) {
-                          setState(() {
-                            _appOptions.tapToAdvance = !_appOptions.tapToAdvance;
-                          });
-                        },
-                      ),
+                      // appSwitch(
+                      //   appKeyEnum: AppKeyEnum.optionsTapToAdvance,
+                      //   value: _appOptions.tapToAdvance,
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       _appOptions.tapToAdvance = !_appOptions.tapToAdvance;
+                      //     });
+                      //   },
+                      // ),
                     ],
                   ),
 

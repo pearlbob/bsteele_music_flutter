@@ -10,6 +10,7 @@
 
 * drum regularity
 * Named drum parts attached to songs
+* history from tomcat server log
 
 ## Fixes Completed
 
@@ -41,11 +42,12 @@
 
 ### Features
 
-* history from tomcat server log
 * history statistics:  songs sung by singer, cj top 40
 
 ### Fix
 
+* automatic selection of next singer should be at the top of the new playlist
+* move follower key offset to options page
 * GET http://www.bsteele.com/bsteeleMusicApp/beta/index.html/version.json?cachebuster=1677082609728 404 (Not Found)
 * flutter.js: Exception while loading service worker: Error: Service worker not supported (or configured).
 * make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.

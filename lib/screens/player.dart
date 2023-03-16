@@ -66,7 +66,7 @@ music_key.Key _selectedSongKey = music_key.Key.C;
 const Level _logBuild = Level.debug;
 const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
-const Level _logKeyboard = Level.info;
+const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
@@ -142,7 +142,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     //  show song master play updates
     _songMaster.addListener(songMasterListener);
 
-    _rawKeyboardListenerFocusNode = FocusNode(onKey: playerOnKey);
+    _rawKeyboardListenerFocusNode = FocusNode(onKey: playerOnRawKey);
 
     songPlayMode = SongPlayMode.idle;
   }
@@ -220,6 +220,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _songMaster.removeListener(songMasterListener);
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
+    _rawKeyboardListenerFocusNode.dispose();
     super.dispose();
   }
 
@@ -254,7 +255,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       case SongPlayMode.manualPlay:
       case SongPlayMode.autoPlay:
-      //  select the current measure
+    //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
@@ -1025,7 +1026,8 @@ With z or q, the app goes back to the play list.''',
                                   child: GestureDetector(
                                       onTapDown: (details) {
                                         //  respond to taps above and below the middle of the screen
-                                        if (appOptions.tapToAdvance &&
+                                        if ((appOptions.tapToAdvance == TapToAdvance.upOrDown ||
+                                                appOptions.tapToAdvance == TapToAdvance.alwaysDown) &&
                                             songPlayMode != SongPlayMode.autoPlay &&
                                             appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
                                           if (songPlayMode != SongPlayMode.manualPlay) {
@@ -1034,7 +1036,7 @@ With z or q, the app goes back to the play list.''',
                                             setState(() {
                                               songPlayMode = SongPlayMode.manualPlay;
                                             });
-                                          } else {
+                                          } else if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
                                             //  don't respond above the player song table
                                             var offset = _tableGlobalOffset();
                                             if (details.globalPosition.dy > offset.dy) {
@@ -1044,6 +1046,8 @@ With z or q, the app goes back to the play list.''',
                                                 sectionBump(-1); //  fixme: when not in play
                                               }
                                             }
+                                          } else if (appOptions.tapToAdvance == TapToAdvance.alwaysDown) {
+                                            sectionBump(1); //  fixme: when not in play
                                           }
                                         }
                                       },
@@ -1152,8 +1156,8 @@ With z or q, the app goes back to the play list.''',
         });
   }
 
-  KeyEventResult playerOnKey(FocusNode node, RawKeyEvent value) {
-    logger.log(_logKeyboard, '_playerOnKey(): event: $value');
+  KeyEventResult playerOnRawKey(FocusNode node, RawKeyEvent value) {
+    logger.log(_logKeyboard, 'playerOnRawKey(): event: $value');
 
     if (!_playerIsOnTop) {
       return KeyEventResult.ignored;
@@ -1228,6 +1232,7 @@ With z or q, the app goes back to the play list.''',
         return KeyEventResult.handled;
       }
     }
+    logger.i('_playerOnKey(): ignored');
     return KeyEventResult.ignored;
   }
 
@@ -1417,7 +1422,7 @@ With z or q, the app goes back to the play list.''',
     logger.log(
         _logLeaderFollower,
         'leaderSongUpdate: momentNumber: $momentNumber'
-            ', state: $state');
+        ', state: $state');
   }
 
   IconData get playStopIcon => songPlayMode.isPlaying ? Icons.stop : Icons.play_arrow;

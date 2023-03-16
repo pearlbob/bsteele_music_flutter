@@ -12,6 +12,7 @@ import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/time_signature.dart';
 import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -188,7 +189,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsLeadership(Null),
   optionsNashville(NashvilleSelection),
   optionsNinJam(bool),
-  optionsTapToAdvanceLabel(bool),
+  optionsTapToAdvanceLabel(TapToAdvance),
   optionsTapToAdvance(bool),
   optionsToolTips(bool),
   optionsToolTipsTextButton(Null),
@@ -355,6 +356,12 @@ class AppKey extends ValueKey<String> implements Comparable<AppKey> {
   int compareTo(AppKey other) {
     return value.compareTo(other.value);
   }
+}
+
+abstract class Foo<T> {
+  AppKey createAppKey();
+
+  execute(String s);
 }
 
 /// Generate an application key from the enumeration and an optional value

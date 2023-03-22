@@ -255,7 +255,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       case SongPlayMode.manualPlay:
       case SongPlayMode.autoPlay:
-    //  select the current measure
+        //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
@@ -884,8 +884,9 @@ With z or q, the app goes back to the play list.''',
                                           AppWrap(
                                             alignment: WrapAlignment.spaceBetween,
                                             children: [
-                                              DropdownButton<int>(
-                                                items: bpmDropDownMenuList,
+                                              appDropdownButton<int>(
+                                                AppKeyEnum.playerBPM,
+                                                bpmDropDownMenuList,
                                                 onChanged: (value) {
                                                   if (value != null) {
                                                     setState(() {
@@ -897,9 +898,6 @@ With z or q, the app goes back to the play list.''',
                                                 },
                                                 value: playerSelectedBpm ?? _song.beatsPerMinute,
                                                 style: headerTextStyle,
-                                                iconSize: headerTextStyle.fontSize ?? appDefaultFontSize,
-                                                itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
-                                                    kMinInteractiveDimension),
                                               ),
                                             ],
                                           ),

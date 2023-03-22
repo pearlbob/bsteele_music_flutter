@@ -63,7 +63,7 @@ const double _marginSizeMax = 4; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _highlightColor = Colors.redAccent;
-const _defaultMaxLines = 8;
+const _defaultMaxLines = 12;
 var _maxLines = 1;
 
 ///  The trick of the game: Figure the text size prior to boxing it
@@ -79,7 +79,10 @@ Size _computeRichTextSize(
     maxLines: maxLines ?? _maxLines,
     textScaleFactor: textScaleFactor,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
-  logger.v('_computeRichTextSize: textScaleFactor: $textScaleFactor, maxWidth: $maxWidth, size: ${textPainter.size}');
+  // if (richText.toString().contains('One, two, three, four tell me that you love me more')) {
+  //   logger.i('_computeRichTextSize: textScaleFactor: $textScaleFactor, maxWidth: $maxWidth, size: ${textPainter.size}');
+  // }
+
   return textPainter.size;
 }
 
@@ -775,11 +778,11 @@ class LyricsTable {
         ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
         ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
-    _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : 8;
+    _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : _defaultMaxLines;
 
     //  set the location grid sizing
     final double xMargin = 2.0 * _marginSize;
-    final double yMargin = xMargin;
+    final double yMargin = xMargin; // same size as x
     {
       double y = 0;
       for (var r = 0; r < _locationGrid.getRowCount(); r++) {
@@ -1452,14 +1455,16 @@ class SongCellWidget extends StatefulWidget {
 
   ///  efficiency compromised for const StatelessWidget song cell
   Size get computedBuildSize {
-    //logger.i('computedBuildSize: columnWidth: $columnWidth, $_maxLines');
-    return (withEllipsis ?? false)
+    //  add a tolerance
+    var width = columnWidth ?? app.screenInfo.mediaWidth;
+    var ret = (withEllipsis ?? false)
         ? size!
-        : _computeRichTextSize(richText,
-                textScaleFactor: textScaleFactor,
-                maxLines: _maxLines,
-                maxWidth: columnWidth ?? app.screenInfo.mediaWidth) +
-            Offset(_paddingSize + 2.0 * _marginSize, 2.0 * _marginSize);
+        : _computeRichTextSize(richText, textScaleFactor: textScaleFactor, maxWidth: width) +
+            Offset(2 * _paddingSize + 2.0 * _marginSize, 2 * _paddingSize + 2.0 * _marginSize);
+    // if (richText.toString().contains('One, two, three, four tell me that you love me more')) {
+    //   logger.i('computedBuildSize: width: $width, ret: $ret');
+    // }
+    return ret;
   }
 
   Size get buildSize => size ?? computedBuildSize;
@@ -1568,7 +1573,7 @@ class _SongCellState extends State<SongCellWidget> {
       //Future.delayed(Duration.zero, () => _checkTheAutoPlayDelay(context));
     }
     Size buildSize = widget.computedBuildSize;
-    double width = 10; //  safety only
+    double width;
     switch (widget.type) {
       case SongCellType.columnMinimum:
         width = buildSize.width;
@@ -1606,29 +1611,36 @@ class _SongCellState extends State<SongCellWidget> {
           break;
       }
 
-      return Container(
+      var ret = Container(
         alignment: Alignment.topLeft,
-        width: width,
-        height: buildSize.height,
         color: color,
         margin: _margin,
-        child: Container(
-          width: width,
-          height: buildSize.height,
-          padding: _padding,
-          foregroundDecoration: //
-              selected
-                  ? BoxDecoration(
-                      border: Border.all(
-                        width: _marginSize,
-                        color: _highlightColor,
-                      ),
-                    )
-                  : null,
-          color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
-          child: richText,
-        ),
+        width: width,
+        height: buildSize.height,
+        //padding: _padding,
+        foregroundDecoration: //
+            selected
+                ? BoxDecoration(
+                    border: Border.all(
+                      width: _marginSize,
+                      color: _highlightColor,
+                    ),
+                  )
+                : null,
+        child: richText,
       );
+      // if (richText.toString().contains('One, two, three, four tell me that you love me more')) {
+      //   logger.i('childBuilder: width: $width'
+      //       ', widget.columnWidth: ${widget.columnWidth}'
+      //
+      //       ', buildSize.height: ${buildSize.height}'
+      //       ', constraints: ${ret.constraints}'
+      //       ', _padding: $_padding'
+      //       //
+      //       );
+      // }
+
+      return ret;
     }
 
     return Container(

@@ -87,10 +87,12 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   editChordDataPoint(ChordSectionLocation),
   editChordPlusAppend(ChordSectionLocation),
   editChordPlusInsert(ChordSectionLocation),
+  editChordSection(ChordSection),
   editChordSectionAcceptAndAdd(ChordSection),
   editChordSectionAccept(ChordSection),
   editChordSectionCancel(ChordSection),
   editChordSectionDelete(ChordSection),
+  editChordSectionLast(ChordSection),
   editChordSectionLocation(ChordSectionLocation),
   editClearSong(Null),
   editCopyright(String),
@@ -358,12 +360,6 @@ class AppKey extends ValueKey<String> implements Comparable<AppKey> {
   }
 }
 
-abstract class Foo<T> {
-  AppKey createAppKey();
-
-  execute(String s);
-}
-
 /// Generate an application key from the enumeration and an optional value
 AppKey appKeyCreate(AppKeyEnum e, {dynamic value}) {
   AppKey ret;
@@ -436,6 +432,7 @@ Map<Type, TypeParser> _appKeyParsers = {
   ScaleNote: (s) => ScaleNote.parseString(s),
   SongIdMetadataItem: (s) => SongIdMetadataItem.parse(s),
   TimeSignature: (s) => TimeSignature.parse(s),
+  TapToAdvance: (s) => TapToAdvance.values.firstWhere((e) => e.name == s),
   NameValue: (s) => NameValue.parse(s),
 };
 
@@ -480,9 +477,11 @@ Future<bool> appKeyExecute(final String logString, {final Duration? delay}) asyn
     for (var e in AppKeyEnum.values) {
       _appKeyEnumLookupMap![e.name] = e;
       //  assure that we can convert everything
-      //  fixme: should be done at compile time
+      //  fixme: should be done at compile time, or at least initialization
       //logger.i('  test type for $e: ${e.argType}');
-      assert(_appKeyParsers[e.argType] != null);
+      if (_appKeyParsers[e.argType] == null) {
+        assert(_appKeyParsers[e.argType] != null);
+      }
     }
   }
 
@@ -506,8 +505,8 @@ Future<bool> appKeyExecute(final String logString, {final Duration? delay}) asyn
     logger.log(
         _appKeyExecute,
         '     _appKeyExecute: eString: "$eString"'
-            ', value: "$valueString", from: ${_appKeyRegisterCallbacks.length}  '
-            'callbacks');
+        ', value: "$valueString", from: ${_appKeyRegisterCallbacks.length}  '
+        'callbacks');
 
     //  execute the app key
     if (eString != null) {
@@ -590,6 +589,14 @@ void testAppKeyCallbacks() async {
   const delay = Duration(seconds: 1);
   const quickDelay = Duration(milliseconds: 5000 ~/ 12);
 
+  //  turn off the follow host
+  await appKeyExecute('''
+mainHamburger
+mainDrawerOptions
+optionsWebsocketNone
+appBack
+''', delay: quickDelay);
+
   {
     int count = 0;
     for (var song in app.allSongs) {
@@ -608,33 +615,6 @@ void testAppKeyCallbacks() async {
     }
     await appKeyExecute(AppKeyEnum.playListClearSearch.name);
   }
-
-  // //  fixme: sample only
-  // logger.log(_logAppKey, 'testAppKeyCallbacks:');
-  //
-  // //logger.log(_logAppKey,'appKeyExecute: mainSortType.byComplexity: ${appKeyExecute('mainSortType.byComplexity')}');
-  // // setState() called after dispose():
-  // _appKeyCallbacksDebugLog();
-  // logger.log(_logAppKey, 'appKeyExecute: mainDrawer: ${appKeyExecute('mainDrawer')}');
-  // await Future.delayed(const Duration(seconds: 1));
-  // _appKeyCallbacksDebugLog();
-  //
-  // logger.log(_logAppKey, 'appKeyExecute: mainDrawerOptions: ${appKeyExecute('mainDrawerOptions')}');
-  // await Future.delayed(const Duration(seconds: 1));
-  // logger.log(_logAppKey, 'appKeyExecute: optionsWebsocketBob: ${appKeyExecute('optionsWebsocketBob')}');
-  // await Future.delayed(const Duration(seconds: 1));
-  // logger.log(_logAppKey, 'appKeyExecute: optionsUserName.myfirst: ${appKeyExecute('optionsUserName.myfirst')}');
-  // await Future.delayed(const Duration(seconds: 1));
-  //
-  // AppKeyEnum e = AppKeyEnum.appBack;
-  // logger.log(_logAppKey, 'appKeyExecute: $e: ${appKeyExecute(e.name)}');
-  //
-  // // await Future.delayed(const Duration(seconds: 8));
-  // // logger.log(_logAppKey,'appKeyExecute: optionsUserName.bobstuff: ${appKeyExecute('optionsUserName.bobstuff')}');
-  // await Future.delayed(const Duration(seconds: 4));
-  // logger.log(_logAppKey, 'appKeyExecute: done');
-  //
-  // // logger.log(_logAppKey,'appKeyExecute: playerMusicKey.Eb: ${appKeyExecute('playerMusicKey.Eb')}');
 }
 
 void testAppKeyCallbacksStop() {
@@ -935,7 +915,9 @@ DropdownButton<T> appDropdownButton<T>(
     value: value,
     items: items,
     onChanged: (value) {
-      _appLogCallback(key);
+      //  log the current value from the selected drop down menu item
+      _appLogCallback(appKeyCreate(appKeyEnum, value: value));
+
       onChanged?.call(value);
     },
     hint: hint,

@@ -81,6 +81,18 @@ odd repeats
 
 odd sized repeats
   Africa
+
+
+ lookup urls:
+    upside down by jack johnson
+    copy "upside down jack johnson" to paste buffer
+    https://www.google.com/search?q=upside+down+jack+johnson+lyrics
+    https://en.wikipedia.org/wiki/Upside_Down_(Jack_Johnson_song)
+    https://www.ultimate-guitar.com/search.php?search_type=title&value=upside%20down%20by%20jack%20johnson
+    https://www.musicnotes.com/search/go?w=upside+down+jack+johnson
+    https://www.beatsperminuteonline.com/ (or tap to tempo on page)
+    https://www.azlyrics.com/lyrics/beatles/yesterday.html  + copy "upside down jack johnson" to paste buffer
+
  */
 
 ///   screen to edit a song
@@ -502,9 +514,7 @@ class EditState extends State<Edit> {
                   const AppVerticalSpace(space: 10),
                   AppWrapFullWidth(alignment: WrapAlignment.spaceAround, spacing: 10, children: <Widget>[
                     appButton(
-                      songHasChanged
-                          ? (isValidSong ? 'Save song on local drive' : 'Fix the song')
-                          : 'Nothing has changed',
+                      'Save song on local drive',
                       appKeyEnum: AppKeyEnum.editEnterSong,
                       fontSize: _defaultChordFontSize,
                       onPressed: () {
@@ -1602,9 +1612,10 @@ class EditState extends State<Edit> {
     logger.log(_editLyricEntry, 'chordMaxColCount: $chordMaxColCount');
 
     //  generate the section pull down data if required
-    List<DropdownMenuItem<ChordSection>> sectionItems =
+    List<DropdownMenuItem<ChordSection>> chordSectionItems =
         SplayTreeSet<ChordSection>.from(song.getChordSections()).map((chordSection) {
-      return DropdownMenuItem(
+      return appDropdownMenuItem<ChordSection>(
+        appKeyEnum: AppKeyEnum.editChordSection,
         value: chordSection,
         child: Text(
           '${chordSection.sectionVersion}',
@@ -1641,7 +1652,7 @@ class EditState extends State<Edit> {
                     size: chordFontSize,
                   ),
                 ),
-                items: sectionItems,
+                items: chordSectionItems,
                 onChanged: (value) {
                   if (value != null) {
                     //logger.log(_editLog, 'addChordSection(${entry.lyricSection.index}, ${value.sectionVersion});');
@@ -1875,7 +1886,7 @@ class EditState extends State<Edit> {
                 size: chordFontSize,
               ),
             ),
-            items: sectionItems,
+            items: chordSectionItems,
             onChanged: (value) {
               if (value != null) {
                 lyricsEntries.addChordSection(value);

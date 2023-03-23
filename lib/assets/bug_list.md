@@ -10,6 +10,7 @@
 
 ### Fix
 
+* limit chord summary length in pro edit lyrics entry
 * edit: chords on lyrics not up to date until after validate?
 * player: more warning about no editing if following
 * move follower key offset to options page

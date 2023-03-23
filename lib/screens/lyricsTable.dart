@@ -79,10 +79,6 @@ Size _computeRichTextSize(
     maxLines: maxLines ?? _maxLines,
     textScaleFactor: textScaleFactor,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
-  // if (richText.toString().contains('One, two, three, four tell me that you love me more')) {
-  //   logger.i('_computeRichTextSize: textScaleFactor: $textScaleFactor, maxWidth: $maxWidth, size: ${textPainter.size}');
-  // }
-
   return textPainter.size;
 }
 
@@ -386,7 +382,9 @@ class LyricsTable {
                   banner.index,
                   momentNumber,
                   chordSection == null
-                      ? SongCellWidget.empty()
+                      ? SongCellWidget.empty(
+                          isFixedHeight: true,
+                        )
                       : SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -396,6 +394,7 @@ class LyricsTable {
                           ),
                           type: SongCellType.columnMinimum,
                           measureNode: mn,
+                          isFixedHeight: true,
                         ),
                 );
                 break;
@@ -405,7 +404,9 @@ class LyricsTable {
                   banner.index,
                   momentNumber,
                   marker == null
-                      ? SongCellWidget.empty()
+                      ? SongCellWidget.empty(
+                          isFixedHeight: true,
+                        )
                       : SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -415,6 +416,7 @@ class LyricsTable {
                           ),
                           type: SongCellType.columnMinimum,
                           measureNode: mn,
+                          isFixedHeight: true,
                         ),
                 );
                 break;
@@ -426,7 +428,7 @@ class LyricsTable {
                   lyric == null
                       ? SongCellWidget.empty()
                       : SongCellWidget(
-                          richText: RichText(
+                    richText: RichText(
                             text: TextSpan(
                               text: lyric.toMarkup(),
                               style: _coloredLyricTextStyle,
@@ -434,6 +436,7 @@ class LyricsTable {
                           ),
                           type: SongCellType.columnFill,
                           measureNode: mn,
+                          isFixedHeight: true,
                         ),
                 );
                 break;
@@ -444,7 +447,7 @@ class LyricsTable {
                   mn == null
                       ? SongCellWidget.empty()
                       : SongCellWidget(
-                          richText: RichText(
+                    richText: RichText(
                             text: TextSpan(
                               text: mn.toString(),
                               style: _coloredChordTextStyle,
@@ -452,6 +455,7 @@ class LyricsTable {
                           ),
                           type: SongCellType.columnFill,
                           measureNode: mn,
+                          isFixedHeight: true,
                         ),
                 );
                 break;
@@ -702,7 +706,8 @@ class LyricsTable {
 
     //  discover the overall total width and height
     double arrowIndicatorWidth = _chordFontSizeUnscaled;
-    var totalWidth = widths.fold<double>(arrowIndicatorWidth, (previous, e) => previous + e + 2.0 * _marginSize);
+    var totalWidth = widths.fold<double>(
+        arrowIndicatorWidth, (previous, e) => previous + e + 2.0 * _paddingSize + 2.0 * _marginSize);
     var chordWidth = totalWidth - widths.last;
     logger.log(_logFontSize, 'chord ratio: $chordWidth/$totalWidth = ${chordWidth / totalWidth}');
 
@@ -1214,7 +1219,7 @@ class LyricsTable {
             style: _coloredChordTextStyle,
           ),
         ),
-        type: SongCellType.columnMinimum,
+        type: SongCellType.flow,
         measureNode: measureNode,
         selectable: selectable,
       ),
@@ -1377,6 +1382,7 @@ class SongCellWidget extends StatefulWidget {
     this.songMoment,
     this.expanded,
     this.selectable,
+    this.isFixedHeight = false,
   });
 
   SongCellWidget.empty({
@@ -1393,6 +1399,7 @@ class SongCellWidget extends StatefulWidget {
     this.songMoment,
     this.expanded,
     this.selectable,
+    this.isFixedHeight = false,
   }) : richText = _emptyRichText;
 
   // : richText = RichText(key: richText.key,
@@ -1445,6 +1452,7 @@ class SongCellWidget extends StatefulWidget {
       songMoment: songMoment ?? this.songMoment,
       expanded: expanded,
       selectable: selectable,
+      isFixedHeight: isFixedHeight,
     );
   }
 
@@ -1461,9 +1469,6 @@ class SongCellWidget extends StatefulWidget {
         ? size!
         : _computeRichTextSize(richText, textScaleFactor: textScaleFactor, maxWidth: width) +
             Offset(2 * _paddingSize + 2.0 * _marginSize, 2 * _paddingSize + 2.0 * _marginSize);
-    // if (richText.toString().contains('One, two, three, four tell me that you love me more')) {
-    //   logger.i('computedBuildSize: width: $width, ret: $ret');
-    // }
     return ret;
   }
 
@@ -1484,6 +1489,7 @@ class SongCellWidget extends StatefulWidget {
   final double textScaleFactor;
   final Size? size;
   final double? columnWidth;
+  final bool isFixedHeight;
   final Point<double>? point;
   final SongMoment? songMoment;
   final bool? expanded;
@@ -1573,6 +1579,8 @@ class _SongCellState extends State<SongCellWidget> {
       //Future.delayed(Duration.zero, () => _checkTheAutoPlayDelay(context));
     }
     Size buildSize = widget.computedBuildSize;
+
+    //  set width
     double width;
     switch (widget.type) {
       case SongCellType.columnMinimum:
@@ -1582,19 +1590,10 @@ class _SongCellState extends State<SongCellWidget> {
         width = widget.columnWidth ?? buildSize.width;
         break;
     }
-    // if (widget.type == SongCellType.lyric) {
-    //   logger.log(
-    //       _logSongCell,
-    //       '_SongCellState: childBuilder: '
-    //       ', textScaleFactor: ${widget.textScaleFactor}'
-    //       //  'selected: $selected, songMoment: ${widget.songMoment?.momentNumber}'
-    //       // ', text: "${widget.richText.text.toPlainText() /*.substring(0, 10)*/}"'
-    //       // ', len: ${widget.richText.text.toPlainText().length}'
-    //       ', maxLines: ${widget.richText.maxLines}'
-    //       // ', width: $width/$maxWidth'
-    //       ', size: $buildSize'
-    //       ', columnWidth: ${widget.columnWidth}');
-    // }
+
+    //  fixe height for banner only
+    //  othewise, allow the height to float
+    double? height = widget.isFixedHeight ? widget.size?.height ?? buildSize.height : null;
 
     RichText richText = widget.richText;
     if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {
@@ -1611,13 +1610,13 @@ class _SongCellState extends State<SongCellWidget> {
           break;
       }
 
-      var ret = Container(
-        alignment: Alignment.topLeft,
+      return Container(
+        alignment: Alignment.centerLeft,
         color: color,
         margin: _margin,
         width: width,
-        height: buildSize.height,
-        //padding: _padding,
+        height: height,
+        padding: _padding,
         foregroundDecoration: //
             selected
                 ? BoxDecoration(
@@ -1629,23 +1628,12 @@ class _SongCellState extends State<SongCellWidget> {
                 : null,
         child: richText,
       );
-      // if (richText.toString().contains('One, two, three, four tell me that you love me more')) {
-      //   logger.i('childBuilder: width: $width'
-      //       ', widget.columnWidth: ${widget.columnWidth}'
-      //
-      //       ', buildSize.height: ${buildSize.height}'
-      //       ', constraints: ${ret.constraints}'
-      //       ', _padding: $_padding'
-      //       //
-      //       );
-      // }
-
-      return ret;
     }
 
     return Container(
+      alignment: Alignment.centerLeft,
       width: width,
-      height: widget.size?.height ?? buildSize.height,
+      height: height,
       margin: _margin,
       padding: _padding,
       foregroundDecoration: //
@@ -1661,12 +1649,6 @@ class _SongCellState extends State<SongCellWidget> {
       child: richText,
     );
   }
-
-  // FutureOr<dynamic> _checkTheAutoPlayDelay(BuildContext context) {
-  //   logger.i('_checkTheAutoPlayDelay: #${widget.songMoment?.momentNumber}, beat: ${widget.songMoment?.beatNumber}'
-  //       ', dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}');
-  //   return null;
-  // }
 
   var selected = false; //  indicates the cell is currently selected, i.e. highlighted
 }

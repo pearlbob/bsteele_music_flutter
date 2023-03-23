@@ -2,13 +2,21 @@
 
 # Recent Releases:
 
+## Release 1.2.2
+
+### Features
+
+### Fixes Completed
+
+* lost lyrics on specific screen sizes are no longer lost
+
 ## Release 1.2.1
 
 ### Release Date: Mar  18, 2023
 
 ### Features
 
-### Fix
+### Fixes Completed
 
 * automatic selection of next singer should be at the top of the new playlist
 * options for click in player screen

@@ -2,19 +2,14 @@
 
 # Release Planning:
 
-## Release 1.2.2
+## Release 1.2.3
 
 ### Features
 
-* history statistics:  songs sung by singer, cj top 40
+### Fixes Completed
 
 ### Fix
 
-* edit web lookups: google, wikipedia, ultimate guitar, musicnotes.com, tapbpm.com (or tap to tempo on page),
-  azlyrics.com
-* feature to simplify chords:  Fm7 to Fm
-* chord section list on pro input?
-* edit: convert song 4/4 to 2/4 and back again
 * edit: chords on lyrics not up to date until after validate?
 * player: more warning about no editing if following
 * move follower key offset to options page
@@ -50,12 +45,18 @@
 
 ### Features
 
+* history statistics:  songs sung by singer, cj top 40
 * bsteeleBox recording
 * drums completion push!  shaker, rimshot
 * banner display mode (lyric to measure mapping)
 * named & stored drum accompaniments (basic), drums to json, standard drum list
 * better documentation screen structure
 * export csv songlist(s) for the CJ website from the app
+* edit web lookups: google, wikipedia, ultimate guitar, musicnotes.com, tapbpm.com (or tap to tempo on page),
+  azlyrics.com
+* feature to simplify chords:  Fm7 to Fm
+* chord section list on pro input?
+* edit: convert song 4/4 to 2/4 and back again
 
 ## Release  1.4
 

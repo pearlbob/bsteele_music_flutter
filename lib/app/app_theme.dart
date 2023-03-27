@@ -293,6 +293,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   songsAcceptSongRead(Null),
   songsBack(Null),
   songsCancelSongAllAdds(Null),
+  songsEditLastSongEdited(Null),
   songsErrorMessage(Null),
   songsReadFiles(Null),
   songsRejectSongRead(Null),

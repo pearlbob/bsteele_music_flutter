@@ -11,6 +11,8 @@ import 'package:intl/intl.dart' as intl;
 import 'package:pretty_diff_text/pretty_diff_text.dart';
 
 import '../app/app.dart';
+import '../app/appOptions.dart';
+import 'edit.dart';
 
 enum SongsDialogResponse { accept, reject, acceptAll, rejectAll }
 
@@ -82,7 +84,21 @@ class SongsState extends State<Songs> {
                 ),
               ),
               const AppSpace(
-                space: 20,
+                verticalSpace: 40,
+              ),
+              AppTooltip(
+                message: 'Edit the last song the editor validated.\n'
+                    'This can be used to recover an edited song... if you are lucky.',
+                child: appButton(
+                  'Edit the last song edited',
+                  appKeyEnum: AppKeyEnum.songsEditLastSongEdited,
+                  onPressed: () {
+                    _navigateToLastEdit();
+                  },
+                ),
+              ),
+              const AppSpace(
+                verticalSpace: 20,
               ),
               Text(
                 'Song count:  ${app.allSongs.length}',
@@ -232,6 +248,18 @@ class SongsState extends State<Songs> {
               elevation: 24.0,
             ));
     return response;
+  }
+
+  _navigateToLastEdit() async {
+    app.clearMessage();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Edit(initialSong: AppOptions().lastSongEdited)),
+    );
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  self
   }
 
   late AppWidgetHelper appWidgetHelper;

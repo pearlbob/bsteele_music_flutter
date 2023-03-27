@@ -153,7 +153,8 @@ void main() async {
 
   //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
-  await AppOptions().init(); //  initialize the options from the stored values
+  var appOptions = AppOptions();
+  await appOptions.init(); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
   appLogMessage('host: "$host", port: ${uri.port}');
@@ -168,14 +169,14 @@ void main() async {
     appLogMessage('no websocket: $host:${uri.port}');
   } else {
     //  default to the expected websocket server
-    AppOptions().websocketHost = host; //  auto-magically choose the local websocket server
+    appOptions.websocketHost = host; //  auto-magically choose the local websocket server
     hostIsWebsocketHost = true;
     appLogMessage('auto-magic websocket: $host');
   }
 
   //  read the local drum parts list
   DrumPartsList drumPartsList = DrumPartsList();
-  drumPartsList.fromJson(AppOptions().drumPartsListJson);
+  drumPartsList.fromJson(appOptions.drumPartsListJson);
   drumPartsList.addDefaults();
 
   await AppTheme().init(); //  init the singleton

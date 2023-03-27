@@ -68,7 +68,7 @@ const Level _editLog = Level.debug;
 const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
-const Level _logProChordsForLyrics = Level.info;
+const Level _logProChordsForLyrics = Level.debug;
 
 /*
 Song notes:
@@ -3683,6 +3683,9 @@ class EditState extends State<Edit> {
     } catch (e) {
       isValidSong = false;
       app.errorMessage(e.toString());
+    }
+    if (isValidSong) {
+      appOptions.lastSongEdited = song;
     }
     return isValidSong;
   }

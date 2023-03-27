@@ -13,8 +13,6 @@
 
       This is a placeholder for base href that will be replaced by the value of
       the `--base-href` argument provided to `flutter build`.
-
-          <base href="$FLUTTER_BASE_HREF">
     -->
     <base href="$FLUTTER_BASE_HREF">
 
@@ -25,7 +23,7 @@
     <!-- iOS meta tags & icons -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="web_test">
+    <meta name="apple-mobile-web-app-title" content="bsteele_music_flutter">
     <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
     <!-- Favicon -->
@@ -44,13 +42,6 @@
             window.location.replace(window.location.href.substring(0,
                 window.location.href.length - window.location.hash.length));
         }
-
-        //  no longer needed because of canvaskit.wasm
-        // window.flutterConfiguration = {
-        //     canvasKitBaseUrl: window.location.host.includes(":8080")
-        //     || window.location.host.includes("www.bsteele.com") //  beta as well
-        //         ? "/bsteeleMusicApp/canvaskit/" : "/canvaskit/"
-        // };
     </script>
 
     <script>

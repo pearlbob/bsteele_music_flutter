@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_base.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:bsteeleMusicLib/songs/song_performance.dart';
@@ -32,6 +33,7 @@ enum StorageValue {
   drumPartsListJson,
   toolTips,
   tapToAdvance,
+  lastSongEdited,
 }
 
 enum TapToAdvance { never, upOrDown, alwaysDown }
@@ -79,6 +81,7 @@ class AppOptions extends ChangeNotifier {
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     _toolTips = await _readBool(StorageValue.toolTips.name, defaultValue: false);
     _tapToAdvance = await _readTapToAdvance();
+    _lastSongEdited = await _readString(StorageValue.lastSongEdited.name, defaultValue: '');
     user = await _readString('user', defaultValue: userName);
     _sheetDisplays = sheetDisplaySetDecode(await _readString('sheetDisplays')); // fixme: needs defaultValues?
     _sessionSingers = _stringListDecode(await _readString('sessionSingers'));
@@ -484,6 +487,25 @@ class AppOptions extends ChangeNotifier {
 
   double get volume => _volume;
   double _volume = 1.0;
+
+  set lastSongEdited(Song song) {
+    var songString = song.toJson();
+    if (_lastSongEdited == songString) {
+      return;
+    }
+    _lastSongEdited = songString;
+    _saveString(StorageValue.lastSongEdited.name, _lastSongEdited);
+  }
+
+  Song get lastSongEdited {
+    var list = Song.songListFromJson(_lastSongEdited);
+    if (list.isEmpty) {
+      return Song.theEmptySong;
+    }
+    return list.first;
+  }
+
+  String _lastSongEdited = '';
 
   /// A list of the names of sheet music displays that are currently active.
   HashSet<SheetDisplay> get sheetDisplays => _sheetDisplays;

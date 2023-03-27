@@ -817,10 +817,7 @@ class MyHomePageState extends State<MyHomePage> {
                     appButton('Send me to the release version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
                       var s = uri.toString();
                       s = s.substring(0, s.indexOf('beta'));
-                      openLink(
-                        s,
-                        sameTab: true,
-                      );
+                      openLink(s);
                     }),
                     const AppSpace(space: 50),
                     appButton('This is exciting! I will test the beta.', appKeyEnum: AppKeyEnum.mainAcceptBeta,

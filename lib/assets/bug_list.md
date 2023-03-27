@@ -4,13 +4,23 @@
 
 ## Release 1.2.3
 
+### Release Date:
+
 ### Features
+
+* edit web lookups: google, wikipedia, ultimate guitar, musicnotes.com, azlyrics.com
 
 ### Fixes Completed
 
+* added release notes to the release process. See: menu, about, release notes
+* Edit save song button present but disabled if no changes or an invalid song input.
+* limit chord summary length in pro edit lyrics entry
+
 ### Fix
 
-* limit chord summary length in pro edit lyrics entry
+* metadata: none, any
+* save last valid edit version in shared_preferences, store the undo list?
+* drum edit interaction should be improved
 * edit: chords on lyrics not up to date until after validate?
 * player: more warning about no editing if following
 * move follower key offset to options page
@@ -53,8 +63,8 @@
 * named & stored drum accompaniments (basic), drums to json, standard drum list
 * better documentation screen structure
 * export csv songlist(s) for the CJ website from the app
-* edit web lookups: google, wikipedia, ultimate guitar, musicnotes.com, tapbpm.com (or tap to tempo on page),
-  azlyrics.com
+*
+    * edit web lookups: tapbpm.com (or tap to tempo on page)
 * feature to simplify chords:  Fm7 to Fm
 * chord section list on pro input?
 * edit: convert song 4/4 to 2/4 and back again
@@ -183,7 +193,7 @@ this with him.
 * edit: assisted edit slash note dropdown: make smarter
 * default empty singer songs and requests to singer add
 * edit a song that's on the history list, what version gets shown when?
-* add playlist OR operator on multiple metadata, not just the current implied AND
+
 * singer setup: click on singer label should toggle session membership
 * leader shouldn't be allowed to have a key offset
 * edit metadata from the edit screen
@@ -290,13 +300,6 @@ this with him.
 
 * key guess
 * close gap between lyrics lines on player
-
-* wikipedia page link: not that regular, can be very ambiguous: eg: Winter by Tori
-  Amos https://en.wikipedia.org/wiki/Winter_(Tori_Amos_song)
-
-
-* https://tabs.ultimate-guitar.com/ copy/paste reformatting don't lose lyrics verses chords alignment
-
 * lyrics, jump left right based on pinching the chords
 * vertical bars to split lyrics into measures
 * play screen freeze top when not in play mode

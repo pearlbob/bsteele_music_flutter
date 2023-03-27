@@ -80,6 +80,9 @@ else
 endif
 bsteeleMusicApp_canvaskit # offline canvas kit update
 
+#	update the release notes
+pandoc -o web/release_notes.html lib/assets/release_notes.md
+
 # install beta lib util
 cd bsteeleMusicLib
 bin/bsteeleMusicUtil_install

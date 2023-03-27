@@ -428,7 +428,7 @@ class LyricsTable {
                   lyric == null
                       ? SongCellWidget.empty()
                       : SongCellWidget(
-                    richText: RichText(
+                          richText: RichText(
                             text: TextSpan(
                               text: lyric.toMarkup(),
                               style: _coloredLyricTextStyle,
@@ -737,7 +737,7 @@ class LyricsTable {
         break;
       default:
         //  fit the horizontal by scaling
-        _scaleFactor = screenWidth / (totalWidth * 1.02 /* rounding safety */);
+        _scaleFactor = screenWidth / totalWidth;
         break;
     }
 

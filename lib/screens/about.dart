@@ -58,47 +58,80 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 const Text(
                   'The bsteeleMusicApp has been written by bob.',
                 ),
-                Image(
-                  image: const AssetImage('lib/assets/app_qr_code.png'),
-                  width: max(150, app.screenInfo.mediaWidth / 5),
-                  height: max(150, app.screenInfo.mediaWidth / 5),
-                  semanticLabel: "bsteele.com website",
+                AppTooltip(
+                  message: 'Use this QR for the web version of the app.',
+                  child: Image(
+                    image: const AssetImage('lib/assets/app_qr_code.png'),
+                    width: max(150, app.screenInfo.mediaWidth / 5),
+                    height: max(150, app.screenInfo.mediaWidth / 5),
+                    semanticLabel: "bsteele.com website",
+                  ),
                 ),
                 Row(
                   children: <Widget>[
-                    const Text(
-                      'See ',
-                    ),
-                    InkWell(
-                      onTap: () {
-                        openLink('http://www.bsteele.com');
-                      },
-                      child: Text(
-                        'bsteele.com',
-                        style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
-                      ),
-                    ),
-                    const Text(
-                      '.',
+                    AppTooltip(
+                      message: 'Visit bob\'s website',
+                      child: AppWrap(children: [
+                        const Text(
+                          'See ',
+                        ),
+                        const AppSpace(horizontalSpace: 10),
+                        InkWell(
+                          onTap: () {
+                            openLink('http://www.bsteele.com');
+                          },
+                          child: Text(
+                            'bsteele.com',
+                            style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
+                          ),
+                        ),
+                        const Text(
+                          '.',
+                        ),
+                      ]),
                     ),
                     const AppSpace(horizontalSpace: 20),
+                    AppTooltip(
+                        message: 'Native versions are available for the app here.',
+                        child: InkWell(
+                          onTap: () {
+                            openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
+                          },
+                          child: Text(
+                            'Download the app.',
+                            style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
+                          ),
+                        )),
+                  ],
+                ),
+                const AppSpace(),
+                AppWrapFullWidth(
+                  spacing: 20,
+                  children: [
+                    Text(
+                      'version: ${packageInfo.version}',
+                    ),
+                    //  release notes
                     InkWell(
                       onTap: () {
-                        openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
+                        //  why is this so hard?
+                        openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}release_notes.html');
                       },
                       child: Text(
-                        'Download the app.',
+                        'Release Notes',
                         style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                       ),
+                    ),
+                    const Text(
+                      'Mode: ${kReleaseMode ? 'release' : 'debug'}',
+                    ),
+                    //  utc date
+                    Text(
+                      'utcDate: ${_utcDateAsString ?? 'unknown'}',
                     ),
                   ],
                 ),
-                Text(
-                  'version: ${packageInfo.version}',
-                ),
-                const Text(
-                  'Mode: ${kReleaseMode ? 'release' : 'debug'}',
-                ),
+
                 if (kReleaseMode) //  fixme: not necessary
                   AppWrapFullWidth(children: [
                     const Text(
@@ -117,9 +150,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                       '.',
                     ),
                   ]),
-                Text(
-                  'utcDate: ${_utcDateAsString ?? 'unknown'}',
-                ),
+
                 const Text(''),
                 Text(
                   'screen: (${app.screenInfo.mediaWidth.toStringAsFixed(0)}'

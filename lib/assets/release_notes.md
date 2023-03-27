@@ -1,8 +1,32 @@
 # bsteeleMusicApp
 
-# Recent Releases:
+# Release Notes:
+
+### Contents:
+
+<!-- TOC -->
+
+* [bsteeleMusicApp](#bsteelemusicapp)
+* [Release Notes:](#release-notes-)
+  * [Contents:](#contents-)
+  * [Release 1.2.2](#release-122)
+    * [Release Date: Mar  23, 2023](#release-date--mar--23-2023)
+    * [Features](#features)
+    * [Fixes Completed](#fixes-completed)
+  * [Release 1.2.1](#release-121)
+    * [Release Date: Mar  18, 2023](#release-date--mar--18-2023)
+    * [Features](#features-1)
+    * [Fixes Completed](#fixes-completed-1)
+  * [Release 1.2.0](#release-120)
+    * [Release Date: Mar  3, 2023](#release-date--mar--3-2023)
+    * [Features](#features-2)
+  * [Fixes Completed](#fixes-completed-2)
+
+<!-- TOC -->
 
 ## Release 1.2.2
+
+### Release Date: Mar  23, 2023
 
 ### Features
 
@@ -20,6 +44,7 @@
 
 * automatic selection of next singer should be at the top of the new playlist
 * options for click in player screen
+* add playlist OR operator on multiple metadata, not just the current implied AND
 
 ## Release 1.2.0
 
@@ -36,7 +61,7 @@
 * bsteeleMusicServer update
 * count-in drums and indicator on autoplay
 * verify/fix auto playback timing and jitter
-* Back to player from song preview on youtube.com, fullscreen button missing
+* Back to player from song preview on YouTube.com, fullscreen button missing
 * Improved startup delay based on history. More is required.
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * drums on 2/4, 3/4, 6/8

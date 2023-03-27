@@ -1,4 +1,6 @@
+import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../app/app.dart';
@@ -11,7 +13,10 @@ _top - specifies the top-level frame in the current window
 A custom target name of a window that exists
  */
 
-void openLink(String urlString, {bool sameTab = false}) async {
+const Level _logLink = Level.debug;
+
+void openLink(String urlString) async {
+  logger.log(_logLink, 'openLink("$urlString")');
   if (kIsWeb) {
     if (await canLaunchUrlString(urlString)) {
       await launchUrlString(urlString);

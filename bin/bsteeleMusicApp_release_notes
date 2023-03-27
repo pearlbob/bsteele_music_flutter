@@ -1,0 +1,14 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+echo $0\:
+
+#	update the release notes
+set dst=web/release_notes.html
+mkdir -p build
+pandoc -o build/release_notes_partial.html lib/assets/release_notes.md
+cat lib/assets/release_notes_head.html \
+	build/release_notes_partial.html \
+	lib/assets/release_notes_tail.html \
+	> $dst
+validatornu $dst

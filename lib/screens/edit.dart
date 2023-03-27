@@ -39,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 
 import '../app/app.dart';
+import '../util/openLink.dart';
 import 'detail.dart';
 
 late Song _initialSong;
@@ -67,6 +68,7 @@ const Level _editLog = Level.debug;
 const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
+const Level _logProChordsForLyrics = Level.info;
 
 /*
 Song notes:
@@ -517,12 +519,12 @@ class EditState extends State<Edit> {
                       'Save song on local drive',
                       appKeyEnum: AppKeyEnum.editEnterSong,
                       fontSize: _defaultChordFontSize,
-                      onPressed: () {
-                        saveSong();
-                        if (songHasChanged && isValidSong) {
-                          Navigator.pop(context);
-                        }
-                      },
+                      onPressed: (songHasChanged && isValidSong)
+                          ? () {
+                              saveSong();
+                              Navigator.pop(context);
+                            }
+                          : null,
                       backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
                     ),
                     app.messageTextWidget(AppKeyEnum.editErrorMessage),
@@ -625,6 +627,7 @@ class EditState extends State<Edit> {
                       //      ),
                     ]),
                   ]),
+                  const AppSpace(),
                   //  attributes
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -720,7 +723,7 @@ class EditState extends State<Edit> {
                   const AppSpace(),
                   AppWrapFullWidth(
                     crossAxisAlignment: WrapCrossAlignment.start,
-                    spacing: 40,
+                    spacing: 20,
                     children: <Widget>[
                       AppWrap(children: [
                         Text(
@@ -795,6 +798,7 @@ class EditState extends State<Edit> {
                           style: _labelTextStyle,
                         ),
                       ]),
+                      //  user
                       AppWrap(children: [
                         Text(
                           "User: ",
@@ -817,6 +821,55 @@ class EditState extends State<Edit> {
                             style: _labelTextStyle,
                           ),
                       ]),
+                      const AppSpace(),
+                      appButton(
+                        'Google',
+                        appKeyEnum: AppKeyEnum.editLinkGoogle,
+                        onPressed: () {
+                          openLink('https://www.google.com/search?q='
+                              '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}'
+                              '+lyrics');
+                        },
+                        fontSize: _defaultChordFontSize,
+                      ),
+                      appButton(
+                        'Wikipedia',
+                        appKeyEnum: AppKeyEnum.editLinkWikipedia,
+                        onPressed: () {
+                          openLink('https://en.wikipedia.org/w/index.php?search='
+                              '${'${song.title} %28${song.artist} song%29'.replaceAll(', The', '').replaceAll(' ', '+')}');
+                        },
+                        fontSize: _defaultChordFontSize,
+                      ),
+                      appButton(
+                        'Ultimate-guitar',
+                        appKeyEnum: AppKeyEnum.editLinkUltimateGuitar,
+                        onPressed: () {
+                          openLink('https://www.ultimate-guitar.com/search.php?search_type=title&value='
+                              '${'${song.title} by ${song.artist}'.replaceAll(' ', '%20')}');
+                        },
+                        fontSize: _defaultChordFontSize,
+                      ),
+                      appButton(
+                        'MusicNotes',
+                        appKeyEnum: AppKeyEnum.editLinkMusicNotes,
+                        onPressed: () {
+                          openLink('https://www.musicnotes.com/search/go?w='
+                              '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}');
+                        },
+                        fontSize: _defaultChordFontSize,
+                      ),
+                      AppTooltip(
+                          message: 'Requires a Search click',
+                          child: appButton(
+                            'Azlyrics',
+                            appKeyEnum: AppKeyEnum.editLinkAzlyrics,
+                            onPressed: () {
+                              openLink('https://search.azlyrics.com/search.php?q='
+                                  '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}');
+                            },
+                            fontSize: _defaultChordFontSize,
+                          )),
                     ],
                   ),
                   const AppSpace(space: 30),
@@ -1985,8 +2038,12 @@ class EditState extends State<Edit> {
 
         if (lastSectionVersion != null) {
           logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
-          sb.write(
-              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false));
+          //  limit the horizontal space used by the chords
+          sb.write(Util.limitLineLength(
+              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false) ??
+                  '',
+              35,
+              ellipsis: true));
           lineCount = 1;
         }
 
@@ -1999,6 +2056,7 @@ class EditState extends State<Edit> {
       logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
       sb.write(song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false));
     }
+    logger.log(_logProChordsForLyrics, sb.toString());
     return sb.toString();
   }
 

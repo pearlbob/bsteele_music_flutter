@@ -720,21 +720,26 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         //   ]),
                                         //  if (app.isEditReady) const AppSpace(horizontalSpace: 35),
                                         //  song edit
-                                        if (!songPlayMode.isPlaying &&
-                                            !songUpdateService.isFollowing &&
-                                            app.isEditReady)
-                                          AppTooltip(
-                                            message: 'Edit the song',
-                                            child: appIconWithLabelButton(
-                                              appKeyEnum: AppKeyEnum.playerEdit,
-                                              icon: appIcon(
-                                                Icons.edit,
-                                              ),
-                                              onPressed: () {
-                                                navigateToEdit(context, _song);
-                                              },
+                                        AppTooltip(
+                                          message: songPlayMode.isPlaying
+                                              ? 'Song is playing'
+                                              : (songUpdateService.isFollowing
+                                                  ? 'Followers cannot edit.\nDisable following back on Options to edit.'
+                                                  : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
+                                          child: appIconWithLabelButton(
+                                            appKeyEnum: AppKeyEnum.playerEdit,
+                                            icon: appIcon(
+                                              Icons.edit,
                                             ),
+                                            onPressed: (!songPlayMode.isPlaying &&
+                                                    !songUpdateService.isFollowing &&
+                                                    app.isEditReady)
+                                                ? () {
+                                                    navigateToEdit(context, _song);
+                                                  }
+                                                : null,
                                           ),
+                                        ),
                                         AppSpace(horizontalSpace: 3.5 * fontSize),
                                       ]),
                                     ]),

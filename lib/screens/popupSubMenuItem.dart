@@ -1,3 +1,4 @@
+import 'package:bsteeleMusicLib/songs/song_metadata.dart';
 import 'package:flutter/material.dart';
 
 typedef LabelFunction<T> = String Function(T value);
@@ -10,13 +11,12 @@ typedef LabelFunction<T> = String Function(T value);
 ///
 /// Selecting items from the submenu will automatically close the parent menu
 /// Closing the sub menu by clicking outside of it, will automatically close the parent menu
-class PopupSubMenuItem<T> extends PopupMenuEntry<T> {
+class PopupSubMenuItem<T extends NameValueMatcher> extends PopupMenuEntry<T> {
   const PopupSubMenuItem({
     super.key,
     required this.title,
     required this.items,
     required this.onSelected,
-    this.itemLabelFunction,
     this.style,
     this.offset,
   });
@@ -33,12 +33,11 @@ class PopupSubMenuItem<T> extends PopupMenuEntry<T> {
   final String title;
   final List<T> items;
   final Function(T) onSelected;
-  final LabelFunction<T>? itemLabelFunction;
   final TextStyle? style;
   final Offset? offset;
 }
 
-class _PopupSubMenuState<T> extends State<PopupSubMenuItem<T>> {
+class _PopupSubMenuState<T extends NameValueMatcher> extends State<PopupSubMenuItem<T>> {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<T>(
@@ -64,13 +63,13 @@ class _PopupSubMenuState<T> extends State<PopupSubMenuItem<T>> {
         return widget.items
             .map(
               (item) => PopupMenuItem<T>(
-                value: item,
-                child: Text(
-                  widget.itemLabelFunction?.call(item) ?? item.toString(),
+            value: item,
+            child: Text(
+              item.toString(),
                   style: widget.style,
                 ),
-              ),
-            )
+          ),
+        )
             .toList(growable: false);
       },
       child: Padding(

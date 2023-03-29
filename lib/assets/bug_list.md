@@ -8,31 +8,30 @@
 
 ### Features
 
-* edit web lookups: google, wikipedia, ultimate guitar, musicnotes.com, azlyrics.com
+* edit web lookups: google, wikipedia, ultimate guitar, musicnotes, azlyrics
 
 ### Fixes Completed
 
+* save the last valid song edited; in case recovery is necessary!
+  See: Menu, Songs, Edit the last file edited
 * added release notes to the release process. See: menu, about, release notes
 * Edit save song button present but disabled if no changes or an invalid song input.
-* limit chord summary length in pro edit lyrics entry
+* limit chord summary length in pro-edit lyrics entry
+* player: more warning about no editing if following in tooltips
+* metadata screen: filter for no and any
 
 ### Fix
 
-* metadata: none, any
-* save last valid edit version in shared_preferences, store the undo list?
 * drum edit interaction should be improved
 * edit: chords on lyrics not up to date until after validate?
-* player: more warning about no editing if following
 * move follower key offset to options page
-* GET http://www.bsteele.com/bsteeleMusicApp/beta/index.html/version.json?cachebuster=1677082609728 404 (Not Found)
-* flutter.js: Exception while loading service worker: Error: Service worker not supported (or configured).
-* make the user edit field a "regular" field so any change can be undo or saved. Update the field only if unknown.
-* player: in pause, reposition play with up/down arrows or scroll,
-  continue from new location with space bar hit
+* make the user edit field a "regular" field, so any change can be undone or saved. Update the field only if unknown.
+* player: in pause, reposition, play with up/down arrows or scroll,
+  continues from new location with space bar hit
 * And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
   definable.
 * Metadata fields are caseless. The software will Capitalize All Fields As Required.
-* visual delay on mac mini? Just off, slow. correct when measured post render.
+* visual delay on Mac mini? Just off, slow. correct when measured post render.
 * explain storage. Yes
 * Mute button? Display and keyboard shortcut
 * regenerate generated metadata after editing
@@ -44,19 +43,19 @@
 * drum select vs drum edit in drums from player: turn off editing when one drum is saved
 * drum edit, no-write, safety popup
 * Drums: All caps first letter yes
-* Drums on in idle: synchronized song start? Yes if required.
+* Drums on in idle: synchronized song start? Yes, if required.
 * Live bpm changes? First "1": phase only, subsequent 1's are tempo,
 * Live bpm changes: Smoothing?,. Real-time delay
-* Live beat 1 resets, does NOT imply new bpm
+* Live beat 1 reset: Does NOT imply new bpm
 * Test tap to tempo... Jittery or me?
-* drums on pause then play
+* drums in pause, then play
 * video alignment with audio current time
 
-## Release  1.3
+## Release 1.3
 
 ### Features
 
-* history statistics:  songs sung by singer, cj top 40
+* history statistics: songs sung by singer, cj top 40
 * bsteeleBox recording
 * drums completion push!  shaker, rimshot
 * banner display mode (lyric to measure mapping)
@@ -65,11 +64,11 @@
 * export csv songlist(s) for the CJ website from the app
 *
     * edit web lookups: tapbpm.com (or tap to tempo on page)
-* feature to simplify chords:  Fm7 to Fm
-* chord section list on pro input?
+* feature to simplify chords: Fm7 to Fm
+* chord section list on pro-input?
 * edit: convert song 4/4 to 2/4 and back again
 
-## Release  1.4
+## Release 1.4
 
 ### Features
 
@@ -85,8 +84,10 @@
 * theory page: circle of fifths
 * drum audio recording quality?
 * song not selected on main list after a file read and return to main list
+* save last valid edit version in shared_preferences: store the undo list?
+* flutter.js: Exception while loading service worker: Error: Service worker not supported (or configured).
 
-## Release  1.5
+## Release 1.5
 
 ### Features
 
@@ -106,7 +107,7 @@
 * Shari UI: two back buttons
 * Shari UI: buttons too close
 * Shari UI: scroll to chord line on scroll
-* Shari UI: aim a little low on a large section ie. always show next section first row (approximate)
+* Shari UI: aim a little low on a large section i.e. always show next section first row (approximate)
 * Shari UI: more on follower display when leader is not playing a song
 * Any way to allow zoom on play screen so one might read the lyrics?
 * Browsing our list is super unfriendly without sorting function
@@ -126,6 +127,9 @@ I continue to have intermittent trouble if I have to scroll back up during the p
 3. Once I force it to scroll up to the top and play again, it doesn't seem to glitch again until I load another song.
 4. This may take 2-4 attempts to break, not dependent on complexity.
 5. It requires the scroll-up to break - never breaks if I simply play it straight through with the space bar.
+
+new section
+
 1. If we normally use Player mode to play charts, there is no reason not to freeze the row of buttons at the top when
    not in Player mode.
    We can scan down the song and not have to scroll back and forth/up and down to determine where there are potential
@@ -166,8 +170,8 @@ I need these types of guidelines so I am not forced to make arbitrary decisions 
 I am not clear how Bodhi calculates his tempo, but sometimes it is outside of these standards, so I will need to discuss
 this with him.
 
-5. We cannot obtain proper "Copyright" information so I suggest we name the field properly until we can.
-   I suggest that we use the term "Credit" instead, rather than mislead the audience about copyright.
+We cannot obtain proper "Copyright" information so I suggest we name the field properly until we can.
+I suggest that we use the term "Credit" instead, rather than mislead the audience about copyright.
 
 ## New Features
 
@@ -240,11 +244,11 @@ this with him.
 
 * improve player: Tap to tempo, follow space bar to beat 1
 * verify full validation of song before entry
-* Capitalization of user name?
+* Capitalization of username?
 * get real file name of written file for confirmation message
 * player scroll to top doesn't on songs with big intros and short verticals: bohemian rhapsody
 
-* first singers list doesn't showup on message section when all singers is written
+* first singers list doesn't showup on message section when all singers are written
 
 * this is likely wrong:  void _readExternalSongList() async { if (appOptions.isInThePark()) ...
 
@@ -256,7 +260,7 @@ this with him.
 
 * singers: purge singer without them coming back from the web site
 * in edit: show diff with similar song
-* edit "pro-mode", canvas copy paste for chords and lyrics
+* edit "pro-mode", canvas copy and paste for chords and lyrics
 * edit lyrics: not updated!  should be on timeout like chords?
 * edit lyrics: one blank row is now two? at section end?
 * messages for file task completions or failures.
@@ -266,7 +270,7 @@ this with him.
   version. Very weird.
 * map accented characters to lower case without accent: "Exposé" should match "expose"   dart package diacritic
 
-* research if the song id is case sensitive: e.g.: "I shall be released" vs "I Shall Be Released". YES!
+* research if the song id is case-sensitive: e.g.: "I shall be released" vs "I Shall Be Released". YES!
 
 * studio instructions for personal tablets
 
@@ -303,7 +307,7 @@ this with him.
 * lyrics, jump left right based on pinching the chords
 * vertical bars to split lyrics into measures
 * play screen freeze top when not in play mode
-* Nashville notation for leadin lyrics
+* Nashville notation for leading lyrics
 * not all lyrics changes get proper notification
 
 * file differences on song file read as opposed to assuming all is well
@@ -332,7 +336,8 @@ this with him.
 * flutter webview 3.0 has an iframe
 * feature: for ninjam: put title, chords in ninjam format for copy/paste to ninjam comment, + /bpm and /bpi
 * edit: change title: does not get a new modification date
-* If the key was changed on a song and it is saved, it displays in the previous key instead of the new original key. The
+* If the key was changed on a song, and it is saved, it displays in the previous key instead of the new original key.
+  The
   behavior should display as original key.
 * main: change to last changed, sticks to last selected song
 * edit: disposing of controllers and/or focus nodes fails
@@ -360,7 +365,7 @@ this with him.
 * should the leader be able to capo?
 * should the leader be able to key offset? no
 * edit: measure entry should allow section header declarations
-* verify in studio:  let it be in C, cramped on HDMI on mac,
+* verify in studio:  let it be in C, cramped on HDMI on Mac,
 * on mac + chrome: bold musical flat sign is way ugly
 * player chord display elevations trash on mac, b, minor, slash notes
 * util: beginner list songlist to google doc format: title, artist, original key
@@ -402,7 +407,7 @@ this with him.
 * https://www.pianochord.org/
 * https://www.all8.com/tools/bpm.htm
 * https://getsongkey.com/
-* https://www.musicnotes.com/  sheet music in pdf pro version?
+* https://www.musicnotes.com/  sheet music in pdf pro-version?
 * https://www.all8.com/tools/bpm.htm
 * jetbrains email: If you want to log program state during debugging, use non-suspending breakpoints. Select the
   expression that you want to log, hold Shift, and click the gutter at the line where the expression should be logged.

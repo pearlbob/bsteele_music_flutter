@@ -53,7 +53,6 @@ TextStyle _textFieldStyle = generateAppTextStyle();
 TextStyle _labelTextStyle = generateAppTextStyle();
 const double _entryWidth = 22 * _defaultChordFontSize;
 
-const Color _disabledColor = Color(0xFFE0E0E0);
 const _addColor = Color(0xFFC8E6C9); //var c = Colors.green[100];
 
 List<DropdownMenuItem<TimeSignature>> _timeSignatureItems = [];
@@ -515,17 +514,25 @@ class EditState extends State<Edit> {
                 child: Column(children: [
                   const AppVerticalSpace(space: 10),
                   AppWrapFullWidth(alignment: WrapAlignment.spaceAround, spacing: 10, children: <Widget>[
-                    appButton(
-                      'Save song on local drive',
-                      appKeyEnum: AppKeyEnum.editEnterSong,
-                      fontSize: _defaultChordFontSize,
-                      onPressed: (songHasChanged && isValidSong)
-                          ? () {
-                              saveSong();
-                              Navigator.pop(context);
-                            }
-                          : null,
-                      backgroundColor: (songHasChanged && isValidSong ? null : _disabledColor),
+                    AppTooltip(
+                      message: isValidSong
+                          ? songHasChanged
+                              ? 'Save the song to your local drive,\n'
+                                  'Typically this is your Downloads folder.'
+                              : 'The song has not been altered so it is not necessary to write it'
+                          : 'Invalid song entries cannot be saved.\nFix the errors first.',
+                      child: appButton(
+                        'Save song on local drive',
+                        appKeyEnum: AppKeyEnum.editEnterSong,
+                        fontSize: _defaultChordFontSize,
+                        onPressed: (songHasChanged && isValidSong)
+                            ? () {
+                                saveSong();
+                                Navigator.pop(context);
+                              }
+                            : null,
+                        // backgroundColor: (songHasChanged && isValidSong ? null : appDisabledColor),
+                      ),
                     ),
                     app.messageTextWidget(AppKeyEnum.editErrorMessage),
                     AppWrap(alignment: WrapAlignment.spaceBetween, spacing: 25, children: <Widget>[

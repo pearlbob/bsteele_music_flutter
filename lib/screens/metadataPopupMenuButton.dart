@@ -13,10 +13,15 @@ const Level _logItems = Level.debug;
 const Level _logSelected = Level.debug;
 
 class MetadataPopupMenuButton {
-  static Widget button(
-      {final String? title, TextStyle? style, PopupMenuItemSelected<NameValue>? onSelected, bool showAll = true}) {
+  static Widget button({
+    final String? title,
+    TextStyle? style,
+    PopupMenuItemSelected<NameValueMatcher>? onSelected,
+    bool showAllValues = true,
+    bool showAllFilters = false,
+  }) {
     style = style ?? generateAppTextStyle();
-    return PopupMenuButton<NameValue>(
+    return PopupMenuButton<NameValueMatcher>(
       tooltip: '', //'Parent menu',
       onSelected: (value) {
         logger.i('selected parent: $value'); //fixme: not used
@@ -25,21 +30,26 @@ class MetadataPopupMenuButton {
         //  find all name/values in use
         SplayTreeSet<NameValue> nameValues = SplayTreeSet();
         for (var songIdMetadata in SongMetadata.idMetadata) {
-          nameValues
-              .addAll(songIdMetadata.nameValues.where((nv) => showAll || !SongMetadataGeneratedValue.isGenerated(nv)));
+          nameValues.addAll(
+              songIdMetadata.nameValues.where((nv) => showAllValues || !SongMetadataGeneratedValue.isGenerated(nv)));
         }
         logger.log(_logLists, 'lists.build: ${SongMetadata.idMetadata}');
         SplayTreeSet<String> names = SplayTreeSet()..addAll(nameValues.map((e) => e.name));
 
         //  make entry items from the names
-        List<PopupMenuEntry<NameValue>> items = [];
+        List<PopupMenuEntry<NameValueMatcher>> entryItems = [];
         var fontSize = style!.fontSize ?? appDefaultFontSize;
         var offset = Offset(fontSize * 4, fontSize / 2);
         for (var name in names) {
-          var item = PopupSubMenuItem<NameValue>(
+          List<NameValueMatcher> matcherItems =
+              nameValues.where((e) => e.name == name).map((e) => NameValueMatcher.value(e)).toList(growable: true);
+          if (showAllFilters) {
+            matcherItems.add(NameValueMatcher.anyValue(name));
+            matcherItems.add(NameValueMatcher.noValue(name));
+          }
+          var item = PopupSubMenuItem<NameValueMatcher>(
             title: name,
-            items: nameValues.where((e) => e.name == name).toList(growable: false),
-            itemLabelFunction: (e) => e.value.isNotEmpty ? e.value : e.toShortString(),
+            items: matcherItems,
             style: style,
             offset: offset,
             onSelected: onSelected ??
@@ -48,9 +58,9 @@ class MetadataPopupMenuButton {
                 },
           );
           logger.log(_logItems, '   items: ${item.items}');
-          items.add(item);
+          entryItems.add(item);
         }
-        return items;
+        return entryItems;
       },
 
       child: Wrap(

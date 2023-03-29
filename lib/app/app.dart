@@ -34,10 +34,8 @@ music_key.Key? playerSelectedSongKey;
 int? playerSelectedBpm = MusicConstants.defaultBpm;
 String? playerSinger;
 
-final Color appDisabledColor = Colors.grey.shade300;
+const Color appDisabledColor = Color(0xFFE0E0E0);
 const double appDefaultFontSize = 10.0; //  based on phone
-
-final NameValue allSongsMetadataNameValue = NameValue('All', '');
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 

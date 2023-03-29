@@ -176,7 +176,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                       //     },
                       //   ),
                       appButton(
-                        'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toShortString() : 'is disabled'}',
+                        'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toString() : 'is disabled'}',
                         appKeyEnum: AppKeyEnum.listsClearLists,
                         onPressed: nameValueIsDeletable(_selectedNameValue)
                             ? () {
@@ -184,15 +184,14 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     context: context,
                                     builder: (_) => AlertDialog(
                                           title: Text(
-                                            'Do you really want to delete the metadata ${_selectedNameValue.toShortString()}?',
+                                            'Do you really want to delete the metadata ${_selectedNameValue.toString()}?',
                                             style: TextStyle(fontSize: metadataStyle.fontSize),
                                           ),
                                           actions: [
                                             AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                                              appButton('Yes! Delete all of ${_selectedNameValue.toShortString()}.',
+                                              appButton('Yes! Delete all of ${_selectedNameValue.toString()}.',
                                                   appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
-                                                logger.log(
-                                                    _logDeleteSong, 'delete: ${_selectedNameValue.toShortString()}');
+                                                logger.log(_logDeleteSong, 'delete: ${_selectedNameValue.toString()}');
                                                 setState(() {
                                                   SongMetadata.removeAll(_selectedNameValue);
                                                   _selectedNameValue = _emptySelectedNameValue;
@@ -223,7 +222,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         MetadataPopupMenuButton.button(
                           title: 'Existing metadata',
                           style: metadataStyle,
-                          showAll: false,
+                          showAllValues: false,
                           onSelected: (value) {
                             setState(() {
                               _nameTextFieldController.text = value.name;
@@ -358,17 +357,17 @@ class MetadataScreenState extends State<MetadataScreen> {
                                               !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ??
                                                   false)
                                           ? appIconWithLabelButton(
-                                              icon: appIcon(
+                                        icon: appIcon(
                                                 Icons.add,
                                               ),
-                                              label: _selectedNameValue.toShortString(),
+                                              label: _selectedNameValue.toString(),
                                               appKeyEnum: AppKeyEnum.listsMetadataAddToSong,
                                               value: SongIdMetadataItem(song, _selectedNameValue),
                                               fontSize: 0.75 * app.screenInfo.fontSize,
                                               backgroundColor: Colors.lightGreen,
                                               onPressed: () {
-                                                logger.log(_logAddSong,
-                                                    'pressed: ${_selectedNameValue.toShortString()} to $song');
+                                                logger.log(
+                                                    _logAddSong, 'pressed: ${_selectedNameValue.toString()} to $song');
                                                 SongMetadata.addSong(song, _selectedNameValue);
                                                 playListRefreshNotifier.refresh();
                                                 logger.log(
@@ -384,6 +383,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                         isEditing: true,
                         selectedSortType: PlayListSortType.byTitle,
                         isFromTheTop: false,
+                        showAllFilters: true,
                         playListSearchMatcher: SongPlayListSearchMatcher(),
                       ),
                     ),

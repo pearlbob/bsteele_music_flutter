@@ -81,7 +81,7 @@ class SingersState extends State<Singers> {
         color: Colors.black87,
         fontSize: fontSize,
       );
-      disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: disabledColor);
+      disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: appDisabledColor);
       buttonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveBackgroundColor);
       inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
       selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);
@@ -1315,7 +1315,6 @@ class SingersState extends State<Singers> {
   final AllSongPerformances _allSongPerformances = AllSongPerformances();
 
   static const inactiveBackgroundColor = Color(0xFFe0e0e0);
-  static const disabledColor = Color(0xFFa0a0a0);
   static const inactiveRequesterColor = Color(0xFFceecf0);
   static const addColor = Color(0xFFa0eaa3);
   static const removeColor = Color(0xFFE57373); //var c = Colors.red[300]: Color(0xFFE57373),

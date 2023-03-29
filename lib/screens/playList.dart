@@ -181,7 +181,7 @@ class SongPlayListItem implements PlayListItem {
                               icon: appIcon(
                                 Icons.clear,
                               ),
-                              label: '${nameValue.name}:${nameValue.value}',
+                              label: nameValue.toString(),
                               appKeyEnum: AppKeyEnum.playListMetadataRemoveFromSong,
                               value: SongIdMetadataItem(song, nameValue),
                               fontSize: _textFontSize,
@@ -306,6 +306,7 @@ class PlayList extends StatefulWidget {
     selectedSortType,
     isFromTheTop = true,
     isOrderBy = true,
+    useAllFilters = false,
     required PlayListSearchMatcher playListSearchMatcher,
   }) : this.byGroup(PlayListGroup([itemList]),
             key: key,
@@ -315,6 +316,7 @@ class PlayList extends StatefulWidget {
             selectedSortType: selectedSortType,
             isFromTheTop: isFromTheTop,
             isOrderBy: isOrderBy,
+            showAllFilters: useAllFilters,
             playListSearchMatcher: playListSearchMatcher);
 
   PlayList.byGroup(
@@ -326,6 +328,7 @@ class PlayList extends StatefulWidget {
     this.selectedSortType,
     this.isFromTheTop = true,
     this.isOrderBy = true,
+    this.showAllFilters = false,
     required this.playListSearchMatcher,
   }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
     //
@@ -351,6 +354,7 @@ class PlayList extends StatefulWidget {
   final PlayListSortType? selectedSortType;
   final bool isFromTheTop;
   final bool isOrderBy;
+  final bool showAllFilters;
 
   final TextStyle titleStyle;
   late final double titleFontSize;
@@ -566,10 +570,10 @@ class _PlayListState extends State<PlayList> {
       logger.log(_logFilters, '_filterNameValues: $_filterNameValues');
       {
         String lastName = '';
-        for (var nv in filter.matchers()) {
+        for (var nameValueMatcher in filter.matchers()) {
           if (lastName.isNotEmpty) {
             filterWidgets.add(Text(
-              lastName == nv.name && filter.isOr(nv) ? 'OR' : 'AND',
+              lastName == nameValueMatcher.name && filter.isOr(nameValueMatcher) ? 'OR' : 'AND',
               style: _indexTextStyle,
             ));
           }
@@ -578,20 +582,20 @@ class _PlayListState extends State<PlayList> {
               icon: appIcon(
                 Icons.clear,
               ),
-              label: '${nv.name}: ${nv.value}',
+              label: nameValueMatcher.toString(),
               fontSize: _textFontSize,
               appKeyEnum: AppKeyEnum.playListMetadataRemoveFromFilter,
-              value: nv,
-              backgroundColor: filter.isOr(nv) ? Colors.lightGreen : null,
+              value: nameValueMatcher,
+              backgroundColor: filter.isOr(nameValueMatcher) ? Colors.lightGreen : null,
               onPressed: () {
                 setState(() {
-                  logger.d('remove: ${nv.name}: ${nv.value}');
-                  _filterNameValues.remove(nv);
+                  logger.d('remove: ${nameValueMatcher.name}: ${nameValueMatcher.value}');
+                  _filterNameValues.remove(nameValueMatcher);
                 });
               },
             ),
           );
-          lastName = nv.name;
+          lastName = nameValueMatcher.name;
         }
       }
 
@@ -743,12 +747,13 @@ Selections with different names will be AND'd.''',
                         child: MetadataPopupMenuButton.button(
                           title: 'Filters',
                           style: widget.artistStyle,
+                          showAllFilters: widget.showAllFilters,
                           onSelected: (value) {
                             setState(() {
                               if (value == allNameValue) {
                                 _filterNameValues.clear();
                               } else {
-                                _filterNameValues.add(NameValueMatcher.value(value));
+                                _filterNameValues.add(value);
                               }
                             });
                           },

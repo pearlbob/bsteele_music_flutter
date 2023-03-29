@@ -383,7 +383,7 @@ AppKey appKeyCreate(AppKeyEnum e, {dynamic value}) {
       ret = AppKey('${e.name}.${(value as music_key.Key).toMarkup()}');
       break;
     case NameValue:
-      ret = AppKey('${e.name}.${(value as NameValue).toShortString()}');
+      ret = AppKey('${e.name}.${(value as NameValue).toString()}');
       break;
     default:
       if (value.runtimeType != type) {
@@ -692,7 +692,7 @@ class AppTheme {
 
       app.themeData = app.themeData.copyWith(
         primaryColor: color,
-        disabledColor: Colors.grey.shade300,
+        disabledColor: appDisabledColor,
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
         colorScheme: ColorScheme.fromSwatch(
             backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
@@ -741,16 +741,17 @@ ElevatedButton appButton(
           _appLogCallback(key); //  log the click
           onPressed.call();
         };
+  var buttonBackgroundColor = onPressed == null ? appDisabledColor : backgroundColor;
   _appKeyRegisterVoidCallback(key, voidCallback: voidCallback);
 
   return ElevatedButton(
     key: key,
     clipBehavior: Clip.hardEdge,
     onPressed: voidCallback,
-    style:
-        app.themeData.elevatedButtonTheme.style?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor)),
+    style: app.themeData.elevatedButtonTheme.style
+        ?.copyWith(backgroundColor: MaterialStateProperty.all(buttonBackgroundColor)),
     child: Text(commandName,
-        style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: backgroundColor)),
+        style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: buttonBackgroundColor)),
   );
 }
 
@@ -818,7 +819,7 @@ IconButton appIconButton({
 TextButton appIconWithLabelButton({
   required AppKeyEnum appKeyEnum,
   required Widget icon,
-  required VoidCallback onPressed,
+  VoidCallback? onPressed,
   dynamic value,
   TextStyle? style,
   double? fontSize,
@@ -827,14 +828,19 @@ TextButton appIconWithLabelButton({
 }) {
   var key = appKeyCreate(appKeyEnum, value: value);
   _appKeyRegisterVoidCallback(key, voidCallback: onPressed);
+  if (onPressed == null) {
+    backgroundColor = appDisabledColor;
+  }
   return TextButton.icon(
     key: key,
     icon: icon,
     label: Text(label ?? '', style: style ?? TextStyle(fontSize: fontSize)),
-    onPressed: () {
-      _appLogCallback(key);
-      onPressed();
-    },
+    onPressed: onPressed != null
+        ? () {
+            _appLogCallback(key);
+            onPressed();
+          }
+        : null,
     style: app.themeData.elevatedButtonTheme.style
         ?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor ?? App.defaultBackgroundColor)),
   );

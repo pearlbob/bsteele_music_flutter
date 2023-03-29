@@ -327,7 +327,7 @@ class LyricsTable {
                           displayMusicKey: displayMusicKey,
                           style: _coloredLyricTextStyle.copyWith(
                             color: Colors.black54,
-                            backgroundColor: Colors.grey.shade300,
+                            backgroundColor: appDisabledColor,
                             fontSize: _coloredLyricTextStyle.fontSize ?? app.screenInfo.fontSize,
                           ),
                         ),
@@ -346,7 +346,7 @@ class LyricsTable {
                       richText: RichText(
                         text: TextSpan(
                           text: mn.toMarkup(),
-                          style: _coloredChordTextStyle,
+                          style: _coloredLyricTextStyle,
                         ),
                       ),
                       type: SongCellType.columnFill,

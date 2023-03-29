@@ -783,7 +783,7 @@ With z or q, the app goes back to the play list.''',
                                       alignment: WrapAlignment.spaceBetween,
                                       children: [
                                         if (!songUpdateService.isFollowing)
-                                        //  key change
+                                          //  key change
                                           AppWrap(
                                             alignment: WrapAlignment.spaceBetween,
                                             children: [
@@ -2040,7 +2040,7 @@ With z or q, the app goes back to the play list.''',
                                   ],
                                 ),
                             ]),
-                        if (!songUpdateService.isFollowing)
+                        if (!songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
                           AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                             AppTooltip(
                               message: 'Adjust drum playback volume.',
@@ -2068,7 +2068,7 @@ With z or q, the app goes back to the play list.''',
                             ),
                           ]),
                         const AppSpace(),
-                        if (!songUpdateService.isFollowing)
+                        if (!songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
                           AppWrapFullWidth(
                               crossAxisAlignment: WrapCrossAlignment.center,
                               spacing: viewportWidth(1),

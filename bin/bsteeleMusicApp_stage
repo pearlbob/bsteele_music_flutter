@@ -59,7 +59,7 @@ set betaDir=$rootDir/$flavor
 # 
 echo test the library
 cd $bsteeleMusicLib/bsteele_music_lib
-flutter test >& /dev/null
+dart run test >& /dev/null
 if ( $status != 0 ) then
 	echo library tests failed.
 	exit -1

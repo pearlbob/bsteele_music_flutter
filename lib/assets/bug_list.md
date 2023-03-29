@@ -2,23 +2,13 @@
 
 # Release Planning:
 
-## Release 1.2.3
+## Release 1.2.4
 
 ### Release Date:
 
 ### Features
 
-* edit web lookups: google, wikipedia, ultimate guitar, musicnotes, azlyrics
-
 ### Fixes Completed
-
-* save the last valid song edited; in case recovery is necessary!
-  See: Menu, Songs, Edit the last file edited
-* added release notes to the release process. See: menu, about, release notes
-* Edit save song button present but disabled if no changes or an invalid song input.
-* limit chord summary length in pro-edit lyrics entry
-* player: more warning about no editing if following in tooltips
-* metadata screen: filter for no and any
 
 ### Fix
 
@@ -28,16 +18,15 @@
 * make the user edit field a "regular" field, so any change can be undone or saved. Update the field only if unknown.
 * player: in pause, reposition, play with up/down arrows or scroll,
   continues from new location with space bar hit
-* And it seems to want to default to my last name change, rather than a default of my name - not sure if that is
-  definable.
+* And it seems to want to default to my last name change,
+  rather than a default of my name - not sure if that is definable.
 * Metadata fields are caseless. The software will Capitalize All Fields As Required.
 * visual delay on Mac mini? Just off, slow. correct when measured post render.
-* explain storage. Yes
 * Mute button? Display and keyboard shortcut
 * regenerate generated metadata after editing
-* playlist: change of screen from menu item, change of order, or change of filter should focus on the empty search text
+* playlist: change of screen from menu item, change of order,
+  or change of filter should focus on the empty search text
 * Time the player selected measure in autoplay mode: adjust timing if required
-* Minor bug: I can't change/save the username without making other changes (that engage the save button).
 * Improve startup delay.
 * Search for song on web with & in the title
 * drum select vs drum edit in drums from player: turn off editing when one drum is saved

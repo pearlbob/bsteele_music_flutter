@@ -707,7 +707,7 @@ class _PlayListState extends State<PlayList> {
                         controller: _searchTextFieldController,
                         focusNode: _searchFocusNode,
                         hintText: 'Search here...',
-                        width: appDefaultFontSize * 40,
+                        width: min(appDefaultFontSize * 40, app.screenInfo.mediaWidth / 2),
                         onChanged: (value) {
                           setState(() {
                             if (_searchTextFieldController.text != value) {
@@ -738,6 +738,7 @@ class _PlayListState extends State<PlayList> {
                             });
                           }),
                         )),
+
                     const AppSpace(spaceFactor: 2.0),
                     //  filters
                     AppTooltip(
@@ -792,6 +793,10 @@ Selections with different names will be AND'd.''',
                             },
                             value: selectedSortType,
                             style: widget.searchDropDownStyle,
+                          ),
+                          Text(
+                            '(${filteredGroup.length})',
+                            style: widget.artistStyle,
                           ),
                         ],
                       ),

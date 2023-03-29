@@ -5,28 +5,51 @@
 ### Contents:
 
 <!-- TOC -->
-
 * [bsteeleMusicApp](#bsteelemusicapp)
-* [Release Notes:](#release-notes-)
-  * [Contents:](#contents-)
-  * [Release 1.2.2](#release-122)
-    * [Release Date: Mar  23, 2023](#release-date--mar--23-2023)
+* [Release Notes:](#release-notes)
+  * [Contents:](#contents)
+  * [Release 1.2.3](#release-123)
+    * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
     * [Features](#features)
     * [Fixes Completed](#fixes-completed)
-  * [Release 1.2.1](#release-121)
-    * [Release Date: Mar  18, 2023](#release-date--mar--18-2023)
+  * [Release 1.2.2](#release-122)
+    * [Release Date: Mar 23, 2023](#release-date-mar-23-2023)
     * [Features](#features-1)
     * [Fixes Completed](#fixes-completed-1)
-  * [Release 1.2.0](#release-120)
-    * [Release Date: Mar  3, 2023](#release-date--mar--3-2023)
+  * [Release 1.2.1](#release-121)
+    * [Release Date: Mar 18, 2023](#release-date-mar-18-2023)
     * [Features](#features-2)
-  * [Fixes Completed](#fixes-completed-2)
+    * [Fixes Completed](#fixes-completed-2)
+  * [Release 1.2.0](#release-120)
+    * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
+    * [Features](#features-3)
+  * [Fixes Completed](#fixes-completed-3)
 
 <!-- TOC -->
 
+## Release 1.2.3
+
+### Release Date: Mar 30, 2023
+
+### Features
+
+* edit web lookups: google, wikipedia, ultimate guitar, musicnotes, azlyrics
+
+### Fixes Completed
+
+* save the last valid song edited; in case recovery is necessary!
+  See: Menu, Songs, Edit the last file edited
+* added release notes to the release process. See: menu, about, release notes
+* Edit save song button present but disabled if no changes or an invalid song input.
+* limit chord summary length in pro-edit lyrics entry
+* player: more warning about no editing if following in tooltips
+* metadata screen: filter for "no" and "any"
+* Can't change/save the username without making other changes
+  (that engage the save button).
+
 ## Release 1.2.2
 
-### Release Date: Mar  23, 2023
+### Release Date: Mar 23, 2023
 
 ### Features
 
@@ -36,19 +59,19 @@
 
 ## Release 1.2.1
 
-### Release Date: Mar  18, 2023
+### Release Date: Mar 18, 2023
 
 ### Features
 
 ### Fixes Completed
 
-* automatic selection of next singer should be at the top of the new playlist
+* automatic selection of the next singer should be at the top of the new playlist
 * options for click in player screen
 * add playlist OR operator on multiple metadata, not just the current implied AND
 
 ## Release 1.2.0
 
-### Release Date: Mar  3, 2023
+### Release Date: Mar 3, 2023
 
 ### Features
 
@@ -74,7 +97,7 @@
 * singer mode: no capo!
 * re-download canvaskit on staging
 * drum: the default volume should be max.
-* grab bar on scroll for song list
+* grab bar on scroll for the song list
 * Drum edit preview, with bpm and volume
 * In player screen, capo mode can be forgotten inappropriately.
 * Metadata list shouldn't scroll after metadata change

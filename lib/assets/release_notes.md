@@ -7,7 +7,7 @@
 <!-- TOC -->
 * [bsteeleMusicApp](#bsteelemusicapp)
 * [Release Notes:](#release-notes)
-  * [Contents:](#contents)
+    * [Contents:](#contents)
   * [Release 1.2.3](#release-123)
     * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
     * [Features](#features)
@@ -24,7 +24,6 @@
     * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
     * [Features](#features-3)
   * [Fixes Completed](#fixes-completed-3)
-
 <!-- TOC -->
 
 ## Release 1.2.3

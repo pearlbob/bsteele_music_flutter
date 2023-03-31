@@ -10,9 +10,13 @@
 
 ### Fixes Completed
 
+* many songs were missing year and decade metadata
+
 ### Fix
 
+* .md processing failure: filter for â€œnoâ€ and â€œanyâ€
 * drum edit interaction should be improved
+* lib/assets/release_notes_head and tail should not be in .war
 * edit: chords on lyrics not up to date until after validate?
 * move follower key offset to options page
 * make the user edit field a "regular" field, so any change can be undone or saved. Update the field only if unknown.

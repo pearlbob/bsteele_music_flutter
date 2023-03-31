@@ -4,11 +4,14 @@
 echo $0\:
 
 #	update the release notes
-set dst=web/release_notes.html
-mkdir -p build
-pandoc -o build/release_notes_partial.html lib/assets/release_notes.md
-cat lib/assets/release_notes_head.html \
-	build/release_notes_partial.html \
-	lib/assets/release_notes_tail.html \
-	> $dst
+set dstDir=build/web
+set dst=$dstDir/release_notes.html
+mkdir -p $dstDir
+
+cat lib/assets/release_notes_head.html > $dst
+pandoc lib/assets/release_notes.md >> $dst
+echo "<p>Release notes date: <q>"`date`"</q></p>" >> $dst
+cat lib/assets/release_notes_tail.html >> $dst
+
 validatornu $dst
+exit $status

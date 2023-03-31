@@ -49,8 +49,11 @@ endif
 
 #	test
 cd $git
-flutter test test
-if ( $status != 0 ) echo test status: $status
+flutter test test >& /dev/null
+if ( $status != 0 ) then
+	echo test status: $status
+	exit $status
+endif
 
 #	beta to local static host
 set rootDir=/srv/http/public_html/bsteeleMusicApp
@@ -68,20 +71,22 @@ cd $git
 
 ##	build the web version of the beta
 flutter clean
+
 date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 set base=/bsteeleMusicApp/
 if ( $isBeta ) set base=/public_html${base}beta/
 if ( $debug ) then
-	#flutter uild web --profile --base-href $base --web-renderer=auto --dart-define=Dart2jsOptimization=O0
-	lutter build web --base-href $base --web-renderer=auto	#	fixme: temp
+	#flutter build web --profile --base-href $base --web-renderer=auto --dart-define=Dart2jsOptimization=O0
+	flutter build web --base-href $base --web-renderer=auto	#	fixme: temp
 else
 	flutter build web --base-href $base --release --web-renderer=auto
 endif
 bsteeleMusicApp_canvaskit # offline canvas kit update
 
 #	update the release notes
-pandoc -o web/release_notes.html lib/assets/release_notes.md
+bin/bsteeleMusicApp_release_notes
+if ( $status != 0 ) exit -1
 
 # install beta lib util
 cd bsteeleMusicLib

@@ -37,6 +37,10 @@ sudo date
 flup -y
 
 
+#	deploy locally the release_notes page
+bin/bsteeleMusicApp_release_notes
+if ( $status != 0 ) exit -1
+
 #	compile for release
 cd $git
 flutter_clean	#	prep

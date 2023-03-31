@@ -42,8 +42,8 @@
 * Edit save song button present but disabled if no changes or an invalid song input.
 * limit chord summary length in pro-edit lyrics entry
 * player: more warning about no editing if following in tooltips
-* metadata screen: filter for "no" and "any"
-* Can't change/save the username without making other changes
+* metadata screen: filter for `no` and `any`
+* Cannot change/save the username without making other changes
   (that engage the save button).
 
 ## Release 1.2.2
@@ -87,7 +87,7 @@
 * Improved startup delay based on history. More is required.
 * generate Decade, time signature, key, bpm metadata from the song's year... programmatically.
 * drums on 2/4, 3/4, 6/8
-* drums in the background while in "manual play" mode. that is, things as they typically are now with drums playing but
+* drums in the background while in `manual play` mode. That is, things as they typically are now with drums playing but
   not auto advance nor any indication of the current measure. basically a replacement for your foot pedals.
 * browser reload on subsequent pages
 * find the closest songId for history songs without non-null song

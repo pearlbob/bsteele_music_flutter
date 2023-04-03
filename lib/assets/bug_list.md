@@ -11,6 +11,7 @@
 ### Fixes Completed
 
 * many songs were missing year and decade metadata
+* history source correction to the tomcat logs
 
 ### Fix
 

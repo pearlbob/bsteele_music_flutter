@@ -12,10 +12,12 @@
 
 * many songs were missing year and decade metadata
 * history source correction to the tomcat logs
+* add new singer to today's singer's list automatically
+* if no match on singer's songlist search,
+  the guess will not click through to play the song
 
 ### Fix
 
-* .md processing failure: filter for â€œnoâ€ and â€œanyâ€
 * drum edit interaction should be improved
 * lib/assets/release_notes_head and tail should not be in .war
 * edit: chords on lyrics not up to date until after validate?

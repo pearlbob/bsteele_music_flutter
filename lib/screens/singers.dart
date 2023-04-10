@@ -784,7 +784,11 @@ class SingersState extends State<Singers> {
                             singerTextFieldController.text = value;
                           }
                           if (singerTextFieldController.text.isNotEmpty) {
-                            _setSelectedSinger(Util.firstToUpper(singerTextFieldController.text));
+                            var performer = Util.firstToUpper(singerTextFieldController.text);
+                            // add to current singers
+                            _sessionSingers.add(performer);
+                            appOptions.sessionSingers = _sessionSingers;
+                            _setSelectedSinger(performer);
                             singerTextFieldController.text = '';
                             FocusScope.of(context).requestFocus(_singerSearchFocusNode);
                           }
@@ -1164,8 +1168,17 @@ class SingersState extends State<Singers> {
   }
 
   _navigateSongListToPlayer(BuildContext context, PlayListItem playListItem) async {
-    if (playListItem is SongPlayListItem && playListItem.songPerformance != null) {
-      _navigatePerformanceToPlayer(context, playListItem.songPerformance!);
+    if (playListItem is SongPlayListItem) {
+      if (playListItem.songPerformance != null) {
+        _navigatePerformanceToPlayer(context, playListItem.songPerformance!);
+      } else {
+        //  make a new performance since we don't have one
+        var song = playListItem.song;
+        _navigatePerformanceToPlayer(
+            context,
+            SongPerformance(song.songId.toString(), _selectedSinger,
+                key: song.key, bpm: song.beatsPerMinute, song: song));
+      }
     }
   }
 

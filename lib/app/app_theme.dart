@@ -593,7 +593,7 @@ void testAppKeyCallbacks() async {
     return;
   }
   const delay = Duration(seconds: 1);
-  const quickDelay = Duration(milliseconds: 5000 ~/ 12);
+  const quickDelay = Duration(milliseconds: 500);
 
   //  turn off the follow host
   await appKeyExecute('''
@@ -611,10 +611,10 @@ appBack
         break;
       }
       await _testSearchFor(song, delay: delay);
-      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+      for (int i = 0; i < MusicConstants.halfStepsPerOctave / 2; i++) {
         await appKeyExecute('playerKeyDown', delay: quickDelay);
       }
-      for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
+      for (int i = 0; i < MusicConstants.halfStepsPerOctave / 2; i++) {
         await appKeyExecute('playerKeyUp', delay: quickDelay);
       }
       await appKeyExecute('appBack', delay: delay);

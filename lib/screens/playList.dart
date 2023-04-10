@@ -604,50 +604,52 @@ class _PlayListState extends State<PlayList> {
         //  apply search
         List<PlayListItemList> filteredSongLists = [];
         widget.playListSearchMatcher.search = _searchTextFieldController.text;
-        PlayListItemAction? bestSongItemAction; //  fixme: this can't be the best way to find an action!
-        for (final songList in widget.group.group) {
-          //  find the possible items
-          SplayTreeSet<PlayListItem> searchedSet = SplayTreeSet();
-          for (final songItem in songList.playListItems) {
-            if (widget.playListSearchMatcher.matches(songItem)) {
-              searchedSet.add(songItem);
-            }
-          }
-
-          //  apply filters and order
-          SplayTreeSet<PlayListItem> filteredSet = SplayTreeSet(compare);
-          if (_filterNameValues.isEmpty) {
-            //  apply no filter
-            filteredSet.addAll(searchedSet);
-          } else {
-            //  filter the songs for the correct metadata
-            for (var item in searchedSet) {
-              if (item is SongPlayListItem //  fixme:
-                  &&
-                  filter.testAll(SongMetadata.songIdMetadata(item.song)?.nameValues)) {
-                filteredSet.add(item);
+        {
+          PlayListItemAction? bestSongItemAction; //  fixme: this can't be the best way to find an action!
+          for (final songList in widget.group.group) {
+            //  find the possible items
+            SplayTreeSet<PlayListItem> searchedSet = SplayTreeSet();
+            for (final songItem in songList.playListItems) {
+              if (widget.playListSearchMatcher.matches(songItem)) {
+                searchedSet.add(songItem);
               }
             }
-          }
-          if (filteredSet.isNotEmpty) {
-            filteredSongLists.add(PlayListItemList(songList.label, filteredSet.toList(growable: false),
-                playListItemAction: songList.playListItemAction, color: songList.color));
-          } else {
-            bestSongItemAction ??= songList.playListItemAction;
+
+            //  apply filters and order
+            SplayTreeSet<PlayListItem> filteredSet = SplayTreeSet(compare);
+            if (_filterNameValues.isEmpty) {
+              //  apply no filter
+              filteredSet.addAll(searchedSet);
+            } else {
+              //  filter the songs for the correct metadata
+              for (var item in searchedSet) {
+                if (item is SongPlayListItem //  fixme:
+                    &&
+                    filter.testAll(SongMetadata.songIdMetadata(item.song)?.nameValues)) {
+                  filteredSet.add(item);
+                }
+              }
+            }
+            if (filteredSet.isNotEmpty) {
+              filteredSongLists.add(PlayListItemList(songList.label, filteredSet.toList(growable: false),
+                  playListItemAction: songList.playListItemAction, color: songList.color));
+            } else {
+              bestSongItemAction ??= songList.playListItemAction;
+            }
           }
         }
         //  try the closest match?
-        if (filteredSongLists.isEmpty && _searchTextFieldController.text.isNotEmpty && bestSongItemAction != null) {
+        if (filteredSongLists.isEmpty && _searchTextFieldController.text.isNotEmpty) {
           final songTitles = app.allSongs.map((e) => e.title).toList(growable: false);
           BestMatch bestMatch = StringSimilarity.findBestMatch(_searchTextFieldController.text, songTitles);
-          logger.v('playList: $bestMatch, $bestSongItemAction');
+          logger.i('playList: $bestMatch, len: ${widget.group.group.length}'
+              ' ${widget.group.group.first.playListItemAction}');
           Song song = app.allSongs.toList(growable: false)[bestMatch.bestMatchIndex];
           app.selectedSong = song;
           filteredSongLists.add(PlayListItemList(
             'Did you mean?',
             [SongPlayListItem.fromSong(song)],
-            playListItemAction: widget.group.group.first.playListItemAction,
-            // fixme
+            playListItemAction: widget.group.group.first.playListItemAction, // fixme: not a great solution
             color: App.appBackgroundColor,
           ));
         }

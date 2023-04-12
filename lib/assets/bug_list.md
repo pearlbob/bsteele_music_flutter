@@ -10,14 +10,16 @@
 
 ### Fixes Completed
 
-* many songs were missing year and decade metadata
-* history source correction to the tomcat logs
-* add new singer to today's singer's list automatically
-* if no match on singer's songlist search,
-  the guess will not click through to play the song
+* Many songs were missing year and decade metadata
+* History source entry has moved to the tomcat logs.
+  The user will no longer get a "Save" button on the singer screen.
+* Adding new singer to today's singer's list automatically on first entry
+* If there is no match on the singer's songlist search,
+  the guess will now click through to play the song.
 
 ### Fix
 
+* clearing song requests requires a browser cache clear
 * drum edit interaction should be improved
 * lib/assets/release_notes_head and tail should not be in .war
 * edit: chords on lyrics not up to date until after validate?

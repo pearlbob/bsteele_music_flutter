@@ -476,20 +476,21 @@ class SingersState extends State<Singers> {
                       showOtherActions = !showOtherActions;
                     });
                   }),
-                if (_isInSingingMode && _dirtyCount > 0)
-                  appButton('Save $_dirtyCount', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
-                    setState(() {
-                      _saveAllSongPerformances().then((response) {
-                        setState(() {
-                          allHaveBeenWritten = true;
-                          _dirtyCount = 0;
-                        });
-                      }).onError((error, stackTrace) {
-                        allHaveBeenWritten = false; //  fixme: on failure?
-                        app.errorMessage(error.toString());
-                      });
-                    });
-                  }),
+                // if (_isInSingingMode && _dirtyCount > 0)
+                //    //  no longer necessary!  History is from the web server logs
+                //   appButton('Save $_dirtyCount', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
+                //     setState(() {
+                //       _saveAllSongPerformances().then((response) {
+                //         setState(() {
+                //           allHaveBeenWritten = true;
+                //           _dirtyCount = 0;
+                //         });
+                //       }).onError((error, stackTrace) {
+                //         allHaveBeenWritten = false; //  fixme: on failure?
+                //         app.errorMessage(error.toString());
+                //       });
+                //     });
+                //   }),
                 if (_isInSingingMode && app.fullscreenEnabled && !app.isFullScreen)
                   appButton('Fullscreen', appKeyEnum: AppKeyEnum.singersFullScreen, onPressed: () {
                     app.requestFullscreen();

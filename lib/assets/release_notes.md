@@ -7,24 +7,44 @@
 <!-- TOC -->
 * [bsteeleMusicApp](#bsteelemusicapp)
 * [Release Notes:](#release-notes)
-    * [Contents:](#contents)
-  * [Release 1.2.3](#release-123)
-    * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
+  * [Contents:](#contents)
+  * [Release 1.2.4](#release-124)
+    * [Release Date: April 13, 2023](#release-date-april-13-2023)
     * [Features](#features)
     * [Fixes Completed](#fixes-completed)
-  * [Release 1.2.2](#release-122)
-    * [Release Date: Mar 23, 2023](#release-date-mar-23-2023)
+  * [Release 1.2.3](#release-123)
+    * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
     * [Features](#features-1)
     * [Fixes Completed](#fixes-completed-1)
-  * [Release 1.2.1](#release-121)
-    * [Release Date: Mar 18, 2023](#release-date-mar-18-2023)
+  * [Release 1.2.2](#release-122)
+    * [Release Date: Mar 23, 2023](#release-date-mar-23-2023)
     * [Features](#features-2)
     * [Fixes Completed](#fixes-completed-2)
+  * [Release 1.2.1](#release-121)
+    * [Release Date: Mar 18, 2023](#release-date-mar-18-2023)
+    * [Features](#features-3)
+    * [Fixes Completed](#fixes-completed-3)
   * [Release 1.2.0](#release-120)
     * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
-    * [Features](#features-3)
-  * [Fixes Completed](#fixes-completed-3)
+    * [Features](#features-4)
+  * [Fixes Completed](#fixes-completed-4)
+
 <!-- TOC -->
+
+## Release 1.2.4
+
+### Release Date: April 13, 2023
+
+### Features
+
+### Fixes Completed
+
+* Many songs were missing year and decade metadata
+* History source entry has moved to the tomcat logs.
+  The user will no longer get a "Save" button on the singer screen.
+* Adding new singer to today's singer's list automatically on first entry
+* If there is no match on the singer's songlist search,
+  the guess will now click through to play the song.
 
 ## Release 1.2.3
 

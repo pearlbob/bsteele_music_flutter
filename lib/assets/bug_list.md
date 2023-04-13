@@ -2,20 +2,13 @@
 
 # Release Planning:
 
-## Release 1.2.4
+## Release 1.2.5
 
 ### Release Date:
 
 ### Features
 
 ### Fixes Completed
-
-* Many songs were missing year and decade metadata
-* History source entry has moved to the tomcat logs.
-  The user will no longer get a "Save" button on the singer screen.
-* Adding new singer to today's singer's list automatically on first entry
-* If there is no match on the singer's songlist search,
-  the guess will now click through to play the song.
 
 ### Fix
 

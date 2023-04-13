@@ -109,7 +109,7 @@ class AppOptions extends ChangeNotifier {
     if (object is bool) {
       ret = object ? TapToAdvance.upOrDown : TapToAdvance.never;
     } else {
-      ret = Util.enumFromString(_prefs.getString(key) ?? '', TapToAdvance.values) ?? TapToAdvance.never;
+      ret = Util.enumFromString(_prefs.getString(key) ?? '', TapToAdvance.values) ?? TapToAdvance.alwaysDown;
     }
     await _prefs.setString(key, ret.name);
     notifyListeners();

@@ -97,6 +97,10 @@ flutter build web --release --base-href /$warName/ --web-renderer=auto
 if ( $status != 0 ) exit $status
 bsteeleMusicApp_canvaskit # offline canvas kit update
 
+#	deploy locally the release_notes page
+bin/bsteeleMusicApp_release_notes
+if ( $status != 0 ) exit -1
+
 #	build the server war file
 echo build server
 cd $server

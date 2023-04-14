@@ -24,7 +24,8 @@ set app=bsteeleMusicApp
 set bsDir=${app}Pi
 set remoteDir=remotePi
 set src=bsteele_music_flutter
-set www=/var/www/html/public_html/$app
+# http is expected from the environment
+set www=$http/public_html/$app
 
 
 if ( `hostname` == 'bob' ) then

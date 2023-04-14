@@ -5,7 +5,8 @@ echo $0\:
 
 set src=~/github/bsteele_music_flutter
 set app=bsteeleMusicApp
-set www=/var/www/html/public_html/$app
+# http is expected from the environment
+set www=$http/public_html/$app
 set lib=~/lib
 
 #	sum the release
@@ -19,7 +20,7 @@ echo $dmgSum
 set apkSum=`sha256sum $app.apk`
 echo $apkSum
 
-set piSum='0' #`sha256sum ${app}Pi.tgz`
+set piSum=`sha256sum ${app}Pi.tgz`
 echo $piSum
 
 set linuxSum=`sha256sum ${app}X64Linux.tgz`

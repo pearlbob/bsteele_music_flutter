@@ -13,7 +13,8 @@ echo $0\:
 set app=bsteeleMusicApp
 set bsDir=${app}Dmg
 set src=bsteele_music_flutter
-set www=/var/www/html/public_html/$app
+# http is expected from the environment
+set www=$http/public_html/$app
 
 
 if ( `hostname` == 'bob' ) then

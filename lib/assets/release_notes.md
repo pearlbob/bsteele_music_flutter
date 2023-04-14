@@ -7,11 +7,11 @@
 <!-- TOC -->
 * [bsteeleMusicApp](#bsteelemusicapp)
 * [Release Notes:](#release-notes)
-  * [Contents:](#contents)
-  * [Release 1.2.4](#release-124)
-    * [Release Date: April 13, 2023](#release-date-april-13-2023)
-    * [Features](#features)
-    * [Fixes Completed](#fixes-completed)
+    * [Contents:](#contents)
+    * [Release 1.2.4](#release-124)
+        * [Release Date: April 13, 2023](#release-date-april-13-2023)
+        * [Features](#features)
+        * [Fixes Completed](#fixes-completed)
   * [Release 1.2.3](#release-123)
     * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
     * [Features](#features-1)
@@ -28,7 +28,6 @@
     * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
     * [Features](#features-4)
   * [Fixes Completed](#fixes-completed-4)
-
 <!-- TOC -->
 
 ## Release 1.2.4

@@ -3,7 +3,8 @@
 
 echo $0\:
 
-set www=/var/www/html/public_html
+# http is expected from the environment
+set www=$http/public_html
 set app=bsteeleMusicApp
 
 #	link to the latest

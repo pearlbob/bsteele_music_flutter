@@ -11,6 +11,7 @@ import 'package:bsteeleMusicLib/songs/section.dart';
 import 'package:bsteeleMusicLib/songs/section_version.dart';
 import 'package:bsteeleMusicLib/songs/song.dart';
 import 'package:bsteeleMusicLib/songs/song_metadata.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -274,6 +275,9 @@ class App {
 
   /// Generate a message display widget
   Widget messageTextWidget(AppKeyEnum appKeyEnum) {
+    if (_message.isEmpty) {
+      return NullWidget();
+    }
     return Text(_message,
         style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
         key: appKeyCreate(appKeyEnum));

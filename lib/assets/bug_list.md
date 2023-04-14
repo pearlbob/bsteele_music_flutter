@@ -10,11 +10,15 @@
 
 ### Fixes Completed
 
+* Added additional tooltips to the edit screen.
+
 ### Fix
 
+* edit undo and redo aren't working
+* bsteeleMusicAppPi.tgz is missing it's sha256sum
 * clearing song requests requires a browser cache clear
 * drum edit interaction should be improved
-* lib/assets/release_notes_head and tail should not be in .war
+* lib/assets/release_notes_head and tail should not be in a .war file
 * edit: chords on lyrics not up to date until after validate?
 * move follower key offset to options page
 * make the user edit field a "regular" field, so any change can be undone or saved. Update the field only if unknown.

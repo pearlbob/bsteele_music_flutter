@@ -3,7 +3,8 @@ set echo; set verbose
 
 echo $0\:
 
-set www=/var/www/html/public_html
+# http is expected from the environment
+set www=$http/public_html
 set app=bsteeleMusicApp
 set localDst=$www/$app
 set dst=gs://www.bsteele.com/$app
@@ -35,11 +36,6 @@ sudo date
 #	assure our tools are ready
 #done by arch: gcloud --quiet components update
 flup -y
-
-
-#	deploy locally the release_notes page
-bin/bsteeleMusicApp_release_notes
-if ( $status != 0 ) exit -1
 
 #	compile for release
 cd $git

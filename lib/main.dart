@@ -137,7 +137,7 @@ const Level _logBuild = Level.debug;
 
 String host = Uri.base.host;
 Uri uri = Uri.parse(Uri.base.toString().replaceFirst(RegExp(r'#.*'), ''));
-final bool isBeta = uri.toString().contains('beta');
+final bool isBeta = uri.toString().contains('/beta/'); // only works on web
 bool hostIsWebsocketHost = false;
 const _environmentDefault = 'main';
 // --dart-define=environment=test

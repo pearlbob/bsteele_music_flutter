@@ -23,6 +23,7 @@ on linux:
 const Level _logStartup = Level.debug;
 
 const int countInMax = 3;
+const bool appEnableAssistedEditing = false; //  fixme: ultimately delete all the associated code
 
 enum StorageValue {
   //  only partial at the moment
@@ -76,7 +77,7 @@ class AppOptions extends ChangeNotifier {
         await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
-    _proEditInput = await _readBool('proEditInput', defaultValue: _proEditInput);
+    _proEditInput = appEnableAssistedEditing ? await _readBool('proEditInput', defaultValue: _proEditInput) : true;
     _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     _toolTips = await _readBool(StorageValue.toolTips.name, defaultValue: false);
@@ -265,7 +266,7 @@ class AppOptions extends ChangeNotifier {
 
   /// True if the user wants the app to play bass when in play mode.
   bool get proEditInput => _proEditInput;
-  bool _proEditInput = false;
+  bool _proEditInput = appEnableAssistedEditing ? false : true;
 
   bool get isSinger => _userDisplayStyle == UserDisplayStyle.singer;
 

@@ -497,7 +497,7 @@ class LyricsTable {
                     SongCellWidget(
                       richText: RichText(
                         text: TextSpan(
-                          text: measureNode.toMarkup(),
+                          text: measureNode.toMarkup().trim(),
                           style: _coloredLyricTextStyle,
                         ),
                         maxLines: songCellType == SongCellType.lyricEllipsis ? 1 : _maxLines,

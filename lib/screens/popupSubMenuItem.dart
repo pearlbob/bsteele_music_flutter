@@ -63,15 +63,18 @@ class _PopupSubMenuState<T extends NameValueMatcher> extends State<PopupSubMenuI
         return widget.items
             .map(
               (item) => PopupMenuItem<T>(
-            value: item,
-            child: Text(
-              item.toString(),
+                value: item,
+                child: Text(
+                  item.toString(),
                   style: widget.style,
                 ),
-          ),
-        )
+              ),
+            )
             .toList(growable: false);
       },
+      constraints: const BoxConstraints(
+        maxWidth: 25.0 * 56.0,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(

@@ -166,23 +166,6 @@ void main() async {
       }
     }
 
-    {
-      var key = appKeyCreate(AppKeyEnum.editNewChordSection);
-      var newChordSection = find.byKey(key);
-      expect(newChordSection, findsOneWidget);
-      await tester.dragUntilVisible(
-        newChordSection, // what you want to find
-        find.byKey(const ValueKey('singleChildScrollView')), // widget you want to scroll
-        const Offset(0, 200), // delta to move
-      );
-    }
-    // {
-    //   var newChordSection = find.byKey(const appKey(AppKeyEnum.editNewChordSection));
-    //   expect(newChordSection, findsOneWidget);
-    // }
-    // await tester.tap(newChordSection.last);
-    //await tester.pumpAndSettle(const Duration(seconds: 1));   //  fixme:  A RenderFlex overflowed by 132 pixels on the right.
-
 //  wait a while
 //     await tester.pump(new Duration(milliseconds: 50));
   });

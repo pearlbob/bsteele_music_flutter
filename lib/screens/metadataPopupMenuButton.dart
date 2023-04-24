@@ -22,10 +22,14 @@ class MetadataPopupMenuButton {
   }) {
     style = style ?? generateAppTextStyle();
     return PopupMenuButton<NameValueMatcher>(
-      tooltip: '', //'Parent menu',
+      tooltip: '',
+      //'Parent menu',
       onSelected: (value) {
         logger.i('selected parent: $value'); //fixme: not used
       },
+      constraints: const BoxConstraints(
+        maxWidth: 25.0 * 56.0,
+      ),
       itemBuilder: (BuildContext context) {
         //  find all name/values in use
         SplayTreeSet<NameValue> nameValues = SplayTreeSet();

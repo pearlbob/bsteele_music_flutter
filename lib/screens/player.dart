@@ -48,6 +48,7 @@ _PlayerState? _player;
 Song _song = Song.createEmptySong();
 final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
+const double _padding = 16.0;
 
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0; //  fret number of the cap location
@@ -970,6 +971,28 @@ With z or q, the app goes back to the play list.''',
                                 ],
                               ),
 
+                            //  chords used
+                            if (app.isScreenBig && false) //  fixme: make scale chords used an option
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(_padding, _padding, _padding, 0.0),
+                                child: Column(
+                                  children: [
+                                    const AppSpace(),
+                                    AppWrapFullWidth(
+                                      children: [
+                                        Text(
+                                          'Chords used: ',
+                                          style: headerTextStyle,
+                                        ),
+                                        Text(
+                                          _song.scaleChordsUsed().toString(),
+                                          style: headerTextStyle,
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             const AppSpace(),
                             if (app.isScreenBig &&
                                 appOptions.ninJam &&
@@ -1257,7 +1280,7 @@ With z or q, the app goes back to the play list.''',
     if (countIn > 0 && countIn < countInMax) {
       _countInWidget = Container(
         margin: const EdgeInsets.all(12.0),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: _padding),
         color: App.defaultBackgroundColor,
         child: Text('Count in: $countIn',
             style: _lyricsTable.lyricsTextStyle
@@ -2366,7 +2389,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                     ),
                     if (app.fullscreenEnabled && !app.isFullScreen)
                       Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: const EdgeInsets.symmetric(horizontal: _padding),
                           child: appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
                             app.requestFullscreen();
                           })),

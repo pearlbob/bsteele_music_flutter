@@ -67,6 +67,9 @@ class MetadataScreenState extends State<MetadataScreen> {
       color: Colors.black87,
       fontSize: fontSize,
     );
+    smallMetadataStyle = metadataStyle.copyWith(
+      fontSize: 0.75 * fontSize,
+    );
 
     logger.v('_selectedNameValue: $_selectedNameValue');
 
@@ -356,27 +359,35 @@ class MetadataScreenState extends State<MetadataScreen> {
                                       customWidget: _selectedNameValue != _emptySelectedNameValue &&
                                               !(SongMetadata.songIdMetadata(song)?.contains(_selectedNameValue) ??
                                                   false)
-                                          ? appIconWithLabelButton(
-                                        icon: appIcon(
-                                                Icons.add,
+                                          ? AppTooltip(
+                                              message: 'Add this $_selectedNameValue to this song',
+                                              child: appIconWithLabelButton(
+                                                icon: appIcon(
+                                                  Icons.add,
+                                                ),
+                                                label: _selectedNameValue.toString(),
+                                                appKeyEnum: AppKeyEnum.listsMetadataAddToSong,
+                                                value: SongIdMetadataItem(song, _selectedNameValue),
+                                                fontSize: 0.75 * app.screenInfo.fontSize,
+                                                backgroundColor: Colors.lightGreen,
+                                                onPressed: () {
+                                                  logger.log(_logAddSong,
+                                                      'pressed: ${_selectedNameValue.toString()} to $song');
+                                                  SongMetadata.addSong(song, _selectedNameValue);
+                                                  playListRefreshNotifier.refresh();
+                                                  logger.log(
+                                                      _logAddSong,
+                                                      'metadata: playListRefreshNotifier.positionPixels: '
+                                                      '${playListRefreshNotifier.positionPixels}');
+                                                },
                                               ),
-                                              label: _selectedNameValue.toString(),
-                                              appKeyEnum: AppKeyEnum.listsMetadataAddToSong,
-                                              value: SongIdMetadataItem(song, _selectedNameValue),
-                                              fontSize: 0.75 * app.screenInfo.fontSize,
-                                              backgroundColor: Colors.lightGreen,
-                                              onPressed: () {
-                                                logger.log(
-                                                    _logAddSong, 'pressed: ${_selectedNameValue.toString()} to $song');
-                                                SongMetadata.addSong(song, _selectedNameValue);
-                                                playListRefreshNotifier.refresh();
-                                                logger.log(
-                                                    _logAddSong,
-                                                    'metadata: playListRefreshNotifier.positionPixels: '
-                                                    '${playListRefreshNotifier.positionPixels}');
-                                              },
                                             )
-                                          : null))
+                                          : _selectedNameValue != _emptySelectedNameValue
+                                              ? Text(
+                                                  '(already set)',
+                                                  style: smallMetadataStyle,
+                                                )
+                                              : null))
                                   .toList(growable: false))
                         ]),
                         style: metadataStyle,
@@ -555,6 +566,7 @@ Writing a file will allow you to reload your changes later.''',
   }
 
   TextStyle metadataStyle = generateAppTextStyle();
+  TextStyle smallMetadataStyle = generateAppTextStyle();
 
   bool get isDirty => SongMetadata.isDirty;
 

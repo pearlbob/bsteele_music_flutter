@@ -68,6 +68,7 @@ const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
 const Level _editKeyboard = Level.debug;
 const Level _logProChordsForLyrics = Level.debug;
+const Level _logUndoStack = Level.debug;
 
 /*
 Song notes:
@@ -133,8 +134,7 @@ class EditState extends State<Edit> {
       logger.log(_editLog, 'focusNode.listener()');
     });
 
-    key = song.key;
-    keyChordNote = key.getKeyScaleNote(); //  initial value
+    keyChordNote = song.key.getKeyScaleNote(); //  initial value
 
     editTextController.addListener(() {
       //  fixme: workaround for loss of focus when pressing an edit button
@@ -517,7 +517,7 @@ class EditState extends State<Edit> {
                       controller: scrollController,
                       padding: const EdgeInsets.all(8.0),
                       child: Column(children: [
-                        AppWrapFullWidth(alignment: WrapAlignment.spaceAround, spacing: 10, children: <Widget>[
+                        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: 10, children: <Widget>[
                           AppTooltip(
                             message: isValidSong
                                 ? songHasChanged
@@ -670,7 +670,7 @@ class EditState extends State<Edit> {
                               ]),
                         ),
                         AppTooltip(
-                          message: 'Enter the artist\s name here.\n'
+                          message: 'Enter the artist\'s name here.\n'
                               'Note that if the name starts with \'The\',\n'
                               'the app will automatically rotate it to the end of the name.',
                           child: Row(
@@ -781,16 +781,16 @@ class EditState extends State<Edit> {
                                     if (song.key != value && value != null) {
                                       setState(() {
                                         song.key = value;
-                                        key = value;
-                                        keyChordNote = key.getKeyScaleNote();
+                                        keyChordNote = song.key.getKeyScaleNote();
+                                        undoStackPushIfDifferent();
                                       });
                                     }
                                   },
-                                  value: key,
+                                  value: song.key,
                                   style: _labelTextStyle,
                                 ),
                                 SizedBox.shrink(
-                                  child: Text('keyTally_${key.toMarkup()}'),
+                                  child: Text('keyTally_${song.key.toMarkup()}'),
                                 ),
                               ]),
                             ),
@@ -968,33 +968,34 @@ class EditState extends State<Edit> {
                                 });
                               }),
                             ),
-                            editTooltip(
-                              message: proMessage,
-                              child: appButton(
-                                isProEditInput ? 'Assisted Input' : 'Pro Input',
-                                appKeyEnum: AppKeyEnum.editRedo,
-                                fontSize: _defaultChordFontSize,
-                                onPressed: () {
-                                  setState(() {
-                                    if (isProEditInput) {
-                                      checkSong();
-                                      if (!isValidSongChordsAndLyrics) {
-                                        app.errorMessage(
-                                            'Cannot change edit input mode without valid chords and lyrics.');
-                                        return; //  don't change on invalid input
+                            if (appEnableAssistedEditing)
+                              editTooltip(
+                                message: proMessage,
+                                child: appButton(
+                                  isProEditInput ? 'Assisted Input' : 'Pro Input',
+                                  appKeyEnum: AppKeyEnum.editRedo,
+                                  fontSize: _defaultChordFontSize,
+                                  onPressed: () {
+                                    setState(() {
+                                      if (isProEditInput) {
+                                        checkSong();
+                                        if (!isValidSongChordsAndLyrics) {
+                                          app.errorMessage(
+                                              'Cannot change edit input mode without valid chords and lyrics.');
+                                          return; //  don't change on invalid input
+                                        }
+                                      } else {
+                                        //  is currently assisted entry
+                                        proChordTextEditingController.text = song.toMarkup(asEntry: true);
+                                        proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
+                                        selectedEditPoint = null; //  for reentry to assisted
                                       }
-                                    } else {
-                                      //  is currently assisted entry
-                                      proChordTextEditingController.text = song.toMarkup(asEntry: true);
-                                      proLyricsTextEditingController.text = lyricsEntries.asRawLyrics();
-                                      selectedEditPoint = null; //  for reentry to assisted
-                                    }
-                                    isProEditInput = !isProEditInput;
-                                    appOptions.proEditInput = isProEditInput;
-                                  });
-                                },
+                                      isProEditInput = !isProEditInput;
+                                      appOptions.proEditInput = isProEditInput;
+                                    });
+                                  },
+                                ),
                               ),
-                            ),
                           ]),
                         ]),
                         if (showHints)
@@ -1887,7 +1888,7 @@ class EditState extends State<Edit> {
                 padding: textPadding,
                 color: sectionBackgroundColor,
                 child: Text(
-                  measure.transpose(key, 0),
+                  measure.transpose(song.key, 0),
                   style: sectionLyricsBoldTextStyle,
                   maxLines: 1,
                 ),
@@ -2574,7 +2575,7 @@ class EditState extends State<Edit> {
           //  insert new measure as measure in front of a section or after the end
           break;
         case MeasureNodeType.measure:
-          measure = measureNode.transposeToKey(key) as Measure;
+          measure = measureNode.transposeToKey(song.key) as Measure;
           break;
         default:
           logger.i('failed measureNode.measureNodeType: ${measureNode.measureNodeType}');
@@ -2656,19 +2657,19 @@ class EditState extends State<Edit> {
         //  list the notes required
         List<ScaleNote> scaleNotes = [];
         for (int i = 0; i < MusicConstants.notesPerScale; i++) {
-          scaleNotes.add(key.getMajorScaleByNote(i));
+          scaleNotes.add(song.key.getMajorScaleByNote(i));
         }
 
         //  not scale notes
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-          final scaleNote = key.getScaleNoteByHalfStep(i);
+          final scaleNote = song.key.getScaleNoteByHalfStep(i);
           if (!scaleNotes.contains(scaleNote)) scaleNotes.add(scaleNote);
         }
 
         for (final scaleNote in scaleNotes) {
           String s = scaleNote.toMarkup();
           String label =
-              "${s.padRight(2)} ${ChordComponent.getByHalfStep(scaleNote.halfStep - key.getHalfStep()).shortName.padLeft(2)}";
+              "${s.padRight(2)} ${ChordComponent.getByHalfStep(scaleNote.halfStep - song.key.getHalfStep()).shortName.padLeft(2)}";
           DropdownMenuItem<ScaleNote> item = appDropdownMenuItem(
             appKeyEnum: AppKeyEnum.editScaleNote,
             value: scaleNote,
@@ -2757,7 +2758,7 @@ class EditState extends State<Edit> {
       {
         // slash chords
         for (int i = 0; i < MusicConstants.halfStepsPerOctave; i++) {
-          final sc = key.getScaleNoteByHalfStep(i);
+          final sc = song.key.getScaleNoteByHalfStep(i);
           slashNoteDropDownMenuList.add(DropdownMenuItem<ScaleNote>(
             key: ValueKey('scaleNote$sc'),
             value: sc,
@@ -3038,7 +3039,7 @@ class EditState extends State<Edit> {
                 message: 'modify or delete the measure'
                     '${kDebugMode ? ' $editPoint ${chordSong.findMeasureNodeByLocation(editPoint.location)}' : ''}',
                 child: Text(
-                  measure?.transpose(key, transpositionOffset) ?? '',
+                  measure?.transpose(song.key, transpositionOffset) ?? '',
                   style: sectionChordBoldTextStyle,
                 ))),
       );
@@ -3532,6 +3533,7 @@ class EditState extends State<Edit> {
         undoStackLog('pre undo');
         loadSong(undoStack.undo()?.copySong() ?? Song.createEmptySong());
         undoStackLog('post undo');
+        logger.i('song key: ${song.key}');
         checkSongChangeStatus();
       } else {
         app.errorMessage('cannot undo any more');
@@ -3547,6 +3549,7 @@ class EditState extends State<Edit> {
         clearMeasureEntry();
         loadSong(undoStack.redo()?.copySong() ?? Song.createEmptySong());
         undoStackLog('redo');
+        logger.i('song key: ${song.key}');
         checkSongChangeStatus();
       } else {
         app.errorMessage('cannot redo any more');
@@ -3559,17 +3562,18 @@ class EditState extends State<Edit> {
     if (!(song.songBaseSameContent(undoStack.top))) {
       //  fixme: what was this doing?:  song.lastModifiedTime = originalSong.lastModifiedTime;
       undoStackPush();
-      logger.d('undo ${undoStackAllToString()}');
+      logger.log(_logUndoStack, 'undoStackPushIfDifferent ${undoStackAllToString()}');
     }
   }
 
   /// push a copy of the current song onto the undo stack
   void undoStackPush() {
+    logger.log(_logUndoStack, 'undo push(): ${undoStackAllToString()}');
     undoStack.push(song.copySong());
   }
 
   void undoStackLog(String comment) {
-    logger.d('undo $comment: ${undoStackAllToString()}');
+    logger.log(_logUndoStack, 'undo $comment: ${undoStackAllToString()}');
   }
 
   void performEdit({bool done = false, bool endOfRow = false}) {
@@ -3686,7 +3690,7 @@ class EditState extends State<Edit> {
     sb.writeln('');
     for (var i = undoStack.length - 1; i >= 0; i--) {
       var j = undoStack.length - 1 - i;
-      sb.writeln('$i: ${undoStack.get(j)?.toMarkup()}');
+      sb.writeln('$i: ${undoStack.get(j)?.key.toMarkup()}');
     }
     return sb.toString();
   }
@@ -3863,7 +3867,6 @@ class EditState extends State<Edit> {
   bool isValidSong = false;
   bool isValidSongChordsAndLyrics = false;
 
-  music_key.Key key = music_key.Key.getDefault();
   double appendFontSize = 14;
   double chordFontSize = 14;
 

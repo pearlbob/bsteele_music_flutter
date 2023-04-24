@@ -111,6 +111,10 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                     Text(
                       'version: ${packageInfo.version}',
                     ),
+                    if (isBeta)
+                      const Text(
+                        'beta  ',
+                      ),
                     //  release notes
                     InkWell(
                       onTap: () {
@@ -132,15 +136,14 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                   ],
                 ),
 
-                if (kReleaseMode) //  fixme: not necessary
                   AppWrapFullWidth(children: [
                     const Text(
                       'Test the ',
                     ),
                     InkWell(
                       onTap: () {
-                        openLink('http://www.bsteele.com/bsteeleMusicApp/beta/index.html');
-                      },
+                        openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}beta/index.html');
+                    },
                       child: Text(
                         'beta',
                         style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),

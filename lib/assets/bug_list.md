@@ -1,4 +1,4 @@
-# bsteeleMusicApp bug list and planning
+# bsteeleMusicApp bug list
 
 # Release Planning:
 
@@ -10,12 +10,14 @@
 
 ### Fixes Completed
 
-* Added additional tooltips to the edit screen.
+
 
 ### Fix
 
-* edit undo and redo aren't working
-* bsteeleMusicAppPi.tgz is missing it's sha256sum
+* chords used in the song at the top of song display
+* chords don't align properly in the edit lyrics area when there is
+  a vertical space at the end of the lyric section entry.
+* don\'t put spaces at the end of chord rows in player display
 * clearing song requests requires a browser cache clear
 * drum edit interaction should be improved
 * lib/assets/release_notes_head and tail should not be in a .war file

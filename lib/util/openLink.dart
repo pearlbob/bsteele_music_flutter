@@ -27,5 +27,7 @@ void openLink(String urlString) async {
     if (await canLaunchUrlString(urlString)) {
       launchUrlString(urlString);
     }
+  } else {
+    logger.i('openLink("$urlString") not available');
   }
 }

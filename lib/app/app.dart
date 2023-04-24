@@ -279,7 +279,7 @@ class App {
       return NullWidget();
     }
     return Text(_message,
-        style: messageType == MessageType.error ? appErrorTextStyle : appWarningTextStyle,
+        style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle,
         key: appKeyCreate(appKeyEnum));
   }
 
@@ -394,7 +394,7 @@ class App {
 }
 
 TextStyle appTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.black);
-TextStyle appWarningTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
+TextStyle _appWarningTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.blue);
 TextStyle appErrorTextStyle = generateAppTextStyle(fontSize: _defaultFontSize, color: Colors.red);
 
 const double _defaultFontSize = 24;

@@ -8,36 +8,50 @@
 * [bsteeleMusicApp](#bsteelemusicapp)
 * [Release Notes:](#release-notes)
   * [Contents:](#contents)
-  * [Release 1.2.5 beta](#release-125-beta)
-    * [Release Date: currently in beta](#release-date-currently-in-beta)
+  * [Release 1.2.6 Beta](#release-126-beta)
+    * [Release Date: TBD](#release-date-tbd)
     * [Features](#features)
     * [Fixes Completed](#fixes-completed)
-  * [Release 1.2.4](#release-124)
-    * [Release Date: April 13, 2023](#release-date-april-13-2023)
+  * [Release 1.2.5](#release-125)
+    * [Release Date: April 24, 2023](#release-date-april-24-2023)
     * [Features](#features-1)
     * [Fixes Completed](#fixes-completed-1)
-  * [Release 1.2.3](#release-123)
-    * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
+  * [Release 1.2.4](#release-124)
+    * [Release Date: April 13, 2023](#release-date-april-13-2023)
     * [Features](#features-2)
     * [Fixes Completed](#fixes-completed-2)
-  * [Release 1.2.2](#release-122)
-    * [Release Date: Mar 23, 2023](#release-date-mar-23-2023)
+  * [Release 1.2.3](#release-123)
+    * [Release Date: Mar 30, 2023](#release-date-mar-30-2023)
     * [Features](#features-3)
     * [Fixes Completed](#fixes-completed-3)
-  * [Release 1.2.1](#release-121)
-    * [Release Date: Mar 18, 2023](#release-date-mar-18-2023)
+  * [Release 1.2.2](#release-122)
+    * [Release Date: Mar 23, 2023](#release-date-mar-23-2023)
     * [Features](#features-4)
     * [Fixes Completed](#fixes-completed-4)
+  * [Release 1.2.1](#release-121)
+    * [Release Date: Mar 18, 2023](#release-date-mar-18-2023)
+    * [Features](#features-5)
+    * [Fixes Completed](#fixes-completed-5)
   * [Release 1.2.0](#release-120)
     * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
-    * [Features](#features-5)
-  * [Fixes Completed](#fixes-completed-5)
+    * [Features](#features-6)
+  * [Fixes Completed](#fixes-completed-6)
 
 <!-- TOC -->
 
-## Release 1.2.5 beta
+## Release 1.2.6 Beta
 
-### Release Date: currently in beta
+### Release Date: TBD
+
+* Available at: [beta](http://www.bsteele.com/bsteeleMusicApp/beta)
+
+### Features
+
+### Fixes Completed
+
+## Release 1.2.5
+
+### Release Date: April 24, 2023
 
 * Available at: [beta](http://www.bsteele.com/bsteeleMusicApp/beta)
 

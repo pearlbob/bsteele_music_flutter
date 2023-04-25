@@ -13,8 +13,6 @@ echo $0\:
 set app=bsteeleMusicApp
 set bsDir=${app}Dmg
 set src=bsteele_music_flutter
-# http is expected from the environment
-set www=$http/public_html/$app
 
 
 if ( `hostname` == 'bob' ) then
@@ -43,6 +41,9 @@ if ( `hostname` == 'bob' ) then
 	if ( $stat != 0 ) exit $stat
 
 	echo sha256sum: `sha256sum bsteeleMusicApp.dmg`
+
+	# http is expected from the environment
+	set www=$http/public_html/$app
 
 	#	upload to local host
 	cp ./bsteeleMusicApp.dmg $www

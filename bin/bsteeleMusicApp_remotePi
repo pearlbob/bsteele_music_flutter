@@ -24,8 +24,6 @@ set app=bsteeleMusicApp
 set bsDir=${app}Pi
 set remoteDir=remotePi
 set src=bsteele_music_flutter
-# http is expected from the environment
-set www=$http/public_html/$app
 
 
 if ( `hostname` == 'bob' ) then
@@ -55,6 +53,9 @@ if ( `hostname` == 'bob' ) then
 	if ( $stat != 0 ) exit $stat
 
 	echo sha256sum: `sha256sum ${app}Pi.tgz`
+
+	# http is expected from the environment
+	set www=$http/public_html/$app
 
 	#	upload to local host
 	cp ./${app}Pi.tgz $www

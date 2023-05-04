@@ -510,7 +510,7 @@ class OptionsState extends State<Options> {
             break;
 
           case 4:
-            _audioPlayer.play('audio/snare_4406.mp3', when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
+            _audioPlayer.play('audio/snare_4406.flac', when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 4);
             break;
         }
         _timerT += periodMs / microsecondsPerSecond;

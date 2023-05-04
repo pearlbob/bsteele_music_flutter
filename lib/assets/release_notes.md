@@ -52,8 +52,6 @@
 
 ### Release Date: April 24, 2023
 
-* Available at: [beta](http://www.bsteele.com/bsteeleMusicApp/beta)
-
 ### Features
 
 ### Fixes Completed

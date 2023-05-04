@@ -22,10 +22,10 @@ dependencies:
     sdk: flutter
   filesystem_picker:
   logger:
-  shared_preferences: ^2.0.18  # fixme: why is this required?
+  shared_preferences: # ^2.0.18  # fixme: why is this required?
   url_launcher:
   intl:
-  path_provider: ^2.0.13  # fixme: why is this required?
+  path_provider: # ^2.0.13  # fixme: why is this required?
   flutter_markdown:
   scrollable_positioned_list:
   web_socket_channel:

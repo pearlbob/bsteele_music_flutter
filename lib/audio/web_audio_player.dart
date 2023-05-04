@@ -2,8 +2,11 @@
 import 'dart:html';
 
 import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteeleMusicLib/songs/drum_measure.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/util/jsAudioFilePlayer.dart';
+
+import '../widgets/drums.dart';
 
 class WebAudioPlayer implements AppAudioPlayer {
   //  private constructor for singleton
@@ -22,12 +25,12 @@ class WebAudioPlayer implements AppAudioPlayer {
         String path = 'audio/guitar_$i.mp3';
         _audioFilePlayer.bufferFile(path);
       }
-      _audioFilePlayer.bufferFile('audio/hihat1.mp3');
-      _audioFilePlayer.bufferFile('audio/hihat3.mp3');
-      _audioFilePlayer.bufferFile('audio/kick_4513.mp3');
-      _audioFilePlayer.bufferFile('audio/kick_4516.mp3');
-      _audioFilePlayer.bufferFile('audio/snare_4405.mp3');
-      _audioFilePlayer.bufferFile('audio/snare_4406.mp3');
+      const defaultFile = 'audio/hihat1.flac';
+      _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? defaultFile);
+      _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.openHighHat] ?? defaultFile);
+      _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.kick] ?? defaultFile);
+      _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.bass] ?? defaultFile);
+      _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.snare] ?? defaultFile);
 
       logger.i('audio: getBaseLatency= ${_audioFilePlayer.getBaseLatency()}');
     } catch (e) {

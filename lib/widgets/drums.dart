@@ -12,11 +12,11 @@ import '../screens/playList.dart';
 import '../songMaster.dart';
 
 Map<DrumTypeEnum, String> drumTypeToFileMap = {
-  DrumTypeEnum.closedHighHat: 'audio/hihat1.mp3',
-  DrumTypeEnum.openHighHat: 'audio/hihat3.mp3',
-  DrumTypeEnum.snare: 'audio/snare_4406.mp3',
-  DrumTypeEnum.kick: 'audio/kick_4513.mp3',
-  DrumTypeEnum.bass: 'audio/kick_4516.mp3',
+  DrumTypeEnum.closedHighHat: 'audio/hihat1.flac',
+  DrumTypeEnum.openHighHat: 'audio/hihat3.flac',
+  DrumTypeEnum.snare: 'audio/snare_4406.flac',
+  DrumTypeEnum.kick: 'audio/kick_4513.flac',
+  DrumTypeEnum.bass: 'audio/kick_4516.flac',
 };
 
 final TextStyle _style = generateAppTextStyle();

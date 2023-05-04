@@ -2,7 +2,7 @@
 
 # Release Planning:
 
-## Release 1.2.5
+## Release 1.2.6
 
 ### Release Date:
 
@@ -10,10 +10,12 @@
 
 ### Fixes Completed
 
-
-
 ### Fix
 
+* list guess on drums should only suggest drums
+* history playlist count should only count performances, not all displayed rows
+* history statistics: singer attendance by month, performance count, repeats, top 40 songs
+* Singer gender?
 * chords used in the song at the top of song display
 * chords don't align properly in the edit lyrics area when there is
   a vertical space at the end of the lyric section entry.
@@ -53,7 +55,7 @@
 ### Features
 
 * history statistics: songs sung by singer, cj top 40
-* bsteeleBox recording
+* bsteeleBassBox recording
 * drums completion push!  shaker, rimshot
 * banner display mode (lyric to measure mapping)
 * named & stored drum accompaniments (basic), drums to json, standard drum list

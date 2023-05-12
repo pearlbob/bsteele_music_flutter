@@ -2,10 +2,10 @@ import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/chord.dart';
-import 'package:bsteeleMusicLib/songs/music_constants.dart';
-import 'package:bsteeleMusicLib/songs/pitch.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/chord.dart';
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 
 import 'sheetMusicFontParameters.dart';

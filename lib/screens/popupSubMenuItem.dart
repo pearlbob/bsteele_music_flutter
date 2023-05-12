@@ -1,4 +1,4 @@
-import 'package:bsteeleMusicLib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:flutter/material.dart';
 
 typedef LabelFunction<T> = String Function(T value);

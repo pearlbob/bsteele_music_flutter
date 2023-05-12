@@ -1,11 +1,11 @@
 import 'dart:collection';
 
-import 'package:bsteeleMusicLib/songs/chord_component.dart';
-import 'package:bsteeleMusicLib/songs/chord_descriptor.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/music_constants.dart';
-import 'package:bsteeleMusicLib/songs/scale_chord.dart';
-import 'package:bsteeleMusicLib/songs/scale_note.dart';
+import 'package:bsteele_music_lib/songs/chord_component.dart';
+import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/scale_chord.dart';
+import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';

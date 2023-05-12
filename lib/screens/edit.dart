@@ -2,32 +2,32 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/grid.dart';
-import 'package:bsteeleMusicLib/songs/chord_component.dart';
-import 'package:bsteeleMusicLib/songs/chord_descriptor.dart';
-import 'package:bsteeleMusicLib/songs/chord_section.dart';
-import 'package:bsteeleMusicLib/songs/chord_section_grid_data.dart';
-import 'package:bsteeleMusicLib/songs/chord_section_location.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/measure.dart';
-import 'package:bsteeleMusicLib/songs/measure_comment.dart';
-import 'package:bsteeleMusicLib/songs/measure_node.dart';
-import 'package:bsteeleMusicLib/songs/measure_repeat.dart';
-import 'package:bsteeleMusicLib/songs/measure_repeat_extension.dart';
-import 'package:bsteeleMusicLib/songs/music_constants.dart';
-import 'package:bsteeleMusicLib/songs/phrase.dart';
-import 'package:bsteeleMusicLib/songs/scale_chord.dart';
-import 'package:bsteeleMusicLib/songs/scale_note.dart';
-import 'package:bsteeleMusicLib/songs/section.dart';
-import 'package:bsteeleMusicLib/songs/section_version.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_base.dart';
-import 'package:bsteeleMusicLib/songs/song_edit_manager.dart';
-import 'package:bsteeleMusicLib/songs/song_metadata.dart';
-import 'package:bsteeleMusicLib/songs/time_signature.dart';
-import 'package:bsteeleMusicLib/util/undo_stack.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/grid.dart';
+import 'package:bsteele_music_lib/songs/chord_component.dart';
+import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
+import 'package:bsteele_music_lib/songs/chord_section.dart';
+import 'package:bsteele_music_lib/songs/chord_section_grid_data.dart';
+import 'package:bsteele_music_lib/songs/chord_section_location.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/measure.dart';
+import 'package:bsteele_music_lib/songs/measure_comment.dart';
+import 'package:bsteele_music_lib/songs/measure_node.dart';
+import 'package:bsteele_music_lib/songs/measure_repeat.dart';
+import 'package:bsteele_music_lib/songs/measure_repeat_extension.dart';
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/phrase.dart';
+import 'package:bsteele_music_lib/songs/scale_chord.dart';
+import 'package:bsteele_music_lib/songs/scale_note.dart';
+import 'package:bsteele_music_lib/songs/section.dart';
+import 'package:bsteele_music_lib/songs/section_version.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_base.dart';
+import 'package:bsteele_music_lib/songs/song_edit_manager.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/time_signature.dart';
+import 'package:bsteele_music_lib/util/undo_stack.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
@@ -1725,11 +1725,10 @@ class EditState extends State<Edit> {
       int? length;
       for (var i = 0; i < chordRows.length; i++) {
         var chordRow = chordRows[i];
-        assert(chordRow.children != null);
-        length ??= chordRow.children?.length;
-        if (length != chordRow.children?.length) {
+        length ??= chordRow.children.length;
+        if (length != chordRow.children.length) {
           //  delayed response to put break point here:
-          assert(length == chordRow.children?.length);
+          assert(length == chordRow.children.length);
         } //  abort before the table does it for us
       }
     }

@@ -1,12 +1,12 @@
 import 'dart:collection';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_base.dart';
-import 'package:bsteeleMusicLib/songs/song_metadata.dart';
-import 'package:bsteeleMusicLib/songs/song_performance.dart';
-import 'package:bsteeleMusicLib/util/us_timer.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_base.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/util/us_timer.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/foundation.dart';

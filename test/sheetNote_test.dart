@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:logger/logger.dart';
 import 'package:test/test.dart';

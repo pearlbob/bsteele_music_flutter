@@ -1,5 +1,5 @@
-import 'package:bsteeleMusicLib/songs/section.dart';
-import 'package:bsteeleMusicLib/songs/section_version.dart';
+import 'package:bsteele_music_lib/songs/section.dart';
+import 'package:bsteele_music_lib/songs/section_version.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';

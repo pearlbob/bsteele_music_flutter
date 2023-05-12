@@ -1,10 +1,10 @@
 import 'dart:collection';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_performance.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
@@ -31,7 +31,6 @@ const Level _logSongUpdate = Level.debug;
 
 final List<String> _sessionSingers =
     AppOptions().sessionSingers; //  in session order, stored locally to persist over screen reentry.
-int _dirtyCount = 0; //  stored locally to persist over screen reentry.
 
 bool _isInSingingMode = false;
 const String _unknownSinger = 'unknown';
@@ -514,7 +513,6 @@ class SingersState extends State<Singers> {
                                 _saveAllSongPerformances().then((response) {
                                   setState(() {
                                     allHaveBeenWritten = true;
-                                    _dirtyCount = 0;
                                   });
                                 }).onError((error, stackTrace) {
                                   allHaveBeenWritten = false; //  fixme: on failure?
@@ -876,7 +874,6 @@ class SingersState extends State<Singers> {
               } else {
                 _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
               }
-              _dirtyCount++;
               playListRefreshNotifier.refresh();
             }
           });
@@ -1057,7 +1054,6 @@ class SingersState extends State<Singers> {
                 singer: songPerformance.singer,
               )),
     );
-    _dirtyCount++;
     _nextSinger(songPerformance);
   }
 
@@ -1199,7 +1195,6 @@ class SingersState extends State<Singers> {
                 singer: performance.singer,
               )),
     );
-    _dirtyCount++;
     _nextSinger(performance);
   }
 
@@ -1322,9 +1317,9 @@ class SingersState extends State<Singers> {
     }
   }
 
-  bool _hasSongsToSing(String singer) {
-    return _allSongPerformances.bySinger(singer).isNotEmpty;
-  }
+  // bool _hasSongsToSing(String singer) {
+  //   return _allSongPerformances.bySinger(singer).isNotEmpty;
+  // }
 
   final AllSongPerformances _allSongPerformances = AllSongPerformances();
 

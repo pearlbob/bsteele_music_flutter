@@ -12,6 +12,7 @@
 
 ### Fix
 
+* about screen: A RenderFlex overflowed by 140 pixels on the bottom
 * list guess on drums should only suggest drums
 * history playlist count should only count performances, not all displayed rows
 * history statistics: singer attendance by month, performance count, repeats, top 40 songs

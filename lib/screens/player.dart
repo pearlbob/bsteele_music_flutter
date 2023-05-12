@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/drum_measure.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/music_constants.dart';
-import 'package:bsteeleMusicLib/songs/ninjam.dart';
-import 'package:bsteeleMusicLib/songs/scale_note.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_base.dart';
-import 'package:bsteeleMusicLib/songs/song_moment.dart';
-import 'package:bsteeleMusicLib/songs/song_update.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/drum_measure.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/ninjam.dart';
+import 'package:bsteele_music_lib/songs/scale_note.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_base.dart';
+import 'package:bsteele_music_lib/songs/song_moment.dart';
+import 'package:bsteele_music_lib/songs/song_update.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
@@ -152,7 +152,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   initState() {
     super.initState();
 
-    lastSize = WidgetsBinding.instance.window.physicalSize;
+    lastSize = PlatformDispatcher.instance.implicitView?.physicalSize;
     WidgetsBinding.instance.addObserver(this);
 
     displayKeyOffset = app.displayKeyOffset;
@@ -201,7 +201,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   @override
   void didChangeMetrics() {
-    Size size = WidgetsBinding.instance.window.physicalSize;
+    var size = PlatformDispatcher.instance.implicitView?.physicalSize;
     if (size != lastSize) {
       setState(() {
         lastSize = size;
@@ -971,28 +971,28 @@ With z or q, the app goes back to the play list.''',
                                 ],
                               ),
 
-                            //  chords used
-                            if (app.isScreenBig && false) //  fixme: make scale chords used an option
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(_padding, _padding, _padding, 0.0),
-                                child: Column(
-                                  children: [
-                                    const AppSpace(),
-                                    AppWrapFullWidth(
-                                      children: [
-                                        Text(
-                                          'Chords used: ',
-                                          style: headerTextStyle,
-                                        ),
-                                        Text(
-                                          _song.scaleChordsUsed().toString(),
-                                          style: headerTextStyle,
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            // //  chords used
+                            // if (app.isScreenBig ) //  fixme: make scale chords used an option
+                            //   Padding(
+                            //     padding: const EdgeInsets.fromLTRB(_padding, _padding, _padding, 0.0),
+                            //     child: Column(
+                            //       children: [
+                            //         const AppSpace(),
+                            //         AppWrapFullWidth(
+                            //           children: [
+                            //             Text(
+                            //               'Chords used: ',
+                            //               style: headerTextStyle,
+                            //             ),
+                            //             Text(
+                            //               _song.scaleChordsUsed().toString(),
+                            //               style: headerTextStyle,
+                            //             )
+                            //           ],
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ),
                             const AppSpace(),
                             if (app.isScreenBig &&
                                 appOptions.ninJam &&
@@ -2338,7 +2338,7 @@ With z or q, the app goes back to the play list.''',
 
   // double selectedTargetY = 0;   fixme
 
-  late Size lastSize;
+  Size? lastSize;
 
   static const _centerSelections = false; //fixme: add later!
   static const _sectionCenterLocationFraction = 1.0 / 8; //  fixme: what is this really doing?

@@ -5,17 +5,17 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/chord_section.dart';
-import 'package:bsteeleMusicLib/songs/chord_section_location.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as music_key;
-import 'package:bsteeleMusicLib/songs/scale_chord.dart';
-import 'package:bsteeleMusicLib/songs/scale_note.dart';
-import 'package:bsteeleMusicLib/songs/time_signature.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart' as bsteele_music_app;
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/chord_section.dart';
+import 'package:bsteele_music_lib/songs/chord_section_location.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/scale_chord.dart';
+import 'package:bsteele_music_lib/songs/scale_note.dart';
+import 'package:bsteele_music_lib/songs/time_signature.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';

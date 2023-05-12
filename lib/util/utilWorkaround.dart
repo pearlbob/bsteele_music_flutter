@@ -1,7 +1,7 @@
 import 'dart:core';
 
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_flutter/util/utilStub.dart'
 // ignore: uri_does_not_exist
     if (dart.library.io) 'package:bsteele_music_flutter/util/utilLinux.dart'

@@ -1,14 +1,15 @@
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/drum_measure.dart';
-import 'package:bsteeleMusicLib/songs/music_constants.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/drum_measure.dart';
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
@@ -41,7 +42,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
 
     _isEditing = widget.isEditing;
 
-    _lastSize = WidgetsBinding.instance.window.physicalSize;
+    _lastSize = PlatformDispatcher.instance.implicitView?.physicalSize;
     WidgetsBinding.instance.addObserver(this);
 
     logger.v('song: ${widget.song?.toString()}');
@@ -400,7 +401,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   @override
   void didChangeMetrics() {
     //  used to keep the window size data current
-    Size size = WidgetsBinding.instance.window.physicalSize;
+    var size = PlatformDispatcher.instance.implicitView?.physicalSize;
     if (size != _lastSize) {
       setState(() {
         _lastSize = size;
@@ -417,7 +418,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
   bool _isEditing = false;
   DrumParts? _drumParts;
   DrumsWidget? _drums;
-  late Size _lastSize;
+  Size? _lastSize;
   bool showOtherActions = false;
 
   int _lastTempoTap = DateTime.now().microsecondsSinceEpoch;

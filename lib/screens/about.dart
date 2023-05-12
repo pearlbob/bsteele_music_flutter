@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/util/util.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
@@ -28,7 +28,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
   initState() {
     super.initState();
 
-    _lastSize = WidgetsBinding.instance.window.physicalSize;
+    _lastSize = PlatformDispatcher.instance.implicitView?.physicalSize;
     WidgetsBinding.instance.addObserver(this);
 
     _readPackageInfo();
@@ -78,7 +78,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                         const AppSpace(horizontalSpace: 10),
                         InkWell(
                           onTap: () {
-                            openLink('http://www.bsteele.com');
+                            openLink('https://www.bsteele.com');
                           },
                           child: Text(
                             'bsteele.com',
@@ -95,7 +95,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                         message: 'Native versions are available for the app here.',
                         child: InkWell(
                           onTap: () {
-                            openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
+                            openLink('https://www.bsteele.com/bsteeleMusicApp/download.html');
                           },
                           child: Text(
                             'Download the app.',
@@ -136,23 +136,23 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                   ],
                 ),
 
-                  AppWrapFullWidth(children: [
-                    const Text(
-                      'Test the ',
-                    ),
-                    InkWell(
-                      onTap: () {
-                        openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}beta/index.html');
+                AppWrapFullWidth(children: [
+                  const Text(
+                    'Test the ',
+                  ),
+                  InkWell(
+                    onTap: () {
+                      openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}beta/index.html');
                     },
-                      child: Text(
-                        'beta',
-                        style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
-                      ),
+                    child: Text(
+                      'beta',
+                      style: generateAppLinkTextStyle(fontSize: app.screenInfo.fontSize),
                     ),
-                    const Text(
-                      '.',
-                    ),
-                  ]),
+                  ),
+                  const Text(
+                    '.',
+                  ),
+                ]),
 
                 const Text(''),
                 Text(
@@ -251,7 +251,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
   @override
   void didChangeMetrics() {
     //  used to keep the window size data current
-    Size size = WidgetsBinding.instance.window.physicalSize;
+    Size? size = PlatformDispatcher.instance.implicitView?.physicalSize;
     if (size != _lastSize) {
       setState(() {
         _lastSize = size;
@@ -266,5 +266,5 @@ class AboutState extends State<About> with WidgetsBindingObserver {
   }
 
   String? _applicationDocumentsPath = 'unknown';
-  late Size _lastSize;
+  Size? _lastSize;
 }

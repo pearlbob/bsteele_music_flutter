@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/chord_section.dart';
-import 'package:bsteeleMusicLib/songs/lyric_section.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/chord_section.dart';
+import 'package:bsteele_music_lib/songs/lyric_section.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 

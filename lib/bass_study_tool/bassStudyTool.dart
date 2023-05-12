@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/chord_descriptor.dart';
-import 'package:bsteeleMusicLib/songs/key.dart' as musical_key;
-import 'package:bsteeleMusicLib/songs/music_constants.dart';
-import 'package:bsteeleMusicLib/songs/pitch.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as musical_key;
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 
 class BassStudyTool {

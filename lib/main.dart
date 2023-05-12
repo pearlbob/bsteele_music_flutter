@@ -35,9 +35,9 @@
 ///
 /// ## App attributes
 ///
-/// * Release at http://www.bsteele.com/bsteeleMusicApp/index.html
-/// * Release app is written in GWT. See http://www.gwtproject.org. Open source at https://github.com/pearlbob/bsteeleMusicApp
-/// * Beta at http://www.bsteele.com/bsteeleMusicApp/beta/index.html
+/// * Release at https://www.bsteele.com/bsteeleMusicApp/index.html
+/// * Release app is written in GWT. See https://www.gwtproject.org. Open source at https://github.com/pearlbob/bsteeleMusicApp
+/// * Beta at https://www.bsteele.com/bsteeleMusicApp/beta/index.html
 /// * Beta written in Google's flutter/dart. See: https://flutter.dev/ and https://dart.dev/
 /// * Beta is currently closed source.  Expect to open source it eventually.
 /// * Beta backend is a separate dart project.
@@ -59,7 +59,7 @@
 /// * Retired software developer
 /// * Do this project just for the fun of it... and the use of the app while playing music.
 /// * Fair exposure to HTML/CSS/JavaScript but no customer facing projects during my career.
-/// See http://www.bsteele.com/bass/index.html.
+/// See https://www.bsteele.com/bass/index.html.
 /// * Big fan of strongly typed languages.
 /// * I've always preferred the backend.  Never was excited about the front end.
 /// * Believe I have artistic talent... it just never extends to a GUI.
@@ -69,12 +69,12 @@ library main;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bsteeleMusicLib/app_logger.dart';
-import 'package:bsteeleMusicLib/songs/drum_measure.dart';
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_metadata.dart';
-import 'package:bsteeleMusicLib/songs/song_performance.dart';
-import 'package:bsteeleMusicLib/util/us_timer.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/drum_measure.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
@@ -95,6 +95,7 @@ import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gamepads/gamepads.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -155,6 +156,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   var appOptions = AppOptions();
   await appOptions.init(); //  initialize the options from the stored values
+
+  //  gamepad experiment
+  Gamepads.events.listen((event) {
+    logger.i('Gamepads.events:  $event');
+    if (event.type == KeyType.button && event.value > 0) {
+      logger.i('Gamepads.events:  $event'
+          ', gamepadId: ${event.gamepadId}'
+          ', type: ${event.type}'
+          ', value: ${event.value}');
+    }
+  });
 
   //  use the webserver's host as the websocket server if appropriate
   appLogMessage('host: "$host", port: ${uri.port}');
@@ -394,7 +406,7 @@ class MyHomePageState extends State<MyHomePage> {
         }/bsteeleMusicApp';
 
     {
-      final String url = 'http://$externalHost/allSongs.songlyrics';
+      final String url = 'https://$externalHost/allSongs.songlyrics';
       appLogMessage('ExternalSongList: $url');
       // setState(() {
       //   app.infoMessage = 'Loading song list from cloud';
@@ -420,7 +432,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
     appLogMessage('ExternalSongList: processed');
     {
-      final String url = 'http://$externalHost/allSongs.songmetadata';
+      final String url = 'https://$externalHost/allSongs.songmetadata';
       appLogMessage('metadata: $url');
       String metadataAsString;
       // setState(() {
@@ -445,7 +457,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
 
     {
-      final String url = 'http://$externalHost/allSongPerformances.songperformances';
+      final String url = 'https://$externalHost/allSongPerformances.songperformances';
       // setState(() {
       //   app.infoMessage = 'Loading history';
       // });
@@ -545,7 +557,7 @@ class MyHomePageState extends State<MyHomePage> {
               message: 'Visit bsteele.com, the provider of this app.',
               child: InkWell(
                 onTap: () {
-                  openLink('http://www.bsteele.com');
+                  openLink('https://www.bsteele.com');
                 },
                 child: Container(
                   margin: const EdgeInsets.all(2),

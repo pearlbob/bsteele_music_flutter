@@ -1,4 +1,4 @@
-import 'package:bsteeleMusicLib/app_logger.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher_string.dart';

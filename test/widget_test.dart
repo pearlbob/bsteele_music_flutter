@@ -1,8 +1,6 @@
-import 'dart:ui' as ui hide window;
-
-import 'package:bsteeleMusicLib/app_logger.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/main.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
@@ -20,9 +18,9 @@ void main() {
       logger.i('test started');
 
       // Build our app and trigger a frame.
-      tester.binding.window.physicalSizeTestValue = const ui.Size(
-          16 * 1920, //  fixme: why is such a width needed?
-          8 * 1080);
+      // tester.binding.window.physicalSizeTestValue = const ui.Size(
+      //     16 * 1920, //  fixme: why is such a width needed?
+      //     8 * 1080);
 
       // Build our app and trigger a frame.
       await tester.pumpWidget(const BSteeleMusicApp());

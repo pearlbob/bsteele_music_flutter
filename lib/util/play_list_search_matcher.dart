@@ -1,6 +1,6 @@
-import 'package:bsteeleMusicLib/songs/song.dart';
-import 'package:bsteeleMusicLib/songs/song_id.dart';
-import 'package:bsteeleMusicLib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_id.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 

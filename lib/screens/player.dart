@@ -853,7 +853,7 @@ With z or q, the app goes back to the play list.''',
                                         if (songUpdateService.isFollowing)
                                           AppTooltip(
                                             message:
-                                            'When following the leader, the leader will select the key for you.\n'
+                                                'When following the leader, the leader will select the key for you.\n'
                                                 'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
                                             child: Text(
                                               'Key: $_selectedSongKey',
@@ -1300,7 +1300,8 @@ With z or q, the app goes back to the play list.''',
       //  banner units are measure
         var index =
             Util.indexLimit((_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
-        setSelectedSongMoment(_song.songMoments[index]);
+        var songMoment = _song.songMoments[index];
+        setSelectedSongMoment(songMoment);
         _itemScrollTo(index);
         logger.v('banner bump: $bump to $index: ${_song.songMoments[index]}');
         break;
@@ -1351,6 +1352,8 @@ With z or q, the app goes back to the play list.''',
     selectLyricSection(index);
 
     if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+      //  notify lyrics of selection... even if there is no scroll
+      logger.v('proPlayer: _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
       return; //  pro's never scroll!
     }
     _itemScrollTo(index, force: force, priorIndex: priorIndex);
@@ -1484,7 +1487,7 @@ With z or q, the app goes back to the play list.''',
           newSongPlayMode = SongPlayMode.autoPlay;
           if (update.momentNumber <= 0) {
             setState(() {
-              //  note: clear the countin if zero
+              //  note: clear the countIn if zero
               _updateCountIn(-update.momentNumber);
             });
           }
@@ -1682,10 +1685,9 @@ With z or q, the app goes back to the play list.''',
     if (songMoment == null) {
       _playMomentNotifier.playMoment = null;
     } else if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
-      _playMomentNotifier.playMoment = PlayMoment(
-          _songUpdate?.state ?? (songPlayMode.isPlaying ? SongUpdateState.playing : SongUpdateState.idle),
-          songMoment.momentNumber,
-          songMoment);
+      SongUpdateState songUpdateState =
+          _songUpdate?.state ?? (songPlayMode.isPlaying ? SongUpdateState.playing : SongUpdateState.idle);
+      _playMomentNotifier.playMoment = PlayMoment(songUpdateState, songMoment.momentNumber, songMoment);
       scrollToLyricSection(songMoment.lyricSection.index);
       //
       // if (songUpdateService.isLeader) {

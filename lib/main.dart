@@ -69,12 +69,6 @@ library main;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/drum_measure.dart';
-import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_lib/songs/song_metadata.dart';
-import 'package:bsteele_music_lib/songs/song_performance.dart';
-import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:bsteele_music_flutter/screens/about.dart';
 import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
@@ -93,9 +87,14 @@ import 'package:bsteele_music_flutter/screens/styleDemo.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
 import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/drum_measure.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gamepads/gamepads.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -149,27 +148,13 @@ var _mainUsTimer = UsTimer();
 void main() async {
   Logger.level = Level.info;
 
-  //logger.i('Uri: ${Uri.base}, path: "${Uri.base.path}", fragment: "${Uri.base.fragment}"');
-  logger.i('uri: "$uri", path: "${uri.path}", fragment: "${uri.fragment}"');
-
   //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   var appOptions = AppOptions();
   await appOptions.init(); //  initialize the options from the stored values
 
-  //  gamepad experiment
-  Gamepads.events.listen((event) {
-    logger.i('Gamepads.events:  $event');
-    if (event.type == KeyType.button && event.value > 0) {
-      logger.i('Gamepads.events:  $event'
-          ', gamepadId: ${event.gamepadId}'
-          ', type: ${event.type}'
-          ', value: ${event.value}');
-    }
-  });
-
   //  use the webserver's host as the websocket server if appropriate
-  appLogMessage('host: "$host", port: ${uri.port}');
+  appLogMessage('host: "$host", port: ${uri.port}, query: ${uri.query}');
   if (host.isEmpty //  likely a native app
           ||
           host == 'www.bsteele.com' //  websocket will never be provided by the cloud server
@@ -330,6 +315,17 @@ class MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _awaitReadSongList();
+
+    logger.i('Uri.base: "${Uri.base}", "${Uri.base.query}"');
+    logger.v('Uri.base.queryParameters.keys.length: ${Uri.base.queryParameters.keys.length}');
+    for (var key in Uri.base.queryParameters.keys) {
+      switch (key) {
+        case 'demo':
+          testAppKeyCallbacks();
+          break;
+      }
+      logger.i('    key: "$key", value: "${Uri.base.queryParameters[key]}"');
+    }
   }
 
   void _awaitReadSongList() async {
@@ -351,7 +347,7 @@ class MyHomePageState extends State<MyHomePage> {
     //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
 
     //  give the beta warning
-    if (isBeta) {
+    if (isBeta && Uri.base.queryParameters.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _betaWarningPopup();
       });

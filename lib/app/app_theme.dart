@@ -587,13 +587,11 @@ mainSong.${song.songId}
 
 void testAppKeyCallbacks() async {
   _testRun = true;
-  if (!kDebugMode) //fixme: temp
-  {
-    logger.log(_logAppKey, 'debugLoggerAppKeyRegisterCallbacks:  NOT DEBUG');
-    return;
-  }
+
   const delay = Duration(seconds: 1);
   const quickDelay = Duration(milliseconds: 500);
+
+  await Future.delayed(delay);
 
   //  turn off the follow host
   await appKeyExecute('''

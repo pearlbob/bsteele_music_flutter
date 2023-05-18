@@ -47,8 +47,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
       appBar: appWidgetHelper.backBar(title: 'About the bsteeleMusicApp'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

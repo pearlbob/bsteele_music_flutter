@@ -3,7 +3,7 @@ description: bsteeleMusicApp in Flutter
 publish_to: none
 
 # The following defines the version and build number for your application.
-# A version number is three numbersq separated by dots, like 1.2.43
+# A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
@@ -12,20 +12,20 @@ publish_to: none
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.2.5+0
+version: 1.2.6+0
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.0.1
 
 dependencies:
   flutter:
     sdk: flutter
   filesystem_picker:
   logger:
-  shared_preferences: # ^2.0.18  # fixme: why is this required?
+  shared_preferences:
   url_launcher:
   intl:
-  path_provider: # ^2.0.13  # fixme: why is this required?
+  path_provider:
   flutter_markdown:
   scrollable_positioned_list:
   web_socket_channel:
@@ -40,7 +40,6 @@ dependencies:
   csv:
   string_similarity:
   package_info_plus:
-  gamepads:
   bsteele_music_lib:
     path: ../bsteeleMusicLib/bsteele_music_lib
 

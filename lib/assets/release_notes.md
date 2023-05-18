@@ -36,6 +36,7 @@
     * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
     * [Features](#features-6)
   * [Fixes Completed](#fixes-completed-6)
+
 <!-- TOC -->
 
 ## Release 1.2.6 Beta
@@ -46,7 +47,13 @@
 
 ### Features
 
+* Pro Player display works in manual play
+* Pro Player display adjusted
+* About screen overflow fixed
+
 ### Fixes Completed
+
+* Overflow in the about screen
 
 ## Release 1.2.5
 

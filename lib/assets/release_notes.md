@@ -36,7 +36,6 @@
     * [Release Date: Mar 3, 2023](#release-date-mar-3-2023)
     * [Features](#features-6)
   * [Fixes Completed](#fixes-completed-6)
-
 <!-- TOC -->
 
 ## Release 1.2.6 Beta

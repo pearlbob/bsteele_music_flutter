@@ -12,6 +12,10 @@
 
 ### Fix
 
+* Main screen: Filters and Order menu are not aligned vertically - the menu names should share the same baseline
+* Keep with consistent "first letter capitalized" rule in all menus, including Order menu
+* On song chart pages, menu names and values are not vertically aligned - they should all share the same baseline (see
+  red line below)
 * list guess on drums should only suggest drums
 * history playlist count should only count performances, not all displayed rows
 * history statistics: singer attendance by month, performance count, repeats, top 40 songs

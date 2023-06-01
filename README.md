@@ -4,7 +4,7 @@ This is the GUI source for the bsteeleMusicApp.
 For usage, see http://www.bsteele.com or http://communityjams.org.
 
 Note: Compilation requires the bsteeleMusicLib library available
-at: https://github.com/pearlbob/bsteeleMusicLib. This provides the application
+at: http://github.com/pearlbob/bsteeleMusicLib. This provides the application
 data model for the GUI.
 
 The leader/follower feature

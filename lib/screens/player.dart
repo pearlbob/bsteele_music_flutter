@@ -746,7 +746,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     ]),
                                   ),
                                   //  second top row
-                                  AppWrapFullWidth(alignment: WrapAlignment.spaceAround, children: [
+                                  AppRow(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                                     //  play button
                                     if (!songUpdateService.isFollowing)
                                       AppTooltip(
@@ -780,13 +780,11 @@ With z or q, the app goes back to the play list.''',
                                       appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
                                         app.requestFullscreen();
                                       }),
-                                    AppWrap(
-                                      alignment: WrapAlignment.spaceBetween,
+                                    AppRow(
                                       children: [
                                         if (!songUpdateService.isFollowing)
                                           //  key change
-                                          AppWrap(
-                                            alignment: WrapAlignment.spaceBetween,
+                                          AppRow(
                                             children: [
                                               AppTooltip(
                                                 message: 'Transcribe the song to the selected key.',
@@ -871,9 +869,8 @@ With z or q, the app goes back to the play list.''',
                                       ],
                                     ),
                                     if (app.isScreenBig && !songUpdateService.isFollowing)
-                                    //  tempo change
-                                      AppWrap(
-                                        alignment: WrapAlignment.spaceBetween,
+                                      //  tempo change
+                                      AppRow(
                                         children: [
                                           AppTooltip(
                                             message: 'Beats per minute.  Tap here or hold control and tap space\n'
@@ -887,8 +884,7 @@ With z or q, the app goes back to the play list.''',
                                             ),
                                           ),
                                           const AppSpace(),
-                                          AppWrap(
-                                            alignment: WrapAlignment.spaceBetween,
+                                          AppRow(
                                             children: [
                                               appDropdownButton<int>(
                                                 AppKeyEnum.playerBPM,
@@ -924,7 +920,7 @@ With z or q, the app goes back to the play list.''',
                                     if (app.isScreenBig && songUpdateService.isFollowing)
                                       AppTooltip(
                                         message:
-                                        'When following the leader, the leader will select the tempo (BPM) for you.\n'
+                                            'When following the leader, the leader will select the tempo (BPM) for you.\n'
                                             'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
                                         child: Text(
                                           'BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}',
@@ -950,7 +946,7 @@ With z or q, the app goes back to the play list.''',
                                         ),
                                       ),
                                     if (app.isScreenBig)
-                                    //  leader/follower status
+                                      //  leader/follower status
                                       AppTooltip(
                                         message: 'Control the leader/follower mode from the main menu:\n'
                                             'main screen: menu (hamburger), Options, Hosts',

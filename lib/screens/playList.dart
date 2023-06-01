@@ -682,22 +682,19 @@ class _PlayListState extends State<PlayList> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppWrapFullWidth(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  AppWrap(children: [
-                    //  search icon
-                    AppTooltip(
-                      message: _searchTextTooltipText,
-                      child: IconButton(
-                        icon: const Icon(Icons.search),
-                        iconSize: widget.titleFontSize,
-                        onPressed: (() {
-                          setState(() {
-                            //fixme: _searchSongs(_searchTextFieldController.text);
-                          });
-                        }),
+            AppRow(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              AppRow(children: [
+                //  search icon
+                AppTooltip(
+                  message: _searchTextTooltipText,
+                  child: IconButton(
+                    icon: const Icon(Icons.search),
+                    iconSize: widget.titleFontSize,
+                    onPressed: (() {
+                      setState(() {
+                        //fixme: _searchSongs(_searchTextFieldController.text);
+                      });
+                    }),
                       ),
                     ),
                     //  search text
@@ -768,23 +765,21 @@ Selections with different names will be AND'd.''',
                   ]),
 
                   //  filters and order
-                  AppWrap(spacing: _textFontSize, alignment: WrapAlignment.spaceBetween, children: [
-                    //  filters and order
-                    if (app.isScreenBig && widget.isOrderBy)
-                      AppWrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: app.screenInfo.fontSize / 2,
-                        children: [
-                          AppTooltip(
-                            message: 'Select the order of the song list.',
-                            child: Text(
-                              'Order',
-                              style: widget.searchDropDownStyle,
-                            ),
-                          ),
-                          appDropdownButton<PlayListSortType>(
-                            AppKeyEnum.mainSortType,
-                            _sortTypesDropDownMenuList,
+                  AppRow(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                //  filters and order
+                if (app.isScreenBig && widget.isOrderBy)
+                  AppRow(
+                    children: [
+                      AppTooltip(
+                        message: 'Select the order of the song list.',
+                        child: Text(
+                          'Order ',
+                          style: widget.searchDropDownStyle,
+                        ),
+                      ),
+                      appDropdownButton<PlayListSortType>(
+                        AppKeyEnum.mainSortType,
+                        _sortTypesDropDownMenuList,
                             onChanged: (value) {
                               if (selectedSortType != value) {
                                 setState(() {

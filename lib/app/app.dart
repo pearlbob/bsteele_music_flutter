@@ -562,6 +562,24 @@ class AppWrapFullWidth extends StatelessWidget {
   final double? spacing;
 }
 
+/// Used as a workaround for Wrap not having CrossAxisAlignment.baseline
+@immutable
+class AppRow extends StatelessWidget {
+  const AppRow({super.key, this.mainAxisAlignment = MainAxisAlignment.spaceBetween, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+        mainAxisAlignment: mainAxisAlignment,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: children);
+  }
+
+  final MainAxisAlignment mainAxisAlignment;
+  final List<Widget> children;
+}
+
 @immutable
 class AppRadio<T> extends StatelessWidget {
   const AppRadio({

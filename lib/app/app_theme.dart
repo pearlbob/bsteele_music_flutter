@@ -829,18 +829,20 @@ TextButton appIconWithLabelButton({
   if (onPressed == null) {
     backgroundColor = appDisabledColor;
   }
+  style ??= TextStyle(fontSize: fontSize, textBaseline: TextBaseline.alphabetic);
   return TextButton.icon(
     key: key,
     icon: icon,
-    label: Text(label ?? '', style: style ?? TextStyle(fontSize: fontSize)),
+    label: Text(label ?? '', style: style),
     onPressed: onPressed != null
         ? () {
             _appLogCallback(key);
             onPressed();
           }
         : null,
-    style: app.themeData.elevatedButtonTheme.style
-        ?.copyWith(backgroundColor: MaterialStateProperty.all(backgroundColor ?? App.defaultBackgroundColor)),
+    style: app.themeData.elevatedButtonTheme.style?.copyWith(
+        backgroundColor: MaterialStateProperty.all(backgroundColor ?? App.defaultBackgroundColor),
+        textStyle: MaterialStateProperty.all(style)),
   );
 }
 
@@ -1164,7 +1166,7 @@ TextStyle generateAppTextStyle({
     fontSize: fontSize,
     fontWeight: fontWeight ?? FontWeight.normal,
     fontStyle: fontStyle ?? App.universalFontStyle,
-    textBaseline: textBaseline,
+    textBaseline: textBaseline ?? TextBaseline.alphabetic,
     fontFamily: fontFamily ?? appFontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration ?? TextDecoration.none,

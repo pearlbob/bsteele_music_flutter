@@ -77,7 +77,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                         const AppSpace(horizontalSpace: 10),
                         InkWell(
                           onTap: () {
-                            openLink('https://www.bsteele.com');
+                            openLink('http://www.bsteele.com');
                           },
                           child: Text(
                             'bsteele.com',
@@ -94,7 +94,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                         message: 'Native versions are available for the app here.',
                         child: InkWell(
                           onTap: () {
-                            openLink('https://www.bsteele.com/bsteeleMusicApp/download.html');
+                            openLink('http://www.bsteele.com/bsteeleMusicApp/download.html');
                           },
                           child: Text(
                             'Download the app.',

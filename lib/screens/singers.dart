@@ -798,6 +798,7 @@ class SingersState extends State<Singers> {
                     ),
                   ),
                 ]),
+              const AppSpace(),
               if (!_isInSingingMode)
                 Expanded(
                     child: ListView(controller: ScrollController(), children: [

@@ -35,9 +35,8 @@
 ///
 /// ## App attributes
 ///
-/// * Release at https://www.bsteele.com/bsteeleMusicApp/index.html
-/// * Release app is written in GWT. See https://www.gwtproject.org. Open source at https://github.com/pearlbob/bsteeleMusicApp
-/// * Beta at https://www.bsteele.com/bsteeleMusicApp/beta/index.html
+/// * Release at http://www.bsteele.com/bsteeleMusicApp/index.html
+/// * Beta at http://www.bsteele.com/bsteeleMusicApp/beta/index.html
 /// * Beta written in Google's flutter/dart. See: https://flutter.dev/ and https://dart.dev/
 /// * Beta is currently closed source.  Expect to open source it eventually.
 /// * Beta backend is a separate dart project.
@@ -59,7 +58,7 @@
 /// * Retired software developer
 /// * Do this project just for the fun of it... and the use of the app while playing music.
 /// * Fair exposure to HTML/CSS/JavaScript but no customer facing projects during my career.
-/// See https://www.bsteele.com/bass/index.html.
+/// See http://www.bsteele.com/bass/index.html.
 /// * Big fan of strongly typed languages.
 /// * I've always preferred the backend.  Never was excited about the front end.
 /// * Believe I have artistic talent... it just never extends to a GUI.
@@ -402,7 +401,7 @@ class MyHomePageState extends State<MyHomePage> {
         }/bsteeleMusicApp';
 
     {
-      final String url = 'https://$externalHost/allSongs.songlyrics';
+      final String url = 'http://$externalHost/allSongs.songlyrics';
       appLogMessage('ExternalSongList: $url');
       // setState(() {
       //   app.infoMessage = 'Loading song list from cloud';
@@ -428,7 +427,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
     appLogMessage('ExternalSongList: processed');
     {
-      final String url = 'https://$externalHost/allSongs.songmetadata';
+      final String url = 'http://$externalHost/allSongs.songmetadata';
       appLogMessage('metadata: $url');
       String metadataAsString;
       // setState(() {
@@ -453,7 +452,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
 
     {
-      final String url = 'https://$externalHost/allSongPerformances.songperformances';
+      final String url = 'http://$externalHost/allSongPerformances.songperformances';
       // setState(() {
       //   app.infoMessage = 'Loading history';
       // });
@@ -553,7 +552,7 @@ class MyHomePageState extends State<MyHomePage> {
               message: 'Visit bsteele.com, the provider of this app.',
               child: InkWell(
                 onTap: () {
-                  openLink('https://www.bsteele.com');
+                  openLink('http://www.bsteele.com');
                 },
                 child: Container(
                   margin: const EdgeInsets.all(2),

@@ -805,6 +805,7 @@ IconButton appIconButton({
   return IconButton(
     icon: icon,
     key: key,
+    alignment: Alignment.bottomCenter,
     onPressed: () {
       _appLogCallback(key);
       onPressed();

@@ -73,6 +73,8 @@ const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
+const Level _logPlayerItemPositions = Level.debug;
+const Level _logScrollAnimation = Level.info;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -489,7 +491,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             scrollDirection: Axis.horizontal,
             //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
           )
-        : ScrollablePositionedList.builder(
+        : //  all other display styles
+        ScrollablePositionedList.builder(
             itemCount: lyricsTableItems.length,
             itemScrollController: _itemScrollController,
             itemPositionsListener: playerItemPositionsListener,
@@ -1324,9 +1327,14 @@ With z or q, the app goes back to the play list.''',
         if (orderedSet.isNotEmpty) {
           var item = orderedSet.first;
           selectLyricSection(item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0));
-          logger.v('playerItemPositionsListener:  length: ${orderedSet.length}'
+          logger.log(
+              _logPlayerItemPositions,
+              'playerItemPositionsListener:  length: ${orderedSet.length}'
               ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
-          logger.v('   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}, ');
+          logger.log(
+              _logPlayerItemPositions,
+              '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
+              ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
         }
         break;
     }
@@ -1364,6 +1372,7 @@ With z or q, the app goes back to the play list.''',
           : index >= (priorIndex ?? 0)
               ? const Duration(milliseconds: 1400)
               : const Duration(milliseconds: 400);
+      logger.log(_logScrollAnimation, 'scrollTo(index: $index, duration: $duration)');
       _itemScrollController
           .scrollTo(index: index, duration: duration, curve: Curves.fastLinearToSlowEaseIn)
           .then((value) {

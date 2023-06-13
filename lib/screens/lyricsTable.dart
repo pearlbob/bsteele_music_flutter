@@ -22,6 +22,7 @@ import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ const Level _logFontSize = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logHeights = Level.debug;
-const Level _logLyricsTableItems = Level.info;
+const Level _logLyricsTableItems = Level.debug;
 const Level _logLyricSectionIndex = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logPlayMomentNotifier = Level.debug;
@@ -1301,9 +1302,28 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
-  int songMomentNumberToRow(int number) => _songMomentNumberToRowMap[number] ?? 0 /* should never be null */;
+  int songMomentNumberToRow(final int number) => _songMomentNumberToRowMap[number] ?? 0 /* should never be null */;
 
-  int lyricSectionIndexToRow(int number) => _lyricSectionIndexToRowMap[number] ?? 0 /* should never be null */;
+  int rowToLyricSectionIndex(final int row) {
+    if (_locationGrid.isEmpty) {
+      return 0;
+    }
+    //  fixme: to weak
+    //  find the grid row
+    var gridRow = _locationGrid.getRow(Util.intLimit(row, 0, _locationGrid.getRowCount() - 1));
+    if (gridRow == null || gridRow.isEmpty) {
+      return 0;
+    }
+    //  find the lyric section from the row
+    for (var cell in gridRow) {
+      if (cell != null && cell.lyricSectionIndex != null) {
+        return cell.lyricSectionIndex!;
+      }
+    }
+    return 0;
+  }
+
+  int lyricSectionIndexToRow(final int number) => _lyricSectionIndexToRowMap[number] ?? 0 /* should never be null */;
 
   _scaleComponents({double scaleFactor = 1.0}) {
     _paddingSize = _paddingSizeMax * scaleFactor;
@@ -1441,7 +1461,6 @@ class _SongCellWidget extends StatefulWidget {
   });
 
   _SongCellWidget.empty({
-    super.key,
     this.type = SongCellType.columnFill,
     this.measureNode,
     this.lyricSectionIndex,

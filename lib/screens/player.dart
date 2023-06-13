@@ -1296,7 +1296,7 @@ With z or q, the app goes back to the play list.''',
   sectionBump(int bump) {
     switch (appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
-      //  banner units are measure
+        //  banner units are measure
         var index =
             Util.indexLimit((_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
         var songMoment = _song.songMoments[index];
@@ -1373,8 +1373,12 @@ With z or q, the app goes back to the play list.''',
               ? const Duration(milliseconds: 1400)
               : const Duration(milliseconds: 400);
       logger.log(_logScrollAnimation, 'scrollTo(index: $index, duration: $duration)');
+      logger.i('test: _lyricsTable.lyricSectionIndexToRow($index): ${_lyricsTable.lyricSectionIndexToRow(index)}');
       _itemScrollController
-          .scrollTo(index: index, duration: duration, curve: Curves.fastLinearToSlowEaseIn)
+          .scrollTo(
+              index: _lyricsTable.lyricSectionIndexToRow(index),
+              duration: duration,
+              curve: Curves.fastLinearToSlowEaseIn)
           .then((value) {
         Future.delayed(duration).then((_) {
           //  fixme: the scrollTo returns prior to the completion of the animation!
@@ -1591,7 +1595,12 @@ With z or q, the app goes back to the play list.''',
   }
 
   String titleAnchor() {
-    return anchorUrlStart + Uri.encodeFull('${widget._song.title} ${widget._song.artist} ${widget._song.coverArtist}');
+    //  remove the old "cover by" in title or artist
+    //  otherwise there are poor matches on youtube
+    String s = '${widget._song.title} ${widget._song.artist}'
+            ' ${widget._song.coverArtist}'
+        .replaceAll('cover by', '');
+    return anchorUrlStart + Uri.encodeFull(s);
   }
 
   String artistAnchor() {
@@ -2334,13 +2343,12 @@ With z or q, the app goes back to the play list.''',
   int _countIn = 0;
   Widget _countInWidget = NullWidget();
 
-  bool _isAnimated = false;
-
   int sectionIndex = 0; //  index for current lyric section, fixme temp?
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
   double scrollTarget = 0;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
+  bool _isAnimated = false;
   final playerItemPositionsListener = ItemPositionsListener.create();
 
   // double selectedTargetY = 0;   fixme

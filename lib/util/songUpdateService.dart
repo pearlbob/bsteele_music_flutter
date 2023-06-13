@@ -143,7 +143,7 @@ class SongUpdateService extends ChangeNotifier {
             logger.log(_log, 'webSocketChannel open: $_isOpen, idleCount: $_idleCount');
           }
         } catch (e) {
-          logger.log(_log, 'webSocketChannel exception: ${e.toString()}');
+          logger.log(_log, 'webSocketChannel exception: $e');
           _closeWebSocketChannel();
           notifyListeners();
         }

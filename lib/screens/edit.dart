@@ -576,8 +576,17 @@ class EditState extends State<Edit> {
                                 fontSize: _defaultChordFontSize,
                                 onPressed: () {
                                   setState(() {
-                                    song = Song.createSong(
-                                        '', '', '', music_key.Key.getDefault(), 106, 4, 4, userName, 'V: X', 'V: ');
+                                    song = Song(
+                                        title: '',
+                                        artist: '',
+                                        copyright: '',
+                                        key: music_key.Key.getDefault(),
+                                        beatsPerMinute: 106,
+                                        beatsPerBar: 4,
+                                        unitsPerMeasure: 4,
+                                        user: userName,
+                                        chords: 'V: X',
+                                        rawLyrics: 'V: ');
                                     loadSong(song);
                                     undoStackPushIfDifferent();
                                   });

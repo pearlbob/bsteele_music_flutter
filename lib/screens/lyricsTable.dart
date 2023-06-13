@@ -484,7 +484,7 @@ class LyricsTable {
                 _displayChordSection(GridCoordinate(r, c), measureNode as ChordSection, measureNode);
                 break;
               case MeasureNodeType.lyric:
-              //  color done by prior chord section
+                //  color done by prior chord section
                 {
                   var songCellType = _appOptions.userDisplayStyle == UserDisplayStyle.both
                       ? SongCellType.lyric
@@ -924,17 +924,13 @@ class LyricsTable {
               // logger.v('rowChildren: $rowChildren');
             }
 
-            if (lastLyricSection != lyricSection) {
-              if (lastLyricSection != null) {
-                lastLyricSection = lyricSection;
-                items.add(Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: sectionChildren,
-                ));
-                sectionChildren = [];
-              }
-              lastLyricSection = lyricSection;
-            }
+            lastLyricSection = lyricSection;
+            items.add(Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: sectionChildren,
+            ));
+            sectionChildren = [];
+
             sectionChildren.add(rowWidget);
           }
           //  complete with the last
@@ -978,43 +974,46 @@ class LyricsTable {
     logger.log(_logLyricsBuild, 'lyricsBuild: boxing: ${usTimer.deltaToString()}');
 
     //  build the lookups for song moment and lyric sections
-    Map<int, int> songMomentNumberToRowMap = HashMap();
-    Map<int, int> lyricSectionIndexToRowMap = HashMap();
-    int lastSongMomentNumber = 0;
-    songMomentNumberToRowMap[0] = 0;
-    for (var r = 0; r < _locationGrid.getRowCount(); r++) {
-      logger.log(_logLyricsTableItems, '$r:');
-      var row = _locationGrid.getRow(r);
-      assert(row != null);
-      row = row!;
+    {
+      int lastSongMomentNumber = 0;
+      _songMomentNumberToRowMap.clear();
+      _lyricSectionIndexToRowMap.clear();
+      _songMomentNumberToRowMap[0] = 0;
+      for (var r = 0; r < _locationGrid.getRowCount(); r++) {
+        logger.log(_logLyricsTableItems, '$r:');
+        var row = _locationGrid.getRow(r);
+        assert(row != null);
+        row = row!;
 
-      for (var c = 0; c < row.length; c++) {
-        var cell = _locationGrid.get(r, c);
-        if (cell == null) {
-          continue; //  for example, first column in lyrics for singer display style
+        for (var c = 0; c < row.length; c++) {
+          var cell = _locationGrid.get(r, c);
+          if (cell == null) {
+            continue; //  for example, first column in lyrics for singer display style
+          }
+          var songMoment = cell.songMoment;
+          if (songMoment == null) {
+            continue;
+          }
+          if (_lyricSectionIndexToRowMap[songMoment.lyricSection.index] == null) {
+            _lyricSectionIndexToRowMap[songMoment.lyricSection.index] = r;
+          }
+          while (songMoment.momentNumber >= lastSongMomentNumber) {
+            _songMomentNumberToRowMap[lastSongMomentNumber] = r;
+            lastSongMomentNumber++;
+          }
+          logger.log(
+              _logLyricsTableItems,
+              '  $c: songMoment: $songMoment, repeat: ${songMoment.repeatMax}'
+              ', lyricSection.index: ${songMoment.lyricSection.index}'
+              // ',  ${cell?.measureNode}'
+              );
         }
-        var songMoment = cell.songMoment;
-        if (songMoment == null) {
-          continue;
-        }
-        lyricSectionIndexToRowMap[songMoment.lyricSection.index] = r;
-        while ((songMoment.momentNumber ?? -1) >= lastSongMomentNumber) {
-          songMomentNumberToRowMap[lastSongMomentNumber] = r;
-          lastSongMomentNumber++;
-        }
-        logger.log(
-            _logLyricsTableItems,
-            '  $c: songMoment: $songMoment, repeat: ${songMoment.repeatMax ?? 1}'
-            ', lyricSection.index: ${songMoment.lyricSection.index}'
-            // ',  ${cell?.measureNode}'
-            );
       }
     }
-    logger.i((SplayTreeSet<int>.from(songMomentNumberToRowMap.keys).map((k) => '$k -> ${songMomentNumberToRowMap[k]}'))
-        .toList()
-        .toString());
-    logger.i((SplayTreeSet<int>.from(lyricSectionIndexToRowMap.keys)
-        .map((k) => '$k -> ${lyricSectionIndexToRowMap[k]}')).toList().toString());
+    // logger.i((SplayTreeSet<int>.from(_songMomentNumberToRowMap.keys)
+    //     .map((k) => '$k -> ${_songMomentNumberToRowMap[k]}')).toList().toString());
+    // logger.i((SplayTreeSet<int>.from(_lyricSectionIndexToRowMap.keys)
+    //     .map((k) => '$k -> ${_lyricSectionIndexToRowMap[k]}')).toList().toString());
 
     return items;
   }
@@ -1302,6 +1301,10 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
+  int songMomentNumberToRow(int number) => _songMomentNumberToRowMap[number] ?? 0 /* should never be null */;
+
+  int lyricSectionIndexToRow(int number) => _lyricSectionIndexToRowMap[number] ?? 0 /* should never be null */;
+
   _scaleComponents({double scaleFactor = 1.0}) {
     _paddingSize = _paddingSizeMax * scaleFactor;
     _padding = EdgeInsets.all(_paddingSize);
@@ -1335,6 +1338,9 @@ class LyricsTable {
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
 
   double _scaleFactor = 1.0;
+
+  final Map<int, int> _songMomentNumberToRowMap = HashMap();
+  final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
 
   late AppWidgetHelper appWidgetHelper;
 
@@ -1450,12 +1456,6 @@ class _SongCellWidget extends StatefulWidget {
     this.selectable,
     this.isFixedHeight = false,
   }) : richText = _emptyRichText;
-
-  // : richText = RichText(key: richText.key,
-  //         text: TextSpan(text: '${richText.text} nash', style: richText.text.style, ),
-  //         textScaleFactor: textScaleFactor,
-  //   softWrap: richText.softWrap,
-  //       );
 
   _SongCellWidget copyWith({
     Size? size,

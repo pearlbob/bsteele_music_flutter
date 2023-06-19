@@ -4383,7 +4383,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684450368918, "song": 
+{ "file": "", "lastModifiedDate": 1684450368918, "song": 
 {
 "title": "All That She Wants",
 "artist": "Ace of Base",
@@ -13558,7 +13558,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684135094658, "song": 
+{ "file": "", "lastModifiedDate": 1684135094658, "song": 
 {
 "title": "Black Horse And The Cherry Tree",
 "artist": "KT Tunstall",
@@ -17805,6 +17805,94 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1686716629701, "song": 
+{
+"title": "Brass In Pocket",
+"artist": "Pretenders",
+"user": "Shari",
+"lastModifiedDate": 1686716629701,
+"copyright": "1979 Real, Sire",
+"key": "A",
+"defaultBpm": 99,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Asus4 A",
+	"V:",
+	"A Asus2 Asus4 A",
+	"A Asus2 Asus4 A",
+	"F#m7 F#msus4 D/F# F#m7",
+	"Dadd9 Dadd9 E11 E11",
+	"PC:",
+	"A/E E Esus4 E x4",
+	"C:",
+	"A Asus4 A A",
+	"Gmaj7 Gmaj7 Gmaj7 Gmaj7",
+	"D D D D",
+	"E11 E11 E11 E11",
+	"O:",
+	"A Asus2 Asus4 A x3",
+	"A Asus2 D/AX AX"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"I got brass, in pocket",
+	"I got bottle, I'm gonna use it",
+	"Intention, I feel inventive",
+	"Gonna make you, make you, make you notice",
+	"",
+	"V:",
+	"Got motion, restrained emotion",
+	"Been driving, Detroit-leaning",
+	"No reason, just seems so pleasing",
+	"Gonna make you, make you, make you notice",
+	"",
+	"PC:",
+	"...Gonna use my arms, gonna use my ",
+	"Legs, gonna use my style, gonna use my ",
+	"Sidestep, gonna use my fingers, gonna use ",
+	"My, my, my, imagination, ooh ",
+	"",
+	"C:",
+	"('Cause) I going make you see, there's nobody ",
+	"Else here, no one like me",
+	"I'm special (special) so special (special) I gotta",
+	"Have some of your attention, give it to me",
+	"",
+	"V:",
+	"I got rhythm, I can't miss a beat",
+	"I got a new skank, so reet",
+	"Got something, I'm winking at ",
+	"You, gonna make you, make you, make you notice",
+	"",
+	"PC:",
+	"...Gonna use my arms, gonna use my ",
+	"Legs, gonna use my style, gonna use my ",
+	"Sidestep, gonna use my fingers, gonna use ",
+	"My, my, my, imagination, ooh ",
+	"",
+	"C:",
+	"('Cause) I going make you see, there's nobody ",
+	"Else here, no one like me",
+	"I'm special (special) so special (special) I gotta",
+	"Have some of your attention, give it to me",
+	"",
+	"C:",
+	"('Cause) I going make you see, there's nobody ",
+	"Else here, no one like me",
+	"I'm special (special) so special (special) I gotta",
+	"Have some of your attention, give it to me",
+	"",
+	"O:",
+	"(instrumental)"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1635301998248, "song": 
 {
 "title": "Brave",
@@ -19639,6 +19727,109 @@
 	"(I need) you, more than anyone baby, you",
 	"Know that I have from the start, so ",
 	"Build me up (build me up) Buttercup, don't break my heart"
+    ]
+}
+},
+{ "file": "", "lastModifiedDate": 1686782367287, "song": 
+{
+"title": "Build Me Up From Bones",
+"artist": "Sarah Jarosz",
+"user": "Shari",
+"lastModifiedDate": 1686782367287,
+"copyright": "2013 Sugar Hill Records",
+"key": "C",
+"defaultBpm": 115,
+"timeSignature": "2/4",
+"chords": 
+    [
+	"I:",
+	"Dm7 Bbsus2 C C x2",
+	"I2:",
+	"Dm7 Bbsus2 C C x4",
+	"V:",
+	"Dm7 Bbsus2 C C",
+	"Dm7 Bbsus2 C C",
+	"Gm Gm Gm Bb",
+	"C C C C",
+	"C:",
+	"Eb Bb Bb Csus4",
+	"Eb Bb Bb Csus4",
+	"Dm C Eb Bb",
+	"Abmaj7 Abmaj7 Abmaj7 Bb",
+	"Br:",
+	"Ebmaj7 Ebmaj7 Dbmaj7 Dbmaj7 |",
+	"F F Cm Bb | x2",
+	"O:",
+	"Dm7 Bbsus2 C C x3",
+	"Dm7 Bbsus2 C"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Build me up from bones",
+	"Wrap me up in skin, hold me ",
+	"Close enough to breathe me ",
+	"In",
+	"",
+	"V:",
+	"The moon's a fingernail",
+	"Scratching on the back of the ",
+	"Night...in which we lay ",
+	"Beside",
+	"",
+	"C:",
+	"I held every inch of you",
+	"I wrote every line for you",
+	"I made time when time was all but ",
+	"Gone...you're the love I've always known",
+	"",
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"The night's so dark and gray, but you've ",
+	"Helped me find my way, through the ",
+	"Wild and wonders of this ",
+	"World",
+	"",
+	"V:",
+	"So take me with you now, 'cause I ",
+	"Need to show you how, I can ",
+	"Love you better than ",
+	"Before",
+	"",
+	"C:",
+	"I held every inch of you",
+	"I wrote every line for you",
+	"I made time when time was all but ",
+	"Gone...you're the love I've always known",
+	"",
+	"I2:",
+	"(instrumental) Ooh",
+	"",
+	"BR:",
+	"(instrumental)",
+	"",
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"So play it sweet and low, 'cause we've ",
+	"Got nowhere to go, I am ",
+	"Yours and you're the love I ",
+	"Know",
+	"",
+	"C:",
+	"I held every inch of you",
+	"I wrote every line for you",
+	"I made time when time was all but ",
+	"Gone...you're the love I've always known",
+	"",
+	"O:",
+	"(instrumental)"
     ]
 }
 },
@@ -25200,7 +25391,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684302789224, "song": 
+{ "file": "", "lastModifiedDate": 1684302789224, "song": 
 {
 "title": "Cleaning Windows",
 "artist": "Van Morrison",
@@ -26395,7 +26586,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684136918069, "song": 
+{ "file": "", "lastModifiedDate": 1684136918069, "song": 
 {
 "title": "Come Dancing",
 "artist": "Kinks, The",
@@ -29531,39 +29722,38 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1676441893599, "song": 
+{ "file": "", "lastModifiedDate": 1686717093593, "song": 
 {
 "title": "Creep",
 "artist": "Stone Temple Pilots",
 "user": "Shari",
-"lastModifiedDate": 1676441893599,
+"lastModifiedDate": 1686717093593,
 "copyright": "1992 Atlantic",
 "key": "G",
-"defaultBpm": 108,
-"timeSignature": "4/4",
+"defaultBpm": 54,
+"timeSignature": "2/4",
 "chords": 
     [
 	"I:",
-	"C B7 Em Em",
-	"Em Em",
+	"C B7 Em7 Em7",
+	"Em7 Em7",
 	"C B7 Em7X X",
 	"I2:",
-	"Em Em Em Em",
+	"Em7 Em7 Em7 Em7",
 	"I3:",
-	"Em Em Em Em x2",
+	"Em7 Em7 Em7 Em7 x2",
 	"V:",
-	"Em Em C B7 x4",
+	"Em7 Em7 C B7 x4",
 	"V2:",
-	"Em C B7 Em x4",
-	"Em Em Em",
+	"Em7 Em7 C B7 x4",
 	"PC:",
-	"G Am Em Em",
-	"G Am Em Em",
-	"G Am Cadd9 D",
+	"G AmAsus2 Em7 Em7",
+	"G AmAsus2 Em7 Em7",
+	"G AmAsus2 Cadd9 D",
 	"C:",
-	"EmD/F# GA EmD/F# GA x4",
+	"Em7D/F# GA Em7D/F# GA x4",
 	"T:",
-	"EmX"
+	"Em7X"
     ],
 "lyrics": 
     [
@@ -38081,7 +38271,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684448366794, "song": 
+{ "file": "", "lastModifiedDate": 1684448366794, "song": 
 {
 "title": "Down Under",
 "artist": "Men at Work",
@@ -47147,7 +47337,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1685941906554, "song": 
+{ "file": "", "lastModifiedDate": 1685941906554, "song": 
 {
 "title": "Fly Like An Eagle",
 "artist": "Steve Miller Band",
@@ -53392,7 +53582,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684910174358, "song": 
+{ "file": "", "lastModifiedDate": 1684910174358, "song": 
 {
 "title": "Gone Gone Gone",
 "artist": "Everly Brothers, The",
@@ -54404,7 +54594,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1686545303948, "song": 
+{ "file": "", "lastModifiedDate": 1686545303948, "song": 
 {
 "title": "Goody Two Shoes",
 "artist": "Adam Ant",
@@ -65087,7 +65277,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684739315320, "song": 
+{ "file": "", "lastModifiedDate": 1684739315320, "song": 
 {
 "title": "I Can't Help Myself",
 "artist": "Four Tops",
@@ -66222,7 +66412,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684044754541, "song": 
+{ "file": "", "lastModifiedDate": 1684044754541, "song": 
 {
 "title": "I Got You",
 "artist": "Split Enz",
@@ -67904,6 +68094,119 @@
 	"No matter what you do, I",
 	"Only, I only, I ",
 	"Only wanna be with you"
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1686967307476, "song": 
+{
+"title": "I Ran (So Far Away)",
+"artist": "Flock of Seagulls",
+"user": "Shari",
+"lastModifiedDate": 1686967307476,
+"copyright": "1982 Jive",
+"key": "A",
+"defaultBpm": 149,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"A A G G |",
+	"A A G G |",
+	"F F G G |",
+	"A A A A | x2",
+	"I2:",
+	"A A G G x2",
+	"I3:",
+	"Am Am G G",
+	"Am Am G G",
+	"F F G G",
+	"F F G X",
+	"V:",
+	"Am Am Am Am",
+	"G G G G",
+	"C:",
+	"F F G G",
+	"F F G GX",
+	"C2:",
+	"F F G G",
+	"F F G G",
+	"Br:",
+	"C C C C",
+	"O:",
+	"F F G G",
+	"F F G G",
+	"Am Am G G",
+	"Am Am G GX",
+	"AX"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"I walked along the avenue",
+	"I never thought I'd meet a girl like ",
+	"You, meet a girl like ",
+	"You",
+	"",
+	"V:",
+	"With auburn hair and tawny eyes",
+	"The kind of eyes that hypnotize me ",
+	"Through, hypnotize me ",
+	"Through",
+	"",
+	"C:",
+	"(And I) ran, I ran so far away, I just ",
+	"Ran, I ran all night and day, I couldn't get away",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V:",
+	"A cloud appears above your head",
+	"A beam of light comes shining down on ",
+	"You, shining down on ",
+	"You",
+	"",
+	"V:",
+	"The cloud is moving nearer still",
+	"Aurora borealis comes in ",
+	"View, aurora comes in ",
+	"View",
+	"",
+	"C:",
+	"(And I) ran, I ran so far away, I just ",
+	"Ran, I ran all night and day, I couldn't get away",
+	"",
+	"BR:",
+	"(instrumental)",
+	"",
+	"I3:",
+	"(instrumental solo)",
+	"",
+	"V:",
+	"Reached out a hand to touch your face",
+	"You're slowly disappearing from my ",
+	"View, 'pearing from my ",
+	"View",
+	"",
+	"V:",
+	"Reached out a hand to try again",
+	"I'm floating in a beam of light with ",
+	"You, a beam of light with ",
+	"You",
+	"",
+	"C2:",
+	"(And I) ran, I ran so far away, I just ",
+	"Ran, I ran all night and day, I couldn't get away",
+	"",
+	"C:",
+	"(And I) ran, I ran so far away, I just ",
+	"Ran, I ran all night and day, I couldn't get away",
+	"",
+	"O:",
+	"(instrumental)"
     ]
 }
 },
@@ -70788,7 +71091,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1685507888334, "song": 
+{ "file": "", "lastModifiedDate": 1685507888334, "song": 
 {
 "title": "If You Love Somebody Set Them Free",
 "artist": "Sting",
@@ -77092,7 +77395,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1686542086989, "song": 
+{ "file": "", "lastModifiedDate": 1686542086989, "song": 
 {
 "title": "Jeremy",
 "artist": "Pearl Jam",
@@ -90662,6 +90965,144 @@
     ]
 }
 },
+{ "file": "", "lastModifiedDate": 1686711955479, "song": 
+{
+"title": "Love Shack",
+"artist": "B-52s",
+"user": "Shari",
+"lastModifiedDate": 1686711955479,
+"copyright": "1989 Reprise",
+"key": "C",
+"defaultBpm": 134,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I1:",
+	"X X X X x2",
+	"I2:",
+	"C7 Gm7 C7 Gm7",
+	"I3:",
+	"C7 Gm7 C7 Gm7 x2",
+	"I4:",
+	"C7 Gm7 C7 Gm7 x2",
+	"V:",
+	"C7 Gm7 C7 Gm7 x2",
+	"V2:",
+	"C7 Gm7 C7X X",
+	"PC:",
+	"C7 Eb F7 Ab",
+	"C7 Gm7 C7 Gm7",
+	"C:",
+	"C7 Gm7 C7 Gm7 x2",
+	"C2:",
+	"C7 Gm7 C7 Gm7",
+	"Br1:",
+	"C7 Gm7 C7 Gm7 x4",
+	"Br2:",
+	"C Gm7 C Gm7 x3",
+	"CX X X",
+	"O:",
+	"C7 Gm7 C7 Gm7 x2",
+	"C7X"
+    ],
+"lyrics": 
+    [
+	"I1:",
+	"...If you ",
+	"See a faded sign at the side of the road that says fifteen miles to the (Love )",
+	"",
+	"I2:",
+	"(Shack, love shack yeah)",
+	"",
+	"V:",
+	"(I'm heading down the Atlanta highway, lookin' for the ",
+	"Love getaway, headed for the love getaway)",
+	"",
+	"V:",
+	"I got me a car (love getaway) it's as big as a whale (love getaway) and we're ",
+	"Heading on down to the love shack (love getaway)",
+	"I got me a Chrysler (love getaway) it seats about twenty so",
+	"Hurry up and bring your jukebox money",
+	"",
+	"PC:",
+	"(The love shack is a little old place where we can get together)",
+	"...Love shack baby) A love shack baby",
+	"",
+	"C:",
+	"(Love shack, baby love shack, love shack, baby love shack)",
+	"(Love shack, baby love shack, love shack, baby love shack)",
+	"",
+	"V:",
+	"Sign says (woo) stay away fools, 'cause ",
+	"Love rules at the love shack (well it's ",
+	"Set way back in the middle of a field, just a ",
+	"Funky old shack and I gotta get back)",
+	"",
+	"V:",
+	"(Glitter on the mattress, glitter on the highway)",
+	"(Glitter on the front porch, glitter on the hallway)",
+	"",
+	"PC:",
+	"(Well the love shack is a little old place where we can get together)",
+	"...(Love shack baby) Love shack baby",
+	"",
+	"C2:",
+	"(Love shack, that's where it's at, love shack, that's where it's at)",
+	"",
+	"V:",
+	"Huggin' and a-kissin', dancing and a-loving",
+	"Wearing next to nothing 'cause it's hot as an oven",
+	"The whole shack shimmies...yeah the ",
+	"Whole shack shimmies",
+	"",
+	"V2:",
+	"The whole shack shimmies when everybody's movin' around",
+	"Around and around and around",
+	"",
+	"V:",
+	"(Everybody's moving, everybody's grooving baby)",
+	"Folks linin' up outside just to get down",
+	"(Everybody's moving, everybody's grooving baby)",
+	"Funky little shack, funky little shack",
+	"",
+	"I3:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Hop in my Chrysler, it's as big as a whale, and it's ",
+	"About to set sail (woo)",
+	"I got me a car, it seats about twenty, so ",
+	"Come on and bring your jukebox money",
+	"",
+	"PC:",
+	"(Well the love shack is a little old place where we can get together)",
+	"...(Love shack baby) Love shack baby",
+	"",
+	"C:",
+	"(Love shack, baby love shack, love shack, baby love shack)",
+	"(Love shack, baby love shack) oh baby that's where it's at (love shack, baby love shack) oh baby that's where it's at",
+	"",
+	"I4:",
+	"(instrumental bass)",
+	"",
+	"BR1:",
+	"(Bang bang bang on the door baby) Knock a little louder baby",
+	"(Bang bang bang on the door baby) I can't hear you",
+	"(Bang bang bang on the door baby) Knock a little louder sugar",
+	"(Bang bang bang on the door baby) I can't hear you",
+	"",
+	"BR2:",
+	"(Bang bang bang on the door baby) Knock a little louder (Bang bang bang on the door baby) ",
+	"(Bang bang) on the door baby (bang bang) on the door",
+	"(Bang bang) on the door baby (bang bang) you're ",
+	"What? (Tin roof rusted)",
+	"",
+	"O:",
+	"(Love shack, baby love shack, love shack, baby love shack) love baby that's where it's at, yeah",
+	"(Love shack, baby love shack) love baby that's where it's at (love shack, baby love shack) loving and a kissin' dancin' and a lovin' at the love shack"
+    ]
+}
+},
 { "file": "", "lastModifiedDate": 1635924206329, "song": 
 {
 "title": "Love Someone",
@@ -96589,6 +97030,121 @@
 	"c2: No don't listen to the misery forecast, that weather man was the bottom of his class",
 	"His only forecast is rain and snow, you're better off if you make your own",
 	""
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1686967448603, "song": 
+{
+"title": "Miss You",
+"artist": "Rolling Stones, The",
+"user": "Shari",
+"lastModifiedDate": 1686967448603,
+"copyright": "1978 Rolling Stones",
+"key": "C",
+"defaultBpm": 111,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Am Am Dm Dm x4",
+	"I2:",
+	"Am Am Dm Dm",
+	"I3:",
+	"Am Am Dm Dm x2",
+	"V:",
+	"Am Am Dm Dm x2",
+	"V2:",
+	"Am Am Dm Dm",
+	"C:",
+	"Am Am Dm Dm x2",
+	"Br:",
+	"F Em Dm Dm",
+	"F Em Dm E",
+	"O:",
+	"Am Am Dm Dm x4"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"(I've been) holding out so long, I've been sleeping all alone, Lord, I ",
+	"Miss you...I've been ",
+	"Hanging on the phone, I've been sleeping all alone, I want to ",
+	"Kiss you (sometime)",
+	"",
+	"C:",
+	"(Ooh ooh) ooh ooh ooh, ooh ooh ooh ooh ooh, ooh ooh ",
+	"Ooh ooh",
+	"Ooh ooh ooh ooh ooh, ooh ooh ooh ooh ooh, ooh ooh ",
+	"Ooh ooh",
+	"",
+	"V:",
+	"(Well I've been) haunted in my sleep, you've been starring in my dreams, Lord I ",
+	"Miss you child...I've been ",
+	"Waiting in the hall, been waiting on your call, your ",
+	"Phone rings, it's just some friends of mine that say",
+	"",
+	"V:",
+	"(Hey) what's the matter, man? We're gonna come around at twelve with some Puerto Rican ",
+	"Girls that's just dying to meet you...We're gonna ",
+	"Bring a case of wine, hey let's go mess and fool around",
+	"You know, like we used to",
+	"",
+	"C:",
+	"(Aah aah) aah aah aah, ah aah aah aah aah, aah aah ",
+	"Aah aah",
+	"Aah aah aah aah aah, ah aah aah aah aah, aah aah ",
+	"Aah aah",
+	"",
+	"BR:",
+	"Ooh everybody waits so ",
+	"Long",
+	"Ooh, baby why you wait so ",
+	"Long? Won't you come on, come on",
+	"",
+	"I2:",
+	"(instrumental leggiero)",
+	"",
+	"V:",
+	"(I've been) walking Central Park, singing after dark, people think ",
+	"I'm crazy",
+	"Stumbling on my feet, shuffling through the street",
+	"Asking people...\"What's the matter with you, boy?\"",
+	"",
+	"V2:",
+	"...Sometimes I want to say to, to ",
+	"Myself...sometimes I say",
+	"",
+	"C:",
+	"(Ooh ooh) ooh ooh ooh, ooh ooh ooh ooh ooh, ooh ooh ",
+	"Ooh ooh",
+	"Ooh ooh ooh ooh ooh, ooh ooh ooh ooh ooh, ooh ooh ",
+	"Ooh ooh",
+	"",
+	"I3:",
+	"(instrumental sax solo) ",
+	"",
+	"V:",
+	"(I guess I'm) lying to myself, it's just you and no one else, Lord ",
+	"I won't miss you, child...you've just been ",
+	"Blotting out my mind, fooling on my time, no I ",
+	"Won't miss you baby, yeah",
+	"",
+	"I2:",
+	"Lord, I miss you child",
+	"",
+	"C:",
+	"(Aah aah) aah aah aah, ah aah aah aah aah, aah aah ",
+	"Aah aah (Lord I miss you, child)",
+	"Aah aah aah aah aah, ah aah aah aah aah, aah aah ",
+	"Aah aah (Lord I miss you, child)",
+	"Aah aah aah aah aah, ah aah aah aah aah, aah aah ",
+	"Aah aah",
+	"",
+	"O:",
+	"(instrumental harmonica fade)"
     ]
 }
 },
@@ -117228,7 +117784,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684301226271, "song": 
+{ "file": "", "lastModifiedDate": 1684301226271, "song": 
 {
 "title": "Rhinestone Cowboy",
 "artist": "Glen Campbell",
@@ -130613,7 +131169,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684910463661, "song": 
+{ "file": "", "lastModifiedDate": 1684910463661, "song": 
 {
 "title": "Smooth",
 "artist": "Santana",
@@ -130953,12 +131509,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1682039452324, "song": 
+{ "file": "", "lastModifiedDate": 1686712623869, "song": 
 {
 "title": "So Into You",
 "artist": "Atlanta Rhythm Section",
 "user": "Shari",
-"lastModifiedDate": 1682039452324,
+"lastModifiedDate": 1686712623869,
 "copyright": "1976 Polydor",
 "key": "Ab",
 "defaultBpm": 86,
@@ -130981,7 +131537,7 @@
 	"Fm7 Fm7 Fm7 Fm7",
 	"Bbm7 Bbm7 Fm7",
 	"PC1:",
-	"Fm7 Fm7/Db.Cm7X X.",
+	"Fm7 Fm7/DbCm7 X.",
 	"PC2:",
 	"Fm7 Fm7 Fm7.",
 	"C:",
@@ -135830,7 +136386,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684740771718, "song": 
+{ "file": "", "lastModifiedDate": 1684740771718, "song": 
 {
 "title": "Steve McQueen",
 "artist": "Sheryl Crow",
@@ -148378,7 +148934,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1685945625003, "song": 
+{ "file": "", "lastModifiedDate": 1685945625003, "song": 
 {
 "title": "True Blue",
 "artist": "Madonna",
@@ -156928,7 +157484,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684135028176, "song": 
+{ "file": "", "lastModifiedDate": 1684135028176, "song": 
 {
 "title": "Wheel in the Sky",
 "artist": "Journey",
@@ -164212,7 +164768,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1684907032662, "song": 
+{ "file": "", "lastModifiedDate": 1684907032662, "song": 
 {
 "title": "You Gotta Be",
 "artist": "Des'ree",
@@ -167244,6 +167800,138 @@
 	"",
 	"O:",
 	"(instrumental)"
+    ]
+}
+},
+{ "file": "", "lastModifiedDate": 1686798795523, "song": 
+{
+"title": "You're the Only Woman",
+"artist": "Ambrosia",
+"user": "Shari",
+"lastModifiedDate": 1686798795523,
+"copyright": "1980 Warner Bros.",
+"key": "B",
+"defaultBpm": 106,
+"timeSignature": "2/4",
+"chords": 
+    [
+	"I1:",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"I2:",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"I3:",
+	"Abm7/Db Ebm7 Emaj7 Gb |",
+	"Abm7 Ebm7/F# Emaj7 Gb/D# | x3",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7X Emaj7",
+	"V:",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"PC:",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"C1:",
+	"Emaj7 Emaj7 Ebm7 Abm7 x3",
+	"C2:",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"Abm7/Db Ebm7 Emaj7 Gb",
+	"Abm7 Ebm7/F# Emaj7 Gb/D#",
+	"Br:",
+	"Abm Abm Ebm Abm",
+	"Abm Abm Ebm Abm",
+	"Abm Abm Ebm Abm",
+	"Gbm7 Gbm7 Ebm7 Abm",
+	"O:",
+	"Abm7/Db Ebm7 Emaj7 Gb |",
+	"Abm7 Ebm7/F# Emaj7 Gb/D# | x3"
+    ],
+"lyrics": 
+    [
+	"I1:",
+	"(instrumental)",
+	"",
+	"I2:",
+	"(instrumental organ) Oh baby",
+	"",
+	"V:",
+	"(Say now) you, you talk about the ",
+	"Things I do, but baby",
+	"I, yeah, I'll try and explain the ",
+	"Reasons why",
+	"",
+	"PC:",
+	"('Cause I've been) thinkin' 'bout the things that we said late last night, when every ",
+	"Word I said just didn't come out right, and you were ",
+	"So afraid that I'd found someone new but darling",
+	"Well there's no need for what we're going through because",
+	"",
+	"C1:",
+	"You and I've been in love too long, to ",
+	"Worry about tomorrow",
+	"Here's a place where we both belong, I know ",
+	"",
+	"C2:",
+	"You're the only woman that I'm dreamin' of",
+	"-",
+	"You're the only woman that I really love",
+	"-",
+	"",
+	"V:",
+	"(Baby) see, what a foolish heart has ",
+	"Done for me",
+	"Darlin' why, yeah, would you break my heart and ",
+	"Make me cry?",
+	"",
+	"PC:",
+	"(Well now you) can't go back and change the way things are, and all this ",
+	"Foolish talk won't take us very far, and so ",
+	"I hope you're listening 'cause I'm telling you about the",
+	"The way I feel and what I'm going through because",
+	"",
+	"C1:",
+	"You and I've been in love too long, to ",
+	"Worry about tomorrow",
+	"Here's a place where we both belong, I know ",
+	"",
+	"C2:",
+	"You're the only woman that I'm dreamin' of",
+	"(You're the only woman that I'm dreamin' of) ",
+	"You're the only woman that I really love",
+	"(You're the only woman that I really love)",
+	"",
+	"I3:",
+	"(Oh don't) speak, ssssh...",
+	"",
+	"BR:",
+	"When the pain of love surrounds you",
+	"And the world may be unkind",
+	"I'll put my lovin' arms around you",
+	"Take you far from this place and time",
+	"",
+	"C1:",
+	"(Because) you and I been in love too long, to",
+	"Worry about tomorrow",
+	"Here's a place where we both belong, I know",
+	"",
+	"C2:",
+	"You're the only woman that I'm dreamin' of",
+	"(You're the only woman that I'm dreamin' of) ",
+	"You're the only woman that I really love",
+	"(You're the only woman that I really love)",
+	"",
+	"O:",
+	"You're the only woman (you're the only woman) I know",
+	"You're the only woman (you're the only woman) well now",
+	"You're the only woman (you're the only woman) ",
+	"You're the only woman",
+	""
     ]
 }
 },

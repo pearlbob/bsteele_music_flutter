@@ -76,7 +76,7 @@ const Level _logSongMaster = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollAnimation = Level.debug;
-const Level _logManualPlayScrollAnimation = Level.info;
+const Level _logManualPlayScrollAnimation = Level.debug;
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -165,7 +165,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
     _drumParts = _drumPartsList.songMatch(_song) ?? defaultDrumParts;
     _playMomentNotifier.playMoment = null;
-    _lyricSectionNotifier.index = 0;
+    _lyricSectionNotifier.setIndexRowAndFlip(0, 0, false);
     sectionSongMoments.clear();
 
     logger.log(_logBPM, 'initState() bpm: $playerSelectedBpm');
@@ -181,6 +181,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         var now = DateTime.now();
         var row = _manualPlayScrollAssistant.rowSuggestion(now);
         if (row != null) {
+          _lyricSectionNotifier.setIndexRowAndFlip(
+              _lyricsTable.rowToLyricSectionIndex(row), row, _manualPlayScrollAssistant.isLyricSectionFirstRow(now));
+          //logger.i('_itemScrollToRow: $row');
           _itemScrollToRow(row);
         }
         logger.log(
@@ -196,7 +199,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _assignNewSong(final Song song) {
     widget._song = song;
     _song = song;
-    _manualPlayScrollAssistant = ManualPlayerScrollAssistant(_song, expanded: !compressRepeats);
+    _manualPlayScrollAssistant =
+        ManualPlayerScrollAssistant(_song, expanded: !compressRepeats, bpm: _song.beatsPerMinute);
     _drumParts = _drumPartsList.songMatch(_song) ?? app.selectedDrumParts ?? defaultDrumParts;
   }
 
@@ -337,7 +341,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             PlayMoment(_songUpdate!.state, _songUpdate?.songMoment?.momentNumber ?? 0, _songUpdate!.songMoment);
         selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
             ??
-            _lyricSectionNotifier.index); //  safer to stay on the current index
+            _lyricSectionNotifier.lyricSectionIndex); //  safer to stay on the current index
 
         if (_songUpdate!.state == SongUpdateState.playing) {
           performPlay();
@@ -1133,7 +1137,7 @@ With z or q, the app goes back to the play list.''',
                               ),
                               mini: !app.isScreenBig,
                             ))
-                      : (_lyricSectionNotifier.index > 0
+                      : (_lyricSectionNotifier.lyricSectionIndex > 0
                           ? appFloatingActionButton(
                               appKeyEnum: AppKeyEnum.playerFloatingTop,
                               onPressed: () {
@@ -1240,11 +1244,17 @@ With z or q, the app goes back to the play list.''',
             break;
           case SongPlayMode.manualPlay:
             //  defend against too little time between space bars
-            var nowMs = DateTime.now().millisecondsSinceEpoch;
+            var now = DateTime.now();
+            var nowMs = now.millisecondsSinceEpoch;
             logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
             if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
               _lastBumpTimeMs = nowMs;
-              sectionBump(1);
+              if (_manualPlayScrollAssistant.isLyricSectionFirstRow(now)) {
+                //  back to the first of the first row
+                _manualPlayScrollAssistant.sectionRequest(now, _lyricSectionNotifier.lyricSectionIndex);
+              } else {
+                sectionBump(1);
+              }
             }
             break;
           case SongPlayMode.autoPlay:
@@ -1254,12 +1264,12 @@ With z or q, the app goes back to the play list.''',
         }
       }
       return KeyEventResult.handled;
-    } else if ((songPlayMode == SongPlayMode.manualPlay || songPlayMode == SongPlayMode.pause) &&
+    } else if (songPlayMode != SongPlayMode.autoPlay &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.arrowRight))) {
       logger.d('arrowDown');
       sectionBump(1);
       return KeyEventResult.handled;
-    } else if ((songPlayMode == SongPlayMode.manualPlay || songPlayMode == SongPlayMode.pause) &&
+    } else if (songPlayMode != SongPlayMode.autoPlay &&
         (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.arrowLeft))) {
       logger.log(_logKeyboard, 'arrowUp');
       sectionBump(-1);
@@ -1328,8 +1338,8 @@ With z or q, the app goes back to the play list.''',
         logger.v('banner bump: $bump to $index: ${_song.songMoments[index]}');
         break;
       default:
-      //  units are usually by section
-        scrollToLyricSection(_lyricSectionNotifier.index + bump);
+        //  units are usually by section
+        scrollToLyricSection(_lyricSectionNotifier.lyricSectionIndex + bump);
         break;
     }
   }
@@ -1353,7 +1363,7 @@ With z or q, the app goes back to the play list.''',
           logger.log(
               _logPlayerItemPositions,
               'playerItemPositionsListener:  length: ${orderedSet.length}'
-              ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
+              ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
           logger.log(
               _logPlayerItemPositions,
               '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
@@ -1369,9 +1379,9 @@ With z or q, the app goes back to the play list.''',
     }
     index = Util.indexLimit(index, widget._song.lyricSections); //  safety
 
-    final priorIndex = _lyricSectionNotifier.index;
+    final priorIndex = _lyricSectionNotifier.lyricSectionIndex;
     logger.log(_logScroll, 'scrollToLyricSection(): $index from $priorIndex, _isAnimated: $_isAnimated');
-    if (_lyricSectionNotifier.index == index && !force) {
+    if (_lyricSectionNotifier.lyricSectionIndex == index && !force) {
       //  nothing to do
       return;
     }
@@ -1380,7 +1390,7 @@ With z or q, the app goes back to the play list.''',
 
     if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
       //  notify lyrics of selection... even if there is no scroll
-      logger.v('proPlayer: _lyricSectionNotifier.index: ${_lyricSectionNotifier.index}');
+      logger.v('proPlayer: _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
       return; //  pro's never scroll!
     }
     _itemScrollToRow(_lyricsTable.lyricSectionIndexToRow(index), force: force, priorIndex: priorIndex);
@@ -1418,7 +1428,7 @@ With z or q, the app goes back to the play list.''',
     index = Util.indexLimit(index, _song.lyricSections); //  safety
 
     //  update the widgets
-    _lyricSectionNotifier.index = index;
+    _lyricSectionNotifier.setIndexRowAndFlip(index, _lyricsTable.lyricSectionIndexToRow(index), true);
     _manualPlayScrollAssistant.sectionRequest(DateTime.now(), index);
     logger.log(
         _logManualPlayScrollAnimation,
@@ -1616,7 +1626,7 @@ With z or q, the app goes back to the play list.''',
 
     Future.delayed(const Duration(milliseconds: 30)).then((_) {
       logger.v('after delay: ');
-      scrollToLyricSection(_lyricSectionNotifier.index, force: true);
+      scrollToLyricSection(_lyricSectionNotifier.lyricSectionIndex, force: true);
     });
     forceTableRedisplay();
     //
@@ -1652,7 +1662,7 @@ With z or q, the app goes back to the play list.''',
     }
     _playerIsOnTop = true;
     _assignNewSong(app.selectedSong);
-    _lyricSectionNotifier.index = 0;
+    _lyricSectionNotifier.setIndexRowAndFlip(0, 0, false);
     forceTableRedisplay();
     _resetIdleTimer();
   }
@@ -1678,14 +1688,14 @@ With z or q, the app goes back to the play list.''',
 
       _playerIsOnTop = true;
       _assignNewSong(app.selectedSong);
-      _lyricSectionNotifier.index = 0;
+      _lyricSectionNotifier.setIndexRowAndFlip(0, 0, false);
       forceTableRedisplay();
       _resetIdleTimer();
     });
   }
 
   void forceTableRedisplay() {
-    int index = _lyricSectionNotifier.index;
+    int index = _lyricSectionNotifier.lyricSectionIndex;
     logger.log(_logBuild, '_forceTableRedisplay()');
     setState(() {});
     scrollToLyricSection(index, force: true);
@@ -2418,6 +2428,9 @@ class _DataReminderState extends State<_DataReminderWidget> {
   @override
   Widget build(BuildContext context) {
     logger.v('_DataReminderState.build(): ${widget.songIsInPlay}');
+    int? bpm = (_player?.songPlayMode == SongPlayMode.manualPlay) ? _player?._manualPlayScrollAssistant.bpm : null;
+    bpm ??= playerSelectedBpm ?? _song.beatsPerMinute;
+
     return widget.songIsInPlay
         ? SizedBox.expand(
             child: Column(
@@ -2426,12 +2439,9 @@ class _DataReminderState extends State<_DataReminderWidget> {
                   verticalSpace: widget._toolbarHeight + 2,
                 ),
                 AppWrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.end,
+                  alignment: WrapAlignment.start,
                   children: [
-                    const AppSpace(
-                      horizontalSpace: 60,
-                    ),
                     if (app.fullscreenEnabled && !app.isFullScreen)
                       Container(
                           padding: const EdgeInsets.symmetric(horizontal: _padding),
@@ -2440,7 +2450,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                           })),
                     Text(
                       'Key $_selectedSongKey'
-                      '     BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}'
+                      '     BPM: $bpm'
                       '    Beats: ${_song.timeSignature.beatsPerBar}'
                       '${_showCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                       '  ', //  padding at the end

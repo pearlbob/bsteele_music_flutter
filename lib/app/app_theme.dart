@@ -644,12 +644,13 @@ Widget appCircledIcon(IconData iconData, String toolTip,
 }
 
 /// Icon widget with the application look
-Icon appIcon(IconData icon, {Key? key, Color? color, double? size}) {
-  return Icon(icon,
-      key: key,
-      color: color ?? App.iconColor,
-      size: size ?? app.screenInfo.fontSize //  let the algorithm figure the size dynamically
-      );
+Icon appIcon(IconData icon, {final Key? key, final Color? color, final double? size}) {
+  return Icon(
+    icon,
+    key: key,
+    color: color ?? App.iconColor,
+    size: size ?? app.screenInfo.fontSize, //  let the algorithm figure the size dynamically
+  );
 }
 
 class AppTheme {
@@ -694,6 +695,7 @@ class AppTheme {
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
         colorScheme: ColorScheme.fromSwatch(
             backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
+        //useMaterial3: true,
       );
     }
   }
@@ -1261,11 +1263,3 @@ TextStyle evenTitleTextStyle({TextStyle? from}) {
   return (from ?? generateAppTextStyle())
       .copyWith(backgroundColor: App.evenTitleTextBackgroundColor, color: App.evenTitleTextColor);
 }
-
-ThemeData generateDocsThemeData() {
-  return ThemeData(
-    textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 24.0)),
-  );
-}
-
-final ThemeData appDocsThemeData = generateDocsThemeData();

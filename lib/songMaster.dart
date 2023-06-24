@@ -1,11 +1,11 @@
 import 'dart:math';
 
+import 'package:bsteele_music_flutter/widgets/drums.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/widgets/drums.dart';
+import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:logger/logger.dart';
@@ -20,6 +20,7 @@ const Level _songMasterLogMaxDelta = Level.debug;
 const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
 const Level _logDrums = Level.debug;
+const Level _logManualPlay = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -33,14 +34,15 @@ class SongMaster extends ChangeNotifier {
       double time = _appAudioPlayer.getCurrentTime();
       double dt = time - _lastTime;
 
-      switch (songPlayMode) {
-        case SongPlayMode.idle:
+      switch (songUpdateState) {
+        case SongUpdateState.none:
+        case SongUpdateState.idle:
           if (_momentNumber != null) {
             _clearMomentNumber();
             notifyListeners();
           }
           break;
-        case SongPlayMode.manualPlay:
+        case SongUpdateState.manualPlay:
           //  play drums only
           if (_drumParts != null && !drumsAreMuted) {
             var drumTime = time - (_songStart ?? time);
@@ -51,8 +53,30 @@ class SongMaster extends ChangeNotifier {
               _performDrumParts(_songStart! + _advanceS, _bpm, _drumParts!);
             }
           }
+          var momentNumber = _song?.getSongMomentNumberAtSongTime(time - (_songStart ?? 0)) ?? -1;
+          if (momentNumber != _momentNumber) {
+            _momentNumber = momentNumber;
+            logger.log(_logManualPlay, 'manualPlay:  $momentNumber');
+            notifyListeners();
+          }
+          // _manualPlayTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+          //   if (songPlayMode == SongPlayMode.manualPlay) {
+          //     var now = DateTime.now();
+          //     var row = _manualPlayScrollAssistant.rowSuggestion(now);
+          //     if (row != null) {
+          //       _lyricSectionNotifier.setIndexRowAndFlip(
+          //           _lyricsTable.rowToLyricSectionIndex(row), row, _manualPlayScrollAssistant.isLyricSectionFirstRow(now));
+          //       //logger.i('_itemScrollToRow: $row');
+          //       _itemScrollToRow(row);
+          //     }
+          //     logger.log(
+          //         _logManualPlayScrollAnimation,
+          //         'manualPlay: row: $row'
+          //             ', ${_manualPlayScrollAssistant.state.name} ${_manualPlayScrollAssistant.bpm}');
+          //   }
+          // });
           break;
-        case SongPlayMode.autoPlay:
+        case SongUpdateState.playing:
           if (_song != null) {
             {
               //  fixme: deal with a changing cadence!
@@ -110,7 +134,7 @@ class SongMaster extends ChangeNotifier {
               if (newMomentNumber == null) {
                 //  stop
                 _clearMomentNumber();
-                songPlayMode = SongPlayMode.idle;
+                songUpdateState = SongUpdateState.idle;
                 notifyListeners();
                 logger.log(
                     _songMasterNotify,
@@ -133,7 +157,7 @@ class SongMaster extends ChangeNotifier {
             }
           }
           break;
-        case SongPlayMode.pause:
+        case SongUpdateState.pause:
           if (_song != null) {
             //  prepare for the eventual restart
             if (_momentNumber != null) {
@@ -154,7 +178,7 @@ class SongMaster extends ChangeNotifier {
             _songMasterLogMaxDelta,
             '_maxDelta: ${_maxDelta.toDouble() / Duration.microsecondsPerMillisecond} ms'
             //  ', dt: ${dt.toStringAsFixed(3)}'
-            ', mode: ${songPlayMode.name}');
+            ', mode: ${songUpdateState.name}');
         if (_maxDelta > 60 * Duration.microsecondsPerMillisecond) {
           _maxDelta = 0;
         }
@@ -172,7 +196,19 @@ class SongMaster extends ChangeNotifier {
   }
 
   /// Play a song in real time
-  void playSong(final Song song, //
+  autoPlaySong(final Song song, //
+      {DrumParts? drumParts,
+      int? bpm}) {
+    _playSongMode(SongUpdateState.playing, song, drumParts: drumParts, bpm: bpm);
+  }
+
+  manualPlaySong(final Song song, //
+      {DrumParts? drumParts,
+      int? bpm}) {
+    _playSongMode(SongUpdateState.manualPlay, song, drumParts: drumParts, bpm: bpm);
+  }
+
+  void _playSongMode(final SongUpdateState mode, final Song song, //
       {DrumParts? drumParts,
       int? bpm}) {
     _song = song.copySong(); //  allow for play modifications
@@ -180,13 +216,14 @@ class SongMaster extends ChangeNotifier {
     _measureDuration = 60 * song.timeSignature.beatsPerBar / _bpm;
     _song?.setBeatsPerMinute(_bpm);
     _drumParts = drumParts;
-    _songStart =
-        _appAudioPlayer.getCurrentTime() + _advanceS + (_appOptions.countIn ? _measureDuration * countInCount : 0);
+    _songStart = _appAudioPlayer.getCurrentTime() +
+        _advanceS +
+        (mode == SongUpdateState.playing && _appOptions.countIn ? _measureDuration * countInCount : 0);
 
     _clearMomentNumber();
-    songPlayMode = SongPlayMode.autoPlay;
+    songUpdateState = mode;
     notifyListeners();
-    logger.d('playSong: _bpm: $_bpm');
+    logger.i('_playSongMode: ${mode.name}, _bpm: $_bpm');
   }
 
   /// Play a drums in real time
@@ -196,41 +233,42 @@ class SongMaster extends ChangeNotifier {
     _drumParts = drumParts;
     _songStart ??= _appAudioPlayer.getCurrentTime(); //   sync with existing if it's running
     _clearMomentNumber();
-    songPlayMode = SongPlayMode.manualPlay;
+    songUpdateState = SongUpdateState.manualPlay;
     notifyListeners();
     logger.d('playSong: _bpm: $_bpm');
   }
 
   void stop() {
-    switch (songPlayMode) {
-      case SongPlayMode.autoPlay:
-      case SongPlayMode.pause:
-      songPlayMode = SongPlayMode.idle;
+    switch (songUpdateState) {
+      case SongUpdateState.playing:
+      case SongUpdateState.pause:
+        songUpdateState = SongUpdateState.idle;
         _clearMomentNumber();
         _appAudioPlayer.stop();
         notifyListeners();
         break;
-      case SongPlayMode.manualPlay:
-        songPlayMode = SongPlayMode.idle;
+      case SongUpdateState.manualPlay:
+        songUpdateState = SongUpdateState.idle;
         _appAudioPlayer.stop();
         notifyListeners();
         break;
-      case SongPlayMode.idle:
+      case SongUpdateState.none:
+      case SongUpdateState.idle:
         break;
     }
     _drumParts = null; //  stop the drums
   }
 
   void pause() {
-    if (songPlayMode != SongPlayMode.pause) {
-      songPlayMode = SongPlayMode.pause;
+    if (songUpdateState != SongUpdateState.pause) {
+      songUpdateState = SongUpdateState.pause;
       notifyListeners();
     }
   }
 
   void resume() {
-    if (songPlayMode == SongPlayMode.pause) {
-      songPlayMode = SongPlayMode.autoPlay;
+    if (songUpdateState == SongUpdateState.pause) {
+      songUpdateState = SongUpdateState.playing;
       notifyListeners();
     }
   }
@@ -260,12 +298,12 @@ class SongMaster extends ChangeNotifier {
     logger.log(
         _songMasterLogTicker,
         ' time: $time'
-            ', beats: $beats'
-            ', bpm: $_bpm'
-            ', $drumParts'
-            ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
-      //
-    );
+        ', beats: $beats'
+        ', bpm: $_bpm'
+        ', $drumParts'
+        ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
+        //
+        );
   }
 
   double? get songTime {
@@ -278,7 +316,7 @@ class SongMaster extends ChangeNotifier {
 
   @override
   String toString() {
-    return 'SongMaster{mode: ${songPlayMode.name}, _song: $_song, _moment: $_momentNumber }';
+    return 'SongMaster{mode: ${songUpdateState.name}, _song: $_song, _moment: $_momentNumber }';
   }
 
   late Ticker _ticker;
@@ -290,7 +328,7 @@ class SongMaster extends ChangeNotifier {
   int? _momentNumber;
   int? _advancedMomentNumber;
 
-  SongPlayMode songPlayMode = SongPlayMode.idle;
+  SongUpdateState songUpdateState = SongUpdateState.idle;
 
   Song? _song;
   double? _songStart;

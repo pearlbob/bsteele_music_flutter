@@ -13,6 +13,7 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/screenInfo.dart';
+import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,17 +44,18 @@ const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's p
 
 const _toolTipWaitDuration = Duration(seconds: 1, milliseconds: 500);
 
-enum SongPlayMode {
-  idle(Icons.stop),
-  manualPlay(Icons.forward),
-  autoPlay(Icons.play_arrow),
-  pause(Icons.pause);
+extension SongUpdateStateExtension on SongUpdateState {
+  bool get isPlaying => this == SongUpdateState.manualPlay || this == SongUpdateState.playing;
 
-  const SongPlayMode(this.iconData);
-
-  bool get isPlaying => this == SongPlayMode.manualPlay || this == SongPlayMode.autoPlay;
-
-  final IconData iconData;
+  IconData get icon {
+    return switch (this) {
+      SongUpdateState.idle => Icons.stop,
+      SongUpdateState.manualPlay => Icons.forward,
+      SongUpdateState.playing => Icons.play_arrow,
+      SongUpdateState.pause => Icons.pause,
+      _ => Icons.stop,
+    };
+  }
 }
 
 /// Song list sort types

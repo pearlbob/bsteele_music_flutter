@@ -104,7 +104,7 @@ class PlayMoment {
   }
 
   @override
-  int get hashCode => playMomentNumber.hashCode ^ songMoment.hashCode;
+  int get hashCode => Object.hash(songUpdateState, playMomentNumber, songMoment);
 
   final SongUpdateState songUpdateState;
   final int playMomentNumber;
@@ -114,7 +114,8 @@ class PlayMoment {
 class PlayMomentNotifier extends ChangeNotifier {
   set playMoment(final PlayMoment? newPlayMoment) {
     if (newPlayMoment != _playMoment) {
-      logger.log(_logPlayMomentNotifier, 'PlayMomentNotifier set: $_playMoment');
+      // if ( newPlayMoment!= null)
+      // logger.log(_logPlayMomentNotifier, 'PlayMomentNotifier set: $_playMoment');
       _playMoment = newPlayMoment;
       notifyListeners();
     }
@@ -1465,7 +1466,7 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
               child: appIcon(
                 Icons.play_arrow,
                 size: widget.fontSize,
-                color: Colors.redAccent,
+                color: _highlightColor,
               ))
           : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
@@ -1609,8 +1610,8 @@ class _SongCellState extends State<_SongCellWidget> {
         var moment = playMomentNotifier.playMoment?.songMoment;
         var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
         var isNowSelected = false;
-        logger.v(
-            '_SongCellState consumer build: ${widget.measureNode}, widget.lyricSectionIndex: ${widget.lyricSectionIndex}');
+        logger.v('_SongCellState consumer build: ${widget.measureNode}'
+            ', widget.lyricSectionIndex: ${widget.lyricSectionIndex}');
 
         if ((widget.selectable ?? true) &&
             ((playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&

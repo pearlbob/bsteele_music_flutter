@@ -114,8 +114,6 @@ class PlayMoment {
 class PlayMomentNotifier extends ChangeNotifier {
   set playMoment(final PlayMoment? newPlayMoment) {
     if (newPlayMoment != _playMoment) {
-      // if ( newPlayMoment!= null)
-      // logger.log(_logPlayMomentNotifier, 'PlayMomentNotifier set: $_playMoment');
       _playMoment = newPlayMoment;
       notifyListeners();
     }
@@ -126,21 +124,12 @@ class PlayMomentNotifier extends ChangeNotifier {
 }
 
 class LyricSectionNotifier extends ChangeNotifier {
-  setIndexRowAndFlip(final int lyricSectionIndex, final int row, final bool flip) {
-    if (lyricSectionIndex != _lyricSectionIndex || row != _row || flip != _flipX) {
+  setIndexRowAndFlip(final int lyricSectionIndex, final int row) {
+    if (lyricSectionIndex != _lyricSectionIndex || row != _row) {
       _lyricSectionIndex = lyricSectionIndex;
       _row = row;
-      _flipX = flip;
       notifyListeners();
-      logger.log(_logLyricSectionNotifier, 'lyricSection.index: $_lyricSectionIndex, row: $_row, flipX: $_flipX');
-    }
-  }
-
-  set flipX(bool flipX) {
-    if (flipX != _flipX) {
-      _flipX = flipX;
-      notifyListeners();
-      logger.log(_logLyricSectionNotifier, 'lyricSection.flipX: $_flipX');
+      logger.log(_logLyricSectionNotifier, 'lyricSection.index: $_lyricSectionIndex, row: $_row');
     }
   }
 
@@ -149,8 +138,6 @@ class LyricSectionNotifier extends ChangeNotifier {
   int get row => _row;
   int _row = 0;
 
-  bool get flipX => _flipX;
-  bool _flipX = false;
   LyricSection? lyricSection;
 }
 
@@ -1432,7 +1419,7 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
       builder: (context, lyricSectionNotifier, child) {
         var isNowSelected =
             lyricSectionNotifier.lyricSectionIndex == widget.index && lyricSectionNotifier.row == widget.row;
-        if (isNowSelected == selected && child != null && flipX == lyricSectionNotifier.flipX) {
+        if (isNowSelected == selected && child != null) {
           logger.log(
               _logLyricSectionIndicatorCellState,
               'LyricSectionIndicatorCellState.child'
@@ -1440,11 +1427,10 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
           return child;
         }
         selected = isNowSelected;
-        flipX = lyricSectionNotifier.flipX;
         logger.log(
             _logLyricSectionIndicatorCellState,
             'LyricSectionIndicatorCellState selected: $selected'
-            ', notifier: ${lyricSectionNotifier.lyricSectionIndex}, flip: ${lyricSectionNotifier.flipX}');
+            ', notifier: ${lyricSectionNotifier.lyricSectionIndex}');
         return childBuilder(context);
       },
       child: Builder(builder: childBuilder),
@@ -1462,18 +1448,16 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
       width: widget.width,
       child: selected
           ? Transform.flip(
-              flipX: flipX,
               child: appIcon(
-                Icons.play_arrow,
-                size: widget.fontSize,
-                color: _highlightColor,
-              ))
+              Icons.play_arrow,
+              size: widget.fontSize,
+              color: _highlightColor,
+            ))
           : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
   }
 
   var selected = false;
-  var flipX = false;
 }
 
 class _SongCellWidget extends StatefulWidget {
@@ -1700,7 +1684,7 @@ class _SongCellState extends State<_SongCellWidget> {
     }
 
     //  fixe height for banner only
-    //  othewise, allow the height to float
+    //  otherwise, allow the height to float
     double? height = widget.isFixedHeight ? widget.size?.height ?? buildSize.height : null;
 
     RichText richText = widget.richText;

@@ -55,6 +55,7 @@ class AppOptions extends ChangeNotifier {
   Future<void> init() async {
     var usTimer = UsTimer();
     _prefs = await SharedPreferences.getInstance();
+    // await _prefs.clear();  //  fixme: allow user to to this
 
     _userDisplayStyle = Util.enumFromString(
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),

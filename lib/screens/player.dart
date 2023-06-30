@@ -183,7 +183,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _assignNewSong(final Song song) {
     widget._song = song;
     _song = song;
-    _manualPlayScrollAssistant = PlayerScrollAssistant(_song, expanded: !compressRepeats, bpm: _song.beatsPerMinute);
+    _playerScrollAssistant = PlayerScrollAssistant(_song, expanded: !compressRepeats, bpm: _song.beatsPerMinute);
     _drumParts = _drumPartsList.songMatch(_song) ?? app.selectedDrumParts ?? defaultDrumParts;
   }
 
@@ -275,7 +275,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
           if (_songMaster.momentNumber! >= 0) {
             var now = DateTime.now();
-            var row = _manualPlayScrollAssistant.rowSuggestion(now);
+            _playerScrollAssistant.bpm = _songMaster.bpm;
+            var row = _playerScrollAssistant.rowSuggestion(now);
             if (row != null) {
               _lyricSectionNotifier.setIndexRowAndFlip(_lyricsTable.rowToLyricSectionIndex(row), row);
               _itemScrollToRow(row);
@@ -1429,12 +1430,12 @@ With z or q, the play stops and goes back to the play list top.''',
 
     //  update the widgets
     _lyricSectionNotifier.setIndexRowAndFlip(index, _lyricsTable.lyricSectionIndexToRow(index));
-    _manualPlayScrollAssistant.sectionRequest(DateTime.now(), index);
+    _playerScrollAssistant.sectionRequest(DateTime.now(), index);
     logger.log(
         _logManualPlayScrollAnimation,
         'manualPlay sectionRequest: index: $index, row: ${_lyricsTable.lyricSectionIndexToRow(index)}'
-        ', ${_manualPlayScrollAssistant.lastRowSuggestion}'
-        ', ${_manualPlayScrollAssistant.state.name} ${_manualPlayScrollAssistant.bpm}');
+        ', ${_playerScrollAssistant.lastRowSuggestion}'
+        ', ${_playerScrollAssistant.state.name} ${_playerScrollAssistant.bpm}');
 
     //  remote scroll for followers
     if (songUpdateService.isLeader) {
@@ -1497,7 +1498,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
       if (!songUpdateService.isFollowing) {
         _playMomentNotifier.playMoment = PlayMoment(SongUpdateState.manualPlay, 0, _song.songMoments.first);
-        _songMaster.manualPlaySong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
+        _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
       }
     });
   }
@@ -2266,7 +2267,8 @@ With z or q, the play stops and goes back to the play list top.''',
     if (playerSelectedBpm != newBpm) {
       setState(() {
         playerSelectedBpm = newBpm;
-        _manualPlayScrollAssistant.bpm = newBpm;
+        _songMaster.bpm = newBpm;
+        _playerScrollAssistant.bpm = newBpm;
         logger.log(_logBPM, '_changeBPM( $playerSelectedBpm )');
       });
     }
@@ -2373,7 +2375,7 @@ With z or q, the play stops and goes back to the play list top.''',
   Timer? _idleTimer;
 
   //  monitor in real time if the scroll position should be assisted
-  PlayerScrollAssistant _manualPlayScrollAssistant = PlayerScrollAssistant(Song.theEmptySong, expanded: false);
+  PlayerScrollAssistant _playerScrollAssistant = PlayerScrollAssistant(Song.theEmptySong, expanded: false);
 
   final _drumPartsList = DrumPartsList();
 
@@ -2404,7 +2406,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
     return Consumer<PlayMomentNotifier>(builder: (context, playMomentNotifier, child) {
       //  wakeup on a play moment change in case the assistant has adjusted itself
       int? bpm = playerSelectedBpm ??
-          ((_player?.songUpdateState == SongUpdateState.manualPlay) ? _player?._manualPlayScrollAssistant.bpm : null);
+          ((_player?.songUpdateState == SongUpdateState.manualPlay) ? _player?._playerScrollAssistant.bpm : null);
       bpm ??= _song.beatsPerMinute;
       logger.log(_logDataReminderState,
           '_DataReminderState.build(): ${widget.songIsInPlay}, bpm: $bpm, playerSelectedBpm: $playerSelectedBpm');

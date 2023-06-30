@@ -53,7 +53,7 @@ class SongMaster extends ChangeNotifier {
               _performDrumParts(_songStart! + _advanceS, _bpm, _drumParts!);
             }
           }
-          var momentNumber = _song?.getSongMomentNumberAtSongTime(time - (_songStart ?? 0)) ?? -1;
+          var momentNumber = _song?.getSongMomentNumberAtSongTime(time - (_songStart ?? 0), bpm: _bpm) ?? -1;
           if (momentNumber != _momentNumber) {
             _momentNumber = momentNumber;
             logger.log(_logManualPlay, 'manualPlay:  $momentNumber');
@@ -196,34 +196,19 @@ class SongMaster extends ChangeNotifier {
   }
 
   /// Play a song in real time
-  autoPlaySong(final Song song, //
-      {DrumParts? drumParts,
-      int? bpm}) {
-    _playSongMode(SongUpdateState.playing, song, drumParts: drumParts, bpm: bpm);
-  }
-
-  manualPlaySong(final Song song, //
-      {DrumParts? drumParts,
-      int? bpm}) {
-    _playSongMode(SongUpdateState.manualPlay, song, drumParts: drumParts, bpm: bpm);
-  }
-
-  void _playSongMode(final SongUpdateState mode, final Song song, //
+  playSong(final Song song, //
       {DrumParts? drumParts,
       int? bpm}) {
     _song = song.copySong(); //  allow for play modifications
     _bpm = bpm ?? song.beatsPerMinute;
-    _measureDuration = 60 * song.timeSignature.beatsPerBar / _bpm;
     _song?.setBeatsPerMinute(_bpm);
     _drumParts = drumParts;
-    _songStart = _appAudioPlayer.getCurrentTime() +
-        _advanceS +
-        (mode == SongUpdateState.playing && _appOptions.countIn ? _measureDuration * countInCount : 0);
+    _songStart = _appAudioPlayer.getCurrentTime() + _advanceS;
 
     _clearMomentNumber();
-    songUpdateState = mode;
+    songUpdateState = SongUpdateState.manualPlay;
     notifyListeners();
-    logger.i('_playSongMode: ${mode.name}, _bpm: $_bpm');
+    logger.i('_playSongMode: ${songUpdateState.name}, _bpm: $_bpm');
   }
 
   /// Play a drums in real time
@@ -335,8 +320,12 @@ class SongMaster extends ChangeNotifier {
   static const countInCount = countInMax;
   static const double _advanceS = 1.0;
 
+  set bpm(int bpm) {
+    _bpm = bpm;
+  }
+
+  int get bpm => _bpm;
   int _bpm = MusicConstants.minBpm; //  default value only
-  double _measureDuration = 0;
 
   var drumsAreMuted = true;
   DrumParts? _drumParts;

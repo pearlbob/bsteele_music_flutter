@@ -742,29 +742,29 @@ class MyHomePageState extends State<MyHomePage> {
 
       /// Navigate to song player when song tapped.
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-        if (kDebugMode)
-          Container(
-              padding: const EdgeInsets.all(6.0),
-              child: AppWrap(
-                spacing: 10,
-                children: [
-                  appButton(
-                    'Test',
-                    appKeyEnum: AppKeyEnum.mainTest,
-                    onPressed: () {
-                      testAppKeyCallbacks();
-                    },
-                  ),
-                  appButton(
-                    'Stop',
-                    appKeyEnum: AppKeyEnum.mainTestStop,
-                    onPressed: () {
-                      logger.i('stop');
-                      testAppKeyCallbacksStop();
-                    },
-                  ),
-                ],
-              )),
+        // if (kDebugMode)
+        //   Container(
+        //       padding: const EdgeInsets.all(6.0),
+        //       child: AppWrap(
+        //         spacing: 10,
+        //         children: [
+        //           appButton(
+        //             'Test',
+        //             appKeyEnum: AppKeyEnum.mainTest,
+        //             onPressed: () {
+        //               testAppKeyCallbacks();
+        //             },
+        //           ),
+        //           appButton(
+        //             'Stop',
+        //             appKeyEnum: AppKeyEnum.mainTestStop,
+        //             onPressed: () {
+        //               logger.i('stop');
+        //               testAppKeyCallbacksStop();
+        //             },
+        //           ),
+        //         ],
+        //       )),
         if (app.message.isNotEmpty)
           Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
         PlayList(

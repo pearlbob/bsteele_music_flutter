@@ -37,7 +37,7 @@ enum StorageValue {
   lastSongEdited,
 }
 
-enum TapToAdvance { never, upOrDown, alwaysDown }
+enum TapToAdvance { never, upOrDown }
 
 /// Application level, persistent, shared values.
 class AppOptions extends ChangeNotifier {
@@ -55,7 +55,6 @@ class AppOptions extends ChangeNotifier {
   Future<void> init() async {
     var usTimer = UsTimer();
     _prefs = await SharedPreferences.getInstance();
-    // await _prefs.clear();  //  fixme: allow user to to this
 
     _userDisplayStyle = Util.enumFromString(
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
@@ -96,6 +95,10 @@ class AppOptions extends ChangeNotifier {
     logger.log(_logStartup, 'AppOptions: ${usTimer.seconds} s');
   }
 
+  clear() {
+    _prefs.clear();
+  }
+
   /// A persistent debug flag for internal software development use.
   bool get debug => _debug;
 
@@ -111,7 +114,7 @@ class AppOptions extends ChangeNotifier {
     if (object is bool) {
       ret = object ? TapToAdvance.upOrDown : TapToAdvance.never;
     } else {
-      ret = Util.enumFromString(_prefs.getString(key) ?? '', TapToAdvance.values) ?? TapToAdvance.alwaysDown;
+      ret = Util.enumFromString(_prefs.getString(key) ?? '', TapToAdvance.values) ?? TapToAdvance.upOrDown;
     }
     await _prefs.setString(key, ret.name);
     notifyListeners();

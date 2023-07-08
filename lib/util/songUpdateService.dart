@@ -115,37 +115,38 @@ class SongUpdateService extends ChangeNotifier {
           }
           lastHost = _host;
 
-          for (_idleCount = 0;; _idleCount++) {
-            //  idle
-            await Future.delayed(const Duration(milliseconds: _idleMilliseconds));
+          if (_webSocketChannel != null) {
+            for (_idleCount = 0;; _idleCount++) {
+              //  idle
+              await Future.delayed(const Duration(milliseconds: _idleMilliseconds));
 
-            //  check connection status
-            if (lastHost != _findTheHost()) {
-              logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
-              appLogMessage('webSocketChannel new host: $uri');
-              _closeWebSocketChannel();
-              _delayMilliseconds = 0;
-              notifyListeners();
-              break;
+              //  check connection status
+              if (lastHost != _findTheHost()) {
+                logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
+                appLogMessage('webSocketChannel new host: $uri');
+                _closeWebSocketChannel();
+                _delayMilliseconds = 0;
+                notifyListeners();
+                break;
+              }
+              if (!_isOpen) {
+                logger.log(_log, 'on close: $lastHost');
+                _delayMilliseconds = 0;
+                _idleCount = 0;
+                notifyListeners();
+                break;
+              }
+              if (isConnected != _wasConnected) {
+                _wasConnected = isConnected;
+                //  notify on first idle cycle
+                notifyListeners();
+              }
+              logger.log(_log, 'webSocketChannel open: $_isOpen, idleCount: $_idleCount');
             }
-            if (!_isOpen) {
-              logger.log(_log, 'on close: $lastHost');
-              _delayMilliseconds = 0;
-              _idleCount = 0;
-              notifyListeners();
-              break;
-            }
-            if (isConnected != _wasConnected) {
-              _wasConnected = isConnected;
-              //  notify on first idle cycle
-              notifyListeners();
-            }
-            logger.log(_log, 'webSocketChannel open: $_isOpen, idleCount: $_idleCount');
           }
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: $e');
           _closeWebSocketChannel();
-          notifyListeners();
         }
       }
 

@@ -509,15 +509,15 @@ Writing a file will allow you to reload your changes later.''',
     List<List> rows = [];
     rows.add(['Title', 'Artist', 'Cover Artist', 'Year', 'Jam', 'Genre', 'Subgenre', 'Status']);
     for (var song in app.allSongs) {
-      var md = SongMetadata.songMetadata(song, 'year');
+      var md = SongMetadata.songMetadata(song, 'Year');
       var year = md.isNotEmpty ? md.first.value : '';
-      md = SongMetadata.songMetadata(song, 'jam');
+      md = SongMetadata.songMetadata(song, 'Jam');
       var jam = md.isNotEmpty ? md.first.value : '';
-      md = SongMetadata.songMetadata(song, 'genre');
+      md = SongMetadata.songMetadata(song, 'Genre');
       var genre = md.isNotEmpty ? md.first.value : '';
-      md = SongMetadata.songMetadata(song, 'subgenre');
+      md = SongMetadata.songMetadata(song, 'Subgenre');
       var subgenre = md.isNotEmpty ? md.first.value : '';
-      md = SongMetadata.songMetadata(song, 'status');
+      md = SongMetadata.songMetadata(song, 'Status');
       var status = md.isNotEmpty ? md.first.value : '';
       rows.add([
         song.title,

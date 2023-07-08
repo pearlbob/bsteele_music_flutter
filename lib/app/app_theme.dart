@@ -200,6 +200,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsTapToAdvance(bool),
   optionsToolTips(bool),
   optionsToolTipsTextButton(Null),
+  optionsClearOptionsTextButton(Null),
   optionsUserDisplayStyle(UserDisplayStyle),
   optionsUserName(String),
   optionsWebsocketBob(Null),

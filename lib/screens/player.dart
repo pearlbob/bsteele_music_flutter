@@ -2,8 +2,16 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/drum_screen.dart';
+import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
+import 'package:bsteele_music_flutter/songMaster.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_flutter/util/openLink.dart';
+import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/player_scroll_assistant.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
@@ -14,15 +22,6 @@ import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/songs/song_moment.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/screens/drum_screen.dart';
-import 'package:bsteele_music_flutter/screens/edit.dart';
-import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
-import 'package:bsteele_music_flutter/songMaster.dart';
-import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteele_music_flutter/util/openLink.dart';
-import 'package:bsteele_music_flutter/util/songUpdateService.dart';
-import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -166,7 +165,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     playerSelectedBpm = playerSelectedBpm ?? _song.beatsPerMinute;
     _drumParts = _drumPartsList.songMatch(_song) ?? defaultDrumParts;
     _playMomentNotifier.playMoment = null;
-    _lyricSectionNotifier.setIndexRowAndFlip(0, 0);
+    _lyricSectionNotifier.setIndexRow(0, 0);
     sectionSongMoments.clear();
 
     logger.log(_logBPM, 'initState() bpm: $playerSelectedBpm');
@@ -183,7 +182,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _assignNewSong(final Song song) {
     widget._song = song;
     _song = song;
-    _playerScrollAssistant = PlayerScrollAssistant(_song, expanded: !compressRepeats, bpm: _song.beatsPerMinute);
     _drumParts = _drumPartsList.songMatch(_song) ?? app.selectedDrumParts ?? defaultDrumParts;
   }
 
@@ -274,20 +272,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           leaderSongUpdate(_songMaster.momentNumber!);
 
           if (_songMaster.momentNumber! >= 0) {
-            var now = DateTime.now();
-            _playerScrollAssistant.bpm = _songMaster.bpm;
-            var row = _playerScrollAssistant.rowSuggestion(now);
-            if (row != null) {
-              _lyricSectionNotifier.setIndexRowAndFlip(_lyricsTable.rowToLyricSectionIndex(row), row);
-              _itemScrollToRow(row);
-            }
-            // var songMoment = _song.getSongMoment(_songMaster.momentNumber!);
-            // if (songMoment != null) {
-            //   if (_playMomentNotifier.playMoment?.songMoment != songMoment) {
-            //     setSelectedSongMoment(songMoment);
-            //   }
-            //   scrollToLyricSection(songMoment.lyricSection.index);
-            // }
+            var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber!);
+            _lyricSectionNotifier.setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
+            _itemScrollToRow(row);
           }
         }
         break;
@@ -1083,8 +1070,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                   child: GestureDetector(
                                       onTapDown: (details) {
                                         //  respond to taps above and below the middle of the screen
-                                        if ((appOptions.tapToAdvance == TapToAdvance.upOrDown ||
-                                                appOptions.tapToAdvance == TapToAdvance.alwaysDown) &&
+                                        if ((appOptions.tapToAdvance == TapToAdvance.upOrDown) &&
                                             songUpdateState != SongUpdateState.playing &&
                                             appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
                                           if (songUpdateState != SongUpdateState.manualPlay) {
@@ -1099,13 +1085,11 @@ With z or q, the play stops and goes back to the play list top.''',
                                             var offset = _tableGlobalOffset();
                                             if (details.globalPosition.dy > offset.dy) {
                                               if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
-                                                sectionBump(1); //  fixme: when not in play
+                                                bpmBump(1); //  fixme: when not in play
                                               } else {
-                                                sectionBump(-1); //  fixme: when not in play
+                                                bpmBump(-1); //  fixme: when not in play
                                               }
                                             }
-                                          } else if (appOptions.tapToAdvance == TapToAdvance.alwaysDown) {
-                                            sectionBump(1); //  fixme: when not in play
                                           }
                                         }
                                       },
@@ -1192,7 +1176,7 @@ With z or q, the play stops and goes back to the play list top.''',
                     ],
                   ),
 
-                _DataReminderWidget(songUpdateState.isPlaying, appWidgetHelper.toolbarHeight),
+                _DataReminderWidget(songUpdateState.isPlaying, _songMaster, appWidgetHelper.toolbarHeight),
               ],
             ),
           );
@@ -1236,16 +1220,6 @@ With z or q, the play stops and goes back to the play list top.''',
             break;
           case SongUpdateState.playing:
           case SongUpdateState.manualPlay:
-            //  defend against too little time between space bars
-            var now = DateTime.now();
-            var nowMs = now.millisecondsSinceEpoch;
-            logger.d('ms gap: ${nowMs - _lastBumpTimeMs}');
-            if (nowMs - _lastBumpTimeMs > _minimumSpaceBarGapMs) {
-              _lastBumpTimeMs = nowMs;
-              sectionBump(1);
-            }
-            break;
-
           case SongUpdateState.pause:
             break;
         }
@@ -1254,11 +1228,11 @@ With z or q, the play stops and goes back to the play list top.''',
     } else if (!songUpdateService.isFollowing) {
       if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
         logger.d('arrowDown');
-        sectionBump(1);
+        _songMaster.skipCurrentSection();
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
         logger.log(_logKeyboard, 'arrowUp');
-        sectionBump(-1);
+        _songMaster.repeatSection();
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
         logger.d('arrowRight');
@@ -1324,25 +1298,6 @@ With z or q, the play stops and goes back to the play list top.''',
   bpmBump(final int bump) {
     logger.log(_logBPM, 'BPM bump($bump)');
     _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) + bump);
-  }
-
-  /// bump from one section to the next
-  sectionBump(final int bump) {
-    switch (appOptions.userDisplayStyle) {
-      case UserDisplayStyle.banner:
-        //  banner units are measure
-        var index =
-            Util.indexLimit((_playMomentNotifier.playMoment?.songMoment?.momentNumber ?? 0) + bump, _song.songMoments);
-        var songMoment = _song.songMoments[index];
-        setSelectedSongMoment(songMoment);
-        _itemScrollToRow(index);
-        logger.v('banner bump: $bump to $index: ${_song.songMoments[index]}');
-        break;
-      default:
-        //  units are usually by section
-        scrollToLyricSection(_lyricSectionNotifier.lyricSectionIndex + bump);
-        break;
-    }
   }
 
   void itemPositionsListener() {
@@ -1429,13 +1384,9 @@ With z or q, the play stops and goes back to the play list top.''',
     index = Util.indexLimit(index, _song.lyricSections); //  safety
 
     //  update the widgets
-    _lyricSectionNotifier.setIndexRowAndFlip(index, _lyricsTable.lyricSectionIndexToRow(index));
-    _playerScrollAssistant.sectionRequest(DateTime.now(), index);
-    logger.log(
-        _logManualPlayScrollAnimation,
-        'manualPlay sectionRequest: index: $index, row: ${_lyricsTable.lyricSectionIndexToRow(index)}'
-        ', ${_playerScrollAssistant.lastRowSuggestion}'
-        ', ${_playerScrollAssistant.state.name} ${_playerScrollAssistant.bpm}');
+    _lyricSectionNotifier.setIndexRow(index, _lyricsTable.lyricSectionIndexToRow(index));
+    logger.log(_logManualPlayScrollAnimation,
+        'manualPlay sectionRequest: index: $index, row: ${_lyricsTable.lyricSectionIndexToRow(index)}');
 
     //  remote scroll for followers
     if (songUpdateService.isLeader) {
@@ -1635,7 +1586,7 @@ With z or q, the play stops and goes back to the play list top.''',
     }
     _playerIsOnTop = true;
     _assignNewSong(app.selectedSong);
-    _lyricSectionNotifier.setIndexRowAndFlip(0, 0);
+    _lyricSectionNotifier.setIndexRow(0, 0);
     forceTableRedisplay();
     _resetIdleTimer();
   }
@@ -1661,7 +1612,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
       _playerIsOnTop = true;
       _assignNewSong(app.selectedSong);
-      _lyricSectionNotifier.setIndexRowAndFlip(0, 0);
+      _lyricSectionNotifier.setIndexRow(0, 0);
       forceTableRedisplay();
       _resetIdleTimer();
     });
@@ -2268,7 +2219,6 @@ With z or q, the play stops and goes back to the play list top.''',
       setState(() {
         playerSelectedBpm = newBpm;
         _songMaster.bpm = newBpm;
-        _playerScrollAssistant.bpm = newBpm;
         logger.log(_logBPM, '_changeBPM( $playerSelectedBpm )');
       });
     }
@@ -2336,7 +2286,6 @@ With z or q, the play stops and goes back to the play list top.''',
   static const String anchorUrlStart = 'https://www.youtube.com/results?search_query=';
 
   SongUpdateState songUpdateState = SongUpdateState.idle;
-  int _lastBumpTimeMs = 0;
 
   late final FocusNode _rawKeyboardListenerFocusNode;
 
@@ -2374,9 +2323,6 @@ With z or q, the play stops and goes back to the play list top.''',
 
   Timer? _idleTimer;
 
-  //  monitor in real time if the scroll position should be assisted
-  PlayerScrollAssistant _playerScrollAssistant = PlayerScrollAssistant(Song.theEmptySong, expanded: false);
-
   final _drumPartsList = DrumPartsList();
 
   DrumParts? _drumParts;
@@ -2389,7 +2335,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
 /// Display data on the song while in auto or manual play mode
 class _DataReminderWidget extends StatefulWidget {
-  const _DataReminderWidget(this.songIsInPlay, this._toolbarHeight);
+  const _DataReminderWidget(this.songIsInPlay, this.songMaster, this._toolbarHeight);
 
   @override
   State<StatefulWidget> createState() {
@@ -2397,6 +2343,7 @@ class _DataReminderWidget extends StatefulWidget {
   }
 
   final bool songIsInPlay;
+  final SongMaster songMaster;
   final double _toolbarHeight;
 }
 
@@ -2405,8 +2352,8 @@ class _DataReminderState extends State<_DataReminderWidget> {
   Widget build(BuildContext context) {
     return Consumer<PlayMomentNotifier>(builder: (context, playMomentNotifier, child) {
       //  wakeup on a play moment change in case the assistant has adjusted itself
-      int? bpm = playerSelectedBpm ??
-          ((_player?.songUpdateState == SongUpdateState.manualPlay) ? _player?._playerScrollAssistant.bpm : null);
+      int? bpm = playerSelectedBpm;
+      bpm ??= (widget.songIsInPlay ? widget.songMaster.bpm : null);
       bpm ??= _song.beatsPerMinute;
       logger.log(_logDataReminderState,
           '_DataReminderState.build(): ${widget.songIsInPlay}, bpm: $bpm, playerSelectedBpm: $playerSelectedBpm');

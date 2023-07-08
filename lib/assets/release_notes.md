@@ -46,6 +46,7 @@
 
 ### Features
 
+* "Write All Metadata to CSV": fixed the metadata fields
 * Pro Player display works in manual play
 * Pro Player display adjusted
 * About screen overflow fixed

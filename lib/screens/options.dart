@@ -396,6 +396,19 @@ class OptionsState extends State<Options> {
                         'debug',
                       ),
                     ]),
+                  const AppSpace(verticalSpace: 30),
+                  Row(children: <Widget>[
+                    appButton(
+                      'Clear all local stored options',
+                      appKeyEnum: AppKeyEnum.optionsClearOptionsTextButton,
+                      onPressed: () {
+                        setState(() {
+                          _appOptions.clear();
+                        });
+                      },
+                      // softWrap: false,
+                    ),
+                  ]),
                 ]),
           ),
         ),

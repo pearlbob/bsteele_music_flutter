@@ -4,7 +4,7 @@
 
 # flutter build web first!
 
-wasmLocation=$(grep canvaskit-wasm build/web/main.dart.js | sed -e 's/.*https/https/' -e 's/\/bin.*/\/bin/' | uniq)
+wasmLocation="https://unpkg.com/canvaskit-wasm/bin"
 echo "Downloading WASM from $wasmLocation"
 curl -o build/web/canvaskit.js "$wasmLocation/canvaskit.js"
 curl -o build/web/canvaskit.wasm "$wasmLocation/canvaskit.wasm"

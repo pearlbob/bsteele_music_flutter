@@ -55,7 +55,7 @@ const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
-const Level _logLyricSectionNotifier = Level.debug;
+const Level _logLyricSectionNotifier = Level.info;
 const Level _logChildBuilder = Level.debug;
 const Level _logPlayMomentNotifier = Level.debug;
 
@@ -65,7 +65,8 @@ EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
 const double _marginSizeMax = 6; //  note: vertical and horizontal are identical //  fixme: can't be less than 2
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
-const _highlightColor = Colors.redAccent;
+const _idleHighlightColor = Colors.redAccent;
+const _playHighlightColor = Colors.greenAccent;
 const _defaultMaxLines = 12;
 var _maxLines = 1;
 
@@ -124,7 +125,7 @@ class PlayMomentNotifier extends ChangeNotifier {
 }
 
 class LyricSectionNotifier extends ChangeNotifier {
-  setIndexRowAndFlip(final int lyricSectionIndex, final int row) {
+  setIndexRow(final int lyricSectionIndex, final int row) {
     if (lyricSectionIndex != _lyricSectionIndex || row != _row) {
       _lyricSectionIndex = lyricSectionIndex;
       _row = row;
@@ -1415,11 +1416,13 @@ class LyricSectionIndicatorCellWidget extends StatefulWidget {
 class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWidget> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<LyricSectionNotifier>(
-      builder: (context, lyricSectionNotifier, child) {
+    return Consumer2<PlayMomentNotifier, LyricSectionNotifier>(
+      builder: (context, playMomentNotifier, lyricSectionNotifier, child) {
         var isNowSelected =
             lyricSectionNotifier.lyricSectionIndex == widget.index && lyricSectionNotifier.row == widget.row;
-        if (isNowSelected == selected && child != null) {
+        if (isNowSelected == selected &&
+            _songUpdateState == playMomentNotifier.playMoment?.songUpdateState &&
+            child != null) {
           logger.log(
               _logLyricSectionIndicatorCellState,
               'LyricSectionIndicatorCellState.child'
@@ -1427,6 +1430,7 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
           return child;
         }
         selected = isNowSelected;
+        _songUpdateState = playMomentNotifier.playMoment?.songUpdateState;
         logger.log(
             _logLyricSectionIndicatorCellState,
             'LyricSectionIndicatorCellState selected: $selected'
@@ -1451,13 +1455,14 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
               child: appIcon(
               Icons.play_arrow,
               size: widget.fontSize,
-              color: _highlightColor,
+              color: _songUpdateState == SongUpdateState.manualPlay ? _playHighlightColor : _idleHighlightColor,
             ))
           : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
   }
 
   var selected = false;
+  SongUpdateState? _songUpdateState;
 }
 
 class _SongCellWidget extends StatefulWidget {
@@ -1718,7 +1723,7 @@ class _SongCellState extends State<_SongCellWidget> {
                 ? BoxDecoration(
                     border: Border.all(
                       width: _marginSize,
-                      color: _highlightColor,
+                      color: _idleHighlightColor,
                     ),
                   )
                 : null,
@@ -1737,7 +1742,7 @@ class _SongCellState extends State<_SongCellWidget> {
               ? BoxDecoration(
                   border: Border.all(
                     width: _marginSize,
-                    color: _highlightColor,
+                    color: _idleHighlightColor,
                   ),
                 )
               : null,

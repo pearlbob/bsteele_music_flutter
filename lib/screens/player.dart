@@ -59,8 +59,6 @@ bool _areDrumsMuted = true;
 final _playMomentNotifier = PlayMomentNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
 
-const int _minimumSpaceBarGapMs = 350; //  milliseconds
-
 music_key.Key _selectedSongKey = music_key.Key.C;
 
 //  diagnostic logging enables
@@ -107,7 +105,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
 
   Timer(const Duration(milliseconds: 2), () {
     // ignore: invalid_use_of_protected_member
-    logger.log(_logLeaderFollower, 'playerUpdate timer:');
+    logger.log(_logLeaderFollower, 'playerUpdate timer: $_songUpdate');
     _player?.setPlayState();
   });
 
@@ -237,7 +235,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   //  update the song update service status
   void songUpdateServiceListener() {
-    logger.log(_logLeaderFollower, 'songUpdateServiceListener():');
+    logger.log(_logLeaderFollower, 'songUpdateServiceListener(): $_songUpdate');
     setState(() {});
   }
 
@@ -330,7 +328,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _assignNewSong(_songUpdate!.song);
         _playMomentNotifier.playMoment =
             PlayMoment(_songUpdate!.state, _songUpdate?.songMoment?.momentNumber ?? 0, _songUpdate!.songMoment);
-        selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
+        _selectLyricSection(_songUpdate?.songMoment?.lyricSection.index //
             ??
             _lyricSectionNotifier.lyricSectionIndex); //  safer to stay on the current index
 
@@ -958,33 +956,33 @@ With z or q, the play stops and goes back to the play list top.''',
                                         softWrap: false,
                                       ),
                                     ),
-                                    if (app.isScreenBig && !songUpdateService.isFollowing)
-                                      AppTooltip(
-                                        message: 'Select drums using the player setting\'s dialog, the gear icon',
-                                        child: Text(
-                                          'Drums: ${_songMaster.drumsAreMuted ? 'Muted' : _drumParts?.name ?? ''}',
-                                          style: headerTextStyle,
-                                          softWrap: false,
-                                        ),
-                                      ),
-                                    if (app.isScreenBig)
-                                      //  leader/follower status
-                                      AppTooltip(
-                                        message: 'Control the leader/follower mode from the main menu:\n'
-                                            'main screen: menu (hamburger), Options, Hosts',
-                                        child: Text(
-                                          songUpdateService.isConnected
-                                              ? (songUpdateService.isLeader
-                                                  ? 'leading ${songUpdateService.host}'
-                                                  : (songUpdateService.leaderName == Song.defaultUser
-                                                      ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
-                                                      : 'following ${songUpdateService.leaderName}'))
-                                              : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
-                                          style: !songUpdateService.isConnected && !songUpdateService.isIdle
-                                              ? headerTextStyle.copyWith(color: Colors.red)
-                                              : headerTextStyle,
-                                        ),
-                                      ),
+                                    // if (app.isScreenBig && !songUpdateService.isFollowing)
+                                    //   AppTooltip(
+                                    //     message: 'Select drums using the player setting\'s dialog, the gear icon',
+                                    //     child: Text(
+                                    //       'Drums: ${_songMaster.drumsAreMuted ? 'Muted' : _drumParts?.name ?? ''}',
+                                    //       style: headerTextStyle,
+                                    //       softWrap: false,
+                                    //     ),
+                                    //   ),
+                                    // if (app.isScreenBig)
+                                    //   //  leader/follower status
+                                    //   AppTooltip(
+                                    //     message: 'Control the leader/follower mode from the main menu:\n'
+                                    //         'main screen: menu (hamburger), Options, Hosts',
+                                    //     child: Text(
+                                    //       songUpdateService.isConnected
+                                    //           ? (songUpdateService.isLeader
+                                    //               ? 'leading ${songUpdateService.host}'
+                                    //               : (songUpdateService.leaderName == Song.defaultUser
+                                    //                   ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
+                                    //                   : 'following ${songUpdateService.leaderName}'))
+                                    //           : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
+                                    //       style: !songUpdateService.isConnected && !songUpdateService.isIdle
+                                    //           ? headerTextStyle.copyWith(color: Colors.red)
+                                    //           : headerTextStyle,
+                                    //     ),
+                                    //   ),
                                   ]),
                                 ],
                               ),
@@ -1315,7 +1313,7 @@ With z or q, the play stops and goes back to the play list top.''',
           ..addAll(playerItemPositionsListener.itemPositions.value);
         if (orderedSet.isNotEmpty) {
           var item = orderedSet.first;
-          selectLyricSectionByRow(item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0));
+          _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.02 ? 1 : 0));
           logger.log(
               _logPlayerItemPositions,
               'playerItemPositionsListener:  length: ${orderedSet.length}'
@@ -1342,7 +1340,7 @@ With z or q, the play stops and goes back to the play list top.''',
       return;
     }
 
-    selectLyricSection(index);
+    _selectLyricSection(index);
 
     if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
       //  notify lyrics of selection... even if there is no scroll
@@ -1361,7 +1359,7 @@ With z or q, the play stops and goes back to the play list top.''',
           : row >= (priorIndex ?? 0)
               ? const Duration(seconds: 3)
               : const Duration(milliseconds: 400);
-      logger.log(_logScrollAnimation, 'scrollTo(index: $row, duration: $duration)');
+      logger.log(_logScrollAnimation, 'scrollTo(): index: $row, duration: $duration)');
       _itemScrollController
           .scrollTo(index: row, duration: duration, alignment: 0.15, curve: Curves.fastLinearToSlowEaseIn)
           .then((value) {
@@ -1373,20 +1371,44 @@ With z or q, the play stops and goes back to the play list top.''',
     }
   }
 
-  selectLyricSectionByRow(final int row) {
-    selectLyricSection(_lyricsTable.rowToLyricSectionIndex(row));
+  _selectMomentByRow(final int row) {
+    _selectMoment(_lyricsTable.rowToMomentNumber(row));
   }
 
-  selectLyricSection(int index) {
+  _selectMoment(final int momentNumber) {
+    var moment = _song.getSongMoment(momentNumber);
+    if (moment == null) {
+      return;
+    }
+
+    //  update the widgets
+    var row = _lyricsTable.songMomentNumberToRow(momentNumber);
+    _lyricSectionNotifier.setIndexRow(moment.lyricSection.index, row);
+    _itemScrollToRow(row);
+    logger.log(_logManualPlayScrollAnimation, 'manualPlay sectionRequest: index: $_lyricSectionNotifier');
+
+    //  remote scroll for followers
+    if (songUpdateService.isLeader) {
+      switch (songUpdateState) {
+        case SongUpdateState.playing:
+          break;
+        default:
+          leaderSongUpdate(momentNumber);
+          break;
+      }
+    }
+  }
+
+  _selectLyricSection(int lyricSectionIndex) {
     if (_song.lyricSections.isEmpty) {
       return; //  safety
     }
-    index = Util.indexLimit(index, _song.lyricSections); //  safety
+    lyricSectionIndex = Util.indexLimit(lyricSectionIndex, _song.lyricSections); //  safety
 
     //  update the widgets
-    _lyricSectionNotifier.setIndexRow(index, _lyricsTable.lyricSectionIndexToRow(index));
+    _lyricSectionNotifier.setIndexRow(lyricSectionIndex, _lyricsTable.lyricSectionIndexToRow(lyricSectionIndex));
     logger.log(_logManualPlayScrollAnimation,
-        'manualPlay sectionRequest: index: $index, row: ${_lyricsTable.lyricSectionIndexToRow(index)}');
+        'manualPlay sectionRequest: index: $lyricSectionIndex, row: ${_lyricsTable.lyricSectionIndexToRow(lyricSectionIndex)}');
 
     //  remote scroll for followers
     if (songUpdateService.isLeader) {
@@ -1395,7 +1417,7 @@ With z or q, the play stops and goes back to the play list top.''',
           break;
         default:
           {
-            var lyricSection = _song.lyricSections[index];
+            var lyricSection = _song.lyricSections[lyricSectionIndex];
             leaderSongUpdate(_song.firstMomentInLyricSection(lyricSection).momentNumber);
           }
           break;
@@ -1483,7 +1505,7 @@ With z or q, the play stops and goes back to the play list top.''',
           break;
         case SongUpdateState.manualPlay:
           newSongPlayMode = SongUpdateState.manualPlay;
-          scrollToLyricSection(songMoment.lyricSection.index);
+          _selectMoment(update.momentNumber);
           break;
         default:
           newSongPlayMode = SongUpdateState.idle;

@@ -61,7 +61,6 @@
             },
             onEntrypointLoaded: async function (engineInitializer) {
                 let appRunner = await engineInitializer.initializeEngine({
-                    //canvasKitBaseUrl: "/canvaskit/",
                     renderer: "canvaskit"
                 });
                 await appRunner.runApp();

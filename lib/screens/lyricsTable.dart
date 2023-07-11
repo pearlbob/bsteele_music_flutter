@@ -134,6 +134,11 @@ class LyricSectionNotifier extends ChangeNotifier {
     }
   }
 
+  @override
+  String toString() {
+    return 'index: $_lyricSectionIndex, row: $_row, lyricSection: $lyricSection';
+  }
+
   int get lyricSectionIndex => _lyricSectionIndex;
   int _lyricSectionIndex = -30000; //  never expected
   int get row => _row;
@@ -1315,7 +1320,8 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
-  int songMomentNumberToRow(final int number) => _songMomentNumberToRowMap[number] ?? 0 /* should never be null */;
+  int songMomentNumberToRow(final int rowNumber) =>
+      _songMomentNumberToRowMap[rowNumber] ?? 0 /* should never be null */;
 
   int rowToLyricSectionIndex(final int row) {
     if (_locationGrid.isEmpty) {
@@ -1331,6 +1337,25 @@ class LyricsTable {
     for (var cell in gridRow) {
       if (cell != null && cell.lyricSectionIndex != null) {
         return cell.lyricSectionIndex!;
+      }
+    }
+    return 0;
+  }
+
+  int rowToMomentNumber(final int row) {
+    if (_locationGrid.isEmpty) {
+      return 0;
+    }
+    //  fixme: to weak
+    //  find the grid row
+    var gridRow = _locationGrid.getRow(Util.intLimit(row, 0, _locationGrid.getRowCount() - 1));
+    if (gridRow == null || gridRow.isEmpty) {
+      return 0;
+    }
+    //  find the lyric section from the row
+    for (var cell in gridRow) {
+      if (cell != null && cell.songMoment != null) {
+        return cell.songMoment!.momentNumber;
       }
     }
     return 0;

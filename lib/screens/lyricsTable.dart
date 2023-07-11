@@ -55,7 +55,7 @@ const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
-const Level _logLyricSectionNotifier = Level.info;
+const Level _logLyricSectionNotifier = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logPlayMomentNotifier = Level.debug;
 

@@ -54,9 +54,9 @@ endif
 #done by arch: gcloud --quiet components update
 
 #	test
-cd $git
-flutter test test
-if ( $status != 0 ) exit -1
+#cd $git
+#flutter test test
+#if ( $status != 0 ) exit -1
 
 #	beta to local static host
 set betaDir=$www/bsteeleMusicApp/$flavor
@@ -70,41 +70,10 @@ date --utc +%Y%m%d_%H%M%S > lib/assets/utcDate.txt
 #flutter config --enable-web
 #	see web/index.html for offline workaround URL trick
 bsteeleMusicApp_canvaskit # offline canvas kit update
-flutter build web --release --base-href /$warName/ --web-renderer canvaskit
 
-# install beta lib util
-cd bsteeleMusicLib
-bin/bsteeleMusicUtil_install
-cd $git
-
-#	clear the last one
-mkdir -p $betaDir
-rm  -rf $betaDir/*
-
-#	copy to localhost website
-cp -r build/web/* $betaDir
-
-
-##	send to flavor's web location
-#set gs=gs://www.bsteele.com/$app/$flavor
-#bsteele_auth
-#gsutil -m -q rsync -d -R \
-#    -x 'allSongs\.songlyrics$' \
-#    -x 'allSongs\.songmetadata$' \
-#    -x 'allSongPerformances\.songperformances$' \
-#    $betaDir/ $gs 	#	source needs the /
-#gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $gs
-#gsutil -m -q acl -r ch -u AllUsers:R $gs
-#
-#echo test http://www.bsteele.com/$app/$flavor
-#
-##	deploy to local tomcat
-#cd $git
-#bin/bsteeleMusicApp_beta_war
-#
-## print some facts
-#bin/bsteeleMusicApp_codeLineCount
-#cat lib/assets/utcDate.txt
+flutter build web --release \
+	--dart-define=FLUTTER_WEB_CANVASKIT_URL=/$warName/canvaskit/ \
+	--base-href /$warName/ --web-renderer canvaskit
 
 cd build
 

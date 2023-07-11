@@ -4,6 +4,7 @@
 
 # flutter build web first!
 
+mkdir -p build/web
 wasmLocation="https://unpkg.com/canvaskit-wasm/bin"
 echo "Downloading WASM from $wasmLocation"
 curl -o build/web/canvaskit.js "$wasmLocation/canvaskit.js"

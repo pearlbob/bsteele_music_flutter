@@ -14,7 +14,7 @@ import 'package:logger/logger.dart';
 import 'app/appOptions.dart';
 import 'audio/app_audio_player.dart';
 
-const Level _logSongMasterTicker = Level.info; //kDebugMode ? Level.info : Level.debug;
+const Level _logSongMasterTicker = Level.debug; //kDebugMode ? Level.info : Level.debug;
 const Level _songMasterLogTickerDetails = Level.debug;
 const Level _songMasterLogDelta = Level.debug;
 const Level _songMasterLogMaxDelta = Level.debug;
@@ -49,9 +49,10 @@ class SongMaster extends ChangeNotifier {
         }
       }
 
+      //  skip the current section if asked
       if (_skipCurrentSection) {
         _skipCurrentSection = false;
-        logger.i('skip: from $_momentNumber ');
+        logger.log(_songMasterLogAdvance, 'skip: from $_momentNumber ');
         if (_song != null && momentNumber >= 0) {
           var moment = _song!.getSongMoment(momentNumber);
           if (moment != null) {
@@ -67,13 +68,14 @@ class SongMaster extends ChangeNotifier {
                 break;
               }
             }
-            logger.i('skip: $_momentNumber to ${moment?.momentNumber}');
+            logger.log(_songMasterLogAdvance, 'skip: $_momentNumber to ${moment?.momentNumber}');
             if (moment != null) {
               _songStart = time - (_song?.getSongTimeAtMoment(moment.momentNumber, beatsPerMinute: _bpm) ?? 0);
               momentNumber = moment.momentNumber;
               _momentNumber = momentNumber;
               _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
-              logger.i('skip from index $lyricSectionIndex to $moment in ${moment.lyricSection.index}');
+              logger.log(_songMasterLogAdvance,
+                  'skip from index $lyricSectionIndex to $moment in ${moment.lyricSection.index}');
               notifyListeners();
             }
           }
@@ -82,20 +84,24 @@ class SongMaster extends ChangeNotifier {
 
       //  repeat sections when the current has ended
       if (_repeatSection > 0 && lyricSectionIndex != _lastSectionIndex) {
-        logger.i('_repeatSection: $_repeatSection');
+        logger.log(_songMasterLogAdvance, '_repeatSection: $_repeatSection, lyricSectionIndex: $lyricSectionIndex');
         _repeatSection = Util.intLimit(_repeatSection, 1, 2); //  limit the number of sections to repeat
         while (_repeatSection > 0 && momentNumber > 0) {
           momentNumber--;
           var index = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
-          logger.i('_repeatSection: looking: $momentNumber, index: $index');
-          if (index != _lastSectionIndex) {
+          // logger.log(_songMasterLogAdvance, '_repeatSection: looking: $momentNumber, index: $index');
+          if (index != lyricSectionIndex) {
             _repeatSection--;
-            _lastSectionIndex = index;
+            lyricSectionIndex = index;
+            momentNumber = _song?.getFirstSongMomentInSection(momentNumber)?.momentNumber ?? 0;
           }
         }
+        logger.log(_songMasterLogAdvance,
+            '_repeatSection: back to section: $lyricSectionIndex at momentNumber: $momentNumber');
+        _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
       }
-      _lastSectionIndex = lyricSectionIndex;
 
+      _lastSectionIndex = lyricSectionIndex;
       if (_lastMomentNumber == momentNumber) {
         return;
       }
@@ -261,7 +267,7 @@ class SongMaster extends ChangeNotifier {
     _clearMomentNumber();
     songUpdateState = SongUpdateState.manualPlay;
     notifyListeners();
-    logger.i('_playSongMode: ${songUpdateState.name}, _bpm: $_bpm');
+    logger.d('_playSongMode: ${songUpdateState.name}, _bpm: $_bpm');
   }
 
   skipCurrentSection() {

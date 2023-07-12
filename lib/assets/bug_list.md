@@ -20,6 +20,7 @@
 ### Fix
 
 * player scrolling
+* Make following obvious when asking for play or edit
 * Been getting requests to see the difference between new song additions
   vs edited songs. Is there a way to mark a new one?
   I'm fine marking this on the edit page, then it times out after two weeks....

@@ -225,9 +225,6 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   playerEdit(Null),
   playerEditDrums(Null),
   playerErrorMessage(Null),
-  playerFloatingPlay(Null),
-  playerFloatingStop(Null),
-  playerFloatingTop(Null),
   playerFullScreen(Null),
   playerKeyDown(Null),
   playerKeyOffset(int),
@@ -241,6 +238,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   playerSongBad(Null),
   playerSongGood(Null),
   playerSpeed(Null), //  debug only
+  playerStop(Null),
   playerTempoTap(Null),
   playListClearSearch(Null),
   playListFilter(NameValue),

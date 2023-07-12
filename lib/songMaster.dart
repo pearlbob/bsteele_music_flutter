@@ -33,9 +33,16 @@ class SongMaster extends ChangeNotifier {
     _ticker = Ticker((elapsed) {
       final double time = _appAudioPlayer.getCurrentTime();
       final double dt = time - _lastTime;
-      var momentNumber = _song?.getSongMomentNumberAtSongTime(time - (_songStart ?? 0), bpm: _bpm) ?? -1;
+      _lastTime = time;
+      final songTime = time - (_songStart ?? 0);
+      var momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
 
       var lyricSectionIndex = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
+
+      logger.log(
+          _logSongMasterTicker,
+          'SongMaster: $time: dt: ${dt.toStringAsFixed(3)}, songTime: $songTime'
+          ', start: $_songStart, momentNumber: $momentNumber, index: $lyricSectionIndex');
 
       //  update the bpm
       if (_newBpm != null) {
@@ -131,7 +138,6 @@ class SongMaster extends ChangeNotifier {
 
           if (momentNumber != _momentNumber) {
             _momentNumber = momentNumber;
-
             notifyListeners();
           }
           break;
@@ -229,7 +235,7 @@ class SongMaster extends ChangeNotifier {
       if (dt > 0.2) {
         logger.log(_logSongMasterTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
       }
-      _lastTime = time;
+
       int delta = elapsed.inMicroseconds - _lastElapsedUs;
       if (delta > _maxDelta) {
         _maxDelta = delta;

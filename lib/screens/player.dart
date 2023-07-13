@@ -591,7 +591,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         Positioned(
                           top: boxCenter,
                           child: Container(
-                            constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth / 64, 6)),
+                            constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth / 128, 3)),
                             decoration: const BoxDecoration(
                               color: Colors.black87,
                             ),
@@ -1223,7 +1223,7 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   double boxCenterHeight() {
-    return min(app.screenInfo.mediaHeight, 1080 /*  limit leader area to hdtv size */) * _sectionCenterLocationFraction;
+    return min(app.screenInfo.mediaHeight, 1080 /*  limit leader area to hdtv size */) * _scrollAlignment * 2;
   }
 
   _clearCountIn() {
@@ -1256,30 +1256,38 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   void itemPositionsListener() {
-    switch (appOptions.userDisplayStyle) {
-      case UserDisplayStyle.banner:
+    switch (songUpdateState) {
+      case SongUpdateState.idle:
+      case SongUpdateState.none:
+      case SongUpdateState.pause:
+        switch (appOptions.userDisplayStyle) {
+          case UserDisplayStyle.banner:
+            break;
+          default:
+            logger.v('_isAnimated: $_isAnimated, playMode: $songUpdateState');
+            if (_isAnimated || songUpdateState.isPlaying) {
+              return; //  don't follow scrolling when animated or playing
+            }
+            var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+              return e1.index.compareTo(e2.index);
+            })
+              ..addAll(playerItemPositionsListener.itemPositions.value);
+            if (orderedSet.isNotEmpty) {
+              var item = orderedSet.first;
+              _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+              logger.log(
+                  _logPlayerItemPositions,
+                  'playerItemPositionsListener:  length: ${orderedSet.length}'
+                  ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
+              logger.log(
+                  _logPlayerItemPositions,
+                  '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
+                  ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
+            }
+            break;
+        }
         break;
-      default:
-        logger.v('_isAnimated: $_isAnimated, playMode: $songUpdateState');
-        if (_isAnimated || songUpdateState.isPlaying) {
-          return; //  don't follow scrolling when animated or playing
-        }
-        var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-          return e1.index.compareTo(e2.index);
-        })
-          ..addAll(playerItemPositionsListener.itemPositions.value);
-        if (orderedSet.isNotEmpty) {
-          var item = orderedSet.first;
-          _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-          logger.log(
-              _logPlayerItemPositions,
-              'playerItemPositionsListener:  length: ${orderedSet.length}'
-              ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
-          logger.log(
-              _logPlayerItemPositions,
-              '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
-              ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
-        }
+      case SongUpdateState.playing:
         break;
     }
   }
@@ -1329,12 +1337,12 @@ With z or q, the play stops and goes back to the play list top.''',
       var duration = force
           ? const Duration(milliseconds: 20)
           : row >= (priorIndex ?? 0)
-              ? Duration(milliseconds: (0.7 * rowTime * Duration.millisecondsPerSecond).toInt())
+              ? Duration(milliseconds: (0.4 * rowTime * Duration.millisecondsPerSecond).toInt())
               : const Duration(milliseconds: 400);
       logger.log(
           _logScrollAnimation, 'scrollTo(): index: $row, duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
       _itemScrollController
-          .scrollTo(index: row, duration: duration, alignment: 0.15, curve: Curves.linear)
+          .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
           .then((value) {
         Future.delayed(duration).then((_) {
           //  fixme: the scrollTo returns prior to the completion of the animation!
@@ -2409,8 +2417,8 @@ With z or q, the play stops and goes back to the play list top.''',
 
   Size? lastSize;
 
-  static const _centerSelections = false; //fixme: add later!
-  static const _sectionCenterLocationFraction = 1.0 / 8; //  fixme: what is this really doing?
+  static const _centerSelections = true;
+  static const _scrollAlignment = 0.15;
   double boxCenter = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 

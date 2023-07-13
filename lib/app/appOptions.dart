@@ -35,9 +35,22 @@ enum StorageValue {
   toolTips,
   tapToAdvance,
   lastSongEdited,
+  playerScrollHighlight,
 }
 
 enum TapToAdvance { never, upOrDown }
+
+/// Selection of the player display style during play
+enum PlayerScrollHighlight {
+  /// no highlights
+  off,
+
+  /// Highlight the chord row with an pointer.
+  chordRow,
+
+  /// Highlight each measure with a outline.
+  measure,
+}
 
 /// Application level, persistent, shared values.
 class AppOptions extends ChangeNotifier {
@@ -60,6 +73,11 @@ class AppOptions extends ChangeNotifier {
             await _readString(StorageValue.userDisplayStyle.name, defaultValue: UserDisplayStyle.both.toString()),
             UserDisplayStyle.values) ??
         UserDisplayStyle.both;
+    _playerScrollHighlight = Util.enumFromString(
+            await _readString(StorageValue.playerScrollHighlight.name,
+                defaultValue: PlayerScrollHighlight.off.toString()),
+            PlayerScrollHighlight.values) ??
+        PlayerScrollHighlight.off;
     _nashvilleSelection = Util.enumFromString(
             await _readString(StorageValue.nashvilleSelection.name, defaultValue: NashvilleSelection.off.name),
             NashvilleSelection.values) ??
@@ -331,6 +349,17 @@ class AppOptions extends ChangeNotifier {
     if (_userDisplayStyle != value) {
       _userDisplayStyle = value;
       _saveString(StorageValue.userDisplayStyle.name, value.name);
+    }
+  }
+
+  /// The user's selected player display highlight style during play
+  PlayerScrollHighlight get playerScrollHighlight => _playerScrollHighlight;
+  PlayerScrollHighlight _playerScrollHighlight = PlayerScrollHighlight.off;
+
+  set playerScrollHighlight(PlayerScrollHighlight value) {
+    if (_playerScrollHighlight != value) {
+      _playerScrollHighlight = value;
+      _saveString(StorageValue.playerScrollHighlight.name, value.name);
     }
   }
 

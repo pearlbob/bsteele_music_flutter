@@ -45,12 +45,11 @@ const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's p
 const _toolTipWaitDuration = Duration(seconds: 1, milliseconds: 500);
 
 extension SongUpdateStateExtension on SongUpdateState {
-  bool get isPlaying => this == SongUpdateState.manualPlay || this == SongUpdateState.playing;
+  bool get isPlaying => this == SongUpdateState.playing;
 
   IconData get icon {
     return switch (this) {
       SongUpdateState.idle => Icons.stop,
-      SongUpdateState.manualPlay => Icons.forward,
       SongUpdateState.playing => Icons.play_arrow,
       SongUpdateState.pause => Icons.pause,
       _ => Icons.stop,

@@ -57,7 +57,6 @@ const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
 const Level _logLyricSectionNotifier = Level.debug;
 const Level _logChildBuilder = Level.debug;
-const Level _logPlayMomentNotifier = Level.debug;
 
 const double _paddingSizeMax = 3; //  fixme: can't be 0
 double _paddingSize = _paddingSizeMax;
@@ -1473,6 +1472,14 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
         '${widget.index}:'
         ' selected: $selected');
 
+    switch (AppOptions().playerScrollHighlight) {
+      case PlayerScrollHighlight.off:
+      case PlayerScrollHighlight.measure:
+        return NullWidget();
+      default:
+        break;
+    }
+
     return SizedBox(
       width: widget.width,
       child: selected
@@ -1480,7 +1487,7 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
               child: appIcon(
               Icons.play_arrow,
               size: widget.fontSize,
-              color: _songUpdateState == SongUpdateState.manualPlay ? _playHighlightColor : _idleHighlightColor,
+              color: _songUpdateState == SongUpdateState.playing ? _playHighlightColor : _idleHighlightColor,
             ))
           : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
     );
@@ -1619,84 +1626,92 @@ class _SongCellWidget extends StatefulWidget {
 class _SongCellState extends State<_SongCellWidget> {
   @override
   Widget build(BuildContext context) {
-    // fixme: use the following later if required:  the rad box framing is too specific for current tastes
-    // return Consumer2<PlayMomentNotifier, LyricSectionNotifier>(
-    //   builder: (context, playMomentNotifier, lyricSectionNotifier, child) {
-    //     // var moment = playMomentNotifier.playMoment?.songMoment;
-    //     // var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
-    //     var isNowSelected = false;
-    //
-    // logger.v('_SongCellState consumer build: ${widget.measureNode}'
-    //     ', widget.lyricSectionIndex: ${widget.lyricSectionIndex}');
-    //
-    // if ((widget.selectable ?? true) &&
-    //     ((playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&
-    //             (playMomentNotifier.playMoment?.playMomentNumber ?? -1) >= 0) //
-    //         ||
-    //         widget.lyricSectionIndex != null ||
-    //         widget.lyricSectionSet != null)) {
-    //   switch (widget.measureNode.runtimeType) {
-    //     case LyricSection:
-    //       isNowSelected = lyricSectionNotifier.lyricSectionIndex == widget.lyricSectionIndex;
-    //       logger.log(
-    //           _logLyricSectionCellState,
-    //           '_SongCellState: $isNowSelected'
-    //           ', ${moment?.lyricSection} == ${widget.measureNode}'
-    //           //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
-    //           );
-    //       break;
-    //     case ChordSection:
-    //       isNowSelected = widget.lyricSectionSet?.contains(lyricSectionNotifier.lyricSectionIndex) ?? false;
-    //       logger.log(
-    //           _logLyricSectionCellState,
-    //           '_SongCellState: ChordSection: $isNowSelected'
-    //           ', ${widget.measureNode}'
-    //           ', lyricSectionNotifier.index: ${lyricSectionNotifier.lyricSectionIndex}'
-    //           ', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
-    //           //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
-    //           );
-    //       break;
-    //     default:
-    //       isNowSelected = moment != null &&
-    //           (playMomentNumber == widget.songMoment?.momentNumber ||
-    //               (
-    //                   //  deal with compressed repeats
-    //                   !(widget.expanded ?? true) &&
-    //                       moment.lyricSection == widget.songMoment?.lyricSection &&
-    //                       moment.phraseIndex == widget.songMoment?.phraseIndex &&
-    //                       moment.phrase.repeats > 1 &&
-    //                       widget.songMoment?.measureIndex != null &&
-    //                       (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
-    //       logger.log(
-    //           _logLyricSectionCellState,
-    //           '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
-    //           ', ${widget.measureNode}'
-    //           ', moment: ${widget.songMoment?.momentNumber}'
-    //           ', playMomentNumber: $playMomentNumber'
-    //           //
-    //           );
-    //       break;
-    //   }
-    // }
-    //
-    //     // for efficiency, use the existing child
-    //     if (isNowSelected == selected && child != null) {
-    //       return child;
-    //     }
-    //     selected = isNowSelected;
-    //     return childBuilder(context);
-    //   },
-    //   child: Builder(builder: childBuilder),
-    // );
+    return Consumer2<PlayMomentNotifier, LyricSectionNotifier>(
+      builder: (context, playMomentNotifier, lyricSectionNotifier, child) {
+        var moment = playMomentNotifier.playMoment?.songMoment;
+        var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
+        var isNowSelected = false;
 
-    return childBuilder(context);
+        logger.log(
+            _logLyricSectionCellState,
+            '_SongCellState consumer build: momentNumber: ${widget.songMoment?.momentNumber} vs ${moment?.momentNumber}'
+            ', widget.lyricSectionIndex: ${widget.lyricSectionIndex}');
+
+        if ((widget.selectable ?? true) &&
+            ((playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&
+                    (playMomentNotifier.playMoment?.playMomentNumber ?? -1) >= 0) //
+                ||
+                widget.lyricSectionIndex != null ||
+                widget.lyricSectionSet != null)) {
+          switch (widget.measureNode.runtimeType) {
+            case LyricSection:
+              isNowSelected = lyricSectionNotifier.lyricSectionIndex == widget.lyricSectionIndex;
+              logger.log(
+                  _logLyricSectionCellState,
+                  '_SongCellState: $isNowSelected'
+                  ', ${moment?.lyricSection} == ${widget.measureNode}'
+                  //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
+                  );
+              break;
+            case ChordSection:
+              isNowSelected = widget.lyricSectionSet?.contains(lyricSectionNotifier.lyricSectionIndex) ?? false;
+              logger.log(
+                  _logLyricSectionCellState,
+                  '_SongCellState: ChordSection: $isNowSelected'
+                  ', ${widget.measureNode}'
+                  ', lyricSectionNotifier.index: ${lyricSectionNotifier.lyricSectionIndex}'
+                  ', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
+                  //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
+                  );
+              break;
+            default:
+              isNowSelected = moment != null &&
+                  (playMomentNumber == widget.songMoment?.momentNumber ||
+                      (
+                          //  deal with compressed repeats
+                          !(widget.expanded ?? true) &&
+                              moment.lyricSection == widget.songMoment?.lyricSection &&
+                              moment.phraseIndex == widget.songMoment?.phraseIndex &&
+                              moment.phrase.repeats > 1 &&
+                              widget.songMoment?.measureIndex != null &&
+                              (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+              logger.log(
+                  _logLyricSectionCellState,
+                  '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
+                  ', ${widget.measureNode}'
+                  ', moment: ${widget.songMoment?.momentNumber}'
+                  ', playMomentNumber: $playMomentNumber'
+                  //
+                  );
+              break;
+          }
+        }
+
+        switch (AppOptions().playerScrollHighlight) {
+          case PlayerScrollHighlight.off:
+          case PlayerScrollHighlight.chordRow:
+            isNowSelected = false;
+            break;
+          case PlayerScrollHighlight.measure:
+            break;
+        }
+
+        // // for efficiency, use the existing child
+        // if (isNowSelected == selected && child != null) {
+        //   return child;
+        // }
+        selected = isNowSelected;
+        return childBuilder(context);
+      },
+      child: Builder(builder: childBuilder),
+    );
   }
 
   Widget childBuilder(BuildContext context) {
     if (selected) {
       logger.log(
           _logChildBuilder,
-          '_SongCellState.childBuilder: ${widget.songMoment?.momentNumber}'
+          '_SongCellState.childBuilder: selected: ${widget.songMoment?.momentNumber}'
           ': ${widget.richText.text.toPlainText()}'
           ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
           ', songTime: ${SongMaster().songTime}');

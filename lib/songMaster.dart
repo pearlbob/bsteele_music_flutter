@@ -52,7 +52,7 @@ class SongMaster extends ChangeNotifier {
         //  moment number was computed from prior bpm
         if (momentNumber >= 0) {
           //  compute new song start time to keep the moment number identical
-          _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
+          resetSongStart(time, momentNumber);
         }
       }
 
@@ -77,8 +77,8 @@ class SongMaster extends ChangeNotifier {
             }
             logger.log(_songMasterLogAdvance, 'skip: $_momentNumber to ${moment?.momentNumber}');
             if (moment != null) {
-              _songStart = time - (_song?.getSongTimeAtMoment(moment.momentNumber, beatsPerMinute: _bpm) ?? 0);
               momentNumber = moment.momentNumber;
+              resetSongStart(time, momentNumber);
               _momentNumber = momentNumber;
               _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
               logger.log(_songMasterLogAdvance,
@@ -105,7 +105,7 @@ class SongMaster extends ChangeNotifier {
         }
         logger.log(_songMasterLogAdvance,
             '_repeatSection: back to section: $lyricSectionIndex at momentNumber: $momentNumber');
-        _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
+        resetSongStart(time, momentNumber);
       }
 
       _lastSectionIndex = lyricSectionIndex;
@@ -206,7 +206,7 @@ class SongMaster extends ChangeNotifier {
           if (_song != null) {
             //  prepare for the eventual restart
             if (_momentNumber != null) {
-              _songStart = time - (_song?.getSongTimeAtMoment(_momentNumber!) ?? 0);
+              resetSongStart(time, momentNumber);
             }
           }
           break;
@@ -238,6 +238,15 @@ class SongMaster extends ChangeNotifier {
   _clearMomentNumber() {
     _momentNumber = null;
     _advancedMomentNumber = null;
+  }
+
+  resetSongStart(final double time, final int momentNumber) {
+    if (_momentNumber != momentNumber) {
+      logger.i('resetSongStart(): which moment?  _momentNumber: $_momentNumber,  momentNumber: $momentNumber');
+    }
+    logger.i('resetSongStart(): old _songStart: $_songStart, _momentNumber: $_momentNumber');
+    _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
+    logger.i('resetSongStart(): new _songStart: $_songStart,  momentNumber: $momentNumber');
   }
 
   /// Play a song in real time

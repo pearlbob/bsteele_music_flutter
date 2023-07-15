@@ -640,7 +640,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                                 onPressed: songUpdateService.isFollowing
                                                     ? null
                                                     : () {
-                                                  app.clearMessage();
+                                                        app.clearMessage();
                                                         songUpdateState.isPlaying ? performStop() : performPlay();
                                                       },
                                               ),
@@ -748,7 +748,8 @@ With z or q, the play stops and goes back to the play list top.''',
                                               message: songUpdateState.isPlaying
                                                   ? 'Song is playing'
                                                   : (songUpdateService.isFollowing
-                                                      ? 'Followers cannot edit.\nDisable following back on Options to edit.'
+                                                      ? 'Followers cannot edit.\nDisable following back on the main Options\n'
+                                                          ' to allow editing.'
                                                       : (app.isEditReady
                                                           ? 'Edit the song'
                                                           : 'Device is not edit ready')),
@@ -1260,34 +1261,49 @@ With z or q, the play stops and goes back to the play list top.''',
       case SongUpdateState.idle:
       case SongUpdateState.none:
       case SongUpdateState.pause:
-        switch (appOptions.userDisplayStyle) {
-          case UserDisplayStyle.banner:
-            break;
-          default:
-            logger.v('_isAnimated: $_isAnimated, playMode: $songUpdateState');
-            if (_isAnimated || songUpdateState.isPlaying) {
-              return; //  don't follow scrolling when animated or playing
-            }
-            var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-              return e1.index.compareTo(e2.index);
-            })
-              ..addAll(playerItemPositionsListener.itemPositions.value);
-            if (orderedSet.isNotEmpty) {
-              var item = orderedSet.first;
-              _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-              logger.log(
-                  _logPlayerItemPositions,
-                  'playerItemPositionsListener:  length: ${orderedSet.length}'
-                  ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
-              logger.log(
-                  _logPlayerItemPositions,
-                  '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
-                  ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
-            }
-            break;
+        //  followers get to follow even if not playing
+        var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+          return e1.index.compareTo(e2.index);
+        })
+          ..addAll(playerItemPositionsListener.itemPositions.value);
+        if (orderedSet.isNotEmpty) {
+          var item = orderedSet.first;
+          var momentNumber = _lyricsTable.rowToMomentNumber(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+          logger.log(_logPlayerItemPositions, 'itemPositionsListener(): $item, momentNumber: $momentNumber');
+          if (momentNumber != 0 || item.index <= 0) {
+            leaderSongUpdate(momentNumber);
+          }
         }
+
+        // switch (appOptions.userDisplayStyle) {
+        //   case UserDisplayStyle.banner:
+        //     break;
+        //   default:
+        //     logger.v('_isAnimated: $_isAnimated, playMode: $songUpdateState');
+        //     if (_isAnimated || songUpdateState.isPlaying) {
+        //       return; //  don't follow scrolling when animated or playing
+        //     }
+        //     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+        //       return e1.index.compareTo(e2.index);
+        //     })
+        //       ..addAll(playerItemPositionsListener.itemPositions.value);
+        //     if (orderedSet.isNotEmpty) {
+        //       var item = orderedSet.first;
+        //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+        //       logger.log(
+        //           _logPlayerItemPositions,
+        //           'playerItemPositionsListener:  length: ${orderedSet.length}'
+        //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
+        //       logger.log(
+        //           _logPlayerItemPositions,
+        //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
+        //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
+        //     }
+        //     break;
+        // }
         break;
       case SongUpdateState.playing:
+      //  following done by the song update service
         break;
     }
   }
@@ -1317,6 +1333,10 @@ With z or q, the play stops and goes back to the play list top.''',
 
   _itemScrollToRow(int row, {final bool force = false, int? priorIndex}) {
     if (_itemScrollController.isAttached) {
+      if (_isAnimated) {
+        logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
+      }
+
       //  local scroll
       _isAnimated = true;
 
@@ -1330,17 +1350,18 @@ With z or q, the play stops and goes back to the play list top.''',
       double rowTime = secondsPerMeasure; // safety
       if (nextRowMomentNumber > rowMomentNumber) {
         rowTime = ((_song.getSongMoment(nextRowMomentNumber)?.beatNumber ?? 0) -
-                (_song.getSongMoment(rowMomentNumber)?.beatNumber ?? 0)) *
+            (_song.getSongMoment(rowMomentNumber)?.beatNumber ?? 0)) *
             60.0 /
             _song.beatsPerMinute;
       }
       var duration = force
           ? const Duration(milliseconds: 20)
           : row >= (priorIndex ?? 0)
-              ? Duration(milliseconds: (0.4 * rowTime * Duration.millisecondsPerSecond).toInt())
-              : const Duration(milliseconds: 400);
+          ? Duration(milliseconds: (0.4 * rowTime * Duration.millisecondsPerSecond).toInt())
+          : const Duration(milliseconds: 400);
       logger.log(
           _logScrollAnimation, 'scrollTo(): index: $row, duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
+      // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
       _itemScrollController
           .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
           .then((value) {
@@ -2451,7 +2472,6 @@ class _DataReminderState extends State<_DataReminderWidget> {
   @override
   Widget build(BuildContext context) {
     return Consumer<PlayMomentNotifier>(builder: (context, playMomentNotifier, child) {
-      //  wakeup on a play moment change in case the assistant has adjusted itself
       int? bpm = playerSelectedBpm;
       bpm ??= (widget.songIsInPlay ? widget.songMaster.bpm : null);
       bpm ??= _song.beatsPerMinute;

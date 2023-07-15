@@ -211,7 +211,7 @@ class OptionsState extends State<Options> {
                         ),
                       if (kDebugMode)
                         appButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
-                          _appOptions.websocketHost = 'bob.local'; //'bobspi.local';
+                          _appOptions.websocketHost = 'bob'; //'bobspi.local';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
                     ],

@@ -79,7 +79,6 @@ class SongMaster extends ChangeNotifier {
             if (moment != null) {
               momentNumber = moment.momentNumber;
               resetSongStart(time, momentNumber);
-              _momentNumber = momentNumber;
               _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
               logger.log(_songMasterLogAdvance,
                   'skip from index $lyricSectionIndex to $moment in ${moment.lyricSection.index}');
@@ -247,6 +246,10 @@ class SongMaster extends ChangeNotifier {
     logger.i('resetSongStart(): old _songStart: $_songStart, _momentNumber: $_momentNumber');
     _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
     logger.i('resetSongStart(): new _songStart: $_songStart,  momentNumber: $momentNumber');
+    if (_momentNumber != momentNumber) {
+      _momentNumber = momentNumber;
+      notifyListeners();
+    }
   }
 
   /// Play a song in real time
@@ -311,8 +314,8 @@ class SongMaster extends ChangeNotifier {
     }
   }
 
-  repeatSection() {
-    _repeatSection++;
+  repeatSectionIncrement() {
+    _repeatSection = Util.intLimit(_repeatSection + 1, 1, 2); //  limit the number of sections to repeat
   }
 
   void _performDrumParts(double time, int bpm, final DrumParts drumParts) {
@@ -368,6 +371,8 @@ class SongMaster extends ChangeNotifier {
 
   int? get momentNumber => _momentNumber; //  can negative during count in, will be null after the end
   int? _momentNumber;
+
+  int? get lastMomentNumber => _lastMomentNumber; //  can negative during count in, will be null after the end
   int? _lastMomentNumber;
   int? _advancedMomentNumber;
   bool _skipCurrentSection = false;
@@ -386,6 +391,8 @@ class SongMaster extends ChangeNotifier {
   int get bpm => _bpm;
   int _bpm = MusicConstants.minBpm; //  default value only
   int? _newBpm;
+
+  int get repeatSection => _repeatSection;
   int _repeatSection = 0;
   int? _lastSectionIndex;
 

@@ -57,6 +57,7 @@ bool _showCapo = false; //  package level for all classes in the package
 bool _areDrumsMuted = true;
 
 final _playMomentNotifier = PlayMomentNotifier();
+final _songMasterNotifier = SongMasterNotifier();
 final _lyricSectionNotifier = LyricSectionNotifier();
 
 music_key.Key _selectedSongKey = music_key.Key.C;
@@ -240,6 +241,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   void songMasterListener() {
+    _songMasterNotifier.songMaster = _songMaster;
     logger.log(
         _logSongMaster,
         'songMasterListener:  leader: ${songUpdateService.isLeader}  ${DateTime.now()}'
@@ -264,7 +266,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         break;
       case SongUpdateState.playing:
-        //  select the current measure
+      //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
@@ -272,9 +274,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               SongUpdateState.playing, _songMaster.momentNumber!, _song.getSongMoment(_songMaster.momentNumber!));
 
           if (_songMaster.momentNumber! >= 0) {
-            var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber!);
+            var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
             _lyricSectionNotifier.setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
-            _itemScrollToRow(row);
+            _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToRow(_songMaster.lastMomentNumber));
           }
         }
         break;
@@ -499,6 +501,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     return MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: _playMomentNotifier),
+          ChangeNotifierProvider.value(value: _songMasterNotifier),
           ChangeNotifierProvider.value(value: _lyricSectionNotifier),
         ],
         builder: (context, child) {
@@ -587,7 +590,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ),
 
                       //  center marker
-                      if (_centerSelections)
+                      if (_centerSelections && appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
                         Positioned(
                           top: boxCenter,
                           child: Container(
@@ -1113,22 +1116,48 @@ With z or q, the play stops and goes back to the play list top.''',
                           alignment: WrapAlignment.spaceBetween,
                           crossAxisAlignment: WrapCrossAlignment.start,
                           children: [
-                            AppTooltip(
-                              message: 'Stop the song playing.',
-                              child: Container(
-                                padding: const EdgeInsets.only(left: 8, right: 8),
-                                child: appIconWithLabelButton(
-                                  appKeyEnum: AppKeyEnum.playerStop,
-                                  icon: appIcon(
-                                    Icons.stop,
-                                    size: 1.25 * fontSize,
+                            AppWrap(
+                              children: [
+                                AppTooltip(
+                                  message: 'Stop the song playing.',
+                                  child: Container(
+                                    padding: const EdgeInsets.only(left: 8, right: 8),
+                                    child: appIconWithLabelButton(
+                                      appKeyEnum: AppKeyEnum.playerStop,
+                                      icon: appIcon(
+                                        Icons.stop,
+                                        size: 1.25 * fontSize,
+                                      ),
+                                      onPressed: () {
+                                        app.clearMessage();
+                                        performStop();
+                                      },
+                                    ),
                                   ),
-                                  onPressed: () {
-                                    app.clearMessage();
-                                    performStop();
-                                  },
                                 ),
-                              ),
+                                Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
+                                  var style = generateAppTextStyle(
+                                    fontSize: app.screenInfo.fontSize,
+                                    decoration: TextDecoration.none,
+                                    color: Colors.redAccent,
+                                    backgroundColor: const Color(0xffeff4fd), //  blended color
+                                  );
+                                  switch (songMasterNotifier.songMaster?.repeatSection ?? 0) {
+                                    case 1:
+                                      return Text(
+                                        'Repeat this section',
+                                        style: style,
+                                      );
+                                    case 2:
+                                      return Text(
+                                        'Repeat the prior section',
+                                        style: style,
+                                      );
+                                    default:
+                                      return NullWidget();
+                                  }
+                                }),
+                              ],
                             ),
                             _DataReminderWidget(songUpdateState.isPlaying, _songMaster),
                           ]),
@@ -1188,7 +1217,7 @@ With z or q, the play stops and goes back to the play list top.''',
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
         logger.log(_logKeyboard, 'arrowUp');
-        _songMaster.repeatSection();
+        _songMaster.repeatSectionIncrement();
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
         logger.d('arrowRight');
@@ -1342,39 +1371,44 @@ With z or q, the play stops and goes back to the play list top.''',
 
       //  guess a duration based on the song and the row
       var secondsPerMeasure = _song.beatsPerBar * 60.0 / _song.beatsPerMinute;
-      var rowMomentNumber = _lyricsTable.rowToMomentNumber(row);
-      var nextRowMomentNumber = _lyricsTable.rowToMomentNumber(row + 1);
-      if (nextRowMomentNumber == 0) {
-        nextRowMomentNumber = _lyricsTable.rowToMomentNumber(row + 2);
-      }
-      double rowTime = secondsPerMeasure; // safety
-      if (nextRowMomentNumber > rowMomentNumber) {
-        rowTime = ((_song.getSongMoment(nextRowMomentNumber)?.beatNumber ?? 0) -
-            (_song.getSongMoment(rowMomentNumber)?.beatNumber ?? 0)) *
-            60.0 /
-            _song.beatsPerMinute;
-      }
+      // var rowMomentNumber = _lyricsTable.rowToMomentNumber(row);
+      // var nextRowMomentNumber = _lyricsTable.rowToMomentNumber(row + 1);
+      // if (nextRowMomentNumber == 0) {
+      //   nextRowMomentNumber = _lyricsTable.rowToMomentNumber(row + 2);
+      // }
+      double rowTime = secondsPerMeasure;
+      priorIndex ??= _lastRowIndex;
+      // if (row > priorIndex && nextRowMomentNumber > rowMomentNumber) {
+      //   rowTime = ((_song.getSongMoment(nextRowMomentNumber)?.beatNumber ?? 0) -
+      //           (_song.getSongMoment(rowMomentNumber)?.beatNumber ?? 0)) *
+      //       60.0 /
+      //       _song.beatsPerMinute;
+      //   logger.log(
+      //       _logScrollAnimation,
+      //       'scrollTo(): index: $row, rowMomentNumber: $rowMomentNumber to $nextRowMomentNumber: '
+      //           ' rowTime: ${rowTime.toStringAsFixed(3)}');
+      // }
+
       var duration = force
           ? const Duration(milliseconds: 20)
-          : row >= (priorIndex ?? 0)
-          ? Duration(milliseconds: (0.4 * rowTime * Duration.millisecondsPerSecond).toInt())
-          : const Duration(milliseconds: 400);
+          : (row >= priorIndex
+              ? Duration(milliseconds: (0.5 * rowTime * Duration.millisecondsPerSecond).toInt())
+              : const Duration(milliseconds: 400));
       logger.log(
-          _logScrollAnimation, 'scrollTo(): index: $row, duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
+          _logScrollAnimation,
+          'scrollTo(): index: $row, priorIndex: $priorIndex'
+          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
       _itemScrollController
           .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
           .then((value) {
         Future.delayed(duration).then((_) {
           //  fixme: the scrollTo returns prior to the completion of the animation!
+          _lastRowIndex = row;
           _isAnimated = false;
         });
       });
     }
-  }
-
-  _selectMomentByRow(final int row) {
-    _selectMoment(_lyricsTable.rowToMomentNumber(row));
   }
 
   _selectMoment(final int momentNumber) {
@@ -1469,6 +1503,7 @@ With z or q, the play stops and goes back to the play list top.''',
     logger.log(_logMode, 'manualPlay:');
     setState(() {
       songUpdateState = SongUpdateState.playing;
+      _lastRowIndex = -1;
       setSelectedSongMoment(_song.songMoments.first);
 
       if (!songUpdateService.isFollowing) {
@@ -2432,6 +2467,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   bool _isAnimated = false;
+  int _lastRowIndex = 0;
   final playerItemPositionsListener = ItemPositionsListener.create();
 
   // double selectedTargetY = 0;   fixme

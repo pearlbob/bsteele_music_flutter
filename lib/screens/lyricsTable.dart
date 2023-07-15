@@ -123,6 +123,17 @@ class PlayMomentNotifier extends ChangeNotifier {
   PlayMoment? _playMoment;
 }
 
+class SongMasterNotifier extends ChangeNotifier {
+  set songMaster(final SongMaster? songMaster) {
+    //  note: no change optimization due to singleton
+    _songMaster = songMaster;
+    notifyListeners();
+  }
+
+  SongMaster? get songMaster => _songMaster;
+  SongMaster? _songMaster;
+}
+
 class LyricSectionNotifier extends ChangeNotifier {
   setIndexRow(final int lyricSectionIndex, final int row) {
     if (lyricSectionIndex != _lyricSectionIndex || row != _row) {
@@ -1319,8 +1330,12 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
-  int songMomentNumberToRow(final int rowNumber) =>
-      _songMomentNumberToRowMap[rowNumber] ?? 0 /* should never be null */;
+  int songMomentNumberToRow(final int? rowNumber) {
+    if (rowNumber == null) {
+      return 0;
+    }
+    return _songMomentNumberToRowMap[rowNumber] ?? 0 /* should never be null */;
+  }
 
   int rowToLyricSectionIndex(final int row) {
     if (_locationGrid.isEmpty) {

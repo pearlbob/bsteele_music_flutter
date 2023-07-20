@@ -73,7 +73,7 @@ const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
-const Level _logScrollAnimation = Level.debug;
+const Level _logScrollAnimation = Level.info;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 
@@ -1332,7 +1332,7 @@ With z or q, the play stops and goes back to the play list top.''',
         // }
         break;
       case SongUpdateState.playing:
-      //  following done by the song update service
+        //  following done by the song update service
         break;
     }
   }
@@ -1364,6 +1364,10 @@ With z or q, the play stops and goes back to the play list top.''',
     if (_itemScrollController.isAttached) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
+        return;
+      }
+      if ( row == _lastRowIndex) {
+        return; //fixme: why?
       }
 
       //  local scroll
@@ -1396,16 +1400,23 @@ With z or q, the play stops and goes back to the play list top.''',
               : const Duration(milliseconds: 400));
       logger.log(
           _logScrollAnimation,
-          'scrollTo(): index: $row, priorIndex: $priorIndex'
+          'scrollTo(): index: $row, _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
           ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
+
       _itemScrollController
-          .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
+          .scrollTo(index: row, duration: duration,
+           alignment: row > 1? _scrollAlignment : 0
+          //, curve: Curves.linear
+      )
           .then((value) {
-        _lastRowIndex = row;
-        _isAnimated = false;
-        logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
+        // Future.delayed(const Duration(milliseconds: 400)).then((_) {
+          _lastRowIndex = row;
+          _isAnimated = false;
+          logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
+        // });
       });
+
     }
   }
 
@@ -2161,7 +2172,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                           style: boldStyle,
                                           onPressed: () {
                                             setState(
-                                                  () {
+                                              () {
                                                 _isCapo = !_isCapo;
                                                 setSelectedSongKey(_selectedSongKey);
                                                 adjustDisplay();

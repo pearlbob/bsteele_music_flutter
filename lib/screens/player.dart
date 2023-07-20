@@ -266,7 +266,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         break;
       case SongUpdateState.playing:
-      //  select the current measure
+        //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
@@ -1392,7 +1392,7 @@ With z or q, the play stops and goes back to the play list top.''',
       var duration = force
           ? const Duration(milliseconds: 20)
           : (row >= priorIndex
-              ? Duration(milliseconds: (0.5 * rowTime * Duration.millisecondsPerSecond).toInt())
+              ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
               : const Duration(milliseconds: 400));
       logger.log(
           _logScrollAnimation,
@@ -1402,11 +1402,9 @@ With z or q, the play stops and goes back to the play list top.''',
       _itemScrollController
           .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
           .then((value) {
-        Future.delayed(duration).then((_) {
-          //  fixme: the scrollTo returns prior to the completion of the animation!
-          _lastRowIndex = row;
-          _isAnimated = false;
-        });
+        _lastRowIndex = row;
+        _isAnimated = false;
+        logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
       });
     }
   }

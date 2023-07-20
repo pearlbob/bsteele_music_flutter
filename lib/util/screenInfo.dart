@@ -21,7 +21,7 @@ class ScreenInfo {
     _mediaWidth = mediaQueryData.size.width;
     _mediaHeight = mediaQueryData.size.height;
 
-    _fontSize = 2 * appDefaultFontSize * min(2.25, max(1, _mediaWidth / minLogicalPixels));
+    _fontSize = 2 * appDefaultFontSize * min(2.25, max(0.5, _mediaWidth / minLogicalPixels));
     _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
     _isWayTooNarrow = _mediaWidth <= 425;
     _titleScaleFactor = 1.25 * max(1, _mediaWidth / minLogicalPixels);

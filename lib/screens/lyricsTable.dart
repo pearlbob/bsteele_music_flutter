@@ -49,7 +49,7 @@ get it right next time:  repeats in measure column
 */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.debug;
+const Level _logFontSize = Level.info;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
@@ -812,8 +812,9 @@ class LyricsTable {
     logger.log(
         _logFontSize,
         'scaled:'
-        ' _chordFontSize: ${_chordFontSizeUnscaled.toStringAsFixed(2)}'
-        ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
+        ' chordFontSize: ${(_chordFontSizeUnscaled * _scaleFactor).toStringAsFixed(2)}'
+        ', lyricsFontSize: ${(_lyricsFontSizeUnscaled * _scaleFactor).toStringAsFixed(2)}'
+        ', _scaleFactor: $_scaleFactor'
         ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
         ', padding: ${_paddingSize.toStringAsFixed(2)}');
     _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : _defaultMaxLines;
@@ -1375,7 +1376,7 @@ class LyricsTable {
     return 0;
   }
 
-  int lyricSectionIndexToRow(final int number) => _lyricSectionIndexToRowMap[number] ?? 0 /* should never be null */;
+  int lyricSectionIndexToRow(final int index) => _lyricSectionIndexToRowMap[index] ?? 0 /* should never be null */;
 
   _scaleComponents({double scaleFactor = 1.0}) {
     _paddingSize = _paddingSizeMax * scaleFactor;

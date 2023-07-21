@@ -1361,12 +1361,17 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   _itemScrollToRow(int row, {final bool force = false, int? priorIndex}) {
+    logger.i('_itemScrollToRow($row, $force, $priorIndex)');
     if (_itemScrollController.isAttached) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
         return;
       }
+      if (row < 0) {
+        return;
+      }
       if (row == _lastRowIndex) {
+        logger.i('row == _lastRowIndex: $row');
         return; //fixme: why?
       }
 
@@ -1381,6 +1386,7 @@ With z or q, the play stops and goes back to the play list top.''',
           if (row <= 0 && itemPosition.itemLeadingEdge < _scrollAlignment) {
             //  deal with bounce on mac browsers
             //  fixme: may not work on all songs and all mac browsers if the intro is tiny
+            logger.i('row == _lastRowIndex: $row');
             return;
           } else {
             break;
@@ -1421,20 +1427,20 @@ With z or q, the play stops and goes back to the play list top.''',
       var duration = force
           ? const Duration(milliseconds: 20)
           : (row >= priorIndex
-              ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
-              : const Duration(milliseconds: 400));
+          ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
+          : const Duration(milliseconds: 400));
       logger.log(
           _logScrollAnimation,
           'scrollTo(): index: $row, _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
+              ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
       _itemScrollController
           .scrollTo(
-              index: row + 1, // note: seems like scrollable Positioned List wants to count from 1
-              duration: duration,
-              alignment: _scrollAlignment,
-              curve: Curves.decelerate)
+          index: row + 1, // note: seems like scrollable Positioned List wants to count from 1
+          duration: duration,
+          alignment: _scrollAlignment,
+          curve: Curves.decelerate)
           .then((value) {
         // Future.delayed(const Duration(milliseconds: 400)).then((_) {
         _lastRowIndex = row;
@@ -1637,11 +1643,6 @@ With z or q, the play stops and goes back to the play list top.''',
     _displaySongKey = newDisplayKey;
     logger.log(
         _logMusicKey, '_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
-
-    Future.delayed(const Duration(milliseconds: 30)).then((_) {
-      logger.v('after delay: ');
-      scrollToLyricSection(_lyricSectionNotifier.lyricSectionIndex, force: true);
-    });
     forceTableRedisplay();
     //
     // leaderSongUpdate(-1);

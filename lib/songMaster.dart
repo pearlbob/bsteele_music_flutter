@@ -243,12 +243,20 @@ class SongMaster extends ChangeNotifier {
     if (_momentNumber != momentNumber) {
       logger.i('resetSongStart(): which moment?  _momentNumber: $_momentNumber,  momentNumber: $momentNumber');
     }
+    // var beat = _song?.(time, bpm: _bpm);
     logger.i('resetSongStart(): old _songStart: $_songStart, _momentNumber: $_momentNumber');
     _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
     logger.i('resetSongStart(): new _songStart: $_songStart,  momentNumber: $momentNumber');
+    logger.i('resetSongStart(): old _songStart: $_songStart,  momentNumber: $momentNumber');
     if (_momentNumber != momentNumber) {
       _momentNumber = momentNumber;
       notifyListeners();
+    }
+
+    final newSongTime = time - (_songStart ?? 0);
+    var newMomentNumber = _song?.getSongMomentNumberAtSongTime(newSongTime, bpm: _bpm) ?? -1;
+    if (newMomentNumber != momentNumber) {
+      logger.i('newMomentNumber ?= momentNumber: $newMomentNumber != $momentNumber');
     }
   }
 

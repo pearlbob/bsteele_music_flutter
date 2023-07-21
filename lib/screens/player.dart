@@ -73,7 +73,7 @@ const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
-const Level _logScrollAnimation = Level.info;
+const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 
@@ -450,7 +450,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       bpmDropDownMenuList = bpmList;
     }
 
-    boxCenter = boxCenterHeight();
+    boxMarker = boxCenterHeight();
 
     const hoverColor = App.universalAccentColor;
 
@@ -592,7 +592,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //  center marker
                       if (_centerSelections && appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
                         Positioned(
-                          top: boxCenter,
+                          top: boxMarker,
                           child: Container(
                             constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth / 128, 3)),
                             decoration: const BoxDecoration(
@@ -1253,7 +1253,7 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   double boxCenterHeight() {
-    return min(app.screenInfo.mediaHeight, 1080 /*  limit leader area to hdtv size */) * _scrollAlignment * 2;
+    return app.screenInfo.mediaHeight * _scrollAlignment;
   }
 
   _clearCountIn() {
@@ -1366,9 +1366,22 @@ With z or q, the play stops and goes back to the play list top.''',
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
         return;
       }
-      if ( row == _lastRowIndex) {
+      if (row == _lastRowIndex) {
         return; //fixme: why?
       }
+
+      //  limit the scrolling at the start of the play list
+      // SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
+      //   return key1.index.compareTo(key2.index);
+      // })
+      //   ..addAll(playerItemPositionsListener.itemPositions.value);
+      // for (var itemPosition in set) {
+      //   if ( itemPosition.itemLeadingEdge < _scrollAlignment) {
+      //     logger.i('  $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
+      //   } else {
+      //     break;
+      //   }
+      // }
 
       //  local scroll
       _isAnimated = true;
@@ -1405,18 +1418,18 @@ With z or q, the play stops and goes back to the play list top.''',
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
       _itemScrollController
-          .scrollTo(index: row, duration: duration,
-           alignment: row > 1? _scrollAlignment : 0
-          //, curve: Curves.linear
-      )
+          .scrollTo(
+              index: row + 1, // note: seems like scrollable Positioned List wants to count from 1
+              duration: duration,
+              alignment: _scrollAlignment,
+              curve: Curves.decelerate)
           .then((value) {
         // Future.delayed(const Duration(milliseconds: 400)).then((_) {
-          _lastRowIndex = row;
-          _isAnimated = false;
-          logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
+        _lastRowIndex = row;
+        _isAnimated = false;
+        logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
         // });
       });
-
     }
   }
 
@@ -2479,13 +2492,13 @@ With z or q, the play stops and goes back to the play list top.''',
   int _lastRowIndex = 0;
   final playerItemPositionsListener = ItemPositionsListener.create();
 
-  // double selectedTargetY = 0;   fixme
+// double selectedTargetY = 0;   fixme
 
   Size? lastSize;
 
   static const _centerSelections = true;
-  static const _scrollAlignment = 0.15;
-  double boxCenter = 0;
+  static const _scrollAlignment = 0.25;
+  double boxMarker = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   Timer? _idleTimer;

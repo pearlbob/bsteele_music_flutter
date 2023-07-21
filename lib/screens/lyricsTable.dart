@@ -150,7 +150,8 @@ class LyricSectionNotifier extends ChangeNotifier {
   }
 
   int get lyricSectionIndex => _lyricSectionIndex;
-  int _lyricSectionIndex = -30000; //  never expected
+  int _lyricSectionIndex = 0;
+
   int get row => _row;
   int _row = 0;
 
@@ -1377,7 +1378,8 @@ class LyricsTable {
     return 0;
   }
 
-  int lyricSectionIndexToRow(final int index) => _lyricSectionIndexToRowMap[index] ?? 0 /* should never be null */;
+  int lyricSectionIndexToRow(final int index) =>
+      _lyricSectionIndexToRowMap[index] ?? 1 /* can be null prior to song eval */;
 
   _scaleComponents({double scaleFactor = 1.0}) {
     _paddingSize = _paddingSizeMax * scaleFactor;

@@ -1361,7 +1361,7 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   _itemScrollToRow(int row, {final bool force = false, int? priorIndex}) {
-    logger.i('_itemScrollToRow($row, $force, $priorIndex)');
+    logger.i('_itemScrollToRow($row, $force, $priorIndex):');
     if (_itemScrollController.isAttached) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');

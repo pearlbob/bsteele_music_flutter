@@ -1371,17 +1371,29 @@ With z or q, the play stops and goes back to the play list top.''',
       }
 
       //  limit the scrolling at the start of the play list
-      // SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
-      //   return key1.index.compareTo(key2.index);
-      // })
-      //   ..addAll(playerItemPositionsListener.itemPositions.value);
-      // for (var itemPosition in set) {
-      //   if ( itemPosition.itemLeadingEdge < _scrollAlignment) {
-      //     logger.i('  $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
-      //   } else {
-      //     break;
-      //   }
-      // }
+      {
+        SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
+          return key1.index.compareTo(key2.index);
+        })
+          ..addAll(playerItemPositionsListener.itemPositions.value);
+        for (var itemPosition in set) {
+          logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
+          if (row <= 0 && itemPosition.itemLeadingEdge < _scrollAlignment) {
+            //  deal with bounce on mac browsers
+            //  fixme: may not work on all songs and all mac browsers if the intro is tiny
+            return;
+          } else {
+            break;
+          }
+        }
+        logger.i('  last: ${set.last}, row: $row/${_lyricsTable.rowCount}');
+      }
+
+      //  limit the scrolling at the end of the play list
+      if (row >= _lyricsTable.rowCount) {
+        //  assumes the outro is sane with respect to the vertical space below the scroll alignment
+        return;
+      }
 
       //  local scroll
       _isAnimated = true;

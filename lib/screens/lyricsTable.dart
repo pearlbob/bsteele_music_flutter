@@ -1012,6 +1012,7 @@ class LyricsTable {
         var row = _locationGrid.getRow(r);
         assert(row != null);
         row = row!;
+        _rowCount = r;
 
         for (var c = 0; c < row.length; c++) {
           var cell = _locationGrid.get(r, c);
@@ -1411,6 +1412,9 @@ class LyricsTable {
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
 
   double _scaleFactor = 1.0;
+
+  int get rowCount => _rowCount;
+  int _rowCount = 0;
 
   final Map<int, int> _songMomentNumberToRowMap = HashMap();
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();

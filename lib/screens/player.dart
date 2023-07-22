@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:math';
 
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
@@ -49,6 +48,7 @@ Song _song = Song.theEmptySong;
 final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
 const double _padding = 16.0;
+ScrollablePositionedList? _scrollablePositionedList;
 
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0; //  fret number of the cap location
@@ -72,7 +72,7 @@ const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-const Level _logPlayerItemPositions = Level.debug;
+const Level _logPlayerItemPositions = Level.info;
 const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -475,7 +475,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       musicKey: _displaySongKey,
       expanded: !compressRepeats,
     );
-    var scrollablePositionedList = appOptions.userDisplayStyle == UserDisplayStyle.banner
+    _scrollablePositionedList ??= appOptions.userDisplayStyle == UserDisplayStyle.banner
         ? ScrollablePositionedList.builder(
             itemCount: _song.songMoments.length + 1,
             itemScrollController: _itemScrollController,
@@ -1070,7 +1070,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                             }
                                           }
                                         },
-                                        child: scrollablePositionedList)),
+                                        child: _scrollablePositionedList)),
                             ]),
                       ),
                       // ),
@@ -1286,23 +1286,24 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   void itemPositionsListener() {
+    var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+      return e1.index.compareTo(e2.index);
+    })
+      ..addAll(playerItemPositionsListener.itemPositions.value);
+    if (orderedSet.isNotEmpty) {
+      var item = orderedSet.first;
+      var momentNumber = _lyricsTable.rowToMomentNumber(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+      logger.log(_logPlayerItemPositions, 'itemPositionsListener(): $item, momentNumber: $momentNumber');
+      if (momentNumber != 0 || item.index <= 0) {
+        leaderSongUpdate(momentNumber);
+      }
+    }
+
     switch (songUpdateState) {
       case SongUpdateState.idle:
       case SongUpdateState.none:
       case SongUpdateState.pause:
-        //  followers get to follow even if not playing
-        var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-          return e1.index.compareTo(e2.index);
-        })
-          ..addAll(playerItemPositionsListener.itemPositions.value);
-        if (orderedSet.isNotEmpty) {
-          var item = orderedSet.first;
-          var momentNumber = _lyricsTable.rowToMomentNumber(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-          logger.log(_logPlayerItemPositions, 'itemPositionsListener(): $item, momentNumber: $momentNumber');
-          if (momentNumber != 0 || item.index <= 0) {
-            leaderSongUpdate(momentNumber);
-          }
-        }
+        //  followers get to follow even if not in play
 
         // switch (appOptions.userDisplayStyle) {
         //   case UserDisplayStyle.banner:
@@ -1314,25 +1315,25 @@ With z or q, the play stops and goes back to the play list top.''',
         //     }
         //     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
         //       return e1.index.compareTo(e2.index);
-        //     })
-        //       ..addAll(playerItemPositionsListener.itemPositions.value);
-        //     if (orderedSet.isNotEmpty) {
-        //       var item = orderedSet.first;
-        //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-        //       logger.log(
-        //           _logPlayerItemPositions,
-        //           'playerItemPositionsListener:  length: ${orderedSet.length}'
-        //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
-        //       logger.log(
-        //           _logPlayerItemPositions,
-        //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
-        //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
-        //     }
-        //     break;
-        // }
+      //     })
+      //       ..addAll(playerItemPositionsListener.itemPositions.value);
+      //     if (orderedSet.isNotEmpty) {
+      //       var item = orderedSet.first;
+      //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+      //       logger.log(
+      //           _logPlayerItemPositions,
+      //           'playerItemPositionsListener:  length: ${orderedSet.length}'
+      //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
+      //       logger.log(
+      //           _logPlayerItemPositions,
+      //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
+      //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
+      //     }
+      //     break;
+      // }
         break;
       case SongUpdateState.playing:
-        //  following done by the song update service
+      //  following done by the song update service
         break;
     }
   }
@@ -1381,15 +1382,18 @@ With z or q, the play stops and goes back to the play list top.''',
           return key1.index.compareTo(key2.index);
         })
           ..addAll(playerItemPositionsListener.itemPositions.value);
-        for (var itemPosition in set) {
-          logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
-          if (row <= 0 && itemPosition.itemLeadingEdge < _scrollAlignment) {
-            //  deal with bounce on mac browsers
-            //  fixme: may not work on all songs and all mac browsers if the intro is tiny
-            logger.i('row == _lastRowIndex: $row');
-            return;
-          } else {
-            break;
+        if (set.isNotEmpty && set.first.index == 0 && _songMaster.repeatSection == 0) {
+          for (var itemPosition in set) {
+            logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
+            //  don't scroll backwards past the beginning
+            if (row <= itemPosition.index && itemPosition.itemLeadingEdge < _scrollAlignment) {
+              //  deal with bounce on mac browsers
+              //  fixme: may not work on all songs and all mac browsers if the intro is tiny
+              logger.i('row == _lastRowIndex: $row, _songMaster.repeatSection: ${_songMaster.repeatSection}');
+              return;
+            } else {
+              break;
+            }
           }
         }
         logger.i('  last: ${set.last}, row: $row/${_lyricsTable.rowCount}');
@@ -1427,20 +1431,20 @@ With z or q, the play stops and goes back to the play list top.''',
       var duration = force
           ? const Duration(milliseconds: 20)
           : (row >= priorIndex
-          ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
-          : const Duration(milliseconds: 400));
+              ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
+              : const Duration(milliseconds: 400));
       logger.log(
           _logScrollAnimation,
           'scrollTo(): index: $row, _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-              ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
+          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
       _itemScrollController
           .scrollTo(
-          index: row + 1, // note: seems like scrollable Positioned List wants to count from 1
-          duration: duration,
-          alignment: _scrollAlignment,
-          curve: Curves.decelerate)
+              index: row + 1, // note: seems like scrollable Positioned List wants to count from 1
+              duration: duration,
+              alignment: _scrollAlignment,
+              curve: Curves.decelerate)
           .then((value) {
         // Future.delayed(const Duration(milliseconds: 400)).then((_) {
         _lastRowIndex = row;
@@ -1710,10 +1714,10 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   void forceTableRedisplay() {
-    int index = _lyricSectionNotifier.lyricSectionIndex;
     logger.log(_logBuild, '_forceTableRedisplay()');
-    setState(() {});
-    scrollToLyricSection(index, force: true);
+    setState(() {
+      _scrollablePositionedList = null;
+    });
   }
 
   void adjustDisplay() {

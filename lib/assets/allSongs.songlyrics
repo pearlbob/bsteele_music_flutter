@@ -1620,7 +1620,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689575855479, "song": 
+{ "file": "", "lastModifiedDate": 1689575855479, "song": 
 {
 "title": "A Higher Place",
 "artist": "Tom Petty",
@@ -4623,7 +4623,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1688972744862, "song": 
+{ "file": "", "lastModifiedDate": 1688972744862, "song": 
 {
 "title": "All Out of Love",
 "artist": "Air Supply",
@@ -22840,12 +22840,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1658625105442, "song": 
+{ "file": "", "lastModifiedDate": 1690091890408, "song": 
 {
 "title": "Can't You See",
 "artist": "Marshall Tucker Band, The",
 "user": "Shari",
-"lastModifiedDate": 1658625105442,
+"lastModifiedDate": 1690091890408,
 "copyright": "1973 Capricorn",
 "key": "D",
 "defaultBpm": 82,
@@ -22853,15 +22853,15 @@
 "chords": 
     [
 	"I:",
-	"D Dsus2/C G D x6",
+	"D Csus2 G D x6",
 	"I2:",
-	"D Dsus2/C G D x2",
+	"D Csus2 G D x2",
 	"V:",
-	"D Dsus2/C G D x2",
+	"D Csus2 G D x2",
 	"C:",
-	"D Dsus2/C G D x2",
+	"D Csus2 G D x2",
 	"O:",
-	"D Dsus2/C G D x4"
+	"D Csus2 G D x4"
     ],
 "lyrics": 
     [
@@ -24407,15 +24407,15 @@
     ]
 }
 },
-{ "file": "Champagne Supernova.songlyrics", "lastModifiedDate": 1656471563032, "song": 
+{ "file": "Champagne Supernova.songlyrics", "lastModifiedDate": 1690092795198, "song": 
 {
 "title": "Champagne Supernova",
 "artist": "Oasis",
 "user": "Shari",
-"lastModifiedDate": 1656471563032,
+"lastModifiedDate": 1690092795198,
 "copyright": "1995 Creation",
-"key": "C",
-"defaultBpm": 75,
+"key": "A",
+"defaultBpm": 76,
 "timeSignature": "4/4",
 "chords": 
     [
@@ -26502,7 +26502,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1688532374355, "song": 
+{ "file": "", "lastModifiedDate": 1688532374355, "song": 
 {
 "title": "Closer to Free",
 "artist": "BoDeans",
@@ -48426,7 +48426,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689050804028, "song": 
+{ "file": "", "lastModifiedDate": 1689050804028, "song": 
 {
 "title": "Fly Me Away",
 "artist": "Goldfrapp",
@@ -62134,7 +62134,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689578246656, "song": 
+{ "file": "", "lastModifiedDate": 1689578246656, "song": 
 {
 "title": "Higher Love",
 "artist": "Steve Winwood",
@@ -66051,62 +66051,89 @@
     ]
 }
 },
-{ "file": "I Believe in Love (1).songlyrics", "lastModifiedDate": 1559500008679, "song": 
+{ "file": "I Believe in Love (1).songlyrics", "lastModifiedDate": 1690092655405, "song": 
 {
 "title": "I Believe in Love",
-"artist": "Dixie Chicks",
-"user": "Unknown",
-"lastModifiedDate": 1559500008679,
-"copyright": " Martha Maguire / Natalie Maines / Marty Sturart and Universal Music Publishing Group, Kobalt Music Publishing Ltd.",
+"artist": "Chicks, The",
+"user": "Shari",
+"lastModifiedDate": 1690092655405,
+"copyright": "2002 Monument Records",
 "key": "C",
-"defaultBpm": 84,
+"defaultBpm": 76,
 "timeSignature": "4/4",
 "chords": 
     [
-	"V:",
-	"F G C C x4",
-	"V1:",
+	"I2:",
 	"F G C C x2",
-	"C:",
-	"Eb G C C x2",
+	"V:",
+	"F G7 C C x4",
+	"PC1:",
 	"F G C F",
 	"Eb Bb C C",
-	"C2:",
-	"Eb G C C x2",
+	"PC2:",
 	"F G C F",
 	"Eb Bb F F",
-	"Eb Bb C EbG C"
+	"C:",
+	"Eb G C C",
+	"Eb G C C..G",
+	"T:",
+	"EbX BbX C EbG",
+	"C"
     ],
 "lyrics": 
     [
-	"V:I made a promise to myself ",
-	"Locked it away deep down inside ",
-	"Told my heart we'd wait it out ",
-	"Swore we'd never compromise ",
-	"Oh I'd rather be alone ",
-	"Like I am tonight ",
-	"Than settle for the kind of love ",
-	"That fades before the morning light",
 	"V:",
-	"Silence stared me in the face ",
-	"And I finally heard its voice ",
-	"It seemed to softly say ",
-	"That in love you have a choice ",
-	"Today i got the answer ",
-	"And there's a world of truth behind it ",
-	"Love is out there waiting somewhere ",
-	"You just have to go and find it",
-	"Ch:",
-	"I believe in love, I believe in love ",
-	"A love that's real, love that's strong ",
-	"Love that lives on and on ",
-	"Yes I believe in love ",
-	"V1: (Instrumental)",
-	"Ch2: I believe in love, I believe in love ",
-	"A love that's real, love that's strong ",
-	"Love that lives on and on ",
-	"Yes I believe in love ",
-	"Yes I believe in love"
+	"(I made a promise to) myself, locked it away deep down ",
+	"Inside, told my heart we'd ",
+	"Wait it out, swore we'd never ",
+	"Compromise ",
+	"",
+	"V:",
+	"(Oh I'd rather be) alone, like I am ",
+	"Tonight, than settle for the kind of ",
+	"Love, that fades before the morning ",
+	"Light",
+	"",
+	"V:",
+	"(Silence stared me in the) face, and I finally heard its ",
+	"Voice, it seemed to softly ",
+	"Say, that in love you have a ",
+	"Choice ",
+	"",
+	"V:",
+	"(Today I got the) answer, and there's a world of truth ",
+	"Behind it, love is out there ",
+	"Waiting somewhere, you just have to go and ",
+	"Find it",
+	"",
+	"C:",
+	"I believe in ",
+	"Love",
+	"I believe in ",
+	"Love",
+	"",
+	"PC1:",
+	"(A love that's) real, love that's strong, love that ",
+	"Lives on and on, yes ",
+	"I believe in ",
+	"Love ",
+	"",
+	"I2: (Instrumental)",
+	"",
+	"C:",
+	"I believe in ",
+	"Love",
+	"I believe in ",
+	"Love",
+	"",
+	"PC2:",
+	"(A love that's) real, love that's strong, love that ",
+	"Lives on and on, yes ",
+	"I believe in ",
+	"Love",
+	"",
+	"T:",
+	")Yes) I believe in love"
     ]
 }
 },
@@ -78816,7 +78843,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1688533685451, "song": 
+{ "file": "", "lastModifiedDate": 1688533685451, "song": 
 {
 "title": "Jailhouse Rock",
 "artist": "Elvis Presley",
@@ -88622,7 +88649,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689045272606, "song": 
+{ "file": "", "lastModifiedDate": 1689045272606, "song": 
 {
 "title": "Lion Sleeps Tonight, The",
 "artist": "Tokens, The",
@@ -98830,7 +98857,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1688535472555, "song": 
+{ "file": "", "lastModifiedDate": 1688535472555, "song": 
 {
 "title": "Minority",
 "artist": "Green Day",
@@ -101565,7 +101592,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689042378898, "song": 
+{ "file": "", "lastModifiedDate": 1689042378898, "song": 
 {
 "title": "Mr. Sandman",
 "artist": "Chordettes, The",
@@ -122437,7 +122464,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1688537568345, "song": 
+{ "file": "", "lastModifiedDate": 1688537568345, "song": 
 {
 "title": "Rocky Mountain High",
 "artist": "John Denver",
@@ -131301,7 +131328,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689040313821, "song": 
+{ "file": "", "lastModifiedDate": 1689040313821, "song": 
 {
 "title": "Shut Your Eyes",
 "artist": "Snow Patrol",
@@ -156626,7 +156653,7 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1689745242298, "song": 
+{ "file": "", "lastModifiedDate": 1689745242298, "song": 
 {
 "title": "Walking in Memphis",
 "artist": "Marc Cohn",
@@ -157642,6 +157669,117 @@
 	"I just had to let it go",
 	"I just had to let it go",
 	"I just had to... let it go"
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1690091427317, "song": 
+{
+"title": "Waterfall",
+"artist": "Stone Roses, The",
+"user": "Shari",
+"lastModifiedDate": 1690091427317,
+"copyright": "1989 Silvertone",
+"key": "F#",
+"defaultBpm": 104,
+"timeSignature": "2/4",
+"chords": 
+    [
+	"I:",
+	"F# F#sus4 F# F#sus4",
+	"F# F#sus4 F# F#sus4",
+	"I2:",
+	"F# F#sus4 F# F#sus4",
+	"I3:",
+	"F# F#sus4 F# F#sus4",
+	"F# F#sus4 F# F#sus4",
+	"B B F# F#",
+	"V:",
+	"F# F#sus4 F# F#sus4",
+	"F# F#sus4 F# F#sus4",
+	"B F#/A# G#m7 G#m7",
+	"B F#/A# C#7 C#7sus4",
+	"C:",
+	"E E/D# C#7sus2 C#7sus4X",
+	"F# F#sus4 F# F#sus4",
+	"E E/D# C#7sus2 C#7sus4X",
+	"F# F#sus4 F# F#sus4",
+	"Br:",
+	"G#m G#m B B",
+	"G#m G#m B C#",
+	"O:",
+	"F# F# F# F# x12"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental build)",
+	"",
+	"V:",
+	"Chimes sing Sunday morn",
+	"Today's the day she's sworn",
+	"To steal what she never could own, and",
+	"Race from this hole she calls home",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Now you're at the wheel, tell me",
+	"How, how does it feel?",
+	"So good to have equalized, to",
+	"Lift up the lids of your eyes",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V:",
+	"(As the) miles, they disappear, see",
+	"Land begin to clear",
+	"Free from the filth and the scum, this",
+	"American satellites won",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"C:",
+	"She'll carry on through it all, she's a",
+	"Waterfall",
+	"She'll carry on through it all, she's a",
+	"Waterfall",
+	"",
+	"V:",
+	"See the steeple pine",
+	"The hills as old as time",
+	"Soon to be put to the test, to be",
+	"Whipped by the winds of the west",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V:",
+	"Stands on shifting sands",
+	"The scales held in her hands",
+	"The wind it just whips her and wails, and",
+	"Fills up her brigantine sails",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"C:",
+	"She'll carry on through it all, she's a",
+	"Waterfall",
+	"She'll carry on through it all, she's a",
+	"Waterfall",
+	"",
+	"BR:",
+	"(instrumental)",
+	"",
+	"I3:",
+	"(instrumental)",
+	"",
+	"O:",
+	"(instrumental)",
+	""
     ]
 }
 },
@@ -161027,6 +161165,70 @@
 	"When love comes to town I'm gonna catch that flame",
 	"Maybe I was wrong to ever let you down",
 	"But I did what I did before love came to town"
+    ]
+}
+},
+{ "file": "", "lastModifiedDate": 1690089669118, "song": 
+{
+"title": "When My Morning Comes Around",
+"artist": "Iris DeMent",
+"user": "Paul Kub",
+"lastModifiedDate": 1690089669118,
+"copyright": "1996 Warner",
+"key": "Bb",
+"defaultBpm": 108,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"Bb Dm Eb Eb",
+	"BbBb/A Gm Cm F",
+	"Bb Dm Eb Eb",
+	"BbBb/A Gm CmF Bb Bbsus4",
+	"I2:",
+	"Bb Dm Eb Eb",
+	"BbBb/A Gm CmF Bb Bbsus4",
+	"V:",
+	"Bb Dm Eb Eb",
+	"BbBb/A Gm Cm F",
+	"Bb Dm Eb Eb",
+	"BbBb/A Gm CmF Bb Bbsus4",
+	"O:",
+	"Bb Dm Eb F x5",
+	"Bb"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V: ",
+	"When my morning comes around, no one else will be there",
+	"So I won't have to worry about what I'm supposed to say",
+	"And I alone will know that I've climbed the great big mountain",
+	"And that's all that will matter when my morning comes around",
+	"",
+	"V:",
+	"When my morning comes around, I will look back on this valley",
+	"At these sidewalks and alleys where I've lingered so long",
+	"And this place where I now live, it'll burn to ash and cinder",
+	"Like some ghost, I won't remember when my morning comes around",
+	"",
+	"I2:",
+	"(instrumental)",
+	"",
+	"V:",
+	"When my morning comes around, from a new cup I'll be drinking",
+	"And for once I won't be thinking that there's something wrong with me",
+	"And I'll wake up and find that my faults have been forgiven",
+	"And that's when I'll start living, when my morning comes around",
+	"",
+	"O:",
+	"When my morning comes around",
+	"When my morning comes around",
+	"When my morning comes around",
+	"I know my morning will come around",
+	"I know my morning will come around"
     ]
 }
 },
@@ -168958,6 +169160,79 @@
 	"",
 	"C:",
 	"You really got me, you really got me, you really got me ",
+	"",
+	"O:"
+    ]
+}
+},
+{ "file": null, "lastModifiedDate": 1690093578066, "song": 
+{
+"title": "You Ruin Me",
+"artist": "Veronicas, The",
+"user": "Shari",
+"lastModifiedDate": 1690093578066,
+"copyright": "2014 Sony Musique",
+"key": "F",
+"defaultBpm": 93,
+"timeSignature": "4/4",
+"chords": 
+    [
+	"I:",
+	"F F",
+	"V:",
+	"F F Dm Dm",
+	"Gm Gm C",
+	"F F Dm Dm",
+	"Gm Gm C",
+	"C:",
+	"F F Dm Dm",
+	"Gm Gm C Bb",
+	"F F Dm Dm",
+	"Gm Gm C Bb",
+	"Br:",
+	"Dm Bb F C",
+	"Dm Bb Gm C",
+	"O:",
+	"F"
+    ],
+"lyrics": 
+    [
+	"I:",
+	"(instrumental)",
+	"",
+	"V:",
+	"...Job well done, standing ovation, yeah you ",
+	"Got what you wanted, I guess you won",
+	"...And I don't want to hear, they don't know you like I do, even ",
+	"I could've told you, but now we're done",
+	"",
+	"C:",
+	"'(Cause) you, play me like a symphony, play me till your fingers ",
+	"Bleed, I'm your greatest masterpiece, you ruin me",
+	"...Later when the curtains drawn, and no one's there for you back ",
+	"Home, don't cry to me you played me wrong, you ruin me",
+	"",
+	"V:",
+	"...I know you thought that I wouldn't notice, you were ",
+	"Acting so strange, I'm no that dumb",
+	"...And in the end I hope she was worth it, I don't ",
+	"Care if you loved me, you make me numb",
+	"",
+	"C:",
+	"'(Cause) you, play me like a symphony, play me till your fingers ",
+	"Bleed, I'm your greatest masterpiece, you ruin me",
+	"...Later when the curtains drawn, and no one's there for you back ",
+	"Home, don't cry to me you played me wrong, you ruin me",
+	"",
+	"BR:",
+	"We're that song you wouldn't sing",
+	"Just a broken melody, you're killing me",
+	"",
+	"C:",
+	"You, play me like a symphony, play me till your fingers ",
+	"Bleed, I'm your greatest masterpiece, you ruin me",
+	"...And later when the curtains drawn, and no one's there for you back ",
+	"Home, don't cry to me you played me wrong, you ruin me",
 	"",
 	"O:"
     ]

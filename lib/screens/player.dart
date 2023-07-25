@@ -1377,27 +1377,27 @@ With z or q, the play stops and goes back to the play list top.''',
       }
 
       //  limit the scrolling at the start of the play list
-      {
-        SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
-          return key1.index.compareTo(key2.index);
-        })
-          ..addAll(playerItemPositionsListener.itemPositions.value);
-        if (set.isNotEmpty && set.first.index == 0 && _songMaster.repeatSection == 0) {
-          for (var itemPosition in set) {
-            logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
-            //  don't scroll backwards past the beginning
-            if (row <= itemPosition.index && itemPosition.itemLeadingEdge < _scrollAlignment) {
-              //  deal with bounce on mac browsers
-              //  fixme: may not work on all songs and all mac browsers if the intro is tiny
-              logger.i('row == _lastRowIndex: $row, _songMaster.repeatSection: ${_songMaster.repeatSection}');
-              return;
-            } else {
-              break;
-            }
-          }
-        }
-        logger.i('  last: ${set.last}, row: $row/${_lyricsTable.rowCount}');
-      }
+      // {
+      //   SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
+      //     return key1.index.compareTo(key2.index);
+      //   })
+      //     ..addAll(playerItemPositionsListener.itemPositions.value);
+      //   if (set.isNotEmpty && set.first.index == 0 && _songMaster.repeatSection == 0) {
+      //     for (var itemPosition in set) {
+      //       logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
+      //       //  don't scroll backwards past the beginning
+      //       if (row <= itemPosition.index && itemPosition.itemLeadingEdge < _scrollAlignment) {
+      //         //  deal with bounce on mac browsers
+      //         //  fixme: may not work on all songs and all mac browsers if the intro is tiny
+      //         logger.i('row == _lastRowIndex: $row, _songMaster.repeatSection: ${_songMaster.repeatSection}');
+      //         return;
+      //       } else {
+      //         break;
+      //       }
+      //     }
+      //   }
+      //   logger.i('  end: ${set.last}, row: $row/${_lyricsTable.rowCount}');
+      // }
 
       //  limit the scrolling at the end of the play list
       if (row >= _lyricsTable.rowCount) {
@@ -1441,7 +1441,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
       _itemScrollController
           .scrollTo(
-              index: row + 1, // note: seems like scrollable Positioned List wants to count from 1
+          index: row > 0 ? row + 1 : 0, // note: seems like scrollable Positioned List wants to count from 1
               duration: duration,
               alignment: _scrollAlignment,
               curve: Curves.decelerate)

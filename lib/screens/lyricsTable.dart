@@ -898,6 +898,7 @@ class LyricsTable {
         }
         break;
 
+      //  other user display styles
       default:
         {
           List<Widget> sectionChildren = [];
@@ -909,6 +910,7 @@ class LyricsTable {
 
             sectionChildren.add(AppSpace(
               horizontalSpace: arrowIndicatorWidth * _scaleFactor,
+              verticalSpace: r == 0 ? initialVerticalOffset : 0,
             ));
 
             LyricSection? lyricSection = lastLyricSection;
@@ -1408,6 +1410,7 @@ class LyricsTable {
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
+  static const double initialVerticalOffset = 105;
 
   Color _sectionBackgroundColor = Colors.white;
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();

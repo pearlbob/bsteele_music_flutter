@@ -72,7 +72,7 @@ const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-const Level _logPlayerItemPositions = Level.info;
+const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -602,6 +602,44 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         ),
                       //  player screen
                       Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            textDirection: TextDirection.ltr,
+                            children: <Widget>[
+                              //  song chords and lyrics
+                              if (lyricsTableItems.isNotEmpty) //  ScrollablePositionedList messes up otherwise
+                                Expanded(
+                                    child: GestureDetector(
+                                        onTapDown: (details) {
+                                          //  respond to taps above and below the middle of the screen
+                                          if ((appOptions.tapToAdvance == TapToAdvance.upOrDown) &&
+                                              songUpdateState != SongUpdateState.playing &&
+                                              appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
+                                            if (songUpdateState != SongUpdateState.playing) {
+                                              //  start manual play
+                                              scrollToLyricSection(0); //  always start manual play from the beginning
+                                              setState(() {
+                                                performPlay();
+                                              });
+                                            } else if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
+                                              //  don't respond above the player song table
+                                              var offset = _tableGlobalOffset();
+                                              if (details.globalPosition.dy > offset.dy) {
+                                                if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
+                                                  bpmBump(1); //  fixme: when not in play
+                                                } else {
+                                                  bpmBump(-1); //  fixme: when not in play
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        child: _scrollablePositionedList)),
+                            ]),
+                      ),
+                      Padding(
                         padding: const EdgeInsets.all(6.0),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -1042,37 +1080,9 @@ With z or q, the play stops and goes back to the play list top.''',
                                 ]),
                               // const AppSpace(),
                               // _countInWidget,
-                              //  song chords and lyrics
-                              if (lyricsTableItems.isNotEmpty) //  ScrollablePositionedList messes up otherwise
-                                Expanded(
-                                    child: GestureDetector(
-                                        onTapDown: (details) {
-                                          //  respond to taps above and below the middle of the screen
-                                          if ((appOptions.tapToAdvance == TapToAdvance.upOrDown) &&
-                                              songUpdateState != SongUpdateState.playing &&
-                                              appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
-                                            if (songUpdateState != SongUpdateState.playing) {
-                                              //  start manual play
-                                              scrollToLyricSection(0); //  always start manual play from the beginning
-                                              setState(() {
-                                                performPlay();
-                                              });
-                                            } else if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                                              //  don't respond above the player song table
-                                              var offset = _tableGlobalOffset();
-                                              if (details.globalPosition.dy > offset.dy) {
-                                                if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
-                                                  bpmBump(1); //  fixme: when not in play
-                                                } else {
-                                                  bpmBump(-1); //  fixme: when not in play
-                                                }
-                                              }
-                                            }
-                                          }
-                                        },
-                                        child: _scrollablePositionedList)),
                             ]),
                       ),
+
                       // ),
                     ],
                   ),
@@ -1110,7 +1120,7 @@ With z or q, the play stops and goes back to the play list top.''',
                   Column(
                     children: [
                       AppSpace(
-                        verticalSpace: appWidgetHelper.toolbarHeight + 8,
+                        verticalSpace: appWidgetHelper.toolbarHeight,
                       ),
                       AppWrapFullWidth(
                           alignment: WrapAlignment.spaceBetween,
@@ -1121,7 +1131,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                 AppTooltip(
                                   message: 'Stop the song playing.',
                                   child: Container(
-                                    padding: const EdgeInsets.only(left: 8, right: 8),
+                                    padding: const EdgeInsets.only(left: 16, right: 8, top: 8),
                                     child: appIconWithLabelButton(
                                       appKeyEnum: AppKeyEnum.playerStop,
                                       icon: appIcon(
@@ -1315,25 +1325,25 @@ With z or q, the play stops and goes back to the play list top.''',
         //     }
         //     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
         //       return e1.index.compareTo(e2.index);
-      //     })
-      //       ..addAll(playerItemPositionsListener.itemPositions.value);
-      //     if (orderedSet.isNotEmpty) {
-      //       var item = orderedSet.first;
-      //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-      //       logger.log(
-      //           _logPlayerItemPositions,
-      //           'playerItemPositionsListener:  length: ${orderedSet.length}'
-      //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
-      //       logger.log(
-      //           _logPlayerItemPositions,
-      //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
-      //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
-      //     }
-      //     break;
-      // }
+        //     })
+        //       ..addAll(playerItemPositionsListener.itemPositions.value);
+        //     if (orderedSet.isNotEmpty) {
+        //       var item = orderedSet.first;
+        //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+        //       logger.log(
+        //           _logPlayerItemPositions,
+        //           'playerItemPositionsListener:  length: ${orderedSet.length}'
+        //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
+        //       logger.log(
+        //           _logPlayerItemPositions,
+        //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
+        //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
+        //     }
+        //     break;
+        // }
         break;
       case SongUpdateState.playing:
-      //  following done by the song update service
+        //  following done by the song update service
         break;
     }
   }
@@ -1362,7 +1372,7 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   _itemScrollToRow(int row, {final bool force = false, int? priorIndex}) {
-    logger.i('_itemScrollToRow($row, $force, $priorIndex):');
+    //logger.i('_itemScrollToRow($row, $force, $priorIndex):');
     if (_itemScrollController.isAttached) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
@@ -1372,32 +1382,34 @@ With z or q, the play stops and goes back to the play list top.''',
         return;
       }
       if (row == _lastRowIndex) {
-        logger.i('row == _lastRowIndex: $row');
+        //logger.i('row == _lastRowIndex: $row');
         return; //fixme: why?
       }
 
       //  limit the scrolling at the start of the play list
-      // {
-      //   SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
-      //     return key1.index.compareTo(key2.index);
-      //   })
-      //     ..addAll(playerItemPositionsListener.itemPositions.value);
-      //   if (set.isNotEmpty && set.first.index == 0 && _songMaster.repeatSection == 0) {
-      //     for (var itemPosition in set) {
-      //       logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
-      //       //  don't scroll backwards past the beginning
-      //       if (row <= itemPosition.index && itemPosition.itemLeadingEdge < _scrollAlignment) {
-      //         //  deal with bounce on mac browsers
-      //         //  fixme: may not work on all songs and all mac browsers if the intro is tiny
-      //         logger.i('row == _lastRowIndex: $row, _songMaster.repeatSection: ${_songMaster.repeatSection}');
-      //         return;
-      //       } else {
-      //         break;
+      // var alignment =   _scrollAlignment;
+      //   {
+      //     SplayTreeSet<ItemPosition> set = SplayTreeSet<ItemPosition>((key1, key2) {
+      //       return key1.index.compareTo(key2.index);
+      //     })
+      //       ..addAll(playerItemPositionsListener.itemPositions.value);
+      //     if (set.isNotEmpty && set.first.index == 0 && _songMaster.repeatSection == 0) {
+      //       for (var itemPosition in set) {
+      //         logger.i('  $row: $itemPosition < $_scrollAlignment, boxCenter: $boxMarker');
+      //         //  don't scroll backwards past the beginning
+      //         if (row == itemPosition.index && itemPosition.itemLeadingEdge < _scrollAlignment) {
+      //           //  deal with bounce on mac browsers
+      //           //  fixme: may not work on all songs and all mac browsers if the intro is tiny
+      //           logger.i('row == _lastRowIndex: $row, _songMaster.repeatSection: ${_songMaster.repeatSection}');
+      //           alignment = itemPosition.itemLeadingEdge;
+      //         }
+      //         if ( itemPosition.itemLeadingEdge > _scrollAlignment){
+      //           break;
+      //         }
       //       }
       //     }
+      //     logger.i('  end: ${set.last}, row: $row/${_lyricsTable.rowCount}');
       //   }
-      //   logger.i('  end: ${set.last}, row: $row/${_lyricsTable.rowCount}');
-      // }
 
       //  limit the scrolling at the end of the play list
       if (row >= _lyricsTable.rowCount) {
@@ -1440,11 +1452,7 @@ With z or q, the play stops and goes back to the play list top.''',
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
       _itemScrollController
-          .scrollTo(
-          index: row > 0 ? row + 1 : 0, // note: seems like scrollable Positioned List wants to count from 1
-              duration: duration,
-              alignment: _scrollAlignment,
-              curve: Curves.decelerate)
+          .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.decelerate)
           .then((value) {
         // Future.delayed(const Duration(milliseconds: 400)).then((_) {
         _lastRowIndex = row;
@@ -2514,7 +2522,7 @@ With z or q, the play stops and goes back to the play list top.''',
   Size? lastSize;
 
   static const _centerSelections = true;
-  static const _scrollAlignment = 0.25;
+  static const _scrollAlignment = 0.15;
   double boxMarker = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 

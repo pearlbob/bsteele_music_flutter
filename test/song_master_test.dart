@@ -8,6 +8,8 @@
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
+import 'package:bsteele_music_lib/songs/key.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
 
@@ -45,6 +47,43 @@ void main() async {
     for (; t < 6; t += step) {
       logger.i('t: ${t.toStringAsFixed(3)} = ${(t / bar).toStringAsFixed(3)} bars');
       scheduler.tick(t);
+    }
+  });
+
+  test('test bpm changes', () {
+    logger.i('test bpm changes');
+
+    int beatsPerBar = 4;
+    int bpm = 106;
+
+    var song = Song(
+        title: 'A song',
+        artist: 'bob',
+        copyright: 'bsteele.com',
+        key: Key.C,
+        beatsPerMinute: bpm,
+        beatsPerBar: beatsPerBar,
+        unitsPerMeasure: 4,
+        user: 'pearl bob',
+        chords:
+            'I: V: [Am Am/G Am/F# FE ] x8  I2: [Am Am/G Am/F# FE ] x4  C: F F C C, G G F F x12  O: Dm C B Bb x4, A  ',
+        rawLyrics: 'i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro');
+
+    double time = 10000;
+    double songStart = 0;
+
+    logger.i('song: moments: ${song.songMoments.length}');
+    for (var songMoment in song.songMoments) {
+      logger.i('$songMoment   ${songMoment.chordSectionLocation}'
+          ', t: ${song.getSongTimeAtMoment(songMoment.momentNumber, beatsPerMinute: bpm)}');
+      for (var b in [bpm - 4, bpm, bpm + 4]) {
+        var momentNumber = songMoment.momentNumber;
+        logger.i('   $b: ${song.getSongTimeAtMoment(momentNumber, beatsPerMinute: b).toStringAsFixed(6)}');
+        var oldSongStart = songStart;
+        songStart = time - song.getSongTimeAtMoment(momentNumber, beatsPerMinute: b);
+        logger.i('        resetSongStart(): new songStart: $songStart,  momentNumber: $momentNumber'
+            ', ${songStart - oldSongStart}');
+      }
     }
   });
 }

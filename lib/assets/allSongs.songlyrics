@@ -403,12 +403,12 @@
     ]
 }
 },
-{ "file": "25 or 6 to 4 (3).songlyrics", "lastModifiedDate": 1656830709475, "song": 
+{ "file": "25 or 6 to 4 (3).songlyrics", "lastModifiedDate": 1690342460899, "song": 
 {
 "title": "25 or 6 to 4",
 "artist": "Chicago",
 "user": "Shari",
-"lastModifiedDate": 1656830709475,
+"lastModifiedDate": 1690342460899,
 "copyright": "1969 Columbia, written by Robert Lamm",
 "key": "C",
 "defaultBpm": 147,
@@ -416,11 +416,11 @@
 "chords": 
     [
 	"I:",
-	"Am C/G F#m7b5 FE x4",
+	"Am C/G D9/F# Fmaj7E x4",
 	"I2:",
-	"Am C/G F#m7b5 FE x2",
+	"Am C/G D9/F# Fmaj7E x2",
 	"V:",
-	"Am C/G F#m7b5 FE x4",
+	"Am C/G D9/F# Fmaj7E x4",
 	"C:",
 	"F F C C",
 	"G G F F",
@@ -16564,12 +16564,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1676876811174, "song": 
+{ "file": "", "lastModifiedDate": 1690325610796, "song": 
 {
 "title": "Boogie Shoes",
 "artist": "KC & The Sunshine Band",
 "user": "Shari",
-"lastModifiedDate": 1676876811174,
+"lastModifiedDate": 1690325610796,
 "copyright": "1975 TK Records",
 "key": "B",
 "defaultBpm": 120,
@@ -16577,18 +16577,18 @@
 "chords": 
     [
 	"I:",
-	"BB7 BB7 BB7 BB7",
+	"BB6 BB6 BB6 BB6",
 	"I2:",
-	"BB7 BB7 BB7 BB7",
-	"EE7 EE7 EE7 EE7",
+	"BB6 BB6 BB6 BB6",
+	"EE6 EE6 BB6 BB6",
 	"V:",
-	"BB7 BB7 BB7 BB7",
-	"EE7 EE7 EE7 EE7",
+	"BB6 BB6 BB6 BB6",
+	"EE6 EE6 BB6 BB6",
 	"C:",
-	"F#7 E7 BB7 BB7",
-	"F#7 E7 BB7 BB7",
+	"F# E6 BB6 BB6",
+	"F# E6 BB6 BB6",
 	"T:",
-	"F#7 E7 BB7 BXBX"
+	"F# E7 BB6 BXBX"
     ],
 "lyrics": 
     [
@@ -50594,12 +50594,12 @@
     ]
 }
 },
-{ "file": "Friday I'm in Love.songlyrics", "lastModifiedDate": 1589943559827, "song": 
+{ "file": "Friday I'm in Love.songlyrics", "lastModifiedDate": 1690344848960, "song": 
 {
 "title": "Friday I'm in Love",
 "artist": "Cure, The",
 "user": "Shari",
-"lastModifiedDate": 1589943559827,
+"lastModifiedDate": 1690344848960,
 "copyright": "1992 Fiction Records",
 "key": "Eb",
 "defaultBpm": 136,
@@ -50609,14 +50609,17 @@
 	"I:",
 	"Eb Ab Eb Bb |",
 	"Cm Ab Eb Bb | x2",
+	"I2:",
+	"Eb Ab Eb Bb",
+	"Cm Ab Eb Bb",
 	"V:",
-	"Eb Ab Eb Bb |",
-	"Cm Ab Eb Bb | x2",
+	"Eb Ab Eb Bb",
+	"Cm Ab Eb Bb",
 	"C:",
 	"Ab Bb Cm Ab",
 	"Eb Bb",
 	"Br:",
-	"Cm Db Eb Bb x4",
+	"Cm Dbadd9 Eb Bb x4",
 	"O:",
 	"Eb Ab Eb Bb |",
 	"Cm Ab Eb Bb | x2"
@@ -50629,6 +50632,8 @@
 	"v:",
 	"I don't care if Monday's blue, Tuesday's grey and Wednesday too",
 	"Thursday I don't care about you, it's Friday I'm in love",
+	"",
+	"V:",
 	"Monday you can fall apart, Tuesday, Wednesday break my heart",
 	"Thursday doesn't even start, it's Friday I'm in love",
 	"",
@@ -50639,29 +50644,29 @@
 	"v:",
 	"I don't care if Monday's black, Tuesday, Wednesday heart attack",
 	"Thursday never looking back, it's Friday I'm in love",
-	"Monday you can hold your head, Tuesday, Wednesday stay in bed",
-	"Or Thursday watch the walls instead, it's Friday I'm in love",
 	"",
-	"i:",
-	"(instrumental)",
+	"i2:",
+	"(instrumental solo)",
 	"",
 	"V:",
-	"Monday you can hold your head, Tuesday, Wednesday, stay in bed",
-	"Or Thursday watch the walls instead, it's Friday, I'm in love",
+	"Monday you can hold your head, Tuesday, Wednesday stay in bed",
+	"Or Thursday watch the walls instead, it's Friday I'm in love",
 	"",
 	"c:",
 	"Saturday wait, and Sunday always comes too late",
 	"But Friday never hesitate",
 	"",
 	"br:",
-	"Dressed up to the eyes, i's a wonderful surprise, to see your shoes and your spirits rise",
-	"Throwing out your frown, and just smiling at the sound, as sleek as a shriek spinning round and round",
+	"Dressed up to the eyes, it's a wonderful surprise, to see your shoes and your spirits rise",
+	"Throwing out your frown, and just smiling at the sound, as sleek as a sheikh spinning round and round",
 	"Always take a big bite, it's such a gorgeous sight, to see you eat in the middle of the night",
 	"You can never get enough, enough of this stuff, it's Friday I'm in love",
 	"",
 	"v:",
 	"I don't care if Monday's blue, Tuesday's grey and Wednesday too",
 	"Thursday I don't care about you, it's Friday I'm in love",
+	"",
+	"V:",
 	"Monday you can fall apart, Tuesday, Wednesday break my heart",
 	"Thursday doesn't even start, it's Friday I'm in love",
 	"",
@@ -132596,12 +132601,12 @@
     ]
 }
 },
-{ "file": "", "lastModifiedDate": 1664594565285, "song": 
+{ "file": "", "lastModifiedDate": 1690342583783, "song": 
 {
 "title": "Sister Golden Hair",
 "artist": "America",
 "user": "Shari",
-"lastModifiedDate": 1664594565285,
+"lastModifiedDate": 1690342583783,
 "copyright": "1975 Warner Bros",
 "key": "E",
 "defaultBpm": 132,
@@ -132634,7 +132639,6 @@
 	"  Set my sights on Monday and I got myself undressed, I ain't",
 	"  Ready for the altar, but I do agree there's times when a",
 	"  Woman sure can be a friend of mine",
-	"",
 	" ",
 	"V: (Well I) keep on thinking 'bout you, Sister Golden Hair surprise, and I ",
 	"  Just can't live without you, can't you see it in my eyes? I been",
@@ -169165,12 +169169,12 @@
     ]
 }
 },
-{ "file": null, "lastModifiedDate": 1690093578066, "song": 
+{ "file": null, "lastModifiedDate": 1690178738289, "song": 
 {
 "title": "You Ruin Me",
 "artist": "Veronicas, The",
 "user": "Shari",
-"lastModifiedDate": 1690093578066,
+"lastModifiedDate": 1690178738289,
 "copyright": "2014 Sony Musique",
 "key": "F",
 "defaultBpm": 93,
@@ -169214,7 +169218,7 @@
 	"",
 	"V:",
 	"...I know you thought that I wouldn't notice, you were ",
-	"Acting so strange, I'm no that dumb",
+	"Acting so strange, I'm not that dumb",
 	"...And in the end I hope she was worth it, I don't ",
 	"Care if you loved me, you make me numb",
 	"",

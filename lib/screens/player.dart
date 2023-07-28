@@ -659,15 +659,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                             message: songUpdateService.isFollowing
                                                 ? 'Cannot play if following' //fixme:  ${songUpdateService.leaderName}
                                                 : '''
-Click the button for play.
+Click the button for play. You may not see immediate song motion.
 Space bar or clicking the song area starts play as well.
-Selected section is in the top of the display with a red indicator.
-Another space bar or song area hit below the middle advances one section.
-Down arrow also advances one section.
-Up arrow backs up one section.
+Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
 Right arrow speeds up the BPM.
 Left arrow slows the BPM.
-Scrolling with the mouse wheel selects individual rows.
+Down arrow also advances one section.
+Up arrow backs up to play the current section when the section finished.
+Double up arrow finishes the current section and backs up to the prior section for solos.
 Enter ends the "play" mode.
 With z or q, the play stops and goes back to the play list top.''',
                                             child: Container(
@@ -1798,9 +1797,12 @@ With z or q, the play stops and goes back to the play list top.''',
                             crossAxisAlignment: WrapCrossAlignment.center,
                             spacing: viewportWidth(0.5),
                             children: [
-                              Text(
-                                'Display style: ',
-                                style: boldStyle,
+                              AppTooltip(
+                                message: 'Select the display style for the song.',
+                                child: Text(
+                                  'Display style: ',
+                                  style: boldStyle,
+                                ),
                               ),
                               //  pro player
                               AppWrap(children: [
@@ -1964,9 +1966,12 @@ With z or q, the play stops and goes back to the play list top.''',
                             crossAxisAlignment: WrapCrossAlignment.center,
                             spacing: viewportWidth(0.5),
                             children: [
-                              Text(
-                                'Scroll style: ',
-                                style: boldStyle,
+                              AppTooltip(
+                                message: 'Select the highlight style while scrolling in play.',
+                                child: Text(
+                                  'Scroll style: ',
+                                  style: boldStyle,
+                                ),
                               ),
                               //  off
                               AppWrap(children: [
@@ -2013,7 +2018,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                   },
                                 ),
                                 AppTooltip(
-                                  message: 'Highlight the row.',
+                                  message: 'Highlight the current row.',
                                   child: appTextButton(
                                     'Row',
                                     appKeyEnum: AppKeyEnum.optionsPlayerScrollHighlightChordRow,
@@ -2043,7 +2048,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                   },
                                 ),
                                 AppTooltip(
-                                  message: 'Highlight the measure.',
+                                  message: 'Highlight the current measure.',
                                   child: appTextButton(
                                     'Measure',
                                     appKeyEnum: AppKeyEnum.optionsPlayerScrollHighlightMeasure,
@@ -2063,17 +2068,20 @@ With z or q, the play stops and goes back to the play list top.''',
                             crossAxisAlignment: WrapCrossAlignment.center,
                             spacing: viewportWidth(0.5),
                             children: [
-                              appTextButton(
-                                'Repeats:',
-                                appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
-                                value: appOptions.compressRepeats,
-                                onPressed: () {
-                                  setState(() {
-                                    compressRepeats = !compressRepeats;
-                                    adjustDisplay();
-                                  });
-                                },
-                                style: boldStyle,
+                              AppTooltip(
+                                message: 'Select how the repeats are displayed in the song.',
+                                child: appTextButton(
+                                  'Repeats:',
+                                  appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
+                                  value: appOptions.compressRepeats,
+                                  onPressed: () {
+                                    setState(() {
+                                      compressRepeats = !compressRepeats;
+                                      adjustDisplay();
+                                    });
+                                  },
+                                  style: boldStyle,
+                                ),
                               ),
                               AppWrap(children: [
                                 Radio<bool>(
@@ -2138,7 +2146,7 @@ With z or q, the play stops and goes back to the play list top.''',
                                 alignment: WrapAlignment.start,
                                 children: [
                                   AppTooltip(
-                                    message: 'Show Nashville notation.',
+                                    message: 'Select how the Nashville notation is shown.',
                                     child: Text(
                                       'Nashville: ',
                                       style: boldStyle,
@@ -2356,7 +2364,9 @@ With z or q, the play stops and goes back to the play list top.''',
                             AppTooltip(
                               message: 'Offset the key displayed in the local display\n'
                                   'to transcribe the chords for instruments that are\n'
-                                  'not concert pitch instruments.',
+                                  'not Concert Pitch Instruments.\n'
+                                  'C pitched instruments include piano, most guitars,\n'
+                                  'flute, oboe, bassoon, and trombone.',
                               child: Text(
                                 'Display key offset: ',
                                 style: boldStyle,

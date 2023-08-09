@@ -450,14 +450,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       bpmDropDownMenuList = bpmList;
     }
 
-    boxMarker = boxCenterHeight();
-
     const hoverColor = App.universalAccentColor;
 
     logger.log(
         _logScroll,
-        ' scrollTarget: $scrollTarget, '
-        ' _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
+        ' boxMarker: $boxMarker'
+        ', _scrollAlignment: $_scrollAlignment'
+        ', _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_logMode, 'playMode: $songUpdateState');
 
     _showCapo = capoIsPossible() && _isCapo;
@@ -498,6 +497,63 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
           );
 
+    final backBar = appWidgetHelper.backBar(
+        titleWidget: Row(
+          children: [
+            Flexible(
+              child: AppTooltip(
+                message: 'Click to hear the song on youtube.com',
+                child: InkWell(
+                  onTap: () {
+                    openLink(titleAnchor());
+                  },
+                  hoverColor: hoverColor,
+                  child: Text(
+                    _song.toString(),
+                    style: appBarTextStyle,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          //  fix: on small screens, only the title flexes
+          Flexible(
+            child: AppTooltip(
+              message: 'Click to hear the artist on youtube.com',
+              child: InkWell(
+                onTap: () {
+                  openLink(artistAnchor());
+                },
+                hoverColor: hoverColor,
+                child: Text(
+                  ' by  ${_song.artist}',
+                  style: appBarTextStyle,
+                  softWrap: false,
+                ),
+              ),
+            ),
+          ),
+          if (playerSinger != null)
+            Flexible(
+              child: Text(
+                ', sung by $playerSinger',
+                style: appBarTextStyle,
+                softWrap: false,
+              ),
+            ),
+          const AppSpace(),
+        ],
+        //  for the leading, i.e. the left most icon
+        onPressed: () {
+          //  avoid race condition with the listener notification
+          _songMaster.removeListener(songMasterListener);
+          _songMaster.stop();
+        });
+
+    boxMarker = boxCenterHeight(backBar.toolbarHeight ?? kToolbarHeight);
+
     return MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: _playMomentNotifier),
@@ -512,60 +568,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               children: [
                 Scaffold(
                   backgroundColor: theme.colorScheme.background,
-                  appBar: appWidgetHelper.backBar(
-                      titleWidget: Row(
-                        children: [
-                          Flexible(
-                            child: AppTooltip(
-                              message: 'Click to hear the song on youtube.com',
-                              child: InkWell(
-                                onTap: () {
-                                  openLink(titleAnchor());
-                                },
-                                hoverColor: hoverColor,
-                                child: Text(
-                                  _song.toString(),
-                                  style: appBarTextStyle,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        //  fix: on small screens, only the title flexes
-                        Flexible(
-                          child: AppTooltip(
-                            message: 'Click to hear the artist on youtube.com',
-                            child: InkWell(
-                              onTap: () {
-                                openLink(artistAnchor());
-                              },
-                              hoverColor: hoverColor,
-                              child: Text(
-                                ' by  ${_song.artist}',
-                                style: appBarTextStyle,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (playerSinger != null)
-                          Flexible(
-                            child: Text(
-                              ', sung by $playerSinger',
-                              style: appBarTextStyle,
-                              softWrap: false,
-                            ),
-                          ),
-                        const AppSpace(),
-                      ],
-                      //  for the leading, i.e. the left most icon
-                      onPressed: () {
-                        //  avoid race condition with the listener notification
-                        _songMaster.removeListener(songMasterListener);
-                        _songMaster.stop();
-                      }),
+                  appBar: backBar,
                   body: Stack(
                     children: <Widget>[
                       //  smooth background
@@ -582,7 +585,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 theme.colorScheme.background,
                                 App.measureContainerBackgroundColor,
                                 App.measureContainerBackgroundColor,
-                                App.measureContainerBackgroundColor,
                               ],
                             ),
                           ),
@@ -590,7 +592,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ),
 
                       //  center marker
-                      if (_centerSelections && appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
+                      if (_centerSelections &&
+                          (appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
                         Positioned(
                           top: boxMarker,
                           child: Container(
@@ -600,7 +603,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             ),
                           ),
                         ),
-                      //  player screen
+                      //  song chords and lyrics
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: Column(
@@ -613,24 +616,38 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 Expanded(
                                     child: GestureDetector(
                                         onTapDown: (details) {
+                                          //  doesn't apply to pro display style
+                                          if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+                                            return;
+                                          }
+
                                           //  respond to taps above and below the middle of the screen
-                                          if ((appOptions.tapToAdvance == TapToAdvance.upOrDown) &&
-                                              songUpdateState != SongUpdateState.playing &&
-                                              appOptions.userDisplayStyle != UserDisplayStyle.proPlayer) {
+                                          if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
                                             if (songUpdateState != SongUpdateState.playing) {
                                               //  start manual play
                                               scrollToLyricSection(0); //  always start manual play from the beginning
                                               setState(() {
                                                 performPlay();
                                               });
-                                            } else if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                                              //  don't respond above the player song table
+                                            } else {
+                                              //  while playing:
                                               var offset = _tableGlobalOffset();
-                                              if (details.globalPosition.dy > offset.dy) {
-                                                if (details.globalPosition.dy > app.screenInfo.mediaHeight / 2) {
-                                                  bpmBump(1); //  fixme: when not in play
-                                                } else {
-                                                  bpmBump(-1); //  fixme: when not in play
+                                              if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
+                                                //  tablet left arrow
+                                                bpmBump(-1);
+                                              } else if (details.globalPosition.dx >
+                                                  app.screenInfo.mediaWidth * 3 / 4) {
+                                                //  tablet right arrow
+                                                bpmBump(1);
+                                              } else {
+                                                if (details.globalPosition.dy > offset.dy) {
+                                                  if (details.globalPosition.dy < app.screenInfo.mediaHeight / 2) {
+                                                    //  tablet up arrow
+                                                    _songMaster.repeatSectionIncrement();
+                                                  } else {
+                                                    //  tablet down arrow
+                                                    _songMaster.skipCurrentSection();
+                                                  }
                                                 }
                                               }
                                             }
@@ -639,16 +656,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         child: _scrollablePositionedList)),
                             ]),
                       ),
-                      Padding(
+                      //  controls
+                      Container(
                         padding: const EdgeInsets.all(6.0),
+                        color: theme.colorScheme.background.withAlpha(230),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             textDirection: TextDirection.ltr,
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               //  top section when idle
                               if (songUpdateState == SongUpdateState.idle)
                                 Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     AppWrapFullWidth(
                                         alignment: WrapAlignment.spaceBetween,
@@ -1261,8 +1282,8 @@ With z or q, the play stops and goes back to the play list top.''',
     _songMaster.playDrums(_drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
-  double boxCenterHeight() {
-    return app.screenInfo.mediaHeight * _scrollAlignment;
+  double boxCenterHeight(final double toolbarHeight) {
+    return toolbarHeight + (app.screenInfo.mediaHeight - toolbarHeight) * _scrollAlignment;
   }
 
   _clearCountIn() {
@@ -2520,7 +2541,6 @@ With z or q, the play stops and goes back to the play list top.''',
   Widget _countInWidget = NullWidget();
 
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
-  double scrollTarget = 0;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   bool _isAnimated = false;
@@ -2532,7 +2552,7 @@ With z or q, the play stops and goes back to the play list top.''',
   Size? lastSize;
 
   static const _centerSelections = true;
-  static const _scrollAlignment = 0.15;
+  static const _scrollAlignment = 0.3;
   double boxMarker = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 

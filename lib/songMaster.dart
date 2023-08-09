@@ -69,6 +69,7 @@ class SongMaster extends ChangeNotifier {
       //  skip the current section if asked
       if (_skipCurrentSection) {
         _skipCurrentSection = false;
+        _repeatSection = 0; //  cancel any confusion
         logger.log(_songMasterLogAdvance, 'skip: from $_momentNumber ');
         if (_song != null && momentNumber >= 0) {
           var moment = _song!.getSongMoment(momentNumber);

@@ -62,6 +62,7 @@
 * "Write All Metadata to CSV": fixed the metadata fields
 * Pro Player display adjusted
 * About screen overflow fixed
+* "Copyright" changed to "Release/Label"
 
 ## Release 1.2.5
 

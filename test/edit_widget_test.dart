@@ -103,7 +103,7 @@ void main() async {
     errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
     expect(errorMessage.data, contains('copyright'));
 
-    var copyrightTextField = Find.findTextFieldByAppKey(AppKeyEnum.editCopyright);
+    var copyrightTextField = Find.findTextFieldByAppKey(AppKeyEnum.editReleaseAndLabel);
     expect(copyrightTextField.controller!.text, isEmpty);
     copyrightTextField.controller!.text = copyright;
     logger.i('copyright: "${copyrightTextField.controller!.text}"');

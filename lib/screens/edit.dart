@@ -188,7 +188,7 @@ class EditState extends State<Edit> {
       checkSongChangeStatus();
     });
     copyrightTextEditingController.addListener(() {
-      appTextFieldListener(AppKeyEnum.editCopyright, copyrightTextEditingController);
+      appTextFieldListener(AppKeyEnum.editReleaseAndLabel, copyrightTextEditingController);
       song.copyright = copyrightTextEditingController.text;
       checkSongChangeStatus();
     });
@@ -744,13 +744,13 @@ class EditState extends State<Edit> {
                                 Container(
                                   padding: const EdgeInsets.only(right: 24, bottom: 24.0),
                                   child: Text(
-                                    'Copyright:',
+                                    'Release/Label:',
                                     style: _textFieldStyle,
                                   ),
                                 ),
                                 Expanded(
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editCopyright,
+                                    appKeyEnum: AppKeyEnum.editReleaseAndLabel,
                                     controller: copyrightTextEditingController,
                                     hintText: 'Enter the song\'s copyright. Required.',
                                     fontSize: _defaultChordFontSize,

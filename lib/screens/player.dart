@@ -659,7 +659,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //  controls
                       Container(
                         padding: const EdgeInsets.all(6.0),
-                        color: theme.colorScheme.background.withAlpha(230),
+                        color: const Color(0xf0e4ecfc), //  light blue with a little transparency
+                        //            theme.colorScheme.background.withAlpha(230),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,

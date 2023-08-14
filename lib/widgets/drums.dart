@@ -146,7 +146,7 @@ class DrumsState extends State<DrumsWidget> {
               width: appDefaultFontSize * 40,
               onChanged: (value) {
                 setState(() {
-                  logger.v('drum name: "$value"');
+                  logger.t('drum name: "$value"');
                   _drumParts.name = value;
                   app.clearMessage();
                 });
@@ -195,7 +195,7 @@ class DrumsState extends State<DrumsWidget> {
                 appKeyEnum: AppKeyEnum.drumSelectionSave,
                 onPressed: () {
                   setState(() {
-                    logger.v('save: $_drumParts');
+                    logger.t('save: $_drumParts');
                     _drumPartsList.add(_drumParts);
                     playListRefreshNotifier.requestSearchClear();
                     playListRefreshNotifier

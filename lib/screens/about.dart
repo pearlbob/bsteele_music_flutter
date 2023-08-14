@@ -229,7 +229,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
 }
 ''');
     var fileName = 'bsteeleMusicAppLog_$utcNow.json';
-    logger.v('$fileName:${sb.toString()}');
+    logger.t('$fileName:${sb.toString()}');
     String message = await UtilWorkaround().writeFileContents(fileName, sb.toString(), fileType: 'log');
     setState(() {
       if (message.toLowerCase().contains('error')) {

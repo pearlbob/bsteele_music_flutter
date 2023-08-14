@@ -165,7 +165,7 @@ class SongPlayListItem implements PlayListItem {
                       // List<Widget> generatedMetadataWidgets = [const AppSpace()];
 
                       for (var id in SongMetadata.where(idIs: song.songId.toString())) {
-                        logger.v('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
+                        logger.t('editing: $this: ${id.id}: md#: ${id.nameValues.length}');
                         for (var nameValue in id.nameValues) {
                           if (SongMetadataGeneratedValue.isGenerated(nameValue)) {
                             // generatedMetadataWidgets.add(Text(
@@ -174,7 +174,7 @@ class SongPlayListItem implements PlayListItem {
                             // ));
                             continue;
                           }
-                          logger.v('    value: ${id.id}:${nameValue.name}=${nameValue.value}');
+                          logger.t('    value: ${id.id}:${nameValue.name}=${nameValue.value}');
 
                           metadataWidgets.add(
                             appIconWithLabelButton(
@@ -653,7 +653,7 @@ class _PlayListState extends State<PlayList> {
             color: App.appBackgroundColor,
           ));
         }
-        logger.v('playlist: filteredSongLists.length: ${filteredSongLists.length}');
+        logger.t('playlist: filteredSongLists.length: ${filteredSongLists.length}');
         filteredGroup = PlayListGroup(filteredSongLists);
       }
 
@@ -713,8 +713,8 @@ class _PlayListState extends State<PlayList> {
                               //  programmatic text entry
                               _searchTextFieldController.text = value;
                             }
-                            logger.v('search text: "$value"');
-                            app.clearMessage();
+                        logger.t('search text: "$value"');
+                        app.clearMessage();
                           });
                         },
                       ),

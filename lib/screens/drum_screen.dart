@@ -45,7 +45,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
     _lastSize = PlatformDispatcher.instance.implicitView?.physicalSize;
     WidgetsBinding.instance.addObserver(this);
 
-    logger.v('song: ${widget.song?.toString()}');
+    logger.t('song: ${widget.song?.toString()}');
 
     app.clearMessage();
 
@@ -62,7 +62,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    logger.v('DrumScreenState build: ${_drums?.drumParts}');
+    logger.t('DrumScreenState build: ${_drums?.drumParts}');
 
     AppWidgetHelper appWidgetHelper = AppWidgetHelper(context);
 
@@ -172,7 +172,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                           appKeyEnum: AppKeyEnum.drumScreenWrite,
                           onPressed: () {
                             setState(() {
-                              logger.v('write drum file');
+                              logger.t('write drum file');
                               app.clearMessage();
                               _saveDrumPartsList(
                                   'allDrums', _drumPartsList.toJson());
@@ -190,7 +190,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                           onPressed: () {
                             setState(() {
                               app.clearMessage();
-                              logger.v('read drum file');
+                              logger.t('read drum file');
                               _filePickReadDrumPartsList(context);
                               _appOptions.drumPartsListJson =
                                   _drumPartsList.toJson();
@@ -377,7 +377,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
       if (content.isEmpty) {
         app.infoMessage = 'No drum parts file read';
       } else {
-        logger.v('read drum parts from: "$content"');
+        logger.t('read drum parts from: "$content"');
         try {
           _drumPartsList.fromJson(content);
           app.infoMessage = 'All drum parts and matching songs read.';

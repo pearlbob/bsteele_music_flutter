@@ -70,7 +70,7 @@ class UtilWeb implements UtilWorkaround {
       files = input.files;
       if (files != null) {
         Iterable<Future<NameValue>> resultsFutures = files!.map((file) {
-          logger.v('file: ${file.name}');
+          logger.t('file: ${file.name}');
           final reader = FileReader();
           reader.readAsDataUrl(file);
           reader.onError.listen((error) => completer.completeError(error));

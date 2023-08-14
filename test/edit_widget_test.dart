@@ -125,7 +125,7 @@ void main() async {
     expect(keyDropdownButton.items, isNotEmpty);
     expect(keyDropdownButton.items!.length, MusicConstants.halfStepsPerOctave + 1);
     expect(keyDropdownButton.value, music_key.Key.getDefault());
-    logger.v('keyDropdownButton.value: ${keyDropdownButton.value}');
+    logger.t('keyDropdownButton.value: ${keyDropdownButton.value}');
 
     {
       var keyDropdownFinder = DropDownFinderByAppKey(AppKeyEnum.editEditKeyDropdown);
@@ -166,7 +166,7 @@ void main() async {
         await tester.pumpAndSettle(const Duration(seconds: 1));
 
         keyDropdownButton = Find.findDropDownByAppKey(AppKeyEnum.editEditKeyDropdown);
-        logger.v('keyDropdownButton.value: ${keyDropdownButton.value}');
+        logger.t('keyDropdownButton.value: ${keyDropdownButton.value}');
 
         errorMessage = Find.findTextByAppKey(AppKeyEnum.editErrorMessage);
         logger.d('errorMessage.data: ${errorMessage.data}');
@@ -175,7 +175,7 @@ void main() async {
         {
           var finder = RegexpTextFinder(r'^keyTally_');
           expect(finder, findsOneWidget);
-          logger.v((finder.first.evaluate().first.widget as Text).data);
+          logger.t((finder.first.evaluate().first.widget as Text).data);
           expect((finder.first.evaluate().first.widget as Text).data, 'keyTally_${musicKey.toMarkup()}');
         }
       }

@@ -9,7 +9,7 @@ import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 
 class BassStudyTool {
   static List<SheetNote>? parseJsonBsstVersion0_0(String s) {
-    logger.v('parseJsonBsstVersion0_0: s.length=${s.length}');
+    logger.t('parseJsonBsstVersion0_0: s.length=${s.length}');
 
     Map<String, dynamic> map = jsonDecode(s);
 
@@ -22,7 +22,7 @@ class BassStudyTool {
     switch (version) {
       case '0.0':
         for (String key in map.keys) {
-          logger.v('key: "$key"');
+          logger.t('key: "$key"');
           switch (key) {
             case 'keyN':
             case 'beatsPerBar':
@@ -31,7 +31,7 @@ class BassStudyTool {
             case 'isSwing8':
             case 'hiHatRhythm':
             case 'swingType':
-              logger.v('   $key: "${map[key]}"');
+              logger.t('   $key: "${map[key]}"');
               break;
             case 'warning':
             case 'version':
@@ -41,7 +41,7 @@ class BassStudyTool {
               if (jsonSheetNotes is List) {
                 int i = 0;
                 for (var item in jsonSheetNotes) {
-                  logger.v('${i++}:');
+                  logger.t('${i++}:');
                   if (item is Map) {
                     //  defaults only
                     bool isNote = true;
@@ -58,12 +58,12 @@ class BassStudyTool {
                       switch (attr) {
                         case 'isNote':
                           isNote = item[attr];
-                          logger.v('    $attr: ${isNote.toString()}');
+                          logger.t('    $attr: ${isNote.toString()}');
                           break;
                         case 'chordN': //  encoded
                           int chordN = item[attr];
                           key = musical_key.Key.byHalfStep(offset: chordN + 7);
-                          logger.v('    $attr: ${chordN.toString()} = $key');
+                          logger.t('    $attr: ${chordN.toString()} = $key');
                           break;
                       }
                     }
@@ -75,19 +75,19 @@ class BassStudyTool {
                           break;
                         case 'string': //  which bass string!
                           string = item[attr];
-                          logger.v('    $attr: ${string.toString()}');
+                          logger.t('    $attr: ${string.toString()}');
                           break;
                         case 'fret':
                           fret = item[attr];
-                          logger.v('    $attr: ${fret.toString()}');
+                          logger.t('    $attr: ${fret.toString()}');
                           break;
                         case 'noteDuration': //  encoded
                           noteDuration = (isNote ? _noteDurations[item[attr]] : _restDurations[item[attr]]);
-                          logger.v('    $attr: ${noteDuration.toString()}');
+                          logger.t('    $attr: ${noteDuration.toString()}');
                           break;
                         case 'chordModifier':
                           String chordModifier = item[attr];
-                          logger.v('    $attr: $chordModifier');
+                          logger.t('    $attr: $chordModifier');
                           break;
                         case 'minorMajor':
                           String minorMajor = item[attr];
@@ -181,25 +181,25 @@ class BassStudyTool {
                               break;
                           }
 
-                          logger.v('    $attr: ${minorMajor.toString()}');
+                          logger.t('    $attr: ${minorMajor.toString()}');
                           break;
                         case 'minorMajorSelectIndex':
                           //  nearly no value
                           int minorMajorSelectIndex = item[attr];
-                          logger.v('    $attr: ${minorMajorSelectIndex.toString()}');
+                          logger.t('    $attr: ${minorMajorSelectIndex.toString()}');
                           break;
                         case 'scaleN':
                           //  nearly no value
                           int scaleN = item[attr];
-                          logger.v('    $attr: ${scaleN.toString()}');
+                          logger.t('    $attr: ${scaleN.toString()}');
                           break;
                         case 'lyrics':
                           lyrics = item[attr];
-                          logger.v('    $attr: "$lyrics"');
+                          logger.t('    $attr: "$lyrics"');
                           break;
                         case 'tied':
                           tied = item[attr];
-                          logger.v('    $attr: ${tied.toString()}');
+                          logger.t('    $attr: ${tied.toString()}');
                           break;
                         default:
                           logger.w('unknown attribute: "$attr" = "${item[attr].toString()}"');
@@ -209,7 +209,7 @@ class BassStudyTool {
 
                     if (isNote) {
                       Pitch? pitch = Pitch.get(PitchEnum.E1).offsetByHalfSteps(string * 5 + fret);
-                      logger.v('    Pitch: $pitch  (string: $string, fret: $fret), $chordDescriptor');
+                      logger.t('    Pitch: $pitch  (string: $string, fret: $fret), $chordDescriptor');
                       if (pitch != null) {
                         SheetNote sn = SheetNote.note(
                           Clef.bass8vb, pitch, noteDuration.duration,
@@ -247,7 +247,7 @@ class BassStudyTool {
 
 //  if (Logger.level.index <= Level.verbose.index) {
 //    for (SheetNote sn in sheetNotes) {
-//      logger.v(sn.toString());
+//      logger.t(sn.toString());
 //    }
 //  }
 

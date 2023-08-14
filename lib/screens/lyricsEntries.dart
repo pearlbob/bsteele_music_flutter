@@ -269,7 +269,7 @@ class LyricsDataEntry {
     _focusLyricSection = lyricSection;
     _focusLyricsLineIndex = index + newLyricsLines.length - 1;
     if (_lyricsEntriesCallback != null) {
-      logger.v('newLines: _lyricsEntriesCallback()');
+      logger.t('newLines: _lyricsEntriesCallback()');
       _lyricsEntriesCallback!();
     }
   }
@@ -327,7 +327,7 @@ class _LyricsLine {
   }) : _onLyricsLineChangedCallback = onLyricsLineChangedCallback {
     _originalText = lineText.replaceAll('\n', '');
     _controller.text = _originalText;
-    logger.v('_LyricsLine textStyle: $textStyle');
+    logger.t('_LyricsLine textStyle: $textStyle');
 
     //  fixme: workaround for bad relationship between backgroundColor and TextField
     textStyle = TextStyle(
@@ -354,21 +354,21 @@ class _LyricsLine {
       maxLines: 300,
       onSubmitted: (value) {
         //  deal with newlines
-        logger.v('onSubmitted(\'$value\')');
+        logger.t('onSubmitted(\'$value\')');
         _submitLine();
       },
       onChanged: (value) {
-        logger.v('onChanged(\'$value\'), ${_focusNode.hasFocus}');
+        logger.t('onChanged(\'$value\'), ${_focusNode.hasFocus}');
         if (_onLyricsLineChangedCallback != null) {
           _onLyricsLineChangedCallback!();
         }
       },
     );
-    logger.v('_LyricsLine($_originalText)');
+    logger.t('_LyricsLine($_originalText)');
   }
 
   void _submitLine() {
-    logger.v('_LyricsLine._submitLine(): ${_controller.text}');
+    logger.t('_LyricsLine._submitLine(): ${_controller.text}');
     var selection = _controller.selection;
     var text = _controller.text;
 
@@ -402,7 +402,7 @@ class _LyricsLine {
   }
 
   requestFocus() {
-    logger.v('_LyricsLine.requestFocus()');
+    logger.t('_LyricsLine.requestFocus()');
     assert(wasDisposed==false);
     if (!_focusNode.hasFocus) {
       _focusNode.requestFocus();
@@ -410,7 +410,7 @@ class _LyricsLine {
   }
 
   void dispose() {
-    logger.v('_LyricsLine.dispose()');
+    logger.t('_LyricsLine.dispose()');
     //fixme!!!!!!!!!!!!!!!!!!!! _controller.dispose();
   //fixme!!!!!!!!!!!!!!!!!!!!  _focusNode.dispose();
     wasDisposed = true;

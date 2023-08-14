@@ -357,8 +357,8 @@ class _SheetStaffNotation extends SheetNotation {
     double myAccidentalDx = accidentalDx ?? dx;
     double theRootDx = rootDx ?? dx;
 
-    logger.v('_measureAccidentals[$staffPosition]: ${_measureAccidentals[staffPosition]}');
-    logger.v('_key.getMajorScaleByNote(${pitch.scaleNumber}): ${_key.getMajorScaleByNote(pitch.scaleNumber)}');
+    logger.t('_measureAccidentals[$staffPosition]: ${_measureAccidentals[staffPosition]}');
+    logger.t('_key.getMajorScaleByNote(${pitch.scaleNumber}): ${_key.getMajorScaleByNote(pitch.scaleNumber)}');
 
     //  find if this staff position has had an accidental in this measure
     Accidental? accidental = _measureAccidentals[staffPosition]; // prior notes in the measure
@@ -372,7 +372,7 @@ class _SheetStaffNotation extends SheetNotation {
       accidental = _key.accidental(pitch); //  this will be null on a pitch match to the key scale
     }
 
-    logger.v('sn.pitch: ${sn.pitch.toString().padLeft(3)}, pitch: ${pitch.toString().padLeft(3)}'
+    logger.t('sn.pitch: ${sn.pitch.toString().padLeft(3)}, pitch: ${pitch.toString().padLeft(3)}'
         ', key: $_key'
         ', accidental: $accidental');
     Rect? accidentalRect;

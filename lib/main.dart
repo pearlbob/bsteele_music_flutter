@@ -316,7 +316,7 @@ class MyHomePageState extends State<MyHomePage> {
     _awaitReadSongList();
 
     logger.i('Uri.base: "${Uri.base}", "${Uri.base.query}"');
-    logger.v('Uri.base.queryParameters.keys.length: ${Uri.base.queryParameters.keys.length}');
+    logger.t('Uri.base.queryParameters.keys.length: ${Uri.base.queryParameters.keys.length}');
     for (var key in Uri.base.queryParameters.keys) {
       switch (key) {
         case 'demo':
@@ -508,13 +508,13 @@ class MyHomePageState extends State<MyHomePage> {
             Platform.isMacOS ||
             Platform.isWindows) &&
         !app.screenInfo.isTooNarrow;
-    logger.v('isEditReady: $app.isEditReady');
+    logger.t('isEditReady: $app.isEditReady');
 
     app.isScreenBig = app.isEditReady || !app.screenInfo.isTooNarrow;
     app.isPhone = !app.isScreenBig;
 
-    logger.v('screen: logical: (${app.screenInfo.mediaWidth},${app.screenInfo.mediaHeight})');
-    logger.v('isScreenBig: $app.isScreenBig, isPhone: $app.isPhone');
+    logger.t('screen: logical: (${app.screenInfo.mediaWidth},${app.screenInfo.mediaHeight})');
+    logger.t('isScreenBig: $app.isScreenBig, isPhone: $app.isPhone');
 
     final TextStyle searchTextStyle = generateAppTextStyle(
       color: Colors.black45,

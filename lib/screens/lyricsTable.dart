@@ -860,7 +860,7 @@ class LyricsTable {
 
     //  map from song moment to cell grid
     for (var songMoment in song.songMoments) {
-      logger.v('map: ${songMoment.momentNumber}:'
+      logger.t('map: ${songMoment.momentNumber}:'
           ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
       var gc = song.songMomentToGridCoordinate[songMoment.momentNumber];
       _locationGrid.setAt(
@@ -882,7 +882,7 @@ class LyricsTable {
               columnChildren.add(cell!.copyWith(size: Size(widths[c], heights[r])));
             }
             Widget columnWidget = Column(crossAxisAlignment: CrossAxisAlignment.start, children: columnChildren);
-            logger.v('banner columnChildren: ${columnChildren.map((c) => c.size)}');
+            logger.t('banner columnChildren: ${columnChildren.map((c) => c.size)}');
             items.add(columnWidget);
           }
         }
@@ -926,7 +926,7 @@ class LyricsTable {
               } else {
                 child = cell;
                 if (cell.measureNode?.runtimeType == LyricSection) {
-                  logger.v(' ChordSection: ${cell.measureNode}');
+                  logger.t(' ChordSection: ${cell.measureNode}');
                   lyricSection = cell.measureNode as LyricSection;
                 }
               }
@@ -952,7 +952,7 @@ class LyricsTable {
                 );
                 rowWidget = Row(children: [firstWidget, ...rowChildren]);
               }
-              // logger.v('rowChildren: $rowChildren');
+              // logger.t('rowChildren: $rowChildren');
             }
 
             lastLyricSection = lyricSection;
@@ -1172,7 +1172,7 @@ class LyricsTable {
   TextSpan _measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
       {final music_key.Key? displayMusicKey, TextStyle? style}) {
     style = style ?? _coloredChordTextStyle;
-    logger.v('_measureTextSpan: style.color: ${style.color}'
+    logger.t('_measureTextSpan: style.color: ${style.color}'
         ', black: ${Colors.black}, ==: ${style.color?.value == Colors.black.value}');
     var slashColor = style.color?.value == Colors.black.value ? _slashColor : _fadedSlashColor;
     final TextStyle slashStyle =
@@ -1365,16 +1365,20 @@ class LyricsTable {
     if (_locationGrid.isEmpty) {
       return 0;
     }
-    //  fixme: to weak
-    //  find the grid row
-    var gridRow = _locationGrid.getRow(Util.intLimit(row, 0, _locationGrid.getRowCount() - 1));
-    if (gridRow == null || gridRow.isEmpty) {
-      return 0;
-    }
-    //  find the lyric section from the row
-    for (var cell in gridRow) {
-      if (cell != null && cell.songMoment != null) {
-        return cell.songMoment!.momentNumber;
+
+    //  look past the current row to find the moment... the row might just be a section header.
+    for (int r = row; r <= row + 1; r++) {
+      //  fixme: too weak
+      //  find the grid row
+      var gridRow = _locationGrid.getRow(Util.intLimit(r, 0, _locationGrid.getRowCount() - 1));
+      if (gridRow == null || gridRow.isEmpty) {
+        continue;
+      }
+      //  find the lyric section from the row
+      for (var cell in gridRow) {
+        if (cell != null && cell.songMoment != null) {
+          return cell.songMoment!.momentNumber;
+        }
       }
     }
     return 0;

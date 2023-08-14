@@ -135,7 +135,7 @@ class SheetMusicPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    logger.v('shouldRepaint( ${oldDelegate.runtimeType} )');
+    logger.t('shouldRepaint( ${oldDelegate.runtimeType} )');
     return true;
   }
 

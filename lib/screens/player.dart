@@ -1237,6 +1237,7 @@ With z or q, the play stops and goes back to the play list top.''',
             break;
           case SongUpdateState.playing:
           case SongUpdateState.pause:
+            _songMaster.skipCurrentSection();
             break;
         }
       }
@@ -1293,7 +1294,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
   _updateCountIn(int countIn) {
     _countIn = countIn;
-    logger.v('countIn: $countIn');
+    logger.t('countIn: $countIn');
     if (countIn > 0 && countIn < countInMax) {
       _countInWidget = Container(
         margin: const EdgeInsets.all(12.0),
@@ -1307,7 +1308,7 @@ With z or q, the play stops and goes back to the play list top.''',
     } else {
       _countInWidget = NullWidget();
     }
-    logger.v('_countInWidget.runtimeType: ${_countInWidget.runtimeType}');
+    logger.t('_countInWidget.runtimeType: ${_countInWidget.runtimeType}');
   }
 
   /// bump the bpm up or down
@@ -1317,56 +1318,82 @@ With z or q, the play stops and goes back to the play list top.''',
   }
 
   void itemPositionsListener() {
+    if (_isAnimated || !songUpdateService.isLeader) {
+      //  don't follow the animation
+      return;
+    }
+
+    //  move to the scrolled to location, if scrolled
     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
       return e1.index.compareTo(e2.index);
     })
       ..addAll(playerItemPositionsListener.itemPositions.value);
     if (orderedSet.isNotEmpty) {
-      var item = orderedSet.first;
-      var momentNumber = _lyricsTable.rowToMomentNumber(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-      logger.log(_logPlayerItemPositions, 'itemPositionsListener(): $item, momentNumber: $momentNumber');
-      if (momentNumber != 0 || item.index <= 0) {
-        leaderSongUpdate(momentNumber);
+      var firstItem = orderedSet.first;
+      if (firstItem.index > 0) {
+        //  find the index at the scroll alignment
+        var selectedItem = firstItem;
+        {
+          for (ItemPosition item in orderedSet) {
+            if (item.itemLeadingEdge < _scrollAlignment + 0.04 /*tolerance*/) {
+              selectedItem = item;
+            }
+          }
+        }
+        var songMasterIndex = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
+        logger.log(
+            _logPlayerItemPositions,
+            'itemPositionsListener():  skip to: ${firstItem.index}'
+            ', selectedItem: ${selectedItem.index} at ${_lyricsTable.rowToMomentNumber(selectedItem.index)}'
+            ', _songMaster: $songMasterIndex at ${_songMaster.momentNumber}'
+            ', isAnimated: $_isAnimated'
+            //
+            );
+
+        //  move the song to the scrolled location
+        if (selectedItem.index != songMasterIndex) {
+          _songMaster.skipToMomentNumber(_lyricsTable.rowToMomentNumber(selectedItem.index));
+        }
       }
     }
 
-    switch (songUpdateState) {
-      case SongUpdateState.idle:
-      case SongUpdateState.none:
-      case SongUpdateState.pause:
-        //  followers get to follow even if not in play
-
-        // switch (appOptions.userDisplayStyle) {
-        //   case UserDisplayStyle.banner:
-        //     break;
-        //   default:
-        //     logger.v('_isAnimated: $_isAnimated, playMode: $songUpdateState');
-        //     if (_isAnimated || songUpdateState.isPlaying) {
-        //       return; //  don't follow scrolling when animated or playing
-        //     }
-        //     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-        //       return e1.index.compareTo(e2.index);
-        //     })
-        //       ..addAll(playerItemPositionsListener.itemPositions.value);
-        //     if (orderedSet.isNotEmpty) {
-        //       var item = orderedSet.first;
-        //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-        //       logger.log(
-        //           _logPlayerItemPositions,
-        //           'playerItemPositionsListener:  length: ${orderedSet.length}'
-        //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
-        //       logger.log(
-        //           _logPlayerItemPositions,
-        //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
-        //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
-        //     }
-        //     break;
-        // }
-        break;
-      case SongUpdateState.playing:
-        //  following done by the song update service
-        break;
-    }
+    // switch (songUpdateState) {
+    //   case SongUpdateState.idle:
+    //   case SongUpdateState.none:
+    //   case SongUpdateState.pause:
+    //     //  followers get to follow even if not in play
+    //
+    //     // switch (appOptions.userDisplayStyle) {
+    //     //   case UserDisplayStyle.banner:
+    //     //     break;
+    //     //   default:
+    //     //     logger.t('_isAnimated: $_isAnimated, playMode: $songUpdateState');
+    //     //     if (_isAnimated || songUpdateState.isPlaying) {
+    //     //       return; //  don't follow scrolling when animated or playing
+    //     //     }
+    //     //     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+    //     //       return e1.index.compareTo(e2.index);
+    //     //     })
+    //     //       ..addAll(playerItemPositionsListener.itemPositions.value);
+    //     //     if (orderedSet.isNotEmpty) {
+    //     //       var item = orderedSet.first;
+    //     //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
+    //     //       logger.log(
+    //     //           _logPlayerItemPositions,
+    //     //           'playerItemPositionsListener:  length: ${orderedSet.length}'
+    //     //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
+    //     //       logger.log(
+    //     //           _logPlayerItemPositions,
+    //     //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
+    //     //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
+    //     //     }
+    //     //     break;
+    //     // }
+    //     break;
+    //   case SongUpdateState.playing:
+    //     //  following done by the song update service
+    //     break;
+    // }
   }
 
   scrollToLyricSection(int index, {final bool force = false}) {
@@ -1386,7 +1413,7 @@ With z or q, the play stops and goes back to the play list top.''',
 
     if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
       //  notify lyrics of selection... even if there is no scroll
-      logger.v('proPlayer: _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
+      logger.t('proPlayer: _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
       return; //  pro's never scroll!
     }
     _itemScrollToRow(_lyricsTable.lyricSectionIndexToRow(index), force: force, priorIndex: priorIndex);
@@ -1730,9 +1757,9 @@ With z or q, the play stops and goes back to the play list top.''',
       _drumPartsList.match(song, app.selectedDrumParts);
       appOptions.drumPartsListJson = _drumPartsList.toJson();
 
-      logger.v('app.selectedDrumParts: ${app.selectedDrumParts}');
-      logger.v('songMatch: ${_drumPartsList.songMatch(song)?.name}');
-      logger.v('_drumPartsList: ${_drumPartsList.toJson()}');
+      logger.t('app.selectedDrumParts: ${app.selectedDrumParts}');
+      logger.t('songMatch: ${_drumPartsList.songMatch(song)?.name}');
+      logger.t('_drumPartsList: ${_drumPartsList.toJson()}');
 
       _playerIsOnTop = true;
       _assignNewSong(app.selectedSong);
@@ -2507,7 +2534,7 @@ With z or q, the play stops and goes back to the play list top.''',
   void _resetIdleTimer() {
     _cancelIdleTimer();
     _idleTimer = Timer(const Duration(minutes: 60), () {
-      logger.v('idleTimer fired');
+      logger.t('idleTimer fired');
       Navigator.of(context).pop();
     });
   }

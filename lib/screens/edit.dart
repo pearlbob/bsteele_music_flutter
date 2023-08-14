@@ -173,7 +173,7 @@ class EditState extends State<Edit> {
     titleTextEditingController.addListener(() {
       appTextFieldListener(AppKeyEnum.editTitle, titleTextEditingController);
       song.title = titleTextEditingController.text;
-      logger.v('_titleTextEditingController listener: \'${titleTextEditingController.text}\''
+      logger.t('_titleTextEditingController listener: \'${titleTextEditingController.text}\''
           ', ${titleTextEditingController.selection}');
       checkSongChangeStatus();
     });
@@ -775,7 +775,7 @@ class EditState extends State<Edit> {
                                 appDropdownButton<music_key.Key>(
                                   AppKeyEnum.editEditKeyDropdown,
                                   music_key.Key.values.toList().reversed.map((music_key.Key value) {
-                                    logger.v('keySelectDropdownMenuItems: music_key.Key value: $value');
+                                    logger.t('keySelectDropdownMenuItems: music_key.Key value: $value');
                                     return appDropdownMenuItem<music_key.Key>(
                                       appKeyEnum: AppKeyEnum.editMusicKey,
                                       value: value,
@@ -1767,7 +1767,7 @@ class EditState extends State<Edit> {
 
     //  find the longest chord row
     var chordMaxColCount = song.getChordSectionLocationGridMaxColCount();
-    logger.v('chordMaxColCount: $chordMaxColCount');
+    logger.t('chordMaxColCount: $chordMaxColCount');
     chordMaxColCount = song.chordRowMaxLength();
     chordMaxColCount += 2; //fixme: test!!!!!!!!!!!!!!!!!!
     logger.log(_editLyricEntry, 'chordMaxColCount: $chordMaxColCount');
@@ -2200,7 +2200,7 @@ class EditState extends State<Edit> {
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void editOnKey(RawKeyEvent value) {
-    logger.v('editOnKey($value)');
+    logger.t('editOnKey($value)');
     //  fixme: edit screen does not respond to escape after the detail screen
     if (value.runtimeType == RawKeyDownEvent) {
       RawKeyDownEvent e = value as RawKeyDownEvent;
@@ -2458,7 +2458,7 @@ class EditState extends State<Edit> {
                           editTextController.text = sectionVersion.toString();
                         }
                       });
-                      logger.v('_sectionVersion = ${sectionVersion.toString()}');
+                      logger.t('_sectionVersion = ${sectionVersion.toString()}');
                     },
                     style: sectionChordTextStyle,
                     itemHeight: null,
@@ -3413,12 +3413,12 @@ class EditState extends State<Edit> {
       if (sectionVersion == null) {
         continue;
       }
-      logger.v('sectionVersion: $sectionVersion');
+      logger.t('sectionVersion: $sectionVersion');
 
       if (selectedWeight < sectionVersion.weight) {
         selectedWeight = sectionVersion.weight;
         selectedSectionVersion = sectionVersion;
-        logger.v('selectedSectionVersion: $selectedSectionVersion');
+        logger.t('selectedSectionVersion: $selectedSectionVersion');
       }
       sectionVersions.add(sectionVersion);
     }

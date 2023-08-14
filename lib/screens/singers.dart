@@ -1112,7 +1112,7 @@ class SingersState extends State<Singers> {
   }
 
   // _volunteerSingerPopup(BuildContext context, PlayListItem playListItem) {
-  //   logger.v('temp: _volunteerSingerPopup($context,  $playListItem)');
+  //   logger.t('temp: _volunteerSingerPopup($context,  $playListItem)');
   //   List<Widget> singerSelections = [];
   //   for (var singer in _sessionSingers) {
   //     if (singer == _selectedSinger) {
@@ -1123,7 +1123,7 @@ class SingersState extends State<Singers> {
   //         singer,
   //         appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
   //         onPressed: () async {
-  //           logger.v('volunteer: $singer');
+  //           logger.t('volunteer: $singer');
   //           var performance = SongPerformance.fromSong(playListItem.song, singer);
   //           await _navigatePerformanceToPlayer(context, performance);
   //           if (mounted) {
@@ -1184,7 +1184,7 @@ class SingersState extends State<Singers> {
     app.clearMessage();
 
     app.selectedSong = performance.performedSong;
-    logger.v('_navigatePerformanceToPlayer: $performance');
+    logger.t('_navigatePerformanceToPlayer: $performance');
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -1314,7 +1314,7 @@ class SingersState extends State<Singers> {
       //  reset the singer's list
       Provider.of<PlayListRefreshNotifier>(context, listen: false).requestSearchClear();
 
-      logger.v('_setSelectedSinger(): $singer, isRequester: $isRequester');
+      logger.t('_setSelectedSinger(): $singer, isRequester: $isRequester');
     }
   }
 

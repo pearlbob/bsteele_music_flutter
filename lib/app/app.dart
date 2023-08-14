@@ -104,7 +104,7 @@ const defaultTableGap = 3.0;
 Future<String> loadAssetString(String assetPath) async {
   //return rootBundle.loadString(assetPath, cache: false);
   ByteData data = await rootBundle.load(assetPath);
-  logger.v('data.lengthInBytes: ${data.lengthInBytes}');
+  logger.t('data.lengthInBytes: ${data.lengthInBytes}');
   final buffer = data.buffer;
   var list = buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
   return utf8.decode(list);
@@ -219,7 +219,7 @@ class App {
 
   /// Add a song to the master song list
   void addSong(Song song) {
-    logger.v('addSong( ${song.toString()} )');
+    logger.t('addSong( ${song.toString()} )');
     _allSongs.remove(song); // any prior version of same song
     _allSongs.add(song);
     SongMetadata.generateSongMetadata(song);

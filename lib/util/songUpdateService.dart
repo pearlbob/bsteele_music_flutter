@@ -215,7 +215,7 @@ class SongUpdateService extends ChangeNotifier {
 
   void _issueTimeRequest() {
     _webSocketSink?.add(_timeRequest);
-    logger.v('_issueTimeRequest()');
+    logger.t('_issueTimeRequest()');
   }
 
   void issueSongUpdate(SongUpdate songUpdate) {

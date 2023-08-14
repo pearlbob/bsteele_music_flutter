@@ -21,6 +21,7 @@ const Level _songMasterLogMaxDelta = Level.debug;
 const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
 const Level _songMasterBpmChange = Level.debug;
+const Level _logRestart = Level.debug;
 const Level _logDrums = Level.debug;
 
 class SongMaster extends ChangeNotifier {
@@ -66,6 +67,18 @@ class SongMaster extends ChangeNotifier {
         _song?.setBeatsPerMinute(_bpm);
       }
 
+      //  skip to the moment number scrolled to
+      if (_skipToMomentNumber != null) {
+        _skipCurrentSection = false;
+        _repeatSection = 0; //  cancel any confusion
+        momentNumber = _skipToMomentNumber!;
+        _skipToMomentNumber = null;
+        _resetSongStart(time, momentNumber);
+        _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
+        logger.log(_songMasterLogAdvance, 'skip to momentNumber:  $momentNumber');
+        notifyListeners();
+      }
+
       //  skip the current section if asked
       if (_skipCurrentSection) {
         _skipCurrentSection = false;
@@ -89,7 +102,7 @@ class SongMaster extends ChangeNotifier {
             logger.log(_songMasterLogAdvance, 'skip: $_momentNumber to ${moment?.momentNumber}');
             if (moment != null) {
               momentNumber = moment.momentNumber;
-              resetSongStart(time, momentNumber);
+              _resetSongStart(time, momentNumber);
               _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
               logger.log(_songMasterLogAdvance,
                   'skip from index $lyricSectionIndex to $moment in ${moment.lyricSection.index}');
@@ -115,7 +128,7 @@ class SongMaster extends ChangeNotifier {
         }
         logger.log(_songMasterLogAdvance,
             '_repeatSection: back to section: $lyricSectionIndex at momentNumber: $momentNumber');
-        resetSongStart(time, momentNumber);
+        _resetSongStart(time, momentNumber);
       }
 
       _lastSectionIndex = lyricSectionIndex;
@@ -167,7 +180,7 @@ class SongMaster extends ChangeNotifier {
                               : _song!.getSongTimeAtMoment(_advancedMomentNumber!)),
                       _bpm,
                       _drumParts!);
-                  logger.v('SongPlayMode.autoPlay: '
+                  logger.t('SongPlayMode.autoPlay: '
                       ' _advancedMomentNumber: ${_advancedMomentNumber!}'
                       //    '${(_songStart ?? 0)} + ${_song!.getSongTimeAtMoment(_advancedMomentNumber!)}'
                       );
@@ -216,7 +229,7 @@ class SongMaster extends ChangeNotifier {
           if (_song != null) {
             //  prepare for the eventual restart
             if (_momentNumber != null) {
-              resetSongStart(time, momentNumber);
+              _resetSongStart(time, momentNumber);
             }
           }
           break;
@@ -250,15 +263,17 @@ class SongMaster extends ChangeNotifier {
     _advancedMomentNumber = null;
   }
 
-  resetSongStart(final double time, final int momentNumber) {
+  _resetSongStart(final double time, final int momentNumber) {
     if (_momentNumber != momentNumber) {
       logger.i('resetSongStart(): which moment?  _momentNumber: $_momentNumber,  momentNumber: $momentNumber');
     }
     // var beat = _song?.(time, bpm: _bpm);
-    logger.i('resetSongStart(): old _songStart: $_songStart, _momentNumber: $_momentNumber');
+    logger.log(_logRestart, 'resetSongStart(): old _songStart: $_songStart, _momentNumber: $_momentNumber');
     var oldSongStart = _songStart;
     _songStart = time - (_song?.getSongTimeAtMoment(momentNumber, beatsPerMinute: _bpm) ?? 0);
-    logger.i('resetSongStart(): new _songStart: $_songStart,  momentNumber: $momentNumber'
+    logger.log(
+        _logRestart,
+        'resetSongStart(): new _songStart: $_songStart,  momentNumber: $momentNumber'
         ', ${(_songStart ?? 0) - (oldSongStart ?? 0)}');
     if (_momentNumber != momentNumber) {
       _momentNumber = momentNumber;
@@ -268,7 +283,7 @@ class SongMaster extends ChangeNotifier {
     final newSongTime = time - (_songStart ?? 0);
     var newMomentNumber = _song?.getSongMomentNumberAtSongTime(newSongTime, bpm: _bpm) ?? -1;
     if (newMomentNumber != momentNumber) {
-      logger.i('newMomentNumber ?= momentNumber: $newMomentNumber != $momentNumber');
+      logger.log(_logRestart, 'newMomentNumber ?= momentNumber: $newMomentNumber != $momentNumber');
     }
   }
 
@@ -290,6 +305,10 @@ class SongMaster extends ChangeNotifier {
 
   skipCurrentSection() {
     _skipCurrentSection = true;
+  }
+
+  skipToMomentNumber(final int momentNumber) {
+    _skipToMomentNumber = momentNumber;
   }
 
   /// Play a drums in real time
@@ -340,7 +359,7 @@ class SongMaster extends ChangeNotifier {
 
   void _performDrumParts(double time, int bpm, final DrumParts drumParts) {
     //  fixme:  even beat parts likely don't work on 3/4 or 6/8
-    logger.v('_performDrumParts: $time - $_songStart = ${time - (_songStart ?? 0)}');
+    logger.t('_performDrumParts: $time - $_songStart = ${time - (_songStart ?? 0)}');
     int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);
     for (var drumPart in drumParts.parts) {
       var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
@@ -396,6 +415,7 @@ class SongMaster extends ChangeNotifier {
   int? _lastMomentNumber;
   int? _advancedMomentNumber;
   bool _skipCurrentSection = false;
+  int? _skipToMomentNumber;
 
   SongUpdateState songUpdateState = SongUpdateState.idle;
 

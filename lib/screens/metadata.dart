@@ -71,7 +71,7 @@ class MetadataScreenState extends State<MetadataScreen> {
       fontSize: 0.75 * fontSize,
     );
 
-    logger.v('_selectedNameValue: $_selectedNameValue');
+    logger.t('_selectedNameValue: $_selectedNameValue');
 
     List<DropdownMenuItem<String>> nameDropdownMenuItems = [];
     List<DropdownMenuItem<String>> valueDropdownMenuItems = [];
@@ -81,7 +81,7 @@ class MetadataScreenState extends State<MetadataScreen> {
       for (var songIdMetadata in SongMetadata.idMetadata) {
         nameValues.addAll(songIdMetadata.nameValues);
       }
-      logger.v('lists.build: ${SongMetadata.idMetadata}');
+      logger.t('lists.build: ${SongMetadata.idMetadata}');
 
       {
         //  clear the selected of old values
@@ -552,7 +552,7 @@ Writing a file will allow you to reload your changes later.''',
   }
 
   bool nameValueIsDeletable(NameValue nameValue) {
-    logger.v('nameValueIsDeletable(): $nameValue');
+    logger.t('nameValueIsDeletable(): $nameValue');
 
     if (nameValue == _emptySelectedNameValue) {
       return false;

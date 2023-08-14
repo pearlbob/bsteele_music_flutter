@@ -56,7 +56,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       int lastSung = 0;
       List<PlayListItem> items = [];
       for (var performance in performanceHistory) {
-        logger.v('perf: ${performance.performedSong.title}, sung: ${performance.lastSungDateString}');
+        logger.t('perf: ${performance.performedSong.title}, sung: ${performance.lastSungDateString}');
         if (lastSungDateString != performance.lastSungDateString) {
           if (items.isNotEmpty) {
             songLists.add(PlayListItemList(
@@ -130,7 +130,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     if (playListItem is SongPlayListItem && playListItem.songPerformance != null) {
       var songPerformance = playListItem.songPerformance!;
       app.selectedSong = songPerformance.performedSong;
-      logger.v('navigateToPlayer: $songPerformance');
+      logger.t('navigateToPlayer: $songPerformance');
       await Navigator.push(
         context,
         MaterialPageRoute(

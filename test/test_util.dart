@@ -13,7 +13,7 @@ class _TextFieldFinder extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
-    logger.v('candidate: ${candidate.widget.runtimeType} ${candidate.widget.key}');
+    logger.t('candidate: ${candidate.widget.runtimeType} ${candidate.widget.key}');
     if (candidate.widget is TextField) {
       return (candidate.widget.key is ValueKey && (candidate.widget.key as ValueKey).value == _valueKeyString);
     }
@@ -31,7 +31,7 @@ class _TextFieldByAppKeyFinder extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
-    logger.v(
+    logger.t(
         'candidate: ${candidate.widget.runtimeType}, key: ${candidate.widget.key.runtimeType} ${candidate.widget.key},'
         ' match value: $_appKey');
     if (candidate.widget is TextField) {
@@ -136,7 +136,7 @@ class DropDownFinderByAppKey extends MatchFinder {
 
   @override
   bool matches(Element candidate) {
-    logger.v('DropDownFinderByAppKey(): try $candidate');
+    logger.t('DropDownFinderByAppKey(): try $candidate');
     return (candidate.widget is DropdownButton &&
         candidate.widget.key is ValueKey<String> &&
         (candidate.widget.key as ValueKey<String>).value.startsWith(_appKey.name)); //  fixme
@@ -230,7 +230,7 @@ class RegexpTextFinder extends MatchFinder {
       var text = (candidate.widget as Text).data ?? '';
       RegExpMatch? m = _regExp.firstMatch(text);
       if (m != null) {
-        logger.v(' matching: <$text>');
+        logger.t(' matching: <$text>');
         return true;
       }
     }

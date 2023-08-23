@@ -1219,9 +1219,7 @@ With z or q, the play stops and goes back to the play list top.''',
         ', shf: ${e.isShiftPressed}'
         ', alt: ${e.isAltPressed}');
 
-    if (e.isKeyPressed(LogicalKeyboardKey.space) ||
-        //  workaround for cheap foot pedal... only outputs b
-        e.isKeyPressed(LogicalKeyboardKey.keyB)) {
+    if (e.isKeyPressed(LogicalKeyboardKey.space)) {
       if (e.isControlPressed) {
         tempoTap();
       } else {
@@ -1237,9 +1235,21 @@ With z or q, the play stops and goes back to the play list top.''',
             break;
           case SongUpdateState.playing:
           case SongUpdateState.pause:
-            _songMaster.skipCurrentSection();
+            _songMaster.pauseToggle();
             break;
         }
+      }
+      return KeyEventResult.handled;
+    } else if (
+        //  workaround for cheap foot pedal... only outputs b
+        e.isKeyPressed(LogicalKeyboardKey.keyB)) {
+      switch (songUpdateState) {
+        case SongUpdateState.playing:
+        case SongUpdateState.pause:
+          _songMaster.skipCurrentSection();
+          break;
+        default:
+          break;
       }
       return KeyEventResult.handled;
     } else if (!songUpdateService.isFollowing) {

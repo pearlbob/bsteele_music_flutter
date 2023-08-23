@@ -14,6 +14,7 @@
 ### Fix
 
 * metadata filters should have a generated filter for singers
+* implement player pause
 *
 theory: https://www.orange.k12.nj.us/site/handlers/filedownload.ashx?moduleinstanceid=4691&dataid=19752&FileName=concertpitchchart.pdf
 * Make the following obvious when asking for play or edit

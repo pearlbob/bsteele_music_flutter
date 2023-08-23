@@ -38,7 +38,16 @@ class SongMaster extends ChangeNotifier {
       //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
       _lastTime = time;
       final songTime = time - (_songStart ?? 0);
-      var momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
+
+      int momentNumber;
+      switch (songUpdateState) {
+        case SongUpdateState.pause:
+          momentNumber = _momentNumber ?? -1;
+          break;
+        default:
+          momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
+          break;
+      }
 
       var lyricSectionIndex = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
 
@@ -223,8 +232,8 @@ class SongMaster extends ChangeNotifier {
             _momentNumber = momentNumber;
             notifyListeners();
           }
-
           break;
+
         case SongUpdateState.pause:
           if (_song != null) {
             //  prepare for the eventual restart
@@ -301,6 +310,23 @@ class SongMaster extends ChangeNotifier {
     songUpdateState = SongUpdateState.playing;
     notifyListeners();
     logger.d('_playSongMode: ${songUpdateState.name}, _bpm: $_bpm');
+  }
+
+  pauseToggle() {
+    switch (songUpdateState) {
+      case SongUpdateState.playing:
+        songUpdateState = SongUpdateState.pause;
+        notifyListeners();
+        break;
+      case SongUpdateState.pause:
+        //  setup for the restart
+        _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
+        songUpdateState = SongUpdateState.playing;
+        notifyListeners();
+        break;
+      default:
+        break;
+    }
   }
 
   skipCurrentSection() {

@@ -187,7 +187,9 @@ class TheoryState extends State<TheoryWidget> {
                       Container(
                         height: 20,
                       ),
-                      Container(color: backgroundColor, child: _minorDiatonicsTable())
+                      Container(color: backgroundColor, child: _minorDiatonicsTable()),
+                      const AppSpace(),
+                      Container(color: backgroundColor, child: _instrumentTable()),
                     ],
                   ),
                 ],
@@ -918,6 +920,127 @@ class TheoryState extends State<TheoryWidget> {
 
     Map<int, TableColumnWidth> widths = {};
     for (var i = 0; i < MajorDiatonic.values.length + 1; i++) {
+      widths[i] = const IntrinsicColumnWidth(flex: 1);
+    }
+
+    return Table(
+      children: tableRows,
+      columnWidths: widths,
+      border: TableBorder.all(),
+    );
+  }
+
+  Table _instrumentTable() {
+    final tableRows = <TableRow>[];
+    const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
+
+    var boldStyle = _style.copyWith(fontWeight: FontWeight.bold);
+
+    tableRows.add(TableRow(children: [
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Concert Pitch',
+            style: boldStyle,
+          )),
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Instrument(s)',
+            style: boldStyle,
+          )),
+    ]));
+
+    tableRows.add(TableRow(children: [
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'C  +0 (-0): No Transposition',
+            style: _style,
+          )),
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Piccolo, Flute,  Oboe, Bassoon,  Trombone, Baritone B.C., Tuba',
+            style: _style,
+          )),
+    ]));
+
+    tableRows.add(TableRow(children: [
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Bb +2 (-10): up a major 2nd',
+            style: _style,
+          )),
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Clarinet, Bass Clarinet, Soprano Saxophone, Tenor Saxophone'
+            ', Trumpet, Baritone T.C.',
+            style: _style,
+          )),
+    ]));
+
+    tableRows.add(TableRow(children: [
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Eb +9 (-3):  down a minor 3rd',
+            style: _style,
+          )),
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Soprano Clarinet, Alto Clarinet, Alto Saxophone, Baritone Saxophone',
+            style: _style,
+          )),
+    ]));
+
+    tableRows.add(TableRow(children: [
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'F  +7 (-5):   up a perfect 5th',
+            style: _style,
+          )),
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'English Horn, French Horn',
+            style: _style,
+          )),
+    ]));
+
+    tableRows.add(TableRow(children: [
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'G  +7 (-5):   up a perfect 4th',
+            style: _style,
+          )),
+      Container(
+          padding: padding,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Alto Flute',
+            style: _style,
+          )),
+    ]));
+
+    Map<int, TableColumnWidth> widths = {};
+    for (var i = 0; i < 2; i++) {
       widths[i] = const IntrinsicColumnWidth(flex: 1);
     }
 

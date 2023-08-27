@@ -1067,7 +1067,7 @@ class LyricsTable {
           for (var measure in phrase.measures) {
             var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
                 displayMusicKey: displayMusicKey, style: style);
-            children.add(TextSpan(text: ' ', style: style));
+            if (children.isNotEmpty) children.add(TextSpan(text: ' ', style: style));
             children.add(textSpan);
             if (measure.endOfRow) {
               children.add(TextSpan(text: ',  ', style: style));
@@ -1103,7 +1103,7 @@ class LyricsTable {
           for (var measure in phrase.measures) {
             var textSpan = _nashvilleMeasureTextSpan(measure, originalKey, transpositionOffset,
                 displayMusicKey: displayMusicKey, style: style);
-            nashvilleChildren.add(TextSpan(text: ' ', style: style));
+            if (nashvilleChildren.isNotEmpty) nashvilleChildren.add(TextSpan(text: ' ', style: style));
             nashvilleChildren.add(textSpan);
             if (measure.endOfRow) {
               nashvilleChildren.add(TextSpan(text: '  $_middleDot  ', style: style));
@@ -1138,7 +1138,7 @@ class LyricsTable {
       case NashvilleSelection.both:
         var textSpan =
             _measureTextSpan(measure, originalKey, transpositionOffset, displayMusicKey: displayMusicKey, style: style);
-        children.add(TextSpan(text: ' ', style: style));
+        if (children.isNotEmpty) children.add(TextSpan(text: ' ', style: style));
         children.add(textSpan);
         break;
       default:
@@ -1151,7 +1151,7 @@ class LyricsTable {
       case NashvilleSelection.only:
         var textSpan = _nashvilleMeasureTextSpan(measure, originalKey, transpositionOffset,
             displayMusicKey: displayMusicKey, style: style);
-        nashvilleChildren.add(TextSpan(text: ' ', style: style));
+        if (nashvilleChildren.isNotEmpty) nashvilleChildren.add(TextSpan(text: ' ', style: style));
         nashvilleChildren.add(textSpan);
         break;
       case NashvilleSelection.off:
@@ -1188,11 +1188,12 @@ class LyricsTable {
 
     if (measure.chords.isNotEmpty) {
       for (final chord in measure.chords) {
+        List<TextSpan> chordChildren = [];
         var transposedChord = chord.transpose(displayMusicKey ?? originalKey, transpositionOffset);
         var isSlash = transposedChord.slashScaleNote != null;
 
         //  chord note
-        children.add(TextSpan(
+        chordChildren.add(TextSpan(
           text: transposedChord.scaleChord.scaleNote.toString(),
           style: style,
         ));
@@ -1200,7 +1201,7 @@ class LyricsTable {
           //  chord descriptor
           var name = transposedChord.scaleChord.chordDescriptor.shortName;
           if (name.isNotEmpty) {
-            children.add(
+            chordChildren.add(
               TextSpan(
                 text: name,
                 style: chordDescriptorStyle,
@@ -1210,21 +1211,27 @@ class LyricsTable {
         }
 
         //  other stuff
-        children.add(TextSpan(
-          text: transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString(),
-          style: style,
-        ));
+        {
+          var otherStuff = transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString();
+          if (otherStuff.isNotEmpty) {
+            chordChildren.add(TextSpan(
+              text: otherStuff,
+              style: style,
+            ));
+          }
+        }
         if (isSlash) {
           var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
           //  and readability
-          children.add(TextSpan(
+          chordChildren.add(TextSpan(
             text: s,
             style: slashStyle,
           ));
         }
+        children.add(TextSpan(children: chordChildren));
       }
     } else {
-      //  no chord measures such as repeats, repeat markers and comments
+      //  non chord measures such as repeats, repeat markers and comments
       children.add(TextSpan(
         text: measure.toString(),
         style: style,
@@ -1763,41 +1770,61 @@ class _SongCellState extends State<_SongCellWidget> {
 
     //  fixe height for banner only
     //  otherwise, allow the height to float
-    double? height = widget.isFixedHeight ? widget.size?.height ?? buildSize.height : null;
+    double? height = widget.isFixedHeight ? (widget.size?.height ?? buildSize.height) : null;
 
     RichText richText = widget.richText;
-    if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {
-      //  put the narrow column width on the left of a container
-      //  do the following row element is aligned in the next column
+    // if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {
+    //   //  put the narrow column width on the left of a container
+    //   //  do the following row element is aligned in the next column
+    //
+    //   Color color;
+    //   switch (widget.type) {
+    //     case SongCellType.columnMinimum:
+    //       color = Colors.transparent;
+    //       break;
+    //     default:
+    //       color = widget.richText.text.style?.backgroundColor ?? Colors.transparent;
+    //       break;
+    //   }
+    //
+    //   return Container(
+    //     alignment: Alignment.centerLeft,
+    //     color: color,
+    //     margin: _margin,
+    //     width: width,
+    //     height: height,
+    //     padding: _padding,
+    //     foregroundDecoration: //
+    //         selected
+    //             ? BoxDecoration(
+    //                 border: Border.all(
+    //                   width: _marginSize,
+    //                   color: _idleHighlightColor,
+    //                 ),
+    //               )
+    //             : null,
+    //     child: richText,
+    //   );
+    // }
 
-      Color color;
-      switch (widget.type) {
-        case SongCellType.columnMinimum:
-          color = Colors.transparent;
-          break;
-        default:
-          color = widget.richText.text.style?.backgroundColor ?? Colors.transparent;
-          break;
+    Widget textWidget = richText;
+    if (widget.measureNode?.measureNodeType == MeasureNodeType.measure && richText.text is TextSpan) {
+      //  fixme: limit to odd length measures
+
+      var textSpan = richText.text as TextSpan;
+      if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children![0] is TextSpan) {
+        textSpan = textSpan.children![0] as TextSpan;
       }
 
-      return Container(
-        alignment: Alignment.centerLeft,
-        color: color,
-        margin: _margin,
-        width: width,
-        height: height,
-        padding: _padding,
-        foregroundDecoration: //
-            selected
-                ? BoxDecoration(
-                    border: Border.all(
-                      width: _marginSize,
-                      color: _idleHighlightColor,
-                    ),
-                  )
-                : null,
-        child: richText,
-      );
+      textWidget = Stack(children: [
+        richText,
+        Text(textSpan.children?.length.toString() ?? '0'),
+        //  paint the beat marks
+        CustomPaint(
+          painter: _BeatMarkCustomPainter(),
+          size: Size(width, height ?? buildSize.height),
+        ),
+      ]);
     }
 
     return Container(
@@ -1816,9 +1843,24 @@ class _SongCellState extends State<_SongCellWidget> {
                 )
               : null,
       color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
-      child: richText,
+      child: textWidget,
     );
   }
 
   var selected = false; //  indicates the cell is currently selected, i.e. highlighted
+}
+
+class _BeatMarkCustomPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint();
+    paint.color = Colors.cyan;
+    canvas.drawRect(Rect.fromLTRB(size.width / 3, 0, size.width * 2 / 3, size.height / 8), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    // TODO: implement shouldRepaint
+    return true;
+  }
 }

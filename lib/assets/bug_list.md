@@ -10,11 +10,17 @@
 
 ### Fixes Completed
 
+* implement player pause
+* instrument pitch chart on the theory screen
 
 ### Fix
 
+* pause/play indicator
+* Initial bump down on Mac at play start
+* investigate all dot beats in all songs
+* investigate the display solution used in Nashville notation.
 * metadata filters should have a generated filter for singers
-* implement player pause
+
 *
 theory: https://www.orange.k12.nj.us/site/handlers/filedownload.ashx?moduleinstanceid=4691&dataid=19752&FileName=concertpitchchart.pdf
 * Make the following obvious when asking for play or edit

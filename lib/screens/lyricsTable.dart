@@ -72,15 +72,25 @@ var _maxLines = 1;
 ///  The trick of the game: Figure the text size prior to boxing it
 Size _computeRichTextSize(
   RichText richText, {
-  double textScaleFactor = 1.0,
+  double? textScaleFactor,
+  int? maxLines,
+  double? maxWidth,
+}) {
+  return _computeInlineSpanSize(richText.text,
+      textScaleFactor: textScaleFactor, maxLines: maxLines, maxWidth: maxWidth);
+}
+
+Size _computeInlineSpanSize(
+  InlineSpan textSpan, {
+  double? textScaleFactor,
   int? maxLines,
   double? maxWidth,
 }) {
   TextPainter textPainter = TextPainter(
-    text: richText.text,
+    text: textSpan,
     textDirection: TextDirection.ltr,
     maxLines: maxLines ?? _maxLines,
-    textScaleFactor: textScaleFactor,
+    textScaleFactor: textScaleFactor ?? 1.0,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
   return textPainter.size;
 }
@@ -1755,6 +1765,8 @@ class _SongCellState extends State<_SongCellWidget> {
       //  check the delay
       //Future.delayed(Duration.zero, () => _checkTheAutoPlayDelay(context));
     }
+
+    RichText richText = widget.richText;
     Size buildSize = widget.computedBuildSize;
 
     //  set width
@@ -1772,7 +1784,6 @@ class _SongCellState extends State<_SongCellWidget> {
     //  otherwise, allow the height to float
     double? height = widget.isFixedHeight ? (widget.size?.height ?? buildSize.height) : null;
 
-    RichText richText = widget.richText;
     // if ((widget.size?.width ?? 0) < (widget.columnWidth ?? 0)) {
     //   //  put the narrow column width on the left of a container
     //   //  do the following row element is aligned in the next column
@@ -1811,20 +1822,59 @@ class _SongCellState extends State<_SongCellWidget> {
     if (widget.measureNode?.measureNodeType == MeasureNodeType.measure && richText.text is TextSpan) {
       //  fixme: limit to odd length measures
 
-      var textSpan = richText.text as TextSpan;
-      if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children![0] is TextSpan) {
-        textSpan = textSpan.children![0] as TextSpan;
-      }
+      Measure measure = widget.measureNode! as Measure;
+      if (measure.chords.length > 1) {
+        //  see if all the beats total the normal beat count and that they are all equal
+        bool showOddBeats = false;
+        {
+          int totalBeats = 0;
+          int? beats;
+          for (var chord in measure.chords) {
+            totalBeats += chord.beats;
 
-      textWidget = Stack(children: [
-        richText,
-        Text(textSpan.children?.length.toString() ?? '0'),
-        //  paint the beat marks
-        CustomPaint(
-          painter: _BeatMarkCustomPainter(),
-          size: Size(width, height ?? buildSize.height),
-        ),
-      ]);
+            if (beats == null) {
+              beats = chord.beats;
+            } else if (beats != chord.beats) {
+              showOddBeats = true;
+            }
+          }
+          showOddBeats = showOddBeats || measure.chords[0].beatsPerBar != totalBeats;
+        }
+
+        if (showOddBeats) {
+          var textSpan = richText.text as TextSpan;
+          if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children![0] is TextSpan) {
+            textSpan = textSpan.children![0] as TextSpan;
+
+            List<Widget> chordWidgets = [];
+            assert(measure.chords.length == textSpan.children!.length);
+            int index = 0;
+            for (var chordTextSpan in textSpan.children!) {
+              if (chordTextSpan is TextSpan) {
+                //  assumes text spans have been styled appropriately
+                var chordRichText = RichText(
+                    text: TextSpan(
+                      children: chordTextSpan.children,
+                    ),
+                    textScaleFactor: richText.textScaleFactor);
+                chordWidgets.add(Stack(children: [
+                  chordRichText,
+                  // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
+                  //  paint the beat marks
+                  CustomPaint(
+                    painter: _BeatMarkCustomPainter(measure.chords[index].beats),
+                    size: _computeRichTextSize(chordRichText) * 0.8,
+                  ),
+                ]));
+              } else {
+                Text('not TextSpan: $chordTextSpan');
+              }
+              index++;
+            }
+            textWidget = AppWrap(children: chordWidgets);
+          }
+        }
+      }
     }
 
     return Container(
@@ -1851,11 +1901,17 @@ class _SongCellState extends State<_SongCellWidget> {
 }
 
 class _BeatMarkCustomPainter extends CustomPainter {
+  _BeatMarkCustomPainter(this.beats);
+
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.cyan;
-    canvas.drawRect(Rect.fromLTRB(size.width / 3, 0, size.width * 2 / 3, size.height / 8), paint);
+    paint.color = Colors.black;
+    double unit = size.height / 12;
+    for (int i = 0; i < beats; i++) {
+      double x = i * 2 * unit + unit;
+      canvas.drawRect(Rect.fromLTWH(x, 0, unit, unit), paint);
+    }
   }
 
   @override
@@ -1863,4 +1919,6 @@ class _BeatMarkCustomPainter extends CustomPainter {
     // TODO: implement shouldRepaint
     return true;
   }
+
+  final int beats;
 }

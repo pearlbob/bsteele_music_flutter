@@ -2648,7 +2648,7 @@ class EditState extends State<Edit> {
 
       if (measureEntryIsClear) {
         measureEntryIsClear = false;
-        editTextController.text = measure?.toMarkupWithEnd(null) ?? '';
+        editTextController.text = measure?.toMarkupWithoutEnd() ?? '';
         measureEntryValid = true; //  should always be!... at least at this moment,  fixme: verify
         editTextController.selection = TextSelection(baseOffset: 0, extentOffset: editTextController.text.length);
         editTextFieldFocusNode?.requestFocus();

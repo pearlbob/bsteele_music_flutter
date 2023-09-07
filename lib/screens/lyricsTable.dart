@@ -1823,56 +1823,55 @@ class _SongCellState extends State<_SongCellWidget> {
       //  fixme: limit to odd length measures
 
       Measure measure = widget.measureNode! as Measure;
-      if (measure.chords.length > 1) {
-        //  see if all the beats total the normal beat count and that they are all equal
-        bool showOddBeats = false;
-        {
-          int totalBeats = 0;
-          int? beats;
-          for (var chord in measure.chords) {
-            totalBeats += chord.beats;
 
-            if (beats == null) {
-              beats = chord.beats;
-            } else if (beats != chord.beats) {
-              showOddBeats = true;
-            }
+      //  see if all the beats total the normal beat count and that they are all equal
+      bool showOddBeats = false;
+      {
+        int totalBeats = 0;
+        int? beats;
+        for (var chord in measure.chords) {
+          totalBeats += chord.beats;
+
+          if (beats == null) {
+            beats = chord.beats;
+          } else if (beats != chord.beats) {
+            showOddBeats = true;
           }
-          showOddBeats = showOddBeats || measure.chords[0].beatsPerBar != totalBeats;
         }
+        showOddBeats = showOddBeats || measure.chords[0].beatsPerBar != totalBeats;
+      }
 
-        if (showOddBeats) {
-          var textSpan = richText.text as TextSpan;
-          if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children![0] is TextSpan) {
-            textSpan = textSpan.children![0] as TextSpan;
+      if (showOddBeats) {
+        var textSpan = richText.text as TextSpan;
+        if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children![0] is TextSpan) {
+          textSpan = textSpan.children![0] as TextSpan;
 
-            List<Widget> chordWidgets = [];
-            assert(measure.chords.length == textSpan.children!.length);
-            int index = 0;
-            for (var chordTextSpan in textSpan.children!) {
-              if (chordTextSpan is TextSpan) {
-                //  assumes text spans have been styled appropriately
-                var chordRichText = RichText(
-                    text: TextSpan(
-                      children: chordTextSpan.children,
-                    ),
-                    textScaleFactor: richText.textScaleFactor);
-                chordWidgets.add(Stack(children: [
-                  chordRichText,
-                  // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
-                  //  paint the beat marks
-                  CustomPaint(
-                    painter: _BeatMarkCustomPainter(measure.chords[index].beats),
-                    size: _computeRichTextSize(chordRichText) * 0.8,
+          List<Widget> chordWidgets = [];
+          assert(measure.chords.length == textSpan.children!.length);
+          int index = 0;
+          for (var chordTextSpan in textSpan.children!) {
+            if (chordTextSpan is TextSpan) {
+              //  assumes text spans have been styled appropriately
+              var chordRichText = RichText(
+                  text: TextSpan(
+                    children: chordTextSpan.children,
                   ),
-                ]));
-              } else {
-                Text('not TextSpan: $chordTextSpan');
-              }
-              index++;
+                  textScaleFactor: richText.textScaleFactor);
+              chordWidgets.add(Stack(children: [
+                chordRichText,
+                // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
+                //  paint the beat marks
+                CustomPaint(
+                  painter: _BeatMarkCustomPainter(measure.chords[index].beats),
+                  size: _computeRichTextSize(chordRichText) * 0.8, //  fixme: why is this needed?
+                ),
+              ]));
+            } else {
+              Text('not TextSpan: $chordTextSpan');
             }
-            textWidget = AppWrap(children: chordWidgets);
+            index++;
           }
+          textWidget = AppWrap(children: chordWidgets);
         }
       }
     }

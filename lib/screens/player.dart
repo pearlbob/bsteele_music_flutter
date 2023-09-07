@@ -71,6 +71,7 @@ const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
+const Level _logSongMasterBump = Level.info;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollAnimation = Level.debug;
@@ -1246,7 +1247,7 @@ With z or q, the play stops and goes back to the play list top.''',
       switch (songUpdateState) {
         case SongUpdateState.playing:
         case SongUpdateState.pause:
-          _songMaster.skipCurrentSection();
+          _sectionBump(1);
           break;
         default:
           break;
@@ -1255,11 +1256,11 @@ With z or q, the play stops and goes back to the play list top.''',
     } else if (!songUpdateService.isFollowing) {
       if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
         logger.d('arrowDown');
-        _songMaster.skipCurrentSection();
+        _sectionBump(1);
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
         logger.log(_logKeyboard, 'arrowUp');
-        _songMaster.repeatSectionIncrement();
+        _sectionBump(-1);
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
         logger.d('arrowRight');
@@ -1324,7 +1325,39 @@ With z or q, the play stops and goes back to the play list top.''',
   /// bump the bpm up or down
   bpmBump(final int bump) {
     logger.log(_logBPM, 'BPM bump($bump)');
-    _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) + bump);
+    int nowUs = DateTime.now().microsecondsSinceEpoch;
+
+    if (nowUs - _lastBpmBumpUs < 0.5 * Duration.microsecondsPerSecond) {
+      if (bump.sign == _lastBpmBump.sign) {
+        _bpmBumpStep++;
+      } else {
+        _lastBpmBump = 0;
+        _bpmBumpStep = 0;
+      }
+    } else {
+      _bpmBumpStep = 0;
+    }
+
+    _lastBpmBumpUs = nowUs;
+    _lastBpmBump = bump;
+
+    _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) +
+        bump.sign * _bumpSteps[Util.indexLimit(_bpmBumpStep, _bumpSteps)]);
+  }
+
+  _sectionBump(final int bump) {
+    logger.log(_logSongMasterBump, '  _sectionBump($bump): moment: ${_songMaster.momentNumber}');
+
+    var lyricSectionIndex = _song.getSongMoment(_songMaster.momentNumber ?? -1)?.lyricSection.index;
+    if (lyricSectionIndex != null) {
+      lyricSectionIndex += bump;
+      logger.log(_logSongMasterBump,
+          '  _sectionBump($bump): moment: ${_songMaster.momentNumber}, to section: $lyricSectionIndex');
+      var moment = _song.getFirstSongMomentAtLyricSectionIndex(lyricSectionIndex);
+      if (moment != null) {
+        _songMaster.skipToMomentNumber(moment.momentNumber);
+      }
+    }
   }
 
   void itemPositionsListener() {
@@ -2573,6 +2606,11 @@ With z or q, the play stops and goes back to the play list top.''',
 
   int _lastTempoTap = DateTime.now().microsecondsSinceEpoch;
   RollingAverage? _tempoRollingAverage;
+
+  int _bpmBumpStep = 0;
+  int _lastBpmBump = 0;
+  int _lastBpmBumpUs = 0;
+  static final _bumpSteps = [1, 2, 4, 6, 8];
 
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;

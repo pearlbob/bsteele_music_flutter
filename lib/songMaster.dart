@@ -274,7 +274,8 @@ class SongMaster extends ChangeNotifier {
 
   _resetSongStart(final double time, final int momentNumber) {
     if (_momentNumber != momentNumber) {
-      logger.i('resetSongStart(): which moment?  _momentNumber: $_momentNumber,  momentNumber: $momentNumber');
+      logger.log(
+          _logRestart, 'resetSongStart(): which moment?  _momentNumber: $_momentNumber,  momentNumber: $momentNumber');
     }
     // var beat = _song?.(time, bpm: _bpm);
     logger.log(_logRestart, 'resetSongStart(): old _songStart: $_songStart, _momentNumber: $_momentNumber');
@@ -334,7 +335,7 @@ class SongMaster extends ChangeNotifier {
   }
 
   skipToMomentNumber(final int momentNumber) {
-    _skipToMomentNumber = momentNumber;
+    _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.getSongMomentsSize() ?? 0) - 1);
   }
 
   /// Play a drums in real time

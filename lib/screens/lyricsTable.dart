@@ -588,7 +588,7 @@ class LyricsTable {
                       case Measure:
                         richText = RichText(
                           text: _measureNashvilleSelectionTextSpan(measure, song.key, transpositionOffset,
-                              style: _coloredChordTextStyle, displayMusicKey: displayMusicKey),
+                              style: _coloredChordTextStyle, displayMusicKey: displayMusicKey, showBeats: false),
                           //  don't allow the rich text to wrap:
                           textWidthBasis: TextWidthBasis.longestLine,
                           overflow: TextOverflow.clip,
@@ -1139,15 +1139,15 @@ class LyricsTable {
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
   TextSpan _measureNashvilleSelectionTextSpan(
       final Measure measure, final music_key.Key originalKey, int transpositionOffset,
-      {final music_key.Key? displayMusicKey, TextStyle? style}) {
+      {final music_key.Key? displayMusicKey, TextStyle? style, final bool showBeats = true}) {
     style = style ?? _coloredChordTextStyle;
 
     final List<TextSpan> children = [];
     switch (_nashvilleSelection) {
       case NashvilleSelection.off:
       case NashvilleSelection.both:
-        var textSpan =
-            _measureTextSpan(measure, originalKey, transpositionOffset, displayMusicKey: displayMusicKey, style: style);
+        var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
+            displayMusicKey: displayMusicKey, style: style, showBeats: showBeats);
         if (children.isNotEmpty) children.add(TextSpan(text: ' ', style: style));
         children.add(textSpan);
         break;
@@ -1180,7 +1180,7 @@ class LyricsTable {
   }
 
   TextSpan _measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
-      {final music_key.Key? displayMusicKey, TextStyle? style}) {
+      {final music_key.Key? displayMusicKey, TextStyle? style, final bool showBeats = false}) {
     style = style ?? _coloredChordTextStyle;
     logger.t('_measureTextSpan: style.color: ${style.color}'
         ', black: ${Colors.black}, ==: ${style.color?.value == Colors.black.value}');
@@ -1222,7 +1222,8 @@ class LyricsTable {
 
         //  other stuff
         {
-          var otherStuff = transposedChord.anticipationOrDelay.toString() + transposedChord.beatsToString();
+          var otherStuff =
+              transposedChord.anticipationOrDelay.toString() + (showBeats ? transposedChord.beatsToString() : '');
           if (otherStuff.isNotEmpty) {
             chordChildren.add(TextSpan(
               text: otherStuff,
@@ -1903,12 +1904,16 @@ class _BeatMarkCustomPainter extends CustomPainter {
   _BeatMarkCustomPainter(this.beats);
 
   @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint();
+  void paint(final Canvas canvas, Size size) {
+    final paint = Paint();
     paint.color = Colors.black;
-    double unit = size.height / 12;
+    final double unit = size.height / 12;
+    final double start = size.width / 2 -
+        (beats * unit) // 2 units per dot with spaces
+        +
+        unit / 2; // tuning only
     for (int i = 0; i < beats; i++) {
-      double x = i * 2 * unit + unit;
+      double x = start + i * 2 * unit + unit;
       canvas.drawRect(Rect.fromLTWH(x, 0, unit, unit), paint);
     }
   }

@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -17,14 +17,15 @@ class ScreenInfo {
   void refresh(BuildContext context) {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
 
-    double devicePixelRatio = mediaQueryData.devicePixelRatio;
-    _mediaWidth = mediaQueryData.size.width;
-    _mediaHeight = mediaQueryData.size.height;
+    //  deal with raw pixels
+    _devicePixelRatio = mediaQueryData.devicePixelRatio;
+    _mediaWidth = mediaQueryData.size.width * devicePixelRatio;
+    _mediaHeight = mediaQueryData.size.height * devicePixelRatio;
 
-    _fontSize = 2 * appDefaultFontSize * min(2.25, max(0.5, _mediaWidth / minLogicalPixels));
+    _fontSize = appDefaultFontSize * min(2.25, max(0.5, _mediaWidth / minLogicalPixels));
     _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
     _isWayTooNarrow = _mediaWidth <= 425;
-    _titleScaleFactor = 1.25 * max(1, _mediaWidth / minLogicalPixels);
+    _titleScaleFactor = max(1, _mediaWidth / minLogicalPixels);
     logger.log(
         _screenInfoLogFontsize,
         'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $fontSize'
@@ -62,6 +63,9 @@ class ScreenInfo {
 
   double get mediaHeight => _mediaHeight;
   late double _mediaHeight;
+
+  double get devicePixelRatio => _devicePixelRatio;
+  late double _devicePixelRatio;
 
   /// Indicate the screen is too narrow for a number of functions that require a wider screen.
   /// An example is the edit screen.

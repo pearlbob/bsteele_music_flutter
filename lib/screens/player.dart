@@ -63,7 +63,7 @@ final _lyricSectionNotifier = LyricSectionNotifier();
 music_key.Key _selectedSongKey = music_key.Key.C;
 
 //  diagnostic logging enables
-const Level _logBuild = Level.debug;
+const Level _logBuild = Level.info;
 const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
@@ -211,11 +211,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   @override
   void didChangeMetrics() {
-    var size = PlatformDispatcher.instance.implicitView?.physicalSize;
+    var size = PlatformDispatcher.instance.implicitView?.physicalSize; //fixme
     if (size != lastSize) {
-      setState(() {
-        lastSize = size;
-      });
+      forceTableRedisplay();
+      lastSize = size;
     }
   }
 

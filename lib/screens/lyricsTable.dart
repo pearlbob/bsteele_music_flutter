@@ -72,12 +72,11 @@ var _maxLines = 1;
 ///  The trick of the game: Figure the text size prior to boxing it
 Size _computeRichTextSize(
   RichText richText, {
-  double? textScaleFactor,
   int? maxLines,
   double? maxWidth,
 }) {
   return _computeInlineSpanSize(richText.text,
-      textScaleFactor: textScaleFactor, maxLines: maxLines, maxWidth: maxWidth);
+      textScaleFactor: richText.textScaleFactor, maxLines: maxLines, maxWidth: maxWidth);
 }
 
 Size _computeInlineSpanSize(
@@ -92,7 +91,9 @@ Size _computeInlineSpanSize(
     maxLines: maxLines ?? _maxLines,
     textScaleFactor: textScaleFactor ?? 1.0,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
-  return textPainter.size;
+  Size ret = textPainter.size;
+  textPainter.dispose();
+  return ret;
 }
 
 /// Class to hold a song moment and indicate play in the count in, prior to the first song moment.
@@ -579,7 +580,6 @@ class LyricsTable {
                             overflow: TextOverflow.clip,
                             softWrap: false,
                             textDirection: TextDirection.ltr,
-                            textScaleFactor: 1.0,
                             textAlign: TextAlign.start,
                             textHeightBehavior: const TextHeightBehavior(),
                           );
@@ -594,7 +594,6 @@ class LyricsTable {
                           overflow: TextOverflow.clip,
                           softWrap: false,
                           textDirection: TextDirection.ltr,
-                          textScaleFactor: 1.0,
                           textAlign: TextAlign.start,
                           textHeightBehavior: const TextHeightBehavior(),
                         );
@@ -799,8 +798,9 @@ class LyricsTable {
         break;
     }
     _scaleFactor = min(_scaleFactor, 1.0);
+    _scaleFactor /= app.screenInfo.devicePixelRatio; //fixme: why?
 
-    logger.log(_logFontSize, '_scaleFactor: $_scaleFactor');
+    logger.log(_logFontSize, '_scaleFactor: $_scaleFactor, ${app.screenInfo.fontSize}');
     logger.log(
         _logFontSize,
         'totalWidth: $totalWidth, totalHeight: $totalHeight, screenWidth: $screenWidth'
@@ -1556,7 +1556,6 @@ class _SongCellWidget extends StatefulWidget {
     this.point,
     this.columnWidth,
     this.withEllipsis,
-    this.textScaleFactor = 1.0,
     this.songMoment,
     this.expanded,
     this.selectable,
@@ -1572,7 +1571,6 @@ class _SongCellWidget extends StatefulWidget {
     this.point,
     this.columnWidth,
     this.withEllipsis,
-    this.textScaleFactor = 1.0,
     this.songMoment,
     this.expanded,
     this.selectable,
@@ -1592,7 +1590,7 @@ class _SongCellWidget extends StatefulWidget {
         key: richText.key,
         text: //  default to one line
             TextSpan(text: richText.text.toPlainText(), style: richText.text.style),
-        textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+        textScaleFactor: textScaleFactor ?? richText.textScaleFactor,
         softWrap: false,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -1601,7 +1599,7 @@ class _SongCellWidget extends StatefulWidget {
       copyOfRichText = RichText(
         key: richText.key,
         text: richText.text,
-        textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+        textScaleFactor: textScaleFactor ?? richText.textScaleFactor,
         softWrap: richText.softWrap,
         maxLines: _maxLines, //richText.maxLines,
       );
@@ -1619,7 +1617,6 @@ class _SongCellWidget extends StatefulWidget {
       point: point ?? this.point,
       columnWidth: columnWidth ?? this.columnWidth,
       withEllipsis: withEllipsis,
-      textScaleFactor: textScaleFactor ?? this.textScaleFactor,
       songMoment: songMoment ?? this.songMoment,
       expanded: expanded,
       selectable: selectable,
@@ -1638,7 +1635,7 @@ class _SongCellWidget extends StatefulWidget {
     var width = columnWidth ?? app.screenInfo.mediaWidth;
     var ret = (withEllipsis ?? false)
         ? size!
-        : _computeRichTextSize(richText, textScaleFactor: textScaleFactor, maxWidth: width) +
+        : _computeRichTextSize(richText, maxWidth: width) +
             Offset(2 * _paddingSize + 2.0 * _marginSize, 2 * _paddingSize + 2.0 * _marginSize);
     return ret;
   }
@@ -1657,7 +1654,6 @@ class _SongCellWidget extends StatefulWidget {
   final MeasureNode? measureNode;
   final int? lyricSectionIndex;
   final SplayTreeSet<int>? lyricSectionSet;
-  final double textScaleFactor;
   final Size? size;
   final double? columnWidth;
   final bool isFixedHeight;
@@ -1726,6 +1722,7 @@ class _SongCellState extends State<_SongCellWidget> {
                   _logLyricSectionCellState,
                   '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
                   ', ${widget.measureNode}'
+                  ', textScaleFactor: ${widget.richText.textScaleFactor}'
                   ', moment: ${widget.songMoment?.momentNumber}'
                   ', playMomentNumber: $playMomentNumber'
                   //
@@ -1761,7 +1758,9 @@ class _SongCellState extends State<_SongCellWidget> {
           '_SongCellState.childBuilder: selected: ${widget.songMoment?.momentNumber}'
           ': ${widget.richText.text.toPlainText()}'
           ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
-          ', songTime: ${SongMaster().songTime}');
+          ', songTime: ${SongMaster().songTime}'
+          //
+          );
 
       //  check the delay
       //Future.delayed(Duration.zero, () => _checkTheAutoPlayDelay(context));
@@ -1876,6 +1875,12 @@ class _SongCellState extends State<_SongCellWidget> {
         }
       }
     }
+    // else {
+    //   double w = _computeRichTextSize(widget.richText).width;
+    //   if (width <= w) {
+    //     assert(false);
+    //   }
+    // }
 
     return Container(
       alignment: Alignment.centerLeft,

@@ -232,6 +232,8 @@ class LyricsTable {
             continue;
           }
 
+          bool rowHasReducedBeats = _rowHasReducedBeats(row);
+
           for (var c = 0; c < row.length; c++) {
             ChordSection chordSection = displayGrid.get(r, c) as ChordSection;
             _colorBySectionVersion(chordSection.sectionVersion);
@@ -274,6 +276,7 @@ class LyricsTable {
                     type: SongCellType.columnMinimum,
                     measureNode: chordSection,
                     lyricSectionSet: set,
+                    rowHasReducedBeats: rowHasReducedBeats,
                   ),
                 );
 
@@ -501,9 +504,12 @@ class LyricsTable {
         {
           LyricSection? lyricSection;
           for (var r = 0; r < displayGrid.getRowCount(); r++) {
-            var row = displayGrid.getRow(r);
+            List<MeasureNode?>? row = displayGrid.getRow(r);
             assert(row != null);
             row = row!;
+
+            //  see if the row has reduced beats
+            bool rowHasReducedBeats = _rowHasReducedBeats(row);
 
             for (var c = 0; c < row.length; c++) {
               MeasureNode? measureNode = displayGrid.get(r, c);
@@ -609,6 +615,7 @@ class LyricsTable {
                         measureNode: measureNode,
                         lyricSectionIndex: lyricSection?.index,
                         expanded: expanded,
+                        rowHasReducedBeats: rowHasReducedBeats,
                       ),
                     );
                   }
@@ -629,6 +636,7 @@ class LyricsTable {
                       type: SongCellType.columnFill,
                       measureNode: measureNode,
                       lyricSectionIndex: lyricSection?.index,
+                      rowHasReducedBeats: rowHasReducedBeats,
                     ),
                   );
                   break;
@@ -1136,6 +1144,31 @@ class LyricsTable {
     return TextSpan(children: children, style: style);
   }
 
+  ///  see if the row has reduced beats
+  bool _rowHasReducedBeats(final List<MeasureNode?> row) {
+    //  see if the row has reduced beats
+    bool rowHasReducedBeats = false;
+    for (var c = 0; c < row.length; c++) {
+      MeasureNode? measureNode = row[c];
+      if (measureNode == null) {
+        continue;
+      }
+      switch (measureNode.measureNodeType) {
+        case MeasureNodeType.measure:
+          //  color done by prior chord section
+          {
+            Measure measure = measureNode as Measure;
+            rowHasReducedBeats = rowHasReducedBeats || measure.hasReducedBeats;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    logger.i('rowHasReducedBeats: $rowHasReducedBeats');
+    return rowHasReducedBeats;
+  }
+
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
   TextSpan _measureNashvilleSelectionTextSpan(
       final Measure measure, final music_key.Key originalKey, int transpositionOffset,
@@ -1560,6 +1593,7 @@ class _SongCellWidget extends StatefulWidget {
     this.expanded,
     this.selectable,
     this.isFixedHeight = false,
+    this.rowHasReducedBeats = false,
   });
 
   _SongCellWidget.empty({
@@ -1575,6 +1609,7 @@ class _SongCellWidget extends StatefulWidget {
     this.expanded,
     this.selectable,
     this.isFixedHeight = false,
+    this.rowHasReducedBeats = false,
   }) : richText = _emptyRichText;
 
   _SongCellWidget copyWith({
@@ -1621,6 +1656,7 @@ class _SongCellWidget extends StatefulWidget {
       expanded: expanded,
       selectable: selectable,
       isFixedHeight: isFixedHeight,
+      rowHasReducedBeats: rowHasReducedBeats,
     );
   }
 
@@ -1661,6 +1697,7 @@ class _SongCellWidget extends StatefulWidget {
   final SongMoment? songMoment;
   final bool? expanded;
   final bool? selectable;
+  final bool rowHasReducedBeats;
   static final _emptyRichText = RichText(
     text: const TextSpan(text: ''),
   );
@@ -1838,13 +1875,13 @@ class _SongCellState extends State<_SongCellWidget> {
             showOddBeats = true;
           }
         }
-        showOddBeats = showOddBeats || measure.chords[0].beatsPerBar != totalBeats;
+        showOddBeats = showOddBeats || measure.chords.first.beatsPerBar != totalBeats;
       }
 
-      if (showOddBeats) {
+      if (widget.rowHasReducedBeats) {
         var textSpan = richText.text as TextSpan;
-        if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children![0] is TextSpan) {
-          textSpan = textSpan.children![0] as TextSpan;
+        if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children!.first is TextSpan) {
+          textSpan = textSpan.children!.first as TextSpan;
 
           List<Widget> chordWidgets = [];
           assert(measure.chords.length == textSpan.children!.length);
@@ -1857,14 +1894,15 @@ class _SongCellState extends State<_SongCellWidget> {
                     children: chordTextSpan.children,
                   ),
                   textScaleFactor: richText.textScaleFactor);
-              chordWidgets.add(Stack(children: [
+              Size beatsSize = _computeRichTextSize(chordRichText) * 0.8; //  fixme: why is this needed?
+              chordWidgets.add(Column(children: [
+                CustomPaint(
+                  painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[index].beats) : null,
+                  size: Size(beatsSize.width, beatsSize.height / 6), //  fixme: why is this needed?
+                ),
                 chordRichText,
                 // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
                 //  paint the beat marks
-                CustomPaint(
-                  painter: _BeatMarkCustomPainter(measure.chords[index].beats),
-                  size: _computeRichTextSize(chordRichText) * 0.8, //  fixme: why is this needed?
-                ),
               ]));
             } else {
               Text('not TextSpan: $chordTextSpan');
@@ -1875,12 +1913,6 @@ class _SongCellState extends State<_SongCellWidget> {
         }
       }
     }
-    // else {
-    //   double w = _computeRichTextSize(widget.richText).width;
-    //   if (width <= w) {
-    //     assert(false);
-    //   }
-    // }
 
     return Container(
       alignment: Alignment.centerLeft,
@@ -1911,15 +1943,14 @@ class _BeatMarkCustomPainter extends CustomPainter {
   @override
   void paint(final Canvas canvas, Size size) {
     final paint = Paint();
-    paint.color = Colors.black;
-    final double unit = size.height / 12;
-    final double start = size.width / 2 -
-        (beats * unit) // 2 units per dot with spaces
-        +
-        unit / 2; // tuning only
+    paint.color = Colors.red;
+    final double unit = size.height;
+    final double space = unit / 2;
+    final double start = size.width / 2 - (beats * (unit + space)) / 2; // unit + space per dot
+
     for (int i = 0; i < beats; i++) {
-      double x = start + i * 2 * unit + unit;
-      canvas.drawRect(Rect.fromLTWH(x, 0, unit, unit), paint);
+      double x = start + i * (unit + space);
+      canvas.drawArc(Rect.fromLTWH(x, 0, unit, unit), 0, 2 * pi, true, paint);
     }
   }
 

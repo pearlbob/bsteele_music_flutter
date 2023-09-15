@@ -63,7 +63,7 @@ final _lyricSectionNotifier = LyricSectionNotifier();
 music_key.Key _selectedSongKey = music_key.Key.C;
 
 //  diagnostic logging enables
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;

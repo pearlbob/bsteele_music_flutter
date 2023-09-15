@@ -534,6 +534,7 @@ class AppWrap extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
       alignment: alignment ?? WrapAlignment.start,
       spacing: spacing ?? 0.0,
+      runSpacing: 5,
       children: children,
     );
   }

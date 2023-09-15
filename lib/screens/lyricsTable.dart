@@ -1084,7 +1084,7 @@ class LyricsTable {
           }
           for (var measure in phrase.measures) {
             var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
-                displayMusicKey: displayMusicKey, style: style);
+                displayMusicKey: displayMusicKey, style: style, showBeats: true);
             if (children.isNotEmpty) children.add(TextSpan(text: ' ', style: style));
             children.add(textSpan);
             if (measure.endOfRow) {
@@ -1165,7 +1165,7 @@ class LyricsTable {
           break;
       }
     }
-    logger.i('rowHasReducedBeats: $rowHasReducedBeats');
+    //logger.i('rowHasReducedBeats: $rowHasReducedBeats');
     return rowHasReducedBeats;
   }
 

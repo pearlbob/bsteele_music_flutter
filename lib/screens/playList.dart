@@ -682,8 +682,8 @@ class _PlayListState extends State<PlayList> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppRow(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              AppRow(children: [
+            AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+              AppWrap(alignment: WrapAlignment.spaceBetween, children: [
                 //  search icon
                 AppTooltip(
                   message: _searchTextTooltipText,
@@ -695,80 +695,79 @@ class _PlayListState extends State<PlayList> {
                         //fixme: _searchSongs(_searchTextFieldController.text);
                       });
                     }),
-                      ),
-                    ),
-                    //  search text
-                    AppTooltip(
-                      message: 'Enter list search terms here.\n'
-                          'Regular expressions can be used.',
-                      child: AppTextField(
-                        appKeyEnum: AppKeyEnum.playListSearch,
-                        controller: _searchTextFieldController,
-                        focusNode: _searchFocusNode,
-                        hintText: 'Search here...',
-                        width: min(appDefaultFontSize * 40, app.screenInfo.mediaWidth / 2),
-                        onChanged: (value) {
-                          setState(() {
-                            if (_searchTextFieldController.text != value) {
-                              //  programmatic text entry
-                              _searchTextFieldController.text = value;
-                            }
+                  ),
+                ),
+                //  search text
+                AppTooltip(
+                  message: 'Enter list search terms here.\n'
+                      'Regular expressions can be used.',
+                  child: AppTextField(
+                    appKeyEnum: AppKeyEnum.playListSearch,
+                    controller: _searchTextFieldController,
+                    focusNode: _searchFocusNode,
+                    hintText: 'Search here...',
+                    width: app.screenInfo.fontSize * 10,
+                    onChanged: (value) {
+                      setState(() {
+                        if (_searchTextFieldController.text != value) {
+                          //  programmatic text entry
+                          _searchTextFieldController.text = value;
+                        }
                         logger.t('search text: "$value"');
                         app.clearMessage();
-                          });
-                        },
-                      ),
-                    ),
-                    //  search clear
-                    AppTooltip(
-                        message: _searchTextFieldController.text.isEmpty
-                            ? 'Scroll the list some.'
-                            : 'Clear the search text.',
-                        child: appIconButton(
-                          icon: const Icon(Icons.clear),
-                          appKeyEnum: AppKeyEnum.playListClearSearch,
-                          iconSize: 1.25 * widget.titleFontSize,
-                          onPressed: (() {
-                            _searchTextFieldController.clear();
-                            app.clearMessage();
-                            setState(() {
-                              FocusScope.of(context).requestFocus(_searchFocusNode);
-                              //_lastSelectedSong = null;
-                            });
-                          }),
-                        )),
+                      });
+                    },
+                  ),
+                ),
+                //  search clear
+                AppTooltip(
+                    message:
+                        _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                    child: appIconButton(
+                      icon: const Icon(Icons.clear),
+                      appKeyEnum: AppKeyEnum.playListClearSearch,
+                      iconSize: 1.25 * widget.titleFontSize,
+                      onPressed: (() {
+                        _searchTextFieldController.clear();
+                        app.clearMessage();
+                        setState(() {
+                          FocusScope.of(context).requestFocus(_searchFocusNode);
+                          //_lastSelectedSong = null;
+                        });
+                      }),
+                    )),
 
-                    const AppSpace(spaceFactor: 2.0),
+                const AppSpace(spaceFactor: 2.0),
                     //  filters
                     AppTooltip(
                         message: '''Filter the list by the selected metadata.
 Selections with the same name will be OR'd together.
 Selections with different names will be AND'd.''',
-                        child: MetadataPopupMenuButton.button(
-                          title: 'Filters',
-                          style: widget.artistStyle,
-                          showAllFilters: widget.showAllFilters,
-                          onSelected: (value) {
-                            setState(() {
-                              if (value == allNameValue) {
-                                _filterNameValues.clear();
-                              } else {
-                                _filterNameValues.add(value);
-                              }
-                            });
-                          },
-                        )),
-                    AppWrap(
-                      spacing: _textFontSize / 2,
-                      children: filterWidgets,
-                    ),
-                  ]),
+                    child: MetadataPopupMenuButton.button(
+                      title: 'Filters',
+                      style: widget.artistStyle,
+                      showAllFilters: widget.showAllFilters,
+                      onSelected: (value) {
+                        setState(() {
+                          if (value == allNameValue) {
+                            _filterNameValues.clear();
+                          } else {
+                            _filterNameValues.add(value);
+                          }
+                        });
+                      },
+                    )),
+                AppWrap(
+                  spacing: _textFontSize / 2,
+                  children: filterWidgets,
+                ),
+              ]),
 
-                  //  filters and order
-                  AppRow(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              //  filters and order
+              AppWrap(alignment: WrapAlignment.spaceBetween, children: [
                 //  filters and order
                 if (app.isScreenBig && widget.isOrderBy)
-                  AppRow(
+                  AppWrap(
                     children: [
                       AppTooltip(
                         message: 'Select the order of the song list.',
@@ -780,25 +779,25 @@ Selections with different names will be AND'd.''',
                       appDropdownButton<PlayListSortType>(
                         AppKeyEnum.mainSortType,
                         _sortTypesDropDownMenuList,
-                            onChanged: (value) {
-                              if (selectedSortType != value) {
-                                setState(() {
-                                  selectedSortType = value ?? PlayListSortType.byTitle;
-                                  app.clearMessage();
-                                });
-                              }
-                            },
-                            value: selectedSortType,
-                            style: widget.searchDropDownStyle,
-                          ),
-                          Text(
-                            '(${filteredGroup.length})',
-                            style: widget.artistStyle,
-                          ),
-                        ],
+                        onChanged: (value) {
+                          if (selectedSortType != value) {
+                            setState(() {
+                              selectedSortType = value ?? PlayListSortType.byTitle;
+                              app.clearMessage();
+                            });
+                          }
+                        },
+                        value: selectedSortType,
+                        style: widget.searchDropDownStyle,
                       ),
-                  ]),
-                ]),
+                      Text(
+                        '(${filteredGroup.length})',
+                        style: widget.artistStyle,
+                      ),
+                    ],
+                  ),
+              ]),
+            ]),
             const AppSpace(),
 
             // this expanded is required as well

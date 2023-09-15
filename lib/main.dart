@@ -541,9 +541,7 @@ class MyHomePageState extends State<MyHomePage> {
           child: appIconWithLabelButton(
             appKeyEnum: AppKeyEnum.mainHamburger,
             onPressed: _openDrawer,
-            icon: appIcon(
-              Icons.menu, size: app.screenInfo.fontSize, //  fixme: why is this required?
-            ),
+            icon: appIcon(Icons.menu),
           ),
         ),
         actions: <Widget>[

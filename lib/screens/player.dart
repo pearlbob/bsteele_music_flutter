@@ -105,7 +105,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   _player?.setSelectedSongKey(songUpdate.currentKey);
   playerSelectedBpm = songUpdate.currentBeatsPerMinute;
 
-  Timer(const Duration(milliseconds: 2), () {
+  Timer(const Duration(milliseconds: 16), () {
     // ignore: invalid_use_of_protected_member
     logger.log(_logLeaderFollower, 'playerUpdate timer: $_songUpdate');
     _player?.setPlayState();
@@ -2627,7 +2627,7 @@ With z or q, the play stops and goes back to the play list top.''',
   Size? lastSize;
 
   static const _centerSelections = true;
-  static const _scrollAlignment = 0.3;
+  static const _scrollAlignment = 0.15;
   double boxMarker = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 

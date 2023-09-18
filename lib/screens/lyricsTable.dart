@@ -70,23 +70,31 @@ const _defaultMaxLines = 12;
 var _maxLines = 1;
 
 ///  The trick of the game: Figure the text size prior to boxing it
-Size _computeRichTextSize(
-  RichText richText, {
+Size _computeRichTextSize(final RichText richText, {
   int? maxLines,
   double? maxWidth,
 }) {
+  InlineSpan text = richText.text;
+  if (text.toPlainText().isEmpty && richText.children.isNotEmpty) {
+    var first = richText.children.first;
+    if (first is TextSpan) {
+      text = first as TextSpan;
+    }
+  }
+  if (text.toPlainText().isEmpty) {
+    return const Size(10, 20); //  safety
+  }
   return _computeInlineSpanSize(richText.text,
       textScaleFactor: richText.textScaleFactor, maxLines: maxLines, maxWidth: maxWidth);
 }
 
-Size _computeInlineSpanSize(
-  InlineSpan textSpan, {
+Size _computeInlineSpanSize(final InlineSpan inLineSpan, {
   double? textScaleFactor,
   int? maxLines,
   double? maxWidth,
 }) {
   TextPainter textPainter = TextPainter(
-    text: textSpan,
+    text: inLineSpan,
     textDirection: TextDirection.ltr,
     maxLines: maxLines ?? _maxLines,
     textScaleFactor: textScaleFactor ?? 1.0,
@@ -1310,26 +1318,34 @@ class LyricsTable {
     if (measure.chords.isNotEmpty) {
       bool first = true;
       for (final chord in measure.chords) {
+        //  note: algorithm elsewhere relies on only one text span per chord!
+
         //  space the next chord in the measure
+        final List<TextSpan> chordChildren = [];
         if (first) {
           first = false;
         } else {
-          nashvilleChildren.add(TextSpan(text: ' ', style: style));
+          chordChildren.add(TextSpan(text: ' ', style: style));
         }
 
-        nashvilleChildren.add(TextSpan(
+        chordChildren.add(TextSpan(
             text: NashvilleNote.byHalfStep(chord.scaleChord.scaleNote.halfStep - keyOffset).toString(), style: style));
-        nashvilleChildren
-            .add(TextSpan(text: chord.scaleChord.chordDescriptor.toNashville(), style: chordDescriptorStyle));
+        {
+          String descriptor = chord.scaleChord.chordDescriptor.toNashville();
+          if (descriptor.isNotEmpty) {
+            chordChildren.add(TextSpan(text: descriptor, style: chordDescriptorStyle));
+          }
+        }
         // nashvilleChildren.add(TextSpan(text: '${chord.anticipationOrDelay}', style: style));
 
         if (chord.slashScaleNote != null) {
-          nashvilleChildren.add(TextSpan(
+          chordChildren.add(TextSpan(
             //  notice the final space for italics  and readability
             text: '/${NashvilleNote.byHalfStep(chord.slashScaleNote!.halfStep - keyOffset)} ',
             style: slashStyle,
           ));
         }
+        nashvilleChildren.add(TextSpan(children: chordChildren, style: style));
       }
     }
 
@@ -1884,20 +1900,18 @@ class _SongCellState extends State<_SongCellWidget> {
           textSpan = textSpan.children!.first as TextSpan;
 
           List<Widget> chordWidgets = [];
-          assert(measure.chords.length == textSpan.children!.length);
-          int index = 0;
+          int chordIndex = 0;
           for (var chordTextSpan in textSpan.children!) {
+            if (textSpan.children!.length != measure.chords.length) {
+              logger.i('break here');
+            }
             if (chordTextSpan is TextSpan) {
               //  assumes text spans have been styled appropriately
-              var chordRichText = RichText(
-                  text: TextSpan(
-                    children: chordTextSpan.children,
-                  ),
-                  textScaleFactor: richText.textScaleFactor);
+              var chordRichText = RichText(text: chordTextSpan, textScaleFactor: richText.textScaleFactor);
               Size beatsSize = _computeRichTextSize(chordRichText) * 0.8; //  fixme: why is this needed?
               chordWidgets.add(Column(children: [
                 CustomPaint(
-                  painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[index].beats) : null,
+                  painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[chordIndex++].beats) : null,
                   size: Size(beatsSize.width, beatsSize.height / 6), //  fixme: why is this needed?
                 ),
                 chordRichText,
@@ -1907,7 +1921,6 @@ class _SongCellState extends State<_SongCellWidget> {
             } else {
               Text('not TextSpan: $chordTextSpan');
             }
-            index++;
           }
           textWidget = AppWrap(children: chordWidgets);
         }

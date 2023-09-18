@@ -49,6 +49,11 @@
 * Player scrolling moved to autoplay. See the play button tooltip for
   explanation.
 
+### Fix
+
+* scroll alignment
+* both nashville with short measure
+* row scroll alignment runs out of width
 
 ### Fixes Completed
 

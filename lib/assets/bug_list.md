@@ -10,23 +10,37 @@
 
 ### Fixes Completed
 
-* implement player pause
-* instrument pitch chart on the theory screen
+
 
 ### Fix
 
+* new song not always when selected from main song list
+
+* add musicnotes.com link to edit page
+* minor vs major key mapping on edit page
+* all8.com/tools/bpm.htm
+* beat dots on Nashville don't work
+* singer chords are not correct on short beat measures
+* tap to bpm on edit page
+* look at https://www.beatsperminuteonline.com
+* edit: auto-validate more often
+* edit: chords on lyrics: can be 'null' how?
+* edit: alignment of chords in lyrics section, example: Mr. Jones,
+  likely based on extra line based on blank at end of lyrics or chords,
+  better when validated
 * pause/play indicator
 * Initial bump down on Mac at play start
 * investigate all dot beats in all songs
 * investigate the display solution used in Nashville notation.
 * metadata filters should have a generated filter for singers
-
+* tell the user why the "new songs" option is missing
+* tell the user why editing is not available (too narrow or following)
 *
 theory: https://www.orange.k12.nj.us/site/handlers/filedownload.ashx?moduleinstanceid=4691&dataid=19752&FileName=concertpitchchart.pdf
 * Make the following obvious when asking for play or edit
 * Been getting requests to see the difference between new song additions
   vs edited songs. Is there a way to mark a new one?
-  I'm fine marking this on the edit page, then it times out after two weeks....
+  I'm fine marking this on the edit page, then it times out after two weeks...
 * option to remove triangle indicator
 * smooth scroll vs line by line in player scroll
 * player: stop button at play button location on the upper left

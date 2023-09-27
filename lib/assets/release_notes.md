@@ -54,6 +54,9 @@
 * scroll alignment
 * both nashville with short measure
 * row scroll alignment runs out of width
+* instrument pitch chart on the theory screen
+* copyright => release/label on edit page
+* implement player pause
 
 ### Fixes Completed
 

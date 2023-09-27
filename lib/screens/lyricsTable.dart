@@ -240,7 +240,7 @@ class LyricsTable {
             continue;
           }
 
-          bool rowHasReducedBeats = _rowHasReducedBeats(row);
+          bool rowHasReducedBeats = _rowHasExplicitBeats(row);
 
           for (var c = 0; c < row.length; c++) {
             ChordSection chordSection = displayGrid.get(r, c) as ChordSection;
@@ -517,7 +517,7 @@ class LyricsTable {
             row = row!;
 
             //  see if the row has reduced beats
-            bool rowHasReducedBeats = _rowHasReducedBeats(row);
+            bool rowHasReducedBeats = _rowHasExplicitBeats(row);
 
             for (var c = 0; c < row.length; c++) {
               MeasureNode? measureNode = displayGrid.get(r, c);
@@ -1153,9 +1153,9 @@ class LyricsTable {
   }
 
   ///  see if the row has reduced beats
-  bool _rowHasReducedBeats(final List<MeasureNode?> row) {
+  bool _rowHasExplicitBeats(final List<MeasureNode?> row) {
     //  see if the row has reduced beats
-    bool rowHasReducedBeats = false;
+    bool rowHasExplicitBeats = false;
     for (var c = 0; c < row.length; c++) {
       MeasureNode? measureNode = row[c];
       if (measureNode == null) {
@@ -1166,15 +1166,15 @@ class LyricsTable {
           //  color done by prior chord section
           {
             Measure measure = measureNode as Measure;
-            rowHasReducedBeats = rowHasReducedBeats || measure.hasReducedBeats;
+            rowHasExplicitBeats = rowHasExplicitBeats || measure.hasExplicitBeats;
           }
           break;
         default:
           break;
       }
     }
-    //logger.i('rowHasReducedBeats: $rowHasReducedBeats');
-    return rowHasReducedBeats;
+    //logger.i('rowHasExplicitBeats: rowHasExplicitBeats');
+    return rowHasExplicitBeats;
   }
 
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
@@ -1878,23 +1878,10 @@ class _SongCellState extends State<_SongCellWidget> {
       Measure measure = widget.measureNode! as Measure;
 
       //  see if all the beats total the normal beat count and that they are all equal
-      bool showOddBeats = false;
-      {
-        int totalBeats = 0;
-        int? beats;
-        for (var chord in measure.chords) {
-          totalBeats += chord.beats;
-
-          if (beats == null) {
-            beats = chord.beats;
-          } else if (beats != chord.beats) {
-            showOddBeats = true;
-          }
-        }
-        showOddBeats = showOddBeats || measure.chords.first.beatsPerBar != totalBeats;
-      }
+      bool showOddBeats = measure.hasExplicitBeats;
 
       if (widget.rowHasReducedBeats) {
+        //  make all measures the same height if any of them have explicit beats
         var textSpan = richText.text as TextSpan;
         if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children!.first is TextSpan) {
           textSpan = textSpan.children!.first as TextSpan;

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/bass.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
+import 'package:bsteele_music_lib/songs/chord_anticipation_or_delay.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
@@ -508,7 +509,8 @@ class OptionsState extends State<Options> {
                 when: _timerT, duration: timerPeriod - gap, volume: 1.0 / 8);
 
             //  piano chord
-            Chord chord = Chord.byScaleChord(ScaleChord(refPitch.getScaleNote(), chordDescriptor));
+            Chord chord = Chord(ScaleChord(refPitch.getScaleNote(), chordDescriptor), 4, 4, null,
+                ChordAnticipationOrDelay.defaultValue, false);
             List<Pitch> pitches = chord.getPitches(_atOrAbove);
             double duration = timerPeriod - gap;
             double amp = 1.0 / (pitches.length + 2);

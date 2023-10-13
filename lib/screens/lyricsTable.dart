@@ -1943,7 +1943,7 @@ class _BeatMarkCustomPainter extends CustomPainter {
   @override
   void paint(final Canvas canvas, Size size) {
     final paint = Paint();
-    paint.color = Colors.red;
+    paint.color = Colors.black;
     final double unit = size.height;
     final double space = unit / 2;
     final double start = size.width / 2 - (beats * (unit + space)) / 2; // unit + space per dot

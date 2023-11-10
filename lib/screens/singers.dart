@@ -45,7 +45,7 @@ enum SingersSongOrder { singer, title, recentOnTop, oldestFirst }
 /// Allow the session leader to manage songs for the singers currently present.
 /// Remembers the last key and BPM used by a given singer to aid in the re-singing of that song by the singer.
 class Singers extends StatefulWidget {
-  const Singers({Key? key}) : super(key: key);
+  const Singers({super.key});
 
   @override
   SingersState createState() => SingersState();

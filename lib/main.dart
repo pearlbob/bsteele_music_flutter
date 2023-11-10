@@ -246,7 +246,7 @@ map moment to grid
 
 /// Display the master list of songs to choose from.
 class BSteeleMusicApp extends StatelessWidget {
-  const BSteeleMusicApp({Key? key}) : super(key: key);
+  const BSteeleMusicApp({super.key});
 
   @override
   Widget build(BuildContext context) {

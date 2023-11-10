@@ -22,7 +22,7 @@ const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
 const Level _songMasterBpmChange = Level.debug;
 const Level _logRestart = Level.debug;
-const Level _logDrums = Level.debug;
+// const Level _logDrums = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();

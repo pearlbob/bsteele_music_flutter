@@ -112,16 +112,14 @@ abstract class SheetNotation {
 }
 
 class SheetTextNotation extends SheetNotation {
-  SheetTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super._(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight);
+  SheetTextNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super._();
 }
 
 class SheetSectionTextNotation extends SheetTextNotation {
-  SheetSectionTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+  SheetSectionTextNotation(super.sheetDisplay,
+      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawNotationStart() {
@@ -150,10 +148,9 @@ class SheetSectionTextNotation extends SheetTextNotation {
 }
 
 class SheetMeasureCountTextNotation extends SheetTextNotation {
-  SheetMeasureCountTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 2 * _chordFontSize, postHeight: postHeight);
+  SheetMeasureCountTextNotation(super.sheetDisplay,
+      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super(activeHeight: activeHeight ?? 2 * _chordFontSize);
 
   @override
   void drawNotationStart() {
@@ -169,10 +166,9 @@ class SheetMeasureCountTextNotation extends SheetTextNotation {
 }
 
 class SheetChordTextNotation extends SheetTextNotation {
-  SheetChordTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+  SheetChordTextNotation(super.sheetDisplay,
+      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -193,10 +189,9 @@ class SheetChordTextNotation extends SheetTextNotation {
 }
 
 class SheetLyricsTextNotation extends SheetTextNotation {
-  SheetLyricsTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+  SheetLyricsTextNotation(super.sheetDisplay,
+      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -211,10 +206,9 @@ class SheetLyricsTextNotation extends SheetTextNotation {
 }
 
 class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
-  SheetBassNoteNumbersTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+  SheetBassNoteNumbersTextNotation(super.sheetDisplay,
+      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -240,10 +234,9 @@ class SheetBassNoteNumbersTextNotation extends SheetTextNotation {
 }
 
 class SheetBassNotesTextNotation extends SheetTextNotation {
-  SheetBassNotesTextNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, SheetNoteSymbol? clef})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight ?? 1.5 * _chordFontSize, postHeight: postHeight);
+  SheetBassNotesTextNotation(super.sheetDisplay,
+      {super.preHeight, double? activeHeight, super.postHeight, SheetNoteSymbol? clef})
+      : super(activeHeight: activeHeight ?? 1.5 * _chordFontSize);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -269,9 +262,8 @@ class SheetBassNotesTextNotation extends SheetTextNotation {
 }
 
 class _SheetStaffNotation extends SheetNotation {
-  _SheetStaffNotation(SheetDisplay sheetDisplay,
-      {double? preHeight, double? activeHeight, double? postHeight, Clef? clef})
-      : super._(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight) {
+  _SheetStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight, Clef? clef})
+      : super._() {
     _clef = clef ?? Clef.treble;
     _clefSymbol = _clefSheetNoteSymbol(_clef);
   }
@@ -549,9 +541,8 @@ class _SheetStaffNotation extends SheetNotation {
 }
 
 class SheetTrebleStaffNotation extends _SheetStaffNotation {
-  SheetTrebleStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight, clef: Clef.treble);
+  SheetTrebleStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight})
+      : super(clef: Clef.treble);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -584,8 +575,8 @@ class SheetTrebleStaffNotation extends _SheetStaffNotation {
 }
 
 class SheetBassStaffNotation extends _SheetStaffNotation {
-  SheetBassStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
-      : super(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight, clef: Clef.bass);
+  SheetBassStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight})
+      : super(clef: Clef.bass);
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -597,8 +588,7 @@ class SheetBassStaffNotation extends _SheetStaffNotation {
 }
 
 class SheetChordStaffNotation extends _SheetStaffNotation {
-  SheetChordStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
-      : super(sheetDisplay, preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight);
+  SheetChordStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight});
 
   @override
   void drawBeat(SongMoment songMoment, double beat) {
@@ -718,9 +708,8 @@ class SheetChordStaffNotation extends _SheetStaffNotation {
 }
 
 class SheetBass8vbStaffNotation extends _SheetStaffNotation {
-  SheetBass8vbStaffNotation(SheetDisplay sheetDisplay, {double? preHeight, double? activeHeight, double? postHeight})
-      : super(sheetDisplay,
-            preHeight: preHeight, activeHeight: activeHeight, postHeight: postHeight, clef: Clef.bass8vb);
+  SheetBass8vbStaffNotation(super.sheetDisplay, {super.preHeight, super.activeHeight, super.postHeight})
+      : super(clef: Clef.bass8vb);
 
   @override
   Rect? drawBeat(SongMoment songMoment, double beat) {

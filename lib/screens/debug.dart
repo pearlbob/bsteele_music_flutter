@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 /// Display the application's songlyrics file specification
 class Debug extends StatefulWidget {
-  const Debug({Key? key}) : super(key: key);
+  const Debug({super.key});
 
   @override
   DebugState createState() => DebugState();

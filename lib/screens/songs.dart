@@ -19,7 +19,7 @@ enum SongsDialogResponse { accept, reject, acceptAll, rejectAll }
 /// Provide a number of song related actions for the user.
 /// This includes reading song files, clearing all songs from the current song list, and the like.
 class Songs extends StatefulWidget {
-  const Songs({Key? key}) : super(key: key);
+  const Songs({super.key});
 
   @override
   SongsState createState() => SongsState();

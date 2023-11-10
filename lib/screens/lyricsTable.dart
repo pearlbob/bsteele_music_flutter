@@ -570,7 +570,7 @@ class LyricsTable {
                       style: _lyricsTextStyle,
                     ));
                     switch (measure.runtimeType) {
-                      case MeasureRepeatExtension:
+                      case const (MeasureRepeatExtension):
                         if (!expanded) {
                           richText = RichText(
                               text: TextSpan(
@@ -581,7 +581,7 @@ class LyricsTable {
                           ));
                         }
                         break;
-                      case MeasureRepeatMarker:
+                      case const (MeasureRepeatMarker):
                         if (!expanded) {
                           richText = RichText(
                             text: TextSpan(
@@ -599,7 +599,7 @@ class LyricsTable {
                           );
                         }
                         break;
-                      case Measure:
+                      case const (Measure):
                         richText = RichText(
                           text: _measureNashvilleSelectionTextSpan(measure, song.key, transpositionOffset,
                               style: _coloredChordTextStyle, displayMusicKey: displayMusicKey, showBeats: false),
@@ -1740,7 +1740,7 @@ class _SongCellState extends State<_SongCellWidget> {
                 widget.lyricSectionIndex != null ||
                 widget.lyricSectionSet != null)) {
           switch (widget.measureNode.runtimeType) {
-            case LyricSection:
+            case const (LyricSection):
               isNowSelected = lyricSectionNotifier.lyricSectionIndex == widget.lyricSectionIndex;
               logger.log(
                   _logLyricSectionCellState,
@@ -1749,7 +1749,7 @@ class _SongCellState extends State<_SongCellWidget> {
                   //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
                   );
               break;
-            case ChordSection:
+            case const (ChordSection):
               isNowSelected = widget.lyricSectionSet?.contains(lyricSectionNotifier.lyricSectionIndex) ?? false;
               logger.log(
                   _logLyricSectionCellState,

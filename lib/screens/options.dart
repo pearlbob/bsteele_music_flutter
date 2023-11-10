@@ -26,7 +26,7 @@ const Level _logUserNameEntry = Level.debug;
 
 /// A screen to display controls for the user to manage some of the app's options.
 class Options extends StatefulWidget {
-  const Options({Key? key}) : super(key: key);
+  const Options({super.key});
 
   @override
   OptionsState createState() => OptionsState();

@@ -69,7 +69,7 @@ Chord _getChord() {
 
 /// the bass study tool
 class Detail extends StatefulWidget {
-  const Detail({Key? key}) : super(key: key);
+  const Detail({super.key});
 
   @override
   DetailState createState() => DetailState();

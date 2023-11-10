@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// Display the application's privacy policy
 class Privacy extends StatefulWidget {
-  const Privacy({Key? key}) : super(key: key);
+  const Privacy({super.key});
 
   @override
   PrivacyState createState() => PrivacyState();

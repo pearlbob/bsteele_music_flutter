@@ -355,7 +355,7 @@ class SongIdMetadataItem {
 }
 
 class AppKey extends ValueKey<String> implements Comparable<AppKey> {
-  const AppKey(String s) : super(s);
+  const AppKey(super.s);
 
   @override
   String toString() {
@@ -373,18 +373,18 @@ AppKey appKeyCreate(AppKeyEnum e, {dynamic value}) {
   AppKey ret;
   var type = e.argType;
   switch (type) {
-    case Null:
+    case const (Null):
       assert(value == null);
       ret = AppKey(e.name);
       break;
-    case String:
+    case const (String):
       ret = AppKey(e.name); //  value is entry
       break;
-    case music_key.Key:
+    case const (music_key.Key):
       assert(value.runtimeType == type);
       ret = AppKey('${e.name}.${(value as music_key.Key).toMarkup()}');
       break;
-    case NameValue:
+    case const (NameValue):
       ret = AppKey('${e.name}.${(value as NameValue).toString()}');
       break;
     default:

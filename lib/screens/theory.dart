@@ -18,7 +18,7 @@ const _halfStepsPerOctave = MusicConstants.halfStepsPerOctave;
 
 /// A screen used to explore music theory including scales, chords, major and minor keys.
 class TheoryWidget extends StatefulWidget {
-  const TheoryWidget({Key? key}) : super(key: key);
+  const TheoryWidget({super.key});
 
   @override
   TheoryState createState() => TheoryState();

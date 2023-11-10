@@ -20,7 +20,7 @@ final _markdownStyleSheet = md.MarkdownStyleSheet(
 
 /// Display the application's songlyrics file specification
 class Documentation extends StatefulWidget {
-  const Documentation({Key? key}) : super(key: key);
+  const Documentation({super.key});
 
   @override
   DocumentationState createState() => DocumentationState();

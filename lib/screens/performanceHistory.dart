@@ -16,7 +16,7 @@ import '../util/play_list_search_matcher.dart';
 /// Provide a number of song related actions for the user.
 /// This includes reading song files, clearing all songs from the current song list, and the like.
 class PerformanceHistory extends StatefulWidget {
-  const PerformanceHistory({Key? key}) : super(key: key);
+  const PerformanceHistory({super.key});
 
   @override
   PerformanceHistoryState createState() => PerformanceHistoryState();

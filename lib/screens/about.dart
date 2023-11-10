@@ -15,7 +15,7 @@ import '../main.dart';
 
 /// Show some data about the app and it's environment.
 class About extends StatefulWidget {
-  const About({Key? key}) : super(key: key);
+  const About({super.key});
 
   @override
   AboutState createState() => AboutState();

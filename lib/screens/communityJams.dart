@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// Show some data about the app and it's environment.
 class CommunityJams extends StatefulWidget {
-  const CommunityJams({Key? key}) : super(key: key);
+  const CommunityJams({super.key});
 
   @override
   CommunityJamsState createState() => CommunityJamsState();

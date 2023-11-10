@@ -102,12 +102,12 @@ void main() async {
         late Finder finder;
         String? text;
         switch (type) {
-          case ChordSection:
+          case ChordSection _:
             assert(parts.length >= 2);
             finder = find.byKey(appKeyCreate(appKeyEnum, value: ChordSection.parseString(parts[1], 4)), //  fixme!
                 skipOffstage: false);
             break;
-          case ChordSectionLocation:
+          case ChordSectionLocation _:
             {
               var chordSectionLocation = ChordSectionLocation.fromString(parts[1]);
               if (chordSectionLocation == null) {
@@ -116,28 +116,28 @@ void main() async {
               finder = find.byKey(appKeyCreate(appKeyEnum, value: chordSectionLocation!));
             }
             break;
-          case Id:
+          case Id _:
             assert(parts.length >= 2);
             finder = find.byKey(appKeyCreate(appKeyEnum, value: Id(parts[1])), skipOffstage: false);
             break;
-          case int:
+          case const (int):
             assert(parts.length >= 2);
             finder = find.byKey(appKeyCreate(appKeyEnum, value: int.parse(parts[1])), skipOffstage: false);
             break;
-          case PlayListSortType:
+          case PlayListSortType _:
             assert(parts.length >= 2);
             finder = find.byKey(appKeyCreate(appKeyEnum, value: Util.enumFromString(parts[1], PlayListSortType.values)),
                 skipOffstage: false);
             break;
-          case music_key.Key:
+          case music_key.Key _:
             assert(parts.length >= 2);
             finder =
                 find.byKey(appKeyCreate(appKeyEnum, value: music_key.Key.parseString(parts[1])), skipOffstage: false);
             break;
-          case Null:
+          case const (Null):
             finder = find.byKey(ValueKey<String>(appKeyEnum.name), skipOffstage: false);
             break;
-          case ScaleChord:
+          case ScaleChord _:
             try {
               var scaleChord = ScaleChord.parseString(parts[1]);
               finder = find.byKey(appKeyCreate(appKeyEnum, value: scaleChord!), skipOffstage: false);
@@ -145,7 +145,7 @@ void main() async {
               assert(false);
             }
             break;
-          case ScaleNote:
+          case ScaleNote _:
             try {
               final scaleNote = ScaleNote.parseString(parts[1]);
               finder = find.byKey(appKeyCreate(appKeyEnum, value: scaleNote!), skipOffstage: false);
@@ -153,12 +153,12 @@ void main() async {
               assert(false);
             }
             break;
-          case String:
+          case const (String):
             assert(parts.length == 2);
             text = parts[1];
             finder = find.byKey(appKeyCreate(appKeyEnum), skipOffstage: false);
             break;
-          case TimeSignature:
+          case TimeSignature _:
             assert(parts.length >= 2);
             finder = find.byKey(appKeyCreate(appKeyEnum, value: TimeSignature.parse(parts[1])), skipOffstage: false);
             break;

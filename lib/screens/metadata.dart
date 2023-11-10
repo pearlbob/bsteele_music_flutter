@@ -27,7 +27,7 @@ const Level _logDeleteSong = Level.debug;
 ///
 /// Export of this file to the master release will make it the app's default set of sub-lists.
 class MetadataScreen extends StatefulWidget {
-  const MetadataScreen({Key? key}) : super(key: key);
+  const MetadataScreen({super.key});
 
   @override
   MetadataScreenState createState() => MetadataScreenState();

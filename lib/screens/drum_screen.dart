@@ -23,8 +23,7 @@ const Level _logBPM = Level.debug;
 
 /// Show some data about the app and it's environment.
 class DrumScreen extends StatefulWidget {
-  const DrumScreen({Key? key, this.song, this.isEditing = false})
-      : super(key: key);
+  const DrumScreen({super.key, this.song, this.isEditing = false});
 
   @override
   DrumScreenState createState() => DrumScreenState();

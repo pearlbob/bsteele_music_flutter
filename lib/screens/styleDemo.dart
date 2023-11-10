@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 /// Show some data about the app and it's environment.
 class StyleDemo extends StatefulWidget {
-  const StyleDemo({Key? key}) : super(key: key);
+  const StyleDemo({super.key});
 
   @override
   StyleDemoState createState() => StyleDemoState();

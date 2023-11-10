@@ -16,12 +16,17 @@
 
 * new song not always when selected from main song list
 
+* show relative minor keys and major keys
+* missing copyright notice should be release & label
 * add musicnotes.com link to edit page
 * minor vs major key mapping on edit page
 * all8.com/tools/bpm.htm
 * beat dots on Nashville don't work
 * singer chords are not correct on short beat measures
 * tap to bpm on edit page
+* pushes needed?
+* redo charts: 2 to 4 or 4 to 2
+* keys on a per section basis
 * look at https://www.beatsperminuteonline.com
 * edit: auto-validate more often
 * edit: chords on lyrics: can be 'null' how?

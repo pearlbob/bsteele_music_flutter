@@ -715,7 +715,7 @@ class AppWidgetHelper {
       actions: actions,
       toolbarHeight: _toolbarHeight,
       //  trim for cell phone overrun
-      leadingWidth: 2.5 * app.screenInfo.fontSize,
+      leadingWidth: 2.75 * app.screenInfo.fontSize,
       backgroundColor: App.defaultBackgroundColor,
       foregroundColor: App.defaultForegroundColor,
     );

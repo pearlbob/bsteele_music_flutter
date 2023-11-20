@@ -270,7 +270,7 @@ class LyricsDataEntry {
     _focusLyricsLineIndex = index + newLyricsLines.length - 1;
     if (_lyricsEntriesCallback != null) {
       logger.t('newLines: _lyricsEntriesCallback()');
-      _lyricsEntriesCallback!();
+      _lyricsEntriesCallback();
     }
   }
 

@@ -70,7 +70,8 @@ const _defaultMaxLines = 12;
 var _maxLines = 1;
 
 ///  The trick of the game: Figure the text size prior to boxing it
-Size _computeRichTextSize(final RichText richText, {
+Size _computeRichTextSize(
+  final RichText richText, {
   int? maxLines,
   double? maxWidth,
 }) {
@@ -88,7 +89,8 @@ Size _computeRichTextSize(final RichText richText, {
       textScaleFactor: richText.textScaleFactor, maxLines: maxLines, maxWidth: maxWidth);
 }
 
-Size _computeInlineSpanSize(final InlineSpan inLineSpan, {
+Size _computeInlineSpanSize(
+  final InlineSpan inLineSpan, {
   double? textScaleFactor,
   int? maxLines,
   double? maxWidth,
@@ -1037,7 +1039,7 @@ class LyricsTable {
       _lyricSectionIndexToRowMap.clear();
       _songMomentNumberToRowMap[0] = 0;
       for (var r = 0; r < _locationGrid.getRowCount(); r++) {
-        logger.log(_logLyricsTableItems, '$r:');
+        logger.log(_logLyricsTableItems, 'row $r:');
         var row = _locationGrid.getRow(r);
         assert(row != null);
         row = row!;
@@ -1641,7 +1643,7 @@ class _SongCellWidget extends StatefulWidget {
         key: richText.key,
         text: //  default to one line
             TextSpan(text: richText.text.toPlainText(), style: richText.text.style),
-        textScaleFactor: textScaleFactor ?? richText.textScaleFactor,
+        textScaler: textScaleFactor != null ? TextScaler.linear(textScaleFactor) : richText.textScaler,
         softWrap: false,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -1650,7 +1652,7 @@ class _SongCellWidget extends StatefulWidget {
       copyOfRichText = RichText(
         key: richText.key,
         text: richText.text,
-        textScaleFactor: textScaleFactor ?? richText.textScaleFactor,
+        textScaler: textScaleFactor != null ? TextScaler.linear(textScaleFactor) : richText.textScaler,
         softWrap: richText.softWrap,
         maxLines: _maxLines, //richText.maxLines,
       );
@@ -1775,7 +1777,7 @@ class _SongCellState extends State<_SongCellWidget> {
                   _logLyricSectionCellState,
                   '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
                   ', ${widget.measureNode}'
-                  ', textScaleFactor: ${widget.richText.textScaleFactor}'
+                  ', textScaler: ${widget.richText.textScaler}'
                   ', moment: ${widget.songMoment?.momentNumber}'
                   ', playMomentNumber: $playMomentNumber'
                   //
@@ -1882,9 +1884,11 @@ class _SongCellState extends State<_SongCellWidget> {
 
       if (widget.rowHasReducedBeats) {
         //  make all measures the same height if any of them have explicit beats
-        var textSpan = richText.text as TextSpan;
-        if (textSpan.children != null && textSpan.children!.isNotEmpty && textSpan.children!.first is TextSpan) {
-          textSpan = textSpan.children!.first as TextSpan;
+        var measureTextSpan = richText.text as TextSpan;
+        if (measureTextSpan.children != null &&
+            measureTextSpan.children!.isNotEmpty &&
+            measureTextSpan.children!.first is TextSpan) {
+          var textSpan = measureTextSpan.children!.first as TextSpan;
 
           List<Widget> chordWidgets = [];
           int chordIndex = 0;
@@ -1893,18 +1897,26 @@ class _SongCellState extends State<_SongCellWidget> {
               logger.i('break here');
             }
             if (chordTextSpan is TextSpan) {
+              var chordRichText = RichText(text: measureTextSpan, textScaler: richText.textScaler);
               //  assumes text spans have been styled appropriately
-              var chordRichText = RichText(text: chordTextSpan, textScaleFactor: richText.textScaleFactor);
+              //  use the beats from the first child (if Nashville is both)
+              //  put beats on the top
+              //  note that any odd beats in the row means all get extra vertical spacing
               Size beatsSize = _computeRichTextSize(chordRichText) * 0.8; //  fixme: why is this needed?
               chordWidgets.add(Column(children: [
                 CustomPaint(
                   painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[chordIndex++].beats) : null,
-                  size: Size(beatsSize.width, beatsSize.height / 6), //  fixme: why is this needed?
+                  size: Size(
+                      beatsSize.width,
+                      richText.textScaler.scale(richText.text.style?.fontSize ?? 10) /
+                          6), //  fixme: why is this needed?
                 ),
                 chordRichText,
                 // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
                 //  paint the beat marks
               ]));
+              //  we're done when the first text span is done
+              break;
             } else {
               Text('not TextSpan: $chordTextSpan');
             }

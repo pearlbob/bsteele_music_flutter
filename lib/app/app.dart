@@ -754,7 +754,7 @@ class AppWidgetHelper {
       overflow: TextOverflow.clip,
       softWrap: false,
       textDirection: TextDirection.ltr,
-      textScaleFactor: 1.0,
+      textScaler: TextScaler.noScaling,
       textAlign: TextAlign.start,
       textHeightBehavior: const TextHeightBehavior(),
     );

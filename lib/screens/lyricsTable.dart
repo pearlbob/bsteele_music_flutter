@@ -85,13 +85,12 @@ Size _computeRichTextSize(
   if (text.toPlainText().isEmpty) {
     return const Size(10, 20); //  safety
   }
-  return _computeInlineSpanSize(richText.text,
-      textScaleFactor: richText.textScaleFactor, maxLines: maxLines, maxWidth: maxWidth);
+  return _computeInlineSpanSize(richText.text, textScaler: richText.textScaler, maxLines: maxLines, maxWidth: maxWidth);
 }
 
 Size _computeInlineSpanSize(
   final InlineSpan inLineSpan, {
-  double? textScaleFactor,
+  TextScaler? textScaler,
   int? maxLines,
   double? maxWidth,
 }) {
@@ -99,7 +98,7 @@ Size _computeInlineSpanSize(
     text: inLineSpan,
     textDirection: TextDirection.ltr,
     maxLines: maxLines ?? _maxLines,
-    textScaleFactor: textScaleFactor ?? 1.0,
+    textScaler: textScaler ?? TextScaler.noScaling,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
   Size ret = textPainter.size;
   textPainter.dispose();
@@ -1883,7 +1882,7 @@ class _SongCellState extends State<_SongCellWidget> {
       bool showOddBeats = measure.hasExplicitBeats;
 
       if (widget.rowHasReducedBeats) {
-        //  make all measures the same height if any of them have explicit beats
+        //  make all measures the same height if any of them have explicit beats, i.e. dots added
         var measureTextSpan = richText.text as TextSpan;
         if (measureTextSpan.children != null &&
             measureTextSpan.children!.isNotEmpty &&
@@ -1897,12 +1896,11 @@ class _SongCellState extends State<_SongCellWidget> {
               logger.i('break here');
             }
             if (chordTextSpan is TextSpan) {
-              var chordRichText = RichText(text: measureTextSpan, textScaler: richText.textScaler);
+              var chordRichText = RichText(text: chordTextSpan, textScaler: richText.textScaler);
               //  assumes text spans have been styled appropriately
-              //  use the beats from the first child (if Nashville is both)
-              //  put beats on the top
+              //  put beats on the top, Nashville style
               //  note that any odd beats in the row means all get extra vertical spacing
-              Size beatsSize = _computeRichTextSize(chordRichText) * 0.8; //  fixme: why is this needed?
+              Size beatsSize = _computeRichTextSize(chordRichText);
               chordWidgets.add(Column(children: [
                 CustomPaint(
                   painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[chordIndex++].beats) : null,
@@ -1915,8 +1913,6 @@ class _SongCellState extends State<_SongCellWidget> {
                 // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
                 //  paint the beat marks
               ]));
-              //  we're done when the first text span is done
-              break;
             } else {
               Text('not TextSpan: $chordTextSpan');
             }

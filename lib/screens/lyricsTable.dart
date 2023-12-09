@@ -1881,6 +1881,10 @@ class _SongCellState extends State<_SongCellWidget> {
       //  see if all the beats total the normal beat count and that they are all equal
       bool showOddBeats = measure.hasExplicitBeats;
 
+      // if (showOddBeats) {
+      //   logger.i('showOddBeats: $measure');
+      // }
+
       if (widget.rowHasReducedBeats) {
         //  make all measures the same height if any of them have explicit beats, i.e. dots added
         var measureTextSpan = richText.text as TextSpan;
@@ -1903,19 +1907,18 @@ class _SongCellState extends State<_SongCellWidget> {
               Size beatsSize = _computeRichTextSize(chordRichText);
               chordWidgets.add(Column(children: [
                 CustomPaint(
-                  painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[chordIndex++].beats) : null,
+                  painter: showOddBeats ? _BeatMarkCustomPainter(measure.chords[chordIndex].beats) : null,
                   size: Size(
                       beatsSize.width,
                       richText.textScaler.scale(richText.text.style?.fontSize ?? 10) /
                           6), //  fixme: why is this needed?
                 ),
                 chordRichText,
-                // Text('${chordWidgets.length} ${chordTextSpan.children?.length}'),//  debug only
-                //  paint the beat marks
               ]));
             } else {
               Text('not TextSpan: $chordTextSpan');
             }
+            chordIndex++;
           }
           textWidget = AppWrap(children: chordWidgets);
         }

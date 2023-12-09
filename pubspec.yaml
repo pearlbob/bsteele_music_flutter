@@ -1,6 +1,7 @@
 name: bsteele_music_flutter
 description: bsteeleMusicApp in Flutter
 publish_to: none
+sdk: flutter
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -15,7 +16,7 @@ publish_to: none
 version: 1.2.6+0
 
 environment:
-  sdk: ^3.2.0
+  sdk: ^3.2.3
 
 dependencies:
   flutter:
@@ -64,7 +65,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

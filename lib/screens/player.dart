@@ -681,16 +681,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                             message: songUpdateService.isFollowing
                                                 ? 'Cannot play if following' //fixme:  ${songUpdateService.leaderName}
                                                 : '''
-Click the button for play. You may not see immediate song motion.
-Space bar or clicking the song area starts play as well.
-Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
-Right arrow speeds up the BPM.
-Left arrow slows the BPM.
-Down arrow also advances one section.
-Up arrow backs up to play the current section when the section finished.
-Double up arrow finishes the current section and backs up to the prior section for solos.
-Enter ends the "play" mode.
-With z or q, the play stops and goes back to the play list top.''',
+            Click the button for play. You may not see immediate song motion.
+            Space bar or clicking the song area starts play as well.
+            Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
+            Right arrow speeds up the BPM.
+            Left arrow slows the BPM.
+            Down arrow also advances one section.
+            Up arrow backs up to play the current section when the section finished.
+            Double up arrow finishes the current section and backs up to the prior section for solos.
+            Enter ends the "play" mode.
+            With z or q, the play stops and goes back to the play list top.''',
                                             child: Container(
                                               padding: const EdgeInsets.only(left: 8, right: 8),
                                               child: appIconWithLabelButton(
@@ -2621,8 +2621,6 @@ With z or q, the play stops and goes back to the play list top.''',
   bool _isAnimated = false;
   int _lastRowIndex = 0;
   final playerItemPositionsListener = ItemPositionsListener.create();
-
-// double selectedTargetY = 0;   fixme
 
   Size? lastSize;
 

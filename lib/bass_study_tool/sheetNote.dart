@@ -1,12 +1,12 @@
 import 'dart:collection';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/material.dart';
 
 import 'sheetMusicFontParameters.dart';
 

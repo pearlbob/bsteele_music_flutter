@@ -14,8 +14,15 @@
 
 ### Fix
 
+* player: in pause, reposition, play with up/down arrows or scroll,
+  continues from new location with space bar hit
 * new song not always when selected from main song list
-
+* order playlist by most sung
+* order playlist by least sung
+* Make complexity categories
+* override complexity category by metadata, provide computed complexity value as well
+* differentiate new songs from edited songs (use github history if required)  originalEntryTime
+* song title, artist or cover artist change impact on history is too manual
 * show relative minor keys and major keys
 * missing copyright notice should be release & label
 * add musicnotes.com link to edit page
@@ -83,8 +90,6 @@ theory: https://www.orange.k12.nj.us/site/handlers/filedownload.ashx?moduleinsta
 * edit: chords on lyrics not up to date until after validate?
 * move follower key offset to options page
 * make the user edit field a "regular" field, so any change can be undone or saved. Update the field only if unknown.
-* player: in pause, reposition, play with up/down arrows or scroll,
-  continues from new location with space bar hit
 * And it seems to want to default to my last name change,
   rather than a default of my name - not sure if that is definable.
 * Metadata fields are caseless. The software will Capitalize All Fields As Required.

@@ -14,6 +14,15 @@
 
 ### Fix
 
+* b (the switch output) should start play auto scroll from stop, test start/stop playing, space and b
+
+* More space between chords
+* Centered chords in blocks?
+* Hear bpm when changing (temp drums)
+* Auto scroll to bump by rows
+* Option to go as is: manual bump by sections, pause => manual as is
+* Scroll to the middle of the screen
+* Marker at the middle of the screen? when no indicator of position
 * player: in pause, reposition, play with up/down arrows or scroll,
   continues from new location with space bar hit
 * new song not always when selected from main song list
@@ -22,6 +31,8 @@
 * Make complexity categories
 * override complexity category by metadata, provide computed complexity value as well
 * differentiate new songs from edited songs (use github history if required)  originalEntryTime
+
+* explain "clear all local options" prior to action, confirm action
 * song title, artist or cover artist change impact on history is too manual
 * show relative minor keys and major keys
 * missing copyright notice should be release & label

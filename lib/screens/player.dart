@@ -13,6 +13,7 @@ import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/lyric_section.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/ninjam.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
@@ -625,10 +626,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                           if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
                                             if (songUpdateState != SongUpdateState.playing) {
                                               //  start manual play
-                                              scrollToLyricSection(0); //  always start manual play from the beginning
-                                              setState(() {
-                                                performPlay();
-                                              });
+                                              setStatePlay();
                                             } else {
                                               //  while playing:
                                               var offset = _tableGlobalOffset();
@@ -1152,7 +1150,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 AppTooltip(
                                   message: 'Stop the song playing.',
                                   child: Container(
-                                    padding: const EdgeInsets.only(left: 16, right: 8, top: 8),
+                                    padding: const EdgeInsets.only(left: 16, right: 8),
                                     child: appIconWithLabelButton(
                                       appKeyEnum: AppKeyEnum.playerStop,
                                       icon: appIcon(
@@ -1227,11 +1225,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           case SongUpdateState.idle:
           case SongUpdateState.none:
             //  start manual play
-            scrollToLyricSection(0); //  always start manual play from the beginning
-            playDrums();
-            setState(() {
-              performPlay();
-            });
+            setStatePlay();
             break;
           case SongUpdateState.playing:
           case SongUpdateState.pause:
@@ -1244,22 +1238,25 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         //  workaround for cheap foot pedal... only outputs b
         e.isKeyPressed(LogicalKeyboardKey.keyB)) {
       switch (songUpdateState) {
+        case SongUpdateState.idle:
+        case SongUpdateState.none:
+          //  start manual play
+          setStatePlay();
+          break;
         case SongUpdateState.playing:
         case SongUpdateState.pause:
-          _sectionBump(1);
-          break;
-        default:
+          _bump(1);
           break;
       }
       return KeyEventResult.handled;
     } else if (!songUpdateService.isFollowing) {
       if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
         logger.d('arrowDown');
-        _sectionBump(1);
+        _bump(1);
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
         logger.log(_logKeyboard, 'arrowUp');
-        _sectionBump(-1);
+        _bump(-1);
         return KeyEventResult.handled;
       } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
         logger.d('arrowRight');
@@ -1323,7 +1320,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   /// bump the bpm up or down
   bpmBump(final int bump) {
-    logger.log(_logBPM, 'BPM bump($bump)');
     int nowUs = DateTime.now().microsecondsSinceEpoch;
 
     if (nowUs - _lastBpmBumpUs < 0.5 * Duration.microsecondsPerSecond) {
@@ -1342,6 +1338,25 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) +
         bump.sign * _bumpSteps[Util.indexLimit(_bpmBumpStep, _bumpSteps)]);
+
+    logger.log(
+        _logBPM,
+        'BPM bump($bump): $_bpmBumpStep/${_bumpSteps.length}'
+        ': ${_bumpSteps[Util.indexLimit(_bpmBumpStep, _bumpSteps)]}');
+  }
+
+  /// bump by section only if paused
+  _bump(final int bump) {
+    switch (songUpdateState) {
+      case SongUpdateState.pause:
+        _sectionBump(bump);
+        break;
+      case SongUpdateState.idle:
+      case SongUpdateState.none:
+      case SongUpdateState.playing:
+        _rowBump(bump);
+        break;
+    }
   }
 
   _sectionBump(final int bump) {
@@ -1355,6 +1370,29 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       var moment = _song.getFirstSongMomentAtLyricSectionIndex(lyricSectionIndex);
       if (moment != null) {
         _songMaster.skipToMomentNumber(moment.momentNumber);
+      }
+    }
+  }
+
+  /// note: only bumps one row at a time
+  _rowBump(final int bump) {
+    logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber}');
+    if (_songMaster.momentNumber != null) {
+      LyricSection? oldLyricSection;
+      if (bump > 0) {
+        //  bump forwards
+        SongMoment? moment = _song.getFirstSongMomentAtNextRow(_songMaster.momentNumber!);
+        if (moment != null) {
+          logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment');
+          _songMaster.skipToMomentNumber(moment.momentNumber);
+        }
+      } else {
+        //  bump backwards
+        SongMoment? moment = _song.getFirstSongMomentAtPriorRow(_songMaster.momentNumber!);
+        if (moment != null) {
+          logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment');
+          _songMaster.skipToMomentNumber(moment.momentNumber);
+        }
       }
     }
   }
@@ -1653,6 +1691,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             PlayMoment(SongUpdateState.playing, _songMaster.momentNumber ?? 0, _song.songMoments.first);
         _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
       }
+    });
+  }
+
+  setStatePlay() {
+    setState(() {
+      scrollToLyricSection(0); //  always start manual play from the beginning
+      playDrums();
+      performPlay();
     });
   }
 
@@ -2609,7 +2655,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   int _bpmBumpStep = 0;
   int _lastBpmBump = 0;
   int _lastBpmBumpUs = 0;
-  static final _bumpSteps = [1, 2, 4, 6, 8];
+  static final _bumpSteps = [1, 2, 4];
 
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;

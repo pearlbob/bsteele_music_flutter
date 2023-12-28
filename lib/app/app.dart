@@ -119,7 +119,8 @@ class App {
   App._internal();
 
   //  parameters to be evaluated before use
-  ThemeData themeData = ThemeData(); //  start with the default theme
+  ThemeData themeData =
+      ThemeData.localize(ThemeData.light(useMaterial3: true), Typography().white); //  start with a default theme
 
   //  colors
   static const appBackgroundColor = Color(0xff2196f3);

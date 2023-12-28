@@ -255,11 +255,27 @@ class OptionsState extends State<Options> {
                       SegmentedButton<AccidentalExpressionChoice>(
                         segments: <ButtonSegment<AccidentalExpressionChoice>>[
                           ButtonSegment<AccidentalExpressionChoice>(
-                              value: AccidentalExpressionChoice.byKey, label: Text('By Key')),
+                            value: AccidentalExpressionChoice.byKey,
+                            label: Text('By Key', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'When required, accidentals notes are expressed as a sharp or flat\n'
+                                    'based on the song\'s key.'
+                                : null,
+                          ),
                           ButtonSegment<AccidentalExpressionChoice>(
-                              value: AccidentalExpressionChoice.alwaysSharp, label: Text('Always Sharp')),
+                            value: AccidentalExpressionChoice.alwaysSharp,
+                            label: Text('Always Sharp', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'When required, accidental notes are always expressed as a sharp.'
+                                : null,
+                          ),
                           ButtonSegment<AccidentalExpressionChoice>(
-                              value: AccidentalExpressionChoice.alwaysFlat, label: Text('Always Flat')),
+                            value: AccidentalExpressionChoice.alwaysFlat,
+                            label: Text('Always Flat', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'When required, accidental notes are always expressed as a flat.'
+                                : null,
+                          ),
                         ],
                         selected: <AccidentalExpressionChoice>{_appOptions.accidentalExpressionChoice},
                         onSelectionChanged: (Set<AccidentalExpressionChoice> newSelection) {

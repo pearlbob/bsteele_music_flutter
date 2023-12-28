@@ -701,6 +701,8 @@ class AppTheme {
         colorScheme: ColorScheme.fromSwatch(
             backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
         segmentedButtonTheme: SegmentedButtonThemeData(style: elevatedButtonThemeStyle),
+        tooltipTheme: TooltipThemeData(
+            textStyle: generateTooltipTextStyle(), decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor)),
       );
     }
   }
@@ -758,6 +760,10 @@ ElevatedButton appButton(
     child: Text(commandName,
         style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: buttonBackgroundColor)),
   );
+}
+
+TextStyle buttonTextStyle() {
+  return TextStyle(fontSize: app.screenInfo.fontSize);
 }
 
 //  insist on an Id
@@ -1023,6 +1029,9 @@ Switch appSwitch({required AppKeyEnum appKeyEnum, required bool value, required 
   return Switch(
     key: key,
     value: value,
+    activeColor: App.appBackgroundColor,
+    inactiveThumbColor: Colors.grey,
+    inactiveTrackColor: Colors.grey.shade300,
     onChanged: (value) {
       _appLogCallback(key);
       onChanged(value);
@@ -1162,7 +1171,6 @@ TextStyle generateAppTextStyle({
   FontStyle? fontStyle,
   TextBaseline? textBaseline,
   TextDecoration? decoration,
-  TextDecorationStyle? decorationStyle,
   bool nullBackground = false,
 }) {
   fontSize ??= app.screenInfo.fontSize;
@@ -1178,7 +1186,6 @@ TextStyle generateAppTextStyle({
     fontFamily: fontFamily ?? appFontFamily,
     fontFamilyFallback: appFontFamilyFallback,
     decoration: decoration ?? TextDecoration.none,
-    decorationStyle: decorationStyle,
     overflow: TextOverflow.clip,
   );
 }

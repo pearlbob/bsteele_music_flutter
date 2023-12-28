@@ -248,6 +248,33 @@ class OptionsState extends State<Options> {
                       ),
                   ]),
                   const AppSpace(verticalSpace: 30),
+                  AppWrapFullWidth(
+                    spacing: 15,
+                    children: [
+                      const Text('Accidental Notes:'),
+                      SegmentedButton<AccidentalExpressionChoice>(
+                        segments: <ButtonSegment<AccidentalExpressionChoice>>[
+                          ButtonSegment<AccidentalExpressionChoice>(
+                              value: AccidentalExpressionChoice.byKey, label: Text('By Key')),
+                          ButtonSegment<AccidentalExpressionChoice>(
+                              value: AccidentalExpressionChoice.alwaysSharp, label: Text('Always Sharp')),
+                          ButtonSegment<AccidentalExpressionChoice>(
+                              value: AccidentalExpressionChoice.alwaysFlat, label: Text('Always Flat')),
+                        ],
+                        selected: <AccidentalExpressionChoice>{_appOptions.accidentalExpressionChoice},
+                        onSelectionChanged: (Set<AccidentalExpressionChoice> newSelection) {
+                          setState(() {
+                            // By default there is only a single segment that can be
+                            // selected at one time, so its value is always the first
+                            // item in the selected set.
+                            _appOptions.accidentalExpressionChoice = newSelection.first;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const AppSpace(verticalSpace: 30),
                   AppWrap(children: [
                     AppTooltip(
                       message: 'Enable Tooltips',

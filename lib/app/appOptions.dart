@@ -36,6 +36,7 @@ enum StorageValue {
   tapToAdvance,
   lastSongEdited,
   playerScrollHighlight,
+  accidentalExpressionChoice,
 }
 
 enum TapToAdvance { never, upOrDown }
@@ -50,6 +51,12 @@ enum PlayerScrollHighlight {
 
   /// Highlight each measure with a outline.
   measure,
+}
+
+enum AccidentalExpressionChoice {
+  byKey,
+  alwaysSharp,
+  alwaysFlat,
 }
 
 /// Application level, persistent, shared values.
@@ -82,6 +89,11 @@ class AppOptions extends ChangeNotifier {
             await _readString(StorageValue.nashvilleSelection.name, defaultValue: NashvilleSelection.off.name),
             NashvilleSelection.values) ??
         NashvilleSelection.off;
+    _accidentalExpressionChoice = Util.enumFromString(
+            await _readString(StorageValue.accidentalExpressionChoice.name,
+                defaultValue: AccidentalExpressionChoice.byKey.name),
+            AccidentalExpressionChoice.values) ??
+        AccidentalExpressionChoice.byKey;
     _drumPartsListJson = await _readString(StorageValue.drumPartsListJson.name, defaultValue: '');
     _websocketHost = await _readString('websocketHost', defaultValue: _websocketHost);
     _countIn = await _readBool('countIn', defaultValue: _countIn);
@@ -382,6 +394,17 @@ class AppOptions extends ChangeNotifier {
     if (_nashvilleSelection != value) {
       _nashvilleSelection = value;
       _saveString(StorageValue.nashvilleSelection.name, value.name);
+    }
+  }
+
+  /// The user's selected style of accidental display.
+  AccidentalExpressionChoice get accidentalExpressionChoice => _accidentalExpressionChoice;
+  AccidentalExpressionChoice _accidentalExpressionChoice = AccidentalExpressionChoice.byKey;
+
+  set accidentalExpressionChoice(AccidentalExpressionChoice value) {
+    if (_accidentalExpressionChoice != value) {
+      _accidentalExpressionChoice = value;
+      _saveString(StorageValue.accidentalExpressionChoice.name, value.name);
     }
   }
 

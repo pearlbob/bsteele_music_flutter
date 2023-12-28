@@ -13,6 +13,7 @@ import 'package:bsteele_music_lib/songs/measure_node.dart';
 import 'package:bsteele_music_lib/songs/measure_repeat_extension.dart';
 import 'package:bsteele_music_lib/songs/measure_repeat_marker.dart';
 import 'package:bsteele_music_lib/songs/nashville_note.dart';
+import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_lib/songs/section_version.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_base.dart';
@@ -1245,10 +1246,25 @@ class LyricsTable {
         var isSlash = transposedChord.slashScaleNote != null;
 
         //  chord note
-        chordChildren.add(TextSpan(
-          text: transposedChord.scaleChord.scaleNote.toString(),
-          style: style,
-        ));
+        {
+          var scaleNote = transposedChord.scaleChord.scaleNote;
+          //  process scale note by accidental choice
+          switch (_appOptions.accidentalExpressionChoice) {
+            case AccidentalExpressionChoice.alwaysSharp:
+              scaleNote = scaleNote.asSharp();
+              break;
+            case AccidentalExpressionChoice.alwaysFlat:
+              scaleNote = scaleNote.asFlat();
+              break;
+            default:
+              break;
+          }
+
+          chordChildren.add(TextSpan(
+            text: scaleNote.toString(),
+            style: style,
+          ));
+        }
         {
           //  chord descriptor
           var name = transposedChord.scaleChord.chordDescriptor.shortName;
@@ -1274,7 +1290,22 @@ class LyricsTable {
           }
         }
         if (isSlash) {
-          var s = '/${transposedChord.slashScaleNote.toString()} '; //  notice the final space for italics
+          var slashScaleNote = transposedChord.slashScaleNote //
+              ??
+              ScaleNote.X; //  should never happen!
+
+          //  process scale note by accidental choice
+          switch (_appOptions.accidentalExpressionChoice) {
+            case AccidentalExpressionChoice.alwaysSharp:
+              slashScaleNote = slashScaleNote.asSharp();
+              break;
+            case AccidentalExpressionChoice.alwaysFlat:
+              slashScaleNote = slashScaleNote.asFlat();
+              break;
+            default:
+              break;
+          }
+          var s = '/$slashScaleNote '; //  notice the final space for italics
           //  and readability
           chordChildren.add(TextSpan(
             text: s,

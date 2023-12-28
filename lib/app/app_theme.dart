@@ -208,6 +208,9 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsUserName(String),
   optionsWebsocketBob(Null),
   optionsWebsocketCJ(Null),
+  // optionsWebsocketAccidentalByKey(Null),
+  // optionsWebsocketAccidentalSharp(Null),
+  // optionsWebsocketAccidentalFlat(Null),
   optionsWebsocketIP(String),
   optionsWebsocketNone(Null),
   optionsWebsocketPark(Null),
@@ -697,7 +700,7 @@ class AppTheme {
         elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
         colorScheme: ColorScheme.fromSwatch(
             backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
-        //useMaterial3: true,
+        segmentedButtonTheme: SegmentedButtonThemeData(style: elevatedButtonThemeStyle),
       );
     }
   }

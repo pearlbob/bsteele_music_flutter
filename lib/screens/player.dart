@@ -13,7 +13,6 @@ import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
-import 'package:bsteele_music_lib/songs/lyric_section.dart';
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/ninjam.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
@@ -1378,7 +1377,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _rowBump(final int bump) {
     logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber}');
     if (_songMaster.momentNumber != null) {
-      LyricSection? oldLyricSection;
       if (bump > 0) {
         //  bump forwards
         SongMoment? moment = _song.getFirstSongMomentAtNextRow(_songMaster.momentNumber!);

@@ -454,7 +454,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     logger.log(
         _logScroll,
-        ' boxMarker: $boxMarker'
+        // ' boxMarker: $boxMarker'
         ', _scrollAlignment: $_scrollAlignment'
         ', _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_logMode, 'playMode: $songUpdateState');
@@ -464,7 +464,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     var theme = Theme.of(context);
     var appBarTextStyle = generateAppBarLinkTextStyle();
 
-    if (appOptions.ninJam) {
+    if (_appOptions.ninJam) {
       _ninJam = NinJam(_song, key: _displaySongKey, keyOffset: _displaySongKey.getHalfStep() - _song.key.getHalfStep());
     }
 
@@ -474,7 +474,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       musicKey: _displaySongKey,
       expanded: !compressRepeats,
     );
-    _scrollablePositionedList ??= appOptions.userDisplayStyle == UserDisplayStyle.banner
+    _scrollablePositionedList ??= _appOptions.userDisplayStyle == UserDisplayStyle.banner
         ? ScrollablePositionedList.builder(
             itemCount: _song.songMoments.length + 1,
             itemScrollController: _itemScrollController,
@@ -552,7 +552,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           _songMaster.stop();
         });
 
-    boxMarker = boxCenterHeight(backBar.toolbarHeight ?? kToolbarHeight);
+    // boxMarker = boxCenterHeight(AppBar().preferredSize.height );
 
     return MultiProvider(
         providers: [
@@ -591,18 +591,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         ),
                       ),
 
-                      //  center marker
-                      if (_centerSelections &&
-                          (appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
-                        Positioned(
-                          top: boxMarker,
-                          child: Container(
-                            constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth / 128, 3)),
-                            decoration: const BoxDecoration(
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
+                      // //  center marker
+                      // if (_centerSelections &&
+                      //     (_appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
+                      //   Positioned(
+                      //     top: boxMarker,
+                      //     child: Container(
+                      //       constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth / 128, 3)),
+                      //       decoration: const BoxDecoration(
+                      //         color: Colors.black87,
+                      //       ),
+                      //     ),
+                      //   ),
                       //  song chords and lyrics
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
@@ -617,12 +617,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     child: GestureDetector(
                                         onTapDown: (details) {
                                           //  doesn't apply to pro display style
-                                          if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+                                          if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
                                             return;
                                           }
 
                                           //  respond to taps above and below the middle of the screen
-                                          if (appOptions.tapToAdvance == TapToAdvance.upOrDown) {
+                                          if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
                                             if (songUpdateState != SongUpdateState.playing) {
                                               //  start manual play
                                               setStatePlay();
@@ -664,6 +664,72 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             textDirection: TextDirection.ltr,
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
+                              //  top section
+                              //  play mode selection
+                              SegmentedButton<SongUpdateState>(
+                                showSelectedIcon: false,
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                    (Set<MaterialState> states) {
+                                      if (states.contains(MaterialState.disabled)) {
+                                        return App.disabledColor;
+                                      }
+                                      return App.appBackgroundColor;
+                                    },
+                                  ),
+                                ),
+                                segments: <ButtonSegment<SongUpdateState>>[
+                                  ButtonSegment<SongUpdateState>(
+                                    value: SongUpdateState.idle,
+                                    icon: appIcon(
+                                      Icons.stop,
+                                      size: 1.75 * fontSize,
+                                      color: songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
+                                    ),
+                                    tooltip: _appOptions.toolTips ? 'Stop playing the song.' : null,
+                                    enabled: !songUpdateService.isFollowing,
+                                  ),
+                                  ButtonSegment<SongUpdateState>(
+                                    value: SongUpdateState.playing,
+                                    icon: appIcon(
+                                      Icons.play_arrow,
+                                      size: 1.75 * fontSize,
+                                      color: songUpdateState == SongUpdateState.playing ? Colors.red : Colors.white,
+                                    ),
+                                    tooltip: _appOptions.toolTips ? 'Play the song.' : null,
+                                    enabled: !songUpdateService.isFollowing,
+                                  ),
+                                  //  hide the pause unless we are in play
+                                  if (songUpdateState == SongUpdateState.playing)
+                                    ButtonSegment<SongUpdateState>(
+                                      value: SongUpdateState.pause,
+                                      icon: appIcon(
+                                        Icons.pause,
+                                        size: 1.75 * fontSize,
+                                      ),
+                                      tooltip: _appOptions.toolTips ? 'Pause the playing.' : null,
+                                      enabled: !songUpdateService.isFollowing,
+                                    ),
+                                ],
+                                selected: <SongUpdateState>{songUpdateState},
+                                onSelectionChanged: (Set<SongUpdateState> newSelection) {
+                                  switch (newSelection.first) {
+                                    case SongUpdateState.none:
+                                    case SongUpdateState.idle:
+                                      performStop();
+                                      break;
+                                    case SongUpdateState.playing:
+                                      performPlay();
+                                      break;
+                                    case SongUpdateState.pause:
+                                      performPause();
+                                      break;
+                                  }
+                                  logger.i('new SongUpdateState: ${newSelection.first}'
+                                      ', songUpdateState: $songUpdateState');
+                                },
+                              ),
+
                               //  top section when idle
                               if (songUpdateState == SongUpdateState.idle)
                                 Column(
@@ -673,38 +739,38 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         alignment: WrapAlignment.spaceBetween,
                                         spacing: fontSize,
                                         children: [
-                                          //  play button
-                                          AppTooltip(
-                                            message: songUpdateService.isFollowing
-                                                ? 'Cannot play if following' //fixme:  ${songUpdateService.leaderName}
-                                                : '''
-            Click the button for play. You may not see immediate song motion.
-            Space bar or clicking the song area starts play as well.
-            Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
-            Right arrow speeds up the BPM.
-            Left arrow slows the BPM.
-            Down arrow also advances one section.
-            Up arrow backs up to play the current section when the section finished.
-            Double up arrow finishes the current section and backs up to the prior section for solos.
-            Enter ends the "play" mode.
-            With z or q, the play stops and goes back to the play list top.''',
-                                            child: Container(
-                                              padding: const EdgeInsets.only(left: 8, right: 8),
-                                              child: appIconWithLabelButton(
-                                                appKeyEnum: AppKeyEnum.playerPlay,
-                                                icon: appIcon(
-                                                  playStopIcon,
-                                                  size: 1.25 * fontSize,
-                                                ),
-                                                onPressed: songUpdateService.isFollowing
-                                                    ? null
-                                                    : () {
-                                                        app.clearMessage();
-                                                        songUpdateState.isPlaying ? performStop() : performPlay();
-                                                      },
-                                              ),
-                                            ),
-                                          ),
+                                          //                               //  play button
+                                          //                               AppTooltip(
+                                          //                                 message: songUpdateService.isFollowing
+                                          //                                     ? 'Cannot play if following' //fixme:  ${songUpdateService.leaderName}
+                                          //                                     : '''
+                                          // Click the button for play. You may not see immediate song motion.
+                                          // Space bar or clicking the song area starts play as well.
+                                          // Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
+                                          // Right arrow speeds up the BPM.
+                                          // Left arrow slows the BPM.
+                                          // Down arrow also advances one section.
+                                          // Up arrow backs up to play the current section when the section finished.
+                                          // Double up arrow finishes the current section and backs up to the prior section for solos.
+                                          // Enter ends the "play" mode.
+                                          // With z or q, the play stops and goes back to the play list top.''',
+                                          //                                 child: Container(
+                                          //                                   padding: EdgeInsets.only(left: 8, right: 8),
+                                          //                                   child: appIconWithLabelButton(
+                                          //                                     appKeyEnum: AppKeyEnum.playerPlay,
+                                          //                                     icon: appIcon(
+                                          //                                       playStopIcon,
+                                          //                                       size: 1.25 * fontSize,
+                                          //                                     ),
+                                          //                                     onPressed: songUpdateService.isFollowing
+                                          //                                         ? null
+                                          //                                         : () {
+                                          //                                             app.clearMessage();
+                                          //                                             songUpdateState.isPlaying ? performStop() : performPlay();
+                                          //                                           },
+                                          //                                   ),
+                                          //                                 ),
+                                          //                               ),
                                           if (app.message.isNotEmpty)
                                             app.messageTextWidget(AppKeyEnum.playerErrorMessage),
                                           if (_showCapo)
@@ -719,115 +785,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                           //   style: headerTextStyle,
                                           //   softWrap: false,
                                           // ),
-
-                                          //  player options
-                                          AppWrap(children: [
-                                            // if (kDebugMode && app.isScreenBig)
-                                            //   AppWrap(children: [
-                                            //     //  fixme: there should be a better way.  wrap with flex?
-                                            //     AppTooltip(
-                                            //       message: 'Back to the previous song in the list',
-                                            //       child: appIconButton(
-                                            //         appKeyEnum: AppKeyEnum.playerPreviousSong,
-                                            //         icon: appIcon(
-                                            //           Icons.navigate_before,
-                                            //         ),
-                                            //         onPressed: () {
-                                            //           _assignNewSong( previousSongInTheList());
-                                            //           selectLyricSection(0);
-                                            //           setSelectedSongKey(_song.key);
-                                            //           _songMomentNotifier.songMoment = null;
-                                            //           adjustDisplay();
-                                            //         },
-                                            //       ),
-                                            //     ),
-                                            //     const AppSpace(space: 5),
-                                            //     AppTooltip(
-                                            //       message: 'Advance to the next song in the list',
-                                            //       child: appIconButton(
-                                            //         appKeyEnum: AppKeyEnum.playerNextSong,
-                                            //         icon: appIcon(
-                                            //           Icons.navigate_next,
-                                            //         ),
-                                            //         onPressed: () {
-                                            //           _assignNewSong( nextSongInTheList());
-                                            //           selectLyricSection(0);
-                                            //           setSelectedSongKey(_song.key);
-                                            //           _songMomentNotifier.songMoment = null;
-                                            //           adjustDisplay();
-                                            //         },
-                                            //       ),
-                                            //     ),
-                                            //   ]),
-                                            // if (app.isScreenBig)
-                                            //   AppWrap(children: [
-                                            //     const AppSpace(horizontalSpace: 35),
-                                            //     AppTooltip(
-                                            //       message: 'Mark the song as good.'
-                                            //           '\nYou will find it in the'
-                                            //           ' "${myGoodSongNameValue.toShortString()}" list.',
-                                            //       child: appIconButton(
-                                            //         appKeyEnum: AppKeyEnum.playerSongGood,
-                                            //         icon: appIcon(
-                                            //           Icons.thumb_up,
-                                            //         ),
-                                            //         onPressed: () {
-                                            //           SongMetadata.addSong(_song, myGoodSongNameValue);
-                                            //           SongMetadata.removeFromSong(_song, myBadSongNameValue);
-                                            //           appOptions.storeSongMetadata();
-                                            //           app.errorMessage('${_song.title} added to'
-                                            //               ' ${myGoodSongNameValue.toShortString()}');
-                                            //         },
-                                            //       ),
-                                            //     ),
-                                            //     const AppSpace(space: 5),
-                                            //     AppTooltip(
-                                            //       message: 'Mark the song as bad, that is, in need of correction.'
-                                            //           '\nYou will find it in the'
-                                            //           ' "${myBadSongNameValue.toShortString()}" list.',
-                                            //       child: appIconButton(
-                                            //         appKeyEnum: AppKeyEnum.playerSongBad,
-                                            //         icon: appIcon(
-                                            //           Icons.thumb_down,
-                                            //         ),
-                                            //         onPressed: () {
-                                            //           SongMetadata.addSong(_song, myBadSongNameValue);
-                                            //           SongMetadata.removeFromSong(_song, myGoodSongNameValue);
-                                            //           appOptions.storeSongMetadata();
-                                            //           _songMaster.stop();
-                                            //           _cancelIdleTimer();
-                                            //           Navigator.pop(context); //  return to main list
-                                            //         },
-                                            //       ),
-                                            //     ),
-                                            //   ]),
-                                            //  if (app.isEditReady) const AppSpace(horizontalSpace: 35),
-                                            //  song edit
-                                            AppTooltip(
-                                              message: songUpdateState.isPlaying
-                                                  ? 'Song is playing'
-                                                  : (songUpdateService.isFollowing
-                                                      ? 'Followers cannot edit.\nDisable following back on the main Options\n'
-                                                          ' to allow editing.'
-                                                      : (app.isEditReady
-                                                          ? 'Edit the song'
-                                                          : 'Device is not edit ready')),
-                                              child: appIconWithLabelButton(
-                                                appKeyEnum: AppKeyEnum.playerEdit,
-                                                icon: appIcon(
-                                                  Icons.edit,
-                                                ),
-                                                onPressed: (!songUpdateState.isPlaying &&
-                                                        !songUpdateService.isFollowing &&
-                                                        app.isEditReady)
-                                                    ? () {
-                                                        navigateToEdit(context, _song);
-                                                      }
-                                                    : null,
-                                              ),
-                                            ),
-                                            AppSpace(horizontalSpace: 3.5 * fontSize),
-                                          ]),
                                         ]),
                                     //  second top row
                                     AppRow(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
@@ -1047,7 +1004,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               //   ),
                               //   const AppSpace(),
                               if (app.isScreenBig &&
-                                  appOptions.ninJam &&
+                                  _appOptions.ninJam &&
                                   _ninJam.isNinJamReady &&
                                   songUpdateState == SongUpdateState.idle)
                                 AppWrapFullWidth(spacing: 20, children: [
@@ -1111,25 +1068,48 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   Column(
                     children: [
                       AppSpace(
-                        verticalSpace: AppBar().preferredSize.height,
+                        verticalSpace: AppBar().preferredSize.height + fontSize / 4,
                       ),
                       AppWrapFullWidth(alignment: WrapAlignment.end, children: [
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: AppTooltip(
-                            message: 'Show the player settings dialog.',
+                        //  player options
+                        AppWrap(children: [
+                          //  song edit
+                          AppTooltip(
+                            message: songUpdateState.isPlaying
+                                ? 'Song is playing'
+                                : (songUpdateService.isFollowing
+                                    ? 'Followers cannot edit.\nDisable following back on the main Options\n'
+                                        ' to allow editing.'
+                                    : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
                             child: appIconWithLabelButton(
-                              appKeyEnum: AppKeyEnum.playerSettings,
+                              appKeyEnum: AppKeyEnum.playerEdit,
                               icon: appIcon(
-                                Icons.settings,
-                                size: 1.5 * fontSize,
+                                Icons.edit,
                               ),
-                              onPressed: () {
-                                _settingsPopup();
-                              },
+                              onPressed:
+                                  (!songUpdateState.isPlaying && !songUpdateService.isFollowing && app.isEditReady)
+                                      ? () {
+                                          navigateToEdit(context, _song);
+                                        }
+                                      : null,
                             ),
                           ),
+                          AppSpace(horizontalSpace: fontSize),
+                        ]),
+                        AppTooltip(
+                          message: 'Show the player settings dialog.',
+                          child: appIconWithLabelButton(
+                            appKeyEnum: AppKeyEnum.playerSettings,
+                            icon: appIcon(
+                              Icons.settings,
+                              size: 1.5 * fontSize,
+                            ),
+                            onPressed: () {
+                              _settingsPopup();
+                            },
+                          ),
                         ),
+                        AppSpace(horizontalSpace: fontSize),
                       ]),
                     ],
                   ),
@@ -1146,23 +1126,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                           children: [
                             AppWrap(
                               children: [
-                                AppTooltip(
-                                  message: 'Stop the song playing.',
-                                  child: Container(
-                                    padding: const EdgeInsets.only(left: 16, right: 8),
-                                    child: appIconWithLabelButton(
-                                      appKeyEnum: AppKeyEnum.playerStop,
-                                      icon: appIcon(
-                                        Icons.stop,
-                                        size: 1.25 * fontSize,
-                                      ),
-                                      onPressed: () {
-                                        app.clearMessage();
-                                        performStop();
-                                      },
-                                    ),
-                                  ),
-                                ),
                                 Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
                                   var style = generateAppTextStyle(
                                     fontSize: app.screenInfo.fontSize,
@@ -1290,9 +1253,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _songMaster.playDrums(_drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
-  double boxCenterHeight(final double toolbarHeight) {
-    return toolbarHeight + (app.screenInfo.mediaHeight - toolbarHeight) * _scrollAlignment;
-  }
+  // double boxCenterHeight(final double toolbarHeight) {
+  //  fixme: this is wrong
+  //   return 2*toolbarHeight + app.screenInfo.mediaHeight * _scrollAlignment;
+  // }
 
   _clearCountIn() {
     _updateCountIn(-countInMax);
@@ -1489,7 +1453,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     _selectLyricSection(index);
 
-    if (appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+    if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
       //  notify lyrics of selection... even if there is no scroll
       logger.t('proPlayer: _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
       return; //  pro's never scroll!
@@ -1664,7 +1628,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     playerSelectedSongKey = _selectedSongKey;
     update.currentBeatsPerMinute = playerSelectedBpm ?? update.song.beatsPerMinute;
     update.momentNumber = momentNumber;
-    update.user = appOptions.user;
+    update.user = _appOptions.user;
     update.singer = playerSinger ?? 'unknown';
     update.state = songUpdateState;
     songUpdateService.issueSongUpdate(update);
@@ -1765,6 +1729,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(_logScroll, 'simpleStop():');
   }
 
+  void performPause() {
+    setState(() {
+      logger.i('fixme: performPause()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    });
+  }
+
   /// Adjust the displayed
   setSelectedSongKey(music_key.Key key) {
     logger.log(_logMusicKey, 'key: $key');
@@ -1841,7 +1811,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               )),
     ).then((value) {
       _drumPartsList.match(song, app.selectedDrumParts);
-      appOptions.drumPartsListJson = _drumPartsList.toJson();
+      _appOptions.drumPartsListJson = _drumPartsList.toJson();
 
       logger.t('app.selectedDrumParts: ${app.selectedDrumParts}');
       logger.t('songMatch: ${_drumPartsList.songMatch(song)?.name}');
@@ -1905,7 +1875,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   bool capoIsPossible() {
-    return !appOptions.isSinger && !(songUpdateService.isConnected && songUpdateService.isLeader);
+    return !_appOptions.isSinger && !(songUpdateService.isConnected && songUpdateService.isLeader);
   }
 
   Future<void> _settingsPopup() async {
@@ -1943,11 +1913,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.proPlayer,
-                                  groupValue: appOptions.userDisplayStyle,
+                                  groupValue: _appOptions.userDisplayStyle,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.userDisplayStyle = value;
+                                        _appOptions.userDisplayStyle = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -1962,7 +1932,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: UserDisplayStyle.proPlayer,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
+                                        _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
                                         adjustDisplay();
                                       });
                                     },
@@ -1974,11 +1944,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.player,
-                                  groupValue: appOptions.userDisplayStyle,
+                                  groupValue: _appOptions.userDisplayStyle,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.userDisplayStyle = value;
+                                        _appOptions.userDisplayStyle = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -1994,7 +1964,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: UserDisplayStyle.player,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.userDisplayStyle = UserDisplayStyle.player;
+                                        _appOptions.userDisplayStyle = UserDisplayStyle.player;
                                         adjustDisplay();
                                       });
                                     },
@@ -2006,11 +1976,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.both,
-                                  groupValue: appOptions.userDisplayStyle,
+                                  groupValue: _appOptions.userDisplayStyle,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.userDisplayStyle = value;
+                                        _appOptions.userDisplayStyle = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -2025,7 +1995,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: UserDisplayStyle.both,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.userDisplayStyle = UserDisplayStyle.both;
+                                        _appOptions.userDisplayStyle = UserDisplayStyle.both;
                                         adjustDisplay();
                                       });
                                     },
@@ -2037,11 +2007,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.singer,
-                                  groupValue: appOptions.userDisplayStyle,
+                                  groupValue: _appOptions.userDisplayStyle,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.userDisplayStyle = value;
+                                        _appOptions.userDisplayStyle = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -2056,7 +2026,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: UserDisplayStyle.singer,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.userDisplayStyle = UserDisplayStyle.singer;
+                                        _appOptions.userDisplayStyle = UserDisplayStyle.singer;
                                         adjustDisplay();
                                       });
                                     },
@@ -2068,11 +2038,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<UserDisplayStyle>(
                                   value: UserDisplayStyle.banner,
-                                  groupValue: appOptions.userDisplayStyle,
+                                  groupValue: _appOptions.userDisplayStyle,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.userDisplayStyle = value;
+                                        _appOptions.userDisplayStyle = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -2086,7 +2056,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: UserDisplayStyle.banner,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.userDisplayStyle = UserDisplayStyle.banner;
+                                        _appOptions.userDisplayStyle = UserDisplayStyle.banner;
                                         adjustDisplay();
                                       });
                                     },
@@ -2112,11 +2082,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<PlayerScrollHighlight>(
                                   value: PlayerScrollHighlight.off,
-                                  groupValue: appOptions.playerScrollHighlight,
+                                  groupValue: _appOptions.playerScrollHighlight,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.playerScrollHighlight = value;
+                                        _appOptions.playerScrollHighlight = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -2130,7 +2100,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: PlayerScrollHighlight.off,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
+                                        _appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
                                         adjustDisplay();
                                       });
                                     },
@@ -2142,11 +2112,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<PlayerScrollHighlight>(
                                   value: PlayerScrollHighlight.chordRow,
-                                  groupValue: appOptions.playerScrollHighlight,
+                                  groupValue: _appOptions.playerScrollHighlight,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.playerScrollHighlight = value;
+                                        _appOptions.playerScrollHighlight = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -2160,7 +2130,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: PlayerScrollHighlight.chordRow,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.playerScrollHighlight = PlayerScrollHighlight.chordRow;
+                                        _appOptions.playerScrollHighlight = PlayerScrollHighlight.chordRow;
                                         adjustDisplay();
                                       });
                                     },
@@ -2172,11 +2142,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<PlayerScrollHighlight>(
                                   value: PlayerScrollHighlight.measure,
-                                  groupValue: appOptions.playerScrollHighlight,
+                                  groupValue: _appOptions.playerScrollHighlight,
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null) {
-                                        appOptions.playerScrollHighlight = value;
+                                        _appOptions.playerScrollHighlight = value;
                                         adjustDisplay();
                                       }
                                     });
@@ -2190,7 +2160,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     value: PlayerScrollHighlight.measure,
                                     onPressed: () {
                                       setState(() {
-                                        appOptions.playerScrollHighlight = PlayerScrollHighlight.measure;
+                                        _appOptions.playerScrollHighlight = PlayerScrollHighlight.measure;
                                         adjustDisplay();
                                       });
                                     },
@@ -2208,7 +2178,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 child: appTextButton(
                                   'Repeats:',
                                   appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
-                                  value: appOptions.compressRepeats,
+                                  value: _appOptions.compressRepeats,
                                   onPressed: () {
                                     setState(() {
                                       compressRepeats = !compressRepeats;
@@ -2221,7 +2191,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<bool>(
                                   value: true,
-                                  groupValue: appOptions.compressRepeats,
+                                  groupValue: _appOptions.compressRepeats,
                                   onChanged: (value) {
                                     setState(() {
                                       setState(() {
@@ -2249,7 +2219,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               AppWrap(children: [
                                 Radio<bool>(
                                   value: false,
-                                  groupValue: appOptions.compressRepeats,
+                                  groupValue: _appOptions.compressRepeats,
                                   onChanged: (value) {
                                     setState(() {
                                       setState(() {
@@ -2294,10 +2264,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         text: 'Off',
                                         appKeyEnum: AppKeyEnum.optionsNashville,
                                         value: NashvilleSelection.off,
-                                        groupValue: appOptions.nashvilleSelection,
+                                        groupValue: _appOptions.nashvilleSelection,
                                         onPressed: () {
                                           setState(() {
-                                            appOptions.nashvilleSelection = NashvilleSelection.off;
+                                            _appOptions.nashvilleSelection = NashvilleSelection.off;
                                             adjustDisplay();
                                           });
                                         },
@@ -2309,10 +2279,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         text: 'both',
                                         appKeyEnum: AppKeyEnum.optionsNashville,
                                         value: NashvilleSelection.both,
-                                        groupValue: appOptions.nashvilleSelection,
+                                        groupValue: _appOptions.nashvilleSelection,
                                         onPressed: () {
                                           setState(() {
-                                            appOptions.nashvilleSelection = NashvilleSelection.both;
+                                            _appOptions.nashvilleSelection = NashvilleSelection.both;
                                             adjustDisplay();
                                           });
                                         },
@@ -2324,10 +2294,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         text: 'only',
                                         appKeyEnum: AppKeyEnum.optionsNashville,
                                         value: NashvilleSelection.only,
-                                        groupValue: appOptions.nashvilleSelection,
+                                        groupValue: _appOptions.nashvilleSelection,
                                         onPressed: () {
                                           setState(() {
-                                            appOptions.nashvilleSelection = NashvilleSelection.only;
+                                            _appOptions.nashvilleSelection = NashvilleSelection.only;
                                             adjustDisplay();
                                           });
                                         },
@@ -2338,7 +2308,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               const AppSpace(
                                 horizontalSpace: 20,
                               ),
-                              if (appOptions.userDisplayStyle != UserDisplayStyle.singer)
+                              if (_appOptions.userDisplayStyle != UserDisplayStyle.singer)
                                 AppWrap(
                                   alignment: WrapAlignment.start,
                                   children: [
@@ -2398,10 +2368,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               child: AppTooltip(
                                 message: 'Adjust drum playback volume.',
                                 child: Slider(
-                                  value: appOptions.volume * 10,
+                                  value: _appOptions.volume * 10,
                                   onChanged: (value) {
                                     setState(() {
-                                      appOptions.volume = value / 10;
+                                      _appOptions.volume = value / 10;
                                     });
                                   },
                                   min: 0,
@@ -2467,10 +2437,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   text: 'No NinJam aids',
                                   appKeyEnum: AppKeyEnum.optionsNinJam,
                                   value: false,
-                                  groupValue: appOptions.ninJam,
+                                  groupValue: _appOptions.ninJam,
                                   onPressed: () {
                                     setState(() {
-                                      appOptions.ninJam = false;
+                                      _appOptions.ninJam = false;
                                       adjustDisplay();
                                     });
                                   },
@@ -2482,10 +2452,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   text: 'Show NinJam aids',
                                   appKeyEnum: AppKeyEnum.optionsNinJam,
                                   value: true,
-                                  groupValue: appOptions.ninJam,
+                                  groupValue: _appOptions.ninJam,
                                   onPressed: () {
                                     setState(() {
-                                      appOptions.ninJam = true;
+                                      _appOptions.ninJam = true;
                                       adjustDisplay();
                                     });
                                   },
@@ -2638,9 +2608,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   late final FocusNode _rawKeyboardListenerFocusNode;
 
-  set compressRepeats(bool value) => appOptions.compressRepeats = value;
+  set compressRepeats(bool value) => _appOptions.compressRepeats = value;
 
-  bool get compressRepeats => appOptions.compressRepeats;
+  bool get compressRepeats => _appOptions.compressRepeats;
 
   music_key.Key _displaySongKey = music_key.Key.C;
   int displayKeyOffset = 0;
@@ -2668,9 +2638,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   Size? lastSize;
 
-  static const _centerSelections = true;
-  static const _scrollAlignment = 0.15;
-  double boxMarker = 0;
+  // static const _centerSelections = true;
+  static const _scrollAlignment = 0.25;
+
+  // double boxMarker = 0;
   var headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   Timer? _idleTimer;
@@ -2681,7 +2652,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   late AppWidgetHelper appWidgetHelper;
 
-  static final appOptions = AppOptions();
+  static final _appOptions = AppOptions();
   final SongUpdateService songUpdateService = SongUpdateService();
 }
 

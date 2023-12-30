@@ -80,7 +80,7 @@ class SingersState extends State<Singers> {
         color: Colors.black87,
         fontSize: fontSize,
       );
-      disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: appDisabledColor);
+      disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: App.disabledColor);
       buttonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveBackgroundColor);
       inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
       selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);

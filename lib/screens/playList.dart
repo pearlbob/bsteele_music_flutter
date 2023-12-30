@@ -738,9 +738,9 @@ class _PlayListState extends State<PlayList> {
                     )),
 
                 const AppSpace(spaceFactor: 2.0),
-                    //  filters
-                    AppTooltip(
-                        message: '''Filter the list by the selected metadata.
+                //  filters
+                AppTooltip(
+                    message: '''Filter the list by the selected metadata.
 Selections with the same name will be OR'd together.
 Selections with different names will be AND'd.''',
                     child: MetadataPopupMenuButton.button(
@@ -768,6 +768,7 @@ Selections with different names will be AND'd.''',
                 //  filters and order
                 if (app.isScreenBig && widget.isOrderBy)
                   AppWrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       AppTooltip(
                         message: 'Select the order of the song list.',

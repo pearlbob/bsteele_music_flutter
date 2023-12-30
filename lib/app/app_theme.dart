@@ -695,15 +695,17 @@ class AppTheme {
       color = App.universalBackgroundColor;
 
       app.themeData = app.themeData.copyWith(
-        primaryColor: color,
-        disabledColor: appDisabledColor,
-        elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
-        colorScheme: ColorScheme.fromSwatch(
-            backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
-        segmentedButtonTheme: SegmentedButtonThemeData(style: elevatedButtonThemeStyle),
-        tooltipTheme: TooltipThemeData(
-            textStyle: generateTooltipTextStyle(), decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor)),
-      );
+          primaryColor: color,
+          disabledColor: App.disabledColor,
+          elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
+          colorScheme: ColorScheme.fromSwatch(
+              backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
+          segmentedButtonTheme: SegmentedButtonThemeData(style: elevatedButtonThemeStyle),
+          tooltipTheme: TooltipThemeData(
+              textStyle: generateTooltipTextStyle(), decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor)),
+          dividerTheme: const DividerThemeData(
+            color: Colors.black54,
+          ));
     }
   }
 }
@@ -748,7 +750,7 @@ ElevatedButton appButton(
           _appLogCallback(key); //  log the click
           onPressed.call();
         };
-  var buttonBackgroundColor = onPressed == null ? appDisabledColor : backgroundColor;
+  var buttonBackgroundColor = onPressed == null ? App.disabledColor : backgroundColor;
   _appKeyRegisterVoidCallback(key, voidCallback: voidCallback);
 
   return ElevatedButton(
@@ -841,7 +843,7 @@ TextButton appIconWithLabelButton({
   var key = appKeyCreate(appKeyEnum, value: value);
   _appKeyRegisterVoidCallback(key, voidCallback: onPressed);
   if (onPressed == null) {
-    backgroundColor = appDisabledColor;
+    backgroundColor = App.disabledColor;
   }
   style ??= TextStyle(fontSize: fontSize, textBaseline: TextBaseline.alphabetic);
   return TextButton.icon(
@@ -1010,7 +1012,7 @@ ListTile appListTile({
   _appKeyRegisterVoidCallback(key, voidCallback: onTap);
   style = style ?? appTextStyle;
   if (!enabled) {
-    style == style.copyWith(color: appDisabledColor);
+    style == style.copyWith(color: App.disabledColor);
   }
   return ListTile(
     key: key,
@@ -1085,34 +1087,37 @@ class AppTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: TextField(
-        key: appKey,
-        controller: controller,
-        focusNode: focusNode,
-        enabled: enabled,
-        keyboardType: (minLines ?? 0) > 1 ? TextInputType.multiline : TextInputType.text,
-        onChanged: (String value) {
-          appLogTextFieldEntry(appKeyEnum, value);
-          onChanged?.call(value);
-        },
-        onSubmitted: (String value) {
-          appLogTextFieldEntry(appKeyEnum, value);
-          onSubmitted?.call(value);
-        },
-        decoration: InputDecoration(
-          border: border,
-          // floatingLabelAlignment: FloatingLabelAlignment.start,
-          isDense: true,
-          contentPadding: const EdgeInsets.all(2.0),
-          hintText: hintText,
-          hintStyle: style?.copyWith(color: Colors.black54, fontWeight: FontWeight.normal),
+      child: DecoratedBox(
+        decoration: const BoxDecoration(color: App.textFieldColor),
+        child: TextField(
+          key: appKey,
+          controller: controller,
+          focusNode: focusNode,
+          enabled: enabled,
+          keyboardType: (minLines ?? 0) > 1 ? TextInputType.multiline : TextInputType.text,
+          onChanged: (String value) {
+            appLogTextFieldEntry(appKeyEnum, value);
+            onChanged?.call(value);
+          },
+          onSubmitted: (String value) {
+            appLogTextFieldEntry(appKeyEnum, value);
+            onSubmitted?.call(value);
+          },
+          decoration: InputDecoration(
+            border: border,
+            // floatingLabelAlignment: FloatingLabelAlignment.start,
+            isDense: true,
+            contentPadding: const EdgeInsets.all(2.0),
+            hintText: hintText,
+            hintStyle: style?.copyWith(color: Colors.black54, fontWeight: FontWeight.normal),
+          ),
+          style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.normal),
+          //(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
+          autofocus: true,
+          maxLength: null,
+          minLines: minLines,
+          maxLines: maxLines ?? minLines,
         ),
-        style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.normal),
-        //(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
-        autofocus: true,
-        maxLength: null,
-        minLines: minLines,
-        maxLines: maxLines ?? minLines,
       ),
     );
   }

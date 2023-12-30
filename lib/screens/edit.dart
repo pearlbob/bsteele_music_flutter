@@ -48,7 +48,6 @@ const double _defaultChordFontSize = 22;
 const double _defaultFontSize = _defaultChordFontSize * 0.8;
 
 TextStyle _titleTextStyle = generateAppTextStyle();
-TextStyle _boldTextStyle = generateAppTextStyle();
 TextStyle _textFieldStyle = generateAppTextStyle();
 TextStyle _labelTextStyle = generateAppTextStyle();
 const double _entryWidth = 22 * _defaultChordFontSize;
@@ -433,11 +432,6 @@ class EditState extends State<Edit> {
 
     //  generate edit text styles
     _titleTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
-    _boldTextStyle = generateAppTextStyle(
-      fontSize: _defaultFontSize,
-      fontWeight: FontWeight.bold,
-      color: Colors.black87,
-    );
     _textFieldStyle = generateAppTextFieldStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
     _labelTextStyle = generateAppTextStyle(fontSize: _defaultChordFontSize, fontWeight: FontWeight.bold);
 
@@ -767,7 +761,7 @@ class EditState extends State<Edit> {
                             AppTooltip(
                               message: 'Enter the original key of the song here.\n'
                                   'This may not be the first chord of the first measure!',
-                              child: AppWrap(children: [
+                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                                 Text(
                                   "Key: ",
                                   style: _labelTextStyle,
@@ -781,7 +775,7 @@ class EditState extends State<Edit> {
                                       value: value,
                                       child: Text(
                                         '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
-                                        style: _boldTextStyle,
+                                        style: _labelTextStyle,
                                       ),
                                     );
                                   }).toList(growable: false),
@@ -805,7 +799,7 @@ class EditState extends State<Edit> {
                             ),
                             AppTooltip(
                               message: 'Enter the song\'s tempo in beats per minute (BPM).',
-                              child: AppWrap(children: [
+                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                                 Text(
                                   "   BPM: ",
                                   style: _labelTextStyle,
@@ -823,7 +817,7 @@ class EditState extends State<Edit> {
                             ),
                             AppTooltip(
                               message: 'Enter the song\'s time signature as it would appear on sheet music.',
-                              child: AppWrap(children: [
+                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                                 Text(
                                   "Time: ",
                                   style: _labelTextStyle,
@@ -848,7 +842,7 @@ class EditState extends State<Edit> {
                             AppTooltip(
                               message: 'Enter the user name of the person who is transcribing the song.\n'
                                   'Typically this is your own user name.',
-                              child: AppWrap(children: [
+                              child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                                 Text(
                                   "User: ",
                                   style: _labelTextStyle,

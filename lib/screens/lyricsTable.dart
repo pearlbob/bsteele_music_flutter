@@ -372,7 +372,7 @@ class LyricsTable {
                           displayMusicKey: displayMusicKey,
                           style: _coloredLyricTextStyle.copyWith(
                             color: Colors.black54,
-                            backgroundColor: appDisabledColor,
+                            backgroundColor: App.disabledColor,
                             fontSize: _coloredLyricTextStyle.fontSize ?? app.screenInfo.fontSize,
                           ),
                         ),

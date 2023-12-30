@@ -745,7 +745,7 @@ class _FretBoardPainter extends CustomPainter {
     }
 
     //  strings
-    final stringGrey = Paint()..color = appDisabledColor;
+    final stringGrey = Paint()..color = App.disabledColor;
     for (var s = 0; s < 4; s++) {
       stringGrey.strokeWidth = (4.0 - s) * 3.0;
 

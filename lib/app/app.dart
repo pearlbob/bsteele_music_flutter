@@ -37,7 +37,6 @@ music_key.Key? playerSelectedSongKey;
 int? playerSelectedBpm = MusicConstants.defaultBpm;
 String? playerSinger;
 
-const Color appDisabledColor = Color(0xFFE0E0E0);
 const double appDefaultFontSize = 10.0; //  based on phone
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
@@ -127,7 +126,8 @@ class App {
   static const screenBackgroundColor = Colors.white;
   static const defaultBackgroundColor = Color(0xff2654c6);
   static const defaultForegroundColor = Colors.white;
-  static final disabledColor = Colors.grey.shade300;
+  static const disabledColor = Color(0xFFE8E8E8);
+  static const textFieldColor = Color(0xFFE8E8E8);
 
   //  universal
   static const universalBackgroundColor = Colors.white;

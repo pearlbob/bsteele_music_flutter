@@ -316,14 +316,16 @@ class SongMaster extends ChangeNotifier {
   pauseToggle() {
     switch (songUpdateState) {
       case SongUpdateState.playing:
-        songUpdateState = SongUpdateState.pause;
-        notifyListeners();
+        // songUpdateState = SongUpdateState.pause;
+        // notifyListeners();
+        pause();
         break;
       case SongUpdateState.pause:
         //  setup for the restart
-        _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
-        songUpdateState = SongUpdateState.playing;
-        notifyListeners();
+        resume();
+        // _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
+        // songUpdateState = SongUpdateState.playing;
+        // notifyListeners();
         break;
       default:
         break;
@@ -375,6 +377,7 @@ class SongMaster extends ChangeNotifier {
 
   void resume() {
     if (songUpdateState == SongUpdateState.pause) {
+      _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
       songUpdateState = SongUpdateState.playing;
       notifyListeners();
     }

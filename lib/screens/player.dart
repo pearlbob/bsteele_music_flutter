@@ -252,7 +252,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     //  follow the song master moment number
     switch (songUpdateState) {
       case SongUpdateState.none:
-      case SongUpdateState.pause:
       case SongUpdateState.idle:
         if (_songMaster.songUpdateState.isPlaying) {
           //  cancel the cell highlight
@@ -266,6 +265,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         break;
       case SongUpdateState.playing:
+      case SongUpdateState.pause:
         //  select the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
@@ -281,7 +281,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         break;
     }
-    songUpdateState = _songMaster.songUpdateState;
+    if (songUpdateState != _songMaster.songUpdateState) {
+      setState(() {
+        songUpdateState = _songMaster.songUpdateState;
+      });
+    }
   }
 
   @override
@@ -700,12 +704,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     enabled: !songUpdateService.isFollowing,
                                   ),
                                   //  hide the pause unless we are in play
-                                  if (songUpdateState == SongUpdateState.playing)
+                                  if (songUpdateState == SongUpdateState.playing ||
+                                      songUpdateState == SongUpdateState.pause)
                                     ButtonSegment<SongUpdateState>(
                                       value: SongUpdateState.pause,
                                       icon: appIcon(
                                         Icons.pause,
                                         size: 1.75 * fontSize,
+                                        color: songUpdateState == SongUpdateState.pause
+                                            ? Colors.yellowAccent
+                                            : Colors.white,
                                       ),
                                       tooltip: _appOptions.toolTips ? 'Pause the playing.' : null,
                                       enabled: !songUpdateService.isFollowing,
@@ -713,6 +721,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 ],
                                 selected: <SongUpdateState>{songUpdateState},
                                 onSelectionChanged: (Set<SongUpdateState> newSelection) {
+                                  // logger.i('onSelectionChanged: $newSelection');
                                   switch (newSelection.first) {
                                     case SongUpdateState.none:
                                     case SongUpdateState.idle:
@@ -725,8 +734,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       performPause();
                                       break;
                                   }
-                                  logger.i('new SongUpdateState: ${newSelection.first}'
-                                      ', songUpdateState: $songUpdateState');
                                 },
                               ),
 
@@ -1644,14 +1651,23 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   performPlay() {
     logger.log(_logMode, 'manualPlay:');
     setState(() {
-      songUpdateState = SongUpdateState.playing;
-      _lastRowIndex = -1;
-      setSelectedSongMoment(_song.songMoments.first);
+      switch (songUpdateState) {
+        case SongUpdateState.pause:
+          if (!songUpdateService.isFollowing) {
+            _songMaster.resume();
+          }
+          break;
+        default:
+          songUpdateState = SongUpdateState.playing;
+          _lastRowIndex = -1;
+          setSelectedSongMoment(_song.songMoments.first);
 
-      if (!songUpdateService.isFollowing) {
-        _playMomentNotifier.playMoment =
-            PlayMoment(SongUpdateState.playing, _songMaster.momentNumber ?? 0, _song.songMoments.first);
-        _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
+          if (!songUpdateService.isFollowing) {
+            _playMomentNotifier.playMoment =
+                PlayMoment(SongUpdateState.playing, _songMaster.momentNumber ?? 0, _song.songMoments.first);
+            _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
+          }
+          break;
       }
     });
   }
@@ -1731,7 +1747,15 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   void performPause() {
     setState(() {
-      logger.i('fixme: performPause()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+      switch (songUpdateState) {
+        case SongUpdateState.playing:
+          songUpdateState = SongUpdateState.pause;
+          _songMaster.pause();
+          logger.log(_logMode, 'performPause(): playing to pause');
+          break;
+        default:
+          break;
+      }
     });
   }
 

@@ -134,7 +134,7 @@ class SongPlayListItem implements PlayListItem {
       },
       child: Container(
         color: _indexTextStyle.backgroundColor,
-        padding: const EdgeInsets.all(5.0),
+        // padding: const EdgeInsets.all(5.0),  //  spacing between rows
         child: AppWrapFullWidth(
           spacing: _textFontSize,
           alignment: WrapAlignment.spaceBetween,
@@ -362,10 +362,10 @@ class PlayList extends StatefulWidget {
   late final TextStyle searchDropDownStyle;
   late final TextStyle searchTextStyle;
 
-  late final TextStyle oddTitle = oddTitleTextStyle(from: titleStyle);
-  late final TextStyle evenTitle = evenTitleTextStyle(from: titleStyle);
-  late final TextStyle oddText = oddTitleTextStyle(from: artistStyle);
-  late final TextStyle evenText = evenTitleTextStyle(from: artistStyle);
+  late final TextStyle oddTitleStyle = oddTitleTextStyle(from: titleStyle);
+  late final TextStyle evenTitleStyle = evenTitleTextStyle(from: titleStyle);
+  late final TextStyle oddTextStyle = oddTitleTextStyle(from: artistStyle);
+  late final TextStyle evenTextStyle = evenTitleTextStyle(from: artistStyle);
   final PlayListSearchMatcher playListSearchMatcher;
 }
 
@@ -706,7 +706,7 @@ class _PlayListState extends State<PlayList> {
                     controller: _searchTextFieldController,
                     focusNode: _searchFocusNode,
                     hintText: 'Search here...',
-                    width: app.screenInfo.fontSize * 10,
+                    width: app.screenInfo.fontSize * 15,
                     onChanged: (value) {
                       setState(() {
                         if (_searchTextFieldController.text != value) {
@@ -821,8 +821,8 @@ Selections with different names will be AND'd.''',
                         ' ${playListRefreshNotifier.positionPixels}'
                         ', id:F ${identityHashCode(playListRefreshNotifier)}'
                         ', isFromTheTop: ${widget.isFromTheTop}');
-                    _indexTitleStyle = (index & 1) == 1 ? widget.oddTitle : widget.evenTitle;
-                    _indexTextStyle = (index & 1) == 1 ? widget.oddText : widget.evenText;
+                    _indexTitleStyle = (index & 1) == 1 ? widget.oddTitleStyle : widget.evenTitleStyle;
+                    _indexTextStyle = (index & 1) == 1 ? widget.oddTextStyle : widget.evenTextStyle;
                     return filteredGroup._indexToWidget(context, index, widget.isEditing, () {
                       focus(context);
                     });

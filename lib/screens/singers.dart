@@ -75,7 +75,7 @@ class SingersState extends State<Singers> {
         _setSelectedSinger(_sessionSingers.first);
       }
 
-      final double fontSize = app.screenInfo.fontSize * 0.85;
+      final double fontSize = app.screenInfo.fontSize * 1.3;
       songPerformanceStyle = generateAppTextStyle(
         color: Colors.black87,
         fontSize: fontSize,
@@ -770,7 +770,7 @@ class SingersState extends State<Singers> {
                   ]),
                   SizedBox(
                     //  new singer stuff
-                    width: 16 * app.screenInfo.fontSize,
+                    width: 25 * app.screenInfo.fontSize,
                     //  limit text entry display length
                     child: AppTextField.onSubmitted(
                       appKeyEnum: AppKeyEnum.singersNameEntry,

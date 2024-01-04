@@ -680,73 +680,81 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               //  top section
-                              //  play mode selection
-                              SegmentedButton<SongUpdateState>(
-                                showSelectedIcon: false,
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                    (Set<MaterialState> states) {
-                                      if (states.contains(MaterialState.disabled)) {
-                                        return App.disabledColor;
-                                      }
-                                      return App.appBackgroundColor;
-                                    },
-                                  ),
+                              if (songUpdateService.isFollowing)
+                                Text(
+                                  'Following ${songUpdateService.leaderName}',
+                                  style:,
                                 ),
-                                segments: <ButtonSegment<SongUpdateState>>[
-                                  ButtonSegment<SongUpdateState>(
-                                    value: SongUpdateState.idle,
-                                    icon: appIcon(
-                                      Icons.stop,
-                                      size: 1.75 * fontSize,
-                                      color: songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
+
+                              if (!songUpdateService.isFollowing)
+                              //  play mode selection
+                                SegmentedButton<SongUpdateState>(
+                                  showSelectedIcon: false,
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (states.contains(MaterialState.disabled)) {
+                                          return App.disabledColor;
+                                        }
+                                        return App.appBackgroundColor;
+                                      },
                                     ),
-                                    tooltip: _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
-                                    enabled: !songUpdateService.isFollowing,
                                   ),
-                                  ButtonSegment<SongUpdateState>(
-                                    value: SongUpdateState.playing,
-                                    icon: appIcon(
-                                      Icons.play_arrow,
-                                      size: 1.75 * fontSize,
-                                      color: songUpdateState == SongUpdateState.playing ? Colors.red : Colors.white,
-                                    ),
-                                    tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
-                                    enabled: !songUpdateService.isFollowing,
-                                  ),
-                                  //  hide the pause unless we are in play
-                                  if (songUpdateState == SongUpdateState.playing ||
-                                      songUpdateState == SongUpdateState.pause)
+                                  segments: <ButtonSegment<SongUpdateState>>[
                                     ButtonSegment<SongUpdateState>(
-                                      value: SongUpdateState.pause,
+                                      value: SongUpdateState.idle,
                                       icon: appIcon(
-                                        Icons.pause,
+                                        Icons.stop,
                                         size: 1.75 * fontSize,
-                                        color: songUpdateState == SongUpdateState.pause
-                                            ? Colors.yellowAccent
-                                            : Colors.white,
+                                        color: songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
                                       ),
-                                      tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
+                                      tooltip:
+                                      _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
                                       enabled: !songUpdateService.isFollowing,
                                     ),
-                                ],
-                                selected: <SongUpdateState>{songUpdateState},
-                                onSelectionChanged: (Set<SongUpdateState> newSelection) {
-                                  // logger.i('onSelectionChanged: $newSelection');
-                                  switch (newSelection.first) {
-                                    case SongUpdateState.none:
-                                    case SongUpdateState.idle:
-                                      performStop();
-                                      break;
-                                    case SongUpdateState.playing:
-                                      performPlay();
-                                      break;
-                                    case SongUpdateState.pause:
-                                      performPause();
-                                      break;
-                                  }
-                                },
-                              ),
+                                    ButtonSegment<SongUpdateState>(
+                                      value: SongUpdateState.playing,
+                                      icon: appIcon(
+                                        Icons.play_arrow,
+                                        size: 1.75 * fontSize,
+                                        color: songUpdateState == SongUpdateState.playing ? Colors.red : Colors.white,
+                                      ),
+                                      tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
+                                      enabled: !songUpdateService.isFollowing,
+                                    ),
+                                    //  hide the pause unless we are in play
+                                    if (songUpdateState == SongUpdateState.playing ||
+                                        songUpdateState == SongUpdateState.pause)
+                                      ButtonSegment<SongUpdateState>(
+                                        value: SongUpdateState.pause,
+                                        icon: appIcon(
+                                          Icons.pause,
+                                          size: 1.75 * fontSize,
+                                          color: songUpdateState == SongUpdateState.pause
+                                              ? Colors.yellowAccent
+                                              : Colors.white,
+                                        ),
+                                        tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
+                                        enabled: !songUpdateService.isFollowing,
+                                      ),
+                                  ],
+                                  selected: <SongUpdateState>{songUpdateState},
+                                  onSelectionChanged: (Set<SongUpdateState> newSelection) {
+                                    // logger.i('onSelectionChanged: $newSelection');
+                                    switch (newSelection.first) {
+                                      case SongUpdateState.none:
+                                      case SongUpdateState.idle:
+                                        performStop();
+                                        break;
+                                      case SongUpdateState.playing:
+                                        performPlay();
+                                        break;
+                                      case SongUpdateState.pause:
+                                        performPause();
+                                        break;
+                                    }
+                                  },
+                                ),
 
                               //  top section when idle
                               if (songUpdateState == SongUpdateState.idle)
@@ -1661,7 +1669,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         ', state: $songUpdateState');
   }
 
-  IconData get playStopIcon => songUpdateState.isPlaying ? Icons.stop : Icons.play_arrow;
+  // IconData get playStopIcon => songUpdateState.isPlaying ? Icons.stop : Icons.play_arrow;
 
   performPlay() {
     logger.log(_logMode, 'manualPlay:');

@@ -119,7 +119,7 @@ class OptionsState extends State<Options> {
                           },
                         ),
                       ]),
-                  AppWrap(
+                  Row(
                     children: <Widget>[
                       Container(
                         padding: const EdgeInsets.only(right: 24),
@@ -128,7 +128,7 @@ class OptionsState extends State<Options> {
                         ),
                       ),
                       SizedBox(
-                        width: app.screenInfo.mediaWidth / 2,
+                        width: app.screenInfo.mediaWidth / 3,
                         child: AppTextField(
                           appKeyEnum: AppKeyEnum.optionsWebsocketIP,
                           controller: _websocketHostEditingController,

@@ -48,7 +48,6 @@ Song _song = Song.theEmptySong;
 final LyricsTable _lyricsTable = LyricsTable();
 Widget _table = const Text('table missing!');
 const double _padding = 16.0;
-ScrollablePositionedList? _scrollablePositionedList;
 
 bool _isCapo = false; //  package level for persistence across player invocations
 int _capoLocation = 0; //  fret number of the cap location
@@ -1873,13 +1872,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   void forceTableRedisplay() {
-    logger.log(_logBuild, '_forceTableRedisplay()');
+    logger.log(_logBuild, 'forceTableRedisplay():');
     setState(() {
       _scrollablePositionedList = null;
     });
   }
 
   void adjustDisplay() {
+    logger.log(_logBuild, 'adjustDisplay():');
     sectionSongMoments.clear();
     forceTableRedisplay();
   }
@@ -2678,6 +2678,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   List<SongMoment> sectionSongMoments = []; //  fixme temp?
 
+  ScrollablePositionedList? _scrollablePositionedList;
   final ItemScrollController _itemScrollController = ItemScrollController();
   bool _isAnimated = false;
   int _lastRowIndex = 0;

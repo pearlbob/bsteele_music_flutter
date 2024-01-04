@@ -683,7 +683,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               if (songUpdateService.isFollowing)
                                 Text(
                                   'Following ${songUpdateService.leaderName}',
-                                  style:,
+                                  style: headerTextStyle,
                                 ),
 
                               if (!songUpdateService.isFollowing)

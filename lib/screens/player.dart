@@ -78,6 +78,17 @@ const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 
+const String _playStopPauseHints = '''\n
+Click the play button for play. You may not see immediate song motion.
+Space bar or clicking the song area starts play as well.
+Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
+Right arrow speeds up the BPM.
+Left arrow slows the BPM.
+Down arrow also advances one row in play, one section in pause.
+Up arrow backs up one row in play, one section in pause.
+Enter ends the "play" mode.
+With z or q, the play stops and goes back to the play list top.''';
+
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
 /// Note: This is an awkward move, given that it can happen at any time from any route.
@@ -690,7 +701,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       size: 1.75 * fontSize,
                                       color: songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
                                     ),
-                                    tooltip: _appOptions.toolTips ? 'Stop playing the song.' : null,
+                                    tooltip: _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
                                     enabled: !songUpdateService.isFollowing,
                                   ),
                                   ButtonSegment<SongUpdateState>(
@@ -700,7 +711,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       size: 1.75 * fontSize,
                                       color: songUpdateState == SongUpdateState.playing ? Colors.red : Colors.white,
                                     ),
-                                    tooltip: _appOptions.toolTips ? 'Play the song.' : null,
+                                    tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
                                     enabled: !songUpdateService.isFollowing,
                                   ),
                                   //  hide the pause unless we are in play
@@ -715,7 +726,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                             ? Colors.yellowAccent
                                             : Colors.white,
                                       ),
-                                      tooltip: _appOptions.toolTips ? 'Pause the playing.' : null,
+                                      tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
                                       enabled: !songUpdateService.isFollowing,
                                     ),
                                 ],
@@ -1198,6 +1209,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             break;
           case SongUpdateState.playing:
           case SongUpdateState.pause:
+            //  toggle pause, that is, play to pause or pause to play
             _songMaster.pauseToggle();
             break;
         }
@@ -1213,7 +1225,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           setStatePlay();
           break;
         case SongUpdateState.playing:
+          performPause();
+          break;
         case SongUpdateState.pause:
+          //  stay in pause, that is, manual mode
           _bump(1);
           break;
       }

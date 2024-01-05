@@ -57,6 +57,12 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       List<PlayListItem> items = [];
       for (var performance in performanceHistory) {
         logger.t('perf: ${performance.performedSong.title}, sung: ${performance.lastSungDateString}');
+
+        //  select for singer
+        if (_selectedSinger != null && performance.singer != _selectedSinger) {
+          continue; //  ignore the performance
+        }
+
         if (lastSungDateString != performance.lastSungDateString) {
           if (items.isNotEmpty) {
             songLists.add(PlayListItemList(
@@ -105,6 +111,9 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
           ));
     }
 
+    var searchDropDownStyle =
+        generateAppTextStyle(fontSize: 2 * appDefaultFontSize, color: Colors.black, nullBackground: true);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
@@ -117,6 +126,10 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
               AppWrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
+                  const AppSpace(
+                    horizontalSpace: 2 * appDefaultFontSize,
+                    verticalSpace: 0,
+                  ),
                   AppTooltip(
                     message: 'Select a singer.',
                     child: Text(
@@ -128,14 +141,27 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                     AppKeyEnum.performanceHistorySinger,
                     singerDropdownMenuItems,
                     onChanged: (value) {
-                      logger.i('select singer: $value');
+                      // logger.i('select singer: $value');
                       setState(() {
                         _selectedSinger = value;
                       });
                     },
                     value: _selectedSinger,
-                    // style: widget.searchDropDownStyle,
+                    style: searchDropDownStyle,
                   ),
+                  //  search clear
+                  AppTooltip(
+                      message: 'Clear the singer selection.',
+                      child: appIconButton(
+                        icon: const Icon(Icons.clear),
+                        appKeyEnum: AppKeyEnum.playListClearSearch,
+                        iconSize: appTextStyle.fontSize,
+                        onPressed: (() {
+                          setState(() {
+                            _selectedSinger = null;
+                          });
+                        }),
+                      )),
                 ],
               ),
               PlayList.byGroup(

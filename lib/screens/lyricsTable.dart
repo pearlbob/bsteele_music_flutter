@@ -1393,7 +1393,7 @@ class LyricsTable {
         richText: RichText(
           text: TextSpan(
             text: chordSection.sectionVersion.toString(),
-            style: _coloredChordTextStyle,
+            style: _coloredSectionTextStyle,
           ),
         ),
         type: SongCellType.flow,
@@ -1408,6 +1408,9 @@ class LyricsTable {
     _sectionBackgroundColor = App.getBackgroundColorForSectionVersion(sectionVersion);
     _coloredChordTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
+    );
+    _coloredSectionTextStyle = _coloredChordTextStyle.copyWith(
+      fontSize: (_coloredChordTextStyle.fontSize ?? appDefaultFontSize) / 2,
     );
     _coloredLyricTextStyle = _chordTextStyle.copyWith(
       backgroundColor: _sectionBackgroundColor,
@@ -1516,6 +1519,7 @@ class LyricsTable {
   static const double initialVerticalOffset = 105;
 
   Color _sectionBackgroundColor = Colors.white;
+  TextStyle _coloredSectionTextStyle = generateLyricsTextStyle();
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
 

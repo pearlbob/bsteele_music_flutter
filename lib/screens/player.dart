@@ -1232,8 +1232,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           setStatePlay();
           break;
         case SongUpdateState.playing:
-          performPause();
-          break;
         case SongUpdateState.pause:
           //  stay in pause, that is, manual mode
           _bump(1);

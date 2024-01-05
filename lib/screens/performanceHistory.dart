@@ -84,6 +84,27 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       songListGroup = PlayListGroup(songLists);
     }
 
+    //  find singer's list
+    List<DropdownMenuItem<String>> singerDropdownMenuItems;
+    {
+      SplayTreeSet<String> singers = SplayTreeSet()
+        ..addAll(performanceHistory.map((p) {
+          return p.singer;
+        }));
+      singerDropdownMenuItems = singers.map<DropdownMenuItem<String>>((singer) {
+        return DropdownMenuItem<String>(
+          value: singer,
+          child: Text(singer),
+        );
+      }).toList();
+      singerDropdownMenuItems.insert(
+          0,
+          const DropdownMenuItem<String>(
+            value: null,
+            child: Text('Any'),
+          ));
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
@@ -93,6 +114,30 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              AppWrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  AppTooltip(
+                    message: 'Select a singer.',
+                    child: Text(
+                      'Singer: ',
+                      style: appTextStyle,
+                    ),
+                  ),
+                  appDropdownButton<String>(
+                    AppKeyEnum.performanceHistorySinger,
+                    singerDropdownMenuItems,
+                    onChanged: (value) {
+                      logger.i('select singer: $value');
+                      setState(() {
+                        _selectedSinger = value;
+                      });
+                    },
+                    value: _selectedSinger,
+                    // style: widget.searchDropDownStyle,
+                  ),
+                ],
+              ),
               PlayList.byGroup(
                 songListGroup,
                 style: _songPerformanceStyle,
@@ -144,6 +189,8 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
       );
     }
   }
+
+  String? _selectedSinger;
 
   late AppWidgetHelper appWidgetHelper;
   late TextStyle _songPerformanceStyle;

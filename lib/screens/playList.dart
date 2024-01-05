@@ -676,6 +676,8 @@ class _PlayListState extends State<PlayList> {
         logger.log(_logPosition, 'pixels: no clients');
       }
 
+      // var appTextStyle = generateAppTextStyle();
+
       return Expanded(
         // for some reason, this is Expanded is very required,
         // otherwise the Column is unlimited and the list view fails
@@ -773,7 +775,7 @@ Selections with different names will be AND'd.''',
                       AppTooltip(
                         message: 'Select the order of the song list.',
                         child: Text(
-                          'Order ',
+                          'Order: ',
                           style: widget.searchDropDownStyle,
                         ),
                       ),

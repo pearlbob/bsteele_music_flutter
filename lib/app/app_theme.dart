@@ -217,6 +217,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsWebsocketThisHost(Null),
   performanceHistoryBack(Null),
   performanceHistoryErrorMessage(Null),
+  performanceHistorySinger(String),
   playerBack(Null),
   playerBPM(int),
   playerCapo(bool),

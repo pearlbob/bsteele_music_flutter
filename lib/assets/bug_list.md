@@ -14,18 +14,23 @@
 
 ### Fix
 
-* b (the switch output) should start play auto scroll from stop, test start/stop playing, space and b
+* In play, b should advance one row
+* Section header labels small font 1/4?
+* Auto scroll to bump by rows
+* Option to go as is: manual bump by sections, pause => manual as is
+* new song not always when selected from main song list
+
+* Hear bpm when changing (temp drums)
+* Filter by singer
+* Eliminate song views from history so only playings are in the list
+* Data on bpm during play pause
+* Song "I shall be released" x2 required
+* Stop scrolling if last is seen
 
 * More space between chords
 * Centered chords in blocks?
-* Hear bpm when changing (temp drums)
-* Auto scroll to bump by rows
-* Option to go as is: manual bump by sections, pause => manual as is
 * Scroll to the middle of the screen
 * Marker at the middle of the screen? when no indicator of position
-* player: in pause, reposition, play with up/down arrows or scroll,
-  continues from new location with space bar hit
-* new song not always when selected from main song list
 * order playlist by most sung
 * order playlist by least sung
 * Make complexity categories

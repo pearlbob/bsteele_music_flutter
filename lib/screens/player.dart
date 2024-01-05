@@ -80,6 +80,7 @@ const Level _logDataReminderState = Level.debug;
 const String _playStopPauseHints = '''\n
 Click the play button for play. You may not see immediate song motion.
 Space bar or clicking the song area starts play as well.
+Space bar in play selects pause.  Space bar in pause selects play.
 Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
 Right arrow speeds up the BPM.
 Left arrow slows the BPM.
@@ -1089,7 +1090,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 ),
 
                 //  player settings
-                if (!songUpdateState.isPlaying)
+                if (!songUpdateState.isPlayingOrPaused)
                   Column(
                     children: [
                       AppSpace(
@@ -1139,7 +1140,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                     ],
                   ),
 
-                if (songUpdateState.isPlaying)
+                if (songUpdateState.isPlayingOrPaused)
                   Column(
                     children: [
                       AppSpace(
@@ -1175,7 +1176,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 }),
                               ],
                             ),
-                            _DataReminderWidget(songUpdateState.isPlaying, _songMaster),
+                            _DataReminderWidget(songUpdateState.isPlayingOrPaused, _songMaster),
                           ]),
                     ],
                   ),
@@ -2704,14 +2705,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
 /// Display data on the song while in auto or manual play mode
 class _DataReminderWidget extends StatefulWidget {
-  const _DataReminderWidget(this.songIsInPlay, this.songMaster);
+  const _DataReminderWidget(this.songIsInPlayOrPaused, this.songMaster);
 
   @override
   State<StatefulWidget> createState() {
     return _DataReminderState();
   }
 
-  final bool songIsInPlay;
+  final bool songIsInPlayOrPaused;
   final SongMaster songMaster;
 }
 
@@ -2720,12 +2721,12 @@ class _DataReminderState extends State<_DataReminderWidget> {
   Widget build(BuildContext context) {
     return Consumer<PlayMomentNotifier>(builder: (context, playMomentNotifier, child) {
       int? bpm = playerSelectedBpm;
-      bpm ??= (widget.songIsInPlay ? widget.songMaster.bpm : null);
+      bpm ??= (widget.songIsInPlayOrPaused ? widget.songMaster.bpm : null);
       bpm ??= _song.beatsPerMinute;
       logger.log(_logDataReminderState,
-          '_DataReminderState.build(): ${widget.songIsInPlay}, bpm: $bpm, playerSelectedBpm: $playerSelectedBpm');
+          '_DataReminderState.build(): ${widget.songIsInPlayOrPaused}, bpm: $bpm, playerSelectedBpm: $playerSelectedBpm');
 
-      return widget.songIsInPlay
+      return widget.songIsInPlayOrPaused
           ? AppWrap(
               alignment: WrapAlignment.spaceBetween,
               children: [

@@ -92,6 +92,7 @@ if ( $status != 0 ) exit -1
 # install beta lib util
 cd bsteeleMusicLib
 bin/bsteeleMusicUtil_install
+if ( $status != 0 ) exit -1
 cd $git
 
 #	clear the last one
@@ -108,8 +109,10 @@ if ( $isBeta ) set base=${base}beta/
 if ( $debug ) then
 	#flutter build web --profile --base-href $base --web-renderer=auto --dart-define=Dart2jsOptimization=O0
 	flutter build web --base-href $base --web-renderer=auto	#	fixme: temp
+	if ( $status != 0 ) exit -1
 else
 	flutter build web --base-href $base --release --web-renderer=auto
+	if ( $status != 0 ) exit -1
 endif
 
 #	send to flavor's web location

@@ -14,14 +14,7 @@
 
 ### Fix
 
-* In play, b should advance one row
-* Section header labels small font 1/4?
-* Auto scroll to bump by rows
-* Option to go as is: manual bump by sections, pause => manual as is
-* new song not always when selected from main song list
-
 * Hear bpm when changing (temp drums)
-* Filter by singer
 * Eliminate song views from history so only playings are in the list
 * Data on bpm during play pause
 * Song "I shall be released" x2 required

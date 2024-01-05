@@ -46,6 +46,8 @@ const _toolTipWaitDuration = Duration(seconds: 1, milliseconds: 500);
 extension SongUpdateStateExtension on SongUpdateState {
   bool get isPlaying => this == SongUpdateState.playing;
 
+  bool get isPlayingOrPaused => this == SongUpdateState.playing || this == SongUpdateState.pause;
+
 // IconData get icon {
 //   return switch (this) {
 //     SongUpdateState.idle => Icons.stop,

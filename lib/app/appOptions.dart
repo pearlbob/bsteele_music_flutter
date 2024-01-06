@@ -57,6 +57,7 @@ enum AccidentalExpressionChoice {
   byKey,
   alwaysSharp,
   alwaysFlat,
+  easyRead,
 }
 
 /// Application level, persistent, shared values.

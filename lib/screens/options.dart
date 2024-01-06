@@ -263,19 +263,26 @@ class OptionsState extends State<Options> {
                                 : null,
                           ),
                           ButtonSegment<AccidentalExpressionChoice>(
-                            value: AccidentalExpressionChoice.alwaysSharp,
-                            label: Text('Always Sharp', style: buttonTextStyle()),
+                            value: AccidentalExpressionChoice.easyRead,
+                            label: Text('Easy Read', style: buttonTextStyle()),
                             tooltip: _appOptions.toolTips
-                                ? 'When required, accidental notes are always expressed as a sharp.'
+                                ? 'When required, accidental notes are expressed as an easy to read expression.'
                                 : null,
                           ),
-                          ButtonSegment<AccidentalExpressionChoice>(
-                            value: AccidentalExpressionChoice.alwaysFlat,
-                            label: Text('Always Flat', style: buttonTextStyle()),
-                            tooltip: _appOptions.toolTips
-                                ? 'When required, accidental notes are always expressed as a flat.'
-                                : null,
-                          ),
+                          // ButtonSegment<AccidentalExpressionChoice>(
+                          //   value: AccidentalExpressionChoice.alwaysSharp,
+                          //   label: Text('Always Sharp', style: buttonTextStyle()),
+                          //   tooltip: _appOptions.toolTips
+                          //       ? 'When required, accidental notes are always expressed as a sharp.'
+                          //       : null,
+                          // ),
+                          // ButtonSegment<AccidentalExpressionChoice>(
+                          //   value: AccidentalExpressionChoice.alwaysFlat,
+                          //   label: Text('Always Flat', style: buttonTextStyle()),
+                          //   tooltip: _appOptions.toolTips
+                          //       ? 'When required, accidental notes are always expressed as a flat.'
+                          //       : null,
+                          // ),
                         ],
                         selected: <AccidentalExpressionChoice>{_appOptions.accidentalExpressionChoice},
                         onSelectionChanged: (Set<AccidentalExpressionChoice> newSelection) {

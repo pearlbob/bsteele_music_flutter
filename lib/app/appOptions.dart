@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
@@ -124,6 +125,9 @@ class AppOptions extends ChangeNotifier {
     _updateAllSongPerformances();
     notifyListeners();
     logger.log(_logStartup, 'AppOptions: ${usTimer.seconds} s');
+
+    //  application wide configuration
+    Measure.reducedTopDots = true;
   }
 
   clear() {

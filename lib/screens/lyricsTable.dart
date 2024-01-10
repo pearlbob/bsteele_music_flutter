@@ -604,7 +604,9 @@ class LyricsTable {
                       case const (Measure):
                         richText = RichText(
                           text: _measureNashvilleSelectionTextSpan(measure, song.key, transpositionOffset,
-                              style: _coloredChordTextStyle, displayMusicKey: displayMusicKey, showBeats: false),
+                              style: _coloredChordTextStyle,
+                              displayMusicKey: displayMusicKey,
+                              showBeats: Measure.reducedTopDots),
                           //  don't allow the rich text to wrap:
                           textWidthBasis: TextWidthBasis.longestLine,
                           overflow: TextOverflow.clip,
@@ -1168,7 +1170,7 @@ class LyricsTable {
           //  color done by prior chord section
           {
             Measure measure = measureNode as Measure;
-            rowHasExplicitBeats = rowHasExplicitBeats || measure.hasExplicitBeats;
+            rowHasExplicitBeats = rowHasExplicitBeats || measure.requiresNashvilleBeats;
           }
           break;
         default:
@@ -1256,6 +1258,9 @@ class LyricsTable {
             case AccidentalExpressionChoice.alwaysFlat:
               scaleNote = scaleNote.asFlat();
               break;
+            case AccidentalExpressionChoice.easyRead:
+              scaleNote = scaleNote.asEasyRead();
+              break;
             default:
               break;
           }
@@ -1301,6 +1306,9 @@ class LyricsTable {
               break;
             case AccidentalExpressionChoice.alwaysFlat:
               slashScaleNote = slashScaleNote.asFlat();
+              break;
+            case AccidentalExpressionChoice.easyRead:
+              slashScaleNote = slashScaleNote.asEasyRead();
               break;
             default:
               break;
@@ -1914,7 +1922,7 @@ class _SongCellState extends State<_SongCellWidget> {
       Measure measure = widget.measureNode! as Measure;
 
       //  see if all the beats total the normal beat count and that they are all equal
-      bool showOddBeats = measure.hasExplicitBeats;
+      bool showOddBeats = measure.requiresNashvilleBeats;
 
       // if (showOddBeats) {
       //   logger.i('showOddBeats: $measure');

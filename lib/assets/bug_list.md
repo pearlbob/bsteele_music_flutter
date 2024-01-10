@@ -19,6 +19,7 @@
 * Data on bpm during play pause
 * Song "I shall be released" x2 required
 * Stop scrolling if last is seen
+* scroll lyrics lines if too many?
 
 * More space between chords
 * Centered chords in blocks?

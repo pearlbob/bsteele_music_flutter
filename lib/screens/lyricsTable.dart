@@ -1285,8 +1285,8 @@ class LyricsTable {
 
         //  other stuff
         {
-          var otherStuff =
-              transposedChord.anticipationOrDelay.toString() + (showBeats ? transposedChord.beatsToString() : '');
+          var otherStuff = transposedChord.anticipationOrDelay.toString() +
+              (showBeats && !measure.requiresNashvilleBeats ? transposedChord.beatsToString() : '');
           if (otherStuff.isNotEmpty) {
             chordChildren.add(TextSpan(
               text: otherStuff,

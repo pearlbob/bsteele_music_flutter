@@ -333,7 +333,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _readSongList() async {
-    //  normally read external (web) songlist and setup the websocket
+    //  normally read external (web) song list and setup the websocket
     if (_environment == _environmentDefault) {
       SongUpdateService.open(context);
       await _readExternalSongList();

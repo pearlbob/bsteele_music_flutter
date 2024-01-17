@@ -699,6 +699,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         return App.appBackgroundColor;
                                       },
                                     ),
+                                    visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
                                   ),
                                   segments: <ButtonSegment<SongUpdateState>>[
                                     ButtonSegment<SongUpdateState>(

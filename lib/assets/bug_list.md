@@ -14,6 +14,11 @@
 
 ### Fix
 
+* follower song location is not reset on a change of song
+*
+* sort file read find by modification date
+* add local songlist on single button
+* replace songlist with local list on a single button
 * Hear bpm when changing (temp drums)
 * Eliminate song views from history so only playings are in the list
 * Data on bpm during play pause
@@ -253,10 +258,13 @@ I suggest that we use the term "Credit" instead, rather than mislead the audienc
 * edit: paste from edit buffer
 * Method to search library for desired songs: UI sketches
 
+
 ## Playful ideas
 
 * song selection: name part name
 * playing songs in wrong genre
+
+* simply button: simplified chords, no slash notes,
 
 ## General Fixes
 

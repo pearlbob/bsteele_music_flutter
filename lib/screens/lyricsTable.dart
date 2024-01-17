@@ -24,6 +24,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/util/util.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +52,7 @@ get it right next time:  repeats in measure column
 
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
+const Level _logFontSizeDetail = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
@@ -772,13 +774,16 @@ class LyricsTable {
     //  limit space for player lyrics
     if (_appOptions.userDisplayStyle == UserDisplayStyle.player && widths.last == 0) {
       widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
-      totalWidth += widths.last;
+      totalWidth = chordWidth + widths.last;
+    } else if (_appOptions.userDisplayStyle == UserDisplayStyle.both) {
+      widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - totalWidth));
+      totalWidth = chordWidth + widths.last;
     }
-    logger.log(_logFontSize, 'raw widths.last: ${widths.last}/$totalWidth');
-    logger.log(_logFontSize, 'raw widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
+    logger.log(_logFontSizeDetail, 'raw widths.last: ${widths.last}/$totalWidth = ${widths.last / totalWidth}');
+    logger.log(_logFontSizeDetail, 'raw widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
 
     logger.log(
-        _logFontSize,
+        _logFontSizeDetail,
         'raw:'
         ' _chordFontSize: ${_chordFontSizeUnscaled.toStringAsFixed(2)}'
         ', _lyricsFontSize: ${_lyricsFontSizeUnscaled.toStringAsFixed(2)}'
@@ -795,7 +800,7 @@ class LyricsTable {
         break;
       default:
         //  fit the horizontal by scaling
-        _scaleFactor = screenWidth / totalWidth;
+        _scaleFactor = 0.99 * screenWidth / totalWidth;
         break;
     }
 
@@ -822,7 +827,7 @@ class LyricsTable {
 
     logger.log(_logFontSize, '_scaleFactor: $_scaleFactor, ${app.screenInfo.fontSize}');
     logger.log(
-        _logFontSize,
+        _logFontSizeDetail,
         'totalWidth: $totalWidth, totalHeight: $totalHeight, screenWidth: $screenWidth'
         ', scaled width: ${totalWidth * _scaleFactor}');
 
@@ -838,16 +843,19 @@ class LyricsTable {
       }
     }
     logger.log(_logHeights, 'scaled heights: $heights');
-    logger.log(_logFontSize, 'scaled widths.last: ${widths.last}');
-    logger.log(_logFontSize, 'scaled widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
-    logger.log(
-        _logFontSize,
-        'scaled:'
-        ' chordFontSize: ${(_chordFontSizeUnscaled * _scaleFactor).toStringAsFixed(2)}'
-        ', lyricsFontSize: ${(_lyricsFontSizeUnscaled * _scaleFactor).toStringAsFixed(2)}'
-        ', _scaleFactor: $_scaleFactor'
-        ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
-        ', padding: ${_paddingSize.toStringAsFixed(2)}');
+    if (_logFontSize.index <= Level.info.index) {
+      var scaledTotal = widths.fold(0.0, (p, e) => p + e);
+      logger.log(_logFontSize, 'scaled widths.last: ${widths.last}, fraction: ${widths.last / scaledTotal}');
+      logger.log(_logFontSizeDetail, 'scaled widths: $widths, total: $scaledTotal');
+      logger.log(
+          _logFontSize,
+          'scaled:'
+          ' chordFontSize: ${(_chordFontSizeUnscaled * _scaleFactor).toStringAsFixed(2)}'
+          ', lyricsFontSize: ${(_lyricsFontSizeUnscaled * _scaleFactor).toStringAsFixed(2)}'
+          ', _scaleFactor: $_scaleFactor'
+          ', _marginSize: ${_marginSize.toStringAsFixed(2)}'
+          ', padding: ${_paddingSize.toStringAsFixed(2)}');
+    }
     _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : _defaultMaxLines;
 
     //  set the location grid sizing

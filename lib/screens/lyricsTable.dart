@@ -51,8 +51,8 @@ get it right next time:  repeats in measure column
 */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.debug;
-const Level _logFontSizeDetail = Level.debug;
+const Level _logFontSize = Level.info;
+const Level _logFontSizeDetail = Level.info;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
@@ -776,8 +776,11 @@ class LyricsTable {
       widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
       totalWidth = chordWidth + widths.last;
     } else if (_appOptions.userDisplayStyle == UserDisplayStyle.both) {
-      widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - totalWidth));
-      totalWidth = chordWidth + widths.last;
+      if (totalWidth >= screenWidth) {
+        //  use as much spare space as needed for lyrics
+        widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - (totalWidth - widths.last)));
+        totalWidth = chordWidth + widths.last;
+      }
     }
     logger.log(_logFontSizeDetail, 'raw widths.last: ${widths.last}/$totalWidth = ${widths.last / totalWidth}');
     logger.log(_logFontSizeDetail, 'raw widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');

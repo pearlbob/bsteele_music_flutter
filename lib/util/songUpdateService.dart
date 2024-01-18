@@ -67,7 +67,8 @@ class SongUpdateService extends ChangeNotifier {
           Uri uri = Uri.parse(url);
           _responseCount = 0;
 
-          _webSocketChannel = WebSocketChannel.connect(uri);
+          _webSocketChannel =
+              WebSocketChannel.connect(uri); //  fixme: currently the package can throw an unhandled exception here!
           _webSocketSink = _webSocketChannel!.sink;
           notifyListeners();
 

@@ -49,12 +49,11 @@ endif
 
 #	test
 cd $git
-echo 'fixme no test!'
-#flutter test test >& /dev/null
-#if ( $status != 0 ) then
-#	echo test status: $status
-#	exit $status
-#endif
+flutter test test >& /dev/null
+if ( $status != 0 ) then
+	echo test status: $status
+	exit $status
+endif
 
 #	beta to local static host
 set rootDir=/srv/http/public_html/bsteeleMusicApp

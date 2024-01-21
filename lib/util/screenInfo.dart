@@ -18,9 +18,9 @@ class ScreenInfo {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
 
     //  deal with raw pixels
-    _devicePixelRatio = mediaQueryData.devicePixelRatio;
-    _mediaWidth = mediaQueryData.size.width * devicePixelRatio;
-    _mediaHeight = mediaQueryData.size.height * devicePixelRatio;
+    // _devicePixelRatio = mediaQueryData.devicePixelRatio;
+    _mediaWidth = mediaQueryData.size.width; // * devicePixelRatio;
+    _mediaHeight = mediaQueryData.size.height; // * devicePixelRatio;
 
     _fontSize = appDefaultFontSize * min(2.25, max(0.5, 2 * _mediaWidth / minLogicalPixels));
     _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
@@ -33,7 +33,7 @@ class ScreenInfo {
 
     logger.log(
         _screenInfoLogFontsize,
-        'devicePixelRatio: $devicePixelRatio,'
+        // 'devicePixelRatio: $devicePixelRatio,'
         ' ($_mediaWidth,$_mediaHeight)');
   }
 
@@ -64,8 +64,8 @@ class ScreenInfo {
   double get mediaHeight => _mediaHeight;
   late double _mediaHeight;
 
-  double get devicePixelRatio => _devicePixelRatio;
-  late double _devicePixelRatio;
+  // double get devicePixelRatio => _devicePixelRatio;
+  // late double _devicePixelRatio;
 
   /// Indicate the screen is too narrow for a number of functions that require a wider screen.
   /// An example is the edit screen.

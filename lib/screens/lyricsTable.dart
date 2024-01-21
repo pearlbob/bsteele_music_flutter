@@ -24,6 +24,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/util/util.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -102,7 +103,7 @@ Size _computeInlineSpanSize(
     maxLines: maxLines ?? _maxLines,
     textScaler: textScaler ?? TextScaler.noScaling,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
-  Size ret = textPainter.size * app.screenInfo.devicePixelRatio;
+  Size ret = textPainter.size;
   textPainter.dispose();
   return ret;
 }
@@ -825,7 +826,7 @@ class LyricsTable {
         break;
     }
     _scaleFactor = min(_scaleFactor, 1.0);
-    _scaleFactor /= app.screenInfo.devicePixelRatio; //fixme: why?
+    // _scaleFactor /= app.screenInfo.devicePixelRatio; //fixme: why?
 
     logger.log(_logFontSize, '_scaleFactor: $_scaleFactor, ${app.screenInfo.fontSize}');
     logger.log(
@@ -844,9 +845,9 @@ class LyricsTable {
         widths[i] = w;
         widthSum += w + _paddingSize + 2 * marginSize;
       }
-      _unusedMargin = max(1, (screenWidth - widthSum) / 2);
-      logger.i(
-          'screenWidth: $screenWidth, widthSum: $widthSum, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin'); // fixme: this basically fails
+      _unusedMargin = max(0, (screenWidth - widthSum) / 2);
+      // logger.i(
+      //     'screenWidth: $screenWidth, widthSum: $widthSum, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
 
       //  reset the heights to scale
       for (var i = 0; i < heights.length; i++) {
@@ -854,8 +855,8 @@ class LyricsTable {
       }
     } else {
       _unusedMargin = max(0, (screenWidth - totalWidth) / 2);
-      logger.i(
-          'screenWidth: $screenWidth, totalWidth: $totalWidth, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin'); // fixme: this basically fails
+      // logger.i(
+      //     'screenWidth: $screenWidth, totalWidth: $totalWidth, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin');
     }
 
     logger.log(_logHeights, 'scaled heights: $heights');
@@ -1006,17 +1007,17 @@ class LyricsTable {
                   fontSize: _chordFontSizeUnscaled * _scaleFactor,
                 );
                 rowWidget = Row(children: [
-                  // AppSpace(
-                  //   horizontalSpace: _unusedMargin/2, // centering
-                  // ),
+                  AppSpace(
+                    horizontalSpace: _unusedMargin, // centering
+                  ),
                   firstWidget,
                   ...rowChildren
                 ]);
               } else {
                 rowWidget = Row(children: [
-                  // AppSpace(
-                  //   horizontalSpace: _unusedMargin/2, // centering
-                  // ),
+                  AppSpace(
+                    horizontalSpace: _unusedMargin, // centering
+                  ),
                   ...rowChildren
                 ]);
               }
@@ -1549,7 +1550,7 @@ class LyricsTable {
   double _screenWidth = 1920; //  initial value only
 
   double get unusedMargin => _unusedMargin;
-  double _unusedMargin = 1;
+  double _unusedMargin = 0;
 
   double get screenHeight => _screenHeight;
   double _screenHeight = 1080; //  initial value only

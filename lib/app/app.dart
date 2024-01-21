@@ -651,19 +651,16 @@ typedef CanPopQualifier = bool Function();
 class AppWidgetHelper {
   AppWidgetHelper(this.context);
 
-  Widget back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
-    return AppTooltip(
-      message: 'Back',
-      child: appIconWithLabelButton(
-        appKeyEnum: AppKeyEnum.appBack,
-        onPressed: () {
-          if (canPop?.call() ?? true) {
-            onPressed?.call();
-            Navigator.pop(context);
-          }
-        },
-        icon: appIcon(Icons.arrow_back),
-      ),
+  IconButton back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
+    return appIconButton(
+      appKeyEnum: AppKeyEnum.appBack,
+      onPressed: () {
+        if (canPop?.call() ?? true) {
+          onPressed?.call();
+          Navigator.pop(context);
+        }
+      },
+      icon: appIcon(Icons.arrow_back),
     );
   }
 
@@ -700,7 +697,7 @@ class AppWidgetHelper {
       {final AppKeyEnum? appKeyEnum,
       final String? title,
       final Widget? titleWidget,
-      final Widget? leading,
+      final IconButton? leading,
       final List<Widget>? actions}) {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(

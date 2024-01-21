@@ -49,9 +49,10 @@ endif
 
 #	test
 cd $git
+echo test flutter app
 flutter test test >& /dev/null
 if ( $status != 0 ) then
-	echo test status: $status
+	echo flutter test at $git failed: $status
 	exit $status
 endif
 

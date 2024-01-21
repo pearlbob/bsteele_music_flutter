@@ -536,13 +536,10 @@ class MyHomePageState extends State<MyHomePage> {
       key: _scaffoldKey,
       appBar: AppWidgetHelper(context).appBar(
         title: widget.title,
-        leading: AppTooltip(
-          message: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          child: appIconWithLabelButton(
-            appKeyEnum: AppKeyEnum.mainHamburger,
-            onPressed: _openDrawer,
-            icon: appIcon(Icons.menu),
-          ),
+        leading: appIconButton(
+          appKeyEnum: AppKeyEnum.mainHamburger,
+          onPressed: _openDrawer,
+          icon: appIcon(Icons.menu),
         ),
         actions: <Widget>[
           if (!app.screenInfo.isWayTooNarrow)

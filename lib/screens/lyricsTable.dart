@@ -51,8 +51,8 @@ get it right next time:  repeats in measure column
 */
 
 //  diagnostic logging enables
-const Level _logFontSize = Level.info;
-const Level _logFontSizeDetail = Level.info;
+const Level _logFontSize = Level.debug;
+const Level _logFontSizeDetail = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
@@ -765,7 +765,7 @@ class LyricsTable {
     }
 
     //  discover the overall total width and height
-    double arrowIndicatorWidth = _chordFontSizeUnscaled;
+    double arrowIndicatorWidth = _appOptions.playWithLineIndicator ? _chordFontSizeUnscaled : 0;
     var totalWidth = widths.fold<double>(
         arrowIndicatorWidth, (previous, e) => previous + e + 2.0 * _paddingSize + 2.0 * _marginSize);
     var chordWidth = totalWidth - widths.last;
@@ -775,13 +775,14 @@ class LyricsTable {
     if (_appOptions.userDisplayStyle == UserDisplayStyle.player && widths.last == 0) {
       widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
       totalWidth = chordWidth + widths.last;
-    } else if (_appOptions.userDisplayStyle == UserDisplayStyle.both) {
-      if (totalWidth >= screenWidth) {
-        //  use as much spare space as needed for lyrics
-        widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - (totalWidth - widths.last)));
-        totalWidth = chordWidth + widths.last;
-      }
     }
+    // else if (_appOptions.userDisplayStyle == UserDisplayStyle.both) {
+    //   if (totalWidth >= screenWidth) {
+    //     //  use as much spare space as needed for lyrics
+    //     widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - (totalWidth - widths.last)));
+    //     totalWidth = chordWidth + widths.last;
+    //   }
+    // }
     logger.log(_logFontSizeDetail, 'raw widths.last: ${widths.last}/$totalWidth = ${widths.last / totalWidth}');
     logger.log(_logFontSizeDetail, 'raw widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
 
@@ -803,7 +804,7 @@ class LyricsTable {
         break;
       default:
         //  fit the horizontal by scaling
-        _scaleFactor = 0.99 * screenWidth / totalWidth;
+        _scaleFactor = 0.98 * screenWidth / totalWidth;
         break;
     }
 
@@ -835,12 +836,22 @@ class LyricsTable {
         ', scaled width: ${totalWidth * _scaleFactor}');
 
     //  rescale the grid to fit the window
+    double scaledWidth = totalWidth * _scaleFactor;
+    _unusedMargin = (screenWidth - scaledWidth) / 2;
+    _scaleFactor = min(_scaleFactor, 1.0);
     if (_scaleFactor < 1.0) {
       _scaleComponents(scaleFactor: _scaleFactor);
 
+      //  reset the widths to scale
+      //double widthTest = arrowIndicatorWidth;
       for (var i = 0; i < widths.length; i++) {
-        widths[i] = widths[i] * _scaleFactor;
+        var w = widths[i] * _scaleFactor;
+        widths[i] = w;
+        //widthTest += w;
       }
+      //logger.i( 'screenWidth: $screenWidth, widthTest: $widthTest'); // fixme: this basically fails
+
+      //  reset the heights to scale
       for (var i = 0; i < heights.length; i++) {
         heights[i] = heights[i] * _scaleFactor;
       }
@@ -1021,7 +1032,7 @@ class LyricsTable {
       case UserDisplayStyle.banner:
         items.add(Text(
           'Release/Label: ${song.copyright}',
-          style: _coloredChordTextStyle,
+          style: _lyricsTextStyle,
         ));
         break;
       default:
@@ -1033,7 +1044,8 @@ class LyricsTable {
               AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
               Text(
                 'Release/Label: ${song.copyright}',
-                style: _lyricsTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled * _scaleFactor),
+                style: _lyricsTextStyle.copyWith(
+                    fontSize: (_lyricsTextStyle.fontSize ?? _lyricsFontSizeUnscaled) * _scaleFactor * 0.75),
               ),
               //  give the scrolling some stuff to scroll the bottom up on
               AppSpace(verticalSpace: screenHeight / 2),
@@ -1445,7 +1457,7 @@ class LyricsTable {
     _screenHeight = app.screenInfo.mediaHeight;
 
     //  rough in the basic fontsize
-    _chordFontSizeUnscaled = 90; // max for hdmi resolution
+    _chordFontSizeUnscaled = 65; // max for hdmi resolution
 
     _scaleComponents();
     _lyricsFontSizeUnscaled = _chordFontSizeUnscaled * 0.75;
@@ -1519,6 +1531,9 @@ class LyricsTable {
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 1920; //  initial value only
+
+  double get unusedMargin => _unusedMargin;
+  double _unusedMargin = 0;
 
   double get screenHeight => _screenHeight;
   double _screenHeight = 1080; //  initial value only

@@ -10,11 +10,22 @@
 
 ### Fixes Completed
 
-
-
 ### Fix
 
 * follower song location is not reset on a change of song
+* Eliminate song views from history
+* Data on bpm during play pause
+* I shall be released x2 required
+* Stop scrolling if last is seen
+* Temp drums for tempo
+* Single key for tap to tempo
+* Drums during tempo change
+* "get it on": section too large for autoscroll: autoroll like repeats are expanded: each lyric on grid row, hide
+  chords if not on that repeat, current < top: show top, current > bottom: show bottom
+* As requester with blue square fill
+* Random scroll location for songlist on start
+* elminate initial bounce at startup: chrome on mac only?, follower?
+* player, follower: no display adjustment popup
 *
 * sort file read find by modification date
 * add local songlist on single button
@@ -63,7 +74,9 @@
 * tell the user why the "new songs" option is missing
 * tell the user why editing is not available (too narrow or following)
 *
+
 theory: https://www.orange.k12.nj.us/site/handlers/filedownload.ashx?moduleinstanceid=4691&dataid=19752&FileName=concertpitchchart.pdf
+
 * Make the following obvious when asking for play or edit
 * Been getting requests to see the difference between new song additions
   vs edited songs. Is there a way to mark a new one?
@@ -257,7 +270,6 @@ I suggest that we use the term "Credit" instead, rather than mislead the audienc
 * roll list start when returning to song list vs back to the same location
 * edit: paste from edit buffer
 * Method to search library for desired songs: UI sketches
-
 
 ## Playful ideas
 

@@ -551,16 +551,17 @@ class EditState extends State<Edit> {
                                 },
                               ),
                             ),
-                            appButton(
-                              'Sheet music',
-                              appKeyEnum: AppKeyEnum.editScreenDetail,
-                              fontSize: _defaultChordFontSize,
-                              onPressed: () {
-                                setState(() {
-                                  _navigateToDetail(context);
-                                });
-                              },
-                            ),
+                            if (kDebugMode)
+                              appButton(
+                                'Sheet music',
+                                appKeyEnum: AppKeyEnum.editScreenDetail,
+                                fontSize: _defaultChordFontSize,
+                                onPressed: () {
+                                  setState(() {
+                                    _navigateToDetail(context);
+                                  });
+                                },
+                              ),
                             editTooltip(
                               message: 'Clear all song values to\n'
                                   'start entering a new song.',
@@ -815,6 +816,7 @@ class EditState extends State<Edit> {
                                 ),
                               ]),
                             ),
+
                             AppTooltip(
                               message: 'Enter the song\'s time signature as it would appear on sheet music.',
                               child: AppWrap(crossAxisAlignment: WrapCrossAlignment.center, children: [

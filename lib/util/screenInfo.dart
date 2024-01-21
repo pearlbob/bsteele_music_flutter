@@ -28,7 +28,7 @@ class ScreenInfo {
     _titleScaleFactor = max(1, _mediaWidth / minLogicalPixels);
     logger.log(
         _screenInfoLogFontsize,
-        'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $fontSize'
+        'ScreenInfo: ($_mediaWidth, $_mediaHeight) => fontSize: $_fontSize'
         ', narrow: $_isTooNarrow, title: $_titleScaleFactor');
 
     logger.log(

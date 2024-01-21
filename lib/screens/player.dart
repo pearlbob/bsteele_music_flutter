@@ -618,12 +618,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //       ),
                       //     ),
                       //   ),
+
                       //  song chords and lyrics
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        padding: EdgeInsets.symmetric(horizontal: _lyricsTable.unusedMargin - 1),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             textDirection: TextDirection.ltr,
                             children: <Widget>[
                               //  song chords and lyrics
@@ -2082,35 +2083,35 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 ),
                               ]),
                               //  banner
-                              AppWrap(children: [
-                                Radio<UserDisplayStyle>(
-                                  value: UserDisplayStyle.banner,
-                                  groupValue: _appOptions.userDisplayStyle,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _appOptions.userDisplayStyle = value;
-                                        adjustDisplay();
-                                      }
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Display the song in banner (piano scroll) mode.',
-                                  child: appTextButton(
-                                    'Banner',
-                                    appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                    value: UserDisplayStyle.banner,
-                                    onPressed: () {
-                                      setState(() {
-                                        _appOptions.userDisplayStyle = UserDisplayStyle.banner;
-                                        adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle,
-                                  ),
-                                ),
-                              ]),
+                              // AppWrap(children: [
+                              //   Radio<UserDisplayStyle>(
+                              //     value: UserDisplayStyle.banner,
+                              //     groupValue: _appOptions.userDisplayStyle,
+                              //     onChanged: (value) {
+                              //       setState(() {
+                              //         if (value != null) {
+                              //           _appOptions.userDisplayStyle = value;
+                              //           adjustDisplay();
+                              //         }
+                              //       });
+                              //     },
+                              //   ),
+                              //   AppTooltip(
+                              //     message: 'Display the song in banner (piano scroll) mode.',
+                              //     child: appTextButton(
+                              //       'Banner',
+                              //       appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                              //       value: UserDisplayStyle.banner,
+                              //       onPressed: () {
+                              //         setState(() {
+                              //           _appOptions.userDisplayStyle = UserDisplayStyle.banner;
+                              //           adjustDisplay();
+                              //         });
+                              //       },
+                              //       style: popupStyle,
+                              //     ),
+                              //   ),
+                              // ]),
                             ]),
                         //  const AppSpaceViewportWidth(),
                         //  PlayerScrollHighlight
@@ -2744,7 +2745,7 @@ class _DataReminderState extends State<_DataReminderWidget> {
                   '${_showCapo ? '    Capo ${_capoLocation == 0 ? 'not needed' : 'on $_capoLocation'}' : ''}'
                   '  ', //  padding at the end
                   style: generateAppTextStyle(
-                    fontSize: app.screenInfo.fontSize * 0.7,
+                    fontSize: app.screenInfo.fontSize,
                     decoration: TextDecoration.none,
                     backgroundColor: const Color(0xe0eff4fd), //  fake a blended color, semi-opaque
                   ),

@@ -620,55 +620,50 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //   ),
 
                       //  song chords and lyrics
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: _lyricsTable.unusedMargin - 1),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            textDirection: TextDirection.ltr,
-                            children: <Widget>[
-                              //  song chords and lyrics
-                              if (lyricsTableItems.isNotEmpty) //  ScrollablePositionedList messes up otherwise
-                                Expanded(
-                                    child: GestureDetector(
-                                        onTapDown: (details) {
-                                          //  doesn't apply to pro display style
-                                          if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
-                                            return;
-                                          }
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          textDirection: TextDirection.ltr,
+                          children: <Widget>[
+                            //  song chords and lyrics
+                            if (lyricsTableItems.isNotEmpty) //  ScrollablePositionedList messes up otherwise
+                              Expanded(
+                                  child: GestureDetector(
+                                      onTapDown: (details) {
+                                        //  doesn't apply to pro display style
+                                        if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+                                          return;
+                                        }
 
-                                          //  respond to taps above and below the middle of the screen
-                                          if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                                            if (songUpdateState != SongUpdateState.playing) {
-                                              //  start manual play
-                                              setStatePlay();
+                                        //  respond to taps above and below the middle of the screen
+                                        if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
+                                          if (songUpdateState != SongUpdateState.playing) {
+                                            //  start manual play
+                                            setStatePlay();
+                                          } else {
+                                            //  while playing:
+                                            var offset = _tableGlobalOffset();
+                                            if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
+                                              //  tablet left arrow
+                                              bpmBump(-1);
+                                            } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
+                                              //  tablet right arrow
+                                              bpmBump(1);
                                             } else {
-                                              //  while playing:
-                                              var offset = _tableGlobalOffset();
-                                              if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
-                                                //  tablet left arrow
-                                                bpmBump(-1);
-                                              } else if (details.globalPosition.dx >
-                                                  app.screenInfo.mediaWidth * 3 / 4) {
-                                                //  tablet right arrow
-                                                bpmBump(1);
-                                              } else {
-                                                if (details.globalPosition.dy > offset.dy) {
-                                                  if (details.globalPosition.dy < app.screenInfo.mediaHeight / 2) {
-                                                    //  tablet up arrow
-                                                    _songMaster.repeatSectionIncrement();
-                                                  } else {
-                                                    //  tablet down arrow
-                                                    _songMaster.skipCurrentSection();
-                                                  }
+                                              if (details.globalPosition.dy > offset.dy) {
+                                                if (details.globalPosition.dy < app.screenInfo.mediaHeight / 2) {
+                                                  //  tablet up arrow
+                                                  _songMaster.repeatSectionIncrement();
+                                                } else {
+                                                  //  tablet down arrow
+                                                  _songMaster.skipCurrentSection();
                                                 }
                                               }
                                             }
                                           }
-                                        },
-                                        child: _scrollablePositionedList)),
-                            ]),
-                      ),
+                                        }
+                                      },
+                                      child: _scrollablePositionedList)),
+                          ]),
                       //  controls
                       Container(
                         padding: const EdgeInsets.all(6.0),

@@ -24,7 +24,6 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -103,7 +102,7 @@ Size _computeInlineSpanSize(
     maxLines: maxLines ?? _maxLines,
     textScaler: textScaler ?? TextScaler.noScaling,
   )..layout(maxWidth: maxWidth ?? app.screenInfo.mediaWidth);
-  Size ret = textPainter.size;
+  Size ret = textPainter.size * app.screenInfo.devicePixelRatio;
   textPainter.dispose();
   return ret;
 }
@@ -766,8 +765,8 @@ class LyricsTable {
 
     //  discover the overall total width and height
     double arrowIndicatorWidth = _appOptions.playWithLineIndicator ? _chordFontSizeUnscaled : 0;
-    var totalWidth = widths.fold<double>(
-        arrowIndicatorWidth, (previous, e) => previous + e + 2.0 * _paddingSize + 2.0 * _marginSize);
+    var totalWidth =
+        widths.fold<double>(arrowIndicatorWidth, (previous, e) => previous + e + _paddingSize + 2 * _marginSize);
     var chordWidth = totalWidth - widths.last;
     logger.log(_logFontSize, 'chord ratio: $chordWidth/$totalWidth = ${chordWidth / totalWidth}');
 
@@ -775,14 +774,13 @@ class LyricsTable {
     if (_appOptions.userDisplayStyle == UserDisplayStyle.player && widths.last == 0) {
       widths.last = max(0.3 * totalWidth, 0.97 * (screenWidth - totalWidth));
       totalWidth = chordWidth + widths.last;
+    } else if (_appOptions.userDisplayStyle == UserDisplayStyle.both) {
+      if (totalWidth >= screenWidth) {
+        //  use as much spare space as needed for lyrics
+        widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - (totalWidth - widths.last)));
+        totalWidth = chordWidth + widths.last;
+      }
     }
-    // else if (_appOptions.userDisplayStyle == UserDisplayStyle.both) {
-    //   if (totalWidth >= screenWidth) {
-    //     //  use as much spare space as needed for lyrics
-    //     widths.last = max(0.4 * totalWidth, 0.97 * (screenWidth - (totalWidth - widths.last)));
-    //     totalWidth = chordWidth + widths.last;
-    //   }
-    // }
     logger.log(_logFontSizeDetail, 'raw widths.last: ${widths.last}/$totalWidth = ${widths.last / totalWidth}');
     logger.log(_logFontSizeDetail, 'raw widths: $widths, total: ${widths.fold(0.0, (p, e) => p + e)}');
 
@@ -836,26 +834,30 @@ class LyricsTable {
         ', scaled width: ${totalWidth * _scaleFactor}');
 
     //  rescale the grid to fit the window
-    double scaledWidth = totalWidth * _scaleFactor;
-    _unusedMargin = (screenWidth - scaledWidth) / 2;
     _scaleFactor = min(_scaleFactor, 1.0);
+    _scaleComponents(scaleFactor: _scaleFactor);
     if (_scaleFactor < 1.0) {
-      _scaleComponents(scaleFactor: _scaleFactor);
-
       //  reset the widths to scale
-      //double widthTest = arrowIndicatorWidth;
+      double widthSum = arrowIndicatorWidth;
       for (var i = 0; i < widths.length; i++) {
         var w = widths[i] * _scaleFactor;
         widths[i] = w;
-        //widthTest += w;
+        widthSum += w + _paddingSize + 2 * marginSize;
       }
-      //logger.i( 'screenWidth: $screenWidth, widthTest: $widthTest'); // fixme: this basically fails
+      _unusedMargin = max(1, (screenWidth - widthSum) / 2);
+      logger.i(
+          'screenWidth: $screenWidth, widthSum: $widthSum, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin'); // fixme: this basically fails
 
       //  reset the heights to scale
       for (var i = 0; i < heights.length; i++) {
         heights[i] = heights[i] * _scaleFactor;
       }
+    } else {
+      _unusedMargin = max(0, (screenWidth - totalWidth) / 2);
+      logger.i(
+          'screenWidth: $screenWidth, totalWidth: $totalWidth, _scaleFactor: $_scaleFactor, _unusedMargin: $_unusedMargin'); // fixme: this basically fails
     }
+
     logger.log(_logHeights, 'scaled heights: $heights');
     if (_logFontSize.index <= Level.info.index) {
       var scaledTotal = widths.fold(0.0, (p, e) => p + e);
@@ -994,7 +996,8 @@ class LyricsTable {
                   ),
                   ...rowChildren
                 ]);
-              } else {
+              } else if (arrowIndicatorWidth > 0) {
+                // add a row indicator if required
                 var firstWidget = LyricSectionIndicatorCellWidget(
                   lyricSection: lyricSection!,
                   row: r,
@@ -1002,7 +1005,20 @@ class LyricsTable {
                   height: heights[r],
                   fontSize: _chordFontSizeUnscaled * _scaleFactor,
                 );
-                rowWidget = Row(children: [firstWidget, ...rowChildren]);
+                rowWidget = Row(children: [
+                  // AppSpace(
+                  //   horizontalSpace: _unusedMargin/2, // centering
+                  // ),
+                  firstWidget,
+                  ...rowChildren
+                ]);
+              } else {
+                rowWidget = Row(children: [
+                  // AppSpace(
+                  //   horizontalSpace: _unusedMargin/2, // centering
+                  // ),
+                  ...rowChildren
+                ]);
               }
               // logger.t('rowChildren: $rowChildren');
             }
@@ -1533,7 +1549,7 @@ class LyricsTable {
   double _screenWidth = 1920; //  initial value only
 
   double get unusedMargin => _unusedMargin;
-  double _unusedMargin = 0;
+  double _unusedMargin = 1;
 
   double get screenHeight => _screenHeight;
   double _screenHeight = 1080; //  initial value only

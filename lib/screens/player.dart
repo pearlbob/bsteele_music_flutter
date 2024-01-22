@@ -233,6 +233,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   void dispose() {
     logger.d('player: dispose()');
     _cancelIdleTimer();
+    _songMaster.stop();
 
     _player = null;
     _playerIsOnTop = false;
@@ -264,6 +265,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     switch (songUpdateState) {
       case SongUpdateState.none:
       case SongUpdateState.idle:
+      case SongUpdateState.drumTempo:
         if (_songMaster.songUpdateState.isPlaying) {
           //  cancel the cell highlight
           _playMomentNotifier.playMoment = null;
@@ -437,7 +439,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       set.add(bpm);
       for (int i = -60; i < 60; i++) {
         int value = bpm + i;
-        if (value < 40) {
+        if (value < MusicConstants.minBpm || value > MusicConstants.maxBpm) {
           continue;
         }
         set.add(value);
@@ -683,12 +685,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 ),
 
                               if (!songUpdateService.isFollowing)
-                              //  play mode selection
+                                //  play mode selection
                                 SegmentedButton<SongUpdateState>(
                                   showSelectedIcon: false,
                                   style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                          (Set<MaterialState> states) {
+                                      (Set<MaterialState> states) {
                                         if (states.contains(MaterialState.disabled)) {
                                           return App.disabledColor;
                                         }
@@ -706,7 +708,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         color: songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
                                       ),
                                       tooltip:
-                                      _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
+                                          _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
                                       enabled: !songUpdateService.isFollowing,
                                     ),
                                     ButtonSegment<SongUpdateState>(
@@ -741,6 +743,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     switch (newSelection.first) {
                                       case SongUpdateState.none:
                                       case SongUpdateState.idle:
+                                      case SongUpdateState.drumTempo:
                                         performStop();
                                         break;
                                       case SongUpdateState.playing:
@@ -909,8 +912,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         AppRow(
                                           children: [
                                             AppTooltip(
-                                              message: 'Beats per minute.  Tap here or hold control and tap space\n'
-                                                  ' for tap to tempo.',
+                                              message: 'Beats per minute.  Mouse click here or tap the m key\n'
+                                                  ' to generate the tempo.',
                                               child: appButton(
                                                 'BPM:',
                                                 appKeyEnum: AppKeyEnum.playerTempoTap,
@@ -929,6 +932,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                                     if (value != null) {
                                                       setState(() {
                                                         playerSelectedBpm = value;
+                                                        _songMaster.tapTempo(playerSelectedBpm!);
                                                         logger.log(
                                                             _logBPM, '_bpmDropDownMenuList: bpm: $playerSelectedBpm');
                                                       });
@@ -1202,22 +1206,22 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         ', shf: ${e.isShiftPressed}'
         ', alt: ${e.isAltPressed}');
 
-    if (e.isKeyPressed(LogicalKeyboardKey.space)) {
-      if (e.isControlPressed) {
-        tempoTap();
-      } else {
-        switch (songUpdateState) {
-          case SongUpdateState.idle:
-          case SongUpdateState.none:
-            //  start manual play
-            setStatePlay();
-            break;
-          case SongUpdateState.playing:
-          case SongUpdateState.pause:
-            //  toggle pause, that is, play to pause or pause to play
-            _songMaster.pauseToggle();
-            break;
-        }
+    if (e.isKeyPressed(LogicalKeyboardKey.keyM)) {
+      tempoTap();
+      return KeyEventResult.handled;
+    } else if (e.isKeyPressed(LogicalKeyboardKey.space)) {
+      switch (songUpdateState) {
+        case SongUpdateState.idle:
+        case SongUpdateState.none:
+        case SongUpdateState.drumTempo:
+          //  start manual play
+          setStatePlay();
+          break;
+        case SongUpdateState.playing:
+        case SongUpdateState.pause:
+          //  toggle pause, that is, play to pause or pause to play
+          _songMaster.pauseToggle();
+          break;
       }
       return KeyEventResult.handled;
     } else if (
@@ -1226,6 +1230,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       switch (songUpdateState) {
         case SongUpdateState.idle:
         case SongUpdateState.none:
+        case SongUpdateState.drumTempo:
           //  start manual play
           setStatePlay();
           break;
@@ -1342,6 +1347,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       case SongUpdateState.idle:
       case SongUpdateState.none:
       case SongUpdateState.playing:
+      case SongUpdateState.drumTempo:
         _rowBump(bump);
         break;
     }
@@ -2570,7 +2576,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     } else {
       //  delta too small or too large
       _tempoRollingAverage = null;
-      playerSelectedBpm = null; //  default to song beats per minute
+      _changeBPM(_song.beatsPerMinute); //  default to song beats per minute
       logger.log(_logBPM, 'tempoTap(): default: bpm: $playerSelectedBpm');
     }
   }
@@ -2580,7 +2586,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     if (playerSelectedBpm != newBpm) {
       setState(() {
         playerSelectedBpm = newBpm;
-        _songMaster.bpm = newBpm;
+        _songMaster.tapTempo(newBpm);
         logger.log(_logBPM, '_changeBPM( $playerSelectedBpm )');
       });
     }

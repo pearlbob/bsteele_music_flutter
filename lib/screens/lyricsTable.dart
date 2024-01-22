@@ -1064,7 +1064,7 @@ class LyricsTable {
                     fontSize: (_lyricsTextStyle.fontSize ?? _lyricsFontSizeUnscaled) * _scaleFactor * 0.75),
               ),
               //  give the scrolling some stuff to scroll the bottom up on
-              AppSpace(verticalSpace: screenHeight / 2),
+              AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
             ],
           ),
         ));

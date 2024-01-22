@@ -197,6 +197,17 @@ class OptionsState extends State<Options> {
                           },
                         ),
                       ),
+                      AppTooltip(
+                        message: 'You have a local raspberry pi from bob.',
+                        child: appButton(
+                          'Bob\'spi',
+                          appKeyEnum: AppKeyEnum.optionsWebsocketBobsPi,
+                          onPressed: () {
+                            _appOptions.websocketHost = 'bobspi.local';
+                            _websocketHostEditingController.text = _appOptions.websocketHost;
+                          },
+                        ),
+                      ),
                       if (hostIsWebsocketHost)
                         AppTooltip(
                           message: 'Your web server should have a leader/follower connection.'

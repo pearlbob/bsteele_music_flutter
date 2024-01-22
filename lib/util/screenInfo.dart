@@ -22,7 +22,7 @@ class ScreenInfo {
     _mediaWidth = mediaQueryData.size.width; // * devicePixelRatio;
     _mediaHeight = mediaQueryData.size.height; // * devicePixelRatio;
 
-    _fontSize = appDefaultFontSize * min(2.25, max(0.5, 2 * _mediaWidth / minLogicalPixels));
+    _fontSize = appDefaultFontSize * max(1.0, min(2.25, max(0.5, 2 * _mediaWidth / minLogicalPixels)));
     _isTooNarrow = _mediaWidth <= minLogicalPixels; //  logical pixels
     _isWayTooNarrow = _mediaWidth <= 425;
     _titleScaleFactor = max(1, _mediaWidth / minLogicalPixels);

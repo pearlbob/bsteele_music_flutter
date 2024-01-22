@@ -214,6 +214,7 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   optionsWebsocketIP(String),
   optionsWebsocketNone(Null),
   optionsWebsocketPark(Null),
+  optionsWebsocketBobsPi(Null),
   optionsWebsocketThisHost(Null),
   performanceHistoryBack(Null),
   performanceHistoryErrorMessage(Null),

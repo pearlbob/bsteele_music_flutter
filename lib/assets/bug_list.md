@@ -12,19 +12,23 @@
 
 ### Fix
 
-* follower song location is not reset on a change of song
-* Eliminate song views from history
-* Data on bpm during play pause
-* I shall be released x2 required
-* Stop scrolling if last is seen
+* Single 'm' key to tap to tempo
 * Temp drums for tempo
-* Single key for tap to tempo
-* Drums during tempo change
+* Stop scrolling if last is seen (tighten the bottom)
+* Data on bpm during play pause
 * "get it on": section too large for autoscroll: autoroll like repeats are expanded: each lyric on grid row, hide
-  chords if not on that repeat, current < top: show top, current > bottom: show bottom
+  chords if not on that repeat, current < top: show top, current > bottom: show bottom. Adjusted the fontsize to allow
+  for more song to be seen.
+
+
+* follower song location is not reset on a change of song
+* Eliminate song views (only) from history
+
+* I shall be released x2 required
+* Drums during tempo change while playing
 * As requester with blue square fill
 * Random scroll location for songlist on start
-* elminate initial bounce at startup: chrome on mac only?, follower?
+* eliminate initial bounce at startup: chrome on mac only?, follower?
 * player, follower: no display adjustment popup
 *
 * sort file read find by modification date

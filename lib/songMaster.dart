@@ -22,7 +22,7 @@ const Level _songMasterNotify = Level.debug;
 const Level _songMasterLogAdvance = Level.debug;
 const Level _songMasterBpmChange = Level.debug;
 const Level _logRestart = Level.debug;
-// const Level _logDrums = Level.debug;
+const Level _logDrums = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -44,6 +44,26 @@ class SongMaster extends ChangeNotifier {
         case SongUpdateState.pause:
           momentNumber = _momentNumber ?? -1;
           break;
+        case SongUpdateState.drumTempo:
+          assert(_bpm >= MusicConstants.minBpm);
+          double tempoPeriod = 60.0 / _bpm; //  seconds
+          if ((time - _lastDrumTempoT) > tempoPeriod) {
+            double nextTempoT = _lastDrumTempoT + 2 * tempoPeriod;
+
+            _appAudioPlayer.play(drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/hihat1.flac',
+                when: nextTempoT,
+                duration: 0.25, //fixme: temp
+                volume: _appOptions.volume);
+
+            //  clean up for the next request
+            _lastDrumTempoT = _lastDrumTempoT + tempoPeriod;
+            logger.log(
+                _logDrums,
+                'drumTempo: next: $nextTempoT, _lastDrumTempoT: $_lastDrumTempoT'
+                ', dt: ${nextTempoT - _lastDrumTempoT}, tempoPeriod: $tempoPeriod');
+            _lastDrumTempoT = _lastDrumTempoT + tempoPeriod;
+          }
+          return; //  we're done with the song... tempo preview
         default:
           momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
           break;
@@ -151,10 +171,10 @@ class SongMaster extends ChangeNotifier {
       switch (songUpdateState) {
         case SongUpdateState.none:
         case SongUpdateState.idle:
-          if (_momentNumber != null) {
-            _clearMomentNumber();
-            notifyListeners();
-          }
+          _clearMomentNumberIfRequired();
+          break;
+        case SongUpdateState.drumTempo:
+          _clearMomentNumberIfRequired();
           break;
         case SongUpdateState.playing:
           if (_song != null) {
@@ -267,9 +287,17 @@ class SongMaster extends ChangeNotifier {
     _ticker.start();
   }
 
+  _clearMomentNumberIfRequired() {
+    if (_momentNumber != null) {
+      _clearMomentNumber();
+      notifyListeners();
+    }
+  }
+
   _clearMomentNumber() {
     _momentNumber = null;
     _advancedMomentNumber = null;
+    _lastDrumTempoT = 0;
   }
 
   _resetSongStart(final double time, final int momentNumber) {
@@ -295,6 +323,26 @@ class SongMaster extends ChangeNotifier {
     if (newMomentNumber != momentNumber) {
       logger.log(_logRestart, 'newMomentNumber ?= momentNumber: $newMomentNumber != $momentNumber');
     }
+  }
+
+  /// tap the given tempo, typically prior to play
+  tapTempo(int bpm) {
+    switch (songUpdateState) {
+      case SongUpdateState.none:
+      case SongUpdateState.idle:
+        _setBpm(bpm);
+        songUpdateState = SongUpdateState.drumTempo;
+        break;
+      case SongUpdateState.drumTempo:
+        _setBpm(bpm);
+        break;
+      default:
+        break;
+    }
+  }
+
+  _setBpm(int bpm) {
+    _bpm = Util.intLimit(bpm, MusicConstants.minBpm, MusicConstants.maxBpm);
   }
 
   /// Play a song in real time
@@ -356,15 +404,20 @@ class SongMaster extends ChangeNotifier {
     switch (songUpdateState) {
       case SongUpdateState.playing:
       case SongUpdateState.pause:
-        songUpdateState = SongUpdateState.idle;
+        songUpdateState = SongUpdateState.idle; //  for the running play
         _clearMomentNumber();
         _appAudioPlayer.stop();
         notifyListeners();
         break;
       case SongUpdateState.none:
       case SongUpdateState.idle:
+        _clearMomentNumberIfRequired();
+        break;
+      case SongUpdateState.drumTempo:
+        _clearMomentNumber();
         break;
     }
+    songUpdateState = SongUpdateState.idle;
     _drumParts = null; //  stop the drums
   }
 
@@ -454,13 +507,10 @@ class SongMaster extends ChangeNotifier {
   static const countInCount = countInMax;
   static const double _advanceS = 1.0;
 
-  set bpm(int bpm) {
-    _newBpm = Util.intLimit(bpm, MusicConstants.minBpm, MusicConstants.maxBpm);
-  }
-
   int get bpm => _bpm;
   int _bpm = MusicConstants.minBpm; //  default value only
   int? _newBpm;
+  double _lastDrumTempoT = 0;
 
   int get repeatSection => _repeatSection;
   int _repeatSection = 0;

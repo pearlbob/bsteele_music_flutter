@@ -1,19 +1,20 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';
-import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 import '../app/app.dart';
@@ -343,9 +344,7 @@ class PlayList extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() {
-    return _PlayListState();
-  }
+  State<StatefulWidget> createState() => _PlayListState();
 
   final PlayListGroup group;
   final TextStyle? style;
@@ -370,11 +369,15 @@ class PlayList extends StatefulWidget {
 }
 
 class _PlayListState extends State<PlayList> {
+  _PlayListState() {
+    logger.log(_logConstruct, '_PlayListState():');
+  }
+
   @override
   void initState() {
     super.initState();
 
-    logger.log(_logInitState, 'PlayList.initState():');
+    logger.log(_logInitState, '_PlayListState.initState():');
 
     _generateSortTypesDropDownMenuList();
   }
@@ -389,17 +392,17 @@ class _PlayListState extends State<PlayList> {
 
   _generateSortTypesDropDownMenuList() {
     if (widget.selectedSortType != null) {
-      selectedSortType = widget.selectedSortType!;
+      _selectedSortType = widget.selectedSortType!;
     } else if (widget.includeByLastSung) {
       //  preference for last sung (performance) lists
-      selectedSortType = PlayListSortType.byHistory;
+      _selectedSortType = PlayListSortType.byHistory;
     } else {
-      switch (selectedSortType) {
+      switch (_selectedSortType) {
         case PlayListSortType.byLastSung:
         case PlayListSortType.byHistory:
         case PlayListSortType.bySinger:
           //  replace invalid preference for song lists
-          selectedSortType = PlayListSortType.byTitle;
+          _selectedSortType = PlayListSortType.byTitle;
           break;
         case PlayListSortType.byTitle:
         case PlayListSortType.byArtist:
@@ -450,7 +453,7 @@ class _PlayListState extends State<PlayList> {
     return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
       logger.log(
           _logBuild,
-          'PlayList.build(): _isEditing: ${widget.isEditing}'
+          '_PlayListState.build(): _isEditing: ${widget.isEditing}'
           ', text: "${_searchTextFieldController.text}"'
           ', positionPixels: ${playListRefreshNotifier.positionPixels}'
           //   ', _searchTextFieldController: ${identityHashCode(_searchTextFieldController)}'
@@ -479,7 +482,7 @@ class _PlayListState extends State<PlayList> {
       // select order
       int Function(PlayListItem key1, PlayListItem key2)? compare;
       if (widget.isOrderBy) {
-        switch (selectedSortType) {
+        switch (_selectedSortType) {
           case PlayListSortType.byArtist:
             compare = (PlayListItem item1, PlayListItem item2) {
               if (item1 is SongPlayListItem && item2 is SongPlayListItem) {
@@ -657,166 +660,160 @@ class _PlayListState extends State<PlayList> {
         filteredGroup = PlayListGroup(filteredSongLists);
       }
 
-      //  jump to proper location for the initial position
-      if (scrollController.hasClients
-          // && playListRefreshNotifier.positionPixels != null
-          ) {
-        double pixels = widget.isFromTheTop ? 0 : playListRefreshNotifier.positionPixels ?? 0;
-        playListRefreshNotifier.positionPixels = null;
-        pixels = Util.doubleLimit(pixels, 0, scrollController.position.maxScrollExtent);
-
-        logger.log(_logJump, 'pixels: $pixels');
-        if (scrollController.position.pixels != pixels) {
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            logger.log(_logJump, 'pixels: jumpTo($pixels)  ${identityHashCode(playListRefreshNotifier)}');
-            scrollController.jumpTo(pixels);
+      //  don't always go back to the top of the play list
+      if (_itemScrollController.isAttached &&
+          filteredGroup.group.isNotEmpty &&
+          filteredGroup.group.first.playListItems.isNotEmpty &&
+          _itemPositionsListener.itemPositions.value.isNotEmpty) {
+        int length = filteredGroup.group.first.playListItems.length;
+        var currentIndex = _itemPositionsListener.itemPositions.value.first.index;
+        int index = (length <= 20) ? 0 : _random.nextInt(length);
+        // logger.i('randomIndex: $currentIndex vs $index out of $length');
+        if (currentIndex != index) {
+          //  update the location after the list is established
+          _requestedIndex = index;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_requestedIndex != null) {
+              int index = _requestedIndex!;
+              _requestedIndex = null;
+              _itemScrollController.jumpTo(index: index);
+            }
           });
         }
-      } else {
-        logger.log(_logPosition, 'pixels: no clients');
       }
-
-      // var appTextStyle = generateAppTextStyle();
 
       return Expanded(
         // for some reason, this is Expanded is very required,
         // otherwise the Column is unlimited and the list view fails
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-              AppWrap(alignment: WrapAlignment.spaceBetween, children: [
-                //  search icon
-                AppTooltip(
-                  message: _searchTextTooltipText,
-                  child: IconButton(
-                    icon: const Icon(Icons.search),
-                    iconSize: widget.titleFontSize,
-                    onPressed: (() {
-                      setState(() {
-                        //fixme: _searchSongs(_searchTextFieldController.text);
-                      });
-                    }),
-                  ),
-                ),
-                //  search text
-                AppTooltip(
-                  message: 'Enter list search terms here.\n'
-                      'Regular expressions can be used.',
-                  child: AppTextField(
-                    appKeyEnum: AppKeyEnum.playListSearch,
-                    controller: _searchTextFieldController,
-                    focusNode: _searchFocusNode,
-                    hintText: 'Search here...',
-                    width: app.screenInfo.fontSize * 15,
-                    onChanged: (value) {
-                      setState(() {
-                        if (_searchTextFieldController.text != value) {
-                          //  programmatic text entry
-                          _searchTextFieldController.text = value;
-                        }
-                        logger.t('search text: "$value"');
-                        app.clearMessage();
-                      });
-                    },
-                  ),
-                ),
-                //  search clear
-                AppTooltip(
-                    message:
-                        _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
-                    child: appIconButton(
-                      icon: const Icon(Icons.clear),
-                      appKeyEnum: AppKeyEnum.playListClearSearch,
-                      iconSize: 1.25 * widget.titleFontSize,
+          child: Focus(
+            onKeyEvent: _onKeyEvent,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+                AppWrap(alignment: WrapAlignment.spaceBetween, children: [
+                  //  search icon
+                  AppTooltip(
+                    message: _searchTextTooltipText,
+                    child: IconButton(
+                      icon: const Icon(Icons.search),
+                      iconSize: widget.titleFontSize,
                       onPressed: (() {
-                        _searchTextFieldController.clear();
-                        app.clearMessage();
                         setState(() {
-                          FocusScope.of(context).requestFocus(_searchFocusNode);
-                          //_lastSelectedSong = null;
+                          //fixme: _searchSongs(_searchTextFieldController.text);
                         });
                       }),
-                    )),
-
-                const AppSpace(spaceFactor: 2.0),
-                //  filters
-                AppTooltip(
-                    message: '''Filter the list by the selected metadata.
-Selections with the same name will be OR'd together.
-Selections with different names will be AND'd.''',
-                    child: MetadataPopupMenuButton.button(
-                      title: 'Filters',
-                      style: widget.artistStyle,
-                      showAllFilters: widget.showAllFilters,
-                      onSelected: (value) {
+                    ),
+                  ),
+                  //  search text
+                  AppTooltip(
+                    message: 'Enter list search terms here.\n'
+                        'Regular expressions can be used.',
+                    child: AppTextField(
+                      appKeyEnum: AppKeyEnum.playListSearch,
+                      controller: _searchTextFieldController,
+                      focusNode: _searchFocusNode,
+                      hintText: 'Search here...',
+                      width: app.screenInfo.fontSize * 15,
+                      onChanged: (value) {
                         setState(() {
-                          if (value == allNameValue) {
-                            _filterNameValues.clear();
-                          } else {
-                            _filterNameValues.add(value);
+                          if (_searchTextFieldController.text != value) {
+                            //  programmatic text entry
+                            _searchTextFieldController.text = value;
                           }
+                          logger.t('search text: "$value"');
+                          app.clearMessage();
                         });
                       },
-                    )),
-                AppWrap(
-                  spacing: _textFontSize / 2,
-                  children: filterWidgets,
-                ),
-              ]),
+                    ),
+                  ),
+                  //  search clear
+                  AppTooltip(
+                      message:
+                          _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
+                      child: appIconButton(
+                        icon: const Icon(Icons.clear),
+                        appKeyEnum: AppKeyEnum.playListClearSearch,
+                        iconSize: 1.25 * widget.titleFontSize,
+                        onPressed: (() {
+                          _searchTextFieldController.clear();
+                          app.clearMessage();
+                          setState(() {
+                            FocusScope.of(context).requestFocus(_searchFocusNode);
+                            //_lastSelectedSong = null;
+                          });
+                        }),
+                      )),
 
-              //  filters and order
-              AppWrap(alignment: WrapAlignment.spaceBetween, children: [
-                //  filters and order
-                if (app.isScreenBig && widget.isOrderBy)
+                  const AppSpace(spaceFactor: 2.0),
+                  //  filters
+                  AppTooltip(
+                      message: '''Filter the list by the selected metadata.
+                  Selections with the same name will be OR'd together.
+                  Selections with different names will be AND'd.''',
+                      child: MetadataPopupMenuButton.button(
+                        title: 'Filters',
+                        style: widget.artistStyle,
+                        showAllFilters: widget.showAllFilters,
+                        onSelected: (value) {
+                          setState(() {
+                            if (value == _allNameValue) {
+                              _filterNameValues.clear();
+                            } else {
+                              _filterNameValues.add(value);
+                            }
+                          });
+                        },
+                      )),
                   AppWrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      AppTooltip(
-                        message: 'Select the order of the song list.',
-                        child: Text(
-                          'Order: ',
+                    spacing: _textFontSize / 2,
+                    children: filterWidgets,
+                  ),
+                ]),
+
+                //  filters and order
+                AppWrap(alignment: WrapAlignment.spaceBetween, children: [
+                  //  filters and order
+                  if (app.isScreenBig && widget.isOrderBy)
+                    AppWrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        AppTooltip(
+                          message: 'Select the order of the song list.',
+                          child: Text(
+                            'Order: ',
+                            style: widget.searchDropDownStyle,
+                          ),
+                        ),
+                        appDropdownButton<PlayListSortType>(
+                          AppKeyEnum.mainSortType,
+                          _sortTypesDropDownMenuList,
+                          onChanged: (value) {
+                            if (_selectedSortType != value) {
+                              setState(() {
+                                _selectedSortType = value ?? PlayListSortType.byTitle;
+                                app.clearMessage();
+                              });
+                            }
+                          },
+                          value: _selectedSortType,
                           style: widget.searchDropDownStyle,
                         ),
-                      ),
-                      appDropdownButton<PlayListSortType>(
-                        AppKeyEnum.mainSortType,
-                        _sortTypesDropDownMenuList,
-                        onChanged: (value) {
-                          if (selectedSortType != value) {
-                            setState(() {
-                              selectedSortType = value ?? PlayListSortType.byTitle;
-                              app.clearMessage();
-                            });
-                          }
-                        },
-                        value: selectedSortType,
-                        style: widget.searchDropDownStyle,
-                      ),
-                      Text(
-                        '(${filteredGroup.length})',
-                        style: widget.artistStyle,
-                      ),
-                    ],
-                  ),
+                        Text(
+                          '(${filteredGroup.length})',
+                          style: widget.artistStyle,
+                        ),
+                      ],
+                    ),
+                ]),
               ]),
-            ]),
-            const AppSpace(),
-
-            // this expanded is required as well
-            Expanded(
-              child: Scrollbar(
-                thickness: max(16.0, 0.0125 * app.screenInfo.mediaWidth),
-                controller: scrollController,
-                child: ListView.builder(
-                  shrinkWrap: true,
+              const AppSpace(),
+              Expanded(
+                child: ScrollablePositionedList.builder(
                   itemCount: filteredGroup.length,
-                  controller: scrollController,
-                  itemBuilder: (BuildContext context, int index) {
-                    //  keep track of scroll position
-                    if (!widget.isFromTheTop) {
-                      playListRefreshNotifier.positionPixels = scrollController.position.pixels;
-                    }
+                  itemScrollController: _itemScrollController,
+                  itemPositionsListener: _itemPositionsListener,
+                  itemBuilder: (context, index) {
                     logger.log(
                         _logPosition,
                         '_PlayListState: index: $index, pos:'
@@ -829,20 +826,62 @@ Selections with different names will be AND'd.''',
                       focus(context);
                     });
                   },
+                  scrollDirection: Axis.vertical,
                 ),
               ),
-            ),
-          ]),
+            ]),
+          ),
         ),
       );
     });
   }
 
-  static final allNameValue = NameValue('All', '');
+  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
+    if (_itemScrollController.isAttached && (event is KeyDownEvent || event is KeyRepeatEvent)) {
+      //  filter the indexes to those that are fully seen
+      SplayTreeSet<int> itemIndexes = SplayTreeSet()
+        ..addAll(_itemPositionsListener.itemPositions.value
+            .where((e) => e.itemLeadingEdge >= 0 && e.itemTrailingEdge < 1.0)
+            .map((e) => e.index));
+
+      //  react to the paging requests
+      switch (event.physicalKey) {
+        case PhysicalKeyboardKey.arrowDown:
+        case PhysicalKeyboardKey.pageDown:
+          _itemScrollController.scrollTo(
+              index: max(0, itemIndexes.last), duration: _pageTransitionDuration, curve: Curves.decelerate);
+          return KeyEventResult.handled;
+        case PhysicalKeyboardKey.arrowUp:
+        case PhysicalKeyboardKey.pageUp:
+          _itemScrollController.scrollTo(
+              index: max(0, itemIndexes.first - itemIndexes.length + 1),
+              duration: _pageTransitionDuration,
+              curve: Curves.decelerate);
+          return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  void dispose() {
+    _searchTextFieldController.dispose();
+    _searchFocusNode.dispose();
+    logger.log(_logInitState, '_PlayListState.dispose():');
+    super.dispose();
+  }
+
+  static const Duration _pageTransitionDuration = Duration(milliseconds: 1200);
+
+  static final _allNameValue = NameValue('All', '');
 
   final List<DropdownMenuItem<PlayListSortType>> _sortTypesDropDownMenuList = [];
-  var selectedSortType = PlayListSortType.byTitle;
-  final ScrollController scrollController = ScrollController();
+  var _selectedSortType = PlayListSortType.byTitle;
+
+  final ItemScrollController _itemScrollController = ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
+  int? _requestedIndex;
+  final Random _random = Random();
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();

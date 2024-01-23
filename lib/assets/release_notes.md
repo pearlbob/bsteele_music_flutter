@@ -52,12 +52,12 @@
 ### Fixes Completed
 
 * History can filter by singer
-* Dots above chords in the song display.
-* In play, b (the studio switch) should advance one row.
+* Dots above chords in the song display... but only when truly required. Periods are used as they used to be.
+* In play, b (the studio switch) should advance one row, not a section.
 * Section header labels small font
 * Auto scroll to bumps by rows.
-* Player now has: stop, play and pause.
-* Copyright => release/label on edit page
+* Player now has: stop, play and pause. Pause is very close to the older manual mode.
+* "Copyright" was changed to "release/label" on edit and player page
 * Instrument pitch chart on the theory screen
 * Fixed new song not always when selected from the main song list.
 * Vertical alignment of menu items improved, icons still have an issue
@@ -69,6 +69,13 @@
 * Pro Player display adjusted
 * About screen overflow fixed
 * "Copyright" changed to "Release/Label"
+* Single 'm' key to tap to tempo
+* Temp drums for tempo
+* Stop scrolling if last is seen (tighten the bottom)
+* Data on bpm during play pause
+* "Get It On": section too large for autoscroll: autoroll like repeats are expanded: each lyric on grid row, hide
+  chords if not on that repeat, current < top: show top, current > bottom: show bottom. The fix: Adjusted the fontsize
+  to allow for more song to be seen.
 
 ## Release 1.2.5
 

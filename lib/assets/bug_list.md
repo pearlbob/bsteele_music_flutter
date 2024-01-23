@@ -12,15 +12,6 @@
 
 ### Fix
 
-* Single 'm' key to tap to tempo
-* Temp drums for tempo
-* Stop scrolling if last is seen (tighten the bottom)
-* Data on bpm during play pause
-* "get it on": section too large for autoscroll: autoroll like repeats are expanded: each lyric on grid row, hide
-  chords if not on that repeat, current < top: show top, current > bottom: show bottom. Adjusted the fontsize to allow
-  for more song to be seen.
-
-
 * follower song location is not reset on a change of song
 * Eliminate song views (only) from history
 

@@ -243,6 +243,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     _rawKeyboardListenerFocusNode.dispose();
+
     super.dispose();
   }
 

@@ -641,6 +641,7 @@ class _PlayListState extends State<PlayList> {
             }
           }
         }
+
         //  try the closest match?
         if (filteredSongLists.isEmpty && _searchTextFieldController.text.isNotEmpty) {
           final songTitles = app.allSongs.map((e) => e.title).toList(growable: false);
@@ -667,7 +668,15 @@ class _PlayListState extends State<PlayList> {
           _itemPositionsListener.itemPositions.value.isNotEmpty) {
         int length = filteredGroup.group.first.playListItems.length;
         var currentIndex = _itemPositionsListener.itemPositions.value.first.index;
-        int index = (length <= 20) ? 0 : _random.nextInt(length);
+        int index = widget.isFromTheTop //  top if asked
+                ||
+                _filterNameValues.isNotEmpty //  not random if filtered
+                ||
+                _selectedSortType != PlayListSortType.byTitle //  not random if not by title
+                ||
+                (length <= 20) //   not random if too small
+            ? 0
+            : _random.nextInt(length);
         // logger.i('randomIndex: $currentIndex vs $index out of $length');
         if (currentIndex != index) {
           //  update the location after the list is established

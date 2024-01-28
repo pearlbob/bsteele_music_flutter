@@ -766,6 +766,7 @@ class MyHomePageState extends State<MyHomePage> {
           itemList: PlayListItemList('', app.allSongs.map((e) => SongPlayListItem.fromSong(e)).toList(growable: false),
               playListItemAction: _navigateToPlayerBySongItem),
           style: _titleTextStyle,
+          isFromTheTop: false,
           playListSearchMatcher: SongPlayListSearchMatcher(),
         ),
       ]),

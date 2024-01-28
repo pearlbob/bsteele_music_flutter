@@ -295,7 +295,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                         .toList(),
                     playListItemAction: loadDrumListItem),
                 style: style,
-                isFromTheTop: false,
                 isOrderBy: false,
                 playListSearchMatcher: DrumPlayListSearchMatcher(),
               ),

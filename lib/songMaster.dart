@@ -23,6 +23,7 @@ const Level _songMasterLogAdvance = Level.debug;
 const Level _songMasterBpmChange = Level.debug;
 const Level _logRestart = Level.debug;
 const Level _logDrums = Level.debug;
+const Level _logTime = Level.info;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -33,7 +34,9 @@ class SongMaster extends ChangeNotifier {
 
   SongMaster._internal() {
     _ticker = Ticker((elapsed) {
+      final sysTime1 = DateTime.now(); // fixme: temp diagnostic only
       final double time = _appAudioPlayer.getCurrentTime();
+      final sysTime2 = DateTime.now(); // fixme: temp diagnostic only
       final double dt = time - _lastTime;
       //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
       _lastTime = time;
@@ -282,6 +285,25 @@ class SongMaster extends ChangeNotifier {
       }
       logger.log(_songMasterLogDelta, 'delta: $deltaUs us, dt: ${dt.toStringAsFixed(3)}');
       _lastElapsedUs = elapsed.inMicroseconds;
+
+      //  see how good the timing is
+      {
+        _timeAcquisitionDelay = sysTime2.microsecondsSinceEpoch - sysTime1.microsecondsSinceEpoch;
+        _appAudioPlayerOffset = sysTime1.microsecondsSinceEpoch / Duration.microsecondsPerSecond - time;
+        logger.log(
+            _logTime,
+            'time: _timeAcquisitionDelay: $_timeAcquisitionDelay, '
+            '_appAudioPlayerOffset: $_appAudioPlayerOffset, ');
+        if (_firstAppAudioPlayerOffset != null) {
+          // logger.log(
+          //     _logTime,
+          print(// fixme!!!!!!!!!!!!!!!!
+              'time: offset drift: '
+              '${((_appAudioPlayerOffset - _firstAppAudioPlayerOffset!) * Duration.microsecondsPerSecond).toInt()} us');
+        } else {
+          _firstAppAudioPlayerOffset = _appAudioPlayerOffset;
+        }
+      }
     });
 
     _ticker.start();
@@ -490,6 +512,9 @@ class SongMaster extends ChangeNotifier {
   double _lastTime = 0;
   int _lastElapsedUs = 0;
   int _maxDelta = 0;
+  int _timeAcquisitionDelay = 0;
+  double _appAudioPlayerOffset = 0; // in seconds
+  double? _firstAppAudioPlayerOffset;
 
   int? get momentNumber => _momentNumber; //  can negative during count in, will be null after the end
   int? _momentNumber;

@@ -87,7 +87,7 @@ Left arrow slows the BPM.
 Down arrow also advances one row in play, one section in pause.
 Up arrow backs up one row in play, one section in pause.
 Enter ends the "play" mode.
-With z or q, the play stops and goes back to the play list top.''';
+With z or q, the play stops and goes back to the play list.''';
 
 /// A global function to be called to move the display to the player route with the correct song.
 /// Typically this is called by the song update service when the application is in follower mode.
@@ -766,38 +766,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         alignment: WrapAlignment.spaceBetween,
                                         spacing: fontSize,
                                         children: [
-                                          //                               //  play button
-                                          //                               AppTooltip(
-                                          //                                 message: songUpdateService.isFollowing
-                                          //                                     ? 'Cannot play if following' //fixme:  ${songUpdateService.leaderName}
-                                          //                                     : '''
-                                          // Click the button for play. You may not see immediate song motion.
-                                          // Space bar or clicking the song area starts play as well.
-                                          // Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
-                                          // Right arrow speeds up the BPM.
-                                          // Left arrow slows the BPM.
-                                          // Down arrow also advances one section.
-                                          // Up arrow backs up to play the current section when the section finished.
-                                          // Double up arrow finishes the current section and backs up to the prior section for solos.
-                                          // Enter ends the "play" mode.
-                                          // With z or q, the play stops and goes back to the play list top.''',
-                                          //                                 child: Container(
-                                          //                                   padding: EdgeInsets.only(left: 8, right: 8),
-                                          //                                   child: appIconWithLabelButton(
-                                          //                                     appKeyEnum: AppKeyEnum.playerPlay,
-                                          //                                     icon: appIcon(
-                                          //                                       playStopIcon,
-                                          //                                       size: 1.25 * fontSize,
-                                          //                                     ),
-                                          //                                     onPressed: songUpdateService.isFollowing
-                                          //                                         ? null
-                                          //                                         : () {
-                                          //                                             app.clearMessage();
-                                          //                                             songUpdateState.isPlaying ? performStop() : performPlay();
-                                          //                                           },
-                                          //                                   ),
-                                          //                                 ),
-                                          //                               ),
                                           if (app.message.isNotEmpty)
                                             app.messageTextWidget(AppKeyEnum.playerErrorMessage),
                                           if (_showCapo)

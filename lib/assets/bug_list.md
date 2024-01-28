@@ -12,6 +12,16 @@
 
 ### Fix
 
+* nashville beat dashes as an option
+* autoplay does not count in
+* autoplay temporal accuracy in terms of BPM
+* scrolling should not stop on a given line
+* player font size slider
+* text entry for bpm, remove dropdown
+* smooth the tap to tempo
+* player top section a mess graphically on smaller screens
+* visit the complexity calculations
+
 * follower song location is not reset on a change of song
 * Eliminate song views (only) from history
 

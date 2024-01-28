@@ -180,7 +180,7 @@ class SongUpdateService extends ChangeNotifier {
     } else if (kIsWeb && Uri.base.scheme == 'http') {
       host = Uri.base.authority;
       if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
-        //  there is never a websocket on the web
+        //  there is never a websocket on the web!
         if (_lastNeverHost != host) {
           appLogMessage('webSocketChannel exception: never going to be at: "$host"');
           _lastNeverHost = host;

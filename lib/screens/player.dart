@@ -730,9 +730,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         icon: appIcon(
                                           Icons.pause,
                                           size: 1.75 * fontSize,
-                                          color: songUpdateState == SongUpdateState.pause
-                                              ? Colors.yellowAccent
-                                              : Colors.white,
+                                          color: songUpdateState == SongUpdateState.pause ? Colors.red : Colors.white,
                                         ),
                                         tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
                                         enabled: !songUpdateService.isFollowing,

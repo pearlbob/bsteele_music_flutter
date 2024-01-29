@@ -67,7 +67,7 @@ const double _marginSizeMax = 6; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _idleHighlightColor = Colors.redAccent;
-const _playHighlightColor = Colors.greenAccent;
+const _playHighlightColor = Colors.green;
 const _defaultMaxLines = 12;
 var _maxLines = 1;
 
@@ -1624,11 +1624,11 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
   Widget build(BuildContext context) {
     return Consumer2<PlayMomentNotifier, LyricSectionNotifier>(
       builder: (context, playMomentNotifier, lyricSectionNotifier, child) {
-        var isNowSelected =
-            lyricSectionNotifier.lyricSectionIndex == widget.index && lyricSectionNotifier.row == widget.row;
-        if (isNowSelected == selected &&
-            _songUpdateState == playMomentNotifier.playMoment?.songUpdateState &&
-            child != null) {
+        var currentSongUpdateState = playMomentNotifier.playMoment?.songUpdateState ?? SongUpdateState.none;
+        var isNowSelected = currentSongUpdateState.isPlayingOrPaused &&
+            lyricSectionNotifier.lyricSectionIndex == widget.index &&
+            lyricSectionNotifier.row == widget.row;
+        if (isNowSelected == selected && _songUpdateState == currentSongUpdateState && child != null) {
           logger.log(
               _logLyricSectionIndicatorCellState,
               'LyricSectionIndicatorCellState.child'
@@ -1636,7 +1636,7 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
           return child;
         }
         selected = isNowSelected;
-        _songUpdateState = playMomentNotifier.playMoment?.songUpdateState;
+        _songUpdateState = currentSongUpdateState;
         logger.log(
             _logLyricSectionIndicatorCellState,
             'LyricSectionIndicatorCellState selected: $selected'
@@ -1658,21 +1658,22 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
       case PlayerScrollHighlight.off:
       case PlayerScrollHighlight.measure:
         return NullWidget();
-      default:
+      case PlayerScrollHighlight.chordRow:
         break;
     }
 
     return SizedBox(
-      width: widget.width,
-      child: selected
-          ? Transform.flip(
-              child: appIcon(
-              Icons.play_arrow,
-              size: widget.fontSize,
-              color: _songUpdateState == SongUpdateState.playing ? _playHighlightColor : _idleHighlightColor,
-            ))
-          : NullWidget(), //Container( color:  Colors.cyan,height: widget.height), // empty box
-    );
+        width: widget.width,
+        child: selected
+            ? DecoratedBox(
+                decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),
+                child: appIcon(
+                  Icons.play_arrow,
+                  size: widget.fontSize,
+                  color: _songUpdateState == SongUpdateState.playing ? _playHighlightColor : _idleHighlightColor,
+                ))
+            : NullWidget() // hold the horizontal space in the grid
+        );
   }
 
   var selected = false;

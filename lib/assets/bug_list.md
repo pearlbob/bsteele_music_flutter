@@ -12,6 +12,11 @@
 
 ### Fix
 
+* player, row mode, row indicator: dark outline?
+* player, row mode, pause: row indicator should be red.
+* player pause highlight should be red
+* player, stopped: arrows should move by section
+* player leader mouse scroll location followed?
 * nashville beat dashes as an option
 * autoplay does not count in
 * autoplay temporal accuracy in terms of BPM

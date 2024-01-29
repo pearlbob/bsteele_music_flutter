@@ -145,7 +145,7 @@ late PackageInfo packageInfo;
 var _mainUsTimer = UsTimer();
 
 void main() async {
-  Logger.level = Level.info;
+  Logger.level = kDebugMode ? Level.info : Level.warning;
 
   //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();

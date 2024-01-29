@@ -23,7 +23,7 @@ const Level _songMasterLogAdvance = Level.debug;
 const Level _songMasterBpmChange = Level.debug;
 const Level _logRestart = Level.debug;
 const Level _logDrums = Level.debug;
-const Level _logTime = Level.info;
+const Level _logTime = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -34,9 +34,8 @@ class SongMaster extends ChangeNotifier {
 
   SongMaster._internal() {
     _ticker = Ticker((elapsed) {
-      final sysTime1 = DateTime.now(); // fixme: temp diagnostic only
       final double time = _appAudioPlayer.getCurrentTime();
-      final sysTime2 = DateTime.now(); // fixme: temp diagnostic only
+      final sysTime1 = DateTime.now(); // fixme: temp diagnostic only
       final double dt = time - _lastTime;
       //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
       _lastTime = time;
@@ -46,29 +45,50 @@ class SongMaster extends ChangeNotifier {
       switch (songUpdateState) {
         case SongUpdateState.pause:
           momentNumber = _momentNumber ?? -1;
+          _lastDrumTempoT = 0;
           break;
         case SongUpdateState.drumTempo:
           assert(_bpm >= MusicConstants.minBpm);
+          if (_lastDrumTempoT == 0) {
+            //  start the tempo on the next beat
+            _lastDrumTempoT = time;
+            _firstDrumTempoT = time;
+            _drumTempoCount = 0;
+            _lastTempoBpm = _bpm;
+            return;
+          }
           double tempoPeriod = 60.0 / _bpm; //  seconds
-          if ((time - _lastDrumTempoT) > tempoPeriod) {
-            double nextTempoT = _lastDrumTempoT + 2 * tempoPeriod;
+          if (_lastTempoBpm != _bpm) {
+            //  deal with a change of tempo
+            //  try to slide a beat in without too much trauma
+            _lastTempoBpm = _bpm;
+            _firstDrumTempoT = _lastDrumTempoT;
+            _drumTempoCount = 0;
+          }
+
+          if (time > _lastDrumTempoT) {
+            //  ready to load the next time, just after the last time
+            _drumTempoCount++;
+            //  tempo should be absolute... until it has to change
+            double nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
+            assert(time < nextTempoT);
 
             _appAudioPlayer.play(drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/hihat1.flac',
                 when: nextTempoT,
-                duration: 0.25, //fixme: temp
+                duration: 0.15, //fixme: temp
                 volume: _appOptions.volume);
 
             //  clean up for the next request
-            _lastDrumTempoT = _lastDrumTempoT + tempoPeriod;
             logger.log(
                 _logDrums,
                 'drumTempo: next: $nextTempoT, _lastDrumTempoT: $_lastDrumTempoT'
                 ', dt: ${nextTempoT - _lastDrumTempoT}, tempoPeriod: $tempoPeriod');
-            _lastDrumTempoT = _lastDrumTempoT + tempoPeriod;
+            _lastDrumTempoT = nextTempoT;
           }
           return; //  we're done with the song... tempo preview
         default:
           momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
+          _lastDrumTempoT = 0;
           break;
       }
 
@@ -286,18 +306,13 @@ class SongMaster extends ChangeNotifier {
       logger.log(_songMasterLogDelta, 'delta: $deltaUs us, dt: ${dt.toStringAsFixed(3)}');
       _lastElapsedUs = elapsed.inMicroseconds;
 
-      //  see how good the timing is
       {
-        _timeAcquisitionDelay = sysTime2.microsecondsSinceEpoch - sysTime1.microsecondsSinceEpoch;
+        //  see how good the timing is
         _appAudioPlayerOffset = sysTime1.microsecondsSinceEpoch / Duration.microsecondsPerSecond - time;
-        logger.log(
-            _logTime,
-            'time: _timeAcquisitionDelay: $_timeAcquisitionDelay, '
-            '_appAudioPlayerOffset: $_appAudioPlayerOffset, ');
+        logger.log(_logTime, '_appAudioPlayerOffset: $_appAudioPlayerOffset, ');
         if (_firstAppAudioPlayerOffset != null) {
-          // logger.log(
-          //     _logTime,
-          print(// fixme!!!!!!!!!!!!!!!!
+          logger.log(
+              _logTime,
               'time: offset drift: '
               '${((_appAudioPlayerOffset - _firstAppAudioPlayerOffset!) * Duration.microsecondsPerSecond).toInt()} us');
         } else {
@@ -512,7 +527,6 @@ class SongMaster extends ChangeNotifier {
   double _lastTime = 0;
   int _lastElapsedUs = 0;
   int _maxDelta = 0;
-  int _timeAcquisitionDelay = 0;
   double _appAudioPlayerOffset = 0; // in seconds
   double? _firstAppAudioPlayerOffset;
 
@@ -536,6 +550,9 @@ class SongMaster extends ChangeNotifier {
   int _bpm = MusicConstants.minBpm; //  default value only
   int? _newBpm;
   double _lastDrumTempoT = 0;
+  double _firstDrumTempoT = 0;
+  int _drumTempoCount = 0;
+  int _lastTempoBpm = 0;
 
   int get repeatSection => _repeatSection;
   int _repeatSection = 0;

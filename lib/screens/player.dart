@@ -285,7 +285,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
           _playMomentNotifier.playMoment = PlayMoment(
-              SongUpdateState.playing, _songMaster.momentNumber!, _song.getSongMoment(_songMaster.momentNumber!));
+              _songMaster.songUpdateState, _songMaster.momentNumber!, _song.getSongMoment(_songMaster.momentNumber!));
 
           if (_songMaster.momentNumber! >= 0) {
             var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
@@ -695,7 +695,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                         if (states.contains(MaterialState.disabled)) {
                                           return App.disabledColor;
                                         }
-                                        return App.appBackgroundColor;
+                                        return App.universalAccentColor;
                                       },
                                     ),
                                     visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
@@ -717,7 +717,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       icon: appIcon(
                                         Icons.play_arrow,
                                         size: 1.75 * fontSize,
-                                        color: songUpdateState == SongUpdateState.playing ? Colors.red : Colors.white,
+                                        color: songUpdateState == SongUpdateState.playing
+                                            ? Colors.greenAccent
+                                            : Colors.white,
                                       ),
                                       tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
                                       enabled: !songUpdateService.isFollowing,
@@ -1247,7 +1249,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   playDrums() {
-    _songMaster.playDrums(_drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
+    _songMaster.playDrums(widget._song, _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
   // double boxCenterHeight(final double toolbarHeight) {
@@ -1681,13 +1683,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       var songMoment = _song.songMoments[momentNumber];
 
       //  map state to mode   fixme: should reconcile the enums
-      SongUpdateState newSongPlayMode = SongUpdateState.idle;
+      SongUpdateState newSongUpdateState = SongUpdateState.idle;
       switch (update.state) {
         case SongUpdateState.playing:
           if (!songUpdateState.isPlaying) {
             setPlayMode();
           }
-          newSongPlayMode = SongUpdateState.playing;
+          newSongUpdateState = SongUpdateState.playing;
           if (update.momentNumber <= 0) {
             setState(() {
               //  note: clear the countIn if zero
@@ -1699,15 +1701,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           }
           break;
         default:
-          newSongPlayMode = SongUpdateState.idle;
+          newSongUpdateState = SongUpdateState.idle;
           scrollToLyricSection(songMoment.lyricSection.index);
           break;
       }
-      if (songUpdateState != newSongPlayMode) {
-        setState(() {
-          songUpdateState = newSongPlayMode;
-        });
-      }
+      update.state = newSongUpdateState;
       _playMomentNotifier.playMoment = PlayMoment(update.state, update.momentNumber, songMoment);
 
       logger.log(

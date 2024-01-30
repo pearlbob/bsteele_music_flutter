@@ -67,7 +67,7 @@ const double _marginSizeMax = 6; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _idleHighlightColor = Colors.redAccent;
-const _playHighlightColor = Colors.green;
+const _playHighlightColor = Colors.greenAccent;
 const _defaultMaxLines = 12;
 var _maxLines = 1;
 
@@ -1652,7 +1652,8 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
         _logLyricSectionIndicatorCellState,
         'LyricSectionIndicatorCellState.childBuilder: run: '
         '${widget.index}:'
-        ' selected: $selected');
+        ' _songUpdateState: $_songUpdateState'
+        ', selected: $selected');
 
     switch (AppOptions().playerScrollHighlight) {
       case PlayerScrollHighlight.off:
@@ -1901,9 +1902,6 @@ class _SongCellState extends State<_SongCellWidget> {
           ', songTime: ${SongMaster().songTime}'
           //
           );
-
-      //  check the delay
-      //Future.delayed(Duration.zero, () => _checkTheAutoPlayDelay(context));
     }
 
     RichText richText = widget.richText;

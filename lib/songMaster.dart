@@ -426,15 +426,15 @@ class SongMaster extends ChangeNotifier {
   }
 
   /// Play a drums in real time
-  void playDrums(final DrumParts? drumParts, {int? bpm}) {
-    _song = null;
+  void playDrums(final Song song, final DrumParts? drumParts, {int? bpm}) {
+    _song = song.copyWith();
     _bpm = bpm ?? _song?.beatsPerMinute ?? MusicConstants.defaultBpm;
     _drumParts = drumParts;
     _songStart ??= _appAudioPlayer.getCurrentTime(); //   sync with existing if it's running
     _clearMomentNumber();
     songUpdateState = SongUpdateState.playing;
     notifyListeners();
-    logger.d('playSong: _bpm: $_bpm');
+    logger.log(_logDrums, 'playDrums: _bpm: $_bpm, $drumParts');
   }
 
   void stop() {

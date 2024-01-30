@@ -309,6 +309,43 @@ class OptionsState extends State<Options> {
                   ),
 
                   const AppSpace(verticalSpace: 30),
+                  AppWrapFullWidth(
+                    spacing: 15,
+                    children: [
+                      const Text('Nashville beats:'),
+                      SegmentedButton<bool>(
+                        segments: <ButtonSegment<bool>>[
+                          ButtonSegment<bool>(
+                            value: true,
+                            label: Text('Reduced', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'Show Nashville beats only when they are absolutely required.\n'
+                                    'This will not happen if the measure is full length.\n'
+                                    'Typically the period convention will be used.'
+                                : null,
+                          ),
+                          ButtonSegment<bool>(
+                            value: false,
+                            label: Text('Always', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'Show Nashville beats any time the beats are not a full measure.'
+                                : null,
+                          ),
+                        ],
+                        selected: <bool>{_appOptions.reducedNashvilleDots},
+                        onSelectionChanged: (Set<bool> newSelection) {
+                          setState(() {
+                            // By default there is only a single segment that can be
+                            // selected at one time, so its value is always the first
+                            // item in the selected set.
+                            _appOptions.reducedNashvilleDots = newSelection.first;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const AppSpace(verticalSpace: 30),
                   AppWrap(children: [
                     AppTooltip(
                       message: 'Enable Tooltips',

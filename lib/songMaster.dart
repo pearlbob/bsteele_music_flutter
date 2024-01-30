@@ -421,7 +421,8 @@ class SongMaster extends ChangeNotifier {
     _skipCurrentSection = true;
   }
 
-  skipToMomentNumber(final int momentNumber) {
+  skipToMomentNumber(final Song song, final int momentNumber) {
+    _song = song.copyWith();
     _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.getSongMomentsSize() ?? 0) - 1);
   }
 

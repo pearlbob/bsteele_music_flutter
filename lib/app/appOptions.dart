@@ -38,6 +38,7 @@ enum StorageValue {
   lastSongEdited,
   playerScrollHighlight,
   accidentalExpressionChoice,
+  reducedNashvilleDots
 }
 
 enum TapToAdvance { never, upOrDown }
@@ -127,7 +128,7 @@ class AppOptions extends ChangeNotifier {
     logger.log(_logStartup, 'AppOptions: ${usTimer.seconds} s');
 
     //  application wide configuration
-    Measure.reducedTopDots = true;
+    reducedNashvilleDots = await _readBool(StorageValue.reducedNashvilleDots.name, defaultValue: true);
   }
 
   clear() {
@@ -401,6 +402,19 @@ class AppOptions extends ChangeNotifier {
       _saveString(StorageValue.nashvilleSelection.name, value.name);
     }
   }
+
+  set reducedNashvilleDots(bool value) {
+    if (_reducedNashvilleDots == value) {
+      return;
+    }
+    _reducedNashvilleDots = value;
+    Measure.reducedNashvilleDots = value;
+    _saveBool(StorageValue.reducedNashvilleDots.name, value);
+  }
+
+  /// True if the user wants a minimum of Nashville dots shown
+  bool get reducedNashvilleDots => _reducedNashvilleDots;
+  bool _reducedNashvilleDots = true;
 
   /// The user's selected style of accidental display.
   AccidentalExpressionChoice get accidentalExpressionChoice => _accidentalExpressionChoice;

@@ -280,7 +280,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       case SongUpdateState.playing:
       case SongUpdateState.pause:
-        //  select the current measure
+        //  find the current measure
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           leaderSongUpdate(_songMaster.momentNumber!);
@@ -1310,11 +1310,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   /// bump by section only if paused
   _bump(final int bump) {
     switch (songUpdateState) {
+      case SongUpdateState.idle:
+      case SongUpdateState.none:
       case SongUpdateState.pause:
         _sectionBump(bump);
         break;
-      case SongUpdateState.idle:
-      case SongUpdateState.none:
+
       case SongUpdateState.playing:
       case SongUpdateState.drumTempo:
         _rowBump(bump);
@@ -1325,14 +1326,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _sectionBump(final int bump) {
     logger.log(_logSongMasterBump, '  _sectionBump($bump): moment: ${_songMaster.momentNumber}');
 
-    var lyricSectionIndex = _song.getSongMoment(_songMaster.momentNumber ?? -1)?.lyricSection.index;
+    var lyricSectionIndex = _song.getSongMoment(_songMaster.momentNumber ?? 0)?.lyricSection.index;
     if (lyricSectionIndex != null) {
       lyricSectionIndex += bump;
       logger.log(_logSongMasterBump,
           '  _sectionBump($bump): moment: ${_songMaster.momentNumber}, to section: $lyricSectionIndex');
       var moment = _song.getFirstSongMomentAtLyricSectionIndex(lyricSectionIndex);
       if (moment != null) {
-        _songMaster.skipToMomentNumber(moment.momentNumber);
+        _songMaster.skipToMomentNumber(_song, moment.momentNumber);
       }
     }
   }
@@ -1346,14 +1347,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         SongMoment? moment = _song.getFirstSongMomentAtNextRow(_songMaster.momentNumber!);
         if (moment != null) {
           logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment');
-          _songMaster.skipToMomentNumber(moment.momentNumber);
+          _songMaster.skipToMomentNumber(_song, moment.momentNumber);
         }
       } else {
         //  bump backwards
         SongMoment? moment = _song.getFirstSongMomentAtPriorRow(_songMaster.momentNumber!);
         if (moment != null) {
           logger.log(_logSongMasterBump, '  _rowBump($bump): moment: ${_songMaster.momentNumber} to moment: $moment');
-          _songMaster.skipToMomentNumber(moment.momentNumber);
+          _songMaster.skipToMomentNumber(_song, moment.momentNumber);
         }
       }
     }
@@ -1394,7 +1395,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
         //  move the song to the scrolled location
         if (selectedItem.index != songMasterIndex) {
-          _songMaster.skipToMomentNumber(_lyricsTable.rowToMomentNumber(selectedItem.index));
+          _songMaster.skipToMomentNumber(_song, _lyricsTable.rowToMomentNumber(selectedItem.index));
         }
       }
     }

@@ -76,6 +76,10 @@
 * "Get It On": section too large for autoscroll: autoroll like repeats are expanded: each lyric on grid row, hide
   chords if not on that repeat, current < top: show top, current > bottom: show bottom. The fix: Adjusted the fontsize
   to allow for more song to be seen.
+* fixed drums muted if edited
+* player, row mode, row indicator: dark outline?
+* player, row mode, pause: row indicator should be red.
+* player pause highlight should be red
 
 ## Release 1.2.5
 

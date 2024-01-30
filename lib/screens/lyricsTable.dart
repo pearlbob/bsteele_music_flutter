@@ -607,7 +607,7 @@ class LyricsTable {
                           text: _measureNashvilleSelectionTextSpan(measure, song.key, transpositionOffset,
                               style: _coloredChordTextStyle,
                               displayMusicKey: displayMusicKey,
-                              showBeats: Measure.reducedTopDots),
+                              showBeats: Measure.reducedNashvilleDots),
                           //  don't allow the rich text to wrap:
                           textWidthBasis: TextWidthBasis.longestLine,
                           overflow: TextOverflow.clip,

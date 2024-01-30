@@ -12,9 +12,11 @@
 
 ### Fix
 
+* fix Measure.reducedTopDots, make it an option
+* nashville beat dashes as an option
 * player, stopped: arrows should move by section
 * player leader mouse scroll location followed?
-* nashville beat dashes as an option
+
 * autoplay does not count in
 * autoplay temporal accuracy in terms of BPM
 * scrolling should not stop on a given line

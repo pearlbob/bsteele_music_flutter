@@ -30,6 +30,7 @@ class WebAudioPlayer implements AppAudioPlayer {
       _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.openHighHat] ?? defaultFile);
       _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.kick] ?? defaultFile);
       _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.bass] ?? defaultFile);
+      _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.blip] ?? defaultFile);
       _audioFilePlayer.bufferFile(drumTypeToFileMap[DrumTypeEnum.snare] ?? defaultFile);
 
       logger.i('audio: getBaseLatency= ${_audioFilePlayer.getBaseLatency()}');

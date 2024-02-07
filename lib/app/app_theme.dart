@@ -248,6 +248,8 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   playerSpeed(Null), //  debug only
   playerStop(Null),
   playerTempoTap(Null),
+  playerTempoUp(Null),
+  playerTempoDown(Null),
   playListClearSearch(Null),
   playListFilter(NameValue),
   playListMetadataRemoveFromFilter(NameValue),
@@ -847,7 +849,7 @@ TextButton appIconWithLabelButton({
   if (onPressed == null) {
     backgroundColor = App.disabledColor;
   }
-  style ??= TextStyle(fontSize: fontSize, textBaseline: TextBaseline.alphabetic);
+  style ??= TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, textBaseline: TextBaseline.alphabetic);
   return TextButton.icon(
     key: key,
     icon: icon,

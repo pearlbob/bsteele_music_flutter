@@ -24,7 +24,6 @@ const Level _logConstruct = Level.debug;
 const Level _logInitState = Level.debug;
 const Level _logBuild = Level.debug;
 const Level _logPosition = Level.debug;
-const Level _logJump = Level.debug;
 const Level _logFilters = Level.debug;
 
 //  persistent selection

@@ -17,6 +17,7 @@ Map<DrumTypeEnum, String> drumTypeToFileMap = {
   DrumTypeEnum.snare: 'audio/snare_4406.flac',
   DrumTypeEnum.kick: 'audio/kick_4513.flac',
   DrumTypeEnum.bass: 'audio/kick_4516.flac',
+  DrumTypeEnum.blip: 'audio/blip.flac',
 };
 
 final TextStyle _style = generateAppTextStyle();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/widgets/drums.dart';
@@ -8,7 +9,6 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:logger/logger.dart';
 
 import 'app/appOptions.dart';
@@ -33,9 +33,9 @@ class SongMaster extends ChangeNotifier {
   }
 
   SongMaster._internal() {
-    _ticker = Ticker((elapsed) {
+    Timer.periodic(const Duration(milliseconds: 16), (timer) {
       final double time = _appAudioPlayer.getCurrentTime();
-      final sysTime1 = DateTime.now(); // fixme: temp diagnostic only
+      final now = DateTime.now(); // fixme: temp diagnostic only
       final double dt = time - _lastTime;
       //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
       _lastTime = time;
@@ -71,9 +71,17 @@ class SongMaster extends ChangeNotifier {
             _drumTempoCount++;
             //  tempo should be absolute... until it has to change
             double nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
-            assert(time < nextTempoT);
 
-            _appAudioPlayer.play(drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/hihat1.flac',
+            //  fix something wrong
+            if (time > nextTempoT) {
+              logger.i('tempo fix: time: $time, _lastDrumTempoT: $_lastDrumTempoT'
+                  ', nextTempoT: $nextTempoT, tempoPeriod: $tempoPeriod');
+              _firstDrumTempoT = time;
+              _drumTempoCount = 1;
+              nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
+            }
+
+            _appAudioPlayer.play(drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/blip.flac',
                 when: nextTempoT,
                 duration: 0.15, //fixme: temp
                 volume: _appOptions.volume);
@@ -291,7 +299,14 @@ class SongMaster extends ChangeNotifier {
         logger.log(_logSongMasterTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
       }
 
-      int deltaUs = elapsed.inMicroseconds - _lastElapsedUs;
+      int elapsedUs;
+      {
+        var nowUs = now.microsecondsSinceEpoch;
+        elapsedUs = nowUs - _lastSysTimeUs;
+        _lastSysTimeUs = nowUs;
+      }
+
+      int deltaUs = elapsedUs - _lastElapsedUs;
       if (deltaUs > _maxDelta) {
         _maxDelta = deltaUs;
         logger.log(
@@ -304,11 +319,11 @@ class SongMaster extends ChangeNotifier {
         }
       }
       logger.log(_songMasterLogDelta, 'delta: $deltaUs us, dt: ${dt.toStringAsFixed(3)}');
-      _lastElapsedUs = elapsed.inMicroseconds;
+      _lastElapsedUs = elapsedUs;
 
       {
         //  see how good the timing is
-        _appAudioPlayerOffset = sysTime1.microsecondsSinceEpoch / Duration.microsecondsPerSecond - time;
+        _appAudioPlayerOffset = now.microsecondsSinceEpoch / Duration.microsecondsPerSecond - time;
         logger.log(_logTime, '_appAudioPlayerOffset: $_appAudioPlayerOffset, ');
         if (_firstAppAudioPlayerOffset != null) {
           logger.log(
@@ -320,8 +335,6 @@ class SongMaster extends ChangeNotifier {
         }
       }
     });
-
-    _ticker.start();
   }
 
   _clearMomentNumberIfRequired() {
@@ -524,8 +537,8 @@ class SongMaster extends ChangeNotifier {
     return 'SongMaster{mode: ${songUpdateState.name}, _song: $_song, _moment: $_momentNumber }';
   }
 
-  late Ticker _ticker;
   double _lastTime = 0;
+  int _lastSysTimeUs = 0;
   int _lastElapsedUs = 0;
   int _maxDelta = 0;
   double _appAudioPlayerOffset = 0; // in seconds

@@ -382,6 +382,7 @@ class SongMaster extends ChangeNotifier {
       case SongUpdateState.idle:
         _setBpm(bpm);
         songUpdateState = SongUpdateState.drumTempo;
+        notifyListeners();
         break;
       case SongUpdateState.drumTempo:
         _setBpm(bpm);
@@ -455,6 +456,7 @@ class SongMaster extends ChangeNotifier {
     switch (songUpdateState) {
       case SongUpdateState.playing:
       case SongUpdateState.pause:
+      case SongUpdateState.drumTempo:
         songUpdateState = SongUpdateState.idle; //  for the running play
         _clearMomentNumber();
         _appAudioPlayer.stop();
@@ -463,9 +465,6 @@ class SongMaster extends ChangeNotifier {
       case SongUpdateState.none:
       case SongUpdateState.idle:
         _clearMomentNumberIfRequired();
-        break;
-      case SongUpdateState.drumTempo:
-        _clearMomentNumber();
         break;
     }
     songUpdateState = SongUpdateState.idle;

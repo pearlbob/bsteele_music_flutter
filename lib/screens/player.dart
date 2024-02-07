@@ -677,6 +677,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     tooltip: _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
                                     enabled: !songUpdateService.isFollowing,
                                   ),
+                                  if (songUpdateState == SongUpdateState.drumTempo)
+                                    ButtonSegment<SongUpdateState>(
+                                      value: SongUpdateState.drumTempo,
+                                      label: Text(
+                                        'Tempo',
+                                        style: headerTextStyle.copyWith(color: Colors.white),
+                                      ),
+                                      tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
+                                      enabled: !songUpdateService.isFollowing,
+                                    ),
                                   ButtonSegment<SongUpdateState>(
                                     value: SongUpdateState.playing,
                                     icon: appIcon(
@@ -723,7 +733,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               ),
 
                             //  top section when idle
-                            if (songUpdateState == SongUpdateState.idle)
+                            if (songUpdateState == SongUpdateState.idle || songUpdateState == SongUpdateState.drumTempo)
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [

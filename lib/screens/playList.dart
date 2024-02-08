@@ -20,14 +20,16 @@ import 'package:string_similarity/string_similarity.dart';
 import '../app/app.dart';
 import '../util/play_list_search_matcher.dart';
 
-const Level _logConstruct = Level.debug;
+const Level _logConstruct = Level.info;
 const Level _logInitState = Level.debug;
-const Level _logBuild = Level.debug;
+const Level _logBuild = Level.info;
 const Level _logPosition = Level.debug;
+const Level _logPlayListRefreshNotifier = Level.info;
 const Level _logFilters = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValueMatcher> _filterNameValues = SplayTreeSet();
+final Random _random = Random();
 
 double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
@@ -37,7 +39,7 @@ typedef PlayListItemAction = Function(BuildContext context, PlayListItem playLis
 
 class PlayListRefreshNotifier extends ChangeNotifier {
   void refresh() {
-    logger.log(_logPosition, 'PlayListRefreshNotifier: ${identityHashCode(this)}');
+    logger.log(_logPlayListRefreshNotifier, 'PlayListRefreshNotifier: ${identityHashCode(this)}');
     notifyListeners();
   }
 
@@ -661,13 +663,14 @@ class _PlayListState extends State<PlayList> {
       }
 
       //  don't always go back to the top of the play list
+
       if (_itemScrollController.isAttached &&
           filteredGroup.group.isNotEmpty &&
           filteredGroup.group.first.playListItems.isNotEmpty &&
           _itemPositionsListener.itemPositions.value.isNotEmpty) {
         int length = filteredGroup.group.first.playListItems.length;
-        var currentIndex = _itemPositionsListener.itemPositions.value.first.index;
-        int index = widget.isFromTheTop //  top if asked
+
+        _requestedIndex = widget.isFromTheTop //  top if asked
                 ||
                 _filterNameValues.isNotEmpty //  not random if filtered
                 ||
@@ -676,18 +679,22 @@ class _PlayListState extends State<PlayList> {
                 (length <= 20) //   not random if too small
             ? 0
             : _random.nextInt(length);
-        // logger.i('randomIndex: $currentIndex vs $index out of $length');
-        if (currentIndex != index) {
-          //  update the location after the list is established
-          _requestedIndex = index;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_requestedIndex != null) {
-              int index = _requestedIndex!;
-              _requestedIndex = null;
-              _itemScrollController.jumpTo(index: index);
-            }
-          });
-        }
+
+        logger.i('_requestedIndex: $_requestedIndex of $length');
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        //   if (_requestedIndex != null) {
+        //     var currentIndex = _itemPositionsListener.itemPositions.value.first.index;
+        //     int requestedIndex = _requestedIndex!;
+        //     _requestedIndex = null;
+        //     logger.i('Callback: currentIndex: $currentIndex, requestedIndex: $requestedIndex');
+        //     if (_itemScrollController.isAttached) {
+        //       //  fixme: I don't know why jump doesnt work here
+        //       //  fixme: the reliability of the scroll seems sensitive to the duration!
+        //       _itemScrollController.scrollTo(index: requestedIndex, duration: const Duration(milliseconds: 200));
+        //     }
+        //   }
+        // });
+        // }
       }
 
       return Expanded(
@@ -744,6 +751,7 @@ class _PlayListState extends State<PlayList> {
                         appKeyEnum: AppKeyEnum.playListClearSearch,
                         iconSize: 1.25 * widget.titleFontSize,
                         onPressed: (() {
+                          logger.i('appIconButton search clear: onPressed()');
                           _searchTextFieldController.clear();
                           app.clearMessage();
                           setState(() {
@@ -826,7 +834,7 @@ class _PlayListState extends State<PlayList> {
                         _logPosition,
                         '_PlayListState: index: $index, pos:'
                         ' ${playListRefreshNotifier.positionPixels}'
-                        ', id:F ${identityHashCode(playListRefreshNotifier)}'
+                        // ', id: ${identityHashCode(playListRefreshNotifier)}'
                         ', isFromTheTop: ${widget.isFromTheTop}');
                     _indexTitleStyle = (index & 1) == 1 ? widget.oddTitleStyle : widget.evenTitleStyle;
                     _indexTextStyle = (index & 1) == 1 ? widget.oddTextStyle : widget.evenTextStyle;
@@ -868,6 +876,7 @@ class _PlayListState extends State<PlayList> {
           return KeyEventResult.handled;
       }
     }
+    logger.i('_onKeyEvent(): ignored: $event');
     return KeyEventResult.ignored;
   }
 
@@ -889,7 +898,6 @@ class _PlayListState extends State<PlayList> {
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   int? _requestedIndex;
-  final Random _random = Random();
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();

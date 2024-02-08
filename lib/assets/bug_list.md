@@ -12,6 +12,16 @@
 
 ### Fix
 
+* text entry for bpm, remove dropdown
+
+
+* First song selected not taken: focus?
+* mac bounce at play start
+* Resume on next section after pause
+* Chords should be on lyrics line
+* Need to see last section chords while on next
+
+
 * player in stop, scrolling should not scroll away the key select
 * fix Measure.reducedTopDots, make it an option
 * nashville beat dashes as an option
@@ -23,8 +33,7 @@
 * autoplay temporal accuracy in terms of BPM
 * scrolling should not stop on a given line
 * player font size slider
-* text entry for bpm, remove dropdown
-* smooth the tap to tempo
+
 * player top section a mess graphically on smaller screens
 * visit the complexity calculations
 

@@ -13,18 +13,16 @@
 ### Fix
 
 * text entry for bpm, remove dropdown
+* nashville beat dots as an option
 
-
-* First song selected not taken: focus?
-* mac bounce at play start
 * Resume on next section after pause
+* First song selected not taken: double build, related to random position
+* mac bounce at play start
 * Chords should be on lyrics line
 * Need to see last section chords while on next
-
-
 * player in stop, scrolling should not scroll away the key select
 * fix Measure.reducedTopDots, make it an option
-* nashville beat dashes as an option
+
 * player, stopped: arrows should move by section
 * player leader mouse scroll location followed?
 

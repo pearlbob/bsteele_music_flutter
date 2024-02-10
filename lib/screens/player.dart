@@ -1072,7 +1072,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     ? () {
                                         _navigateToEdit(context, _song);
                                       }
-                                : null,
+                                    : null,
                           ),
                         ),
                         AppSpace(horizontalSpace: fontSize),
@@ -1230,7 +1230,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _rowBump(1);
             break;
           case SongUpdateState.pause:
-            _performPlay(); //  does a resume
+            if (!_songUpdateService.isFollowing) {
+              setState(() {
+                //  select start of next section
+                _sectionBump(1);
+                _songMaster.resume();
+              });
+            }
             break;
         }
         return KeyEventResult.handled;

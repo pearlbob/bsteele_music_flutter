@@ -177,7 +177,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _drumParts = _drumPartsList.songMatch(_song) ?? _defaultDrumParts;
     _playMomentNotifier.playMoment = null;
     _lyricSectionNotifier.setIndexRow(0, 0);
-    _sectionSongMoments.clear();
 
     logger.log(_logBPM, 'initState() bpm: $playerSelectedBpm');
 
@@ -1850,7 +1849,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   void _adjustDisplay() {
     logger.log(_logBuild, 'adjustDisplay():');
-    _sectionSongMoments.clear();
     _forceTableRedisplay();
   }
 
@@ -1866,9 +1864,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     return Offset.zero;
   }
 
-  bool _almostEqual(double d1, double d2, double tolerance) {
-    return (d1 - d2).abs() <= tolerance;
-  }
+  // bool _almostEqual(double d1, double d2, double tolerance) {
+  //   return (d1 - d2).abs() <= tolerance;
+  // }
 
   void _setSelectedSongMoment(SongMoment? songMoment) {
     logger.log(
@@ -2645,8 +2643,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;
   Widget _countInWidget = NullWidget();
-
-  List<SongMoment> _sectionSongMoments = []; //  fixme temp?
 
   ScrollablePositionedList? _scrollablePositionedList;
   final ItemScrollController _itemScrollController = ItemScrollController();

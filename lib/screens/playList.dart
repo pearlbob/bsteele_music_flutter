@@ -20,16 +20,16 @@ import 'package:string_similarity/string_similarity.dart';
 import '../app/app.dart';
 import '../util/play_list_search_matcher.dart';
 
-const Level _logConstruct = Level.info;
+const Level _logConstruct = Level.debug;
 const Level _logInitState = Level.debug;
-const Level _logBuild = Level.info;
+const Level _logBuild = Level.debug;
 const Level _logPosition = Level.debug;
 const Level _logPlayListRefreshNotifier = Level.info;
 const Level _logFilters = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValueMatcher> _filterNameValues = SplayTreeSet();
-final Random _random = Random();
+// final Random _random = Random();
 
 double _textFontSize = appDefaultFontSize;
 late TextStyle _indexTitleStyle;
@@ -221,7 +221,7 @@ class SongPlayListItem implements PlayListItem {
 
   @override
   String toString() {
-    return 'PlayListItem: ${song.songId.toString()}${songPerformance != null ? ', $songPerformance' : ''}';
+    return 'SongPlayListItem: ${song.songId.toString()}${songPerformance != null ? ', $songPerformance' : ''}';
   }
 
   //  data
@@ -341,7 +341,7 @@ class PlayList extends StatefulWidget {
     searchDropDownStyle = artistStyle;
     searchTextStyle = titleStyle;
 
-    logger.log(_logConstruct, 'PlayList: constructor: _isEditing: $isEditing');
+    logger.log(_logConstruct, 'PlayList.byGroup(): constructor: _isEditing: $isEditing');
   }
 
   @override
@@ -457,6 +457,7 @@ class _PlayListState extends State<PlayList> {
           '_PlayListState.build(): _isEditing: ${widget.isEditing}'
           ', text: "${_searchTextFieldController.text}"'
           ', positionPixels: ${playListRefreshNotifier.positionPixels}'
+
           //   ', _searchTextFieldController: ${identityHashCode(_searchTextFieldController)}'
           //    ' (${_searchTextFieldController.selection.base.offset}'
           //    ',${_searchTextFieldController.selection.extent.offset})'
@@ -663,39 +664,40 @@ class _PlayListState extends State<PlayList> {
       }
 
       //  don't always go back to the top of the play list
-
-      if (_itemScrollController.isAttached &&
-          filteredGroup.group.isNotEmpty &&
-          filteredGroup.group.first.playListItems.isNotEmpty &&
-          _itemPositionsListener.itemPositions.value.isNotEmpty) {
-        int length = filteredGroup.group.first.playListItems.length;
-
-        _requestedIndex = widget.isFromTheTop //  top if asked
-                ||
-                _filterNameValues.isNotEmpty //  not random if filtered
-                ||
-                _selectedSortType != PlayListSortType.byTitle //  not random if not by title
-                ||
-                (length <= 20) //   not random if too small
-            ? 0
-            : _random.nextInt(length);
-
-        logger.i('_requestedIndex: $_requestedIndex of $length');
-        // WidgetsBinding.instance.addPostFrameCallback((_) {
-        //   if (_requestedIndex != null) {
-        //     var currentIndex = _itemPositionsListener.itemPositions.value.first.index;
-        //     int requestedIndex = _requestedIndex!;
-        //     _requestedIndex = null;
-        //     logger.i('Callback: currentIndex: $currentIndex, requestedIndex: $requestedIndex');
-        //     if (_itemScrollController.isAttached) {
-        //       //  fixme: I don't know why jump doesnt work here
-        //       //  fixme: the reliability of the scroll seems sensitive to the duration!
-        //       _itemScrollController.scrollTo(index: requestedIndex, duration: const Duration(milliseconds: 200));
-        //     }
-        //   }
-        // });
-        // }
-      }
+      // if (_itemScrollController.isAttached &&
+      //     filteredGroup.group.isNotEmpty &&
+      //     filteredGroup.group.first.playListItems.isNotEmpty &&
+      //     _itemPositionsListener.itemPositions.value.isNotEmpty) {
+      //   int length = filteredGroup.group.first.playListItems.length;
+      //
+      //   _requestedIndex = !_firstBuild //  not random if not the first build
+      //           ||
+      //           widget.isFromTheTop //  top if asked
+      //           ||
+      //           _filterNameValues.isNotEmpty //  not random if filtered
+      //           ||
+      //           _selectedSortType != PlayListSortType.byTitle //  not random if not by title
+      //           ||
+      //           (length <= 20) //   not random if too small
+      //       ? 0
+      //       : _random.nextInt(length);
+      //   _firstBuild = false;
+      //
+      //   logger.i('_requestedIndex: $_requestedIndex of $length');
+      //   // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   //   if (_requestedIndex != null) {
+      //   //     var currentIndex = _itemPositionsListener.itemPositions.value.first.index;
+      //   //     int requestedIndex = _requestedIndex!;
+      //   //     _requestedIndex = null;
+      //   //     logger.i('Callback: currentIndex: $currentIndex, requestedIndex: $requestedIndex');
+      //   //     if (_itemScrollController.isAttached) {
+      //   //       //  fixme: I don't know why jump doesnt work here
+      //   //       //  fixme: the reliability of the scroll seems sensitive to the duration!
+      //   //       _itemScrollController.scrollTo(index: requestedIndex, duration: const Duration(milliseconds: 200));
+      //   //     }
+      //   //   }
+      //   // });
+      // }
 
       return Expanded(
         // for some reason, this is Expanded is very required,
@@ -897,7 +899,6 @@ class _PlayListState extends State<PlayList> {
 
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
-  int? _requestedIndex;
 
   final TextEditingController _searchTextFieldController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();

@@ -192,7 +192,7 @@ class SingersState extends State<Singers> {
               }
             }
           } else {
-            // 				matching performances from singer
+            // 				matching performances from the selected singer
             addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: App.appBackgroundColor);
 
             //  all other songs

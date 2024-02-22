@@ -14,9 +14,10 @@
 
 * text entry for bpm, remove dropdown
 * nashville beat dots as an option
-
 * Resume on next section after pause
-* First song selected not taken: double build, related to random position
+
+* pause/play: jump row/section past the end of the song shouldn't happen
+* random position on: First song selected not taken: double build
 * mac bounce at play start
 * Chords should be on lyrics line
 * Need to see last section chords while on next

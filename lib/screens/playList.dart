@@ -9,6 +9,7 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_lib/util/util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
@@ -26,6 +27,7 @@ const Level _logBuild = Level.debug;
 const Level _logPosition = Level.debug;
 const Level _logPlayListRefreshNotifier = Level.info;
 const Level _logFilters = Level.debug;
+const Level _logKeyboard = Level.debug;
 
 //  persistent selection
 final SplayTreeSet<NameValueMatcher> _filterNameValues = SplayTreeSet();
@@ -863,14 +865,14 @@ class _PlayListState extends State<PlayList> {
             .map((e) => e.index));
 
       //  react to the paging requests
-      switch (event.physicalKey) {
-        case PhysicalKeyboardKey.arrowDown:
-        case PhysicalKeyboardKey.pageDown:
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.arrowDown:
+        case LogicalKeyboardKey.pageDown:
           _itemScrollController.scrollTo(
               index: max(0, itemIndexes.last), duration: _pageTransitionDuration, curve: Curves.decelerate);
           return KeyEventResult.handled;
-        case PhysicalKeyboardKey.arrowUp:
-        case PhysicalKeyboardKey.pageUp:
+        case LogicalKeyboardKey.arrowUp:
+        case LogicalKeyboardKey.pageUp:
           _itemScrollController.scrollTo(
               index: max(0, itemIndexes.first - itemIndexes.length + 1),
               duration: _pageTransitionDuration,
@@ -878,7 +880,7 @@ class _PlayListState extends State<PlayList> {
           return KeyEventResult.handled;
       }
     }
-    logger.i('_onKeyEvent(): ignored: $event');
+    logger.log(_logKeyboard, 'playList._onKeyEvent(): ignored: ${event.runtimeType}: ${event.logicalKey.keyLabel}');
     return KeyEventResult.ignored;
   }
 

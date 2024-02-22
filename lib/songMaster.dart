@@ -202,10 +202,7 @@ class SongMaster extends ChangeNotifier {
       switch (songUpdateState) {
         case SongUpdateState.none:
         case SongUpdateState.idle:
-          _clearMomentNumberIfRequired();
-          break;
         case SongUpdateState.drumTempo:
-          _clearMomentNumberIfRequired();
           break;
         case SongUpdateState.playing:
           if (_song != null) {
@@ -337,13 +334,6 @@ class SongMaster extends ChangeNotifier {
     });
   }
 
-  _clearMomentNumberIfRequired() {
-    if (_momentNumber != null) {
-      _clearMomentNumber();
-      notifyListeners();
-    }
-  }
-
   _clearMomentNumber() {
     _momentNumber = null;
     _advancedMomentNumber = null;
@@ -437,7 +427,7 @@ class SongMaster extends ChangeNotifier {
 
   skipToMomentNumber(final Song song, final int momentNumber) {
     _song = song.copyWith();
-    _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.getSongMomentsSize() ?? 0) - 1);
+    _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.getSongMomentsSize() ?? 1) - 1);
   }
 
   /// Play a drums in real time
@@ -464,7 +454,6 @@ class SongMaster extends ChangeNotifier {
         break;
       case SongUpdateState.none:
       case SongUpdateState.idle:
-        _clearMomentNumberIfRequired();
         break;
     }
     songUpdateState = SongUpdateState.idle;

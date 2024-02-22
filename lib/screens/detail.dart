@@ -540,9 +540,9 @@ class DetailState extends State<Detail> {
               const AppSpace(),
               sheetDisplayEnableOptionsWidget,
               //  sheet music
-              RawKeyboardListener(
+              Focus(
                 focusNode: FocusNode(),
-                onKey: _detailOnKey,
+                onKeyEvent: _detailOnKey,
                 autofocus: true,
                 child: Listener(
                   onPointerSignal: (pointerSignal) {
@@ -648,24 +648,27 @@ class DetailState extends State<Detail> {
     setState(() {});
   }
 
-  void _detailOnKey(RawKeyEvent value) {
-    if (value.runtimeType == RawKeyDownEvent) {
-      RawKeyDownEvent e = value as RawKeyDownEvent;
-      //  only deal with new key down events
-      logger.i('_detailOnKey($e)');
+  KeyEventResult _detailOnKey(FocusNode node, KeyEvent e) {
+    //  only deal with new key down or repeat events
+    if (e is KeyDownEvent || e is KeyRepeatEvent) {
+      logger.i('_detailOnKey(${e.logicalKey.keyLabel})');
 
-      if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+      if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         setState(() {
           bumpMeasureSelection(-1);
         });
-      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         setState(() {
           bumpMeasureSelection(1);
         });
-      } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.escape) {
         Navigator.pop(context);
+        return KeyEventResult.handled;
       }
     }
+    return KeyEventResult.ignored;
   }
 
   ElevatedButton _restButton(

@@ -158,7 +158,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     //  show song master play updates
     _songMaster.addListener(_songMasterListener);
 
-    _rawKeyboardListenerFocusNode = FocusNode(onKey: _playerOnRawKey);
+    _rawKeyboardListenerFocusNode = FocusNode();
 
     _songUpdateState = SongUpdateState.idle;
   }
@@ -255,6 +255,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   void _songMasterListener() {
     _songMasterNotifier.songMaster = _songMaster;
+    if (_songMaster.momentNumber == null) {
+      logger.log(_logSongMaster, '_songMaster.momentNumber == null');
+    }
     logger.log(
         _logSongMaster,
         'songMasterListener:  leader: ${_songUpdateService.isLeader}  ${DateTime.now()}'
@@ -276,6 +279,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _songUpdateState = _songMaster.songUpdateState;
             _clearCountIn();
           });
+        }
+        if (_songMaster.momentNumber != null && _songMaster.momentNumber! >= 0) {
+          var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
+          // _lyricSectionNotifier.setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
+          _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToRow(_songMaster.lastMomentNumber));
         }
         break;
       case SongUpdateState.playing:
@@ -584,8 +592,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                     //   ),
 
                     //  song chords and lyrics
-                    RawKeyboardListener(
+                    Focus(
                       focusNode: _rawKeyboardListenerFocusNode,
+                      onKeyEvent: _playerOnKeyEvent,
                       autofocus: true,
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -1140,29 +1149,30 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         });
   }
 
-  KeyEventResult _playerOnRawKey(FocusNode node, RawKeyEvent value) {
-    logger.log(_logKeyboard, 'playerOnRawKey(): event: $value');
+  KeyEventResult _playerOnKeyEvent(FocusNode node, KeyEvent e) {
+    logger.log(_logKeyboard, '_playerOnKeyEvent(): ${e.runtimeType}: ${e.logicalKey.keyLabel}');
 
     if (!_playerIsOnTop) {
       return KeyEventResult.ignored;
     }
 
-    //  only deal with new key down events
-    if (value.runtimeType != RawKeyDownEvent) {
+    //  only deal with new key down or repeat events
+    if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
-    RawKeyDownEvent e = value as RawKeyDownEvent;
+
+    var keyboard = HardwareKeyboard();
     logger.log(
         _logKeyboard,
-        '_playerOnKey(): ${e.data.logicalKey}'
-        ', ctl: ${e.isControlPressed}'
-        ', shf: ${e.isShiftPressed}'
-        ', alt: ${e.isAltPressed}');
+        '_playerOnKey(): ${e.logicalKey}'
+        ', ctl: ${keyboard.isControlPressed}'
+        ', shf: ${keyboard.isShiftPressed}'
+        ', alt: ${keyboard.isAltPressed}');
 
-    if (e.isKeyPressed(LogicalKeyboardKey.keyM)) {
+    if (e.logicalKey == LogicalKeyboardKey.keyM) {
       _tempoTap();
       return KeyEventResult.handled;
-    } else if (e.isKeyPressed(LogicalKeyboardKey.space)) {
+    } else if (e.logicalKey == LogicalKeyboardKey.space) {
       switch (_songUpdateState) {
         case SongUpdateState.idle:
         case SongUpdateState.none:
@@ -1181,7 +1191,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       return KeyEventResult.handled;
     } else if (
         //  workaround for cheap foot pedal... only outputs b
-        e.isKeyPressed(LogicalKeyboardKey.keyB)) {
+        e.logicalKey == LogicalKeyboardKey.keyB) {
       switch (_songUpdateState) {
         case SongUpdateState.idle:
         case SongUpdateState.none:
@@ -1197,19 +1207,19 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       }
       return KeyEventResult.handled;
     } else if (!_songUpdateService.isFollowing) {
-      if (e.isKeyPressed(LogicalKeyboardKey.arrowDown) || e.isKeyPressed(LogicalKeyboardKey.numpadAdd)) {
+      if (e.logicalKey == LogicalKeyboardKey.arrowDown || e.logicalKey == LogicalKeyboardKey.numpadAdd) {
         _bump(1);
         return KeyEventResult.handled;
-      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp) || e.isKeyPressed(LogicalKeyboardKey.numpadSubtract)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowUp || e.logicalKey == LogicalKeyboardKey.numpadSubtract) {
         _bump(-1);
         return KeyEventResult.handled;
-      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         _bpmBump(1);
         return KeyEventResult.handled;
-      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         _bpmBump(-1);
         return KeyEventResult.handled;
-      } else if (e.isKeyPressed(LogicalKeyboardKey.keyZ) || e.isKeyPressed(LogicalKeyboardKey.keyQ)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.keyZ || e.logicalKey == LogicalKeyboardKey.keyQ) {
         if (_songUpdateState.isPlaying) {
           _performStop();
         } else {
@@ -1219,7 +1229,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           Navigator.pop(context);
         }
         return KeyEventResult.handled;
-      } else if (e.isKeyPressed(LogicalKeyboardKey.numpadEnter) || e.isKeyPressed(LogicalKeyboardKey.enter)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.numpadEnter || e.logicalKey == LogicalKeyboardKey.enter) {
         switch (_songUpdateState) {
           case SongUpdateState.none:
           case SongUpdateState.idle:
@@ -1240,7 +1250,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             break;
         }
         return KeyEventResult.handled;
-      } else if (e.isKeyPressed(LogicalKeyboardKey.numpad0)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.numpad0) {
         switch (_songUpdateState) {
           case SongUpdateState.playing:
             _performPause();
@@ -1798,7 +1808,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     return _anchorUrlStart + Uri.encodeFull(widget._song.artist);
   }
 
-  void _navigateToEdit(BuildContext context, Song song) async {
+  void _navigateToEdit(final BuildContext context, Song song) async {
     _playerIsOnTop = false;
     _cancelIdleTimer();
     await Navigator.pushNamed(
@@ -1809,7 +1819,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     //  return to list if song was removed
     if (!app.allSongs.contains(_song)) {
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.pop(context);
       return;
     }
     _playerIsOnTop = true;

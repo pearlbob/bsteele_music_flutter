@@ -65,7 +65,7 @@ const bool _editDebugVerbose = kDebugMode && false;
 const Level _editLog = Level.debug;
 const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
-const Level _editKeyboard = Level.debug;
+const Level _editKeyboard = Level.info;
 const Level _logProChordsForLyrics = Level.debug;
 const Level _logUndoStack = Level.debug;
 
@@ -494,9 +494,9 @@ class EditState extends State<Edit> {
       body:
           //  deal with keyboard strokes flutter is not usually handling
           //  note that return (i.e. enter) is not a keyboard event!
-          RawKeyboardListener(
+          KeyboardListener(
         focusNode: FocusNode(),
-        onKey: editOnKey,
+        onKeyEvent: _editOnKey,
         child: Column(
           children: [
             app.messageTextWidget(AppKeyEnum.editErrorMessage),
@@ -2195,53 +2195,43 @@ class EditState extends State<Edit> {
 
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
-  void editOnKey(RawKeyEvent value) {
-    logger.t('editOnKey($value)');
+  void _editOnKey(KeyEvent e) {
+    logger.i('editOnKey(${e.logicalKey.keyLabel})');
     //  fixme: edit screen does not respond to escape after the detail screen
-    if (value.runtimeType == RawKeyDownEvent) {
-      RawKeyDownEvent e = value as RawKeyDownEvent;
-      logger.log(
-          _editKeyboard,
-          'edit onKey:'
-          //' ${e.data.logicalKey}'
-          //', primaryFocus: ${_focusManager.primaryFocus}'
-          ', context: ${focusManager.primaryFocus?.context}'
-          // ', ctl: ${e.isControlPressed}'
-          // ', shf: ${e.isShiftPressed}'
-          // ', alt: ${e.isAltPressed}'
-          //
-          );
+    if (e is KeyDownEvent || e is KeyRepeatEvent) {
       logger.d(
-          'isControlPressed?: keyLabel:\'${e.data.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
-      if (e.isControlPressed) {
+          'isControlPressed?: keyLabel:\'${e.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
+      var keyboard = HardwareKeyboard();
+      if (keyboard.isControlPressed) {
         logger.d(
-            'isControlPressed: keyLabel:\'${e.data.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
-        if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
+            'isControlPressed: keyLabel:\'${e.logicalKey.keyLabel}\', ${LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()}');
+        if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
           if (selectedEditPoint != null && measureEntryValid) {
             performEdit(endOfRow: true);
           }
           logger.d('main onKey: found arrowDown');
-        } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
           if (selectedEditPoint != null && measureEntryValid) {
             performEdit(endOfRow: false);
           }
-        } else if (e.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
+        } else if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
           logger.d('main onKey: found arrowUp');
-        } else if (e.data.logicalKey == LogicalKeyboardKey.undo) {
+        } else if (e.logicalKey == LogicalKeyboardKey.undo) {
           //  not that likely
-          if (e.isShiftPressed) {
+          if (keyboard.isShiftPressed) {
             redo();
           } else {
             undo();
           }
-        } else if (e.data.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()) //fixme
+        } else if (keyboard.isShiftPressed &&
+            e.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toUpperCase()) //fixme
         {
           redo();
-        } else if (e.data.logicalKey.keyLabel == LogicalKeyboardKey.keyZ.keyLabel.toLowerCase()) //fixme
+        } else if (e.logicalKey == LogicalKeyboardKey.keyZ) //fixme
         {
           undo();
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.escape)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.escape) {
         /// clear editing with the escape key
         // but don't pop from edit screen
         // if (_measureEntryIsClear && !(hasChangedFromOriginal || _lyricsEntries.hasChangedLines())) {
@@ -2250,7 +2240,7 @@ class EditState extends State<Edit> {
         {
           performMeasureEntryCancel();
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.enter) || e.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.enter || e.logicalKey == LogicalKeyboardKey.numpadEnter) {
         logger.d('e.isKeyPressed(enter)');
         if (isProEditInput) {
           setState(() {
@@ -2260,12 +2250,12 @@ class EditState extends State<Edit> {
         {
           performEdit(done: false, endOfRow: true);
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         int baseOffset = editTextController.selection.extentOffset;
         if (baseOffset > 0) {
           editTextController.selection = TextSelection(baseOffset: baseOffset - 1, extentOffset: baseOffset - 1);
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         int extentOffset = editTextController.selection.extentOffset;
 
         //  cancel multi character selection
@@ -2277,7 +2267,7 @@ class EditState extends State<Edit> {
             editTextController.selection = TextSelection(baseOffset: extentOffset + 1, extentOffset: extentOffset + 1);
           }
         }
-      } else if (e.isKeyPressed(LogicalKeyboardKey.delete)) {
+      } else if (e.logicalKey == LogicalKeyboardKey.delete) {
         logger.d('main onKey: delete: "${editTextController.text}", ${editTextController.selection}');
         if (editTextController.text.isEmpty) {
           if (selectedEditPoint?.measureEditType == MeasureEditType.replace) {
@@ -2325,7 +2315,7 @@ class EditState extends State<Edit> {
       //     // );
       //   }
       // }
-      else if (e.isKeyPressed(LogicalKeyboardKey.space) && selectedEditPoint != null) {
+      else if (e.logicalKey == LogicalKeyboardKey.space && selectedEditPoint != null) {
         logger.log(_editKeyboard, 'main onKey: space: "${editTextController.text}", ${editTextController.selection}');
         int extentOffset = editTextController.selection.extentOffset;
 
@@ -2336,10 +2326,10 @@ class EditState extends State<Edit> {
           performEdit();
         }
       } else {
-        logger.d('main onKey: not processed: "${e.data.logicalKey}"');
+        logger.d('main onKey: not processed: "${e.logicalKey}"');
       }
     }
-    logger.d('post edit onKey: value: $value');
+    logger.d('post edit onKey: value: ${e.logicalKey.keyLabel}');
   }
 
   Widget nullEditGridDisplayWidget() {

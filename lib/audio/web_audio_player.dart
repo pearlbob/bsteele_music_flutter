@@ -1,6 +1,3 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
-
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
@@ -73,9 +70,6 @@ class WebAudioPlayer implements AppAudioPlayer {
 
   static final WebAudioPlayer _instance = WebAudioPlayer._privateConstructor();
   final JsAudioFilePlayer _audioFilePlayer = JsAudioFilePlayer();
-
-  //  fixme: bogus use of dart html to keep android studio happy with conditional compile workaround
-  final File? file = null;
 }
 
 AppAudioPlayer getAudioPlayer() => WebAudioPlayer();

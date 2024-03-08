@@ -55,6 +55,7 @@ const Level _logFontSizeDetail = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricsBuild = Level.debug;
+const Level _logLocationGrid = Level.debug;
 const Level _logHeights = Level.debug;
 const Level _logLyricsTableItems = Level.debug;
 const Level _logLyricSectionNotifier = Level.debug;
@@ -182,14 +183,11 @@ class LyricSectionNotifier extends ChangeNotifier {
 
 /// compute a lyrics table
 class LyricsTable {
-  List<Widget> lyricsTableItems(
-    Song song,
-    BuildContext context, {
+  List<Widget> lyricsTableItems(Song song, {
     music_key.Key? musicKey,
     expanded = false,
   }) {
     var usTimer = UsTimer();
-    appWidgetHelper = AppWidgetHelper(context);
     displayMusicKey = musicKey ?? song.key;
     _nashvilleSelection = _appOptions.nashvilleSelection;
     _maxLines = 1;
@@ -199,7 +197,7 @@ class LyricsTable {
     var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle, expanded: expanded);
     logger.log(_logLyricsBuild, 'lyricsBuild: displayGrid: ${usTimer.deltaToString()}');
 
-    _locationGrid = Grid<_SongCellWidget>();
+    _cellGrid = Grid<_SongCellWidget>();
 
     //  compute transposition offset from base key
 
@@ -223,7 +221,7 @@ class LyricsTable {
                 var lyricSection = song.lyricSections[c];
                 assert(chordSection == song.findChordSectionByLyricSection(lyricSection));
                 _colorBySectionVersion(chordSection.sectionVersion);
-                _locationGrid.set(
+                _cellGrid.set(
                   r,
                   c,
                   _SongCellWidget(
@@ -260,7 +258,7 @@ class LyricsTable {
             //  subsequent rows
             switch (c) {
               case 0:
-                _locationGrid.set(
+                _cellGrid.set(
                   r,
                   c,
                   _SongCellWidget(
@@ -277,7 +275,7 @@ class LyricsTable {
                 );
                 break;
               case 1:
-                _locationGrid.set(
+                _cellGrid.set(
                   r,
                   c,
                   _SongCellWidget(
@@ -316,7 +314,7 @@ class LyricsTable {
                   ChordSection? chordSection = song.findChordSectionByLyricSection(lyricSection);
                   if (chordSection != null) {
                     _colorBySectionVersion(chordSection.sectionVersion);
-                    _locationGrid.set(
+                    _cellGrid.set(
                       r,
                       c,
                       _SongCellWidget(
@@ -337,7 +335,7 @@ class LyricsTable {
                 } else if (mn?.measureNodeType == MeasureNodeType.section) {
                   ChordSection chordSection = mn as ChordSection;
                   _colorBySectionVersion(chordSection.sectionVersion);
-                  _locationGrid.set(
+                  _cellGrid.set(
                     r,
                     c,
                     _SongCellWidget(
@@ -361,7 +359,7 @@ class LyricsTable {
                   //   show the chords
                   ChordSection chordSection = mn as ChordSection;
                   _colorBySectionVersion(chordSection.sectionVersion);
-                  _locationGrid.set(
+                  _cellGrid.set(
                     r,
                     c,
                     _SongCellWidget(
@@ -385,7 +383,7 @@ class LyricsTable {
                   );
                 } else if (mn is Lyric) {
                   //  color done by prior chord section
-                  _locationGrid.set(
+                  _cellGrid.set(
                     r,
                     c,
                     _SongCellWidget(
@@ -424,11 +422,11 @@ class LyricsTable {
             switch (banner) {
               case BannerColumn.chordSections:
                 var chordSection = mn is ChordSection ? mn : null;
-                _locationGrid.set(
+                _cellGrid.set(
                   banner.index,
                   momentNumber,
                   chordSection == null
-                      ? _SongCellWidget.empty(
+                      ? _SongCellWidget._empty(
                           isFixedHeight: true,
                         )
                       : _SongCellWidget(
@@ -446,11 +444,11 @@ class LyricsTable {
                 break;
               case BannerColumn.repeats:
                 var marker = mn is MeasureRepeatMarker ? mn : null;
-                _locationGrid.set(
+                _cellGrid.set(
                   banner.index,
                   momentNumber,
                   marker == null
-                      ? _SongCellWidget.empty(
+                      ? _SongCellWidget._empty(
                           isFixedHeight: true,
                         )
                       : _SongCellWidget(
@@ -468,11 +466,11 @@ class LyricsTable {
                 break;
               case BannerColumn.lyrics:
                 var lyric = mn is Lyric ? mn : null;
-                _locationGrid.set(
+                _cellGrid.set(
                   banner.index,
                   momentNumber,
                   lyric == null
-                      ? _SongCellWidget.empty()
+                      ? _SongCellWidget._empty()
                       : _SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -487,11 +485,11 @@ class LyricsTable {
                 );
                 break;
               default:
-                _locationGrid.set(
+                _cellGrid.set(
                   banner.index,
                   momentNumber,
                   mn == null
-                      ? _SongCellWidget.empty()
+                      ? _SongCellWidget._empty()
                       : _SongCellWidget(
                           richText: RichText(
                             text: TextSpan(
@@ -544,7 +542,7 @@ class LyricsTable {
                     var songCellType = _appOptions.userDisplayStyle == UserDisplayStyle.both
                         ? SongCellType.lyric
                         : SongCellType.lyricEllipsis;
-                    _locationGrid.set(
+                    _cellGrid.set(
                       r,
                       c,
                       _SongCellWidget(
@@ -619,7 +617,7 @@ class LyricsTable {
                         break;
                     }
 
-                    _locationGrid.set(
+                    _cellGrid.set(
                       r,
                       c,
                       _SongCellWidget(
@@ -636,7 +634,7 @@ class LyricsTable {
 
                 default:
                   //  color done by prior chord section
-                  _locationGrid.set(
+                  _cellGrid.set(
                     r,
                     c,
                     _SongCellWidget(
@@ -671,7 +669,7 @@ class LyricsTable {
       row = row!;
 
       for (var c = 0; c < row.length; c++) {
-        var cell = _locationGrid.get(r, c);
+        var cell = _cellGrid.get(r, c);
         if (cell == null) {
           continue; //  for example, first column in lyrics for singer display style
         }
@@ -694,7 +692,7 @@ class LyricsTable {
         //  even up the banner width's
         var width = 0.0;
         var r = BannerColumn.chords.index;
-        var row = _locationGrid.getRow(r);
+        var row = _cellGrid.getRow(r);
         assert(row != null);
         row = row!;
 
@@ -719,9 +717,9 @@ class LyricsTable {
           row = row!;
 
           for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-            var cell = _locationGrid.get(r, c);
+            var cell = _cellGrid.get(r, c);
             if (cell != null) {
-              _locationGrid.set(r, c, cell.copyWith(columnWidth: width));
+              _cellGrid.set(r, c, cell.copyWith(columnWidth: width));
             }
           }
         }
@@ -735,7 +733,7 @@ class LyricsTable {
           row = row!;
 
           for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-            var cell = _locationGrid.get(r, c);
+            var cell = _cellGrid.get(r, c);
             if (cell != null) {
               height = max(height, cell.computedBuildSize.height);
               logger.log(
@@ -749,9 +747,9 @@ class LyricsTable {
           //  apply the new height
           heights[r] = height;
           for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-            var cell = _locationGrid.get(r, c);
+            var cell = _cellGrid.get(r, c);
             if (cell != null) {
-              _locationGrid.set(r, c, cell.copyWith(size: Size(cell.buildSize.width, height)));
+              _cellGrid.set(r, c, cell.copyWith(size: Size(cell.buildSize.width, height)));
             }
           }
         }
@@ -874,19 +872,19 @@ class LyricsTable {
     }
     _maxLines = _appOptions.userDisplayStyle == UserDisplayStyle.player ? 1 : _defaultMaxLines;
 
-    //  set the location grid sizing
+    //  set the cell grid sizing
     final double xMargin = 2.0 * _marginSize;
     final double yMargin = xMargin; // same size as x
     {
       double y = 0;
-      for (var r = 0; r < _locationGrid.getRowCount(); r++) {
-        var row = _locationGrid.getRow(r);
+      for (var r = 0; r < _cellGrid.getRowCount(); r++) {
+        var row = _cellGrid.getRow(r);
         assert(row != null);
         row = row!;
 
         double x = arrowIndicatorWidth * _scaleFactor;
         for (var c = 0; c < row.length; c++) {
-          var cell = _locationGrid.get(r, c);
+          var cell = _cellGrid.get(r, c);
           if (cell != null) {
             double? width;
             switch (cell.type) {
@@ -898,7 +896,7 @@ class LyricsTable {
             }
 
             cell = cell.copyWith(textScaleFactor: _scaleFactor, columnWidth: width, point: Point(x, y));
-            _locationGrid.set(r, c, cell);
+            _cellGrid.set(r, c, cell);
             // logger.log(_logHeights, 'heights: ${heights[r]} vs ${cell.buildSize.height}');
             heights[r] = max(heights[r], cell.buildSize.height); //  for banner mode
           }
@@ -914,13 +912,14 @@ class LyricsTable {
 
     //  map from song moment to cell grid
     for (var songMoment in song.songMoments) {
-      logger.t('map: ${songMoment.momentNumber}:'
-          ' ${song.songMomentToGridCoordinate[songMoment.momentNumber]}');
       var gc = song.songMomentToGridCoordinate[songMoment.momentNumber];
-      _locationGrid.setAt(
+      //  notice that the last moment at the grid cell overwrites prior moments in a non-expanded repeat row
+      assert(_cellGrid.at(gc) != null);
+      _cellGrid.setAt(
         gc,
-        _locationGrid.at(gc)?.copyWith(songMoment: songMoment),
+        _cellGrid.at(gc)?.copyWith(songMoment: songMoment),
       );
+      logger.log(_logLocationGrid, '_logLocationGrid[$gc] = $songMoment');
     }
     logger.log(_logLyricsBuild, 'lyricsBuild: songMoment mapping: ${usTimer.deltaToString()}');
 
@@ -931,7 +930,7 @@ class LyricsTable {
           for (var c = 0; c < song.songMoments.length; c++) {
             List<_SongCellWidget> columnChildren = [];
             for (var r = 0; r < BannerColumn.values.length; r++) {
-              var cell = _locationGrid.get(r, c);
+              var cell = _cellGrid.get(r, c);
               assert(cell != null);
               columnChildren.add(cell!.copyWith(size: Size(widths[c], heights[r])));
             }
@@ -944,7 +943,7 @@ class LyricsTable {
 
         for (var c = 0; c < song.songMoments.length; c++) {
           for (var r = 0; r < BannerColumn.values.length; r++) {
-            var cell = _locationGrid.get(r, c);
+            var cell = _cellGrid.get(r, c);
             // logger.i( 'banner cell: ($r,$c): $cell');
             // assert(cell != null );
             if (cell != null) {}
@@ -957,8 +956,8 @@ class LyricsTable {
         {
           List<Widget> sectionChildren = [];
           LyricSection? lastLyricSection;
-          for (var r = 0; r < _locationGrid.getRowCount(); r++) {
-            var row = _locationGrid.getRow(r);
+          for (var r = 0; r < _cellGrid.getRowCount(); r++) {
+            var row = _cellGrid.getRow(r);
             assert(row != null);
             row = row!;
 
@@ -972,7 +971,7 @@ class LyricsTable {
             List<Widget> rowChildren = [];
             for (var c = 0; c < row.length; c++) {
               Widget child;
-              var cell = _locationGrid.get(r, c);
+              var cell = _cellGrid.get(r, c);
               if (cell == null) {
                 child = AppSpace(
                   horizontalSpace: widths[c] + xMargin,
@@ -1076,18 +1075,18 @@ class LyricsTable {
     //  build the lookups for song moment and lyric sections
     {
       int lastSongMomentNumber = 0;
-      _songMomentNumberToRowMap.clear();
+      _songMomentNumberToGridRowMap.clear();
       _lyricSectionIndexToRowMap.clear();
-      _songMomentNumberToRowMap[0] = 0;
-      for (var r = 0; r < _locationGrid.getRowCount(); r++) {
+      _songMomentNumberToGridRowMap[0] = 0;
+      for (var r = 0; r < _cellGrid.getRowCount(); r++) {
         logger.log(_logLyricsTableItems, 'row $r:');
-        var row = _locationGrid.getRow(r);
+        var row = _cellGrid.getRow(r);
         assert(row != null);
         row = row!;
         _rowCount = r;
 
         for (var c = 0; c < row.length; c++) {
-          var cell = _locationGrid.get(r, c);
+          var cell = _cellGrid.get(r, c);
           if (cell == null) {
             continue; //  for example, first column in lyrics for singer display style
           }
@@ -1099,7 +1098,7 @@ class LyricsTable {
             _lyricSectionIndexToRowMap[songMoment.lyricSection.index] = r;
           }
           while (songMoment.momentNumber >= lastSongMomentNumber) {
-            _songMomentNumberToRowMap[lastSongMomentNumber] = r;
+            _songMomentNumberToGridRowMap[lastSongMomentNumber] = r;
             lastSongMomentNumber++;
           }
           logger.log(
@@ -1434,7 +1433,7 @@ class LyricsTable {
   void _displayChordSection(GridCoordinate gc, ChordSection chordSection, MeasureNode measureNode,
       {bool? selectable, int? lyricSectionIndex}) {
     _colorBySectionVersion(chordSection.sectionVersion);
-    _locationGrid.setAt(
+    _cellGrid.setAt(
       gc,
       _SongCellWidget(
         richText: RichText(
@@ -1484,20 +1483,22 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
-  int songMomentNumberToRow(final int? rowNumber) {
+  int songMomentNumberToGridRow(final int? rowNumber) {
     if (rowNumber == null) {
       return 0;
     }
-    return _songMomentNumberToRowMap[rowNumber] ?? 0 /* should never be null */;
+    return _songMomentNumberToGridRowMap[rowNumber] //
+        ??
+        0 /* should never be null */;
   }
 
   int rowToLyricSectionIndex(final int row) {
-    if (_locationGrid.isEmpty) {
+    if (_cellGrid.isEmpty) {
       return 0;
     }
     //  fixme: to weak
     //  find the grid row
-    var gridRow = _locationGrid.getRow(Util.intLimit(row, 0, _locationGrid.getRowCount() - 1));
+    var gridRow = _cellGrid.getRow(Util.intLimit(row, 0, _cellGrid.getRowCount() - 1));
     if (gridRow == null || gridRow.isEmpty) {
       return 0;
     }
@@ -1510,8 +1511,8 @@ class LyricsTable {
     return 0;
   }
 
-  int rowToMomentNumber(final int row) {
-    if (_locationGrid.isEmpty) {
+  int gridRowToMomentNumber(final int row) {
+    if (_cellGrid.isEmpty) {
       return 0;
     }
 
@@ -1519,12 +1520,15 @@ class LyricsTable {
     for (int r = row; r <= row + 1; r++) {
       //  fixme: too weak
       //  find the grid row
-      var gridRow = _locationGrid.getRow(Util.intLimit(r, 0, _locationGrid.getRowCount() - 1));
+      //  note that on a non-expanded repeat, the highest moment in that grid location will be there
+      var gridRow = _cellGrid.getRow(Util.intLimit(r, 0, _cellGrid.getRowCount() - 1));
       if (gridRow == null || gridRow.isEmpty) {
         continue;
       }
-      //  find the lyric section from the row
+
+      //  find the moment number from the row
       for (var cell in gridRow) {
+        // logger.i('     r: $r, cell: ${cell?.songMoment}');
         if (cell != null && cell.songMoment != null) {
           return cell.songMoment!.momentNumber;
         }
@@ -1559,7 +1563,7 @@ class LyricsTable {
 
   double get marginSize => _marginSize;
 
-  Grid<_SongCellWidget> _locationGrid = Grid();
+  Grid<_SongCellWidget> _cellGrid = Grid();
 
   TextStyle get chordTextStyle => _chordTextStyle;
   TextStyle _chordTextStyle = generateAppTextStyle();
@@ -1578,10 +1582,8 @@ class LyricsTable {
   int get rowCount => _rowCount;
   int _rowCount = 0;
 
-  final Map<int, int> _songMomentNumberToRowMap = HashMap();
+  final Map<int, int> _songMomentNumberToGridRowMap = HashMap();
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
-
-  late AppWidgetHelper appWidgetHelper;
 
   music_key.Key displayMusicKey = music_key.Key.C;
   final AppOptions _appOptions = AppOptions();
@@ -1700,18 +1702,18 @@ class _SongCellWidget extends StatefulWidget {
     this.rowHasReducedBeats = false,
   });
 
-  _SongCellWidget.empty({
+  _SongCellWidget._empty({
     this.type = SongCellType.columnFill,
     this.measureNode,
     this.lyricSectionIndex,
     this.lyricSectionSet,
     this.size,
     this.point,
-    this.columnWidth,
-    this.withEllipsis,
+    this.columnWidth = 0,
+    this.withEllipsis = false,
     this.songMoment,
-    this.expanded,
-    this.selectable,
+    this.expanded = false,
+    this.selectable = false,
     this.isFixedHeight = false,
     this.rowHasReducedBeats = false,
   }) : richText = _emptyRichText;

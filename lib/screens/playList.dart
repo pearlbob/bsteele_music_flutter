@@ -9,7 +9,6 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
@@ -145,7 +144,7 @@ class SongPlayListItem implements PlayListItem {
           children: [
             AppWrap(children: [
               if (firstWidget != null) firstWidget!,
-              if (firstWidget != null) const AppSpace(spaceFactor: 1.0),
+              if (firstWidget != null) const AppSpace(),
               songWidget,
               const AppSpace(),
               customWidget ?? NullWidget(),
@@ -765,7 +764,7 @@ class _PlayListState extends State<PlayList> {
                         }),
                       )),
 
-                  const AppSpace(spaceFactor: 2.0),
+                  const AppSpace(),
                   //  filters
                   AppTooltip(
                       message: '''Filter the list by the selected metadata.

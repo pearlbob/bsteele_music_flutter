@@ -108,7 +108,7 @@ class OptionsState extends State<Options> {
                           appKeyEnum: AppKeyEnum.optionsUserName,
                           controller: _userTextEditingController,
                           hintText: 'Enter your user name.',
-                          width: appDefaultFontSize * 40,
+                          width: (style.fontSize ?? appDefaultFontSize) * 40,
                           onChanged: (value) {
                             if (value.isNotEmpty) {
                               logger.log(_logUserNameEntry, 'user name onChanged: $value');

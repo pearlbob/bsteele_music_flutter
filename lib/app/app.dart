@@ -411,7 +411,12 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
 
 @immutable
 class AppSpace extends StatelessWidget {
-  const AppSpace({super.key, this.space, this.spaceFactor = 1.0, this.horizontalSpace, this.verticalSpace});
+  const AppSpace(
+      {super.key,
+      this.space,
+      //this.spaceFactor = 1.0,
+      this.horizontalSpace,
+      this.verticalSpace});
 
   static const double defaultSpace = 10;
 
@@ -433,7 +438,7 @@ class AppSpace extends StatelessWidget {
   }
 
   final double? space;
-  final double spaceFactor;
+  static const double spaceFactor = 1;
   final double? horizontalSpace;
   final double? verticalSpace;
 }
@@ -734,8 +739,8 @@ class AppWidgetHelper {
         children: [
           checkbox,
           const AppSpace(
-            spaceFactor: 0.5,
-          ),
+              //    spaceFactor: 0.5,
+              ),
           Text(
             label,
             style: style,

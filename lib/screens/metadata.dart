@@ -215,10 +215,10 @@ class MetadataScreenState extends State<MetadataScreen> {
                             : null,
                       ),
                     ]),
-                    const AppSpace(spaceFactor: 2),
+                    const AppSpace(horizontalSpace: 20),
                     Text('Set or clear metadata Name:Value pairs:',
                         style: metadataStyle.copyWith(fontWeight: FontWeight.bold)),
-                    const AppSpace(spaceFactor: 2),
+                    const AppSpace(horizontalSpace: 20),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -233,7 +233,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                             });
                           },
                         ),
-                        const AppSpace(spaceFactor: 4),
+                        const AppSpace(horizontalSpace: 20),
                         Text('New: ', style: metadataStyle),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,7 +272,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     )),
                               ],
                             ),
-                            const AppSpace(spaceFactor: 1),
+                            const AppSpace(horizontalSpace: 20),
                             DropdownButton<String>(
                                 hint: Text('Existing names', style: metadataStyle),
                                 items: nameDropdownMenuItems,
@@ -314,7 +314,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     fontSize: fontSize,
                                   ),
                                 ),
-                                const AppSpace(spaceFactor: 2),
+                                const AppSpace(horizontalSpace: 20),
                                 //  search clear
                                 AppTooltip(
                                     message: 'Clear the value text.',
@@ -332,7 +332,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     )),
                               ],
                             ),
-                            const AppSpace(spaceFactor: 2),
+                            const AppSpace(horizontalSpace: 20),
                             if (_nameTextFieldController.text.isNotEmpty)
                               DropdownButton<String>(
                                   hint: Text('Values of ${_nameTextFieldController.text}', style: metadataStyle),

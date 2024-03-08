@@ -281,9 +281,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           });
         }
         if (_songMaster.momentNumber != null && _songMaster.momentNumber! >= 0) {
-          var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
+          var row = _lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber);
           // _lyricSectionNotifier.setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
-          _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToRow(_songMaster.lastMomentNumber));
+          _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToGridRow(_songMaster.lastMomentNumber));
         }
         break;
       case SongUpdateState.playing:
@@ -296,9 +296,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               _songMaster.songUpdateState, _songMaster.momentNumber!, _song.getSongMoment(_songMaster.momentNumber!));
 
           if (_songMaster.momentNumber! >= 0) {
-            var row = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
+            var row = _lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber);
             _lyricSectionNotifier.setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
-            _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToRow(_songMaster.lastMomentNumber));
+            _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToGridRow(_songMaster.lastMomentNumber));
           }
         }
         break;
@@ -459,7 +459,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
-      context,
       musicKey: _displaySongKey,
       expanded: !_compressRepeats,
     );
@@ -1400,11 +1399,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             }
           }
         }
-        var songMasterIndex = _lyricsTable.songMomentNumberToRow(_songMaster.momentNumber);
+        var songMasterIndex = _lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber);
         logger.log(
             _logPlayerItemPositions,
             'itemPositionsListener():  skip to: ${firstItem.index}'
-            ', selectedItem: ${selectedItem.index} at ${_lyricsTable.rowToMomentNumber(selectedItem.index)}'
+            ', selectedItem: ${selectedItem.index} at ${_lyricsTable.gridRowToMomentNumber(selectedItem.index)}'
             ', _songMaster: $songMasterIndex at ${_songMaster.momentNumber}'
             ', isAnimated: $_isAnimated'
             //
@@ -1412,7 +1411,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
         //  move the song to the scrolled location
         if (selectedItem.index != songMasterIndex) {
-          _songMaster.skipToMomentNumber(_song, _lyricsTable.rowToMomentNumber(selectedItem.index));
+          _songMaster.skipToMomentNumber(_song, _lyricsTable.gridRowToMomentNumber(selectedItem.index));
         }
       }
     }
@@ -1578,7 +1577,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
 
     //  update the widgets
-    var row = _lyricsTable.songMomentNumberToRow(momentNumber);
+    var row = _lyricsTable.songMomentNumberToGridRow(momentNumber);
     _lyricSectionNotifier.setIndexRow(moment.lyricSection.index, row);
     _itemScrollToRow(row);
     logger.log(_logManualPlayScrollAnimation, 'manualPlay sectionRequest: index: $_lyricSectionNotifier');

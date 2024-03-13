@@ -1022,15 +1022,16 @@ class EditState extends State<Edit> {
                                       '\n',
                                   style: appTextStyle,
                                 ),
-                                TextSpan(
-                                  text: '\n'
-                                      '"Assisted Input" is a user interface experiment that seems to have failed.'
-                                      ' The intent is to provide graphical interactions to the user that will always'
-                                      ' provide a valid chord entry.  Click a plus sign to add an element.'
-                                      ' Click an item to modify it.'
-                                      ' It is now recommended to use the "Pro Input" mode.\n',
-                                  style: appTextStyle,
-                                ),
+                                if (appEnableAssistedEditing)
+                                  TextSpan(
+                                    text: '\n'
+                                        '"Assisted Input" is a user interface experiment that seems to have failed.'
+                                        ' The intent is to provide graphical interactions to the user that will always'
+                                        ' provide a valid chord entry.  Click a plus sign to add an element.'
+                                        ' Click an item to modify it.'
+                                        ' It is now recommended to use the "Pro Input" mode.\n',
+                                    style: appTextStyle,
+                                  ),
                                 TextSpan(
                                   text: '\n'
                                       'Section types are followed by a colon (:).'

@@ -147,6 +147,13 @@ var _mainUsTimer = UsTimer();
 void main() async {
   Logger.level = kDebugMode ? Level.info : Level.warning;
 
+  if (kDebugMode) {
+    debugProfileBuildsEnabled = true;
+    debugProfileBuildsEnabledUserWidgets = true;
+    // debugProfilePaintsEnabled= false;
+    // debugProfileLayoutsEnabled = false;
+  }
+
   //  prior to the first build
   WidgetsFlutterBinding.ensureInitialized().scheduleWarmUpFrame();
   var appOptions = AppOptions();

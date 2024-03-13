@@ -12,6 +12,7 @@
 
 ### Fix
 
+* edit: remove adaptive entry in hints
 * text entry for bpm, remove dropdown
 * nashville beat dots as an option
 * Resume on next section after pause

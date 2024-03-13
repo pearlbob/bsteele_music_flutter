@@ -183,7 +183,8 @@ class LyricSectionNotifier extends ChangeNotifier {
 
 /// compute a lyrics table
 class LyricsTable {
-  List<Widget> lyricsTableItems(Song song, {
+  List<Widget> lyricsTableItems(
+    Song song, {
     music_key.Key? musicKey,
     expanded = false,
   }) {
@@ -2006,7 +2007,7 @@ class _SongCellState extends State<_SongCellWidget> {
             }
             chordIndex++;
           }
-          textWidget = AppWrap(children: chordWidgets);
+          textWidget = SizedBox(width: width, height: height, child: AppWrap(children: chordWidgets));
         }
       }
     }

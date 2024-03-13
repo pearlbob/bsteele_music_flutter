@@ -1,7 +1,6 @@
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/key.dart';
-import 'package:bsteele_music_lib/songs/measure.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:logger/logger.dart';

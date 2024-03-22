@@ -1086,31 +1086,36 @@ class LyricsTable {
         row = row!;
         _rowCount = r;
 
+        // var rowHeight = 0.0;
         for (var c = 0; c < row.length; c++) {
           var cell = _cellGrid.get(r, c);
           if (cell == null) {
             continue; //  for example, first column in lyrics for singer display style
           }
+          // rowHeight = max(rowHeight, heights[r]);
           var songMoment = cell.songMoment;
-          if (songMoment == null) {
-            continue;
-          }
-          if (_lyricSectionIndexToRowMap[songMoment.lyricSection.index] == null) {
-            _lyricSectionIndexToRowMap[songMoment.lyricSection.index] = r;
-          }
-          while (songMoment.momentNumber >= lastSongMomentNumber) {
-            _songMomentNumberToGridRowMap[lastSongMomentNumber] = r;
-            lastSongMomentNumber++;
+          if (songMoment != null) {
+            if (_lyricSectionIndexToRowMap[songMoment.lyricSection.index] == null) {
+              _lyricSectionIndexToRowMap[songMoment.lyricSection.index] = r;
+            }
+            while (songMoment.momentNumber >= lastSongMomentNumber) {
+              _songMomentNumberToGridRowMap[lastSongMomentNumber] = r;
+              lastSongMomentNumber++;
+            }
           }
           logger.log(
               _logLyricsTableItems,
-              '  $c: songMoment: $songMoment, repeat: ${songMoment.repeatMax}'
-              ', lyricSection.index: ${songMoment.lyricSection.index}'
+              '  ($c,$r): songMoment: $songMoment, repeat: ${songMoment?.repeatMax}'
+              ', lyricSection.index: ${songMoment?.lyricSection.index}'
+              ', height: ${heights[r]}'
               // ',  ${cell?.measureNode}'
               );
         }
+        // logger.i('rowHeight = $rowHeight');
+        // logger.i('_marginSize = $_marginSize');
       }
     }
+
     // logger.i((SplayTreeSet<int>.from(_songMomentNumberToRowMap.keys)
     //     .map((k) => '$k -> ${_songMomentNumberToRowMap[k]}')).toList().toString());
     // logger.i((SplayTreeSet<int>.from(_lyricSectionIndexToRowMap.keys)

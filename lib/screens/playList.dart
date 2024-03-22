@@ -24,7 +24,7 @@ const Level _logConstruct = Level.debug;
 const Level _logInitState = Level.debug;
 const Level _logBuild = Level.debug;
 const Level _logPosition = Level.debug;
-const Level _logPlayListRefreshNotifier = Level.info;
+const Level _logPlayListRefreshNotifier = Level.debug;
 const Level _logFilters = Level.debug;
 const Level _logKeyboard = Level.debug;
 

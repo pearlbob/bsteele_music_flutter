@@ -65,7 +65,7 @@ const bool _editDebugVerbose = kDebugMode && false;
 const Level _editLog = Level.debug;
 const Level _editEditPoint = Level.debug;
 const Level _editLyricEntry = Level.debug;
-const Level _editKeyboard = Level.info;
+const Level _editKeyboard = Level.debug;
 const Level _logProChordsForLyrics = Level.debug;
 const Level _logUndoStack = Level.debug;
 

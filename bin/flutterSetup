@@ -1,7 +1,8 @@
 #!/bin/tcsh
 #set echo; set verbose
 
-set git=~/github/bsteeleMusicFlutter
+set git=~/github/bsteele_music_flutter
+
 cd $git
 
 #	build the release version

@@ -468,7 +468,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             itemScrollController: _itemScrollController,
             itemPositionsListener: _playerItemPositionsListener,
             itemBuilder: (context, index) {
-              return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
+              return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
             },
             scrollDirection: Axis.horizontal,
             //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
@@ -479,7 +479,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             itemScrollController: _itemScrollController,
             itemPositionsListener: _playerItemPositionsListener,
             itemBuilder: (context, index) {
-              return lyricsTableItems[Util.limit(index, 0, lyricsTableItems.length) as int];
+              return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
             },
             scrollDirection: Axis.vertical,
             //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
@@ -540,7 +540,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           _songMaster.stop();
         });
 
-    // boxMarker = boxCenterHeight(AppBar().preferredSize.height );
+    boxMarker = boxCenterHeight(AppBar().preferredSize.height);
 
     _bpmTextEditingController.text = (playerSelectedBpm ?? _song.beatsPerMinute).toString();
 
@@ -577,18 +577,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ),
                     ),
 
-                    // //  center marker
-                    // if (_centerSelections &&
-                    //     (_appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
-                    //   Positioned(
-                    //     top: boxMarker,
-                    //     child: Container(
-                    //       constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth / 128, 3)),
-                    //       decoration: const BoxDecoration(
-                    //         color: Colors.black87,
-                    //       ),
-                    //     ),
-                    //   ),
+                    //  center marker
+                    if (_centerSelections &&
+                        (_appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
+                      Positioned(
+                        top: boxMarker,
+                        child: Container(
+                          constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth, 3)),
+                          decoration: const BoxDecoration(
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
 
                     //  song chords and lyrics
                     Focus(
@@ -1268,10 +1268,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _songMaster.playDrums(widget._song, _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
-  // double boxCenterHeight(final double toolbarHeight) {
-  //  fixme: this is wrong
-  //   return 2*toolbarHeight + app.screenInfo.mediaHeight * _scrollAlignment;
-  // }
+  double boxCenterHeight(final double toolbarHeight) {
+    // fixme: this is wrong
+    return 2 * toolbarHeight + app.screenInfo.mediaHeight * _scrollAlignment;
+  }
 
   _clearCountIn() {
     _updateCountIn(-countInMax);
@@ -1379,6 +1379,24 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   _itemPositionsListener() {
     if (_isAnimated || !_songUpdateService.isLeader) {
       //  don't follow the animation
+      if (kDebugMode) {
+        var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
+          return e1.index.compareTo(e2.index);
+        })
+          ..addAll(_playerItemPositionsListener.itemPositions.value);
+        logger.log(_logPlayerItemPositions,
+            '_itemPositionsListener: ${_playerItemPositionsListener.itemPositions.value.length}');
+        if (orderedSet.isNotEmpty) {
+          for (ItemPosition item in orderedSet) {
+            logger.log(
+                _logPlayerItemPositions,
+                '   ${item.index}: '
+                ', selectedItem: lead: ${item.itemLeadingEdge} to ${item.itemTrailingEdge}'
+                //
+                );
+          }
+        }
+      }
       return;
     }
 
@@ -1554,12 +1572,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               : const Duration(milliseconds: 400));
       logger.log(
           _logScrollAnimation,
-          'scrollTo(): index: $row, _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
+          'scrollTo(): index: $row'
+          ', _scrollAlignment: $_scrollAlignment'
+          // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
           ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
+      logger.i('scrollTo row: $row');
+
       _itemScrollController
-          .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.decelerate)
+          .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
           .then((value) {
         // Future.delayed(const Duration(milliseconds: 400)).then((_) {
         _lastRowIndex = row;
@@ -1810,22 +1832,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   void _navigateToEdit(final BuildContext context, Song song) async {
     _playerIsOnTop = false;
     _cancelIdleTimer();
-    await Navigator.pushNamed(
-      context,
-      Edit.routeName,
-    );
-
-    //  return to list if song was removed
-    if (!app.allSongs.contains(_song)) {
-      if (!mounted) return;
-      Navigator.pop(context);
-      return;
-    }
-    _playerIsOnTop = true;
-    _assignNewSong(app.selectedSong);
-    _lyricSectionNotifier.setIndexRow(0, 0);
-    _forceTableRedisplay();
-    _resetIdleTimer();
+    Navigator.pushNamed(context, Edit.routeName).then((value) {
+      //  return to list if song was removed
+      if (!app.allSongs.contains(_song)) {
+        if (mounted) Navigator.pop(context);
+        return;
+      }
+      _playerIsOnTop = true;
+      _assignNewSong(app.selectedSong);
+      _lyricSectionNotifier.setIndexRow(0, 0);
+      _forceTableRedisplay();
+      _resetIdleTimer();
+    });
   }
 
   Future<void> _navigateToDrums(BuildContext context, Song song) {
@@ -2669,10 +2687,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
-  // static const _centerSelections = true;
+  static const _centerSelections = true;
   static const _scrollAlignment = 0.25;
 
-  // double boxMarker = 0;
+  double boxMarker = 0;
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   Timer? _idleTimer;

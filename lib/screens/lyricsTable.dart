@@ -24,6 +24,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_lib/util/util.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -962,10 +963,17 @@ class LyricsTable {
             assert(row != null);
             row = row!;
 
-            sectionChildren.add(AppSpace(
-              horizontalSpace: arrowIndicatorWidth * _scaleFactor,
-              verticalSpace: r == 0 ? initialVerticalOffset : 0,
-            ));
+            {
+              var appSpace = AppSpace(
+                horizontalSpace: arrowIndicatorWidth * _scaleFactor,
+                verticalSpace: r == 0 //
+                    //  allow the top to hang below the configuration above: fixme?
+                    ? initialVerticalOffset * _scaleFactor
+                    : 0,
+              );
+              sectionChildren.add(appSpace);
+              heights[r] = max(heights[r], appSpace.verticalSpace ?? 0);
+            }
 
             LyricSection? lyricSection = lastLyricSection;
 
@@ -1077,8 +1085,11 @@ class LyricsTable {
     {
       int lastSongMomentNumber = 0;
       _songMomentNumberToGridRowMap.clear();
+      _rowToDisplayOffset.clear();
       _lyricSectionIndexToRowMap.clear();
       _songMomentNumberToGridRowMap[0] = 0;
+      _rowToDisplayOffset[0] = 0;
+      double displayOffset = 0;
       for (var r = 0; r < _cellGrid.getRowCount(); r++) {
         logger.log(_logLyricsTableItems, 'row $r:');
         var row = _cellGrid.getRow(r);
@@ -1086,15 +1097,14 @@ class LyricsTable {
         row = row!;
         _rowCount = r;
 
-        // var rowHeight = 0.0;
         for (var c = 0; c < row.length; c++) {
           var cell = _cellGrid.get(r, c);
           if (cell == null) {
             continue; //  for example, first column in lyrics for singer display style
           }
-          // rowHeight = max(rowHeight, heights[r]);
           var songMoment = cell.songMoment;
           if (songMoment != null) {
+            _rowToDisplayOffset[r] = displayOffset;
             if (_lyricSectionIndexToRowMap[songMoment.lyricSection.index] == null) {
               _lyricSectionIndexToRowMap[songMoment.lyricSection.index] = r;
             }
@@ -1107,12 +1117,13 @@ class LyricsTable {
               _logLyricsTableItems,
               '  ($c,$r): songMoment: $songMoment, repeat: ${songMoment?.repeatMax}'
               ', lyricSection.index: ${songMoment?.lyricSection.index}'
-              ', height: ${heights[r]}'
+              ', height: ${heights[r].toStringAsFixed(1)}'
+              ', displayOffset: ${displayOffset.toStringAsFixed(1)}'
               // ',  ${cell?.measureNode}'
               );
         }
-        // logger.i('rowHeight = $rowHeight');
-        // logger.i('_marginSize = $_marginSize');
+
+        displayOffset += heights[r];
       }
     }
 
@@ -1120,6 +1131,8 @@ class LyricsTable {
     //     .map((k) => '$k -> ${_songMomentNumberToRowMap[k]}')).toList().toString());
     // logger.i((SplayTreeSet<int>.from(_lyricSectionIndexToRowMap.keys)
     //     .map((k) => '$k -> ${_lyricSectionIndexToRowMap[k]}')).toList().toString());
+    // logger.i((SplayTreeSet<int>.from(_songMomentNumberToDisplayOffset.keys)
+    //     .map((k) => '$k -> ${_songMomentNumberToDisplayOffset[k]?.toStringAsFixed(1)}')).toList().toString());
 
     return items;
   }
@@ -1498,6 +1511,28 @@ class LyricsTable {
         0 /* should never be null */;
   }
 
+  double rowToDisplayOffset(final int? rowNumber) {
+    if (rowNumber == null) {
+      return 0;
+    }
+    return _rowToDisplayOffset[rowNumber] ?? 0 /* should never be null */;
+  }
+
+  int displayOffsetToRow(final double offset) {
+    if (_rowToDisplayOffset.isEmpty) {
+      return 0;
+    }
+    //  fixme: optimize this reverse lookup
+    int limit = _rowToDisplayOffset.keys.length;
+    for (var row = 0; row < limit; row++) {
+      var rowOffset = _rowToDisplayOffset[row];
+      if ((rowOffset ?? 0) > offset) {
+        return max(0, row - 1);
+      }
+    }
+    return limit - 1;
+  }
+
   int rowToLyricSectionIndex(final int row) {
     if (_cellGrid.isEmpty) {
       return 0;
@@ -1583,12 +1618,14 @@ class LyricsTable {
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
 
+  double get scaleFactor => _scaleFactor;
   double _scaleFactor = 1.0;
 
   int get rowCount => _rowCount;
   int _rowCount = 0;
 
   final Map<int, int> _songMomentNumberToGridRowMap = HashMap();
+  final Map<int, double> _rowToDisplayOffset = HashMap();
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
 
   music_key.Key displayMusicKey = music_key.Key.C;
@@ -1681,7 +1718,12 @@ class _LyricSectionIndicatorCellState extends State<LyricSectionIndicatorCellWid
                   size: widget.fontSize,
                   color: _songUpdateState == SongUpdateState.playing ? _playHighlightColor : _idleHighlightColor,
                 ))
-            : NullWidget() // hold the horizontal space in the grid
+            : (kDebugMode
+                ? Text(
+                    widget.row.toString(),
+                    style: appTextStyle,
+                  )
+                : NullWidget()) // hold the horizontal space in the grid
         );
   }
 

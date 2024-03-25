@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:collection';
+import 'dart:math';
 
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
@@ -26,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
@@ -72,7 +71,7 @@ const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-const Level _logPlayerItemPositions = Level.debug;
+// const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -184,7 +183,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
-    _playerItemPositionsListener.itemPositions.addListener(_itemPositionsListener);
+    _listScrollController.addListener(_listScrollListener);
 
     app.clearMessage();
   }
@@ -242,6 +241,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     _bpmTextEditingController.dispose();
+    _listScrollController.removeListener(_listScrollListener);
+    _listScrollController.dispose();
     _rawKeyboardListenerFocusNode.dispose();
 
     super.dispose();
@@ -443,7 +444,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     logger.log(
         _logScroll,
-        // ' boxMarker: $boxMarker'
+        ' boxMarker: $boxMarker'
         ', _scrollAlignment: $_scrollAlignment'
         ', _songUpdate?.momentNumber: ${_songUpdate?.momentNumber}');
     logger.log(_logMode, 'playMode: $_songUpdateState');
@@ -462,11 +463,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       musicKey: _displaySongKey,
       expanded: !_compressRepeats,
     );
-    _scrollablePositionedList ??= _appOptions.userDisplayStyle == UserDisplayStyle.banner
-        ? ScrollablePositionedList.builder(
+    _listView ??= _appOptions.userDisplayStyle == UserDisplayStyle.banner
+        ? ListView.builder(
             itemCount: _song.songMoments.length + 1,
-            itemScrollController: _itemScrollController,
-            itemPositionsListener: _playerItemPositionsListener,
+            controller: _listScrollController,
             itemBuilder: (context, index) {
               return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
             },
@@ -474,15 +474,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
           )
         : //  all other display styles
-        ScrollablePositionedList.builder(
+        ListView.builder(
             itemCount: lyricsTableItems.length,
-            itemScrollController: _itemScrollController,
-            itemPositionsListener: _playerItemPositionsListener,
+            controller: _listScrollController,
             itemBuilder: (context, index) {
-              return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
+              return lyricsTableItems[index];
             },
             scrollDirection: Axis.vertical,
-            //minCacheExtent: app.screenInfo.mediaHeight, //  fixme: is this desirable?
           );
 
     final backBar = _appWidgetHelper.backBar(
@@ -540,7 +538,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           _songMaster.stop();
         });
 
-    boxMarker = boxCenterHeight(AppBar().preferredSize.height);
+    boxMarker = boxCenterHeight();
 
     _bpmTextEditingController.text = (playerSelectedBpm ?? _song.beatsPerMinute).toString();
 
@@ -583,7 +581,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       Positioned(
                         top: boxMarker,
                         child: Container(
-                          constraints: BoxConstraints.loose(Size(app.screenInfo.mediaWidth, 3)),
+                          constraints: BoxConstraints.tight(Size(app.screenInfo.mediaWidth, 3)),
                           decoration: const BoxDecoration(
                             color: Colors.black87,
                           ),
@@ -637,7 +635,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                           }
                                         }
                                       },
-                                      child: _scrollablePositionedList)),
+                                      child: _listView)),
                           ]),
                     ),
                     //  controls
@@ -1268,9 +1266,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _songMaster.playDrums(widget._song, _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
   }
 
-  double boxCenterHeight(final double toolbarHeight) {
-    // fixme: this is wrong
-    return 2 * toolbarHeight + app.screenInfo.mediaHeight * _scrollAlignment;
+  double boxCenterHeight() {
+    // fixme: this is might be wrong
+    var height = (app.screenInfo.mediaHeight - AppBar().preferredSize.height) * _scrollAlignment;
+    // logger.i('boxCenterHeight:  (${app.screenInfo.mediaHeight} - ${AppBar().preferredSize.height})'
+    //     ' * $_scrollAlignment = $height');
+    return height;
   }
 
   _clearCountIn() {
@@ -1376,63 +1377,17 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
   }
 
-  _itemPositionsListener() {
+  _listScrollListener() {
     if (_isAnimated || !_songUpdateService.isLeader) {
       //  don't follow the animation
-      if (kDebugMode) {
-        var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-          return e1.index.compareTo(e2.index);
-        })
-          ..addAll(_playerItemPositionsListener.itemPositions.value);
-        logger.log(_logPlayerItemPositions,
-            '_itemPositionsListener: ${_playerItemPositionsListener.itemPositions.value.length}');
-        if (orderedSet.isNotEmpty) {
-          for (ItemPosition item in orderedSet) {
-            logger.log(
-                _logPlayerItemPositions,
-                '   ${item.index}: '
-                ', selectedItem: lead: ${item.itemLeadingEdge} to ${item.itemTrailingEdge}'
-                //
-                );
-          }
-        }
-      }
       return;
     }
 
-    //  move to the scrolled to location, if scrolled
-    var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-      return e1.index.compareTo(e2.index);
-    })
-      ..addAll(_playerItemPositionsListener.itemPositions.value);
-    if (orderedSet.isNotEmpty) {
-      var firstItem = orderedSet.first;
-      if (firstItem.index > 0) {
-        //  find the index at the scroll alignment
-        var selectedItem = firstItem;
-        {
-          for (ItemPosition item in orderedSet) {
-            if (item.itemLeadingEdge < _scrollAlignment + 0.04 /*tolerance*/) {
-              selectedItem = item;
-            }
-          }
-        }
-        var songMasterIndex = _lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber);
-        logger.log(
-            _logPlayerItemPositions,
-            'itemPositionsListener():  skip to: ${firstItem.index}'
-            ', selectedItem: ${selectedItem.index} at ${_lyricsTable.gridRowToMomentNumber(selectedItem.index)}'
-            ', _songMaster: $songMasterIndex at ${_songMaster.momentNumber}'
-            ', isAnimated: $_isAnimated'
-            //
-            );
+    // var offset = _listScrollController.offset + boxMarker;
+    // logger.i('_itemPositionsListener(): offset: $offset (${_listScrollController.offset})'
+    //     ' moment: ${_lyricsTable.displayOffsetToSongMomentNumber(offset)}, ');
 
-        //  move the song to the scrolled location
-        if (selectedItem.index != songMasterIndex) {
-          _songMaster.skipToMomentNumber(_song, _lyricsTable.gridRowToMomentNumber(selectedItem.index));
-        }
-      }
-    }
+    //  move to the scrolled to location, if scrolled
 
     // switch (songUpdateState) {
     //   case SongUpdateState.idle:
@@ -1498,7 +1453,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   _itemScrollToRow(int row, {final bool force = false, int? priorIndex}) {
     //logger.i('_itemScrollToRow($row, $force, $priorIndex):');
-    if (_itemScrollController.isAttached) {
+    if (_listScrollController.hasClients) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
         return;
@@ -1554,6 +1509,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       // }
       double rowTime = secondsPerMeasure;
       priorIndex ??= _lastRowIndex;
+      _lastRowIndex = row;
       // if (row > priorIndex && nextRowMomentNumber > rowMomentNumber) {
       //   rowTime = ((_song.getSongMoment(nextRowMomentNumber)?.beatNumber ?? 0) -
       //           (_song.getSongMoment(rowMomentNumber)?.beatNumber ?? 0)) *
@@ -1570,24 +1526,23 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           : (row >= priorIndex
               ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
               : const Duration(milliseconds: 400));
+
+      double offset = _lyricsTable.rowToDisplayOffset(row);
+      offset = max(0, offset - boxMarker + LyricsTable.initialVerticalOffset * _lyricsTable.scaleFactor);
+
       logger.log(
           _logScrollAnimation,
-          'scrollTo(): index: $row'
-          ', _scrollAlignment: $_scrollAlignment'
+          'scrollTo(): row: $row'
+          ', offset: $offset'
           // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}');
+          //     ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}'
+          //
+          );
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
-      logger.i('scrollTo row: $row');
-
-      _itemScrollController
-          .scrollTo(index: row, duration: duration, alignment: _scrollAlignment, curve: Curves.linear)
-          .then((value) {
-        // Future.delayed(const Duration(milliseconds: 400)).then((_) {
-        _lastRowIndex = row;
+      _listScrollController.animateTo(offset, duration: duration, curve: Curves.linear).then((value) {
         _isAnimated = false;
         logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
-        // });
       });
     }
   }
@@ -1876,7 +1831,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   void _forceTableRedisplay() {
     logger.log(_logBuild, 'forceTableRedisplay():');
     setState(() {
-      _scrollablePositionedList = null;
+      _listView = null;
     });
   }
 
@@ -2677,18 +2632,17 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   int _countIn = 0;
   Widget _countInWidget = NullWidget();
 
-  ScrollablePositionedList? _scrollablePositionedList;
-  final ItemScrollController _itemScrollController = ItemScrollController();
+  ListView? _listView;
+  final ScrollController _listScrollController = ScrollController();
   bool _isAnimated = false;
   int _lastRowIndex = 0;
-  final _playerItemPositionsListener = ItemPositionsListener.create();
 
   Size? _lastSize;
 
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   static const _centerSelections = true;
-  static const _scrollAlignment = 0.25;
+  static const _scrollAlignment = 0.40;
 
   double boxMarker = 0;
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

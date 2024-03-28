@@ -71,7 +71,7 @@ const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-// const Level _logPlayerItemPositions = Level.debug;
+const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -539,6 +539,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         });
 
     boxMarker = boxCenterHeight();
+    initialVerticalOffset = LyricsTable.initialVerticalOffset * _lyricsTable.scaleFactor;
 
     _bpmTextEditingController.text = (playerSelectedBpm ?? _song.beatsPerMinute).toString();
 
@@ -565,10 +566,18 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: <Color>[
-                              theme.colorScheme.background,
+                            colors: const <Color>[
+                              App.screenBackgroundColor,
+                              App.screenBackgroundColor,
                               App.measureContainerBackgroundColor,
-                              App.measureContainerBackgroundColor,
+                              App.screenBackgroundColor,
+                            ],
+                            stops: [
+                              0.0,
+                              initialVerticalOffset / app.screenInfo.mediaHeight,
+                              boxMarker / app.screenInfo.mediaHeight,
+                              // - initialVerticalOffset / app.screenInfo.mediaHeight,
+                              1.0
                             ],
                           ),
                         ),
@@ -576,8 +585,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                     ),
 
                     //  center marker
-                    if (_centerSelections &&
-                        (_appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
+                    if (kDebugMode && (_appOptions.playerScrollHighlight == PlayerScrollHighlight.off || kDebugMode))
                       Positioned(
                         top: boxMarker,
                         child: Container(
@@ -642,7 +650,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
                     Container(
                       padding: const EdgeInsets.all(6.0),
-                      color: const Color(0xf0e4ecfc), //  light blue with a little transparency
+                      color: theme.colorScheme.background.withAlpha(0xe8), //  with a little transparency
                       //            theme.colorScheme.background.withAlpha(230),
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -1268,7 +1276,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   double boxCenterHeight() {
     // fixme: this is might be wrong
-    var height = (app.screenInfo.mediaHeight - AppBar().preferredSize.height) * _scrollAlignment;
+    var height = initialVerticalOffset + (app.screenInfo.mediaHeight - initialVerticalOffset) * _scrollAlignment;
     // logger.i('boxCenterHeight:  (${app.screenInfo.mediaHeight} - ${AppBar().preferredSize.height})'
     //     ' * $_scrollAlignment = $height');
     return height;
@@ -1383,49 +1391,32 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       return;
     }
 
-    // var offset = _listScrollController.offset + boxMarker;
-    // logger.i('_itemPositionsListener(): offset: $offset (${_listScrollController.offset})'
-    //     ' moment: ${_lyricsTable.displayOffsetToSongMomentNumber(offset)}, ');
+    var offset = _listScrollController.offset + boxMarker; //  fixme!!!!!!!!!!!!!!!!!!!
 
-    //  move to the scrolled to location, if scrolled
-
-    // switch (songUpdateState) {
-    //   case SongUpdateState.idle:
-    //   case SongUpdateState.none:
-    //   case SongUpdateState.pause:
-    //     //  followers get to follow even if not in play
-    //
-    //     // switch (appOptions.userDisplayStyle) {
-    //     //   case UserDisplayStyle.banner:
-    //     //     break;
-    //     //   default:
-    //     //     logger.t('_isAnimated: $_isAnimated, playMode: $songUpdateState');
-    //     //     if (_isAnimated || songUpdateState.isPlaying) {
-    //     //       return; //  don't follow scrolling when animated or playing
-    //     //     }
-    //     //     var orderedSet = SplayTreeSet<ItemPosition>((e1, e2) {
-    //     //       return e1.index.compareTo(e2.index);
-    //     //     })
-    //     //       ..addAll(playerItemPositionsListener.itemPositions.value);
-    //     //     if (orderedSet.isNotEmpty) {
-    //     //       var item = orderedSet.first;
-    //     //       _selectMomentByRow(item.index + (item.itemLeadingEdge < -0.04 ? 1 : 0));
-    //     //       logger.log(
-    //     //           _logPlayerItemPositions,
-    //     //           'playerItemPositionsListener:  length: ${orderedSet.length}'
-    //     //           ', _lyricSectionNotifier.index: ${_lyricSectionNotifier.lyricSectionIndex}');
-    //     //       logger.log(
-    //     //           _logPlayerItemPositions,
-    //     //           '   ${item.index}: ${item.itemLeadingEdge.toStringAsFixed(3)}'
-    //     //           ' to ${item.itemTrailingEdge.toStringAsFixed(3)}');
-    //     //     }
-    //     //     break;
-    //     // }
-    //     break;
-    //   case SongUpdateState.playing:
-    //     //  following done by the song update service
-    //     break;
-    // }
+    //  move to the scrolled to location, if scrolled by the leader
+    switch (_songUpdateState) {
+      case SongUpdateState.idle:
+      case SongUpdateState.none:
+      case SongUpdateState.pause:
+      case SongUpdateState.drumTempo:
+        //  followers get to follow even if not in play
+        switch (_appOptions.userDisplayStyle) {
+          case UserDisplayStyle.banner:
+            break;
+          default:
+            _leaderSongUpdate(_lyricsTable.displayOffsetToSongMomentNumber(offset));
+            logger.log(
+                _logPlayerItemPositions,
+                '_itemPositionsListener(): offset: ${offset.toStringAsFixed(1)}'
+                ' (${_listScrollController.offset.toStringAsFixed(1)})'
+                ' moment: ${_lyricsTable.displayOffsetToSongMomentNumber(offset)}, ');
+            break;
+        }
+        break;
+      case SongUpdateState.playing:
+        //  following done by the song update service
+        break;
+    }
   }
 
   _scrollToLyricSection(int index, {final bool force = false}) {
@@ -1456,7 +1447,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     if (_listScrollController.hasClients) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
-        return;
       }
       if (row < 0) {
         return;
@@ -1497,9 +1487,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         return;
       }
 
-      //  local scroll
-      _isAnimated = true;
-
       //  guess a duration based on the song and the row
       var secondsPerMeasure = _song.beatsPerBar * 60.0 / _song.beatsPerMinute;
       // var rowMomentNumber = _lyricsTable.rowToMomentNumber(row);
@@ -1521,14 +1508,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       //           ' rowTime: ${rowTime.toStringAsFixed(3)}');
       // }
 
-      var duration = force
-          ? const Duration(milliseconds: 20)
+      var duration = force //
+              ||
+              _isAnimated //  compound scroll, perform quickly
+          ? const Duration(milliseconds: 200)
           : (row >= priorIndex
-              ? Duration(milliseconds: (0.8 * rowTime * Duration.millisecondsPerSecond).toInt())
-              : const Duration(milliseconds: 400));
+              ? Duration(milliseconds: (rowTime * Duration.millisecondsPerSecond).toInt())
+              : const Duration(milliseconds: 200));
 
       double offset = _lyricsTable.rowToDisplayOffset(row);
-      offset = max(0, offset - boxMarker + LyricsTable.initialVerticalOffset * _lyricsTable.scaleFactor);
+      offset = max(0, offset - boxMarker + initialVerticalOffset);
 
       logger.log(
           _logScrollAnimation,
@@ -1540,6 +1529,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           );
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
+      //  local scroll
+      _isAnimated = true;
       _listScrollController.animateTo(offset, duration: duration, curve: Curves.linear).then((value) {
         _isAnimated = false;
         logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
@@ -2641,10 +2632,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
-  static const _centerSelections = true;
-  static const _scrollAlignment = 0.40;
+  // static const _centerSelections = true;
+  static const _scrollAlignment = 0.3;
 
   double boxMarker = 0;
+  double initialVerticalOffset = 100;
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
   Timer? _idleTimer;

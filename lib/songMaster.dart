@@ -14,7 +14,7 @@ import 'package:logger/logger.dart';
 import 'app/appOptions.dart';
 import 'audio/app_audio_player.dart';
 
-const Level _logSongMasterTicker = Level.debug; //kDebugMode ? Level.info : Level.debug;
+const Level _logSongMasterTicker = Level.debug;
 const Level _songMasterLogTickerDetails = Level.debug;
 const Level _songMasterLogDelta = Level.debug;
 const Level _songMasterLogMaxDelta = Level.debug;
@@ -135,7 +135,7 @@ class SongMaster extends ChangeNotifier {
         _skipToMomentNumber = null;
         _resetSongStart(time, momentNumber);
         _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
-        logger.log(_songMasterLogAdvance, 'skip to momentNumber:  $momentNumber');
+        logger.log(_songMasterLogAdvance, 'songMaster: skip to momentNumber:  $momentNumber');
         notifyListeners();
       }
 

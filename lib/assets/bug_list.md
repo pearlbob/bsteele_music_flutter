@@ -12,6 +12,7 @@
 
 ### Fix
 
+* edit: "A higher place" last line of chords too large for lyrics entry
 * edit: remove adaptive entry in hints
 * text entry for bpm, remove dropdown
 * nashville beat dots as an option

@@ -804,7 +804,11 @@ TextButton appTextButton(
       _appLogCallback(key);
       onPressed?.call();
     },
-    style: ButtonStyle(textStyle: MaterialStateProperty.all(style)),
+    style: ButtonStyle(
+      textStyle: MaterialStateProperty.all(style),
+      padding: MaterialStateProperty.all(EdgeInsets.all((style?.fontSize ?? 12.0) / 2)),
+      minimumSize: MaterialStateProperty.all(Size.square(style?.fontSize ?? 12.0)),
+    ),
     child: Text(
       text,
       style: style,

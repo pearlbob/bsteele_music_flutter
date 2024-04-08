@@ -540,10 +540,10 @@ class AppWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.end,
+      crossAxisAlignment: crossAxisAlignment ?? WrapCrossAlignment.center,
       alignment: alignment ?? WrapAlignment.start,
       spacing: spacing ?? 0.0,
-      runSpacing: 5,
+      runSpacing: 3,
       children: children,
     );
   }

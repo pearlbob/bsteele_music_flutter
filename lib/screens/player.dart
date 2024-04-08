@@ -1004,7 +1004,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                 _songUpdateState == SongUpdateState.idle)
                               AppWrapFullWidth(spacing: 20, children: [
                                 const AppSpace(),
-                                AppWrap(spacing: 10, children: [
+                                AppWrap(spacing: 10 * fontSize, children: [
                                   Text(
                                     'Ninjam: BPM: ${playerSelectedBpm ?? _song.beatsPerMinute.toString()}',
                                     style: _headerTextStyle,
@@ -1019,7 +1019,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     },
                                   ),
                                 ]),
-                                AppWrap(spacing: 10, children: [
+                                AppWrap(spacing: 10 * fontSize, children: [
                                   Text(
                                     'Cycle: ${_ninJam.beatsPerInterval}',
                                     style: _headerTextStyle,
@@ -1033,7 +1033,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     },
                                   ),
                                 ]),
-                                AppWrap(spacing: 10, children: [
+                                AppWrap(spacing: 10 * fontSize, children: [
                                   Text(
                                     'Chords: ${_ninJam.toMarkup()}',
                                     style: _headerTextStyle,
@@ -1873,7 +1873,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   Future<void> _settingsPopup() async {
-    var popupStyle = _headerTextStyle.copyWith(fontSize: (_headerTextStyle.fontSize ?? app.screenInfo.fontSize) * 0.7);
+    var popupStyle = _headerTextStyle.copyWith(fontSize: (_headerTextStyle.fontSize ?? app.screenInfo.fontSize));
     var boldStyle = popupStyle.copyWith(fontWeight: FontWeight.bold);
 
     await showDialog(

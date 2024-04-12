@@ -1135,7 +1135,7 @@ class LyricsTable {
               lastSongMomentNumber++;
             }
           } else if (cell.measureNode is Lyric) {
-            var lyric = cell.measureNode as Lyric;
+            //var lyric = cell.measureNode as Lyric;
             //logger.i('  lyric: ($c,$r): ${lyric.repeat}: $lyric ');
           }
           logger.log(

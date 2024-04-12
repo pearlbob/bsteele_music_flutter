@@ -148,7 +148,7 @@ class SongMaster extends ChangeNotifier {
           var moment = _song!.getSongMoment(momentNumber);
           if (moment != null) {
             //  find the next lyric section
-            var size = _song!.getSongMomentsSize();
+            var size = _song!.songMoments.length;
             while (moment?.lyricSection.index == lyricSectionIndex) {
               momentNumber++;
               if (momentNumber >= size - 1) {
@@ -427,7 +427,7 @@ class SongMaster extends ChangeNotifier {
 
   skipToMomentNumber(final Song song, final int momentNumber) {
     _song = song.copyWith();
-    _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.getSongMomentsSize() ?? 1) - 1);
+    _skipToMomentNumber = Util.intLimit(momentNumber, 0, (_song?.songMoments.length ?? 1) - 1);
   }
 
   /// Play a drums in real time

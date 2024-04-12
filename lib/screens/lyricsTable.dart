@@ -699,7 +699,7 @@ class LyricsTable {
         heights[r] = max(heights[r], cell.buildSize.height);
       }
     }
-    logger.log(_logHeights, 'heights: $heights');
+    logger.log(_logHeights, 'raw heights: $heights');
 
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
@@ -911,13 +911,15 @@ class LyricsTable {
 
             cell = cell.copyWith(textScaleFactor: _scaleFactor, columnWidth: width, point: Point(x, y));
             _cellGrid.set(r, c, cell);
-            // logger.log(_logHeights, 'heights: ${heights[r]} vs ${cell.buildSize.height}');
-            heights[r] = max(heights[r], cell.buildSize.height); //  for banner mode
+            // logger.log(_logHeights,
+            //     'heights: r:$r, ${heights[r].toStringAsFixed(1)} vs ${cell.buildSize.height.toStringAsFixed(1)}');
+            heights[r] = max(heights[r], cell.buildSize.height);
           }
           x += widths[c] + xMargin;
         }
         y += heights[r] + yMargin;
       }
+      logger.log(_logHeights, 'heights: ${heights.join(', ')}');
     }
 
     logger.log(_logLyricsBuild, 'lyricsBuild: scaling: ${usTimer.deltaToString()}');
@@ -1158,7 +1160,7 @@ class LyricsTable {
     {
       double offset = 0;
       int lastR = 0;
-      _songMomentNumberToDisplayOffset = List<double>.filled(song.getSongMomentsSize(), 0.0);
+      _songMomentNumberToDisplayOffset = List<double>.filled(song.songMoments.length, 0.0);
       for (var songMoment in song.songMoments) {
         assert(_songMomentNumberToGridRowMap[songMoment.momentNumber] != null);
         var r = _songMomentNumberToGridRowMap[songMoment.momentNumber] ?? lastR;
@@ -1681,7 +1683,7 @@ class LyricsTable {
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
-  static const double initialVerticalOffset = 100;
+  static const double initialVerticalOffset = 102;
 
   Color _sectionBackgroundColor = Colors.white;
   TextStyle _coloredSectionTextStyle = generateLyricsTextStyle();
@@ -1713,7 +1715,8 @@ enum _SongCellType {
 }
 
 class _LyricSectionIndicatorCellWidget extends StatefulWidget {
-  _LyricSectionIndicatorCellWidget({required this.lyricSection,
+  _LyricSectionIndicatorCellWidget(
+      {required this.lyricSection,
       required this.row,
       required this.width,
       required this.height,

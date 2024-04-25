@@ -12,6 +12,10 @@
 
 ### Fix
 
+* edit: Single click capitalization correction
+* web doesn't scroll smoothly
+* on web, don't exit if in editor with dirty data
+* accurate edit complaints: based on auto validate?
 * edit: "A higher place" last line of chords too large for lyrics entry
 * edit: remove adaptive entry in hints
 * text entry for bpm, remove dropdown

@@ -977,18 +977,6 @@ class LyricsTable {
             assert(row != null);
             row = row!;
 
-            {
-              var appSpace = AppSpace(
-                horizontalSpace: arrowIndicatorWidth * _scaleFactor,
-                verticalSpace: r == 0 //
-                    //  allow the top to hang below the configuration widgets above: fixme?
-                    ? initialVerticalOffset * _scaleFactor
-                    : 0,
-              );
-              sectionChildren.add(appSpace);
-              heights[r] = max(heights[r], appSpace.verticalSpace ?? 0);
-            }
-
             LyricSection? lyricSection = lastLyricSection;
 
             List<Widget> rowChildren = [];
@@ -1683,7 +1671,6 @@ class LyricsTable {
 
   TextStyle get lyricsTextStyle => _lyricsTextStyle;
   TextStyle _lyricsTextStyle = generateLyricsTextStyle();
-  static const double initialVerticalOffset = 102;
 
   Color _sectionBackgroundColor = Colors.white;
   TextStyle _coloredSectionTextStyle = generateLyricsTextStyle();
@@ -2031,10 +2018,10 @@ class _SongCellState extends State<_SongCellWidget> {
             break;
         }
 
-        // // for efficiency, use the existing child
-        // if (isNowSelected == selected && child != null) {
-        //   return child;
-        // }
+        // for efficiency, use the existing child
+        if (isNowSelected == selected && child != null) {
+          return child;
+        }
         selected = isNowSelected;
         return childBuilder(context);
       },

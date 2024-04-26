@@ -41,6 +41,7 @@ dependencies:
   csv:
   string_similarity:
   package_info_plus:
+  gamepads:
   bsteele_music_lib:
     path: ../bsteeleMusicLib/bsteele_music_lib
 

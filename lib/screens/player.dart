@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bsteele_music_flutter/app/app_theme.dart';
@@ -24,6 +25,7 @@ import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gamepads/gamepads.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
@@ -41,6 +43,8 @@ bool _playerIsOnTop = false;
 SongUpdate? _songUpdate;
 SongUpdate? _lastSongUpdateSent;
 _PlayerState? _player;
+
+GamePad _gamePad = GamePad();
 
 //  package level variables
 Song _song = Song.theEmptySong;
@@ -188,6 +192,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _listScrollController.addListener(_listScrollListener);
 
     app.clearMessage();
+
+    _gamePad.addListener(() {
+      _forwardSwitchPressed();
+    });
   }
 
   _assignNewSong(final Song song) {
@@ -246,6 +254,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _listScrollController.removeListener(_listScrollListener);
     _listScrollController.dispose();
     _rawKeyboardListenerFocusNode.dispose();
+    _gamePad.cancel();
 
     super.dispose();
   }
@@ -1062,35 +1071,35 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   }
 
                                   //  respond to taps above and below the middle of the screen
-                                      if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                                        if (_songUpdateState != SongUpdateState.playing) {
-                                          //  start manual play
-                                          _setStatePlay();
-                                        } else {
-                                          //  while playing:
-                                          var offset = _tableGlobalOffset();
-                                          if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
-                                            //  tablet left arrow
-                                            _bpmBump(-1);
-                                          } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
-                                            //  tablet right arrow
-                                            _bpmBump(1);
+                                  if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
+                                    if (_songUpdateState != SongUpdateState.playing) {
+                                      //  start manual play
+                                      _setStatePlay();
+                                    } else {
+                                      //  while playing:
+                                      var offset = _tableGlobalOffset();
+                                      if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
+                                        //  tablet left arrow
+                                        _bpmBump(-1);
+                                      } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
+                                        //  tablet right arrow
+                                        _bpmBump(1);
+                                      } else {
+                                        if (details.globalPosition.dy > offset.dy) {
+                                          if (details.globalPosition.dy < constraints.maxHeight / 2) {
+                                            //  tablet up arrow
+                                            _songMaster.repeatSectionIncrement();
                                           } else {
-                                            if (details.globalPosition.dy > offset.dy) {
-                                              if (details.globalPosition.dy < constraints.maxHeight / 2) {
-                                                //  tablet up arrow
-                                                _songMaster.repeatSectionIncrement();
-                                              } else {
-                                                //  tablet down arrow
-                                                _songMaster.skipCurrentSection();
-                                              }
-                                            }
+                                            //  tablet down arrow
+                                            _songMaster.skipCurrentSection();
                                           }
                                         }
                                       }
-                                    },
-                                    child: _listView),
-                              )),
+                                    }
+                                  }
+                                },
+                                child: _listView),
+                          )),
                       ]),
                     ),
                   ],
@@ -1142,19 +1151,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     } else if (
         //  workaround for cheap foot pedal... only outputs b
         e.logicalKey == LogicalKeyboardKey.keyB) {
-      switch (_songUpdateState) {
-        case SongUpdateState.idle:
-        case SongUpdateState.none:
-        case SongUpdateState.drumTempo:
-          //  start manual play
-          _setStatePlay();
-          break;
-        case SongUpdateState.playing:
-        case SongUpdateState.pause:
-          //  stay in pause, that is, manual mode
-          _bump(1);
-          break;
-      }
+      _forwardSwitchPressed();
       return KeyEventResult.handled;
     } else if (!_songUpdateService.isFollowing) {
       if (e.logicalKey == LogicalKeyboardKey.arrowDown || e.logicalKey == LogicalKeyboardKey.numpadAdd) {
@@ -1213,6 +1210,22 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
     logger.log(_logKeyboard, '_playerOnKey(): ignored');
     return KeyEventResult.ignored;
+  }
+
+  void _forwardSwitchPressed() {
+    switch (_songUpdateState) {
+      case SongUpdateState.idle:
+      case SongUpdateState.none:
+      case SongUpdateState.drumTempo:
+        //  start manual play
+        _setStatePlay();
+        break;
+      case SongUpdateState.playing:
+      case SongUpdateState.pause:
+        //  stay in pause, that is, manual mode
+        _bump(1);
+        break;
+    }
   }
 
   _playDrums() {
@@ -2663,4 +2676,58 @@ class _DataReminderState extends State<_DataReminderWidget> {
       }
     });
   }
+}
+
+class GamePad {
+  factory GamePad() {
+    return _singleton;
+  }
+
+  addListener(VoidCallback forwardCallback) {
+    this.forwardCallback = forwardCallback;
+    _subscribe();
+  }
+
+  cancel() {
+    if (_subscription != null) {
+      _subscription!.cancel();
+    }
+  }
+
+  void _onData(GamepadEvent e) {
+    //  closures only
+    if (e.value == 1.0) {
+      switch (e.key) {
+        case '0':
+          forwardCallback?.call();
+          break;
+        case '1':
+          logger.i('GamepadEvent backward not implemented: $e');
+          break;
+        default:
+          logger.i('Gamepad bad event: $e');
+          break;
+      }
+    }
+  }
+
+  //  private constructor
+  GamePad._internal() {
+    _subscribe();
+  }
+
+  void _subscribe() {
+    cancel(); //  safety
+
+    if (kIsWeb) {
+      return;
+    }
+    if (Platform.isLinux || Platform.isMacOS) {
+      _subscription = Gamepads.events.listen(_onData);
+    }
+  }
+
+  VoidCallback? forwardCallback;
+  static final GamePad _singleton = GamePad._internal();
+  StreamSubscription<GamepadEvent>? _subscription;
 }

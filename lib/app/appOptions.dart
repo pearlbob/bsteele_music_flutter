@@ -111,7 +111,6 @@ class AppOptions extends ChangeNotifier {
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
     _playWithBass = await _readBool('playWithBass', defaultValue: _playWithBass);
     _proEditInput = appEnableAssistedEditing ? await _readBool('proEditInput', defaultValue: _proEditInput) : true;
-    _compressRepeats = await _readBool('compressRepeats', defaultValue: _compressRepeats);
     _ninJam = await _readBool('ninJam', defaultValue: _ninJam);
     _toolTips = await _readBool(StorageValue.toolTips.name, defaultValue: false);
     _tapToAdvance = await _readTapToAdvance();
@@ -309,19 +308,6 @@ class AppOptions extends ChangeNotifier {
   bool _proEditInput = appEnableAssistedEditing ? false : true;
 
   bool get isSinger => _userDisplayStyle == UserDisplayStyle.singer;
-
-  set compressRepeats(bool value) {
-    if (_compressRepeats == value) {
-      return;
-    }
-    _compressRepeats = value;
-    _saveBool('compressRepeats', value);
-  }
-
-  /// True if the user wants repeats to be displayed with the repeat count multiplier.
-  /// If false, the fractional display will be shown.
-  bool get compressRepeats => _compressRepeats;
-  bool _compressRepeats = true;
 
   set toolTips(bool value) {
     if (_toolTips == value) {

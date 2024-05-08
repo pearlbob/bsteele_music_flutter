@@ -65,13 +65,12 @@ After midnight
 We gonna let it all hang down
 ''');
 
-    bool expanded = false;
     UserDisplayStyle userDisplayStyle = UserDisplayStyle.both;
     var lyricsTable = LyricsTable();
     // var items =
-    lyricsTable.lyricsTableItems(a, expanded: expanded);
+    lyricsTable.lyricsTableItems(a);
 
-    var nodeGrid = a.toDisplayGrid(userDisplayStyle, expanded: expanded);
+    var nodeGrid = a.toDisplayGrid(userDisplayStyle);
 
     for (var songMoment in a.songMoments) {
       var gridRow = lyricsTable.songMomentNumberToGridRow(songMoment.momentNumber);

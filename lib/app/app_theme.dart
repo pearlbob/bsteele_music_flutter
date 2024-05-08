@@ -223,8 +223,6 @@ enum AppKeyEnum implements Comparable<AppKeyEnum> {
   playerBPM(int),
   playerCapo(bool),
   playerCapoLabel(bool),
-  playerCompressRepeats(bool),
-  playerCompressRepeatsToggle(bool),
   playerCopyNinjamBPM(Null),
   playerCopyNinjamChords(Null),
   playerCopyNinjamCycle(Null),

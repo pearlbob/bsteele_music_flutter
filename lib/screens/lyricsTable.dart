@@ -198,7 +198,6 @@ class LyricsTable {
   List<Widget> lyricsTableItems(
     Song song, {
     music_key.Key? musicKey,
-    expanded = false,
   }) {
     var usTimer = UsTimer();
     displayMusicKey = musicKey ?? song.key;
@@ -207,7 +206,7 @@ class LyricsTable {
 
     _computeScreenSizes();
 
-    var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle, expanded: expanded);
+    var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle);
     logger.log(_logLyricsBuild, 'lyricsBuild: displayGrid: ${usTimer.deltaToString()}');
 
     _cellGrid = Grid<_SongCellWidget>();
@@ -569,7 +568,6 @@ class LyricsTable {
                         type: songCellType,
                         measureNode: measureNode,
                         lyricSectionIndex: lyricSection?.index,
-                        expanded: expanded,
                       ),
                     );
                   }
@@ -585,33 +583,30 @@ class LyricsTable {
                     ));
                     switch (measure.runtimeType) {
                       case const (MeasureRepeatExtension):
-                        if (!expanded) {
-                          richText = RichText(
-                              text: TextSpan(
-                            text: measure.toString(),
-                            style: _coloredChordTextStyle.copyWith(
-                                fontFamily: appFontFamily,
-                                fontWeight: FontWeight.bold), //  fixme: a font failure workaround
-                          ));
-                        }
+                        richText = RichText(
+                            text: TextSpan(
+                          text: measure.toString(),
+                          style: _coloredChordTextStyle.copyWith(
+                              fontFamily: appFontFamily,
+                              fontWeight: FontWeight.bold), //  fixme: a font failure workaround
+                        ));
                         break;
                       case const (MeasureRepeatMarker):
-                        if (!expanded) {
-                          richText = RichText(
-                            text: TextSpan(
-                              text: measure.toString(),
-                              style: _coloredChordTextStyle,
-                            ),
-                            //  don't allow the rich text to wrap:
-                            textWidthBasis: TextWidthBasis.longestLine,
-                            maxLines: 1,
-                            overflow: TextOverflow.clip,
-                            softWrap: false,
-                            textDirection: TextDirection.ltr,
-                            textAlign: TextAlign.start,
-                            textHeightBehavior: const TextHeightBehavior(),
-                          );
-                        }
+                        richText = RichText(
+                          text: TextSpan(
+                            text: measure.toString(),
+                            style: _coloredChordTextStyle,
+                          ),
+                          //  don't allow the rich text to wrap:
+                          textWidthBasis: TextWidthBasis.longestLine,
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          softWrap: false,
+                          textDirection: TextDirection.ltr,
+                          textAlign: TextAlign.start,
+                          textHeightBehavior: const TextHeightBehavior(),
+                        );
+
                         break;
                       case const (Measure):
                         richText = RichText(
@@ -638,7 +633,6 @@ class LyricsTable {
                         type: _SongCellType.columnFill,
                         measureNode: measureNode,
                         lyricSectionIndex: lyricSection?.index,
-                        expanded: expanded,
                         rowHasReducedBeats: rowHasReducedBeats,
                       ),
                     );
@@ -1115,11 +1109,8 @@ class LyricsTable {
               // logger.i('fill: ${songMoment.momentNumber} -> $lastSongMomentNumber'
               //     ', repeat: ${(lastSongMoment?.repeat ?? 0)}'
               //     ', lines: ${(lastSongMoment?.lyricSection.lyricsLines.length ?? 0)}');
-              _songMomentNumberToGridRowMap[lastSongMomentNumber] = r +
-                  (expanded
-                      ? 0
-                      : min(
-                          (lastSongMoment?.repeat ?? 0), ((lastSongMoment?.lyricSection.lyricsLines.length ?? 0) - 1)));
+              _songMomentNumberToGridRowMap[lastSongMomentNumber] =
+                  r + min((lastSongMoment?.repeat ?? 0), ((lastSongMoment?.lyricSection.lyricsLines.length ?? 0) - 1));
               lastSongMomentNumber++;
             }
           } else if (cell.measureNode is Lyric) {
@@ -1829,7 +1820,6 @@ class _SongCellWidget extends StatefulWidget {
     this.columnWidth,
     this.withEllipsis,
     this.songMoment,
-    this.expanded,
     this.selectable,
     this.isFixedHeight = false,
     this.rowHasReducedBeats = false,
@@ -1848,7 +1838,6 @@ class _SongCellWidget extends StatefulWidget {
         point = null,
         rowHasReducedBeats = false,
         songMoment = null,
-        expanded = false,
         selectable = false;
 
   _SongCellWidget copyWith({
@@ -1892,7 +1881,6 @@ class _SongCellWidget extends StatefulWidget {
       columnWidth: columnWidth ?? this.columnWidth,
       withEllipsis: withEllipsis,
       songMoment: songMoment ?? this.songMoment,
-      expanded: expanded,
       selectable: selectable,
       isFixedHeight: isFixedHeight,
       rowHasReducedBeats: rowHasReducedBeats,
@@ -1934,7 +1922,6 @@ class _SongCellWidget extends StatefulWidget {
   final bool isFixedHeight;
   final Point<double>? point;
   final SongMoment? songMoment;
-  final bool? expanded;
   final bool? selectable;
   final bool rowHasReducedBeats;
 
@@ -1989,9 +1976,8 @@ class _SongCellState extends State<_SongCellWidget> {
               isNowSelected = moment != null &&
                   (playMomentNumber == widget.songMoment?.momentNumber ||
                       (
-                          //  deal with compressed repeats
-                          !(widget.expanded ?? true) &&
-                              moment.lyricSection == widget.songMoment?.lyricSection &&
+                          //  deal with repeats
+                          moment.lyricSection == widget.songMoment?.lyricSection &&
                               moment.phraseIndex == widget.songMoment?.phraseIndex &&
                               moment.phrase.repeats > 1 &&
                               widget.songMoment?.measureIndex != null &&

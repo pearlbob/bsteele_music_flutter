@@ -470,7 +470,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(
       _song,
       musicKey: _displaySongKey,
-      expanded: !_compressRepeats,
     );
     _listView ??= _appOptions.userDisplayStyle == UserDisplayStyle.banner
         ? ListView.builder(
@@ -2152,80 +2151,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             crossAxisAlignment: WrapCrossAlignment.center,
                             spacing: viewportWidth(0.5),
                             children: [
-                              AppTooltip(
-                                message: 'Select how the repeats are displayed in the song.',
-                                child: appTextButton(
-                                  'Repeats:',
-                                  appKeyEnum: AppKeyEnum.playerCompressRepeatsToggle,
-                                  value: _appOptions.compressRepeats,
-                                  onPressed: () {
-                                    setState(() {
-                                      _compressRepeats = !_compressRepeats;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: boldStyle,
-                                ),
-                              ),
-                              AppWrap(children: [
-                                Radio<bool>(
-                                  value: true,
-                                  groupValue: _appOptions.compressRepeats,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      setState(() {
-                                        _compressRepeats = true;
-                                        _adjustDisplay();
-                                      });
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Compress the repeats on this song',
-                                  child: appIconWithLabelButton(
-                                    appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                                    icon: appIcon(Icons.compress),
-                                    value: _compressRepeats,
-                                    onPressed: () {
-                                      setState(() {
-                                        _compressRepeats = true;
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ]),
-                              AppWrap(children: [
-                                Radio<bool>(
-                                  value: false,
-                                  groupValue: _appOptions.compressRepeats,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      setState(() {
-                                        _compressRepeats = false;
-                                        _adjustDisplay();
-                                      });
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Expand the repeats on this song',
-                                  child: appIconWithLabelButton(
-                                    appKeyEnum: AppKeyEnum.playerCompressRepeats,
-                                    icon: appIcon(Icons.expand),
-                                    value: _compressRepeats,
-                                    onPressed: () {
-                                      setState(() {
-                                        _compressRepeats = false;
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ]),
-                              const AppSpace(
-                                horizontalSpace: 20,
-                              ),
                               AppWrap(
                                 alignment: WrapAlignment.start,
                                 children: [
@@ -2586,10 +2511,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   SongUpdateState _songUpdateState = SongUpdateState.idle;
 
   late final FocusNode _rawKeyboardListenerFocusNode;
-
-  set _compressRepeats(bool value) => _appOptions.compressRepeats = value;
-
-  bool get _compressRepeats => _appOptions.compressRepeats;
 
   music_key.Key _displaySongKey = music_key.Key.C;
   int _displayKeyOffset = 0;

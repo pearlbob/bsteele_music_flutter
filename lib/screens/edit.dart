@@ -1871,8 +1871,7 @@ class EditState extends State<Edit> {
       }
 
       //  chord rows and lyrics lines
-      final expanded = !appOptions.compressRepeats;
-      var chordRowCount = chordSection?.rowCount(expanded: expanded) ?? 0;
+      var chordRowCount = chordSection?.repeatRowCount ?? 0;
       var lineCount = entry.length;
       var limit = max(chordRowCount, lineCount);
       logger.log(_editLyricEntry,
@@ -1885,7 +1884,7 @@ class EditState extends State<Edit> {
         //  chord rows
         {
           if (line < chordRowCount) {
-            var row = chordSection?.rowAt(line, expanded: expanded);
+            var row = chordSection?.rowAt(line);
             logger.log(_editLyricEntry, '   row.length: ${row?.length}/$chordMaxColCount');
             for (final Measure measure in row ?? []) {
               children.add(Container(
@@ -2145,8 +2144,7 @@ class EditState extends State<Edit> {
           logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
           //  limit the horizontal space used by the chords
           sb.write(Util.limitLineLength(
-              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false) ??
-                  '',
+              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount) ?? '',
               35,
               ellipsis: true));
           lineCount = 1;
@@ -2159,7 +2157,7 @@ class EditState extends State<Edit> {
     }
     if (lastSectionVersion != null) {
       logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
-      sb.write(song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount, expanded: false));
+      sb.write(song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount));
     }
     logger.log(_logProChordsForLyrics, sb.toString());
     return sb.toString();

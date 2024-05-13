@@ -310,6 +310,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             var row = _lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber);
             _setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
             _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToGridRow(_songMaster.lastMomentNumber));
+            logger.log(_logSongMaster,
+                'songMasterListener:  play/pause: row: $row, _songMaster.momentNumber: ${_songMaster.momentNumber}');
           }
         }
         break;

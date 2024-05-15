@@ -29,7 +29,7 @@ void main() {
       List<Widget> widgets;
 
       {
-        var appKey = appKeyCreate(AppKeyEnum.mainSong, value: Id('Song_12_Bar_Blues_by_Any'));
+        var appKey = appKeyCreate(AppKeyEnum.mainSong, value: Id('Song_12_Bar_Blues_by_CJ'));
         var finder = find.byKey(appKey);
         expect(finder, findsOneWidget);
       }

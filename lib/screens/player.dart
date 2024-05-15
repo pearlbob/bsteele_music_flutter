@@ -557,7 +557,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         ],
         builder: (context, child) {
           return Scaffold(
-              backgroundColor: theme.colorScheme.background,
+              backgroundColor: theme.colorScheme.surface,
               appBar: backBar,
               body: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
                 boxMarker = constraints.maxHeight * _scrollAlignment;
@@ -614,9 +614,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             SegmentedButton<SongUpdateState>(
                               showSelectedIcon: false,
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                  (Set<MaterialState> states) {
-                                    if (states.contains(MaterialState.disabled)) {
+                                backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                                  (Set<WidgetState> states) {
+                                    if (states.contains(WidgetState.disabled)) {
                                       return App.disabledColor;
                                     }
                                     return App.universalAccentColor;
@@ -1570,7 +1570,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
       case PlayerScrollHighlight.chordRow:
       case PlayerScrollHighlight.measure:
-        _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment);
+        _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment,
+            _song.songMomentToGridCoordinate[songMoment?.momentNumber ?? 0].row);
         break;
     }
   }

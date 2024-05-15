@@ -51,7 +51,7 @@ if ( $debug != 0 ) then
 	set echo; set verbose
 endif
 
-#done by arch: gcloud --quiet components update
+#done by arch: gcloud components update
 
 #	test
 #cd $git
@@ -90,9 +90,9 @@ jar -uf $war -C ~/github/allSongs.songlyrics allSongPerformances.songperformance
 bsteele_auth
 mv $war ${app}Park.war
 set war=${app}Park.war
-gsutil cp $war $dst
+gcloud storage cp $war $dst --quiet --verbosity=error \
+	--predefined-acl=publicRead \
+	--cache-control=public,max-age=60
 if ( $status != 0 ) exit -1
-gsutil -q setmeta -h "Cache-Control:public, max-age=60" -r $dst
-if ( $status != 0 ) exit -1
-gsutil -q acl -r ch -u AllUsers:R $dst
-if ( $status != 0 ) exit -1
+
+exit 0

@@ -731,7 +731,7 @@ class AppWidgetHelper {
       {required final bool? value, final ValueChanged<bool?>? onChanged, final TextStyle? style, final String? label}) {
     var checkbox = Checkbox(
         checkColor: Colors.white,
-        fillColor: MaterialStateProperty.all(App.appBackgroundColor),
+        fillColor: WidgetStateProperty.all(App.appBackgroundColor),
         value: value,
         onChanged: onChanged);
     if (label != null) {

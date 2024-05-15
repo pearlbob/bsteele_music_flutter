@@ -675,9 +675,9 @@ class AppTheme {
       // var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor)); fixme
       var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ??
           ButtonStyle(
-              foregroundColor: MaterialStateProperty.all(App.defaultForegroundColor),
-              backgroundColor: MaterialStateProperty.all(App.defaultBackgroundColor));
-      elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: MaterialStateProperty.all(6));
+              foregroundColor: WidgetStateProperty.all(App.defaultForegroundColor),
+              backgroundColor: WidgetStateProperty.all(App.defaultBackgroundColor));
+      elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: WidgetStateProperty.all(6));
 
       //  hassle with mapping Color to MaterialColor
       var color = App.appbarBackgroundColor;
@@ -760,7 +760,7 @@ ElevatedButton appButton(
     clipBehavior: Clip.hardEdge,
     onPressed: voidCallback,
     style: app.themeData.elevatedButtonTheme.style
-        ?.copyWith(backgroundColor: MaterialStateProperty.all(buttonBackgroundColor)),
+        ?.copyWith(backgroundColor: WidgetStateProperty.all(buttonBackgroundColor)),
     child: Text(commandName,
         style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: buttonBackgroundColor)),
   );
@@ -803,9 +803,9 @@ TextButton appTextButton(
       onPressed?.call();
     },
     style: ButtonStyle(
-      textStyle: MaterialStateProperty.all(style),
-      padding: MaterialStateProperty.all(EdgeInsets.all((style?.fontSize ?? 12.0) / 2)),
-      minimumSize: MaterialStateProperty.all(Size.square(style?.fontSize ?? 12.0)),
+      textStyle: WidgetStateProperty.all(style),
+      padding: WidgetStateProperty.all(EdgeInsets.all((style?.fontSize ?? 12.0) / 2)),
+      minimumSize: WidgetStateProperty.all(Size.square(style?.fontSize ?? 12.0)),
     ),
     child: Text(
       text,
@@ -863,8 +863,8 @@ TextButton appIconWithLabelButton({
           }
         : null,
     style: app.themeData.elevatedButtonTheme.style?.copyWith(
-        backgroundColor: MaterialStateProperty.all(backgroundColor ?? App.defaultBackgroundColor),
-        textStyle: MaterialStateProperty.all(style)),
+        backgroundColor: WidgetStateProperty.all(backgroundColor ?? App.defaultBackgroundColor),
+        textStyle: WidgetStateProperty.all(style)),
   );
 }
 

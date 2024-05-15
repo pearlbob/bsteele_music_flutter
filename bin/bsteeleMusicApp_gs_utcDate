@@ -5,7 +5,7 @@ set file = /tmp/bsteeleMusicApp_war_$$
 onintr Lend;
 
 #	assure our tools are ready
-#done by arch: gcloud --quiet components update
+#done by arch: gcloud components update
 
 
 #	get the web war file
@@ -13,7 +13,7 @@ mkdir $file
 cd $file
 bsteele_auth
 
-gsutil cp gs://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.war .
+gcloud storage cp gs://www.bsteele.com/bsteeleMusicApp/bsteeleMusicApp.war .
 if ( $status ) exit -1;
 jar -xf bsteeleMusicApp.war assets/lib/assets/utcDate.txt
 if ( $status ) exit -1;

@@ -43,7 +43,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
     app.screenInfo.refresh(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(title: 'About the bsteeleMusicApp'),
       body: DefaultTextStyle(
         style: generateAppTextStyle(color: Colors.black87, fontSize: app.screenInfo.fontSize),

@@ -192,7 +192,7 @@ class DetailState extends State<Detail> {
     SheetMusicPainter sheetMusicPainter = SheetMusicPainter();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(
           title: '${app.selectedSong}'
               ' (sheet music)'),
@@ -733,7 +733,7 @@ class _FretBoardPainter extends CustomPainter {
     bassScale = width - 2 * margin;
 
     //  clear the fretboard
-    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), Paint()..color = app.themeData.colorScheme.background);
+    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), Paint()..color = app.themeData.colorScheme.surface);
 
     //  frets
     _black.strokeWidth = 2;

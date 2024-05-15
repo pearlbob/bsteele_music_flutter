@@ -268,7 +268,7 @@ class BSteeleMusicApp extends StatelessWidget {
         ],
         builder: (context, child) {
           return MaterialApp(
-            title: 'bsteeleMusicApp',
+            title: 'bsteeleMusicApp dude',
             theme: app.themeData,
             navigatorObservers: [playerRouteObserver],
 
@@ -539,7 +539,7 @@ class MyHomePageState extends State<MyHomePage> {
     final TextStyle navTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       key: _scaffoldKey,
       appBar: AppWidgetHelper(context).appBar(
         title: widget.title,

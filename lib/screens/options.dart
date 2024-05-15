@@ -70,7 +70,7 @@ class OptionsState extends State<Options> {
     var style = generateAppTextStyle();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Options'),
       body: DefaultTextStyle(
         //  fixme: necessary?

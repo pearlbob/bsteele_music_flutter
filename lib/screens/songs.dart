@@ -41,7 +41,7 @@ class SongsState extends State<Songs> {
     appWidgetHelper = AppWidgetHelper(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Song Management'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(36.0),

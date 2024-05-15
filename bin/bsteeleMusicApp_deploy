@@ -3,6 +3,9 @@
 
 echo $0\:
 
+echo fixme: either fix the href in the beta index.html or compile for release href location
+exit -1
+
 # http is expected from the environment
 set www=$http/public_html
 set app=bsteeleMusicApp
@@ -34,7 +37,7 @@ echo on bob.local:
 sudo date
 
 #	assure our tools are ready
-#done by arch: gcloud --quiet components update
+#done by arch: gcloud components update
 flup -y
 
 #	compile for release
@@ -68,11 +71,11 @@ if ( $status != 0 ) exit -1
 
 #	copy local deployment to the web server
 bsteele_auth
-gsutil -m rsync -d -R -x '.*\.songlyrics\$' $localDst/ $dst 	#	source needs the /
-if ( $status != 0 ) exit -1
-gsutil -m -q setmeta -h "Cache-Control:public, max-age=60" -r $dst
-if ( $status != 0 ) exit -1
-gsutil -m -q acl -r ch -u AllUsers:R $dst
+gcloud storage rsync $localDst $dst -R --quiet --verbosity=error \
+	-x "\..*/.*|\..*|.*/allSong.*" \
+	--delete-unmatched-destination-objects \
+	--predefined-acl=publicRead \
+	--cache-control=public,max-age=60
 if ( $status != 0 ) exit -1
 
 ~/github/allSongs.songlyrics/bin/lyrics_update

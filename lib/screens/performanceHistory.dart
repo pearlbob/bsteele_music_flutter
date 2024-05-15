@@ -115,7 +115,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
         generateAppTextStyle(fontSize: 2 * appDefaultFontSize, color: Colors.black, nullBackground: true);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
       body: Container(
         padding: const EdgeInsets.all(36.0),

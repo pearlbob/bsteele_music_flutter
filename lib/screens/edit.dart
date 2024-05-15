@@ -481,7 +481,7 @@ class EditState extends State<Edit> {
     var theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.appBar(
         appKeyEnum: AppKeyEnum.appBarBack,
         title: 'Edit: ${song.title}',
@@ -1214,7 +1214,7 @@ class EditState extends State<Edit> {
                             alignment: Alignment.topLeft,
                             width: double.infinity,
                             padding: const EdgeInsets.all(16.0),
-                            color: theme.colorScheme.background,
+                            color: theme.colorScheme.surface,
                             child: //  pre-configured table of edit widgets
                                 displayChordTable,
                           ),
@@ -1223,7 +1223,7 @@ class EditState extends State<Edit> {
                           Container(
                               alignment: Alignment.topLeft,
                               padding: const EdgeInsets.all(16.0),
-                              color: theme.colorScheme.background,
+                              color: theme.colorScheme.surface,
                               child: AppTextField(
                                   appKeyEnum: AppKeyEnum.editProChords,
                                   controller: proChordTextEditingController,
@@ -1267,13 +1267,13 @@ class EditState extends State<Edit> {
                           Container(
                               alignment: Alignment.topLeft,
                               padding: const EdgeInsets.all(16.0),
-                              color: theme.colorScheme.background,
+                              color: theme.colorScheme.surface,
                               child: lyricsEntryWidget()),
                         if (isProEditInput)
                           Container(
                             alignment: Alignment.topLeft,
                             padding: const EdgeInsets.all(16.0),
-                            color: theme.colorScheme.background,
+                            color: theme.colorScheme.surface,
                             width: MediaQuery.of(context).size.width,
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,

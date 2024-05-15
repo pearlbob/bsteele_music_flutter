@@ -76,7 +76,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
         _drums = null;
       }
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: appWidgetHelper.backBar(
             title: 'Drums',
             onPressed: () {

@@ -739,7 +739,6 @@ class LyricsTable {
               if (songMoment.phrase is MeasureRepeat) {
                 var measureRepeat = songMoment.phrase as MeasureRepeat;
 
-                //  fixme: worry about cells that are not song moments: repeat extensions and markers
                 // logger.i('     ${songMoment.repeat}/${measureRepeat.repeats}');
                 if (measureRepeat.length > 1) {
                   _cellGrid.setAt(gc, cell.copyWith(displayRowMinRow: minRow, displayRowMaxRow: maxRow));
@@ -2069,12 +2068,14 @@ class _SongCellState extends State<_SongCellWidget> {
             _logSongCellStateBuild,
             '_SongCellState consumer build: $momentNumber:'
             ' row: ${widget.displayRowMinRow} <= $row <= ${widget.displayRowMaxRow}'
+            ', size: ${widget.buildSize}'
             ', ${moment?.phrase.measureNodeType.name}: measureIndex: ${moment?.measureIndex}: ${widget.measureNode}'
             //', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
             //
             );
 
         if (widget.displayRowMinRow <= row && row <= widget.displayRowMaxRow) {
+          //  this is a row element that is being displayed
           if ((widget.selectable ?? true) &&
               ((playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&
                       (playMomentNotifier.playMoment?.playMomentNumber ?? -1) >= 0) //
@@ -2136,13 +2137,15 @@ class _SongCellState extends State<_SongCellWidget> {
         } else {
           isNowSelected = false;
           child = null;
-          Size buildSize = widget.computedBuildSize;
+          Size size = widget.buildSize;
           return Container(
             alignment: Alignment.centerLeft,
-            width: widget.columnWidth ?? buildSize.width,
-            height: widget.isFixedHeight ? (widget.size?.height ?? buildSize.height) : null,
+            width: widget.columnWidth ?? size.width,
+            height: widget.isFixedHeight ? (widget.size?.height ?? size.height) : size.height,
             margin: _margin,
-            color: Colors.transparent,
+            padding: _padding,
+            // color: Colors.cyanAccent,
+            // child: Text('here'),
           );
         }
 

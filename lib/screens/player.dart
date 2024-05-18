@@ -78,7 +78,7 @@ const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollListener = Level.debug;
-const Level _logScrollAnimation = Level.debug;
+const Level _logScrollAnimation = Level.info;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 
@@ -308,10 +308,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
           if (_songMaster.momentNumber! >= 0) {
             var row = _lyricsTable.songMomentNumberToGridRow(_songMaster.momentNumber);
-            _setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
-            _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToGridRow(_songMaster.lastMomentNumber));
-            logger.log(_logSongMaster,
-                'songMasterListener:  play/pause: row: $row, _songMaster.momentNumber: ${_songMaster.momentNumber}');
+            //  scroll to a new row
+            if (row != _lastRowIndex) {
+              _setIndexRow(_lyricsTable.rowToLyricSectionIndex(row), row);
+              _itemScrollToRow(row, priorIndex: _lyricsTable.songMomentNumberToGridRow(_songMaster.lastMomentNumber));
+              logger.log(_logSongMaster,
+                  'songMasterListener:  play/pause: row: $row, _songMaster.momentNumber: ${_songMaster.momentNumber}');
+            }
           }
         }
         break;
@@ -605,9 +608,54 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ),
 
                     //  song chords and lyrics
+                    if (lyricsTableItems.isNotEmpty)
+                      Focus(
+                        focusNode: _rawKeyboardListenerFocusNode,
+                        onKeyEvent: _playerOnKeyEvent,
+                        autofocus: true,
+                        child: GestureDetector(
+                            onTapDown: (details) {
+                              //  doesn't apply to pro display style
+                              if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
+                                return;
+                              }
+
+                              //  respond to taps above and below the middle of the screen
+                              if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
+                                if (_songUpdateState != SongUpdateState.playing) {
+                                  //  start manual play
+                                  _setStatePlay();
+                                } else {
+                                  //  while playing:
+                                  var offset = _tableGlobalOffset();
+                                  if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
+                                    //  tablet left arrow
+                                    _bpmBump(-1);
+                                  } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
+                                    //  tablet right arrow
+                                    _bpmBump(1);
+                                  } else {
+                                    if (details.globalPosition.dy > offset.dy) {
+                                      if (details.globalPosition.dy < constraints.maxHeight / 2) {
+                                        //  tablet up arrow
+                                        _songMaster.repeatSectionIncrement();
+                                      } else {
+                                        //  tablet down arrow
+                                        _songMaster.skipCurrentSection();
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            child: _listView),
+                      ),
+
+                    //  song chords and lyrics
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                        //  control buttons
                         AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                           if (!_songUpdateService.isFollowing)
                             //  play mode selection
@@ -766,8 +814,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             ]),
                         ]),
 
-                        //  top section when idle
-                        if (_songUpdateState == SongUpdateState.idle || _songUpdateState == SongUpdateState.drumTempo)
+                        //  other top sections when idle
+                        if (_showCapo &&
+                            (_songUpdateState == SongUpdateState.idle || _songUpdateState == SongUpdateState.drumTempo))
                           //  capo
                           AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: fontSize, children: [
                             if (_showCapo)
@@ -1056,51 +1105,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               ),
                             ]),
                           ]),
-
-                        //  song chords and lyrics
-                        if (lyricsTableItems.isNotEmpty)
-                          Flexible(
-                              child: Focus(
-                            focusNode: _rawKeyboardListenerFocusNode,
-                            onKeyEvent: _playerOnKeyEvent,
-                            autofocus: true,
-                            child: GestureDetector(
-                                onTapDown: (details) {
-                                  //  doesn't apply to pro display style
-                                  if (_appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
-                                    return;
-                                  }
-
-                                  //  respond to taps above and below the middle of the screen
-                                  if (_appOptions.tapToAdvance == TapToAdvance.upOrDown) {
-                                    if (_songUpdateState != SongUpdateState.playing) {
-                                      //  start manual play
-                                      _setStatePlay();
-                                    } else {
-                                      //  while playing:
-                                      var offset = _tableGlobalOffset();
-                                      if (details.globalPosition.dx < app.screenInfo.mediaWidth / 4) {
-                                        //  tablet left arrow
-                                        _bpmBump(-1);
-                                      } else if (details.globalPosition.dx > app.screenInfo.mediaWidth * 3 / 4) {
-                                        //  tablet right arrow
-                                        _bpmBump(1);
-                                      } else {
-                                        if (details.globalPosition.dy > offset.dy) {
-                                          if (details.globalPosition.dy < constraints.maxHeight / 2) {
-                                            //  tablet up arrow
-                                            _songMaster.repeatSectionIncrement();
-                                          } else {
-                                            //  tablet down arrow
-                                            _songMaster.skipCurrentSection();
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                },
-                                child: _listView),
-                          )),
                       ]),
                     ),
                   ],
@@ -1343,12 +1347,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   _listScrollListener() {
-    logger.log(_logScrollListener, 'offset: ${_listScrollController.offset}');
-
     if (_isAnimated || !_songUpdateService.isLeader) {
       //  don't follow the animation
       return;
     }
+    logger.log(_logScrollListener, 'offset: ${_listScrollController.offset}');
 
     var offset = _listScrollController.offset + boxMarker; //  fixme!!!!!!!!!!!!!!!!!!!
 
@@ -1401,11 +1404,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _itemScrollToRow(_lyricsTable.lyricSectionIndexToRow(index), force: force, priorIndex: priorIndex);
   }
 
-  _itemScrollToRow(int row, {final bool force = false, int? priorIndex}) {
+  _itemScrollToRow(final int row, {final bool force = false, int? priorIndex}) {
     //logger.i('_itemScrollToRow($row, $force, $priorIndex):');
     if (_listScrollController.hasClients) {
       if (_isAnimated) {
         logger.log(_logScrollAnimation, 'scrollTo(): double animation!, force: $force, priorIndex: $priorIndex');
+        return;
       }
       if (row < 0) {
         return;
@@ -1447,13 +1451,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       }
 
       //  guess a duration based on the song and the row
-      var secondsPerMeasure = _song.beatsPerBar * 60.0 / _song.beatsPerMinute;
-      // var rowMomentNumber = _lyricsTable.rowToMomentNumber(row);
-      // var nextRowMomentNumber = _lyricsTable.rowToMomentNumber(row + 1);
-      // if (nextRowMomentNumber == 0) {
-      //   nextRowMomentNumber = _lyricsTable.rowToMomentNumber(row + 2);
-      // }
-      double rowTime = secondsPerMeasure;
+      double rowTime = _song.displayRowBeats(row) * 60.0 / (playerSelectedBpm ?? _song.beatsPerMinute);
       priorIndex ??= _lastRowIndex;
       _lastRowIndex = row;
       // if (row > priorIndex && nextRowMomentNumber > rowMomentNumber) {
@@ -1472,7 +1470,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               _isAnimated //  compound scroll, perform quickly
           ? const Duration(milliseconds: 200)
           : (row >= priorIndex
-              ? Duration(milliseconds: (rowTime * Duration.millisecondsPerSecond).toInt())
+              ? Duration(milliseconds: (0.5 * rowTime * Duration.millisecondsPerSecond).toInt())
               : const Duration(milliseconds: 200));
 
       double offset = _lyricsTable.rowToDisplayOffset(row);
@@ -1482,8 +1480,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           'scrollTo(): row: $row'
           ', offset: ${offset.toStringAsFixed(1)}'
           ', boxMarker: $boxMarker'
+          ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
           // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-          //     ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}'
+          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}'
           //
           );
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
@@ -1491,7 +1490,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       //  local scroll
       _isAnimated = true;
       _listScrollController
-          .animateTo(max(0, offset - boxMarker), duration: duration, curve: Curves.linear)
+          .animateTo(max(minScrollOffset, offset - boxMarker), duration: duration, curve: Curves.linear)
           .then((value) {
         _isAnimated = false;
         logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
@@ -2536,6 +2535,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final ScrollController _listScrollController = ScrollController();
   bool _isAnimated = false;
   int _lastRowIndex = 0;
+  double minScrollOffset = 0;
 
   Size? _lastSize;
 

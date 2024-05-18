@@ -2143,9 +2143,8 @@ class _SongCellState extends State<_SongCellWidget> {
             width: widget.columnWidth ?? size.width,
             height: widget.isFixedHeight ? (widget.size?.height ?? size.height) : size.height,
             margin: _margin,
-            padding: _padding,
-            // color: Colors.cyanAccent,
-            // child: Text('here'),
+            //  to assure the size is correct
+            padding: _padding, //  to assure the size is correct
           );
         }
 

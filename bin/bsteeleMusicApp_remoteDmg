@@ -8,6 +8,8 @@
 #	npm uninstall -g appdmg
 #	npm install -g appdmg
 
+set mac=ChrisMacBookPro.local
+
 echo $0\:
 
 set app=bsteeleMusicApp

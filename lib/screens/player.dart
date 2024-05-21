@@ -78,7 +78,7 @@ const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollListener = Level.debug;
-const Level _logScrollAnimation = Level.info;
+const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 
@@ -1347,11 +1347,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   _listScrollListener() {
+    logger.log(
+        _logScrollListener,
+        'raw offset: ${_listScrollController.offset.toStringAsFixed(1)}, _isAnimated: $_isAnimated'
+        ', offset: ${(_listScrollController.offset + boxMarker).toStringAsFixed(1)}');
+
     if (_isAnimated || !_songUpdateService.isLeader) {
+      //  fixme: temp!!!!!!!!!!!!!!!!
       //  don't follow the animation
       return;
     }
-    logger.log(_logScrollListener, 'offset: ${_listScrollController.offset}');
 
     var offset = _listScrollController.offset + boxMarker; //  fixme!!!!!!!!!!!!!!!!!!!
 
@@ -1493,7 +1498,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           .animateTo(max(minScrollOffset, offset - boxMarker), duration: duration, curve: Curves.linear)
           .then((value) {
         _isAnimated = false;
-        logger.log(_logScrollAnimation, 'scrollTo(): post: _lastRowIndex: $row');
+        logger.log(
+            _logScrollAnimation,
+            'scrollTo(): post: _lastRowIndex: $row'
+            ', offset: ${max(minScrollOffset, offset - boxMarker).toStringAsFixed(1)}'
+            ' + marker: ${max(minScrollOffset, offset).toStringAsFixed(1)}');
       });
     }
   }

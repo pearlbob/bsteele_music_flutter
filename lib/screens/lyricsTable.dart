@@ -63,6 +63,7 @@ const Level _logLyricsTableItems = Level.debug;
 const Level _logLyricsTableItemDisplayOffsets = Level.debug;
 const Level _logLyricSectionNotifier = Level.debug;
 const Level _logSongCellStateBuild = Level.debug;
+const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 
 const double _paddingSizeMax = 3; //  fixme: can't be 0
@@ -1235,7 +1236,7 @@ class LyricsTable {
         }
 
         _rowNumberToDisplayOffset[r] = offset;
-        offset += heights[r];
+        offset += heights[r] + _marginSize / 2 + _paddingSize / 2;
       }
     }
 
@@ -1264,7 +1265,7 @@ class LyricsTable {
           if (r >= heights.length) {
             logger.i('fixme: error here: $r >= ${heights.length}, $songMoment');
           } else {
-            offset += heights[r];
+            offset += heights[r] + _marginSize / 2 + _paddingSize / 2;
             lastR = r;
           }
         }
@@ -1273,8 +1274,11 @@ class LyricsTable {
 
     // logger.i((SplayTreeSet<int>.from(_lyricSectionIndexToRowMap.keys)
     //     .map((k) => '$k -> ${_lyricSectionIndexToRowMap[k]}')).toList().toString());
-    // logger.i((SplayTreeSet<int>.from(_songMomentNumberToDisplayOffset.keys)
-    //     .map((k) => '$k -> ${_songMomentNumberToDisplayOffset[k]?.toStringAsFixed(1)}')).toList().toString());
+    if (Logger.level.index <= _logSongCellOffsetList.index) {
+      for (var r = 0; r < _cellGrid.getRowCount(); r++) {
+        logger.i('  row $r: ${_rowNumberToDisplayOffset[r].toStringAsFixed(1)}');
+      }
+    }
 
     return items;
   }

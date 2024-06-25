@@ -483,22 +483,25 @@ class SongMaster extends ChangeNotifier {
     //  fixme:  even beat parts likely don't work on 3/4 or 6/8
     logger.t('_performDrumParts: $time - $_songStart = ${time - (_songStart ?? 0)}');
     int beats = min(_song?.timeSignature.beatsPerBar ?? DrumBeat.values.length, drumParts.beats);
-    for (var drumPart in drumParts.parts) {
-      var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
-      for (var timing in drumPart.timings(time, bpm, beats)) {
-        logger.log(
-            _songMasterLogTickerDetails,
-            'beat: ${drumPart.drumType.name}: '
-            ' time: $time'
-            ', timing: $timing'
-            // ', path: $filePath'
-            ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
-            //
-            );
-        _appAudioPlayer.play(filePath,
-            when: timing,
-            duration: 0.25, //fixme: temp
-            volume: _appOptions.volume);
+    for (var key in drumParts.parts.keys) {
+      var drumPart = drumParts.parts[key];
+      if (drumPart != null) {
+        var filePath = drumTypeToFileMap[drumPart.drumType] ?? 'audio/bass_0.mp3';
+        for (var timing in drumPart.timings(time, bpm, beats)) {
+          logger.log(
+              _songMasterLogTickerDetails,
+              'beat: ${drumPart.drumType.name}: '
+              ' time: $time'
+              ', timing: $timing'
+              // ', path: $filePath'
+              ', advance: ${time - _appAudioPlayer.getCurrentTime()}'
+              //
+              );
+          _appAudioPlayer.play(filePath,
+              when: timing,
+              duration: 0.25, //fixme: temp
+              volume: _appOptions.volume);
+        }
       }
     }
     logger.log(

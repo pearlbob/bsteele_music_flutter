@@ -970,7 +970,7 @@ class SingersState extends State<Singers> {
                         _setSelectedSinger(songPerformance.singer);
                       }
                       if (_selectedSinger != _unknownSinger) {
-                        _navigateToPlayer(context, songPerformance.copy());
+                        _navigateToPlayer(context, songPerformance.copyWith());
                       }
                     });
                   }
@@ -1204,7 +1204,7 @@ class SingersState extends State<Singers> {
     setState(() {
       //  fixme: song may have been edited in the player screen!!!!
       //  update the last sung date and the key if it has been changed
-      var updatedPerformance = songPerformance.update(
+      var updatedPerformance = songPerformance.copyWith(
           key: playerSelectedSongKey, bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute);
       _allSongPerformances.addSongPerformance(updatedPerformance);
       logger.log(_singerLogHistory, 'updatedPerformance: $updatedPerformance');

@@ -444,7 +444,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   width: onStringWidth + 4 * chordsTextWidth,
                   //  max width of chars expected
                   child: Text(
-                    '$onString${firstScaleNote.transpose(value, relativeOffset).toMarkup()})',
+                    '$onString${scaleNoteByAccidentalExpressionChoice(firstScaleNote.transpose(value, relativeOffset), _appOptions.accidentalExpressionChoice, key: _displaySongKey).toMarkup()})',
                     style: _headerTextStyle,
                     softWrap: false,
                     textAlign: TextAlign.right,

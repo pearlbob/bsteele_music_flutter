@@ -2352,3 +2352,18 @@ class _BeatMarkCustomPainter extends CustomPainter {
 
   final int beats;
 }
+
+ScaleNote scaleNoteByAccidentalExpressionChoice(final ScaleNote scaleNote, final AccidentalExpressionChoice choice,
+    {final music_key.Key? key}) {
+  //  process scale note by accidental choice
+  switch (choice) {
+    case AccidentalExpressionChoice.alwaysSharp:
+      return scaleNote.asSharp();
+    case AccidentalExpressionChoice.alwaysFlat:
+      return scaleNote.asFlat();
+    case AccidentalExpressionChoice.easyRead:
+      return scaleNote.asEasyRead();
+    case AccidentalExpressionChoice.byKey:
+      return (key ?? music_key.Key.getDefault()).isSharp ? scaleNote.asSharp() : scaleNote.asFlat();
+  }
+}

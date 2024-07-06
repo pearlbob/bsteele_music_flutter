@@ -141,7 +141,8 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                   ),
                   InkWell(
                     onTap: () {
-                      openLink('${Uri.base.scheme}://${Uri.base.authority}${Uri.base.path}beta/index.html');
+                      var path = Uri.base.path.replaceFirst('index.html', '').replaceFirst('/beta', '');
+                      openLink('${Uri.base.scheme}://${Uri.base.authority}${path}beta/index.html');
                     },
                     child: Text(
                       'beta',

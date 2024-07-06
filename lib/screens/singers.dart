@@ -37,7 +37,7 @@ const String _unknownSinger = 'unknown';
 String _selectedSinger = _unknownSinger;
 bool _selectedSingerIsRequester = false;
 String _selectedVolunteerSinger = _unknownSinger;
-bool _searchForSelectedSingerOnly = true;
+bool _searchForSelectedSingerOnly = false;
 Map<String, bool> _singerIsRequesterMap = {};
 
 enum SingersSongOrder { singer, title, recentOnTop, oldestFirst }
@@ -1306,10 +1306,9 @@ class SingersState extends State<Singers> {
 
       //  find last requester choice or default to singer if there are songs to sing
       bool isRequester = _singerIsRequesterMap[_selectedSinger] ?? false;
-      _searchForSelectedSingerOnly = false;
 
       _selectedSingerIsRequester = isRequester;
-      _searchForSelectedSingerOnly = !_selectedSingerIsRequester;
+      _searchForSelectedSingerOnly = _selectedSingerIsRequester;
       _selectedVolunteerSinger = _unknownSinger;
 
       //  reset the singer's list

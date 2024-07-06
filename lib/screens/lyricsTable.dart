@@ -646,7 +646,8 @@ class LyricsTable {
                               fontWeight: FontWeight.bold), //  fixme: a font failure workaround
                         ));
                         break;
-                      case const (MeasureRepeatMarker):
+                      case const (MeasureRepeatMarker): //  fixme: this should not be possible
+                        //  the repeat marker has a MeasureNodeType of decoration!
                         richText = RichText(
                           text: TextSpan(
                             text: measure.toString(),
@@ -697,6 +698,8 @@ class LyricsTable {
 
                 default:
                   //  color done by prior chord section
+                  // logger.i(
+                  //     'default measureNodeType: r=$r, c=$c, ${measureNode.runtimeType}  ${measureNode.measureNodeType}');
                   _cellGrid.set(
                     r,
                     c,
@@ -2066,19 +2069,22 @@ class _SongCellState extends State<_SongCellWidget> {
         var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
         var isNowSelected = false;
         var momentNumber = playMomentNumber ?? widget.songMoment?.momentNumber;
-        var row = playMomentNotifier.playMoment?.displayRow ?? lyricSectionNotifier.row;
+        var repeat = playMomentNotifier.playMoment?.songMoment?.repeat;
+        _row = playMomentNotifier.playMoment?.displayRow ?? lyricSectionNotifier.row;
 
         logger.log(
             _logSongCellStateBuild,
             '_SongCellState consumer build: $momentNumber:'
-            ' row: ${widget.displayRowMinRow} <= $row <= ${widget.displayRowMaxRow}'
+            ' row: ${widget.displayRowMinRow} <= $_row <= ${widget.displayRowMaxRow}'
             ', size: ${widget.buildSize}'
             ', ${moment?.phrase.measureNodeType.name}: measureIndex: ${moment?.measureIndex}: ${widget.measureNode}'
+            ', repeat: $repeat'
+            ', row: $_row vs ${widget.row}'
             //', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
             //
             );
 
-        if (widget.displayRowMinRow <= row && row <= widget.displayRowMaxRow) {
+        if (widget.displayRowMinRow <= _row && _row <= widget.displayRowMaxRow) {
           //  this is a row element that is being displayed
           if ((widget.selectable ?? true) &&
               ((playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&
@@ -2140,6 +2146,7 @@ class _SongCellState extends State<_SongCellWidget> {
           }
         } else {
           isNowSelected = false;
+          lastRepeat = null;
           child = null;
           Size size = widget.buildSize;
           return Container(
@@ -2153,10 +2160,11 @@ class _SongCellState extends State<_SongCellWidget> {
         }
 
         // for efficiency, use the existing child
-        if (isNowSelected == selected && child != null) {
+        if (isNowSelected == selected && repeat == lastRepeat && child != null) {
           return child;
         }
         selected = isNowSelected;
+        lastRepeat = repeat;
         return childBuilder(context);
       },
       child: Builder(builder: childBuilder),
@@ -2165,6 +2173,7 @@ class _SongCellState extends State<_SongCellWidget> {
 
   Widget childBuilder(BuildContext context) {
     if (selected) {
+      //  diagnostic only
       logger.log(
           _logChildBuilder,
           '_SongCellState.childBuilder: selected: ${widget.songMoment?.momentNumber}'
@@ -2175,7 +2184,19 @@ class _SongCellState extends State<_SongCellWidget> {
           );
     }
 
-    RichText richText = widget.richText;
+    RichText richText =
+        //  an exception for repeat decorators with multiple repeats
+        (widget.row == _row && widget.measureNode?.measureNodeType == MeasureNodeType.decoration && lastRepeat != null)
+            ? RichText(
+                text: TextSpan(
+                    text: 'x${lastRepeat! + 1}'
+                        '/${(widget.measureNode! as MeasureRepeatMarker).repeats}',
+                    style: widget.richText.text.style),
+                textScaler: widget.richText.textScaler,
+                maxLines: 1,
+              )
+            : widget.richText;
+
     Size buildSize = widget.computedBuildSize;
 
     //  set width
@@ -2301,6 +2322,8 @@ class _SongCellState extends State<_SongCellWidget> {
   }
 
   var selected = false; //  indicates the cell is currently selected, i.e. highlighted
+  int? lastRepeat; //  last repeat indicated for repeat markers with multiple repeats
+  int _row = -3;
 }
 
 @immutable

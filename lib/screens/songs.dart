@@ -1,10 +1,10 @@
 import 'dart:math';
 
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -181,8 +181,8 @@ class SongsState extends State<Songs> {
   }
 
   Future<SongsDialogResponse> _diffWarningPopup(Song oldSong, Song newSong) async {
-    PrettyDiffText prettyDiffText =
-        PrettyDiffText(oldText: Util.readableJson(oldSong.toJson()), newText: Util.readableJson(newSong.toJson()));
+    PrettyDiffText prettyDiffText = PrettyDiffText(
+        oldText: Util.readableJson(oldSong.toJsonString()), newText: Util.readableJson(newSong.toJsonString()));
     logger.i('_diffWarningPopup( ${oldSong.songId.toString()} , ${newSong.songId.toString()})');
     SongsDialogResponse response = SongsDialogResponse.rejectAll;
     await showDialog(

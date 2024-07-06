@@ -551,7 +551,7 @@ class AppOptions extends ChangeNotifier {
   double _volume = 1.0;
 
   set lastSongEdited(Song song) {
-    var songString = song.toJson();
+    var songString = song.toJsonString();
     if (_lastSongEdited == songString) {
       return;
     }

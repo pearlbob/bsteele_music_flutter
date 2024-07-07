@@ -2186,7 +2186,7 @@ class _SongCellState extends State<_SongCellWidget> {
 
     RichText richText =
         //  an exception for repeat decorators with multiple repeats
-        (widget.row == _row && widget.measureNode?.measureNodeType == MeasureNodeType.decoration && lastRepeat != null)
+        (widget.row == _row && widget.measureNode is MeasureRepeatMarker && lastRepeat != null)
             ? RichText(
                 text: TextSpan(
                     text: 'x${lastRepeat! + 1}'

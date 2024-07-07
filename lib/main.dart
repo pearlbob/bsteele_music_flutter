@@ -268,7 +268,7 @@ class BSteeleMusicApp extends StatelessWidget {
         ],
         builder: (context, child) {
           return MaterialApp(
-            title: 'bsteeleMusicApp dude',
+            title: 'bsteeleMusicApp',
             theme: app.themeData,
             navigatorObservers: [playerRouteObserver],
 

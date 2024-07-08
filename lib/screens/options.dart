@@ -11,7 +11,7 @@ import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
 import 'package:bsteele_music_flutter/main.dart';
-import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -653,7 +653,7 @@ class OptionsState extends State<Options> {
   Timer? _timer;
 
   double _timerT = 0;
-  final SongUpdateService _songUpdateService = SongUpdateService();
+  final AppSongUpdateService _songUpdateService = AppSongUpdateService();
   String _ipAddress = '';
 
   final AppAudioPlayer _audioPlayer = AppAudioPlayer();

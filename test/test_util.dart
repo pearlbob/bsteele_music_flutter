@@ -1,7 +1,7 @@
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
 import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -242,8 +242,8 @@ class RegexpTextFinder extends MatchFinder {
 
 testUtilShutdown(WidgetTester tester) async {
   //  wait for song update service to close
-  SongUpdateService.close();
-  if (SongUpdateService.delayMilliseconds > 0) {
-    await tester.pumpAndSettle(Duration(seconds: SongUpdateService.delayMilliseconds));
+  AppSongUpdateService.close();
+  if (AppSongUpdateService.delayMilliseconds > 0) {
+    await tester.pumpAndSettle(Duration(seconds: AppSongUpdateService.delayMilliseconds));
   }
 }

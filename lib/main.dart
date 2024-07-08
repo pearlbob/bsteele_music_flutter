@@ -85,7 +85,7 @@ import 'package:bsteele_music_flutter/screens/songs.dart';
 import 'package:bsteele_music_flutter/screens/styleDemo.dart';
 import 'package:bsteele_music_flutter/screens/theory.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
-import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
@@ -342,7 +342,7 @@ class MyHomePageState extends State<MyHomePage> {
   Future<void> _readSongList() async {
     //  normally read external (web) song list and setup the websocket
     if (_environment == _environmentDefault) {
-      SongUpdateService.open(context);
+      AppSongUpdateService.open(context);
       await _readExternalSongList();
     } else {
       //  testing:  read the internal list

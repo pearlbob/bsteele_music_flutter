@@ -1657,7 +1657,7 @@ class LyricsTable {
     if (rowNumber == null) {
       return 0;
     }
-    return _song.songMomentToGridCoordinate[rowNumber].row;
+    return _song.songMomentToGridCoordinate[max(rowNumber, 0)].row;
   }
 
   double rowToDisplayOffset(final int? rowNumber) {

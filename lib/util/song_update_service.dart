@@ -19,22 +19,22 @@ const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
 const Level _logLeader = Level.debug;
 
-class SongUpdateService extends ChangeNotifier {
-  SongUpdateService.open(BuildContext context) {
+class AppSongUpdateService extends ChangeNotifier {
+  AppSongUpdateService.open(BuildContext context) {
     _singleton._open(context);
   }
 
-  SongUpdateService.close() {
+  AppSongUpdateService.close() {
     _singleton._close();
   }
 
-  static final SongUpdateService _singleton = SongUpdateService._internal();
+  static final AppSongUpdateService _singleton = AppSongUpdateService._internal();
 
-  factory SongUpdateService() {
+  factory AppSongUpdateService() {
     return _singleton;
   }
 
-  SongUpdateService._internal();
+  AppSongUpdateService._internal();
 
   void _open(BuildContext context) async {
     currentContext = context;

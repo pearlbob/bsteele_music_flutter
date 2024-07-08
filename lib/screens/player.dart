@@ -9,7 +9,7 @@ import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
-import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
@@ -86,6 +86,7 @@ const String _playStopPauseHints = '''\n
 Click the play button for play. You may not see immediate song motion.
 Space bar or clicking the song area starts play as well.
 Space bar in play selects pause.  Space bar in pause selects play.
+Number 0 or a period toggles pause.
 Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
 Right arrow speeds up the BPM.
 Left arrow slows the BPM.
@@ -1203,10 +1204,15 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             break;
         }
         return KeyEventResult.handled;
-      } else if (e.logicalKey == LogicalKeyboardKey.numpad0) {
+      } else if (e.logicalKey == LogicalKeyboardKey.numpad0 ||
+          e.logicalKey == LogicalKeyboardKey.digit0 ||
+          e.logicalKey == LogicalKeyboardKey.period) {
         switch (_songUpdateState) {
           case SongUpdateState.playing:
             _performPause();
+            break;
+          case SongUpdateState.pause:
+            _performPlay();
             break;
           default:
             break;
@@ -2562,7 +2568,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   late AppWidgetHelper _appWidgetHelper;
 
   static final _appOptions = AppOptions();
-  final SongUpdateService _songUpdateService = SongUpdateService();
+  final AppSongUpdateService _songUpdateService = AppSongUpdateService();
 }
 
 /// Display data on the song while in auto or manual play mode

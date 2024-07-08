@@ -10,7 +10,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteele_music_flutter/util/songUpdateService.dart';
+import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1292,7 +1292,7 @@ class SingersState extends State<Singers> {
 
   late AppWidgetHelper appWidgetHelper;
 
-  final SongUpdateService _songUpdateService = SongUpdateService();
+  final AppSongUpdateService _songUpdateService = AppSongUpdateService();
 
   set searchForSelectedSingerOnly(bool selection) {
     _searchForSelectedSingerOnly = _selectedSinger == _unknownSinger ? false : selection;

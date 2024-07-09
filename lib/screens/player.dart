@@ -103,7 +103,7 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   logger.log(
       _logLeaderFollower,
       'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
-      ', pbm: ${songUpdate.currentBeatsPerMinute} vs ${songUpdate.song.beatsPerMinute}');
+      ', bpm: ${songUpdate.currentBeatsPerMinute} vs ${songUpdate.song.beatsPerMinute}');
 
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(
@@ -111,9 +111,10 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
   }
 
   //  listen if anyone else is talking
-  _player?._songUpdateService.isLeader = false;
+  _player?._songUpdateService.isLeader = songUpdate.user == _PlayerState._appOptions.user;
 
-  if (!songUpdate.song.songBaseSameContent(_songUpdate?.song)) {
+  if (!songUpdate.song.songBaseSameContent(_songUpdate?.song) ||
+      songUpdate.currentBeatsPerMinute != _songUpdate?.currentBeatsPerMinute) {
     _player?._adjustDisplay();
   }
   _songUpdate = songUpdate;
@@ -344,6 +345,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     //  deal with song updates
     if (_songUpdate != null) {
+      if (_songUpdateService.isLeader) {
+        _songMaster.setBpm(_songUpdate?.currentBeatsPerMinute ?? _song.beatsPerMinute);
+      }
       if (!_song.songBaseSameContent(_songUpdate!.song) || _displayKeyOffset != app.displayKeyOffset) {
         _assignNewSong(_songUpdate!.song);
         _setPlayMomentNotifier(_songUpdate!.state, _songUpdate?.songMoment?.momentNumber ?? 0, _songUpdate!.songMoment);

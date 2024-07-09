@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:bsteele_music_lib/util/uri_helper.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -15,10 +15,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../app/appOptions.dart';
 
 const Level _log = Level.debug;
-const Level _logMessage = Level.debug;
+const Level _logMessage = Level.info;
 const Level _logJson = Level.debug;
 const Level _logLeader = Level.debug;
 
+/// fixme: this should be rewritten to use the SongUpdateService from the library!!!!!
 class AppSongUpdateService extends ChangeNotifier {
   AppSongUpdateService.open(BuildContext context) {
     _singleton._open(context);
@@ -85,15 +86,26 @@ class AppSongUpdateService extends ChangeNotifier {
                 //  time
                 logger.i('time response: $message');
               } else {
-                _songUpdate = SongUpdate.fromJson(message);
-                if (_songUpdate != null) {
-                  playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
-                  _delayMilliseconds = 0;
-                  _songUpdateCount++;
-                  logger.log(
-                      _logMessage,
-                      'received: song: ${_songUpdate?.song.title}'
-                      ' at moment: ${_songUpdate?.momentNumber}');
+                var jsonSongUpdate = SongUpdate.fromJson(message);
+                if (jsonSongUpdate != null) {
+                  if (jsonSongUpdate.user == 'tempo') {
+                    //  note: tempo change is not a change of leadership!
+                    if (_songUpdate != null) {
+                      _songUpdate!.currentBeatsPerMinute = jsonSongUpdate.currentBeatsPerMinute;
+                    }
+                  } else {
+                    _songUpdate = jsonSongUpdate;
+                  }
+                  if (_songUpdate != null) {
+                    playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
+                    _delayMilliseconds = 0;
+                    _songUpdateCount++;
+                    logger.log(
+                        _logMessage,
+                        'received: song: ${_songUpdate?.song.title}'
+                        ' at moment: ${_songUpdate?.momentNumber}'
+                        ', bpm: ${_songUpdate?.currentBeatsPerMinute}');
+                  }
                 }
               }
             }
@@ -222,6 +234,7 @@ class AppSongUpdateService extends ChangeNotifier {
   void issueSongUpdate(SongUpdate songUpdate) {
     if (_isLeader) {
       songUpdate.setUser(_appOptions.user);
+      _songUpdate = songUpdate.copyWith(); //  update out becomes the template for BPM in from the tempo machine fixme?
       var jsonText = songUpdate.toJson();
       _webSocketSink?.add(jsonText);
       logger.log(_logJson, jsonText);

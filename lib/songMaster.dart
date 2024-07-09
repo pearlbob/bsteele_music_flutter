@@ -108,7 +108,7 @@ class SongMaster extends ChangeNotifier {
           ', start: $_songStart, momentNumber: $momentNumber, lyricSectionIndex: $lyricSectionIndex');
 
       //  update the bpm
-      if (_newBpm != null) {
+      if (_newBpm != null && _newBpm != _bpm) {
         //   logger.i('\n_bpm: $_bpm, _newBpm: $_newBpm');
         if (_song != null && momentNumber >= 0) {
           double beat = (time - (_songStart ?? 0)) * _bpm / 60.0;
@@ -370,20 +370,20 @@ class SongMaster extends ChangeNotifier {
     switch (songUpdateState) {
       case SongUpdateState.none:
       case SongUpdateState.idle:
-        _setBpm(bpm);
+        setBpm(bpm);
         songUpdateState = SongUpdateState.drumTempo;
         notifyListeners();
         break;
       case SongUpdateState.drumTempo:
-        _setBpm(bpm);
+        setBpm(bpm);
         break;
       default:
         break;
     }
   }
 
-  _setBpm(int bpm) {
-    _bpm = Util.intLimit(bpm, MusicConstants.minBpm, MusicConstants.maxBpm);
+  setBpm(int bpm) {
+    _newBpm = Util.intLimit(bpm, MusicConstants.minBpm, MusicConstants.maxBpm);
   }
 
   /// Play a song in real time

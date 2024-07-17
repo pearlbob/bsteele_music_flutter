@@ -1,10 +1,5 @@
 import 'dart:collection';
 
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
-import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_lib/songs/song_performance.dart';
-import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
@@ -12,6 +7,11 @@ import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -37,7 +37,7 @@ const String _unknownSinger = 'unknown';
 String _selectedSinger = _unknownSinger;
 bool _selectedSingerIsRequester = false;
 String _selectedVolunteerSinger = _unknownSinger;
-bool _searchForSelectedSingerOnly = false;
+bool _editRequestersList = false;
 Map<String, bool> _singerIsRequesterMap = {};
 
 enum SingersSongOrder { singer, title, recentOnTop, oldestFirst }
@@ -100,7 +100,7 @@ class SingersState extends State<Singers> {
           ..addAll(_allSongPerformances.allSongPerformanceRequests.where((e) => e.requester == _selectedSinger));
         logger.log(_singerRequester, 'requests: $songRequestsFromRequester');
 
-        if (searchForSelectedSingerOnly) {
+        if (editRequestersList) {
           songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
               .where((e) => e.requester == _selectedSinger && e.song != null)
               .map((e) => e.song)
@@ -140,7 +140,7 @@ class SingersState extends State<Singers> {
         //  songs sung by other session singers
         if (!_selectedSingerIsRequester) {
           for (var singer in _sessionSingers) {
-            if (!searchForSelectedSingerOnly || singer != _selectedSinger) {
+            if (!editRequestersList || singer != _selectedSinger) {
               for (var performance in _allSongPerformances.bySinger(singer)) {
                 if (performance.song != null) {
                   performancesFromSessionSingers.add(performance);
@@ -156,12 +156,12 @@ class SingersState extends State<Singers> {
         }
       }
 
-      logger.d('performances:  searchForSelectedSingerOnly: $_searchForSelectedSingerOnly');
+      logger.d('performances:  searchForSelectedSingerOnly: $editRequestersList');
       if (_isInSingingMode) {
         if (_selectedSinger != _unknownSinger) {
           // 		search text empty
           if (_selectedSingerIsRequester) {
-            if (searchForSelectedSingerOnly) {
+            if (editRequestersList) {
               //  edit the requester's request list
               addSongItems('Songs $_selectedSinger would like to request:', songRequests,
                   color: App.appBackgroundColor, inRequesterList: true);
@@ -312,7 +312,7 @@ class SingersState extends State<Singers> {
         }
       }
 
-      if (searchForSelectedSingerOnly) {
+      if (editRequestersList) {
         searchSelectedSingerSongs();
       } else {
         searchAllPerformanceSongs();
@@ -472,9 +472,10 @@ class SingersState extends State<Singers> {
                 if (!_isInSingingMode)
                   appButton('Other Actions', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
                     setState(() {
-                      showOtherActions = !showOtherActions;
+                      _showOtherActions = !_showOtherActions;
                     });
                   }),
+
                 // if (_isInSingingMode && _dirtyCount > 0)
                 //    //  no longer necessary!  History is from the web server logs
                 //   appButton('Save $_dirtyCount', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
@@ -496,7 +497,7 @@ class SingersState extends State<Singers> {
                   }),
               ]),
               // setup
-              if (!_isInSingingMode && showOtherActions)
+              if (!_isInSingingMode && _showOtherActions)
                 AppWrapFullWidth(alignment: WrapAlignment.end, children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -680,11 +681,12 @@ class SingersState extends State<Singers> {
                               setState(() {
                                 _selectedSingerIsRequester = !_selectedSingerIsRequester;
                                 _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
-                                _searchForSelectedSingerOnly = false;
+                                _editRequestersList = false;
                                 logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
                               });
                             },
-                            child: Text('As requester:', style: songPerformanceStyle))),
+                            child: Text('As requester${_selectedSingerIsRequester ? ':' : ''}',
+                                style: songPerformanceStyle))),
                     if (_selectedSingerIsRequester)
                       AppWrap(spacing: 10, alignment: WrapAlignment.spaceBetween, children: [
                         AppTooltip(
@@ -694,10 +696,11 @@ class SingersState extends State<Singers> {
                               text: 'from the active singers above',
                               appKeyEnum: AppKeyEnum.singersActiveSingers,
                               value: false,
-                              groupValue: searchForSelectedSingerOnly,
+                              //  default to singing mode
+                              groupValue: editRequestersList,
                               onPressed: () {
                                 setState(() {
-                                  searchForSelectedSingerOnly = false;
+                                  _editRequestersList = false;
                                 });
                               },
                               style: singerTextStyle),
@@ -709,10 +712,10 @@ class SingersState extends State<Singers> {
                                 text: 'edit $_selectedSinger requests',
                                 appKeyEnum: AppKeyEnum.optionsNinJam,
                                 value: true,
-                                groupValue: searchForSelectedSingerOnly,
+                                groupValue: editRequestersList,
                                 onPressed: () {
                                   setState(() {
-                                    searchForSelectedSingerOnly = true;
+                                    editRequestersList = true;
                                   });
                                 },
                                 style: singerTextStyle),
@@ -813,11 +816,13 @@ class SingersState extends State<Singers> {
               if (_isInSingingMode && songListGroup.isNotEmpty)
                 PlayList.byGroup(
                   songListGroup,
+                  key: _songListKey,
                   style: singerTextStyle,
                   includeByLastSung: true,
                   isFromTheTop: false,
                   selectedSortType: PlayListSortType.byTitle,
                   playListSearchMatcher: SongPlayListSearchMatcher(),
+                  allowSongListBunching: true,
                 ),
             ],
           ),
@@ -837,7 +842,8 @@ class SingersState extends State<Singers> {
     }
   }
 
-  void addPerformanceItems(String text, Iterable<SongPerformance> performances, {Color? color = Colors.black}) {
+  void addPerformanceItems(String text, Iterable<SongPerformance> performances,
+      {Color? color = Colors.black, bool bunch = false}) {
     if (performances.isNotEmpty) {
       List<PlayListItem> songListItems = [];
 
@@ -896,7 +902,7 @@ class SingersState extends State<Singers> {
           performer: songPerformance.singer,
           key: songPerformance.key,
           bpm: songPerformance.bpm,
-          onChanged: (singer == _selectedSinger && searchForSelectedSingerOnly
+          onChanged: (singer == _selectedSinger && editRequestersList
               ? (bool? value) {
                   if (value != null) {
                     setState(() {
@@ -1060,7 +1066,7 @@ class SingersState extends State<Singers> {
   }
 
   Widget _volunteersWidget() {
-    if (!_isInSingingMode || !_selectedSingerIsRequester || searchForSelectedSingerOnly) {
+    if (!_isInSingingMode || !_selectedSingerIsRequester || editRequestersList) {
       return NullWidget();
     }
     return AppWrapFullWidth(
@@ -1072,7 +1078,7 @@ class SingersState extends State<Singers> {
         ),
         const AppSpace(),
         ..._potentialVolunteers().map(
-              (singer) => appIdButton(
+          (singer) => appIdButton(
             singer,
             appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
             id: Id(singer),
@@ -1263,7 +1269,7 @@ class SingersState extends State<Singers> {
 
   static const singingTooltipText = 'Switch to singing mode, otherwise make adjustments.';
 
-  bool showOtherActions = false;
+  bool _showOtherActions = false;
   List<String> singerList = [];
 
   TextStyle songPerformanceStyle = const TextStyle();
@@ -1275,6 +1281,7 @@ class SingersState extends State<Singers> {
   var selectedSongPerformances = SplayTreeSet<SongPerformance>();
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
 
+  final GlobalKey<PlayListState> _songListKey = GlobalKey(); //  temp value only
   List<PlayListItemList> songLists = [];
 
   final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();
@@ -1294,11 +1301,11 @@ class SingersState extends State<Singers> {
 
   final AppSongUpdateService _songUpdateService = AppSongUpdateService();
 
-  set searchForSelectedSingerOnly(bool selection) {
-    _searchForSelectedSingerOnly = _selectedSinger == _unknownSinger ? false : selection;
+  set editRequestersList(bool selection) {
+    _editRequestersList = _selectedSinger == _unknownSinger ? false : selection;
   }
 
-  bool get searchForSelectedSingerOnly => _searchForSelectedSingerOnly;
+  bool get editRequestersList => _editRequestersList;
 
   void _setSelectedSinger(String? singer) {
     if (singer != _selectedSinger) {
@@ -1308,7 +1315,7 @@ class SingersState extends State<Singers> {
       bool isRequester = _singerIsRequesterMap[_selectedSinger] ?? false;
 
       _selectedSingerIsRequester = isRequester;
-      _searchForSelectedSingerOnly = _selectedSingerIsRequester;
+      editRequestersList = false;
       _selectedVolunteerSinger = _unknownSinger;
 
       //  reset the singer's list

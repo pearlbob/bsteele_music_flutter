@@ -730,6 +730,15 @@ class MyHomePageState extends State<MyHomePage> {
             ),
 
             appListTile(
+              title: 'Tutorial',
+              style: navTextStyle,
+              onTap: () {
+                openLink('http://www.bsteele.com/bsteele_music_tutorial/index.html');
+                Navigator.of(context).pop(); //  drawer
+              },
+            ),
+
+            appListTile(
               appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: 'About',
               style: navTextStyle,

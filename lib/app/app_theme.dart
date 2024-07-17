@@ -739,24 +739,20 @@ void appLogMessage(String message) {
 
 ElevatedButton appButton(
   String commandName, {
-  required AppKeyEnum appKeyEnum,
+  AppKeyEnum? appKeyEnum,
   required final VoidCallback? onPressed,
   final Color? backgroundColor,
   final double? fontSize,
   final dynamic value,
 }) {
-  var key = appKeyCreate(appKeyEnum, value: value);
   var voidCallback = onPressed == null
       ? null //  show as disabled   //  fixme: does this work?
       : () {
-          _appLogCallback(key); //  log the click
           onPressed.call();
         };
   var buttonBackgroundColor = onPressed == null ? App.disabledColor : backgroundColor;
-  _appKeyRegisterVoidCallback(key, voidCallback: voidCallback);
 
   return ElevatedButton(
-    key: key,
     clipBehavior: Clip.hardEdge,
     onPressed: voidCallback,
     style: app.themeData.elevatedButtonTheme.style
@@ -1008,24 +1004,20 @@ Drawer appDrawer({required AppKeyEnum appKeyEnum, required Widget child, VoidCal
 }
 
 ListTile appListTile({
-  required final AppKeyEnum appKeyEnum,
+  final AppKeyEnum? appKeyEnum, // fixme: eliminate
   required String title,
   required final GestureTapCallback? onTap,
   TextStyle? style,
   final bool enabled = true,
 }) {
-  var key = appKeyCreate(appKeyEnum);
-  _appKeyRegisterVoidCallback(key, voidCallback: onTap);
   style = style ?? appTextStyle;
   if (!enabled) {
     style == style.copyWith(color: App.disabledColor);
   }
   return ListTile(
-    key: key,
     title: Text(title, style: style),
     enabled: enabled,
     onTap: () {
-      _appLogCallback(key);
       onTap?.call();
     },
   );

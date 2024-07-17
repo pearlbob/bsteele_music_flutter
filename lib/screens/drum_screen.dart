@@ -426,7 +426,8 @@ class DrumPlayListItem implements PlayListItem {
   }
 
   @override
-  Widget toWidget(BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus) {
+  Widget toWidget(
+      BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus, bool bunch) {
     var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);
     return AppInkWell(
         appKeyEnum: AppKeyEnum.drumScreenSelection,

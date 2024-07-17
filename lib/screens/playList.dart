@@ -68,7 +68,8 @@ abstract class PlayListItem implements Comparable<PlayListItem> {
   @override
   int compareTo(PlayListItem other);
 
-  Widget toWidget(BuildContext context, PlayListItemAction? playListItemAction, bool isEditing, VoidCallback? refocus);
+  Widget toWidget(final BuildContext context, final PlayListItemAction? playListItemAction, final bool isEditing,
+      final VoidCallback? refocus, final bool bunch);
 }
 
 class SongPlayListItem implements PlayListItem {
@@ -78,49 +79,82 @@ class SongPlayListItem implements PlayListItem {
       : song = songPerformance!.performedSong;
 
   @override
-  Widget toWidget(BuildContext context, PlayListItemAction? playListItemAction, bool isEditing, VoidCallback? refocus) {
+  Widget toWidget(final BuildContext context, final PlayListItemAction? playListItemAction, final bool isEditing,
+      final VoidCallback? refocus, final bool bunch) {
     AppWrap songWidget;
     if (songPerformance != null) {
-      songWidget = AppWrap(children: [
-        Text(
-          '${songPerformance!.singer}:  ',
-          style: _indexTextStyle,
-        ),
-        Text(
-          song.title,
-          style: _indexTitleStyle,
-        ),
-        Text(
-          '  by ${song.artist}',
-          style: _indexTextStyle,
-        ),
-        if (song.coverArtist.isNotEmpty)
+      if (bunch) {
+        songWidget = AppWrap(children: [
+          Text(song.title,
+              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.normal)),
+          Text('   ', style: _indexTitleStyle),
+        ]);
+      } else {
+        songWidget = AppWrap(children: [
           Text(
-            ', cover by ${song.coverArtist}',
+            '${songPerformance!.singer}:  ',
             style: _indexTextStyle,
           ),
-        Text(
-          ' in ${songPerformance!.key}',
-          style: _indexTextStyle,
-        ),
-      ]);
+          Text(
+            song.title,
+            style: _indexTitleStyle,
+          ),
+          Text(
+            '  by ${song.artist}',
+            style: _indexTextStyle,
+          ),
+          if (song.coverArtist.isNotEmpty)
+            Text(
+              ', cover by ${song.coverArtist}',
+              style: _indexTextStyle,
+            ),
+          Text(
+            ' in ${songPerformance!.key}',
+            style: _indexTextStyle,
+          ),
+        ]);
+      }
     } else {
       //  song
-      songWidget = AppWrap(children: [
-        Text(
-          song.title,
-          style: _indexTitleStyle,
-        ),
-        Text(
-          '  by ${song.artist}',
-          style: _indexTextStyle,
-        ),
-        if (song.coverArtist.isNotEmpty)
+      if (bunch) {
+        songWidget = AppWrap(children: [
+          Text(song.title,
+              style: _indexTitleStyle.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.normal)),
+          Text('   ', style: _indexTitleStyle),
+        ]);
+      } else {
+        songWidget = AppWrap(children: [
           Text(
-            ', cover by ${song.coverArtist}',
+            song.title,
+            style: _indexTitleStyle,
+          ),
+          Text(
+            '  by ${song.artist}',
             style: _indexTextStyle,
           ),
-      ]);
+          if (song.coverArtist.isNotEmpty)
+            Text(
+              ', cover by ${song.coverArtist}',
+              style: _indexTextStyle,
+            ),
+        ]);
+      }
+    }
+
+    if (bunch) {
+      return AppInkWell(
+          appKeyEnum: AppKeyEnum.mainSong,
+          value: Id(song.songId.toString()),
+          onTap: () {
+            if (!isEditing) {
+              if (playListItemAction != null) {
+                playListItemAction(context, this);
+                //  expect return to play list
+                refocus?.call();
+              }
+            }
+          },
+          child: songWidget);
     }
 
     return AppInkWell(
@@ -235,9 +269,9 @@ class SongPlayListItem implements PlayListItem {
 }
 
 class PlayListItemList {
-  const PlayListItemList(this.label, this.playListItems, {this.playListItemAction, this.color});
+  const PlayListItemList(this.label, this.playListItems, {this.playListItemAction, this.color, this.bunch = false});
 
-  int get length => 1 + playListItems.length;
+  int get length => 1 + (bunch ? 1 : playListItems.length);
 
   Widget _indexToWidget(BuildContext context, int index, bool isEditing, VoidCallback? refocus) {
     assert(index >= 0 && index - 1 < playListItems.length);
@@ -264,14 +298,25 @@ class PlayListItemList {
             );
     }
 
+    if (bunch) {
+      return Wrap(
+        children: [
+          ...playListItems.map<Widget>((e) {
+            return e.toWidget(context, playListItemAction, isEditing, refocus, bunch);
+          })
+        ],
+      );
+    }
+
     //  other indices are the song items
-    return playListItems[index - 1].toWidget(context, playListItemAction, isEditing, refocus);
+    return playListItems[index - 1].toWidget(context, playListItemAction, isEditing, refocus, bunch);
   }
 
   final String label;
   final List<PlayListItem> playListItems;
   final PlayListItemAction? playListItemAction;
   final Color? color;
+  final bool bunch;
 }
 
 class PlayListGroup {
@@ -285,7 +330,7 @@ class PlayListGroup {
 
   bool get isNotEmpty => group.isNotEmpty;
 
-  Widget _indexToWidget(BuildContext context, int index, bool isEditing, VoidCallback? refocus) {
+  Widget _indexToWidget(final BuildContext context, int index, final bool isEditing, final VoidCallback? refocus) {
     for (var itemList in group) {
       if (index >= itemList.length) {
         index -= itemList.length;
@@ -311,6 +356,7 @@ class PlayList extends StatefulWidget {
     isOrderBy = true,
     useAllFilters = false,
     required PlayListSearchMatcher playListSearchMatcher,
+    allowSongListBunching = false,
   }) : this.byGroup(PlayListGroup([itemList]),
             key: key,
             style: style,
@@ -333,6 +379,7 @@ class PlayList extends StatefulWidget {
     this.isOrderBy = true,
     this.showAllFilters = false,
     required this.playListSearchMatcher,
+    this.allowSongListBunching = false,
   }) : titleStyle = (style ?? generateAppTextStyle()).copyWith(fontWeight: FontWeight.bold) {
     //
     titleFontSize = style?.fontSize ?? appDefaultFontSize;
@@ -346,7 +393,7 @@ class PlayList extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _PlayListState();
+  State<StatefulWidget> createState() => PlayListState();
 
   final PlayListGroup group;
   final TextStyle? style;
@@ -356,6 +403,7 @@ class PlayList extends StatefulWidget {
   final bool isFromTheTop;
   final bool isOrderBy;
   final bool showAllFilters;
+  final bool allowSongListBunching;
 
   final TextStyle titleStyle;
   late final double titleFontSize;
@@ -370,8 +418,8 @@ class PlayList extends StatefulWidget {
   final PlayListSearchMatcher playListSearchMatcher;
 }
 
-class _PlayListState extends State<PlayList> {
-  _PlayListState() {
+class PlayListState extends State<PlayList> {
+  PlayListState() {
     logger.log(_logConstruct, '_PlayListState():');
   }
 
@@ -638,7 +686,13 @@ class _PlayListState extends State<PlayList> {
             }
             if (filteredSet.isNotEmpty) {
               filteredSongLists.add(PlayListItemList(songList.label, filteredSet.toList(growable: false),
-                  playListItemAction: songList.playListItemAction, color: songList.color));
+                  playListItemAction: songList.playListItemAction,
+                  color: songList.color,
+                  bunch: widget.allowSongListBunching
+                      //  don't bunch when performances might be confused with each other
+                      &&
+                      _searchTextFieldController.text.isEmpty &&
+                      _bunchSongList));
             } else {
               bestSongItemAction ??= songList.playListItemAction;
             }
@@ -754,7 +808,6 @@ class _PlayListState extends State<PlayList> {
                         appKeyEnum: AppKeyEnum.playListClearSearch,
                         iconSize: 1.25 * widget.titleFontSize,
                         onPressed: (() {
-                          logger.i('appIconButton search clear: onPressed()');
                           _searchTextFieldController.clear();
                           app.clearMessage();
                           setState(() {
@@ -765,6 +818,21 @@ class _PlayListState extends State<PlayList> {
                       )),
 
                   const AppSpace(),
+                  if (widget.allowSongListBunching)
+                    AppTooltip(
+                      message: 'Toggle the bunching of the list.\n'
+                          'This will be disabled if searching.',
+                      child: appButton(_bunchSongList ? 'Expand' : 'Bunch',
+                          onPressed: _searchTextFieldController.text.isEmpty
+                              ? () {
+                                  setState(() {
+                                    _bunchSongList = !_bunchSongList;
+                                  });
+                                }
+                              : null),
+                    ),
+                  const AppSpace(),
+
                   //  filters
                   AppTooltip(
                       message: '''Filter the list by the selected metadata.
@@ -883,6 +951,16 @@ class _PlayListState extends State<PlayList> {
     return KeyEventResult.ignored;
   }
 
+  bool searchTextFieldIsEmpty() {
+    return _searchTextFieldController.text.isEmpty;
+  }
+
+  set text(final String text) {
+    setState(() {
+      _searchTextFieldController.text = text;
+    });
+  }
+
   @override
   void dispose() {
     _searchTextFieldController.dispose();
@@ -902,6 +980,7 @@ class _PlayListState extends State<PlayList> {
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
 
   final TextEditingController _searchTextFieldController = TextEditingController();
+  bool _bunchSongList = false;
   final FocusNode _searchFocusNode = FocusNode();
   static const _searchTextTooltipText = 'Enter search text here\nto help select the item.';
 }

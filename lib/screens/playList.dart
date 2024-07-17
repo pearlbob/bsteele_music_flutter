@@ -70,6 +70,8 @@ abstract class PlayListItem implements Comparable<PlayListItem> {
 
   Widget toWidget(final BuildContext context, final PlayListItemAction? playListItemAction, final bool isEditing,
       final VoidCallback? refocus, final bool bunch);
+
+  String get title;
 }
 
 class SongPlayListItem implements PlayListItem {
@@ -77,6 +79,9 @@ class SongPlayListItem implements PlayListItem {
 
   SongPlayListItem.fromPerformance(this.songPerformance, {this.customWidget, this.firstWidget})
       : song = songPerformance!.performedSong;
+
+  @override
+  String get title => song.title;
 
   @override
   Widget toWidget(final BuildContext context, final PlayListItemAction? playListItemAction, final bool isEditing,
@@ -299,9 +304,15 @@ class PlayListItemList {
     }
 
     if (bunch) {
+      //  eliminate title duplicates if bunched
+      SplayTreeSet<PlayListItem> playListItemSet = SplayTreeSet<PlayListItem>((item1, item2) {
+        return item1.title.compareTo(item2.title);
+      })
+        ..addAll(playListItems);
+
       return Wrap(
         children: [
-          ...playListItems.map<Widget>((e) {
+          ...playListItemSet.map<Widget>((e) {
             return e.toWidget(context, playListItemAction, isEditing, refocus, bunch);
           })
         ],
@@ -685,14 +696,13 @@ class PlayListState extends State<PlayList> {
               }
             }
             if (filteredSet.isNotEmpty) {
-              filteredSongLists.add(PlayListItemList(songList.label, filteredSet.toList(growable: false),
-                  playListItemAction: songList.playListItemAction,
-                  color: songList.color,
-                  bunch: widget.allowSongListBunching
-                      //  don't bunch when performances might be confused with each other
-                      &&
-                      _searchTextFieldController.text.isEmpty &&
-                      _bunchSongList));
+              filteredSongLists.add(PlayListItemList(
+                songList.label,
+                filteredSet.toList(growable: false),
+                playListItemAction: songList.playListItemAction,
+                color: songList.color,
+                bunch: isBunching(),
+              ));
             } else {
               bestSongItemAction ??= songList.playListItemAction;
             }
@@ -922,6 +932,13 @@ class PlayListState extends State<PlayList> {
       );
     });
   }
+
+  bool isBunching() =>
+      widget.allowSongListBunching
+      //  don't bunch when performances might be confused with each other
+      &&
+      _searchTextFieldController.text.isEmpty &&
+      _bunchSongList;
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
     if (_itemScrollController.isAttached && (event is KeyDownEvent || event is KeyRepeatEvent)) {

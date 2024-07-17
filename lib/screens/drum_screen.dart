@@ -426,6 +426,9 @@ class DrumPlayListItem implements PlayListItem {
   }
 
   @override
+  String get title => drumParts.name;
+
+  @override
   Widget toWidget(
       BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus, bool bunch) {
     var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);

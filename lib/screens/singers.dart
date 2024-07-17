@@ -816,7 +816,7 @@ class SingersState extends State<Singers> {
               if (_isInSingingMode && songListGroup.isNotEmpty)
                 PlayList.byGroup(
                   songListGroup,
-                  key: _songListKey,
+                  key: _songPlayListKey,
                   style: singerTextStyle,
                   includeByLastSung: true,
                   isFromTheTop: false,
@@ -1174,6 +1174,25 @@ class SingersState extends State<Singers> {
 
   _navigateSongListToPlayer(BuildContext context, PlayListItem playListItem) async {
     if (playListItem is SongPlayListItem) {
+      if (_selectedSingerIsRequester) {
+        int count = _allSongPerformances.allSongPerformances.fold(0, (c, e) {
+          return c +
+              (e.song?.title == playListItem.title && e.singer != _selectedSinger && _sessionSingers.contains(e.singer)
+                  ? 1
+                  : 0);
+        });
+        //  if the play list is bunching and there is more than one choice,
+        //  put the title in the search to force bunching off temporarily and
+        //  get a selection of the available sources
+        if (count > 1 && (_songPlayListKey.currentState?.isBunching() ?? false)) {
+          var widget = _songPlayListKey.currentWidget;
+          if (widget is PlayList) {
+            _songPlayListKey.currentState?.text = playListItem.title;
+            return;
+          }
+        }
+      }
+
       if (playListItem.songPerformance != null) {
         _navigatePerformanceToPlayer(context, playListItem.songPerformance!);
       } else {
@@ -1281,7 +1300,7 @@ class SingersState extends State<Singers> {
   var selectedSongPerformances = SplayTreeSet<SongPerformance>();
   var requestedSongPerformances = SplayTreeSet<SongPerformance>();
 
-  final GlobalKey<PlayListState> _songListKey = GlobalKey(); //  temp value only
+  final GlobalKey<PlayListState> _songPlayListKey = GlobalKey(); //  temp value only
   List<PlayListItemList> songLists = [];
 
   final SplayTreeSet<Song> _filteredSongs = SplayTreeSet();

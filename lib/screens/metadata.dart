@@ -1,13 +1,13 @@
 import 'dart:collection';
 
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/metadataPopupMenuButton.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -148,21 +148,18 @@ class MetadataScreenState extends State<MetadataScreen> {
                     AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                       appButton(
                         'Write all metadata to file',
-                        appKeyEnum: AppKeyEnum.listsSave,
                         onPressed: () {
                           _saveSongMetadata();
                         },
                       ),
                       appButton(
                         'Write all metadata to CSV',
-                        appKeyEnum: AppKeyEnum.listsSaveCSV,
                         onPressed: () {
                           _saveSongMetadataAsCSV();
                         },
                       ),
                       appButton(
                         'Read metadata from file',
-                        appKeyEnum: AppKeyEnum.listsReadLists,
                         onPressed: () {
                           setState(() {
                             _filePick(context);
@@ -180,7 +177,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                       //   ),
                       appButton(
                         'Delete all ${nameValueIsDeletable(_selectedNameValue) ? _selectedNameValue.toString() : 'is disabled'}',
-                        appKeyEnum: AppKeyEnum.listsClearLists,
                         onPressed: nameValueIsDeletable(_selectedNameValue)
                             ? () {
                                 showDialog(
@@ -193,7 +189,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                           actions: [
                                             AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
                                               appButton('Yes! Delete all of ${_selectedNameValue.toString()}.',
-                                                  appKeyEnum: AppKeyEnum.listsDeleteList, onPressed: () {
+                                                  onPressed: () {
                                                 logger.log(_logDeleteSong, 'delete: ${_selectedNameValue.toString()}');
                                                 setState(() {
                                                   SongMetadata.removeAll(_selectedNameValue);
@@ -203,8 +199,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                                                 Navigator.of(context).pop();
                                               }),
                                               const AppSpace(space: 100),
-                                              appButton('Cancel', appKeyEnum: AppKeyEnum.listsCancelDeleteList,
-                                                  onPressed: () {
+                                              appButton('Cancel', onPressed: () {
                                                 Navigator.of(context).pop();
                                               }),
                                             ])
@@ -244,7 +239,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                                   width: 10 * app.screenInfo.fontSize,
                                   //  limit text entry display length
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.listsNameEntry,
                                     controller: _nameTextFieldController,
                                     hintText: "enter name...",
                                     //                 hintStyle: metadataStyle.copyWith(color: Colors.black54),
@@ -260,7 +254,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     message: 'Clear the name text.',
                                     child: appIconButton(
                                       icon: const Icon(Icons.clear),
-                                      appKeyEnum: AppKeyEnum.listsNameClear,
                                       iconSize: metadataStyle.fontSize,
                                       onPressed: (() {
                                         setState(() {
@@ -300,7 +293,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                                   width: 10 * app.screenInfo.fontSize,
                                   //  limit text entry display length
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.listsValueEntry,
                                     controller: _valueTextFieldController,
                                     hintText: "enter value...",
                                     onChanged: (text) {
@@ -320,7 +312,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                                     message: 'Clear the value text.',
                                     child: appIconButton(
                                       icon: const Icon(Icons.clear),
-                                      appKeyEnum: AppKeyEnum.listsValueClear,
                                       iconSize: metadataStyle.fontSize,
                                       onPressed: (() {
                                         setState(() {
@@ -366,7 +357,6 @@ class MetadataScreenState extends State<MetadataScreen> {
                                                   Icons.add,
                                                 ),
                                                 label: _selectedNameValue.toString(),
-                                                appKeyEnum: AppKeyEnum.listsMetadataAddToSong,
                                                 value: SongIdMetadataItem(song, _selectedNameValue),
                                                 fontSize: 0.75 * app.screenInfo.fontSize,
                                                 backgroundColor: Colors.lightGreen,
@@ -399,7 +389,7 @@ class MetadataScreenState extends State<MetadataScreen> {
                       ),
                     ),
                   ])),
-          floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.listsBack),
+          floatingActionButton: appWidgetHelper.floatingBack(),
         ));
   }
 
@@ -465,22 +455,20 @@ Writing a file will allow you to reload your changes later.''',
                 style: metadataStyle,
               ),
               actions: [
-                appButton('Don\'t write my changes!', appKeyEnum: AppKeyEnum.metadataDiscardAllChanges, onPressed: () {
+                appButton('Don\'t write my changes!', onPressed: () {
                   app.clearMessage();
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
                 const AppSpace(),
-                appButton('Write the metadata to a file and return', appKeyEnum: AppKeyEnum.metadataWriteAllChanges,
-                    onPressed: () {
+                appButton('Write the metadata to a file and return', onPressed: () {
                   _saveSongMetadata();
                   app.clearMessage();
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
                 const AppSpace(),
-                appButton('Cancel the return... I need to work some more on this.',
-                    appKeyEnum: AppKeyEnum.metadataCancelTheReturn, onPressed: () {
+                appButton('Cancel the return... I need to work some more on this.', onPressed: () {
                   Navigator.of(context).pop();
                 }),
               ],

@@ -280,13 +280,13 @@ class App {
   }
 
   /// Generate a message display widget
-  Widget messageTextWidget(AppKeyEnum appKeyEnum) {
+  Widget messageTextWidget() {
     if (_message.isEmpty) {
       return NullWidget();
     }
     return Text(_message,
         style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle,
-        key: appKeyCreate(appKeyEnum));
+    );
   }
 
   String get message => _message;
@@ -596,7 +596,6 @@ class AppRadio<T> extends StatelessWidget {
   const AppRadio({
     super.key,
     required this.text,
-    required this.appKeyEnum,
     required this.value,
     required this.groupValue,
     required this.onPressed,
@@ -614,13 +613,12 @@ class AppRadio<T> extends StatelessWidget {
             onPressed?.call();
           },
         ),
-        appTextButton(text, appKeyEnum: appKeyEnum, onPressed: onPressed, style: style, value: value),
+        appTextButton(text, onPressed: onPressed, style: style, value: value),
       ],
     );
   }
 
   final String text;
-  final AppKeyEnum appKeyEnum;
   final T value;
   final T groupValue;
   final VoidCallback? onPressed;
@@ -658,7 +656,6 @@ class AppWidgetHelper {
 
   IconButton back({final CanPopQualifier? canPop, final VoidCallback? onPressed}) {
     return appIconButton(
-      appKeyEnum: AppKeyEnum.appBack,
       onPressed: () {
         if (canPop?.call() ?? true) {
           onPressed?.call();
@@ -669,11 +666,10 @@ class AppWidgetHelper {
     );
   }
 
-  Widget floatingBack(final AppKeyEnum appKeyEnum, {final CanPopQualifier? canPop}) {
+  Widget floatingBack({final CanPopQualifier? canPop}) {
     return AppTooltip(
       message: 'Back',
       child: appFloatingActionButton(
-        appKeyEnum: appKeyEnum,
         onPressed: () {
           if (canPop?.call() ?? true) {
             Navigator.pop(context);
@@ -684,29 +680,25 @@ class AppWidgetHelper {
     );
   }
 
-  AppBar backBar(
-      {final AppKeyEnum? appKeyEnum,
+  AppBar backBar({
       final Widget? titleWidget,
       final String? title,
       final List<Widget>? actions,
       final VoidCallback? onPressed}) {
     return appBar(
-        appKeyEnum: appKeyEnum ?? AppKeyEnum.appBarBack,
         title: title,
         titleWidget: titleWidget,
         leading: back(onPressed: onPressed),
         actions: actions);
   }
 
-  AppBar appBar(
-      {final AppKeyEnum? appKeyEnum,
+  AppBar appBar({
       final String? title,
       final Widget? titleWidget,
       final IconButton? leading,
       final List<Widget>? actions}) {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
-      key: appKeyEnum != null ? appKeyCreate(appKeyEnum) : null,
       leading: leading,
       title: titleWidget ??
           Text(

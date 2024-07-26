@@ -330,7 +330,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    appKeyCallbacksClear();
     _resetIdleTimer();
     app.screenInfo.refresh(context);
     _appWidgetHelper = AppWidgetHelper(context);
@@ -422,7 +421,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
 
         _keyDropDownMenuList.add(appDropdownMenuItem<music_key.Key>(
-            appKeyEnum: AppKeyEnum.playerMusicKey,
             value: value,
             child: AppWrap(children: [
               SizedBox(
@@ -755,11 +753,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             ),
 
           if (_songUpdateState.isPlayingOrPaused && app.fullscreenEnabled && !app.isFullScreen)
-            appButton('Fullscreen', appKeyEnum: AppKeyEnum.playerFullScreen, onPressed: () {
+            appButton('Fullscreen', onPressed: () {
               app.requestFullscreen();
             }),
 
-          if (app.message.isNotEmpty) app.messageTextWidget(AppKeyEnum.playerErrorMessage),
+          if (app.message.isNotEmpty) app.messageTextWidget(),
 
           if (_songUpdateState.isPlayingOrPaused)
             //  repeat notifications
@@ -800,7 +798,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             ' to allow editing.'
                         : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
                 child: appIconWithLabelButton(
-                  appKeyEnum: AppKeyEnum.playerEdit,
                   icon: appIcon(
                     Icons.edit,
                   ),
@@ -815,7 +812,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               AppTooltip(
                 message: 'Show the player settings dialog.',
                 child: appIconWithLabelButton(
-                  appKeyEnum: AppKeyEnum.playerSettings,
                   icon: appIcon(
                     Icons.settings,
                     size: 1.5 * _fontSize,
@@ -864,7 +860,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         ),
                       ),
                       appDropdownButton<music_key.Key>(
-                        AppKeyEnum.playerMusicKey,
                         _keyDropDownMenuList,
                         onChanged: (value) {
                           setState(() {
@@ -884,7 +879,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         AppTooltip(
                           message: 'Move the key one half step up.',
                           child: appIconWithLabelButton(
-                            appKeyEnum: AppKeyEnum.playerKeyUp,
                             icon: appIcon(
                               Icons.arrow_upward,
                             ),
@@ -902,7 +896,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         AppTooltip(
                           message: 'Move the key one half step down.',
                           child: appIconWithLabelButton(
-                            appKeyEnum: AppKeyEnum.playerKeyDown,
                             icon: appIcon(
                               Icons.arrow_downward,
                             ),
@@ -945,7 +938,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         ' to generate the tempo.',
                     child: appButton(
                       'BPM:',
-                      appKeyEnum: AppKeyEnum.playerTempoTap,
                       onPressed: () {
                         _tempoTap(force: true);
                       },
@@ -956,7 +948,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                     width: 3 * app.screenInfo.fontSize,
                     child: AppTextField(
                       hintText: 'bpm',
-                      appKeyEnum: AppKeyEnum.editBPM,
                       controller: _bpmTextEditingController,
                       fontSize: app.screenInfo.fontSize,
                       onChanged: (value) {
@@ -972,7 +963,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       message: 'Increment the selected beats per minute.',
                       child: appIconWithLabelButton(
                           icon: const Icon(Icons.arrow_upward),
-                          appKeyEnum: AppKeyEnum.playerTempoUp,
                           onPressed: () {
                             _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) + 1);
                           })),
@@ -981,7 +971,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       message: 'Decrement the selected beats per minute.',
                       child: appIconWithLabelButton(
                           icon: const Icon(Icons.arrow_downward_outlined),
-                          appKeyEnum: AppKeyEnum.playerTempoDown,
                           onPressed: () {
                             _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) - 1);
                           })),
@@ -990,7 +979,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   if (kDebugMode)
                     appButton(
                       'speed',
-                      appKeyEnum: AppKeyEnum.playerSpeed,
                       onPressed: () {
                         setState(() {
                           playerSelectedBpm = MusicConstants.maxBpm;
@@ -1078,7 +1066,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 softWrap: false,
               ),
               appIconWithLabelButton(
-                appKeyEnum: AppKeyEnum.playerCopyNinjamBPM,
                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                 onPressed: () {
                   Clipboard.setData(
@@ -1093,7 +1080,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 softWrap: false,
               ),
               appIconWithLabelButton(
-                appKeyEnum: AppKeyEnum.playerCopyNinjamCycle,
                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: '/bpi ${_ninJam.beatsPerInterval}'));
@@ -1107,7 +1093,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 softWrap: false,
               ),
               appIconWithLabelButton(
-                appKeyEnum: AppKeyEnum.playerCopyNinjamChords,
                 icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: _ninJam.toMarkup()));
@@ -1891,173 +1876,173 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         //  UserDisplayStyle
-                        AppWrapFullWidth(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: viewportWidth(0.5),
-                            children: [
-                              AppTooltip(
-                                message: 'Select the display style for the song.',
-                                child: Text(
-                                  'Display style: ',
-                                  style: boldStyle,
-                                ),
-                              ),
-                              //  pro player
-                              AppWrap(children: [
-                                Radio<UserDisplayStyle>(
-                                  value: UserDisplayStyle.proPlayer,
-                                  groupValue: _appOptions.userDisplayStyle,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _appOptions.userDisplayStyle = value;
-                                        _adjustDisplay();
-                                      }
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Display the song using the professional player style.\n'
-                                      'This condenses the song chords to a minimum presentation without lyrics.',
-                                  child: appTextButton(
-                                    'Pro',
-                                    appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                    value: UserDisplayStyle.proPlayer,
-                                    onPressed: () {
-                                      setState(() {
-                                        _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle,
-                                  ),
-                                ),
-                              ]),
-                              //  player
-                              AppWrap(children: [
-                                Radio<UserDisplayStyle>(
-                                  value: UserDisplayStyle.player,
-                                  groupValue: _appOptions.userDisplayStyle,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _appOptions.userDisplayStyle = value;
-                                        _adjustDisplay();
-                                      }
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Display the song using the player style.\n'
-                                      'This favors the chords over the lyrics,\n'
-                                      'to the point that the lyrics maybe clipped.',
-                                  child: appTextButton(
-                                    'Player',
-                                    appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                    value: UserDisplayStyle.player,
-                                    onPressed: () {
-                                      setState(() {
-                                        _appOptions.userDisplayStyle = UserDisplayStyle.player;
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle,
-                                  ),
-                                ),
-                              ]),
-                              //  both
-                              AppWrap(children: [
-                                Radio<UserDisplayStyle>(
-                                  value: UserDisplayStyle.both,
-                                  groupValue: _appOptions.userDisplayStyle,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _appOptions.userDisplayStyle = value;
-                                        _adjustDisplay();
-                                      }
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Display the song showing all chords and lyrics.\n'
-                                      'This is the most typical display mode.',
-                                  child: appTextButton(
-                                    'Both Player and Singer',
-                                    appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                    value: UserDisplayStyle.both,
-                                    onPressed: () {
-                                      setState(() {
-                                        _appOptions.userDisplayStyle = UserDisplayStyle.both;
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle,
-                                  ),
-                                ),
-                              ]),
-                              //  singer
-                              AppWrap(children: [
-                                Radio<UserDisplayStyle>(
-                                  value: UserDisplayStyle.singer,
-                                  groupValue: _appOptions.userDisplayStyle,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _appOptions.userDisplayStyle = value;
-                                        _adjustDisplay();
-                                      }
-                                    });
-                                  },
-                                ),
-                                AppTooltip(
-                                  message: 'Display the song showing all the lyrics.\n'
-                                      'The display of chords is minimized.',
-                                  child: appTextButton(
-                                    'Singer',
-                                    appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                                    value: UserDisplayStyle.singer,
-                                    onPressed: () {
-                                      setState(() {
-                                        _appOptions.userDisplayStyle = UserDisplayStyle.singer;
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                    style: popupStyle,
-                                  ),
-                                ),
-                              ]),
-                              //  banner
-                              // AppWrap(children: [
-                              //   Radio<UserDisplayStyle>(
-                              //     value: UserDisplayStyle.banner,
-                              //     groupValue: _appOptions.userDisplayStyle,
-                              //     onChanged: (value) {
-                              //       setState(() {
-                              //         if (value != null) {
-                              //           _appOptions.userDisplayStyle = value;
-                              //           adjustDisplay();
-                              //         }
-                              //       });
-                              //     },
-                              //   ),
-                              //   AppTooltip(
-                              //     message: 'Display the song in banner (piano scroll) mode.',
-                              //     child: appTextButton(
-                              //       'Banner',
-                              //       appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                              //       value: UserDisplayStyle.banner,
-                              //       onPressed: () {
-                              //         setState(() {
-                              //           _appOptions.userDisplayStyle = UserDisplayStyle.banner;
-                              //           adjustDisplay();
-                              //         });
-                              //       },
-                              //       style: popupStyle,
-                              //     ),
-                              //   ),
-                              // ]),
-                            ]),
+                        // AppWrapFullWidth(
+                        //     crossAxisAlignment: WrapCrossAlignment.center,
+                        //     spacing: viewportWidth(0.5),
+                        //     children: [
+                        //       AppTooltip(
+                        //         message: 'Select the display style for the song.',
+                        //         child: Text(
+                        //           'Display style: ',
+                        //           style: boldStyle,
+                        //         ),
+                        //       ),
+                        //       //  pro player
+                        //       AppWrap(children: [
+                        //         Radio<UserDisplayStyle>(
+                        //           value: UserDisplayStyle.proPlayer,
+                        //           groupValue: _appOptions.userDisplayStyle,
+                        //           onChanged: (value) {
+                        //             setState(() {
+                        //               if (value != null) {
+                        //                 _appOptions.userDisplayStyle = value;
+                        //                 _adjustDisplay();
+                        //               }
+                        //             });
+                        //           },
+                        //         ),
+                        //         AppTooltip(
+                        //           message: 'Display the song using the professional player style.\n'
+                        //               'This condenses the song chords to a minimum presentation without lyrics.',
+                        //           child: appTextButton(
+                        //             'Pro',
+                        //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                        //             value: UserDisplayStyle.proPlayer,
+                        //             onPressed: () {
+                        //               setState(() {
+                        //                 _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
+                        //                 _adjustDisplay();
+                        //               });
+                        //             },
+                        //             style: popupStyle,
+                        //           ),
+                        //         ),
+                        //       ]),
+                        //       //  player
+                        //       AppWrap(children: [
+                        //         Radio<UserDisplayStyle>(
+                        //           value: UserDisplayStyle.player,
+                        //           groupValue: _appOptions.userDisplayStyle,
+                        //           onChanged: (value) {
+                        //             setState(() {
+                        //               if (value != null) {
+                        //                 _appOptions.userDisplayStyle = value;
+                        //                 _adjustDisplay();
+                        //               }
+                        //             });
+                        //           },
+                        //         ),
+                        //         AppTooltip(
+                        //           message: 'Display the song using the player style.\n'
+                        //               'This favors the chords over the lyrics,\n'
+                        //               'to the point that the lyrics maybe clipped.',
+                        //           child: appTextButton(
+                        //             'Player',
+                        //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                        //             value: UserDisplayStyle.player,
+                        //             onPressed: () {
+                        //               setState(() {
+                        //                 _appOptions.userDisplayStyle = UserDisplayStyle.player;
+                        //                 _adjustDisplay();
+                        //               });
+                        //             },
+                        //             style: popupStyle,
+                        //           ),
+                        //         ),
+                        //       ]),
+                        //       //  both
+                        //       AppWrap(children: [
+                        //         Radio<UserDisplayStyle>(
+                        //           value: UserDisplayStyle.both,
+                        //           groupValue: _appOptions.userDisplayStyle,
+                        //           onChanged: (value) {
+                        //             setState(() {
+                        //               if (value != null) {
+                        //                 _appOptions.userDisplayStyle = value;
+                        //                 _adjustDisplay();
+                        //               }
+                        //             });
+                        //           },
+                        //         ),
+                        //         AppTooltip(
+                        //           message: 'Display the song showing all chords and lyrics.\n'
+                        //               'This is the most typical display mode.',
+                        //           child: appTextButton(
+                        //             'Both Player and Singer',
+                        //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                        //             value: UserDisplayStyle.both,
+                        //             onPressed: () {
+                        //               setState(() {
+                        //                 _appOptions.userDisplayStyle = UserDisplayStyle.both;
+                        //                 _adjustDisplay();
+                        //               });
+                        //             },
+                        //             style: popupStyle,
+                        //           ),
+                        //         ),
+                        //       ]),
+                        //       //  singer
+                        //       AppWrap(children: [
+                        //         Radio<UserDisplayStyle>(
+                        //           value: UserDisplayStyle.singer,
+                        //           groupValue: _appOptions.userDisplayStyle,
+                        //           onChanged: (value) {
+                        //             setState(() {
+                        //               if (value != null) {
+                        //                 _appOptions.userDisplayStyle = value;
+                        //                 _adjustDisplay();
+                        //               }
+                        //             });
+                        //           },
+                        //         ),
+                        //         AppTooltip(
+                        //           message: 'Display the song showing all the lyrics.\n'
+                        //               'The display of chords is minimized.',
+                        //           child: appTextButton(
+                        //             'Singer',
+                        //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                        //             value: UserDisplayStyle.singer,
+                        //             onPressed: () {
+                        //               setState(() {
+                        //                 _appOptions.userDisplayStyle = UserDisplayStyle.singer;
+                        //                 _adjustDisplay();
+                        //               });
+                        //             },
+                        //             style: popupStyle,
+                        //           ),
+                        //         ),
+                        //       ]),
+                        //       //  banner
+                        //       // AppWrap(children: [
+                        //       //   Radio<UserDisplayStyle>(
+                        //       //     value: UserDisplayStyle.banner,
+                        //       //     groupValue: _appOptions.userDisplayStyle,
+                        //       //     onChanged: (value) {
+                        //       //       setState(() {
+                        //       //         if (value != null) {
+                        //       //           _appOptions.userDisplayStyle = value;
+                        //       //           adjustDisplay();
+                        //       //         }
+                        //       //       });
+                        //       //     },
+                        //       //   ),
+                        //       //   AppTooltip(
+                        //       //     message: 'Display the song in banner (piano scroll) mode.',
+                        //       //     child: appTextButton(
+                        //       //       'Banner',
+                        //       //       appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                        //       //       value: UserDisplayStyle.banner,
+                        //       //       onPressed: () {
+                        //       //         setState(() {
+                        //       //           _appOptions.userDisplayStyle = UserDisplayStyle.banner;
+                        //       //           adjustDisplay();
+                        //       //         });
+                        //       //       },
+                        //       //       style: popupStyle,
+                        //       //     ),
+                        //       //   ),
+                        //       // ]),
+                        //     ]),
                         //  const AppSpaceViewportWidth(),
                         //  PlayerScrollHighlight
                         AppWrapFullWidth(
@@ -2065,7 +2050,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             spacing: viewportWidth(0.5),
                             children: [
                               AppTooltip(
-                                message: 'Select the highlight style while scrolling in play.',
+                                message: 'Select the highlight style while auto scrolling in play.',
                                 child: Text(
                                   'Scroll style: ',
                                   style: boldStyle,
@@ -2089,7 +2074,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   message: 'No play highlight.',
                                   child: appTextButton(
                                     'Off',
-                                    appKeyEnum: AppKeyEnum.optionsPlayerScrollHighlightOff,
                                     value: PlayerScrollHighlight.off,
                                     onPressed: () {
                                       setState(() {
@@ -2119,7 +2103,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   message: 'Highlight the current row.',
                                   child: appTextButton(
                                     'Row',
-                                    appKeyEnum: AppKeyEnum.optionsPlayerScrollHighlightChordRow,
                                     value: PlayerScrollHighlight.chordRow,
                                     onPressed: () {
                                       setState(() {
@@ -2149,7 +2132,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   message: 'Highlight the current measure.',
                                   child: appTextButton(
                                     'Measure',
-                                    appKeyEnum: AppKeyEnum.optionsPlayerScrollHighlightMeasure,
                                     value: PlayerScrollHighlight.measure,
                                     onPressed: () {
                                       setState(() {
@@ -2181,7 +2163,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     message: 'Turn Nashville notation off.',
                                     child: AppRadio<NashvilleSelection>(
                                         text: 'Off',
-                                        appKeyEnum: AppKeyEnum.optionsNashville,
                                         value: NashvilleSelection.off,
                                         groupValue: _appOptions.nashvilleSelection,
                                         onPressed: () {
@@ -2196,7 +2177,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     message: 'Show both the chords and Nashville notation.',
                                     child: AppRadio<NashvilleSelection>(
                                         text: 'both',
-                                        appKeyEnum: AppKeyEnum.optionsNashville,
                                         value: NashvilleSelection.both,
                                         groupValue: _appOptions.nashvilleSelection,
                                         onPressed: () {
@@ -2211,7 +2191,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                     message: 'Show only the Nashville notation.',
                                     child: AppRadio<NashvilleSelection>(
                                         text: 'only',
-                                        appKeyEnum: AppKeyEnum.optionsNashville,
                                         value: NashvilleSelection.only,
                                         groupValue: _appOptions.nashvilleSelection,
                                         onPressed: () {
@@ -2237,7 +2216,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                             'chords to match the current key.',
                                         child: appTextButton(
                                           'Capo',
-                                          appKeyEnum: AppKeyEnum.playerCapoLabel,
+
                                           value: _isCapo,
                                           style: boldStyle,
                                           onPressed: () {
@@ -2254,7 +2233,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       ),
                                     if (!_songUpdateService.isLeader)
                                       appSwitch(
-                                        appKeyEnum: AppKeyEnum.playerCapo,
                                         value: _isCapo,
                                         onChanged: (value) {
                                           setState(() {
@@ -2309,10 +2287,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   message: _areDrumsMuted
                                       ? 'Click to unmute and select the drums'
                                       : 'Click to mute the drums',
-                                  child: appButton(_areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
-                                      appKeyEnum: _areDrumsMuted
-                                          ? AppKeyEnum.playerDrumsMuted
-                                          : AppKeyEnum.playerDrumsUnmuted, onPressed: () {
+                                  child:
+                                      appButton(_areDrumsMuted ? 'Drums are muted' : 'Mute the Drums', onPressed: () {
                                     setState(() {
                                       _areDrumsMuted = !_areDrumsMuted;
                                       _songMaster.drumsAreMuted = _areDrumsMuted;
@@ -2325,7 +2301,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   AppTooltip(
                                     message: 'Select the drums',
                                     child: appIconWithLabelButton(
-                                        appKeyEnum: AppKeyEnum.playerEditDrums,
                                         label: 'Drums',
                                         fontSize: popupStyle.fontSize,
                                         icon: appIcon(
@@ -2354,7 +2329,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               message: 'Turn off the Ninjam aids',
                               child: AppRadio<bool>(
                                   text: 'No NinJam aids',
-                                  appKeyEnum: AppKeyEnum.optionsNinJam,
                                   value: false,
                                   groupValue: _appOptions.ninJam,
                                   onPressed: () {
@@ -2369,7 +2343,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               message: 'Turn on the Ninjam aids',
                               child: AppRadio<bool>(
                                   text: 'Show NinJam aids',
-                                  appKeyEnum: AppKeyEnum.optionsNinJam,
                                   value: true,
                                   groupValue: _appOptions.ninJam,
                                   onPressed: () {
@@ -2397,7 +2370,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               ),
                             ),
                             appDropdownButton<int>(
-                              AppKeyEnum.playerKeyOffset,
                               _keyOffsetItems,
                               onChanged: (value) {
                                 if (value != null) {
@@ -2420,8 +2392,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 AppWrapFullWidth(spacing: viewportWidth(1), alignment: WrapAlignment.end, children: [
                   AppTooltip(
                     message: 'Click here or outside of the popup to return to the player screen.',
-                    child: appButton('Return',
-                        appKeyEnum: AppKeyEnum.playerReturnFromSettings, fontSize: popupStyle.fontSize, onPressed: () {
+                    child: appButton('Return', fontSize: popupStyle.fontSize, onPressed: () {
                       Navigator.of(context).pop();
                     }),
                   ),
@@ -2463,47 +2434,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   final List<DropdownMenuItem<int>> _keyOffsetItems = [
-    appDropdownMenuItem(appKeyEnum: AppKeyEnum.playerKeyOffset, value: 0, child: const Text('normal: (no key offset)')),
+    appDropdownMenuItem(value: 0, child: const Text('normal: (no key offset)')),
+    appDropdownMenuItem(value: 1, child: const Text('+1   (-11) half steps = scale  ${MusicConstants.flatChar}2')),
     appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 1,
-        child: const Text('+1   (-11) half steps = scale  ${MusicConstants.flatChar}2')),
+        value: 2, child: const Text('+2   (-10) half steps = scale   2, B${MusicConstants.flatChar} instrument')),
+    appDropdownMenuItem(value: 3, child: const Text('+3   (-9)   half steps = scale  ${MusicConstants.flatChar}3')),
+    appDropdownMenuItem(value: 4, child: const Text('+4   (-8)   half steps = scale   3')),
+    appDropdownMenuItem(value: 5, child: const Text('+5   (-7)   half steps = scale   4, baritone guitar')),
+    appDropdownMenuItem(value: 6, child: const Text('+6   (-6)   half steps = scale  ${MusicConstants.flatChar}5')),
+    appDropdownMenuItem(value: 7, child: const Text('+7   (-5)   half steps = scale   5, F instrument')),
+    appDropdownMenuItem(value: 8, child: const Text('+8   (-4)   half steps = scale  ${MusicConstants.flatChar}6')),
     appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 2,
-        child: const Text('+2   (-10) half steps = scale   2, B${MusicConstants.flatChar} instrument')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 3,
-        child: const Text('+3   (-9)   half steps = scale  ${MusicConstants.flatChar}3')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 4, child: const Text('+4   (-8)   half steps = scale   3')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 5,
-        child: const Text('+5   (-7)   half steps = scale   4, baritone guitar')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 6,
-        child: const Text('+6   (-6)   half steps = scale  ${MusicConstants.flatChar}5')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 7,
-        child: const Text('+7   (-5)   half steps = scale   5, F instrument')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 8,
-        child: const Text('+8   (-4)   half steps = scale  ${MusicConstants.flatChar}6')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 9,
-        child: const Text('+9   (-3)   half steps = scale   6, E${MusicConstants.flatChar} instrument')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset,
-        value: 10,
-        child: const Text('+10 (-2)   half steps = scale  ${MusicConstants.flatChar}7')),
-    appDropdownMenuItem(
-        appKeyEnum: AppKeyEnum.playerKeyOffset, value: 11, child: const Text('+11 (-1)   half steps = scale   7')),
+        value: 9, child: const Text('+9   (-3)   half steps = scale   6, E${MusicConstants.flatChar} instrument')),
+    appDropdownMenuItem(value: 10, child: const Text('+10 (-2)   half steps = scale  ${MusicConstants.flatChar}7')),
+    appDropdownMenuItem(value: 11, child: const Text('+11 (-1)   half steps = scale   7')),
   ];
 
   void _resetIdleTimer() {

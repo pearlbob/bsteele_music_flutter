@@ -91,7 +91,6 @@ import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
-import 'package:bsteele_music_lib/util/us_timer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -142,7 +141,6 @@ const _environmentDefault = 'main';
 // --dart-define=environment=test
 const _environment = String.fromEnvironment('environment', defaultValue: _environmentDefault);
 late PackageInfo packageInfo;
-var _mainUsTimer = UsTimer();
 
 void main() async {
   Logger.level = kDebugMode ? Level.info : Level.warning;
@@ -160,7 +158,6 @@ void main() async {
   await appOptions.init(); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
-  appLogMessage('host: "$host", port: ${uri.port}, query: ${uri.query}');
   if (host.isEmpty //  likely a native app
           ||
           host == 'www.bsteele.com' //  websocket will never be provided by the cloud server
@@ -169,12 +166,10 @@ void main() async {
       ) {
     //  do nothing!
     hostIsWebsocketHost = false;
-    appLogMessage('no websocket: $host:${uri.port}');
   } else {
     //  default to the expected websocket server
     appOptions.websocketHost = host; //  auto-magically choose the local websocket server
     hostIsWebsocketHost = true;
-    appLogMessage('auto-magic websocket: $host');
   }
 
   //  read the local drum parts list
@@ -184,8 +179,6 @@ void main() async {
 
   await AppTheme().init(); //  init the singleton
   packageInfo = await PackageInfo.fromPlatform();
-
-  appLogMessage('main pre-run startup: ${_mainUsTimer.seconds} s');
 
   //  run the app
   runApp(
@@ -291,7 +284,7 @@ class BSteeleMusicApp extends StatelessWidget {
               Documentation.routeName: (context) => const Documentation(),
               Debug.routeName: (context) => const Debug(),
               About.routeName: (context) => const About(),
-              CommunityJams.routeName: (context) => const Debug(),
+              CommunityJams.routeName: (context) => const CommunityJams(),
               StyleDemo.routeName: (context) => const StyleDemo(),
               TheoryWidget.routeName: (context) => const TheoryWidget(),
               DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong, isEditing: true),
@@ -325,11 +318,6 @@ class MyHomePageState extends State<MyHomePage> {
     logger.i('Uri.base: "${Uri.base}", "${Uri.base.query}"');
     logger.t('Uri.base.queryParameters.keys.length: ${Uri.base.queryParameters.keys.length}');
     for (var key in Uri.base.queryParameters.keys) {
-      switch (key) {
-        case 'demo':
-          testAppKeyCallbacks();
-          break;
-      }
       logger.i('    key: "$key", value: "${Uri.base.queryParameters[key]}"');
     }
   }
@@ -349,9 +337,6 @@ class MyHomePageState extends State<MyHomePage> {
       await _readInternalSongList();
     }
 
-    appLogMessage('main pre-run end: ${_mainUsTimer.seconds} s');
-    //logger.i('uri: ${uri.base}, ${uri.base.queryParameters.keys.contains('follow')}');
-
     //  give the beta warning
     if (isBeta && Uri.base.queryParameters.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -367,7 +352,6 @@ class MyHomePageState extends State<MyHomePage> {
       });
 
       var allSongsAsset = 'lib/assets/allSongs.songlyrics';
-      appLogMessage('InternalSongList: $allSongsAsset');
       String songListAsString = await loadAssetString(allSongsAsset);
       try {
         app.removeAllSongs();
@@ -409,7 +393,6 @@ class MyHomePageState extends State<MyHomePage> {
 
     {
       final String url = 'http://$externalHost/allSongs.songlyrics';
-      appLogMessage('ExternalSongList: $url');
       // setState(() {
       //   app.infoMessage = 'Loading song list from cloud';
       // });
@@ -421,7 +404,6 @@ class MyHomePageState extends State<MyHomePage> {
         await _readInternalSongList();
         return;
       }
-      appLogMessage('ExternalSongList: read');
 
       try {
         app.removeAllSongs();
@@ -432,10 +414,8 @@ class MyHomePageState extends State<MyHomePage> {
         await _readInternalSongList();
       }
     }
-    appLogMessage('ExternalSongList: processed');
     {
       final String url = 'http://$externalHost/allSongs.songmetadata';
-      appLogMessage('metadata: $url');
       String metadataAsString;
       // setState(() {
       //   app.infoMessage = 'Loading metadata';
@@ -447,11 +427,9 @@ class MyHomePageState extends State<MyHomePage> {
         await _readInternalSongList();
         return;
       }
-      appLogMessage('metadata: read');
 
       try {
         SongMetadata.fromJson(metadataAsString);
-        appLogMessage('metadata: processed');
         logger.i('external song metadata read from: $url');
       } catch (fe) {
         logger.i('external song metadata parse error: $fe');
@@ -464,11 +442,9 @@ class MyHomePageState extends State<MyHomePage> {
       //   app.infoMessage = 'Loading history';
       // });
 
-      appLogMessage('performance history: $url');
       String dataAsString;
       try {
         dataAsString = await fetchString(url);
-        appLogMessage('performance history: read');
       } catch (e) {
         app.warningMessage = 'read of url: "$url" failed: ${e.toString()}';
         await _readInternalSongList();
@@ -476,15 +452,11 @@ class MyHomePageState extends State<MyHomePage> {
       }
 
       try {
-        appLogMessage('readExternalSongList()');
         var allPerformances = AllSongPerformances();
         allPerformances.updateFromJsonString(dataAsString);
-        appLogMessage('performance history: processed');
         var allSongs = app.allSongs;
-        appLogMessage('allSongs: ${allSongs.length}');
         var corrections = allPerformances.loadSongs(allSongs);
-        appLogMessage('loaded songs: corrections: $corrections');
-        logger.i('external song performances read from: $url');
+        logger.i('external song performances read from: $url, corrections: $corrections');
 
         //  it's very important to store corrected performances/history/requests locally
         //  so they are not corrected at every reload
@@ -500,7 +472,6 @@ class MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     app.screenInfo.refresh(context);
-    appKeyCallbacksClear();
 
     logger.log(
         _logBuild,
@@ -544,7 +515,6 @@ class MyHomePageState extends State<MyHomePage> {
       appBar: AppWidgetHelper(context).appBar(
         title: widget.title,
         leading: appIconButton(
-          appKeyEnum: AppKeyEnum.mainHamburger,
           onPressed: _openDrawer,
           icon: appIcon(Icons.menu),
         ),
@@ -599,7 +569,6 @@ class MyHomePageState extends State<MyHomePage> {
       ),
 
       drawer: appDrawer(
-        appKeyEnum: AppKeyEnum.mainDrawer,
         voidCallback: _openDrawer,
         child: ListView(
           padding: const EdgeInsets.all(4.0),
@@ -608,7 +577,6 @@ class MyHomePageState extends State<MyHomePage> {
               height: 50,
             ), //  filler for notched phones
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerOptions,
               title: 'Options',
               style: navTextStyle,
               onTap: () {
@@ -616,7 +584,6 @@ class MyHomePageState extends State<MyHomePage> {
               },
             ),
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerSingers,
               title: 'Singers',
               style: navTextStyle,
               enabled: app.isEditReady,
@@ -626,7 +593,6 @@ class MyHomePageState extends State<MyHomePage> {
               },
             ),
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerPerformanceHistory,
               title: 'History',
               style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
@@ -636,7 +602,6 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             //     if (app.isEditReady)
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerSongs,
               title: 'Songs',
               style: navTextStyle,
               enabled: app.isEditReady,
@@ -647,7 +612,6 @@ class MyHomePageState extends State<MyHomePage> {
             ),
 
             appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerNewSong,
                 title: 'New Song',
                 style: navTextStyle,
                 enabled: app.isEditReady,
@@ -656,7 +620,6 @@ class MyHomePageState extends State<MyHomePage> {
                   _navigateToEdit();
                 }),
             appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerDrums,
                 title: 'Drums',
                 style: navTextStyle,
                 enabled: app.isEditReady,
@@ -664,7 +627,6 @@ class MyHomePageState extends State<MyHomePage> {
                   _navigateToDrums();
                 }),
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerTheory,
               title: 'Theory',
               style: navTextStyle,
               enabled: !app.screenInfo.isTooNarrow,
@@ -673,7 +635,6 @@ class MyHomePageState extends State<MyHomePage> {
               },
             ),
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerPrivacy,
               title: 'Privacy',
               style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
@@ -683,7 +644,6 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             // if (app.isScreenBig)
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerDocs,
               title: 'Docs',
               style: navTextStyle,
               enabled: app.isScreenBig,
@@ -693,7 +653,6 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             if (kDebugMode)
               appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerCssDemo,
                 title: 'Style Demo',
                 style: navTextStyle,
                 onTap: () {
@@ -701,7 +660,6 @@ class MyHomePageState extends State<MyHomePage> {
                 },
               ),
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerLists,
               title: 'Metadata',
               style: navTextStyle,
               enabled: app.isEditReady,
@@ -709,18 +667,17 @@ class MyHomePageState extends State<MyHomePage> {
                 _navigateToMetadata();
               },
             ),
-            if (kDebugMode)
-              appListTile(
-                appKeyEnum: AppKeyEnum.mainDrawerDebug,
-                title: 'Debug',
-                style: navTextStyle,
-                onTap: () {
-                  _navigateToDebug();
-                },
-              ),
+            // if (kDebugMode)
+            //   appListTile(
+            //     appKeyEnum: AppKeyEnum.mainDrawerDebug,
+            //     title: 'Debug',
+            //     style: navTextStyle,
+            //     onTap: () {
+            //       _navigateToDebug();
+            //     },
+            //   ),
 
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: 'CJ',
               style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
@@ -739,7 +696,6 @@ class MyHomePageState extends State<MyHomePage> {
             ),
 
             appListTile(
-              appKeyEnum: AppKeyEnum.mainDrawerAbout,
               title: 'About',
               style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
@@ -776,8 +732,7 @@ class MyHomePageState extends State<MyHomePage> {
         //           ),
         //         ],
         //       )),
-        if (app.message.isNotEmpty)
-          Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget(AppKeyEnum.mainErrorMessage)),
+        if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
         PlayList(
           itemList: PlayListItemList('', app.allSongs.map((e) => SongPlayListItem.fromSong(e)).toList(growable: false),
               playListItemAction: _navigateToPlayerBySongItem),
@@ -833,14 +788,13 @@ class MyHomePageState extends State<MyHomePage> {
                       style: TextStyle(fontSize: 22),
                     ),
                     const AppSpace(),
-                    appButton('Send me to the release version.', appKeyEnum: AppKeyEnum.mainGoToRelease, onPressed: () {
+                    appButton('Send me to the release version.', onPressed: () {
                       var s = uri.toString();
                       s = s.substring(0, s.indexOf('beta'));
                       openLink(s);
                     }),
                     const AppSpace(space: 50),
-                    appButton('This is exciting! I will test the beta.', appKeyEnum: AppKeyEnum.mainAcceptBeta,
-                        onPressed: () {
+                    appButton('This is exciting! I will test the beta.', onPressed: () {
                       Navigator.of(context).pop();
                     }),
                   ],
@@ -947,17 +901,17 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop(); //  drawer
   }
 
-  _navigateToDebug() async {
-    app.clearMessage();
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Debug()),
-    );
-    if (!mounted) {
-      return;
-    }
-    Navigator.of(context).pop(); //  drawer
-  }
+  // _navigateToDebug() async {
+  //   app.clearMessage();
+  //   await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const Debug()),
+  //   );
+  //   if (!mounted) {
+  //     return;
+  //   }
+  //   Navigator.of(context).pop(); //  drawer
+  // }
 
   _navigateToAbout() async {
     app.clearMessage();

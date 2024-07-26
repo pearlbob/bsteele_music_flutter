@@ -1,9 +1,9 @@
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/drum_measure.dart';
-import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/drum_measure.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -140,7 +140,6 @@ class DrumsState extends State<DrumsWidget> {
           AppWrap(children: [
             //  enter name text
             AppTextField(
-              appKeyEnum: AppKeyEnum.drumNameEntry,
               controller: _drumNameTextFieldController,
               focusNode: _drumFocusNode,
               hintText: 'drum part name here...',
@@ -158,7 +157,6 @@ class DrumsState extends State<DrumsWidget> {
                 message: 'Clear the name text.',
                 child: appIconButton(
                   icon: const Icon(Icons.clear),
-                  appKeyEnum: AppKeyEnum.drumNameClear,
                   iconSize: 1.25 * (_style.fontSize ?? appDefaultFontSize),
                   onPressed: (() {
                     _drumNameTextFieldController.clear();
@@ -174,7 +172,6 @@ class DrumsState extends State<DrumsWidget> {
           const AppSpace(),
           const Text('Beats:'),
           appDropdownButton<int>(
-            AppKeyEnum.drumBeatsDropDownList,
             _beatsDropDownMenuList,
             onChanged: (value) {
               setState(() {
@@ -193,14 +190,12 @@ class DrumsState extends State<DrumsWidget> {
               message: 'Save the drum part',
               child: appButton(
                 'Save',
-                appKeyEnum: AppKeyEnum.drumSelectionSave,
                 onPressed: () {
                   setState(() {
                     logger.t('save: $_drumParts');
                     _drumPartsList.add(_drumParts);
                     playListRefreshNotifier.requestSearchClear();
-                    playListRefreshNotifier
-                        .refresh(); // fixme: why is this required?
+                    playListRefreshNotifier.refresh(); // fixme: why is this required?
                     _appOptions.drumPartsListJson = _drumPartsList.toJson();
                     _songMaster.drumsAreMuted = true;
                   });
@@ -214,7 +209,6 @@ class DrumsState extends State<DrumsWidget> {
                 message: 'Clear the drum selections',
                 child: appButton(
                   'Clear',
-                  appKeyEnum: AppKeyEnum.drumSelectionClearButton,
                   onPressed: () {
                     setState(() {
                       _drumParts.clear();
@@ -226,12 +220,10 @@ class DrumsState extends State<DrumsWidget> {
               message: 'Cancel the drum edit.',
               child: appButton(
                 'Cancel',
-                appKeyEnum: AppKeyEnum.drumSelectionClear,
                 onPressed: () {
                   setState(() {
                     playListRefreshNotifier.requestSearchClear();
-                    playListRefreshNotifier
-                        .refresh(); // fixme: why is this required?
+                    playListRefreshNotifier.refresh(); // fixme: why is this required?
                     _songMaster.drumsAreMuted = true;
                   });
                 },
@@ -242,13 +234,11 @@ class DrumsState extends State<DrumsWidget> {
                 message: 'Delete this drum part',
                 child: appButton(
                   'Delete',
-                  appKeyEnum: AppKeyEnum.drumSelectionDelete,
                   onPressed: () {
                     setState(() {
                       _drumPartsList.remove(_drumParts);
                       playListRefreshNotifier.requestSearchClear();
-                      playListRefreshNotifier
-                          .refresh(); // fixme: why is this required?
+                      playListRefreshNotifier.refresh(); // fixme: why is this required?
                       _appOptions.drumPartsListJson = _drumPartsList.toJson();
                       _songMaster.drumsAreMuted = true;
                     });
@@ -340,8 +330,7 @@ class DrumsState extends State<DrumsWidget> {
   final _drumPartsList = DrumPartsList();
   final _appOptions = AppOptions();
 
-  final TextEditingController _drumNameTextFieldController =
-      TextEditingController();
+  final TextEditingController _drumNameTextFieldController = TextEditingController();
   final FocusNode _drumFocusNode = FocusNode();
 }
 

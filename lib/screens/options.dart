@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
+import 'package:bsteele_music_flutter/main.dart';
+import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/bass.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
@@ -8,10 +12,6 @@ import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/audio/app_audio_player.dart';
-import 'package:bsteele_music_flutter/main.dart';
-import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -50,9 +50,6 @@ class OptionsState extends State<Options> {
         _appOptions.websocketHost == AppOptions.idleHost ? '' : _appOptions.websocketHost;
 
     _songUpdateService.addListener(_songUpdateServiceCallback);
-
-    appLogMessage('options: service host: ${_songUpdateService.host}'
-        ', _appOptions.websocketHost: ${_appOptions.websocketHost}');
   }
 
   void _songUpdateServiceCallback() {
@@ -87,13 +84,14 @@ class OptionsState extends State<Options> {
                   if (app.fullscreenEnabled)
                     Row(
                       children: <Widget>[
-                        appButton('Enter fullscreen', appKeyEnum: AppKeyEnum.optionsFullScreen, onPressed: () {
+                        appButton('Enter fullscreen', onPressed: () {
                           app.requestFullscreen();
                         }),
                       ],
                     ),
 
                   const AppSpace(),
+                  //  User name
                   Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -105,10 +103,10 @@ class OptionsState extends State<Options> {
                           ),
                         ),
                         AppTextField(
-                          appKeyEnum: AppKeyEnum.optionsUserName,
                           controller: _userTextEditingController,
                           hintText: 'Enter your user name.',
-                          width: (style.fontSize ?? appDefaultFontSize) * 40,
+                          width: (style.fontSize ?? appDefaultFontSize) * 30,
+                          maxLines: 1,
                           onChanged: (value) {
                             if (value.isNotEmpty) {
                               logger.log(_logUserNameEntry, 'user name onChanged: $value');
@@ -119,23 +117,41 @@ class OptionsState extends State<Options> {
                           },
                         ),
                       ]),
+                  const AppSpace(),
+                  // Leader/Follower Server Address
+                  Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.only(right: 24),
+                          child: const Text(
+                            'Leader/Follower Server Address: ',
+                          ),
+                        ),
+                      ]),
                   Row(
                     children: <Widget>[
                       Container(
-                        padding: const EdgeInsets.only(right: 24),
-                        child: const Text(
-                          'Host IP: ',
+                        padding: const EdgeInsets.only(left: 30, right: 24),
+                        child: const AppTooltip(
+                          message: 'Manually add the server host IP address.',
+                          child: Text(
+                            'Host IP: ',
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: app.screenInfo.mediaWidth / 3,
-                        child: AppTextField(
-                          appKeyEnum: AppKeyEnum.optionsWebsocketIP,
-                          controller: _websocketHostEditingController,
-                          hintText: 'address here',
-                          onChanged: (value) {
-                            _appOptions.websocketHost = value;
-                          },
+                        child: AppTooltip(
+                          message: 'Manually add the server host IP address.',
+                          child: AppTextField(
+                            controller: _websocketHostEditingController,
+                            hintText: 'address here',
+                            onChanged: (value) {
+                              _appOptions.websocketHost = value;
+                            },
+                          ),
                         ),
                       ),
                       const AppSpace(),
@@ -151,12 +167,17 @@ class OptionsState extends State<Options> {
                   AppWrapFullWidth(
                     spacing: 15,
                     children: [
-                      const Text('Hosts:'),
+                      Container(
+                          padding: const EdgeInsets.only(
+                            left: 30,
+                          ),
+                          child: const AppTooltip(
+                              message: 'These buttons allow easy configuration of known server hosts.',
+                              child: Text('Known Hosts:'))),
                       AppTooltip(
                         message: 'No leader/follower',
                         child: appButton(
                           'None',
-                          appKeyEnum: AppKeyEnum.optionsWebsocketNone,
                           onPressed: () {
                             _appOptions.websocketHost = AppOptions.idleHost;
                             _websocketHostEditingController.text = '';
@@ -167,30 +188,16 @@ class OptionsState extends State<Options> {
                         message: 'You are in the Community Jams studio.',
                         child: appButton(
                           'Studio',
-                          appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
                           onPressed: () {
                             _appOptions.websocketHost = 'cj.local';
                             _websocketHostEditingController.text = _appOptions.websocketHost;
                           },
                         ),
                       ),
-                      //  no longer appropriate:
-                      // AppTooltip(
-                      //   message: 'You are in the Community Jams studio with an old ipad.',
-                      //   child: appButton(
-                      //     'Studio and old Ipad',
-                      //     appKeyEnum: AppKeyEnum.optionsWebsocketCJ,
-                      //     onPressed: () {
-                      //       _appOptions.websocketHost = '10.1.10.50';
-                      //       _websocketHostEditingController.text = _appOptions.websocketHost;
-                      //     },
-                      //   ),
-                      // ),
                       AppTooltip(
                         message: 'You are in the park.',
                         child: appButton(
                           'Park',
-                          appKeyEnum: AppKeyEnum.optionsWebsocketPark,
                           onPressed: () {
                             _appOptions.websocketHost = parkFixedIpAddress;
                             _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -201,7 +208,6 @@ class OptionsState extends State<Options> {
                         message: 'You have a local raspberry pi from bob.',
                         child: appButton(
                           'Bob\'spi',
-                          appKeyEnum: AppKeyEnum.optionsWebsocketBobsPi,
                           onPressed: () {
                             _appOptions.websocketHost = 'bobspi.local';
                             _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -214,7 +220,6 @@ class OptionsState extends State<Options> {
                               '\nClick here to use it.',
                           child: appButton(
                             'This host',
-                            appKeyEnum: AppKeyEnum.optionsWebsocketThisHost,
                             onPressed: () {
                               _appOptions.websocketHost = host;
                               _websocketHostEditingController.text = _appOptions.websocketHost;
@@ -222,7 +227,7 @@ class OptionsState extends State<Options> {
                           ),
                         ),
                       if (kDebugMode)
-                        appButton('bob\'s place', appKeyEnum: AppKeyEnum.optionsWebsocketBob, onPressed: () {
+                        appButton('bob\'s place', onPressed: () {
                           _appOptions.websocketHost = 'bob'; //'bobspi.local';
                           _websocketHostEditingController.text = _appOptions.websocketHost;
                         }),
@@ -230,8 +235,15 @@ class OptionsState extends State<Options> {
                   ),
                   const AppSpace(),
                   Row(children: <Widget>[
-                    const Text(
-                      'Song Update: ',
+                    Container(
+                      padding: const EdgeInsets.only(left: 30),
+                      child: const AppTooltip(
+                        message: 'You want to be idle if you have no leader/follower,\n'
+                            'Otherwise you need to be connected.',
+                        child: Text(
+                          'Status: ',
+                        ),
+                      ),
                     ),
                     Text(
                       (_songUpdateService.isConnected
@@ -246,16 +258,20 @@ class OptionsState extends State<Options> {
                     ),
                     const AppSpace(),
                     if (_songUpdateService.isConnected)
-                      appButton(
-                        _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
-                        appKeyEnum: AppKeyEnum.optionsLeadership,
-                        onPressed: () {
-                          setState(() {
-                            if (_songUpdateService.isConnected) {
-                              _songUpdateService.isLeader = !_songUpdateService.isLeader;
-                            }
-                          });
-                        },
+                      AppTooltip(
+                        message: _songUpdateService.isLeader
+                            ? 'Abdicate your leadership if you no longer want to be group leader.'
+                            : 'Only become a leader if you want to lead your followers through a song.',
+                        child: appButton(
+                          _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
+                          onPressed: () {
+                            setState(() {
+                              if (_songUpdateService.isConnected) {
+                                _songUpdateService.isLeader = !_songUpdateService.isLeader;
+                              }
+                            });
+                          },
+                        ),
                       ),
                   ]),
                   const AppSpace(verticalSpace: 30),
@@ -277,7 +293,8 @@ class OptionsState extends State<Options> {
                             value: AccidentalExpressionChoice.easyRead,
                             label: Text('Easy Read', style: buttonTextStyle()),
                             tooltip: _appOptions.toolTips
-                                ? 'When required, accidental notes are expressed as an easy to read expression.'
+                                ? 'When required, accidental notes are expressed as an easy to read expression.\n'
+                                    'For example, A♯ will always be expressed as B♭'
                                 : null,
                           ),
                           // ButtonSegment<AccidentalExpressionChoice>(
@@ -351,7 +368,7 @@ class OptionsState extends State<Options> {
                       message: 'Enable Tooltips',
                       child: appButton(
                         'Tooltips',
-                        appKeyEnum: AppKeyEnum.optionsToolTipsTextButton,
+
                         onPressed: () {
                           setState(() {
                             _appOptions.toolTips = !_appOptions.toolTips;
@@ -361,7 +378,6 @@ class OptionsState extends State<Options> {
                       ),
                     ),
                     appSwitch(
-                      appKeyEnum: AppKeyEnum.optionsToolTips,
                       value: _appOptions.toolTips,
                       onChanged: (value) {
                         setState(() {
@@ -499,7 +515,6 @@ class OptionsState extends State<Options> {
                   Row(children: <Widget>[
                     appButton(
                       'Clear all local stored options',
-                      appKeyEnum: AppKeyEnum.optionsClearOptionsTextButton,
                       onPressed: () {
                         setState(() {
                           _appOptions.clear();
@@ -512,7 +527,7 @@ class OptionsState extends State<Options> {
           ),
         ),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.optionsBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 

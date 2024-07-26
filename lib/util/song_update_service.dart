@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
@@ -61,7 +60,6 @@ class AppSongUpdateService extends ChangeNotifier {
         //  assume that the authority is good, or at least worth trying
         var url = 'ws://$_host$_port/bsteeleMusicApp/bsteeleMusic';
         logger.log(_log, 'trying: $url');
-        appLogMessage('webSocket try host: "$host"');
 
         try {
           //  or re-try
@@ -112,11 +110,9 @@ class AppSongUpdateService extends ChangeNotifier {
           }, onError: (Object error) {
             logger.log(_log, 'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
             _closeWebSocketChannel();
-            appLogMessage('webSocketChannel error: $error at $uri');
           }, onDone: () {
             logger.log(_log, 'webSocketChannel onDone: at $uri');
             _closeWebSocketChannel();
-            appLogMessage('webSocketChannel onDone: at $uri');
           });
 
           //  See if the server is there, that is, force a response that
@@ -136,7 +132,6 @@ class AppSongUpdateService extends ChangeNotifier {
               //  check connection status
               if (lastHost != _findTheHost()) {
                 logger.log(_log, 'lastHost != _findTheHost(): "$lastHost" vs "${_findTheHost()}"');
-                appLogMessage('webSocketChannel new host: $uri');
                 _closeWebSocketChannel();
                 _delayMilliseconds = 0;
                 notifyListeners();
@@ -194,7 +189,6 @@ class AppSongUpdateService extends ChangeNotifier {
       if (host.contains('bsteele.com') || (kDebugMode && host.contains('localhost'))) {
         //  there is never a websocket on the web!
         if (_lastNeverHost != host) {
-          appLogMessage('webSocketChannel exception: never going to be at: "$host"');
           _lastNeverHost = host;
         }
         //  do nothing

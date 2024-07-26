@@ -1,8 +1,8 @@
-import 'package:bsteele_music_lib/songs/section.dart';
-import 'package:bsteele_music_lib/songs/section_version.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_lib/songs/section.dart';
+import 'package:bsteele_music_lib/songs/section_version.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -93,7 +93,7 @@ class StyleDemoState extends State<StyleDemo> {
                     ),
                   ),
                   const AppSpace(),
-                  appButton('appButton', appKeyEnum: AppKeyEnum.cssDemoButton, onPressed: () {}),
+                  appButton('appButton', onPressed: () {}),
                   const AppSpace(),
                   AppWrap(
                     children: [
@@ -102,8 +102,7 @@ class StyleDemoState extends State<StyleDemo> {
                         style: generateAppTextStyle(),
                       ),
                       const AppSpace(),
-                      appIconWithLabelButton(
-                          appKeyEnum: AppKeyEnum.cssDemoIconButton, icon: appIcon(Icons.check), onPressed: () {}),
+                      appIconWithLabelButton(icon: appIcon(Icons.check), onPressed: () {}),
                     ],
                   ),
                   const AppSpace(),
@@ -144,7 +143,7 @@ class StyleDemoState extends State<StyleDemo> {
           ),
         ),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.cssDemoBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 

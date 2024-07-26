@@ -2,6 +2,11 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:bsteele_music_flutter/app/appOptions.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/grid.dart';
 import 'package:bsteele_music_lib/songs/chord_component.dart';
@@ -28,11 +33,6 @@ import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_lib/songs/time_signature.dart';
 import 'package:bsteele_music_lib/util/undo_stack.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:bsteele_music_flutter/app/appOptions.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/screens/lyricsEntries.dart';
-import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -170,29 +170,29 @@ class EditState extends State<Edit> {
 
     //  known text updates
     titleTextEditingController.addListener(() {
-      appTextFieldListener(AppKeyEnum.editTitle, titleTextEditingController);
+      appTextFieldListener(titleTextEditingController);
       song.title = titleTextEditingController.text;
       logger.t('_titleTextEditingController listener: \'${titleTextEditingController.text}\''
           ', ${titleTextEditingController.selection}');
       checkSongChangeStatus();
     });
     artistTextEditingController.addListener(() {
-      appTextFieldListener(AppKeyEnum.editArtist, artistTextEditingController);
+      appTextFieldListener(artistTextEditingController);
       song.artist = artistTextEditingController.text;
       checkSongChangeStatus();
     });
     coverArtistTextEditingController.addListener(() {
-      appTextFieldListener(AppKeyEnum.editCoverArtist, coverArtistTextEditingController);
+      appTextFieldListener(coverArtistTextEditingController);
       song.coverArtist = coverArtistTextEditingController.text;
       checkSongChangeStatus();
     });
     copyrightTextEditingController.addListener(() {
-      appTextFieldListener(AppKeyEnum.editReleaseAndLabel, copyrightTextEditingController);
+      appTextFieldListener(copyrightTextEditingController);
       song.copyright = copyrightTextEditingController.text;
       checkSongChangeStatus();
     });
     userTextEditingController.addListener(() {
-      appTextFieldListener(AppKeyEnum.editUserName, userTextEditingController);
+      appTextFieldListener(userTextEditingController);
       song.user = userTextEditingController.text;
       checkSongChangeStatus();
     });
@@ -208,7 +208,7 @@ class EditState extends State<Edit> {
         } else {
           setState(() {
             app.clearMessage();
-            appTextFieldListener(AppKeyEnum.editBPM, bpmTextEditingController);
+            appTextFieldListener(bpmTextEditingController);
             song.beatsPerMinute = bpm;
             checkSongChangeStatus();
           });
@@ -225,7 +225,6 @@ class EditState extends State<Edit> {
     _timeSignatureItems = [];
     for (final timeSignature in knownTimeSignatures) {
       _timeSignatureItems.add(appDropdownMenuItem<TimeSignature>(
-        appKeyEnum: AppKeyEnum.editEditTimeSignature,
         value: timeSignature,
         child: Text(timeSignature.toString()),
       ));
@@ -293,14 +292,13 @@ class EditState extends State<Edit> {
                 style: chordBoldTextStyle,
               ),
               actions: [
-                appButton('Discard all my changes!', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+                appButton('Discard all my changes!', onPressed: () {
                   app.clearMessage();
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
                 const AppSpace(space: 100),
-                appButton('Cancel the return... I need to work some more on this.',
-                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                appButton('Cancel the return... I need to work some more on this.', onPressed: () {
                   Navigator.of(context).pop();
                   checkSong();
                 }),
@@ -321,15 +319,14 @@ class EditState extends State<Edit> {
                 style: chordBoldTextStyle,
               ),
               actions: [
-                appButton('Remove the song.', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+                appButton('Remove the song.', onPressed: () {
                   app.allSongs.remove(song);
                   app.clearMessage();
                   Navigator.of(context).pop(); //  the dialog
                   Navigator.of(context).pop(); //  the screen
                 }),
                 const AppSpace(space: 100),
-                appButton('Cancel the removal... I need to work some more on this.',
-                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                appButton('Cancel the removal... I need to work some more on this.', onPressed: () {
                   Navigator.of(context).pop();
                   checkSong();
                 }),
@@ -352,7 +349,7 @@ class EditState extends State<Edit> {
                 style: chordBoldTextStyle,
               ),
               actions: [
-                appButton('Rename the song.', appKeyEnum: AppKeyEnum.editDiscardAllChanges, onPressed: () {
+                appButton('Rename the song.', onPressed: () {
                   app.allSongs.remove(originalSong);
                   app.allSongs.add(song);
                   app.selectedSong = song;
@@ -361,8 +358,7 @@ class EditState extends State<Edit> {
                   Navigator.of(context).pop(); //  the screen
                 }),
                 const AppSpace(space: 100),
-                appButton('Cancel the rename... I need to work some more on this.',
-                    appKeyEnum: AppKeyEnum.listsCancelDeleteList, onPressed: () {
+                appButton('Cancel the rename... I need to work some more on this.', onPressed: () {
                   Navigator.of(context).pop();
                   checkSong();
                 }),
@@ -483,7 +479,6 @@ class EditState extends State<Edit> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.appBar(
-        appKeyEnum: AppKeyEnum.appBarBack,
         title: 'Edit: ${song.title}',
         leading: appWidgetHelper.back(
             canPop: _canPop,
@@ -499,7 +494,7 @@ class EditState extends State<Edit> {
         onKeyEvent: _editOnKey,
         child: Column(
           children: [
-            app.messageTextWidget(AppKeyEnum.editErrorMessage),
+            app.messageTextWidget(),
             // const AppVerticalSpace(space: 10),
             Expanded(
               child: GestureDetector(
@@ -521,7 +516,7 @@ class EditState extends State<Edit> {
                                 : 'Invalid song entries cannot be saved.\nFix the errors first.',
                             child: appButton(
                               'Save song on local drive',
-                              appKeyEnum: AppKeyEnum.editEnterSong,
+
                               fontSize: _defaultChordFontSize,
                               onPressed: (songHasChanged && isValidSong)
                                   ? () {
@@ -535,8 +530,7 @@ class EditState extends State<Edit> {
                           AppWrap(alignment: WrapAlignment.spaceBetween, spacing: 25, children: <Widget>[
                             editTooltip(
                               message: undoStack.canUndo ? 'Undo the last edit' : 'There is nothing to undo',
-                              child: appButton('Undo', appKeyEnum: AppKeyEnum.editUndo, fontSize: _defaultChordFontSize,
-                                  onPressed: () {
+                              child: appButton('Undo', fontSize: _defaultChordFontSize, onPressed: () {
                                 undo();
                               }),
                             ),
@@ -544,7 +538,6 @@ class EditState extends State<Edit> {
                               message: undoStack.canUndo ? 'Redo the last edit undone' : 'There is no edit to redo',
                               child: appButton(
                                 'Redo',
-                                appKeyEnum: AppKeyEnum.editRedo,
                                 fontSize: _defaultChordFontSize,
                                 onPressed: () {
                                   redo();
@@ -554,7 +547,6 @@ class EditState extends State<Edit> {
                             if (kDebugMode)
                               appButton(
                                 'Sheet music',
-                                appKeyEnum: AppKeyEnum.editScreenDetail,
                                 fontSize: _defaultChordFontSize,
                                 onPressed: () {
                                   setState(() {
@@ -567,7 +559,6 @@ class EditState extends State<Edit> {
                                   'start entering a new song.',
                               child: appButton(
                                 'Clear',
-                                appKeyEnum: AppKeyEnum.editClearSong,
                                 fontSize: _defaultChordFontSize,
                                 onPressed: () {
                                   setState(() {
@@ -593,7 +584,6 @@ class EditState extends State<Edit> {
                                 message: 'Remove this song from the list of songs.',
                                 child: appButton(
                                   'Remove',
-                                  appKeyEnum: AppKeyEnum.editRemoveSong,
                                   fontSize: _defaultChordFontSize,
                                   onPressed: () {
                                     removePopup();
@@ -606,7 +596,6 @@ class EditState extends State<Edit> {
                                     '${kDebugMode ? '\n${song.songId} vs ${originalSong.songId}' : ''}',
                                 child: appButton(
                                   'Rename the song',
-                                  appKeyEnum: AppKeyEnum.editRenameSong,
                                   fontSize: _defaultChordFontSize,
                                   onPressed: () {
                                     renamePopup();
@@ -662,7 +651,6 @@ class EditState extends State<Edit> {
                                 ),
                                 Expanded(
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editTitle,
                                     controller: titleTextEditingController,
                                     hintText: 'Enter the song title.',
                                     fontSize: _defaultChordFontSize,
@@ -690,7 +678,6 @@ class EditState extends State<Edit> {
                                 ),
                                 Expanded(
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editArtist,
                                     controller: artistTextEditingController,
                                     hintText: 'Enter the song\'s artist.',
                                     fontSize: _defaultChordFontSize,
@@ -718,7 +705,6 @@ class EditState extends State<Edit> {
                                 ),
                                 Expanded(
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editCoverArtist,
                                     controller: coverArtistTextEditingController,
                                     hintText: 'Enter the song\'s cover artist.',
                                     fontSize: _defaultChordFontSize,
@@ -745,7 +731,6 @@ class EditState extends State<Edit> {
                                 ),
                                 Expanded(
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editReleaseAndLabel,
                                     controller: copyrightTextEditingController,
                                     hintText: 'Enter the song\'s copyright. Required.',
                                     fontSize: _defaultChordFontSize,
@@ -768,11 +753,9 @@ class EditState extends State<Edit> {
                                   style: _labelTextStyle,
                                 ),
                                 appDropdownButton<music_key.Key>(
-                                  AppKeyEnum.editEditKeyDropdown,
                                   music_key.Key.values.toList().reversed.map((music_key.Key value) {
                                     logger.t('keySelectDropdownMenuItems: music_key.Key value: $value');
                                     return appDropdownMenuItem<music_key.Key>(
-                                      appKeyEnum: AppKeyEnum.editMusicKey,
                                       value: value,
                                       child: Text(
                                         '${value.toMarkup().padRight(3)} ${value.sharpsFlatsToMarkup()}',
@@ -808,7 +791,6 @@ class EditState extends State<Edit> {
                                 SizedBox(
                                   width: 3 * _defaultChordFontSize,
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editBPM,
                                     controller: bpmTextEditingController,
                                     fontSize: _defaultChordFontSize,
                                     onChanged: (value) {}, //  fixme: ignored
@@ -825,7 +807,6 @@ class EditState extends State<Edit> {
                                   style: _labelTextStyle,
                                 ),
                                 appDropdownButton<TimeSignature>(
-                                  AppKeyEnum.editEditTimeSignatureDropdown,
                                   _timeSignatureItems,
                                   onChanged: (value) {
                                     if (value != null && song.timeSignature != value) {
@@ -852,7 +833,6 @@ class EditState extends State<Edit> {
                                 SizedBox(
                                   width: 300.0,
                                   child: AppTextField(
-                                    appKeyEnum: AppKeyEnum.editUserName,
                                     controller: userTextEditingController,
                                     hintText: 'Enter the user name.',
                                     fontSize: _defaultChordFontSize,
@@ -873,7 +853,6 @@ class EditState extends State<Edit> {
                                   'Typically this is good for lyrics and copyright.',
                               child: appButton(
                                 'Google',
-                                appKeyEnum: AppKeyEnum.editLinkGoogle,
                                 onPressed: () {
                                   openLink('https://www.google.com/search?q='
                                       '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}'
@@ -887,7 +866,6 @@ class EditState extends State<Edit> {
                                   'Typically this is good for background information and genre.',
                               child: appButton(
                                 'Wikipedia',
-                                appKeyEnum: AppKeyEnum.editLinkWikipedia,
                                 onPressed: () {
                                   openLink('https://en.wikipedia.org/w/index.php?search='
                                       '${'${song.title} %28${song.artist} song%29'.replaceAll(', The', '').replaceAll(' ', '+')}');
@@ -901,7 +879,6 @@ class EditState extends State<Edit> {
                                   'even if there a many variations to choose from.',
                               child: appButton(
                                 'Ultimate-guitar',
-                                appKeyEnum: AppKeyEnum.editLinkUltimateGuitar,
                                 onPressed: () {
                                   openLink('https://www.ultimate-guitar.com/search.php?search_type=title&value='
                                       '${'${song.title} by ${song.artist}'.replaceAll(' ', '%20')}');
@@ -914,7 +891,6 @@ class EditState extends State<Edit> {
                                   'You will likely find sheet music for the song here, at a price.',
                               child: appButton(
                                 'MusicNotes',
-                                appKeyEnum: AppKeyEnum.editLinkMusicNotes,
                                 onPressed: () {
                                   openLink('https://www.musicnotes.com/search/go?w='
                                       '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}');
@@ -928,7 +904,6 @@ class EditState extends State<Edit> {
                                     'Lyrics can be found here.',
                                 child: appButton(
                                   'Azlyrics',
-                                  appKeyEnum: AppKeyEnum.editLinkAzlyrics,
                                   onPressed: () {
                                     openLink('https://search.azlyrics.com/search.php?q='
                                         '${'${song.title} ${song.artist}'.replaceAll(' ', '+')}');
@@ -953,9 +928,7 @@ class EditState extends State<Edit> {
                               editTooltip(
                                 message: 'Validate the chord input.\n'
                                     'This will also reformat the entry.',
-                                child: appButton('Validate',
-                                    appKeyEnum: AppKeyEnum.editValidateChords,
-                                    fontSize: _defaultChordFontSize, onPressed: () {
+                                child: appButton('Validate', fontSize: _defaultChordFontSize, onPressed: () {
                                   setState(() {
                                     validateSongChords(select: true);
                                   });
@@ -966,8 +939,7 @@ class EditState extends State<Edit> {
                                       ? 'Click outside the chords to cancel editing\n'
                                       : '') +
                                   (showHints ? 'Click to hide the editing hints' : 'Click for hints about editing.'),
-                              child: appButton('Hints',
-                                  appKeyEnum: AppKeyEnum.editHints, fontSize: _defaultChordFontSize, onPressed: () {
+                              child: appButton('Hints', fontSize: _defaultChordFontSize, onPressed: () {
                                 setState(() {
                                   showHints = !showHints;
                                 });
@@ -978,7 +950,6 @@ class EditState extends State<Edit> {
                                 message: proMessage,
                                 child: appButton(
                                   isProEditInput ? 'Assisted Input' : 'Pro Input',
-                                  appKeyEnum: AppKeyEnum.editRedo,
                                   fontSize: _defaultChordFontSize,
                                   onPressed: () {
                                     setState(() {
@@ -1225,7 +1196,6 @@ class EditState extends State<Edit> {
                               padding: const EdgeInsets.all(16.0),
                               color: theme.colorScheme.surface,
                               child: AppTextField(
-                                  appKeyEnum: AppKeyEnum.editProChords,
                                   controller: proChordTextEditingController,
                                   focusNode: proChordTextFieldFocusNode,
                                   minLines: 8,
@@ -1251,7 +1221,6 @@ class EditState extends State<Edit> {
                                 message: 'Import lyrics from a text file',
                                 child: appButton(
                                   'Import',
-                                  appKeyEnum: AppKeyEnum.editImportLyrics,
                                   fontSize: _defaultChordFontSize,
                                   onPressed: () {
                                     import();
@@ -1291,7 +1260,6 @@ class EditState extends State<Edit> {
                                 ),
                                 const AppSpace(),
                                 AppTextField(
-                                  appKeyEnum: AppKeyEnum.editProLyrics,
                                   controller: proLyricsTextEditingController,
                                   focusNode: proLyricsTextFieldFocusNode,
                                   minLines: 8,
@@ -1321,7 +1289,6 @@ class EditState extends State<Edit> {
       ),
       floatingActionButton: !songHasChanged
           ? appFloatingActionButton(
-              appKeyEnum: AppKeyEnum.editBack,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -1705,7 +1672,6 @@ class EditState extends State<Edit> {
             child: editTooltip(
               message: 'add new chord section here',
               child: AppInkWell(
-                appKeyEnum: AppKeyEnum.editNewChordSection,
                 onTap: () {
                   setState(() {
                     chordSong.setCurrentChordSectionLocation(null);
@@ -1773,7 +1739,6 @@ class EditState extends State<Edit> {
     List<DropdownMenuItem<ChordSection>> chordSectionItems =
         SplayTreeSet<ChordSection>.from(song.getChordSections()).map((chordSection) {
       return appDropdownMenuItem<ChordSection>(
-        appKeyEnum: AppKeyEnum.editChordSection,
         value: chordSection,
         child: Text(
           '${chordSection.sectionVersion}',
@@ -1851,7 +1816,6 @@ class EditState extends State<Edit> {
         children.add(editTooltip(
           message: 'Delete this lyric section',
           child: AppInkWell(
-            appKeyEnum: AppKeyEnum.editDeleteLyricsSection,
             onTap: () {
               lyricsEntries.delete(entry);
               pushLyricsEntries();
@@ -1912,7 +1876,6 @@ class EditState extends State<Edit> {
             Row(
               children: [
                 AppInkWell(
-                  appKeyEnum: AppKeyEnum.lyricsEntryLineAdd,
                   value: line,
                   onTap: () {
                     lyricsEntries.addBlankLyricsLine(entry);
@@ -1943,7 +1906,6 @@ class EditState extends State<Edit> {
           children.add(Row(
             children: [
               AppInkWell(
-                appKeyEnum: AppKeyEnum.lyricsEntryLineUp,
                 value: line,
                 onTap: () {
                   lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: true);
@@ -1965,7 +1927,6 @@ class EditState extends State<Edit> {
                     )),
               ),
               AppInkWell(
-                appKeyEnum: AppKeyEnum.lyricsEntryLineDown,
                 value: line,
                 onTap: () {
                   lyricsEntries.moveLyricLine(entry.lyricSection, line, isUp: false);
@@ -1995,7 +1956,6 @@ class EditState extends State<Edit> {
               editTooltip(
                 message: 'Delete this lyric line',
                 child: AppInkWell(
-                  appKeyEnum: AppKeyEnum.lyricsEntryLineDelete,
                   value: line,
                   onTap: () {
                     lyricsEntries.deleteLyricLine(
@@ -2144,8 +2104,7 @@ class EditState extends State<Edit> {
           logger.d('proChordsForLyrics(): $lastSectionVersion $lineCount');
           //  limit the horizontal space used by the chords
           sb.write(Util.limitLineLength(
-              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount) ?? '',
-              35,
+              song.findChordSectionBySectionVersion(lastSectionVersion)?.toMarkupInRows(lineCount) ?? '', 35,
               ellipsis: true));
           lineCount = 1;
         }
@@ -2459,7 +2418,6 @@ class EditState extends State<Edit> {
                   editTooltip(
                     message: 'Delete this section',
                     child: AppInkWell(
-                      appKeyEnum: AppKeyEnum.editChordSectionDelete,
                       value: chordSection,
                       onTap: () {
                         performDelete();
@@ -2474,7 +2432,6 @@ class EditState extends State<Edit> {
                   editTooltip(
                     message: 'Cancel the modification.',
                     child: AppInkWell(
-                      appKeyEnum: AppKeyEnum.editChordSectionCancel,
                       value: chordSection,
                       onTap: () {
                         performMeasureEntryCancel();
@@ -2490,7 +2447,6 @@ class EditState extends State<Edit> {
                     editTooltip(
                       message: 'Accept the modification and add measures to the section.',
                       child: AppInkWell(
-                        appKeyEnum: AppKeyEnum.editChordSectionAcceptAndAdd,
                         value: chordSection,
                         onTap: () {
                           performEdit();
@@ -2506,7 +2462,6 @@ class EditState extends State<Edit> {
                     editTooltip(
                       message: 'Accept the modification',
                       child: AppInkWell(
-                        appKeyEnum: AppKeyEnum.editChordSectionAccept,
                         value: chordSection,
                         onTap: () {
                           logger.d('sectionVersion measureEditType: ${selectedEditPoint?.measureEditType.toString()}');
@@ -2533,7 +2488,6 @@ class EditState extends State<Edit> {
 
     //  the section is not selected for editing, just display
     return AppInkWell(
-      appKeyEnum: AppKeyEnum.editChordDataPoint,
       value: editPoint.location,
       onTap: () {
         sectionVersion = chordSection.sectionVersion;
@@ -2664,7 +2618,6 @@ class EditState extends State<Edit> {
           String label =
               "${s.padRight(2)} ${ChordComponent.getByHalfStep(scaleNote.halfStep - song.key.getHalfStep()).shortName.padLeft(2)}";
           DropdownMenuItem<ScaleNote> item = appDropdownMenuItem(
-            appKeyEnum: AppKeyEnum.editScaleNote,
             value: scaleNote,
             child: Text(
               label,
@@ -2682,7 +2635,7 @@ class EditState extends State<Edit> {
           message: 'Enter the major chord.',
           child: appButton(
             keyChordNote.toString(),
-            appKeyEnum: AppKeyEnum.editMajorChord,
+
             onPressed: () {
               setState(() {
                 updateChordText(keyChordNote.toMarkup());
@@ -2701,7 +2654,6 @@ class EditState extends State<Edit> {
             message: 'Enter the minor chord.',
             child: appButton(
               sc.toString(),
-              appKeyEnum: AppKeyEnum.editMinorChord,
               onPressed: () {
                 setState(() {
                   updateChordText(sc.toMarkup());
@@ -2717,7 +2669,6 @@ class EditState extends State<Edit> {
             message: 'Enter the dominant7 chord.',
             child: appButton(
               sc.toString(),
-              appKeyEnum: AppKeyEnum.editDominant7Chord,
               onPressed: () {
                 setState(() {
                   updateChordText(sc.toMarkup());
@@ -2733,7 +2684,6 @@ class EditState extends State<Edit> {
         for (ChordDescriptor cd in ChordDescriptor.otherChordDescriptorsOrdered) {
           ScaleChord sc = ScaleChord(keyChordNote, cd);
           otherChordDropDownMenuList.add(appDropdownMenuItem<ScaleChord>(
-            appKeyEnum: AppKeyEnum.editScaleChord,
             value: sc,
             child: Row(
               children: <Widget>[
@@ -2831,7 +2781,6 @@ class EditState extends State<Edit> {
                     message: 'Enter a silent chord.',
                     child: appButton(
                       'X',
-                      appKeyEnum: AppKeyEnum.editSilentChord,
                       onPressed: () {
                         setState(() {
                           updateChordText('X');
@@ -2893,7 +2842,6 @@ class EditState extends State<Edit> {
                             '${kDebugMode ? ' $editPoint' : ''}',
                         child: appButton(
                           'Join',
-                          appKeyEnum: AppKeyEnum.editRowJoin,
                           onPressed: () {
                             setState(() {
                               song.setCurrentChordSectionLocation(editPoint.location);
@@ -2912,7 +2860,6 @@ class EditState extends State<Edit> {
                             '${kDebugMode ? ' $editPoint' : ''}',
                         child: appButton(
                           'Split',
-                          appKeyEnum: AppKeyEnum.editRowSplit,
                           onPressed: () {
                             setState(() {
                               song.setCurrentChordSectionLocation(editPoint.location);
@@ -2935,7 +2882,6 @@ class EditState extends State<Edit> {
                           message: 'Delete this measure'
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: AppInkWell(
-                            appKeyEnum: AppKeyEnum.editDeleteChordMeasure,
                             onTap: () {
                               performDelete();
                             },
@@ -2950,7 +2896,6 @@ class EditState extends State<Edit> {
                         message: 'Cancel the modification.'
                             '${kDebugMode ? ' $editPoint' : ''}',
                         child: AppInkWell(
-                          appKeyEnum: AppKeyEnum.editCancelChordModification,
                           onTap: () {
                             performMeasureEntryCancel();
                           },
@@ -2966,7 +2911,6 @@ class EditState extends State<Edit> {
                           message: 'Accept the modification and extend the row.'
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: AppInkWell(
-                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndExtendRow,
                             onTap: () {
                               performEdit(endOfRow: false);
                             },
@@ -2981,7 +2925,6 @@ class EditState extends State<Edit> {
                           message: 'Accept the modification, end the row, and continue editing.'
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: AppInkWell(
-                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndStartNewRow,
                             onTap: () {
                               performEdit(done: false, endOfRow: true);
                             },
@@ -2996,7 +2939,6 @@ class EditState extends State<Edit> {
                           message: 'Accept the modification.\nFinish adding measures.'
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: AppInkWell(
-                            appKeyEnum: AppKeyEnum.editAcceptChordModificationAndFinish,
                             onTap: () {
                               logger.i(
                                   'endOfRow?:  ${chordSong.findMeasureByChordSectionLocation(selectedEditPoint?.location)?.endOfRow} ');
@@ -3019,7 +2961,6 @@ class EditState extends State<Edit> {
     } else {
       //  not editing this measure
       ret = AppInkWell(
-        appKeyEnum: AppKeyEnum.editChordSectionLocation,
         value: editPoint.location,
         onTap: () {
           setEditPoint(editPoint);
@@ -3071,7 +3012,6 @@ class EditState extends State<Edit> {
                   ),
                   appButton(
                     'x2',
-                    appKeyEnum: AppKeyEnum.editRepeatX2,
                     value: editPoint.location,
                     fontSize: _defaultChordFontSize,
                     onPressed: () {
@@ -3082,7 +3022,6 @@ class EditState extends State<Edit> {
                   ),
                   appButton(
                     'x3',
-                    appKeyEnum: AppKeyEnum.editRepeatX3,
                     value: editPoint.location,
                     fontSize: _defaultChordFontSize,
                     onPressed: () {
@@ -3093,7 +3032,6 @@ class EditState extends State<Edit> {
                   ),
                   appButton(
                     'x4',
-                    appKeyEnum: AppKeyEnum.editRepeatX4,
                     value: editPoint.location,
                     fontSize: _defaultChordFontSize,
                     onPressed: () {
@@ -3117,7 +3055,6 @@ class EditState extends State<Edit> {
                           editTooltip(
                             message: 'Delete this repeat',
                             child: AppInkWell(
-                              appKeyEnum: AppKeyEnum.editDeleteRepeat,
                               value: editPoint.location,
                               onTap: () {
                                 song.setRepeat(editPoint.location, 1);
@@ -3136,7 +3073,6 @@ class EditState extends State<Edit> {
                       editTooltip(
                         message: 'Cancel the modification',
                         child: AppInkWell(
-                          appKeyEnum: AppKeyEnum.editRepeatCancel,
                           value: editPoint.location,
                           onTap: () {
                             performMeasureEntryCancel();
@@ -3157,7 +3093,6 @@ class EditState extends State<Edit> {
     var sectionChordBoldTextStyle = chordBoldTextStyle.copyWith(backgroundColor: sectionColor);
     //  not editing this measureNode
     return AppInkWell(
-      appKeyEnum: AppKeyEnum.editRepeat,
       value: editPoint.location,
       onTap: () {
         setEditPoint(editPoint);
@@ -3249,7 +3184,6 @@ class EditState extends State<Edit> {
   Widget plusRowWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc?.asPhraseLocation(), measureEditType: MeasureEditType.insert);
     return AppInkWell(
-        appKeyEnum: AppKeyEnum.editAddChordRow,
         value: editPoint.location,
         onTap: () {
           if (loc != null) {
@@ -3277,7 +3211,6 @@ class EditState extends State<Edit> {
   Widget plusRepeatWidget(ChordSectionLocation? loc) {
     var editPoint = EditPoint(loc, measureEditType: MeasureEditType.insert);
     return AppInkWell(
-        appKeyEnum: AppKeyEnum.editAddChordRowRepeat,
         value: loc,
         onTap: () {
           if (loc != null) {
@@ -3310,7 +3243,6 @@ class EditState extends State<Edit> {
 
     return _debugWidget(
         AppInkWell(
-            appKeyEnum: AppKeyEnum.editAddChordRowNew,
             value: loc,
             onTap: () {
               setState(() {
@@ -3350,9 +3282,6 @@ class EditState extends State<Edit> {
     }
 
     return AppInkWell(
-        appKeyEnum: editPoint.measureEditType == MeasureEditType.insert
-            ? AppKeyEnum.editChordPlusInsert
-            : AppKeyEnum.editChordPlusAppend,
         value: editPoint.location,
         onTap: () {
           setEditPoint(editPoint);

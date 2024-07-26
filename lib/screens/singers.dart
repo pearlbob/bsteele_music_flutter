@@ -250,7 +250,6 @@ class SingersState extends State<Singers> {
                 children: [
                   appTextButton(
                     performer,
-                    appKeyEnum: AppKeyEnum.singersAllSingers,
                     style: performer == _selectedSinger
                         ? songPerformanceStyle.copyWith(backgroundColor: addColor)
                         : songPerformanceStyle,
@@ -262,7 +261,6 @@ class SingersState extends State<Singers> {
                   ),
                   if (!_sessionSingers.contains(performer))
                     AppInkWell(
-                      appKeyEnum: AppKeyEnum.singersAddSingerToSession,
                       value: performer,
                       onTap: () {
                         setState(() {
@@ -284,7 +282,6 @@ class SingersState extends State<Singers> {
                     ),
                   if (_sessionSingers.contains(performer))
                     AppInkWell(
-                      appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
                       // value: singer,
                       onTap: () {
                         setState(() {
@@ -354,7 +351,6 @@ class SingersState extends State<Singers> {
                         Container(
                           child: appTextButton(
                             singer,
-                            appKeyEnum: AppKeyEnum.singersSessionSingerSelect,
                             onPressed: () {
                               setState(() {
                                 _setSelectedSinger(singer);
@@ -367,7 +363,6 @@ class SingersState extends State<Singers> {
                         ),
                         if (!_isInSingingMode)
                           AppInkWell(
-                            appKeyEnum: AppKeyEnum.singersRemoveSingerFromSession,
                             // value: singer,
                             onTap: () {
                               setState(() {
@@ -406,7 +401,6 @@ class SingersState extends State<Singers> {
       for (final e in SingersSongOrder.values) {
         var s = e.toString();
         _sortOrderDropDownMenuList.add(appDropdownMenuItem<SingersSongOrder>(
-          appKeyEnum: AppKeyEnum.singersSortTypeSelection,
           value: e,
           child: Text(
             Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
@@ -430,7 +424,6 @@ class SingersState extends State<Singers> {
                 Text(
                   app.message,
                   style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                  key: appKeyCreate(AppKeyEnum.singersErrorMessage),
                 ),
 
               //  singing / setup
@@ -440,7 +433,7 @@ class SingersState extends State<Singers> {
                     message: singingTooltipText,
                     child: appButton(
                       'Singing',
-                      appKeyEnum: AppKeyEnum.singersSingingTextButton,
+
                       onPressed: () {
                         setState(() {
                           toggleSingingMode();
@@ -452,7 +445,6 @@ class SingersState extends State<Singers> {
                   AppTooltip(
                     message: singingTooltipText,
                     child: appSwitch(
-                      appKeyEnum: AppKeyEnum.singersSinging,
                       onChanged: (value) {
                         setState(() {
                           toggleSingingMode();
@@ -470,7 +462,7 @@ class SingersState extends State<Singers> {
                     ),
                 ]),
                 if (!_isInSingingMode)
-                  appButton('Other Actions', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
+                  appButton('Other Actions', onPressed: () {
                     setState(() {
                       _showOtherActions = !_showOtherActions;
                     });
@@ -492,7 +484,7 @@ class SingersState extends State<Singers> {
                 //     });
                 //   }),
                 if (_isInSingingMode && app.fullscreenEnabled && !app.isFullScreen)
-                  appButton('Fullscreen', appKeyEnum: AppKeyEnum.singersFullScreen, onPressed: () {
+                  appButton('Fullscreen', onPressed: () {
                     app.requestFullscreen();
                   }),
               ]),
@@ -509,7 +501,6 @@ class SingersState extends State<Singers> {
                                 'without first having written them all.',
                             child: appButton(
                               'Write all singer songs to a local file',
-                              appKeyEnum: AppKeyEnum.singersSave,
                               onPressed: () {
                                 _saveAllSongPerformances().then((response) {
                                   setState(() {
@@ -525,7 +516,6 @@ class SingersState extends State<Singers> {
                       if (_selectedSinger != _unknownSinger)
                         appButton(
                           'Write singer $_selectedSinger\'s songs to a local file',
-                          appKeyEnum: AppKeyEnum.singersSaveSelected,
                           onPressed: () {
                             app.songPerformanceDaemon.saveSingersSongList(_selectedSinger);
                             logger.d('save selection: $_selectedSinger');
@@ -537,7 +527,6 @@ class SingersState extends State<Singers> {
                             'will be added to the singers.',
                         child: appButton(
                           'Read singer performance updates from a local file',
-                          appKeyEnum: AppKeyEnum.singersReadASingleSinger,
                           onPressed: () {
                             setState(() {
                               filePickUpdate(context);
@@ -550,7 +539,6 @@ class SingersState extends State<Singers> {
                         message: 'Convenience operation to clear all the singers from today\'s session.',
                         child: appButton(
                           'Clear the current session singers',
-                          appKeyEnum: AppKeyEnum.singersReadASingleSinger,
                           onPressed: () {
                             setState(() {
                               _sessionSingers.clear();
@@ -563,7 +551,6 @@ class SingersState extends State<Singers> {
                       if (_selectedSinger != _unknownSinger)
                         appButton(
                           'Delete the singer $_selectedSinger',
-                          appKeyEnum: AppKeyEnum.singersDeleteSinger,
                           onPressed: () {
                             showDialog(
                                 context: context,
@@ -574,7 +561,7 @@ class SingersState extends State<Singers> {
                                       ),
                                       actions: [
                                         appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                            appKeyEnum: AppKeyEnum.singersDeleteSingerConfirmation, onPressed: () {
+                                            onPressed: () {
                                           logger.d('delete: $_selectedSinger');
                                           setState(() {
                                             _allSongPerformances.removeSinger(_selectedSinger);
@@ -588,7 +575,7 @@ class SingersState extends State<Singers> {
                                         }),
                                         const AppSpace(space: 100),
                                         appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                            appKeyEnum: AppKeyEnum.singersCancelDeleteSinger, onPressed: () {
+                                            onPressed: () {
                                           Navigator.of(context).pop();
                                         }),
                                       ],
@@ -605,7 +592,6 @@ class SingersState extends State<Singers> {
                       if (allHaveBeenWritten)
                         appButton(
                           'Remove all singers',
-                          appKeyEnum: AppKeyEnum.singersRemoveAllSingers,
                           onPressed: () {
                             setState(() {
                               _allSongPerformances.clear();
@@ -629,7 +615,6 @@ class SingersState extends State<Singers> {
                   if (_songUpdateService.isConnected)
                     appButton(
                       '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.host}',
-                      appKeyEnum: AppKeyEnum.optionsLeadership,
                       onPressed: () {
                         setState(() {
                           if (_songUpdateService.isConnected) {
@@ -694,7 +679,6 @@ class SingersState extends State<Singers> {
                               'that have been requested by this requester',
                           child: AppRadio<bool>(
                               text: 'from the active singers above',
-                              appKeyEnum: AppKeyEnum.singersActiveSingers,
                               value: false,
                               //  default to singing mode
                               groupValue: editRequestersList,
@@ -710,7 +694,6 @@ class SingersState extends State<Singers> {
                             message: 'Click to edit the songs requested by this requester',
                             child: AppRadio<bool>(
                                 text: 'edit $_selectedSinger requests',
-                                appKeyEnum: AppKeyEnum.optionsNinJam,
                                 value: true,
                                 groupValue: editRequestersList,
                                 onPressed: () {
@@ -743,7 +726,6 @@ class SingersState extends State<Singers> {
                       width: 15 * fontSize,
                       //  limit text entry display length
                       child: AppTextField(
-                        appKeyEnum: AppKeyEnum.singersSingerSearchText,
                         enabled: true,
                         controller: singerSearchTextFieldController,
                         focusNode: _singerSearchFocusNode,
@@ -759,7 +741,6 @@ class SingersState extends State<Singers> {
                     AppTooltip(
                       message: 'Clear the singer search text.',
                       child: appIconButton(
-                        appKeyEnum: AppKeyEnum.singersSingerClearSearch,
                         icon: const Icon(Icons.clear),
                         iconSize: 1.5 * fontSize,
                         onPressed: (() {
@@ -776,7 +757,6 @@ class SingersState extends State<Singers> {
                     width: 25 * app.screenInfo.fontSize,
                     //  limit text entry display length
                     child: AppTextField.onSubmitted(
-                      appKeyEnum: AppKeyEnum.singersNameEntry,
                       controller: singerTextFieldController,
                       hintText: "enter a new singer's name",
                       onSubmitted: (value) {
@@ -827,7 +807,7 @@ class SingersState extends State<Singers> {
             ],
           ),
         ),
-        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.singersBack),
+        floatingActionButton: appWidgetHelper.floatingBack(),
       );
     });
   }
@@ -1080,7 +1060,6 @@ class SingersState extends State<Singers> {
         ..._potentialVolunteers().map(
           (singer) => appIdButton(
             singer,
-            appKeyEnum: AppKeyEnum.singersVolunteerSingerSelect,
             id: Id(singer),
             onPressed: () {
               setState(() {
@@ -1093,7 +1072,6 @@ class SingersState extends State<Singers> {
         AppTooltip(
           message: 'Clear the volunteer selection.',
           child: appIconButton(
-            appKeyEnum: AppKeyEnum.singersVolunteerSingerSelectClear,
             icon: const Icon(Icons.clear),
             iconSize: 1.5 * app.screenInfo.fontSize,
             onPressed: (() {

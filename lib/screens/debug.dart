@@ -1,4 +1,3 @@
-import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -30,35 +29,17 @@ class DebugState extends State<Debug> {
       appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Debug'),
       body: DefaultTextStyle(
         style: style,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
+        child: const Padding(
+          padding: EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              appButton('Write Log', appKeyEnum: AppKeyEnum.debugWriteLog, onPressed: () {
-                StringBuffer sb = StringBuffer();
-                for (var s in appLog) {
-                  sb.writeln(s);
-                }
-                logger.i('write log: $sb');
-              }),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    textDirection: TextDirection.ltr,
-                    children: appLog.map((e) => Text(e, textAlign: TextAlign.start)).toList(growable: false),
-                  ),
-                ),
-              ),
+              Text('empty now'),
             ],
           ),
         ),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.documentationBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 }

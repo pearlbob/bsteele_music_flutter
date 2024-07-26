@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'dart:math';
 
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
-import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -52,7 +48,7 @@ class AboutState extends State<About> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
+                app.messageTextWidget(),
                 const AppSpace(),
                 const Text(
                   'The bsteeleMusicApp has been written by bob.',
@@ -173,24 +169,10 @@ class AboutState extends State<About> with WidgetsBindingObserver {
                 // Text(
                 //   'ver: ${Platform.version}',
                 // ),
-                const AppSpace(),
-                AppTooltip(
-                  message: 'If the app did something wrong,\n'
-                      'use this button to write a diagnostic file for bob.\n'
-                      'Of course it would help to email it to me as well\n'
-                      'with a brief description of what happened.',
-                  child: appButton(
-                    'Write diagnostic log file',
-                    appKeyEnum: AppKeyEnum.aboutWriteDiagnosticLogFile,
-                    onPressed: () {
-                      _writeDiagnosticLogFile();
-                    },
-                  ),
-                ),
               ]),
         ),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.aboutBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 
@@ -201,44 +183,6 @@ class AboutState extends State<About> with WidgetsBindingObserver {
     } catch (e) {
       _applicationDocumentsPath = 'unknown';
     }
-  }
-
-  void _writeDiagnosticLogFile() async {
-    String utcNow = Util.utcNow();
-    StringBuffer sb = StringBuffer();
-    sb.writeln('''{
-    "fileFormat": "1.0.0",
-    "user": ${jsonEncode(userName)},
-    "versionUtcDate": ${jsonEncode(_utcDateAsString ?? 'unknown')},
-    "nowUtc": ${jsonEncode(utcNow)},
-    "version": ${jsonEncode(packageInfo.version)},
-    "log": [''');
-
-    bool first = true;
-    for (var s in appLog) {
-      if (first) {
-        first = false;
-      } else {
-        sb.writeln(',');
-      }
-      sb.write('        ');
-      sb.write(jsonEncode(s));
-    }
-    sb.write('''
-
-    ]
-}
-''');
-    var fileName = 'bsteeleMusicAppLog_$utcNow.json';
-    logger.t('$fileName:${sb.toString()}');
-    String message = await UtilWorkaround().writeFileContents(fileName, sb.toString(), fileType: 'log');
-    setState(() {
-      if (message.toLowerCase().contains('error')) {
-        app.errorMessage(message);
-      } else {
-        app.infoMessage = message;
-      }
-    });
   }
 
   void _readUtcDate() async {

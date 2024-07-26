@@ -1,11 +1,11 @@
 import 'dart:collection';
 
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/screens/player.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:string_similarity/string_similarity.dart';
@@ -138,7 +138,6 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                     ),
                   ),
                   appDropdownButton<String>(
-                    AppKeyEnum.performanceHistorySinger,
                     singerDropdownMenuItems,
                     onChanged: (value) {
                       // logger.i('select singer: $value');
@@ -154,7 +153,6 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                       message: 'Clear the singer selection.',
                       child: appIconButton(
                         icon: const Icon(Icons.clear),
-                        appKeyEnum: AppKeyEnum.playListClearSearch,
                         iconSize: appTextStyle.fontSize,
                         onPressed: (() {
                           setState(() {
@@ -179,7 +177,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
               ),
             ]),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.performanceHistoryBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 

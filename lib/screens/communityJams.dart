@@ -39,7 +39,7 @@ class CommunityJamsState extends State<CommunityJams> with WidgetsBindingObserve
             Expanded(
               child: ListView(//controller: scrollController,
                   children: <Widget>[
-                app.messageTextWidget(AppKeyEnum.aboutErrorMessage),
+                app.messageTextWidget(),
                 const AppVerticalSpace(
                   space: 200,
                 ),

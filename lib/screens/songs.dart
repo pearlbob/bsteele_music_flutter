@@ -49,11 +49,10 @@ class SongsState extends State<Songs> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              app.messageTextWidget(AppKeyEnum.songsErrorMessage),
+              app.messageTextWidget(),
               const AppSpace(),
               appButton(
                 'Read local file',
-                appKeyEnum: AppKeyEnum.songsReadFiles,
                 onPressed: () {
                   _filePick(context);
                 },
@@ -63,7 +62,6 @@ class SongsState extends State<Songs> {
               ),
               appButton(
                 'Write all songs to the local file: $fileLocation',
-                appKeyEnum: AppKeyEnum.songsWriteFiles,
                 onPressed: () {
                   _writeAll();
                 },
@@ -75,7 +73,6 @@ class SongsState extends State<Songs> {
                 message: 'A reload of the application will return them all.',
                 child: appButton(
                   'Remove all songs from the current list',
-                  appKeyEnum: AppKeyEnum.songsRemoveAll,
                   onPressed: () {
                     setState(() {
                       app.removeAllSongs();
@@ -91,7 +88,6 @@ class SongsState extends State<Songs> {
                     'This can be used to recover an edited song... if you are lucky.',
                 child: appButton(
                   'Edit the last song edited',
-                  appKeyEnum: AppKeyEnum.songsEditLastSongEdited,
                   onPressed: () {
                     _navigateToLastEdit();
                   },
@@ -110,7 +106,7 @@ class SongsState extends State<Songs> {
               ),
             ]),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.songsBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 
@@ -222,23 +218,22 @@ class SongsState extends State<Songs> {
               ),
               actions: [
                 AppWrapFullWidth(spacing: 20, children: [
-                  appButton('Accept', appKeyEnum: AppKeyEnum.songsAcceptSongRead, onPressed: () {
+                  appButton('Accept', onPressed: () {
                     Navigator.of(context).pop();
                     response = SongsDialogResponse.accept;
                   }),
-                  appButton('Reject', appKeyEnum: AppKeyEnum.songsRejectSongRead, onPressed: () {
+                  appButton('Reject', onPressed: () {
                     Navigator.of(context).pop();
                     response = SongsDialogResponse.reject;
                   }),
                 ]),
                 const AppSpace(),
                 AppWrapFullWidth(spacing: 20, children: [
-                  appButton('Accept all songs', appKeyEnum: AppKeyEnum.songsAcceptAllSongReads, onPressed: () {
+                  appButton('Accept all songs', onPressed: () {
                     Navigator.of(context).pop();
                     response = SongsDialogResponse.acceptAll;
                   }),
-                  appButton('Reject this and any more songs', appKeyEnum: AppKeyEnum.songsCancelSongAllAdds,
-                      onPressed: () {
+                  appButton('Reject this and any more songs', onPressed: () {
                     Navigator.of(context).pop();
                     response = SongsDialogResponse.rejectAll;
                   }),

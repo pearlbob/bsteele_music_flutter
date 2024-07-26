@@ -1,15 +1,15 @@
-import 'package:bsteele_music_lib/app_logger.dart';
-import 'package:bsteele_music_lib/songs/drum_measure.dart';
-import 'package:bsteele_music_lib/songs/music_constants.dart';
-import 'package:bsteele_music_lib/songs/key.dart' as music_key;
-import 'package:bsteele_music_lib/songs/song.dart';
-import 'package:bsteele_music_lib/util/util.dart';
 import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_flutter/app/appOptions.dart';
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/playList.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/play_list_search_matcher.dart';
+import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/songs/drum_measure.dart';
+import 'package:bsteele_music_lib/songs/key.dart' as music_key;
+import 'package:bsteele_music_lib/songs/music_constants.dart';
+import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -92,7 +92,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                   Text(
                     app.message,
                     style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
-                    key: appKeyCreate(AppKeyEnum.singersErrorMessage),
                   ),
                 ]),
               AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
@@ -101,7 +100,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     message: 'Create a new drum part',
                     child: appButton(
                       'Create new drums',
-                      appKeyEnum: AppKeyEnum.drumScreenNew,
                       onPressed: () {
                         setState(() {
                           app.clearMessage();
@@ -118,7 +116,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     message: 'Switch back to selection mode if finished editing.',
                     child: appButton(
                       'Return from editing to drum selection.',
-                      appKeyEnum: AppKeyEnum.drumScreenBackToSelection,
                       onPressed: () {
                         setState(() {
                           _songMaster.stop();
@@ -133,7 +130,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                     message: 'Edit drum parts prior to selection.',
                     child: appButton(
                       'Edit',
-                      appKeyEnum: AppKeyEnum.drumScreenEditDuringSelection,
                       onPressed: () {
                         setState(() {
                           _isEditing = true;
@@ -141,7 +137,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                       },
                     ),
                   ),
-                appButton('Other Actions', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
+                appButton('Other Actions', onPressed: () {
                   setState(() {
                     app.clearMessage();
                     showOtherActions = !showOtherActions;
@@ -158,7 +154,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                         message: 'Write all drum parts and their metadata to a local file.',
                         child: appButton(
                           'Save drum parts to a local file',
-                          appKeyEnum: AppKeyEnum.drumScreenWrite,
                           onPressed: () {
                             setState(() {
                               logger.t('write drum file');
@@ -173,7 +168,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                         message: 'Read all drum parts and their metadata from a local file.',
                         child: appButton(
                           'Read all drum parts from a local file',
-                          appKeyEnum: AppKeyEnum.drumScreenRead,
                           onPressed: () {
                             setState(() {
                               app.clearMessage();
@@ -220,7 +214,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                               ' for tap to tempo.',
                           child: appButton(
                             'BPM:',
-                            appKeyEnum: AppKeyEnum.playerTempoTap,
                             onPressed: () {
                               tempoTap();
                             },
@@ -230,7 +223,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                           horizontalSpace: 20,
                         ),
                         appIconWithLabelButton(
-                          appKeyEnum: AppKeyEnum.drumScreenTempoDown,
                           onPressed: () {
                             setState(() {
                               playerSelectedBpm = Util.intLimit(
@@ -249,7 +241,6 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
                         Text((playerSelectedBpm ?? MusicConstants.defaultBpm).toString(), style: style),
                         const AppSpace(),
                         appIconWithLabelButton(
-                          appKeyEnum: AppKeyEnum.drumScreenTempoUp,
                           onPressed: () {
                             setState(() {
                               playerSelectedBpm = Util.intLimit(
@@ -279,7 +270,7 @@ class DrumScreenState extends State<DrumScreen> with WidgetsBindingObserver {
             ]),
           ),
         ),
-        floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.drumScreenBack),
+        floatingActionButton: appWidgetHelper.floatingBack(),
       );
     });
   }
@@ -433,7 +424,6 @@ class DrumPlayListItem implements PlayListItem {
       BuildContext context, PlayListItemAction? songItemAction, bool isEditing, VoidCallback? refocus, bool bunch) {
     var boldStyle = DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.bold);
     return AppInkWell(
-        appKeyEnum: AppKeyEnum.drumScreenSelection,
         value: Id(drumParts.name),
         onTap: () {
           if (songItemAction != null) {

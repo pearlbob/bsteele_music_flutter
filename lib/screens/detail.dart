@@ -2,6 +2,11 @@ import 'dart:collection';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/appOptions.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
+import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
+import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord.dart';
 import 'package:bsteele_music_lib/songs/chord_anticipation_or_delay.dart';
@@ -14,11 +19,6 @@ import 'package:bsteele_music_lib/songs/scale_chord.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
 import 'package:bsteele_music_lib/songs/time_signature.dart';
 import 'package:bsteele_music_lib/util/util.dart';
-import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/app/appOptions.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
-import 'package:bsteele_music_flutter/bass_study_tool/sheetMusicPainter.dart';
-import 'package:bsteele_music_flutter/bass_study_tool/sheetNote.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -168,7 +168,7 @@ class DetailState extends State<Detail> {
       }
 
       children.add(const AppSpace());
-      children.add(appButton('Close the options', appKeyEnum: AppKeyEnum.detailCloseOptions, onPressed: () {
+      children.add(appButton('Close the options', onPressed: () {
         setState(() {
           _options = false;
         });
@@ -250,7 +250,6 @@ class DetailState extends State<Detail> {
                         children: [
                           appNoteButton(
                             noteWhole.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicWholeNote,
                             onPressed: () {
                               logger.i('noteWhole pressed');
                             },
@@ -258,7 +257,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           appNoteButton(
                             noteHalfUp.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicHalfNoteUp,
                             onPressed: () {
                               logger.i('noteHalfUp pressed');
                             },
@@ -266,7 +264,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           appNoteButton(
                             noteQuarterUp.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicQuarterNoteUp,
                             onPressed: () {
                               logger.i('noteQuarterUp pressed');
                             },
@@ -274,7 +271,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           appNoteButton(
                             note8thUp.character,
-                            appKeyEnum: AppKeyEnum.sheetMusic8thNoteUp,
                             onPressed: () {
                               logger.i('note8thUp pressed');
                             },
@@ -282,7 +278,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           appNoteButton(
                             note16thUp.character,
-                            appKeyEnum: AppKeyEnum.sheetMusic16thNoteUp,
                             onPressed: () {
                               logger.i('note16thUp pressed');
                             },
@@ -295,7 +290,6 @@ class DetailState extends State<Detail> {
                         children: [
                           _restButton(
                             restWhole.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicRestWhole,
                             onPressed: () {
                               logger.i('restWhole pressed');
                             },
@@ -303,7 +297,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           _restButton(
                             restHalf.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicRestHalf,
                             onPressed: () {
                               logger.i('restHalf pressed');
                             },
@@ -311,7 +304,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           _restButton(
                             restQuarter.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicRestQuarter,
                             onPressed: () {
                               logger.i('restQuarter pressed');
                             },
@@ -319,7 +311,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           _restButton(
                             rest8th.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicRest8th,
                             onPressed: () {
                               logger.i('rest8th pressed');
                             },
@@ -327,7 +318,6 @@ class DetailState extends State<Detail> {
                           const AppSpace(),
                           _restButton(
                             rest16th.character,
-                            appKeyEnum: AppKeyEnum.sheetMusicRest16th,
                             onPressed: () {
                               logger.i('rest16th pressed');
                             },
@@ -522,15 +512,14 @@ class DetailState extends State<Detail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  appButton('Loop 1', appKeyEnum: AppKeyEnum.detailLoop1, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop 2', appKeyEnum: AppKeyEnum.detailLoop2, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop 4', appKeyEnum: AppKeyEnum.detailLoop4, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop selected',
-                      appKeyEnum: AppKeyEnum.detailLoopSelected, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Loop', appKeyEnum: AppKeyEnum.detailLoop, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Play', appKeyEnum: AppKeyEnum.detailPlay, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Stop', appKeyEnum: AppKeyEnum.detailStop, onPressed: () {}, fontSize: _fontSize),
-                  appButton('Options', appKeyEnum: AppKeyEnum.detailOptions, onPressed: () {
+                  appButton('Loop 1', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 2', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop 4', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop selected', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Loop', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Play', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Stop', onPressed: () {}, fontSize: _fontSize),
+                  appButton('Options', onPressed: () {
                     setState(() {
                       _options = !_options;
                     });
@@ -623,7 +612,7 @@ class DetailState extends State<Detail> {
           ),
         ],
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.detailBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 
@@ -673,12 +662,10 @@ class DetailState extends State<Detail> {
 
   ElevatedButton _restButton(
     String character, {
-    required AppKeyEnum appKeyEnum,
     required VoidCallback? onPressed,
   }) {
     return appNoteButton(
       character,
-      appKeyEnum: appKeyEnum,
       onPressed: onPressed,
       height: 1,
     );

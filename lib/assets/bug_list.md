@@ -12,7 +12,11 @@
 
 ### Fix
 
-* edit: Single click capitalization correction
+* leader/follower more obvious
+* tutorial: Let me think of a way to convert it to a FAQ... without more work.
+* Tutorial: Nashville, NinJam and Display key offset:  sure. these will likely be concepts + a video
+* Decades in order: 20's, 10's, 00's, 90's, 80, 70, 60, 50, 40, prior to 1940's
+* edit: 12 Bar Jazz Blues
 * web doesn't scroll smoothly
 * on web, don't exit if in editor with dirty data
 * accurate edit complaints: based on auto validate?

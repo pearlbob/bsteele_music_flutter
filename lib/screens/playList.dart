@@ -148,7 +148,6 @@ class SongPlayListItem implements PlayListItem {
 
     if (bunch) {
       return AppInkWell(
-          appKeyEnum: AppKeyEnum.mainSong,
           value: Id(song.songId.toString()),
           onTap: () {
             if (!isEditing) {
@@ -163,7 +162,6 @@ class SongPlayListItem implements PlayListItem {
     }
 
     return AppInkWell(
-      appKeyEnum: AppKeyEnum.mainSong,
       value: Id(song.songId.toString()),
       onTap: () {
         if (!isEditing) {
@@ -224,7 +222,6 @@ class SongPlayListItem implements PlayListItem {
                                 Icons.clear,
                               ),
                               label: nameValue.toString(),
-                              appKeyEnum: AppKeyEnum.playListMetadataRemoveFromSong,
                               value: SongIdMetadataItem(song, nameValue),
                               fontSize: _textFontSize,
                               onPressed: () {
@@ -495,7 +492,6 @@ class PlayListState extends State<PlayList> {
           }
         }
         _sortTypesDropDownMenuList.add(appDropdownMenuItem<PlayListSortType>(
-          appKeyEnum: AppKeyEnum.mainSortTypeSelection,
           value: e,
           child: AppTooltip(
             message: e.toolTip,
@@ -649,7 +645,6 @@ class PlayListState extends State<PlayList> {
               ),
               label: nameValueMatcher.toString(),
               fontSize: _textFontSize,
-              appKeyEnum: AppKeyEnum.playListMetadataRemoveFromFilter,
               value: nameValueMatcher,
               backgroundColor: filter.isOr(nameValueMatcher) ? Colors.lightGreen : null,
               onPressed: () {
@@ -792,7 +787,6 @@ class PlayListState extends State<PlayList> {
                     message: 'Enter list search terms here.\n'
                         'Regular expressions can be used.',
                     child: AppTextField(
-                      appKeyEnum: AppKeyEnum.playListSearch,
                       controller: _searchTextFieldController,
                       focusNode: _searchFocusNode,
                       hintText: 'Search here...',
@@ -815,7 +809,6 @@ class PlayListState extends State<PlayList> {
                           _searchTextFieldController.text.isEmpty ? 'Scroll the list some.' : 'Clear the search text.',
                       child: appIconButton(
                         icon: const Icon(Icons.clear),
-                        appKeyEnum: AppKeyEnum.playListClearSearch,
                         iconSize: 1.25 * widget.titleFontSize,
                         onPressed: (() {
                           _searchTextFieldController.clear();
@@ -883,7 +876,6 @@ class PlayListState extends State<PlayList> {
                           ),
                         ),
                         appDropdownButton<PlayListSortType>(
-                          AppKeyEnum.mainSortType,
                           _sortTypesDropDownMenuList,
                           onChanged: (value) {
                             if (_selectedSortType != value) {

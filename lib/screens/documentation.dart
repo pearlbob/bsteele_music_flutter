@@ -1,7 +1,6 @@
+import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
-import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' as md;
 
@@ -53,7 +52,7 @@ class DocumentationState extends State<Documentation> {
           ],
         ),
       ),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.documentationBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 

@@ -1,13 +1,13 @@
 import 'dart:collection';
 
+import 'package:bsteele_music_flutter/app/app.dart';
+import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_lib/songs/chord_component.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
 import 'package:bsteele_music_lib/songs/scale_note.dart';
-import 'package:bsteele_music_flutter/app/app.dart';
-import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const double _defaultFontSize = 28;
@@ -199,7 +199,7 @@ class TheoryState extends State<TheoryWidget> {
           ),
         ),
       ]),
-      floatingActionButton: appWidgetHelper.floatingBack(AppKeyEnum.theoryBack),
+      floatingActionButton: appWidgetHelper.floatingBack(),
     );
   }
 

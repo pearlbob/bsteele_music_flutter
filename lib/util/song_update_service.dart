@@ -14,7 +14,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../app/appOptions.dart';
 
 const Level _log = Level.debug;
-const Level _logMessage = Level.info;
+const Level _logMessage = Level.debug;
 const Level _logJson = Level.debug;
 const Level _logLeader = Level.debug;
 

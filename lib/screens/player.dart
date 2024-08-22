@@ -100,10 +100,16 @@ With z or q, the play stops and goes back to the play list.''';
 /// Note: This is an awkward move, given that it can happen at any time from any route.
 /// Likely the implementation here will require adjustments.
 void playerUpdate(BuildContext context, SongUpdate songUpdate) {
+  //  disregard tempo update from tempo listener
+  if (songUpdate.user == _PlayerState._appOptions.user && _player == null) {
+    return;
+  }
+
   logger.log(
       _logLeaderFollower,
       'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
-      ', bpm: ${songUpdate.currentBeatsPerMinute} vs ${songUpdate.song.beatsPerMinute}');
+      ', bpm: ${songUpdate.currentBeatsPerMinute} vs ${songUpdate.song.beatsPerMinute}'
+      ', state: ${songUpdate.state.name}');
 
   if (!_playerIsOnTop) {
     Navigator.pushNamedAndRemoveUntil(

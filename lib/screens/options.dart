@@ -336,7 +336,7 @@ class OptionsState extends State<Options> {
                             value: true,
                             label: Text('Reduced', style: buttonTextStyle()),
                             tooltip: _appOptions.toolTips
-                                ? 'Show Nashville beats only when they are absolutely required.\n'
+                                ? 'Show Nashville style beats only when they are absolutely required.\n'
                                     'This will not happen if the measure is full length.\n'
                                     'Typically the period convention will be used.'
                                 : null,
@@ -345,7 +345,7 @@ class OptionsState extends State<Options> {
                             value: false,
                             label: Text('Always', style: buttonTextStyle()),
                             tooltip: _appOptions.toolTips
-                                ? 'Show Nashville beats any time the beats are not a full measure.'
+                                ? 'Show Nashville style beats any time the beats are not a full measure.'
                                 : null,
                           ),
                         ],

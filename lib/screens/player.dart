@@ -1607,6 +1607,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     update.user = _appOptions.user;
     update.singer = playerSinger ?? 'unknown';
     update.state = _songUpdateState;
+    update.beatsPerMeasure = widget._song.beatsPerBar;
     _songUpdateService.issueSongUpdate(update);
 
     logger.log(

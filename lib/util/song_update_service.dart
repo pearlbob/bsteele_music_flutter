@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bsteele_music_flutter/screens/player.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_tempo_update.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:bsteele_music_lib/util/uri_helper.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,7 @@ import 'package:web_socket_channel/status.dart' as web_socket_status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../app/appOptions.dart';
+import '../screens/tempoNotifier.dart';
 
 const Level _log = Level.debug;
 const Level _logMessage = Level.debug;
@@ -83,17 +85,19 @@ class AppSongUpdateService extends ChangeNotifier {
               if (message.startsWith(_timeRequest)) {
                 //  time
                 logger.i('time response: $message');
+              } else if (message.startsWith(_tempoRequest)) {
+                //  tempo
+                SongTempoUpdate? songTempoUpdate = SongTempoUpdate.fromJson(message.substring(_tempoRequest.length));
+                if (songTempoUpdate != null) {
+                  //  note: tempo change is not a change of leadership!
+                  tempoNotifier.songTempoUpdate = songTempoUpdate;
+                  logger.i('tempo response: $message');
+                }
               } else {
                 var jsonSongUpdate = SongUpdate.fromJson(message);
                 if (jsonSongUpdate != null) {
-                  if (jsonSongUpdate.user == 'tempo') {
-                    //  note: tempo change is not a change of leadership!
-                    if (_songUpdate != null) {
-                      _songUpdate!.currentBeatsPerMinute = jsonSongUpdate.currentBeatsPerMinute;
-                    }
-                  } else {
-                    _songUpdate = jsonSongUpdate;
-                  }
+                  _songUpdate = jsonSongUpdate;
+
                   if (_songUpdate != null) {
                     playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
                     _delayMilliseconds = 0;
@@ -219,6 +223,7 @@ class AppSongUpdateService extends ChangeNotifier {
   }
 
   static const _timeRequest = 't:';
+  static const _tempoRequest = 't:';
 
   void _issueTimeRequest() {
     _webSocketSink?.add(_timeRequest);

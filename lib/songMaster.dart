@@ -24,6 +24,7 @@ const Level _songMasterBpmChange = Level.debug;
 const Level _logRestart = Level.debug;
 const Level _logDrums = Level.debug;
 const Level _logTime = Level.debug;
+const Level _logTempo = Level.debug;
 
 class SongMaster extends ChangeNotifier {
   static final SongMaster _singleton = SongMaster._internal();
@@ -48,6 +49,7 @@ class SongMaster extends ChangeNotifier {
           _lastDrumTempoT = 0;
           break;
         case SongUpdateState.drumTempo:
+          momentNumber = -1;
           assert(_bpm >= MusicConstants.minBpm);
           if (_lastDrumTempoT == 0) {
             //  start the tempo on the next beat
@@ -93,7 +95,7 @@ class SongMaster extends ChangeNotifier {
                 ', dt: ${nextTempoT - _lastDrumTempoT}, tempoPeriod: $tempoPeriod');
             _lastDrumTempoT = nextTempoT;
           }
-          return; //  we're done with the song... tempo preview
+          break;
         default:
           momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
           _lastDrumTempoT = 0;
@@ -125,6 +127,7 @@ class SongMaster extends ChangeNotifier {
         _bpm = _newBpm!;
         _newBpm = null;
         _song?.setBeatsPerMinute(_bpm);
+        logger.log(_logTempo, 'newBpm: $_bpm');
       }
 
       //  skip to the moment number scrolled to
@@ -380,6 +383,7 @@ class SongMaster extends ChangeNotifier {
       default:
         break;
     }
+    logger.log(_logTempo, 'tapTempo: $bpm, state: ${songUpdateState.name}');
   }
 
   setBpm(int bpm) {

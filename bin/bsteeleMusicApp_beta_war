@@ -6,7 +6,7 @@ echo $0\:
 set flutter=bsteele_music_flutter
 set rel=bsteeleMusicRelease
 set lib=bsteeleMusicLib
-set server=/home/bob/github/bsteeleMusicServer
+set server=~/github/bsteeleMusicServer
 #	war: web archive.  from java since the server is java
 set warName=bsteeleMusicApp
 set war=$warName.war

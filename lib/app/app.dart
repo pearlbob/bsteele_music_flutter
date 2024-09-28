@@ -41,7 +41,7 @@ const double appDefaultFontSize = 10.0; //  based on phone
 
 const parkFixedIpAddress = '192.168.1.205'; //  hard, fixed ip address of CJ's park raspberry pi
 
-const _toolTipWaitDuration = Duration(seconds: 1, milliseconds: 500);
+const _toolTipWaitDuration = Duration(seconds: 2, milliseconds: 500);
 
 extension SongUpdateStateExtension on SongUpdateState {
   bool get isPlaying => this == SongUpdateState.playing;

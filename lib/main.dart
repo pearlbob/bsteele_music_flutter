@@ -69,7 +69,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bsteele_music_flutter/screens/about.dart';
-import 'package:bsteele_music_flutter/screens/communityJams.dart';
+
+// import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
@@ -284,7 +285,7 @@ class BSteeleMusicApp extends StatelessWidget {
               Documentation.routeName: (context) => const Documentation(),
               Debug.routeName: (context) => const Debug(),
               About.routeName: (context) => const About(),
-              CommunityJams.routeName: (context) => const CommunityJams(),
+              //CommunityJams.routeName: (context) => const CommunityJams(),
               StyleDemo.routeName: (context) => const StyleDemo(),
               TheoryWidget.routeName: (context) => const TheoryWidget(),
               DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong, isEditing: true),
@@ -542,29 +543,6 @@ class MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-          if (!app.screenInfo.isWayTooNarrow)
-            AppTooltip(
-              message: 'Visit Community Jams, the motivation and main user for this app.',
-              child: InkWell(
-                onTap: () {
-                  openLink('http://communityjams.org');
-                },
-                child: Container(
-                  margin: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
-                    color: Colors.white,
-                  ),
-                  child: const Image(
-                    image: AssetImage('lib/assets/cjLogo.png'),
-                    width: kToolbarHeight,
-                    height: kToolbarHeight,
-                    semanticLabel: 'community jams',
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
 
@@ -677,14 +655,14 @@ class MyHomePageState extends State<MyHomePage> {
             //     },
             //   ),
 
-            appListTile(
-              title: 'CJ',
-              style: navTextStyle,
-              //trailing: Icon(Icons.arrow_forward),
-              onTap: () {
-                _navigateToCommunityJams();
-              },
-            ),
+            // appListTile(
+            //   title: 'CJ',
+            //   style: navTextStyle,
+            //   //trailing: Icon(Icons.arrow_forward),
+            //   onTap: () {
+            //     _navigateToCommunityJams();
+            //   },
+            // ),
 
             appListTile(
               title: 'Tutorial',
@@ -925,17 +903,17 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop(); //  drawer
   }
 
-  _navigateToCommunityJams() async {
-    app.clearMessage();
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CommunityJams()),
-    );
-    if (!mounted) {
-      return;
-    }
-    Navigator.of(context).pop(); //  drawer
-  }
+  // _navigateToCommunityJams() async {
+  //   app.clearMessage();
+  //   await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const CommunityJams()),
+  //   );
+  //   if (!mounted) {
+  //     return;
+  //   }
+  //   Navigator.of(context).pop(); //  drawer
+  // }
 
   _navigateToStyleDemo() async {
     await Navigator.push(

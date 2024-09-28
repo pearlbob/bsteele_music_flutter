@@ -91,7 +91,7 @@ class AppSongUpdateService extends ChangeNotifier {
                 if (songTempoUpdate != null) {
                   //  note: tempo change is not a change of leadership!
                   tempoNotifier.songTempoUpdate = songTempoUpdate;
-                  logger.i('tempo response: $message');
+                  // logger.i('tempo response: $message');
                 }
               } else {
                 var jsonSongUpdate = SongUpdate.fromJson(message);
@@ -223,7 +223,7 @@ class AppSongUpdateService extends ChangeNotifier {
   }
 
   static const _timeRequest = 't:';
-  static const _tempoRequest = 't:';
+  static const _tempoRequest = 'tempo:';
 
   void _issueTimeRequest() {
     _webSocketSink?.add(_timeRequest);

@@ -18,7 +18,7 @@ set dst=gs://www.bsteele.com/$app
 set flavor=beta
 set git=~/github/bsteele_music_flutter
 set bsteeleMusicLib=~/github/bsteeleMusicLib
-set server=/home/bob/github/bsteeleMusicServer
+set server=~/github/bsteeleMusicServer
 
 while ( $#argv > 0 )
 	switch ( $1 )

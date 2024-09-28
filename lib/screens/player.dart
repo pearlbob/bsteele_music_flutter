@@ -6,6 +6,7 @@ import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
 import 'package:bsteele_music_flutter/screens/lyricsTable.dart';
+import 'package:bsteele_music_flutter/screens/tempoNotifier.dart';
 import 'package:bsteele_music_flutter/songMaster.dart';
 import 'package:bsteele_music_flutter/util/nullWidget.dart';
 import 'package:bsteele_music_flutter/util/openLink.dart';
@@ -81,6 +82,7 @@ const Level _logScrollListener = Level.debug;
 const Level _logScrollAnimation = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
+const Level _logTempoListener = Level.debug;
 
 const String _playStopPauseHints = '''\n
 Click the play button for play. You may not see immediate song motion.
@@ -174,6 +176,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _rawKeyboardListenerFocusNode = FocusNode();
 
     _songUpdateState = SongUpdateState.idle;
+
+    if (_songUpdateService.isLeader) {
+      tempoNotifier.addListener(_tempoNotifierListener);
+    } else {
+      tempoNotifier.removeListener(_tempoNotifierListener);
+    }
   }
 
   @override
@@ -256,6 +264,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _songUpdate = null;
     _songUpdateService.removeListener(_songUpdateServiceListener);
     _songMaster.removeListener(_songMasterListener);
+    tempoNotifier.removeListener(_tempoNotifierListener);
     playerRouteObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     _bpmTextEditingController.dispose();
@@ -331,6 +340,21 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       setState(() {
         _songUpdateState = _songMaster.songUpdateState;
       });
+    }
+  }
+
+  void _tempoNotifierListener() {
+    if (_songUpdateService.isLeader //  followers don't care
+        &&
+        tempoNotifier.songTempoUpdate?.songId == _song.songId //  assure the response is correct
+        &&
+        tempoNotifier.songTempoUpdate?.currentBeatsPerMinute != null) {
+      setState(() {
+        int bpm = tempoNotifier.songTempoUpdate!.currentBeatsPerMinute;
+        _songMaster.setBpm(bpm);
+        playerSelectedBpm = bpm;
+      });
+      logger.log(_logTempoListener, 'player _tempoNotifierListener: $tempoNotifier');
     }
   }
 
@@ -1021,24 +1045,26 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             //       softWrap: false,
             //     ),
             //   ),
-            // if (app.isScreenBig)
-            //   //  leader/follower status
-            //   AppTooltip(
-            //     message: 'Control the leader/follower mode from the main menu:\n'
-            //         'main screen: menu (hamburger), Options, Hosts',
-            //     child: Text(
-            //       songUpdateService.isConnected
-            //           ? (songUpdateService.isLeader
-            //               ? 'leading ${songUpdateService.host}'
-            //               : (songUpdateService.leaderName == Song.defaultUser
-            //                   ? 'on ${songUpdateService.host.replaceFirst('.local', '')}'
-            //                   : 'following ${songUpdateService.leaderName}'))
-            //           : (songUpdateService.isIdle ? '' : 'lost ${songUpdateService.host}!'),
-            //       style: !songUpdateService.isConnected && !songUpdateService.isIdle
-            //           ? headerTextStyle.copyWith(color: Colors.red)
-            //           : headerTextStyle,
-            //     ),
-            //   ),
+            if (app.isScreenBig)
+              //  leader/follower status
+              AppTooltip(
+                message: 'Control the leader/follower mode from the main menu:\n'
+                    'main screen: menu (hamburger), Options, Hosts',
+                child: Text(
+                  _songUpdateService.isConnected
+                      ? (_songUpdateService.isLeader
+                          ? 'leading ${_songUpdateService.host}'
+                          :
+                          // (_songUpdateService.leaderName == Song.defaultUser
+                          //             ? 'on ${_songUpdateService.host.replaceFirst('.local', '')}'
+                          //             : 'following ${_songUpdateService.leaderName}')
+                          'following ${_songUpdateService.leaderName}')
+                      : (_songUpdateService.isIdle ? '' : 'lost ${_songUpdateService.host}!'),
+                  style: !_songUpdateService.isConnected && !_songUpdateService.isIdle
+                      ? _headerTextStyle.copyWith(color: Colors.red)
+                      : _headerTextStyle,
+                ),
+              ),
           ]),
 
         // //  chords used

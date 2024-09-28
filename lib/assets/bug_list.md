@@ -229,8 +229,6 @@ theory: https://www.orange.k12.nj.us/site/handlers/filedownload.ashx?moduleinsta
 * Shari UI: more on follower display when leader is not playing a song
 * Any way to allow zoom on play screen so one might read the lyrics?
 * Browsing our list is super unfriendly without sorting function
-* If the phone version cannot be user-friendly, I suggest we redirect users to a webpage like the searchable,
-  sortable Beginner list generated from the spreadsheet. http://communityjams.org/index.php/beginner-jam-song-list/
 
 ### Shari:
 

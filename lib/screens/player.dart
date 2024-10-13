@@ -1252,8 +1252,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       case SongUpdateState.drumTempo:
         //  start manual play
         _setStatePlay();
+        _performPause();
         break;
       case SongUpdateState.playing:
+        _performPause();
+        _bump(1);
+        break;
       case SongUpdateState.pause:
         //  stay in pause, that is, manual mode
         _bump(1);
@@ -1502,9 +1506,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               ||
               _isAnimated //  compound scroll, perform quickly
           ? const Duration(milliseconds: 200)
-          : (row >= priorIndex
-              ? Duration(milliseconds: (0.5 * rowTime * Duration.millisecondsPerSecond).toInt())
-              : const Duration(milliseconds: 200));
+          : (row >= priorIndex && _songMaster.songUpdateState.isPlaying
+              ? Duration(milliseconds: (0.3 * rowTime * Duration.millisecondsPerSecond).toInt())
+              : const Duration(milliseconds: 500));
 
       double offset = _lyricsTable.rowToDisplayOffset(row);
 

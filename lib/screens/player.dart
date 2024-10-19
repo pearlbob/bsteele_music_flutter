@@ -13,6 +13,7 @@ import 'package:bsteele_music_flutter/util/openLink.dart';
 import 'package:bsteele_music_flutter/util/song_update_service.dart';
 import 'package:bsteele_music_flutter/util/textWidth.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
+import 'package:bsteele_music_lib/grid_coordinate.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
 import 'package:bsteele_music_lib/songs/music_constants.dart';
@@ -1148,6 +1149,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       return KeyEventResult.ignored;
     }
 
+    /*
+    stomp box mapping
+    <->     arrowLeft/arrowRight
+    up/down arrowUp/arrowDown
+    page    pageUp/pageDown
+    space   space/enter
+    */
+
     var keyboard = HardwareKeyboard();
     logger.log(
         _logKeyboard,
@@ -1193,6 +1202,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         _bpmBump(-1);
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.pageUp) {
+        _sectionBump(-1);
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.pageDown) {
+        _sectionBump(1);
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.keyZ || e.logicalKey == LogicalKeyboardKey.keyQ) {
         if (_songUpdateState.isPlaying) {
@@ -1605,8 +1620,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   //  only send updates when required
   _setPlayMomentNotifier(
       final SongUpdateState songUpdateState, final int playMomentNumber, final SongMoment? songMoment) {
-    _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment,
-        _song.songMomentToGridCoordinate[songMoment?.momentNumber ?? 0].row);
+    List<GridCoordinate> songMomentToGridCoordinate = _song.songMomentToGridCoordinate;
+    if (songMomentToGridCoordinate.isNotEmpty) {
+      _playMomentNotifier.playMoment = PlayMoment(
+          songUpdateState, playMomentNumber, songMoment, songMomentToGridCoordinate[songMoment?.momentNumber ?? 0].row);
+    }
   }
 
   /// send a leader song update to the followers

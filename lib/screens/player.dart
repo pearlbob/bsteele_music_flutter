@@ -632,7 +632,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             constraints: BoxConstraints.tight(Size(0, boxMarker)),
                           ),
                           Container(
-                            constraints: BoxConstraints.tight(Size(constraints.maxWidth, 4)),
+                            constraints: BoxConstraints.tight(Size(
+                                _appOptions.playerScrollHighlight == PlayerScrollHighlight.off
+                                    ? 16
+                                    : constraints.maxWidth, // for testing only
+                                4)),
                             decoration: const BoxDecoration(
                               color: Colors.black87,
                             ),

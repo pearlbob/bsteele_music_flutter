@@ -63,7 +63,7 @@
 /// * I've always preferred the backend.  Never was excited about the front end.
 /// * Believe I have artistic talent... it just never extends to a GUI.
 ///
-library main;
+library;
 
 import 'dart:async';
 import 'dart:convert';

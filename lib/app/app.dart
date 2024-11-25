@@ -2,6 +2,8 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:bsteele_music_flutter/util/nullWidget.dart';
+import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_section.dart';
 import 'package:bsteele_music_lib/songs/drum_measure.dart';
@@ -11,8 +13,6 @@ import 'package:bsteele_music_lib/songs/section.dart';
 import 'package:bsteele_music_lib/songs/section_version.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
-import 'package:bsteele_music_flutter/util/nullWidget.dart';
-import 'package:bsteele_music_flutter/util/screenInfo.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +46,8 @@ const _toolTipWaitDuration = Duration(seconds: 2, milliseconds: 500);
 extension SongUpdateStateExtension on SongUpdateState {
   bool get isPlaying => this == SongUpdateState.playing;
 
-  bool get isPlayingOrPaused => this == SongUpdateState.playing || this == SongUpdateState.pause;
+  bool get isPlayingOrPausedOrHold =>
+      this == SongUpdateState.playing || this == SongUpdateState.pause || this == SongUpdateState.playHold;
 
 // IconData get icon {
 //   return switch (this) {
@@ -284,8 +285,9 @@ class App {
     if (_message.isEmpty) {
       return NullWidget();
     }
-    return Text(_message,
-        style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle,
+    return Text(
+      _message,
+      style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle,
     );
   }
 
@@ -680,23 +682,13 @@ class AppWidgetHelper {
     );
   }
 
-  AppBar backBar({
-      final Widget? titleWidget,
-      final String? title,
-      final List<Widget>? actions,
-      final VoidCallback? onPressed}) {
-    return appBar(
-        title: title,
-        titleWidget: titleWidget,
-        leading: back(onPressed: onPressed),
-        actions: actions);
+  AppBar backBar(
+      {final Widget? titleWidget, final String? title, final List<Widget>? actions, final VoidCallback? onPressed}) {
+    return appBar(title: title, titleWidget: titleWidget, leading: back(onPressed: onPressed), actions: actions);
   }
 
-  AppBar appBar({
-      final String? title,
-      final Widget? titleWidget,
-      final IconButton? leading,
-      final List<Widget>? actions}) {
+  AppBar appBar(
+      {final String? title, final Widget? titleWidget, final IconButton? leading, final List<Widget>? actions}) {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
       leading: leading,

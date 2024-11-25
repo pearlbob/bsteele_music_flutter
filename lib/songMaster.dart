@@ -48,6 +48,10 @@ class SongMaster extends ChangeNotifier {
           momentNumber = _momentNumber ?? -1;
           _lastDrumTempoT = 0;
           break;
+        case SongUpdateState.playHold:
+          momentNumber = _momentNumber ?? 0;
+          _lastDrumTempoT = 0;
+          break;
         case SongUpdateState.drumTempo:
           momentNumber = -1;
           assert(_bpm >= MusicConstants.minBpm);
@@ -106,8 +110,10 @@ class SongMaster extends ChangeNotifier {
 
       logger.log(
           _logSongMasterTicker,
-          'SongMaster: ${songUpdateState.name} $time: dt: ${dt.toStringAsFixed(3)}, songTime: $songTime'
-          ', start: $_songStart, momentNumber: $momentNumber, lyricSectionIndex: $lyricSectionIndex');
+          'SongMaster: ${songUpdateState.name} ${time.toStringAsFixed(3)}: dt: ${dt.toStringAsFixed(3)}'
+          ', songTime: ${songTime.toStringAsFixed(3)}'
+          ', start: ${_songStart?.toStringAsFixed(3)}, momentNumber: $momentNumber'
+          ', lyricSectionIndex: $lyricSectionIndex');
 
       //  update the bpm
       if (_newBpm != null && _newBpm != _bpm) {
@@ -285,6 +291,7 @@ class SongMaster extends ChangeNotifier {
           }
           break;
 
+        case SongUpdateState.playHold:
         case SongUpdateState.pause:
           if (_song != null) {
             //  prepare for the eventual restart
@@ -449,6 +456,7 @@ class SongMaster extends ChangeNotifier {
   void stop() {
     switch (songUpdateState) {
       case SongUpdateState.playing:
+      case SongUpdateState.playHold:
       case SongUpdateState.pause:
       case SongUpdateState.drumTempo:
         songUpdateState = SongUpdateState.idle; //  for the running play
@@ -471,11 +479,22 @@ class SongMaster extends ChangeNotifier {
     }
   }
 
-  void resume() {
-    if (songUpdateState == SongUpdateState.pause) {
-      _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
-      songUpdateState = SongUpdateState.playing;
+  void hold() {
+    if (songUpdateState != SongUpdateState.playHold) {
+      songUpdateState = SongUpdateState.playHold;
       notifyListeners();
+    }
+  }
+
+  void resume() {
+    switch (songUpdateState) {
+      case SongUpdateState.pause:
+      case SongUpdateState.playHold:
+        _resetSongStart(_appAudioPlayer.getCurrentTime(), _momentNumber ?? -1);
+        songUpdateState = SongUpdateState.playing;
+        notifyListeners();
+        break;
+      default:
     }
   }
 

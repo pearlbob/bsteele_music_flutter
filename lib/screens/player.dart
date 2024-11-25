@@ -69,13 +69,13 @@ music_key.Key _selectedSongKey = music_key.Key.C;
 //  diagnostic logging enables
 const Level _logBuild = Level.debug;
 const Level _logScroll = Level.debug;
-const Level _logMode = Level.debug;
+const Level _logMode = Level.info;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
-const Level _logSongMaster = Level.debug;
-const Level _logSongMasterBump = Level.debug;
+const Level _logSongMaster = Level.info;
+const Level _logSongMasterBump = Level.info;
 const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
@@ -316,6 +316,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         break;
       case SongUpdateState.playing:
+      case SongUpdateState.playHold:
       case SongUpdateState.pause:
         //  find the current measure
         if (_songMaster.momentNumber != null) {
@@ -750,7 +751,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   icon: appIcon(
                     Icons.play_arrow,
                     size: 1.75 * _fontSize,
-                    color: _songUpdateState == SongUpdateState.playing ? Colors.greenAccent : Colors.white,
+                    color: _songUpdateState == SongUpdateState.playing
+                        ? Colors.greenAccent
+                        : (_songUpdateState == SongUpdateState.playHold ? Colors.red : Colors.white),
                   ),
                   tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
                   enabled: !_songUpdateService.isFollowing,
@@ -780,6 +783,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   case SongUpdateState.playing:
                     _performPlay();
                     break;
+                  case SongUpdateState.playHold:
+                    _performHoldContinue();
+                    break;
                   case SongUpdateState.pause:
                     _performPause();
                     break;
@@ -787,14 +793,14 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               },
             ),
 
-          if (_songUpdateState.isPlayingOrPaused && app.fullscreenEnabled && !app.isFullScreen)
+          if (app.fullscreenEnabled && !app.isFullScreen)
             appButton('Fullscreen', onPressed: () {
               app.requestFullscreen();
             }),
 
           if (app.message.isNotEmpty) app.messageTextWidget(),
 
-          if (_songUpdateState.isPlayingOrPaused)
+          if (_songUpdateState.isPlayingOrPausedOrHold)
             //  repeat notifications
             Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
               var style = generateAppTextStyle(
@@ -819,10 +825,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               }
             }),
 
-          if (_songUpdateState.isPlayingOrPaused) _DataReminderWidget(_songUpdateState.isPlayingOrPaused, _songMaster),
+          if (_songUpdateState.isPlayingOrPausedOrHold)
+            _DataReminderWidget(_songUpdateState.isPlayingOrPausedOrHold, _songMaster),
 
           //  player settings
-          if (!_songUpdateState.isPlayingOrPaused)
+          if (!_songUpdateState.isPlayingOrPausedOrHold)
             AppWrap(children: [
               //  song edit
               AppTooltip(
@@ -1183,6 +1190,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         case SongUpdateState.playing:
           _sectionBump(1);
           break;
+        case SongUpdateState.playHold:
+          _rowBump(1);
+          _songMaster.resume();
+          break;
         case SongUpdateState.pause:
           _sectionBump(1);
           _songMaster.resume();
@@ -1233,6 +1244,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           case SongUpdateState.playing:
             _rowBump(1);
             break;
+          case SongUpdateState.playHold:
+            _rowBump(1);
+            _songMaster.resume();
+            break;
           case SongUpdateState.pause:
             if (!_songUpdateService.isFollowing) {
               setState(() {
@@ -1249,12 +1264,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           e.logicalKey == LogicalKeyboardKey.period) {
         switch (_songUpdateState) {
           case SongUpdateState.playing:
-            _performPause();
+            _performPlayHold();
             break;
-          case SongUpdateState.pause:
-            _performPlay();
+          case SongUpdateState.playHold:
+            _performHoldContinue();
             break;
           default:
+            _performPlay();
             break;
         }
         return KeyEventResult.handled;
@@ -1274,8 +1290,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _performPause();
         break;
       case SongUpdateState.playing:
-        _performPause();
-        _bump(1);
+        _rowBump(1);
+        break;
+      case SongUpdateState.playHold:
+        _rowBump(1);
+        _performHoldContinue();
         break;
       case SongUpdateState.pause:
         //  stay in pause, that is, manual mode
@@ -1354,6 +1373,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         break;
 
       case SongUpdateState.playing:
+      case SongUpdateState.playHold:
       case SongUpdateState.drumTempo:
         _rowBump(bump);
         break;
@@ -1432,6 +1452,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         break;
       case SongUpdateState.playing:
+      case SongUpdateState.playHold:
         //  following done by the song update service
         break;
     }
@@ -1672,7 +1693,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   _performPlay() {
     logger.log(_logMode, 'manualPlay:');
-    setState(() {
       switch (_songUpdateState) {
         case SongUpdateState.pause:
           if (!_songUpdateService.isFollowing) {
@@ -1690,7 +1710,27 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           }
           break;
       }
-    });
+  }
+
+  _performPlayHold() {
+    logger.log(_logMode, 'playHold:');
+    _songUpdateState = SongUpdateState.playHold;
+    _songMaster.hold();
+    logger.log(_logMode, '_performPlayHold(): playing to hold');
+  }
+
+  _performHoldContinue() {
+    logger.log(_logMode, 'autoPlay: holdContinue');
+    switch (_songUpdateState) {
+      case SongUpdateState.pause:
+      case SongUpdateState.playHold:
+        if (!_songUpdateService.isFollowing) {
+          _songMaster.resume();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   _setStatePlay() {

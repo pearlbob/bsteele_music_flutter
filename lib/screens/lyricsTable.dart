@@ -56,6 +56,7 @@ const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
+const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLocationGrid = Level.debug;
 const Level _logHeights = Level.debug;
@@ -1835,7 +1836,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
     return Consumer2<PlayMomentNotifier, LyricSectionNotifier>(
       builder: (context, playMomentNotifier, lyricSectionNotifier, child) {
         var currentSongUpdateState = playMomentNotifier.playMoment?.songUpdateState ?? SongUpdateState.none;
-        var isNowSelected = currentSongUpdateState.isPlayingOrPaused &&
+        var isNowSelected = currentSongUpdateState.isPlayingOrPausedOrHold &&
             lyricSectionNotifier.lyricSectionIndex == widget.index &&
             lyricSectionNotifier.row == widget.row;
         var songMoment = playMomentNotifier._playMoment?.songMoment;
@@ -1844,21 +1845,21 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
             _lastRepeat == songMoment?.repeat &&
             _repeatMax == songMoment?.repeatMax &&
             child != null) {
-          logger.log(
-              _logLyricSectionIndicatorCellState,
-              'LyricSectionIndicatorCellState.child'
-              ' remained: ${widget.index}, row: ${lyricSectionNotifier.row} $child');
+          // logger.log(
+          //     _logLyricSectionIndicatorCellState,
+          //     'LyricSectionIndicatorCellState.child'
+          //     ' remained: ${widget.index}, row: ${lyricSectionNotifier.row} $child');
           return child;
         }
         selected = isNowSelected;
         _lastRepeat = songMoment?.repeat;
         _repeatMax = songMoment?.repeatMax;
         _songUpdateState = currentSongUpdateState;
-        //logger.i('update: songMoment: ${playMomentNotifier.playMoment?.songMoment}');
         logger.log(
             _logLyricSectionIndicatorCellState,
             'LyricSectionIndicatorCellState selected: $selected'
-            ', notifier: ${lyricSectionNotifier.lyricSectionIndex}');
+            ', momentNumber: ${songMoment?.momentNumber}'
+            ', lyricSectionIndex: ${lyricSectionNotifier._lyricSectionIndex}');
         return childBuilder(context);
       },
       child: Builder(builder: childBuilder),
@@ -1867,7 +1868,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
 
   Widget childBuilder(BuildContext context) {
     logger.log(
-        _logLyricSectionIndicatorCellState,
+        _logLyricSectionIndicatorCellStateChild,
         'LyricSectionIndicatorCellState.childBuilder: run: '
         '${widget.index}:'
         ' _songUpdateState: $_songUpdateState'

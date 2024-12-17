@@ -69,13 +69,13 @@ music_key.Key _selectedSongKey = music_key.Key.C;
 //  diagnostic logging enables
 const Level _logBuild = Level.debug;
 const Level _logScroll = Level.debug;
-const Level _logMode = Level.info;
+const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
 const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
-const Level _logSongMaster = Level.info;
-const Level _logSongMasterBump = Level.info;
+const Level _logSongMaster = Level.debug;
+const Level _logSongMasterBump = Level.debug;
 const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
@@ -647,7 +647,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
                     Column(
                       children: [
-                        if (!_songUpdateState.isPlaying) _songControls(),
+                        _songControls(),
 
                         //  song chords and lyrics
                         if (lyricsTableItems.isNotEmpty)
@@ -697,372 +697,507 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ],
                     ),
 
-                    if (_songUpdateState.isPlaying) _songControls(),
+                    _songPlayTally(),
                   ],
                 );
               }));
         });
   }
 
-  Widget _songControls() {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-        //  control buttons
-        AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-          if (!_songUpdateService.isFollowing)
-            //  play mode selection
-            SegmentedButton<SongUpdateState>(
-              showSelectedIcon: false,
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                  (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.disabled)) {
-                      return App.disabledColor;
-                    }
-                    return App.universalAccentColor;
-                  },
-                ),
-                visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
-              ),
-              segments: <ButtonSegment<SongUpdateState>>[
-                ButtonSegment<SongUpdateState>(
-                  value: SongUpdateState.idle,
-                  icon: appIcon(
-                    Icons.stop,
-                    size: 1.75 * _fontSize,
-                    color: _songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
-                  ),
-                  tooltip: _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
-                  enabled: !_songUpdateService.isFollowing,
-                ),
-                if (_songUpdateState == SongUpdateState.drumTempo)
-                  ButtonSegment<SongUpdateState>(
-                    value: SongUpdateState.drumTempo,
-                    label: Text(
-                      'Tempo',
-                      style: _headerTextStyle.copyWith(color: Colors.white),
-                    ),
-                    tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
-                    enabled: !_songUpdateService.isFollowing,
-                  ),
-                ButtonSegment<SongUpdateState>(
-                  value: SongUpdateState.playing,
-                  icon: appIcon(
-                    Icons.play_arrow,
-                    size: 1.75 * _fontSize,
-                    color: _songUpdateState == SongUpdateState.playing
-                        ? Colors.greenAccent
-                        : (_songUpdateState == SongUpdateState.playHold ? Colors.red : Colors.white),
-                  ),
-                  tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
-                  enabled: !_songUpdateService.isFollowing,
-                ),
-                //  hide the pause unless we are in play
-                if (_songUpdateState == SongUpdateState.playing || _songUpdateState == SongUpdateState.pause)
-                  ButtonSegment<SongUpdateState>(
-                    value: SongUpdateState.pause,
-                    icon: appIcon(
-                      Icons.pause,
-                      size: 1.75 * _fontSize,
-                      color: _songUpdateState == SongUpdateState.pause ? Colors.red : Colors.white,
-                    ),
-                    tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
-                    enabled: !_songUpdateService.isFollowing,
-                  ),
-              ],
-              selected: <SongUpdateState>{_songUpdateState},
-              onSelectionChanged: (Set<SongUpdateState> newSelection) {
-                // logger.i('onSelectionChanged: $newSelection');
-                switch (newSelection.first) {
-                  case SongUpdateState.none:
-                  case SongUpdateState.idle:
-                  case SongUpdateState.drumTempo:
-                    _performStop();
-                    break;
-                  case SongUpdateState.playing:
-                    _performPlay();
-                    break;
-                  case SongUpdateState.playHold:
-                    _performHoldContinue();
-                    break;
-                  case SongUpdateState.pause:
-                    _performPause();
-                    break;
-                }
-              },
+  //  play mode selection
+  Widget _playModeSegmentedButton(SongUpdateState songUpdateState) {
+    return SegmentedButton<SongUpdateState>(
+      showSelectedIcon: false,
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.disabled)) {
+              return App.disabledColor;
+            }
+            return App.universalAccentColor;
+          },
+        ),
+        visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+      ),
+      segments: <ButtonSegment<SongUpdateState>>[
+        ButtonSegment<SongUpdateState>(
+          value: SongUpdateState.idle,
+          icon: appIcon(
+            Icons.stop,
+            size: 1.75 * _fontSize,
+            color: songUpdateState == SongUpdateState.idle ? Colors.red : Colors.white,
+          ),
+          tooltip: _appOptions.toolTips ? 'Stop playing the song.$_playStopPauseHints' : null,
+          enabled: !_songUpdateService.isFollowing,
+        ),
+        if (songUpdateState == SongUpdateState.drumTempo)
+          ButtonSegment<SongUpdateState>(
+            value: SongUpdateState.drumTempo,
+            label: Text(
+              'Tempo',
+              style: _headerTextStyle.copyWith(color: Colors.white),
             ),
+            tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
+            enabled: !_songUpdateService.isFollowing,
+          ),
+        ButtonSegment<SongUpdateState>(
+          value: SongUpdateState.playing,
+          icon: appIcon(
+            Icons.play_arrow,
+            size: 1.75 * _fontSize,
+            color: songUpdateState == SongUpdateState.playing
+                ? Colors.greenAccent
+                : (songUpdateState == SongUpdateState.playHold ? Colors.red : Colors.white),
+          ),
+          tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
+          enabled: !_songUpdateService.isFollowing,
+        ),
+        //  hide the pause unless we are in play
+        if (songUpdateState == SongUpdateState.playing || songUpdateState == SongUpdateState.pause)
+          ButtonSegment<SongUpdateState>(
+            value: SongUpdateState.pause,
+            icon: appIcon(
+              Icons.pause,
+              size: 1.75 * _fontSize,
+              color: songUpdateState == SongUpdateState.pause ? Colors.red : Colors.white,
+            ),
+            tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
+            enabled: !_songUpdateService.isFollowing,
+          ),
+      ],
+      selected: <SongUpdateState>{songUpdateState},
+      onSelectionChanged: (Set<SongUpdateState> newSelection) {
+        // logger.i('onSelectionChanged: $newSelection');
+        switch (newSelection.first) {
+          case SongUpdateState.none:
+          case SongUpdateState.idle:
+          case SongUpdateState.drumTempo:
+            _performStop();
+            break;
+          case SongUpdateState.playing:
+            _performPlay();
+            break;
+          case SongUpdateState.playHold:
+            _performHoldContinue();
+            break;
+          case SongUpdateState.pause:
+            _performPause();
+            break;
+        }
+      },
+    );
+  }
 
-          if (app.fullscreenEnabled && !app.isFullScreen)
-            appButton('Fullscreen', onPressed: () {
-              app.requestFullscreen();
-            }),
+  Widget _songControls() {
+    return Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
+      var songUpdateState = songMasterNotifier.songMaster?.songUpdateState ?? SongUpdateState.idle;
+      switch (songUpdateState) {
+        case SongUpdateState.playing:
+        case SongUpdateState.playHold:
+        case SongUpdateState.pause:
+          return NullWidget();
+        default:
+          return Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              //  control buttons
+              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+                if (!_songUpdateService.isFollowing) _playModeSegmentedButton(songUpdateState),
 
-          if (app.message.isNotEmpty) app.messageTextWidget(),
+                if (app.fullscreenEnabled && !app.isFullScreen)
+                  appButton('Fullscreen', onPressed: () {
+                    app.requestFullscreen();
+                  }),
 
-          if (_songUpdateState.isPlayingOrPausedOrHold)
-            //  repeat notifications
-            Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
-              var style = generateAppTextStyle(
-                fontSize: app.screenInfo.fontSize,
-                decoration: TextDecoration.none,
-                color: Colors.redAccent,
-                backgroundColor: const Color(0xffeff4fd), //  blended color
-              );
-              switch (songMasterNotifier.songMaster?.repeatSection ?? 0) {
-                case 1:
-                  return Text(
-                    'Repeat this section',
-                    style: style,
-                  );
-                case 2:
-                  return Text(
-                    'Repeat the prior section',
-                    style: style,
-                  );
-                default:
-                  return NullWidget();
-              }
-            }),
+                if (app.message.isNotEmpty) app.messageTextWidget(),
 
-          if (_songUpdateState.isPlayingOrPausedOrHold)
-            _DataReminderWidget(_songUpdateState.isPlayingOrPausedOrHold, _songMaster),
+                if (songUpdateState.isPlayingOrPausedOrHold)
+                  //  repeat notifications
+                  Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
+                    var style = generateAppTextStyle(
+                      fontSize: app.screenInfo.fontSize,
+                      decoration: TextDecoration.none,
+                      color: Colors.redAccent,
+                      backgroundColor: const Color(0xffeff4fd), //  blended color
+                    );
+                    switch (songMasterNotifier.songMaster?.repeatSection ?? 0) {
+                      case 1:
+                        return Text(
+                          'Repeat this section',
+                          style: style,
+                        );
+                      case 2:
+                        return Text(
+                          'Repeat the prior section',
+                          style: style,
+                        );
+                      default:
+                        return NullWidget();
+                    }
+                  }),
 
-          //  player settings
-          if (!_songUpdateState.isPlayingOrPausedOrHold)
-            AppWrap(children: [
-              //  song edit
-              AppTooltip(
-                message: _songUpdateState.isPlaying
-                    ? 'Song is playing'
-                    : (_songUpdateService.isFollowing
-                        ? 'Followers cannot edit.\nDisable following back on the main Options\n'
-                            ' to allow editing.'
-                        : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
-                child: appIconWithLabelButton(
-                  icon: appIcon(
-                    Icons.edit,
-                  ),
-                  onPressed: (!_songUpdateState.isPlaying && !_songUpdateService.isFollowing && app.isEditReady)
-                      ? () {
-                          _navigateToEdit(context, _song);
-                        }
-                      : null,
-                ),
-              ),
-              AppSpace(horizontalSpace: _fontSize),
-              AppTooltip(
-                message: 'Show the player settings dialog.',
-                child: appIconWithLabelButton(
-                  icon: appIcon(
-                    Icons.settings,
-                    size: 1.5 * _fontSize,
-                  ),
-                  onPressed: () {
-                    _settingsPopup();
-                  },
-                ),
-              ),
-            ]),
-        ]),
+                if (songUpdateState.isPlayingOrPausedOrHold)
+                  _DataReminderWidget(songUpdateState.isPlayingOrPausedOrHold, _songMaster),
 
-        //  other top sections when idle
-        if (_showCapo && (_songUpdateState == SongUpdateState.idle || _songUpdateState == SongUpdateState.drumTempo))
-          //  capo
-          AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: _fontSize, children: [
-            if (_showCapo)
-              Text(
-                _capoLocation > 0 ? 'Capo on $_capoLocation' : 'No capo needed',
-                style: _headerTextStyle,
-                softWrap: false,
-              ),
-            // //  recommend a blues harp
-            // Text(
-            //   'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
-            //   style: headerTextStyle,
-            //   softWrap: false,
-            // ),
-          ]),
+                //  player settings
+                if (!songUpdateState.isPlayingOrPausedOrHold)
+                  AppWrap(children: [
+                    //  song edit
+                    AppTooltip(
+                      message: songUpdateState.isPlaying
+                          ? 'Song is playing'
+                          : (_songUpdateService.isFollowing
+                              ? 'Followers cannot edit.\nDisable following back on the main Options\n'
+                                  ' to allow editing.'
+                              : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
+                      child: appIconWithLabelButton(
+                        icon: appIcon(
+                          Icons.edit,
+                        ),
+                        onPressed: (!songUpdateState.isPlaying && !_songUpdateService.isFollowing && app.isEditReady)
+                            ? () {
+                                _navigateToEdit(context, _song);
+                              }
+                            : null,
+                      ),
+                    ),
+                    AppSpace(horizontalSpace: _fontSize),
+                    AppTooltip(
+                      message: 'Show the player settings dialog.',
+                      child: appIconWithLabelButton(
+                        icon: appIcon(
+                          Icons.settings,
+                          size: 1.5 * _fontSize,
+                        ),
+                        onPressed: () {
+                          _settingsPopup();
+                        },
+                      ),
+                    ),
+                  ]),
+              ]),
 
-        if (_songUpdateState == SongUpdateState.idle || _songUpdateState == SongUpdateState.drumTempo)
-          AppRow(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            //  key change
-            AppWrap(
-              children: [
-                if (!_songUpdateService.isFollowing)
+              //  other top sections when idle
+              if (_showCapo &&
+                  (songUpdateState == SongUpdateState.idle || songUpdateState == SongUpdateState.drumTempo))
+                //  capo
+                AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: _fontSize, children: [
+                  if (_showCapo)
+                    Text(
+                      _capoLocation > 0 ? 'Capo on $_capoLocation' : 'No capo needed',
+                      style: _headerTextStyle,
+                      softWrap: false,
+                    ),
+                  // //  recommend a blues harp
+                  // Text(
+                  //   'Blues harp: ${selectedSongKey.nextKeyByFifth()}',
+                  //   style: headerTextStyle,
+                  //   softWrap: false,
+                  // ),
+                ]),
+
+              if (songUpdateState == SongUpdateState.idle || songUpdateState == SongUpdateState.drumTempo)
+                AppRow(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                   //  key change
                   AppWrap(
                     children: [
-                      AppTooltip(
-                        message: 'Transcribe the song to the selected key.',
-                        child: Text(
-                          'Key: ',
+                      if (!_songUpdateService.isFollowing)
+                        //  key change
+                        AppWrap(
+                          children: [
+                            AppTooltip(
+                              message: 'Transcribe the song to the selected key.',
+                              child: Text(
+                                'Key: ',
+                                style: _headerTextStyle,
+                                softWrap: false,
+                              ),
+                            ),
+                            appDropdownButton<music_key.Key>(
+                              _keyDropDownMenuList,
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value != null) {
+                                    _setSelectedSongKey(value);
+                                  }
+                                });
+                              },
+                              value: _selectedSongKey,
+                              style: _headerTextStyle,
+                              // iconSize: lookupIconSize(),
+                              // itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
+                              //     kMinInteractiveDimension),
+                            ),
+                            if (app.isScreenBig) const AppSpace(),
+                            if (app.isScreenBig)
+                              AppTooltip(
+                                message: 'Move the key one half step up.',
+                                child: appIconWithLabelButton(
+                                  icon: appIcon(
+                                    Icons.arrow_upward,
+                                  ),
+                                  onPressed: () {
+                                    if (!_isAnimated) {
+                                      setState(() {
+                                        _setSelectedSongKey(_selectedSongKey.nextKeyByHalfStep());
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            if (app.isScreenBig) const AppSpace(space: 5),
+                            if (app.isScreenBig)
+                              AppTooltip(
+                                message: 'Move the key one half step down.',
+                                child: appIconWithLabelButton(
+                                  icon: appIcon(
+                                    Icons.arrow_downward,
+                                  ),
+                                  onPressed: () {
+                                    if (!_isAnimated) {
+                                      setState(() {
+                                        _setSelectedSongKey(_selectedSongKey.previousKeyByHalfStep());
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+                      if (_songUpdateService.isFollowing)
+                        AppTooltip(
+                          message: 'When following the leader, the leader will select the key for you.\n'
+                              'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
+                          child: Text(
+                            'Key: $_selectedSongKey',
+                            style: _headerTextStyle,
+                            softWrap: false,
+                          ),
+                        ),
+                      const AppSpace(),
+                      if (_displayKeyOffset > 0 || (_showCapo && _capoLocation > 0))
+                        Text(
+                          ' ($_selectedSongKey${_displayKeyOffset > 0 ? '+$_displayKeyOffset' : ''}'
+                          '${_showCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
                           style: _headerTextStyle,
-                          softWrap: false,
-                        ),
-                      ),
-                      appDropdownButton<music_key.Key>(
-                        _keyDropDownMenuList,
-                        onChanged: (value) {
-                          setState(() {
-                            if (value != null) {
-                              _setSelectedSongKey(value);
-                            }
-                          });
-                        },
-                        value: _selectedSongKey,
-                        style: _headerTextStyle,
-                        // iconSize: lookupIconSize(),
-                        // itemHeight: max(headerTextStyle.fontSize ?? kMinInteractiveDimension,
-                        //     kMinInteractiveDimension),
-                      ),
-                      if (app.isScreenBig) const AppSpace(),
-                      if (app.isScreenBig)
-                        AppTooltip(
-                          message: 'Move the key one half step up.',
-                          child: appIconWithLabelButton(
-                            icon: appIcon(
-                              Icons.arrow_upward,
-                            ),
-                            onPressed: () {
-                              if (!_isAnimated) {
-                                setState(() {
-                                  _setSelectedSongKey(_selectedSongKey.nextKeyByHalfStep());
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                      if (app.isScreenBig) const AppSpace(space: 5),
-                      if (app.isScreenBig)
-                        AppTooltip(
-                          message: 'Move the key one half step down.',
-                          child: appIconWithLabelButton(
-                            icon: appIcon(
-                              Icons.arrow_downward,
-                            ),
-                            onPressed: () {
-                              if (!_isAnimated) {
-                                setState(() {
-                                  _setSelectedSongKey(_selectedSongKey.previousKeyByHalfStep());
-                                });
-                              }
-                            },
-                          ),
                         ),
                     ],
                   ),
-                if (_songUpdateService.isFollowing)
+                  if (app.isScreenBig && !_songUpdateService.isFollowing)
+                    //  tempo change
+                    AppWrap(
+                      children: [
+                        AppTooltip(
+                          message: 'Beats per minute.  Mouse click here or tap the m key\n'
+                              ' to generate the tempo.',
+                          child: appButton(
+                            'BPM:',
+                            onPressed: () {
+                              _tempoTap(force: true);
+                            },
+                          ),
+                        ),
+                        const AppSpace(),
+                        SizedBox(
+                          width: 3 * app.screenInfo.fontSize,
+                          child: AppTextField(
+                            hintText: 'bpm',
+                            controller: _bpmTextEditingController,
+                            fontSize: app.screenInfo.fontSize,
+                            onChanged: (value) {
+                              var bpm = int.tryParse(_bpmTextEditingController.text);
+                              if (bpm != null && bpm >= MusicConstants.minBpm) {
+                                _changeBPM(bpm);
+                              }
+                            }, //  fixme: ignored
+                          ),
+                        ),
+                        const AppSpace(),
+                        AppTooltip(
+                            message: 'Increment the selected beats per minute.',
+                            child: appIconWithLabelButton(
+                                icon: const Icon(Icons.arrow_upward),
+                                onPressed: () {
+                                  _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) + 1);
+                                })),
+                        const AppSpace(space: 5),
+                        AppTooltip(
+                            message: 'Decrement the selected beats per minute.',
+                            child: appIconWithLabelButton(
+                                icon: const Icon(Icons.arrow_downward_outlined),
+                                onPressed: () {
+                                  _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) - 1);
+                                })),
+                        const AppSpace(),
+                        if (kDebugMode) const AppSpace(),
+                        if (kDebugMode)
+                          appButton(
+                            'speed',
+                            onPressed: () {
+                              setState(() {
+                                playerSelectedBpm = MusicConstants.maxBpm;
+                                logger.log(_logBPM, 'speed: bpm: $playerSelectedBpm');
+                              });
+                            },
+                          ),
+                      ],
+                    ),
+                  if (app.isScreenBig && _songUpdateService.isFollowing)
+                    AppTooltip(
+                      message: 'When following the leader, the leader will select the tempo (BPM) for you.\n'
+                          'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
+                      child: Text(
+                        'BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}',
+                        style: _headerTextStyle,
+                      ),
+                    ),
                   AppTooltip(
-                    message: 'When following the leader, the leader will select the key for you.\n'
-                        'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
+                    message: 'Beats are a property of the song.\n'
+                        'Edit the song to change.',
                     child: Text(
-                      'Key: $_selectedSongKey',
+                      'Beats: ${_song.timeSignature.beatsPerBar}',
                       style: _headerTextStyle,
                       softWrap: false,
                     ),
                   ),
-                const AppSpace(),
-                if (_displayKeyOffset > 0 || (_showCapo && _capoLocation > 0))
-                  Text(
-                    ' ($_selectedSongKey${_displayKeyOffset > 0 ? '+$_displayKeyOffset' : ''}'
-                    '${_showCapo && _capoLocation > 0 ? '-$_capoLocation' : ''}=$_displaySongKey)',
-                    style: _headerTextStyle,
-                  ),
-              ],
-            ),
-            if (app.isScreenBig && !_songUpdateService.isFollowing)
-              //  tempo change
-              AppWrap(
-                children: [
-                  AppTooltip(
-                    message: 'Beats per minute.  Mouse click here or tap the m key\n'
-                        ' to generate the tempo.',
-                    child: appButton(
-                      'BPM:',
+                  // if (app.isScreenBig && !songUpdateService.isFollowing)
+                  //   AppTooltip(
+                  //     message: 'Select drums using the player setting\'s dialog, the gear icon',
+                  //     child: Text(
+                  //       'Drums: ${_songMaster.drumsAreMuted ? 'Muted' : _drumParts?.name ?? ''}',
+                  //       style: headerTextStyle,
+                  //       softWrap: false,
+                  //     ),
+                  //   ),
+                  if (app.isScreenBig)
+                    //  leader/follower status
+                    AppTooltip(
+                      message: 'Control the leader/follower mode from the main menu:\n'
+                          'main screen: menu (hamburger), Options, Hosts',
+                      child: Text(
+                        _songUpdateService.isConnected
+                            ? (_songUpdateService.isLeader
+                                ? 'leading ${_songUpdateService.host}'
+                                :
+                                // (_songUpdateService.leaderName == Song.defaultUser
+                                //             ? 'on ${_songUpdateService.host.replaceFirst('.local', '')}'
+                                //             : 'following ${_songUpdateService.leaderName}')
+                                'following ${_songUpdateService.leaderName}')
+                            : (_songUpdateService.isIdle ? '' : 'lost ${_songUpdateService.host}!'),
+                        style: !_songUpdateService.isConnected && !_songUpdateService.isIdle
+                            ? _headerTextStyle.copyWith(color: Colors.red)
+                            : _headerTextStyle,
+                      ),
+                    ),
+                ]),
+
+              // //  chords used
+              // if (app.isScreenBig ) //  fixme: make scale chords used an option
+              //   Column(
+              //     children: [
+              //       const AppSpace(),
+              //       AppWrapFullWidth(
+              //         children: [
+              //           Text(
+              //             'Chords used: ',
+              //             style: _headerTextStyle,
+              //           ),
+              //           Text(
+              //             _song.scaleChordsUsed().toString(),
+              //             style: _headerTextStyle,
+              //           )
+              //         ],
+              //       ),
+              //     ],
+              //   ),
+
+              //  ninjam aid
+              if (app.isScreenBig &&
+                  _appOptions.ninJam &&
+                  _ninJam.isNinJamReady &&
+                  songUpdateState == SongUpdateState.idle)
+                AppWrapFullWidth(spacing: 20, children: [
+                  const AppSpace(),
+                  AppWrap(spacing: 10 * _fontSize, children: [
+                    Text(
+                      'Ninjam: BPM: ${playerSelectedBpm ?? _song.beatsPerMinute.toString()}',
+                      style: _headerTextStyle,
+                      softWrap: false,
+                    ),
+                    appIconWithLabelButton(
+                      icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                       onPressed: () {
-                        _tempoTap(force: true);
+                        Clipboard.setData(
+                            ClipboardData(text: '/bpm ${(playerSelectedBpm ?? _song.beatsPerMinute).toString()}'));
                       },
                     ),
-                  ),
-                  const AppSpace(),
-                  SizedBox(
-                    width: 3 * app.screenInfo.fontSize,
-                    child: AppTextField(
-                      hintText: 'bpm',
-                      controller: _bpmTextEditingController,
-                      fontSize: app.screenInfo.fontSize,
-                      onChanged: (value) {
-                        var bpm = int.tryParse(_bpmTextEditingController.text);
-                        if (bpm != null && bpm >= MusicConstants.minBpm) {
-                          _changeBPM(bpm);
-                        }
-                      }, //  fixme: ignored
+                  ]),
+                  AppWrap(spacing: 10 * _fontSize, children: [
+                    Text(
+                      'Cycle: ${_ninJam.beatsPerInterval}',
+                      style: _headerTextStyle,
+                      softWrap: false,
                     ),
-                  ),
-                  const AppSpace(),
-                  AppTooltip(
-                      message: 'Increment the selected beats per minute.',
-                      child: appIconWithLabelButton(
-                          icon: const Icon(Icons.arrow_upward),
-                          onPressed: () {
-                            _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) + 1);
-                          })),
-                  const AppSpace(space: 5),
-                  AppTooltip(
-                      message: 'Decrement the selected beats per minute.',
-                      child: appIconWithLabelButton(
-                          icon: const Icon(Icons.arrow_downward_outlined),
-                          onPressed: () {
-                            _changeBPM((playerSelectedBpm ?? _song.beatsPerMinute) - 1);
-                          })),
-                  const AppSpace(),
-                  if (kDebugMode) const AppSpace(),
-                  if (kDebugMode)
-                    appButton(
-                      'speed',
+                    appIconWithLabelButton(
+                      icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
                       onPressed: () {
-                        setState(() {
-                          playerSelectedBpm = MusicConstants.maxBpm;
-                          logger.log(_logBPM, 'speed: bpm: $playerSelectedBpm');
-                        });
+                        Clipboard.setData(ClipboardData(text: '/bpi ${_ninJam.beatsPerInterval}'));
                       },
                     ),
-                ],
+                  ]),
+                  AppWrap(spacing: 10 * _fontSize, children: [
+                    Text(
+                      'Chords: ${_ninJam.toMarkup()}',
+                      style: _headerTextStyle,
+                      softWrap: false,
+                    ),
+                    appIconWithLabelButton(
+                      icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: _ninJam.toMarkup()));
+                      },
+                    ),
+                  ]),
+                ]),
+            ]),
+          );
+      }
+    });
+  }
+
+  Widget _songPlayTally() {
+    return Consumer<SongMasterNotifier>(builder: (context, songMasterNotifier, child) {
+      var songUpdateState = songMasterNotifier.songMaster?.songUpdateState ?? SongUpdateState.idle;
+      switch (songUpdateState) {
+        case SongUpdateState.none:
+        case SongUpdateState.idle:
+        case SongUpdateState.drumTempo:
+          return NullWidget();
+        default:
+          return Container(
+            padding: const EdgeInsets.all(5.0),
+            color: (Color.lerp(App.measureContainerBackgroundColor, Colors.white, 0.85) ?? Colors.white)
+                .withAlpha(128 + 64 + 32 + 8),
+            child: AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: _fontSize, children: [
+              _playModeSegmentedButton(songUpdateState),
+              Text(
+                'Key: $_selectedSongKey',
+                style: _headerTextStyle,
+                softWrap: false,
               ),
-            if (app.isScreenBig && _songUpdateService.isFollowing)
-              AppTooltip(
-                message: 'When following the leader, the leader will select the tempo (BPM) for you.\n'
-                    'To correct this from the main screen: menu (hamburger), Options, Hosts: None',
-                child: Text(
-                  'BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}',
-                  style: _headerTextStyle,
-                ),
+              Text(
+                'BPM: ${playerSelectedBpm ?? _song.beatsPerMinute}',
+                style: _headerTextStyle,
+                softWrap: false,
               ),
-            AppTooltip(
-              message: 'Beats are a property of the song.\n'
-                  'Edit the song to change.',
-              child: Text(
+              Text(
                 'Beats: ${_song.timeSignature.beatsPerBar}',
                 style: _headerTextStyle,
                 softWrap: false,
               ),
-            ),
-            // if (app.isScreenBig && !songUpdateService.isFollowing)
-            //   AppTooltip(
-            //     message: 'Select drums using the player setting\'s dialog, the gear icon',
-            //     child: Text(
-            //       'Drums: ${_songMaster.drumsAreMuted ? 'Muted' : _drumParts?.name ?? ''}',
-            //       style: headerTextStyle,
-            //       softWrap: false,
-            //     ),
-            //   ),
-            if (app.isScreenBig)
-              //  leader/follower status
-              AppTooltip(
-                message: 'Control the leader/follower mode from the main menu:\n'
-                    'main screen: menu (hamburger), Options, Hosts',
-                child: Text(
+              if (app.isScreenBig && !_songUpdateService.isIdle)
+                //  leader/follower status
+                Text(
                   _songUpdateService.isConnected
                       ? (_songUpdateService.isLeader
                           ? 'leading ${_songUpdateService.host}'
@@ -1071,81 +1206,28 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                           //             ? 'on ${_songUpdateService.host.replaceFirst('.local', '')}'
                           //             : 'following ${_songUpdateService.leaderName}')
                           'following ${_songUpdateService.leaderName}')
-                      : (_songUpdateService.isIdle ? '' : 'lost ${_songUpdateService.host}!'),
+                      : 'lost ${_songUpdateService.host}!',
                   style: !_songUpdateService.isConnected && !_songUpdateService.isIdle
                       ? _headerTextStyle.copyWith(color: Colors.red)
                       : _headerTextStyle,
                 ),
-              ),
-          ]),
 
-        // //  chords used
-        // if (app.isScreenBig ) //  fixme: make scale chords used an option
-        //   Column(
-        //     children: [
-        //       const AppSpace(),
-        //       AppWrapFullWidth(
-        //         children: [
-        //           Text(
-        //             'Chords used: ',
-        //             style: _headerTextStyle,
-        //           ),
-        //           Text(
-        //             _song.scaleChordsUsed().toString(),
-        //             style: _headerTextStyle,
-        //           )
-        //         ],
-        //       ),
-        //     ],
-        //   ),
-
-        //  ninjam aid
-        if (app.isScreenBig && _appOptions.ninJam && _ninJam.isNinJamReady && _songUpdateState == SongUpdateState.idle)
-          AppWrapFullWidth(spacing: 20, children: [
-            const AppSpace(),
-            AppWrap(spacing: 10 * _fontSize, children: [
+              if (app.isScreenBig && _showCapo && _capoLocation > 0)
+                Text(
+                  'Capo: $_capoLocation',
+                  style: _headerTextStyle,
+                  softWrap: false,
+                ),
+              //  last of the wrap
               Text(
-                'Ninjam: BPM: ${playerSelectedBpm ?? _song.beatsPerMinute.toString()}',
+                '  ',
                 style: _headerTextStyle,
                 softWrap: false,
               ),
-              appIconWithLabelButton(
-                icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
-                onPressed: () {
-                  Clipboard.setData(
-                      ClipboardData(text: '/bpm ${(playerSelectedBpm ?? _song.beatsPerMinute).toString()}'));
-                },
-              ),
             ]),
-            AppWrap(spacing: 10 * _fontSize, children: [
-              Text(
-                'Cycle: ${_ninJam.beatsPerInterval}',
-                style: _headerTextStyle,
-                softWrap: false,
-              ),
-              appIconWithLabelButton(
-                icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: '/bpi ${_ninJam.beatsPerInterval}'));
-                },
-              ),
-            ]),
-            AppWrap(spacing: 10 * _fontSize, children: [
-              Text(
-                'Chords: ${_ninJam.toMarkup()}',
-                style: _headerTextStyle,
-                softWrap: false,
-              ),
-              appIconWithLabelButton(
-                icon: appIcon(Icons.content_copy_sharp, size: app.screenInfo.fontSize),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: _ninJam.toMarkup()));
-                },
-              ),
-            ]),
-          ]),
-      ]),
-    );
+          );
+      }
+    });
   }
 
   KeyEventResult _playerOnKeyEvent(FocusNode node, KeyEvent e) {
@@ -1693,23 +1775,23 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   _performPlay() {
     logger.log(_logMode, 'manualPlay:');
-      switch (_songUpdateState) {
-        case SongUpdateState.pause:
-          if (!_songUpdateService.isFollowing) {
-            _songMaster.resume();
-          }
-          break;
-        default:
-          _songUpdateState = SongUpdateState.playing;
-          _lastRowIndex = -1;
-          _setSelectedSongMoment(_song.songMoments.first);
+    switch (_songUpdateState) {
+      case SongUpdateState.pause:
+        if (!_songUpdateService.isFollowing) {
+          _songMaster.resume();
+        }
+        break;
+      default:
+        _songUpdateState = SongUpdateState.playing;
+        _lastRowIndex = -1;
+        _setSelectedSongMoment(_song.songMoments.first);
 
-          if (!_songUpdateService.isFollowing) {
-            _setPlayMomentNotifier(SongUpdateState.playing, _songMaster.momentNumber ?? 0, _song.songMoments.first);
-            _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
-          }
-          break;
-      }
+        if (!_songUpdateService.isFollowing) {
+          _setPlayMomentNotifier(SongUpdateState.playing, _songMaster.momentNumber ?? 0, _song.songMoments.first);
+          _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
+        }
+        break;
+    }
   }
 
   _performPlayHold() {

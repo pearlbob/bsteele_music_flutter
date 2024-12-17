@@ -81,9 +81,9 @@ Widget appCircledIcon(IconData iconData, String toolTip,
 }
 
 /// Icon widget with the application look
-Icon appIcon(IconData icon, {final Key? key, final Color? color, final double? size}) {
+Icon appIcon(IconData? iconData, {final Key? key, final Color? color, final double? size}) {
   return Icon(
-    icon,
+    iconData,
     key: key,
     color: color ?? App.iconColor,
     size: size ?? app.screenInfo.fontSize, //  let the algorithm figure the size dynamically
@@ -112,16 +112,16 @@ class AppTheme {
       //  hassle with mapping Color to MaterialColor
       var color = App.appbarBackgroundColor;
       Map<int, Color> colorCodes = {
-        50: color.withOpacity(.1),
-        100: color.withOpacity(.2),
-        200: color.withOpacity(.3),
-        300: color.withOpacity(.4),
-        400: color.withOpacity(.5),
-        500: color.withOpacity(.6),
-        600: color.withOpacity(.7),
-        700: color.withOpacity(.8),
-        800: color.withOpacity(.9),
-        900: color.withOpacity(1),
+        50: color.withAlpha((0.1 * 255).toInt()),
+        100: color.withAlpha((0.2 * 255).toInt()),
+        200: color.withAlpha((0.3 * 255).toInt()),
+        300: color.withAlpha((0.4 * 255).toInt()),
+        400: color.withAlpha((0.5 * 255).toInt()),
+        500: color.withAlpha((0.6 * 255).toInt()),
+        600: color.withAlpha((0.7 * 255).toInt()),
+        700: color.withAlpha((0.8 * 255).toInt()),
+        800: color.withAlpha((0.9 * 255).toInt()),
+        900: color.withAlpha(255),
       };
       MaterialColor materialColor = MaterialColor(color.value, colorCodes);
       color = App.universalBackgroundColor;
@@ -225,7 +225,7 @@ IconButton appIconButton({
 }
 
 TextButton appIconWithLabelButton({
-  required Widget icon,
+  required Icon icon,
   VoidCallback? onPressed,
   dynamic value,
   TextStyle? style,
@@ -237,6 +237,12 @@ TextButton appIconWithLabelButton({
     backgroundColor = App.disabledColor;
   }
   style ??= TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, textBaseline: TextBaseline.alphabetic);
+
+  //  enforce at least some color
+  if (icon.color == null) {
+    icon = appIcon(icon.icon);
+  }
+
   return TextButton.icon(
     icon: icon,
     label: Text(label ?? '', style: style),

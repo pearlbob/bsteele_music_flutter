@@ -1180,6 +1180,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 .withAlpha(128 + 64 + 32 + 8),
             child: AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, spacing: _fontSize, children: [
               _playModeSegmentedButton(songUpdateState),
+              if (app.fullscreenEnabled && !app.isFullScreen)
+                appButton('Fullscreen', onPressed: () {
+                  app.requestFullscreen();
+                }),
               Text(
                 'Key: $_selectedSongKey',
                 style: _headerTextStyle,

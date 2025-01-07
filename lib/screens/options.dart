@@ -280,6 +280,7 @@ class OptionsState extends State<Options> {
                     children: [
                       const Text('Accidental Notes:'),
                       SegmentedButton<AccidentalExpressionChoice>(
+                        selectedIcon: appIcon(Icons.check),
                         segments: <ButtonSegment<AccidentalExpressionChoice>>[
                           ButtonSegment<AccidentalExpressionChoice>(
                             value: AccidentalExpressionChoice.byKey,
@@ -297,20 +298,6 @@ class OptionsState extends State<Options> {
                                     'For example, A♯ will always be expressed as B♭'
                                 : null,
                           ),
-                          // ButtonSegment<AccidentalExpressionChoice>(
-                          //   value: AccidentalExpressionChoice.alwaysSharp,
-                          //   label: Text('Always Sharp', style: buttonTextStyle()),
-                          //   tooltip: _appOptions.toolTips
-                          //       ? 'When required, accidental notes are always expressed as a sharp.'
-                          //       : null,
-                          // ),
-                          // ButtonSegment<AccidentalExpressionChoice>(
-                          //   value: AccidentalExpressionChoice.alwaysFlat,
-                          //   label: Text('Always Flat', style: buttonTextStyle()),
-                          //   tooltip: _appOptions.toolTips
-                          //       ? 'When required, accidental notes are always expressed as a flat.'
-                          //       : null,
-                          // ),
                         ],
                         selected: <AccidentalExpressionChoice>{_appOptions.accidentalExpressionChoice},
                         onSelectionChanged: (Set<AccidentalExpressionChoice> newSelection) {
@@ -331,6 +318,7 @@ class OptionsState extends State<Options> {
                     children: [
                       const Text('Nashville beats:'),
                       SegmentedButton<bool>(
+                        selectedIcon: appIcon(Icons.check),
                         segments: <ButtonSegment<bool>>[
                           ButtonSegment<bool>(
                             value: true,

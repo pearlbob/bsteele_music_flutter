@@ -12,6 +12,7 @@
 
 ### Fix
 
+* install tutorial at the right time and place, beta vs release
 * leader/follower more obvious
 * tutorial: Let me think of a way to convert it to a FAQ... without more work.
 * Tutorial: Nashville, NinJam and Display key offset:  sure. these will likely be concepts + a video

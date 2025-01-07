@@ -23,7 +23,7 @@ if ( $stat != 0 ) then
 endif
 
 #   verify that the mac is present
-ssh bobsmac.local echo yes
+ssh bobsm4.local echo yes
 set stat=$status
 if ( $stat != 0 ) then
 	echo bobs mac is missing

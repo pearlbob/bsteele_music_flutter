@@ -684,7 +684,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                               _songMaster.repeatSectionIncrement();
                                             } else {
                                               //  tablet down arrow
-                                              _songMaster.skipCurrentSection();
+                                              _songMaster.skipToCurrentSection();
                                             }
                                           }
                                         }
@@ -1400,7 +1400,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   _clearCountIn() {
-    _updateCountIn(-countInMax);
+    _updateCountIn(_areDrumsMuted ? 0 : -countInMax);
   }
 
   _updateCountIn(int countIn) {

@@ -2093,13 +2093,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                           crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: viewportWidth(0.5),
                           children: [
-                            AppTooltip(
-                              message: 'Select the display style for the song.',
-                              child: Text(
-                                'Display style: ',
-                                style: boldStyle,
-                              ),
-                            ),
+                            // AppTooltip(
+                            //   message: 'Select the display style for the song.',
+                            //   child: Text(
+                            //     'Display style: ',
+                            //     style: boldStyle,
+                            //   ),
+                            // ),
                             //       //  pro player
                             //       AppWrap(children: [
                             //         Radio<UserDisplayStyle>(
@@ -2163,65 +2163,36 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                             //           ),
                             //         ),
                             //       ]),
-                            //  both
-                            AppWrap(children: [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.both,
-                                groupValue: _appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      _appOptions.userDisplayStyle = value;
-                                      _adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              AppTooltip(
-                                message: 'Display the song showing all chords and lyrics.\n'
-                                    'This is the most typical display mode.',
-                                child: appTextButton(
-                                  'Both Player and Singer',
-                                  value: UserDisplayStyle.both,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.userDisplayStyle = UserDisplayStyle.both;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ]),
-                            //  high contrast
-                            AppWrap(children: [
-                              Radio<UserDisplayStyle>(
-                                value: UserDisplayStyle.highContrast,
-                                groupValue: _appOptions.userDisplayStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      _appOptions.userDisplayStyle = value;
-                                      _adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              AppTooltip(
-                                message: 'Display the song in high contrast.',
-                                child: appTextButton(
-                                  'High Contrast',
-                                  value: UserDisplayStyle.highContrast,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.userDisplayStyle = UserDisplayStyle.highContrast;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ]),
+                            // //  both
+                            // AppWrap(children: [
+                            //   Radio<UserDisplayStyle>(
+                            //     value: UserDisplayStyle.both,
+                            //     groupValue: _appOptions.userDisplayStyle,
+                            //     onChanged: (value) {
+                            //       setState(() {
+                            //         if (value != null) {
+                            //           _appOptions.userDisplayStyle = value;
+                            //           _adjustDisplay();
+                            //         }
+                            //       });
+                            //     },
+                            //   ),
+                            //   AppTooltip(
+                            //     message: 'Display the song showing all chords and lyrics.\n'
+                            //         'This is the most typical display mode.',
+                            //     child: appTextButton(
+                            //       'Both Player and Singer',
+                            //       value: UserDisplayStyle.both,
+                            //       onPressed: () {
+                            //         setState(() {
+                            //           _appOptions.userDisplayStyle = UserDisplayStyle.both;
+                            //           _adjustDisplay();
+                            //         });
+                            //       },
+                            //       style: popupStyle,
+                            //     ),
+                            //   ),
+                            // ]),
                             //       //  singer
                             //       AppWrap(children: [
                             //         Radio<UserDisplayStyle>(

@@ -581,7 +581,7 @@ class LyricsTable {
                 : _SongCellWidget(
                     richText: RichText(
                       text: TextSpan(
-                        text: mn.toString(),
+                        text: mn.toMarkup(withInversion: false),
                         style: _highContrastTextStyle,
                       ),
                     ),

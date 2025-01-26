@@ -11,6 +11,7 @@ import 'package:bsteele_music_lib/songs/chord_anticipation_or_delay.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:bsteele_music_lib/songs/pitch.dart';
 import 'package:bsteele_music_lib/songs/scale_chord.dart';
+import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -421,6 +422,204 @@ class OptionsState extends State<Options> {
                       //     });
                       //   },
                       // ),
+                    ],
+                  ),
+
+                  //  UserDisplayStyle
+                  AppWrapFullWidth(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: viewportWidth(0.5),
+                    children: [
+                      AppTooltip(
+                        message: 'Select the display style for the song.',
+                        child: Text(
+                          'Display style: ',
+                          //  style: boldStyle,
+                        ),
+                      ),
+                      //       //  pro player
+                      //       AppWrap(children: [
+                      //         Radio<UserDisplayStyle>(
+                      //           value: UserDisplayStyle.proPlayer,
+                      //           groupValue: _appOptions.userDisplayStyle,
+                      //           onChanged: (value) {
+                      //             setState(() {
+                      //               if (value != null) {
+                      //                 _appOptions.userDisplayStyle = value;
+                      //                 _adjustDisplay();
+                      //               }
+                      //             });
+                      //           },
+                      //         ),
+                      //         AppTooltip(
+                      //           message: 'Display the song using the professional player style.\n'
+                      //               'This condenses the song chords to a minimum presentation without lyrics.',
+                      //           child: appTextButton(
+                      //             'Pro',
+                      //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                      //             value: UserDisplayStyle.proPlayer,
+                      //             onPressed: () {
+                      //               setState(() {
+                      //                 _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
+                      //                 _adjustDisplay();
+                      //               });
+                      //             },
+                      //             style: popupStyle,
+                      //           ),
+                      //         ),
+                      //       ]),
+                      //       //  player
+                      //       AppWrap(children: [
+                      //         Radio<UserDisplayStyle>(
+                      //           value: UserDisplayStyle.player,
+                      //           groupValue: _appOptions.userDisplayStyle,
+                      //           onChanged: (value) {
+                      //             setState(() {
+                      //               if (value != null) {
+                      //                 _appOptions.userDisplayStyle = value;
+                      //                 _adjustDisplay();
+                      //               }
+                      //             });
+                      //           },
+                      //         ),
+                      //         AppTooltip(
+                      //           message: 'Display the song using the player style.\n'
+                      //               'This favors the chords over the lyrics,\n'
+                      //               'to the point that the lyrics maybe clipped.',
+                      //           child: appTextButton(
+                      //             'Player',
+                      //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                      //             value: UserDisplayStyle.player,
+                      //             onPressed: () {
+                      //               setState(() {
+                      //                 _appOptions.userDisplayStyle = UserDisplayStyle.player;
+                      //                 _adjustDisplay();
+                      //               });
+                      //             },
+                      //             style: popupStyle,
+                      //           ),
+                      //         ),
+                      //       ]),
+                      //  both
+                      AppWrap(children: [
+                        Radio<UserDisplayStyle>(
+                          value: UserDisplayStyle.both,
+                          groupValue: _appOptions.userDisplayStyle,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                _appOptions.userDisplayStyle = value;
+                              }
+                            });
+                          },
+                        ),
+                        AppTooltip(
+                          message: 'Display the song showing all chords and lyrics.\n'
+                              'This is the most typical display mode.',
+                          child: appTextButton(
+                            'Both Player and Singer',
+                            value: UserDisplayStyle.both,
+                            onPressed: () {
+                              setState(() {
+                                _appOptions.userDisplayStyle = UserDisplayStyle.both;
+                              });
+                            },
+                            style: style,
+                          ),
+                        ),
+                      ]),
+                      //  high contrast
+                      AppWrap(children: [
+                        Radio<UserDisplayStyle>(
+                          value: UserDisplayStyle.highContrast,
+                          groupValue: _appOptions.userDisplayStyle,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value != null) {
+                                _appOptions.userDisplayStyle = value;
+                              }
+                            });
+                          },
+                        ),
+                        AppTooltip(
+                          message: 'Display the song in high contrast.',
+                          child: appTextButton(
+                            'High Contrast',
+                            value: UserDisplayStyle.highContrast,
+                            onPressed: () {
+                              setState(() {
+                                _appOptions.userDisplayStyle = UserDisplayStyle.highContrast;
+                              });
+                            },
+                            style: style.copyWith(
+                                color: Colors.white,
+                                backgroundColor: Colors.black,
+                                fontSize: (style.fontSize ?? appDefaultFontSize) * 2),
+                          ),
+                        ),
+                      ]),
+                      //       //  singer
+                      //       AppWrap(children: [
+                      //         Radio<UserDisplayStyle>(
+                      //           value: UserDisplayStyle.singer,
+                      //           groupValue: _appOptions.userDisplayStyle,
+                      //           onChanged: (value) {
+                      //             setState(() {
+                      //               if (value != null) {
+                      //                 _appOptions.userDisplayStyle = value;
+                      //                 _adjustDisplay();
+                      //               }
+                      //             });
+                      //           },
+                      //         ),
+                      //         AppTooltip(
+                      //           message: 'Display the song showing all the lyrics.\n'
+                      //               'The display of chords is minimized.',
+                      //           child: appTextButton(
+                      //             'Singer',
+                      //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                      //             value: UserDisplayStyle.singer,
+                      //             onPressed: () {
+                      //               setState(() {
+                      //                 _appOptions.userDisplayStyle = UserDisplayStyle.singer;
+                      //                 _adjustDisplay();
+                      //               });
+                      //             },
+                      //             style: style,
+                      //           ),
+                      //         ),
+                      //       ]),
+                      //       //  banner
+                      //       // AppWrap(children: [
+                      //       //   Radio<UserDisplayStyle>(
+                      //       //     value: UserDisplayStyle.banner,
+                      //       //     groupValue: _appOptions.userDisplayStyle,
+                      //       //     onChanged: (value) {
+                      //       //       setState(() {
+                      //       //         if (value != null) {
+                      //       //           _appOptions.userDisplayStyle = value;
+                      //       //           adjustDisplay();
+                      //       //         }
+                      //       //       });
+                      //       //     },
+                      //       //   ),
+                      //       //   AppTooltip(
+                      //       //     message: 'Display the song in banner (piano scroll) mode.',
+                      //       //     child: appTextButton(
+                      //       //       'Banner',
+                      //       //       appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                      //       //       value: UserDisplayStyle.banner,
+                      //       //       onPressed: () {
+                      //       //         setState(() {
+                      //       //           _appOptions.userDisplayStyle = UserDisplayStyle.banner;
+                      //       //           adjustDisplay();
+                      //       //         });
+                      //       //       },
+                      //       //       style: style,
+                      //       //     ),
+                      //       //   ),
+                      //       // ]),
+                      //     ]),
                     ],
                   ),
 

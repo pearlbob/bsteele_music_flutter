@@ -566,6 +566,36 @@ class LyricsTable {
         }
         break;
 
+      case UserDisplayStyle.highContrast:
+        for (var momentNumber = 0; momentNumber < song.songMoments.length; momentNumber++) {
+          MeasureNode? mn = displayGrid.get(0, momentNumber);
+
+          _cellGrid.set(
+            0,
+            momentNumber,
+            mn == null
+                ? _SongCellWidget._empty(
+                    row: 0,
+                    column: momentNumber,
+                  )
+                : _SongCellWidget(
+                    richText: RichText(
+                      text: TextSpan(
+                        text: mn.toString(),
+                        style: _highContrastTextStyle,
+                      ),
+                    ),
+                    row: 0,
+                    column: momentNumber,
+                    type: _SongCellType.columnFill,
+                    measureNode: mn,
+                    // isFixedHeight: true,
+                    displayRowMinRow: 0,
+                  ),
+          );
+        }
+        break;
+
       case UserDisplayStyle.player:
       case UserDisplayStyle.both:
         {
@@ -894,6 +924,61 @@ class LyricsTable {
         logger.log(_logHeights, 'banner widths: $widths');
         logger.log(_logHeights, 'banner heights: $heights');
         break;
+
+      case UserDisplayStyle.highContrast:
+        var width = 0.0;
+        var row = _cellGrid.getRow(0);
+        assert(row != null);
+
+        if (row != null) {
+          for (var c = 0; c < row.length; c++) {
+            width = max(width, row[c]!.buildSize.width);
+          }
+
+          if (width < app.screenInfo.mediaWidth / 5) {
+            width = app.screenInfo.mediaWidth / 5;
+          }
+
+          for (var c = 0; c < row.length; c++) {
+            widths[c] = width;
+          }
+
+          //  even all the banner lyric widths
+          _maxLines = 1;
+
+          //  re-compute max lyric height after width change
+          double height = app.screenInfo.fontSize; //  safety
+          {
+            var row = displayGrid.getRow(0);
+            assert(row != null);
+            row = row!;
+
+            for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+              var cell = _cellGrid.get(0, c);
+              if (cell != null) {
+                height = max(height, cell.computedBuildSize.height);
+                logger.log(
+                    _logHeights,
+                    'banner computedBuildSize: ${cell.computedBuildSize}'
+                    ', columnWidth: ${cell.columnWidth}');
+              }
+            }
+            logger.log(_logHeights, 'banner new height: $height');
+
+            //  apply the new height
+            heights[0] = height;
+            for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
+              var cell = _cellGrid.get(0, c);
+              if (cell != null) {
+                _cellGrid.set(0, c, cell.copyWith(size: Size(cell.buildSize.width, height)));
+              }
+            }
+          }
+        }
+
+        logger.log(_logHeights, 'highContrast widths: $widths');
+        logger.log(_logHeights, 'highContrast heights: $heights');
+        break;
       default:
         break;
     }
@@ -934,6 +1019,9 @@ class LyricsTable {
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
         _scaleFactor = 0.65;
+        break;
+      case UserDisplayStyle.highContrast:
+        _scaleFactor = 1;
         break;
       default:
         //  fit the horizontal by scaling
@@ -1079,10 +1167,21 @@ class LyricsTable {
           for (var r = 0; r < BannerColumn.values.length; r++) {
             var cell = _cellGrid.get(r, c);
             // logger.i( 'banner cell: ($r,$c): $cell');
-            // assert(cell != null );
-            if (cell != null) {}
+            assert(cell != null);
+            // if (cell != null) {}
           }
         }
+        break;
+
+      case UserDisplayStyle.highContrast:
+        {
+          for (var c = 0; c < song.songMoments.length; c++) {
+            var cell = _cellGrid.get(0, c);
+            assert(cell != null);
+            items.add(cell!.copyWith(size: Size(widths[c], heights[0])));
+          }
+        }
+        logger.log(_logHeights, 'highContrast scaled heights: $heights');
         break;
 
       //  other user display styles
@@ -1178,6 +1277,8 @@ class LyricsTable {
           'Release/Label: ${song.copyright}',
           style: _lyricsTextStyle,
         ));
+        break;
+      case UserDisplayStyle.highContrast:
         break;
       default:
         items.add(Padding(
@@ -1435,8 +1536,8 @@ class LyricsTable {
       {final music_key.Key? displayMusicKey, TextStyle? style, final bool showBeats = false}) {
     style = style ?? _coloredChordTextStyle;
     logger.t('_measureTextSpan: style.color: ${style.color}'
-        ', black: ${Colors.black}, ==: ${style.color?.value == Colors.black.value}');
-    var slashColor = style.color?.value == Colors.black.value ? _slashColor : _fadedSlashColor;
+        ', black: ${Colors.black}, ==: ${style.color == Colors.black}');
+    var slashColor = style.color == Colors.black ? _slashColor : _fadedSlashColor;
     final TextStyle slashStyle =
         style.copyWith(color: slashColor, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
 
@@ -1783,6 +1884,12 @@ class LyricsTable {
   TextStyle _coloredSectionTextStyle = generateLyricsTextStyle();
   TextStyle _coloredChordTextStyle = generateLyricsTextStyle();
   TextStyle _coloredLyricTextStyle = generateLyricsTextStyle();
+  final TextStyle _highContrastTextStyle = generateAppTextStyle(
+    color: Colors.white,
+    backgroundColor: Colors.black,
+    fontSize: 200.0,
+    fontWeight: FontWeight.bold,
+  );
 
   double get scaleFactor => _scaleFactor;
   double _scaleFactor = 1.0;

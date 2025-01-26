@@ -349,12 +349,12 @@ class AppOptions extends ChangeNotifier {
   UserDisplayStyle get userDisplayStyle => _userDisplayStyle;
   UserDisplayStyle _userDisplayStyle = UserDisplayStyle.both;
 
-  // set userDisplayStyle(UserDisplayStyle value) {
-  //   if (_userDisplayStyle != value) {
-  //     _userDisplayStyle = value;
-  //     _saveString(StorageValue.userDisplayStyle.name, value.name);
-  //   }
-  // }
+  set userDisplayStyle(UserDisplayStyle value) {
+    if (_userDisplayStyle != value) {
+      _userDisplayStyle = value;
+      _saveString(StorageValue.userDisplayStyle.name, value.name);
+    }
+  }
 
   /// The user's selected player display highlight style during play
   PlayerScrollHighlight get playerScrollHighlight => _playerScrollHighlight;

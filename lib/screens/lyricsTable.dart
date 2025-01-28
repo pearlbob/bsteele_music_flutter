@@ -54,7 +54,7 @@ get it right next time:  repeats in measure column
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
-const Level _logLyricSectionCellState = Level.info;
+const Level _logLyricSectionCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
 const Level _logLyricsBuild = Level.debug;
@@ -209,6 +209,7 @@ class LyricsTable {
     _song = song;
     displayMusicKey = musicKey ?? song.key;
     _nashvilleSelection = _appOptions.nashvilleSelection;
+    _simplifiedChordsSelection = _appOptions.simplifiedChords;
     _maxLines = 1;
 
     _computeScreenSizes();
@@ -1614,7 +1615,9 @@ class LyricsTable {
         }
         {
           //  chord descriptor
-          var name = transposedChord.scaleChord.chordDescriptor.shortName;
+          var chordDescriptor = transposedChord.scaleChord.chordDescriptor;
+          chordDescriptor = _simplifiedChordsSelection ? chordDescriptor.simplified : chordDescriptor;
+          var name = chordDescriptor.shortName;
           if (name.isNotEmpty) {
             chordChildren.add(
               TextSpan(
@@ -1891,6 +1894,7 @@ class LyricsTable {
   late Song _song;
 
   NashvilleSelection _nashvilleSelection = NashvilleSelection.off;
+  bool _simplifiedChordsSelection = false;
 
   double get screenWidth => _screenWidth;
   double _screenWidth = 1920; //  initial value only

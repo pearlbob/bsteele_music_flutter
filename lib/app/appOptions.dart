@@ -38,7 +38,8 @@ enum StorageValue {
   lastSongEdited,
   playerScrollHighlight,
   accidentalExpressionChoice,
-  reducedNashvilleDots
+  reducedNashvilleDots,
+  simplifiedChords,
 }
 
 enum TapToAdvance { never, upOrDown }
@@ -106,6 +107,7 @@ class AppOptions extends ChangeNotifier {
     _playWithMeasureIndicator = await _readBool('playWithMeasureIndicator', defaultValue: _playWithMeasureIndicator);
     _playWithBouncingBall = await _readBool('playWithBouncingBall', defaultValue: _playWithBouncingBall);
     _playWithMeasureLabel = await _readBool('playWithMeasureLabel', defaultValue: _playWithMeasureLabel);
+    _simplifiedChords = await _readBool(StorageValue.simplifiedChords.name, defaultValue: _simplifiedChords);
     _alwaysUseTheNewestSongOnRead =
         await _readBool('alwaysUseTheNewestSongOnRead', defaultValue: _alwaysUseTheNewestSongOnRead);
     _playWithChords = await _readBool('playWithChords', defaultValue: _playWithChords);
@@ -419,6 +421,18 @@ class AppOptions extends ChangeNotifier {
       _saveString('websocketHost', value);
     }
   }
+
+  set simplifiedChords(bool simplifiedChords) {
+    if (_simplifiedChords == simplifiedChords) {
+      return;
+    }
+    _simplifiedChords = simplifiedChords;
+    _saveBool(StorageValue.simplifiedChords.name, simplifiedChords);
+  }
+
+  /// True if the user wants the app to play chords when in play mode.
+  bool get simplifiedChords => _simplifiedChords;
+  bool _simplifiedChords = false;
 
   /// The current selected web socket host.
   /// An empty string will indicate the web socket should remain idle.

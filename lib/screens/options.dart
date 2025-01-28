@@ -313,6 +313,7 @@ class OptionsState extends State<Options> {
                     ],
                   ),
 
+                  //  Nashville beats
                   const AppSpace(verticalSpace: 30),
                   AppWrapFullWidth(
                     spacing: 15,
@@ -345,6 +346,45 @@ class OptionsState extends State<Options> {
                             // selected at one time, so its value is always the first
                             // item in the selected set.
                             _appOptions.reducedNashvilleDots = newSelection.first;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+
+                  //  Simplified Chords
+                  const AppSpace(verticalSpace: 30),
+                  AppWrapFullWidth(
+                    spacing: 15,
+                    children: [
+                      const Text('Simplified Chords:'),
+                      SegmentedButton<bool>(
+                        selectedIcon: appIcon(Icons.check),
+                        segments: <ButtonSegment<bool>>[
+                          ButtonSegment<bool>(
+                            value: true,
+                            label: Text('Simplified', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'Show chords in simplified form.\n'
+                                    'These will be an approximation of the original chords\n'
+                                    'to help beginners as they play.'
+                                : null,
+                          ),
+                          ButtonSegment<bool>(
+                            value: false,
+                            label: Text('Complex', style: buttonTextStyle()),
+                            tooltip: _appOptions.toolTips
+                                ? 'Show chords in a simplified form or in their full complexity.'
+                                : null,
+                          ),
+                        ],
+                        selected: <bool>{_appOptions.simplifiedChords},
+                        onSelectionChanged: (Set<bool> newSelection) {
+                          setState(() {
+                            // By default there is only a single segment that can be
+                            // selected at one time, so its value is always the first
+                            // item in the selected set.
+                            _appOptions.simplifiedChords = newSelection.first;
                           });
                         },
                       ),
@@ -550,6 +590,7 @@ class OptionsState extends State<Options> {
                               setState(() {
                                 _appOptions.userDisplayStyle = UserDisplayStyle.highContrast;
                                 _appOptions.playerScrollHighlight = PlayerScrollHighlight.measure;
+                                _appOptions.simplifiedChords = true;
                               });
                             },
                             style: style.copyWith(

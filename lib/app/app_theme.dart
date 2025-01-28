@@ -523,7 +523,7 @@ TextStyle generateAppTextStyle({
   bool nullBackground = false,
 }) {
   fontSize ??= app.screenInfo.fontSize;
-  fontSize = Util.limit(fontSize, appDefaultFontSize, 150.0) as double?;
+  fontSize = Util.limit(fontSize, appDefaultFontSize, 500.0) as double?;
   return TextStyle(
     color: color ?? App.universalForegroundColor,
     //  watch out: backgroundColor interferes with mouse text select on textFields!

@@ -567,32 +567,53 @@ class LyricsTable {
         break;
 
       case UserDisplayStyle.highContrast:
-        for (var momentNumber = 0; momentNumber < song.songMoments.length; momentNumber++) {
-          MeasureNode? mn = displayGrid.get(0, momentNumber);
+        for (var r = 0; r < displayGrid.getRowCount(); r++) {
+          List<MeasureNode?>? row = displayGrid.getRow(r);
+          assert(row != null);
+          row = row!;
 
-          _cellGrid.set(
-            0,
-            momentNumber,
-            mn == null
-                ? _SongCellWidget._empty(
-                    row: 0,
-                    column: momentNumber,
-                  )
-                : _SongCellWidget(
-                    richText: RichText(
-                      text: TextSpan(
-                        text: mn.toMarkup(withInversion: false),
-                        style: _highContrastTextStyle,
-                      ),
+          for (var c = 0; c < row.length; c++) {
+            MeasureNode? mn = displayGrid.get(r, c);
+            _cellGrid.set(
+              r,
+              c,
+              mn == null
+                  ? _SongCellWidget._empty(
+                      row: 0,
+                      column: c,
+                    )
+                  : _SongCellWidget(
+                      richText: RichText(
+                          text: _measureNashvilleSelectionTextSpan(mn as Measure, song.key, transpositionOffset,
+                              style: _highContrastTextStyle,
+                              displayMusicKey: displayMusicKey,
+                              showBeats: Measure.reducedNashvilleDots,
+                              withInversion: false)
+
+                          // mn.toMarkup(withInversion: false)//
+                          // //  fixme: temp adjustments to song cell when in highContrast
+                          //     .replaceAll('sus', 's').replaceAll('add', 'a').replaceAll('maj', 'j').replaceAll(',', '')
+                          ),
+                      row: 0,
+                      column: c,
+                      type: _SongCellType.flow,
+                      measureNode: mn,
+                      isFixedHeight: true,
+                      displayRowMinRow: 0,
                     ),
-                    row: 0,
-                    column: momentNumber,
-                    type: _SongCellType.columnFill,
-                    measureNode: mn,
-                    // isFixedHeight: true,
-                    displayRowMinRow: 0,
-                  ),
-          );
+            );
+          }
+        }
+
+        //  map the song moments to the cell grid
+        for (var songMoment in song.songMoments) {
+          var momentNumber = songMoment.momentNumber;
+          GridCoordinate gc = song.songMomentToGridCoordinate[momentNumber];
+          var cell = _cellGrid.at(gc);
+          assert(cell != null);
+          cell = cell!;
+
+          _cellGrid.setAt(gc, cell.copyWith(songMoment: songMoment));
         }
         break;
 
@@ -926,51 +947,49 @@ class LyricsTable {
         break;
 
       case UserDisplayStyle.highContrast:
-        var width = 0.0;
-        var row = _cellGrid.getRow(0);
-        assert(row != null);
-
-        if (row != null) {
-          for (var c = 0; c < row.length; c++) {
-            width = max(width, row[c]!.buildSize.width);
-          }
-
-          if (width < app.screenInfo.mediaWidth / 5) {
-            width = app.screenInfo.mediaWidth / 5;
-          }
-
-          for (var c = 0; c < row.length; c++) {
-            widths[c] = width;
-          }
-
-          //  even all the banner lyric widths
-          _maxLines = 1;
-
-          //  re-compute max lyric height after width change
-          double height = app.screenInfo.fontSize; //  safety
-          {
-            var row = displayGrid.getRow(0);
+        {
+          //  find the largest width
+          for (int r = 0; r < _cellGrid.getRowCount(); r++) {
+            var row = _cellGrid.getRow(r);
             assert(row != null);
             row = row!;
 
-            for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-              var cell = _cellGrid.get(0, c);
+            for (var c = 0; c < row.length; c++) {
+              widths[c] = max(widths[c], row[c]!.buildSize.width);
+            }
+          }
+
+          //  re-compute max lyric height after width change
+          double height = app.screenInfo.fontSize; //  safety
+          for (int r = 0; r < _cellGrid.getRowCount(); r++) {
+            var row = _cellGrid.getRow(r);
+            assert(row != null);
+            row = row!;
+
+            for (var c = 0; c < row.length; c++) {
+              var cell = _cellGrid.get(r, c);
               if (cell != null) {
                 height = max(height, cell.computedBuildSize.height);
                 logger.log(
                     _logHeights,
-                    'banner computedBuildSize: ${cell.computedBuildSize}'
+                    'highContrast computedBuildSize: ${cell.computedBuildSize}'
                     ', columnWidth: ${cell.columnWidth}');
               }
             }
-            logger.log(_logHeights, 'banner new height: $height');
+            logger.log(_logHeights, 'highContrast new height: $height');
 
-            //  apply the new height
+            //  apply the new height at all
             heights[0] = height;
-            for (var c = 0; c < row.length - 1 /*  exclude the copyright*/; c++) {
-              var cell = _cellGrid.get(0, c);
-              if (cell != null) {
-                _cellGrid.set(0, c, cell.copyWith(size: Size(cell.buildSize.width, height)));
+            for (int r = 0; r < _cellGrid.getRowCount(); r++) {
+              var row = _cellGrid.getRow(r);
+              assert(row != null);
+              row = row!;
+
+              for (var c = 0; c < row.length; c++) {
+                var cell = _cellGrid.get(r, c);
+                if (cell != null) {
+                  _cellGrid.set(r, c, cell.copyWith(size: Size(cell.buildSize.width, height), columnWidth: widths[c]));
+                }
               }
             }
           }
@@ -1175,10 +1194,22 @@ class LyricsTable {
 
       case UserDisplayStyle.highContrast:
         {
-          for (var c = 0; c < song.songMoments.length; c++) {
-            var cell = _cellGrid.get(0, c);
-            assert(cell != null);
-            items.add(cell!.copyWith(size: Size(widths[c], heights[0])));
+          for (int r = 0; r < _cellGrid.getRowCount(); r++) {
+            var row = _cellGrid.getRow(r);
+            assert(row != null);
+            row = row!;
+
+            List<Widget> rowChildren = [];
+            for (var c = 0; c < row.length; c++) {
+              var cell = _cellGrid.get(r, c);
+              if (cell != null) {
+                rowChildren.add(cell.copyWith(size: Size(widths[c], heights[0])));
+              }
+            }
+            items.add(Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [Row(children: rowChildren)],
+            ));
           }
         }
         logger.log(_logHeights, 'highContrast scaled heights: $heights');
@@ -1492,7 +1523,7 @@ class LyricsTable {
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
   TextSpan _measureNashvilleSelectionTextSpan(
       final Measure measure, final music_key.Key originalKey, int transpositionOffset,
-      {final music_key.Key? displayMusicKey, TextStyle? style, final bool showBeats = true}) {
+      {final music_key.Key? displayMusicKey, TextStyle? style, final bool showBeats = true, withInversion = true}) {
     style = style ?? _coloredChordTextStyle;
 
     final List<TextSpan> children = [];
@@ -1500,7 +1531,7 @@ class LyricsTable {
       case NashvilleSelection.off:
       case NashvilleSelection.both:
         var textSpan = _measureTextSpan(measure, originalKey, transpositionOffset,
-            displayMusicKey: displayMusicKey, style: style, showBeats: showBeats);
+            displayMusicKey: displayMusicKey, style: style, showBeats: showBeats, withInversion: withInversion);
         if (children.isNotEmpty) children.add(TextSpan(text: ' ', style: style));
         children.add(textSpan);
         break;
@@ -1533,7 +1564,10 @@ class LyricsTable {
   }
 
   TextSpan _measureTextSpan(final Measure measure, final music_key.Key originalKey, final int transpositionOffset,
-      {final music_key.Key? displayMusicKey, TextStyle? style, final bool showBeats = false}) {
+      {final music_key.Key? displayMusicKey,
+      TextStyle? style,
+      final bool showBeats = false,
+      final withInversion = false}) {
     style = style ?? _coloredChordTextStyle;
     logger.t('_measureTextSpan: style.color: ${style.color}'
         ', black: ${Colors.black}, ==: ${style.color == Colors.black}');
@@ -1602,7 +1636,7 @@ class LyricsTable {
             ));
           }
         }
-        if (isSlash) {
+        if (isSlash && withInversion) {
           var slashScaleNote = transposedChord.slashScaleNote //
               ??
               ScaleNote.X; //  should never happen!
@@ -1769,20 +1803,20 @@ class LyricsTable {
     return _rowNumberToDisplayOffset[rowNumber];
   }
 
-  // int displayOffsetToRow(final double offset) {
-  //   if (_songMomentToDisplayOffset.isEmpty) {
-  //     return 0;
-  //   }
-  //   //  fixme: optimize this reverse lookup
-  //   int limit = _songMomentToDisplayOffset.length;
-  //   for (var row = 0; row < limit; row++) {
-  //     var rowOffset = _songMomentToDisplayOffset[row];
-  //     if (rowOffset > offset) {
-  //       return max(0, row - 1);
-  //     }
-  //   }
-  //   return limit - 1;
-  // }
+// int displayOffsetToRow(final double offset) {
+//   if (_songMomentToDisplayOffset.isEmpty) {
+//     return 0;
+//   }
+//   //  fixme: optimize this reverse lookup
+//   int limit = _songMomentToDisplayOffset.length;
+//   for (var row = 0; row < limit; row++) {
+//     var rowOffset = _songMomentToDisplayOffset[row];
+//     if (rowOffset > offset) {
+//       return max(0, row - 1);
+//     }
+//   }
+//   return limit - 1;
+// }
 
   int displayOffsetToSongMomentNumber(final double offset) {
     if (_songMomentNumberToDisplayOffset.isEmpty) {
@@ -1887,7 +1921,7 @@ class LyricsTable {
   final TextStyle _highContrastTextStyle = generateAppTextStyle(
     color: Colors.white,
     backgroundColor: Colors.black,
-    fontSize: 200.0,
+    fontSize: 125.0,
     fontWeight: FontWeight.bold,
   );
 
@@ -1897,7 +1931,7 @@ class LyricsTable {
   int get rowCount => _rowCount;
   int _rowCount = 0;
 
-  // final Map<int, int> _songMomentNumberToGridRowMap = HashMap();
+// final Map<int, int> _songMomentNumberToGridRowMap = HashMap();
   List<double> _rowNumberToDisplayOffset = [];
   List<double> _songMomentNumberToDisplayOffset = [];
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
@@ -2222,15 +2256,7 @@ class _SongCellState extends State<_SongCellWidget> {
                     );
                 break;
               default:
-                isNowSelected = moment != null &&
-                    (playMomentNumber == widget.songMoment?.momentNumber ||
-                        (
-                            //  deal with repeats
-                            moment.lyricSection == widget.songMoment?.lyricSection &&
-                                moment.phraseIndex == widget.songMoment?.phraseIndex &&
-                                moment.phrase.repeats > 1 &&
-                                widget.songMoment?.measureIndex != null &&
-                                (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+                isNowSelected = moment != null && playMomentNumber == widget.songMoment?.momentNumber;
                 logger.log(
                     _logLyricSectionCellState,
                     '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
@@ -2318,7 +2344,7 @@ class _SongCellState extends State<_SongCellWidget> {
         break;
     }
 
-    //  fixe height for banner only
+    //  fixe height for banner and high contrast only
     //  otherwise, allow the height to float
     double? height = widget.isFixedHeight ? (widget.size?.height ?? buildSize.height) : null;
 

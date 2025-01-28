@@ -82,6 +82,7 @@ const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollListener = Level.debug;
 const Level _logScrollAnimation = Level.debug;
+const Level _logListView = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 const Level _logTempoListener = Level.debug;
@@ -519,27 +520,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           itemCount: _song.songMoments.length + 1,
           controller: _listScrollController,
           itemBuilder: (context, index) {
+            logger.log(_logListView, '_listView($index)');
             return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
           },
           scrollDirection: Axis.horizontal,
         );
         break;
       case UserDisplayStyle.highContrast:
-        _listView ??=
-            //  workaround for horizontal scrolling
-            ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          }),
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal, //  fixme: a hold of shift is required!!!!!!!!!!!
-              itemCount: _song.songMoments.length,
-              controller: _listScrollController,
-              itemBuilder: (BuildContext context, int index) {
-                return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
-              }),
-        );
+        _listView ??= ListView.builder(
+            itemCount: lyricsTableItems.length,
+            controller: _listScrollController,
+            itemBuilder: (BuildContext context, int index) {
+              logger.log(_logListView, '_listView($index)');
+              return lyricsTableItems[index];
+            });
         break;
       default:
         //  all other display styles
@@ -547,6 +541,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           itemCount: lyricsTableItems.length,
           controller: _listScrollController,
           itemBuilder: (context, index) {
+            logger.log(_logListView, '_listView($index) ${_song.title}');
             return lyricsTableItems[index];
           },
           scrollDirection: Axis.vertical,

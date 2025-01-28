@@ -549,6 +549,7 @@ class OptionsState extends State<Options> {
                             onPressed: () {
                               setState(() {
                                 _appOptions.userDisplayStyle = UserDisplayStyle.highContrast;
+                                _appOptions.playerScrollHighlight = PlayerScrollHighlight.measure;
                               });
                             },
                             style: style.copyWith(

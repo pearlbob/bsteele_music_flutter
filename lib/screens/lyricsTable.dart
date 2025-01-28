@@ -54,7 +54,7 @@ get it right next time:  repeats in measure column
 //  diagnostic logging enables
 const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
-const Level _logLyricSectionCellState = Level.debug;
+const Level _logLyricSectionCellState = Level.info;
 const Level _logLyricSectionIndicatorCellState = Level.debug;
 const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
 const Level _logLyricsBuild = Level.debug;
@@ -2236,16 +2236,14 @@ class _SongCellState extends State<_SongCellWidget> {
                   widget.lyricSectionSet != null)) {
             switch (widget.measureNode.runtimeType) {
               case const (LyricSection):
-                isNowSelected = lyricSectionNotifier.lyricSectionIndex == widget.lyricSectionIndex;
                 logger.log(
                     _logLyricSectionCellState,
-                    '_SongCellState: $isNowSelected'
+                    '_SongCellState: LyricSection $isNowSelected'
                     ', ${moment?.lyricSection} == ${widget.measureNode}'
                     //    ', songMoment: ${widget.songMoment} vs ${moment.momentNumber}'
                     );
                 break;
               case const (ChordSection):
-                isNowSelected = widget.lyricSectionSet?.contains(lyricSectionNotifier.lyricSectionIndex) ?? false;
                 logger.log(
                     _logLyricSectionCellState,
                     '_SongCellState: ChordSection: $isNowSelected'
@@ -2258,6 +2256,7 @@ class _SongCellState extends State<_SongCellWidget> {
               default:
                 isNowSelected = moment != null &&
                     playMomentNumber != null &&
+                    playMomentNumber >= 0 &&
                     (playMomentNumber == widget.songMoment?.momentNumber ||
                         (
                             //  deal with abbreviated repeats
@@ -2265,7 +2264,7 @@ class _SongCellState extends State<_SongCellWidget> {
                                 moment.phraseIndex == widget.songMoment?.phraseIndex &&
                                 moment.phrase.repeats > 1 &&
                                 widget.songMoment?.measureIndex != null &&
-                                (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+                                (playMomentNumber - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
                 if (isNowSelected) {
                   logger.log(
                       _logLyricSectionCellState,

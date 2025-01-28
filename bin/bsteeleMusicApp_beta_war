@@ -15,7 +15,7 @@ set dst=$CATALINA_BASE/webapps
 
 #	build the server war file
 cd ~/github/$flutter
-flutter build web --base-href /$warName/ --release --web-renderer=auto
+flutter build web --base-href /$warName/ --release
 pushd $server
 ./bin/buildPackage
 ls -l $server/target/$war

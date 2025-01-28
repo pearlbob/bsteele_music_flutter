@@ -2256,16 +2256,27 @@ class _SongCellState extends State<_SongCellWidget> {
                     );
                 break;
               default:
-                isNowSelected = moment != null && playMomentNumber == widget.songMoment?.momentNumber;
-                logger.log(
-                    _logLyricSectionCellState,
-                    '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
-                    ', ${widget.measureNode}'
-                    ', textScaler: ${widget.richText.textScaler}'
-                    ', moment: ${widget.songMoment?.momentNumber}'
-                    ', playMomentNumber: $playMomentNumber'
-                    //
-                    );
+                isNowSelected = moment != null &&
+                    playMomentNumber != null &&
+                    (playMomentNumber == widget.songMoment?.momentNumber ||
+                        (
+                            //  deal with abbreviated repeats
+                            moment.lyricSection == widget.songMoment?.lyricSection &&
+                                moment.phraseIndex == widget.songMoment?.phraseIndex &&
+                                moment.phrase.repeats > 1 &&
+                                widget.songMoment?.measureIndex != null &&
+                                (moment.measureIndex - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+                if (isNowSelected) {
+                  logger.log(
+                      _logLyricSectionCellState,
+                      '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
+                      ', ${widget.measureNode}'
+                      ', textScaler: ${widget.richText.textScaler}'
+                      ', moment: ${widget.songMoment?.momentNumber}'
+                      ', playMomentNumber: $playMomentNumber'
+                      //
+                      );
+                }
                 break;
             }
           }

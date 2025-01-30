@@ -55,8 +55,8 @@ get it right next time:  repeats in measure column
 const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
-const Level _logLyricSectionIndicatorCellState = Level.debug;
-const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
+const Level _logLyricSectionIndicatorCellState = Level.info;
+const Level _logLyricSectionIndicatorCellStateChild = Level.info;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLocationGrid = Level.debug;
 const Level _logHeights = Level.debug;
@@ -66,6 +66,7 @@ const Level _logLyricSectionNotifier = Level.debug;
 const Level _logSongCellStateBuild = Level.debug;
 const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
+const Level _logSelectedCellState = Level.debug;
 
 const double _paddingSizeMax = 3; //  fixme: can't be 0
 double _paddingSize = _paddingSizeMax;
@@ -77,7 +78,7 @@ const _idleHighlightColor = Colors.redAccent;
 const _playHighlightColor = Colors.greenAccent;
 const _defaultMaxLines = 12;
 var _maxLines = 1;
-const int _maxDisplayRows = 999; //  many more than expected
+const int _maxDisplayRow = 999; //  many more than expected
 
 ///  The trick of the game: Figure the text size prior to boxing it
 Size _computeRichTextSize(
@@ -580,7 +581,7 @@ class LyricsTable {
               c,
               mn == null
                   ? _SongCellWidget._empty(
-                      row: 0,
+                      row: r,
                       column: c,
                     )
                   : _SongCellWidget(
@@ -595,12 +596,11 @@ class LyricsTable {
                           // //  fixme: temp adjustments to song cell when in highContrast
                           //     .replaceAll('sus', 's').replaceAll('add', 'a').replaceAll('maj', 'j').replaceAll(',', '')
                           ),
-                      row: 0,
+                      row: r,
                       column: c,
                       type: _SongCellType.flow,
                       measureNode: mn,
                       isFixedHeight: true,
-                      displayRowMinRow: 0,
                     ),
             );
           }
@@ -770,7 +770,7 @@ class LyricsTable {
                       lyricSectionIndex: lyricSection?.index,
                       rowHasExplicitBeats: rowHasExplicitBeats,
                       displayRowMinRow: 0,
-                      displayRowMaxRow: _maxDisplayRows,
+                      displayRowMaxRow: _maxDisplayRow,
                     ),
                   );
                   break;
@@ -804,7 +804,7 @@ class LyricsTable {
                 //  always show non-repeat rows
                 // logger.i('not repeat: ${songMoment.phrase.measureNodeType.name}: $songMoment');
                 _cellGrid.setAt(
-                    gc, cell.copyWith(displayRowMinRow: 0, displayRowMaxRow: _maxDisplayRows)); //  fixme: overkill?
+                    gc, cell.copyWith(displayRowMinRow: 0, displayRowMaxRow: _maxDisplayRow)); //  fixme: overkill?
               }
             }
           }
@@ -815,7 +815,7 @@ class LyricsTable {
             assert(row != null);
             row = row!;
             var minRow = 0;
-            var maxRow = _maxDisplayRows;
+            var maxRow = _maxDisplayRow;
 
             for (var c = 0; c < row.length; c++) {
               MeasureNode? measureNode = displayGrid.get(r, c);
@@ -1209,7 +1209,7 @@ class LyricsTable {
             }
             items.add(Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Row(children: rowChildren)],
+              children: [Wrap(children: rowChildren)],
             ));
           }
         }
@@ -1985,6 +1985,12 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
             lyricSectionNotifier.lyricSectionIndex == widget.index &&
             lyricSectionNotifier.row == widget.row;
         var songMoment = playMomentNotifier._playMoment?.songMoment;
+        logger.log(
+            _logLyricSectionIndicatorCellState,
+            'LyricSectionIndicatorCellState isNowSelected: $selected, selected: $isNowSelected'
+            ', momentNumber: ${songMoment?.momentNumber}'
+            ', lyricSectionIndex: ${lyricSectionNotifier._lyricSectionIndex}');
+
         if (isNowSelected == selected &&
             _songUpdateState == currentSongUpdateState &&
             _lastRepeat == songMoment?.repeat &&
@@ -2000,11 +2006,7 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
         _lastRepeat = songMoment?.repeat;
         _repeatMax = songMoment?.repeatMax;
         _songUpdateState = currentSongUpdateState;
-        logger.log(
-            _logLyricSectionIndicatorCellState,
-            'LyricSectionIndicatorCellState selected: $selected'
-            ', momentNumber: ${songMoment?.momentNumber}'
-            ', lyricSectionIndex: ${lyricSectionNotifier._lyricSectionIndex}');
+
         return childBuilder(context);
       },
       child: Builder(builder: childBuilder),
@@ -2080,7 +2082,7 @@ class _SongCellWidget extends StatefulWidget {
     this.lyricSectionSet,
     this.size,
     this.displayRowMinRow = 0,
-    this.displayRowMaxRow = _maxDisplayRows, //  many more than expected
+    this.displayRowMaxRow = _maxDisplayRow, //  many more than expected
     this.columnWidth,
     this.withEllipsis,
     this.songMoment,
@@ -2102,7 +2104,7 @@ class _SongCellWidget extends StatefulWidget {
         size = null,
         columnWidth = null,
         displayRowMinRow = 0,
-        displayRowMaxRow = _maxDisplayRows,
+        displayRowMaxRow = _maxDisplayRow,
         //  many more than expected
         rowHasExplicitBeats = false,
         songMoment = null,
@@ -2263,20 +2265,25 @@ class _SongCellState extends State<_SongCellWidget> {
                     playMomentNumber >= 0 &&
                     (playMomentNumber == widget.songMoment?.momentNumber ||
                         (
-                            //  deal with abbreviated repeats
-                            moment.lyricSection == widget.songMoment?.lyricSection &&
+                            //  deal with abbreviated or hidden repeat rows
+                            widget.displayRowMaxRow < _maxDisplayRow // allowing for blanked rows
+                                &&
+                                moment.lyricSection == widget.songMoment?.lyricSection &&
                                 moment.phraseIndex == widget.songMoment?.phraseIndex &&
                                 moment.phrase.repeats > 1 &&
-                                widget.songMoment?.measureIndex != null &&
-                                (playMomentNumber - widget.songMoment!.measureIndex) % moment.phrase.length == 0));
+                                widget.songMoment?.momentNumber != null &&
+                                (playMomentNumber - widget.songMoment!.momentNumber) % moment.phrase.length == 0));
                 if (isNowSelected) {
                   logger.log(
-                      _logLyricSectionCellState,
+                      _logSelectedCellState,
                       '_SongCellState: ${widget.measureNode.runtimeType}: $isNowSelected'
                       ', ${widget.measureNode}'
                       ', textScaler: ${widget.richText.textScaler}'
                       ', moment: ${widget.songMoment?.momentNumber}'
                       ', playMomentNumber: $playMomentNumber'
+                      ', row: $_row'
+                      ', MinRow: ${widget.displayRowMinRow}'
+                      ', MaxRow: ${widget.displayRowMaxRow}'
                       //
                       );
                 }
@@ -2313,6 +2320,9 @@ class _SongCellState extends State<_SongCellWidget> {
         }
         selected = isNowSelected;
         lastRepeat = repeat;
+
+        // logger.i( 'pre-childBuilder: ${widget.songMoment?.momentNumber}: $selected, $playMomentNumber'
+        // ', ${widget.songMoment?.momentNumber}');
         return childBuilder(context);
       },
       child: Builder(builder: childBuilder),

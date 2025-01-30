@@ -360,6 +360,9 @@ class OptionsState extends State<Options> {
                       const Text('Simplified Chords:'),
                       SegmentedButton<bool>(
                         selectedIcon: appIcon(Icons.check),
+                        style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) {
+                          return _appOptions.simplifiedChords ? Colors.red : null;
+                        })),
                         segments: <ButtonSegment<bool>>[
                           ButtonSegment<bool>(
                             value: true,
@@ -372,7 +375,7 @@ class OptionsState extends State<Options> {
                           ),
                           ButtonSegment<bool>(
                             value: false,
-                            label: Text('Complex', style: buttonTextStyle()),
+                            label: Text('Original', style: buttonTextStyle()),
                             tooltip: _appOptions.toolTips
                                 ? 'Show chords in a simplified form or in their full complexity.'
                                 : null,

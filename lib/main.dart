@@ -549,7 +549,6 @@ class MyHomePageState extends State<MyHomePage> {
       drawer: appDrawer(
         voidCallback: _openDrawer,
         child: ListView(
-          padding: const EdgeInsets.all(4.0),
           children: <Widget>[
             Container(
               height: 50,

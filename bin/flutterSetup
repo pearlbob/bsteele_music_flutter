@@ -5,7 +5,17 @@ set git=~/github/bsteele_music_flutter
 
 cd $git
 
-#	build the release version
+# generate the correct icons for android
+foreach png ( android/app/src/main/res/*/ic_launcher.png )
+  echo $png
+file $png
+  set size=`file $png | sed -e 's/.* x //; s/,.*//;' - `
+  echo $size
+  ffmpeg -y -i lib/assets/icon.png -vf scale=${size}:-1 $png
+end
+
+#	create the linux release version
+cd $git
 rm -rf linux/
 flutter clean
 flutter pub get

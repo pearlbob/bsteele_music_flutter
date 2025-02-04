@@ -626,21 +626,22 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 return Stack(
                   children: <Widget>[
                     //  smooth background
-                    Container(
-                      constraints: constraints,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: const <Color>[
-                            App.screenBackgroundColor,
-                            App.measureContainerBackgroundColor,
-                            App.screenBackgroundColor,
-                          ],
-                          stops: [0.0, boxMarker / constraints.maxHeight, 1.0],
+                    if (_appOptions.userDisplayStyle != UserDisplayStyle.highContrast)
+                      Container(
+                        constraints: constraints,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: const <Color>[
+                              App.screenBackgroundColor,
+                              App.measureContainerBackgroundColor,
+                              App.screenBackgroundColor,
+                            ],
+                            stops: [0.0, boxMarker / constraints.maxHeight, 1.0],
+                          ),
                         ),
                       ),
-                    ),
 
                     //  center marker
                     if (kDebugMode || _appOptions.playerScrollHighlight == PlayerScrollHighlight.off)
@@ -1780,7 +1781,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       }
     }
 
-    var update = SongUpdate.createSongUpdate(widget._song.copySong()); //  fixme: copy  required?
+    var update = SongUpdate.createSongUpdate(widget._song.copySong());
     _lastSongUpdateSent = update;
     update.currentKey = _selectedSongKey;
     playerSelectedSongKey = _selectedSongKey;
@@ -1950,8 +1951,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
         _logMusicKey, '_setSelectedSongKey(): _selectedSongKey: $_selectedSongKey, _displaySongKey: $_displaySongKey');
     _forceTableRedisplay();
-    //
-    // leaderSongUpdate(-1);
+    _leaderSongUpdate(_lastSongUpdateSent?.momentNumber ?? 0);
   }
 
   String _titleAnchor() {

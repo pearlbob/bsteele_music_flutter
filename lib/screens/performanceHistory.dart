@@ -116,13 +116,18 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: appWidgetHelper.backBar(title: 'Community Jams Performance History'),
+      appBar: appWidgetHelper.backBar(
+          title: 'Community Jams Performance History',
+          onPressed: () {
+            app.clearMessage();
+          }),
       body: Container(
         padding: const EdgeInsets.all(36.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
               AppWrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
@@ -198,6 +203,12 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
 
     if (playListItem is SongPlayListItem && playListItem.songPerformance != null) {
       var songPerformance = playListItem.songPerformance!;
+      if (songPerformance.song == null) {
+        setState(() {
+          app.errorMessage('Selected song is not available from the song list.');
+        });
+        return;
+      }
       app.selectedSong = songPerformance.performedSong;
       logger.t('navigateToPlayer: $songPerformance');
       await Navigator.push(
@@ -211,6 +222,9 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
                   singer: songPerformance.singer,
                 )),
       );
+      setState(() {
+        app.clearMessage();
+      });
     }
   }
 

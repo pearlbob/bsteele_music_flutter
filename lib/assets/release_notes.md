@@ -49,10 +49,6 @@
 * Player scrolling moved to autoplay. See the play button tooltip for
   explanation.
 
-### fixme
-
-* repeat count not in songmoments after server send? see highContrast
-
 ### Fixes Completed
 
 * History can filter by singer

@@ -576,33 +576,51 @@ class LyricsTable {
 
           for (var c = 0; c < row.length; c++) {
             MeasureNode? mn = displayGrid.get(r, c);
-            _cellGrid.set(
-              r,
-              c,
-              mn == null
-                  ? _SongCellWidget._empty(
-                      row: r,
-                      column: c,
-                    )
-                  : _SongCellWidget(
-                      richText: RichText(
-                          text: _measureNashvilleSelectionTextSpan(mn as Measure, song.key, transpositionOffset,
-                              style: _highContrastTextStyle,
-                              displayMusicKey: displayMusicKey,
-                              showBeats: Measure.reducedNashvilleDots,
-                              withInversion: false)
-
-                          // mn.toMarkup(withInversion: false)//
-                          // //  fixme: temp adjustments to song cell when in highContrast
-                          //     .replaceAll('sus', 's').replaceAll('add', 'a').replaceAll('maj', 'j').replaceAll(',', '')
-                          ),
-                      row: r,
-                      column: c,
-                      type: _SongCellType.flow,
-                      measureNode: mn,
-                      isFixedHeight: true,
+            if (mn == null) {
+              _cellGrid.set(
+                  r,
+                  c,
+                  _SongCellWidget._empty(
+                    row: r,
+                    column: c,
+                  ));
+            } else if (mn.measureNodeType == MeasureNodeType.lyricSection) {
+              _cellGrid.set(
+                r,
+                c,
+                _SongCellWidget(
+                  richText: RichText(
+                    text: TextSpan(
+                      text: (mn as LyricSection).sectionVersion.toString(),
+                      style: _highContrastTextStyle,
                     ),
-            );
+                  ),
+                  row: r,
+                  column: c,
+                  type: _SongCellType.flow,
+                  measureNode: mn,
+                  isFixedHeight: true,
+                ),
+              );
+            } else {
+              _cellGrid.set(
+                r,
+                c,
+                _SongCellWidget(
+                  richText: RichText(
+                      text: _measureNashvilleSelectionTextSpan(mn as Measure, song.key, transpositionOffset,
+                          style: _highContrastTextStyle,
+                          displayMusicKey: displayMusicKey,
+                          showBeats: Measure.reducedNashvilleDots,
+                          withInversion: false)),
+                  row: r,
+                  column: c,
+                  type: _SongCellType.flow,
+                  measureNode: mn,
+                  isFixedHeight: true,
+                ),
+              );
+            }
           }
         }
 

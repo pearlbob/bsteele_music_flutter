@@ -408,7 +408,7 @@ class SongMaster extends ChangeNotifier {
     _bpm = bpm ?? song.beatsPerMinute;
     _song?.setBeatsPerMinute(_bpm);
     _drumParts = drumParts;
-    logger.i('_drumParts != null: ${_drumParts != null}'); //!!!!!!!!!!!!!!!!!!!!!!
+    // logger.i('_drumParts != null: ${_drumParts != null}');
     _songStart = _appAudioPlayer.getCurrentTime() + (_drumParts != null ? _advanceS : 0.0);
 
     _clearMomentNumber();

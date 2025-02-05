@@ -68,7 +68,7 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 
-const double _paddingSizeMax = 3;
+const double _paddingSizeMax = 6;
 double _paddingSize = _paddingSizeMax;
 EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
 const double _marginSizeMax = 6; //  note: vertical and horizontal are identical
@@ -599,9 +599,8 @@ class LyricsTable {
                   ),
                   row: r,
                   column: c,
-                  type: _SongCellType.flow,
+                  type: _SongCellType.columnFill,
                   measureNode: mn,
-                  isFixedHeight: true,
                 ),
               );
             } else {
@@ -617,9 +616,8 @@ class LyricsTable {
                           withInversion: false)),
                   row: r,
                   column: c,
-                  type: _SongCellType.flow,
+                  type: _SongCellType.columnFill,
                   measureNode: mn,
-                  isFixedHeight: true,
                 ),
               );
             }
@@ -976,7 +974,10 @@ class LyricsTable {
             row = row!;
 
             for (var c = 0; c < row.length; c++) {
-              widths[c] = max(widths[c], row[c]!.buildSize.width);
+              var cell = row[c];
+              if (cell != null) {
+                widths[c] = max(widths[c], cell.buildSize.width);
+              }
             }
           }
 
@@ -1059,9 +1060,6 @@ class LyricsTable {
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
         _scaleFactor = 0.65;
-        break;
-      case UserDisplayStyle.highContrast:
-        _scaleFactor = 1;
         break;
       default:
         //  fit the horizontal by scaling
@@ -1389,7 +1387,7 @@ class LyricsTable {
               ', ${cell.richText.text.toPlainText()}'
 
               // ',  ${cell?.measureNode}'
-          );
+              );
         }
 
         _rowNumberToDisplayOffset[r] = offset;

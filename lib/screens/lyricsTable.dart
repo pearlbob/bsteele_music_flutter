@@ -591,7 +591,7 @@ class LyricsTable {
                 _SongCellWidget(
                   richText: RichText(
                     text: TextSpan(
-                      text: '${(mn as LyricSection).sectionVersion.toString()}'
+                      text: '${(mn as LyricSection).sectionVersion}'
                       //  '${(Logger.level.index <= _logSongCellOffsetList.index ? r : '')}'
                       ,
                       style: _highContrastTextStyle,

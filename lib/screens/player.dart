@@ -540,11 +540,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _listView ??= ListView.builder(
           itemCount: lyricsTableItems.length,
           controller: _listScrollController,
+          scrollDirection: Axis.vertical,
           itemBuilder: (context, index) {
             logger.log(_logListView, '_listView($index) ${_song.title}');
             return lyricsTableItems[index];
           },
-          scrollDirection: Axis.vertical,
         );
         break;
     }
@@ -1547,7 +1547,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           case UserDisplayStyle.banner:
             break; //  fixme
           case UserDisplayStyle.highContrast:
-            logger.i('highContrast: ${_listScrollController.offset}'
+            logger.log(
+                _logScrollListener,
+                'highContrast: ${_listScrollController.offset}'
                 ', momentNumber: ${_lyricsTable.displayOffsetToSongMomentNumber(_listScrollController.offset)}');
             break;
           default:
@@ -1684,7 +1686,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _logScrollAnimation,
             'scrollTo(): post: _lastRowIndex: $row'
             ', offset: ${max(minScrollOffset, offset - boxMarker).toStringAsFixed(1)}'
-            ' + marker: ${max(minScrollOffset, offset).toStringAsFixed(1)}');
+            ' + marker: ${max(minScrollOffset, offset).toStringAsFixed(1)}'
+            ', boxMarker: $boxMarker');
       });
     }
   }

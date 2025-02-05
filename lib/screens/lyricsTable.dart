@@ -55,8 +55,8 @@ get it right next time:  repeats in measure column
 const Level _logFontSize = Level.debug;
 const Level _logFontSizeDetail = Level.debug;
 const Level _logLyricSectionCellState = Level.debug;
-const Level _logLyricSectionIndicatorCellState = Level.info;
-const Level _logLyricSectionIndicatorCellStateChild = Level.info;
+const Level _logLyricSectionIndicatorCellState = Level.debug;
+const Level _logLyricSectionIndicatorCellStateChild = Level.debug;
 const Level _logLyricsBuild = Level.debug;
 const Level _logLocationGrid = Level.debug;
 const Level _logHeights = Level.debug;
@@ -68,10 +68,10 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 
-const double _paddingSizeMax = 3; //  fixme: can't be 0
+const double _paddingSizeMax = 3;
 double _paddingSize = _paddingSizeMax;
 EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
-const double _marginSizeMax = 6; //  note: vertical and horizontal are identical //  fixme: can't be less than 2
+const double _marginSizeMax = 6; //  note: vertical and horizontal are identical
 double _marginSize = _marginSizeMax;
 EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
 const _idleHighlightColor = Colors.redAccent;
@@ -591,7 +591,9 @@ class LyricsTable {
                 _SongCellWidget(
                   richText: RichText(
                     text: TextSpan(
-                      text: (mn as LyricSection).sectionVersion.toString(),
+                      text: '${(mn as LyricSection).sectionVersion.toString()}'
+                      //  '${(Logger.level.index <= _logSongCellOffsetList.index ? r : '')}'
+                      ,
                       style: _highContrastTextStyle,
                     ),
                   ),
@@ -1387,7 +1389,7 @@ class LyricsTable {
               ', ${cell.richText.text.toPlainText()}'
 
               // ',  ${cell?.measureNode}'
-              );
+          );
         }
 
         _rowNumberToDisplayOffset[r] = offset;
@@ -1821,7 +1823,7 @@ class LyricsTable {
     if (rowNumber == null) {
       return 0;
     }
-    return _rowNumberToDisplayOffset[rowNumber];
+    return _rowNumberToDisplayOffset[Util.intLimit(rowNumber, 0, _rowNumberToDisplayOffset.length - 1)];
   }
 
 // int displayOffsetToRow(final double offset) {
@@ -2191,7 +2193,7 @@ class _SongCellWidget extends StatefulWidget {
     var ret = (withEllipsis ?? false)
         ? size!
         : _computeRichTextSize(richText, maxWidth: width) +
-            Offset(2 * _paddingSize + 2.0 * _marginSize, 2 * _paddingSize + 2.0 * _marginSize);
+            Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
     return ret;
   }
 

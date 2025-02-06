@@ -68,12 +68,14 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 
-const double _paddingSizeMax = 6;
-double _paddingSize = _paddingSizeMax;
-EdgeInsets _padding = const EdgeInsets.all(_paddingSizeMax);
-const double _marginSizeMax = 6; //  note: vertical and horizontal are identical
-double _marginSize = _marginSizeMax;
-EdgeInsets _margin = const EdgeInsets.all(_marginSizeMax);
+const double _paddingSizeDefault = 6;
+double _paddingSizeMax = _paddingSizeDefault;
+double _paddingSize = _paddingSizeDefault;
+EdgeInsets _padding = const EdgeInsets.all(_paddingSizeDefault);
+const double _marginSizeDefault = 6;
+double _marginSizeMax = _marginSizeDefault; //  note: vertical and horizontal are identical
+double _marginSize = _marginSizeDefault;
+EdgeInsets _margin = const EdgeInsets.all(_marginSizeDefault);
 const _idleHighlightColor = Colors.redAccent;
 const _playHighlightColor = Colors.greenAccent;
 const _defaultMaxLines = 12;
@@ -213,6 +215,8 @@ class LyricsTable {
     _simplifiedChordsSelection = _appOptions.simplifiedChords;
     _maxLines = 1;
 
+    _paddingSizeMax = _paddingSizeDefault;
+    _marginSizeMax = _marginSizeDefault;
     _computeScreenSizes();
 
     var displayGrid = song.toDisplayGrid(_appOptions.userDisplayStyle);
@@ -569,6 +573,10 @@ class LyricsTable {
         break;
 
       case UserDisplayStyle.highContrast:
+        _paddingSizeMax = 48;
+        _marginSizeMax = 32;
+        _computeScreenSizes();
+
         for (var r = 0; r < displayGrid.getRowCount(); r++) {
           List<MeasureNode?>? row = displayGrid.getRow(r);
           assert(row != null);
@@ -1798,7 +1806,7 @@ class LyricsTable {
     _screenWidth = app.screenInfo.mediaWidth;
     _screenHeight = app.screenInfo.mediaHeight;
 
-    //  rough in the basic fontsize
+    //  rough in the basic fontSize
     _chordFontSizeUnscaled = 65; // max for hdmi resolution
 
     _scaleComponents();
@@ -1943,7 +1951,7 @@ class LyricsTable {
   final TextStyle _highContrastTextStyle = generateAppTextStyle(
     color: Colors.white,
     backgroundColor: Colors.black,
-    fontSize: 125.0,
+    fontSize: 250.0,
     fontWeight: FontWeight.bold,
   );
 

@@ -67,6 +67,7 @@ const Level _logSongCellStateBuild = Level.debug;
 const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
+const Level _logPlayMoment = Level.debug;
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -133,7 +134,7 @@ class PlayMoment {
 
   @override
   String toString() {
-    return 'PlayMoment{songUpdateState: ${songUpdateState.name}, playMomentNumber: $playMomentNumber, songMoment: $songMoment}';
+    return 'PlayMoment{state: ${songUpdateState.name}, number: $playMomentNumber, songMoment: $songMoment}';
   }
 
   @override
@@ -149,6 +150,7 @@ class PlayMomentNotifier extends ChangeNotifier {
   set playMoment(final PlayMoment? newPlayMoment) {
     if (newPlayMoment != _playMoment) {
       _playMoment = newPlayMoment;
+      logger.log(_logPlayMoment, 'playMoment: $_playMoment');
       notifyListeners();
     }
   }

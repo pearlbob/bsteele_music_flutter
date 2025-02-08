@@ -1553,7 +1553,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       }
       logger.log(_logScrollListener, '   minItemPositionIndex: $minItemPositionIndex');
       itemPositionIndex = minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (itemPositionIndex ?? 0);
-      momentNumberFound = _lyricsTable.gridRowToMomentNumber(itemPositionIndex);
+      //  force the list to the top if close
+      momentNumberFound = itemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(itemPositionIndex);
       logger.log(_logScrollListener, '   itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound');
     }
 

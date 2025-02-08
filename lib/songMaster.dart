@@ -110,7 +110,7 @@ class SongMaster extends ChangeNotifier {
       var lyricSectionIndex = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
 
       logger.log(
-          _logSongMasterTicker,
+          _logSongMasterLogTickerDetails,
           'SongMaster: ${songUpdateState.name} ${time.toStringAsFixed(3)}: dt: ${dt.toStringAsFixed(3)}'
           ', songTime: ${songTime.toStringAsFixed(3)}'
           ', start: ${_songStart?.toStringAsFixed(3)}, momentNumber: $momentNumber'
@@ -532,7 +532,7 @@ class SongMaster extends ChangeNotifier {
       }
     }
     logger.log(
-        _logSongMasterTicker,
+        _logSongMasterLogTickerDetails,
         ' time: $time'
         ', beats: $beats'
         ', bpm: $_bpm'

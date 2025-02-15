@@ -575,8 +575,8 @@ class LyricsTable {
         break;
 
       case UserDisplayStyle.highContrast:
-        _paddingSizeMax = 48;
-        _marginSizeMax = 32;
+        _paddingSizeMax = 20;
+        _marginSizeMax = 2;
         _computeScreenSizes();
 
         for (var r = 0; r < displayGrid.getRowCount(); r++) {
@@ -1953,7 +1953,7 @@ class LyricsTable {
   final TextStyle _highContrastTextStyle = generateAppTextStyle(
     color: Colors.white,
     backgroundColor: Colors.black,
-    fontSize: 250.0,
+    fontSize: 300.0,
     fontWeight: FontWeight.bold,
   );
 

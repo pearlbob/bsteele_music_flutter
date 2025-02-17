@@ -536,6 +536,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           scrollDirection: Axis.horizontal,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
+          physics: ClampingScrollPhysics(),
           itemBuilder: (context, index) {
             logger.log(_logListView, '_listView($index)');
             return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
@@ -547,6 +548,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           itemCount: lyricsTableItems.length,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
+          physics: ClampingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
             logger.log(_logListView, '_listView($index)');
             return lyricsTableItems[index];
@@ -560,6 +562,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
           scrollDirection: Axis.vertical,
+          physics: ClampingScrollPhysics(),
           itemBuilder: (context, index) {
             logger.log(_logListView, '_listView($index) ${_song.title}');
             return lyricsTableItems[index];
@@ -1787,9 +1790,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   }
 
   //  only send updates when required
-  _setPlayMomentNotifier(final SongUpdateState songUpdateState,
-      final int playMomentNumber,
-      final SongMoment? songMoment,) {
+  _setPlayMomentNotifier(
+    final SongUpdateState songUpdateState,
+    final int playMomentNumber,
+    final SongMoment? songMoment,
+  ) {
     List<GridCoordinate> songMomentToGridCoordinate = _song.songMomentToGridCoordinate;
     if (songMomentToGridCoordinate.isNotEmpty) {
       _playMomentNotifier.playMoment = PlayMoment(

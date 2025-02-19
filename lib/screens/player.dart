@@ -79,7 +79,7 @@ const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
 const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-const Level _logPlayerItemPositionSizes = Level.debug;
+const Level _logPlayerItemPositionSizes = Level.info;
 const Level _logScrollListener = Level.debug;
 const Level _logScrollAnimation = Level.debug;
 const Level _logListView = Level.debug;
@@ -1608,6 +1608,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               alignment = _scrollAlignment;
               break;
           }
+          int height = 940; //  1080 - menu bar
           for (var itemPosition in _itemPositionsListener.itemPositions.value) {
             minItemPositionIndex = min(minItemPositionIndex ?? itemPosition.index, itemPosition.index);
             maxItemPositionIndex = max(maxItemPositionIndex ?? itemPosition.index, itemPosition.index);
@@ -1617,8 +1618,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             logger.log(
               _logPlayerItemPositionSizes,
               'itemPosition.index: ${itemPosition.index}'
-              ', height: ${itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge}, '
-              ', displayOffset: ${_lyricsTable.rowToDisplayOffset(itemPosition.index)}',
+                  ', height: ${height * (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge)}, '
             );
           }
           // logger.log(_logScrollListener, 'itemPositionIndex: minItemPositionIndex: $minItemPositionIndex');

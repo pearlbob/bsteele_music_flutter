@@ -73,15 +73,15 @@ const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
-const Level _logLeaderFollower = Level.info;
+const Level _logLeaderFollower = Level.debug;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
 const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-const Level _logPlayerItemPositions = Level.debug;
+const Level _logPlayerItemPositionSizes = Level.debug;
 const Level _logScrollListener = Level.debug;
-const Level _logScrollAnimation = Level.info;
+const Level _logScrollAnimation = Level.debug;
 const Level _logListView = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -210,7 +210,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     logger.log(_logBPM, 'initState() bpm: $playerSelectedBpm');
 
-    _leaderSongUpdate(-3);
+    _leaderSongUpdate(0);
 
     WidgetsBinding.instance.scheduleWarmUpFrame();
 
@@ -329,6 +329,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         if (_songMaster.momentNumber != null) {
           //  tell the followers to follow, including the count in
           _leaderSongUpdate(_songMaster.momentNumber!);
+          _lastPlayMomentNumber = _songMaster.momentNumber;
           _setPlayMomentNotifier(
             _songMaster.songUpdateState,
             _songMaster.momentNumber!,
@@ -1593,6 +1594,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         {
           int momentNumberFound = 0;
           int? minItemPositionIndex;
+          int? maxItemPositionIndex;
           int? itemPositionIndex;
           double alignment = 0;
           switch (_songUpdateState) {
@@ -1608,22 +1610,49 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           }
           for (var itemPosition in _itemPositionsListener.itemPositions.value) {
             minItemPositionIndex = min(minItemPositionIndex ?? itemPosition.index, itemPosition.index);
+            maxItemPositionIndex = max(maxItemPositionIndex ?? itemPosition.index, itemPosition.index);
             if (itemPosition.itemLeadingEdge <= alignment && alignment < itemPosition.itemTrailingEdge) {
               itemPositionIndex = itemPosition.index;
             }
+            logger.log(
+              _logPlayerItemPositionSizes,
+              'itemPosition.index: ${itemPosition.index}'
+              ', height: ${itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge}, '
+              ', displayOffset: ${_lyricsTable.rowToDisplayOffset(itemPosition.index)}',
+            );
           }
           // logger.log(_logScrollListener, 'itemPositionIndex: minItemPositionIndex: $minItemPositionIndex');
           itemPositionIndex = minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (itemPositionIndex ?? 0);
           //  force the list to the top if close
           momentNumberFound = itemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(itemPositionIndex);
+          int maxMomentNumberFound =
+              maxItemPositionIndex == null ? 0 : _lyricsTable.gridRowToMomentNumber(maxItemPositionIndex);
           logger.log(
             _logScrollListener,
             'itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound'
-            ' ${_song.getSongMoment(momentNumberFound).toString()}',
+            ', maxMomentNumberFound: $maxMomentNumberFound'
+            ', lastPlayMomentNumber: $_lastPlayMomentNumber'
+            ', #${_song.getSongMoment(momentNumberFound).toString()}',
           );
 
-          _leaderSongUpdate(momentNumberFound);
-          logger.log(_logPlayerItemPositions, ' fixme: _logPlayerItemPositions $momentNumberFound');
+          if ((_lastPlayMomentNumber ?? 0) < momentNumberFound || (_lastPlayMomentNumber ?? 0) > maxMomentNumberFound) {
+            //  scroll outside of song end of play
+            _leaderSongUpdate(momentNumberFound);
+            _lastPlayMomentNumber = null;
+            logger.log(
+              _logScrollListener,
+              'reposition: itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound'
+              ', maxMomentNumberFound: $maxMomentNumberFound'
+              ', lastPlayMomentNumber: $_lastPlayMomentNumber'
+              ', #${_song.getSongMoment(momentNumberFound).toString()}',
+            );
+          } else {
+            logger.log(
+              _logScrollListener,
+              ' fixme: _logPlayerItemPositions: '
+              '$momentNumberFound <= $_lastPlayMomentNumber <= $maxMomentNumberFound',
+            );
+          }
         }
         break;
       case SongUpdateState.pause:
@@ -1829,7 +1858,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     logger.log(
       _logLeaderFollower,
       'leaderSongUpdate: momentNumber: $momentNumber'
-      ', state: $_songUpdateState',
+      ', state: $_songUpdateState'
+      ', lastPlayMomentNumber: $_lastPlayMomentNumber',
     );
   }
 
@@ -2744,6 +2774,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final SongMaster _songMaster = SongMaster();
   int _countIn = 0;
   Widget _countInWidget = NullWidget();
+  int? _lastPlayMomentNumber;
 
   Widget? _listView;
   final ItemScrollController _itemScrollController = ItemScrollController();

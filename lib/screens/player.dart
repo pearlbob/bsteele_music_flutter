@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:bsteele_music_flutter/app/app_theme.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
@@ -79,7 +78,7 @@ const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
 const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
-const Level _logPlayerItemPositionSizes = Level.info;
+const Level _logPlayerItemPositionSizes = Level.debug;
 const Level _logScrollListener = Level.debug;
 const Level _logScrollAnimation = Level.debug;
 const Level _logListView = Level.debug;
@@ -1594,6 +1593,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         {
           int momentNumberFound = 0;
           int? minItemPositionIndex;
+          ItemPosition? minItemPosition;
           int? maxItemPositionIndex;
           int? itemPositionIndex;
           double alignment = 0;
@@ -1610,17 +1610,32 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           }
           int height = 940; //  1080 - menu bar
           for (var itemPosition in _itemPositionsListener.itemPositions.value) {
-            minItemPositionIndex = min(minItemPositionIndex ?? itemPosition.index, itemPosition.index);
-            maxItemPositionIndex = max(maxItemPositionIndex ?? itemPosition.index, itemPosition.index);
+            if (minItemPositionIndex == null || itemPosition.index < minItemPositionIndex) {
+              minItemPositionIndex = itemPosition.index;
+              minItemPosition = itemPosition;
+            }
+            if (maxItemPositionIndex == null || itemPosition.index > maxItemPositionIndex) {
+              maxItemPositionIndex = itemPosition.index;
+            }
             if (itemPosition.itemLeadingEdge <= alignment && alignment < itemPosition.itemTrailingEdge) {
               itemPositionIndex = itemPosition.index;
             }
             logger.log(
               _logPlayerItemPositionSizes,
               'itemPosition.index: ${itemPosition.index}'
-                  ', height: ${height * (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge)}, '
+              ', height: ${height * (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge)}, ',
             );
           }
+          // logger.i(
+          //   'minItemPositionIndex: $minItemPositionIndex'
+          //   ', leading: ${minItemPosition?.itemLeadingEdge}',
+          // );
+          // logger.i(
+          //   'maxItemPositionIndex: $maxItemPositionIndex'
+          //   ', itemTrailingEdge: ${minItemPosition?.itemTrailingEdge}'
+          //   ', last row: ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}',
+          // );
+
           // logger.log(_logScrollListener, 'itemPositionIndex: minItemPositionIndex: $minItemPositionIndex');
           itemPositionIndex = minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (itemPositionIndex ?? 0);
           //  force the list to the top if close
@@ -1635,7 +1650,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             ', #${_song.getSongMoment(momentNumberFound).toString()}',
           );
 
-          if ((_lastPlayMomentNumber ?? 0) < momentNumberFound || (_lastPlayMomentNumber ?? 0) > maxMomentNumberFound) {
+          if ((minItemPosition?.index ?? 0) == 1 && minItemPosition?.itemLeadingEdge == 0.0) {
+            //  scroll to the top of the list
+            _leaderSongUpdate(0);
+            _lastPlayMomentNumber = 0;
+            logger.log(_logScrollListener, 'reposition to top:');
+          } else if ((maxItemPositionIndex ?? 0) >=
+              _lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)) {
+            //  scroll to the bottom of the list
+            int row = _lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1);
+            _leaderSongUpdate(row);
+            _lastPlayMomentNumber = row;
+            logger.log(_logScrollListener, 'reposition to bottom:');
+          } else if ((_lastPlayMomentNumber ?? 0) < momentNumberFound ||
+              (_lastPlayMomentNumber ?? 0) > maxMomentNumberFound) {
             //  scroll outside of song end of play
             _leaderSongUpdate(momentNumberFound);
             _lastPlayMomentNumber = null;

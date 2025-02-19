@@ -105,7 +105,7 @@ class AppSongUpdateService extends ChangeNotifier {
                     logger.log(
                         _logMessage,
                         'received: song: ${_songUpdate?.song.title}'
-                        ' at moment: ${_songUpdate?.momentNumber}'
+                            ' at moment: ${_songUpdate?.momentNumber}/${_songUpdate?.song.songMoments.length}'
                         ', bpm: ${_songUpdate?.currentBeatsPerMinute}');
                   }
                 }

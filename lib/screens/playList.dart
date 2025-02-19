@@ -902,7 +902,6 @@ class PlayListState extends State<PlayList> {
                   itemCount: filteredGroup.length,
                   itemScrollController: _itemScrollController,
                   itemPositionsListener: _itemPositionsListener,
-                  physics: ClampingScrollPhysics(),
                   itemBuilder: (context, index) {
                     logger.log(
                         _logPosition,

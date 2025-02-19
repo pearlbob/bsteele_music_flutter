@@ -10,6 +10,7 @@ import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/key.dart' as music_key;
 import 'package:bsteele_music_lib/songs/song.dart';
+import 'package:bsteele_music_lib/songs/song_id.dart';
 import 'package:bsteele_music_lib/songs/song_performance.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
@@ -66,750 +67,810 @@ class SingersState extends State<Singers> {
   @override
   Widget build(BuildContext context) {
     app.screenInfo.refresh(context);
-    return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
-      appWidgetHelper = AppWidgetHelper(context);
+    return Consumer<PlayListRefreshNotifier>(
+      builder: (context, playListRefreshNotifier, child) {
+        appWidgetHelper = AppWidgetHelper(context);
 
-      logger.log(_singerLogBuild, 'singer build: _selectedSinger: $_selectedSinger,  message: ${app.message}');
+        logger.log(_singerLogBuild, 'singer build: _selectedSinger: $_selectedSinger,  message: ${app.message}');
 
-      if (_selectedSinger == _unknownSinger && _sessionSingers.isNotEmpty) {
-        _setSelectedSinger(_sessionSingers.first);
-      }
+        if (_selectedSinger == _unknownSinger && _sessionSingers.isNotEmpty) {
+          _setSelectedSinger(_sessionSingers.first);
+        }
 
-      final double fontSize = app.screenInfo.fontSize * 1.3;
-      songPerformanceStyle = generateAppTextStyle(
-        color: Colors.black87,
-        fontSize: fontSize,
-      );
-      disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: App.disabledColor);
-      buttonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveBackgroundColor);
-      inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
-      selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);
-      final singerTextStyle = generateAppTextFieldStyle(fontSize: fontSize, backgroundColor: inactiveBackgroundColor);
+        final double fontSize = app.screenInfo.fontSize * 1.3;
+        songPerformanceStyle = generateAppTextStyle(color: Colors.black87, fontSize: fontSize);
+        disabledSongPerformanceStyle = songPerformanceStyle.copyWith(color: App.disabledColor);
+        buttonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveBackgroundColor);
+        inactiveRequesterButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: inactiveRequesterColor);
+        selectedButtonTextStyle = songPerformanceStyle.copyWith(backgroundColor: addColor);
+        final singerTextStyle = generateAppTextFieldStyle(fontSize: fontSize, backgroundColor: inactiveBackgroundColor);
 
-      List<Widget> sessionSingerWidgets = [];
-      songLists = [];
+        List<Widget> sessionSingerWidgets = [];
+        songLists = [];
 
-      //  sorted and stored
-      var requesters = _allSongPerformances.setOfRequesters();
-      var songRequests = SplayTreeSet<Song>();
-      SplayTreeSet<SongPerformance> performancesFromSinger = SplayTreeSet();
-      SplayTreeSet<SongPerformance> performancesFromSessionSingers = SplayTreeSet();
-      SplayTreeSet<Song> otherSongs = SplayTreeSet();
-      if (_selectedSingerIsRequester) {
-        SplayTreeSet<SongRequest> songRequestsFromRequester = SplayTreeSet<SongRequest>()
-          ..addAll(_allSongPerformances.allSongPerformanceRequests.where((e) => e.requester == _selectedSinger));
-        logger.log(_singerRequester, 'requests: $songRequestsFromRequester');
+        //  sorted and stored
+        var requesters = _allSongPerformances.setOfRequesters();
+        var songRequests = SplayTreeSet<Song>();
+        SplayTreeSet<SongPerformance> performancesFromSinger = SplayTreeSet();
+        SplayTreeSet<SongPerformance> performancesFromSessionSingers = SplayTreeSet();
+        SplayTreeSet<Song> otherSongs = SplayTreeSet();
+        if (_selectedSingerIsRequester) {
+          SplayTreeSet<SongRequest> songRequestsFromRequester =
+              SplayTreeSet<SongRequest>()
+                ..addAll(_allSongPerformances.allSongPerformanceRequests.where((e) => e.requester == _selectedSinger));
+          logger.log(_singerRequester, 'requests: $songRequestsFromRequester');
 
-        if (editRequestersList) {
-          songRequests.addAll(_allSongPerformances.allSongPerformanceRequests
-              .where((e) => e.requester == _selectedSinger && e.song != null)
-              .map((e) => e.song)
-              .whereType<Song>());
-          logger.log(_singerRequester, 'songRequests.length: ${songRequests.length}');
-        } else {
-          // find all the requested songs that match the current session singers
-          songRequests = SplayTreeSet<Song>()
-            ..addAll(songRequestsFromRequester
-                .where((e) => e.requester == _selectedSinger && e.song != null)
-                .map<Song>((e) => e.song!));
-          logger.log(_singerRequester, 'requests: $songRequests');
-          for (var singer in _sessionSingers) {
-            if (singer != _selectedSinger) {
-              for (var performance in _allSongPerformances.bySinger(singer)) {
-                if (performance.song != null) {
-                  performancesFromSessionSingers.add(performance);
+          if (editRequestersList) {
+            songRequests.addAll(
+              _allSongPerformances.allSongPerformanceRequests
+                  .where((e) => e.requester == _selectedSinger && e.song != null)
+                  .map((e) => e.song)
+                  .whereType<Song>(),
+            );
+            logger.log(_singerRequester, 'songRequests.length: ${songRequests.length}');
+          } else {
+            // find all the requested songs that match the current session singers
+            songRequests =
+                SplayTreeSet<Song>()..addAll(
+                  songRequestsFromRequester
+                      .where((e) => e.requester == _selectedSinger && e.song != null)
+                      .map<Song>((e) => e.song!),
+                );
+            logger.log(_singerRequester, 'requests: $songRequests');
+            for (var singer in _sessionSingers) {
+              if (singer != _selectedSinger) {
+                for (var performance in _allSongPerformances.bySinger(singer)) {
+                  if (performance.song != null) {
+                    performancesFromSessionSingers.add(performance);
+                  }
                 }
               }
             }
           }
         }
-      }
 
-      //  fill the stores
-      {
-        SplayTreeSet<Song> songsSungBySingers = SplayTreeSet();
+        //  fill the stores
+        {
+          SplayTreeSet<Song> songsSungBySingers = SplayTreeSet();
 
-        //  songs sung by selected singer
-        performancesFromSinger.addAll(_allSongPerformances.bySinger(_selectedSinger));
-        for (var performance in performancesFromSinger) {
-          if (performance.song != null) {
-            songsSungBySingers.add(performance.song!);
+          //  songs sung by selected singer
+          performancesFromSinger.addAll(_allSongPerformances.bySinger(_selectedSinger));
+          for (var performance in performancesFromSinger) {
+            if (performance.song != null) {
+              songsSungBySingers.add(performance.song!);
+            }
           }
-        }
 
-        //  songs sung by other session singers
-        if (!_selectedSingerIsRequester) {
-          for (var singer in _sessionSingers) {
-            if (!editRequestersList || singer != _selectedSinger) {
-              for (var performance in _allSongPerformances.bySinger(singer)) {
-                if (performance.song != null) {
-                  performancesFromSessionSingers.add(performance);
+          //  songs sung by other session singers
+          if (!_selectedSingerIsRequester) {
+            for (var singer in _sessionSingers) {
+              if (!editRequestersList || singer != _selectedSinger) {
+                for (var performance in _allSongPerformances.bySinger(singer)) {
+                  if (performance.song != null) {
+                    performancesFromSessionSingers.add(performance);
+                  }
                 }
               }
             }
           }
-        }
-        for (var song in app.allSongs) {
-          if (!songsSungBySingers.contains(song) && !songRequests.contains(song)) {
-            otherSongs.add(song);
+          for (var song in app.allSongs) {
+            if (!songsSungBySingers.contains(song) && !songRequests.contains(song)) {
+              otherSongs.add(song);
+            }
           }
         }
-      }
 
-      logger.d('performances:  searchForSelectedSingerOnly: $editRequestersList');
-      if (_isInSingingMode) {
-        if (_selectedSinger != _unknownSinger) {
-          // 		search text empty
-          if (_selectedSingerIsRequester) {
-            if (editRequestersList) {
-              //  edit the requester's request list
-              addSongItems('Songs $_selectedSinger would like to request:', songRequests,
-                  color: App.appBackgroundColor, inRequesterList: true);
-              addSongItems(
-                  'Other songs $_selectedSinger might request:', app.allSongs.where((e) => !songRequests.contains(e)),
-                  color: App.appBackgroundColor, inRequesterList: false);
+        logger.d('performances:  searchForSelectedSingerOnly: $editRequestersList');
+        if (_isInSingingMode) {
+          if (_selectedSinger != _unknownSinger) {
+            // 		search text empty
+            if (_selectedSingerIsRequester) {
+              if (editRequestersList) {
+                //  edit the requester's request list
+                addSongItems(
+                  'Songs $_selectedSinger would like to request:',
+                  songRequests,
+                  color: App.appBackgroundColor,
+                  inRequesterList: true,
+                );
+                addSongItems(
+                  'Other songs $_selectedSinger might request:',
+                  app.allSongs.where((e) => !songRequests.contains(e)),
+                  color: App.appBackgroundColor,
+                  inRequesterList: false,
+                );
 
-              //   - all other matching songs
-              addPerformanceItems('Other matching songs:', performancesFromSessionSingers);
-            } else {
-              //  requester matches
-              if (_selectedVolunteerSinger == _unknownSinger) {
-                addPerformanceItems('$_selectedSinger would like to hear:',
+                //   - all other matching songs
+                addPerformanceItems('Other matching songs:', performancesFromSessionSingers);
+              } else {
+                //  requester matches
+                if (_selectedVolunteerSinger == _unknownSinger) {
+                  addPerformanceItems(
+                    '$_selectedSinger would like to hear:',
                     performancesFromSessionSingers.where((e) => songRequests.contains(e.song)),
-                    color: App.appBackgroundColor);
-              }
+                    color: App.appBackgroundColor,
+                  );
+                }
 
-              if (_selectedVolunteerSinger != _unknownSinger) {
-                var volunteerPerformances = performancesFromSessionSingers
-                    .where((e) => songRequests.contains(e.song) && e.singer == _selectedVolunteerSinger);
-                addPerformanceItems(
-                    '$_selectedSinger would like to hear $_selectedVolunteerSinger sing:', volunteerPerformances,
-                    color: App.appBackgroundColor);
-                var volunteerSongs = volunteerPerformances.map((performance) => performance.performedSong);
-                addSongItems('Other songs $_selectedVolunteerSinger might sing for $_selectedSinger:',
+                if (_selectedVolunteerSinger != _unknownSinger) {
+                  var volunteerPerformances = performancesFromSessionSingers.where(
+                    (e) => songRequests.contains(e.song) && e.singer == _selectedVolunteerSinger,
+                  );
+                  addPerformanceItems(
+                    '$_selectedSinger would like to hear $_selectedVolunteerSinger sing:',
+                    volunteerPerformances,
+                    color: App.appBackgroundColor,
+                  );
+                  var volunteerSongs = volunteerPerformances.map((performance) => performance.performedSong);
+                  addSongItems(
+                    'Other songs $_selectedVolunteerSinger might sing for $_selectedSinger:',
                     songRequests.where((song) => !volunteerSongs.contains(song)),
-                    color: App.appBackgroundColor, songItemAction: _navigateSelectedVolunteerToPlayer);
+                    color: App.appBackgroundColor,
+                    songItemAction: _navigateSelectedVolunteerToPlayer,
+                  );
+                }
               }
+            } else {
+              // 				matching performances from the selected singer
+              addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: App.appBackgroundColor);
+
+              //  all other songs
+              //  note that the filtering is done by the play list
+              addSongItems(
+                'Songs $_selectedSinger might sing:',
+                otherSongs,
+                color: App.appBackgroundColor,
+                songItemAction: _navigateSelectedSingerToPlayer,
+              );
             }
           } else {
-            // 				matching performances from the selected singer
-            addPerformanceItems('$_selectedSinger sings:', performancesFromSinger, color: App.appBackgroundColor);
-
-            //  all other songs
-            //  note that the filtering is done by the play list
-            addSongItems('Songs $_selectedSinger might sing:', otherSongs,
-                color: App.appBackgroundColor, songItemAction: _navigateSelectedSingerToPlayer);
+            //   selected singer NOT known
+            // 			search all session singers
+            // 				- performances from session singers that match
+            addPerformanceItems(
+              'Today\'s session singers sing:',
+              performancesFromSessionSingers,
+              color: App.appBackgroundColor,
+            );
           }
-        } else {
-          //   selected singer NOT known
-          // 			search all session singers
-          // 				- performances from session singers that match
-          addPerformanceItems('Today\'s session singers sing:', performancesFromSessionSingers,
-              color: App.appBackgroundColor);
         }
-      }
 
-      logger.d('all songs: '
-          '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}');
-      logger.d('performancesFromSinger: ${performancesFromSinger.length}'
+        logger.d(
+          'all songs: '
+          '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}',
+        );
+        logger.d(
+          'performancesFromSinger: ${performancesFromSinger.length}'
           ', performancesFromSessionSingers:${performancesFromSessionSingers.length}'
-          ', otherSongs:${otherSongs.length}');
-      logger.d(
-          '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}');
-      assert((performancesFromSinger.length +
-              performancesFromSessionSingers.length +
-              otherSongs.length +
-              songRequests.length) >=
-          app.allSongs.length);
+          ', otherSongs:${otherSongs.length}',
+        );
+        logger.d(
+          '${(performancesFromSinger.length + performancesFromSessionSingers.length + otherSongs.length)}/${app.allSongs.length}',
+        );
+        assert(
+          (performancesFromSinger.length +
+                  performancesFromSessionSingers.length +
+                  otherSongs.length +
+                  songRequests.length) >=
+              app.allSongs.length,
+        );
 
-      {
-        //  find all singers
-        var setOfPerformers = SplayTreeSet<String>();
-        setOfPerformers.addAll(_allSongPerformances.setOfSingers());
-        setOfPerformers.addAll(_allSongPerformances.setOfRequesters());
-        if (_selectedSinger != _unknownSinger) {
-          setOfPerformers.add(_selectedSinger);
-        }
-
-        var singerSearch = singerSearchTextFieldController.text.toLowerCase();
         {
-          var lastFirstInitial = '';
-          for (var performer in setOfPerformers) {
-            if (singerSearch.isEmpty || performer.toLowerCase().contains(singerSearch)) {
-              var firstInitial = performer.characters.first.toUpperCase();
-              if (firstInitial != lastFirstInitial) {
-                lastFirstInitial = firstInitial;
-                sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
-                sessionSingerWidgets.add(Text(
-                  '$firstInitial:',
-                  style: songPerformanceStyle.copyWith(color: App.appBackgroundColor),
-                ));
-                sessionSingerWidgets.add(const AppSpace(horizontalSpace: 40));
-              }
-              sessionSingerWidgets.add(AppWrap(
-                children: [
-                  appTextButton(
-                    performer,
-                    style: performer == _selectedSinger
-                        ? songPerformanceStyle.copyWith(backgroundColor: addColor)
-                        : songPerformanceStyle,
-                    onPressed: () {
-                      setState(() {
-                        _setSelectedSinger(performer);
-                      });
-                    },
+          //  find all singers
+          var setOfPerformers = SplayTreeSet<String>();
+          setOfPerformers.addAll(_allSongPerformances.setOfSingers());
+          setOfPerformers.addAll(_allSongPerformances.setOfRequesters());
+          if (_selectedSinger != _unknownSinger) {
+            setOfPerformers.add(_selectedSinger);
+          }
+
+          var singerSearch = singerSearchTextFieldController.text.toLowerCase();
+          {
+            var lastFirstInitial = '';
+            for (var performer in setOfPerformers) {
+              if (singerSearch.isEmpty || performer.toLowerCase().contains(singerSearch)) {
+                var firstInitial = performer.characters.first.toUpperCase();
+                if (firstInitial != lastFirstInitial) {
+                  lastFirstInitial = firstInitial;
+                  sessionSingerWidgets.add(const AppSpaceViewportWidth(horizontalSpace: 100));
+                  sessionSingerWidgets.add(
+                    Text('$firstInitial:', style: songPerformanceStyle.copyWith(color: App.appBackgroundColor)),
+                  );
+                  sessionSingerWidgets.add(const AppSpace(horizontalSpace: 40));
+                }
+                sessionSingerWidgets.add(
+                  AppWrap(
+                    children: [
+                      appTextButton(
+                        performer,
+                        style:
+                            performer == _selectedSinger
+                                ? songPerformanceStyle.copyWith(backgroundColor: addColor)
+                                : songPerformanceStyle,
+                        onPressed: () {
+                          setState(() {
+                            _setSelectedSinger(performer);
+                          });
+                        },
+                      ),
+                      if (!_sessionSingers.contains(performer))
+                        AppInkWell(
+                          value: performer,
+                          onTap: () {
+                            setState(() {
+                              _sessionSingers.add(performer);
+                              appOptions.sessionSingers = _sessionSingers;
+                              _setSelectedSinger(performer);
+                              singerSearchTextFieldController.text = '';
+                              FocusScope.of(context).requestFocus(_singerSearchFocusNode);
+                            });
+                          },
+                          child: appCircledIcon(
+                            Icons.add,
+                            'Add $performer to today\'s session.',
+                            margin: appendInsets,
+                            padding: appendPadding,
+                            color: addColor,
+                            size: fontSize * 0.7,
+                          ),
+                        ),
+                      if (_sessionSingers.contains(performer))
+                        AppInkWell(
+                          // value: singer,
+                          onTap: () {
+                            setState(() {
+                              _sessionSingers.remove(performer);
+                              appOptions.sessionSingers = _sessionSingers;
+                              singerSearchTextFieldController.text = '';
+                              FocusScope.of(context).requestFocus(_singerSearchFocusNode);
+                            });
+                          },
+                          child: appCircledIcon(
+                            Icons.remove,
+                            'Remove $performer from today\'s session.',
+                            margin: appendInsets,
+                            padding: appendPadding,
+                            color: removeColor,
+                            size: fontSize * 0.7,
+                          ),
+                        ),
+                      const AppSpace(horizontalSpace: 20),
+                      //  list singers horizontally
+                    ],
                   ),
-                  if (!_sessionSingers.contains(performer))
-                    AppInkWell(
-                      value: performer,
-                      onTap: () {
-                        setState(() {
-                          _sessionSingers.add(performer);
-                          appOptions.sessionSingers = _sessionSingers;
-                          _setSelectedSinger(performer);
-                          singerSearchTextFieldController.text = '';
-                          FocusScope.of(context).requestFocus(_singerSearchFocusNode);
-                        });
-                      },
-                      child: appCircledIcon(
-                        Icons.add,
-                        'Add $performer to today\'s session.',
-                        margin: appendInsets,
-                        padding: appendPadding,
-                        color: addColor,
-                        size: fontSize * 0.7,
-                      ),
-                    ),
-                  if (_sessionSingers.contains(performer))
-                    AppInkWell(
-                      // value: singer,
-                      onTap: () {
-                        setState(() {
-                          _sessionSingers.remove(performer);
-                          appOptions.sessionSingers = _sessionSingers;
-                          singerSearchTextFieldController.text = '';
-                          FocusScope.of(context).requestFocus(_singerSearchFocusNode);
-                        });
-                      },
-                      child: appCircledIcon(
-                        Icons.remove,
-                        'Remove $performer from today\'s session.',
-                        margin: appendInsets,
-                        padding: appendPadding,
-                        color: removeColor,
-                        size: fontSize * 0.7,
-                      ),
-                    ),
-                  const AppSpace(horizontalSpace: 20),
-                  //  list singers horizontally
-                ],
-              ));
+                );
+              }
             }
           }
         }
-      }
 
-      if (editRequestersList) {
-        searchSelectedSingerSongs();
-      } else {
-        searchAllPerformanceSongs();
-      }
+        if (editRequestersList) {
+          searchSelectedSingerSongs();
+        } else {
+          searchAllPerformanceSongs();
+        }
 
-      if (singerList.isEmpty) {
-        singerList.addAll(_allSongPerformances.setOfSingers()); //  fixme: temp
-      }
+        if (singerList.isEmpty) {
+          singerList.addAll(_allSongPerformances.setOfSingers()); //  fixme: temp
+        }
 
-      void onReorder(int oldIndex, int newIndex) {
-        setState(() {
-          logger.d('_onReorder($oldIndex, $newIndex)');
-          var singer = _sessionSingers.removeAt(oldIndex);
-          _sessionSingers.insert(newIndex, singer);
-          appOptions.sessionSingers = _sessionSingers;
-        });
-      }
+        void onReorder(int oldIndex, int newIndex) {
+          setState(() {
+            logger.d('_onReorder($oldIndex, $newIndex)');
+            var singer = _sessionSingers.removeAt(oldIndex);
+            _sessionSingers.insert(newIndex, singer);
+            appOptions.sessionSingers = _sessionSingers;
+          });
+        }
 
-      var todaysReorderableSingersWidgetWrap = _sessionSingers.isEmpty
-          ? Text(
-              '(none)',
-              style: singerTextStyle,
-            )
-          : Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: App.appBackgroundColor,
-                  width: 2,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              child: AppWrapFullWidth(children: [
-                ReorderableWrap(
-                    onReorder: onReorder,
-                    padding: const EdgeInsets.all(10),
-                    spacing: 20,
-                    children: _sessionSingers.map((singer) {
-                      return AppWrap(children: [
-                        Container(
-                          child: appTextButton(
-                            singer,
+        var todaysReorderableSingersWidgetWrap =
+            _sessionSingers.isEmpty
+                ? Text('(none)', style: singerTextStyle)
+                : Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: App.appBackgroundColor, width: 2),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: AppWrapFullWidth(
+                    children: [
+                      ReorderableWrap(
+                        onReorder: onReorder,
+                        padding: const EdgeInsets.all(10),
+                        spacing: 20,
+                        children: _sessionSingers
+                            .map((singer) {
+                              return AppWrap(
+                                children: [
+                                  Container(
+                                    child: appTextButton(
+                                      singer,
+                                      onPressed: () {
+                                        setState(() {
+                                          _setSelectedSinger(singer);
+                                        });
+                                      },
+                                      style:
+                                          singer == _selectedSinger
+                                              ? selectedButtonTextStyle
+                                              : (requesters.contains(singer)
+                                                  ? inactiveRequesterButtonTextStyle
+                                                  : buttonTextStyle),
+                                    ),
+                                  ),
+                                  if (!_isInSingingMode)
+                                    AppInkWell(
+                                      // value: singer,
+                                      onTap: () {
+                                        setState(() {
+                                          _sessionSingers.remove(singer);
+                                          appOptions.sessionSingers = _sessionSingers;
+                                        });
+                                      },
+                                      child: appCircledIcon(
+                                        Icons.remove,
+                                        'Remove $singer from today\'s session.',
+                                        margin: appendInsets,
+                                        padding: appendPadding,
+                                        color: removeColor,
+                                        size: fontSize * 0.7,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            })
+                            .toList(growable: false),
+                      ),
+                    ],
+                  ),
+                );
+
+        var allSingersWidgetWrap = Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey, width: 2),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+          child: AppWrapFullWidth(alignment: WrapAlignment.start, spacing: 10, children: sessionSingerWidgets),
+        );
+
+        //  generate the sort selection
+        _sortOrderDropDownMenuList.clear();
+        for (final e in SingersSongOrder.values) {
+          var s = e.toString();
+          _sortOrderDropDownMenuList.add(
+            appDropdownMenuItem<SingersSongOrder>(
+              value: e,
+              child: Text(Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)), style: singerTextStyle),
+            ),
+          );
+        }
+
+        final songListGroup = PlayListGroup(songLists);
+        logger.log(_logSongList, 'singers: songListGroup.length: ${songListGroup.length}');
+
+        return Scaffold(
+          backgroundColor: App.screenBackgroundColor,
+          appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Singers'),
+          body: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (app.message.isNotEmpty)
+                  Text(app.message, style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle),
+
+                //  singing / setup
+                AppWrapFullWidth(
+                  alignment: WrapAlignment.spaceBetween,
+                  children: [
+                    AppWrap(
+                      children: [
+                        AppTooltip(
+                          message: singingTooltipText,
+                          child: appButton(
+                            'Singing',
+
                             onPressed: () {
                               setState(() {
-                                _setSelectedSinger(singer);
+                                toggleSingingMode();
                               });
                             },
-                            style: singer == _selectedSinger
-                                ? selectedButtonTextStyle
-                                : (requesters.contains(singer) ? inactiveRequesterButtonTextStyle : buttonTextStyle),
+                            // softWrap: false,
                           ),
                         ),
-                        if (!_isInSingingMode)
-                          AppInkWell(
-                            // value: singer,
-                            onTap: () {
+                        AppTooltip(
+                          message: singingTooltipText,
+                          child: appSwitch(
+                            onChanged: (value) {
                               setState(() {
-                                _sessionSingers.remove(singer);
-                                appOptions.sessionSingers = _sessionSingers;
+                                toggleSingingMode();
                               });
                             },
-                            child: appCircledIcon(
-                              Icons.remove,
-                              'Remove $singer from today\'s session.',
-                              margin: appendInsets,
-                              padding: appendPadding,
-                              color: removeColor,
-                              size: fontSize * 0.7,
-                            ),
+                            value: _isInSingingMode,
                           ),
-                      ]);
-                    }).toList(growable: false)),
-              ]),
-            );
+                        ),
+                        const AppSpace(horizontalSpace: 30),
+                        if (!_isInSingingMode) Text('       Singer setup:', style: singerTextStyle, softWrap: false),
+                      ],
+                    ),
+                    if (!_isInSingingMode)
+                      appButton(
+                        'Other Actions',
+                        onPressed: () {
+                          setState(() {
+                            _showOtherActions = !_showOtherActions;
+                          });
+                        },
+                      ),
 
-      var allSingersWidgetWrap = Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey,
-            width: 2,
-          ),
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-        ),
-        child: AppWrapFullWidth(alignment: WrapAlignment.start, spacing: 10, children: sessionSingerWidgets),
-      );
-
-      //  generate the sort selection
-      _sortOrderDropDownMenuList.clear();
-      for (final e in SingersSongOrder.values) {
-        var s = e.toString();
-        _sortOrderDropDownMenuList.add(appDropdownMenuItem<SingersSongOrder>(
-          value: e,
-          child: Text(
-            Util.camelCaseToLowercaseSpace(s.substring(s.indexOf('.') + 1)),
-            style: singerTextStyle,
-          ),
-        ));
-      }
-
-      final songListGroup = PlayListGroup(songLists);
-      logger.log(_logSongList, 'singers: songListGroup.length: ${songListGroup.length}');
-
-      return Scaffold(
-        backgroundColor: App.screenBackgroundColor,
-        appBar: appWidgetHelper.backBar(title: 'bsteeleMusicApp Singers'),
-        body: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (app.message.isNotEmpty)
-                Text(
-                  app.message,
-                  style: app.messageType == MessageType.error ? appErrorTextStyle : appTextStyle,
+                    // if (_isInSingingMode && _dirtyCount > 0)
+                    //    //  no longer necessary!  History is from the web server logs
+                    //   appButton('Save $_dirtyCount', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
+                    //     setState(() {
+                    //       _saveAllSongPerformances().then((response) {
+                    //         setState(() {
+                    //           allHaveBeenWritten = true;
+                    //           _dirtyCount = 0;
+                    //         });
+                    //       }).onError((error, stackTrace) {
+                    //         allHaveBeenWritten = false; //  fixme: on failure?
+                    //         app.errorMessage(error.toString());
+                    //       });
+                    //     });
+                    //   }),
+                    if (_isInSingingMode && app.fullscreenEnabled && !app.isFullScreen)
+                      appButton(
+                        'Fullscreen',
+                        onPressed: () {
+                          app.requestFullscreen();
+                        },
+                      ),
+                  ],
                 ),
-
-              //  singing / setup
-              AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
-                AppWrap(children: [
-                  AppTooltip(
-                    message: singingTooltipText,
-                    child: appButton(
-                      'Singing',
-
-                      onPressed: () {
-                        setState(() {
-                          toggleSingingMode();
-                        });
-                      },
-                      // softWrap: false,
-                    ),
-                  ),
-                  AppTooltip(
-                    message: singingTooltipText,
-                    child: appSwitch(
-                      onChanged: (value) {
-                        setState(() {
-                          toggleSingingMode();
-                        });
-                      },
-                      value: _isInSingingMode,
-                    ),
-                  ),
-                  const AppSpace(horizontalSpace: 30),
-                  if (!_isInSingingMode)
-                    Text(
-                      '       Singer setup:',
-                      style: singerTextStyle,
-                      softWrap: false,
-                    ),
-                ]),
-                if (!_isInSingingMode)
-                  appButton('Other Actions', onPressed: () {
-                    setState(() {
-                      _showOtherActions = !_showOtherActions;
-                    });
-                  }),
-
-                // if (_isInSingingMode && _dirtyCount > 0)
-                //    //  no longer necessary!  History is from the web server logs
-                //   appButton('Save $_dirtyCount', appKeyEnum: AppKeyEnum.singersShowOtherActions, onPressed: () {
-                //     setState(() {
-                //       _saveAllSongPerformances().then((response) {
-                //         setState(() {
-                //           allHaveBeenWritten = true;
-                //           _dirtyCount = 0;
-                //         });
-                //       }).onError((error, stackTrace) {
-                //         allHaveBeenWritten = false; //  fixme: on failure?
-                //         app.errorMessage(error.toString());
-                //       });
-                //     });
-                //   }),
-                if (_isInSingingMode && app.fullscreenEnabled && !app.isFullScreen)
-                  appButton('Fullscreen', onPressed: () {
-                    app.requestFullscreen();
-                  }),
-              ]),
-              // setup
-              if (!_isInSingingMode && _showOtherActions)
-                AppWrapFullWidth(alignment: WrapAlignment.end, children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                // setup
+                if (!_isInSingingMode && _showOtherActions)
+                  AppWrapFullWidth(
+                    alignment: WrapAlignment.end,
                     children: [
-                      const AppVerticalSpace(),
-                      if (_allSongPerformances.isNotEmpty)
-                        AppTooltip(
-                            message: 'For safety reasons you cannot remove all singers\n'
-                                'without first having written them all.',
-                            child: appButton(
-                              'Write all singer songs to a local file',
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const AppVerticalSpace(),
+                          if (_allSongPerformances.isNotEmpty)
+                            AppTooltip(
+                              message:
+                                  'For safety reasons you cannot remove all singers\n'
+                                  'without first having written them all.',
+                              child: appButton(
+                                'Write all singer songs to a local file',
+                                onPressed: () {
+                                  _saveAllSongPerformances()
+                                      .then((response) {
+                                        setState(() {
+                                          allHaveBeenWritten = true;
+                                        });
+                                      })
+                                      .onError((error, stackTrace) {
+                                        allHaveBeenWritten = false; //  fixme: on failure?
+                                        app.errorMessage(error.toString());
+                                      });
+                                },
+                              ),
+                            ),
+                          const AppVerticalSpace(),
+                          if (_selectedSinger != _unknownSinger)
+                            appButton(
+                              'Write singer $_selectedSinger\'s songs to a local file',
                               onPressed: () {
-                                _saveAllSongPerformances().then((response) {
-                                  setState(() {
-                                    allHaveBeenWritten = true;
-                                  });
-                                }).onError((error, stackTrace) {
-                                  allHaveBeenWritten = false; //  fixme: on failure?
-                                  app.errorMessage(error.toString());
+                                app.songPerformanceDaemon.saveSingersSongList(_selectedSinger);
+                                logger.d('save selection: $_selectedSinger');
+                              },
+                            ),
+                          const AppVerticalSpace(space: 25),
+                          AppTooltip(
+                            message:
+                                'Singer performance updates read from a local file\n'
+                                'will be added to the singers.',
+                            child: appButton(
+                              'Read singer performance updates from a local file',
+                              onPressed: () {
+                                setState(() {
+                                  filePickUpdate(context);
                                 });
                               },
-                            )),
-                      const AppVerticalSpace(),
-                      if (_selectedSinger != _unknownSinger)
-                        appButton(
-                          'Write singer $_selectedSinger\'s songs to a local file',
-                          onPressed: () {
-                            app.songPerformanceDaemon.saveSingersSongList(_selectedSinger);
-                            logger.d('save selection: $_selectedSinger');
-                          },
-                        ),
-                      const AppVerticalSpace(space: 25),
-                      AppTooltip(
-                        message: 'Singer performance updates read from a local file\n'
-                            'will be added to the singers.',
-                        child: appButton(
-                          'Read singer performance updates from a local file',
-                          onPressed: () {
-                            setState(() {
-                              filePickUpdate(context);
-                            });
-                          },
-                        ),
-                      ),
-                      const AppVerticalSpace(),
-                      AppTooltip(
-                        message: 'Convenience operation to clear all the singers from today\'s session.',
-                        child: appButton(
-                          'Clear the current session singers',
-                          onPressed: () {
-                            setState(() {
-                              _sessionSingers.clear();
-                              appOptions.sessionSingers = _sessionSingers;
-                            });
-                          },
-                        ),
-                      ),
-                      const AppVerticalSpace(space: 25),
-                      if (_selectedSinger != _unknownSinger)
-                        appButton(
-                          'Delete the singer $_selectedSinger',
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                      title: Text(
-                                        'Do you really want to delete the singer $_selectedSinger?',
-                                        style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                            ),
+                          ),
+                          const AppVerticalSpace(),
+                          AppTooltip(
+                            message: 'Convenience operation to clear all the singers from today\'s session.',
+                            child: appButton(
+                              'Clear the current session singers',
+                              onPressed: () {
+                                setState(() {
+                                  _sessionSingers.clear();
+                                  appOptions.sessionSingers = _sessionSingers;
+                                });
+                              },
+                            ),
+                          ),
+                          const AppVerticalSpace(space: 25),
+                          if (_selectedSinger != _unknownSinger)
+                            appButton(
+                              'Delete the singer $_selectedSinger',
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (_) => AlertDialog(
+                                        title: Text(
+                                          'Do you really want to delete the singer $_selectedSinger?',
+                                          style: TextStyle(fontSize: songPerformanceStyle.fontSize),
+                                        ),
+                                        actions: [
+                                          appButton(
+                                            'Yes! Delete all of $_selectedSinger\'s song performances.',
+                                            onPressed: () {
+                                              logger.d('delete: $_selectedSinger');
+                                              setState(() {
+                                                _allSongPerformances.removeSinger(_selectedSinger);
+                                                _sessionSingers.remove(_selectedSinger);
+                                                appOptions.sessionSingers = _sessionSingers;
+                                                _setSelectedSinger(_unknownSinger);
+                                                AppOptions().storeAllSongPerformances();
+                                                allHaveBeenWritten = false;
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          const AppSpace(space: 100),
+                                          appButton(
+                                            'Cancel, leave $_selectedSinger\'s song performances as is.',
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                        elevation: 24.0,
                                       ),
-                                      actions: [
-                                        appButton('Yes! Delete all of $_selectedSinger\'s song performances.',
-                                            onPressed: () {
-                                          logger.d('delete: $_selectedSinger');
-                                          setState(() {
-                                            _allSongPerformances.removeSinger(_selectedSinger);
-                                            _sessionSingers.remove(_selectedSinger);
-                                            appOptions.sessionSingers = _sessionSingers;
-                                            _setSelectedSinger(_unknownSinger);
-                                            AppOptions().storeAllSongPerformances();
-                                            allHaveBeenWritten = false;
-                                          });
-                                          Navigator.of(context).pop();
-                                        }),
-                                        const AppSpace(space: 100),
-                                        appButton('Cancel, leave $_selectedSinger\'s song performances as is.',
-                                            onPressed: () {
-                                          Navigator.of(context).pop();
-                                        }),
-                                      ],
-                                      elevation: 24.0,
-                                    ));
-                          },
-                        ),
-                      const AppVerticalSpace(),
-                      if (!allHaveBeenWritten)
-                        Text(
-                          'Hint: Write all singer songs to enable all singer removal.',
-                          style: singerTextStyle,
-                        ),
-                      if (allHaveBeenWritten)
+                                );
+                              },
+                            ),
+                          const AppVerticalSpace(),
+                          if (!allHaveBeenWritten)
+                            Text('Hint: Write all singer songs to enable all singer removal.', style: singerTextStyle),
+                          if (allHaveBeenWritten)
+                            appButton(
+                              'Remove all singers',
+                              onPressed: () {
+                                setState(() {
+                                  _allSongPerformances.clear();
+                                  AppOptions().storeAllSongPerformances();
+                                  allHaveBeenWritten = false;
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                if (_songUpdateService.isFollowing) const AppVerticalSpace(space: 20),
+                //  leader warning
+                if (_songUpdateService.isFollowing)
+                  AppWrapFullWidth(
+                    children: [
+                      Text('Warning: you are not a leader!', style: singerTextStyle),
+                      const AppSpace(),
+                      if (_songUpdateService.isConnected)
                         appButton(
-                          'Remove all singers',
+                          '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.host}',
                           onPressed: () {
                             setState(() {
-                              _allSongPerformances.clear();
-                              AppOptions().storeAllSongPerformances();
-                              allHaveBeenWritten = false;
+                              if (_songUpdateService.isConnected) {
+                                _songUpdateService.isLeader = !_songUpdateService.isLeader;
+                              }
                             });
                           },
                         ),
                     ],
                   ),
-                ]),
-              if (_songUpdateService.isFollowing) const AppVerticalSpace(space: 20),
-              //  leader warning
-              if (_songUpdateService.isFollowing)
-                AppWrapFullWidth(children: [
-                  Text(
-                    'Warning: you are not a leader!',
-                    style: singerTextStyle,
+                if (!_isInSingingMode) const AppVerticalSpace(),
+                if (!_isInSingingMode)
+                  AppWrapFullWidth(
+                    spacing: 30,
+                    children: [
+                      Text('Today\'s Session Singers:', style: singerTextStyle),
+                      Text('to reorder: click, hold, and drag.', style: singerTextStyle.copyWith(color: Colors.grey)),
+                    ],
                   ),
-                  const AppSpace(),
-                  if (_songUpdateService.isConnected)
-                    appButton(
-                      '${_songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader'} of ${_songUpdateService.host}',
-                      onPressed: () {
-                        setState(() {
-                          if (_songUpdateService.isConnected) {
-                            _songUpdateService.isLeader = !_songUpdateService.isLeader;
-                          }
-                        });
-                      },
-                    ),
-                ]),
-              if (!_isInSingingMode) const AppVerticalSpace(),
-              if (!_isInSingingMode)
-                AppWrapFullWidth(spacing: 30, children: [
-                  Text(
-                    'Today\'s Session Singers:',
-                    style: singerTextStyle,
-                  ),
-                  Text(
-                    'to reorder: click, hold, and drag.',
-                    style: singerTextStyle.copyWith(color: Colors.grey),
-                  ),
-                ]),
-              const AppVerticalSpace(),
-              todaysReorderableSingersWidgetWrap,
-              const AppVerticalSpace(),
-              if (_isInSingingMode)
-                AppWrapFullWidth(spacing: 10, alignment: WrapAlignment.spaceBetween, children: [
-                  AppWrap(spacing: 10, children: [
-                    appWidgetHelper.checkbox(
-                      value: _selectedSingerIsRequester,
-                      onChanged: (bool? value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedSingerIsRequester = value;
-                            _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
-                            logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
-                          });
-                        }
-                      },
-                      style: songPerformanceStyle,
-                    ),
-                    //  requester enable
-                    AppTooltip(
-                        message: 'Check here to make this individual a requester\n'
-                            'of songs from the singers list above\n'
-                            'or to edit their request list.\n'
-                            'Uncheck to see the songs the singer has sung.',
-                        child: TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedSingerIsRequester = !_selectedSingerIsRequester;
-                                _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
-                                _editRequestersList = false;
-                                logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
-                              });
+                const AppVerticalSpace(),
+                todaysReorderableSingersWidgetWrap,
+                const AppVerticalSpace(),
+                if (_isInSingingMode)
+                  AppWrapFullWidth(
+                    spacing: 10,
+                    alignment: WrapAlignment.spaceBetween,
+                    children: [
+                      AppWrap(
+                        spacing: 10,
+                        children: [
+                          appWidgetHelper.checkbox(
+                            value: _selectedSingerIsRequester,
+                            onChanged: (bool? value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedSingerIsRequester = value;
+                                  _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
+                                  logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
+                                });
+                              }
                             },
-                            child: Text('As requester${_selectedSingerIsRequester ? ':' : ''}',
-                                style: songPerformanceStyle))),
-                    if (_selectedSingerIsRequester)
-                      AppWrap(spacing: 10, alignment: WrapAlignment.spaceBetween, children: [
-                        AppTooltip(
-                          message: 'Click to see the songs the other singers sing\n'
-                              'that have been requested by this requester',
-                          child: AppRadio<bool>(
-                              text: 'from the active singers above',
-                              value: false,
-                              //  default to singing mode
-                              groupValue: editRequestersList,
+                            style: songPerformanceStyle,
+                          ),
+                          //  requester enable
+                          AppTooltip(
+                            message:
+                                'Check here to make this individual a requester\n'
+                                'of songs from the singers list above\n'
+                                'or to edit their request list.\n'
+                                'Uncheck to see the songs the singer has sung.',
+                            child: TextButton(
                               onPressed: () {
                                 setState(() {
+                                  _selectedSingerIsRequester = !_selectedSingerIsRequester;
+                                  _singerIsRequesterMap[_selectedSinger] = _selectedSingerIsRequester;
                                   _editRequestersList = false;
+                                  logger.d('_selectedSingerIsRequester: $_selectedSingerIsRequester');
                                 });
                               },
-                              style: singerTextStyle),
-                        ),
-                        if (_selectedSinger != _unknownSinger)
-                          AppTooltip(
-                            message: 'Click to edit the songs requested by this requester',
-                            child: AppRadio<bool>(
-                                text: 'edit $_selectedSinger requests',
-                                value: true,
-                                groupValue: editRequestersList,
-                                onPressed: () {
-                                  setState(() {
-                                    editRequestersList = true;
-                                  });
-                                },
-                                style: singerTextStyle),
+                              child: Text(
+                                'As requester${_selectedSingerIsRequester ? ':' : ''}',
+                                style: songPerformanceStyle,
+                              ),
+                            ),
                           ),
-                      ]),
-                  ]),
-                ]),
-              if (!_isInSingingMode)
-                //  singers
-                AppWrapFullWidth(alignment: WrapAlignment.spaceBetween, children: [
+                          if (_selectedSingerIsRequester)
+                            AppWrap(
+                              spacing: 10,
+                              alignment: WrapAlignment.spaceBetween,
+                              children: [
+                                AppTooltip(
+                                  message:
+                                      'Click to see the songs the other singers sing\n'
+                                      'that have been requested by this requester',
+                                  child: AppRadio<bool>(
+                                    text: 'from the active singers above',
+                                    value: false,
+                                    //  default to singing mode
+                                    groupValue: editRequestersList,
+                                    onPressed: () {
+                                      setState(() {
+                                        _editRequestersList = false;
+                                      });
+                                    },
+                                    style: singerTextStyle,
+                                  ),
+                                ),
+                                if (_selectedSinger != _unknownSinger)
+                                  AppTooltip(
+                                    message: 'Click to edit the songs requested by this requester',
+                                    child: AppRadio<bool>(
+                                      text: 'edit $_selectedSinger requests',
+                                      value: true,
+                                      groupValue: editRequestersList,
+                                      onPressed: () {
+                                        setState(() {
+                                          editRequestersList = true;
+                                        });
+                                      },
+                                      style: singerTextStyle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                if (!_isInSingingMode)
+                  //  singers
+                  AppWrapFullWidth(
+                    alignment: WrapAlignment.spaceBetween,
+                    children: [
+                      Text('All Singers:', style: singerTextStyle),
+                      AppWrap(
+                        children: [
+                          AppTooltip(
+                            message: 'search',
+                            child: IconButton(icon: const Icon(Icons.search), iconSize: fontSize, onPressed: null),
+                          ),
+                          SizedBox(
+                            width: 15 * fontSize,
+                            //  limit text entry display length
+                            child: AppTextField(
+                              enabled: true,
+                              controller: singerSearchTextFieldController,
+                              focusNode: _singerSearchFocusNode,
+                              hintText: "enter singer search",
+                              onChanged: (text) {
+                                setState(() {
+                                  //  code will respond to change of singer search text
+                                });
+                              },
+                              fontSize: fontSize,
+                            ),
+                          ),
+                          AppTooltip(
+                            message: 'Clear the singer search text.',
+                            child: appIconButton(
+                              icon: const Icon(Icons.clear),
+                              iconSize: 1.5 * fontSize,
+                              onPressed: (() {
+                                setState(() {
+                                  singerSearchTextFieldController.text = '';
+                                  FocusScope.of(context).requestFocus(_singerSearchFocusNode);
+                                });
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        //  new singer stuff
+                        width: 25 * app.screenInfo.fontSize,
+                        //  limit text entry display length
+                        child: AppTextField.onSubmitted(
+                          controller: singerTextFieldController,
+                          hintText: "enter a new singer's name",
+                          onSubmitted: (value) {
+                            setState(() {
+                              if (singerTextFieldController.text != value) {
+                                //  when programmatically entered
+                                singerTextFieldController.text = value;
+                              }
+                              if (singerTextFieldController.text.isNotEmpty) {
+                                var performer = Util.firstToUpper(singerTextFieldController.text);
+                                // add to current singers
+                                _sessionSingers.add(performer);
+                                appOptions.sessionSingers = _sessionSingers;
+                                _setSelectedSinger(performer);
+                                singerTextFieldController.text = '';
+                                FocusScope.of(context).requestFocus(_singerSearchFocusNode);
+                              }
+                            });
+                          },
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                const AppSpace(),
+                if (!_isInSingingMode)
+                  Expanded(child: ListView(controller: ScrollController(), children: [allSingersWidgetWrap])),
+                if (_isInSingingMode && songListGroup.isEmpty)
                   Text(
-                    'All Singers:',
+                    'The requester $_selectedSinger has an empty request list.  Edit the requests!',
+                    style: singerTextStyle.copyWith(color: Colors.red),
+                  ),
+                if (_isInSingingMode && songListGroup.isNotEmpty) _volunteersWidget(),
+                if (_isInSingingMode && songListGroup.isNotEmpty)
+                  PlayList.byGroup(
+                    songListGroup,
+                    key: _songPlayListKey,
                     style: singerTextStyle,
+                    includeByLastSung: true,
+                    isFromTheTop: false,
+                    selectedSortType: PlayListSortType.byTitle,
+                    playListSearchMatcher: SongPlayListSearchMatcher(),
+                    allowSongListBunching: true,
                   ),
-                  AppWrap(children: [
-                    AppTooltip(
-                      message: 'search',
-                      child: IconButton(
-                        icon: const Icon(Icons.search),
-                        iconSize: fontSize,
-                        onPressed: null,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15 * fontSize,
-                      //  limit text entry display length
-                      child: AppTextField(
-                        enabled: true,
-                        controller: singerSearchTextFieldController,
-                        focusNode: _singerSearchFocusNode,
-                        hintText: "enter singer search",
-                        onChanged: (text) {
-                          setState(() {
-                            //  code will respond to change of singer search text
-                          });
-                        },
-                        fontSize: fontSize,
-                      ),
-                    ),
-                    AppTooltip(
-                      message: 'Clear the singer search text.',
-                      child: appIconButton(
-                        icon: const Icon(Icons.clear),
-                        iconSize: 1.5 * fontSize,
-                        onPressed: (() {
-                          setState(() {
-                            singerSearchTextFieldController.text = '';
-                            FocusScope.of(context).requestFocus(_singerSearchFocusNode);
-                          });
-                        }),
-                      ),
-                    ),
-                  ]),
-                  SizedBox(
-                    //  new singer stuff
-                    width: 25 * app.screenInfo.fontSize,
-                    //  limit text entry display length
-                    child: AppTextField.onSubmitted(
-                      controller: singerTextFieldController,
-                      hintText: "enter a new singer's name",
-                      onSubmitted: (value) {
-                        setState(() {
-                          if (singerTextFieldController.text != value) {
-                            //  when programmatically entered
-                            singerTextFieldController.text = value;
-                          }
-                          if (singerTextFieldController.text.isNotEmpty) {
-                            var performer = Util.firstToUpper(singerTextFieldController.text);
-                            // add to current singers
-                            _sessionSingers.add(performer);
-                            appOptions.sessionSingers = _sessionSingers;
-                            _setSelectedSinger(performer);
-                            singerTextFieldController.text = '';
-                            FocusScope.of(context).requestFocus(_singerSearchFocusNode);
-                          }
-                        });
-                      },
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ]),
-              const AppSpace(),
-              if (!_isInSingingMode)
-                Expanded(
-                    child: ListView(controller: ScrollController(), children: [
-                  allSingersWidgetWrap,
-                ])),
-              if (_isInSingingMode && songListGroup.isEmpty)
-                Text(
-                  'The requester $_selectedSinger has an empty request list.  Edit the requests!',
-                  style: singerTextStyle.copyWith(color: Colors.red),
-                ),
-              if (_isInSingingMode && songListGroup.isNotEmpty) _volunteersWidget(),
-              if (_isInSingingMode && songListGroup.isNotEmpty)
-                PlayList.byGroup(
-                  songListGroup,
-                  key: _songPlayListKey,
-                  style: singerTextStyle,
-                  includeByLastSung: true,
-                  isFromTheTop: false,
-                  selectedSortType: PlayListSortType.byTitle,
-                  playListSearchMatcher: SongPlayListSearchMatcher(),
-                  allowSongListBunching: true,
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: appWidgetHelper.floatingBack(),
-      );
-    });
+          floatingActionButton: appWidgetHelper.floatingBack(),
+        );
+      },
+    );
   }
 
   void toggleSingingMode() {
@@ -822,8 +883,12 @@ class SingersState extends State<Singers> {
     }
   }
 
-  void addPerformanceItems(String text, Iterable<SongPerformance> performances,
-      {Color? color = Colors.black, bool bunch = false}) {
+  void addPerformanceItems(
+    String text,
+    Iterable<SongPerformance> performances, {
+    Color? color = Colors.black,
+    bool bunch = false,
+  }) {
     if (performances.isNotEmpty) {
       List<PlayListItem> songListItems = [];
 
@@ -835,14 +900,24 @@ class SingersState extends State<Singers> {
     }
   }
 
-  void addSongItems(String text, Iterable<Song> songs,
-      {Color? color = Colors.black, bool? inRequesterList, Widget? customWidget, PlayListItemAction? songItemAction}) {
+  void addSongItems(
+    String text,
+    Iterable<Song> songs, {
+    Color? color = Colors.black,
+    bool? inRequesterList,
+    Widget? customWidget,
+    PlayListItemAction? songItemAction,
+  }) {
     List<PlayListItem> songListItems = [];
     if (songs.isNotEmpty) {
       for (var song in songs) {
-        songListItems.add(SongPlayListItem.fromSong(song,
+        songListItems.add(
+          SongPlayListItem.fromSong(
+            song,
             firstWidget: (inRequesterList != null ? requesterListEditCustomWidget(song, inRequesterList) : null),
-            customWidget: customWidget));
+            customWidget: customWidget,
+          ),
+        );
       }
 
       songLists.add(PlayListItemList(text, songListItems, color: color, playListItemAction: songItemAction));
@@ -850,8 +925,9 @@ class SingersState extends State<Singers> {
   }
 
   requesterListEditCustomWidget(Song song, bool checked) {
-    return Consumer<PlayListRefreshNotifier>(builder: (context, playListRefreshNotifier, child) {
-      return appWidgetHelper.checkbox(
+    return Consumer<PlayListRefreshNotifier>(
+      builder: (context, playListRefreshNotifier, child) {
+        return appWidgetHelper.checkbox(
           value: checked,
           label: 'for $_selectedSinger',
           style: appTextStyle,
@@ -864,8 +940,10 @@ class SingersState extends State<Singers> {
               }
               playListRefreshNotifier.refresh();
             }
-          });
-    });
+          },
+        );
+      },
+    );
   }
 
   Widget mapSongPerformanceToSingerWidget(SongPerformance songPerformance, {final whenPressed = true}) {
@@ -882,32 +960,36 @@ class SingersState extends State<Singers> {
           performer: songPerformance.singer,
           key: songPerformance.key,
           bpm: songPerformance.bpm,
-          onChanged: (singer == _selectedSinger && editRequestersList
-              ? (bool? value) {
-                  if (value != null) {
-                    setState(() {
-                      if (_selectedSingerIsRequester) {
-                        if (value) {
-                          _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
-                        } else {
-                          _allSongPerformances.removeSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
-                        }
-                      } else if (singer != _unknownSinger) {
-                        //  not a requester
-                        if (value) {
-                          if (singer != _unknownSinger) {
-                            _allSongPerformances.addSongPerformance(
-                                SongPerformance(song.songId.toString(), singer, key: songPerformance.key));
+          onChanged:
+              (singer == _selectedSinger && editRequestersList
+                  ? (bool? value) {
+                    if (value != null) {
+                      setState(() {
+                        if (_selectedSingerIsRequester) {
+                          if (value) {
+                            _allSongPerformances.addSongRequest(SongRequest(song.songId.toString(), _selectedSinger));
+                          } else {
+                            _allSongPerformances.removeSongRequest(
+                              SongRequest(song.songId.toString(), _selectedSinger),
+                            );
                           }
-                        } else {
-                          _allSongPerformances.removeSingerSong(singer, song.songId.toString());
+                        } else if (singer != _unknownSinger) {
+                          //  not a requester
+                          if (value) {
+                            if (singer != _unknownSinger) {
+                              _allSongPerformances.addSongPerformance(
+                                SongPerformance(song.songId.toString(), singer, key: songPerformance.key),
+                              );
+                            }
+                          } else {
+                            _allSongPerformances.removeSingerSong(singer, song.songId.toString());
+                          }
                         }
-                      }
-                      AppOptions().storeAllSongPerformances();
-                    });
+                        AppOptions().storeAllSongPerformances();
+                      });
+                    }
                   }
-                }
-              : null),
+                  : null),
           whenPressed: whenPressed,
         ),
         Text(
@@ -918,33 +1000,33 @@ class SingersState extends State<Singers> {
     );
   }
 
-  AppWrap appWrapSongExplicit(final Song? song,
-      {final music_key.Key? key,
-      final int? bpm,
-      final String? performer,
-      final bool enable = true,
-      final ValueChanged<bool?>? onChanged,
-      final whenPressed = true}) {
+  AppWrap appWrapSongExplicit(
+    final Song? song, {
+    final music_key.Key? key,
+    final int? bpm,
+    final String? performer,
+    final bool enable = true,
+    final ValueChanged<bool?>? onChanged,
+    final whenPressed = true,
+  }) {
     if (song == null) {
       return const AppWrap(children: []);
     }
 
     var musician = performer != null ? (_selectedSingerIsRequester ? '$performer sing: ' : '$performer sings ') : '';
-    var checkboxValue = _selectedSingerIsRequester
-        ? _allSongPerformances.isSongInRequestersList(_selectedSinger, song)
-        : _allSongPerformances.isSongInSingersList(_selectedSinger, song);
+    var checkboxValue =
+        _selectedSingerIsRequester
+            ? _allSongPerformances.isSongInRequestersList(_selectedSinger, song)
+            : _allSongPerformances.isSongInSingersList(_selectedSinger, song);
     return AppWrap(
       children: [
         if (onChanged != null)
-          appWidgetHelper.checkbox(
-            value: checkboxValue,
-            onChanged: onChanged,
-            style: songPerformanceStyle,
-          ),
+          appWidgetHelper.checkbox(value: checkboxValue, onChanged: onChanged, style: songPerformanceStyle),
         if (onChanged != null) const AppSpace(space: 12),
         TextButton(
-            onPressed: enable && whenPressed
-                ? () {
+          onPressed:
+              enable && whenPressed
+                  ? () {
                     //  play the song
                     var singer = performer ?? (_selectedSingerIsRequester ? _selectedVolunteerSinger : _selectedSinger);
                     logger.d('onPressed: singer: $singer, songId: ${song.songId}');
@@ -960,16 +1042,16 @@ class SingersState extends State<Singers> {
                       }
                     });
                   }
-                : null,
-            child: Text(
-              '$musician'
-              '${song.title} by ${song.artist}'
-              '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
-              '${key == null ? '' : ' in $key'}'
-              '${bpm == null && bpm != song.beatsPerMinute ? '' : ' at $bpm'}',
-              style: enable ? songPerformanceStyle : disabledSongPerformanceStyle,
-            ) //
-            ),
+                  : null,
+          child: Text(
+            '$musician'
+            '${song.title} by ${song.artist}'
+            '${song.coverArtist.isNotEmpty ? ' cover by ${song.coverArtist}' : ''}'
+            '${key == null ? '' : ' in $key'}'
+            '${bpm == null && bpm != song.beatsPerMinute ? '' : ' at $bpm'}',
+            style: enable ? songPerformanceStyle : disabledSongPerformanceStyle,
+          ), //
+        ),
       ],
     );
   }
@@ -1034,13 +1116,15 @@ class SingersState extends State<Singers> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => Player(
-                songPerformance.song!,
-                //  adjust song to singer's last performance
-                musicKey: songPerformance.key,
-                bpm: songPerformance.bpm,
-                singer: songPerformance.singer,
-              )),
+        builder:
+            (context) => Player(
+              songPerformance.song!,
+              //  adjust song to singer's last performance
+              musicKey: songPerformance.key,
+              bpm: songPerformance.bpm,
+              singer: songPerformance.singer,
+            ),
+      ),
     );
     _nextSinger(songPerformance);
   }
@@ -1052,10 +1136,7 @@ class SingersState extends State<Singers> {
     return AppWrapFullWidth(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(
-          'Volunteer Singer:',
-          style: songPerformanceStyle,
-        ),
+        Text('Volunteer Singer:', style: songPerformanceStyle),
         const AppSpace(),
         ..._potentialVolunteers().map(
           (singer) => appIdButton(
@@ -1177,9 +1258,9 @@ class SingersState extends State<Singers> {
         //  make a new performance since we don't have one
         var song = playListItem.song;
         _navigatePerformanceToPlayer(
-            context,
-            SongPerformance(song.songId.toString(), _selectedSinger,
-                key: song.key, bpm: song.beatsPerMinute, song: song));
+          context,
+          SongPerformance(song.songId.toString(), _selectedSinger, key: song.key, bpm: song.beatsPerMinute, song: song),
+        );
       }
     }
   }
@@ -1187,18 +1268,27 @@ class SingersState extends State<Singers> {
   _navigatePerformanceToPlayer(BuildContext context, SongPerformance performance) async {
     app.clearMessage();
 
+    if (performance.song == null) {
+      setState(() {
+        app.errorMessage('song ${SongId.asReadableString(performance.songIdAsString)} was not found');
+      });
+      return;
+    }
+
     app.selectedSong = performance.performedSong;
     logger.t('_navigatePerformanceToPlayer: $performance');
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => Player(
-                app.selectedSong,
-                //  adjust song to singer's last performance
-                musicKey: performance.key,
-                bpm: performance.bpm,
-                singer: performance.singer,
-              )),
+        builder:
+            (context) => Player(
+              app.selectedSong,
+              //  adjust song to singer's last performance
+              musicKey: performance.key,
+              bpm: performance.bpm,
+              singer: performance.singer,
+            ),
+      ),
     );
     _nextSinger(performance);
   }
@@ -1208,7 +1298,9 @@ class SingersState extends State<Singers> {
       //  fixme: song may have been edited in the player screen!!!!
       //  update the last sung date and the key if it has been changed
       var updatedPerformance = songPerformance.copyWith(
-          key: playerSelectedSongKey, bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute);
+        key: playerSelectedSongKey,
+        bpm: playerSelectedBpm ?? songPerformance.song!.beatsPerMinute,
+      );
       _allSongPerformances.addSongPerformance(updatedPerformance);
       logger.log(_singerLogHistory, 'updatedPerformance: $updatedPerformance');
       logger.d('navigateToPlayer.playerSelectedBpm back: $playerSelectedBpm');

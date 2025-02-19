@@ -73,7 +73,7 @@ const Level _logScroll = Level.debug;
 const Level _logMode = Level.debug;
 const Level _logKeyboard = Level.debug;
 const Level _logMusicKey = Level.debug;
-const Level _logLeaderFollower = Level.debug;
+const Level _logLeaderFollower = Level.info;
 const Level _logBPM = Level.debug;
 const Level _logSongMaster = Level.debug;
 const Level _logSongMasterBump = Level.debug;
@@ -81,7 +81,7 @@ const Level _logCenter = Level.debug;
 const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositions = Level.debug;
 const Level _logScrollListener = Level.debug;
-const Level _logScrollAnimation = Level.debug;
+const Level _logScrollAnimation = Level.info;
 const Level _logListView = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
@@ -529,6 +529,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
     List<Widget> lyricsTableItems = _lyricsTable.lyricsTableItems(_song, musicKey: _displaySongKey);
 
+    ScrollPhysics scrollPhysics = ClampingScrollPhysics();
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
         _listView ??= ScrollablePositionedList.builder(
@@ -536,7 +537,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           scrollDirection: Axis.horizontal,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
-          physics: ClampingScrollPhysics(),
+          physics: scrollPhysics,
           itemBuilder: (context, index) {
             logger.log(_logListView, '_listView($index)');
             return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
@@ -548,7 +549,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           itemCount: lyricsTableItems.length,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
-          physics: ClampingScrollPhysics(),
+          physics: scrollPhysics,
           itemBuilder: (BuildContext context, int index) {
             logger.log(_logListView, '_listView($index)');
             return lyricsTableItems[index];
@@ -562,7 +563,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
           scrollDirection: Axis.vertical,
-          physics: ClampingScrollPhysics(),
+          physics: scrollPhysics,
           itemBuilder: (context, index) {
             logger.log(_logListView, '_listView($index) ${_song.title}');
             return lyricsTableItems[index];
@@ -1583,52 +1584,52 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       return;
     }
 
-    int momentNumberFound = 0;
-    {
-      int? minItemPositionIndex;
-      int? itemPositionIndex;
-      double alignment = 0;
-      switch (_songUpdateState) {
-        case SongUpdateState.idle:
-        case SongUpdateState.none:
-        case SongUpdateState.drumTempo:
-          break;
-        case SongUpdateState.pause:
-        case SongUpdateState.playing:
-        case SongUpdateState.playHold:
-          alignment = _scrollAlignment;
-          break;
-      }
-      for (var itemPosition in _itemPositionsListener.itemPositions.value) {
-        minItemPositionIndex = min(minItemPositionIndex ?? itemPosition.index, itemPosition.index);
-        if (itemPosition.itemLeadingEdge <= alignment && alignment < itemPosition.itemTrailingEdge) {
-          itemPositionIndex = itemPosition.index;
-        }
-      }
-      // logger.log(_logScrollListener, 'itemPositionIndex: minItemPositionIndex: $minItemPositionIndex');
-      itemPositionIndex = minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (itemPositionIndex ?? 0);
-      //  force the list to the top if close
-      momentNumberFound = itemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(itemPositionIndex);
-      logger.log(
-        _logScrollListener,
-        'itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound'
-        ' ${_song.getSongMoment(momentNumberFound).toString()}',
-      );
-    }
-
     //  move to the scrolled to location, if scrolled by the leader
     switch (_songUpdateState) {
       case SongUpdateState.idle:
       case SongUpdateState.none:
       case SongUpdateState.drumTempo:
         //  followers get to follow even if not in play
-        _leaderSongUpdate(momentNumberFound);
-        logger.log(_logPlayerItemPositions, ' fixme: _logPlayerItemPositions $momentNumberFound');
+        {
+          int momentNumberFound = 0;
+          int? minItemPositionIndex;
+          int? itemPositionIndex;
+          double alignment = 0;
+          switch (_songUpdateState) {
+            case SongUpdateState.idle:
+            case SongUpdateState.none:
+            case SongUpdateState.drumTempo:
+              break;
+            case SongUpdateState.pause:
+            case SongUpdateState.playing:
+            case SongUpdateState.playHold:
+              alignment = _scrollAlignment;
+              break;
+          }
+          for (var itemPosition in _itemPositionsListener.itemPositions.value) {
+            minItemPositionIndex = min(minItemPositionIndex ?? itemPosition.index, itemPosition.index);
+            if (itemPosition.itemLeadingEdge <= alignment && alignment < itemPosition.itemTrailingEdge) {
+              itemPositionIndex = itemPosition.index;
+            }
+          }
+          // logger.log(_logScrollListener, 'itemPositionIndex: minItemPositionIndex: $minItemPositionIndex');
+          itemPositionIndex = minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (itemPositionIndex ?? 0);
+          //  force the list to the top if close
+          momentNumberFound = itemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(itemPositionIndex);
+          logger.log(
+            _logScrollListener,
+            'itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound'
+            ' ${_song.getSongMoment(momentNumberFound).toString()}',
+          );
+
+          _leaderSongUpdate(momentNumberFound);
+          logger.log(_logPlayerItemPositions, ' fixme: _logPlayerItemPositions $momentNumberFound');
+        }
         break;
       case SongUpdateState.pause:
       case SongUpdateState.playing:
       case SongUpdateState.playHold:
-        //  following done by the song update service
+        //  done by the song update service
         break;
     }
   }
@@ -1656,22 +1657,10 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _itemScrollToRow(_lyricsTable.lyricSectionIndexToRow(index), force: force, priorIndex: priorIndex);
   }
 
-  _itemScrollToRow(final int row, {final bool force = false, int? priorIndex}) {
+  _itemScrollToRow(final int requestedRow, {final bool force = false, int? priorIndex}) {
     //logger.i('_itemScrollToRow($row, $force, $priorIndex):');
     if (_itemScrollController.isAttached) {
-      if (row < 0) {
-        return;
-      }
-      if (row == _lastRowIndex) {
-        logger.i('_itemScrollToRow: row == _lastRowIndex: $row');
-        return; //fixme: why?
-      }
-
-      //  limit the scrolling at the end of the play list
-      if (row >= _lyricsTable.rowCount) {
-        //  assumes the outro is sane with respect to the vertical space below the scroll alignment
-        return;
-      }
+      int row = Util.intLimit(requestedRow, 0, _lyricsTable.rowCount);
 
       //  guess a duration based on the song and the row
       double rowTime = _song.displayRowBeats(row) * 60.0 / (playerSelectedBpm ?? _song.beatsPerMinute);

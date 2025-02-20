@@ -81,7 +81,7 @@ const Level _logLeaderSongUpdate = Level.debug;
 const Level _logPlayerItemPositionSizes = Level.debug;
 const Level _logScrollListener = Level.debug;
 const Level _logScrollAnimation = Level.debug;
-const Level _logListView = Level.debug;
+const Level _logSongList = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 const Level _logTempoListener = Level.debug;
@@ -110,6 +110,13 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
     return;
   }
 
+  //  listen if anyone else is talking
+  bool isLeader = (songUpdate.user == _PlayerState._appOptions.user);
+  if (isLeader) {
+    return;
+  }
+  _player?._songUpdateService.isLeader = false;
+
   logger.log(
     _logLeaderFollower,
     'playerUpdate(): start: ${songUpdate.song.title}: ${songUpdate.songMoment?.momentNumber}'
@@ -124,9 +131,6 @@ void playerUpdate(BuildContext context, SongUpdate songUpdate) {
       (route) => route.isFirst || route.settings.name == Player.routeName,
     );
   }
-
-  //  listen if anyone else is talking
-  _player?._songUpdateService.isLeader = songUpdate.user == _PlayerState._appOptions.user;
 
   if (!songUpdate.song.songBaseSameContent(_songUpdate?.song) ||
       songUpdate.currentBeatsPerMinute != _songUpdate?.currentBeatsPerMinute) {
@@ -532,40 +536,40 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     ScrollPhysics scrollPhysics = ClampingScrollPhysics();
     switch (_appOptions.userDisplayStyle) {
       case UserDisplayStyle.banner:
-        _listView ??= ScrollablePositionedList.builder(
+        _songList ??= ScrollablePositionedList.builder(
           itemCount: _song.songMoments.length + 1,
           scrollDirection: Axis.horizontal,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
           physics: scrollPhysics,
           itemBuilder: (context, index) {
-            logger.log(_logListView, '_listView($index)');
+            logger.log(_logSongList, '_songList($index)');
             return lyricsTableItems[Util.intLimit(index, 0, lyricsTableItems.length)];
           },
         );
         break;
       case UserDisplayStyle.highContrast:
-        _listView ??= ScrollablePositionedList.builder(
+        _songList ??= ScrollablePositionedList.builder(
           itemCount: lyricsTableItems.length,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
           physics: scrollPhysics,
           itemBuilder: (BuildContext context, int index) {
-            logger.log(_logListView, '_listView($index)');
+            logger.log(_logSongList, '_songList($index)');
             return lyricsTableItems[index];
           },
         );
         break;
       default:
         //  all other display styles
-        _listView ??= ScrollablePositionedList.builder(
+        _songList ??= ScrollablePositionedList.builder(
           itemCount: lyricsTableItems.length,
           itemScrollController: _itemScrollController,
           itemPositionsListener: _itemPositionsListener,
           scrollDirection: Axis.vertical,
           physics: scrollPhysics,
           itemBuilder: (context, index) {
-            logger.log(_logListView, '_listView($index) ${_song.title}');
+            logger.log(_logSongList, '_songList($index) ${_song.title}');
             return lyricsTableItems[index];
           },
         );
@@ -725,7 +729,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   }
                                 }
                               },
-                              child: _listView,
+                              child: _songList,
                             ),
                           ),
                         ),
@@ -1592,10 +1596,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         //  followers get to follow even if not in play
         {
           int momentNumberFound = 0;
+          //  note: item positions count from 1
           int? minItemPositionIndex;
           ItemPosition? minItemPosition;
           int? maxItemPositionIndex;
-          int? itemPositionIndex;
+          ItemPosition? maxItemPosition;
+          int? bestItemPositionIndex;
+          ItemPosition? bestItemPosition;
           double alignment = 0;
           switch (_songUpdateState) {
             case SongUpdateState.idle:
@@ -1616,9 +1623,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             }
             if (maxItemPositionIndex == null || itemPosition.index > maxItemPositionIndex) {
               maxItemPositionIndex = itemPosition.index;
+              maxItemPosition = itemPosition;
             }
             if (itemPosition.itemLeadingEdge <= alignment && alignment < itemPosition.itemTrailingEdge) {
-              itemPositionIndex = itemPosition.index;
+              bestItemPositionIndex = itemPosition.index;
+              bestItemPosition = itemPosition;
             }
             logger.log(
               _logPlayerItemPositionSizes,
@@ -1636,32 +1645,43 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           //   ', last row: ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}',
           // );
 
-          // logger.log(_logScrollListener, 'itemPositionIndex: minItemPositionIndex: $minItemPositionIndex');
-          itemPositionIndex = minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (itemPositionIndex ?? 0);
+          logger.log(_logScrollListener, 'bestItemPosition: index: $bestItemPositionIndex'
+              ', ${bestItemPosition?.itemLeadingEdge}'
+              ' <= $alignment <=  ${bestItemPosition?.itemTrailingEdge}');
+          bestItemPositionIndex =
+          minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (bestItemPositionIndex ?? 0);
           //  force the list to the top if close
-          momentNumberFound = itemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(itemPositionIndex);
+          //  note: item positions count from 1
+          momentNumberFound =
+          bestItemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(bestItemPositionIndex - 1);
           int maxMomentNumberFound =
-              maxItemPositionIndex == null ? 0 : _lyricsTable.gridRowToMomentNumber(maxItemPositionIndex);
-          logger.log(
-            _logScrollListener,
-            'itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound'
-            ', maxMomentNumberFound: $maxMomentNumberFound'
-            ', lastPlayMomentNumber: $_lastPlayMomentNumber'
-            ', #${_song.getSongMoment(momentNumberFound).toString()}',
-          );
+          maxItemPositionIndex == null ? 0 : _lyricsTable.gridRowToMomentNumber(maxItemPositionIndex - 1);
+          // logger.log(
+          //   _logScrollListener,
+          //   'itemPositionIndex: $bestItemPositionIndex, momentNumberFound: $momentNumberFound'
+          //   ', maxMomentNumberFound: $maxMomentNumberFound'
+          //   ', lastPlayMomentNumber: $_lastPlayMomentNumber'
+          //   ', #${_song.getSongMoment(momentNumberFound).toString()}',
+          // );
 
           if ((minItemPosition?.index ?? 0) == 1 && minItemPosition?.itemLeadingEdge == 0.0) {
             //  scroll to the top of the list
             _leaderSongUpdate(0);
             _lastPlayMomentNumber = 0;
-            logger.log(_logScrollListener, 'reposition to top:');
-          } else if ((maxItemPositionIndex ?? 0) >=
+            logger.log(_logScrollListener, 'reposition to top: ${minItemPosition?.index}');
+          } else if ((maxItemPositionIndex ?? -1) >=
               _lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)) {
             //  scroll to the bottom of the list
-            int row = _lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1);
-            _leaderSongUpdate(row);
-            _lastPlayMomentNumber = row;
-            logger.log(_logScrollListener, 'reposition to bottom:');
+            _lastPlayMomentNumber = _song.songMoments.length - 1;
+            _leaderSongUpdate(_lastPlayMomentNumber!);
+
+            logger.log(_logScrollListener, 'reposition to bottom: _lastPlayMomentNumber: $_lastPlayMomentNumber');
+            logger.i(
+              '       bottom: $maxItemPositionIndex: '
+                  ' of ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}'
+                  ', ${maxItemPosition?.itemLeadingEdge}'
+                  ' to ${maxItemPosition?.itemTrailingEdge}',
+            );
           } else if ((_lastPlayMomentNumber ?? 0) < momentNumberFound ||
               (_lastPlayMomentNumber ?? 0) > maxMomentNumberFound) {
             //  scroll outside of song end of play
@@ -1669,7 +1689,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _lastPlayMomentNumber = null;
             logger.log(
               _logScrollListener,
-              'reposition: itemPositionIndex: $itemPositionIndex, momentNumberFound: $momentNumberFound'
+              'reposition: itemPositionIndex: $bestItemPositionIndex, momentNumberFound: $momentNumberFound'
               ', maxMomentNumberFound: $maxMomentNumberFound'
               ', lastPlayMomentNumber: $_lastPlayMomentNumber'
               ', #${_song.getSongMoment(momentNumberFound).toString()}',
@@ -1753,15 +1773,21 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
 
       //  local scroll
-      _itemScrollController
-          .scrollTo(index: row, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
-          .then((value) {
-            logger.log(
-              _logScrollAnimation,
-              'scrollTo(): post: _lastRowIndex: $row'
-              ', boxMarker: $boxMarker',
-            );
-          });
+      if (!_isScrolling) {
+        _isScrolling = true;
+        _itemScrollController
+            .scrollTo(index: row, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
+            .then((value) {
+          _isScrolling = false;
+          logger.log(
+            _logScrollAnimation,
+            'scrollTo(): post: _lastRowIndex: $row'
+                ', boxMarker: $boxMarker',
+          );
+        });
+      } else {
+        logger.i('scrollTo(): request for scroll while scrolling: $row');
+      }
     }
   }
 
@@ -1855,7 +1881,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   /// send a leader song update to the followers
   void _leaderSongUpdate(int momentNumber) {
     logger.log(_logLeaderSongUpdate, 'leaderSongUpdate( $momentNumber ), isLeader: ${_songUpdateService.isLeader}');
-
     if (!_songUpdateService.isLeader) {
       _lastSongUpdateSent = null;
       return;
@@ -1945,7 +1970,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   /// Workaround to avoid calling setState() outside of the framework classes
   void _setPlayState() {
-    if (_songUpdate != null && _song.songMoments.isNotEmpty) {
+    if (_songUpdate != null && _song.songMoments.isNotEmpty && !_songUpdateService.isLeader) {
       var update = _songUpdate!;
       int momentNumber = Util.indexLimit(update.momentNumber, _song.songMoments);
       assert(momentNumber >= 0);
@@ -2105,7 +2130,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   void _forceTableRedisplay() {
     logger.log(_logBuild, 'forceTableRedisplay():');
     setState(() {
-      _listView = null;
+      _songList = null;
     });
   }
 
@@ -2804,8 +2829,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   Widget _countInWidget = NullWidget();
   int? _lastPlayMomentNumber;
 
-  Widget? _listView;
+  ScrollablePositionedList? _songList;
   final ItemScrollController _itemScrollController = ItemScrollController();
+  bool _isScrolling = false;
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   int _lastRowIndex = 0;
   double minScrollOffset = 0;

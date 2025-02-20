@@ -1287,6 +1287,7 @@ class LyricsTable {
         items.add(Text('Release/Label: ${song.copyright}', style: _lyricsTextStyle));
         break;
       case UserDisplayStyle.highContrast:
+        items.add(AppSpace(verticalSpace: heights[0]));
         break;
       default:
         items.add(
@@ -1303,7 +1304,7 @@ class LyricsTable {
                   ),
                 ),
                 //  give the scrolling some stuff to scroll the bottom up on
-                AppSpace(verticalSpace: _lyricsFontSizeUnscaled),
+                AppSpace(verticalSpace: 10 * _lyricsFontSizeUnscaled),
               ],
             ),
           ),
@@ -1400,12 +1401,13 @@ class LyricsTable {
   }
 
   /// Transcribe the chord section to a text span, adding Nashville notation when appropriate.
-  TextSpan _chordSectionTextSpan(final ChordSection chordSection,
-      final music_key.Key originalKey,
-      int transpositionOffset, {
-        final music_key.Key? displayMusicKey,
-        TextStyle? style,
-      }) {
+  TextSpan _chordSectionTextSpan(
+    final ChordSection chordSection,
+    final music_key.Key originalKey,
+    int transpositionOffset, {
+    final music_key.Key? displayMusicKey,
+    TextStyle? style,
+  }) {
     style = style ?? _coloredChordTextStyle;
 
     final List<TextSpan> children = [];
@@ -1515,14 +1517,15 @@ class LyricsTable {
   }
 
   /// Transcribe the measure node to a text span, adding Nashville notation when appropriate.
-  TextSpan _measureNashvilleSelectionTextSpan(final Measure measure,
-      final music_key.Key originalKey,
-      int transpositionOffset, {
-        final music_key.Key? displayMusicKey,
-        TextStyle? style,
-        final bool showBeats = true,
-        withInversion = true,
-      }) {
+  TextSpan _measureNashvilleSelectionTextSpan(
+    final Measure measure,
+    final music_key.Key originalKey,
+    int transpositionOffset, {
+    final music_key.Key? displayMusicKey,
+    TextStyle? style,
+    final bool showBeats = true,
+    withInversion = true,
+  }) {
     style = style ?? _coloredChordTextStyle;
 
     final List<TextSpan> children = [];
@@ -1682,12 +1685,13 @@ class LyricsTable {
     return TextSpan(style: style, children: children);
   }
 
-  TextSpan _nashvilleMeasureTextSpan(final Measure measure,
-      final music_key.Key originalKey,
-      final int transpositionOffset, {
-        final music_key.Key? displayMusicKey,
-        TextStyle? style,
-      }) {
+  TextSpan _nashvilleMeasureTextSpan(
+    final Measure measure,
+    final music_key.Key originalKey,
+    final int transpositionOffset, {
+    final music_key.Key? displayMusicKey,
+    TextStyle? style,
+  }) {
     final keyOffset = originalKey.getHalfStep();
 
     style = style ?? _coloredChordTextStyle;

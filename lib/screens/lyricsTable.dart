@@ -552,6 +552,7 @@ class LyricsTable {
                   column: c,
                   type: _SongCellType.columnFill,
                   measureNode: mn,
+                  alignment: Alignment.center,
                 ),
               );
             } else {
@@ -574,6 +575,7 @@ class LyricsTable {
                   column: c,
                   type: _SongCellType.columnFill,
                   measureNode: mn,
+                  alignment: Alignment.center,
                 ),
               );
             }
@@ -1945,8 +1947,9 @@ class LyricsTable {
   final TextStyle _highContrastTextStyle = generateAppTextStyle(
     color: Colors.white,
     backgroundColor: Colors.black,
+    fontFamily: 'Arimo',
     fontSize: 300.0,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w900,
   );
 
   double get scaleFactor => _scaleFactor;
@@ -2108,6 +2111,7 @@ class _SongCellWidget extends StatefulWidget {
     this.selectable,
     this.isFixedHeight = false,
     this.rowHasExplicitBeats = false,
+    this.alignment = Alignment.centerLeft,
   });
 
   _SongCellWidget._empty({this.isFixedHeight = false, required this.row, required this.column})
@@ -2124,7 +2128,8 @@ class _SongCellWidget extends StatefulWidget {
       //  many more than expected
       rowHasExplicitBeats = false,
       songMoment = null,
-      selectable = false;
+      selectable = false,
+      alignment = Alignment.centerLeft;
 
   _SongCellWidget copyWith({
     Size? size,
@@ -2174,6 +2179,7 @@ class _SongCellWidget extends StatefulWidget {
       selectable: selectable,
       isFixedHeight: isFixedHeight,
       rowHasExplicitBeats: rowHasExplicitBeats,
+      alignment: alignment,
     );
   }
 
@@ -2217,6 +2223,7 @@ class _SongCellWidget extends StatefulWidget {
   final int displayRowMaxRow;
   final SongMoment? songMoment;
   final bool? selectable;
+  final Alignment alignment;
   final bool rowHasExplicitBeats;
 
   //
@@ -2483,7 +2490,7 @@ class _SongCellState extends State<_SongCellWidget> {
     }
 
     return Container(
-      alignment: Alignment.centerLeft,
+      alignment: widget.alignment,
       width: width,
       height: height,
       margin: _margin,

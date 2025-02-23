@@ -111,6 +111,9 @@ flutter:
     - family: Bravura
       fonts:
         - asset: fonts/Bravura.otf
+    - family: Arimo
+      fonts:
+        - asset: fonts/Arimo-Bold.ttf
 
 flutter_icons:
   android: "launcher_icon"

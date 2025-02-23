@@ -3,30 +3,29 @@
 
 echo $0\:
 
-set machine=pi@bobspi.local
-
-#	prep for the build
-	cd ~/github/bsteele_music_flutter/
-	rm -rf linux
-	flutter clean
-	flutter config --enable-linux-desktop
-	flutter pub get
-	flutter -d linux create . --org com.bsteele
-	sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
-	  linux/my_application.cc
-	flutter pub get
-
-	cd ~/github/bsteeleMusicLib/
-	cd bsteele_music_lib/
-	flutter clean
+set machine=pi@bobspi9.local
 
 set app=bsteeleMusicApp
 set bsDir=${app}Pi
 set remoteDir=remotePi
 set src=bsteele_music_flutter
 
-
 if ( `hostname` == 'bob' ) then
+  #	prep for the build
+  	cd ~/github/bsteele_music_flutter/
+  	rm -rf linux
+  	flutter clean
+  	flutter config --enable-linux-desktop
+  	flutter pub get
+  	flutter -d linux create . --org com.bsteele
+  	sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
+  	  linux/my_application.cc
+  	flutter pub get
+
+  	cd ~/github/bsteeleMusicLib/
+  	cd bsteele_music_lib/
+  	flutter clean
+
 	#	on local host with git authentication
 	bsteele_auth
 	echo	on local host with git authentication

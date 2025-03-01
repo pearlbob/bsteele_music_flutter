@@ -1263,7 +1263,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 alignment: WrapAlignment.spaceBetween,
                 spacing: _fontSize,
                 children: [
-                  _playModeSegmentedButton(songUpdateState),
+                  if (!_songUpdateService.isFollowing) _playModeSegmentedButton(songUpdateState),
                   if (app.fullscreenEnabled && !app.isFullScreen)
                     appButton(
                       'Fullscreen',
@@ -1333,37 +1333,37 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       ', alt: ${keyboard.isAltPressed}',
     );
 
-    if (e.logicalKey == LogicalKeyboardKey.keyM) {
-      _tempoTap();
-      return KeyEventResult.handled;
-    } else if (e.logicalKey == LogicalKeyboardKey.space) {
-      switch (_songUpdateState) {
-        case SongUpdateState.idle:
-        case SongUpdateState.none:
-        case SongUpdateState.drumTempo:
-          //  start manual play
-          _setStatePlay();
-          break;
-        case SongUpdateState.playing:
-          _sectionBump(1);
-          break;
-        case SongUpdateState.playHold:
-          _rowBump(1);
-          _songMaster.resume();
-          break;
-        case SongUpdateState.pause:
-          _sectionBump(1);
-          _songMaster.resume();
-          break;
-      }
-      return KeyEventResult.handled;
-    } else if (
-    //  workaround for cheap foot pedal... only outputs b
-    e.logicalKey == LogicalKeyboardKey.keyB) {
-      _forwardSwitchPressed();
-      return KeyEventResult.handled;
-    } else if (!_songUpdateService.isFollowing) {
-      if (e.logicalKey == LogicalKeyboardKey.arrowDown || e.logicalKey == LogicalKeyboardKey.numpadAdd) {
+    if (!_songUpdateService.isFollowing) {
+      if (e.logicalKey == LogicalKeyboardKey.keyM) {
+        _tempoTap();
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.space) {
+        switch (_songUpdateState) {
+          case SongUpdateState.idle:
+          case SongUpdateState.none:
+          case SongUpdateState.drumTempo:
+            //  start manual play
+            _setStatePlay();
+            break;
+          case SongUpdateState.playing:
+            _sectionBump(1);
+            break;
+          case SongUpdateState.playHold:
+            _rowBump(1);
+            _songMaster.resume();
+            break;
+          case SongUpdateState.pause:
+            _sectionBump(1);
+            _songMaster.resume();
+            break;
+        }
+        return KeyEventResult.handled;
+      } else if (
+      //  workaround for cheap foot pedal... only outputs b
+      e.logicalKey == LogicalKeyboardKey.keyB) {
+        _forwardSwitchPressed();
+        return KeyEventResult.handled;
+      } else if (e.logicalKey == LogicalKeyboardKey.arrowDown || e.logicalKey == LogicalKeyboardKey.numpadAdd) {
         _bump(1);
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowUp || e.logicalKey == LogicalKeyboardKey.numpadSubtract) {
@@ -1432,6 +1432,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         }
         return KeyEventResult.handled;
       }
+    } else {
+      setState(() {
+        //  short cuts used in following mode
+        app.error =
+            'No short cuts while following host ${_appOptions.websocketHost}. Set options to no host or leader.';
+      });
     }
     logger.log(_logKeyboard, '_playerOnKey(): ignored');
     return KeyEventResult.ignored;
@@ -1645,17 +1651,20 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           //   ', last row: ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}',
           // );
 
-          logger.log(_logScrollListener, 'bestItemPosition: index: $bestItemPositionIndex'
-              ', ${bestItemPosition?.itemLeadingEdge}'
-              ' <= $alignment <=  ${bestItemPosition?.itemTrailingEdge}');
+          logger.log(
+            _logScrollListener,
+            'bestItemPosition: index: $bestItemPositionIndex'
+            ', ${bestItemPosition?.itemLeadingEdge}'
+            ' <= $alignment <=  ${bestItemPosition?.itemTrailingEdge}',
+          );
           bestItemPositionIndex =
-          minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (bestItemPositionIndex ?? 0);
+              minItemPositionIndex != null && minItemPositionIndex == 0 ? 0 : (bestItemPositionIndex ?? 0);
           //  force the list to the top if close
           //  note: item positions count from 1
           momentNumberFound =
-          bestItemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(bestItemPositionIndex - 1);
+              bestItemPositionIndex <= 1 ? 0 : _lyricsTable.gridRowToMomentNumber(bestItemPositionIndex - 1);
           int maxMomentNumberFound =
-          maxItemPositionIndex == null ? 0 : _lyricsTable.gridRowToMomentNumber(maxItemPositionIndex - 1);
+              maxItemPositionIndex == null ? 0 : _lyricsTable.gridRowToMomentNumber(maxItemPositionIndex - 1);
           // logger.log(
           //   _logScrollListener,
           //   'itemPositionIndex: $bestItemPositionIndex, momentNumberFound: $momentNumberFound'
@@ -1678,9 +1687,9 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             logger.log(_logScrollListener, 'reposition to bottom: _lastPlayMomentNumber: $_lastPlayMomentNumber');
             logger.i(
               '       bottom: $maxItemPositionIndex: '
-                  ' of ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}'
-                  ', ${maxItemPosition?.itemLeadingEdge}'
-                  ' to ${maxItemPosition?.itemTrailingEdge}',
+              ' of ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}'
+              ', ${maxItemPosition?.itemLeadingEdge}'
+              ' to ${maxItemPosition?.itemTrailingEdge}',
             );
           } else if ((_lastPlayMomentNumber ?? 0) < momentNumberFound ||
               (_lastPlayMomentNumber ?? 0) > maxMomentNumberFound) {
@@ -1778,13 +1787,13 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _itemScrollController
             .scrollTo(index: row, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
             .then((value) {
-          _isScrolling = false;
-          logger.log(
-            _logScrollAnimation,
-            'scrollTo(): post: _lastRowIndex: $row'
+              _isScrolling = false;
+              logger.log(
+                _logScrollAnimation,
+                'scrollTo(): post: _lastRowIndex: $row'
                 ', boxMarker: $boxMarker',
-          );
-        });
+              );
+            });
       } else {
         logger.i('scrollTo(): request for scroll while scrolling: $row');
       }

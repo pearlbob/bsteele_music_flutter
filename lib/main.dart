@@ -854,6 +854,7 @@ class MyHomePageState extends State<MyHomePage> {
       return;
     }
     Navigator.of(context).pop(); //  drawer
+    app.clearMessage();
   }
 
   _navigateToSingers() async {

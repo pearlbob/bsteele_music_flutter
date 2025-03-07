@@ -51,6 +51,7 @@ ios/
 macos/
 windows/
 .idea/
+.metadata
 
 # See https://www.dartlang.org/guides/libraries/private-files
 

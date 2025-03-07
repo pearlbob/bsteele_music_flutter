@@ -68,56 +68,62 @@ class AppSongUpdateService extends ChangeNotifier {
           Uri uri = Uri.parse(url);
           _responseCount = 0;
 
-          _webSocketChannel =
-              WebSocketChannel.connect(uri); //  fixme: currently the package can throw an unhandled exception here!
+          _webSocketChannel = WebSocketChannel.connect(
+            uri,
+          ); //  fixme: currently the package can throw an unhandled exception here!
           _webSocketSink = _webSocketChannel!.sink;
           notifyListeners();
 
           //  setup the song update service listening
           logger.log(_log, 'listen to: $_ipAddress, $uri');
-          _subscription = _webSocketChannel!.stream.listen((message) {
-            _responseCount++;
-            if (_responseCount == 1) {
-              notifyListeners(); //  notify on change of status
-            }
+          _subscription = _webSocketChannel!.stream.listen(
+            (message) {
+              _responseCount++;
+              if (_responseCount == 1) {
+                notifyListeners(); //  notify on change of status
+              }
 
-            if (message is String) {
-              if (message.startsWith(_timeRequest)) {
-                //  time
-                logger.i('time response: $message');
-              } else if (message.startsWith(_tempoRequest)) {
-                //  tempo
-                SongTempoUpdate? songTempoUpdate = SongTempoUpdate.fromJson(message.substring(_tempoRequest.length));
-                if (songTempoUpdate != null) {
-                  //  note: tempo change is not a change of leadership!
-                  tempoNotifier.songTempoUpdate = songTempoUpdate;
-                  // logger.i('tempo response: $message');
-                }
-              } else {
-                var jsonSongUpdate = SongUpdate.fromJson(message);
-                if (jsonSongUpdate != null) {
-                  _songUpdate = jsonSongUpdate;
+              if (message is String) {
+                if (message.startsWith(_timeRequest)) {
+                  //  time
+                  logger.i('time response: $message');
+                } else if (message.startsWith(_tempoRequest)) {
+                  //  tempo
+                  SongTempoUpdate? songTempoUpdate = SongTempoUpdate.fromJson(message.substring(_tempoRequest.length));
+                  if (songTempoUpdate != null) {
+                    //  note: tempo change is not a change of leadership!
+                    tempoNotifier.songTempoUpdate = songTempoUpdate;
+                    // logger.i('tempo response: $message');
+                  }
+                } else {
+                  var jsonSongUpdate = SongUpdate.fromJson(message);
+                  if (jsonSongUpdate != null) {
+                    _songUpdate = jsonSongUpdate;
 
-                  if (_songUpdate != null) {
-                    playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
-                    _delayMilliseconds = 0;
-                    _songUpdateCount++;
-                    logger.log(
+                    if (_songUpdate != null) {
+                      playerUpdate(context, _songUpdate!); //  fixme:  exposure to UI internals
+                      _delayMilliseconds = 0;
+                      _songUpdateCount++;
+                      logger.log(
                         _logMessage,
                         'received: song: ${_songUpdate?.song.title}'
-                            ' at moment: ${_songUpdate?.momentNumber}/${_songUpdate?.song.songMoments.length}'
-                        ', bpm: ${_songUpdate?.currentBeatsPerMinute}');
+                        ' at moment: ${_songUpdate?.momentNumber}/${_songUpdate?.song.songMoments.length}'
+                        ', bpm: ${_songUpdate?.currentBeatsPerMinute}',
+                      );
+                    }
                   }
                 }
               }
-            }
-          }, onError: (Object error) {
-            logger.log(_log, 'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
-            _closeWebSocketChannel();
-          }, onDone: () {
-            logger.log(_log, 'webSocketChannel onDone: at $uri');
-            _closeWebSocketChannel();
-          });
+            },
+            onError: (Object error) {
+              logger.log(_log, 'webSocketChannel error: "$error" at "$uri"'); //  fixme: retry later
+              _closeWebSocketChannel();
+            },
+            onDone: () {
+              logger.log(_log, 'webSocketChannel onDone: at $uri');
+              _closeWebSocketChannel();
+            },
+          );
 
           //  See if the server is there, that is, force a response that
           //  confirms the connection
@@ -129,7 +135,17 @@ class AppSongUpdateService extends ChangeNotifier {
           lastHost = _host;
 
           if (_webSocketChannel != null) {
-            for (_idleCount = 0;; _idleCount++) {
+            try {
+              await _webSocketChannel!.ready;
+              _responseCount++;
+            } on Exception catch (e) {
+              // Handle the exception.
+              logger.log(_log, '_webSocketChannel to $_host is not ready: "$e"');
+              //  try again
+              continue;
+            }
+
+            for (_idleCount = 0; ; _idleCount++) {
               //  idle
               await Future.delayed(const Duration(milliseconds: _idleMilliseconds));
 
@@ -158,7 +174,7 @@ class AppSongUpdateService extends ChangeNotifier {
           }
         } catch (e) {
           logger.log(_log, 'webSocketChannel exception: $e');
-          _closeWebSocketChannel();
+          continue;
         }
       }
 

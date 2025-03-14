@@ -927,9 +927,7 @@ class PlayListState extends State<PlayList> {
 
   bool isBunching() =>
       widget.allowSongListBunching
-      //  don't bunch when performances might be confused with each other
       &&
-      _searchTextFieldController.text.isEmpty &&
       _bunchSongList;
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {

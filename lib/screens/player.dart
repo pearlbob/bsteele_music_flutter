@@ -376,6 +376,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         playerSelectedBpm = bpm;
       });
       logger.log(_logTempoListener, 'player _tempoNotifierListener: $tempoNotifier');
+    } else {
+      logger.log(_logTempoListener, 'player _tempoNotifierListener ignored: $tempoNotifier');
     }
   }
 
@@ -1033,7 +1035,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                               ),
                               const AppSpace(),
                               SizedBox(
-                                width: 3 * app.screenInfo.fontSize,
+                                width: 3.25 * app.screenInfo.fontSize,
                                 child: AppTextField(
                                   hintText: 'bpm',
                                   controller: _bpmTextEditingController,

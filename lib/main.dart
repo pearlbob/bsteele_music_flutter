@@ -127,6 +127,15 @@ in bsteele_music_flutter/android/app/src/main/AndroidManifest.xml:
   ...
 
 </manifest...>
+
+
+Fix this issue by using the highest Android NDK version (they are backward compatible).
+Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gradle.kts:
+
+    android {
+        ndkVersion = "27.0.12077973"
+        ...
+    }
  */
 
 //  diagnostic logging enables

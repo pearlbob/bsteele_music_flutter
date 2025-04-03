@@ -13,8 +13,7 @@ class TempoNotifier extends ChangeNotifier {
         (newSongTempoUpdate.songId != _songTempoUpdate?.songId ||
             newSongTempoUpdate.currentBeatsPerMinute != _songTempoUpdate?.currentBeatsPerMinute)) {
       _songTempoUpdate = newSongTempoUpdate;
-      logger.log(
-          _log, 'tempoNotifier: ${_songTempoUpdate?.songId}, currentBPM: ${_songTempoUpdate?.currentBeatsPerMinute}');
+      logger.log(_log, 'tempoNotifier: $_songTempoUpdate');
       notifyListeners();
     }
   }

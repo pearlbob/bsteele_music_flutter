@@ -30,12 +30,11 @@ void main() async {
     const bar = 60.0 / bpm * beats;
     const step = bar / beats / 4;
 
-    DrumParts drumParts = DrumParts(name: 'test', beats: beats, parts: [
-      DrumPart(
-        DrumTypeEnum.bass,
-        beats: beats,
-      )..addBeat(DrumBeat.beat1, subBeat: DrumSubBeatEnum.subBeat)
-    ]);
+    DrumParts drumParts = DrumParts(
+      name: 'test',
+      beats: beats,
+      parts: [DrumPart(DrumTypeEnum.bass, beats: beats)..addBeat(DrumBeat.beat1, subBeat: DrumSubBeatEnum.subBeat)],
+    );
     logger.i('bar: $bar, step: $step, drumParts: $drumParts');
 
     var t = 0.0;
@@ -57,32 +56,31 @@ void main() async {
     int bpm = 106;
 
     var song = Song(
-        title: 'A song',
-        artist: 'bob',
-        copyright: 'bsteele.com',
-        key: Key.C,
-        beatsPerMinute: bpm,
-        beatsPerBar: beatsPerBar,
-        unitsPerMeasure: 4,
-        user: 'pearl bob',
-        chords:
-            'I: V: [Am Am/G Am/F# FE ] x8  I2: [Am Am/G Am/F# FE ] x4  C: F F C C, G G F F x12  O: Dm C B Bb x4, A  ',
-        rawLyrics: 'i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro');
+      title: 'A song',
+      artist: 'bob',
+      copyright: 'bsteele.com',
+      key: Key.C,
+      beatsPerMinute: bpm,
+      beatsPerBar: beatsPerBar,
+      unitsPerMeasure: 4,
+      user: 'pearl bob',
+      chords: 'I: V: [Am Am/G Am/F# FE ] x8  I2: [Am Am/G Am/F# FE ] x4  C: F F C C, G G F F x12  O: Dm C B Bb x4, A  ',
+      rawLyrics: 'i:\nv: bob, bob, bob berand\nc: sing chorus here \no: last line of outro',
+    );
 
-    double time = 10000;
     double songStart = 0;
 
     logger.i('song: moments: ${song.songMoments.length}');
-    for (var songMoment in song.songMoments) {
-      logger.i('$songMoment   ${songMoment.chordSectionLocation}'
-          ', t: ${song.getSongTimeAtMoment(songMoment.momentNumber, beatsPerMinute: bpm)}');
-      for (var b in [bpm - 4, bpm, bpm + 4]) {
+    for (var b in [bpm - 4, bpm, bpm + 4]) {
+      for (var songMoment in song.songMoments) {
+        logger.i(
+          '$songMoment   ${songMoment.chordSectionLocation}'
+          ', t: ${song.getSongTimeAtMoment(songMoment.momentNumber, beatsPerMinute: bpm)}',
+        );
+
         var momentNumber = songMoment.momentNumber;
         logger.i('   $b: ${song.getSongTimeAtMoment(momentNumber, beatsPerMinute: b).toStringAsFixed(6)}');
-        var oldSongStart = songStart;
-        songStart = time - song.getSongTimeAtMoment(momentNumber, beatsPerMinute: b);
-        logger.i('        resetSongStart(): new songStart: $songStart,  momentNumber: $momentNumber'
-            ', ${songStart - oldSongStart}');
+        logger.i('        resetSongStart(): new songStart: $songStart,  momentNumber: $momentNumber');
       }
     }
   });

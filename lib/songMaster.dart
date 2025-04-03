@@ -38,295 +38,8 @@ class SongMaster extends ChangeNotifier {
     Timer.periodic(const Duration(milliseconds: 16), (timer) {
       final double time = _appAudioPlayer.getCurrentTime();
       final now = DateTime.now(); // fixme: temp diagnostic only
-      final double dt = time - _lastTime;
-      //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
-      _lastTime = time;
-      final songTime = time - (_songStart ?? 0);
 
-      int momentNumber;
-      switch (songUpdateState) {
-        case SongUpdateState.pause:
-          momentNumber = _momentNumber ?? -1;
-          _lastDrumTempoT = 0;
-          break;
-        case SongUpdateState.playHold:
-          momentNumber = _momentNumber ?? 0;
-          _lastDrumTempoT = 0;
-          break;
-        case SongUpdateState.drumTempo:
-          momentNumber = -1;
-          assert(_bpm >= MusicConstants.minBpm);
-          if (_lastDrumTempoT == 0) {
-            //  start the tempo on the next beat
-            _lastDrumTempoT = time;
-            _firstDrumTempoT = time;
-            _drumTempoCount = 0;
-            _lastTempoBpm = _bpm;
-            return;
-          }
-          double tempoPeriod = 60.0 / _bpm; //  seconds
-          if (_lastTempoBpm != _bpm) {
-            //  deal with a change of tempo
-            //  try to slide a beat in without too much trauma
-            _lastTempoBpm = _bpm;
-            _firstDrumTempoT = _lastDrumTempoT;
-            _drumTempoCount = 0;
-          }
-
-          if (time > _lastDrumTempoT) {
-            //  ready to load the next time, just after the last time
-            _drumTempoCount++;
-            //  tempo should be absolute... until it has to change
-            double nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
-
-            //  fix something wrong
-            if (time > nextTempoT) {
-              logger.i(
-                'tempo fix: time: $time, _lastDrumTempoT: $_lastDrumTempoT'
-                ', nextTempoT: $nextTempoT, tempoPeriod: $tempoPeriod',
-              );
-              _firstDrumTempoT = time;
-              _drumTempoCount = 1;
-              nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
-            }
-
-            _appAudioPlayer.play(
-              drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/blip.flac',
-              when: nextTempoT,
-              duration: 0.15, //fixme: temp
-              volume: _appOptions.volume,
-            );
-
-            //  clean up for the next request
-            logger.log(
-              _logDrums,
-              'drumTempo: next: $nextTempoT, _lastDrumTempoT: $_lastDrumTempoT'
-              ', dt: ${nextTempoT - _lastDrumTempoT}, tempoPeriod: $tempoPeriod',
-            );
-            _lastDrumTempoT = nextTempoT;
-          }
-          break;
-        default:
-          momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
-          _lastDrumTempoT = 0;
-          break;
-      }
-
-      var lyricSectionIndex = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
-
-      logger.log(
-        _logSongMasterLogTickerDetails,
-        'SongMaster: ${songUpdateState.name} ${time.toStringAsFixed(3)}: dt: ${dt.toStringAsFixed(3)}'
-        ', songTime: ${songTime.toStringAsFixed(3)}'
-        ', start: ${_songStart?.toStringAsFixed(3)}, momentNumber: $momentNumber'
-        ', lyricSectionIndex: $lyricSectionIndex',
-      );
-
-      //  update the bpm
-      if (_newBpm != null && _newBpm != _bpm) {
-        //   logger.i('\n_bpm: $_bpm, _newBpm: $_newBpm');
-        if (_song != null && momentNumber >= 0) {
-          double beat = (time - (_songStart ?? 0)) * _bpm / 60.0;
-          logger.log(
-            _logSongMasterBpmChange,
-            'resetBpm(): beat: $beat, beatNumber: ${_song?.songMoments[momentNumber].beatNumber}',
-          );
-          logger.log(_logSongMasterBpmChange, '   old _songStart: $_songStart');
-          // 60.0 * beat = (time - (_songStart ?? 0)) * _bpm
-          // ( 60.0 * beat ) / _bpm  = time - _songStart
-          // ( 60.0 * beat ) / _bpm - time =  - _songStart
-          _songStart = time - (60.0 * beat) / _newBpm!;
-          logger.log(_logSongMasterBpmChange, '   new _songStart: $_songStart');
-        }
-
-        _bpm = _newBpm!;
-        _newBpm = null;
-        _song?.setBeatsPerMinute(_bpm);
-        logger.log(_logTempo, 'newBpm: $_bpm');
-      }
-
-      //  skip to the moment number scrolled to
-      if (_skipToMomentNumber != null) {
-        _skipToCurrentSection = false;
-        _repeatSection = 0; //  cancel any confusion
-        momentNumber = _skipToMomentNumber!;
-        _skipToMomentNumber = null;
-        _resetSongStart(time, momentNumber);
-        _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
-        logger.log(_logSongMasterLogAdvance, 'songMaster: skip to momentNumber:  $momentNumber');
-        notifyListeners();
-      }
-
-      //  skip the current section if asked
-      if (_skipToCurrentSection) {
-        _skipToCurrentSection = false;
-        _repeatSection = 0; //  cancel any confusion
-        logger.log(_logSongMasterLogAdvance, 'skip: from $_momentNumber ');
-        if (_song != null && momentNumber >= 0) {
-          var moment = _song!.getSongMoment(momentNumber);
-          if (moment != null) {
-            //  find the next lyric section
-            var size = _song!.songMoments.length;
-            while (moment?.lyricSection.index == lyricSectionIndex) {
-              momentNumber++;
-              if (momentNumber >= size - 1) {
-                break; //  already at last
-              }
-              moment = _song!.getSongMoment(momentNumber);
-              if (moment == null) {
-                break;
-              }
-            }
-            logger.log(_logSongMasterLogAdvance, 'skip: $_momentNumber to ${moment?.momentNumber}');
-            if (moment != null) {
-              momentNumber = moment.momentNumber;
-              _resetSongStart(time, momentNumber);
-              _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
-              logger.log(
-                _logSongMasterLogAdvance,
-                'skip from index $lyricSectionIndex to $moment in ${moment.lyricSection.index}',
-              );
-              notifyListeners();
-            }
-          }
-        }
-      }
-
-      //  repeat sections when the current has ended
-      if (_repeatSection > 0 && lyricSectionIndex != _lastSectionIndex) {
-        logger.log(_logSongMasterLogAdvance, '_repeatSection: $_repeatSection, lyricSectionIndex: $lyricSectionIndex');
-        _repeatSection = Util.intLimit(_repeatSection, 1, 2); //  limit the number of sections to repeat
-        while (_repeatSection > 0 && momentNumber > 0) {
-          momentNumber--;
-          var index = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
-          // logger.log(_songMasterLogAdvance, '_repeatSection: looking: $momentNumber, index: $index');
-          if (index != lyricSectionIndex) {
-            _repeatSection--;
-            lyricSectionIndex = index;
-            momentNumber = _song?.getFirstSongMomentInSection(momentNumber)?.momentNumber ?? 0;
-          }
-        }
-        logger.log(
-          _logSongMasterLogAdvance,
-          '_repeatSection: back to section: $lyricSectionIndex at momentNumber: $momentNumber',
-        );
-        _resetSongStart(time, momentNumber);
-      }
-
-      _lastSectionIndex = lyricSectionIndex;
-      if (_lastMomentNumber == momentNumber) {
-        return;
-      }
-      _lastMomentNumber = momentNumber;
-      logger.log(
-        _logSongMasterTicker,
-        'SongMaster: ${songUpdateState.name}:  moment: $momentNumber, lyric: $_lastSectionIndex',
-      );
-
-      switch (songUpdateState) {
-        case SongUpdateState.none:
-        case SongUpdateState.idle:
-        case SongUpdateState.drumTempo:
-          break;
-        case SongUpdateState.playing:
-          if (_song != null) {
-            {
-              //  fixme: deal with a changing cadence!
-
-              //  pre-load the song audio by the advance time
-              var measureDuration = 60.0 * _song!.timeSignature.beatsPerBar / _song!.beatsPerMinute;
-              double advanceTime = time - (_songStart ?? 0) + _advanceS;
-
-              //  fixme: fix the start of playing!!!!!  after pause?
-              int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime, bpm: _bpm);
-
-              //  place audio in the audio player one moment (i.e. measure) in advance
-              while (_advancedMomentNumber == null ||
-                  (newAdvancedMomentNumber != null && newAdvancedMomentNumber >= _advancedMomentNumber!)) {
-                _advancedMomentNumber ??= newAdvancedMomentNumber;
-                logger.log(
-                  _logSongMasterLogAdvance,
-                  'new: $newAdvancedMomentNumber'
-                  ', measureDuration: $measureDuration'
-                  ', advance: ${advanceTime.toStringAsFixed(3)}'
-                  ', mTime: ${((time - (_songStart ?? 0)) / measureDuration).toStringAsFixed(3)}',
-                  //
-                );
-
-                if (_drumParts != null && !drumsAreMuted) {
-                  _performDrumParts(
-                    (_songStart ?? 0) +
-                        (_advancedMomentNumber! < 0
-                            ? _advancedMomentNumber! * measureDuration
-                            : _song!.getSongTimeAtMoment(_advancedMomentNumber!)),
-                    _bpm,
-                    _drumParts!,
-                  );
-                  logger.t(
-                    'SongPlayMode.autoPlay: '
-                    ' _advancedMomentNumber: ${_advancedMomentNumber!}',
-                    //    '${(_songStart ?? 0)} + ${_song!.getSongTimeAtMoment(_advancedMomentNumber!)}'
-                  );
-                } else if (!drumsAreMuted) {
-                  logger.i('no _drumParts!');
-                }
-                logger.log(
-                  _logSongMasterTicker,
-                  '${(time - (_songStart ?? 0)).toStringAsFixed(3)}: _advancedMomentNumber: $_advancedMomentNumber'
-                  ' upto $newAdvancedMomentNumber',
-                );
-                _advancedMomentNumber = _advancedMomentNumber! + 1;
-              }
-            }
-            {
-              //  notify the listeners that the play has made progress
-              //  note that this is in "realtime", i.e. slightly delayed, not advanced
-              double songTime =
-                  time -
-                  (_songStart ?? 0) -
-                  (60.0 / _song!.beatsPerMinute).floor() +
-                  _appAudioPlayer.latency; //  only a rude adjustment to average the appearance of being on time.
-              int? newMomentNumber = _song!.getSongMomentNumberAtSongTime(songTime, bpm: _bpm);
-              if (newMomentNumber == null) {
-                //  stop
-                _clearMomentNumber();
-                songUpdateState = SongUpdateState.idle;
-                notifyListeners();
-                logger.log(
-                  _logSongMasterNotify,
-                  'SongMaster stop: ${songTime.toStringAsFixed(3)}'
-                  ', dt: ${dt.toStringAsFixed(3)}'
-                  ', moment: ${newMomentNumber.toString()}',
-                );
-              } else {
-                // advance
-                momentNumber = newMomentNumber;
-              }
-            }
-          }
-          if (momentNumber < 0) {
-            logger.log(_logSongMasterMoment, 'SongMasterMoment: from $_momentNumber to $momentNumber');
-          }
-          if (momentNumber != _momentNumber) {
-            _momentNumber = momentNumber;
-            notifyListeners();
-          }
-          break;
-
-        case SongUpdateState.playHold:
-        case SongUpdateState.pause:
-          if (_song != null) {
-            //  prepare for the eventual restart
-            if (_momentNumber != null) {
-              _resetSongStart(time, momentNumber);
-            }
-          }
-          break;
-      }
-
-      if (dt > 0.2) {
-        logger.log(_logSongMasterTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
-      }
+      processTime(time);
 
       int elapsedUs;
       {
@@ -348,7 +61,7 @@ class SongMaster extends ChangeNotifier {
           _maxDelta = 0;
         }
       }
-      logger.log(_logSongMasterLogDelta, 'delta: $deltaUs us, dt: ${dt.toStringAsFixed(3)}');
+      logger.log(_logSongMasterLogDelta, 'delta: $deltaUs us');
       _lastElapsedUs = elapsedUs;
 
       {
@@ -366,6 +79,302 @@ class SongMaster extends ChangeNotifier {
         }
       }
     });
+  }
+
+  //  public only for testing
+  processTime(final double time) {
+    final double dt = time - _lastTime;
+    //logger.i('$time, _lastTime: $_lastTime, dt: $dt');
+    _lastTime = time;
+    final songTime = time - (_songStart ?? 0);
+
+    int momentNumber;
+    switch (songUpdateState) {
+      case SongUpdateState.pause:
+        momentNumber = _momentNumber ?? -1;
+        _lastDrumTempoT = 0;
+        break;
+      case SongUpdateState.playHold:
+        momentNumber = _momentNumber ?? 0;
+        _lastDrumTempoT = 0;
+        break;
+      case SongUpdateState.drumTempo:
+        momentNumber = -1;
+        assert(_bpm >= MusicConstants.minBpm);
+        if (_lastDrumTempoT == 0) {
+          //  start the tempo on the next beat
+          _lastDrumTempoT = time;
+          _firstDrumTempoT = time;
+          _drumTempoCount = 0;
+          _lastTempoBpm = _bpm;
+          return;
+        }
+        double tempoPeriod = 60.0 / _bpm; //  seconds
+        if (_lastTempoBpm != _bpm) {
+          //  deal with a change of tempo
+          //  try to slide a beat in without too much trauma
+          _lastTempoBpm = _bpm;
+          _firstDrumTempoT = _lastDrumTempoT;
+          _drumTempoCount = 0;
+        }
+
+        if (time > _lastDrumTempoT) {
+          //  ready to load the next time, just after the last time
+          _drumTempoCount++;
+          //  tempo should be absolute... until it has to change
+          double nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
+
+          //  fix something wrong
+          if (time > nextTempoT) {
+            logger.i(
+              'tempo fix: time: $time, _lastDrumTempoT: $_lastDrumTempoT'
+              ', nextTempoT: $nextTempoT, tempoPeriod: $tempoPeriod',
+            );
+            _firstDrumTempoT = time;
+            _drumTempoCount = 1;
+            nextTempoT = _firstDrumTempoT + _drumTempoCount * tempoPeriod;
+          }
+
+          _appAudioPlayer.play(
+            drumTypeToFileMap[DrumTypeEnum.closedHighHat] ?? 'audio/blip.flac',
+            when: nextTempoT,
+            duration: 0.15, //fixme: temp
+            volume: _appOptions.volume,
+          );
+
+          //  clean up for the next request
+          logger.log(
+            _logDrums,
+            'drumTempo: next: $nextTempoT, _lastDrumTempoT: $_lastDrumTempoT'
+            ', dt: ${nextTempoT - _lastDrumTempoT}, tempoPeriod: $tempoPeriod',
+          );
+          _lastDrumTempoT = nextTempoT;
+        }
+        break;
+      default:
+        momentNumber = _song?.getSongMomentNumberAtSongTime(songTime, bpm: _bpm) ?? -1;
+        _lastDrumTempoT = 0;
+        break;
+    }
+
+    var lyricSectionIndex = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
+
+    //  update the bpm
+    if (_newBpm != null && _newBpm != _bpm) {
+      //   logger.i('\n_bpm: $_bpm, _newBpm: $_newBpm');
+      logger.log(_logSongMasterBpmChange, '   _newBpm?  new $_newBpm vs old $_bpm');
+      if (_song != null && momentNumber >= 0) {
+        double beat = (time - (_songStart ?? 0)) * _bpm / 60.0;
+        logger.log(
+          _logSongMasterBpmChange,
+          'resetBpm(): beat: $beat, beatNumber: ${_song?.songMoments[momentNumber].beatNumber}',
+        );
+        logger.log(_logSongMasterBpmChange, '   old _songStart: $_songStart');
+        // 60.0 * beat = (time - (_songStart ?? 0)) * _bpm
+        // ( 60.0 * beat ) / _bpm  = time - _songStart
+        // ( 60.0 * beat ) / _bpm - time =  - _songStart
+        _songStart = time - (60.0 * beat) / _newBpm!;
+        logger.log(_logSongMasterBpmChange, '   new _songStart: $_songStart');
+      }
+
+      if (songUpdateState != SongUpdateState.idle) {
+        logger.log(
+          _logSongMasterLogTickerDetails,
+          'SongMaster: ${songUpdateState.name} ${time.toStringAsFixed(3)}: dt: ${dt.toStringAsFixed(3)}'
+          ', songTime: ${songTime.toStringAsFixed(3)}'
+          ', start: ${_songStart?.toStringAsFixed(3)}, momentNumber: $momentNumber'
+          ', lyricSectionIndex: $lyricSectionIndex',
+        );
+      }
+
+      _bpm = _newBpm!;
+      _newBpm = null;
+      _song?.setBeatsPerMinute(_bpm);
+      logger.log(_logTempo, 'newBpm: $_bpm');
+    }
+
+    //  skip to the moment number scrolled to
+    if (_skipToMomentNumber != null) {
+      _skipToCurrentSection = false;
+      _repeatSection = 0; //  cancel any confusion
+      momentNumber = _skipToMomentNumber!;
+      _skipToMomentNumber = null;
+      _resetSongStart(time, momentNumber);
+      _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
+      logger.log(_logSongMasterLogAdvance, 'songMaster: skip to momentNumber:  $momentNumber');
+      notifyListeners();
+    }
+
+    //  skip the current section if asked
+    if (_skipToCurrentSection) {
+      _skipToCurrentSection = false;
+      _repeatSection = 0; //  cancel any confusion
+      logger.log(_logSongMasterLogAdvance, 'skip: from $_momentNumber ');
+      if (_song != null && momentNumber >= 0) {
+        var moment = _song!.getSongMoment(momentNumber);
+        if (moment != null) {
+          //  find the next lyric section
+          var size = _song!.songMoments.length;
+          while (moment?.lyricSection.index == lyricSectionIndex) {
+            momentNumber++;
+            if (momentNumber >= size - 1) {
+              break; //  already at last
+            }
+            moment = _song!.getSongMoment(momentNumber);
+            if (moment == null) {
+              break;
+            }
+          }
+          logger.log(_logSongMasterLogAdvance, 'skip: $_momentNumber to ${moment?.momentNumber}');
+          if (moment != null) {
+            momentNumber = moment.momentNumber;
+            _resetSongStart(time, momentNumber);
+            _advancedMomentNumber = momentNumber; //fixme!!!!!!!!
+            logger.log(
+              _logSongMasterLogAdvance,
+              'skip from index $lyricSectionIndex to $moment in ${moment.lyricSection.index}',
+            );
+            notifyListeners();
+          }
+        }
+      }
+    }
+
+    //  repeat sections when the current has ended
+    if (_repeatSection > 0 && lyricSectionIndex != _lastSectionIndex) {
+      logger.log(_logSongMasterLogAdvance, '_repeatSection: $_repeatSection, lyricSectionIndex: $lyricSectionIndex');
+      _repeatSection = Util.intLimit(_repeatSection, 1, 2); //  limit the number of sections to repeat
+      while (_repeatSection > 0 && momentNumber > 0) {
+        momentNumber--;
+        var index = momentNumber >= 0 ? _song?.getSongMoment(momentNumber)?.lyricSection.index : null;
+        // logger.log(_songMasterLogAdvance, '_repeatSection: looking: $momentNumber, index: $index');
+        if (index != lyricSectionIndex) {
+          _repeatSection--;
+          lyricSectionIndex = index;
+          momentNumber = _song?.getFirstSongMomentInSection(momentNumber)?.momentNumber ?? 0;
+        }
+      }
+      logger.log(
+        _logSongMasterLogAdvance,
+        '_repeatSection: back to section: $lyricSectionIndex at momentNumber: $momentNumber',
+      );
+      _resetSongStart(time, momentNumber);
+    }
+
+    _lastSectionIndex = lyricSectionIndex;
+    if (_lastMomentNumber == momentNumber) {
+      return;
+    }
+    _lastMomentNumber = momentNumber;
+    logger.log(
+      _logSongMasterTicker,
+      'SongMaster: ${songUpdateState.name}:  moment: $momentNumber, lyric: $_lastSectionIndex',
+    );
+
+    switch (songUpdateState) {
+      case SongUpdateState.none:
+      case SongUpdateState.idle:
+      case SongUpdateState.drumTempo:
+        break;
+      case SongUpdateState.playing:
+        if (_song != null) {
+          {
+            //  fixme: deal with a changing cadence!
+
+            //  pre-load the song audio by the advance time
+            var measureDuration = 60.0 * _song!.timeSignature.beatsPerBar / _song!.beatsPerMinute;
+            double advanceTime = time - (_songStart ?? 0) + _advanceS;
+
+            //  fixme: fix the start of playing!!!!!  after pause?
+            int? newAdvancedMomentNumber = _song!.getSongMomentNumberAtSongTime(advanceTime, bpm: _bpm);
+
+            //  place audio in the audio player one moment (i.e. measure) in advance
+            while (_advancedMomentNumber == null ||
+                (newAdvancedMomentNumber != null && newAdvancedMomentNumber >= _advancedMomentNumber!)) {
+              _advancedMomentNumber ??= newAdvancedMomentNumber;
+              logger.log(
+                _logSongMasterLogAdvance,
+                'new: $newAdvancedMomentNumber'
+                ', measureDuration: $measureDuration'
+                ', advance: ${advanceTime.toStringAsFixed(3)}'
+                ', mTime: ${((time - (_songStart ?? 0)) / measureDuration).toStringAsFixed(3)}',
+                //
+              );
+
+              if (_drumParts != null && !drumsAreMuted) {
+                _performDrumParts(
+                  (_songStart ?? 0) +
+                      (_advancedMomentNumber! < 0
+                          ? _advancedMomentNumber! * measureDuration
+                          : _song!.getSongTimeAtMoment(_advancedMomentNumber!)),
+                  _bpm,
+                  _drumParts!,
+                );
+                logger.t(
+                  'SongPlayMode.autoPlay: '
+                  ' _advancedMomentNumber: ${_advancedMomentNumber!}',
+                  //    '${(_songStart ?? 0)} + ${_song!.getSongTimeAtMoment(_advancedMomentNumber!)}'
+                );
+              } else if (!drumsAreMuted) {
+                logger.i('no _drumParts!');
+              }
+              logger.log(
+                _logSongMasterTicker,
+                '${(time - (_songStart ?? 0)).toStringAsFixed(3)}: _advancedMomentNumber: $_advancedMomentNumber'
+                ' upto $newAdvancedMomentNumber',
+              );
+              _advancedMomentNumber = _advancedMomentNumber! + 1;
+            }
+          }
+          {
+            //  notify the listeners that the play has made progress
+            //  note that this is in "realtime", i.e. slightly delayed, not advanced
+            double songTime =
+                time -
+                (_songStart ?? 0) -
+                (60.0 / _song!.beatsPerMinute).floor() +
+                _appAudioPlayer.latency; //  only a rude adjustment to average the appearance of being on time.
+            int? newMomentNumber = _song!.getSongMomentNumberAtSongTime(songTime, bpm: _bpm);
+            if (newMomentNumber == null) {
+              //  stop
+              _clearMomentNumber();
+              songUpdateState = SongUpdateState.idle;
+              notifyListeners();
+              logger.log(
+                _logSongMasterNotify,
+                'SongMaster stop: ${songTime.toStringAsFixed(3)}'
+                ', dt: ${dt.toStringAsFixed(3)}'
+                ', moment: ${newMomentNumber.toString()}',
+              );
+            } else {
+              // advance
+              momentNumber = newMomentNumber;
+            }
+          }
+        }
+        if (momentNumber < 0) {
+          logger.log(_logSongMasterMoment, 'SongMasterMoment: from $_momentNumber to $momentNumber');
+        }
+        if (momentNumber != _momentNumber) {
+          _momentNumber = momentNumber;
+          notifyListeners();
+        }
+        break;
+
+      case SongUpdateState.playHold:
+      case SongUpdateState.pause:
+        if (_song != null) {
+          //  prepare for the eventual restart
+          if (_momentNumber != null) {
+            _resetSongStart(time, momentNumber);
+          }
+        }
+        break;
+    }
+
+    if (dt > 0.2) {
+      logger.log(_logSongMasterTicker, 'dt time: $time, ${dt.toStringAsFixed(3)}');
+    }
   }
 
   _clearMomentNumber() {
@@ -411,10 +420,8 @@ class SongMaster extends ChangeNotifier {
         songUpdateState = SongUpdateState.drumTempo;
         notifyListeners();
         break;
-      case SongUpdateState.drumTempo:
-        setBpm(bpm);
-        break;
       default:
+        setBpm(bpm);
         break;
     }
     logger.log(_logTempo, 'tapTempo: $bpm, state: ${songUpdateState.name}');
@@ -608,6 +615,7 @@ class SongMaster extends ChangeNotifier {
   int get bpm => _bpm;
   int _bpm = MusicConstants.minBpm; //  default value only
   int? _newBpm;
+
   double _lastDrumTempoT = 0;
   double _firstDrumTempoT = 0;
   int _drumTempoCount = 0;

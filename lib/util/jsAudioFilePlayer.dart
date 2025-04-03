@@ -1,5 +1,5 @@
 @JS()
-library js_audio_file_player;
+library;
 
 import 'package:js/js.dart';
 

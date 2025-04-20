@@ -117,7 +117,7 @@ class PerformanceHistoryState extends State<PerformanceHistory> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appWidgetHelper.backBar(
-          title: 'Community Jams Performance History',
+          title: 'Performance History',
           onPressed: () {
             app.clearMessage();
           }),

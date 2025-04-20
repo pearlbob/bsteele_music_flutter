@@ -90,12 +90,6 @@ enum NashvilleSelection {
   only;
 }
 
-enum CommunityJamsSongList {
-  all,
-  jams,
-  ninjam,
-}
-
 NameValue get myGoodSongNameValue => NameValue(userName, 'good');
 
 NameValue get myBadSongNameValue => NameValue(userName, 'bad');

@@ -70,7 +70,6 @@ import 'dart:convert';
 
 import 'package:bsteele_music_flutter/screens/about.dart';
 
-// import 'package:bsteele_music_flutter/screens/communityJams.dart';
 import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
@@ -168,11 +167,13 @@ void main() async {
   await appOptions.init(); //  initialize the options from the stored values
 
   //  use the webserver's host as the websocket server if appropriate
-  if (host.isEmpty //  likely a native app
+  if (host
+          .isEmpty //  likely a native app
           ||
-          host == 'www.bsteele.com' //  websocket will never be provided by the cloud server
+      host ==
+          'www.bsteele.com' //  websocket will never be provided by the cloud server
           ||
-          (host == 'localhost' && uri.port != 8080) //  defend against the debugger
+      (host == 'localhost' && uri.port != 8080) //  defend against the debugger
       ) {
     //  do nothing!
     hostIsWebsocketHost = false;
@@ -191,9 +192,7 @@ void main() async {
   packageInfo = await PackageInfo.fromPlatform();
 
   //  run the app
-  runApp(
-    const BSteeleMusicApp(),
-  );
+  runApp(const BSteeleMusicApp());
 }
 
 /*
@@ -265,42 +264,42 @@ class BSteeleMusicApp extends StatelessWidget {
     const mainList = 'mainList';
 
     return MultiProvider(
-        providers: [
-          //  has to be a widget level above it's use
-          ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
-        ],
-        builder: (context, child) {
-          return MaterialApp(
-            title: 'bsteeleMusicApp',
-            theme: app.themeData,
-            navigatorObservers: [playerRouteObserver],
+      providers: [
+        //  has to be a widget level above it's use
+        ChangeNotifierProvider<PlayListRefreshNotifier>(create: (_) => PlayListRefreshNotifier()),
+      ],
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'bsteeleMusicApp',
+          theme: app.themeData,
+          navigatorObservers: [playerRouteObserver],
 
-            // Start the app with the '/' named route. In this case, the app starts
-            // on the FirstScreen widget.
-            initialRoute: mainList,
-            routes: {
-              // When navigating to the '/' route, build the FirstScreen widget.
-              // '/': (context) => BSteeleMusicApp(),
-              // When navigating to the '/second' route, build the SecondScreen widget.
-              mainList: (context) => const MyHomePage(title: 'bsteeleMusicApp'),
-              Player.routeName: playerPageRoute.builder,
-              Options.routeName: (context) => const Options(),
-              Songs.routeName: (context) => const Songs(),
-              Singers.routeName: (context) => const Singers(),
-              MetadataScreen.routeName: (context) => const MetadataScreen(),
-              Edit.routeName: (context) => Edit(initialSong: app.selectedSong),
-              PerformanceHistory.routeName: (context) => const PerformanceHistory(),
-              Privacy.routeName: (context) => const Privacy(),
-              Documentation.routeName: (context) => const Documentation(),
-              Debug.routeName: (context) => const Debug(),
-              About.routeName: (context) => const About(),
-              //CommunityJams.routeName: (context) => const CommunityJams(),
-              StyleDemo.routeName: (context) => const StyleDemo(),
-              TheoryWidget.routeName: (context) => const TheoryWidget(),
-              DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong, isEditing: true),
-            },
-          );
-        });
+          // Start the app with the '/' named route. In this case, the app starts
+          // on the FirstScreen widget.
+          initialRoute: mainList,
+          routes: {
+            // When navigating to the '/' route, build the FirstScreen widget.
+            // '/': (context) => BSteeleMusicApp(),
+            // When navigating to the '/second' route, build the SecondScreen widget.
+            mainList: (context) => const MyHomePage(title: 'bsteeleMusicApp'),
+            Player.routeName: playerPageRoute.builder,
+            Options.routeName: (context) => const Options(),
+            Songs.routeName: (context) => const Songs(),
+            Singers.routeName: (context) => const Singers(),
+            MetadataScreen.routeName: (context) => const MetadataScreen(),
+            Edit.routeName: (context) => Edit(initialSong: app.selectedSong),
+            PerformanceHistory.routeName: (context) => const PerformanceHistory(),
+            Privacy.routeName: (context) => const Privacy(),
+            Documentation.routeName: (context) => const Documentation(),
+            Debug.routeName: (context) => const Debug(),
+            About.routeName: (context) => const About(),
+            StyleDemo.routeName: (context) => const StyleDemo(),
+            TheoryWidget.routeName: (context) => const TheoryWidget(),
+            DrumScreen.routeName: (context) => DrumScreen(song: app.selectedSong, isEditing: true),
+          },
+        );
+      },
+    );
   }
 }
 
@@ -397,8 +396,8 @@ class MyHomePageState extends State<MyHomePage> {
 
   Future<void> _readExternalSongList() async {
     var externalHost = '${host.isEmpty //
-            ? 'www.bsteele.com' //  likely a native app with web access
-            : '$host:${uri.port}' //  port for potential app server
+        ? 'www.bsteele.com' //  likely a native app with web access
+        : '$host:${uri.port}' //  port for potential app server
         }/bsteeleMusicApp';
 
     {
@@ -484,12 +483,14 @@ class MyHomePageState extends State<MyHomePage> {
     app.screenInfo.refresh(context);
 
     logger.log(
-        _logBuild,
-        'main build: ${app.selectedSong}'
-        ', ModalRoute: ${ModalRoute.of(context)?.settings.name}');
+      _logBuild,
+      'main build: ${app.selectedSong}'
+      ', ModalRoute: ${ModalRoute.of(context)?.settings.name}',
+    );
 
     //  figure the configuration when the values are established
-    app.isEditReady = (kIsWeb
+    app.isEditReady =
+        (kIsWeb
             //  if is web, Platform doesn't exist!  not evaluated here in the expression
             ||
             Platform.isLinux ||
@@ -524,10 +525,7 @@ class MyHomePageState extends State<MyHomePage> {
       key: _scaffoldKey,
       appBar: AppWidgetHelper(context).appBar(
         title: widget.title,
-        leading: appIconButton(
-          onPressed: _openDrawer,
-          icon: appIcon(Icons.menu),
-        ),
+        leading: appIconButton(onPressed: _openDrawer, icon: appIcon(Icons.menu)),
         actions: <Widget>[
           if (!app.screenInfo.isWayTooNarrow)
             AppTooltip(
@@ -559,9 +557,7 @@ class MyHomePageState extends State<MyHomePage> {
         voidCallback: _openDrawer,
         child: ListView(
           children: <Widget>[
-            Container(
-              height: 50,
-            ), //  filler for notched phones
+            Container(height: 50), //  filler for notched phones
             appListTile(
               title: 'Options',
               style: navTextStyle,
@@ -598,20 +594,22 @@ class MyHomePageState extends State<MyHomePage> {
             ),
 
             appListTile(
-                title: 'New Song',
-                style: navTextStyle,
-                enabled: app.isEditReady,
-                //  no files on phones!
-                onTap: () {
-                  _navigateToEdit();
-                }),
+              title: 'New Song',
+              style: navTextStyle,
+              enabled: app.isEditReady,
+              //  no files on phones!
+              onTap: () {
+                _navigateToEdit();
+              },
+            ),
             appListTile(
-                title: 'Drums',
-                style: navTextStyle,
-                enabled: app.isEditReady,
-                onTap: () {
-                  _navigateToDrums();
-                }),
+              title: 'Drums',
+              style: navTextStyle,
+              enabled: app.isEditReady,
+              onTap: () {
+                _navigateToDrums();
+              },
+            ),
             appListTile(
               title: 'Theory',
               style: navTextStyle,
@@ -653,6 +651,7 @@ class MyHomePageState extends State<MyHomePage> {
                 _navigateToMetadata();
               },
             ),
+
             // if (kDebugMode)
             //   appListTile(
             //     appKeyEnum: AppKeyEnum.mainDrawerDebug,
@@ -662,16 +661,6 @@ class MyHomePageState extends State<MyHomePage> {
             //       _navigateToDebug();
             //     },
             //   ),
-
-            // appListTile(
-            //   title: 'CJ',
-            //   style: navTextStyle,
-            //   //trailing: Icon(Icons.arrow_forward),
-            //   onTap: () {
-            //     _navigateToCommunityJams();
-            //   },
-            // ),
-
             appListTile(
               title: 'Tutorial',
               style: navTextStyle,
@@ -694,39 +683,45 @@ class MyHomePageState extends State<MyHomePage> {
       ),
 
       /// Navigate to song player when song tapped.
-      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-        // if (kDebugMode)
-        //   Container(
-        //       padding: const EdgeInsets.all(6.0),
-        //       child: AppWrap(
-        //         spacing: 10,
-        //         children: [
-        //           appButton(
-        //             'Test',
-        //             appKeyEnum: AppKeyEnum.mainTest,
-        //             onPressed: () {
-        //               testAppKeyCallbacks();
-        //             },
-        //           ),
-        //           appButton(
-        //             'Stop',
-        //             appKeyEnum: AppKeyEnum.mainTestStop,
-        //             onPressed: () {
-        //               logger.i('stop');
-        //               testAppKeyCallbacksStop();
-        //             },
-        //           ),
-        //         ],
-        //       )),
-        if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
-        PlayList(
-          itemList: PlayListItemList('', app.allSongs.map((e) => SongPlayListItem.fromSong(e)).toList(growable: false),
-              playListItemAction: _navigateToPlayerBySongItem),
-          style: _titleTextStyle,
-          isFromTheTop: false,
-          playListSearchMatcher: SongPlayListSearchMatcher(),
-        ),
-      ]),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          // if (kDebugMode)
+          //   Container(
+          //       padding: const EdgeInsets.all(6.0),
+          //       child: AppWrap(
+          //         spacing: 10,
+          //         children: [
+          //           appButton(
+          //             'Test',
+          //             appKeyEnum: AppKeyEnum.mainTest,
+          //             onPressed: () {
+          //               testAppKeyCallbacks();
+          //             },
+          //           ),
+          //           appButton(
+          //             'Stop',
+          //             appKeyEnum: AppKeyEnum.mainTestStop,
+          //             onPressed: () {
+          //               logger.i('stop');
+          //               testAppKeyCallbacksStop();
+          //             },
+          //           ),
+          //         ],
+          //       )),
+          if (app.message.isNotEmpty) Container(padding: const EdgeInsets.all(6.0), child: app.messageTextWidget()),
+          PlayList(
+            itemList: PlayListItemList(
+              '',
+              app.allSongs.map((e) => SongPlayListItem.fromSong(e)).toList(growable: false),
+              playListItemAction: _navigateToPlayerBySongItem,
+            ),
+            style: _titleTextStyle,
+            isFromTheTop: false,
+            playListSearchMatcher: SongPlayListSearchMatcher(),
+          ),
+        ],
+      ),
 
       // floatingActionButton: AppTooltip(    //  fixme: move to playList?
       //   message: 'Back to the list top',
@@ -758,36 +753,44 @@ class MyHomePageState extends State<MyHomePage> {
 
   Future<void> _betaWarningPopup() async {
     await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: const Text(
-                'Do you really want test the beta version of the bsteeleMusicApp?',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              actions: [
-                Column(
-                  children: [
-                    const Text(
-                      'This beta version is only for testing application development.\n'
-                      'bob can damage this version at any time, for any reason.\n'
-                      'Any remembered setup will not necessarily transfer to the real version.',
-                      style: TextStyle(fontSize: 22),
-                    ),
-                    const AppSpace(),
-                    appButton('Send me to the release version.', onPressed: () {
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text(
+              'Do you really want test the beta version of the bsteeleMusicApp?',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              Column(
+                children: [
+                  const Text(
+                    'This beta version is only for testing application development.\n'
+                    'bob can damage this version at any time, for any reason.\n'
+                    'Any remembered setup will not necessarily transfer to the real version.',
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  const AppSpace(),
+                  appButton(
+                    'Send me to the release version.',
+                    onPressed: () {
                       var s = uri.toString();
                       s = s.substring(0, s.indexOf('beta'));
                       openLink(s);
-                    }),
-                    const AppSpace(space: 50),
-                    appButton('This is exciting! I will test the beta.', onPressed: () {
+                    },
+                  ),
+                  const AppSpace(space: 50),
+                  appButton(
+                    'This is exciting! I will test the beta.',
+                    onPressed: () {
                       Navigator.of(context).pop();
-                    }),
-                  ],
-                ),
-              ],
-              elevation: 24.0,
-            ));
+                    },
+                  ),
+                ],
+              ),
+            ],
+            elevation: 24.0,
+          ),
+    );
   }
 
   // void _closeDrawer() {
@@ -805,20 +808,14 @@ class MyHomePageState extends State<MyHomePage> {
       //_lastSelectedSong = song;
 
       //logger.log(_mainLogScroll, '_navigateToPlayer: pushNamed: $song');
-      await Navigator.pushNamed(
-        context,
-        Player.routeName,
-      );
+      await Navigator.pushNamed(context, Player.routeName);
 
       setState(() {});
     }
   }
 
   void _navigateToSongs() async {
-    await Navigator.pushNamed(
-      context,
-      Songs.routeName,
-    );
+    await Navigator.pushNamed(context, Songs.routeName);
 
     if (!mounted) {
       return;
@@ -827,10 +824,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _navigateToMetadata() async {
-    await Navigator.pushNamed(
-      context,
-      MetadataScreen.routeName,
-    );
+    await Navigator.pushNamed(context, MetadataScreen.routeName);
 
     if (!mounted) {
       return;
@@ -844,10 +838,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   _navigateToEdit() async {
     app.clearMessage();
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Edit(initialSong: Song.createEmptySong())),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(initialSong: Song.createEmptySong())));
     if (!mounted) {
       return;
     }
@@ -855,10 +846,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToOptions() async {
-    await Navigator.pushNamed(
-      context,
-      Options.routeName,
-    );
+    await Navigator.pushNamed(context, Options.routeName);
     if (!mounted) {
       return;
     }
@@ -867,10 +855,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToSingers() async {
-    await Navigator.pushNamed(
-      context,
-      Singers.routeName,
-    );
+    await Navigator.pushNamed(context, Singers.routeName);
     if (!mounted) {
       return;
     }
@@ -878,10 +863,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToPerformanceHistory() async {
-    await Navigator.pushNamed(
-      context,
-      PerformanceHistory.routeName,
-    );
+    await Navigator.pushNamed(context, PerformanceHistory.routeName);
     if (!mounted) {
       return;
     }
@@ -902,33 +884,15 @@ class MyHomePageState extends State<MyHomePage> {
 
   _navigateToAbout() async {
     app.clearMessage();
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const About()),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const About()));
     if (!mounted) {
       return;
     }
     Navigator.of(context).pop(); //  drawer
   }
 
-  // _navigateToCommunityJams() async {
-  //   app.clearMessage();
-  //   await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => const CommunityJams()),
-  //   );
-  //   if (!mounted) {
-  //     return;
-  //   }
-  //   Navigator.of(context).pop(); //  drawer
-  // }
-
   _navigateToStyleDemo() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const StyleDemo()),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const StyleDemo()));
     if (!mounted) {
       return;
     }
@@ -936,10 +900,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToDocumentation() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Documentation()),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const Documentation()));
     if (!mounted) {
       return;
     }
@@ -947,13 +908,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToDrums() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const DrumScreen(
-                isEditing: true,
-              )),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const DrumScreen(isEditing: true)));
     if (!mounted) {
       return;
     }
@@ -961,10 +916,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToTheory() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const TheoryWidget()),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const TheoryWidget()));
     if (!mounted) {
       return;
     }
@@ -972,10 +924,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   _navigateToPrivacyPolicy() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Privacy()),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const Privacy()));
     if (!mounted) {
       return;
     }

@@ -1306,7 +1306,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     );
   }
 
-  KeyEventResult _playerOnKeyEvent(FocusNode node, KeyEvent e) {
+  KeyEventResult _playerOnKeyEvent(final FocusNode node, final KeyEvent e) {
     logger.log(_logKeyboard, '_playerOnKeyEvent(): ${e.runtimeType}: ${e.logicalKey.keyLabel}');
 
     if (!_playerIsOnTop) {

@@ -1,23 +1,22 @@
 #!/bin/tcsh
-#set echo; set verbose
+set echo; set verbose
 
 set git=~/github/bsteele_music_flutter
-
-cd $git
-
-# generate the correct icons for android
-foreach png ( android/app/src/main/res/*/ic_launcher.png )
-  echo $png
-file $png
-  set size=`file $png | sed -e 's/.* x //; s/,.*//;' - `
-  echo $size
-  ffmpeg -y -i lib/assets/icon.png -vf scale=${size}:-1 $png
-end
-
 cd $git
 
 #	create the linux release version
-if ( uname -o == 'GNU/Linux' ) then
+if ( `uname -o` == 'GNU/Linux' ) then
+
+    # generate the correct icons for android
+    foreach png ( android/app/src/main/res/*/ic_launcher.png )
+      echo $png
+    file $png
+      set size=`file $png | sed -e 's/.* x //; s/,.*//;' - `
+      echo $size
+      ffmpeg -y -i lib/assets/icon.png -vf scale=${size}:-1 $png
+    end
+
+    cd $git
     rm -rf linux/
     flutter clean
     flutter pub get
@@ -26,7 +25,8 @@ if ( uname -o == 'GNU/Linux' ) then
       linux/runner/my_application.cc
 
 //    macos
-else if ( uname -o == 'Darwin' ) then
+else if ( `uname -o` == 'Darwin' ) then
+    cd $git
     set os=macos
     rm -rf .gradle $os/
     flutter config --enable-macos-desktop
@@ -39,11 +39,13 @@ else if ( uname -o == 'Darwin' ) then
         if ( -e $f ) then
             grep com.apple.security.network.client $f
             if ( $status ) then
-                sed -ie 's/<\dict>/<key>com.apple.security.network.client</key> <true/>\n<\dict>/' $f
+                //  note that sed invocation in mac is different!
+                sed -i '' -e 's/<\/dict>/\t<key>com.apple.security.network.client<\/key> <true\/>\n<\/dict>/' $f
             endif
             grep com.apple.security.network.server $f
             if ( $status ) then
-                sed -ie 's/<\dict>/<key>com.apple.security.network.server</key> <true/>\n<\dict>/' $f
+                //  note that sed invocation in mac is different!
+                sed -i '' -e 's/<\/dict>/\t<key>com.apple.security.network.server<\/key> <true\/>\n<\/dict>/' $f
             endif
         else
             echo missing $f

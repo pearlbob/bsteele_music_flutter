@@ -14,13 +14,41 @@ file $png
   ffmpeg -y -i lib/assets/icon.png -vf scale=${size}:-1 $png
 end
 
-#	create the linux release version
 cd $git
-rm -rf linux/
-flutter clean
-flutter pub get
-flutter -d linux create . --org com.bsteele #> /dev/null
-sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
-  linux/runner/my_application.cc
+
+#	create the linux release version
+if ( uname -o == 'GNU/Linux' ) then
+    rm -rf linux/
+    flutter clean
+    flutter pub get
+    flutter -d linux create . --org com.bsteele #> /dev/null
+    sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
+      linux/runner/my_application.cc
+
+//    macos
+else if ( uname -o == 'Darwin' ) then
+    set os=macos
+    rm -rf .gradle $os/
+    flutter config --enable-macos-desktop
+    flutter -d $os create . --org com.bsteele # > /dev/null
+    flutter clean
+    flutter pub get
+
+    foreach entitlements ( DebugProfile.entitlements Release.entitlements )
+        set f=macos/Runner/$entitlements
+        if ( -e $f ) then
+            grep com.apple.security.network.client $f
+            if ( $status ) then
+                sed -ie 's/<\dict>/<key>com.apple.security.network.client</key> <true/>\n<\dict>/' $f
+            endif
+            grep com.apple.security.network.server $f
+            if ( $status ) then
+                sed -ie 's/<\dict>/<key>com.apple.security.network.server</key> <true/>\n<\dict>/' $f
+            endif
+        else
+            echo missing $f
+        endif
+    end
+endif
 
 echo run command: flutter -d linux run

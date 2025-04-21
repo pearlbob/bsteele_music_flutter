@@ -137,6 +137,15 @@ Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gr
     }
  */
 
+/*  required macos entitlements!
+  macos/Runner/DebugProfile.entitlements and macos/Runner/Release.entitlements need:
+  <dict> ...
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <true/>
+ */
+
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(

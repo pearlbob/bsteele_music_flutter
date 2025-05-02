@@ -68,6 +68,7 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
+const Level _logDisplayGrid = Level.info;
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -755,7 +756,7 @@ class LyricsTable {
             }
           }
 
-          //  compute the display row min/max if this is a repeat phrases
+          //  compute the moment min/max moment number restriction if it's a repeat
           {
             int? minRow;
             int? maxRow;
@@ -771,30 +772,48 @@ class LyricsTable {
               //     ', row: ${cell.displayRowMinRow} to ${cell.displayRowMaxRow}');
 
               if (songMoment.phrase is MeasureRepeat) {
-                var measureRepeat = songMoment.phrase as MeasureRepeat;
+                // logger.i(
+                //   '  repeat #${songMoment.momentNumber}:  '
+                //   '${songMoment.chordSectionSongMomentNumber} + ${songMoment.phrase.length}'
+                //   ' * ${songMoment.repeat} of ${songMoment.repeatMax}'
+                //   ' = ${songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * songMoment.repeat}',
+                // );
 
-                // logger.i('     ${songMoment.repeat}/${measureRepeat.repeats}');
-                if (measureRepeat.length > 1) {
-                  _cellGrid.setAt(gc, cell.copyWith(displayRowMinRow: minRow, displayRowMaxRow: maxRow));
-                }
-              } else {
-                //  always show non-repeat rows
-                // logger.i('not repeat: ${songMoment.phrase.measureNodeType.name}: $songMoment');
                 _cellGrid.setAt(
                   gc,
-                  cell.copyWith(displayRowMinRow: 0, displayRowMaxRow: _maxDisplayRow),
+                  cell.copyWith(
+                    displayRowMinRow: minRow,
+                    displayRowMaxRow: maxRow,
+                    firstMomentNumber:
+                        songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * songMoment.repeat,
+                    lastMomentNumber:
+                        songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * (songMoment.repeat + 1),
+                  ),
+                );
+              } else {
+                //  always show non-repeat moments
+                _cellGrid.setAt(
+                  gc,
+                  cell.copyWith(
+                    displayRowMinRow: 0,
+                    displayRowMaxRow: _maxDisplayRow,
+                    firstMomentNumber: 0,
+                    lastMomentNumber: song.songMoments.length,
+                  ),
                 ); //  fixme: overkill?
               }
             }
           }
 
-          //  spread the repeat min/max row to the repeat markers and extensions
+          //  spread the repeat min/max row to the repeat measures and extensions
           for (var r = 0; r < displayGrid.getRowCount(); r++) {
             List<MeasureNode?>? row = displayGrid.getRow(r);
             assert(row != null);
             row = row!;
             var minRow = 0;
             var maxRow = _maxDisplayRow;
+            var firstMomentNumber = 0;
+            var lastMomentNumber = song.songMoments.length;
 
             for (var c = 0; c < row.length; c++) {
               MeasureNode? measureNode = displayGrid.get(r, c);
@@ -808,12 +827,23 @@ class LyricsTable {
                   //  load the repeat min/max from the measure
                   minRow = cell.displayRowMinRow;
                   maxRow = cell.displayRowMaxRow;
-                  //  fixme: optimize: all measures in the phrase should have the same min/max
+                  firstMomentNumber = cell.firstMomentNumber ?? firstMomentNumber;
+                  lastMomentNumber = cell.lastMomentNumber ?? lastMomentNumber;
                   break;
                 case MeasureNodeType.decoration:
+                case MeasureNodeType.measureRepeatMarker:
                   var cell = _cellGrid.get(r, c);
                   cell = cell!;
-                  _cellGrid.set(r, c, cell.copyWith(displayRowMinRow: minRow, displayRowMaxRow: maxRow));
+                  _cellGrid.set(
+                    r,
+                    c,
+                    cell.copyWith(
+                      displayRowMinRow: minRow,
+                      displayRowMaxRow: maxRow,
+                      firstMomentNumber: firstMomentNumber,
+                      lastMomentNumber: lastMomentNumber,
+                    ),
+                  );
                   break;
                 default:
                   //  all others should have all inclusive min/max.
@@ -1391,11 +1421,87 @@ class LyricsTable {
       }
     }
 
+    //  // let the repeat cells know where they are in the song moments
+    //  // the last song moment is used
+    // {
+    //   SongMoment? lastSongMoment;
+    //   for (int r = 0; r < _cellGrid.getRowCount(); r++) {
+    //     var row = _cellGrid.getRow(r);
+    //     assert(row != null);
+    //     row = row!;
+    //
+    //     for (var c = 0; c < row.length; c++) {
+    //       var cell = _cellGrid.get(r, c);
+    //       if (cell == null) continue;
+    //
+    //       if (cell.songMoment != null) {
+    //         lastSongMoment = cell.songMoment;
+    //       }
+    //       if (cell.measureNode is MeasureRepeatMarker && lastSongMoment != null) {
+    //         var marker = cell.measureNode as MeasureRepeatMarker;
+    //         logger.i('repeat: $marker, repetition: ${marker.repetition}');
+    //         _cellGrid.set(
+    //           r,
+    //           c,
+    //           cell.copyWith(
+    //             firstMomentNumber:
+    //                 lastSongMoment.momentNumber + 1 + lastSongMoment.phrase.length * (((marker.repetition ?? 1)-1) - marker.repeats ),
+    //             lastMomentNumber: lastSongMoment.momentNumber,
+    //           ),
+    //         );
+    //         lastSongMoment = null;
+    //       }
+    //     }
+    //   }
+    // }
+
     // logger.i((SplayTreeSet<int>.from(_lyricSectionIndexToRowMap.keys)
     //     .map((k) => '$k -> ${_lyricSectionIndexToRowMap[k]}')).toList().toString());
     if (Logger.level.index <= _logSongCellOffsetList.index) {
       for (var r = 0; r < _cellGrid.getRowCount(); r++) {
         logger.i('  row $r: ${_rowNumberToDisplayOffset[r].toStringAsFixed(1)}');
+      }
+    }
+
+    //  diagnostics only
+    if (_logDisplayGrid.index <= Level.info.index) {
+      logger.log(_logDisplayGrid, 'songMomentGrid:');
+      logger.log(_logDisplayGrid, song.songMomentGrid.toString());
+      logger.log(_logDisplayGrid, 'displayGrid:');
+      logger.log(_logDisplayGrid, displayGrid.toString());
+      logger.log(_logDisplayGrid, '_cellGrid:');
+      for (int r = 0; r < _cellGrid.getRowCount(); r++) {
+        var row = _cellGrid.getRow(r);
+        assert(row != null);
+        row = row!;
+        logger.log(_logDisplayGrid, 'row $r:');
+
+        for (var c = 0; c < row.length; c++) {
+          var cell = _cellGrid.get(r, c);
+          if (cell != null) {
+            int? measuresPerRepeat;
+            int? lastRepetition;
+            switch (cell.measureNode?.measureNodeType) {
+              case MeasureNodeType.measureRepeatMarker:
+                var marker = cell.measureNode as MeasureRepeatMarker;
+                measuresPerRepeat = marker.measuresPerRepeat;
+                lastRepetition = marker.lastRepetition;
+                break;
+              default:
+                break;
+            }
+
+            logger.log(
+              _logDisplayGrid,
+              '      col $c: ${cell.measureNode} :'
+              ' rows: ${cell.displayRowMinRow} -> ${cell.displayRowMaxRow}'
+              '${measuresPerRepeat == null ? ', moment: ${cell.songMoment}' : ''}'
+              '${lastRepetition == null ? '' : ', lastRepetition: $lastRepetition'}'
+              ', mn: ${cell.firstMomentNumber}'
+              ' to ${cell.lastMomentNumber} / ${cell.measuresPerRepeat}',
+            );
+          }
+        }
       }
     }
 
@@ -2108,6 +2214,8 @@ class _SongCellWidget extends StatefulWidget {
     this.columnWidth,
     this.withEllipsis,
     this.songMoment,
+    this.firstMomentNumber,
+    this.lastMomentNumber,
     this.selectable,
     this.isFixedHeight = false,
     this.rowHasExplicitBeats = false,
@@ -2128,6 +2236,8 @@ class _SongCellWidget extends StatefulWidget {
       //  many more than expected
       rowHasExplicitBeats = false,
       songMoment = null,
+      firstMomentNumber = null,
+      lastMomentNumber = null,
       selectable = false,
       alignment = Alignment.centerLeft;
 
@@ -2138,6 +2248,8 @@ class _SongCellWidget extends StatefulWidget {
     double? columnWidth,
     double? textScaleFactor,
     SongMoment? songMoment,
+    int? firstMomentNumber,
+    int? lastMomentNumber,
   }) {
     RichText copyOfRichText;
     if (type == _SongCellType.lyricEllipsis && columnWidth != null) {
@@ -2176,6 +2288,8 @@ class _SongCellWidget extends StatefulWidget {
       columnWidth: columnWidth ?? this.columnWidth,
       withEllipsis: withEllipsis,
       songMoment: songMoment ?? this.songMoment,
+      firstMomentNumber: firstMomentNumber ?? this.firstMomentNumber,
+      lastMomentNumber: lastMomentNumber ?? this.lastMomentNumber,
       selectable: selectable,
       isFixedHeight: isFixedHeight,
       rowHasExplicitBeats: rowHasExplicitBeats,
@@ -2208,6 +2322,12 @@ class _SongCellWidget extends StatefulWidget {
         ', type: ${measureNode?.measureNodeType}, size: $size, displayRow: $displayRowMinRow->$displayRowMaxRow }';
   }
 
+  int get measuresPerRepeat {
+    return (measureNode != null && measureNode is MeasureRepeatMarker)
+        ? (measureNode as MeasureRepeatMarker).measuresPerRepeat
+        : 0;
+  }
+
   final _SongCellType type;
   final bool? withEllipsis;
   final RichText richText;
@@ -2222,6 +2342,8 @@ class _SongCellWidget extends StatefulWidget {
   final int displayRowMinRow;
   final int displayRowMaxRow;
   final SongMoment? songMoment;
+  final int? firstMomentNumber;
+  final int? lastMomentNumber;
   final bool? selectable;
   final Alignment alignment;
   final bool rowHasExplicitBeats;
@@ -2366,6 +2488,12 @@ class _SongCellState extends State<_SongCellWidget> {
       );
     }
 
+    // if (widget.measureNode is MeasureRepeatMarker) {
+    //   logger.i(
+    //     'MeasureRepeatMarker: _row: $_row, widget.row: ${widget.displayRowMinRow}'
+    //     ' <= ${widget.row} <= ${widget.displayRowMaxRow}, lastRepeat: $lastRepeat',
+    //   );
+    // }
     RichText richText =
         //  an exception for repeat decorators with multiple repeats
         (widget.row == _row && widget.measureNode is MeasureRepeatMarker && lastRepeat != null)

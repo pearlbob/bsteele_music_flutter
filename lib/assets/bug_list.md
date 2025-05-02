@@ -12,13 +12,22 @@
 
 ### Fix
 
+* tap to tempo BPM should be the reference BPM for play tempo tapping
+
+* in play: bracketed repeat section, one or zero lyric lines, subsequent rows not shown, e.g. 2/2 not shown
+* in play, fource ahead with down arrow, centering doesn't happen until next new row
+* slower scroll when in play
+* linux workaround: pandoc -o j.html ~/github/bsteele_music_flutter/lib/assets/bug_list.md
+* clicker from app
+* beat level display
+* explain new tempo tool
+* improve tool (for external participants?)  ninjam?
+* post play song recording download website (studio local)
 * install tutorial at the right time and place, beta vs release
 * leader/follower more obvious
 * tutorial: Let me think of a way to convert it to a FAQ... without more work.
 * Tutorial: Nashville, NinJam and Display key offset:  sure. these will likely be concepts + a video
 * Decades in order: 20's, 10's, 00's, 90's, 80, 70, 60, 50, 40, prior to 1940's
-* edit: 12 Bar Jazz Blues
-* web doesn't scroll smoothly
 * on web, don't exit if in editor with dirty data
 * accurate edit complaints: based on auto validate?
 * edit: "A higher place" last line of chords too large for lyrics entry
@@ -27,7 +36,6 @@
 * nashville beat dots as an option
 * Resume on next section after pause
 
-* pause/play: jump row/section past the end of the song shouldn't happen
 * random position on: First song selected not taken: double build
 * mac bounce at play start
 * Chords should be on lyrics line

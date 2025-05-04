@@ -683,6 +683,7 @@ class LyricsTable {
                         break;
                       case const (MeasureRepeatMarker): //  fixme: this should not be possible
                         //  the repeat marker has a MeasureNodeType of decoration!
+                        assert(false);
                         richText = RichText(
                           text: TextSpan(text: measure.toString(), style: _coloredChordTextStyle),
                           //  don't allow the rich text to wrap:
@@ -760,6 +761,7 @@ class LyricsTable {
           {
             int? minRow;
             int? maxRow;
+            int? firstMomentNumber;
             for (var songMoment in song.songMoments) {
               var momentNumber = songMoment.momentNumber;
               (minRow, maxRow) = song.songMomentToRepeatRowRange(momentNumber);
@@ -773,21 +775,24 @@ class LyricsTable {
 
               if (songMoment.phrase is MeasureRepeat) {
                 // logger.i(
-                //   '  repeat #${songMoment.momentNumber}:  '
-                //   '${songMoment.chordSectionSongMomentNumber} + ${songMoment.phrase.length}'
+                //   '  repeat @${songMoment.momentNumber}:  '
+                //   'first: ${songMoment.chordSectionSongMomentNumber} + ${songMoment.phrase.length}'
                 //   ' * ${songMoment.repeat} of ${songMoment.repeatMax}'
                 //   ' = ${songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * songMoment.repeat}',
                 // );
 
+                firstMomentNumber ??= momentNumber;
+
+                int lastMomentNumber = firstMomentNumber + songMoment.phrase.length * (songMoment.repeat + 1);
+
                 _cellGrid.setAt(
                   gc,
                   cell.copyWith(
+                    songMoment: songMoment,
                     displayRowMinRow: minRow,
                     displayRowMaxRow: maxRow,
-                    firstMomentNumber:
-                        songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * songMoment.repeat,
-                    lastMomentNumber:
-                        songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * (songMoment.repeat + 1),
+                    firstMomentNumber: firstMomentNumber,
+                    lastMomentNumber: lastMomentNumber,
                   ),
                 );
               } else {
@@ -795,12 +800,14 @@ class LyricsTable {
                 _cellGrid.setAt(
                   gc,
                   cell.copyWith(
+                    songMoment: songMoment,
                     displayRowMinRow: 0,
                     displayRowMaxRow: _maxDisplayRow,
                     firstMomentNumber: 0,
                     lastMomentNumber: song.songMoments.length,
                   ),
                 ); //  fixme: overkill?
+                firstMomentNumber = null;
               }
             }
           }
@@ -820,18 +827,23 @@ class LyricsTable {
               if (measureNode == null) {
                 continue;
               }
+
+              //  deal with multiple rows of a single repeat
+
               switch (measureNode.measureNodeType) {
                 case MeasureNodeType.measure:
                   var cell = _cellGrid.get(r, c);
                   cell = cell!;
                   //  load the repeat min/max from the measure
+                  //  note that this is done for non-repeat phrases which is unnecessary but otherwise harmless
                   minRow = cell.displayRowMinRow;
                   maxRow = cell.displayRowMaxRow;
                   firstMomentNumber = cell.firstMomentNumber ?? firstMomentNumber;
                   lastMomentNumber = cell.lastMomentNumber ?? lastMomentNumber;
                   break;
-                case MeasureNodeType.decoration:
+
                 case MeasureNodeType.measureRepeatMarker:
+                case MeasureNodeType.decoration:
                   var cell = _cellGrid.get(r, c);
                   cell = cell!;
                   _cellGrid.set(
@@ -1469,6 +1481,26 @@ class LyricsTable {
       logger.log(_logDisplayGrid, song.songMomentGrid.toString());
       logger.log(_logDisplayGrid, 'displayGrid:');
       logger.log(_logDisplayGrid, displayGrid.toString());
+      logger.log(_logDisplayGrid, 'displayGrid repeats:');
+      for (int r = 0; r < displayGrid.getRowCount(); r++) {
+        var row = displayGrid.getRow(r);
+        assert(row != null);
+        row = row!;
+
+        for (var c = 0; c < row.length; c++) {
+          var mn = displayGrid.get(r, c);
+          if (mn != null) {
+            switch (mn.measureNodeType) {
+              case MeasureNodeType.measureRepeatMarker:
+                var marker = mn as MeasureRepeatMarker;
+                logger.log(_logDisplayGrid, '   ($r,$c): ${marker.toDebugString()}');
+                break;
+              default:
+                break;
+            }
+          }
+        }
+      }
       logger.log(_logDisplayGrid, '_cellGrid:');
       for (int r = 0; r < _cellGrid.getRowCount(); r++) {
         var row = _cellGrid.getRow(r);
@@ -1496,9 +1528,10 @@ class LyricsTable {
               '      col $c: ${cell.measureNode} :'
               ' rows: ${cell.displayRowMinRow} -> ${cell.displayRowMaxRow}'
               '${measuresPerRepeat == null ? ', moment: ${cell.songMoment}' : ''}'
-              '${lastRepetition == null ? '' : ', lastRepetition: $lastRepetition'}'
+              ', lastRepetition: $lastRepetition'
               ', mn: ${cell.firstMomentNumber}'
-              ' to ${cell.lastMomentNumber} / ${cell.measuresPerRepeat}',
+              ' to ${cell.lastMomentNumber} / ${cell.measuresPerRepeat}'
+              ', repeat: ${cell.songMoment?.repeat}',
             );
           }
         }
@@ -2361,22 +2394,34 @@ class _SongCellState extends State<_SongCellWidget> {
         var playMomentNumber = playMomentNotifier.playMoment?.playMomentNumber;
         var isNowSelected = false;
         var momentNumber = playMomentNumber ?? widget.songMoment?.momentNumber;
-        var repeat = playMomentNotifier.playMoment?.songMoment?.repeat;
         _row = playMomentNotifier.playMoment?.displayRow ?? lyricSectionNotifier.row;
-
-        logger.log(
-          _logSongCellStateBuild,
-          '_SongCellState consumer build: $momentNumber:'
-          ' row: ${widget.displayRowMinRow} <= $_row <= ${widget.displayRowMaxRow}'
-          ', size: ${widget.buildSize}'
-          ', ${moment?.phrase.measureNodeType.name}: measureIndex: ${moment?.measureIndex}: ${widget.measureNode}'
-          ', repeat: $repeat'
-          ', row: $_row vs ${widget.row}',
-          //', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
-          //
-        );
+        var repeat = 0;
 
         if (widget.displayRowMinRow <= _row && _row <= widget.displayRowMaxRow) {
+          //  compute the repeat
+          if (momentNumber != null && widget.measureNode?.measureNodeType == MeasureNodeType.measureRepeatMarker) {
+            var marker = widget.measureNode as MeasureRepeatMarker;
+
+            //  compute the first moment number of the measure repeat, the hard way
+            var firstMomentNumber =
+                (widget.lastMomentNumber ?? 0) - marker.measuresPerRepeat * (marker.lastRepetition ?? marker.repeats);
+
+            var offset = (playMomentNumber ?? 0) - firstMomentNumber; //  additional measures
+            repeat = offset <= 0 ? 0 : min(offset ~/ marker.measuresPerRepeat, marker.repeats - 1);
+            if (widget.lastMomentNumber != null &&
+                firstMomentNumber <= momentNumber &&
+                momentNumber <= widget.lastMomentNumber! + 2) {
+              logger.log(
+                _logSongCellStateBuild,
+                'compute repeat: (${widget.row},${widget.column}):'
+                ' firstMomentNumber: $firstMomentNumber'
+                ', lastMomentNumber: ${widget.lastMomentNumber}'
+                ', playMomentNumber: $playMomentNumber'
+                ', $marker, offset: $offset, repeat: $repeat',
+              );
+            }
+          }
+
           //  this is a row element that is being displayed
           if ((widget.selectable ?? true) &&
               ((playMomentNotifier.playMoment?.songUpdateState == SongUpdateState.playing &&
@@ -2460,6 +2505,18 @@ class _SongCellState extends State<_SongCellWidget> {
           );
         }
 
+        logger.log(
+          _logSongCellStateBuild,
+          '_SongCellState consumer build: $momentNumber:'
+          ' row: $_row, ${widget.displayRowMinRow} <= $_row <= ${widget.displayRowMaxRow}'
+          ', size: ${widget.buildSize}'
+          ', ${moment?.phrase.measureNodeType.name}: measureIndex: ${moment?.measureIndex}: ${widget.measureNode}'
+          ', repeat: $repeat'
+          ', row: $_row vs ${widget.row}',
+          //', widget.lyricSectionIndex: ${widget.lyricSectionIndex}'
+          //
+        );
+
         // for efficiency, use the existing child
         if (isNowSelected == selected && repeat == lastRepeat && child != null) {
           return child;
@@ -2476,18 +2533,6 @@ class _SongCellState extends State<_SongCellWidget> {
   }
 
   Widget childBuilder(BuildContext context) {
-    if (selected) {
-      //  diagnostic only
-      logger.log(
-        _logChildBuilder,
-        '_SongCellState.childBuilder: selected: ${widget.songMoment?.momentNumber}'
-        ': ${widget.richText.text.toPlainText()}'
-        ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
-        ', songTime: ${SongMaster().songTime}',
-        //
-      );
-    }
-
     // if (widget.measureNode is MeasureRepeatMarker) {
     //   logger.i(
     //     'MeasureRepeatMarker: _row: $_row, widget.row: ${widget.displayRowMinRow}'
@@ -2496,7 +2541,7 @@ class _SongCellState extends State<_SongCellWidget> {
     // }
     RichText richText =
         //  an exception for repeat decorators with multiple repeats
-        (widget.row == _row && widget.measureNode is MeasureRepeatMarker && lastRepeat != null)
+        (widget.measureNode is MeasureRepeatMarker && lastRepeat != null)
             ? RichText(
               text: TextSpan(
                 text:
@@ -2508,6 +2553,17 @@ class _SongCellState extends State<_SongCellWidget> {
               maxLines: 1,
             )
             : widget.richText;
+
+    //  diagnostic only
+    logger.log(
+      _logChildBuilder,
+      '_SongCellState.childBuilder (${widget.row},${widget.column}): selected: $selected, lastRepeat: $lastRepeat: '
+      '#${widget.songMoment?.momentNumber}'
+      ': ${richText.text.toPlainText()}',
+      // ' dt: ${(AppAudioPlayer().getCurrentTime() - (SongMaster().songTime ?? 0)).toStringAsFixed(3)}'
+      // ', songTime: ${SongMaster().songTime}',
+      //
+    );
 
     Size buildSize = widget.computedBuildSize;
 

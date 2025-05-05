@@ -32,7 +32,6 @@ import 'package:provider/provider.dart';
 
 import '../app/app.dart';
 import '../app/appOptions.dart';
-import '../audio/app_audio_player.dart';
 
 const _slashColor = Color(0xffcb4931);
 const _fadedSlashColor = Color(0xffe27e65);
@@ -68,7 +67,7 @@ const Level _logSongCellOffsetList = Level.debug;
 const Level _logChildBuilder = Level.debug;
 const Level _logSelectedCellState = Level.debug;
 const Level _logPlayMoment = Level.debug;
-const Level _logDisplayGrid = Level.info;
+const Level _logDisplayGrid = Level.debug;
 
 const double _paddingSizeDefault = 6;
 double _paddingSizeMax = _paddingSizeDefault;
@@ -759,6 +758,22 @@ class LyricsTable {
 
           //  compute the moment min/max moment number restriction if it's a repeat
           {
+            //  look ahead for the measure repeat markers that carry the repetition limits
+            //  (i.e. the last repetition for this repeat cycle)
+            HashMap<GridCoordinate, MeasureRepeatMarker> measureRepeatMarkerMap = HashMap();
+            _cellGrid.foreach((r, c, cell) {
+              if (cell.measureNode?.measureNodeType == MeasureNodeType.measureRepeatMarker) {
+                GridCoordinate gridCoordinate = GridCoordinate(r, c);
+                var measureRepeatMarker = cell.measureNode as MeasureRepeatMarker;
+                measureRepeatMarkerMap[gridCoordinate] = measureRepeatMarker;
+              }
+            });
+            var measureRepeatMarkerMapKeys = SplayTreeSet<GridCoordinate>()..addAll(measureRepeatMarkerMap.keys);
+            for (var gc in measureRepeatMarkerMapKeys) {
+              MeasureRepeatMarker? measureRepeatMarker = measureRepeatMarkerMap[gc];
+              logger.log(_logDisplayGrid, 'test: (${gc.row},${gc.col}):  ${measureRepeatMarker?.toDebugString()}');
+            }
+
             int? minRow;
             int? maxRow;
             int? firstMomentNumber;
@@ -774,6 +789,23 @@ class LyricsTable {
               //     ', row: ${cell.displayRowMinRow} to ${cell.displayRowMaxRow}');
 
               if (songMoment.phrase is MeasureRepeat) {
+                //  find the matching measure repeat marker
+                late MeasureRepeatMarker measureRepeatMarker;
+                late GridCoordinate keyGc;
+                try {
+                  keyGc = measureRepeatMarkerMapKeys.firstWhere((keyGc) {
+                    return gc.compareTo(keyGc) <= 0;
+                  });
+
+                  logger.log(_logDisplayGrid, 'found: (${gc.row},${gc.col}):  $keyGc:  ');
+                  measureRepeatMarker = measureRepeatMarkerMap[keyGc]!;
+                } catch (e) {
+                  logger.log(_logDisplayGrid, 'NOT found: (${gc.row},${gc.col}): $e');
+                  assert(false);
+                  continue;
+                }
+                logger.log(_logDisplayGrid, 'found: (${gc.row},${gc.col}):  ${measureRepeatMarker.toDebugString()}');
+
                 // logger.i(
                 //   '  repeat @${songMoment.momentNumber}:  '
                 //   'first: ${songMoment.chordSectionSongMomentNumber} + ${songMoment.phrase.length}'
@@ -783,7 +815,8 @@ class LyricsTable {
 
                 firstMomentNumber ??= momentNumber;
 
-                int lastMomentNumber = firstMomentNumber + songMoment.phrase.length * (songMoment.repeat + 1);
+                int lastMomentNumber =
+                    firstMomentNumber + songMoment.phrase.length * (measureRepeatMarker.lastRepetition ?? 1) - 1;
 
                 _cellGrid.setAt(
                   gc,
@@ -795,6 +828,9 @@ class LyricsTable {
                     lastMomentNumber: lastMomentNumber,
                   ),
                 );
+                if (momentNumber >= lastMomentNumber) {
+                  firstMomentNumber = null;
+                }
               } else {
                 //  always show non-repeat moments
                 _cellGrid.setAt(

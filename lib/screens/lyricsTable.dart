@@ -776,6 +776,7 @@ class LyricsTable {
 
             int? minRow;
             int? maxRow;
+            int? initialMomentNumber;
             int? firstMomentNumber;
             for (var songMoment in song.songMoments) {
               var momentNumber = songMoment.momentNumber;
@@ -797,14 +798,13 @@ class LyricsTable {
                     return gc.compareTo(keyGc) <= 0;
                   });
 
-                  logger.log(_logDisplayGrid, 'found: (${gc.row},${gc.col}):  $keyGc:  ');
+                  // logger.log(_logDisplayGrid, 'found: (${gc.row},${gc.col}):  $keyGc:  ');
                   measureRepeatMarker = measureRepeatMarkerMap[keyGc]!;
                 } catch (e) {
                   logger.log(_logDisplayGrid, 'NOT found: (${gc.row},${gc.col}): $e');
                   assert(false);
                   continue;
                 }
-                logger.log(_logDisplayGrid, 'found: (${gc.row},${gc.col}):  ${measureRepeatMarker.toDebugString()}');
 
                 // logger.i(
                 //   '  repeat @${songMoment.momentNumber}:  '
@@ -816,7 +816,19 @@ class LyricsTable {
                 firstMomentNumber ??= momentNumber;
 
                 int lastMomentNumber =
-                    firstMomentNumber + songMoment.phrase.length * (measureRepeatMarker.lastRepetition ?? 1) - 1;
+                    initialMomentNumber +
+                    measureRepeatMarker.measuresPerRepeat * (measureRepeatMarker.lastRepetition ?? 1);
+
+                var first = measureRepeatMarker.lastRepetition == 1 ? 0 : firstMomentNumber;
+                var last =
+                    measureRepeatMarker.lastRepetition == measureRepeatMarker.repeats
+                        ? _song.songMoments.length
+                        : lastMomentNumber;
+                logger.log(
+                  _logDisplayGrid,
+                  'found: (${gc.row},${gc.col}):  ${measureRepeatMarker.toDebugString()}'
+                  ', first: $first, last: $last',
+                );
 
                 _cellGrid.setAt(
                   gc,
@@ -824,11 +836,15 @@ class LyricsTable {
                     songMoment: songMoment,
                     displayRowMinRow: minRow,
                     displayRowMaxRow: maxRow,
-                    firstMomentNumber: firstMomentNumber,
-                    lastMomentNumber: lastMomentNumber,
+                    firstMomentNumber: first,
+                    lastMomentNumber: last,
                   ),
                 );
-                if (momentNumber >= lastMomentNumber) {
+                if (momentNumber >=
+                    initialMomentNumber + measureRepeatMarker.measuresPerRepeat * measureRepeatMarker.repeats - 1) {
+                  initialMomentNumber = null;
+                  firstMomentNumber = null;
+                } else if (momentNumber >= lastMomentNumber - 1) {
                   firstMomentNumber = null;
                 }
               } else {
@@ -1318,12 +1334,25 @@ class LyricsTable {
                 );
               } else if (arrowIndicatorWidth > 0) {
                 // add a row indicator if required
+
+                //  find the first moment number
+                int? momentNumber;
+                for (var c = 0; c < row.length; c++) {
+                  var cell = _cellGrid.get(r, c);
+                  if (cell?.songMoment != null) {
+                    momentNumber = cell?.songMoment!.momentNumber;
+                    break;
+                  }
+                }
+
+                //  add a row indicator
                 var firstWidget = _LyricSectionIndicatorCellWidget(
                   lyricSection: lyricSection!,
                   row: r,
                   width: arrowIndicatorWidth * _scaleFactor,
                   height: heights[r],
                   fontSize: _chordFontSizeUnscaled * _scaleFactor,
+                  momentNumber: momentNumber,
                 );
                 rowWidget = Row(
                   children: [
@@ -2152,6 +2181,7 @@ class _LyricSectionIndicatorCellWidget extends StatefulWidget {
     required this.width,
     required this.height,
     this.fontSize = appDefaultFontSize,
+    this.momentNumber,
   }) : index = lyricSection.index;
 
   @override
@@ -2165,6 +2195,7 @@ class _LyricSectionIndicatorCellWidget extends StatefulWidget {
   final double width;
   final double height;
   final int index;
+  final int? momentNumber;
 }
 
 class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWidget> {
@@ -2256,7 +2287,11 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
                 ),
               )
               : (kDebugMode
-                  ? Text(widget.row.toString(), style: appTextStyle)
+                  ? Text(
+                    '${widget.row.toString()}'
+                    '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
+                    style: appTextStyle,
+                  )
                   : NullWidget()), // hold the horizontal space in the grid
     );
   }
@@ -2433,7 +2468,24 @@ class _SongCellState extends State<_SongCellWidget> {
         _row = playMomentNotifier.playMoment?.displayRow ?? lyricSectionNotifier.row;
         var repeat = 0;
 
-        if (widget.displayRowMinRow <= _row && _row <= widget.displayRowMaxRow) {
+        bool byRow = widget.displayRowMinRow <= _row && _row <= widget.displayRowMaxRow;
+        bool byMoment =
+            (widget.firstMomentNumber ?? 0) <= (momentNumber ?? 0) &&
+            (momentNumber ?? 0) <= (widget.lastMomentNumber ?? 0);
+
+        if (byRow != byMoment) {
+          logger.log(
+            _logSongCellStateBuild,
+            'cellState Build: (${widget.row},${widget.column}):'
+            ' momentNumber: $momentNumber'
+            ', firstMomentNumber: ${widget.firstMomentNumber}'
+            ', lastMomentNumber: ${widget.lastMomentNumber}'
+            ', byMoment: $byMoment'
+            ', byRow: $byRow',
+          );
+        }
+
+        if (byRow) {
           //  compute the repeat
           if (momentNumber != null && widget.measureNode?.measureNodeType == MeasureNodeType.measureRepeatMarker) {
             var marker = widget.measureNode as MeasureRepeatMarker;

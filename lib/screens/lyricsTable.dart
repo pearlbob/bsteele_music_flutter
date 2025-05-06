@@ -813,6 +813,7 @@ class LyricsTable {
                 //   ' = ${songMoment.chordSectionSongMomentNumber + songMoment.phrase.length * songMoment.repeat}',
                 // );
 
+                initialMomentNumber ??= momentNumber;
                 firstMomentNumber ??= momentNumber;
 
                 int lastMomentNumber =

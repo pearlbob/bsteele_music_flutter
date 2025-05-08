@@ -108,7 +108,7 @@ import 'util/openLink.dart';
 linux start size and location:
 in linux/my_application.cc, line 50 or so
   gtk_window_set_default_size(window, 1920, 1080);
-  gtk_window_move(window, 350, 200);
+  gtk_window_move(window, 50, 350);
  */
 
 /*

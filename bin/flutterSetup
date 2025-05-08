@@ -21,7 +21,8 @@ if ( `uname -o` == 'GNU/Linux' ) then
     flutter clean
     flutter pub get
     flutter -d linux create . --org com.bsteele #> /dev/null
-    sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);/' \
+    sed -ie 's/gtk_window_set_default_size(window, 1280, 720);/gtk_window_set_default_size(window, 1920, 1080);\
+    gtk_window_move(window, 50, 350);/' \
       linux/runner/my_application.cc
 
 //    macos

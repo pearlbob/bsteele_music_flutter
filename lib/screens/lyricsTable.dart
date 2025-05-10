@@ -111,7 +111,7 @@ Size _computeInlineSpanSize(final InlineSpan inLineSpan, {TextScaler? textScaler
 
 /// Class to hold a song moment and indicate play in the count in, prior to the first song moment.
 class PlayMoment {
-  const PlayMoment(this.songUpdateState, this.playMomentNumber, this.songMoment, this.displayRow);
+  const PlayMoment(this.songUpdateState, this.playMomentNumber, this.songMoment);
 
   @override
   bool operator ==(Object other) =>
@@ -133,7 +133,6 @@ class PlayMoment {
   final SongUpdateState songUpdateState;
   final int playMomentNumber;
   final SongMoment? songMoment;
-  final int displayRow;
 }
 
 class PlayMomentNotifier extends ChangeNotifier {

@@ -207,7 +207,7 @@ class OptionsState extends State<Options> {
                     AppTooltip(
                       message: 'You have a local raspberry pi from bob.',
                       child: appButton(
-                        'Bob\'spi',
+                        'Bob\'s pi',
                         onPressed: () {
                           _appOptions.websocketHost = 'bobspi.local';
                           _websocketHostEditingController.text = _appOptions.websocketHost;

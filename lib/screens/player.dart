@@ -1880,12 +1880,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   ) {
     List<GridCoordinate> songMomentToGridCoordinate = _song.songMomentToGridCoordinate;
     if (songMomentToGridCoordinate.isNotEmpty) {
-      _playMomentNotifier.playMoment = PlayMoment(
-        songUpdateState,
-        playMomentNumber,
-        songMoment,
-        songMomentToGridCoordinate[songMoment?.momentNumber ?? 0].row,
-      );
+      _playMomentNotifier.playMoment = PlayMoment(songUpdateState, playMomentNumber, songMoment);
     }
   }
 
@@ -1898,13 +1893,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
 
     //  don't send the update unless we have to
-    if (_lastSongUpdateSent != null) {
-      if (_lastSongUpdateSent!.song == widget._song &&
-          _lastSongUpdateSent!.momentNumber == momentNumber &&
-          _lastSongUpdateSent!.state == _songUpdateState &&
-          _lastSongUpdateSent!.currentKey == _selectedSongKey) {
-        return;
-      }
+    if (_lastSongUpdateSent == this) {
+      return;
     }
 
     var update = SongUpdate.createSongUpdate(widget._song.copySong());
@@ -2776,6 +2766,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         playerSelectedBpm = newBpm;
         _songMaster.tapTempo(newBpm);
         logger.log(_logBPM, '_changeBPM( $playerSelectedBpm )');
+        _leaderSongUpdate(0); //  fixme: better location?
       });
     }
   }

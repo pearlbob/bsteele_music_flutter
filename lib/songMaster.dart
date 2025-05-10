@@ -413,15 +413,14 @@ class SongMaster extends ChangeNotifier {
 
   /// tap the given tempo, typically prior to play
   tapTempo(int bpm) {
+    setBpm(bpm);
     switch (songUpdateState) {
       case SongUpdateState.none:
       case SongUpdateState.idle:
-        setBpm(bpm);
         songUpdateState = SongUpdateState.drumTempo;
         notifyListeners();
         break;
       default:
-        setBpm(bpm);
         break;
     }
     logger.log(_logTempo, 'tapTempo: $bpm, state: ${songUpdateState.name}');

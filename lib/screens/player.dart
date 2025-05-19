@@ -617,7 +617,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       onPressed: () {
         //  avoid race condition with the listener notification
         _songMaster.removeListener(_songMasterListener);
-        _songMaster.stop();
+        _simpleStop();
       },
     );
 
@@ -2025,6 +2025,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   void _simpleStop() {
     _songUpdateState = SongUpdateState.idle;
+    _leaderSongUpdate(0);
     _songMaster.stop();
     _playMomentNotifier.playMoment = null;
     logger.log(_logMode, 'simpleStop()');

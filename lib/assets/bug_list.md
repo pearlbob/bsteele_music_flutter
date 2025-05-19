@@ -13,6 +13,8 @@
 ### Fix
 
 * tap to tempo BPM should be the reference BPM for play tempo tapping
+* add the requester adjustments to the singer's list.
+* if not drumming, start play quickly
 
 * in play: bracketed repeat section, one or zero lyric lines, subsequent rows not shown, e.g. 2/2 not shown
 * in play, fource ahead with down arrow, centering doesn't happen until next new row

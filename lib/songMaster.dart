@@ -268,7 +268,8 @@ class SongMaster extends ChangeNotifier {
     _lastMomentNumber = momentNumber;
     logger.log(
       _logSongMasterTicker,
-      'SongMaster: ${songUpdateState.name}:  moment: $momentNumber, lyric: $_lastSectionIndex',
+      'SongMaster: ${songUpdateState.name}: ${DateTime.now()}   moment: $momentNumber, lyric: $_lastSectionIndex'
+      ', songTime: $songTime',
     );
 
     switch (songUpdateState) {
@@ -446,7 +447,11 @@ class SongMaster extends ChangeNotifier {
     _clearMomentNumber();
     songUpdateState = SongUpdateState.playing;
     notifyListeners();
-    logger.log(_logRestart, '_playSongMode: ${songUpdateState.name}, _bpm: $_bpm');
+    logger.log(
+      _logRestart,
+      '_playSongMode: ${songUpdateState.name}, ${DateTime.now()}  _bpm: $_bpm'
+      ', drums: ${_drumParts != null}',
+    );
   }
 
   pauseToggle() {

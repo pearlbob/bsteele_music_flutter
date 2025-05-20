@@ -51,6 +51,7 @@
 
 ### Fixes Completed
 
+* tap to tempo BPM should be the reference BPM for play tempo tapping
 * History can filter by singer
 * Dots above chords in the song display... but only when truly required. Periods are used as they used to be.
 * In play, b (the studio switch) should advance one row, not a section.

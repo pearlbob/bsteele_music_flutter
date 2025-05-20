@@ -85,6 +85,7 @@ const Level _logSongList = Level.debug;
 const Level _logManualPlayScrollAnimation = Level.debug;
 const Level _logDataReminderState = Level.debug;
 const Level _logTempoListener = Level.debug;
+const Level _logDispose = Level.debug;
 //  ^const Level .* = Level.info;
 
 const String _playStopPauseHints = '''\n
@@ -284,6 +285,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     _gamePad.cancel();
 
     super.dispose();
+
+    logger.log(_logDispose, '_PlayerState.dispose()');
   }
 
   //  update the song update service status
@@ -1934,7 +1937,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
         if (!_songUpdateService.isFollowing) {
           _setPlayMomentNotifier(SongUpdateState.playing, _songMaster.momentNumber ?? 0, _song.songMoments.first);
-          _songMaster.playSong(widget._song, drumParts: _drumParts, bpm: playerSelectedBpm ?? _song.beatsPerMinute);
+          _songMaster.playSong(
+            widget._song,
+            drumParts: _areDrumsMuted ? null : _drumParts,
+            bpm: playerSelectedBpm ?? _song.beatsPerMinute,
+          );
         }
         break;
     }

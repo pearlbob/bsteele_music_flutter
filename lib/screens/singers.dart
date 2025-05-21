@@ -208,6 +208,13 @@ class SingersState extends State<Singers> {
                     color: App.appBackgroundColor,
                     songItemAction: _navigateSelectedVolunteerToPlayer,
                   );
+                } else {
+                  //  list songs the singers have sung that are not in the requester's list
+                  addPerformanceItems(
+                    '$_selectedSinger might like to hear:',
+                    performancesFromSessionSingers.where((e) => !songRequests.contains(e.song)),
+                    color: App.appBackgroundColor,
+                  );
                 }
               }
             } else {
@@ -1252,16 +1259,31 @@ class SingersState extends State<Singers> {
         }
       }
 
+      //  find or generate the performance
+      SongPerformance songPerformance;
       if (playListItem.songPerformance != null) {
-        _navigatePerformanceToPlayer(context, playListItem.songPerformance!);
+        songPerformance = playListItem.songPerformance!;
       } else {
         //  make a new performance since we don't have one
         var song = playListItem.song;
-        _navigatePerformanceToPlayer(
-          context,
-          SongPerformance(song.songId.toString(), _selectedSinger, key: song.key, bpm: song.beatsPerMinute, song: song),
+        songPerformance = SongPerformance(
+          song.songId.toString(),
+          _selectedSinger,
+          key: song.key,
+          bpm: song.beatsPerMinute,
+          song: song,
         );
       }
+
+      //  add the selected song to the requester's list
+      if (_selectedSingerIsRequester && songPerformance.song != null) {
+        //  add to requester's list if necessary
+        logger.i('requester: $_selectedSinger, add song: ${songPerformance.song}');
+        _allSongPerformances.addSongRequest(SongRequest(songPerformance.song!.songId.toString(), _selectedSinger));
+      }
+
+      //  navigate to the song
+      _navigatePerformanceToPlayer(context, songPerformance);
     }
   }
 

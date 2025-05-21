@@ -390,7 +390,7 @@ class MyHomePageState extends State<MyHomePage> {
       }
     }
     {
-      String dataAsString = await loadAssetString('lib/assets/allSongPerformances.songperformances');
+      String dataAsString = await loadAssetString('lib/assets/allSongPerformances${AllSongPerformances.fileExtension}');
 
       try {
         var allPerformances = AllSongPerformances();
@@ -455,7 +455,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
 
     {
-      final String url = 'http://$externalHost/allSongPerformances.songperformances';
+      final String url = 'http://$externalHost/allSongPerformances${AllSongPerformances.fileExtension}';
       // setState(() {
       //   app.infoMessage = 'Loading history';
       // });

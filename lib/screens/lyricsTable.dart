@@ -401,7 +401,9 @@ class LyricsTable {
                     r,
                     c,
                     _SongCellWidget(
-                      richText: RichText(text: TextSpan(text: mn.toMarkup(), style: _coloredLyricTextStyle)),
+                      richText: RichText(
+                        text: TextSpan(text: mn.toMarkup(), style: _coloredLyricTextStyle),
+                      ),
                       row: r,
                       column: c,
                       type: _SongCellType.columnFill,
@@ -439,15 +441,15 @@ class LyricsTable {
                   chordSection == null
                       ? _SongCellWidget._empty(isFixedHeight: true, row: 0, column: momentNumber)
                       : _SongCellWidget(
-                        richText: RichText(
-                          text: TextSpan(text: chordSection.sectionVersion.toString(), style: _coloredChordTextStyle),
+                          richText: RichText(
+                            text: TextSpan(text: chordSection.sectionVersion.toString(), style: _coloredChordTextStyle),
+                          ),
+                          row: 0,
+                          column: momentNumber,
+                          type: _SongCellType.columnMinimum,
+                          measureNode: mn,
+                          isFixedHeight: true,
                         ),
-                        row: 0,
-                        column: momentNumber,
-                        type: _SongCellType.columnMinimum,
-                        measureNode: mn,
-                        isFixedHeight: true,
-                      ),
                 );
                 break;
               case BannerColumn.repeats:
@@ -458,18 +460,18 @@ class LyricsTable {
                   marker == null
                       ? _SongCellWidget._empty(isFixedHeight: true, row: 0, column: momentNumber)
                       : _SongCellWidget(
-                        richText: RichText(
-                          text: TextSpan(
-                            text: 'x${(marker.repetition ?? 0) + 1}/${marker.repeats}',
-                            style: _coloredLyricTextStyle,
+                          richText: RichText(
+                            text: TextSpan(
+                              text: 'x${(marker.repetition ?? 0) + 1}/${marker.repeats}',
+                              style: _coloredLyricTextStyle,
+                            ),
                           ),
+                          row: 0,
+                          column: momentNumber,
+                          type: _SongCellType.columnMinimum,
+                          measureNode: mn,
+                          isFixedHeight: true,
                         ),
-                        row: 0,
-                        column: momentNumber,
-                        type: _SongCellType.columnMinimum,
-                        measureNode: mn,
-                        isFixedHeight: true,
-                      ),
                 );
                 break;
               case BannerColumn.lyrics:
@@ -480,13 +482,15 @@ class LyricsTable {
                   lyric == null
                       ? _SongCellWidget._empty(row: 0, column: momentNumber)
                       : _SongCellWidget(
-                        richText: RichText(text: TextSpan(text: lyric.toMarkup(), style: _coloredLyricTextStyle)),
-                        row: 0,
-                        column: momentNumber,
-                        type: _SongCellType.columnFill,
-                        measureNode: mn,
-                        isFixedHeight: true,
-                      ),
+                          richText: RichText(
+                            text: TextSpan(text: lyric.toMarkup(), style: _coloredLyricTextStyle),
+                          ),
+                          row: 0,
+                          column: momentNumber,
+                          type: _SongCellType.columnFill,
+                          measureNode: mn,
+                          isFixedHeight: true,
+                        ),
                 );
                 break;
               default:
@@ -496,13 +500,15 @@ class LyricsTable {
                   mn == null
                       ? _SongCellWidget._empty(row: 0, column: momentNumber)
                       : _SongCellWidget(
-                        richText: RichText(text: TextSpan(text: mn.toString(), style: _coloredChordTextStyle)),
-                        row: 0,
-                        column: momentNumber,
-                        type: _SongCellType.columnFill,
-                        measureNode: mn,
-                        isFixedHeight: true,
-                      ),
+                          richText: RichText(
+                            text: TextSpan(text: mn.toString(), style: _coloredChordTextStyle),
+                          ),
+                          row: 0,
+                          column: momentNumber,
+                          type: _SongCellType.columnFill,
+                          measureNode: mn,
+                          isFixedHeight: true,
+                        ),
                 );
                 break;
             }
@@ -623,10 +629,9 @@ class LyricsTable {
                 case MeasureNodeType.lyric:
                   //  color done by prior chord section
                   {
-                    var songCellType =
-                        _appOptions.userDisplayStyle == UserDisplayStyle.both
-                            ? _SongCellType.lyric
-                            : _SongCellType.lyricEllipsis;
+                    var songCellType = _appOptions.userDisplayStyle == UserDisplayStyle.both
+                        ? _SongCellType.lyric
+                        : _SongCellType.lyricEllipsis;
                     _cellGrid.set(
                       r,
                       c,
@@ -728,7 +733,9 @@ class LyricsTable {
                     r,
                     c,
                     _SongCellWidget(
-                      richText: RichText(text: TextSpan(text: measureNode.toMarkup(), style: _coloredChordTextStyle)),
+                      richText: RichText(
+                        text: TextSpan(text: measureNode.toMarkup(), style: _coloredChordTextStyle),
+                      ),
                       row: r,
                       column: c,
                       type: _SongCellType.columnFill,
@@ -1278,7 +1285,12 @@ class LyricsTable {
                 rowChildren.add(cell.copyWith(size: Size(widths[c], heights[0])));
               }
             }
-            items.add(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Wrap(children: rowChildren)]));
+            items.add(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Wrap(children: rowChildren)],
+              ),
+            );
           }
         }
         logger.log(_logHeights, 'highContrast scaled heights: $heights');
@@ -1316,7 +1328,10 @@ class LyricsTable {
               if (r == 0 && _appOptions.userDisplayStyle == UserDisplayStyle.proPlayer) {
                 //  put the first row of pro in a wrap
                 rowWidget = AppWrap(
-                  children: [AppSpace(horizontalSpace: arrowIndicatorWidth * _scaleFactor), ...rowChildren],
+                  children: [
+                    AppSpace(horizontalSpace: arrowIndicatorWidth * _scaleFactor),
+                    ...rowChildren,
+                  ],
                 );
               } else if (arrowIndicatorWidth > 0) {
                 // add a row indicator if required
@@ -1451,6 +1466,7 @@ class LyricsTable {
         offset += heights[r] + _marginSize / 2 + _paddingSize / 2;
       }
     }
+    // logger.i('height spacing: ${_marginSize / 2 + _paddingSize / 2}');
 
     //  fill the song moment number to display offset list
     //  worry about compressed repeat rows
@@ -1521,8 +1537,15 @@ class LyricsTable {
     // logger.i((SplayTreeSet<int>.from(_lyricSectionIndexToRowMap.keys)
     //     .map((k) => '$k -> ${_lyricSectionIndexToRowMap[k]}')).toList().toString());
     if (Logger.level.index <= _logSongCellOffsetList.index) {
+      var lastOffset = 0.0;
       for (var r = 0; r < _cellGrid.getRowCount(); r++) {
-        logger.i('  row $r: ${_rowNumberToDisplayOffset[r].toStringAsFixed(1)}');
+        var offset = _rowNumberToDisplayOffset[r];
+        var delta = offset - lastOffset;
+        lastOffset = offset;
+        logger.i(
+          '  row $r: displayOffset: ${offset.toStringAsFixed(3)}'
+          ', delta: ${delta.toStringAsFixed(3)}',
+        );
       }
     }
 
@@ -1557,7 +1580,7 @@ class LyricsTable {
         var row = _cellGrid.getRow(r);
         assert(row != null);
         row = row!;
-        logger.log(_logDisplayGrid, 'row $r:');
+        logger.log(_logDisplayGrid, 'row $r:  height: ${heights[r]}');
 
         for (var c = 0; c < row.length; c++) {
           var cell = _cellGrid.get(r, c);
@@ -2019,6 +2042,16 @@ class LyricsTable {
     return _rowNumberToDisplayOffset[Util.intLimit(rowNumber, 0, _rowNumberToDisplayOffset.length - 1)];
   }
 
+  double displayOffsetToRowNumber(final double displayOffset) {
+    for (int i = 0; i < _rowNumberToDisplayOffset.length; i++) {
+      var offset = _rowNumberToDisplayOffset[i];
+      if (offset >= displayOffset) {
+        return i.toDouble();
+      }
+    }
+    return _rowNumberToDisplayOffset.length.toDouble();
+  }
+
   // int displayOffsetToRow(final double offset) {
   //   if (_songMomentToDisplayOffset.isEmpty) {
   //     return 0;
@@ -2149,7 +2182,6 @@ class LyricsTable {
   int get rowCount => _rowCount;
   int _rowCount = 0;
 
-  // final Map<int, int> _songMomentNumberToGridRowMap = HashMap();
   List<double> _rowNumberToDisplayOffset = [];
   List<double> _songMomentNumberToDisplayOffset = [];
   final Map<int, int> _lyricSectionIndexToRowMap = HashMap();
@@ -2242,44 +2274,42 @@ class _LyricSectionIndicatorCellState extends State<_LyricSectionIndicatorCellWi
         break;
     }
 
-    Widget repeatCountWidget =
-        ((_repeatMax ?? 0) > 0)
-            ? Center(
-              child: Text(
-                '${(_lastRepeat ?? 0) + 1}',
-                style: appTextStyle.copyWith(
-                  backgroundColor: Colors.transparent,
-                  fontSize: appTextStyle.fontSize! * 1.25,
-                ),
+    Widget repeatCountWidget = ((_repeatMax ?? 0) > 0)
+        ? Center(
+            child: Text(
+              '${(_lastRepeat ?? 0) + 1}',
+              style: appTextStyle.copyWith(
+                backgroundColor: Colors.transparent,
+                fontSize: appTextStyle.fontSize! * 1.25,
               ),
-            )
-            : NullWidget();
+            ),
+          )
+        : NullWidget();
 
     return SizedBox(
       width: widget.width,
-      child:
-          selected
-              ? DecoratedBox(
-                decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    appIcon(
-                      Icons.play_arrow,
-                      size: widget.fontSize,
-                      color: _songUpdateState == SongUpdateState.playing ? _playHighlightColor : _idleHighlightColor,
-                    ),
-                    repeatCountWidget,
-                  ],
-                ),
-              )
-              : (kDebugMode
-                  ? Text(
+      child: selected
+          ? DecoratedBox(
+              decoration: const ShapeDecoration(color: Colors.white, shape: CircleBorder()),
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  appIcon(
+                    Icons.play_arrow,
+                    size: widget.fontSize,
+                    color: _songUpdateState == SongUpdateState.playing ? _playHighlightColor : _idleHighlightColor,
+                  ),
+                  repeatCountWidget,
+                ],
+              ),
+            )
+          : (kDebugMode
+                ? Text(
                     '${widget.row.toString()}'
                     '${widget.momentNumber != null ? '\n${widget.momentNumber}' : ''}',
                     style: appTextStyle,
                   )
-                  : NullWidget()), // hold the horizontal space in the grid
+                : NullWidget()), // hold the horizontal space in the grid
     );
   }
 
@@ -2342,7 +2372,10 @@ class _SongCellWidget extends StatefulWidget {
       copyOfRichText = RichText(
         key: richText.key,
         text: //  default to one line
-            TextSpan(text: richText.text.toPlainText(), style: richText.text.style),
+        TextSpan(
+          text: richText.text.toPlainText(),
+          style: richText.text.style,
+        ),
         textScaler: textScaleFactor != null ? TextScaler.linear(textScaleFactor) : richText.textScaler,
         softWrap: false,
         maxLines: 1,
@@ -2390,11 +2423,10 @@ class _SongCellWidget extends StatefulWidget {
   Size get computedBuildSize {
     //  add a tolerance
     var width = columnWidth ?? app.screenInfo.mediaWidth;
-    var ret =
-        (withEllipsis ?? false)
-            ? size!
-            : _computeRichTextSize(richText, maxWidth: width) +
-                Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
+    var ret = (withEllipsis ?? false)
+        ? size!
+        : _computeRichTextSize(richText, maxWidth: width) +
+              Offset(2 * _paddingSize + 2 * _marginSize, 2 * _paddingSize + 2 * _marginSize);
     return ret;
   }
 
@@ -2469,11 +2501,11 @@ class _SongCellState extends State<_SongCellWidget> {
             logger.log(
               _logSongCellStateBuild,
               'cellState Build: (${widget.row},${widget.column}):'
-                  ' playMomentNumber: $playMomentNumber'
-                  ', firstMomentNumber: ${widget.firstMomentNumber}'
-                  ', lastMomentNumber: ${widget.lastMomentNumber}'
-                  ', byMoment: $byMoment'
-                  ', repeat: $repeat',
+              ' playMomentNumber: $playMomentNumber'
+              ', firstMomentNumber: ${widget.firstMomentNumber}'
+              ', lastMomentNumber: ${widget.lastMomentNumber}'
+              ', byMoment: $byMoment'
+              ', repeat: $repeat',
             );
           }
         }
@@ -2496,7 +2528,7 @@ class _SongCellState extends State<_SongCellWidget> {
                     (playMomentNumber == widget.songMoment?.momentNumber ||
                         (
                         //  deal with abbreviated or hidden repeat rows
-                            moment.lyricSection == widget.songMoment?.lyricSection &&
+                        moment.lyricSection == widget.songMoment?.lyricSection &&
                             moment.phraseIndex == widget.songMoment?.phraseIndex &&
                             moment.phrase.repeats > 1 &&
                             widget.songMoment?.momentNumber != null &&
@@ -2508,7 +2540,7 @@ class _SongCellState extends State<_SongCellWidget> {
                     ', ${widget.measureNode}'
                     ', textScaler: ${widget.richText.textScaler}'
                     ', moment: ${widget.songMoment?.momentNumber}'
-                    ', playMomentNumber: $playMomentNumber'
+                    ', playMomentNumber: $playMomentNumber',
                     //
                   );
                 }
@@ -2558,17 +2590,17 @@ class _SongCellState extends State<_SongCellWidget> {
     RichText richText =
         //  an exception for repeat decorators with multiple repeats
         (widget.measureNode is MeasureRepeatMarker && lastRepeat != null)
-            ? RichText(
-              text: TextSpan(
-                text:
-                    'x${lastRepeat! + 1}'
-                    '/${(widget.measureNode! as MeasureRepeatMarker).repeats}',
-                style: widget.richText.text.style,
-              ),
-              textScaler: widget.richText.textScaler,
-              maxLines: 1,
-            )
-            : widget.richText;
+        ? RichText(
+            text: TextSpan(
+              text:
+                  'x${lastRepeat! + 1}'
+                  '/${(widget.measureNode! as MeasureRepeatMarker).repeats}',
+              style: widget.richText.text.style,
+            ),
+            textScaler: widget.richText.textScaler,
+            maxLines: 1,
+          )
+        : widget.richText;
 
     //  diagnostic only
     logger.log(
@@ -2687,7 +2719,11 @@ class _SongCellState extends State<_SongCellWidget> {
             }
             chordIndex++;
           }
-          textWidget = SizedBox(width: width, height: height, child: AppWrap(children: chordWidgets));
+          textWidget = SizedBox(
+            width: width,
+            height: height,
+            child: AppWrap(children: chordWidgets),
+          );
         }
       }
     }
@@ -2699,7 +2735,11 @@ class _SongCellState extends State<_SongCellWidget> {
       margin: _margin,
       padding: _padding,
       foregroundDecoration: //
-          lastSelected ? BoxDecoration(border: Border.all(width: _marginSize, color: _idleHighlightColor)) : null,
+      lastSelected
+          ? BoxDecoration(
+              border: Border.all(width: _marginSize, color: _idleHighlightColor),
+            )
+          : null,
       color: widget.richText.text.style?.backgroundColor ?? Colors.transparent,
       child: textWidget,
     );

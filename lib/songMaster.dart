@@ -91,7 +91,7 @@ class SongMaster extends ChangeNotifier {
     int momentNumber;
     switch (songUpdateState) {
       case SongUpdateState.pause:
-        momentNumber = _momentNumber ?? -1;
+        momentNumber = _momentNumber ?? 0;
         _lastDrumTempoT = 0;
         break;
       case SongUpdateState.playHold:
@@ -459,7 +459,7 @@ class SongMaster extends ChangeNotifier {
       case SongUpdateState.playing:
         // songUpdateState = SongUpdateState.pause;
         // notifyListeners();
-        pause();
+        if (_song != null) pause(_song!);
         break;
       case SongUpdateState.pause:
         //  setup for the restart
@@ -513,8 +513,10 @@ class SongMaster extends ChangeNotifier {
     _drumParts = null; //  stop the drums
   }
 
-  void pause() {
+  void pause(final Song song) {
+    _song = song.copySong(); //  allow for play modifications
     if (songUpdateState != SongUpdateState.pause) {
+      _momentNumber ??= 0;
       songUpdateState = SongUpdateState.pause;
       notifyListeners();
     }

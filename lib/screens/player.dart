@@ -639,7 +639,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           appBar: backBar,
           body: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              boxMarker = constraints.maxHeight * _scrollAlignment;
+              stackMaxHeight = constraints.maxHeight;
+              boxMarker = stackMaxHeight * _scrollAlignment;
               logger.log(
                 _logCenter,
                 'LayoutBuilder constraints: (${constraints.maxWidth},${constraints.maxHeight})'
@@ -1606,6 +1607,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       return;
     }
 
+    logger.log(
+      _logPlayerItemPositionSizes,
+      'itemPositions: ${_itemPositionsListener.itemPositions.value.first.index}'
+      ' to ${_itemPositionsListener.itemPositions.value.last.index}',
+    );
+
     //  move to the scrolled to location, if scrolled by the leader
     switch (_songUpdateState) {
       case SongUpdateState.idle:
@@ -1633,15 +1640,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               alignment = _scrollAlignment;
               break;
           }
-          int height = (_lastSize?.height.toInt() ?? 1080) - 140; //  height - menu bar
 
-          // for ( var it in _itemPositionsListener.itemPositions.value)
-          //           {
-          //             logger.i('it ${it.index}: lead: ${it.itemLeadingEdge * height}'
-          //                 ', tail: ${it.itemTrailingEdge * height}'
-          //                 ', height: ${(it.itemTrailingEdge-it.itemLeadingEdge)* height}'
-          //                 ', h: $height');
-          //           }
+          for (var it in _itemPositionsListener.itemPositions.value) {
+            logger.log(
+              _logPlayerItemPositionSizes,
+              'it ${it.index}: lead: ${it.itemLeadingEdge * stackMaxHeight}'
+              ', tail: ${it.itemTrailingEdge * stackMaxHeight}'
+              ', height: ${(it.itemTrailingEdge - it.itemLeadingEdge) * stackMaxHeight}'
+              ', h: $stackMaxHeight',
+            );
+          }
           for (var itemPosition in _itemPositionsListener.itemPositions.value) {
             if (minItemPositionIndex == null || itemPosition.index < minItemPositionIndex) {
               minItemPositionIndex = itemPosition.index;
@@ -1658,7 +1666,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             logger.log(
               _logPlayerItemPositionSizes,
               'itemPosition.index: ${itemPosition.index}'
-              ', height: ${height * (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge)}, ',
+              ', height: ${stackMaxHeight * (itemPosition.itemTrailingEdge - itemPosition.itemLeadingEdge)}, ',
             );
           }
           // logger.i(
@@ -1731,10 +1739,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               ', h: ${((bestItemPosition?.itemTrailingEdge ?? 0) - (bestItemPosition?.itemLeadingEdge ?? 0)) * (_lastSize?.height ?? 1080)} '
               // ', maxMomentNumberFound: $maxMomentNumberFound'
               // ', lastPlayMomentNumber: $_lastPlayMomentNumber'
-              ', offset: ${_lyricsTable.rowToDisplayOffset(bestItemPositionIndex)}',
+              ', offset: ${_lyricsTable.rowToDisplayOffset(bestItemPositionIndex)}'
+              ', stackMaxHeight: $stackMaxHeight',
               // ', rowNumber: ${_lyricsTable.displayOffsetToRowNumber()}'
             );
-          } else {
+          } else if ((_lastPlayMomentNumber ?? 0) != momentNumberFound) {
             logger.log(
               _logScrollListener,
               ' fixme: _logPlayerItemPositions: '
@@ -1801,22 +1810,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 ? Duration(milliseconds: (0.3 * rowTime * Duration.millisecondsPerSecond).toInt())
                 : const Duration(milliseconds: 500));
 
-      logger.log(
-        _logScrollAnimation,
-        'scrollTo(): row: $row'
-        ', boxMarker: $boxMarker'
-        ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
-        // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-        ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}',
-        //
-      );
-      // logger.log(_logScrollAnimation, 'scrollTo(): ${StackTrace.current}');
-
       //  local scroll
       if (!_isScrolling) {
         _isScrolling = true;
         _itemScrollController
-            .scrollTo(index: row, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
+            .scrollTo(index: row + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
             .then((value) {
               _isScrolling = false;
               logger.log(
@@ -1825,6 +1823,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 ', boxMarker: $boxMarker',
               );
             });
+
+        logger.log(
+          _logScrollAnimation,
+          'scrollTo(): row: $row'
+          ', boxMarker: $boxMarker'
+          ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
+          // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
+          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}',
+          //
+        );
       } else {
         logger.log(_logScrollAnimation, 'scrollTo(): request for scroll while scrolling: $row');
       }
@@ -2079,7 +2087,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     if (p) {
       setState(() {
         _songUpdateState = SongUpdateState.pause;
-        _songMaster.pause();
+        _songMaster.pause(_song);
         logger.log(_logMode, 'performPause(): playing to pause');
       });
     }
@@ -2583,199 +2591,199 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                       'Capo',
 
                                       value: _isCapo,
-                                          style: boldStyle,
-                                          onPressed: () {
-                                            setState(() {
-                                              _isCapo = !_isCapo;
-                                              _setSelectedSongKey(_selectedSongKey);
-                                              _adjustDisplay();
-                                            });
-                                          },
-                                          //softWrap: false,
-                                        ),
-                                      ),
-                                    if (!_songUpdateService.isLeader)
-                                      appSwitch(
-                                        value: _isCapo,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _isCapo = !_isCapo;
-                                            _setSelectedSongKey(_selectedSongKey);
-                                            _adjustDisplay();
-                                          });
-                                        },
-                                      ),
-                                    if (_songUpdateService.isLeader)
-                                      Text('Capo: not available to the leader', style: popupStyle),
-                                  ],
-                                ),
-                            ],
-                          ),
-                          if (!_songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
-                            AppWrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                AppTooltip(
-                                  message: 'Adjust drum playback volume.',
-                                  child: Text('Volume:', style: popupStyle),
-                                ),
-                                SizedBox(
-                                  width: app.screenInfo.mediaWidth * 0.4,
-                                  // fixme: too fiddly
-                                  child: AppTooltip(
-                                    message: 'Adjust drum playback volume.',
-                                    child: Slider(
-                                      value: _appOptions.volume * 10,
-                                      onChanged: (value) {
+                                      style: boldStyle,
+                                      onPressed: () {
                                         setState(() {
-                                          _appOptions.volume = value / 10;
+                                          _isCapo = !_isCapo;
+                                          _setSelectedSongKey(_selectedSongKey);
+                                          _adjustDisplay();
                                         });
                                       },
-                                      min: 0,
-                                      max: 10.0,
+                                      //softWrap: false,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          const AppSpace(),
-                          if (!_songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
-                            AppWrapFullWidth(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: viewportWidth(1),
-                              children: [
-                                AppTooltip(
-                                  message: _areDrumsMuted
-                                      ? 'Click to unmute and select the drums'
-                                      : 'Click to mute the drums',
-                                  child: appButton(
-                                    _areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
-                                    onPressed: () {
+                                if (!_songUpdateService.isLeader)
+                                  appSwitch(
+                                    value: _isCapo,
+                                    onChanged: (value) {
                                       setState(() {
-                                        _areDrumsMuted = !_areDrumsMuted;
-                                        _songMaster.drumsAreMuted = _areDrumsMuted;
-                                        // logger.i('drums mute: $_areDrumsMuted');
-                                      });
-                                    },
-                                    backgroundColor: _areDrumsMuted ? Colors.red : null,
-                                  ),
-                                ),
-                                const AppSpace(),
-                                if (!_areDrumsMuted)
-                                  AppTooltip(
-                                    message: 'Select the drums',
-                                    child: appIconWithLabelButton(
-                                      label: 'Drums',
-                                      fontSize: popupStyle.fontSize,
-                                      icon: appIcon(Icons.edit),
-                                      onPressed: () {
-                                        _navigateToDrums(context, _song).then((value) => setState(() {}));
-                                      },
-                                    ),
-                                  ),
-                                if (!_areDrumsMuted)
-                                  AppTooltip(
-                                    message: 'The currently selected drum parts for this song.',
-                                    child: Text(_drumParts?.name ?? 'No drum parts', style: popupStyle),
-                                  ),
-                              ],
-                            ),
-                          const AppSpace(),
-                          AppWrapFullWidth(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: viewportWidth(1),
-                            children: [
-                              Text('NinJam choice:', style: boldStyle),
-                              AppTooltip(
-                                message: 'Turn off the Ninjam aids',
-                                child: AppRadio<bool>(
-                                  text: 'No NinJam aids',
-                                  value: false,
-                                  groupValue: _appOptions.ninJam,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.ninJam = false;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                              AppTooltip(
-                                message: 'Turn on the Ninjam aids',
-                                child: AppRadio<bool>(
-                                  text: 'Show NinJam aids',
-                                  value: true,
-                                  groupValue: _appOptions.ninJam,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.ninJam = true;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const AppVerticalSpace(),
-                          if (!app.screenInfo.isWayTooNarrow)
-                            AppWrapFullWidth(
-                              children: <Widget>[
-                                AppTooltip(
-                                  message:
-                                  'Offset the key displayed in the local display\n'
-                                      'to transcribe the chords for instruments that are\n'
-                                      'not Concert Pitch Instruments.\n'
-                                      'C pitched instruments include piano, most guitars,\n'
-                                      'flute, oboe, bassoon, and trombone.',
-                                  child: Text('Display key offset: ', style: boldStyle),
-                                ),
-                                appDropdownButton<int>(
-                                  _keyOffsetItems,
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        app.displayKeyOffset = value;
+                                        _isCapo = !_isCapo;
+                                        _setSelectedSongKey(_selectedSongKey);
                                         _adjustDisplay();
                                       });
-                                    }
-                                  },
-                                  style: popupStyle,
-                                  value: app.displayKeyOffset,
-                                ),
+                                    },
+                                  ),
+                                if (_songUpdateService.isLeader)
+                                  Text('Capo: not available to the leader', style: popupStyle),
                               ],
                             ),
-                          const AppVerticalSpace(space: 35),
                         ],
                       ),
+                      if (!_songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
+                        AppWrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            AppTooltip(
+                              message: 'Adjust drum playback volume.',
+                              child: Text('Volume:', style: popupStyle),
+                            ),
+                            SizedBox(
+                              width: app.screenInfo.mediaWidth * 0.4,
+                              // fixme: too fiddly
+                              child: AppTooltip(
+                                message: 'Adjust drum playback volume.',
+                                child: Slider(
+                                  value: _appOptions.volume * 10,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _appOptions.volume = value / 10;
+                                    });
+                                  },
+                                  min: 0,
+                                  max: 10.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      const AppSpace(),
+                      if (!_songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
+                        AppWrapFullWidth(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: viewportWidth(1),
+                          children: [
+                            AppTooltip(
+                              message: _areDrumsMuted
+                                  ? 'Click to unmute and select the drums'
+                                  : 'Click to mute the drums',
+                              child: appButton(
+                                _areDrumsMuted ? 'Drums are muted' : 'Mute the Drums',
+                                onPressed: () {
+                                  setState(() {
+                                    _areDrumsMuted = !_areDrumsMuted;
+                                    _songMaster.drumsAreMuted = _areDrumsMuted;
+                                    // logger.i('drums mute: $_areDrumsMuted');
+                                  });
+                                },
+                                backgroundColor: _areDrumsMuted ? Colors.red : null,
+                              ),
+                            ),
+                            const AppSpace(),
+                            if (!_areDrumsMuted)
+                              AppTooltip(
+                                message: 'Select the drums',
+                                child: appIconWithLabelButton(
+                                  label: 'Drums',
+                                  fontSize: popupStyle.fontSize,
+                                  icon: appIcon(Icons.edit),
+                                  onPressed: () {
+                                    _navigateToDrums(context, _song).then((value) => setState(() {}));
+                                  },
+                                ),
+                              ),
+                            if (!_areDrumsMuted)
+                              AppTooltip(
+                                message: 'The currently selected drum parts for this song.',
+                                child: Text(_drumParts?.name ?? 'No drum parts', style: popupStyle),
+                              ),
+                          ],
+                        ),
+                      const AppSpace(),
+                      AppWrapFullWidth(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: viewportWidth(1),
+                        children: [
+                          Text('NinJam choice:', style: boldStyle),
+                          AppTooltip(
+                            message: 'Turn off the Ninjam aids',
+                            child: AppRadio<bool>(
+                              text: 'No NinJam aids',
+                              value: false,
+                              groupValue: _appOptions.ninJam,
+                              onPressed: () {
+                                setState(() {
+                                  _appOptions.ninJam = false;
+                                  _adjustDisplay();
+                                });
+                              },
+                              style: popupStyle,
+                            ),
+                          ),
+                          AppTooltip(
+                            message: 'Turn on the Ninjam aids',
+                            child: AppRadio<bool>(
+                              text: 'Show NinJam aids',
+                              value: true,
+                              groupValue: _appOptions.ninJam,
+                              onPressed: () {
+                                setState(() {
+                                  _appOptions.ninJam = true;
+                                  _adjustDisplay();
+                                });
+                              },
+                              style: popupStyle,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const AppVerticalSpace(),
+                      if (!app.screenInfo.isWayTooNarrow)
+                        AppWrapFullWidth(
+                          children: <Widget>[
+                            AppTooltip(
+                              message:
+                                  'Offset the key displayed in the local display\n'
+                                  'to transcribe the chords for instruments that are\n'
+                                  'not Concert Pitch Instruments.\n'
+                                  'C pitched instruments include piano, most guitars,\n'
+                                  'flute, oboe, bassoon, and trombone.',
+                              child: Text('Display key offset: ', style: boldStyle),
+                            ),
+                            appDropdownButton<int>(
+                              _keyOffsetItems,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    app.displayKeyOffset = value;
+                                    _adjustDisplay();
+                                  });
+                                }
+                              },
+                              style: popupStyle,
+                              value: app.displayKeyOffset,
+                            ),
+                          ],
+                        ),
+                      const AppVerticalSpace(space: 35),
                     ],
-                  ),
-                );
-              },
-            ),
-            actions: [
-              const AppSpace(),
-              AppWrapFullWidth(
-                spacing: viewportWidth(1),
-                alignment: WrapAlignment.end,
-                children: [
-                  AppTooltip(
-                    message: 'Click here or outside of the popup to return to the player screen.',
-                    child: appButton(
-                      'Return',
-                      fontSize: popupStyle.fontSize,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
                   ),
                 ],
               ),
+            );
+          },
+        ),
+        actions: [
+          const AppSpace(),
+          AppWrapFullWidth(
+            spacing: viewportWidth(1),
+            alignment: WrapAlignment.end,
+            children: [
+              AppTooltip(
+                message: 'Click here or outside of the popup to return to the player screen.',
+                child: appButton(
+                  'Return',
+                  fontSize: popupStyle.fontSize,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
             ],
-            actionsAlignment: MainAxisAlignment.start,
-            elevation: 24.0,
           ),
+        ],
+        actionsAlignment: MainAxisAlignment.start,
+        elevation: 24.0,
+      ),
     );
 
     _adjustDisplay();
@@ -2882,8 +2890,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
   final TextEditingController _bpmTextEditingController = TextEditingController();
 
   static const _scrollAlignment = 0.2;
-
-  double boxMarker = 0;
+  double stackMaxHeight = 1080; //  initial default only
+  double boxMarker = 1080 * _scrollAlignment; //  initial default only
   double _fontSize = 14;
 
   var _headerTextStyle = generateAppTextStyle(backgroundColor: Colors.transparent);

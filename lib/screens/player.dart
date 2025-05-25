@@ -1394,32 +1394,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           Navigator.pop(context);
         }
         return KeyEventResult.handled;
-      } else if (e.logicalKey == LogicalKeyboardKey.enter) {
-        switch (_songUpdateState) {
-          case SongUpdateState.none:
-          case SongUpdateState.idle:
-          case SongUpdateState.drumTempo:
-            _performPlay();
-            break;
-          case SongUpdateState.playing:
-            _rowBump(1);
-            break;
-          case SongUpdateState.playHold:
-            _rowBump(1);
-            _songMaster.resume();
-            break;
-          case SongUpdateState.pause:
-            if (!_songUpdateService.isFollowing) {
-              setState(() {
-                //  select start of next section
-                _sectionBump(1);
-                _songMaster.resume();
-              });
-            }
-            break;
-        }
-        return KeyEventResult.handled;
-      } else if (e.logicalKey == LogicalKeyboardKey.numpadEnter) {
+      } else if (e.logicalKey == LogicalKeyboardKey.enter || e.logicalKey == LogicalKeyboardKey.numpadEnter) {
+        //  note: enter and numpadEnter are not distinguished in the web platform
         switch (_songUpdateState) {
           case SongUpdateState.pause:
             _performPlay();
@@ -1719,7 +1695,8 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
             _leaderSongUpdate(_lastPlayMomentNumber!);
 
             logger.log(_logScrollListener, 'reposition to bottom: _lastPlayMomentNumber: $_lastPlayMomentNumber');
-            logger.i(
+            logger.log(
+              _logScrollListener,
               '       bottom: $maxItemPositionIndex: '
               ' of ${_lyricsTable.songMomentNumberToGridRow(_song.songMoments.length - 1)}'
               ', ${maxItemPosition?.itemLeadingEdge}'

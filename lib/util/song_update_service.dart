@@ -86,14 +86,14 @@ class AppSongUpdateService extends ChangeNotifier {
               if (message is String) {
                 if (message.startsWith(_timeRequest)) {
                   //  time
-                  logger.i('time response: $message');
+                  logger.log(_log, 'time response: $message');
                 } else if (message.startsWith(_tempoRequest)) {
                   //  tempo
                   SongTempoUpdate? songTempoUpdate = SongTempoUpdate.fromJson(message.substring(_tempoRequest.length));
                   if (songTempoUpdate != null) {
                     //  note: tempo change is not a change of leadership!
                     tempoNotifier.songTempoUpdate = songTempoUpdate;
-                    // logger.i('tempo response: $message');
+                    // logger.log(_log,'tempo response: $message');
                   }
                 } else {
                   var jsonSongUpdate = SongUpdate.fromJson(message);

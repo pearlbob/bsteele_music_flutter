@@ -74,6 +74,7 @@ import 'package:bsteele_music_flutter/screens/debug.dart';
 import 'package:bsteele_music_flutter/screens/documentation.dart';
 import 'package:bsteele_music_flutter/screens/drum_screen.dart';
 import 'package:bsteele_music_flutter/screens/edit.dart';
+import 'package:bsteele_music_flutter/screens/leader.dart';
 import 'package:bsteele_music_flutter/screens/metadata.dart';
 import 'package:bsteele_music_flutter/screens/options.dart';
 import 'package:bsteele_music_flutter/screens/performanceHistory.dart';
@@ -144,6 +145,11 @@ Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gr
     <true/>
     <key>com.apple.security.network.server</key>
     <true/>
+ */
+
+/*
+macos/Runner/Base.lproj/MainMenu.xib:
+<rect key="contentRect" x="30" y="30" width="1400" height="880"/>
  */
 
 //  diagnostic logging enables
@@ -292,6 +298,7 @@ class BSteeleMusicApp extends StatelessWidget {
             // When navigating to the '/second' route, build the SecondScreen widget.
             mainList: (context) => const MyHomePage(title: 'bsteeleMusicApp'),
             Player.routeName: playerPageRoute.builder,
+            Leader.routeName: leaderPageRoute.builder,
             Options.routeName: (context) => const Options(),
             Songs.routeName: (context) => const Songs(),
             Singers.routeName: (context) => const Singers(),
@@ -404,10 +411,11 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _readExternalSongList() async {
-    var externalHost = '${host.isEmpty //
-        ? 'www.bsteele.com' //  likely a native app with web access
-        : '$host:${uri.port}' //  port for potential app server
-        }/bsteeleMusicApp';
+    var externalHost =
+        '${host.isEmpty //
+            ? 'www.bsteele.com' //  likely a native app with web access
+            : '$host:${uri.port}' //  port for potential app server
+            }/bsteeleMusicApp';
 
     {
       final String url = 'http://$externalHost/allSongs.songlyrics';
@@ -680,6 +688,14 @@ class MyHomePageState extends State<MyHomePage> {
             ),
 
             appListTile(
+              title: 'Leader',
+              style: navTextStyle,
+              onTap: () {
+                _navigateToAboutLeader();
+              },
+            ),
+
+            appListTile(
               title: 'About',
               style: navTextStyle,
               //trailing: Icon(Icons.arrow_forward),
@@ -890,6 +906,15 @@ class MyHomePageState extends State<MyHomePage> {
   //   }
   //   Navigator.of(context).pop(); //  drawer
   // }
+
+  _navigateToAboutLeader() async {
+    app.clearMessage();
+    await Navigator.push(context, MaterialPageRoute(builder: (context) =>  Leader()));
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
+  }
 
   _navigateToAbout() async {
     app.clearMessage();

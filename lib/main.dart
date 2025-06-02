@@ -146,6 +146,12 @@ Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gr
     <true/>
  */
 
+/*	future posibility:
+	flutter build linux --target-platform=linux-arm64
+		Cross-build from Linux x64 host to Linux arm64 target is not currently supported.
+		works in dart only
+ */
+
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(

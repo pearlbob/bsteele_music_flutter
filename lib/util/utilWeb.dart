@@ -1,32 +1,45 @@
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:convert';
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
-import 'dart:typed_data';
+//      info: 'dart:html' is deprecated and shouldn't be used.'
+// ' Use package:web and dart:js_interop instead. '
+// import 'dart:html';
 
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_pro.dart';
 import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
+import 'package:web/web.dart' as web;
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {
+  /// Workaround to implement functionality that is not generic across all platforms at this point.
   @override
   Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
-    //   web stuff write
-    Blob blob = Blob([contents], 'text/plain', 'native');
-    AnchorElement(
-      href: Url.createObjectUrlFromBlob(blob).toString(),
-    )
-      ..setAttribute("download", fileName)
-      ..click();
+    // //   web stuff write
+    // Blob blob = Blob([contents], 'text/plain', 'native');
+    // AnchorElement(href: Url.createObjectUrlFromBlob(blob).toString())
+    //   ..setAttribute("download", fileName)
+    //   ..click();
 
     return 'The file was written into your browser\'s download folder named: \'$fileName\'';
   }
+
+  // Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
+  //   io.File file = io.File(fileName);
+  //   logger.i('file: $file,  path: ${file.path}');
+  //
+  //   try {
+  //     await file.writeAsString(contents, flush: true); //  fixme: no await?
+  //   } catch (e) {
+  //     return 'Error writing file to \'$file\': $e';
+  //   }
+  //
+  //   return 'The file \'$fileName\' was written into your download folder';
+  // }
 
   @override
   Future<List<Song>> songFilePick(BuildContext context) async {
@@ -34,13 +47,11 @@ class UtilWeb implements UtilWorkaround {
   }
 
   Future<List<Song>> getSongsAsync() async {
-    List<NameValue> fileData = await getFiles('.songlyrics');
+    List<NameValue> fileData = await _getFiles('songlyrics');
     logger.d("files.length: ${fileData.length}");
     List<Song> ret = [];
     for (var nameValue in fileData) {
-      Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
-
-      String s = utf8.decode(data);
+      String s = nameValue.value;
       //logger.d('data: ${s.substring(0, min(200, s.length))}');
       if (chordProRegExp.hasMatch(nameValue.name)) {
         //  chordpro encoded songs
@@ -57,58 +68,50 @@ class UtilWeb implements UtilWorkaround {
     return ret;
   }
 
-  Future<List<NameValue>> getFiles(String? accept) {
-    final completer = Completer<List<NameValue>>();
-    final InputElement input = document.createElement('input') as InputElement;
-    input
-      ..type = 'file'
-      ..multiple = true;
-    if (accept != null) {
-      input.accept = accept;
-    }
-    input.onChange.listen((e) async {
-      files = input.files;
-      if (files != null) {
-        Iterable<Future<NameValue>> resultsFutures = files!.map((file) {
-          logger.t('file: ${file.name}');
-          final reader = FileReader();
-          reader.readAsDataUrl(file);
-          reader.onError.listen((error) => completer.completeError(error));
-          return reader.onLoad.first.then((_) => NameValue(file.name, reader.result as String));
-        });
-        final results = await Future.wait(resultsFutures);
-        completer.complete(results);
+  Future<List<NameValue>> _getFiles(final String? accept) async {
+    var allowedExtensions = accept == null ? null : [accept.startsWith('.') ? accept.substring(1) : accept];
+    logger.i('file accept: "$accept"');
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: allowedExtensions,
+    );
+
+    List<NameValue> ret = [];
+    if (result != null) {
+      for (PlatformFile file in result.files) {
+        logger.i('file name: ${file.name}, path: "${file.path}"');
+        logger.i('   size: "${file.size}"');
+        String contents = utf8.decode(file.bytes?.toList() ?? []);
+        logger.i('   toString(): $contents');
+        ret.add(NameValue(file.name, contents));
       }
-    });
-    input.click();
-    return completer.future;
+    } else {
+      // User canceled the picker
+    }
+
+    return ret;
   }
 
   @override
   Future<List<NameValue>> textFilePickAndRead(BuildContext context) async {
-    List<NameValue> fileData = await getFiles(null);
+    List<NameValue> fileData = await _getFiles(null);
     logger.d("files.length: ${fileData.length}");
     List<NameValue> ret = [];
     for (var nameValue in fileData) {
-      final String data64 = nameValue.value;
-
-      Uint8List data = const Base64Decoder().convert(data64.split(",").last);
-
-      ret.add(NameValue(nameValue.name, utf8.decode(data)));
+      ret.add(NameValue(nameValue.name, nameValue.value));
     }
     return ret;
   }
 
-  List<File>? files;
+  web.FileList? files;
   final RegExp chordProRegExp = RegExp(r'pro$');
 
   /// extensions should include the dot separator
   @override
   Future<String> filePickByExtension(BuildContext context, String extension) async {
-    for (NameValue nameValue in await getFiles(extension)) {
-      Uint8List data = const Base64Decoder().convert(nameValue.value.split(",").last);
-      String s = utf8.decode(data);
-      return s;
+    for (NameValue nameValue in await _getFiles(extension)) {
+      return nameValue.value;
     }
     return '';
   }

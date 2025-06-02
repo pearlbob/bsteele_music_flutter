@@ -33,11 +33,11 @@ dependencies:
   enum_to_string:
   provider:
   universal_io:
-  universal_html:
+  file_picker:
+#  web:
   reorderables:
   pretty_diff_text:
   http:
-  js:
   csv:
   string_similarity:
   package_info_plus:
@@ -50,6 +50,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
 #cupertino_icons: #^0.1.2
 
+  js: any
 dev_dependencies:
   integration_test:
     sdk: flutter

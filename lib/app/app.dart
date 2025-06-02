@@ -17,7 +17,7 @@ import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:universal_io/io.dart';
 
 import '../util/songPerformanceDaemon.dart';
@@ -27,7 +27,8 @@ import 'app_theme.dart';
 final App app = App();
 final AppOptions _appOptions = AppOptions();
 
-String userName = Platform.environment['USER'] ??
+String userName =
+    Platform.environment['USER'] ??
     Platform.environment['USERNAME'] ??
     Platform.environment['LOGNAME'] ??
     Song.defaultUser;
@@ -49,46 +50,41 @@ extension SongUpdateStateExtension on SongUpdateState {
   bool get isPlayingOrPausedOrHold =>
       this == SongUpdateState.playing || this == SongUpdateState.pause || this == SongUpdateState.playHold;
 
-// IconData get icon {
-//   return switch (this) {
-//     SongUpdateState.idle => Icons.stop,
-//     SongUpdateState.playing => Icons.play_arrow,
-//     SongUpdateState.pause => Icons.pause,
-//     _ => Icons.stop,
-//   };
-// }
+  // IconData get icon {
+  //   return switch (this) {
+  //     SongUpdateState.idle => Icons.stop,
+  //     SongUpdateState.playing => Icons.play_arrow,
+  //     SongUpdateState.pause => Icons.pause,
+  //     _ => Icons.stop,
+  //   };
+  // }
 }
 
 /// Song list sort types
 enum PlayListSortType {
-  byHistory('Order by when the song was last sung\n'
-      'with the most oldest singing first.'), //  by convention: should be first
-  byLastSung('Order by when the song was last sung\n'
-      'with the most recent first.'), //  by convention: should be second
+  byHistory(
+    'Order by when the song was last sung\n'
+    'with the most oldest singing first.',
+  ), //  by convention: should be first
+  byLastSung(
+    'Order by when the song was last sung\n'
+    'with the most recent first.',
+  ), //  by convention: should be second
   bySinger('Order by the song performance\'s singer.'),
   byTitle('Order by the song\'s title.'),
   byArtist('Order by the song\'s artist.'),
   byLastChange('Order by the date of the most recent edit.'),
   byComplexity('Order by the song\'s complexity when compared to other songs.'),
-  byYear('Order by the song\'s year.'),
-  ;
+  byYear('Order by the song\'s year.');
 
   const PlayListSortType(this.toolTip);
 
   final String toolTip;
 }
 
-enum MessageType {
-  info,
-  warning,
-  error,
-}
+enum MessageType { info, warning, error }
 
-enum NashvilleSelection {
-  off,
-  both,
-  only;
-}
+enum NashvilleSelection { off, both, only }
 
 NameValue get myGoodSongNameValue => NameValue(userName, 'good');
 
@@ -115,8 +111,10 @@ class App {
   App._internal();
 
   //  parameters to be evaluated before use
-  ThemeData themeData =
-      ThemeData.localize(ThemeData.light(useMaterial3: true), Typography().white); //  start with a default theme
+  ThemeData themeData = ThemeData.localize(
+    ThemeData.light(useMaterial3: true),
+    Typography().white,
+  ); //  start with a default theme
 
   //  colors
   static const appBackgroundColor = Color(0xff2196f3);
@@ -175,12 +173,12 @@ class App {
     return color;
   }
 
-//  all section versions 1 will be the same color as the section without a version number
-//  section version color cycle will be determined by the number of colors added here for each section
+  //  all section versions 1 will be the same color as the section without a version number
+  //  section version color cycle will be determined by the number of colors added here for each section
   static const Map<SectionEnum, List<int>> _sectionColorMap = {
     SectionEnum.intro: [
       // 0&1     2         3
-      0xccfcc3, 0xb5e6ad, 0xa3cf9b
+      0xccfcc3, 0xb5e6ad, 0xa3cf9b,
     ],
     SectionEnum.verse: [
       // 0 & 1     2         3
@@ -188,11 +186,11 @@ class App {
     ],
     SectionEnum.preChorus: [
       // 0 & 1     2
-      0xf4dcf2, 0xe1bee7, 0xdaa8e5
+      0xf4dcf2, 0xe1bee7, 0xdaa8e5,
     ],
     SectionEnum.chorus: [
       // 0 & 1     2         3
-      0xf0f0f0, 0xd1d2d3, 0xbdbebf
+      0xf0f0f0, 0xd1d2d3, 0xbdbebf,
     ],
     SectionEnum.a: [
       // 0 & 1     2         3
@@ -204,7 +202,7 @@ class App {
     SectionEnum.tag: [0xf4dcf2, 0xe1bee7, 0xdaa8e5],
     SectionEnum.outro: [
       // 0 & 1
-      0xd7e5ff, 0xb6d2fc, 0x92b8ef
+      0xd7e5ff, 0xb6d2fc, 0x92b8ef,
     ],
   };
 
@@ -279,10 +277,7 @@ class App {
     if (_message.isEmpty) {
       return NullWidget();
     }
-    return Text(
-      _message,
-      style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle,
-    );
+    return Text(_message, style: messageType == MessageType.error ? appErrorTextStyle : _appWarningTextStyle);
   }
 
   String get message => _message;
@@ -326,24 +321,24 @@ class App {
   int get displayKeyOffset => _displayKeyOffset;
   static int _displayKeyOffset = 0;
 
-  bool get fullscreenEnabled => html.document.fullscreenEnabled ?? false;
+  bool get fullscreenEnabled => web.document.fullscreenEnabled;
 
   //
   void requestFullscreen() {
-    if (html.document.fullscreenEnabled == true) {
-      html.document.documentElement?.requestFullscreen();
+    if (web.document.fullscreenEnabled == true) {
+      web.document.documentElement?.requestFullscreen();
     }
   }
 
   void exitFullScreen() {
-    if (html.document.fullscreenEnabled == true) {
-      html.document.exitFullscreen();
+    if (web.document.fullscreenEnabled == true) {
+      web.document.exitFullscreen();
     }
   }
 
   bool get isFullScreen {
-    if (html.document.fullscreenEnabled == true) {
-      return html.document.fullscreenElement != null;
+    if (web.document.fullscreenEnabled == true) {
+      return web.document.fullscreenElement != null;
     }
     return false;
   }
@@ -407,12 +402,13 @@ TextStyle appButtonTextStyle({final double? fontSize}) {
 
 @immutable
 class AppSpace extends StatelessWidget {
-  const AppSpace(
-      {super.key,
-      this.space,
-      //this.spaceFactor = 1.0,
-      this.horizontalSpace,
-      this.verticalSpace});
+  const AppSpace({
+    super.key,
+    this.space,
+    //this.spaceFactor = 1.0,
+    this.horizontalSpace,
+    this.verticalSpace,
+  });
 
   static const double defaultSpace = 10;
 
@@ -427,10 +423,7 @@ class AppSpace extends StatelessWidget {
       );
     }
     final double maxSpace = max(space ?? 0, 0);
-    return SizedBox(
-      height: maxSpace,
-      width: maxSpace,
-    );
+    return SizedBox(height: maxSpace, width: maxSpace);
   }
 
   final double? space;
@@ -455,16 +448,10 @@ class AppSpaceViewportWidth extends StatelessWidget {
 
     if (space == null) {
       assert((horizontalSpace ?? 0) >= 0 || (verticalSpace ?? 0) >= 0);
-      return SizedBox(
-        height: (verticalSpace ?? 0) / 100 * width,
-        width: (horizontalSpace ?? 0) / 100 * width,
-      );
+      return SizedBox(height: (verticalSpace ?? 0) / 100 * width, width: (horizontalSpace ?? 0) / 100 * width);
     }
     var fixedSpace = max(space ?? 0, 0);
-    return SizedBox(
-      height: fixedSpace / 100 * width,
-      width: fixedSpace / 100 * width,
-    );
+    return SizedBox(height: fixedSpace / 100 * width, width: fixedSpace / 100 * width);
   }
 
   final double? space;
@@ -479,16 +466,10 @@ class AppVerticalSpace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (space == null) {
-      return const SizedBox(
-        height: 10,
-        width: 0,
-      );
+      return const SizedBox(height: 10, width: 0);
     }
     final double height = max(space ?? 0, 0);
-    return SizedBox(
-      height: height,
-      width: 0,
-    );
+    return SizedBox(height: height, width: 0);
   }
 
   final double? space;
@@ -504,14 +485,15 @@ class AppTooltip extends StatelessWidget {
     if (_appOptions.toolTips) {
       var textStyle = generateTooltipTextStyle(fontSize: app.screenInfo.fontSize);
       return Tooltip(
-          key: key,
-          message: message,
-          textStyle: textStyle,
-          waitDuration: _toolTipWaitDuration,
-          verticalOffset: 75,
-          decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
-          padding: const EdgeInsets.all(8),
-          child: child);
+        key: key,
+        message: message,
+        textStyle: textStyle,
+        waitDuration: _toolTipWaitDuration,
+        verticalOffset: 75,
+        decoration: appTooltipBoxDecoration(textStyle.backgroundColor),
+        padding: const EdgeInsets.all(8),
+        child: child,
+      );
     } else {
       return child;
     }
@@ -523,10 +505,11 @@ class AppTooltip extends StatelessWidget {
 
 BoxDecoration appTooltipBoxDecoration(final Color? color) {
   return BoxDecoration(
-      color: color,
-      border: Border.all(),
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-      boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)]);
+    color: color,
+    border: Border.all(),
+    borderRadius: const BorderRadius.all(Radius.circular(12)),
+    boxShadow: const [BoxShadow(color: Colors.grey, offset: Offset(8, 8), blurRadius: 10)],
+  );
 }
 
 @immutable
@@ -558,8 +541,12 @@ class AppWrapFullWidth extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child:
-          AppWrap(alignment: alignment, crossAxisAlignment: crossAxisAlignment, spacing: spacing, children: children),
+      child: AppWrap(
+        alignment: alignment,
+        crossAxisAlignment: crossAxisAlignment,
+        spacing: spacing,
+        children: children,
+      ),
     );
   }
 
@@ -577,10 +564,11 @@ class AppRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-        mainAxisAlignment: mainAxisAlignment,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: children);
+      mainAxisAlignment: mainAxisAlignment,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: children,
+    );
   }
 
   final MainAxisAlignment mainAxisAlignment;
@@ -676,17 +664,26 @@ class AppWidgetHelper {
     );
   }
 
-  AppBar backBar(
-      {final Widget? titleWidget, final String? title, final List<Widget>? actions, final VoidCallback? onPressed}) {
+  AppBar backBar({
+    final Widget? titleWidget,
+    final String? title,
+    final List<Widget>? actions,
+    final VoidCallback? onPressed,
+  }) {
     return appBar(title: title, titleWidget: titleWidget, leading: back(onPressed: onPressed), actions: actions);
   }
 
-  AppBar appBar(
-      {final String? title, final Widget? titleWidget, final IconButton? leading, final List<Widget>? actions}) {
+  AppBar appBar({
+    final String? title,
+    final Widget? titleWidget,
+    final IconButton? leading,
+    final List<Widget>? actions,
+  }) {
     _toolbarHeight = (app.isScreenBig ? kToolbarHeight : kToolbarHeight * 0.6);
     return AppBar(
       leading: leading,
-      title: titleWidget ??
+      title:
+          titleWidget ??
           Text(
             title ?? 'unknown',
             style: TextStyle(
@@ -705,24 +702,26 @@ class AppWidgetHelper {
     );
   }
 
-  Widget checkbox(
-      {required final bool? value, final ValueChanged<bool?>? onChanged, final TextStyle? style, final String? label}) {
+  Widget checkbox({
+    required final bool? value,
+    final ValueChanged<bool?>? onChanged,
+    final TextStyle? style,
+    final String? label,
+  }) {
     var checkbox = Checkbox(
-        checkColor: Colors.white,
-        fillColor: WidgetStateProperty.all(App.appBackgroundColor),
-        value: value,
-        onChanged: onChanged);
+      checkColor: Colors.white,
+      fillColor: WidgetStateProperty.all(App.appBackgroundColor),
+      value: value,
+      onChanged: onChanged,
+    );
     if (label != null) {
       return AppWrap(
         children: [
           checkbox,
           const AppSpace(
-              //    spaceFactor: 0.5,
-              ),
-          Text(
-            label,
-            style: style,
-          )
+            //    spaceFactor: 0.5,
+          ),
+          Text(label, style: style),
         ],
       );
     }

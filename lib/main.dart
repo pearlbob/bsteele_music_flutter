@@ -107,7 +107,7 @@ import 'util/openLink.dart';
 
 /*
 linux start size and location:
-in linux/runner/my_application.cc, line 50 or so
+in linux/my_application.cc, line 50 or so
   gtk_window_set_default_size(window, 1920, 1080);
   gtk_window_move(window, 50, 350);
  */
@@ -150,12 +150,6 @@ Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gr
 /*
 macos/Runner/Base.lproj/MainMenu.xib:
 <rect key="contentRect" x="30" y="30" width="1400" height="880"/>
- */
-
-/*	future possibility:
-	flutter build linux --target-platform=linux-arm64
-		Cross-build from Linux x64 host to Linux arm64 target is not currently supported.
-		works in dart only
  */
 
 //  diagnostic logging enables
@@ -912,6 +906,15 @@ class MyHomePageState extends State<MyHomePage> {
   //   }
   //   Navigator.of(context).pop(); //  drawer
   // }
+
+  _navigateToAboutLeader() async {
+    app.clearMessage();
+    await Navigator.push(context, MaterialPageRoute(builder: (context) =>  Leader()));
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(); //  drawer
+  }
 
   _navigateToAbout() async {
     app.clearMessage();

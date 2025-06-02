@@ -750,7 +750,6 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
         songUpdateState,
         playMomentNumber,
         songMoment,
-        songMomentToGridCoordinate[songMoment?.momentNumber ?? 0].row,
       );
     }
   }

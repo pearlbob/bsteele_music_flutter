@@ -91,7 +91,7 @@ class SongMaster extends ChangeNotifier {
     int momentNumber;
     switch (songUpdateState) {
       case SongUpdateState.pause:
-        momentNumber = _momentNumber ?? -1;
+        momentNumber = _momentNumber ?? 0;
         _lastDrumTempoT = 0;
         break;
       case SongUpdateState.playHold:
@@ -268,7 +268,8 @@ class SongMaster extends ChangeNotifier {
     _lastMomentNumber = momentNumber;
     logger.log(
       _logSongMasterTicker,
-      'SongMaster: ${songUpdateState.name}:  moment: $momentNumber, lyric: $_lastSectionIndex',
+      'SongMaster: ${songUpdateState.name}: ${DateTime.now()}   moment: $momentNumber, lyric: $_lastSectionIndex'
+      ', songTime: $songTime',
     );
 
     switch (songUpdateState) {
@@ -413,15 +414,14 @@ class SongMaster extends ChangeNotifier {
 
   /// tap the given tempo, typically prior to play
   tapTempo(int bpm) {
+    setBpm(bpm);
     switch (songUpdateState) {
       case SongUpdateState.none:
       case SongUpdateState.idle:
-        setBpm(bpm);
         songUpdateState = SongUpdateState.drumTempo;
         notifyListeners();
         break;
       default:
-        setBpm(bpm);
         break;
     }
     logger.log(_logTempo, 'tapTempo: $bpm, state: ${songUpdateState.name}');
@@ -447,7 +447,11 @@ class SongMaster extends ChangeNotifier {
     _clearMomentNumber();
     songUpdateState = SongUpdateState.playing;
     notifyListeners();
-    logger.log(_logRestart, '_playSongMode: ${songUpdateState.name}, _bpm: $_bpm');
+    logger.log(
+      _logRestart,
+      '_playSongMode: ${songUpdateState.name}, ${DateTime.now()}  _bpm: $_bpm'
+      ', drums: ${_drumParts != null}',
+    );
   }
 
   pauseToggle() {
@@ -455,7 +459,7 @@ class SongMaster extends ChangeNotifier {
       case SongUpdateState.playing:
         // songUpdateState = SongUpdateState.pause;
         // notifyListeners();
-        pause();
+        if (_song != null) pause(_song!);
         break;
       case SongUpdateState.pause:
         //  setup for the restart
@@ -509,8 +513,10 @@ class SongMaster extends ChangeNotifier {
     _drumParts = null; //  stop the drums
   }
 
-  void pause() {
+  void pause(final Song song) {
+    _song = song.copySong(); //  allow for play modifications
     if (songUpdateState != SongUpdateState.pause) {
+      _momentNumber ??= 0;
       songUpdateState = SongUpdateState.pause;
       notifyListeners();
     }

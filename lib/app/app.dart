@@ -17,7 +17,7 @@ import 'package:bsteele_music_lib/songs/song_update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web/web.dart' as web;
+import 'package:universal_html/html.dart' as html;
 import 'package:universal_io/io.dart';
 
 import '../util/songPerformanceDaemon.dart';
@@ -321,24 +321,24 @@ class App {
   int get displayKeyOffset => _displayKeyOffset;
   static int _displayKeyOffset = 0;
 
-  bool get fullscreenEnabled => web.document.fullscreenEnabled;
+  bool get fullscreenEnabled => html.document.fullscreenEnabled ?? false;
 
   //
   void requestFullscreen() {
-    if (web.document.fullscreenEnabled == true) {
-      web.document.documentElement?.requestFullscreen();
+    if (html.document.fullscreenEnabled == true) {
+      html.document.documentElement?.requestFullscreen();
     }
   }
 
   void exitFullScreen() {
-    if (web.document.fullscreenEnabled == true) {
-      web.document.exitFullscreen();
+    if (html.document.fullscreenEnabled == true) {
+      html.document.exitFullscreen();
     }
   }
 
   bool get isFullScreen {
-    if (web.document.fullscreenEnabled == true) {
-      return web.document.fullscreenElement != null;
+    if (html.document.fullscreenEnabled == true) {
+      return html.document.fullscreenElement != null;
     }
     return false;
   }

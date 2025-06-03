@@ -4,34 +4,36 @@
 
 "use strict";
 
-function AudioFilePlayer() {
-    this.fileMap = new Map();
-    let offset;
+class AudioFilePlayer {
+    constructor() {
+        this.fileMap = new Map();
+        let offset;
 
-    //  setup audio output
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.audioContext = new window.AudioContext();
-    this.mp3Sources = new Array(0);
+        //  setup audio output
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioContext = new window.AudioContext();
+        this.mp3Sources = new Array(0);
 
-    this.gain = this.audioContext.createGain();
-    this.gain.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 0.1);
-    this.gain.connect(this.audioContext.destination);
+        this.gain = this.audioContext.createGain();
+        this.gain.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 0.1);
+        this.gain.connect(this.audioContext.destination);
 
-    // create Oscillator node to keep the timer running permanently
-    // this.oscillator = this.audioContext.createOscillator();
-    // this.oscillator.type = 'sine';
-    // this.oscillator.frequency.setValueAtTime(20, 0); // value in hertz
-    // this.oscillator.start();
+        // create Oscillator node to keep the timer running permanently
+        // this.oscillator = this.audioContext.createOscillator();
+        // this.oscillator.type = 'sine';
+        // this.oscillator.frequency.setValueAtTime(20, 0); // value in hertz
+        // this.oscillator.start();
+    }
 
 
-    this.bufferFile = function (filePath) {
+    bufferFile(filePath) {
         let buffer = this.fileMap.get(filePath);
         if (buffer === undefined) {
             //  fixme: audio data buffering should likely be on a webWorker
             // Async
             let req = new XMLHttpRequest();
 
-            //  cheap javascript trick to retain values
+            //  cheap java script trick to retain values
             req.parent = this;
             req.filePath = filePath;
             req.cb = function (buffer) {
@@ -50,7 +52,7 @@ function AudioFilePlayer() {
         return false;
     };
 
-    this.oscillate = function (frequency, when, duration, volume) {
+    oscillate(frequency, when, duration, volume) {
         let oscillator = this.audioContext.createOscillator();
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, 0); // value in hertz
@@ -74,7 +76,7 @@ function AudioFilePlayer() {
         return true;
     }
 
-    this.play = function (filePath, when, duration, volume) {
+    play(filePath, when, duration, volume) {
         let buffer = this.fileMap.get(filePath);
         if (buffer === undefined) {
             return false;
@@ -115,37 +117,43 @@ function AudioFilePlayer() {
         return true;
     };
 
-    this.stop = function () {
+    stop() {
         this.mp3Sources.forEach(function (item) {
             item.stop(0);
         });
         return true;
     };
 
-    this.getCurrentTime = function () {
+    getCurrentTime() {
         return this.audioContext.currentTime;
     };
 
-    this.getBaseLatency = function () {
+    getBaseLatency() {
         return this.audioContext.baseLatency;
     };
 
-    this.getOutputLatency = function () {
+    getOutputLatency() {
         return this.audioContext.outputLatency;
     };
 
-    this.test = function () {
+    test() {
         //  intentionally copied to variables to limit the delay between the two readings
         let now = window.performance.now();
         let off = this.audioContext.currentTime;
 
+
         //  calc the offset
         off = off * 1000 - now;
         if (offset === undefined) {
-            offset = off;
+            this.offset = off;
         }
 
         return off - offset;
     };
 
+    offset;
+
 }
+
+// Need to expose the type to the global scope.
+globalThis.AudioFilePlayer = AudioFilePlayer;

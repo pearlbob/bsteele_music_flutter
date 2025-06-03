@@ -33,7 +33,6 @@ dependencies:
   enum_to_string:
   provider:
   universal_io:
-  universal_html:
   file_picker:
   reorderables:
   pretty_diff_text:

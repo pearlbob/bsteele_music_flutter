@@ -1,12 +1,11 @@
 @JS()
 library;
 
-import 'package:js/js.dart';
+import 'dart:js_interop';
 
-@JS('AudioFilePlayer')
-/// JavaScript audio file player dart interface for web/js/AudioFilePlayer.js
-class JsAudioFilePlayer {
-  external factory JsAudioFilePlayer();
+extension type AudioFilePlayer._(JSObject _) implements JSObject {
+  /// JavaScript audio file player dart interface for web/js/AudioFilePlayer.js
+  external factory AudioFilePlayer();
 
   external bool bufferFile(String path);
 

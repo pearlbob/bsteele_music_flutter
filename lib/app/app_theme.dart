@@ -10,7 +10,11 @@ import 'app.dart';
 const Level _logAppKey = Level.debug;
 
 TextStyle appDropdownListItemTextStyle = //  fixme: find the right place for this!
-    const TextStyle(backgroundColor: Colors.white, color: Colors.black, fontSize: 24); // fixme: shouldn't be fixed
+const TextStyle(
+  backgroundColor: Colors.white,
+  color: Colors.black,
+  fontSize: 24,
+); // fixme: shouldn't be fixed
 
 class Id {
   Id(this.id);
@@ -62,22 +66,23 @@ class AppKey extends ValueKey<String> implements Comparable<AppKey> {
   }
 }
 
-Widget appCircledIcon(IconData iconData, String toolTip,
-    {Color? color, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? size}) {
+Widget appCircledIcon(
+  IconData iconData,
+  String toolTip, {
+  Color? color,
+  EdgeInsetsGeometry? margin,
+  EdgeInsetsGeometry? padding,
+  double? size,
+}) {
   return Container(
-      margin: margin,
-      padding: padding,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-      ),
-      child: AppTooltip(
-        message: toolTip,
-        child: Icon(
-          iconData,
-          size: size,
-        ),
-      ));
+    margin: margin,
+    padding: padding,
+    decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    child: AppTooltip(
+      message: toolTip,
+      child: Icon(iconData, size: size),
+    ),
+  );
 }
 
 /// Icon widget with the application look
@@ -103,10 +108,12 @@ class AppTheme {
     {
       // var iconTheme = IconThemeData(color: _defaultForegroundColor); fixme
       // var radioTheme = RadioThemeData(fillColor: MaterialStateProperty.all(_defaultForegroundColor)); fixme
-      var elevatedButtonThemeStyle = app.themeData.elevatedButtonTheme.style ??
+      var elevatedButtonThemeStyle =
+          app.themeData.elevatedButtonTheme.style ??
           ButtonStyle(
-              foregroundColor: WidgetStateProperty.all(App.defaultForegroundColor),
-              backgroundColor: WidgetStateProperty.all(App.defaultBackgroundColor));
+            foregroundColor: WidgetStateProperty.all(App.defaultForegroundColor),
+            backgroundColor: WidgetStateProperty.all(App.defaultBackgroundColor),
+          );
       elevatedButtonThemeStyle = elevatedButtonThemeStyle.copyWith(elevation: WidgetStateProperty.all(6));
 
       //  hassle with mapping Color to MaterialColor
@@ -123,21 +130,25 @@ class AppTheme {
         800: color.withAlpha((0.9 * 255).toInt()),
         900: color.withAlpha(255),
       };
-      };
-      MaterialColor materialColor = MaterialColor(color.toARGB32(), colorCodescolor = App.universalBackgroundColor;
+      MaterialColor materialColor = MaterialColor(color.toARGB32(), colorCodes);
+      color = App.universalBackgroundColor;
 
       app.themeData = app.themeData.copyWith(
-          primaryColor: color,
-          disabledColor: App.disabledColor,
-          elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
-          colorScheme: ColorScheme.fromSwatch(
-              backgroundColor: color, primarySwatch: materialColor, accentColor: App.universalAccentColor),
-          segmentedButtonTheme: SegmentedButtonThemeData(style: elevatedButtonThemeStyle),
-          tooltipTheme: TooltipThemeData(
-              textStyle: generateTooltipTextStyle(), decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor)),
-          dividerTheme: const DividerThemeData(
-            color: Colors.black54,
-          ));
+        primaryColor: color,
+        disabledColor: App.disabledColor,
+        elevatedButtonTheme: ElevatedButtonThemeData(style: elevatedButtonThemeStyle),
+        colorScheme: ColorScheme.fromSwatch(
+          backgroundColor: color,
+          primarySwatch: materialColor,
+          accentColor: App.universalAccentColor,
+        ),
+        segmentedButtonTheme: SegmentedButtonThemeData(style: elevatedButtonThemeStyle),
+        tooltipTheme: TooltipThemeData(
+          textStyle: generateTooltipTextStyle(),
+          decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor),
+        ),
+        dividerTheme: const DividerThemeData(color: Colors.black54),
+      );
     }
   }
 }
@@ -159,10 +170,13 @@ ElevatedButton appButton(
   return ElevatedButton(
     clipBehavior: Clip.hardEdge,
     onPressed: voidCallback,
-    style: app.themeData.elevatedButtonTheme.style
-        ?.copyWith(backgroundColor: WidgetStateProperty.all(buttonBackgroundColor)),
-    child: Text(commandName,
-        style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: buttonBackgroundColor)),
+    style: app.themeData.elevatedButtonTheme.style?.copyWith(
+      backgroundColor: WidgetStateProperty.all(buttonBackgroundColor),
+    ),
+    child: Text(
+      commandName,
+      style: TextStyle(fontSize: fontSize ?? app.screenInfo.fontSize, backgroundColor: buttonBackgroundColor),
+    ),
   );
 }
 
@@ -171,26 +185,11 @@ TextStyle buttonTextStyle() {
 }
 
 //  insist on an Id
-TextButton appIdButton(
-  String text, {
-  required VoidCallback? onPressed,
-  TextStyle? style,
-  required Id id,
-}) {
-  return appTextButton(
-    text,
-    onPressed: onPressed,
-    style: style,
-    value: id,
-  );
+TextButton appIdButton(String text, {required VoidCallback? onPressed, TextStyle? style, required Id id}) {
+  return appTextButton(text, onPressed: onPressed, style: style, value: id);
 }
 
-TextButton appTextButton(
-  String text, {
-  required VoidCallback? onPressed,
-  TextStyle? style,
-  dynamic value,
-}) {
+TextButton appTextButton(String text, {required VoidCallback? onPressed, TextStyle? style, dynamic value}) {
   return TextButton(
     onPressed: () {
       onPressed?.call();
@@ -200,10 +199,7 @@ TextButton appTextButton(
       padding: WidgetStateProperty.all(EdgeInsets.all((style?.fontSize ?? 12.0) / 2)),
       minimumSize: WidgetStateProperty.all(Size.square(style?.fontSize ?? 12.0)),
     ),
-    child: Text(
-      text,
-      style: style,
-    ),
+    child: Text(text, style: style),
   );
 }
 
@@ -252,14 +248,13 @@ TextButton appIconWithLabelButton({
           }
         : null,
     style: app.themeData.elevatedButtonTheme.style?.copyWith(
-        backgroundColor: WidgetStateProperty.all(backgroundColor ?? App.defaultBackgroundColor),
-        textStyle: WidgetStateProperty.all(style)),
+      backgroundColor: WidgetStateProperty.all(backgroundColor ?? App.defaultBackgroundColor),
+      textStyle: WidgetStateProperty.all(style),
+    ),
   );
 }
 
-ElevatedButton appNoteButton(
-  String character, // a note character is expected
-  {
+ElevatedButton appNoteButton(String character, { // a note character is expected
   required VoidCallback? onPressed,
   Color? backgroundColor,
   double? fontSize,
@@ -281,11 +276,7 @@ ElevatedButton appNoteButton(
       baseline: fontSize,
       child: Text(
         character,
-        style: TextStyle(
-          fontFamily: noteFontFamily,
-          fontSize: fontSize,
-          height: height ?? 0.5,
-        ),
+        style: TextStyle(fontFamily: noteFontFamily, fontSize: fontSize, height: height ?? 0.5),
       ),
     ),
   );
@@ -335,18 +326,11 @@ DropdownButton<T> appDropdownButton<T>(
 }
 
 //  note: the call back is on the appDropdownButton that is given the value from here
-DropdownMenuItem<T> appDropdownMenuItem<T>({
-  required T value,
-  required Widget child,
-}) {
+DropdownMenuItem<T> appDropdownMenuItem<T>({required T value, required Widget child}) {
   return DropdownMenuItem<T>(value: value, enabled: true, alignment: AlignmentDirectional.centerStart, child: child);
 }
 
-FloatingActionButton appFloatingActionButton({
-  required VoidCallback onPressed,
-  Widget? child,
-  bool mini = false,
-}) {
+FloatingActionButton appFloatingActionButton({required VoidCallback onPressed, Widget? child, bool mini = false}) {
   return FloatingActionButton(
     onPressed: () {
       onPressed();
@@ -499,11 +483,7 @@ class AppTextField extends StatelessWidget {
 
 const appFontFamily = 'Roboto';
 const noteFontFamily = 'Bravura'; // the music symbols are over sized in the vertical!
-const List<String> appFontFamilyFallback = [
-  appFontFamily,
-  'DejaVu',
-  noteFontFamily,
-];
+const List<String> appFontFamilyFallback = [appFontFamily, 'DejaVu', noteFontFamily];
 
 /// Creates the app's text style.
 ///
@@ -549,15 +529,15 @@ TextStyle generateAppTextFieldStyle({
   TextDecoration? decoration,
 }) {
   return generateAppTextStyle(
-      color: color,
-      backgroundColor: backgroundColor,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      fontStyle: fontStyle,
-      textBaseline: textBaseline,
-      decoration: decoration,
-      nullBackground: true //  force a null background for mouse text selection
-      );
+    color: color,
+    backgroundColor: backgroundColor,
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    fontStyle: fontStyle,
+    textBaseline: textBaseline,
+    decoration: decoration,
+    nullBackground: true, //  force a null background for mouse text selection
+  );
 }
 
 TextStyle generateAppBarLinkTextStyle() {
@@ -568,9 +548,7 @@ TextStyle generateAppBarLinkTextStyle() {
   );
 }
 
-TextStyle generateAppLinkTextStyle({
-  double? fontSize,
-}) {
+TextStyle generateAppLinkTextStyle({double? fontSize}) {
   return generateAppTextStyle(
     color: Colors.blue, //  fixme
     decoration: TextDecoration.underline,
@@ -579,15 +557,15 @@ TextStyle generateAppLinkTextStyle({
 }
 
 TextStyle generateTooltipTextStyle({double? fontSize}) {
-  return generateAppTextStyle(
-    color: App.tooltipColor,
-    backgroundColor: App.tooltipBackgroundColor,
-    fontSize: fontSize,
-  );
+  return generateAppTextStyle(color: App.tooltipColor, backgroundColor: App.tooltipBackgroundColor, fontSize: fontSize);
 }
 
-TextStyle generateChordTextStyle(
-    {String? fontFamily, double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
+TextStyle generateChordTextStyle({
+  String? fontFamily,
+  double? fontSize,
+  FontWeight? fontWeight,
+  Color? backgroundColor,
+}) {
   return generateAppTextStyle(
     color: App.chordNoteColor,
     backgroundColor: backgroundColor ?? App.chordNoteBackgroundColor,
@@ -599,10 +577,7 @@ TextStyle generateChordTextStyle(
 }
 
 TextStyle generateLyricsTextStyle({double? fontSize, Color? backgroundColor}) {
-  return generateAppTextStyle(
-    backgroundColor: backgroundColor ?? App.universalBackgroundColor,
-    fontSize: fontSize,
-  );
+  return generateAppTextStyle(backgroundColor: backgroundColor ?? App.universalBackgroundColor, fontSize: fontSize);
 }
 
 TextStyle generateChordDescriptorTextStyle({double? fontSize, FontWeight? fontWeight, Color? backgroundColor}) {
@@ -616,11 +591,15 @@ TextStyle generateChordDescriptorTextStyle({double? fontSize, FontWeight? fontWe
 }
 
 TextStyle oddTitleTextStyle({TextStyle? from}) {
-  return (from ?? generateAppTextStyle())
-      .copyWith(backgroundColor: App.oddTitleTextBackgroundColor, color: App.oddTitleTextColor);
+  return (from ?? generateAppTextStyle()).copyWith(
+    backgroundColor: App.oddTitleTextBackgroundColor,
+    color: App.oddTitleTextColor,
+  );
 }
 
 TextStyle evenTitleTextStyle({TextStyle? from}) {
-  return (from ?? generateAppTextStyle())
-      .copyWith(backgroundColor: App.evenTitleTextBackgroundColor, color: App.evenTitleTextColor);
+  return (from ?? generateAppTextStyle()).copyWith(
+    backgroundColor: App.evenTitleTextBackgroundColor,
+    color: App.evenTitleTextColor,
+  );
 }

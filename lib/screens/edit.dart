@@ -655,7 +655,7 @@ class EditState extends State<Edit> {
                                     hintText: 'Enter the song title.',
                                     fontSize: _defaultChordFontSize,
                                     onChanged: (value) {
-                                      logger.i('fixme: AppKeyEnum.editTitle.onChanged');
+                                      logger.t('fixme: AppKeyEnum.editTitle.onChanged');
                                     }, //  fixme: ignored
                                   ),
                                 ),
@@ -682,7 +682,7 @@ class EditState extends State<Edit> {
                                     hintText: 'Enter the song\'s artist.',
                                     fontSize: _defaultChordFontSize,
                                     onChanged: (value) {
-                                      logger.i('fixme: AppKeyEnum.editArtist.onChanged');
+                                      logger.t('fixme: AppKeyEnum.editArtist.onChanged');
                                     }, //  fixme: ignored
                                   ),
                                 ),
@@ -1279,7 +1279,7 @@ class EditState extends State<Edit> {
                       ])),
                 ),
                 onTap: () {
-                  logger.i('GestureDetector.onTap():');
+                  logger.t('GestureDetector.onTap():');
                   performMeasureEntryCancel();
                 },
               ),
@@ -1316,7 +1316,7 @@ class EditState extends State<Edit> {
           proChordTextEditingController.selection =
               TextSelection(baseOffset: markedString.getMark(), extentOffset: markedString.getNextWhiteSpaceIndex());
           proChordTextFieldFocusNode.requestFocus();
-          logger.i('pro error set: ('
+          logger.t('pro error set: ('
               '${proChordTextEditingController.selection.baseOffset}'
               ',${proChordTextEditingController.selection.extentOffset})');
         }
@@ -1639,7 +1639,7 @@ class EditState extends State<Edit> {
             }
             break;
           default:
-            logger.i('unmanaged MeasureNodeType: ${measureNode.measureNodeType}');
+            logger.t('unmanaged MeasureNodeType: ${measureNode.measureNodeType}');
             assert(false);
             break;
         }
@@ -2154,7 +2154,7 @@ class EditState extends State<Edit> {
   /// process the raw keys flutter doesn't want to
   /// this is largely done for the desktop... since phones and tablets usually don't have keyboards
   void _editOnKey(KeyEvent e) {
-    logger.i('editOnKey(${e.logicalKey.keyLabel})');
+    logger.t('editOnKey(${e.logicalKey.keyLabel})');
     //  fixme: edit screen does not respond to escape after the detail screen
     if (e is KeyDownEvent || e is KeyRepeatEvent) {
       logger.d(
@@ -2525,7 +2525,7 @@ class EditState extends State<Edit> {
           measure = measureNode.transposeToKey(song.key) as Measure;
           break;
         default:
-          logger.i('failed measureNode.measureNodeType: ${measureNode.measureNodeType}');
+          logger.t('failed measureNode.measureNodeType: ${measureNode.measureNodeType}');
           assert(false);
           return Text('false: ${measureNode.measureNodeType}');
       }
@@ -2940,7 +2940,7 @@ class EditState extends State<Edit> {
                               '${kDebugMode ? ' $editPoint' : ''}',
                           child: AppInkWell(
                             onTap: () {
-                              logger.i(
+                              logger.t(
                                   'endOfRow?:  ${chordSong.findMeasureByChordSectionLocation(selectedEditPoint?.location)?.endOfRow} ');
                               performEdit(
                                   done: true,
@@ -3455,7 +3455,7 @@ class EditState extends State<Edit> {
         undoStackLog('pre undo');
         loadSong(undoStack.undo()?.copySong() ?? Song.createEmptySong());
         undoStackLog('post undo');
-        logger.i('song key: ${song.key}');
+        logger.t('song key: ${song.key}');
         checkSongChangeStatus();
       } else {
         app.errorMessage('cannot undo any more');
@@ -3471,7 +3471,7 @@ class EditState extends State<Edit> {
         clearMeasureEntry();
         loadSong(undoStack.redo()?.copySong() ?? Song.createEmptySong());
         undoStackLog('redo');
-        logger.i('song key: ${song.key}');
+        logger.t('song key: ${song.key}');
         checkSongChangeStatus();
       } else {
         app.errorMessage('cannot redo any more');
@@ -3587,9 +3587,9 @@ class EditState extends State<Edit> {
   void editLogPre(Song logSong, bool endOfRow) {
     if (_editDebug) {
       //  output to match the TestSong() tests from the library. i.e. bsteeleMusicLib
-      logger.i('//  from ${Util.utcNow()}');
-      logger.i('ts.startingChords(\'${logSong.toMarkup()}\');');
-      logger.i('ts.edit(${logSong.currentMeasureEditType}, \'${logSong.currentChordSectionLocation}\''
+      logger.t('//  from ${Util.utcNow()}');
+      logger.t('ts.startingChords(\'${logSong.toMarkup()}\');');
+      logger.t('ts.edit(${logSong.currentMeasureEditType}, \'${logSong.currentChordSectionLocation}\''
           ', \'${logSong.getCurrentMeasureNode()?.toMarkup()}\'' //  measure string
           ', SongBase.entryToUppercase(\'${measureEntryNodes?.toString()}\')'
           ');'
@@ -3600,8 +3600,8 @@ class EditState extends State<Edit> {
   void editLogPost(Song logSong, bool endOfRow) {
     if (_editDebug) {
       //  output to match the TestSong() tests from the library. i.e. bsteeleMusicLib
-      logger.i('ts.resultChords(\'${logSong.toMarkup()}\');');
-      logger.i('ts.post(${logSong.currentMeasureEditType},\'${logSong.getCurrentChordSectionLocation()}\''
+      logger.t('ts.resultChords(\'${logSong.toMarkup()}\');');
+      logger.t('ts.post(${logSong.currentMeasureEditType},\'${logSong.getCurrentChordSectionLocation()}\''
           ',\'${logSong.getCurrentMeasureNode()?.toMarkup()}\' );'
           ' // endOfRow: $endOfRow');
     }

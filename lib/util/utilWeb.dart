@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
-//      info: 'dart:html' is deprecated and shouldn't be used.'
-// ' Use package:web and dart:js_interop instead. '
-// import 'dart:html';
+import 'dart:typed_data';
 
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_pro.dart';
@@ -12,34 +9,35 @@ import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
-import 'package:web/web.dart' as web;
+import 'dart:js_interop';
+import 'package:web/web.dart';
 
 /// Workaround to implement functionality that is not generic across all platforms at this point.
 class UtilWeb implements UtilWorkaround {
   /// Workaround to implement functionality that is not generic across all platforms at this point.
   @override
   Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
-    // //   web stuff write
-    // Blob blob = Blob([contents], 'text/plain', 'native');
-    // AnchorElement(href: Url.createObjectUrlFromBlob(blob).toString())
-    //   ..setAttribute("download", fileName)
-    //   ..click();
+    //   web stuff write
+    final blob = Blob(
+      // JSArray<JSAny> is required here.
+      [Uint8List.fromList(utf8.encode(contents)).toJS].toJS,
+      BlobPropertyBag(type: 'text/plain'),
+    );
+
+    final url = URL.createObjectURL(blob);
+
+    final anchor = HTMLAnchorElement()
+      ..href = url
+      ..download = fileName;
+
+    document.body?.append(anchor);
+    anchor.click();
+    anchor.remove();
+
+    URL.revokeObjectURL(url);
 
     return 'The file was written into your browser\'s download folder named: \'$fileName\'';
   }
-
-  // Future<String> writeFileContents(String fileName, String contents, {String? fileType}) async {
-  //   io.File file = io.File(fileName);
-  //   logger.i('file: $file,  path: ${file.path}');
-  //
-  //   try {
-  //     await file.writeAsString(contents, flush: true); //  fixme: no await?
-  //   } catch (e) {
-  //     return 'Error writing file to \'$file\': $e';
-  //   }
-  //
-  //   return 'The file \'$fileName\' was written into your download folder';
-  // }
 
   @override
   Future<List<Song>> songFilePick(BuildContext context) async {
@@ -104,7 +102,7 @@ class UtilWeb implements UtilWorkaround {
     return ret;
   }
 
-  web.FileList? files;
+  FileList? files;
   final RegExp chordProRegExp = RegExp(r'pro$');
 
   /// extensions should include the dot separator

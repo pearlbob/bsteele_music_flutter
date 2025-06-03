@@ -27,13 +27,12 @@ dependencies:
   url_launcher:
   intl:
   path_provider:
-  flutter_markdown:
+  flutter_markdown_plus:
   scrollable_positioned_list:
   web_socket_channel:
   enum_to_string:
   provider:
   universal_io:
-  universal_html:
   file_picker:
   reorderables:
   pretty_diff_text:
@@ -122,3 +121,4 @@ flutter_icons:
   macos: true
   web: true
   image_path: "lib/assets/runningManOnWhite.png"
+

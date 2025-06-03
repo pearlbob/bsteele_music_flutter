@@ -2,7 +2,7 @@ import 'package:bsteele_music_flutter/app/app.dart';
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_descriptor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart' as md;
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart' as md;
 
 const _fontSize = 44.0;
 const _minTextStyle = TextStyle(fontSize: _fontSize / 2);
@@ -204,7 +204,9 @@ A chordDescriptor is one of:
         logger.d('cd: $cd');
       }
     }
-    desc.write('''A missing chord descriptor will be understood to be a major chord.
+    desc.write('''.
+
+A missing chord descriptor will be understood to be a major chord.
 
 Capitalization is significant to scaleNote identification and chord description.
 

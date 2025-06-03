@@ -69,7 +69,7 @@ class WebAudioPlayer implements AppAudioPlayer {
   }
 
   static final WebAudioPlayer _instance = WebAudioPlayer._privateConstructor();
-  final JsAudioFilePlayer _audioFilePlayer = JsAudioFilePlayer();
+  final AudioFilePlayer _audioFilePlayer = AudioFilePlayer();
 }
 
 AppAudioPlayer getAudioPlayer() => WebAudioPlayer();

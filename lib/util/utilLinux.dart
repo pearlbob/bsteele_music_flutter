@@ -53,6 +53,7 @@ class UtilLinux implements UtilWorkaround {
       allowedExtensions: ['.songlyrics', '.pro', '.chordpro'],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
+
     List<Song> ret = [];
     if (path != null) {
       var file = File(path);
@@ -112,9 +113,7 @@ class UtilLinux implements UtilWorkaround {
       context: context,
       rootDirectory: _rootDirectory,
       fsType: FilesystemType.file,
-      allowedExtensions: [
-        extension,
-      ],
+      allowedExtensions: [extension],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
     if (path != null) {
@@ -126,12 +125,8 @@ class UtilLinux implements UtilWorkaround {
         _rootDirectory = Directory(file.path.substring(0, file.path.lastIndexOf('/')));
         return s;
       }
-      return '';
-    } else {
-      //  reset the root
-      _rootDirectory = Directory(Util.homePath());
-      return '';
     }
+    return '';
     //  fixme: FilesystemPicker.open() in linux needs big help
   }
 }

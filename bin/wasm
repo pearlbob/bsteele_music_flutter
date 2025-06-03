@@ -1,0 +1,5 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+# expect a failure for now
+flutter run -d chrome --wasm

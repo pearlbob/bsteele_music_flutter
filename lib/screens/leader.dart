@@ -713,7 +713,7 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   }
 
   _updateCountIn(int countIn) {
-    _countIn = countIn;
+    // _countIn = countIn;
     logger.t('countIn: $countIn');
     if (countIn > 0 && countIn < countInMax) {
       // _countInWidget = Container(
@@ -805,7 +805,8 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
   NinJam _ninJam = NinJam.empty();
 
   final SongMaster _songMaster = SongMaster();
-  int _countIn = 0;
+
+  // int _countIn = 0;
   Widget _countInWidget = NullWidget();
 
   final TextEditingController _bpmTextEditingController = TextEditingController();

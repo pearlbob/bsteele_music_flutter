@@ -123,8 +123,8 @@ class AppTheme {
         800: color.withAlpha((0.9 * 255).toInt()),
         900: color.withAlpha(255),
       };
-      MaterialColor materialColor = MaterialColor(color.value, colorCodes);
-      color = App.universalBackgroundColor;
+      };
+      MaterialColor materialColor = MaterialColor(color.toARGB32(), colorCodescolor = App.universalBackgroundColor;
 
       app.themeData = app.themeData.copyWith(
           primaryColor: color,

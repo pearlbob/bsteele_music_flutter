@@ -138,6 +138,11 @@ Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gr
     }
  */
 
+/*
+  flutter pub deps
+  dart pub deps
+ */
+
 /*  required macos entitlements!
   macos/Runner/DebugProfile.entitlements and macos/Runner/Release.entitlements need:
   <dict> ...
@@ -414,19 +419,19 @@ class MyHomePageState extends State<MyHomePage> {
     var externalHost =
         '${host.isEmpty //
             ? 'www.bsteele.com' //  likely a native app with web access
-            : '$host:${uri.port}' //  port for potential app server
-            }/bsteeleMusicApp';
+              : '$host:${uri.port}' //  port for potential app server
+              }/bsteeleMusicApp';
 
     {
-      final String url = 'http://$externalHost/allSongs.songlyrics';
+      final String urlString = 'http://$externalHost/allSongs.songlyrics';
       // setState(() {
       //   app.infoMessage = 'Loading song list from cloud';
       // });
       String allSongsAsString;
       try {
-        allSongsAsString = await fetchString(url);
+        allSongsAsString = await fetchString(urlString);
       } catch (e) {
-        logger.i("read of url: '$url' failed: ${e.toString()}");
+        logger.i("read of url: '$urlString' failed: ${e.toString()}");
         await _readInternalSongList();
         return;
       }
@@ -779,42 +784,41 @@ class MyHomePageState extends State<MyHomePage> {
   Future<void> _betaWarningPopup() async {
     await showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text(
-              'Do you really want test the beta version of the bsteeleMusicApp?',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            actions: [
-              Column(
-                children: [
-                  const Text(
-                    'This beta version is only for testing application development.\n'
-                    'bob can damage this version at any time, for any reason.\n'
-                    'Any remembered setup will not necessarily transfer to the real version.',
-                    style: TextStyle(fontSize: 22),
-                  ),
-                  const AppSpace(),
-                  appButton(
-                    'Send me to the release version.',
-                    onPressed: () {
-                      var s = uri.toString();
-                      s = s.substring(0, s.indexOf('beta'));
-                      openLink(s);
-                    },
-                  ),
-                  const AppSpace(space: 50),
-                  appButton(
-                    'This is exciting! I will test the beta.',
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
+      builder: (_) => AlertDialog(
+        title: const Text(
+          'Do you really want test the beta version of the bsteeleMusicApp?',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          Column(
+            children: [
+              const Text(
+                'This beta version is only for testing application development.\n'
+                'bob can damage this version at any time, for any reason.\n'
+                'Any remembered setup will not necessarily transfer to the real version.',
+                style: TextStyle(fontSize: 22),
+              ),
+              const AppSpace(),
+              appButton(
+                'Send me to the release version.',
+                onPressed: () {
+                  var s = uri.toString();
+                  s = s.substring(0, s.indexOf('beta'));
+                  openLink(s);
+                },
+              ),
+              const AppSpace(space: 50),
+              appButton(
+                'This is exciting! I will test the beta.',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ],
-            elevation: 24.0,
           ),
+        ],
+        elevation: 24.0,
+      ),
     );
   }
 
@@ -909,7 +913,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   _navigateToAboutLeader() async {
     app.clearMessage();
-    await Navigator.push(context, MaterialPageRoute(builder: (context) =>  Leader()));
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => Leader()));
     if (!mounted) {
       return;
     }

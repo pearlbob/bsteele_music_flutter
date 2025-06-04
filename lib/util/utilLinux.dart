@@ -129,6 +129,20 @@ class UtilLinux implements UtilWorkaround {
     return '';
     //  fixme: FilesystemPicker.open() in linux needs big help
   }
+
+  @override
+  bool get fullscreenEnabled => false;
+
+  @override
+  void requestFullscreen() {}
+
+  @override
+  void exitFullScreen() {}
+
+  @override
+  bool get isFullScreen {
+    return false;
+  }
 }
 
 UtilWorkaround getUtilWorkaround() => UtilLinux();

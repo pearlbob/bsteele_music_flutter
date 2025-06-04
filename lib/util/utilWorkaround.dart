@@ -19,6 +19,16 @@ abstract class UtilWorkaround {
 
   Future<List<NameValue>> textFilePickAndRead(BuildContext context);
 
+  bool get fullscreenEnabled => false;
+
+  void requestFullscreen() {}
+
+  void exitFullScreen() {}
+
+  bool get isFullScreen {
+    return false;
+  }
+
   /// factory constructor to return the correct implementation.
   factory UtilWorkaround() => getUtilWorkaround();
 }

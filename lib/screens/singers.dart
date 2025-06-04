@@ -525,11 +525,11 @@ class SingersState extends State<Singers> {
                     //       });
                     //     });
                     //   }),
-                    if (_isInSingingMode && app.fullscreenEnabled && !app.isFullScreen)
+                    if (_isInSingingMode && utilWorkaround.fullscreenEnabled && !utilWorkaround.isFullScreen)
                       appButton(
                         'Fullscreen',
                         onPressed: () {
-                          app.requestFullscreen();
+                          utilWorkaround.requestFullscreen();
                         },
                       ),
                   ],

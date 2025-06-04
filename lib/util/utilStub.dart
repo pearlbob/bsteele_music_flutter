@@ -11,7 +11,9 @@ class NullWorkaround implements UtilWorkaround {
 
   @override
   Future<List<Song>> songFilePick(BuildContext context) async {
-    return Future<List<Song>>(() { return [];});
+    return Future<List<Song>>(() {
+      return [];
+    });
   }
 
   @override
@@ -24,6 +26,20 @@ class NullWorkaround implements UtilWorkaround {
   Future<String> filePickByExtension(BuildContext context, String extension) {
     // implement songMetadataFilePick
     throw UnimplementedError();
+  }
+
+  @override
+  bool get fullscreenEnabled => false;
+
+  @override
+  void requestFullscreen() {}
+
+  @override
+  void exitFullScreen() {}
+
+  @override
+  bool get isFullScreen {
+    return false;
   }
 }
 

@@ -18,14 +18,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_io/io.dart';
-import 'package:web/web.dart' as web;
 
 import '../util/songPerformanceDaemon.dart';
+import '../util/utilWorkaround.dart';
 import 'appOptions.dart';
 import 'app_theme.dart';
 
 final App app = App();
 final AppOptions _appOptions = AppOptions();
+final UtilWorkaround utilWorkaround = UtilWorkaround();
 
 String userName =
     Platform.environment['USER'] ??
@@ -320,28 +321,6 @@ class App {
 
   int get displayKeyOffset => _displayKeyOffset;
   static int _displayKeyOffset = 0;
-
-  bool get fullscreenEnabled => kIsWeb && web.document.fullscreenEnabled;
-
-  //
-  void requestFullscreen() {
-    if (fullscreenEnabled) {
-      web.document.documentElement?.requestFullscreen();
-    }
-  }
-
-  void exitFullScreen() {
-    if (fullscreenEnabled) {
-      web.document.exitFullscreen();
-    }
-  }
-
-  bool get isFullScreen {
-    if (fullscreenEnabled) {
-      return web.document.fullscreenElement != null;
-    }
-    return false;
-  }
 
   Future<String> releaseUtcDate() {
     return rootBundle.loadString('lib/assets/utcDate.txt').then((value) {

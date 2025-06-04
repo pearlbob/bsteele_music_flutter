@@ -411,11 +411,11 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                   AppWrapFullWidth(
                     alignment: WrapAlignment.spaceBetween,
                     children: [
-                      if (app.fullscreenEnabled && !app.isFullScreen)
+                      if (utilWorkaround.fullscreenEnabled && !utilWorkaround.isFullScreen)
                         appButton(
                           'Fullscreen',
                           onPressed: () {
-                            app.requestFullscreen();
+                            utilWorkaround.requestFullscreen();
                           },
                         ),
 
@@ -662,11 +662,11 @@ class _LeaderState extends State<Leader> with RouteAware, WidgetsBindingObserver
                 alignment: WrapAlignment.spaceBetween,
                 spacing: _fontSize,
                 children: [
-                  if (app.fullscreenEnabled && !app.isFullScreen)
+                  if (utilWorkaround.fullscreenEnabled && !utilWorkaround.isFullScreen)
                     appButton(
                       'Fullscreen',
                       onPressed: () {
-                        app.requestFullscreen();
+                        utilWorkaround.requestFullscreen();
                       },
                     ),
                   Text('Key: $_selectedSongKey', style: _headerTextStyle, softWrap: false),

@@ -82,13 +82,13 @@ class OptionsState extends State<Options> {
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
               children: <Widget>[
-                if (app.fullscreenEnabled)
+                if (utilWorkaround.fullscreenEnabled)
                   Row(
                     children: <Widget>[
                       appButton(
                         'Enter fullscreen',
                         onPressed: () {
-                          app.requestFullscreen();
+                          utilWorkaround.requestFullscreen();
                         },
                       ),
                     ],

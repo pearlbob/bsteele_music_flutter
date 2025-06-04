@@ -853,11 +853,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                     children: [
                       if (!_songUpdateService.isFollowing) _playModeSegmentedButton(songUpdateState),
 
-                      if (app.fullscreenEnabled && !app.isFullScreen)
+                      if (utilWorkaround.fullscreenEnabled && !utilWorkaround.isFullScreen)
                         appButton(
                           'Fullscreen',
                           onPressed: () {
-                            app.requestFullscreen();
+                            utilWorkaround.requestFullscreen();
                           },
                         ),
 
@@ -1231,11 +1231,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                   AppWrapFullWidth(
                     alignment: WrapAlignment.end,
                     children: [
-                      if (app.fullscreenEnabled && !app.isFullScreen)
+                      if (utilWorkaround.fullscreenEnabled && !utilWorkaround.isFullScreen)
                         appButton(
                           'Fullscreen',
                           onPressed: () {
-                            app.requestFullscreen();
+                            utilWorkaround.requestFullscreen();
                           },
                         ),
                     ],
@@ -1268,11 +1268,11 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 spacing: _fontSize,
                 children: [
                   if (!_songUpdateService.isFollowing) _playModeSegmentedButton(songUpdateState),
-                  if (app.fullscreenEnabled && !app.isFullScreen)
+                  if (utilWorkaround.fullscreenEnabled && !utilWorkaround.isFullScreen)
                     appButton(
                       'Fullscreen',
                       onPressed: () {
-                        app.requestFullscreen();
+                        utilWorkaround.requestFullscreen();
                       },
                     ),
                   Text('Key: $_selectedSongKey', style: _headerTextStyle, softWrap: false),

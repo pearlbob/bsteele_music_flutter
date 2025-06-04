@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:bsteele_music_lib/songs/chord_pro.dart';
@@ -8,6 +7,7 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_metadata.dart';
 import 'package:bsteele_music_flutter/util/utilWorkaround.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:js_interop';
 import 'package:web/web.dart';
@@ -100,6 +100,28 @@ class UtilWeb implements UtilWorkaround {
       ret.add(NameValue(nameValue.name, nameValue.value));
     }
     return ret;
+  }
+
+  bool get fullscreenEnabled => kIsWeb && document.fullscreenEnabled;
+
+  //
+  void requestFullscreen() {
+    if (fullscreenEnabled) {
+      document.documentElement?.requestFullscreen();
+    }
+  }
+
+  void exitFullScreen() {
+    if (fullscreenEnabled) {
+      document.exitFullscreen();
+    }
+  }
+
+  bool get isFullScreen {
+    if (fullscreenEnabled) {
+      return document.fullscreenElement != null;
+    }
+    return false;
   }
 
   FileList? files;

@@ -3,6 +3,8 @@ import 'package:bsteele_music_lib/app_logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
 
+import 'test_util.dart';
+
 // import 'test_util.dart';
 
 //  run test with 'additional args':  --dart-define=environment=test
@@ -22,7 +24,7 @@ void main() {
 
       // Build our app and trigger a frame.
       await tester.pumpWidget(const BSteeleMusicApp());
-      await tester.pumpAndSettle(const Duration(seconds: 4)); //  allow for slow read of songs
+      await tester.pumpAndSettle(const Duration(seconds: 8)); //  allow for slow read of songs
 
       // List<Widget> widgets;
 
@@ -92,7 +94,7 @@ void main() {
       // var hamburger = find.byKey(const appKey(AppKeyEnum.mainHamburger));
       // expect(hamburger,findsOneWidget);
 
-      // testUtilShutdown(tester);
+      testUtilShutdown(tester);
 
       logger.i('test done');
     });

@@ -12,6 +12,7 @@
 
 ### Fix
 
+* wasm cannot use the javascript player
 * if not drumming, start play quickly
 * add the requester adjustments to the singer's list.
 * manual leader scrolling prior to play gets lost on the follower

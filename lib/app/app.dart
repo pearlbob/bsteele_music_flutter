@@ -29,7 +29,7 @@ final AppOptions _appOptions = AppOptions();
 final UtilWorkaround utilWorkaround = UtilWorkaround();
 
 String userName =
-    Platform.environment['USER'] ??
+    Platform.environment['USER'] ?? //  fixme: doesn't seem to work with wasm
     Platform.environment['USERNAME'] ??
     Platform.environment['LOGNAME'] ??
     Song.defaultUser;

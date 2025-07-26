@@ -2395,7 +2395,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //  PlayerScrollHighlight
                       AppWrapFullWidth(
                         crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: viewportWidth(0.5),
                         children: [
                           AppTooltip(
                             message: 'Select the highlight style while auto scrolling in play.',
@@ -2498,7 +2497,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       ),
                       AppWrapFullWidth(
                         crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: viewportWidth(0.5),
                         children: [
                           AppWrap(
                             alignment: WrapAlignment.start,
@@ -2627,7 +2625,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       if (!_songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
                         AppWrapFullWidth(
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: viewportWidth(1),
                           children: [
                             AppTooltip(
                               message: _areDrumsMuted
@@ -2668,7 +2665,6 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       const AppSpace(),
                       AppWrapFullWidth(
                         crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: viewportWidth(1),
                         children: [
                           Text('NinJam choice:', style: boldStyle),
                           AppTooltip(

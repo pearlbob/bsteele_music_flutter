@@ -10,7 +10,7 @@ if ( `uname -o` == 'GNU/Linux' ) then
     # generate the correct icons for android
     foreach png ( android/app/src/main/res/*/ic_launcher.png )
       echo $png
-    file $png
+      file $png
       set size=`file $png | sed -e 's/.* x //; s/,.*//;' - `
       echo $size
       ffmpeg -y -i lib/assets/icon.png -vf scale=${size}:-1 $png

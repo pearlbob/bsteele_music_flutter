@@ -148,6 +148,8 @@ class AppTheme {
           decoration: appTooltipBoxDecoration(App.tooltipBackgroundColor),
         ),
         dividerTheme: const DividerThemeData(color: Colors.black54),
+        //  the following messes up with the play screen "click to play" feature
+        // scrollbarTheme: app.themeData.scrollbarTheme.copyWith(thickness: WidgetStatePropertyAll(16)),
       );
     }
   }
@@ -196,7 +198,7 @@ TextButton appTextButton(String text, {required VoidCallback? onPressed, TextSty
     },
     style: ButtonStyle(
       textStyle: WidgetStateProperty.all(style),
-      padding: WidgetStateProperty.all(EdgeInsets.all((style?.fontSize ?? 12.0) / 2)),
+      padding: WidgetStateProperty.all(EdgeInsets.all((style?.fontSize ?? 12.0) * 0.25)),
       minimumSize: WidgetStateProperty.all(Size.square(style?.fontSize ?? 12.0)),
     ),
     child: Text(text, style: style),
@@ -250,11 +252,13 @@ TextButton appIconWithLabelButton({
     style: app.themeData.elevatedButtonTheme.style?.copyWith(
       backgroundColor: WidgetStateProperty.all(backgroundColor ?? App.defaultBackgroundColor),
       textStyle: WidgetStateProperty.all(style),
+      padding: WidgetStatePropertyAll(EdgeInsetsGeometry.all(0.6 * (style.fontSize ?? 10))),
     ),
   );
 }
 
-ElevatedButton appNoteButton(String character, { // a note character is expected
+ElevatedButton appNoteButton(
+  String character, { // a note character is expected
   required VoidCallback? onPressed,
   Color? backgroundColor,
   double? fontSize,

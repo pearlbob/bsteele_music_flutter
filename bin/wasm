@@ -2,4 +2,4 @@
 #set echo; set verbose
 
 # expect a failure for now
-flutter run -d chrome --wasm
+flutter run -d chrome --release --wasm

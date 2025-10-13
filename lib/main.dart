@@ -157,6 +157,13 @@ macos/Runner/Base.lproj/MainMenu.xib:
 <rect key="contentRect" x="30" y="30" width="1400" height="880"/>
  */
 
+/*
+apparently cocoapods is not from brew:
+error cocoapods not installed or not in valid state. flutter
+
+sudo gem install cocoapods
+ */
+
 //  diagnostic logging enables
 //  global regex search:       const Level _.* = Level\.info;
 //  global regex search:       logger.i\(

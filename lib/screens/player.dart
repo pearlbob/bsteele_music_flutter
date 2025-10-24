@@ -22,7 +22,6 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/songs/song_moment.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
-import 'package:bsteele_music_lib/util/app_util.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -90,16 +89,17 @@ const Level _logDispose = Level.debug;
 //  ^const Level .* = Level.info;
 
 const String _playStopPauseHints = '''\n
+Space bar starts a manual play.  You will have to space bar for the next section.
 Click the play button for play. You may not see immediate song motion.
-Space bar or clicking the song area starts play as well.
-Space bar in play selects pause.  Space bar in pause selects play.
+Clicking the song area starts play as well.
+Space bar in play selects a manual play hold.  Space bar in hold selects play from the current location.
 Number 0 or a period toggles pause.
 Selected section is displayed based on the scroll style selected from the settings pop up (upper right corner gear icon).
 Right arrow speeds up the BPM.
 Left arrow slows the BPM.
 Down arrow also advances one row in play, one section in pause.
 Up arrow backs up one row in play, one section in pause.
-Keyboard enter starts the play mode. Subsequent enters advance the current selection one row.
+Keyboard enter starts the manual play mode. Subsequent enters toggle between manual play and play.
 Number pad enter toggles the pause on and off.  In pause the leader is responsible for song progress.
 With z or q, the play stops and goes back to the play list.''';
 
@@ -1041,11 +1041,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                                   controller: _bpmTextEditingController,
                                   fontSize: app.screenInfo.fontSize,
                                   onChanged: (value) {
+                                    logger.log(_logBPM, 'bpm changed: "$value"');
+                                  },
+                                  onSubmitted: (value) {
                                     var bpm = int.tryParse(_bpmTextEditingController.text);
                                     if (bpm != null && bpm >= MusicConstants.minBpm) {
                                       _changeBPM(bpm);
                                     }
-                                  }, //  fixme: ignored
+                                    //  a hack to get listener as default focus
+                                    FocusScope.of(context).requestFocus(_rawKeyboardListenerFocusNode);
+                                  },
                                 ),
                               ),
                               const AppSpace(),
@@ -1348,7 +1353,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               _setStatePause();
               break;
             case SongUpdateState.playing:
-              _sectionBump(1);
+              _setStatePlayHold();
               break;
             case SongUpdateState.playHold:
               _rowBump(1);
@@ -1356,29 +1361,30 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
               break;
             case SongUpdateState.pause:
               _sectionBump(1);
-              break;
-          }
-        } else {
-          switch (_songUpdateState) {
-            case SongUpdateState.idle:
-            case SongUpdateState.none:
-            case SongUpdateState.drumTempo:
-              //  start manual play
-              _setStatePlay();
-              break;
-            case SongUpdateState.playing:
-              _sectionBump(1);
-              break;
-            case SongUpdateState.playHold:
-              _rowBump(1);
-              _songMaster.resume();
-              break;
-            case SongUpdateState.pause:
-              _sectionBump(1);
-              // _songMaster.resume();
               break;
           }
         }
+        // else {
+        //   switch (_songUpdateState) {
+        //     case SongUpdateState.idle:
+        //     case SongUpdateState.none:
+        //     case SongUpdateState.drumTempo:
+        //       //  start manual play
+        //       _setStatePlay();
+        //       break;
+        //     case SongUpdateState.playing:
+        //       _sectionBump(1);
+        //       break;
+        //     case SongUpdateState.playHold:
+        //       _rowBump(1);
+        //       _songMaster.resume();
+        //       break;
+        //     case SongUpdateState.pause:
+        //       _sectionBump(1);
+        //       // _songMaster.resume();
+        //       break;
+        //   }
+        // }
         return KeyEventResult.handled;
       } else if (
       //  workaround for cheap foot pedal... only outputs b
@@ -1855,17 +1861,17 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
     }
   }
 
-  String _songMomentsToString() {
-    StringBuffer sb = StringBuffer();
-    for (var moment in _song.songMoments) {
-      sb.write(
-        '  ${moment.momentNumber}: grid: ${_lyricsTable.songMomentNumberToGridRow(moment.momentNumber)}'
-        ', location: ${moment.chordSectionLocation}'
-        ', ${moment.measure}\n',
-      );
-    }
-    return sb.toString();
-  }
+  // String _songMomentsToString() {
+  //   StringBuffer sb = StringBuffer();
+  //   for (var moment in _song.songMoments) {
+  //     sb.write(
+  //       '  ${moment.momentNumber}: grid: ${_lyricsTable.songMomentNumberToGridRow(moment.momentNumber)}'
+  //       ', location: ${moment.chordSectionLocation}'
+  //       ', ${moment.measure}\n',
+  //     );
+  //   }
+  //   return sb.toString();
+  // }
 
   _selectMoment(final int momentNumber) {
     var moment = _song.getSongMoment(momentNumber);
@@ -2035,6 +2041,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _scrollToLyricSection(0); //  always start manual play from the beginning
       _playDrums();
       _performPlay();
+    });
+  }
+
+  _setStatePlayHold() {
+    setState(() {
+      _performPlayHold();
     });
   }
 

@@ -392,7 +392,8 @@ class AppTextField extends StatelessWidget {
     super.key,
     this.controller,
     this.focusNode,
-    required this.onChanged,
+    this.onChanged,
+    this.onSubmitted,
     this.hintText,
     this.style,
     this.fontSize, //  fixme: overridden by non-null style above
@@ -402,7 +403,7 @@ class AppTextField extends StatelessWidget {
     this.maxLines,
     this.border,
     this.width = 200,
-  }) : onSubmitted = null;
+  });
 
   const AppTextField.onSubmitted({
     super.key,
@@ -447,7 +448,7 @@ class AppTextField extends StatelessWidget {
           ),
           style: style ?? generateAppTextFieldStyle(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.normal),
           //(fontSize: fontSize, fontWeight: fontWeight ?? FontWeight.bold),
-          autofocus: true,
+          autofocus: false,
           maxLength: null,
           minLines: minLines,
           maxLines: maxLines ?? minLines,

@@ -22,6 +22,7 @@ import 'package:bsteele_music_lib/songs/song.dart';
 import 'package:bsteele_music_lib/songs/song_base.dart';
 import 'package:bsteele_music_lib/songs/song_moment.dart';
 import 'package:bsteele_music_lib/songs/song_update.dart';
+import 'package:bsteele_music_lib/util/app_util.dart';
 import 'package:bsteele_music_lib/util/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -796,18 +797,16 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
           tooltip: _appOptions.toolTips ? 'Play the song.$_playStopPauseHints' : null,
           enabled: !_songUpdateService.isFollowing,
         ),
-        //  hide the pause unless we are in play
-        if (songUpdateState == SongUpdateState.playing || songUpdateState == SongUpdateState.pause)
-          ButtonSegment<SongUpdateState>(
-            value: SongUpdateState.pause,
-            icon: appIcon(
-              Icons.pause,
-              size: 1.75 * _fontSize,
-              color: songUpdateState == SongUpdateState.pause ? Colors.red : Colors.white,
-            ),
-            tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
-            enabled: !_songUpdateService.isFollowing,
+        ButtonSegment<SongUpdateState>(
+          value: SongUpdateState.pause,
+          icon: appIcon(
+            Icons.pause,
+            size: 1.75 * _fontSize,
+            color: songUpdateState == SongUpdateState.pause ? Colors.red : Colors.white,
           ),
+          tooltip: _appOptions.toolTips ? 'Pause the playing.$_playStopPauseHints' : null,
+          enabled: !_songUpdateService.isFollowing,
+        ),
       ],
       selected: <SongUpdateState>{songUpdateState},
       onSelectionChanged: (Set<SongUpdateState> newSelection) {
@@ -892,23 +891,21 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                         AppWrap(
                           children: [
                             //  song edit
-                            AppTooltip(
-                              message: songUpdateState.isPlaying
-                                  ? 'Song is playing'
-                                  : (_songUpdateService.isFollowing
-                                        ? 'Followers cannot edit.\nDisable following back on the main Options\n'
-                                              ' to allow editing.'
-                                        : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
-                              child: appIconWithLabelButton(
-                                icon: appIcon(Icons.edit),
-                                onPressed:
-                                    (!songUpdateState.isPlaying && !_songUpdateService.isFollowing && app.isEditReady)
-                                    ? () {
-                                        _navigateToEdit(context, _song);
-                                      }
-                                    : null,
+                            if (!songUpdateState.isPlaying && !_songUpdateService.isFollowing && app.isEditReady)
+                              AppTooltip(
+                                message: songUpdateState.isPlaying
+                                    ? 'Song is playing'
+                                    : (_songUpdateService.isFollowing
+                                          ? 'Followers cannot edit.\nDisable following back on the main Options\n'
+                                                ' to allow editing.'
+                                          : (app.isEditReady ? 'Edit the song' : 'Device is not edit ready')),
+                                child: appIconWithLabelButton(
+                                  icon: appIcon(Icons.edit),
+                                  onPressed: () {
+                                    _navigateToEdit(context, _song);
+                                  },
+                                ),
                               ),
-                            ),
                             AppSpace(horizontalSpace: _fontSize),
                             AppTooltip(
                               message: 'Show the player settings dialog.',
@@ -1341,24 +1338,46 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
         _tempoTap();
         return KeyEventResult.handled;
       } else if (e.logicalKey == LogicalKeyboardKey.space) {
-        switch (_songUpdateState) {
-          case SongUpdateState.idle:
-          case SongUpdateState.none:
-          case SongUpdateState.drumTempo:
-            //  start manual play
-            _setStatePlay();
-            break;
-          case SongUpdateState.playing:
-            _sectionBump(1);
-            break;
-          case SongUpdateState.playHold:
-            _rowBump(1);
-            _songMaster.resume();
-            break;
-          case SongUpdateState.pause:
-            _sectionBump(1);
-            _songMaster.resume();
-            break;
+        if (true) {
+          //  space to pause
+          switch (_songUpdateState) {
+            case SongUpdateState.idle:
+            case SongUpdateState.none:
+            case SongUpdateState.drumTempo:
+              //  start manual play
+              _setStatePause();
+              break;
+            case SongUpdateState.playing:
+              _sectionBump(1);
+              break;
+            case SongUpdateState.playHold:
+              _rowBump(1);
+              _songMaster.resume();
+              break;
+            case SongUpdateState.pause:
+              _sectionBump(1);
+              break;
+          }
+        } else {
+          switch (_songUpdateState) {
+            case SongUpdateState.idle:
+            case SongUpdateState.none:
+            case SongUpdateState.drumTempo:
+              //  start manual play
+              _setStatePlay();
+              break;
+            case SongUpdateState.playing:
+              _sectionBump(1);
+              break;
+            case SongUpdateState.playHold:
+              _rowBump(1);
+              _songMaster.resume();
+              break;
+            case SongUpdateState.pause:
+              _sectionBump(1);
+              // _songMaster.resume();
+              break;
+          }
         }
         return KeyEventResult.handled;
       } else if (
@@ -1788,32 +1807,64 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                 : const Duration(milliseconds: 500));
 
       //  local scroll
-      if (!_isScrolling) {
-        _isScrolling = true;
-        _itemScrollController
-            .scrollTo(index: row + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
-            .then((value) {
-              _isScrolling = false;
-              logger.log(
-                _logScrollAnimation,
-                'scrollTo(): post: _lastRowIndex: $row'
-                ', boxMarker: $boxMarker',
-              );
-            });
+      _itemScrollController
+          .scrollTo(index: row + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear)
+          .then((value) {
+            logger.log(
+              _logScrollAnimation,
+              'scrollTo(): post: _lastRowIndex: $row'
+              ', boxMarker: $boxMarker',
+            );
+            //
+            // var index = _lyricsTable.rowToLyricSectionIndex(row);
+            // var lastRow = _lyricsTable.lastRowInSection(row);
+            // var lyricSection = _song.lyricSections[index];
+            // var moment = _song.getSongMoment(_lyricsTable.gridRowToMomentNumber(row));
+            // var chordSectionBeatCount = moment?.chordSection.beatCount ?? 0;
+            //
+            // if (chordSectionBeatCount > 0) {
+            //   var bpm = playerSelectedBpm ?? _song.beatsPerMinute;
+            //   assert(bpm > 0);
+            //   var duration = Duration(seconds: (chordSectionBeatCount * 60 / bpm).ceil());
+            //
+            //   logger.i(
+            //     'finished scrolling to row: $row'
+            //     ', lastRow: $lastRow '
+            //     ', lyricSection: $lyricSection '
+            //     ', moment: $moment'
+            //     ', beats: $chordSectionBeatCount'
+            //     ', bpm: $bpm = ${to3(60 / bpm)} s/beat'
+            //         ', duration: $duration'
+            //   );
+            //
+            //   //  scroll to the end of the section at roughly play speed
+            //   _itemScrollController
+            //       .scrollTo(index: lastRow + 1, alignment: _scrollAlignment, duration: duration, curve: Curves.linear);
+            // }
+          });
 
-        logger.log(
-          _logScrollAnimation,
-          'scrollTo(): row: $row'
-          ', boxMarker: $boxMarker'
-          ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
-          // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
-          ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}',
-          //
-        );
-      } else {
-        logger.log(_logScrollAnimation, 'scrollTo(): request for scroll while scrolling: $row');
-      }
+      logger.log(
+        _logScrollAnimation,
+        'scrollTo(): row: $row'
+        ', boxMarker: $boxMarker'
+        ', songMoment: ${_song.getFirstSongMomentAtRow(row)}'
+        // ', _lastRowIndex: $_lastRowIndex, priorIndex: $priorIndex'
+        ', duration: $duration, rowTime: ${rowTime.toStringAsFixed(3)}',
+        //
+      );
     }
+  }
+
+  String _songMomentsToString() {
+    StringBuffer sb = StringBuffer();
+    for (var moment in _song.songMoments) {
+      sb.write(
+        '  ${moment.momentNumber}: grid: ${_lyricsTable.songMomentNumberToGridRow(moment.momentNumber)}'
+        ', location: ${moment.chordSectionLocation}'
+        ', ${moment.measure}\n',
+      );
+    }
+    return sb.toString();
   }
 
   _selectMoment(final int momentNumber) {
@@ -1984,6 +2035,12 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
       _scrollToLyricSection(0); //  always start manual play from the beginning
       _playDrums();
       _performPlay();
+    });
+  }
+
+  _setStatePause() {
+    setState(() {
+      _performPause(force: true);
     });
   }
 
@@ -2853,7 +2910,7 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
 
   ScrollablePositionedList? _songList;
   final ItemScrollController _itemScrollController = ItemScrollController();
-  bool _isScrolling = false;
+
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   int _lastRowIndex = 0;
   double minScrollOffset = 0;

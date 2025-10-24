@@ -2028,11 +2028,11 @@ class LyricsTable {
     _lyricsTextStyle = _chordTextStyle.copyWith(fontSize: _lyricsFontSizeUnscaled, fontWeight: FontWeight.normal);
   }
 
-  int songMomentNumberToGridRow(final int? rowNumber) {
-    if (rowNumber == null) {
+  int songMomentNumberToGridRow(final int? momentNumber) {
+    if (momentNumber == null) {
       return 0;
     }
-    return _song.songMomentToGridCoordinate[max(rowNumber, 0)].row;
+    return _song.songMomentToGridCoordinate[max(momentNumber, 0)].row;
   }
 
   double rowToDisplayOffset(final int? rowNumber) {
@@ -2099,6 +2099,44 @@ class LyricsTable {
       }
     }
     return 0;
+  }
+
+  int lastRowInSection(final int row) {
+    if (_cellGrid.isEmpty) {
+      return 0;
+    }
+
+    var lyricSectionIndex = 0;
+    {
+      //  find the grid row
+      var gridRow = _cellGrid.getRow(Util.intLimit(row, 0, _cellGrid.getRowCount() - 1));
+      if (gridRow == null || gridRow.isEmpty) {
+        return 0;
+      }
+
+      //  find the last grid row with the same lyric section
+
+      for (var cell in gridRow) {
+        if (cell != null && cell.lyricSectionIndex != null) {
+          lyricSectionIndex = cell.lyricSectionIndex!;
+          break;
+        }
+      }
+    }
+    int r = row + 1;
+    for (; r < _cellGrid.getRowCount(); r++) {
+      var gridRow = _cellGrid.getRow(r);
+      if (gridRow != null) {
+        for (var cell in gridRow) {
+          if (cell != null && cell.lyricSectionIndex != null) {
+            if (lyricSectionIndex != cell.lyricSectionIndex!) {
+              return r - 1;
+            }
+          }
+        }
+      }
+    }
+    return r - 1;
   }
 
   int gridRowToMomentNumber(final int row) {

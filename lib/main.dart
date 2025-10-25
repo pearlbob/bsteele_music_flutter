@@ -136,6 +136,11 @@ Add the following to /home/bob/github/bsteele_music_flutter/android/app/build.gr
         ndkVersion = "27.0.12077973"
         ...
     }
+
+
+gradle updates:
+    edit:  bsteele_music_flutter/android/gradle/wrapper/gradle-wrapper.properties
+    choose distributionUrl from:  https\://services.gradle.org/distributions
  */
 
 /*
@@ -162,6 +167,13 @@ apparently cocoapods is not from brew:
 error cocoapods not installed or not in valid state. flutter
 
 sudo gem install cocoapods
+ */
+
+/*
+if project abused by android studio:
+close intellij idea
+rm -rf .idea
+re-open project in idea
  */
 
 //  diagnostic logging enables

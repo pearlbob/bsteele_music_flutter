@@ -2462,206 +2462,147 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       //     ]),
                       //  const AppSpaceViewportWidth(),
                       //  PlayerScrollHighlight
-                      AppWrapFullWidth(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          AppTooltip(
-                            message: 'Select the highlight style while auto scrolling in play.',
-                            child: Text('Scroll style: ', style: boldStyle),
-                          ),
-                          //  off
-                          AppWrap(
-                            children: [
-                              Radio<PlayerScrollHighlight>(
-                                value: PlayerScrollHighlight.off,
-                                groupValue: _appOptions.playerScrollHighlight,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      _appOptions.playerScrollHighlight = value;
-                                      _adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              AppTooltip(
-                                message: 'No play highlight.',
-                                child: appTextButton(
-                                  'Off',
-                                  value: PlayerScrollHighlight.off,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          //  row
-                          AppWrap(
-                            children: [
-                              Radio<PlayerScrollHighlight>(
-                                value: PlayerScrollHighlight.chordRow,
-                                groupValue: _appOptions.playerScrollHighlight,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      _appOptions.playerScrollHighlight = value;
-                                      _adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              AppTooltip(
-                                message: 'Highlight the current row.',
-                                child: appTextButton(
-                                  'Row',
-                                  value: PlayerScrollHighlight.chordRow,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.playerScrollHighlight = PlayerScrollHighlight.chordRow;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          //  measure
-                          AppWrap(
-                            children: [
-                              Radio<PlayerScrollHighlight>(
-                                value: PlayerScrollHighlight.measure,
-                                groupValue: _appOptions.playerScrollHighlight,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null) {
-                                      _appOptions.playerScrollHighlight = value;
-                                      _adjustDisplay();
-                                    }
-                                  });
-                                },
-                              ),
-                              AppTooltip(
-                                message: 'Highlight the current measure.',
-                                child: appTextButton(
-                                  'Measure',
-                                  value: PlayerScrollHighlight.measure,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.playerScrollHighlight = PlayerScrollHighlight.measure;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      AppWrapFullWidth(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          AppWrap(
-                            alignment: WrapAlignment.start,
-                            children: [
-                              AppTooltip(
-                                message: 'Select how the Nashville notation is shown.',
-                                child: Text('Nashville: ', style: boldStyle, softWrap: false),
-                              ),
-                              AppTooltip(
-                                message: 'Turn Nashville notation off.',
-                                child: AppRadio<NashvilleSelection>(
-                                  text: 'Off',
-                                  value: NashvilleSelection.off,
-                                  groupValue: _appOptions.nashvilleSelection,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.nashvilleSelection = NashvilleSelection.off;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                              AppTooltip(
-                                message: 'Show both the chords and Nashville notation.',
-                                child: AppRadio<NashvilleSelection>(
-                                  text: 'both',
-                                  value: NashvilleSelection.both,
-                                  groupValue: _appOptions.nashvilleSelection,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.nashvilleSelection = NashvilleSelection.both;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                              AppTooltip(
-                                message: 'Show only the Nashville notation.',
-                                child: AppRadio<NashvilleSelection>(
-                                  text: 'only',
-                                  value: NashvilleSelection.only,
-                                  groupValue: _appOptions.nashvilleSelection,
-                                  onPressed: () {
-                                    setState(() {
-                                      _appOptions.nashvilleSelection = NashvilleSelection.only;
-                                      _adjustDisplay();
-                                    });
-                                  },
-                                  style: popupStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const AppSpace(horizontalSpace: 20),
-                          if (_appOptions.userDisplayStyle != UserDisplayStyle.singer)
-                            AppWrap(
-                              alignment: WrapAlignment.start,
+                      RadioGroup<PlayerScrollHighlight>(
+                        groupValue: _appOptions.playerScrollHighlight,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value != null) {
+                              _appOptions.playerScrollHighlight = value;
+                              _adjustDisplay();
+                            }
+                          });
+                        },
+                        child: AppWrapFullWidth(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                if (!_songUpdateService.isLeader)
-                                  AppTooltip(
-                                    message:
-                                        'For a guitar, show the capo location and\n'
-                                        'chords to match the current key.',
-                                    child: appTextButton(
-                                      'Capo',
+                                AppTooltip(
+                                  message: 'Select the highlight style while auto scrolling in play.',
+                                  child: Text('Scroll style: ', style: boldStyle),
+                                ),
+                                Flexible(
+                                  child: AppTooltip(
+                                    message: 'No play highlight.',
+                                    child: RadioListTile<PlayerScrollHighlight>(
+                                      value: PlayerScrollHighlight.off,
+                                      title: Text('Off', style: popupStyle),
+                                    ),
+                                  ),
+                                ),
+                                Flexible(
+                                  child: AppTooltip(
+                                    message: 'Highlight the current row.',
+                                    child: RadioListTile<PlayerScrollHighlight>(
+                                      value: PlayerScrollHighlight.chordRow,
+                                      title: Text('Row', style: popupStyle),
+                                    ),
+                                  ),
+                                ),
+                                Flexible(
+                                  child: AppTooltip(
+                                    message: 'Highlight the current measure.',
+                                    child: RadioListTile<PlayerScrollHighlight>(
+                                      value: PlayerScrollHighlight.measure,
+                                      title: Text('Measure', style: popupStyle),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      RadioGroup<NashvilleSelection>(
+                        groupValue: _appOptions.nashvilleSelection,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value != null) {
+                              _appOptions.nashvilleSelection = value;
+                              _adjustDisplay();
+                            }
+                          });
+                        },
+                        child: AppWrapFullWidth(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                AppTooltip(
+                                  message: 'Select how the Nashville notation is shown.',
+                                  child: Text('Nashville: ', style: boldStyle, softWrap: false),
+                                ),
+                                Flexible(
+                                  child: AppTooltip(
+                                    message: 'Turn Nashville notation off.',
+                                    child: RadioListTile<NashvilleSelection>(
+                                      title: Text('Off', style: popupStyle),
+                                      value: NashvilleSelection.off,
+                                    ),
+                                  ),
+                                ),
+                                Flexible(
+                                  child: AppTooltip(
+                                    message: 'Show both the chords and Nashville notation.',
+                                    child: RadioListTile<NashvilleSelection>(
+                                      title: Text('Both', style: popupStyle),
+                                      value: NashvilleSelection.both,
+                                    ),
+                                  ),
+                                ),
+                                Flexible(
+                                  child: AppTooltip(
+                                    message: 'Show only the Nashville notation.',
+                                    child: RadioListTile<NashvilleSelection>(
+                                      title: Text('Only', style: popupStyle),
+                                      value: NashvilleSelection.only,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
 
+                            if (_appOptions.userDisplayStyle != UserDisplayStyle.singer)
+                              AppWrap(
+                                alignment: WrapAlignment.start,
+                                children: [
+                                  if (!_songUpdateService.isLeader)
+                                    AppTooltip(
+                                      message:
+                                          'For a guitar, show the capo location and\n'
+                                          'chords to match the current key.',
+                                      child: appTextButton(
+                                        'Capo',
+                                        value: _isCapo,
+                                        style: boldStyle,
+                                        onPressed: () {
+                                          setState(() {
+                                            _isCapo = !_isCapo;
+                                            _setSelectedSongKey(_selectedSongKey);
+                                            _adjustDisplay();
+                                          });
+                                        },
+                                        //softWrap: false,
+                                      ),
+                                    ),
+                                  if (!_songUpdateService.isLeader)
+                                    appSwitch(
                                       value: _isCapo,
-                                      style: boldStyle,
-                                      onPressed: () {
+                                      onChanged: (value) {
                                         setState(() {
                                           _isCapo = !_isCapo;
                                           _setSelectedSongKey(_selectedSongKey);
                                           _adjustDisplay();
                                         });
                                       },
-                                      //softWrap: false,
                                     ),
-                                  ),
-                                if (!_songUpdateService.isLeader)
-                                  appSwitch(
-                                    value: _isCapo,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _isCapo = !_isCapo;
-                                        _setSelectedSongKey(_selectedSongKey);
-                                        _adjustDisplay();
-                                      });
-                                    },
-                                  ),
-                                if (_songUpdateService.isLeader)
-                                  Text('Capo: not available to the leader', style: popupStyle),
-                              ],
-                            ),
-                        ],
+                                  if (_songUpdateService.isLeader)
+                                    Text('Capo: not available to the leader', style: popupStyle),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                       if (!_songUpdateService.isFollowing && kIsWeb && !app.screenInfo.isTooNarrow)
                         AppWrap(
@@ -2732,41 +2673,38 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                           ],
                         ),
                       const AppSpace(),
-                      AppWrapFullWidth(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text('NinJam choice:', style: boldStyle),
-                          AppTooltip(
-                            message: 'Turn off the Ninjam aids',
-                            child: AppRadio<bool>(
-                              text: 'No NinJam aids',
-                              value: false,
-                              groupValue: _appOptions.ninJam,
-                              onPressed: () {
-                                setState(() {
-                                  _appOptions.ninJam = false;
-                                  _adjustDisplay();
-                                });
-                              },
-                              style: popupStyle,
-                            ),
-                          ),
-                          AppTooltip(
-                            message: 'Turn on the Ninjam aids',
-                            child: AppRadio<bool>(
-                              text: 'Show NinJam aids',
-                              value: true,
-                              groupValue: _appOptions.ninJam,
-                              onPressed: () {
-                                setState(() {
-                                  _appOptions.ninJam = true;
-                                  _adjustDisplay();
-                                });
-                              },
-                              style: popupStyle,
-                            ),
-                          ),
-                        ],
+                      RadioGroup<bool>(
+                        groupValue: _appOptions.ninJam,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value != null) {
+                              _appOptions.ninJam = value;
+                              _adjustDisplay();
+                            }
+                          });
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('NinJam choice:', style: boldStyle),
+                        Flexible(
+                          child:AppTooltip(
+                              message: 'Turn off the Ninjam aids',
+                              child: RadioListTile<bool>(
+                                title: Text('No NinJam aids', style: popupStyle),
+                                value: false,
+                              ),
+                            )),
+                        Flexible(
+                          child: AppTooltip(
+                              message: 'Turn on the Ninjam aids',
+                              child: RadioListTile<bool>(
+                                title: Text('Show NinJam aids', style: popupStyle),
+                                              value: true,
+                              ),
+                            )),
+                          ],
+                        ),
                       ),
                       const AppVerticalSpace(),
                       if (!app.screenInfo.isWayTooNarrow)

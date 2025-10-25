@@ -554,40 +554,6 @@ class AppRow extends StatelessWidget {
   final List<Widget> children;
 }
 
-@immutable
-class AppRadio<T> extends StatelessWidget {
-  const AppRadio({
-    super.key,
-    required this.text,
-    required this.value,
-    required this.groupValue,
-    required this.onPressed,
-    this.style,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppWrap(
-      children: [
-        Radio<T>(
-          value: value,
-          groupValue: groupValue,
-          onChanged: (value) {
-            onPressed?.call();
-          },
-        ),
-        appTextButton(text, onPressed: onPressed, style: style, value: value),
-      ],
-    );
-  }
-
-  final String text;
-  final T value;
-  final T groupValue;
-  final VoidCallback? onPressed;
-  final TextStyle? style;
-}
-
 // appRadio<T>(
 //   String text, {
 //   required AppKeyEnum appKeyEnum,

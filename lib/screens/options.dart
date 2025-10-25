@@ -47,8 +47,9 @@ class OptionsState extends State<Options> {
       }
     });
 
-    _websocketHostEditingController.text =
-        _appOptions.websocketHost == AppOptions.idleHost ? '' : _appOptions.websocketHost;
+    _websocketHostEditingController.text = _appOptions.websocketHost == AppOptions.idleHost
+        ? ''
+        : _appOptions.websocketHost;
 
     _songUpdateService.addListener(_songUpdateServiceCallback);
   }
@@ -255,19 +256,17 @@ class OptionsState extends State<Options> {
                           : (_songUpdateService.isIdle ? 'Idle' : 'Retrying ${_songUpdateService.host}')),
                       style: generateAppTextStyle(
                         fontWeight: FontWeight.bold,
-                        backgroundColor:
-                            _songUpdateService.isConnected || _songUpdateService.isIdle
-                                ? Colors.green
-                                : Colors.red[300],
+                        backgroundColor: _songUpdateService.isConnected || _songUpdateService.isIdle
+                            ? Colors.green
+                            : Colors.red[300],
                       ),
                     ),
                     const AppSpace(),
                     if (_songUpdateService.isConnected)
                       AppTooltip(
-                        message:
-                            _songUpdateService.isLeader
-                                ? 'Abdicate your leadership if you no longer want to be group leader.'
-                                : 'Only become a leader if you want to lead your followers through a song.',
+                        message: _songUpdateService.isLeader
+                            ? 'Abdicate your leadership if you no longer want to be group leader.'
+                            : 'Only become a leader if you want to lead your followers through a song.',
                         child: appButton(
                           _songUpdateService.isLeader ? 'Abdicate my leadership' : 'Make me the leader',
                           onPressed: () {
@@ -292,20 +291,18 @@ class OptionsState extends State<Options> {
                         ButtonSegment<AccidentalExpressionChoice>(
                           value: AccidentalExpressionChoice.byKey,
                           label: Text('By Key', style: buttonTextStyle()),
-                          tooltip:
-                              _appOptions.toolTips
-                                  ? 'When required, accidentals notes are expressed as a sharp or flat\n'
-                                      'based on the song\'s key.'
-                                  : null,
+                          tooltip: _appOptions.toolTips
+                              ? 'When required, accidentals notes are expressed as a sharp or flat\n'
+                                    'based on the song\'s key.'
+                              : null,
                         ),
                         ButtonSegment<AccidentalExpressionChoice>(
                           value: AccidentalExpressionChoice.easyRead,
                           label: Text('Easy Read', style: buttonTextStyle()),
-                          tooltip:
-                              _appOptions.toolTips
-                                  ? 'When required, accidental notes are expressed as an easy to read expression.\n'
-                                      'For example, A♯ will always be expressed as B♭'
-                                  : null,
+                          tooltip: _appOptions.toolTips
+                              ? 'When required, accidental notes are expressed as an easy to read expression.\n'
+                                    'For example, A♯ will always be expressed as B♭'
+                              : null,
                         ),
                       ],
                       selected: <AccidentalExpressionChoice>{_appOptions.accidentalExpressionChoice},
@@ -333,20 +330,18 @@ class OptionsState extends State<Options> {
                         ButtonSegment<bool>(
                           value: true,
                           label: Text('Reduced', style: buttonTextStyle()),
-                          tooltip:
-                              _appOptions.toolTips
-                                  ? 'Show Nashville style beats only when they are absolutely required.\n'
-                                      'This will not happen if the measure is full length.\n'
-                                      'Typically the period convention will be used.'
-                                  : null,
+                          tooltip: _appOptions.toolTips
+                              ? 'Show Nashville style beats only when they are absolutely required.\n'
+                                    'This will not happen if the measure is full length.\n'
+                                    'Typically the period convention will be used.'
+                              : null,
                         ),
                         ButtonSegment<bool>(
                           value: false,
                           label: Text('Always', style: buttonTextStyle()),
-                          tooltip:
-                              _appOptions.toolTips
-                                  ? 'Show Nashville style beats any time the beats are not a full measure.'
-                                  : null,
+                          tooltip: _appOptions.toolTips
+                              ? 'Show Nashville style beats any time the beats are not a full measure.'
+                              : null,
                         ),
                       ],
                       selected: <bool>{_appOptions.reducedNashvilleDots},
@@ -379,20 +374,18 @@ class OptionsState extends State<Options> {
                         ButtonSegment<bool>(
                           value: true,
                           label: Text('Simplified', style: buttonTextStyle()),
-                          tooltip:
-                              _appOptions.toolTips
-                                  ? 'Show chords in simplified form.\n'
-                                      'These will be an approximation of the original chords\n'
-                                      'to help beginners as they play.'
-                                  : null,
+                          tooltip: _appOptions.toolTips
+                              ? 'Show chords in simplified form.\n'
+                                    'These will be an approximation of the original chords\n'
+                                    'to help beginners as they play.'
+                              : null,
                         ),
                         ButtonSegment<bool>(
                           value: false,
                           label: Text('Original', style: buttonTextStyle()),
-                          tooltip:
-                              _appOptions.toolTips
-                                  ? 'Show chords in a simplified form or in their full complexity.'
-                                  : null,
+                          tooltip: _appOptions.toolTips
+                              ? 'Show chords in a simplified form or in their full complexity.'
+                              : null,
                         ),
                       ],
                       selected: <bool>{_appOptions.simplifiedChords},
@@ -448,17 +441,13 @@ class OptionsState extends State<Options> {
                           '     Tap on the top half to go back a section.\n'
                           'Always down: advance the section on any click or tap, anywhere',
                       child: DropdownButton<TapToAdvance>(
-                        items:
-                            TapToAdvance.values.toList().map((TapToAdvance value) {
-                              return DropdownMenuItem<TapToAdvance>(
-                                key: ValueKey(value.name),
-                                value: value,
-                                child: Text(
-                                  Util.firstToUpper(Util.camelCaseToLowercaseSpace(value.name)),
-                                  style: style,
-                                ),
-                              );
-                            }).toList(),
+                        items: TapToAdvance.values.toList().map((TapToAdvance value) {
+                          return DropdownMenuItem<TapToAdvance>(
+                            key: ValueKey(value.name),
+                            value: value,
+                            child: Text(Util.firstToUpper(Util.camelCaseToLowercaseSpace(value.name)), style: style),
+                          );
+                        }).toList(),
                         onChanged: (value) {
                           if (value != null && value != _appOptions.tapToAdvance) {
                             setState(() {
@@ -488,142 +477,121 @@ class OptionsState extends State<Options> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: viewportWidth(0.5),
                   children: [
-                    AppTooltip(
-                      message: 'Select the display style for the song.',
-                      child: Text(
-                        'Display style: ',
-                        //  style: boldStyle,
-                      ),
-                    ),
-                    //       //  pro player
-                    //       AppWrap(children: [
-                    //         Radio<UserDisplayStyle>(
-                    //           value: UserDisplayStyle.proPlayer,
-                    //           groupValue: _appOptions.userDisplayStyle,
-                    //           onChanged: (value) {
-                    //             setState(() {
-                    //               if (value != null) {
-                    //                 _appOptions.userDisplayStyle = value;
-                    //                 _adjustDisplay();
-                    //               }
-                    //             });
-                    //           },
-                    //         ),
-                    //         AppTooltip(
-                    //           message: 'Display the song using the professional player style.\n'
-                    //               'This condenses the song chords to a minimum presentation without lyrics.',
-                    //           child: appTextButton(
-                    //             'Pro',
-                    //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                    //             value: UserDisplayStyle.proPlayer,
-                    //             onPressed: () {
-                    //               setState(() {
-                    //                 _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
-                    //                 _adjustDisplay();
-                    //               });
-                    //             },
-                    //             style: popupStyle,
-                    //           ),
-                    //         ),
-                    //       ]),
-                    //       //  player
-                    //       AppWrap(children: [
-                    //         Radio<UserDisplayStyle>(
-                    //           value: UserDisplayStyle.player,
-                    //           groupValue: _appOptions.userDisplayStyle,
-                    //           onChanged: (value) {
-                    //             setState(() {
-                    //               if (value != null) {
-                    //                 _appOptions.userDisplayStyle = value;
-                    //                 _adjustDisplay();
-                    //               }
-                    //             });
-                    //           },
-                    //         ),
-                    //         AppTooltip(
-                    //           message: 'Display the song using the player style.\n'
-                    //               'This favors the chords over the lyrics,\n'
-                    //               'to the point that the lyrics maybe clipped.',
-                    //           child: appTextButton(
-                    //             'Player',
-                    //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
-                    //             value: UserDisplayStyle.player,
-                    //             onPressed: () {
-                    //               setState(() {
-                    //                 _appOptions.userDisplayStyle = UserDisplayStyle.player;
-                    //                 _adjustDisplay();
-                    //               });
-                    //             },
-                    //             style: popupStyle,
-                    //           ),
-                    //         ),
-                    //       ]),
-                    //  both
-                    AppWrap(
-                      children: [
-                        Radio<UserDisplayStyle>(
-                          value: UserDisplayStyle.both,
-                          groupValue: _appOptions.userDisplayStyle,
-                          onChanged: (value) {
-                            setState(() {
-                              if (value != null) {
-                                _appOptions.userDisplayStyle = value;
-                              }
-                            });
-                          },
-                        ),
-                        AppTooltip(
-                          message:
-                              'Display the song showing all chords and lyrics.\n'
-                              'This is the most typical display mode.',
-                          child: appTextButton(
-                            'Both Player and Singer',
-                            value: UserDisplayStyle.both,
-                            onPressed: () {
-                              setState(() {
-                                _appOptions.userDisplayStyle = UserDisplayStyle.both;
-                              });
-                            },
-                            style: style,
-                          ),
-                        ),
-                      ],
-                    ),
-                    //  high contrast
-                    AppWrap(
-                      children: [
-                        Radio<UserDisplayStyle>(
-                          value: UserDisplayStyle.highContrast,
-                          groupValue: _appOptions.userDisplayStyle,
-                          onChanged: (value) {
-                            setState(() {
-                              if (value != null) {
-                                _appOptions.userDisplayStyle = value;
-                              }
-                            });
-                          },
-                        ),
-                        AppTooltip(
-                          message: 'Display the song in high contrast.',
-                          child: appTextButton(
-                            'High Contrast',
-                            value: UserDisplayStyle.highContrast,
-                            onPressed: () {
-                              setState(() {
-                                _appOptions.userDisplayStyle = UserDisplayStyle.highContrast;
+                    RadioGroup<UserDisplayStyle>(
+                      groupValue: _appOptions.userDisplayStyle,
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _appOptions.userDisplayStyle = value;
+                            switch (value) {
+                              case UserDisplayStyle.highContrast:
                                 _appOptions.playerScrollHighlight = PlayerScrollHighlight.off;
                                 _appOptions.simplifiedChords = true;
                                 _appOptions.accidentalExpressionChoice = AccidentalExpressionChoice.easyRead;
-                              });
-                            },
-                            style: style.copyWith(
-                              color: Colors.white,
-                              backgroundColor: Colors.black,
-                              fontSize: (style.fontSize ?? appDefaultFontSize) * 2,
+                                break;
+                              default:
+                                _appOptions.simplifiedChords = false;
+                                _appOptions.accidentalExpressionChoice = AccidentalExpressionChoice.byKey;
+                                break;
+                            }
+                          });
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          AppTooltip(
+                            message: 'Select the display style for the song.',
+                            child: Text(
+                              'Display style: ',
+                              //  style: boldStyle,
                             ),
                           ),
-                        ),
-                      ],
+                          //       //  pro player
+                          //       AppWrap(children: [
+                          //         Radio<UserDisplayStyle>(
+                          //           value: UserDisplayStyle.proPlayer,
+                          //           groupValue: _appOptions.userDisplayStyle,
+                          //           onChanged: (value) {
+                          //             setState(() {
+                          //               if (value != null) {
+                          //                 _appOptions.userDisplayStyle = value;
+                          //                 _adjustDisplay();
+                          //               }
+                          //             });
+                          //           },
+                          //         ),
+                          //         AppTooltip(
+                          //           message: 'Display the song using the professional player style.\n'
+                          //               'This condenses the song chords to a minimum presentation without lyrics.',
+                          //           child: appTextButton(
+                          //             'Pro',
+                          //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                          //             value: UserDisplayStyle.proPlayer,
+                          //             onPressed: () {
+                          //               setState(() {
+                          //                 _appOptions.userDisplayStyle = UserDisplayStyle.proPlayer;
+                          //                 _adjustDisplay();
+                          //               });
+                          //             },
+                          //             style: popupStyle,
+                          //           ),
+                          //         ),
+                          //       ]),
+                          //       //  player
+                          //       AppWrap(children: [
+                          //         Radio<UserDisplayStyle>(
+                          //           value: UserDisplayStyle.player,
+                          //           groupValue: _appOptions.userDisplayStyle,
+                          //           onChanged: (value) {
+                          //             setState(() {
+                          //               if (value != null) {
+                          //                 _appOptions.userDisplayStyle = value;
+                          //                 _adjustDisplay();
+                          //               }
+                          //             });
+                          //           },
+                          //         ),
+                          //         AppTooltip(
+                          //           message: 'Display the song using the player style.\n'
+                          //               'This favors the chords over the lyrics,\n'
+                          //               'to the point that the lyrics maybe clipped.',
+                          //           child: appTextButton(
+                          //             'Player',
+                          //             appKeyEnum: AppKeyEnum.optionsUserDisplayStyle,
+                          //             value: UserDisplayStyle.player,
+                          //             onPressed: () {
+                          //               setState(() {
+                          //                 _appOptions.userDisplayStyle = UserDisplayStyle.player;
+                          //                 _adjustDisplay();
+                          //               });
+                          //             },
+                          //             style: popupStyle,
+                          //           ),
+                          //         ),
+                          //       ]),
+                          //  both
+                          //  high contrast
+                          Flexible(
+                            child: RadioListTile<UserDisplayStyle>(
+                              title: Text('Both Player and Singer', style: style),
+                              value: UserDisplayStyle.both,
+                            ),
+                          ),
+                          Flexible(
+                            child: RadioListTile<UserDisplayStyle>(
+                              title: Text(
+                                'High Contrast',
+                                style: style.copyWith(
+                                  color: Colors.white,
+                                  backgroundColor: Colors.black,
+                                  fontSize: (style.fontSize ?? appDefaultFontSize) * 2,
+                                ),
+                              ),
+                              value: UserDisplayStyle.highContrast,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     //       //  singer
                     //       AppWrap(children: [

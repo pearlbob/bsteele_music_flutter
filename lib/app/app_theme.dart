@@ -377,7 +377,7 @@ ListTile appListTile({
 Switch appSwitch({required bool value, required ValueChanged<bool> onChanged}) {
   return Switch(
     value: value,
-    activeColor: App.appBackgroundColor,
+    activeThumbColor: App.appBackgroundColor,
     inactiveThumbColor: Colors.grey,
     inactiveTrackColor: Colors.grey.shade300,
     onChanged: (value) {

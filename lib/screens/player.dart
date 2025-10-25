@@ -2676,33 +2676,35 @@ class _PlayerState extends State<Player> with RouteAware, WidgetsBindingObserver
                       RadioGroup<bool>(
                         groupValue: _appOptions.ninJam,
                         onChanged: (value) {
-                          setState(() {
-                            if (value != null) {
+                          if (value != null) {
+                            setState(() {
                               _appOptions.ninJam = value;
                               _adjustDisplay();
-                            }
-                          });
+                            });
+                          }
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('NinJam choice:', style: boldStyle),
-                        Flexible(
-                          child:AppTooltip(
-                              message: 'Turn off the Ninjam aids',
-                              child: RadioListTile<bool>(
-                                title: Text('No NinJam aids', style: popupStyle),
-                                value: false,
+                            Flexible(
+                              child: AppTooltip(
+                                message: 'Turn off the Ninjam aids',
+                                child: RadioListTile<bool>(
+                                  title: Text('No NinJam aids', style: popupStyle),
+                                  value: false,
+                                ),
                               ),
-                            )),
-                        Flexible(
-                          child: AppTooltip(
-                              message: 'Turn on the Ninjam aids',
-                              child: RadioListTile<bool>(
-                                title: Text('Show NinJam aids', style: popupStyle),
-                                              value: true,
+                            ),
+                            Flexible(
+                              child: AppTooltip(
+                                message: 'Turn on the Ninjam aids',
+                                child: RadioListTile<bool>(
+                                  title: Text('Show NinJam aids', style: popupStyle),
+                                  value: true,
+                                ),
                               ),
-                            )),
+                            ),
                           ],
                         ),
                       ),
